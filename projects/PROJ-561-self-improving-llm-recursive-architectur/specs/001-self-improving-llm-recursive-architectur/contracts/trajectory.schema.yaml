@@ -1,84 +1,143 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Trajectory Result Schema"
+$schema: http://json-schema.org/draft-07/schema#
+title: Trajectory Summary Schema
+description: Schema for results/trajectory.json containing aggregated refinement cycle data.
 type: object
+required:
+  - cycles_completed
+  - baseline_metrics
+  - trajectory_data
+  - linear_regression
+  - trade_off_metrics
+  - capacity_analysis
 properties:
-  cycles:
+  cycles_completed:
+    type: integer
+    minimum: 0
+    maximum: 3
+    description: Number of cycles successfully completed.
+  baseline_metrics:
+    type: object
+    description: Performance metrics from Cycle 0 (pre-modification).
+    required:
+      - GSM8K
+      - ARC-Challenge
+      - BoolQ
+    properties:
+      GSM8K:
+        type: number
+        description: Accuracy on GSM8K subset.
+      ARC-Challenge:
+        type: number
+        description: Accuracy on ARC-Challenge subset.
+      BoolQ:
+        type: number
+        description: Expected Calibration Error (ECE) on BoolQ subset.
+  trajectory_data:
     type: array
+    description: List of data for each cycle.
     items:
       type: object
+      required:
+        - cycle_number
+        - parameter_count
+        - modification_type
+        - training_time_seconds
+        - flops
+        - success
+        - is_control_cycle
       properties:
         cycle_number:
           type: integer
-          minimum: 0
-        pre_modification_params:
+          minimum: 1
+        parameter_count:
           type: integer
-          minimum: 0
-        post_modification_params:
-          type: integer
-          minimum: 0
-        architecture_modification:
+          description: Total parameters after modification.
+        modification_type:
           type: string
-        training_duration:
+          description: Description of the architectural change.
+        training_time_seconds:
           type: number
-          minimum: 0
         flops:
           type: number
-          minimum: 0
-        evaluation_results:
+        success:
+          type: boolean
+        is_control_cycle:
+          type: boolean
+          description: True if this was a random modification control.
+        metrics:
           type: array
           items:
             type: object
-            properties:
-              benchmark_name:
-                type: string
-                enum: ["Wikitext-2"]
-              ppl:
-                type: number
-              sample_size:
-                type: integer
-              p_value_vs_predecessor:
-                type: number
-                nullable: true
             required:
-              - benchmark_name
-              - ppl
-              - sample_size
-        success_status:
-          type: boolean
-        failure_reason:
-          type: string
-          nullable: true
-      required:
-        - cycle_number
-        - pre_modification_params
-        - post_modification_params
-        - evaluation_results
-        - success_status
-  trend_direction:
+              - benchmark
+              - value
+              - p_value
+            properties:
+              benchmark:
+                type: string
+                enum:
+                  - GSM8K
+                  - ARC-Challenge
+                  - BoolQ
+              value:
+                type: number
+              p_value:
+                type: ["number", "null"]
+                description: P-value vs predecessor. Null for Cycle 0.
+  linear_regression:
     type: object
-    properties:
-      direction:
-        type: string
-        enum: ["improving", "declining", "flat", "inconclusive"]
+    description: Results of linear fit to performance trajectory.
     required:
-      - direction
-  cost_effectiveness:
+      - slope
+      - intercept
+      - r_squared
+      - trend_direction
+    properties:
+      slope:
+        type: ["number", "null"]
+        description: Slope of the regression line. Null if fit failed.
+      intercept:
+        type: ["number", "null"]
+      r_squared:
+        type: ["number", "null"]
+      trend_direction:
+        type: string
+        enum:
+          - improving
+          - declining
+          - flat
+          - inconclusive
+  trade_off_metrics:
     type: array
+    description: Cost-effectiveness metrics per cycle.
     items:
       type: object
-      properties:
-        cycle_number:
-          type: integer
-        ppl_per_flop:
-          type: number
-        ppl_per_hour:
-          type: number
       required:
-        - cycle_number
-        - ppl_per_flop
-        - ppl_per_hour
-required:
-  - cycles
-  - trend_direction
-  - cost_effectiveness
-additionalProperties: false
+        - cycle
+        - perf_per_flop
+        - perf_per_hour
+      properties:
+        cycle:
+          type: integer
+        perf_per_flop:
+          type: number
+          description: Accuracy / FLOPs (scaled 1e-12).
+        perf_per_hour:
+          type: number
+          description: Accuracy / training_hours.
+  capacity_analysis:
+    type: object
+    description: Analysis of parameter count vs performance.
+    properties:
+      correlation_params_perf:
+        type: number
+        description: Correlation coefficient between parameter count and performance.
+      control_cycle_result:
+        type: object
+        description: Result of the random modification control cycle.
+        properties:
+          cycle_number:
+            type: integer
+          performance_change:
+            type: number
+            description: Performance change in the control cycle.

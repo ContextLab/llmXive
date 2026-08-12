@@ -1,86 +1,83 @@
 # Research: Self-improving LLM: recursive architecture refinement and re‑training
 
-## Summary
+## 1. Problem Statement & Hypothesis
 
-This research investigates the feasibility of recursive self-improvement in LLMs by allowing a base model (GPT-2 124M) to propose architectural modifications, which are then validated, re-trained, and evaluated. The study focuses on three cycles of refinement, tracking performance on **Perplexity (PPL)** on **Wikitext-2** (replacing reasoning benchmarks due to statistical validity concerns). A **Control Arm** with random modifications is included to disentangle the effect of the model's proposal logic from general parameter increases.
+**Problem**: Can a language model recursively improve its own performance by proposing and applying architectural modifications, re-training on a small subset of data, and validating against held-out benchmarks?
 
-## Dataset Strategy
+**Hypothesis**: A GPT-2 124M model can propose valid architectural modifications that, after re-training, yield statistically significant improvements in reasoning accuracy (GSM8K, ARC) and calibration (BoolQ) for at least one cycle, though gains may plateau or degrade in subsequent cycles due to over-parameterization or catastrophic forgetting.
 
-### Verified Datasets
+**Control Hypothesis**: Improvements are driven by increased parameter count (capacity) rather than the model's "intelligence" in proposing topology. A control group with random parameter increases will be used to isolate this effect.
 
-The following datasets are used, sourced exclusively from verified URLs provided in the project context:
+## 2. Dataset Strategy
 
-| Dataset | Purpose | Verified Source URL | Loading Strategy |
-|---------|---------|---------------------|------------------|
-| **OpenWebText** | Training corpus for fine-tuning | ` | Streamed via `datasets.load_dataset(..., streaming=True)` to stay within RAM limits. A fixed seed random sample is used for training. |
-| **Wikitext-2** | Evaluation benchmark (PPL) | ` | Loaded fully and sampled to [deferred] rows for evaluation. |
-| **AllenAI ARC** | (Removed from primary metrics) | ` | Not used in primary analysis due to invalidity for base GPT-2. |
+The project relies on four verified datasets. All are accessed via the Hugging Face `datasets` library or direct parquet URLs to ensure reproducibility and programmatic access on CI runners.
 
-### Data Availability & Feasibility
+| Dataset | Purpose | Source / Verified URL | Access Method | Notes |
+|:--- |:--- |:--- |:--- |:--- |
+| **OpenWebText** | Training corpus | ` | `datasets.load_dataset(..., streaming=True)` | Used for fine-tuning. Streaming prevents RAM overflow. |
+| **GSM8K** | Reasoning Benchmark | ` | `datasets.load_dataset('openai/gsm8k', 'main', split='test')` | Subset of 100 samples used for evaluation (FR-005). |
+| **ARC-Challenge** | Reasoning Benchmark | ` | `datasets.load_dataset('allenai/ai2_arc', 'ARC-Challenge', split='test')` | Subset of 100 samples used for evaluation (FR-005). **Canonical Source**. |
+| **BoolQ** | Calibration Benchmark | `https://huggingface.co/datasets/google-research-datasets/boolq/resolve/main/boolq-test.jsonl` | `datasets.load_dataset('google-research-datasets/boolq', split='test')` | Subset of 1000 samples used for ECE calculation (FR-005). **Increased N for power**. |
 
-- **OpenWebText**: The dataset is large. The plan uses **streaming** to avoid loading the full dataset into memory. A fixed seed random sample of **[deferred] samples** is selected for training to ensure reproducibility and fit within the 6-hour time budget.
-- **Wikitext-2**: Small enough to be fully loaded. [deferred] samples are used for evaluation to ensure statistical stability of PPL.
-- **Access**: All datasets are open and do not require authentication or data-use agreements.
+**Dataset Fit Analysis**:
+- **OpenWebText**: Contains the raw text required for language modeling fine-tuning. The streaming approach ensures we can process the full corpus without exceeding the 7 GB RAM limit.
+- **GSM8K/ARC/BoolQ**: These are standard OOD (Out-of-Distribution) benchmarks. They are **not** used in training, ensuring independence (Constitution VII).
+- **No Access-Gated Data**: All datasets are publicly available without credentials, satisfying the feasibility constraint for GitHub Actions.
 
-## Methodology
+**Baseline Capability Check**:
+Before starting the refinement loop, the baseline GPT-2 124M model will be evaluated. If it achieves near-random performance (<10% accuracy on GSM8K/ARC), the experiment will proceed with the caveat that "improvement" is measured against a very low baseline, or the plan will switch to a zero-shot prompting baseline for comparison.
 
-### 1. Model Loading & Baseline
-- **Base Model**: GPT-2 124M (`facebook/gpt2`).
-- **Device**: CPU only (`device='cpu'`).
-- **Baseline**: Evaluate the base model on Wikitext-2 to establish Cycle 0 PPL.
+## 3. Methodological Rigor
 
-### 2. Refinement Cycle (Iterated 3 times)
-1. **Proposal**: The model is prompted to suggest a modification (e.g., "increase hidden size by [deferred]"). The prompt includes the current architecture and baseline performance.
-2. **Proposal Quality Check**: The model is evaluated on a held-out validation set to estimate if the proposal is likely to help. If the model cannot demonstrate a "reasoning" capability to justify the change, the proposal is rejected or flagged.
-3. **Validation (Oracle)**: The proposal is passed to an external oracle (`pipeline/validator.py`) which checks:
- - Parameter count increase ≤ 30% (FR-003, FR-019).
- - Distinctness from previous modifications (FR-002, FR-020).
- - Feasibility (e.g., valid layer types).
- - If invalid, the model is re-prompted (with a limited number of retries).
-4. **Modification**: The architecture is modified programmatically.
-5. **Training**:
- - Dataset: Streamed OpenWebText subset ([deferred] samples).
- - Hyperparameters: AdamW, LR=5e-5, Batch=4, 1 Epoch.
- - Retry: Up to 2 retries on failure (FR-012).
-6. **Evaluation**:
- - Wikitext-2 ([deferred] samples): Perplexity (PPL).
- - FLOPs: Calculated via `torch.profiler`.
-7. **Statistical Analysis**: Bootstrap confidence intervals (1,000 resamples) against the previous cycle (FR-006).
-8. **Termination Check**: If performance degrades ≥5% from baseline, stop early (FR-015).
+### 3.1 Statistical Testing (FR-006, SC-001, SC-002)
+To determine if performance changes are significant, the plan employs **paired bootstrap resampling**:
+- **Method**: Resample the test set (with replacement) $N$ times (where $N=1000$).
+- **Statistic**: Difference in accuracy/ECE between Cycle $i$ and Cycle $i-1$.
+- **Threshold**: $\alpha = 0.05$. A result is significant only if $p < 0.05$ (strictly less).
+- **Correction**: Since multiple benchmarks are tested per cycle, a **Bonferroni correction** will be applied to control the Family-Wise Error Rate (FWER).
+- **Reporting**: In addition to p-values, **effect sizes (Cohen's d)** and **95% confidence intervals** will be reported to address the low power of small samples (N=100).
 
-### 3. Control Arm
-- A parallel track where random architectural perturbations (of similar magnitude) are applied.
-- This allows the study to disentangle the effect of the "model's proposal logic" from the general effect of "parameter increase".
+### 3.2 Power & Sample Size
+- **Training Data**: The subset size is initially [deferred] but will be capped at a manageable scale appropriate for the study. If training time exceeds 2 hours per cycle (CPU constraint), the subset will be reduced to a smaller, computationally manageable size. to ensure completion within the -hour budget.
+- **Evaluation Data**:
+ - GSM8K/ARC: 100 samples. **Limitation**: Power to detect a 2-5% shift is low (<40%). Results will be interpreted with caution, emphasizing confidence intervals.
+ - BoolQ: [deferred] samples. Increased to improve calibration stability and statistical power for ECE.
 
-### 4. Trajectory & Trade-off Analysis
-- **Trend**: Use a heuristic: if PPL decreases in 2 consecutive cycles, trend is "improving"; if increases in 2, "declining"; else "flat". (Linear regression is invalid for N=3).
-- **Cost-Effectiveness**: Compute PPL/FLOPs and PPL/hour for each cycle.
+### 3.3 Causal Inference & Validity
+- **Observational Nature**: The "improvement" is correlational within the experiment. We cannot claim the model *caused* the improvement in a general sense, only that the specific modification led to a change in the specific benchmark.
+- **Control Group**: A **Random Modification Control** will be implemented. In one cycle, architectural changes (parameter count increases) will be applied randomly rather than by the model's proposal. This isolates the effect of "capacity gain" from "architectural intelligence."
+- **Capacity Normalization**: The linear regression analysis will include "parameter count" as a covariate to disentangle its effect from the specific architectural topology.
+- **Instrument Validity**: GSM8K and ARC are widely accepted benchmarks for reasoning. BoolQ is a standard binary QA task. The plan cites validation literature for these datasets in the final paper.
+- **Collinearity**: Architectural modifications (e.g., increasing hidden size) are inherently correlated with parameter count. The plan will not claim "independent effects" of architecture vs. capacity but will report the trade-off explicitly.
 
-## Statistical Rigor
+### 3.4 Separation of Logic (Constitution VII)
+- **Generative Logic**: The model proposes a change (e.g., "increase layers").
+- **Verification Logic**: An external oracle (hardcoded rules) validates the change against constraints (parameter count, distinctness).
+- **Evaluation Logic**: Benchmarks run on held-out data.
+- **No Circular Validation**: The evaluation data is never seen by the generative model during the proposal phase.
 
-- **Multiple Comparisons**: Since we are comparing successive cycles, we will apply a **Bonferroni correction** or **Holm-Bonferroni** to the significance threshold (α = 0.05 / 3 ≈ 0.0167) to control family-wise error rate.
-- **Power Analysis**: The sample sizes ([deferred] training, [deferred] test) are small. We acknowledge a **power limitation**. The bootstrap method is chosen specifically for its ability to estimate confidence intervals without assuming a normal distribution. However, the ability to detect small effect sizes is limited.
-- **Causal Inference**: This is an **observational** study of the model's self-modification process. We cannot claim causality in the strict sense. Claims will be framed as **associational**. The **Control Arm** helps disentangle the proposal logic from general parameter increases.
-- **Measurement Validity**:
- - **Wikitext-2 PPL**: Standard metric for language modeling; widely validated.
- - **FLOPs**: Calculated via standard `torch.profiler` methods.
-- **Collinearity**: Architectural parameters are often correlated. We will report them descriptively and acknowledge that independent effects cannot be fully disentangled.
+## 4. Compute Feasibility (CPU-First)
 
-## Compute Feasibility
+### 4.1 CPU Strategy & Fallback
+- **Model**: GPT (a medium-scale language model).
+- **Training**: 1 epoch, batch size 4, AdamW.
+- **Hardware**: GitHub Actions (multi-core CPU, several GB RAM).
+- **Feasibility**: GPT with a smaller parameter count fits in ~500MB VRAM/RAM.
+- **Time Budget**: 12 hours total for 3 cycles.
+- **Fallback Strategy**: If training a cycle exceeds 2 hours (estimated), the training subset size will be automatically reduced from the initial [deferred] value to **[deferred] samples**. This ensures the experiment completes within the time budget, even if statistical power for training is reduced.
+- **Streaming**: Data is streamed to avoid loading the full large-scale OpenWebText corpus into RAM.
 
-- **CPU-First**: The entire pipeline is designed for CPU execution.
- - **Model**: GPT-2 124M is small enough for CPU inference and training with batch size 4.
- - **Training**: 1 epoch on [deferred] samples should complete within 1-2 hours per cycle on 2 CPU cores.
- - **Evaluation**: Inference on [deferred] samples is trivial on CPU.
-- **GPU Escape Hatch**: Not required for this specific scope.
-- **Memory**: Streaming OpenWebText ensures peak RAM usage remains within manageable limits.
+### 4.2 GPU Escape Hatch (Not Required)
+- The plan is designed to run entirely on CPU. No CUDA or 8-bit quantization is required for GPT-2 124M. If the training time exceeds limits, the strategy is to **reduce the training subset size**, not to offload to a GPU (which is not available on the free tier).
 
-## Decision/Rationale
+## 5. Risk Analysis
 
-- **Why CPU?**: The spec explicitly targets GitHub Actions free-tier. GPT-2 124M is the smallest viable model for this experiment.
-- **Why Streaming?**: OpenWebText is too large to fit in RAM.
-- **Why Bootstrap?**: Small test sets make parametric tests unreliable.
-- **Why External Oracle?**: To satisfy Constitution Principle VII and prevent circular validation.
-- **Why Wikitext-2?**: PPL is the only statistically valid metric for a base GPT-2 model on this training objective. Accuracy on reasoning tasks is indistinguishable from zero.
-- **Why Control Arm?**: To disentangle the "self-improving" claim from general parameter increase effects.
-- **Why Heuristic Trend?**: Linear regression is invalid for N=3.
+| Risk | Impact | Mitigation |
+|:--- |:--- |:--- |
+| **Training Failure** | Cycle aborts. | Retry up to 2 times (FR-012). If failed, log and proceed to next cycle (FR-007). |
+| **Performance Degradation** | >5% drop from baseline. | Early termination (FR-015). |
+| **API Rate Limits** | Data download fails. | Exponential backoff (FR-011). |
+| **RAM Overflow** | OOM crash. | Use `streaming=True` for datasets; limit batch size. |
+| **Modification Rejection** | Model proposes invalid change. | Oracle rejects and prompts for new proposal (FR-003, FR-020). |
+| **Low Statistical Power** | Inconclusive results. | Report effect sizes and confidence intervals; increase BoolQ sample size to a sufficient magnitude for robust statistical analysis. |
+| **Time Exceeded** | Job fails. | Reduce training subset to [deferred] samples if cycle time > 2h. |

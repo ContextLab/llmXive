@@ -9,7 +9,7 @@
 
 ### User Story 1 - Execute single refinement cycle with baseline comparison (Priority: P1)
 
-The researcher MUST be able to download a base model (GPT 124M), apply a single architectural modification proposed by the model (validated by an external oracle), re-train on a defined OpenWebText subset ([deferred] samples), and evaluate performance on GSM8K, ARC-Challenge, and BoolQ benchmarks. This establishes the fundamental pipeline before iterating.
+The researcher MUST be able to download a base model (GPT small), apply a single architectural modification proposed by the model (validated by an external oracle), re-train on a defined OpenWebText subset ([deferred] samples), and evaluate performance on GSM8K, ARC-Challenge, and BoolQ benchmarks. This establishes the fundamental pipeline before iterating.
 
 **Why this priority**: Without a working single cycle, no recursive behavior can be studied. This is the minimum viable experiment that delivers the core research question answer for one iteration.
 
@@ -17,7 +17,7 @@ The researcher MUST be able to download a base model (GPT 124M), apply a single 
 
 **Acceptance Scenarios**:
 
-1. **Given** a GPT-2 124M checkpoint is available on HuggingFace, **When** the pipeline downloads it, prompts the model to propose a modification (validated by FR-021), applies it, and re-trains for an epoch on a subset of [deferred] samples from OpenWebText, **Then** the modified model MUST be evaluated on GSMK (subset of 100 samples), ARC-Challenge (subset of samples), and BoolQ (subset of samples) within 2 hours on a GitHub Actions free-tier runner (ubuntu-latest).
+1. **Given** a GPT-2 124M checkpoint is available on HuggingFace, **When** the pipeline downloads it, prompts the model to propose a modification (validated by FR-021), applies it, and re-trains for an epoch on a subset of [deferred] samples from OpenWebText, **Then** the modified model MUST be evaluated on GSMK (subset of samples), ARC-Challenge (subset of samples), and BoolQ (subset of samples) within 2 hours on a GitHub Actions free-tier runner (ubuntu-latest).
 2. **Given** baseline metrics are recorded before modification, **When** the modified model completes training, **Then** the system MUST output accuracy for GSM8K, ARC-Challenge, and ECE for BoolQ with ≥3 decimal precision, derived from the specified sample sizes.
 3. **Given** paired bootstrap statistical testing is configured, **When** baseline and post-modification metrics are available, **Then** the system MUST compute p-values for performance differences with significance threshold α = 0.05, bootstrapping over test set samples with a sufficient number of resamples.
 
@@ -73,10 +73,10 @@ The researcher MUST be able to compute cost-effectiveness metrics (performance p
 - **FR-002**: System MUST apply exactly one valid architectural modification (type and magnitude determined by the model's self-prompted suggestion, distinct in type or magnitude from all previous cycles) per cycle attempt. Distinctness is defined as 'Hamming distance ≥ 1 on the architecture config vector or >5% change in parameter count' (See US-2).
 - **FR-003**: System MUST constrain total parameter count increase to ≤30% above original GPT-2 baseline across all cycles. This check MUST occur BEFORE applying the modification. System MUST reject if >30%. Justification: Common practice in parameter-efficient fine-tuning to avoid over-parameterization (See US-2).
 - **FR-004**: System MUST re-train each modified model for exactly 1 epoch on OpenWebText subset ([deferred] samples) with AdamW optimizer, batch size 4, learning rate 5e-5. The system MUST perform a 'Training Configuration' step that validates these hyperparameters before training (See US-1).
-- **FR-005**: System MUST evaluate each cycle on GSMK (subset of 100 samples, metric: reasoning accuracy), ARC-Challenge (subset of 100 samples, metric: reasoning accuracy), and BoolQ (subset of 500 samples, metric: calibration ECE). The system MUST perform an 'Evaluation Phase' that executes these benchmarks in the order: GSM8K, ARC-Challenge, BoolQ (See US-1).
+- **FR-005**: System MUST evaluate each cycle on GSMK (subset of samples, metric: reasoning accuracy), ARC-Challenge (subset of representative samples, metric: reasoning accuracy), and BoolQ (subset of a representative sample, metric: calibration ECE). The system MUST perform an 'Evaluation Phase' that executes these benchmarks in the order: GSM8K, ARC-Challenge, BoolQ (See US-1).
 - **FR-006**: System MUST perform paired bootstrap statistical comparison between successive cycles with significance threshold α = 0.05, using a sufficient number of resamples with replacement. The system MUST execute this test in a dedicated 'Statistical Analysis' step (See US-1).
 - **FR-007**: System MUST repeat the modify-train-evaluate loop for exactly three attempted cycles. A 'failed cycle' (where training failed 2 times) counts as one of the three attempted cycles (See US-2).
-- **FR-008**: System MUST record FLOPs and parameter count for each cycle to enable cost-effectiveness analysis. FLOPs MUST be calculated via torch.profiler (or equivalent) and recorded with 2 decimal precision (See US-3).
+- **FR-008**: System MUST record FLOPs and parameter count for each cycle to enable cost-effectiveness analysis. FLOPs MUST be calculated via torch.profiler (or equivalent) and recorded with appropriate numerical precision. (See US-3).
 - **FR-009**: System MUST fit a linear regression model to performance trajectories and report the slope, intercept, R-squared, and trend direction (improving/declining/flat). If the linear fit fails (e.g., NaN slope), report 'N/A' for slope and 'inconclusive' for trend (See US-2).
 - **FR-010**: System MUST compute performance-per-FLOP (accuracy / FLOPs) and performance-per-hour (accuracy / training_hours) metrics for each cycle. Units: accuracy per FLOP (1e-12), accuracy per hour (1/h) (See US-3).
 - **FR-011**: System MUST implement exponential backoff for HuggingFace API calls with initial wait = 30 seconds and max retries = 5. The system MUST fail the job if all retries are exhausted (See US-1).
@@ -115,7 +115,7 @@ The researcher MUST be able to compute cost-effectiveness metrics (performance p
 - HuggingFace Datasets (OpenWebText subset, GSM8K, ARC-Challenge, BoolQ) will remain publicly accessible without authentication requirements during the execution window.
 - PyTorch CPU backend with gradient checkpointing and batch size 4 will support GPT-2 124M model loading and training within the 7 GB RAM constraint (See FR-001, FR-004).
 - The GitHub Actions free-tier runner will provide the specified multiple CPU cores, ~7 GB RAM, and Adequate disk space (See FR-001, FR-004).
-- Paired bootstrap testing with 1,000 resamples will complete within the remaining time budget (See FR-006).
+- Paired bootstrap testing with a sufficient number of resamples will complete within the remaining time budget (See FR-006).
 - The modification magnitude is determined by the model's self-prompted suggestion, validated by an external oracle (FR-021), not a fixed percentage or random integer.
 - OpenWebText subset of [deferred] samples provides adequate training signal for detecting performance changes after 1 epoch of fine-tuning (See FR-004).
 - The improvement criterion is fixed (performance on held-out OOD benchmarks) and NOT subject to modification during the 3-cycle experiment.

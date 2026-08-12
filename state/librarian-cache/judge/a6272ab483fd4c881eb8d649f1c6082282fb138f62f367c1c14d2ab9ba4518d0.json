@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1503.05146",
+  "judged_at": "2026-08-12T06:41:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical power analysis of openly available fmri datasets statistics",
+  "rationale": "The paper addresses electrical engineering concepts (impedance of power cables) and uses the term \"power\" in the context of electrical energy, which is a distinct construct sharing only a homonym keyword with the user's question about \"statistical power\" in fMRI research. This falls under the rejection rule for distinct constructs sharing only homonym keywords and is entirely off-domain.",
+  "relevant": false
+}

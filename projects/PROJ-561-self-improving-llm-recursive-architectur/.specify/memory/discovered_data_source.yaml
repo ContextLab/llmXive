@@ -1,12 +1,23 @@
-status: none
-intent: HuggingFace datasets library OpenWebText GSM8K ARC-Challenge BoolQ Wikitext-2
-  python package dataset
-required_fields:
-- text
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+
+  ds = load_dataset(''openai/gsm8k'', ''main'', split=''train'')
+
+  print(f"RECORDS={len(ds)}")
+
+  print(f"FIELDS={'',''.join(ds.column_names)}")'
+record_count: 7473
+sample_fields:
 - question
 - answer
-- choices
-- passage
-cache_key: 6998f7cf31a268b111d634f8d20608bb4a1a62c8948c3acab9a0b849dfd8c4f6
-searched_at: '2026-08-11T04:19:09.364396+00:00'
-retry_count: 1
+field_coverage: 0.75
+required_fields:
+- 'OpenWebText: text'
+- 'GSM8K: question, answer'
+- 'ARC-Challenge: question, choices, answer'
+- 'BoolQ: passage, question, answer'
+intent: download OpenWebText GSM8K ARC-Challenge BoolQ datasets python package dataset
+cache_key: 57a9992332a32e611b3e334bdd53530d9859f5eeaf7740ea89e3befb3bc2292d

@@ -1,71 +1,65 @@
 # Quickstart: Self-improving LLM: recursive architecture refinement and re‑training
 
-## Prerequisites
+## 1. Prerequisites
 
-- Python 3.10+
+- Python +
+- pip
 - Git
-- Access to a GitHub Actions runner (or local machine with sufficient RAM)
 
-## Installation
+## 2. Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-561-self-improving-llm-recursive-architectur
-    ```
+1. **Clone the repository** (if not already done):
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-561-self-improving-llm-recursive-architectur
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## Running the Pipeline
+## 3. Configuration
 
-### Single Cycle (Baseline + 1 Refinement)
+Edit `code/config.py` if you need to adjust:
+- `TRAINING_SAMPLES`: Number of samples to use from OpenWebText (default: [deferred], fallback to 1000 if time-constrained).
+- `MAX_CYCLES`: Number of refinement cycles (default: 3).
+- `BENCHMARK_SUBSETS`: Size of evaluation subsets (GSM8K: 100, ARC: 100, BoolQ: 1000).
 
-To run a single refinement cycle (Cycle 1) for testing:
+## 4. Running the Pipeline
 
+Execute the main script:
 ```bash
-python code/main.py --cycles 1
+python code/main.py
 ```
 
-### Full Experiment (3 Cycles)
+**What happens**:
+1. Downloads and checksums datasets (OpenWebText, GSM8K, ARC, BoolQ).
+2. Loads the GPT 124M baseline.
+3. Runs up to 3 refinement cycles:
+   - Prompts model for modification.
+   - Validates with Oracle and Distinctness Checker.
+   - Retrains on CPU (with fallback to 1k samples if time-constrained).
+   - Evaluates on benchmarks.
+   - Logs results.
+4. Generates `results/trajectory.json` with performance trends, trade-off metrics, and capacity analysis.
 
-To run the full experiment (3 cycles, with early termination if degradation detected):
+## 5. Verifying Results
 
-```bash
-python code/main.py --cycles 3
-```
+Check the output files:
+- **Logs**: `results/logs/cycle_1.log`, `results/logs/cycle_2.log`, etc.
+- **Trajectory**: `results/trajectory.json` (contains regression slope, R-squared, trend direction, and capacity analysis).
+- **Models**: `data/processed/cycle_1_checkpoint.pt` (if successful).
 
-### Configuration
+## 6. Troubleshooting
 
-Edit `code/config.py` to adjust:
-- `TRAINING_SAMPLES`: Number of OpenWebText samples (default: 5000).
-- `MAX_PARAM_INCREASE`: Max parameter increase percentage (default: 30).
-- `SIGNIFICANCE_THRESHOLD`: Alpha for bootstrap (default: 0.05).
-
-## Output
-
-- **Results**: `results/trajectory.json` contains the full performance trajectory.
-- **Logs**: `results/logs/` contains detailed logs for each cycle.
-- **Models**: `results/models/` contains checkpoints for each cycle.
-
-## Verification
-
-To verify the results:
-
-1.  Check `results/trajectory.json` for the `trend_direction`.
-2.  Verify that `p_value_vs_predecessor` is < 0.05 (or corrected threshold) for claimed improvements.
-3.  Ensure `cost_effectiveness` metrics are recorded.
-
-## Troubleshooting
-
-- **Memory Error**: Reduce `TRAINING_SAMPLES` or ensure streaming is enabled.
-- **Training Failure**: The pipeline automatically retries up to 2 times. If it fails, check `results/logs/cycle_N.log`.
-- **API Rate Limit**: The pipeline implements exponential backoff. If it fails, check internet connectivity.
+- **OOM Error**: Reduce `TRAINING_SAMPLES` or `BATCH_SIZE` in `config.py`.
+- **API Rate Limit**: The script automatically implements exponential backoff (FR-011). If it fails, wait and retry.
+- **Modification Rejection**: If the model proposes an invalid change, the script will prompt for a new one automatically.
+- **Time Exceeded**: The script will automatically reduce the training subset to [deferred] samples to ensure completion.

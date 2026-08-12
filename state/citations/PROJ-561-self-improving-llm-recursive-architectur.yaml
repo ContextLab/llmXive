@@ -1,4 +1,4 @@
-- artifact_hash: 8c2936543a11de4f21636167f8a0db42aaab49e30d8fedf33290a2ea4f0c786b
+- artifact_hash: 45650007ed0494eab7144cb939215e01383be17dbeb8df58b4de2d15a275f3ca
   artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/research.md
   cite_id: c-001
   cited_authors: []
@@ -7,27 +7,38 @@
   kind: url
   value: https://huggingface.co/datasets/Skylion007/openwebtext/resolve/main/plain_text/train-00000-of-00080.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181f09/32c33412107782cc1f8eba9fdeddba2ca2924532272bafeb2c9aa1a6fe6f4a9c?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00080.parquet%3B+filename%3D%22train-00000-of-00080.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1786426168&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZjA5LzMyYzMzNDEyMTA3NzgyY2MxZjhlYmE5ZmRlZGRiYTJjYTI5MjQ1MzIyNzJiYWZlYjJjOWFhMWE2ZmU2ZjRhOWNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwODAucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDgwLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjQyNjE2OH19fV19&Signature=MEUCIDwZcs1bXxFllkOhZ-ZSfFVHTKVVgjpz4uNrWQz5yt3eAiEArQp4pl%7ER1y3v%7EwElbtFLXxvcvKtPZVs4sYkWdzk5ySg_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-08-11T04:29:28.095589Z'
-- artifact_hash: 8c2936543a11de4f21636167f8a0db42aaab49e30d8fedf33290a2ea4f0c786b
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181f09/32c33412107782cc1f8eba9fdeddba2ca2924532272bafeb2c9aa1a6fe6f4a9c?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00080.parquet%3B+filename%3D%22train-00000-of-00080.parquet%22%3B&Expires=1786521871&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZjA5LzMyYzMzNDEyMTA3NzgyY2MxZjhlYmE5ZmRlZGRiYTJjYTI5MjQ1MzIyNzJiYWZlYjJjOWFhMWE2ZmU2ZjRhOWNcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwODAucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDgwLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NjUyMTg3MX19fV19&Signature=MEQCID%7EPUELPBvQCmD8vd9OzQYFlDiYpY06XjkGXEtXWv3soAiBgpCKQ4WvGqD7AnuSEnlorShH465xQydWqEDmBoIG98Q__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-12T07:04:31.724792Z'
+- artifact_hash: 45650007ed0494eab7144cb939215e01383be17dbeb8df58b4de2d15a275f3ca
   artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: test-00000-of-00001.parquet
   kind: url
-  value: https://huggingface.co/datasets/Salesforce/wikitext/resolve/main/wikitext-2-raw-v1.zip`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/Salesforce/wikitext/resolve/main/wikitext-2-raw-v1.zip
-  verified_at: '2026-08-11T04:29:28.095589Z'
-- artifact_hash: 8c2936543a11de4f21636167f8a0db42aaab49e30d8fedf33290a2ea4f0c786b
+  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1786521902&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODY1MjE5MDJ9fX1dfQ__&Signature=MEQCIAnI-BPP64KQSLudDREEjhzPXBm%7EWNcRJApEk5ceHxFyAiBaD9BCn6vux-qm8yTgRuMXN0PElHhhd0Y3kPT19eMnxA__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-12T07:04:31.724792Z'
+- artifact_hash: 45650007ed0494eab7144cb939215e01383be17dbeb8df58b4de2d15a275f3ca
   artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/allenai/ai2_arc/resolve/main/ARC-Challenge/test-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181d5e/764f39190f70674ca4767bfdad2e9323c7034ee8fae714013e86dd6491d5e5a5?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&Expires=1786521902&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZDVlLzc2NGYzOTE5MGY3MDY3NGNhNDc2N2JmZGFkMmU5MzIzYzcwMzRlZThmYWU3MTQwMTNlODZkZDY0OTFkNWU1YTVcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODY1MjE5MDJ9fX1dfQ__&Signature=MEUCICIU9V3dttrvh3Nfzc-jv8mRn1TnKYAfYsPO-WxJb-1oAiEAqzmU4S-RO8Xf3DHiFWXjb62ZN0BHu7JUPqJhgfFrf7k_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-12T07:04:31.724792Z'
+- artifact_hash: 45650007ed0494eab7144cb939215e01383be17dbeb8df58b4de2d15a275f3ca
+  artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/allenai/ai2_arc/resolve/main/ai2_arc-raw-v1.zip`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/allenai/ai2_arc/resolve/main/ai2_arc-raw-v1.zip
-  verified_at: '2026-08-11T04:29:28.095589Z'
+  value: https://huggingface.co/datasets/google-research-datasets/boolq/resolve/main/boolq-test.jsonl`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/google-research-datasets/boolq/resolve/main/boolq-test.jsonl
+  verified_at: '2026-08-12T07:04:31.724792Z'

@@ -27,7 +27,7 @@
 - [ ] T000a [S] Generate `methodology_rationale.md` artifact to document the conflict between Constitution Principle VI (Pearson/McNemar) and the Spec's required methods (Point-Biserial/Spearman/Paired Permutation), providing the scientific justification for the deviation as per the plan's 'Pending Amendment Request'. This task is a prerequisite for all statistical tasks and must be completed before Phase 2.
 - [ ] T001a [P] Create project directory structure: `code/`, `code/src/`, `code/tests/`, `code/data/raw/`, `code/data/processed/`, `code/data/results/`, `specs/001-code-complexity-bug-prediction/`.
 - [X] T001b [P] Create empty skeleton files: `code/src/__init__.py`, `code/tests/__init__.py`, `code/run_pipeline.sh`, `code/requirements.txt`, `code/pyproject.toml`.
-- [ ] T001c [P] Initialize Python 3.11 virtual environment. <!-- FAILED: unspecified -->
+- [ ] T001c [P] Initialize Python 3.11 virtual environment. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T002a [P] Create `code/requirements.txt` with pinned versions: `pandas==2.1.0`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `tree-sitter==0.20.0`, `tree-sitter-java==0.20.0`, `pytest==7.4.0`. (Note: `defects4j` CLI and PMD are installed separately in T002c).
 - [X] T002b [P] Configure `code/pyproject.toml` with project metadata, entry points for scripts, and dependency groups.
 - [X] T002c [P] Create `code/setup_cli.sh` script to install and configure the `defects4j` CLI tool and PMD (Java static analysis tool) via `apt` or `wget`, verifying availability via `defects4j --version` and `pmd --version`.
@@ -67,7 +67,7 @@
 - [ ] T015 [US1] Implement `code/src/labeling.py` logic to cross-reference commits with file changes to set `is_buggy` flag.
 - [X] T016 [US1] Implement exclusion logic in `code/src/ingest.py` for generated code/non-Java files with logging.
 - [X] T017 [US1] Generate `code/data/processed/features.csv` with columns: `file_path`, `cc`, `halstead`, `loc`, `is_buggy`.
-- [~] T018 [US1] Add validation step to ensure no NaN values in metric columns before saving CSV.
+- [ ] T018 [US1] Add validation step to ensure no NaN values in metric columns before saving CSV.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -93,7 +93,7 @@
 - [X] T021 [P] [US2] Implement `code/src/analysis.py` to compute Point-Biserial and Spearman correlations with p-values.
 - [X] T022 [US2] Implement `code/src/modeling.py` to train Logistic Regression with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score.
 - [X] T023 [US2] Implement `code/src/modeling.py` to train Random Forest with Repeated 5-Fold CV (10 repeats, seed=42), calculating ROC-AUC and F1-score.
-- [ ] T023a [US2] Implement `code/src/modeling.py` to train a 'Full Metric Set' Random Forest model specifically for the comparison in FR-006, ensuring it uses the same folds as the 'Single Best' model.
+- [X] T023a [US2] Implement `code/src/modeling.py` to train a 'Full Metric Set' Random Forest model specifically for the comparison in FR-006, ensuring it uses the same folds as the 'Single Best' model.
 - [ ] T024 [US2] Implement aggregation logic to calculate mean ROC-AUC and F-score with standard deviation across 50 folds.
 - [ ] T025 [US2] Handle class imbalance: Detect zero-buggy-file projects and log warnings/skip gracefully.
 - [ ] T026 [US2] Generate `code/data/results/correlation_report.json` and `code/data/results/baseline_metrics.json`.

@@ -40,3 +40,26 @@ T014c:
     \ the required artifact entirely, so the task of implementing a wrapper to invoke\
     \ the JavaParser\u2011based Halstead Volume calculator for every Java file is\
     \ not satisfied."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no code, script, or test showing a validation step that checks
+    metric columns for NaN values before writing the CSV. No artifact (e.g., modified
+    extractor script, unit test, or documentation) is present to verify the required
+    behavior. The task therefore remains unfulfilled.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output file implementing the aggregation of ROC\u2011AUC\
+    \ and F\u2011score across the 50 cross\u2011validation folds was provided. The\
+    \ claim lacks any artifact (e.g., a Python function, notebook cell, or result\
+    \ CSV) that computes and reports the mean and standard deviation, so the requirement\
+    \ is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I examined the repository for any script, module, or documentation that detects\
+    \ projects with zero buggy files, logs a warning, and skips them gracefully as\
+    \ required by T025\u202F[US2]. No such code, configuration, or output logs were\
+    \ present; the only artifacts relate to metric extraction and correlation analysis.\
+    \ The task\u2019s specific handling of class\u2011imbalance is therefore missing."

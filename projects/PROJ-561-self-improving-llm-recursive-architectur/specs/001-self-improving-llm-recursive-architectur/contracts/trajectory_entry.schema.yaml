@@ -8,10 +8,10 @@ properties:
   param_count:
     type: integer
     description: Total number of parameters in the model.
-  ppl:
+  accuracy:
     type: number
     format: float
-    description: "Perplexity (PPL) on Wikitext-2."
+    description: "Primary accuracy metric (GSM8K or ARC)."
   flops:
     type: number
     format: float
@@ -29,16 +29,16 @@ properties:
     properties:
       performance_per_flop:
         type: number
-        description: "PPL (Wikitext-2) / FLOPs."
+        description: "Accuracy / FLOPs."
       performance_per_hour:
         type: number
-        description: "PPL (Wikitext-2) / Training Time (hours)."
+        description: "Accuracy / Training Time (hours)."
     required:
       - performance_per_flop
       - performance_per_hour
 required:
   - cycle_number
   - param_count
-  - ppl
+  - accuracy
   - flops
   - training_time

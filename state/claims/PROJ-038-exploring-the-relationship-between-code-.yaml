@@ -57,3 +57,141 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-08T22:57:32Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Point-Biserial is standard approach for continuous metrics and binary
+    bug flags in software engineering literature
+  claim_id: c_612063d3
+  context: The Point-Biserial is the standard, rigorous approach for this specific
+    variable pairing in software engineering literature (e.g., Girard et al., 2013).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Point-Biserial is the standard, rigorous approach for the specific
+    variable pairing of continuous metrics and binary bug flags in software engineering
+    literature (e.g., Girard et al., 2013).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:43:09Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Paired Permutation Test is gold standard for comparing machine learning
+    models in software engineering research
+  claim_id: c_a1a3d422
+  context: "The Paired Permutation Test is the 'gold standard' for comparing machine\
+    \ learning models in software engineering research (e.g., Dem\u0161ar, 2006) because\
+    \ it is non-parametric and respects the paired nature of cross-validation experiments."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Paired Permutation Test is the 'gold standard' for comparing machine\
+    \ learning models in software engineering research (e.g., Dem\u0161ar, 2006) because\
+    \ it is non-parametric and respects the paired nature of cross-validation experiments."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:43:22Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Point-Biserial correlation is standard for binary outcome regression
+    in bug prediction
+  claim_id: c_603e11e2
+  context: 'Point-Biserial: Standard for binary outcome regression/correlation in
+    bug prediction (e.g., Mende & Koschke, 2009).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Point-Biserial correlation is standard for binary outcome regression or
+    correlation in bug prediction (e.g., Mende & Koschke, 2009).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:43:33Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Spearman rank correlation is recommended by SE community for metric analysis
+    due to non-normal distributions
+  claim_id: c_a51328d0
+  context: 'Spearman: Recommended by the SE community for metric analysis due to non-normal
+    distributions (e.g., Kitchenham et al., 2015).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman rank correlation is recommended by the SE community for metric
+    analysis due to non-normal distributions (e.g., Kitchenham et al., 2015).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:44:18Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Permutation tests are widely advocated over t-tests and McNemar's for
+    CV-based model comparison to avoid inflated Type I error rates
+  claim_id: c_86642b77
+  context: 'Permutation Tests: Widely advocated over t-tests and McNemar''s for CV-based
+    model comparison to avoid inflated Type I error rates (e.g., Garcia et al., 2015).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation tests are widely advocated over t-tests and McNemar's for
+    CV-based model comparison to avoid inflated Type I error rates (e.g., Garcia et
+    al., 2015).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:44:50Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Code complexity metrics in real-world Java projects typically exhibit
+    high skewness, outliers, and non-linearity
+  claim_id: c_9ad22f2e
+  context: 'Code complexity metrics (Cyclomatic Complexity, Halstead Volume) in real-world
+    Java projects typically exhibit: High Skewness: A large number of simple methods
+    and a long tail of complex methods. Outliers: Rare, extremely complex classes
+    that can distort linear means. Non-Linearity: The relationship between complexity
+    and bugs may be monotonic but not strictly linear.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_complexity_metrics_in_real-world_Java_projects_typicall
+  kind: entity_fact
+  raw_text: Code complexity metrics in real-world Java projects typically exhibit
+    high skewness, outliers, and non-linearity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:44:58Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: McNemar's test ignores magnitude of performance difference reducing performance
+    to binary counts
+  claim_id: c_477857fd
+  context: 'Limitation: It ignores the magnitude of the performance difference (e.g.,
+    ROC-AUC or F1 scores). It reduces performance to binary ''correct/incorrect''
+    counts, discarding the probabilistic information inherent in ROC-AUC.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_ignores_magnitude_of_performance_difference_r
+  kind: entity_fact
+  raw_text: McNemar's test ignores the magnitude of the performance difference, reducing
+    performance to binary 'correct/incorrect' counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:45:04Z'

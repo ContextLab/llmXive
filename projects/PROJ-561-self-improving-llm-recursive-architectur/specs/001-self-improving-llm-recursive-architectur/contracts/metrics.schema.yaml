@@ -10,16 +10,15 @@ properties:
   benchmark_name:
     type: "string"
     enum:
-      - "Wikitext-2"
+      - "GSM8K"
+      - "ARC-Challenge"
+      - "BoolQ"
     description: "The benchmark being evaluated."
-  ppl:
+  accuracy_or_ECE:
     type: "number"
     minimum: 0.0
-    description: "Perplexity value (PPL)."
-  samples_evaluated:
-    type: "integer"
-    minimum: 1
-    description: "Number of samples used for evaluation."
+    maximum: 1.0
+    description: "Accuracy (GSM8K/ARC) or ECE (BoolQ)."
   p_value_vs_baseline:
     type: "number"
     minimum: 0.0
@@ -34,10 +33,17 @@ properties:
   bootstrapped_ci_upper:
     type: "number"
     description: "Upper bound of 95% confidence interval."
+  effect_size_cohen_d:
+    type: "number"
+    description: "Cohen's d effect size."
+  samples_evaluated:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples used for evaluation."
 required:
   - "cycle_number"
   - "benchmark_name"
-  - "ppl"
+  - "accuracy_or_ECE"
   - "samples_evaluated"
   - "p_value_vs_baseline"
   - "is_significant"
