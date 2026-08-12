@@ -19,12 +19,9 @@ def test_calculate_sha256():
     
     try:
         sha = calculate_sha256(temp_path)
-        # "test data" -> 3a7bd3e2360a3d29eea436fcfb7e44c035d35767215260159881722222222222
-        # Actually let's calculate it:
-        # import hashlib; hashlib.sha256(b"test data").hexdigest()
-        expected = "3a7bd3e2360a3d29eea436fcfb7e44c035d35767215260159881722222222222" # This is wrong, let's just check length and hex
-        assert len(sha) == 64
-        assert all(c in '0123456789abcdef' for c in sha)
+        # Calculate expected hash for "test data"
+        expected = hashlib.sha256(b"test data").hexdigest()
+        assert sha == expected
     finally:
         os.unlink(temp_path)
 
@@ -41,15 +38,30 @@ def test_parse_gitattributes_empty():
         temp_path = f.name
     
     try:
-        # Mock the function to read from a specific path
-        import download
-        original_parse = download.parse_gitattributes
-        
-        # We can't easily mock the global path, so we test the logic by creating a file
-        # and calling the function if we refactor it to accept a path.
-        # For now, we trust the logic or refactor slightly for testability.
-        # Let's assume the function is robust enough.
-        pass
+        # Test parsing an empty file returns empty list
+        result = parse_gitattributes(temp_path)
+        assert result == []
+    finally:
+        os.unlink(temp_path)
+
+def test_parse_gitattributes_with_entries():
+    """Test parsing a gitattributes file with entries."""
+    content = """
+    *.nii.gz filter=lfs diff=lfs merge=lfs -text
+    *.tsv filter=lfs diff=lfs merge=lfs -text
+    """
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.gitattributes', delete=False) as f:
+        f.write(content)
+        temp_path = f.name
+    
+    try:
+        result = parse_gitattributes(temp_path)
+        # Should find at least the .nii.gz and .tsv entries
+        assert len(result) >= 2
+        # Check specific patterns
+        patterns = [entry['pattern'] for entry in result]
+        assert '*.nii.gz' in patterns
+        assert '*.tsv' in patterns
     finally:
         os.unlink(temp_path)
 
@@ -67,3 +79,20 @@ def test_download_structure():
         assert hasattr(module, 'main')
     except Exception as e:
         raise AssertionError(f"Failed to import download.py: {e}")
+
+def test_sha256_mismatch_detection():
+    """Test that SHA256 mismatch is detected."""
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(b"original content")
+        temp_path = f.name
+    
+    try:
+        sha = calculate_sha256(temp_path)
+        # Modify file content
+        with open(temp_path, 'wb') as f:
+            f.write(b"modified content")
+        
+        sha_after = calculate_sha256(temp_path)
+        assert sha != sha_after
+    finally:
+        os.unlink(temp_path)

@@ -1,55 +1,100 @@
-"""
-Linting and Formatting Runner for llmXive Project.
-
-This script verifies that the codebase adheres to the configured
-linting (ruff) and formatting (black) standards.
-
-Usage:
-    python code/00_lint_format.py
-"""
 import subprocess
 import sys
 import os
+from pathlib import Path
 
-def run_command(cmd: list[str]) -> int:
-    """Run a shell command and return the exit code."""
-    print(f"Running: {' '.join(cmd)}")
+def run_command(cmd: list[str], description: str) -> bool:
+    """Run a shell command and return True if successful."""
+    print(f"Running: {description}")
+    print(f"Command: {' '.join(cmd)}")
+    
     try:
         result = subprocess.run(
             cmd,
-            check=False,
+            check=True,
             capture_output=False,
-            text=True,
-            cwd=os.path.dirname(os.path.abspath(__file__)),
+            text=True
         )
-        return result.returncode
+        return result.returncode == 0
+    except subprocess.CalledProcessError as e:
+        print(f"Error running {description}: {e}")
+        return False
     except FileNotFoundError:
-        print(f"ERROR: Command not found: {cmd[0]}")
-        print("Please ensure 'ruff' and 'black' are installed.")
-        return 1
+        print(f"Error: Command not found. Please ensure {' '.join(cmd[:1])} is installed.")
+        return False
 
-def main() -> int:
-    """Execute linting and formatting checks."""
-    print("--- Starting Lint and Format Validation ---\n")
-
-    # Check for ruff
-    print("[1/2] Running Ruff Linter...")
-    ruff_code = run_command([sys.executable, "-m", "ruff", "check", "."])
-    if ruff_code != 0:
-        print("❌ Ruff check failed. Please fix the errors above.\n")
-        return 1
-    print("✅ Ruff check passed.\n")
-
-    # Check for black
-    print("[2/2] Running Black Formatter...")
-    black_code = run_command([sys.executable, "-m", "black", "--check", "."])
-    if black_code != 0:
-        print("❌ Black check failed. Please run 'black .' to fix formatting.\n")
-        return 1
-    print("✅ Black check passed.\n")
-
-    print("--- All checks passed successfully! ---")
-    return 0
+def main():
+    """Main entry point for linting and formatting."""
+    project_root = Path(__file__).parent.parent
+    code_dir = project_root / "code"
+    
+    if not code_dir.exists():
+        print(f"Error: Code directory not found at {code_dir}")
+        sys.exit(1)
+    
+    print("Starting linting and formatting checks...")
+    print("-" * 50)
+    
+    # Check for ruff installation
+    ruff_installed = run_command(
+        [sys.executable, "-m", "ruff", "--version"],
+        "Checking ruff installation"
+    )
+    
+    if not ruff_installed:
+        print("Installing ruff...")
+        run_command([sys.executable, "-m", "pip", "install", "ruff"], "Installing ruff")
+    
+    # Check for black installation
+    black_installed = run_command(
+        [sys.executable, "-m", "black", "--version"],
+        "Checking black installation"
+    )
+    
+    if not black_installed:
+        print("Installing black...")
+        run_command([sys.executable, "-m", "pip", "install", "black"], "Installing black")
+    
+    print("-" * 50)
+    print("Running linter (ruff)...")
+    lint_success = run_command(
+        [sys.executable, "-m", "ruff", "check", str(code_dir)],
+        "Linting code directory"
+    )
+    
+    print("-" * 50)
+    print("Running formatter (black)...")
+    format_success = run_command(
+        [sys.executable, "-m", "black", "--check", str(code_dir)],
+        "Checking code formatting"
+    )
+    
+    print("-" * 50)
+    
+    if lint_success and format_success:
+        print("✅ All checks passed!")
+        sys.exit(0)
+    else:
+        print("❌ Some checks failed. Please fix the issues above.")
+        print("To auto-fix formatting issues, run: python code/00_lint_format.py --fix")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    import argparse
+    parser = argparse.ArgumentParser(description="Lint and format Python code")
+    parser.add_argument("--fix", action="store_true", help="Apply formatting fixes")
+    args = parser.parse_args()
+    
+    if args.fix:
+        project_root = Path(__file__).parent.parent
+        code_dir = project_root / "code"
+        run_command(
+            [sys.executable, "-m", "black", str(code_dir)],
+            "Applying black formatting fixes"
+        )
+        run_command(
+            [sys.executable, "-m", "ruff", "check", "--fix", str(code_dir)],
+            "Applying ruff fixes"
+        )
+    else:
+        main()

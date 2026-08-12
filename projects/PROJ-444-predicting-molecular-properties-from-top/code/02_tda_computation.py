@@ -4,328 +4,293 @@ import json
 import logging
 import time
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
-
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
+import rdkit
 from rdkit import Chem
-from rdkit.Chem import Descriptors
+from rdkit.Chem import Descriptors, rdMolDescriptors
+import networkx as nx
 
-# Import from existing API surface
-from utils.graph_builder import build_molecular_graph, log_invalid_smiles, is_valid_molecule
-from utils.persistence_utils import (
-    compute_shortest_path_matrix,
-    build_shortest_path_filtration,
-    compute_persistence_diagram,
-    handle_empty_diagram,
-    get_topological_features
-)
+# Import from local utils as per API surface
+from utils.graph_builder import build_molecular_graph, is_valid_molecule, log_invalid_smiles, setup_invalid_smiles_logger
+from utils.persistence_utils import compute_shortest_path_matrix, build_shortest_path_filtration, compute_persistence_diagram, handle_empty_diagram, get_topological_features
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('data/logs/tda_computation.log'),
-        logging.StreamHandler()
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-DATA_DIR = Path('data')
-PROCESSED_DIR = DATA_DIR / 'processed'
-LOGS_DIR = DATA_DIR / 'logs'
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-DEFAULT_RESOLUTION = 20
-DEFAULT_GRID_MIN = 0.0
-DEFAULT_GRID_MAX = 10.0
-
-def load_processed_data() -> pd.DataFrame:
-    """Load the ingested ESOL dataset from data/processed/esol_data.csv."""
-    input_file = PROCESSED_DIR / 'esol_data.csv'
-    if not input_file.exists():
-        raise FileNotFoundError(f"Required input file not found: {input_file}")
-    
-    logger.info(f"Loading data from {input_file}")
-    df = pd.read_csv(input_file)
-    
-    # Validate required columns
+def load_processed_data(data_path: str) -> pd.DataFrame:
+    """Load the ingested ESOL dataset."""
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+    df = pd.read_csv(data_path)
+    # Validate expected columns
     required_cols = ['smiles', 'logP']
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in input data: {missing}")
-    
-    logger.info(f"Loaded {len(df)} molecules from {input_file}")
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
     return df
 
-def compute_traditional_descriptors(df: pd.DataFrame) -> pd.DataFrame:
+def compute_traditional_descriptors(mol: Chem.Mol) -> Dict[str, float]:
     """
-    Compute traditional molecular descriptors using RDKit.
-    Returns a DataFrame with SMILES, logP, and computed descriptors.
+    Compute a standard set of traditional molecular descriptors.
+    Returns a dictionary of descriptor_name: value.
     """
-    logger.info("Computing traditional descriptors...")
-    descriptors_list = []
-    invalid_count = 0
+    if mol is None:
+        return {}
 
-    for idx, row in df.iterrows():
-        smiles = row['smiles']
-        mol = Chem.MolFromSmiles(smiles)
-        
-        if mol is None or not is_valid_molecule(mol):
-            log_invalid_smiles(smiles, "Traditional descriptor computation")
-            invalid_count += 1
-            continue
+    descriptors = {
+        'MolWt': Descriptors.MolWt(mol),
+        'MolLogP': Descriptors.MolLogP(mol),
+        'TPSA': Descriptors.TPSA(mol),
+        'NumHDonors': rdMolDescriptors.CalcNumHBD(mol),
+        'NumHAcceptors': rdMolDescriptors.CalcNumHBA(mol),
+        'NumRotatableBonds': rdMolDescriptors.CalcNumRotatableBonds(mol),
+        'NumAromaticRings': rdMolDescriptors.CalcNumAromaticRings(mol),
+        'NumSatAromaticRings': rdMolDescriptors.CalcNumAromaticRings(mol), # Alias for consistency
+        'NumAliphaticRings': rdMolDescriptors.CalcNumAliphaticRings(mol),
+        'NumHeteroatoms': rdMolDescriptors.CalcNumHeteroatoms(mol),
+        'FractionCSP3': rdMolDescriptors.CalcFractionCSP3(mol),
+        'HeavyAtomCount': rdMolDescriptors.CalcNumHeavyAtoms(mol),
+        'RingCount': rdMolDescriptors.CalcNumRings(mol),
+    }
+    return descriptors
 
-        # Compute a standard set of descriptors
-        desc_vals = {
-            'smiles': smiles,
-            'logP': row['logP'],
-            'mw': Descriptors.MolWt(mol),
-            'logP_rdkit': Descriptors.MolLogP(mol),
-            'numHDonors': Descriptors.NumHDonors(mol),
-            'numHAcceptors': Descriptors.NumHAcceptors(mol),
-            'numRotatableBonds': Descriptors.NumRotatableBonds(mol),
-            'tpsa': Descriptors.TPSA(mol),
-            'numAromaticRings': Descriptors.NumAromaticRings(mol),
-            'numAliphaticRings': Descriptors.NumAliphaticRings(mol),
-            'numSaturatedRings': Descriptors.NumSaturatedRings(mol),
-            'numHeteroatoms': Descriptors.HeavyAtomCount(mol) - Descriptors.NumCarbons(mol),
-            'ringCount': Descriptors.RingCount(mol)
-        }
-        descriptors_list.append(desc_vals)
-
-    logger.info(f"Computed traditional descriptors for {len(descriptors_list)} valid molecules "
-                f"({invalid_count} invalid skipped)")
-    
-    return pd.DataFrame(descriptors_list)
-
-def vectorize_diagram_to_persistence_image(
-    diagram: List[Tuple[float, float]],
-    resolution: int = DEFAULT_RESOLUTION,
-    grid_min: float = DEFAULT_GRID_MIN,
-    grid_max: float = DEFAULT_GRID_MAX,
-    sigma: Optional[float] = None
-) -> np.ndarray:
+def vectorize_diagram_to_persistence_image(diagram: List[Tuple[float, float]], 
+                                           resolution: int = 20, 
+                                           bounds: Optional[Tuple[float, float, float, float]] = None,
+                                           sigma: float = 0.1) -> np.ndarray:
     """
     Convert a persistence diagram to a persistence image.
     
     Args:
         diagram: List of (birth, death) tuples.
         resolution: Grid resolution (resolution x resolution).
-        grid_min: Minimum value for the grid axis.
-        grid_max: Maximum value for the grid axis.
-        sigma: Standard deviation for Gaussian kernel. If None, computed as grid step.
+        bounds: (min_birth, max_birth, min_persistence, max_persistence). If None, computed from data.
+        sigma: Standard deviation for Gaussian kernel.
     
     Returns:
-        1D flattened array of the persistence image.
+        1D numpy array representing the vectorized image.
     """
     if not diagram:
-        # Handle empty diagram: return zero vector
         return np.zeros(resolution * resolution)
 
-    diagram_arr = np.array(diagram)
-    births = diagram_arr[:, 0]
-    deaths = diagram_arr[:, 1]
-    pers = deaths - births
+    births = np.array([d[0] for d in diagram])
+    deaths = np.array([d[1] for d in diagram])
+    persistences = deaths - births
+
+    if bounds is None:
+        min_b, max_b = births.min(), births.max()
+        min_p, max_p = persistences.min(), persistences.max()
+        # Add small margin to avoid boundary issues
+        margin_b = (max_b - min_b) * 0.05 if max_b > min_b else 0.1
+        margin_p = (max_p - min_p) * 0.05 if max_p > min_p else 0.1
+        bounds = (min_b - margin_b, max_b + margin_b, min_p - margin_p, max_p + margin_p)
+
+    min_b, max_b, min_p, max_p = bounds
 
     # Create grid
-    x = np.linspace(grid_min, grid_max, resolution)
-    y = np.linspace(grid_min, grid_max, resolution)
+    x = np.linspace(min_b, max_b, resolution)
+    y = np.linspace(min_p, max_p, resolution)
     X, Y = np.meshgrid(x, y)
+    grid_points = np.vstack([X.ravel(), Y.ravel()]).T
+
+    # Gaussian weights based on persistence
+    weights = np.exp(-persistences / (2 * sigma**2))
+
+    # Accumulate contributions
+    image = np.zeros((resolution, resolution))
     
-    # Initialize image
-    img = np.zeros((resolution, resolution))
-    
-    # Default sigma
-    if sigma is None:
-        sigma = (grid_max - grid_min) / resolution
+    for i, (b, p) in enumerate(zip(births, persistences)):
+        if p <= 0: continue
+        # Calculate distance to grid centers
+        dist_sq = np.sum((grid_points - np.array([b, p]))**2, axis=1)
+        gaussian_vals = np.exp(-dist_sq / (2 * sigma**2))
+        image += weights[i] * gaussian_vals.reshape(resolution, resolution)
 
-    # Weight by persistence
-    weights = pers ** 2
+    return image.ravel()
 
-    # Gaussian kernel contribution
-    for i, (b, d) in enumerate(diagram):
-        p = (b, d)
-        w = weights[i]
-        # 2D Gaussian
-        Z = np.exp(-((X - p[0])**2 + (Y - p[1])**2) / (2 * sigma**2))
-        img += w * Z
-
-    # Flatten and normalize
-    img_flat = img.flatten()
-    if np.sum(img_flat) > 0:
-        img_flat = img_flat / np.sum(img_flat)
-    
-    return img_flat
-
-def process_single_molecule(
-    smiles: str,
-    resolution: int = DEFAULT_RESOLUTION
-) -> Optional[Dict[str, Any]]:
+def process_single_molecule(smiles: str, 
+                            resolution: int = 20, 
+                            log_path: Optional[str] = None) -> Tuple[Optional[Dict], Optional[Dict]]:
     """
-    Process a single molecule: build graph, compute persistence diagram, vectorize.
+    Process a single molecule: validate, build graph, compute TDA, compute traditional descriptors.
     
     Returns:
-        Dictionary with TDA features or None if molecule is invalid.
+        Tuple of (traditional_desc_dict, tda_features_dict) or (None, None) if invalid.
     """
     mol = Chem.MolFromSmiles(smiles)
-    if mol is None or not is_valid_molecule(mol):
-        log_invalid_smiles(smiles, "TDA computation")
-        return None
+    if not is_valid_molecule(mol):
+        if log_path:
+            log_invalid_smiles(smiles, log_path, "Invalid molecule or empty graph")
+        return None, None
 
+    # 1. Traditional Descriptors
+    trad_desc = compute_traditional_descriptors(mol)
+
+    # 2. TDA Features
     try:
-        # Build molecular graph
+        # Build graph
         G = build_molecular_graph(mol)
-        if G is None or G.number_of_nodes() == 0:
-            log_invalid_smiles(smiles, "Empty graph construction")
-            return None
+        
+        if G.number_of_nodes() == 0:
+            if log_path:
+                log_invalid_smiles(smiles, log_path, "Empty graph after construction")
+            return trad_desc, {"tda_status": "empty_graph"}
 
         # Compute shortest path matrix
         try:
             dist_matrix = compute_shortest_path_matrix(G)
         except Exception as e:
             logger.warning(f"Shortest path computation failed for {smiles}: {e}")
-            return None
+            dist_matrix = None
 
-        # Build filtration and compute diagram
+        if dist_matrix is None or dist_matrix.size == 0:
+            # Fallback for disconnected or single node
+            tda_features = handle_empty_diagram(resolution)
+            return trad_desc, tda_features
+
+        # Build filtration
         filtration = build_shortest_path_filtration(G, dist_matrix)
+        
+        # Compute diagram
         diagram = compute_persistence_diagram(filtration)
-
-        # Handle empty diagram
+        
         if not diagram:
-            diagram = handle_empty_diagram()
+            tda_features = handle_empty_diagram(resolution)
+        else:
+            # Vectorize
+            pi_vector = vectorize_diagram_to_persistence_image(diagram, resolution=resolution)
+            tda_features = {f"PI_{i}": float(val) for i, val in enumerate(pi_vector)}
+            tda_features["num_features"] = len(pi_vector)
+            tda_features["num_points"] = len(diagram)
+            # Add summary stats
+            if len(diagram) > 0:
+                births = [p[0] for p in diagram]
+                deaths = [p[1] for p in diagram]
+                pers = [d - b for b, d in zip(births, deaths)]
+                tda_features["max_persistence"] = float(max(pers))
+                tda_features["mean_persistence"] = float(np.mean(pers))
 
-        # Vectorize
-        pi_vector = vectorize_diagram_to_persistence_image(diagram, resolution=resolution)
-
-        # Get topological features (Betti numbers, etc.)
-        topo_features = get_topological_features(diagram)
-
-        return {
-            'smiles': smiles,
-            'diagram': diagram,
-            'persistence_image': pi_vector,
-            'topological_features': topo_features
-        }
+        return trad_desc, tda_features
 
     except Exception as e:
-        logger.error(f"Unexpected error processing {smiles}: {e}")
-        return None
+        logger.error(f"Error processing TDA for {smiles}: {e}")
+        if log_path:
+            log_invalid_smiles(smiles, log_path, f"Processing error: {str(e)}")
+        return trad_desc, {"tda_status": "error", "error_msg": str(e)}
 
-def run_tda_computation(
-    input_df: pd.DataFrame,
-    output_path: Path,
-    resolution: int = DEFAULT_RESOLUTION
-) -> pd.DataFrame:
+def run_tda_computation(input_path: str, 
+                        output_trad_path: str, 
+                        output_tda_path: str,
+                        resolution: int = 20,
+                        log_path: Optional[str] = None) -> None:
     """
-    Run TDA computation on the entire dataset.
-    
-    Args:
-        input_df: DataFrame with 'smiles' column.
-        output_path: Path to save the output CSV.
-        resolution: Grid resolution for persistence images.
-    
-    Returns:
-        DataFrame with TDA features.
+    Main orchestration function to process the entire dataset.
+    Generates two CSV files: traditional descriptors and TDA features.
     """
-    logger.info(f"Starting TDA computation with resolution={resolution}")
-    start_time = time.time()
+    logger.info(f"Loading data from {input_path}")
+    df = load_processed_data(input_path)
+    
+    if log_path:
+        Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+        setup_invalid_smiles_logger(log_path)
 
-    results = []
-    valid_count = 0
-    invalid_count = 0
+    logger.info(f"Processing {len(df)} molecules with resolution {resolution}")
+    
+    traditional_data = []
+    tda_data = []
+    processed_count = 0
+    skipped_count = 0
 
-    for idx, row in input_df.iterrows():
+    for idx, row in df.iterrows():
         smiles = row['smiles']
-        result = process_single_molecule(smiles, resolution=resolution)
+        logP = row['logP']
         
-        if result is not None:
-            valid_count += 1
-            # Flatten persistence image into columns
-            pi_cols = {f'pi_{i}': val for i, val in enumerate(result['persistence_image'])}
-            row_dict = {
-                'smiles': result['smiles'],
-                'num_topological_features': len(result['topological_features'])
-            }
-            row_dict.update(pi_cols)
-            row_dict.update(result['topological_features'])
-            results.append(row_dict)
-        else:
-            invalid_count += 1
+        trad_desc, tda_features = process_single_molecule(smiles, resolution, log_path)
+        
+        if trad_desc is None:
+            skipped_count += 1
+            continue
 
-    elapsed = time.time() - start_time
-    logger.info(f"TDA computation complete: {valid_count} valid, {invalid_count} invalid "
-                f"in {elapsed:.2f}s")
+        # Prepare row for traditional CSV
+        trad_row = {'smiles': smiles, 'logP': logP}
+        trad_row.update(trad_desc)
+        traditional_data.append(trad_row)
 
-    if not results:
-        raise RuntimeError("No valid molecules processed. Output would be empty.")
+        # Prepare row for TDA CSV
+        tda_row = {'smiles': smiles, 'logP': logP}
+        if tda_features:
+            tda_row.update(tda_features)
+        tda_data.append(tda_row)
+        
+        processed_count += 1
+        if processed_count % 50 == 0:
+            logger.info(f"Processed {processed_count}/{len(df)} molecules")
 
-    output_df = pd.DataFrame(results)
-    output_df.to_csv(output_path, index=False)
-    logger.info(f"Saved TDA features to {output_path}")
+    logger.info(f"Saving traditional descriptors to {output_trad_path}")
+    df_trad = pd.DataFrame(traditional_data)
+    df_trad.to_csv(output_trad_path, index=False)
 
-    return output_df
+    logger.info(f"Saving TDA features to {output_tda_path}")
+    df_tda = pd.DataFrame(tda_data)
+    df_tda.to_csv(output_tda_path, index=False)
 
-def run_sweep(
-    resolutions: List[int] = [10, 20, 30],
-    input_path: Optional[Path] = None,
-    output_dir: Optional[Path] = None
-) -> Dict[int, pd.DataFrame]:
+    logger.info(f"Completed. Processed: {processed_count}, Skipped: {skipped_count}")
+
+def run_sweep(resolutions: List[int], 
+              input_path: str, 
+              base_output_dir: str) -> None:
     """
-    Run TDA computation sweep over multiple resolutions.
-    
-    Args:
-        resolutions: List of grid resolutions to test.
-        input_path: Path to input CSV (defaults to data/processed/esol_data.csv).
-        output_dir: Directory to save outputs (defaults to data/processed/).
-    
-    Returns:
-        Dictionary mapping resolution to output DataFrame.
+    Run TDA computation for multiple resolutions to support sensitivity analysis.
     """
-    if input_path is None:
-        input_path = PROCESSED_DIR / 'esol_data.csv'
-    if output_dir is None:
-        output_dir = PROCESSED_DIR
-    
-    input_df = load_processed_data()
-    results = {}
+    base_output_dir = Path(base_output_dir)
+    base_output_dir.mkdir(parents=True, exist_ok=True)
     
     for res in resolutions:
-        logger.info(f"Running sweep for resolution {res}")
-        output_path = output_dir / f'tda_features_res{res}.csv'
-        df = run_tda_computation(input_df, output_path, resolution=res)
-        results[res] = df
+        out_trad = base_output_dir / f"traditional_res_{res}.csv"
+        out_tda = base_output_dir / f"tda_res_{res}.csv"
+        log_file = base_output_dir / f"log_res_{res}.log"
         
-    return results
+        logger.info(f"Running sweep for resolution {res}")
+        run_tda_computation(
+            input_path=input_path,
+            output_trad_path=str(out_trad),
+            output_tda_path=str(out_tda),
+            resolution=res,
+            log_path=str(log_file)
+        )
 
 def main():
-    """Main entry point for TDA computation."""
-    logger.info("Starting TDA computation pipeline...")
+    """Entry point for script execution."""
+    # Default paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    input_data = project_root / "data" / "processed" / "esol_processed.csv"
+    output_trad = project_root / "data" / "processed" / "traditional_descriptors.csv"
+    output_tda = project_root / "data" / "processed" / "tda_features.csv"
+    log_file = project_root / "data" / "logs" / "invalid_smiles.log"
     
-    # Load data
-    df = load_processed_data()
-    
-    # Compute traditional descriptors
-    traditional_df = compute_traditional_descriptors(df)
-    traditional_path = PROCESSED_DIR / 'traditional_descriptors.csv'
-    traditional_df.to_csv(traditional_path, index=False)
-    logger.info(f"Saved traditional descriptors to {traditional_path}")
-    
-    # Compute TDA features
-    tda_df = run_tda_computation(df, PROCESSED_DIR / 'tda_features.csv')
-    
-    logger.info("TDA computation pipeline completed successfully.")
-    
-    # Print summary
-    print(f"\nPipeline Summary:")
-    print(f"  - Input molecules: {len(df)}")
-    print(f"  - Traditional descriptors: {len(traditional_df)} rows, {len(traditional_df.columns)} cols")
-    print(f"  - TDA features: {len(tda_df)} rows, {len(tda_df.columns)} cols")
-    print(f"  - Output files:")
-    print(f"      {traditional_path}")
-    print(f"      {PROCESSED_DIR / 'tda_features.csv'}")
+    # Ensure output directories exist
+    output_trad.parent.mkdir(parents=True, exist_ok=True)
+    output_tda.parent.mkdir(parents=True, exist_ok=True)
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    if not input_data.exists():
+        logger.error(f"Input data not found at {input_data}. Please run data ingestion first.")
+        sys.exit(1)
+
+    logger.info(f"Starting TDA computation pipeline. Input: {input_data}")
+    run_tda_computation(
+        input_path=str(input_data),
+        output_trad_path=str(output_trad),
+        output_tda_path=str(output_tda),
+        resolution=20,
+        log_path=str(log_file)
+    )
 
 if __name__ == "__main__":
     main()

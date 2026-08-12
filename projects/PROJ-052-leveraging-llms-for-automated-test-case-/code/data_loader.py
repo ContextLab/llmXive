@@ -1,182 +1,246 @@
 import hashlib
 import json
 import os
+import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, Set, List
 import pandas as pd
+
 from config import get_data_dir, get_output_dir, ensure_directories
 
-DATA_STATE_FILE = "data_state.json"
+logger = logging.getLogger(__name__)
 
-def fetch_defects4j_data() -> pd.DataFrame:
-    """
-    Fetch Defects4J parquet data from HuggingFace and cache locally.
-    Returns the loaded DataFrame.
-    """
-    ensure_directories()
-    data_dir = get_data_dir()
-    cache_path = data_dir / "defects4j_v1.0.parquet"
-    
-    if cache_path.exists():
-        return pd.read_parquet(cache_path)
-    
-    # Real source: HuggingFace dataset repository
-    try:
-        from datasets import load_dataset
-        dataset = load_dataset("defects4j/defects4j-parquet", "v1.0", split="train")
-        df = dataset.to_pandas()
-        df.to_parquet(cache_path, index=False)
-        return df
-    except ImportError:
-        raise ImportError("Please install 'datasets' package: pip install datasets")
-    except Exception as e:
-        raise RuntimeError(f"Failed to fetch Defects4J data: {e}")
+# --- State Management ---
+STATE_FILE = "project_state.json"
 
-def compute_sha256(file_path: Path) -> str:
-    """
-    Compute SHA-256 hash of a file.
-    """
+def load_state() -> Dict[str, Any]:
+    if os.path.exists(STATE_FILE):
+        with open(STATE_FILE, 'r') as f:
+            return json.load(f)
+    return {"checksums": {}, "last_run": {}, "metrics": {}}
+
+def save_state(state: Dict[str, Any]) -> None:
+    with open(STATE_FILE, 'w') as f:
+        json.dump(state, f, indent=2)
+
+def record_checksum(file_path: str, hash_value: str) -> None:
+    state = load_state()
+    state["checksums"][file_path] = hash_value
+    save_state(state)
+
+# --- Data Loading ---
+def compute_sha256(file_path: str) -> str:
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def load_state() -> Dict[str, Any]:
+def fetch_defects4j_data() -> Path:
     """
-    Load the project state from data_state.json.
-    Returns empty dict if file doesn't exist.
-    """
-    state_path = Path(DATA_STATE_FILE)
-    if state_path.exists():
-        with open(state_path, "r") as f:
-            return json.load(f)
-    return {}
-
-def save_state(state: Dict[str, Any]) -> None:
-    """
-    Save the project state to data_state.json.
-    """
-    with open(DATA_STATE_FILE, "w") as f:
-        json.dump(state, f, indent=2)
-
-def record_checksum(file_path: Path) -> None:
-    """
-    Compute SHA-256 hash of the given file and store it in the project state.
-    Satisfies Constitution Principle III by recording data integrity.
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Cannot compute checksum: {file_path} does not exist")
-    
-    checksum = compute_sha256(file_path)
-    state = load_state()
-    
-    if "checksums" not in state:
-        state["checksums"] = {}
-    
-    state["checksums"][file_path.name] = {
-        "algorithm": "sha256",
-        "hash": checksum,
-        "recorded_at": str(pd.Timestamp.now())
-    }
-    
-    save_state(state)
-
-def load_defects4j_data() -> pd.DataFrame:
-    """
-    Load Defects4J data from cache. Fetches if not present.
-    """
-    return fetch_defects4j_data()
-
-def verify_data_integrity(file_path: Path) -> bool:
-    """
-    Verify the integrity of a cached file against its recorded checksum.
-    Returns True if valid, False otherwise.
-    """
-    if not file_path.exists():
-        return False
-    
-    state = load_state()
-    if "checksums" not in state:
-        return False
-    
-    recorded = state["checksums"].get(file_path.name)
-    if not recorded or recorded.get("algorithm") != "sha256":
-        return False
-    
-    current_hash = compute_sha256(file_path)
-    return current_hash == recorded["hash"]
-
-def ensure_data_loaded_and_integrity_recorded() -> pd.DataFrame:
-    """
-    Main entry point to ensure data is loaded and its checksum is recorded.
-    Returns the DataFrame.
+    Fetches Defects4J parquet data from the verified HuggingFace URL.
+    Caches to data/defects4j_v1.0.parquet.
     """
     data_dir = get_data_dir()
     ensure_directories()
-    cache_path = data_dir / "defects4j_v1.0.parquet"
+    output_path = data_dir / "defects4j_v1.0.parquet"
+
+    if output_path.exists():
+        logger.info(f"Data file already exists at {output_path}. Skipping fetch.")
+        return output_path
+
+    logger.info(f"Fetching Defects4J data to {output_path}...")
+    try:
+        from datasets import load_dataset
+        # Verified source: defects4j/defects4j-parquet, v1.0.parquet
+        # Using streaming to handle potential size, then collecting to DataFrame
+        ds = load_dataset("defects4j/defects4j-parquet", split="train", streaming=True)
+        
+        df_chunks = []
+        # Iterate through the dataset to build the dataframe
+        # Note: This assumes the dataset fits in memory for the chunking logic.
+        # If memory is an issue, we could process in batches, but parquet write usually needs a full df or append.
+        # For Defects4J v1, it is small enough (< 1GB).
+        for batch in ds:
+            df = pd.DataFrame(batch)
+            df_chunks.append(df)
+        
+        if not df_chunks:
+            raise ValueError("Dataset is empty.")
+        
+        full_df = pd.concat(df_chunks, ignore_index=True)
+        full_df.to_parquet(output_path, index=False)
+        
+        logger.info(f"Data saved to {output_path}")
+        
+        # Record checksum immediately after saving (Fix for T006b)
+        checksum = compute_sha256(str(output_path))
+        record_checksum(str(output_path), checksum)
+        logger.info(f"Checksum recorded: {checksum}")
+        
+        return output_path
+
+    except Exception as e:
+        logger.error(f"Failed to fetch Defects4J data: {e}")
+        raise RuntimeError("Could not fetch real Defects4J data. Execution halted.")
+
+def load_defects4j_data() -> pd.DataFrame:
+    """Loads the cached parquet file."""
+    data_dir = get_data_dir()
+    file_path = data_dir / "defects4j_v1.0.parquet"
+    if not file_path.exists():
+        raise FileNotFoundError(f"Defects4J data not found at {file_path}. Run fetch_defects4j_data first.")
+    return pd.read_parquet(file_path)
+
+def verify_data_integrity() -> bool:
+    """Verifies the checksum of the cached data matches the recorded state."""
+    data_dir = get_data_dir()
+    file_path = data_dir / "defects4j_v1.0.parquet"
+    if not file_path.exists():
+        return False
     
-    # Fetch data if not present
-    if not cache_path.exists():
-        fetch_defects4j_data()
-    
-    # Record checksum if not already recorded
+    current_hash = compute_sha256(str(file_path))
     state = load_state()
-    if "checksums" not in state or cache_path.name not in state["checksums"]:
-        record_checksum(cache_path)
+    recorded_hash = state.get("checksums", {}).get(str(file_path))
     
-    return pd.read_parquet(cache_path)
+    if recorded_hash is None:
+        logger.warning(f"No recorded checksum for {file_path}.")
+        return False
+    
+    if current_hash != recorded_hash:
+        logger.error(f"Checksum mismatch for {file_path}.")
+        return False
+    
+    return True
 
-def extract_changed_lines(df: pd.DataFrame) -> Set[int]:
-    """
-    Placeholder for T025: Extract changed lines from commit diffs.
-    Currently returns an empty set.
-    """
-    # This will be implemented in T025
-    return set()
+def ensure_data_loaded_and_integrity_recorded() -> Path:
+    """Ensures data is fetched and checksum is recorded."""
+    if not verify_data_integrity():
+        logger.info("Data integrity check failed or missing. Fetching...")
+        return fetch_defects4j_data()
+    return get_data_dir() / "defects4j_v1.0.parquet"
 
-def extract_bug_fix_description(df: pd.DataFrame, row_idx: int) -> str:
+# --- New Function: Extract Changed Lines ---
+def extract_changed_lines() -> Dict[str, Set[int]]:
     """
-    Extracts the bug fix description from a specific row in the Defects4J DataFrame
-    and formats it as a prompt string per FR-001.
+    Parses Defects4J commit diffs from the cached parquet file.
+    Extracts line numbers (integers) that were added or modified.
+    Outputs a JSON file: data/changed_lines.json
+    Format: { "project_id": [line1, line2, ...], ... }
     
-    FR-001 Requirement: The prompt must include the bug ID, project name, and a
-    concise description of the defect to guide the LLM.
-    
-    Args:
-        df: The Defects4J DataFrame containing metadata.
-        row_idx: The integer index of the row to process.
-    
-    Returns:
-        A formatted prompt string ready for LLM input.
-    
-    Raises:
-        IndexError: If row_idx is out of bounds.
-        KeyError: If expected columns are missing from the DataFrame.
+    Returns the dictionary for immediate use.
     """
-    if row_idx < 0 or row_idx >= len(df):
-        raise IndexError(f"Row index {row_idx} is out of bounds for DataFrame of length {len(df)}")
+    logger.info("Extracting changed lines from Defects4J data...")
+    df = load_defects4j_data()
     
-    row = df.iloc[row_idx]
+    # Ensure required columns exist
+    # Defects4J parquet usually contains 'project', 'bug_id', 'diff' or 'patch'
+    # We assume 'diff' contains the unified diff text.
+    required_cols = ['project', 'bug_id', 'diff']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in dataset: {missing}")
     
-    # Identify expected columns based on Defects4J schema
-    # Common columns: 'project', 'bug_id', 'description', 'commit_msg'
-    # We prioritize 'description' or 'commit_msg' if 'description' is empty
+    changed_lines_map = {}
     
-    project = str(row.get('project', 'UnknownProject'))
-    bug_id = str(row.get('bug_id', 'UnknownID'))
+    for _, row in df.iterrows():
+        project_id = f"{row['project']}_{row['bug_id']}"
+        diff_text = str(row['diff'])
+        
+        lines = set()
+        if not diff_text or diff_text.strip() == "":
+            changed_lines_map[project_id] = lines
+            continue
+        
+        # Parse unified diff to extract line numbers
+        # Unified diff format:
+        # @@ -old_start,old_count +new_start,new_count @@
+        # - removed line
+        # + added line
+        #   context line
+        #
+        # We are interested in lines that are ADDED or MODIFIED (start with '+').
+        # We track the current line number in the 'new' file.
+        
+        current_new_line = 0
+        in_hunk = False
+        
+        for line in diff_text.splitlines():
+            if line.startswith('@@'):
+                # Parse header: @@ -old_start,old_count +new_start,new_count @@
+                try:
+                    parts = line.split()
+                    # parts[1] is usually "+new_start,new_count"
+                    plus_part = parts[1]
+                    if '+' in plus_part:
+                        start_str, count_str = plus_part[1:].split(',')
+                        current_new_line = int(start_str)
+                    in_hunk = True
+                except (IndexError, ValueError):
+                    in_hunk = False
+                continue
+            
+            if not in_hunk:
+                continue
+            
+            if line.startswith('+'):
+                # Added line
+                lines.add(current_new_line)
+                current_new_line += 1
+            elif line.startswith('-'):
+                # Removed line - do not increment new line counter
+                pass
+            elif line.startswith(' '):
+                # Context line - increment both
+                current_new_line += 1
+            elif line.startswith('\\'):
+                # No newline at end of file marker
+                pass
+            else:
+                # Potential format error or other diff style, skip
+                pass
+        
+        changed_lines_map[project_id] = lines
+
+    # Write to JSON
+    data_dir = get_data_dir()
+    ensure_directories()
+    output_path = data_dir / "changed_lines.json"
     
-    # Prefer 'description', fallback to 'commit_msg' if description is NaN/empty
-    description = row.get('description', None)
-    if pd.isna(description) or not description or str(description).strip() == "":
-        description = row.get('commit_msg', None)
+    # Convert sets to lists for JSON serialization
+    serializable_map = {k: sorted(list(v)) for k, v in changed_lines_map.items()}
     
-    if pd.isna(description) or not description:
-        description = "No description available for this bug fix."
+    with open(output_path, 'w') as f:
+        json.dump(serializable_map, f, indent=2)
     
-    description = str(description).strip()
+    logger.info(f"Changed lines extracted and saved to {output_path}")
+    logger.info(f"Total projects processed: {len(changed_lines_map)}")
     
-    # Format per FR-001: "Bug ID: {id} | Project: {project} | Description: {desc}"
-    prompt = f"Bug ID: {bug_id} | Project: {project} | Description: {description}"
+    return serializable_map
+
+def extract_bug_fix_description(project_id: str, df: Optional[pd.DataFrame] = None) -> str:
+    """
+    Extracts and formats the bug fix description for a given project.
+    If df is not provided, loads the data.
+    """
+    if df is None:
+        df = load_defects4j_data()
     
-    return prompt
+    # Assuming columns: project, bug_id, description, fix_description
+    # We look for a 'description' or 'summary' column, or construct from 'diff'
+    if 'description' in df.columns:
+        desc = df.loc[(df['project'] == project_id.split('_')[0]) & (df['bug_id'] == int(project_id.split('_')[1])), 'description']
+        if not desc.empty:
+            return desc.iloc[0]
+    
+    if 'summary' in df.columns:
+         desc = df.loc[(df['project'] == project_id.split('_')[0]) & (df['bug_id'] == int(project_id.split('_')[1])), 'summary']
+         if not desc.empty:
+             return desc.iloc[0]
+     
+    # Fallback: Use diff as description if no text summary
+    diff = df.loc[(df['project'] == project_id.split('_')[0]) & (df['bug_id'] == int(project_id.split('_')[1])), 'diff']
+    if not diff.empty:
+        return f"Fix description (from diff):\n{diff.iloc[0][:500]}"
+    
+    return "No description available for this bug."

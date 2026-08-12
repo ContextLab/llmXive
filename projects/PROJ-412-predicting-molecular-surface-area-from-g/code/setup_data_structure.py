@@ -1,50 +1,67 @@
+"""
+Script to initialize data directories for the molecular surface area prediction project.
+Creates the directory structure required for data ingestion, processing, and splitting.
+"""
 import os
 import sys
 import logging
 from pathlib import Path
 
-# Add project root to path to allow imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Add parent directory to path to allow imports from code/
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from code.utils.logging import get_logger
+from code.utils.config import get_project_root
 
-logger = get_logger("setup_data_structure")
 
-def create_data_directories() -> None:
+def create_data_directories(logger: logging.Logger) -> None:
     """
-    Initialize data directories as per task T001b.
-    Creates: data/raw/, data/processed/, data/splits/, data/schemas/
+    Create the required data directories under the project root.
+
+    Directories to create:
+    - data/raw/
+    - data/processed/
+    - data/splits/
+    - data/schemas/
+
+    Args:
+        logger: Logger instance for status messages.
     """
-    base_path = project_root / "data"
-    
-    required_dirs = [
+    project_root = get_project_root()
+    data_base = project_root / "data"
+
+    directories = [
         "raw",
         "processed",
         "splits",
-        "schemas"
+        "schemas",
     ]
-    
+
     created_count = 0
-    for dir_name in required_dirs:
-        dir_path = base_path / dir_name
+    for dir_name in directories:
+        dir_path = data_base / dir_name
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
             logger.info(f"Created directory: {dir_path}")
             created_count += 1
         else:
             logger.debug(f"Directory already exists: {dir_path}")
-    
-    logger.info(f"Data directory setup complete. Created {created_count} new directories.")
-    return None
+
+    logger.info(f"Data directory initialization complete. Created {created_count} new directories.")
+
 
 def main() -> None:
-    """Entry point for script execution."""
-    setup_logging()
-    logger.info("Starting data directory initialization (T001b)...")
-    create_data_directories()
-    logger.info("Data directory initialization complete.")
+    """Main entry point for the script."""
+    logger = get_logger("setup_data_structure")
+    logger.info("Starting data directory initialization...")
+
+    try:
+        create_data_directories(logger)
+        logger.info("Data directory initialization successful.")
+    except Exception as e:
+        logger.error(f"Data directory initialization failed: {e}", exc_info=True)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

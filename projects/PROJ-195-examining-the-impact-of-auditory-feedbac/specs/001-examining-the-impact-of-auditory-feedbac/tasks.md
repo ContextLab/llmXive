@@ -61,8 +61,8 @@
 - [X] T006 [P] Create `roi_masks/auditory_cortex.nii.gz` using the Harvard-Oxford Cortical Structural Atlas in standard MNI template space (specific source for determinism).
 - [X] T007 Implement `code/utils.py` for BIDS path helpers, QC logging, and motion threshold checks (>2mm exclusion logic) (Prerequisite for T009)
 - [ ] T008 Setup Docker configuration for `fmriprep` with appropriate memory and process limits to ensure efficient resource utilization. (Prerequisite for T009)
-- [ ] T008b [P] Specify Docker image tag: Create `docker-compose.yml` or script to pull `nipreps/fmriprep` with a version tag corresponding to a stable release. (Specific tag for determinism) (Prerequisite for T009)
-- [ ] T009 Implement `code/preprocess.py` orchestration script to run fmriprep sequentially per subject and handle OOM/failure gracefully (Depends on T007, T008, T008b)
+- [X] T008b [P] Specify Docker image tag: Create `docker-compose.yml` or script to pull `nipreps/fmriprep` with a version tag corresponding to a stable release. (Specific tag for determinism) (Prerequisite for T009)
+- [X] T009 Implement `code/preprocess.py` orchestration script to run fmriprep sequentially per subject and handle OOM/failure gracefully (Depends on T007, T008, T008b)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,8 +72,8 @@
 
 **Purpose**: Write tests for User Story 1 BEFORE implementation to ensure test-driven development.
 
-- [ ] T010 [P] [US1] Unit test for download integrity and checksum validation in `tests/unit/test_download.py` (Must be written before T012/T013)
-- [ ] T011 [P] [US1] Integration test for fmriprep execution on a single subject in `tests/integration/test_preprocess.py` (Must be written before T014/T015)
+- [X] T010 [P] [US1] Unit test for download integrity and checksum validation in `tests/unit/test_download.py` (Must be written before T012/T013)
+- [X] T011 [P] [US1] Integration test for fmriprep execution on a single subject in `tests/integration/test_preprocess.py` (Must be written before T014/T015)
 
 **Checkpoint**: Tests written and failing - ready for implementation
 
@@ -87,9 +87,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement dataset filtering logic in `code/download.py` to ensure total size < 14GB (subset if necessary) (Depends on T004; Corrected dataset source ds000246)
-- [ ] T013 [US1] Implement event label validation in `code/utils.py` to halt with exit code 1 and log "ERROR: Missing required event labels" if 'normal', 'delayed', or 'pitch-shifted' are missing (Depends on T004, T007; Hard stop constraint)
-- [ ] T014 [US1] Implement motion QC extraction in `code/preprocess.py` to parse fmriprep logs and flag subjects >2mm displacement
+- [X] T012 [US1] Implement dataset filtering logic in `code/download.py` to ensure total size < 14GB (subset if necessary) (Depends on T004; Corrected dataset source ds000246)
+- [X] T013 [US1] Implement event label validation in `code/utils.py` to halt with exit code 1 and log "ERROR: Missing required event labels" if 'normal', 'delayed', or 'pitch-shifted' are missing (Depends on T004, T007; Hard stop constraint)
+- [X] T014 [US1] Implement motion QC extraction in `code/preprocess.py` to parse fmriprep logs and flag subjects >2mm displacement
 - [ ] T015 [US1] Implement subject exclusion logic to generate `data/processed/valid_subjects.txt` for downstream steps
 - [ ] T016 [US1] Add logging for preprocessing deviations to `preprocessing.log` (Constitution Principle VI)
 

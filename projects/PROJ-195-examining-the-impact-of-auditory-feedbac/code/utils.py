@@ -1,374 +1,272 @@
-"""
-Utility functions for BIDS path handling, QC logging, and motion threshold checks.
-
-This module provides helpers for:
-- Constructing BIDS-compliant file paths
-- Logging QC metrics (motion, etc.)
-- Filtering subjects based on motion thresholds (>2mm exclusion)
-"""
-
 import os
 import logging
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple, Union
 import re
 import json
+import sys
 
-# Configure logging for the module
+# Configure logger for the module
 logger = logging.getLogger(__name__)
 
-
 def get_bids_subject_path(root: Path, subject_id: str) -> Path:
+    """Construct the path to a subject's BIDS directory."""
+    return root / f"sub-{subject_id}"
+
+def get_bids_func_file(subject_path: Path, session: Optional[str] = None) -> Path:
+    """Construct the path to the functional nifti file for a subject."""
+    suffix = "task-motor"
+    if session:
+        return subject_path / "func" / f"{subject_path.name}_{session}_{suffix}_bold.nii.gz"
+    return subject_path / "func" / f"{subject_path.name}_{suffix}_bold.nii.gz"
+
+def get_fmriprep_output_path(root: Path, subject_id: str, session: Optional[str] = None) -> Path:
+    """Get the fmriprep derivatives path for a subject."""
+    sub_dir = f"sub-{subject_id}"
+    if session:
+        sub_dir += f"/{session}"
+    return root / "derivatives" / "fmriprep" / sub_dir / "func"
+
+def get_motion_file(fmriprep_out: Path, subject_id: str, session: Optional[str] = None) -> Path:
+    """Get the path to the confounds_regressors.tsv file."""
+    sub_prefix = f"sub-{subject_id}"
+    if session:
+        sub_prefix += f"_{session}"
+    return fmriprep_out / f"{sub_prefix}_task-motor_desc-confounds_timeseries.tsv"
+
+def parse_motion_parameters(confounds_path: Path) -> List[Tuple[float, ...]]:
     """
-    Construct the path to a subject's BIDS directory.
-
-    Args:
-        root: Root directory of the BIDS dataset.
-        subject_id: Subject identifier (e.g., 'sub-01').
-
-    Returns:
-        Path to the subject directory.
+    Parse the confounds TSV file and extract motion parameters (rotations and translations).
+    Returns a list of tuples (rot_x, rot_y, rot_z, trans_x, trans_y, trans_z).
     """
-    return root / subject_id
+    if not confounds_path.exists():
+        raise FileNotFoundError(f"Confounds file not found: {confounds_path}")
 
+    params = []
+    with open(confounds_path, 'r') as f:
+        lines = f.readlines()
 
-def get_bids_func_file(
-    subject_path: Path,
-    session_id: Optional[str] = None,
-    task: str = "main",
-    suffix: str = "bold"
-) -> Path:
-    """
-    Construct the path to a functional MRI file for a subject.
+    if not lines:
+        return []
 
-    Args:
-        subject_path: Path to the subject's BIDS directory.
-        session_id: Optional session identifier (e.g., 'ses-01').
-        task: Task label (default: 'main').
-        suffix: File suffix (default: 'bold').
-
-    Returns:
-        Path to the functional file (glob pattern).
-    """
-    bids_root = subject_path.parent
-    if session_id:
-        ses_dir = subject_path / session_id
-        func_dir = ses_dir / "func"
-    else:
-        func_dir = subject_path / "func"
-
-    filename_pattern = f"{subject_path.name}_{session_id}_task-{task}_*_{suffix}.nii.gz" if session_id else f"{subject_path.name}_task-{task}_*_{suffix}.nii.gz"
-    
-    # Return the glob pattern or first match if exists
-    glob_pattern = func_dir / filename_pattern
-    matches = list(glob_pattern.parent.glob(filename_pattern))
-    if matches:
-        return matches[0]
-    return glob_pattern
-
-
-def get_fmriprep_output_path(
-    bids_root: Path,
-    subject_id: str,
-    session_id: Optional[str] = None,
-    output_dir: str = "derivatives/fmriprep"
-) -> Path:
-    """
-    Construct the path to fmriprep output for a subject.
-
-    Args:
-        bids_root: Root directory of the BIDS dataset.
-        subject_id: Subject identifier.
-        session_id: Optional session identifier.
-        output_dir: Relative path to fmriprep output directory.
-
-    Returns:
-        Path to the subject's fmriprep output directory.
-    """
-    if session_id:
-        return (
-            bids_root / output_dir / subject_id / session_id / "func"
-        )
-    return (
-        bids_root / output_dir / subject_id / "func"
-    )
-
-
-def get_motion_file(fmriprep_output_path: Path) -> Path:
-    """
-    Get the path to the motion parameters file from fmriprep output.
-
-    Args:
-        fmriprep_output_path: Path to the subject's fmriprep func directory.
-
-    Returns:
-        Path to the motion parameters file.
-    """
-    # fmriprep typically outputs: sub-XX_ses-YY_desc-confounds_timeseries.tsv
-    # or sub-XX_desc-confounds_timeseries.tsv
-    pattern = "*confounds*.tsv"
-    files = list(fmriprep_output_path.glob(pattern))
-    if not files:
-        raise FileNotFoundError(f"No motion parameters file found in {fmriprep_output_path}")
-    return files[0]
-
-
-def parse_motion_parameters(motion_file: Path) -> Dict[str, List[float]]:
-    """
-    Parse motion parameters from fmriprep confounds file.
-
-    Args:
-        motion_file: Path to the confounds TSV file.
-
-    Returns:
-        Dictionary with motion parameter columns (trans_x, trans_y, trans_z, 
-        rot_x, rot_y, rot_z) and their values.
-    """
-    import pandas as pd
-
-    df = pd.read_csv(motion_file, sep='\t')
-    
-    # fmriprep uses specific column names for motion parameters
+    # Parse header to find motion columns
+    header = lines[0].strip().split('\t')
     motion_cols = [
-        'trans_x', 'trans_y', 'trans_z',
-        'rot_x', 'rot_y', 'rot_z'
+        'rot_x', 'rot_y', 'rot_z',
+        'trans_x', 'trans_y', 'trans_z'
     ]
     
-    # Filter to only existing columns
-    available_cols = [col for col in motion_cols if col in df.columns]
-    
-    if not available_cols:
-        logger.warning(f"No standard motion columns found in {motion_file}. Available: {list(df.columns)[:10]}")
-        return {}
-    
-    return {col: df[col].tolist() for col in available_cols}
+    col_indices = []
+    for col in motion_cols:
+        if col in header:
+            col_indices.append(header.index(col))
+        else:
+            # Fallback for potential naming variations
+            idx = next((i for i, h in enumerate(header) if col in h), -1)
+            if idx == -1:
+                raise ValueError(f"Could not find motion column {col} in {confounds_path}")
+            col_indices.append(idx)
 
+    # Parse data rows
+    for line in lines[1:]:
+        if not line.strip():
+            continue
+        values = line.strip().split('\t')
+        if len(values) < max(col_indices) + 1:
+            continue
+        try:
+            row_vals = tuple(float(values[i]) for i in col_indices)
+            params.append(row_vals)
+        except ValueError:
+            continue
 
-def calculate_frame_displacement(motion_params: Dict[str, List[float]]) -> List[float]:
+    return params
+
+def calculate_frame_displacement(motion_params: List[Tuple[float, ...]]) -> List[float]:
     """
-    Calculate frame-wise displacement from motion parameters.
-
-    Uses the formula: sqrt(sum(trans_diffs^2) + sum(rot_diffs^2 * 50^2))
-    where 50mm is a typical head radius approximation.
-
-    Args:
-        motion_params: Dictionary with motion parameter lists.
-
-    Returns:
-        List of frame-wise displacement values (first value is 0).
+    Calculate frame-wise displacement (FWD) from motion parameters.
+    FWD is the sum of absolute differences of translations and rotations.
     """
     if not motion_params:
         return []
-    
-    trans_cols = ['trans_x', 'trans_y', 'trans_z']
-    rot_cols = ['rot_x', 'rot_y', 'rot_z']
-    
-    # Get available columns
-    trans_data = [motion_params.get(col, []) for col in trans_cols if col in motion_params]
-    rot_data = [motion_params.get(col, []) for col in rot_cols if col in motion_params]
-    
-    if not trans_data and not rot_data:
-        return []
-    
-    # Pad to same length if needed
-    max_len = max(len(col) for col in trans_data + rot_data)
-    for col_list in trans_data + rot_data:
-        while len(col_list) < max_len:
-            col_list.append(0.0)
-    
-    # Calculate differences
-    trans_diffs = []
-    rot_diffs = []
-    
-    for i in range(1, max_len):
-        trans_diff = sum((col[i] - col[i-1])**2 for col in trans_data)
-        rot_diff = sum((col[i] - col[i-1])**2 for col in rot_data)
+
+    displacements = []
+    for i in range(1, len(motion_params)):
+        prev = motion_params[i-1]
+        curr = motion_params[i]
+        # Translations are in mm, rotations in radians
+        # Convert rotations to mm (approximate for 40mm radius)
+        rot_factor = 40.0 
         
-        # Convert rotation from radians to mm (approximate with 50mm radius)
-        ffd = (trans_diff + rot_diff * (50.0**2)) ** 0.5
-        trans_diffs.append(ffd)
-    
-    # First frame has no previous frame, so displacement is 0
-    return [0.0] + trans_diffs
-
-
-def check_motion_threshold(
-    motion_file: Path,
-    threshold_mm: float = 2.0
-) -> Tuple[bool, float, List[int]]:
-    """
-    Check if a subject exceeds the motion threshold.
-
-    Args:
-        motion_file: Path to the motion parameters file.
-        threshold_mm: Maximum allowed displacement in mm (default: 2.0).
-
-    Returns:
-        Tuple of (passes_threshold, max_displacement, list_of_excessive_frames).
-        passes_threshold is True if max displacement <= threshold.
-    """
-    motion_params = parse_motion_parameters(motion_file)
-    if not motion_params:
-        logger.warning(f"Could not parse motion parameters from {motion_file}")
-        return False, float('inf'), []
-    
-    ffd = calculate_frame_displacement(motion_params)
-    max_disp = max(ffd) if ffd else 0.0
-    excessive_frames = [i for i, val in enumerate(ffd) if val > threshold_mm]
-    
-    passes = max_disp <= threshold_mm
-    return passes, max_disp, excessive_frames
-
-
-def log_qc_metrics(
-    subject_id: str,
-    motion_file: Path,
-    threshold_mm: float = 2.0,
-    log_file: Optional[Path] = None
-) -> Dict:
-    """
-    Calculate and log QC metrics for a subject.
-
-    Args:
-        subject_id: Subject identifier.
-        motion_file: Path to motion parameters file.
-        threshold_mm: Motion threshold in mm.
-        log_file: Optional path to QC log file.
-
-    Returns:
-        Dictionary with QC metrics.
-    """
-    passes, max_disp, excessive_frames = check_motion_threshold(motion_file, threshold_mm)
-    
-    qc_metrics = {
-        'subject_id': subject_id,
-        'max_displacement_mm': max_disp,
-        'passes_threshold': passes,
-        'threshold_mm': threshold_mm,
-        'num_excessive_frames': len(excessive_frames),
-        'excessive_frames': excessive_frames,
-        'motion_file': str(motion_file)
-    }
-    
-    # Log to file if provided
-    if log_file:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
+        dx = abs(curr[3] - prev[3])
+        dy = abs(curr[4] - prev[4])
+        dz = abs(curr[5] - prev[5])
         
-        # Check if file exists to determine header
-        file_exists = log_file.exists()
-        
-        with open(log_file, 'a') as f:
-            if not file_exists:
-                # Write header
-                f.write("subject_id,max_displacement_mm,passes_threshold,threshold_mm,num_excessive_frames\n")
-            
-            f.write(f"{subject_id},{max_disp:.4f},{passes},{threshold_mm},{len(excessive_frames)}\n")
-        
-        logger.info(f"QC metrics logged for {subject_id}: max_disp={max_disp:.4f}mm, passes={passes}")
+        drx = abs(curr[0] - prev[0]) * rot_factor
+        dry = abs(curr[1] - prev[1]) * rot_factor
+        drz = abs(curr[2] - prev[2]) * rot_factor
+
+        displacements.append(dx + dy + dz + drx + dry + drz)
     
-    return qc_metrics
+    return displacements
 
-
-def filter_subjects_by_motion(
-    bids_root: Path,
-    output_file: Path,
-    output_dir: str = "derivatives/fmriprep",
-    threshold_mm: float = 2.0,
-    qc_log_file: Optional[Path] = None
-) -> List[str]:
+def check_motion_threshold(displacements: List[float], threshold: float = 2.0) -> bool:
     """
-    Filter subjects based on motion threshold and generate a list of valid subjects.
-
-    Args:
-        bids_root: Root directory of the BIDS dataset.
-        output_file: Path to write the list of valid subjects.
-        output_dir: Relative path to fmriprep output directory.
-        threshold_mm: Motion threshold in mm (default: 2.0).
-        qc_log_file: Optional path to QC log file.
-
-    Returns:
-        List of subject IDs that pass the motion threshold.
+    Check if any frame displacement exceeds the threshold.
+    Returns True if motion is acceptable (all < threshold), False otherwise.
     """
-    # Find all subjects
-    subjects = [d.name for d in bids_root.iterdir() if d.is_dir() and d.name.startswith('sub-')]
+    return all(d < threshold for d in displacements)
+
+def log_qc_metrics(subject_id: str, displacements: List[float], threshold: float, log_path: Path):
+    """Log QC metrics for a subject to a file."""
+    if not log_path.parent.exists():
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    max_disp = max(displacements) if displacements else 0.0
+    mean_disp = sum(displacements) / len(displacements) if displacements else 0.0
+    exceeded = any(d >= threshold for d in displacements)
+    
+    status = "PASS" if not exceeded else "FAIL"
+    
+    with open(log_path, 'a') as f:
+        f.write(f"{subject_id},{status},{max_disp:.4f},{mean_disp:.4f}\n")
+
+def filter_subjects_by_motion(subjects: List[str], motion_threshold: float = 2.0, 
+                              fmriprep_root: Optional[Path] = None) -> List[str]:
+    """
+    Filter a list of subjects based on motion criteria.
+    Returns subjects where max frame displacement < threshold.
+    """
+    if fmriprep_root is None:
+        fmriprep_root = Path("data/derivatives/fmriprep")
     
     valid_subjects = []
-    
-    for subject_id in sorted(subjects):
+    for sub in subjects:
+        sub_path = Path(f"sub-{sub}")
+        confounds = fmriprep_root / sub_path / "func" / f"{sub_path}_task-motor_desc-confounds_timeseries.tsv"
+        
+        if not confounds.exists():
+            logger.warning(f"Confounds file missing for {sub}, excluding.")
+            continue
+        
         try:
-            # Determine session (if any)
-            subject_path = bids_root / subject_id
-            session_id = None
+            params = parse_motion_parameters(confounds)
+            displacements = calculate_frame_displacement(params)
             
-            # Check for session subdirectory
-            sessions = [d.name for d in subject_path.iterdir() if d.is_dir() and d.name.startswith('ses-')]
-            if sessions:
-                session_id = sessions[0]
-            
-            # Get fmriprep output path
-            fmriprep_path = get_fmriprep_output_path(bids_root, subject_id, session_id, output_dir)
-            
-            # Get motion file
-            motion_file = get_motion_file(fmriprep_path)
-            
-            # Check motion
-            passes, max_disp, _ = check_motion_threshold(motion_file, threshold_mm)
-            
-            if passes:
-                valid_subjects.append(subject_id)
-                logger.info(f"{subject_id}: PASS (max_disp={max_disp:.4f}mm)")
+            if check_motion_threshold(displacements, motion_threshold):
+                valid_subjects.append(sub)
             else:
-                logger.warning(f"{subject_id}: EXCLUDED (max_disp={max_disp:.4f}mm > {threshold_mm}mm)")
-            
-            # Log QC metrics
-            if qc_log_file:
-                log_qc_metrics(subject_id, motion_file, threshold_mm, qc_log_file)
-                
-        except FileNotFoundError as e:
-            logger.error(f"Error processing {subject_id}: {e}")
-            continue
+                logger.info(f"Subject {sub} exceeded motion threshold ({motion_threshold}mm). Excluding.")
         except Exception as e:
-            logger.error(f"Unexpected error processing {subject_id}: {e}")
+            logger.error(f"Error processing motion for {sub}: {e}")
             continue
-    
-    # Write valid subjects to file
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w') as f:
-        for subject_id in valid_subjects:
-            f.write(f"{subject_id}\n")
-    
-    logger.info(f"Filtered {len(valid_subjects)}/{len(subjects)} subjects. Valid subjects saved to {output_file}")
     
     return valid_subjects
 
-
-def get_event_file_path(
-    bids_root: Path,
-    subject_id: str,
-    task: str = "main",
-    session_id: Optional[str] = None
-) -> Path:
+def get_event_file_path(bids_root: Path, subject_id: str, session: Optional[str] = None) -> Path:
     """
-    Get the path to the events TSV file for a subject.
+    Locate the events TSV file for a given subject.
+    """
+    sub_prefix = f"sub-{subject_id}"
+    if session:
+        sub_prefix += f"_{session}"
+    
+    func_dir = bids_root / sub_prefix / "func"
+    if not func_dir.exists():
+        raise FileNotFoundError(f"Functional directory not found for {subject_id}")
+    
+    # Look for the events file
+    pattern = f"{sub_prefix}_task-motor_events.tsv"
+    events_files = list(func_dir.glob(pattern))
+    
+    if not events_files:
+        raise FileNotFoundError(f"No events file found for {subject_id} in {func_dir}")
+    
+    return events_files[0]
 
+def validate_event_labels(bids_root: Path, subject_id: str, 
+                          required_labels: List[str], 
+                          session: Optional[str] = None) -> bool:
+    """
+    Validate that the events file for a subject contains all required condition labels.
+    
     Args:
-        bids_root: Root directory of the BIDS dataset.
-        subject_id: Subject identifier.
-        task: Task label.
-        session_id: Optional session identifier.
-
+        bids_root: Path to the BIDS dataset root.
+        subject_id: The subject identifier (e.g., '01').
+        required_labels: List of condition names that must be present (e.g., ['normal', 'delayed', 'pitch-shifted']).
+        session: Optional session identifier.
+    
     Returns:
-        Path to the events file.
+        True if all required labels are present.
+    
+    Raises:
+        SystemExit: If any required label is missing, exits with code 1 and logs the error.
     """
-    subject_path = bids_root / subject_id
-    if session_id:
-        func_dir = subject_path / session_id / "func"
-    else:
-        func_dir = subject_path / "func"
-    
-    filename = f"{subject_id}"
-    if session_id:
-        filename += f"_{session_id}"
-    filename += f"_task-{task}_events.tsv"
-    
-    return func_dir / filename
+    try:
+        events_path = get_event_file_path(bids_root, subject_id, session)
+    except FileNotFoundError as e:
+        logger.error(f"Event file validation failed for {subject_id}: {e}")
+        print(f"ERROR: Missing required event labels", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        with open(events_path, 'r') as f:
+            lines = f.readlines()
+        
+        if not lines:
+            logger.error(f"Events file is empty for {subject_id}")
+            print(f"ERROR: Missing required event labels", file=sys.stderr)
+            sys.exit(1)
+        
+        # Parse header to find 'trial_type' or 'condition' column
+        header = lines[0].strip().split('\t')
+        label_col = None
+        for col in ['trial_type', 'condition', 'stim_type']:
+            if col in header:
+                label_col = col
+                break
+        
+        if label_col is None:
+            logger.error(f"Could not find trial_type/condition column in {events_path}")
+            print(f"ERROR: Missing required event labels", file=sys.stderr)
+            sys.exit(1)
+        
+        col_idx = header.index(label_col)
+        
+        # Collect unique labels found in the file
+        found_labels = set()
+        for line in lines[1:]:
+            if not line.strip():
+                continue
+            parts = line.strip().split('\t')
+            if len(parts) > col_idx:
+                val = parts[col_idx].strip()
+                if val:
+                    found_labels.add(val)
+        
+        # Check for missing required labels
+        missing = set(required_labels) - found_labels
+        
+        if missing:
+            logger.error(f"Subject {subject_id} missing event labels: {missing}")
+            print(f"ERROR: Missing required event labels", file=sys.stderr)
+            sys.exit(1)
+        
+        logger.info(f"Subject {subject_id} event validation passed. Found: {found_labels}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Error validating events for {subject_id}: {e}")
+        print(f"ERROR: Missing required event labels", file=sys.stderr)
+        sys.exit(1)
+
+def validate_all_subjects_events(bids_root: Path, subjects: List[str], 
+                                 required_labels: List[str],
+                                 session: Optional[str] = None) -> bool:
+    """
+    Validate event labels for a list of subjects.
+    Returns True if all pass, otherwise exits.
+    """
+    for sub in subjects:
+        validate_event_labels(bids_root, sub, required_labels, session)
+    return True

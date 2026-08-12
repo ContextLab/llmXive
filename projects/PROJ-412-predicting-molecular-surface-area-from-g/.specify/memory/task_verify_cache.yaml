@@ -36,13 +36,14 @@ T011:
     repository, so the integration test for the SMILES ingestion pipeline is missing.
     The task cannot be considered completed until this file is added with appropriate
     test code.
-T014:
+T015a:
   c: false
-  h: 3995bc4ec68e5cf7668a6e44aca63c71e6927bda1c35962356bf66c0229f510f
-  r: "The provided `code/data/preprocess.py` does not contain any implementation of\
-    \ 2\u2011D graph feature extraction, molecular\u2011weight calculation, the >100\u2011\
-    atom filter, or logging of excluded molecules, and the required output file `data/processed/graphs_with_features.parquet`\
-    \ is absent. Consequently the task\u2019s core requirements are not met."
+  h: 0747e8318526d12e1adb161c1426e4051e1f423551ffbdf1e4beb2a16abca15e
+  r: "The repository lacks the required output files (`data/processed/conformer_params.json`,\
+    \ `failure_report.csv`, `conformers.parquet`), and the shown portion of `code/data/preprocess.py`\
+    \ does not contain logic to write these artifacts, enforce the 10\u202F% failure\u2011\
+    rate halt, or perform the atomic failure\u2011report generation. The task\u2019\
+    s core functionality and logging are therefore not implemented."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -105,9 +106,9 @@ T048:
     \ output artifacts are missing."
 T057:
   c: false
-  h: 55b29d77f77706474ee144e9a5cdb57c68df953cedab95c5b53f45a7fb6653ea
-  r: "The `code/data/ingest.py` file exists but only defines a generic `calculate_checksum`\
-    \ for strings and imports checksum utilities; there is no code that computes SHA\u2011\
-    256 hashes for each downloaded chunk, compares them to a manifest, or writes them\
-    \ to `data/raw/checksums.json`. Moreover, the required `data/raw/checksums.json`\
-    \ file is missing. The task\u2019s core requirement is therefore not satisfied."
+  h: 27faa8299690c59773437289bb0ac59ab18efec2586c5e38838d9b9ca6db99bc
+  r: The provided `code/data/ingest.py` only defines helper functions (`calculate_checksum`,
+    `save_checksums`) and is truncated before any logic that hashes each downloaded
+    chunk, compares to a manifest, or writes to `data/raw/checksums.json`. Moreover,
+    the required `data/raw/checksums.json` file does not exist. Hence the checksum
+    verification feature is not fully implemented.

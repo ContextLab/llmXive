@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-444-predicting-molecular-properties-from-top/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, gudhi/dionysus2, scikit-learn, pandas, numpy, matplotlib, seaborn, pyyaml, requests)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, gudhi/dionysus2, scikit-learn, pandas, numpy, matplotlib, seaborn, pyyaml, requests)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -38,10 +38,10 @@
 
 - [ ] T004 Setup `data/` directory structure (`raw/`, `processed/`) and `state/` tracking
 - [X] T005 [P] Implement `code/utils/graph_builder.py` for RDKit molecular graph construction with validity checks
-- [ ] T006 [P] Implement `code/utils/persistence_utils.py` for shortest-path filtration and empty diagram handling
-- [~] T007 Implement `code/00_checksum_verify.py` to compute SHA256 hashes of raw data and record them in `data/checksums.txt` (Constitution III)
-- [ ] T008 Implement `code/01_data_ingestion.py` to fetch MoleculeNet ESOL, validate `smiles`/`logP` columns against schema, perform a priori power analysis (N>=128) [UNRESOLVED-CLAIM: c_d8f70333 — status=not_enough_info], enforce min scaffolds check, and ensure random seed pinning (fixed value)
-- [~] T010 [P] [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
+- [X] T006 [P] Implement `code/utils/persistence_utils.py` for shortest-path filtration and empty diagram handling
+- [ ] T007 Implement `code/00_checksum_verify.py` to compute SHA256 hashes of raw data and record them in `data/checksums.txt` (Constitution III)
+- [ ] T008 Implement `code/01_data_ingestion.py` to fetch MoleculeNet ESOL, validate `smiles`/`logP` columns against schema, perform a priori power analysis (N>=128), enforce min scaffolds check, and ensure random seed pinning (fixed value)
+- [ ] T010 [P] [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
 - [X] T011 [P] [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -56,7 +56,7 @@
 
 ### Pre-Implementation Tests for User Story 1 (MUST FAIL BEFORE IMPLEMENTATION)
 
-- [~] T010 [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
+- [ ] T010 [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
 - [X] T011 [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
 
 ### Implementation for User Story 1
@@ -76,17 +76,17 @@ The research question, method, and references remain unchanged as per the planni
 
 **Goal**: Train Linear Regression (L2) and Random Forest on Traditional, Topological, and Combined feature sets using -fold scaffold splits.
 
-**Independent Test**: Execute `04_model_training.py`; verify R²/RMSE reported for all 3 configurations and 5 folds [UNRESOLVED-CLAIM: c_33f33c24 — status=not_enough_info].
+**Independent Test**: Execute `04_model_training.py`; verify R²/RMSE reported for all 3 configurations and 5 folds.
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement `code/03_feature_engineering.py`: Merge traditional descriptors and TDA features; prepare combined feature matrix
-- [ ] T018 [US2] Implement `code/04_model_training.py`: Stratified scaffold split
+- [X] T017 [US2] Implement `code/03_feature_engineering.py`: Merge traditional descriptors and TDA features; prepare combined feature matrix
+- [X] T018 [US2] Implement `code/04_model_training.py`: Stratified scaffold split
 
 The research question, method, and references remain unchanged as per the planning document requirements, with the specific fold count replaced by a qualitative description of the cross-validation strategy. (Bemis-Murcko) with **explicit ScaffoldSplitter(seed=42)** initialization (FR-004)
-- [ ] T019 [US2] Implement `code/04_model_training.py`: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10) on 3 feature sets [UNRESOLVED-CLAIM: c_c934dfb3 — status=not_enough_info] (FR-003)
-- [ ] T020 [US2] Implement `code/04_model_training.py`: Calculate R² and RMSE per fold; aggregate metrics
-- [ ] T021 [US2] Add runtime GPU check (FR-008) using generic CUDA detection (checking `CUDA_VISIBLE_DEVICES` and library-specific GPU flags) to raise `SystemExit(1)` if any GPU acceleration is detected; do not rely on `torch`
+- [X] T019 [US2] Implement `code/04_model_training.py`: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10) on 3 feature sets (FR-003)
+- [X] T020 [US2] Implement `code/04_model_training.py`: Calculate R² and RMSE per fold; aggregate metrics
+- [~] T021 [US2] Add runtime GPU check (FR-008) using generic CUDA detection (checking `CUDA_VISIBLE_DEVICES` and library-specific GPU flags) to raise `SystemExit(1)` if any GPU acceleration is detected; do not rely on `torch`
 - [ ] T022 [US2] Generate `reports/metrics/model_performance.json` with all metrics and feature importance
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -104,7 +104,7 @@ The research question, method, and references remain unchanged as per the planni
 - [ ] T023 [US3] Implement `code/05_sensitivity_analysis.py`: Execute sensitivity sweeps on resolutions including low, medium, and high settings. using the pipeline from T013; measure and report R² variance (FR-006, SC-002); requires outputs from Phase 4 (US2)
 - [ ] T024 [US3] Generate `reports/metrics/sensitivity_analysis.json` aggregating sweep results
 - [ ] T025 [US3] Implement `code/06_diagnostics.py`: Apply Holm-Bonferroni correction to p-values (per plan.md amendment to FR-005, replacing spec's Bonferroni for correlated tests)
-- [ ] T026 [US3] Implement `code/06_diagnostics.py`: Calculate VIF; flag predictors > 5 [UNRESOLVED-CLAIM: c_4937c469 — status=not_enough_info] (FR-007)
+- [ ] T026 [US3] Implement `code/06_diagnostics.py`: Calculate VIF; flag predictors > 5 (FR-007)
 - [ ] T027 [US3] Implement `code/06_diagnostics.py`: Calculate Mutual Information between traditional and topological feature sets (FR-009)
 - [ ] T028 [US3] Generate `reports/metrics/diagnostics.json` with VIF flags, corrected p-values, and MI scores
 - [ ] T029 [US3] Implement `code/07_resource_monitor.py` to log RAM/CPU usage to `reports/metrics/resource_usage.json`; integrate into main pipeline execution context (SC-004)
@@ -118,8 +118,8 @@ The research question, method, and references remain unchanged as per the planni
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T030 [P] Documentation updates: Update `docs/` and `quickstart.md` with specific sections on TDA methodology and reproducibility steps
-- [ ] T031 [P] Code cleanup: Refactor `code/utils/graph_builder.py` to reduce cyclomatic complexity to < 10 [UNRESOLVED-CLAIM: c_316e1e43 — status=not_enough_info]
-- [ ] T032 [P] Performance optimization: Profile `code/02_tda_computation.py` and optimize memory usage to ensure total runtime < 5.4h [UNRESOLVED-CLAIM: c_020a066c — status=not_enough_info] (SC-004)
+- [ ] T031 [P] Code cleanup: Refactor `code/utils/graph_builder.py` to reduce cyclomatic complexity to < 10
+- [ ] T032 [P] Performance optimization: Profile `code/02_tda_computation.py` and optimize memory usage to ensure total runtime < 5.4h (SC-004)
 - [ ] T033 [P] Additional unit tests: Implement `tests/unit/` for graph builder and persistence utils
 - [ ] T034 [P] Run quickstart.md validation to ensure full pipeline reproducibility
 

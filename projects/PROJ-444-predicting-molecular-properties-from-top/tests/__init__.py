@@ -1,3 +1,1 @@
-"""
-Test suite for the molecular properties pipeline.
-"""
+# Test suite package

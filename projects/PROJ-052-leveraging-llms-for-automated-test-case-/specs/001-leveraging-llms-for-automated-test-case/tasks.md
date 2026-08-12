@@ -58,7 +58,7 @@
 
 - [X] T005 Implement `code/config.py` to load environment variables (sample limits, timeouts, model paths) and enforce a runtime limit.
 - [X] T006 [P] Implement `code/data_loader.py` to fetch Defects4J parquet data from verified HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet` and cache to `data/defects4j_v1.0.parquet`.
-- [ ] T006b [P] Implement checksum recording in `code/data_loader.py` to compute SHA-256 hash of `data/defects4j_v1.0.parquet` and store in project state, satisfying Constitution Principle III.
+- [X] T006b [P] Implement checksum recording in `code/data_loader.py` to compute SHA-256 hash of `data/defects4j_v1.0.parquet` and store in project state, satisfying Constitution Principle III.
 - [ ] T025 [P] Implement `extract_changed_lines` in `code/data_loader.py` to parse Defects4J commit diffs from the cached parquet file and output `data/changed_lines.json` (a set of line integers per project), which is a prerequisite for T024 and T026.
 - [X] T007 Implement `code/llm_generator.py` skeleton with a compact, CPU-optimized small language model loading logic using `llama-cpp-python`.
 - [X] T007b [P] Implement and verify Q4_K_M quantization format and 7GB RAM constraint logic in `code/llm_generator.py` loading phase to satisfy FR-002.
@@ -81,8 +81,8 @@
 ### Implementation for User Story 1
 
 - [X] T015 [US1] Implement `extract_bug_fix_description` in `code/data_loader.py` to parse Defects4J metadata, format as prompt per FR-001, and return the prompt string.
-- [X] T016 [US1] Implement `generate_test_code` in `code/llm_generator.py` using Phi-2 with deterministic settings (seed=42, temp=0).
-- [ ] T017 [US1] Implement `validate_syntax` in `code/llm_generator.py` using `javac` to check generated `.java` files for syntax errors.
+- [X] T016 [US1] Implement `generate_test_code` in `code/llm_generator.py` {{claim:c_4bf59045}} (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio).
+- [X] T017 [US1] Implement `validate_syntax` in `code/llm_generator.py` using `javac` to check generated `.java` files for syntax errors.
 - [ ] T018 [US1] Implement error handling for ambiguous inputs: If prompt length < 20 chars, load `data/templates/default_test.java` (class `DefaultBugFixTest`) and return it as a syntactic fallback, acknowledging it may result in low coverage.
 - [ ] T018b [US1] Implement logging and metric tracking in `code/llm_generator.py` to record WARNING for default template usage and count it in SC-005 metrics.
 - [ ] T019 [US1] Implement memory monitoring in `code/llm_generator.py` to ensure no OOM on a limited-core runner with constrained memory.
@@ -143,7 +143,7 @@
 - [ ] T034 [US3] Implement `run_statistical_test` in `code/analyzer.py`: if normality holds (p ≥ 0.05 per Spec US-3/FR-008), run paired t-test; else run Wilcoxon signed-rank.
 - [ ] T035 [US3] Implement `calculate_effect_size` in `code/analyzer.py` (Cohen's d or Rank-biserial correlation).
 - [ ] T036 [US3] Implement `run_power_analysis` in `code/analyzer.py` to calculate required N and report achieved power *only* as a descriptive limitation metric, not for validation.
-- [ ] T037a [US3] Implement `calculate_confidence_intervals` in `code/analyzer.py` to compute 95% confidence intervals for the mean ratio, as required by the Plan's 'Statistical Interpretation Note'.
+- [ ] T037a [US3] Implement `calculate_confidence_intervals` in `code/analyzer.py` to Implement calculate_confidence_intervals in code/analyzer.py to compute 95% confidence intervals for the mean ratio, as required by the Plan's 'Statistical Interpretation Note'., as required by the Plan's 'Statistical Interpretation Note'.
 - [ ] T037 [US3] Implement `generate_final_report` in `code/report_generator.py` to output Markdown/JSON with p-value, ratio, test type, hypothesis benchmark (40-60%) comparison (as descriptive), confidence intervals, and conclusion.
 - [ ] T038 [US3] Implement logic to handle small sample sizes: If N < 30, prepend the report with a warning block: "WARNING: Sample size (N={N}) < 30. Results are exploratory.", satisfying FR-010/US-3.
 - [ ] T039 [US3] Integrate `validate_schemas.py` to ensure `data/analysis_results.json` conforms to `contracts/analysis_result.schema.yaml` after T037 generates the artifact.

@@ -2,12 +2,13 @@ import os
 import logging
 import traceback
 import time
-from typing import Optional, Dict, Any, List
+import subprocess
+import tempfile
 from pathlib import Path
-import json
+from typing import Optional, Tuple
 
-from config import get_model_path, get_timeout_inference, ensure_directories, get_data_dir, get_output_dir
-from data_loader import load_defects4j_data, extract_bug_fix_description
+from config import get_model_path, get_timeout_inference, ensure_directories
+from data_loader import load_defects4j_data
 
 # Configure logging
 logging.basicConfig(
@@ -16,277 +17,237 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-_model = None
-_model_path = None
+# Global model instance (lazy load)
+_model_instance = None
 
-def load_model(model_path: Optional[str] = None, n_ctx: int = 2048, n_threads: int = 4) -> Any:
+def load_model():
     """
-    Load the Phi-2 model using llama-cpp-python.
-    Caches the loaded model globally to avoid reloading.
+    Load the quantized LLM model using llama-cpp-python.
+    Implements CPU-optimized loading with Q4_K_M quantization.
     """
-    global _model, _model_path
+    global _model_instance
+    if _model_instance is not None:
+        return _model_instance
 
-    if model_path is None:
-        model_path = get_model_path()
-
-    if _model is not None and _model_path == model_path:
-        logger.info(f"Model already loaded from {model_path}")
-        return _model
+    model_path = get_model_path()
+    if not model_path or not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model not found at {model_path}. "
+                                "Please set MODEL_PATH env var or download the model.")
 
     logger.info(f"Loading model from {model_path}...")
-    
     try:
         from llama_cpp import Llama
-        
-        # Ensure the model file exists
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"Model file not found at {model_path}. "
-                                    "Please download the quantized Phi-2 model (e.g., Q4_K_M.gguf) first.")
-
-        _model = Llama(
+        _model_instance = Llama(
             model_path=model_path,
-            n_ctx=n_ctx,
-            n_threads=n_threads,
-            n_gpu_layers=0,  # CPU-only as per constraints
+            n_ctx=2048,
+            n_threads=4,
+            n_batch=512,
+            use_mmap=True,
+            use_mlock=False,
             verbose=False
         )
-        _model_path = model_path
         logger.info("Model loaded successfully.")
-        return _model
-    except ImportError:
-        logger.error("llama-cpp-python not installed. Please install it via requirements.txt.")
-        raise
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         raise
 
-def generate_from_prompt(
-    prompt: str,
-    max_tokens: int = 512,
-    temperature: float = 0.0,
-    seed: int = 42,
-    stop_sequences: Optional[List[str]] = None
-) -> str:
+    return _model_instance
+
+def generate_from_prompt(prompt: str, max_tokens: int = 512) -> str:
     """
-    Generate text from a prompt using the loaded model with deterministic settings.
+    Generate text from a given prompt using the loaded model.
     """
-    global _model
-
-    if _model is None:
-        logger.warning("Model not loaded. Attempting to load with defaults.")
-        load_model()
-
-    if _model is None:
-        raise RuntimeError("Model failed to load. Cannot generate text.")
-
-    if stop_sequences is None:
-        stop_sequences = ["\n\n", "```", "</s>"]
-
-    logger.info(f"Generating text for prompt length: {len(prompt)}")
-    
+    model = load_model()
     try:
-        start_time = time.time()
-        output = _model(
+        output = model(
             prompt,
             max_tokens=max_tokens,
-            temperature=temperature,
-            top_p=0.95,
-            top_k=40,
-            stop=stop_sequences,
-            echo=False,
-            seed=seed
+            temperature=0.7,
+            top_p=0.9,
+            stop=["</test>", "```"],
+            echo=False
         )
-        
-        elapsed = time.time() - start_time
-        logger.info(f"Generation completed in {elapsed:.2f}s")
-        
         return output['choices'][0]['text'].strip()
     except Exception as e:
         logger.error(f"Generation failed: {e}")
-        traceback.print_exc()
         raise
 
-def generate_test_code(
-    bug_id: str,
-    description: str,
-    output_dir: Optional[str] = None,
-    model_path: Optional[str] = None,
-    max_tokens: int = 512,
-    timeout: Optional[int] = None
-) -> Dict[str, Any]:
+def generate_test_code(bug_description: str, project_id: str) -> Tuple[str, bool]:
     """
-    Generate a JUnit test case for a given bug description using Phi-2.
+    Generate a JUnit test case string based on the bug description.
     
     Args:
-        bug_id: Unique identifier for the bug (e.g., 'Lang-1')
-        description: Natural language description of the bug fix
-        output_dir: Directory to save the generated .java file
-        model_path: Path to the Phi-2 model (overrides config)
-        max_tokens: Maximum tokens to generate
-        timeout: Timeout in seconds for the generation process
-    
+        bug_description: The natural language description of the bug.
+        project_id: Identifier for the project (used for logging/output naming).
+        
     Returns:
-        Dict containing 'file_path', 'generated_code', 'status', 'error'
+        Tuple of (generated_code_string, success_boolean)
+        
+    Note:
+        If the prompt length is < 20 chars, this function falls back to a
+        default template (data/templates/default_test.java) to ensure
+        syntactic validity, acknowledging potential low coverage.
     """
-    if output_dir is None:
-        output_dir = get_output_dir()
-    
+    # Ensure output directories exist
     ensure_directories()
+    output_dir = Path(os.environ.get('OUTPUT_DIR', 'data/generated'))
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Format the prompt
-    system_prompt = """You are an expert Java developer. Your task is to write a JUnit 4 test case 
-    that verifies the fix for a specific bug. The test should be a single class file.
-    Include necessary imports. Use standard JUnit assertions (@Test, assertEquals, assertTrue, etc.).
-    Do not include markdown formatting (no ```java ... ```). Just output the raw Java code."""
+    # T018: Error handling for ambiguous inputs
+    if len(bug_description) < 20:
+        logger.warning(f"Ambiguous input detected for project {project_id}: "
+                       f"Prompt length ({len(bug_description)}) < 20 chars. "
+                       "Falling back to default template.")
+        
+        template_path = Path("code/templates/default_test.java")
+        if not template_path.exists():
+            raise FileNotFoundError(f"Default template not found at {template_path}. "
+                                    "Cannot fallback for ambiguous input.")
+        
+        with open(template_path, 'r', encoding='utf-8') as f:
+            default_code = f.read()
+        
+        # Log metric for SC-005 (template usage count)
+        # In a real system, this would update a persistent counter in state
+        logger.info(f"SC-005 Metric: Default template used for {project_id}")
+        
+        return default_code, True
+
+    # Construct prompt
+    prompt = f"""
+    You are an expert Java developer. Generate a JUnit 4 test case to verify the fix for the following bug.
     
-    user_prompt = f"""
-    Bug ID: {bug_id}
-    Bug Description: {description}
+    Bug Description:
+    {bug_description}
     
-    Please generate the JUnit test code now.
+    Requirements:
+    1. The test must be a valid Java class extending a generic Test structure.
+    2. Include at least one @Test annotated method.
+    3. Use standard JUnit assertions (assertEquals, assertTrue, etc.).
+    4. Output ONLY the Java code, no markdown formatting.
+    5. Class name: BugFixTest_{project_id.replace('-', '_')}
+    
+    Java Code:
     """
-    
-    full_prompt = f"{system_prompt}\n\n{user_prompt}"
-    
+
     try:
-        # Load model if not already loaded
-        load_model(model_path=model_path)
+        generated_code = generate_from_prompt(prompt)
         
-        # Generate code
-        generated_code = generate_from_prompt(
-            full_prompt,
-            max_tokens=max_tokens,
-            temperature=0.0,  # Deterministic
-            seed=42          # Deterministic
-        )
-        
-        # Clean up code (remove potential markdown artifacts if model hallucinates them)
+        # Clean up potential markdown artifacts if the model ignored instructions
         if generated_code.startswith("```java"):
             generated_code = generated_code[7:]
-        if generated_code.startswith("```"):
-            generated_code = generated_code[3:]
         if generated_code.endswith("```"):
             generated_code = generated_code[:-3]
         
-        generated_code = generated_code.strip()
-        
-        # Sanitize filename
-        safe_id = "".join(c if c.isalnum() else "_" for c in bug_id)
-        filename = f"Test_{safe_id}.java"
-        file_path = Path(output_dir) / filename
-        
-        # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(generated_code)
-        
-        logger.info(f"Generated test code for {bug_id} saved to {file_path}")
-        
-        return {
-            "file_path": str(file_path),
-            "generated_code": generated_code,
-            "status": "success",
-            "error": None
-        }
+        return generated_code.strip(), True
         
     except Exception as e:
-        logger.error(f"Failed to generate test code for {bug_id}: {e}")
-        traceback.print_exc()
-        return {
-            "file_path": None,
-            "generated_code": None,
-            "status": "failed",
-            "error": str(e)
-        }
+        logger.error(f"Failed to generate code for {project_id}: {e}")
+        return "", False
 
-def validate_syntax_java(file_path: str) -> bool:
+def validate_syntax_java(code_string: str, project_id: str) -> bool:
     """
-    Validate Java syntax using javac.
-    Returns True if valid, False otherwise.
-    """
-    if not os.path.exists(file_path):
-        logger.error(f"File not found: {file_path}")
-        return False
+    Validate the generated Java code for syntax errors using javac.
     
+    Args:
+        code_string: The Java source code to validate.
+        project_id: Identifier for logging.
+        
+    Returns:
+        True if syntax is valid, False otherwise.
+    """
+    if not code_string:
+        logger.warning(f"No code to validate for {project_id}")
+        return False
+
+    # Extract class name if possible, or use a generic name
+    class_name = "GeneratedTest"
+    if "class" in code_string:
+        try:
+            # Simple regex-like extraction
+            start = code_string.find("class") + 6
+            end = code_string.find("{", start)
+            if end > start:
+                class_name = code_string[start:end].strip()
+        except:
+            pass
+
+    # Write to a temporary file
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.java', delete=False) as f:
+        f.write(code_string)
+        temp_path = f.name
+
     try:
-        # Attempt to compile
+        # Run javac
+        # We use javac from the system PATH. If not available, this will fail.
         result = subprocess.run(
-            ['javac', '-Xlint:none', '-proc:none', file_path],
+            ['javac', '-version'],
             capture_output=True,
-            text=True,
-            timeout=30
+            text=True
         )
         
-        if result.returncode == 0:
-            logger.info(f"Syntax validation passed for {file_path}")
+        if result.returncode != 0:
+            logger.error("javac not found in system PATH. Cannot validate syntax.")
+            return False
+
+        compile_result = subprocess.run(
+            ['javac', '-cp', '.', temp_path],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+
+        if compile_result.returncode == 0:
+            logger.info(f"Syntax validation passed for {project_id}")
             return True
         else:
-            logger.warning(f"Syntax validation failed for {file_path}: {result.stderr}")
+            logger.warning(f"Syntax validation failed for {project_id}: {compile_result.stderr}")
             return False
-    except FileNotFoundError:
-        logger.error("javac not found in PATH. Cannot validate syntax.")
-        return False
+            
     except subprocess.TimeoutExpired:
-        logger.error(f"Compilation timeout for {file_path}")
+        logger.error(f"Compilation timed out for {project_id}")
         return False
-    except Exception as e:
-        logger.error(f"Error during validation: {e}")
+    except FileNotFoundError:
+        logger.error("javac not found. Please ensure JDK is installed and in PATH.")
         return False
+    finally:
+        # Clean up temp file
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+        # Clean up potential class file
+        class_file = temp_path.replace('.java', '.class')
+        if os.path.exists(class_file):
+            os.remove(class_file)
 
 def main():
     """
-    Main entry point for generating test codes from Defects4J data.
+    Entry point for the LLM generator module.
+    Can be used to test generation on a single sample or as part of a pipeline.
     """
-    logger.info("Starting test code generation pipeline...")
+    import sys
     
-    # Ensure data is loaded
-    try:
-        data = load_defects4j_data()
-    except Exception as e:
-        logger.error(f"Failed to load Defects4J data: {e}")
-        return
+    if len(sys.argv) < 2:
+        print("Usage: python -m code.llm_generator <bug_description>")
+        sys.exit(1)
+
+    description = sys.argv[1]
+    project_id = "test_run"
     
-    if data is None or data.empty:
-        logger.error("No data loaded.")
-        return
+    logger.info(f"Generating test for: {description[:50]}...")
     
-    # Get sample limit from config
-    from config import get_sample_limit
-    sample_limit = get_sample_limit()
+    code, success = generate_test_code(description, project_id)
     
-    # Process up to sample_limit bugs
-    count = 0
-    for idx, row in data.iterrows():
-        if count >= sample_limit:
-            logger.info(f"Reached sample limit ({sample_limit}). Stopping.")
-            break
-        
-        bug_id = row.get('project_id', row.get('bug_id', f'bug_{idx}'))
-        description = extract_bug_fix_description(row)
-        
-        if not description or len(description) < 20:
-            logger.warning(f"Skipping {bug_id}: Description too short or empty.")
-            continue
-        
-        result = generate_test_code(
-            bug_id=bug_id,
-            description=description,
-            max_tokens=512,
-            temperature=0.0,
-            seed=42
-        )
-        
-        if result['status'] == 'success':
-            logger.info(f"Successfully generated test for {bug_id}")
-            # Optional: Validate syntax immediately
-            # if validate_syntax_java(result['file_path']):
-            #     logger.info(f"Syntax valid for {bug_id}")
-            # else:
-            #     logger.warning(f"Syntax invalid for {bug_id}")
-            count += 1
+    if success:
+        # Validate syntax
+        if validate_syntax_java(code, project_id):
+            print("SUCCESS: Generated valid Java code.")
+            print(code)
         else:
-            logger.error(f"Failed to generate test for {bug_id}: {result['error']}")
-    
-    logger.info(f"Generation pipeline finished. Processed {count} bugs.")
+            print("FAILURE: Generated code has syntax errors.")
+            print(code)
+    else:
+        print("FAILURE: Generation failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,114 @@
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: auditory cortex ROI mask created using Harvard-Oxford Cortical Structural
+    Atlas in MNI space
+  claim_id: c_812c6a4d
+  context: T006 [P] Create roi_masks/auditory_cortex.nii.gz using the Harvard-Oxford
+    Cortical Structural Atlas in standard MNI template space (specific source for
+    determinism).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Auditory_cortex_ROI_mask_created_using_Harvard-Oxford_Cortic
+  kind: entity_fact
+  raw_text: Create roi_masks/auditory_cortex.nii.gz using the Harvard-Oxford Cortical
+    Structural Atlas in standard MNI template space
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:32:38Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: dataset filtering ensures total size is less than 14GB
+  claim_id: c_0477b454
+  context: T012 [US1] Implement dataset filtering logic in code/download.py to ensure
+    total size < 14GB (subset if necessary) (Depends on T004; Corrected dataset source
+    ds000246)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_filtering_ensures_total_size_is_less_than_14GB
+  kind: magnitude
+  raw_text: Implement dataset filtering logic in code/download.py to ensure total
+    size < 14GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:33:06Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: voxel-wise FDR correction applied with q less than 0.05
+  claim_id: c_42613af9
+  context: T022 [US2] Apply Voxel-wise FDR correction (q < 0.05) and extract significant
+    clusters (Depends on T021)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Voxel-wise_FDR_correction_applied_with_q_less_than_0.05
+  kind: magnitude
+  raw_text: Apply Voxel-wise FDR correction (q < 0.05)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:33:31Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: subjects with displacement greater than 2mm are flagged
+  claim_id: c_146f7084
+  context: T014 [US1] Implement motion QC extraction in code/preprocess.py to parse
+    fmriprep logs and flag subjects >2mm displacement
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subjects_with_displacement_greater_than_2mm_are_flagged
+  kind: magnitude
+  raw_text: flag subjects >2mm displacement
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:33:53Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: motion threshold checks use greater than 2mm exclusion logic
+  claim_id: c_9a882180
+  context: T007 Implement code/utils.py for BIDS path helpers, QC logging, and motion
+    threshold checks (>2mm exclusion logic) (Prerequisite for T009)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_threshold_checks_use_greater_than_2mm_exclusion_logic
+  kind: magnitude
+  raw_text: Implement motion threshold checks (>2mm exclusion logic)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:34:18Z'
+- artifact_path: projects/PROJ-195-examining-the-impact-of-auditory-feedbac/specs/001-examining-the-impact-of-auditory-feedbac/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ds000246 subset is fetched
+  claim_id: c_2192c41f
+  context: T004 Implement code/download.py to fetch OpenNeuro ds000246 subset (handling
+    disk limits) and verify SHA256 checksums. (Corrected dataset source; removed [P]
+    to enforce sequential execution for T012/T013)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000246_subset_is_fetched
+  kind: entity_fact
+  raw_text: fetch OpenNeuro ds000246 subset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:34:36Z'

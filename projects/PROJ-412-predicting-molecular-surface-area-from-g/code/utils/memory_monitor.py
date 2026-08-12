@@ -1,46 +1,41 @@
 """
-Memory profiling wrapper for training loops.
+Memory profiling wrapper for the molecular surface area prediction pipeline.
 
-This module provides the MemoryMonitor class to track peak RAM usage per epoch
-and trigger early exit if memory usage exceeds the configured limit.
+This module provides the MemoryMonitor class to track RAM usage during training
+and trigger early exit if limits are exceeded.
 """
-
 import os
 import sys
 import logging
 import time
 import json
+import tracemalloc
 from pathlib import Path
 from typing import Optional, Dict, Any, List
+from datetime import datetime
 
-# Try to import psutil, fallback to tracemalloc if not available
-try:
-    import psutil
-    HAS_PSUTIL = True
-except ImportError:
-    HAS_PSUTIL = False
-    import tracemalloc
+# Import configuration
+from code.config import MAX_RAM_GB, PROJECT_ROOT, LOGS_DIR
+from code.utils.logging import get_logger
 
-from .config import get_project_root, load_env_config
-from .logging import get_logger
-
+# Initialize logger
 logger = get_logger(__name__)
 
 
 class MemoryMonitor:
     """
-    Monitors memory usage during training epochs.
+    A context manager and utility class for monitoring peak RAM usage.
 
-    Tracks peak RAM usage per epoch and triggers an early exit with a diagnostic
-    report if memory usage exceeds MAX_RAM_GB from config.
+    This class tracks memory consumption per epoch, logs diagnostics, and
+    triggers an early exit if the configured MAX_RAM_GB limit is exceeded.
 
     Attributes:
         max_ram_gb (float): Maximum allowed RAM usage in GB.
-        peak_memory_per_epoch (List[float]): List of peak memory values (GB) per epoch.
-        diagnostics (Dict[str, Any]): Diagnostic information for the final report.
-        _start_time (Optional[float]): Start time of monitoring.
-        _epoch_start_time (Optional[float]): Start time of current epoch.
-        _tracemalloc_started (bool): Whether tracemalloc has been started.
+        peak_memory_mb (float): Peak memory usage observed (in MB).
+        current_memory_mb (float): Current memory usage (in MB).
+        epoch_logs (List[Dict]): List of memory snapshots per epoch.
+        start_time (float): Start time of monitoring.
+        is_monitoring (bool): Flag indicating if monitoring is active.
     """
 
     def __init__(self, max_ram_gb: Optional[float] = None):
@@ -48,168 +43,211 @@ class MemoryMonitor:
         Initialize the MemoryMonitor.
 
         Args:
-            max_ram_gb: Maximum RAM limit in GB. If None, loads from config.py.
+            max_ram_gb: Maximum RAM limit in GB. If None, uses config.MAX_RAM_GB.
         """
-        # Load config
-        config = load_env_config()
-        self.max_ram_gb = max_ram_gb if max_ram_gb is not None else config.get('MAX_RAM_GB', 7.0)
-        
-        self.peak_memory_per_epoch: List[float] = []
-        self.diagnostics: Dict[str, Any] = {
-            'max_ram_gb': self.max_ram_gb,
-            'exceeded': False,
-            'exceeded_at_epoch': None,
-            'peak_memory_gb': None,
-            'timestamp': None
-        }
-        
-        self._start_time: Optional[float] = None
-        self._epoch_start_time: Optional[float] = None
+        self.max_ram_gb = max_ram_gb if max_ram_gb is not None else MAX_RAM_GB
+        self.peak_memory_mb = 0.0
+        self.current_memory_mb = 0.0
+        self.epoch_logs: List[Dict[str, Any]] = []
+        self.start_time: Optional[float] = None
+        self.is_monitoring = False
         self._tracemalloc_started = False
 
-        if HAS_PSUTIL:
-            logger.info("MemoryMonitor: Using psutil for memory monitoring.")
-        else:
-            logger.warning("MemoryMonitor: psutil not found. Falling back to tracemalloc.")
-            tracemalloc.start()
-            self._tracemalloc_started = True
+        # Ensure log directory exists
+        os.makedirs(LOGS_DIR, exist_ok=True)
 
     def start(self) -> None:
-        """Start the memory monitoring session."""
-        self._start_time = time.time()
-        self.peak_memory_per_epoch = []
-        self.diagnostics = {
-            'max_ram_gb': self.max_ram_gb,
-            'exceeded': False,
-            'exceeded_at_epoch': None,
-            'peak_memory_gb': None,
-            'timestamp': None
-        }
-        logger.info(f"MemoryMonitor started. Max RAM limit: {self.max_ram_gb} GB.")
+        """Start memory monitoring using tracemalloc."""
+        if self.is_monitoring:
+            logger.warning("MemoryMonitor is already running.")
+            return
 
-    def _get_current_memory_gb(self) -> float:
-        """
-        Get current memory usage in GB.
-
-        Returns:
-            float: Current memory usage in GB.
-        """
-        if HAS_PSUTIL:
-            process = psutil.Process(os.getpid())
-            memory_bytes = process.memory_info().rss
-            return memory_bytes / (1024 ** 3)
-        else:
-            current, _ = tracemalloc.get_traced_memory()
-            return current / (1024 ** 3)
-
-    def start_epoch(self) -> None:
-        """Record the start of a new epoch."""
-        self._epoch_start_time = time.time()
-
-    def end_epoch(self, epoch: int) -> bool:
-        """
-        Record the end of an epoch and check memory limits.
-
-        Args:
-            epoch: The current epoch number (1-indexed).
-
-        Returns:
-            bool: True if memory limit was exceeded, False otherwise.
-        """
-        if self._epoch_start_time is None:
-            logger.warning("MemoryMonitor: end_epoch called without start_epoch.")
-            return False
-
-        current_memory_gb = self._get_current_memory_gb()
-        self.peak_memory_per_epoch.append(current_memory_gb)
-
-        exceeded = current_memory_gb > self.max_ram_gb
-
-        if exceeded:
-            self.diagnostics['exceeded'] = True
-            self.diagnostics['exceeded_at_epoch'] = epoch
-            self.diagnostics['peak_memory_gb'] = current_memory_gb
-            self.diagnostics['timestamp'] = time.strftime('%Y-%m-%d %H:%M:%S')
-            
-            logger.error(
-                f"MemoryMonitor: CRITICAL - Memory limit exceeded at epoch {epoch}! "
-                f"Current usage: {current_memory_gb:.2f} GB (limit: {self.max_ram_gb} GB)."
-            )
-            self._generate_diagnostic_report()
-            return True
-        else:
-            logger.info(
-                f"Epoch {epoch}: Peak memory usage = {current_memory_gb:.2f} GB "
-                f"(limit: {self.max_ram_gb} GB)"
-            )
-            return False
-
-    def _generate_diagnostic_report(self) -> None:
-        """Generate and save a diagnostic report when memory limit is exceeded."""
-        project_root = get_project_root()
-        logs_dir = project_root / 'logs'
-        logs_dir.mkdir(parents=True, exist_ok=True)
-
-        report_path = logs_dir / 'memory_exceeded_report.json'
-
-        report_data = {
-            'config': {
-                'max_ram_gb': self.max_ram_gb,
-                'total_epochs_monitored': len(self.peak_memory_per_epoch)
-            },
-            'memory_history_gb': self.peak_memory_per_epoch,
-            'peak_memory_gb': max(self.peak_memory_per_epoch) if self.peak_memory_per_epoch else 0,
-            'exceeded_at_epoch': self.diagnostics['exceeded_at_epoch'],
-            'exceeded_memory_gb': self.diagnostics['peak_memory_gb'],
-            'timestamp': self.diagnostics['timestamp'],
-            'recommendation': (
-                "Reduce batch size, use gradient accumulation, "
-                "or increase available memory."
-            )
-        }
-
-        with open(report_path, 'w') as f:
-            json.dump(report_data, f, indent=2)
-
-        logger.error(f"Diagnostic report saved to: {report_path}")
-
-    def get_summary(self) -> Dict[str, Any]:
-        """
-        Get a summary of memory usage.
-
-        Returns:
-            Dict containing summary statistics.
-        """
-        if not self.peak_memory_per_epoch:
-            return {'status': 'no_data', 'message': 'No epochs monitored yet.'}
-
-        return {
-            'total_epochs': len(self.peak_memory_per_epoch),
-            'peak_memory_gb': max(self.peak_memory_per_epoch),
-            'average_memory_gb': sum(self.peak_memory_per_epoch) / len(self.peak_memory_per_epoch),
-            'min_memory_gb': min(self.peak_memory_per_epoch),
-            'max_ram_limit_gb': self.max_ram_gb,
-            'exceeded_limit': self.diagnostics['exceeded'],
-            'exceeded_at_epoch': self.diagnostics['exceeded_at_epoch']
-        }
+        logger.info("Starting memory monitoring...")
+        tracemalloc.start()
+        self.start_time = time.time()
+        self.is_monitoring = True
+        self._tracemalloc_started = True
+        self.peak_memory_mb = 0.0
 
     def stop(self) -> None:
-        """Stop the memory monitoring session."""
-        if self._tracemalloc_started:
-            tracemalloc.stop()
-            self._tracemalloc_started = False
+        """Stop memory monitoring."""
+        if not self.is_monitoring:
+            logger.warning("MemoryMonitor is not running.")
+            return
 
-        summary = self.get_summary()
-        logger.info(f"MemoryMonitor stopped. Summary: {summary}")
+        self._update_current_memory()
+        tracemalloc.stop()
+        self.is_monitoring = False
+        self._tracemalloc_started = False
+        logger.info("Memory monitoring stopped.")
 
-    def __enter__(self):
+    def _update_current_memory(self) -> None:
+        """Update current and peak memory usage."""
+        if not self._tracemalloc_started:
+            return
+
+        current, peak = tracemalloc.get_traced_memory()
+        self.current_memory_mb = current / (1024 * 1024)
+        if self.current_memory_mb > self.peak_memory_mb:
+            self.peak_memory_mb = self.current_memory_mb
+
+    def check_limit(self) -> bool:
+        """
+        Check if current memory usage exceeds the limit.
+
+        Returns:
+            bool: True if limit is exceeded, False otherwise.
+        """
+        self._update_current_memory()
+        limit_mb = self.max_ram_gb * 1024
+
+        if self.current_memory_mb > limit_mb:
+            logger.critical(
+                f"Memory limit exceeded: {self.current_memory_mb:.2f} MB > "
+                f"{limit_mb:.2f} MB ({self.max_ram_gb} GB)."
+            )
+            return True
+        return False
+
+    def log_epoch(self, epoch: int, loss: Optional[float] = None) -> None:
+        """
+        Log memory statistics for a specific epoch.
+
+        Args:
+            epoch: The epoch number.
+            loss: Optional loss value for the epoch.
+        """
+        self._update_current_memory()
+        timestamp = datetime.now().isoformat()
+
+        log_entry = {
+            "timestamp": timestamp,
+            "epoch": epoch,
+            "current_memory_mb": round(self.current_memory_mb, 2),
+            "peak_memory_mb": round(self.peak_memory_mb, 2),
+            "max_ram_gb": self.max_ram_gb,
+            "limit_mb": round(self.max_ram_gb * 1024, 2),
+            "exceeded": self.current_memory_mb > (self.max_ram_gb * 1024)
+        }
+
+        if loss is not None:
+            log_entry["loss"] = round(loss, 4)
+
+        self.epoch_logs.append(log_entry)
+        logger.info(
+            f"Epoch {epoch}: Current={self.current_memory_mb:.2f} MB, "
+            f"Peak={self.peak_memory_mb:.2f} MB"
+        )
+
+    def generate_diagnostic_report(self, output_path: Optional[str] = None) -> str:
+        """
+        Generate a diagnostic report of memory usage.
+
+        Args:
+            output_path: Path to save the JSON report. If None, uses default path.
+
+        Returns:
+            str: Path to the generated report.
+        """
+        self._update_current_memory()
+
+        if output_path is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_path = os.path.join(
+                LOGS_DIR, f"memory_report_{timestamp}.json"
+            )
+
+        report = {
+            "summary": {
+                "max_ram_gb": self.max_ram_gb,
+                "peak_memory_mb": round(self.peak_memory_mb, 2),
+                "current_memory_mb": round(self.current_memory_mb, 2),
+                "limit_exceeded": self.peak_memory_mb > (self.max_ram_gb * 1024),
+                "total_epochs_logged": len(self.epoch_logs)
+            },
+            "epoch_details": self.epoch_logs,
+            "generated_at": datetime.now().isoformat()
+        }
+
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2)
+
+        logger.info(f"Memory diagnostic report saved to: {output_path}")
+        return output_path
+
+    def __enter__(self) -> 'MemoryMonitor':
         """Context manager entry."""
         self.start()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
         """Context manager exit."""
         self.stop()
         if exc_type is not None:
-            logger.error(f"MemoryMonitor: Exception occurred: {exc_type.__name__}: {exc_val}")
-        return False
+            logger.warning(f"Memory monitoring stopped due to exception: {exc_type}")
+            # Generate report on exception
+            self.generate_diagnostic_report()
+        elif self.peak_memory_mb > (self.max_ram_gb * 1024):
+            logger.warning("Peak memory exceeded limit during execution.")
+            self.generate_diagnostic_report()
+
+
+def get_memory_usage_mb() -> float:
+    """
+    Utility function to get current memory usage in MB.
+
+    Returns:
+        float: Current memory usage in MB.
+    """
+    try:
+        import tracemalloc
+        if tracemalloc.is_tracing():
+            current, _ = tracemalloc.get_traced_memory()
+            return current / (1024 * 1024)
+        return 0.0
+    except Exception:
+        return 0.0
+
+def check_memory_limit(max_ram_gb: Optional[float] = None) -> bool:
+    """
+    Utility function to check if current memory exceeds the limit.
+
+    Args:
+        max_ram_gb: Maximum RAM limit in GB. If None, uses config value.
+
+    Returns:
+        bool: True if limit exceeded, False otherwise.
+    """
+    monitor = MemoryMonitor(max_ram_gb)
+    return monitor.check_limit()
+
+def main() -> None:
+    """
+    Main function to demonstrate memory monitoring.
+    """
+    logger.info("Running MemoryMonitor demonstration...")
+
+    monitor = MemoryMonitor()
+
+    with monitor:
+        # Simulate some memory usage
+        data = []
+        for i in range(100):
+            data.append([j for j in range(10000)])
+            monitor.log_epoch(i, loss=0.5 - (i * 0.001))
+
+            # Check limit periodically
+            if monitor.check_limit():
+                logger.error("Memory limit reached during simulation.")
+                monitor.generate_diagnostic_report()
+                break
+
+        # Final report
+        report_path = monitor.generate_diagnostic_report()
+        print(f"Report generated at: {report_path}")
+
+if __name__ == "__main__":
+    main()

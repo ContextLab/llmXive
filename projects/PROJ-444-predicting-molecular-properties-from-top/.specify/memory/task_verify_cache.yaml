@@ -1,0 +1,44 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No project directory `projects/PROJ-444-predicting-molecular-properties-from-top/`
+    or any files within it are present in the provided evidence, so the required project
+    structure has not been demonstrated. The task remains undone.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration artifacts (e.g., ruff settings, black
+    config, or pyproject.toml entries) are present; therefore the requirement to configure
+    ruff and black is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data/` directory with the required `raw/` and `processed/` subfolders, nor
+    any `state/` tracking artifacts are present in the provided evidence. The implementer
+    did not supply the filesystem structure or files that would demonstrate the task
+    was completed.
+T007:
+  c: false
+  h: 6ebe05d857dea49b5b8d9e92c05fbca338d6c89b6478c0e350c60bd561c9bb30
+  r: "The repository contains a partially implemented `code/00_checksum_verify.py`\
+    \ (the file is truncated and lacks the logic that actually gathers raw files,\
+    \ computes their SHA256 hashes, and calls `write_checksums`). Moreover, the required\
+    \ output file `data/checksums.txt` does not exist. Both the script\u2019s core\
+    \ functionality and the expected checksum record are missing, so the task is not\
+    \ fulfilled."
+T010:
+  c: false
+  h: 4cbbdba383bb1b5ca8f9ca0c0cb29d60b0b8f9f8e0de20c6d19aa435bbb82337
+  r: "The `tests/contract/test_tda_schema.py` file is truncated (ends abruptly with\
+    \ a stray \u201Cd\u201D and lacks closing brackets/methods), making it syntactically\
+    \ invalid, and the required `data/processed/tda_features.csv` file does not exist.\
+    \ Both the test implementation and the target CSV are missing or incomplete."
+T010#1:
+  c: false
+  h: 4cbbdba383bb1b5ca8f9ca0c0cb29d60b0b8f9f8e0de20c6d19aa435bbb82337
+  r: The `tests/contract/test_tda_schema.py` file is present but is truncated and
+    contains a stray character (`d`) causing a syntax error, so the test suite cannot
+    run. Additionally, the required `data/processed/tda_features.csv` file is missing,
+    meaning the contract test cannot be exercised. The test implementation must be
+    completed (remove the stray character, add the missing test methods, and ensure
+    the file is syntactically valid) and the CSV file must be generated or provided.
