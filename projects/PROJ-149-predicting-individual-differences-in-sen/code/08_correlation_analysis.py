@@ -1,15 +1,13 @@
 """
-T020: Implement Pearson correlation tests between relative band powers and median RT.
+Correlation Analysis (Task T020)
 
-This script loads the processed features (containing CLR-transformed relative band powers
-and median RT) and computes Pearson correlation coefficients and p-values for each band.
+Implements Pearson correlation tests between relative band powers (CLR-transformed)
+and median reaction times (RT) as per FR-006.
 
-Output:
-    data/processed/correlations_raw.csv: Contains correlation stats before Bonferroni correction.
+Input: data/processed/features.csv (output of T015)
+Output: data/processed/correlations.csv (contains r, p-value, and Bonferroni flag)
 
-Dependencies:
-    - T016 (data/processed/features.csv must exist and be valid)
-    - T015 (features must contain CLR-transformed relative powers)
+Dependencies: T016 (features.csv validation)
 """
 import os
 import sys
@@ -19,147 +17,152 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-# Add project root to path for imports
+# Add project root to path for imports if running as script
 project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "code"))
 
-from config import get_path, ensure_dirs, get_seed
+from config import get_path, get_all_band_names, get_seed
 from utils.stats_helpers import bonferroni_correct
 
-def load_features(path_str: str) -> pd.DataFrame:
+def load_features():
     """
     Load the processed features CSV.
-    
-    Args:
-        path_str: Path to the features CSV file.
-        
-    Returns:
-        DataFrame with features and behavioral metrics.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If required columns are missing.
+    Expects columns: participant_id, median_rt, delta, theta, alpha, low_beta, high_beta, gamma
+    (or similar band names as defined in config).
     """
-    path = Path(path_str)
-    if not path.exists():
-        raise FileNotFoundError(f"Features file not found: {path_str}")
+    path = get_path("processed", "features.csv")
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            f"Input file not found: {path}. "
+            "Ensure T015 (05_compute_relative_power.py) has completed successfully."
+        )
     
     df = pd.read_csv(path)
     
-    # Verify expected columns exist (relative to T015 output)
-    # We expect columns like: participant_id, median_rt, and band powers (delta, theta, alpha, beta, gamma)
-    # The task specifies "relative band powers", which T015 applies CLR to.
-    # We look for columns containing 'power' or specific band names.
-    required_cols = ['participant_id', 'median_rt']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Required column '{col}' missing in features file.")
+    # Validate required columns
+    required_cols = ["participant_id", "median_rt"]
+    band_names = get_all_band_names()
+    required_cols.extend(band_names)
     
-    return df
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in features.csv: {missing}")
+    
+    # Drop rows with any NaN in relevant columns to ensure valid correlation
+    cols_to_check = ["median_rt"] + band_names
+    df_clean = df.dropna(subset=cols_to_check)
+    
+    if len(df_clean) == 0:
+        raise ValueError("No valid data rows remaining after dropping NaNs.")
+    
+    return df_clean, band_names
 
-def run_correlations(df: pd.DataFrame) -> pd.DataFrame:
+def run_correlations(df, band_names):
     """
-    Compute Pearson correlations between each band power and median RT.
+    Compute Pearson correlation between each band power and median RT.
     
-    Args:
-        df: DataFrame containing band power columns and 'median_rt'.
-        
-    Returns:
-        DataFrame with correlation statistics (band, r, p_value, n).
+    Returns a DataFrame with:
+    - band: band name
+    - r: Pearson correlation coefficient
+    - p_value: raw p-value
+    - significant: boolean (raw p < 0.05)
     """
-    # Identify band power columns. 
-    # Based on T015, these should be the relative power columns (possibly CLR transformed).
-    # We look for columns that are not participant_id or median_rt.
-    # Common naming: 'delta_power', 'theta_power', 'alpha_power', 'beta_power', 'gamma_power'
-    # or 'delta', 'theta', etc. We will be flexible and check for common patterns.
-    
-    exclude_cols = ['participant_id', 'median_rt']
-    band_cols = [col for col in df.columns if col not in exclude_cols]
-    
-    # Filter to likely band power columns (heuristic: contains 'power' or is a known band name)
-    known_bands = ['delta', 'theta', 'alpha', 'beta', 'gamma', 'low_beta', 'high_beta']
-    valid_band_cols = []
-    
-    for col in band_cols:
-        # Check if column name matches a known band or contains 'power'
-        if any(band in col.lower() for band in known_bands) or 'power' in col.lower():
-            valid_band_cols.append(col)
-    
-    if not valid_band_cols:
-        # Fallback: assume all remaining numeric columns are bands
-        valid_band_cols = [col for col in band_cols if pd.api.types.is_numeric_dtype(df[col])]
-        if not valid_band_cols:
-            raise ValueError("No band power columns found in features file.")
-
     results = []
     
-    # Drop rows with NaN in median_rt or any band column for correlation calculation
-    clean_df = df.dropna(subset=['median_rt'] + valid_band_cols)
-    n = len(clean_df)
+    rt = df["median_rt"].values
     
-    if n < 3:
-        raise ValueError(f"Insufficient samples for correlation (n={n}). Need at least 3.")
-    
-    for band_col in valid_band_cols:
-        # Extract series
-        x = clean_df[band_col].values
-        y = clean_df['median_rt'].values
+    for band in band_names:
+        x = df[band].values
         
         # Compute Pearson correlation
-        r, p_value = np.corrcoef(x, y)[0, 1]
+        r, p_val = stats.pearsonr(x, rt)
         
         results.append({
-            'band': band_col,
-            'r': r,
-            'p_value': p_value,
-            'n': n
+            "band": band,
+            "r": r,
+            "p_value": p_val,
+            "n": len(rt),
+            "significant_raw": p_val < 0.05
         })
     
     return pd.DataFrame(results)
 
+def apply_bonferroni_flag(df_results):
+    """
+    Apply Bonferroni correction for 6 bands (0.05 / 6 = 0.00833).
+    Adds 'significant_bonferroni' column.
+    """
+    n_bands = len(df_results)
+    alpha = 0.05
+    threshold = alpha / n_bands
+    
+    df_results["bonferroni_threshold"] = threshold
+    df_results["significant_bonferroni"] = df_results["p_value"] < threshold
+    
+    return df_results
+
+def save_results(df_results, output_path):
+    """
+    Save the correlation results to CSV.
+    """
+    df_results.to_csv(output_path, index=False)
+    print(f"Correlation results saved to: {output_path}")
+    
+    # Print summary to stdout
+    print("\n--- Correlation Summary ---")
+    print(f"Total bands tested: {len(df_results)}")
+    print(f"Bonferroni threshold: {df_results['bonferroni_threshold'].iloc[0]:.4f}")
+    significant_count = df_results["significant_bonferroni"].sum()
+    print(f"Significant correlations (Bonferroni corrected): {significant_count}")
+    
+    if significant_count > 0:
+        print("\nSignificant bands:")
+        sig_bands = df_results[df_results["significant_bonferroni"]]
+        print(sig_bands[["band", "r", "p_value", "significant_bonferroni"]].to_string(index=False))
+    else:
+        print("\nNo bands passed Bonferroni correction.")
+
 def main():
-    parser = argparse.ArgumentParser(description="Run Pearson correlation analysis (T020)")
+    parser = argparse.ArgumentParser(
+        description="Compute Pearson correlations between EEG band powers and median RT."
+    )
     parser.add_argument(
-        "--input", 
-        type=str, 
-        default="data/processed/features.csv",
-        help="Path to the processed features CSV (default: data/processed/features.csv)"
+        "--input",
+        type=str,
+        default=None,
+        help="Path to features.csv (overrides config if provided)"
     )
     parser.add_argument(
         "--output",
         type=str,
-        default="data/processed/correlations_raw.csv",
-        help="Path to save the raw correlation results (default: data/processed/correlations_raw.csv)"
+        default=None,
+        help="Path to output correlations.csv (overrides config if provided)"
     )
     args = parser.parse_args()
 
-    # Set global seed for reproducibility if needed (though corrcoef is deterministic)
-    set_global_seed()
+    # Load data
+    print("Loading features...")
+    df_features, band_names = load_features()
+    print(f"Loaded {len(df_features)} participants.")
 
-    # Ensure output directory exists
-    output_path = Path(args.output)
-    ensure_dirs(output_path)
+    # Run correlations
+    print("Computing Pearson correlations...")
+    corr_df = run_correlations(df_features, band_names)
 
-    print(f"Loading features from {args.input}...")
-    try:
-        features_df = load_features(args.input)
-    except (FileNotFoundError, ValueError) as e:
-        print(f"ERROR: {e}")
-        sys.exit(1)
+    # Apply Bonferroni
+    corr_df = apply_bonferroni_flag(corr_df)
 
-    print(f"Running correlations on {len(features_df)} participants...")
-    try:
-        corr_results = run_correlations(features_df)
-    except Exception as e:
-        print(f"ERROR during correlation calculation: {e}")
-        sys.exit(1)
+    # Determine output path
+    output_path = args.output or get_path("processed", "correlations.csv")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    print(f"Saving results to {args.output}...")
-    corr_results.to_csv(args.output, index=False)
+    # Save results
+    save_results(corr_df, output_path)
 
-    print(f"Correlation analysis complete. Found {len(corr_results)} bands.")
-    print("Sample results:")
-    print(corr_results.to_string(index=False))
+    return 0
 
 if __name__ == "__main__":
-    main()
+    from scipy import stats
+    sys.exit(main())

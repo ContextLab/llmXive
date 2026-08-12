@@ -623,3 +623,199 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T12:41:24Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Uses PhysioNet EEG Motor Movement/Imagery data
+  claim_id: c_6d6fe914
+  context: T007 Create `code/01_download_data.py` to fetch PhysioNet EEG Motor Movement/Imagery
+    data and verify checksums (FR-001).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uses_PhysioNet_EEG_Motor_Movement/Imagery_data
+  kind: entity_fact
+  raw_text: The study uses PhysioNet EEG Motor Movement/Imagery data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:54:17Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10,000 shuffles
+  claim_id: c_1d579c83
+  context: "T022 clarified to ensure permutation test uses **10,000 shuffles** on\
+    \ the **held-out test set** and assesses significance of the full model's R\xB2\
+    \ distribution."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation tests use 10,000 shuffles on the held-out test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:54:36Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for 6 bands at threshold 0.0083
+  claim_id: c_d3c1b072
+  context: T021 clarified to ensure Bonferroni correction is applied for 6 bands (0.05/6
+    = 0.0083) and significant results are flagged in `correlations.csv`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied for 6 bands using a threshold of 0.0083.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:55:02Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Non-linear analysis uses polynomial degree 2 for alpha and beta
+  claim_id: c_e204cc51
+  context: T024 clarified to ensure non-linear analysis uses polynomial terms of degree
+    2 for alpha and beta bands, compares models using an F-test, and **explicitly
+    reports significance if p < 0.05**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Non-linear analysis uses polynomial terms of degree 2 for alpha and beta
+    bands.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:55:25Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participant exclusion if less than 70% trials remain
+  claim_id: c_0a6d7c3f
+  context: "T013 clarified to ensure behavioral metrics are computed only for participants\
+    \ with sufficient trials (\u226570%) after outlier exclusion, and outputs `behavioral_exclusion_log.csv`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participant_exclusion_if_less_than_70%25_trials_remain
+  kind: magnitude
+  raw_text: Participants are excluded if less than 70% of trials remain after outlier
+    exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:55:55Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participant exclusion if rejected channel ratio > 0.30
+  claim_id: c_1a69cbba
+  context: T010 ... implement participant exclusion logic (drop if **ratio of rejected
+    channels (channels_rejected / total_channels) > 0.30**) (FR-002, Constitution
+    VI).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Participants are excluded if the ratio of rejected channels exceeds 0.30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:56:16Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps p-value from 0.01 to 0.10 in 0.01 steps
+  claim_id: c_9593b761
+  context: T028 clarified to ensure sensitivity analysis sweeps p-value thresholds
+    from 0.01 to 0.10 in 0.01 increments.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps p-value thresholds from 0.01 to 0.10 in 0.01
+    increments.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:56:46Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Modeling uses 5-fold cross-validation
+  claim_id: c_4ce0fd2c
+  context: 'T017 [P] [US2] Implement `code/04_modeling.py`: Fit Multiple Linear Regression
+    with **5-fold** cross-validation (depends on `data/processed/features.csv`) (FR-005).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: Modeling uses 5-fold cross-validation.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T18:57:18Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Primary EEG preprocessing uses 4-second windows with 2-second overlap
+  claim_id: c_9da9d76f
+  context: 'T012 [US1] Implement `code/03_extract_features.py`: Compute Welch''s PSD
+    on continuous 5-minute epochs using **4-second windows** with **2-second overlap
+    ([deferred] of 4s window)**...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Primary EEG preprocessing uses 4-second windows with 2-second overlap.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:57:51Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Robustness analysis uses 2-second windows
+  claim_id: c_9dee7585
+  context: 'T026 [US3] Implement `code/05_robustness_analysis.py`: **Re-run `code/02_preprocess_eeg.py`
+    with `--no-ica` and `--window-size 2` (2-second windows as per FR-008)**...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Robustness analysis uses 2-second windows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:58:13Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Behavioral outliers defined as RT <100ms or >2000ms
+  claim_id: c_ae1fa068
+  context: 'T013 [P] [US1] Implement behavioral parsing: extract median RT, exclude
+    outliers (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Behavioral_outliers_defined_as_RT_%3C100ms_or_%3E2000ms
+  kind: entity_fact
+  raw_text: Behavioral outliers are defined as reaction times <100ms or >2000ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T18:58:47Z'

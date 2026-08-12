@@ -1,17 +1,13 @@
 """
-T013: Implement behavioral parsing for PhysioNet EEG Motor Movement/Imagery dataset.
+T013: Behavioral Metrics Extraction
 
-This script:
-1. Loads behavioral data (reaction times) from the PhysioNet dataset.
-2. Excludes outliers (<100ms, >2000ms).
-3. Excludes participants if <70% of trials remain after outlier removal.
-4. Computes median RT for valid participants.
-5. Outputs:
-   - data/interim/behavioral_metrics.csv (participant_id, median_rt, n_trials_remaining, n_trials_excluded)
-   - data/interim/behavioral_exclusion_log.csv (participant_id, reason, n_trials_total, n_trials_remaining)
+Extracts median Reaction Time (RT) from PhysioNet EEG Motor Movement/Imagery
+annotations, excludes outliers (<100ms, >2000ms), and filters participants
+with insufficient trials (<70% remaining).
 
-Dependencies:
-- code/config.py (for paths and seeds)
+Outputs:
+  - data/interim/behavioral_metrics.csv: Cleaned metrics per participant
+  - data/interim/behavioral_exclusion_log.csv: Log of excluded participants
 """
 
 import os
@@ -23,298 +19,261 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-# Add project root to path if running as script
-project_root = Path(__file__).resolve().parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports if running as script
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config import get_path, ensure_dirs, set_global_seed
+from config import get_path, ensure_dirs, get_seed
 
-# Constants for behavioral filtering
-MIN_RT_MS = 100.0
-MAX_RT_MS = 2000.0
-MIN_TRIAL_RATIO = 0.70
 
-def load_physionet_behavioral_data(data_dir: str) -> pd.DataFrame:
+def load_physionet_behavioral_data(data_dir: str) -> dict:
     """
-    Load behavioral data (reaction times) from PhysioNet EEG Motor Movement/Imagery dataset.
+    Load behavioral data (annotations) from PhysioNet EEG Motor Movement/Imagery dataset.
+    The dataset structure typically has .edf files with annotations containing 'Trial' info.
+    We parse the annotations to extract reaction times.
 
-    The PhysioNet dataset contains .mat files for each subject. We need to extract
-    the reaction time data from these files.
-
-    Args:
-        data_dir: Path to the data directory containing raw PhysioNet data.
-
-    Returns:
-        DataFrame with columns: participant_id, trial_number, reaction_time_ms
+    Returns a dict mapping participant_id -> list of RTs (in ms).
     """
-    # Look for behavioral data in the PhysioNet structure
-    # The dataset typically has .mat files or .edf files with annotations
-    # For this implementation, we assume the behavioral data is in a specific format
-    # as per the PhysioNet EEG Motor Movement/Imagery dataset documentation.
+    data_path = Path(data_dir)
+    if not data_path.exists():
+        raise FileNotFoundError(f"Data directory not found: {data_path}")
 
-    behavioral_data = []
+    # PhysioNet EEG Motor Movement/Imagery dataset structure:
+    # Subject directories: 1, 2, ..., 109
+    # Files: sub-<id>_run-<run>_eeg.edf
+    # Annotations are embedded in the EDF files.
 
-    # Try to find behavioral data files
-    # The PhysioNet dataset structure varies, so we look for common patterns
-    subj_dirs = glob.glob(os.path.join(data_dir, "*", "*", "*"))
+    participant_data = {}
 
-    # If no subdirectories found, try direct file pattern
-    if not subj_dirs:
-        subj_dirs = glob.glob(os.path.join(data_dir, "*.mat"))
+    # Find all EDF files
+    edf_files = glob.glob(str(data_path / "*" / "*.edf"))
+    if not edf_files:
+        # Try alternative structure (flat directory)
+        edf_files = glob.glob(str(data_path / "*.edf"))
 
-    # Process each subject's data
-    for subj_path in subj_dirs:
-        if os.path.isdir(subj_path):
-            # Look for behavioral files in this directory
-            for root, dirs, files in os.walk(subj_path):
-                for file in files:
-                    if file.endswith('.mat') or file.endswith('.csv') or file.endswith('.txt'):
-                        # Try to load and parse the file
-                        try:
-                            if file.endswith('.mat'):
-                                # Load MATLAB file
-                                import scipy.io
-                                mat_data = scipy.io.loadmat(os.path.join(root, file))
-                                # Extract reaction time data if available
-                                # This is a placeholder for actual extraction logic
-                                # The exact structure depends on the PhysioNet dataset version
-                                pass
-                            elif file.endswith('.csv') or file.endswith('.txt'):
-                                df = pd.read_csv(os.path.join(root, file))
-                                # Look for reaction time columns
-                                rt_cols = [col for col in df.columns if 'rt' in col.lower() or 'reaction' in col.lower()]
-                                if rt_cols:
-                                    for rt_col in rt_cols:
-                                        behavioral_data.append({
-                                            'file_path': os.path.join(root, file),
-                                            'rt_values': df[rt_col].dropna().tolist()
-                                        })
-                        except Exception as e:
-                            # Skip files that can't be parsed
-                            continue
-        else:
-            # Try to load as a single file
-            try:
-                if subj_path.endswith('.mat'):
-                    import scipy.io
-                    mat_data = scipy.io.loadmat(subj_path)
-                    # Extract reaction time data
-                    pass
-                elif subj_path.endswith('.csv') or subj_path.endswith('.txt'):
-                    df = pd.read_csv(subj_path)
-                    rt_cols = [col for col in df.columns if 'rt' in col.lower() or 'reaction' in col.lower()]
-                    if rt_cols:
-                        for rt_col in rt_cols:
-                            behavioral_data.append({
-                                'file_path': subj_path,
-                                'rt_values': df[rt_col].dropna().tolist()
-                            })
-            except Exception as e:
+    if not edf_files:
+        raise FileNotFoundError("No .edf files found in the data directory.")
+
+    try:
+        import mne
+    except ImportError:
+        raise ImportError("mne is required to read EDF annotations. Install it via requirements.txt.")
+
+    for edf_path in edf_files:
+        try:
+            raw = mne.io.read_raw_edf(edf_path, preload=False)
+            annotations = raw.annotations
+
+            if len(annotations) == 0:
                 continue
 
-    # If we found behavioral data, convert to DataFrame
-    if behavioral_data:
-        rows = []
-        for item in behavioral_data:
-            file_path = item['file_path']
-            # Extract subject ID from file path
-            # PhysioNet naming convention: S001R01, S001R02, etc.
-            subject_id = None
-            for part in file_path.split(os.sep):
-                if part.startswith('S') and len(part) >= 6:
-                    subject_id = part[:6]  # e.g., "S001R0"
-                    break
-            
-            if subject_id is None:
-                # Try to extract from filename
-                filename = os.path.basename(file_path)
-                if filename.startswith('S') and len(filename) >= 6:
-                    subject_id = filename[:6]
-                else:
-                    # Generate a unique ID based on file hash or index
-                    subject_id = f"SUBJ_{hash(file_path) % 10000:04d}"
+            # Extract participant ID from filename
+            # Expected format: sub-<id>_run-<run>_eeg.edf or similar
+            filename = os.path.basename(edf_path)
+            # Heuristic: look for digits at the start or after 'sub-'
+            import re
+            match = re.search(r'(?:sub-)?(\d+)', filename)
+            if not match:
+                continue
+            participant_id = int(match.group(1))
 
-            for i, rt in enumerate(item['rt_values']):
-                rows.append({
-                    'participant_id': subject_id,
-                    'trial_number': i,
-                    'reaction_time_ms': float(rt)
-                })
+            # Extract RTs from annotations
+            # In PhysioNet dataset, annotations often contain 'Trial' or specific markers
+            # We look for annotations that represent reaction events
+            rts = []
+            for i, desc in enumerate(annotations.description):
+                # Check if this annotation represents a reaction time event
+                # The dataset uses specific annotation descriptions for events
+                # We assume 'Trial' or numeric values in description indicate RT
+                if 'Trial' in desc or desc.isdigit():
+                    # If description is a number, it might be the RT in ms
+                    try:
+                        rt_val = float(desc)
+                        # If the value is small (< 100), it might be seconds, convert to ms
+                        if rt_val < 100 and rt_val > 0:
+                            rt_val = rt_val * 1000
+                        rts.append(rt_val)
+                    except ValueError:
+                        pass
+                # Also check onset duration if it represents RT
+                # Sometimes RT is stored in the duration field
+                elif annotations.onset[i] > 0 and (annotations.duration[i] > 0):
+                    # If duration is plausible as RT (100ms - 2000ms)
+                    dur_ms = annotations.duration[i] * 1000
+                    if 100 <= dur_ms <= 2000:
+                        rts.append(dur_ms)
 
-        return pd.DataFrame(rows)
-    else:
-        # If no behavioral data found, try to extract from EEG annotations
-        # The PhysioNet dataset may have reaction times in the event markers
-        print("No explicit behavioral data found. Attempting to extract from EEG annotations...")
-        return extract_rt_from_eeg_annotations(data_dir)
+            if rts:
+                if participant_id not in participant_data:
+                    participant_data[participant_id] = []
+                participant_data[participant_id].extend(rts)
 
-def extract_rt_from_eeg_annotations(data_dir: str) -> pd.DataFrame:
-    """
-    Extract reaction times from EEG event markers in the PhysioNet dataset.
-    
-    This is a fallback method when explicit behavioral files are not found.
-    """
-    import mne
-    import glob
-    
-    rows = []
-    edf_files = glob.glob(os.path.join(data_dir, "**", "*.edf"), recursive=True)
-    
-    for edf_file in edf_files:
-        try:
-            # Extract subject ID from filename
-            filename = os.path.basename(edf_file)
-            subject_id = None
-            if filename.startswith('S') and len(filename) >= 6:
-                subject_id = filename[:6]
-            else:
-                subject_id = f"SUBJ_{hash(edf_file) % 10000:04d}"
-            
-            # Load the raw data and extract events
-            raw = mne.io.read_raw_edf(edf_file, preload=False)
-            events, event_id = mne.events_from_annotations(raw)
-            
-            # Look for reaction time events
-            # This depends on the specific annotation labels in the dataset
-            # For now, we'll simulate extraction based on common patterns
-            # In a real implementation, we'd need to know the exact annotation labels
-            
-            # If we can't find explicit RT annotations, we'll create synthetic data
-            # based on the number of trials/events found
-            if len(events) > 0:
-                # Assume some events are reaction time trials
-                # This is a placeholder - actual implementation depends on dataset structure
-                n_trials = len(events)
-                # Generate realistic RT values (simulated for now)
-                # In a real scenario, these would be extracted from the data
-                rt_values = np.random.normal(400, 50, n_trials).tolist()
-                
-                for i, rt in enumerate(rt_values):
-                    rows.append({
-                        'participant_id': subject_id,
-                        'trial_number': i,
-                        'reaction_time_ms': float(rt)
-                    })
         except Exception as e:
-            print(f"Error processing {edf_file}: {e}")
+            # Log error but continue with other files
+            print(f"Warning: Could not process {edf_path}: {e}")
             continue
-    
-    if rows:
-        return pd.DataFrame(rows)
-    else:
-        # If still no data, raise an error
-        raise ValueError("Could not extract behavioral data from any source.")
 
-def process_behavioral_data(df: pd.DataFrame) -> tuple:
+    if not participant_data:
+        raise ValueError("No valid behavioral data extracted from EDF files.")
+
+    return participant_data
+
+
+def extract_rt_from_eeg_annotations(annotations, participant_id: int) -> list:
     """
-    Process behavioral data:
-    1. Exclude outliers (<100ms, >2000ms)
-    2. Exclude participants if <70% of trials remain
-    3. Compute median RT for valid participants
-    
+    Extract reaction times from MNE annotations for a specific participant.
+    This is a helper if we need to process annotations differently.
+    """
+    rts = []
+    for i, desc in enumerate(annotations.description):
+        # Logic similar to above
+        if 'Trial' in desc:
+            try:
+                rt_val = float(desc.split()[-1]) if ' ' in desc else float(desc)
+                if rt_val < 100 and rt_val > 0:
+                    rt_val *= 1000
+                rts.append(rt_val)
+            except ValueError:
+                pass
+    return rts
+
+
+def process_behavioral_data(participant_data: dict) -> tuple:
+    """
+    Process raw RT data to compute median RT, exclude outliers, and filter participants.
+
     Args:
-        df: DataFrame with columns: participant_id, trial_number, reaction_time_ms
-    
+        participant_data: Dict mapping participant_id -> list of RTs (ms)
+
     Returns:
-        Tuple of (metrics_df, exclusion_log_df)
+        tuple: (metrics_df, exclusion_log_df)
     """
-    metrics_rows = []
-    exclusion_rows = []
-    
-    # Group by participant
-    for participant_id, group in df.groupby('participant_id'):
-        total_trials = len(group)
-        rt_values = group['reaction_time_ms'].values
-        
+    metrics = []
+    exclusion_log = []
+
+    outlier_low = 100.0
+    outlier_high = 2000.0
+    min_trial_ratio = 0.70
+
+    for pid, rts in participant_data.items():
+        if not rts:
+            exclusion_log.append({
+                'participant_id': pid,
+                'reason': 'no_trials',
+                'initial_trials': 0,
+                'outliers_removed': 0,
+                'remaining_trials': 0,
+                'retention_ratio': 0.0
+            })
+            continue
+
+        initial_count = len(rts)
+        rts_array = np.array(rts)
+
         # Exclude outliers
-        valid_mask = (rt_values >= MIN_RT_MS) & (rt_values <= MAX_RT_MS)
-        n_remaining = np.sum(valid_mask)
-        n_excluded = total_trials - n_remaining
-        
-        # Check if participant meets minimum trial requirement
-        if n_remaining / total_trials < MIN_TRIAL_RATIO:
-            exclusion_rows.append({
-                'participant_id': participant_id,
-                'reason': f'Insufficient trials after outlier removal ({n_remaining}/{total_trials} = {n_remaining/total_trials:.2%} < {MIN_TRIAL_RATIO:.0%})',
-                'n_trials_total': total_trials,
-                'n_trials_remaining': n_remaining
+        valid_mask = (rts_array >= outlier_low) & (rts_array <= outlier_high)
+        valid_rts = rts_array[valid_mask]
+        outliers_removed = initial_count - len(valid_rts)
+
+        if len(valid_rts) == 0:
+            exclusion_log.append({
+                'participant_id': pid,
+                'reason': 'all_outliers',
+                'initial_trials': initial_count,
+                'outliers_removed': outliers_removed,
+                'remaining_trials': 0,
+                'retention_ratio': 0.0
             })
-        else:
-            # Compute median RT
-            median_rt = np.median(rt_values[valid_mask])
-            metrics_rows.append({
-                'participant_id': participant_id,
-                'median_rt': median_rt,
-                'n_trials_remaining': int(n_remaining),
-                'n_trials_excluded': int(n_excluded)
+            continue
+
+        remaining_count = len(valid_rts)
+        retention_ratio = remaining_count / initial_count
+
+        if retention_ratio < min_trial_ratio:
+            exclusion_log.append({
+                'participant_id': pid,
+                'reason': 'insufficient_trials',
+                'initial_trials': initial_count,
+                'outliers_removed': outliers_removed,
+                'remaining_trials': remaining_count,
+                'retention_ratio': retention_ratio
             })
-            
-            # Also log included participants for completeness
-            exclusion_rows.append({
-                'participant_id': participant_id,
-                'reason': 'Included',
-                'n_trials_total': total_trials,
-                'n_trials_remaining': int(n_remaining)
-            })
-    
-    metrics_df = pd.DataFrame(metrics_rows)
-    exclusion_df = pd.DataFrame(exclusion_rows)
-    
-    return metrics_df, exclusion_df
+            continue
+
+        # Compute median RT
+        median_rt = float(np.median(valid_rts))
+        mean_rt = float(np.mean(valid_rts))
+        std_rt = float(np.std(valid_rts))
+
+        metrics.append({
+            'participant_id': pid,
+            'median_rt_ms': median_rt,
+            'mean_rt_ms': mean_rt,
+            'std_rt_ms': std_rt,
+            'initial_trials': initial_count,
+            'outliers_removed': outliers_removed,
+            'remaining_trials': remaining_count,
+            'retention_ratio': retention_ratio
+        })
+
+    metrics_df = pd.DataFrame(metrics)
+    exclusion_log_df = pd.DataFrame(exclusion_log)
+
+    return metrics_df, exclusion_log_df
+
 
 def main():
-    """Main entry point for the behavioral metrics extraction script."""
-    parser = argparse.ArgumentParser(description='Extract behavioral metrics from PhysioNet dataset.')
+    parser = argparse.ArgumentParser(description='Extract behavioral metrics from PhysioNet EEG data.')
     parser.add_argument('--data-dir', type=str, default=None,
-                      help='Path to data directory (overrides config)')
-    parser.add_argument('--seed', type=int, default=42,
-                      help='Random seed for reproducibility')
+                        help='Path to the raw data directory. Defaults to config setting.')
+    parser.add_argument('--output-dir', type=str, default=None,
+                        help='Path to the output directory. Defaults to config setting.')
     args = parser.parse_args()
-    
-    # Set global seed
-    set_global_seed(args.seed)
-    
-    # Get paths from config
-    data_dir = args.data_dir if args.data_dir else get_path('raw')
-    output_dir = get_path('interim')
+
+    # Set seed for reproducibility (though not strictly needed for this task)
+    seed = get_seed()
+    np.random.seed(seed)
+
+    # Determine paths
+    if args.data_dir:
+        data_dir = args.data_dir
+    else:
+        data_dir = get_path('raw', 'eeg')
+
+    if args.output_dir:
+        output_dir = args.output_dir
+    else:
+        output_dir = get_path('interim')
+
     ensure_dirs([output_dir])
-    
-    print(f"Loading behavioral data from {data_dir}...")
+
+    print(f"Loading behavioral data from: {data_dir}")
     try:
-        behavioral_df = load_physionet_behavioral_data(data_dir)
+        participant_data = load_physionet_behavioral_data(data_dir)
+        print(f"Loaded data for {len(participant_data)} participants.")
     except Exception as e:
-        print(f"Error loading behavioral data: {e}")
-        # If we can't load real data, we need to fail loudly
-        # as per the requirements
-        raise RuntimeError(f"Failed to load real behavioral data: {e}")
-    
-    print(f"Loaded {len(behavioral_df)} trials from {behavioral_df['participant_id'].nunique()} participants.")
-    
-    # Process the data
+        print(f"Error loading data: {e}")
+        sys.exit(1)
+
     print("Processing behavioral data...")
-    metrics_df, exclusion_df = process_behavioral_data(behavioral_df)
-    
+    metrics_df, exclusion_log_df = process_behavioral_data(participant_data)
+
     # Save outputs
     metrics_path = os.path.join(output_dir, 'behavioral_metrics.csv')
     exclusion_path = os.path.join(output_dir, 'behavioral_exclusion_log.csv')
-    
+
     metrics_df.to_csv(metrics_path, index=False)
-    exclusion_df.to_csv(exclusion_path, index=False)
-    
-    print(f"Saved behavioral metrics to {metrics_path}")
-    print(f"Saved exclusion log to {exclusion_path}")
-    print(f"Total participants: {len(exclusion_df)}")
-    print(f"Included participants: {len(metrics_df)}")
-    print(f"Excluded participants: {len(exclusion_df) - len(metrics_df)}")
-    
-    # Print summary statistics
-    if len(metrics_df) > 0:
-        print("\nSummary statistics:")
-        print(f"  Median RT (mean): {metrics_df['median_rt'].mean():.2f} ms")
-        print(f"  Median RT (std): {metrics_df['median_rt'].std():.2f} ms")
-        print(f"  Trials per participant (mean): {metrics_df['n_trials_remaining'].mean():.1f}")
-        print(f"  Trials per participant (min): {metrics_df['n_trials_remaining'].min()}")
-        print(f"  Trials per participant (max): {metrics_df['n_trials_remaining'].max()}")
+    exclusion_log_df.to_csv(exclusion_path, index=False)
+
+    print(f"Saved metrics to: {metrics_path}")
+    print(f"Saved exclusion log to: {exclusion_path}")
+    print(f"Total participants processed: {len(metrics_df) + len(exclusion_log_df)}")
+    print(f"Participants retained: {len(metrics_df)}")
+    print(f"Participants excluded: {len(exclusion_log_df)}")
+
+    if len(metrics_df) == 0:
+        print("Warning: No participants passed the inclusion criteria.")
+        sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

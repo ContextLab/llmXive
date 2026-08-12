@@ -1,272 +1,232 @@
+"""
+T008a: Feasibility Check - Join EEG and RT Datasets.
+
+This script joins the downloaded PhysioNet EEG metadata with the behavioral
+(reaction time) metadata on `participant_id`. It validates demographic metadata
+and ensures compatibility between the two datasets.
+
+Primary Deliverable:
+- On Success: `data/interim/joined_metadata.csv`
+- On Failure: `data/processed/feasibility_report.md` (and exit code 1)
+
+Must run after T007 (data download).
+"""
 import os
 import sys
 import json
 import pandas as pd
 from pathlib import Path
+from datetime import datetime
 
-# Project root handling
-ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW = ROOT / "data" / "raw"
-DATA_INTERIM = ROOT / "data" / "interim"
-DATA_PROCESSED = ROOT / "data" / "processed"
+# Add project root to path if running as script
+if __name__ == "__main__":
+    # Ensure we can import from code/
+    code_dir = Path(__file__).parent
+    if str(code_dir) not in sys.path:
+        sys.path.insert(0, str(code_dir))
 
-# Ensure directories exist
-DATA_INTERIM.mkdir(parents=True, exist_ok=True)
-DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
+    from config import get_path, ensure_dirs
 
-def load_physionet_metadata() -> pd.DataFrame:
+def load_physionet_metadata(data_dir: Path) -> pd.DataFrame:
     """
-    Load participant metadata from the downloaded PhysioNet EEG Motor Movement/Imagery dataset.
-    
-    The dataset structure is expected to be in data/raw/physionet.org/files/
-    We look for subject directories (e.g., '001', '002') and extract metadata from
-    the .edf header or a companion .txt file if available.
-    
-    For this feasibility check, we assume the data was downloaded by T007 and
-    we scan the directory structure to build a list of valid participant IDs.
-    
-    Returns:
-        pd.DataFrame: DataFrame with columns ['participant_id', 'source', 'status']
+    Load the PhysioNet EEG Motor Movement/Imagery metadata.
+    This assumes T007 has downloaded and extracted the data.
+    We look for the specific metadata file or construct it from the directory structure.
     """
-    eeg_dir = DATA_RAW / "physionet.org" / "files" / "eegmmidb" / "1.0.0"
+    # The PhysioNet EEG Motor Movement/Imagery dataset typically has a structure like:
+    # data/raw/physionet.org/files/eegmmidb/1.0.0/
+    # We need to find the metadata. Often it's in a README or a specific CSV if provided.
+    # If not explicitly provided, we derive participant IDs from the directory structure.
     
-    if not eeg_dir.exists():
-        # Fallback for standard download location if structure differs slightly
-        eeg_dir = DATA_RAW / "eegmmidb"
+    raw_dir = data_dir / "raw" / "physionet.org" / "files" / "eegmmidb" / "1.0.0"
     
-    if not eeg_dir.exists():
-        raise FileNotFoundError(
-            f"PhysioNet EEG data directory not found at {eeg_dir}. "
-            "Please run T007 (download_data.py) first."
-        )
+    if not raw_dir.exists():
+        # Fallback: look in data/raw if structure is flattened
+        raw_dir = data_dir / "raw" / "eegmmidb" / "1.0.0"
     
-    participant_ids = []
-    
-    # Scan for subject directories (typically named '001', '002', etc.)
-    # The PhysioNet EEG Motor Movement/Imagery dataset has subject folders
-    for item in sorted(eeg_dir.iterdir()):
-        if item.is_dir() and item.name.isdigit():
-            # Check if there are EEG files inside
-            edf_files = list(item.glob("*.edf"))
-            if edf_files:
-                participant_ids.append({
-                    'participant_id': int(item.name),
-                    'source': 'eeg',
-                    'status': 'present',
-                    'files_count': len(edf_files)
-                })
-        
-        # Also check for nested structures if necessary
-        # Some versions might have subfolders
-        for sub_item in item.iterdir():
-            if sub_item.is_dir() and sub_item.name.isdigit():
-               edf_files = list(sub_item.glob("*.edf"))
-               if edf_files:
-                  participant_ids.append({
-                      'participant_id': int(sub_item.name),
-                      'source': 'eeg',
-                      'status': 'present',
-                      'files_count': len(edf_files)
-                  })
-    
-    return pd.DataFrame(participant_ids)
+    if not raw_dir.exists():
+        raise FileNotFoundError(f"PhysioNet EEG data directory not found at {raw_dir}")
 
-def load_behavioral_metadata() -> pd.DataFrame:
-    """
-    Load behavioral metadata (Reaction Times) from the dataset.
+    # Try to find a metadata file
+    metadata_files = list(raw_dir.glob("*metadata*.csv"))
+    if not metadata_files:
+        metadata_files = list(raw_dir.glob("*info*.csv"))
     
-    In the PhysioNet EEG Motor Movement/Imagery dataset, behavioral data
-    is often embedded in the EDF files or provided in separate .txt files.
-    For this feasibility check, we assume a companion behavioral file exists
-    or we extract available metadata.
-    
-    If no explicit behavioral file is found, we simulate the presence of
-    behavioral data for the participants found in EEG to test the join logic,
-    BUT we strictly require the EEG data to be present.
-    
-    NOTE: In a real production scenario, this would load a specific CSV/JSON
-    of reaction times. Here we construct the expected schema based on EEG
-    participants to ensure the join logic works, assuming behavioral data
-    will be populated in subsequent steps (T013).
-    """
-    # Try to find a behavioral data file
-    behavioral_file = DATA_RAW / "eegmmidb" / "behavioral_data.csv"
-    
-    if behavioral_file.exists():
-        df = pd.read_csv(behavioral_file)
-        # Ensure participant_id is int
-        if 'participant_id' in df.columns:
-            df['participant_id'] = df['participant_id'].astype(int)
+    if metadata_files:
+        df = pd.read_csv(metadata_files[0])
+        # Normalize column names
+        df.columns = [c.lower().replace(' ', '_').replace('-', '_') for c in df.columns]
+        # Ensure participant_id column exists
+        if 'subject' in df.columns:
+            df['participant_id'] = df['subject']
+        elif 'subject_id' in df.columns:
+            df['participant_id'] = df['subject_id']
+        elif 'id' in df.columns:
+            df['participant_id'] = df['id']
+        else:
+            # If no explicit ID, we might need to infer from filenames later
+            pass
         return df
-    
-    # If no external file, we check if we can extract from the downloaded archive
-    # For the purpose of the FEASIBILITY CHECK, we need to verify that the
-    # JOIN operation is possible. If the EEG data exists, we assume the
-    # corresponding behavioral data structure is compatible (or will be generated).
-    # However, to be strict, we return an empty DF if no source is found,
-    # which will trigger the failure condition if the task requires actual data.
-    
-    # Re-reading the task: "join EEG and RT datasets".
-    # If we don't have RT data, the join fails.
-    # But often in these datasets, the "behavioral" info is the trial structure
-    # inside the EDF.
-    
-    # Let's check for a specific known file pattern or just return a placeholder
-    # that matches the EEG IDs to prove the JOIN logic works, 
-    # while flagging that RT values are pending extraction.
-    # Actually, the task says: "validate demographic metadata".
-    # Let's assume for this specific dataset (EEG Motor Movement), 
-    # the "behavioral" data is the trial log.
-    
-    # Since T007 downloads the raw archive, let's look for the specific
-    # metadata file that might have been extracted or is expected.
-    # If not found, we raise an error to force data acquisition.
-    
-    # For this implementation, we will construct a mock behavioral dataframe
-    # ONLY IF the EEG data exists, to demonstrate the JOIN capability.
-    # In a real run, this would be replaced by the actual loader.
-    # However, the instruction says "Real data only".
-    # If the dataset doesn't provide a separate RT CSV, we must extract it.
-    # Since extraction is T013, T008a must verify the *potential* for join.
-    
-    # Let's assume the existence of a file `subject_info.csv` or similar
-    # that maps IDs to demographics.
-    
-    # Fallback: If no specific behavioral file exists, we check if the 
-    # EEG directory structure implies the data exists.
-    # We will return a DataFrame with participant_ids matching the EEG ones
-    # but with a flag indicating RT data needs to be extracted.
-    # This allows the JOIN to succeed structurally.
-    
-    eeg_df = load_physionet_metadata()
-    if eeg_df.empty:
-        raise FileNotFoundError("No EEG data found to join with.")
-    
-    # Create a structural placeholder for behavioral data
-    # This satisfies the "join" requirement for the feasibility gate.
-    # The actual RT values will be populated in T013.
-    behavioral_df = eeg_df[['participant_id']].copy()
-    behavioral_df['source'] = 'behavioral'
-    behavioral_df['status'] = 'pending_extraction'
-    
-    return behavioral_df
 
-def generate_report(joined_df: pd.DataFrame, success: bool, error_msg: str = None) -> str:
+    # If no CSV found, scan directories for subject IDs
+    # Typical structure: sub-XX or SXX
+    subjects = []
+    for item in raw_dir.iterdir():
+        if item.is_dir():
+            name = item.name
+            # Try to extract numeric ID
+            if name.startswith('sub-'):
+                pid = int(name.split('-')[1])
+            elif name.startswith('S'):
+                pid = int(name[1:])
+            else:
+                try:
+                    pid = int(name)
+                except ValueError:
+                    continue
+            subjects.append({'participant_id': pid})
+    
+    if not subjects:
+        raise ValueError("No subject directories found in PhysioNet data folder.")
+    
+    return pd.DataFrame(subjects)
+
+def load_behavioral_metadata(data_dir: Path) -> pd.DataFrame:
     """
-    Generate a Markdown feasibility report.
+    Load behavioral metadata (Reaction Times).
+    In this specific PhysioNet dataset, behavioral data is often embedded in the
+    EEG annotations or requires parsing specific text files.
+    However, for the purpose of this pipeline's feasibility check, we assume
+    a separate behavioral CSV exists if it was generated by T007 or provided.
     
-    Args:
-        joined_df: The resulting joined DataFrame (if successful).
-        success: Boolean indicating if the join was successful.
-        error_msg: Error message if failed.
-    
-    Returns:
-        str: Markdown content of the report.
+    If not found, we attempt to infer from the EEG structure or return an empty DF
+    to trigger a failure if the join is strictly required.
     """
-    lines = []
-    lines.append("# Feasibility Check Report")
-    lines.append("")
-    lines.append(f"**Date**: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    lines.append(f"**Status**: {'SUCCESS' if success else 'FAILED'}")
-    lines.append("")
+    # Look for a behavioral metrics file if T007 extracted one
+    # Or look for a raw behavioral file
+    behavioral_path = data_dir / "raw" / "behavioral" / "metrics.csv"
     
-    if success:
-        lines.append("## Summary")
-        lines.append(f"- Total participants joined: {len(joined_df)}")
-        lines.append(f"- EEG sources found: {len(joined_df[joined_df['source'] == 'eeg'])}")
-        lines.append(f"- Behavioral sources found: {len(joined_df[joined_df['source'] == 'behavioral'])}")
-        lines.append("")
-        lines.append("## Data Preview")
-        lines.append("```")
-        lines.append(joined_df.head(10).to_string())
-        lines.append("```")
-        lines.append("")
-        lines.append("## Conclusion")
-        lines.append("The EEG and Behavioral datasets are compatible for join operations.")
-        lines.append("Proceed to T010 (Preprocessing) and T013 (Behavioral Parsing).")
-    else:
-        lines.append("## Error Details")
-        lines.append(f"{error_msg}")
-        lines.append("")
-        lines.append("## Conclusion")
-        lines.append("The datasets could not be joined. The pipeline cannot proceed.")
+    if behavioral_path.exists():
+        df = pd.read_csv(behavioral_path)
+        df.columns = [c.lower().replace(' ', '_').replace('-', '_') for c in df.columns]
+        if 'participant_id' not in df.columns:
+            if 'subject' in df.columns:
+                df['participant_id'] = df['subject']
+            elif 'subject_id' in df.columns:
+                df['participant_id'] = df['subject_id']
+        return df
+
+    # If the task T007 did not produce a separate behavioral file,
+    # we might need to check if the "behavioral" data is actually the EEG annotations.
+    # For this feasibility check, if we cannot find a distinct behavioral source,
+    # we must report that the join is impossible with current artifacts.
+    raise FileNotFoundError(
+        "Behavioral metadata file not found. "
+        "Expected path: data/raw/behavioral/metrics.csv. "
+        "Ensure T007 successfully extracts or downloads behavioral annotations."
+    )
+
+def generate_report(failure_reasons: list, output_path: Path) -> None:
+    """
+    Generate a markdown report detailing the failure.
+    """
+    report_content = f"""# Feasibility Check Report: FAILED
+
+**Timestamp**: {datetime.now().isoformat()}
+**Status**: FAILED
+
+## Failure Reasons
+"""
+    for i, reason in enumerate(failure_reasons, 1):
+        report_content += f"\n{i}. {reason}\n"
+
+    report_content += "\n## Next Steps\n"
+    report_content += "- Verify data download (T007) completed successfully.\n"
+    report_content += "- Ensure both EEG and Behavioral datasets are present in `data/raw/`.\n"
+    report_content += "- Check that `participant_id` columns exist in both datasets.\n"
+
+    with open(output_path, 'w') as f:
+        f.write(report_content)
     
-    return "\n".join(lines)
+    print(f"Feasibility report generated: {output_path}")
 
 def main():
-    """
-    Main entry point for the feasibility check.
+    data_root = get_path("data_root")
+    interim_dir = ensure_dirs("interim")
+    processed_dir = ensure_dirs("processed")
     
-    1. Load EEG metadata.
-    2. Load Behavioral metadata.
-    3. Join on participant_id.
-    4. Validate demographic metadata (check for required columns).
-    5. Output joined_metadata.csv or feasibility_report.md.
-    """
+    output_csv = interim_dir / "joined_metadata.csv"
+    failure_report = processed_dir / "feasibility_report.md"
+
     print("Starting Feasibility Check (T008a)...")
     
     try:
-        # 1. Load EEG Metadata
-        print("Loading EEG metadata...")
-        eeg_df = load_physionet_metadata()
-        if eeg_df.empty:
-            raise ValueError("No EEG participants found in the downloaded dataset.")
-        print(f"Found {len(eeg_df)} EEG participants.")
-        
-        # 2. Load Behavioral Metadata
+        # 1. Load Datasets
+        print("Loading PhysioNet EEG metadata...")
+        eeg_df = load_physionet_metadata(data_root)
+        print(f"  Found {len(eeg_df)} EEG records.")
+
         print("Loading Behavioral metadata...")
-        beh_df = load_behavioral_metadata()
-        if beh_df.empty:
-            raise ValueError("No Behavioral data found to join.")
-        print(f"Found {len(beh_df)} Behavioral records.")
-        
-        # 3. Join on participant_id
-        print("Performing inner join on participant_id...")
+        beh_df = load_behavioral_metadata(data_root)
+        print(f"  Found {len(beh_df)} Behavioral records.")
+
+        # 2. Validate Presence of ID Column
+        if 'participant_id' not in eeg_df.columns:
+            raise ValueError("EEG metadata missing 'participant_id' column.")
+        if 'participant_id' not in beh_df.columns:
+            raise ValueError("Behavioral metadata missing 'participant_id' column.")
+
+        # 3. Perform Inner Join
+        print("Joining datasets on 'participant_id'...")
         joined_df = pd.merge(
             eeg_df, 
             beh_df, 
             on='participant_id', 
-            how='inner',
+            how='inner', 
             suffixes=('_eeg', '_beh')
         )
-        
+
         if joined_df.empty:
-            raise ValueError("Join resulted in an empty dataset. No common participant_ids found.")
+            raise ValueError("Join resulted in an empty dataframe. No common participants found.")
+
+        print(f"Successfully joined {len(joined_df)} records.")
+
+        # 4. Validate Demographics (Basic Check)
+        # Check for nulls in key demographic columns if they exist
+        # (Assuming 'age', 'sex', 'group' might be present)
+        key_cols = ['participant_id', 'age', 'sex', 'group']
+        available_cols = [c for c in key_cols if c in joined_df.columns]
         
-        print(f"Successfully joined {len(joined_df)} participants.")
-        
-        # 4. Validate Demographic Metadata
-        # Check for expected columns or at least the ID
-        required_cols = ['participant_id']
-        missing_cols = [c for c in required_cols if c not in joined_df.columns]
-        if missing_cols:
-            raise ValueError(f"Missing required columns in joined data: {missing_cols}")
-        
-        # 5. Output
-        output_path = DATA_INTERIM / "joined_metadata.csv"
-        joined_df.to_csv(output_path, index=False)
-        print(f"Saved joined metadata to {output_path}")
-        
-        # Generate success report
-        report_content = generate_report(joined_df, success=True)
-        report_path = DATA_PROCESSED / "feasibility_report.md"
-        with open(report_path, 'w') as f:
-            f.write(report_content)
-        print(f"Saved feasibility report to {report_path}")
-        
-        print("Feasibility Check PASSED.")
+        if available_cols:
+            null_counts = joined_df[available_cols].isnull().sum()
+            if null_counts.any():
+                print("Warning: Some demographic data is missing.")
+                print(null_counts[null_counts > 0])
+            else:
+                print("Demographic metadata validation passed (no nulls in key fields).")
+
+        # 5. Save Output
+        joined_df.to_csv(output_csv, index=False)
+        print(f"Saved joined metadata to: {output_csv}")
+
+        # 6. Success Exit
+        print("Feasibility Check PASSED. Downstream tasks can proceed.")
         sys.exit(0)
-        
+
+    except FileNotFoundError as e:
+        reasons = [str(e)]
+        generate_report(reasons, failure_report)
+        print("Feasibility Check FAILED: Data source missing.")
+        sys.exit(1)
+    except ValueError as e:
+        reasons = [str(e)]
+        generate_report(reasons, failure_report)
+        print(f"Feasibility Check FAILED: {e}")
+        sys.exit(1)
     except Exception as e:
-        print(f"Feasibility Check FAILED: {str(e)}")
-        
-        # Generate failure report
-        report_content = generate_report(joined_df=None, success=False, error_msg=str(e))
-        report_path = DATA_PROCESSED / "feasibility_report.md"
-        with open(report_path, 'w') as f:
-            f.write(report_content)
-        print(f"Saved failure report to {report_path}")
-        
+        reasons = [f"Unexpected error: {str(e)}"]
+        generate_report(reasons, failure_report)
+        print(f"Feasibility Check FAILED: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
