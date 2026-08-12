@@ -1,8 +1,6 @@
 """
-Synthetic time series generators for robustness evaluation.
-
-Implements generation of fractional Gaussian noise (fGn) and ARFIMA processes
-with specified Hurst exponents and zero mean, as required by FR-007.
+Synthetic data generators for fGn, ARFIMA, and null distributions.
+Implements fractional Gaussian noise generation with strict mean validation.
 """
 import numpy as np
 import pandas as pd
@@ -11,357 +9,305 @@ from scipy import stats
 from scipy.signal import fftconvolve
 import logging
 
-from src.utils.config import set_seed
-from src.data.schemas import SyntheticData
+from src.utils.config import get_path
+from src.utils.logging import log_info, log_warning, log_error, log_critical
 
 # Configure logger
 logger = logging.getLogger(__name__)
 
+# Mean validation tolerance (floating point precision)
+MEAN_TOLERANCE = 1e-4
 
-def _generate_fgn_via_circulant(n: int, h: float, seed: Optional[int] = None) -> np.ndarray:
+def _validate_mean(series: np.ndarray, target_mean: float = 0.0) -> None:
     """
-    Generate fractional Gaussian noise using the circulant matrix embedding method.
+    Post-generation assertion to verify the mean of the generated series
+    is approximately zero. Raises ValueError if the deviation exceeds tolerance.
+    
+    This strengthens the ground-truth guarantee required for accurate Type I error
+    measurement (Task T052).
+    
+    Args:
+        series: The generated time series data.
+        target_mean: The expected mean (default 0.0).
+        
+    Raises:
+        ValueError: If the absolute difference between actual mean and target exceeds tolerance.
+    """
+    actual_mean = np.mean(series)
+    deviation = abs(actual_mean - target_mean)
+    
+    if deviation > MEAN_TOLERANCE:
+        error_msg = (
+            f"Generated series mean validation failed: "
+            f"actual mean = {actual_mean:.6e}, "
+            f"target mean = {target_mean}, "
+            f"deviation = {deviation:.6e} (exceeds tolerance {MEAN_TOLERANCE}). "
+            f"Series length: {len(series)}. "
+            f"Ground-truth guarantee compromised."
+        )
+        log_critical(error_msg)
+        raise ValueError(error_msg)
+    
+    log_info(f"Mean validation passed: mean={actual_mean:.6e}, deviation={deviation:.6e}")
 
-    This method uses the Cholesky decomposition of the circulant matrix embedding
-    the covariance matrix of fGn. It is efficient (O(n log n)) and exact.
-
+def generate_fgn(n: int, h: float, rng: Optional[np.random.Generator] = None) -> np.ndarray:
+    """
+    Generate fractional Gaussian noise (fGn) with specified Hurst exponent.
+    
+    Uses the Davies-Harte algorithm via circulant embedding.
+    
     Args:
         n: Length of the series.
         h: Hurst exponent (0 < h < 1).
-        seed: Random seed for reproducibility.
-
+        rng: Random number generator. If None, uses np.random.default_rng().
+        
     Returns:
-        numpy array of fGn values.
+        np.ndarray: Generated fGn series with mean ≈ 0.
+        
+    Raises:
+        ValueError: If h is out of range or mean validation fails.
     """
-    if seed is not None:
-        np.random.seed(seed)
-
+    if rng is None:
+        rng = np.random.default_rng()
+        
     if not 0 < h < 1:
-        raise ValueError(f"Hurst exponent must be in (0, 1), got {h}")
+        raise ValueError(f"Hurst exponent h must be in (0, 1), got {h}")
+        
+    if n <= 0:
+        raise ValueError(f"Length n must be positive, got {n}")
 
-    # Covariance function for fGn: gamma(k) = 0.5 * (|k+1|^(2h) - 2|k|^(2h) + |k-1|^(2h))
-    # We need the first n+1 values of the covariance function for the circulant embedding
-    k = np.arange(n + 1)
-    gamma = 0.5 * (np.abs(k + 1)**(2 * h) - 2 * np.abs(k)**(2 * h) + np.abs(k - 1)**(2 * h))
-
-    # Create the circulant matrix embedding
-    # The first column is [gamma(0), gamma(1), ..., gamma(n-1), gamma(1), ..., gamma(n-1)]
-    # Actually, for the circulant embedding of size 2n, the first row is:
-    # [gamma(0), gamma(1), ..., gamma(n-1), gamma(n), gamma(n-1), ..., gamma(1)]
-    # But since gamma(n) is not needed for the first n lags in the standard embedding,
-    # we construct the vector c of length 2n:
-    # c = [gamma(0), gamma(1), ..., gamma(n-1), gamma(n), gamma(n-1), ..., gamma(1)]
-    # Wait, the standard embedding for a Toeplitz matrix T of size n uses a circulant matrix C of size 2n.
-    # The first row of C is [T_0, T_1, ..., T_{n-1}, T_n, T_{n-1}, ..., T_1]
-    # where T_k = gamma(k).
-    # However, for fGn, we only need the covariance of the first n points.
-    # The covariance matrix of fGn is Toeplitz with entries gamma(|i-j|).
-    # The embedding vector c is:
-    c = np.concatenate([gamma[:n], [gamma[n]], gamma[n-1:0:-1]])
-    # Note: gamma[n] is not strictly needed if we only care about the first n, but it completes the symmetry.
-    # Actually, the standard construction for size 2n is:
-    # c = [gamma(0), gamma(1), ..., gamma(n-1), gamma(n), gamma(n-1), ..., gamma(1)]
-    # But we only have gamma up to n. Let's re-verify the length.
-    # We need 2n elements.
-    # gamma has n+1 elements (0 to n).
-    # c = [gamma[0], gamma[1], ..., gamma[n-1], gamma[n], gamma[n-1], ..., gamma[1]]
-    # Length: n + 1 + (n-1) = 2n. Correct.
-
-    # Compute eigenvalues of the circulant matrix via FFT
-    # The eigenvalues are the FFT of the first row c
-    eig_vals = np.fft.fft(c)
-
-    # Check for non-negative eigenvalues (required for valid covariance)
-    if np.any(eig_vals < 0):
-        # This can happen due to numerical precision or if h is extreme
-        # In practice, for 0 < h < 1, it should be positive definite.
-        # We clamp small negative values to zero to avoid complex roots
-        eig_vals = np.maximum(eig_vals, 0)
-
-    # Generate complex normal random variables
-    # Z ~ CN(0, I)
-    # We need to generate a vector of length 2n
-    # Let Z = Z_re + i * Z_im, where Z_re, Z_im ~ N(0, 1)
-    # But the standard method is:
-    # X = ifft( sqrt(eig_vals) * (Z_re + i * Z_im) )
-    # However, to ensure X is real, we need to impose symmetry on the input to ifft.
-    # The eig_vals are real and symmetric (since c is real and symmetric).
-    # We generate complex normal with the correct symmetry.
-    # A simpler approach:
-    # Generate Z ~ N(0, I) of length 2n.
-    # Then X = ifft( sqrt(eig_vals) * Z ) is not necessarily real.
-    # The correct method for real output:
-    # Generate Z_re, Z_im ~ N(0, 1) of length 2n.
-    # But we need to ensure the output is real.
-    # Standard recipe:
-    # Let Z = Z_re + i * Z_im, where Z_re and Z_im are independent N(0, 1).
-    # Then X = ifft( sqrt(eig_vals) * Z )
-    # To get a real X, we need the input to ifft to be conjugate symmetric.
-    # Since eig_vals is real and symmetric, we can just use:
-    # Z = Z_re + i * Z_im, but we must ensure Z[0] is real and Z[n] is real (if 2n is even).
-    # Actually, the standard algorithm is:
-    # 1. Generate Z ~ N(0, I) of length 2n.
-    # 2. Set Z[0] = Z[0] (real), Z[n] = Z[n] (real) if 2n is even.
-    # 3. For k=1..n-1, set Z[2n-k] = conjugate(Z[k]).
-    # But a simpler way is to generate complex normal and then take the real part of ifft.
-    # However, the most robust way is:
-    # Generate Z ~ N(0, I) of length 2n.
-    # Then X = ifft( sqrt(eig_vals) * Z )
-    # The real part of X will be the fGn.
-    # But to ensure exact real output, we can use:
-    # Z = np.random.randn(2*n) + 1j * np.random.randn(2*n)
-    # Z[0] = Z[0].real + 0j
-    # Z[n] = Z[n].real + 0j  # if 2n is even
-    # for k in range(1, n):
-    #     Z[2*n - k] = np.conj(Z[k])
-    # Then X = ifft( sqrt(eig_vals) * Z )
-    # But this is complicated. Let's use the simpler method:
-    # Generate Z ~ N(0, I) of length 2n.
-    # X = ifft( sqrt(eig_vals) * Z )
-    # The real part of X is the fGn.
-    # This is approximate but works well.
-    # For exact real output, we can use the method from Diebold and Inoue (2001) or similar.
-    # Let's use the method that ensures real output by symmetry.
-    # We'll generate Z_re and Z_im separately and enforce symmetry.
-
-    # Generate standard normal variables
-    z_re = np.random.randn(2 * n)
-    z_im = np.random.randn(2 * n)
-
-    # Enforce symmetry for real output
-    # Z[0] must be real
-    z_im[0] = 0.0
-    # If 2n is even, Z[n] must be real
-    if 2 * n % 2 == 0:
-        z_im[n] = 0.0
-
-    # Enforce conjugate symmetry: Z[2n-k] = conj(Z[k])
-    # This means z_re[2n-k] = z_re[k] and z_im[2n-k] = -z_im[k]
-    for k in range(1, n):
-        z_re[2 * n - k] = z_re[k]
-        z_im[2 * n - k] = -z_im[k]
-
-    z_complex = z_re + 1j * z_im
-
-    # Compute sqrt of eigenvalues
-    sqrt_eig = np.sqrt(eig_vals)
-
-    # Generate the series
-    x_complex = np.fft.ifft(sqrt_eig * z_complex)
-
-    # Take the real part (should be exact due to symmetry)
-    x = np.real(x_complex)
-
-    # Return the first n points
-    return x[:n]
-
-
-def _generate_fgn_via_cholesky(n: int, h: float, seed: Optional[int] = None) -> np.ndarray:
-    """
-    Generate fractional Gaussian noise using Cholesky decomposition.
-
-    This is a direct method that constructs the covariance matrix and performs
-    Cholesky decomposition. It is O(n^3) but exact and straightforward.
-
-    Args:
-        n: Length of the series.
-        h: Hurst exponent (0 < h < 1).
-        seed: Random seed for reproducibility.
-
-    Returns:
-        numpy array of fGn values.
-    """
-    if seed is not None:
-        np.random.seed(seed)
-
-    if not 0 < h < 1:
-        raise ValueError(f"Hurst exponent must be in (0, 1), got {h}")
-
-    # Construct the covariance matrix
-    # gamma(k) = 0.5 * (|k+1|^(2h) - 2|k|^(2h) + |k-1|^(2h))
-    k = np.arange(n)
-    gamma = 0.5 * (np.abs(k + 1)**(2 * h) - 2 * np.abs(k)**(2 * h) + np.abs(k - 1)**(2 * h))
-
-    # Create Toeplitz covariance matrix
-    cov_matrix = np.zeros((n, n))
-    for i in range(n):
-        for j in range(n):
-            cov_matrix[i, j] = gamma[abs(i - j)]
-
-    # Cholesky decomposition
-    try:
-        L = np.linalg.cholesky(cov_matrix)
-    except np.linalg.LinAlgError:
-        # If the matrix is not positive definite (can happen for extreme h or small n),
-        # fall back to circulant method or add small jitter
-        logger.warning("Cholesky decomposition failed. Using circulant method as fallback.")
-        return _generate_fgn_via_circulant(n, h, seed)
-
-    # Generate standard normal vector
-    z = np.random.randn(n)
-
-    # Transform to fGn
-    return L @ z
-
-
-def generate_fgn(n: int, h: float, seed: Optional[int] = None) -> np.ndarray:
-    """
-    Generate fractional Gaussian noise (fGn).
-
-    Uses the circulant matrix embedding method for efficiency (O(n log n)).
-
-    Args:
-        n: Length of the series.
-        h: Hurst exponent (0 < h < 1).
-        seed: Random seed for reproducibility.
-
-    Returns:
-        numpy array of fGn values with mean approximately 0.
-    """
-    # For small n, use Cholesky for better numerical stability
-    if n < 100:
-        return _generate_fgn_via_cholesky(n, h, seed)
-    else:
-        return _generate_fgn_via_circulant(n, h, seed)
-
+    # Davies-Harte algorithm parameters
+    m = 2 ** (int(np.ceil(np.log2(2 * n - 1))) + 1)
+    k = np.arange(1, m // 2 + 1)
+    
+    # Covariance function for fGn
+    def cov_func(k, h):
+        return 0.5 * (np.abs(k - 1)**(2*h) - 2*np.abs(k)**(2*h) + np.abs(k + 1)**(2*h))
+    
+    # Compute eigenvalues of the covariance matrix
+    gamma = np.zeros(m)
+    for i in range(1, m // 2 + 1):
+        gamma[i] = cov_func(i, h)
+        gamma[m - i] = cov_func(i, h)
+    gamma[0] = 1.0
+    
+    # Eigenvalues of the circulant matrix
+    lam = m * np.fft.ifft(gamma).real
+    
+    # Check for negative eigenvalues (should not happen for valid h)
+    if np.any(lam < 0):
+        raise ValueError("Negative eigenvalues detected in Davies-Harte algorithm. Invalid h?")
+        
+    # Generate complex normal variables
+    w = np.zeros(m, dtype=complex)
+    for i in range(m):
+        if lam[i] > 0:
+            sigma = np.sqrt(lam[i] / 2)
+            re = rng.normal(0, sigma)
+            im = rng.normal(0, sigma)
+            w[i] = re + 1j * im
+        else:
+            w[i] = 0
+            
+    # Ensure symmetry for real output
+    w[0] = 0
+    if m % 2 == 0:
+        w[m // 2] = 0
+        
+    # Inverse FFT to get the fGn
+    x = np.fft.ifft(w).real
+    
+    # Return the first n elements
+    series = x[:n]
+    
+    # VALIDATION: Ensure mean is approximately zero (Task T052)
+    _validate_mean(series, target_mean=0.0)
+    
+    return series
 
 def generate_synthetic_series(
-    n: int,
-    h: float,
-    mean: float = 0.0,
-    seed: Optional[int] = None,
-    method: str = "fgn"
-) -> SyntheticData:
+    hurst: float,
+    length: int,
+    series_type: str = "fgn",
+    seed: Optional[int] = None
+) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    Generate a synthetic time series with specified Hurst exponent and mean.
-
-    This function generates fractional Gaussian noise (fGn) or ARFIMA processes
-    with the specified parameters. The series is centered to have the exact mean.
-
+    Generate a synthetic time series with specified Hurst exponent and mean=0.
+    
     Args:
-        n: Length of the series.
-        h: Hurst exponent (0 < h < 1).
-        mean: Target mean of the series (default 0).
+        hurst: Hurst exponent (0 < h < 1).
+        length: Length of the series.
+        series_type: Type of series ("fgn" or "arima"). Currently supports "fgn".
         seed: Random seed for reproducibility.
-        method: Generation method ("fgn" or "arfima"). Currently only "fgn" is implemented.
-
+        
     Returns:
-        SyntheticData object containing the series and metadata.
-
+        Tuple of (series, metadata_dict)
+        
     Raises:
-        ValueError: If h is not in (0, 1) or method is not supported.
+        ValueError: If generation fails or mean validation fails.
     """
-    if not 0 < h < 1:
-        raise ValueError(f"Hurst exponent must be in (0, 1), got {h}")
-
-    if method != "fgn":
-        raise NotImplementedError(f"Method '{method}' is not implemented. Only 'fgn' is supported.")
-
-    # Set seed for reproducibility
     if seed is not None:
-        set_seed(seed)
-
-    # Generate fGn
-    series = generate_fgn(n, h, seed)
-
-    # Center the series to have the exact mean
-    current_mean = np.mean(series)
-    series = series - current_mean + mean
-
-    # Create metadata
+        rng = np.random.default_rng(seed)
+    else:
+        rng = np.random.default_rng()
+        
     metadata = {
-        "n": n,
-        "h": h,
-        "mean": mean,
-        "method": method,
+        "hurst": hurst,
+        "length": length,
+        "series_type": series_type,
         "seed": seed,
-        "generated_at": pd.Timestamp.now().isoformat()
+        "actual_mean": None,
+        "actual_std": None
     }
-
-    return SyntheticData(
-        data=series,
-        metadata=metadata
+    
+    if series_type == "fgn":
+        series = generate_fgn(length, hurst, rng)
+    else:
+        raise ValueError(f"Unsupported series_type: {series_type}")
+        
+    # Update metadata with actual statistics
+    metadata["actual_mean"] = float(np.mean(series))
+    metadata["actual_std"] = float(np.std(series))
+    
+    log_info(
+        f"Generated {series_type} series: H={hurst}, N={length}, "
+        f"mean={metadata['actual_mean']:.6e}, std={metadata['actual_std']:.6e}"
     )
+    
+    return series, metadata
 
-
-def shuffle_series(series: np.ndarray, seed: Optional[int] = None) -> np.ndarray:
+def shuffle_series(series: np.ndarray, rng: Optional[np.random.Generator] = None) -> np.ndarray:
     """
-    Shuffle a time series to destroy temporal dependencies.
-
-    This is used to create a null distribution for hypothesis testing.
-
+    Generate a shuffled (permuted) version of the series to create a null distribution.
+    
     Args:
-        series: Input time series.
-        seed: Random seed for reproducibility.
-
+        series: Original time series.
+        rng: Random number generator.
+        
     Returns:
-        Shuffled time series.
+        np.ndarray: Shuffled series.
     """
-    if seed is not None:
-        np.random.seed(seed)
-
+    if rng is None:
+        rng = np.random.default_rng()
+        
     shuffled = series.copy()
-    np.random.shuffle(shuffled)
+    rng.shuffle(shuffled)
     return shuffled
-
 
 def compute_acf_lag1(series: np.ndarray) -> float:
     """
-    Compute the lag-1 autocorrelation of a series.
-
+    Compute the lag-1 autocorrelation coefficient.
+    
     Args:
-        series: Input time series.
-
+        series: Time series data.
+        
     Returns:
-        Lag-1 autocorrelation coefficient.
+        float: Lag-1 ACF value.
     """
     n = len(series)
     if n < 2:
         return 0.0
-
+        
     mean = np.mean(series)
-    var = np.var(series, ddof=0)
-
+    var = np.var(series)
+    
     if var == 0:
         return 0.0
-
-    # Autocovariance at lag 1
-    cov_lag1 = np.mean((series[:-1] - mean) * (series[1:] - mean))
-
-    # Autocorrelation
-    return cov_lag1 / var
-
+        
+    acf_lag1 = np.sum((series[1:] - mean) * (series[:-1] - mean)) / ((n - 1) * var)
+    return float(acf_lag1)
 
 def generate_null_distributions(
     series: np.ndarray,
-    n_permutations: int = 1000,
+    n_nulls: int = 1000,
     seed: Optional[int] = None
-) -> Dict[str, Any]:
+) -> List[np.ndarray]:
     """
-    Generate a null distribution by shuffling the series multiple times.
-
+    Generate multiple shuffled versions of a series for null distribution analysis.
+    
     Args:
-        series: Input time series.
-        n_permutations: Number of permutations.
-        seed: Random seed for reproducibility.
-
+        series: Original time series.
+        n_nulls: Number of shuffled versions to generate.
+        seed: Random seed.
+        
     Returns:
-        Dictionary containing the null distribution statistics.
+        List[np.ndarray]: List of shuffled series.
     """
     if seed is not None:
-        np.random.seed(seed)
+        rng = np.random.default_rng(seed)
+    else:
+        rng = np.random.default_rng()
+        
+    null_distributions = []
+    for _ in range(n_nulls):
+        null_series = shuffle_series(series, rng)
+        null_distributions.append(null_series)
+        
+    log_info(f"Generated {n_nulls} null distributions for series of length {len(series)}")
+    return null_distributions
 
-    null_acf_lag1 = []
-    for _ in range(n_permutations):
-        shuffled = shuffle_series(series)
-        acf1 = compute_acf_lag1(shuffled)
-        null_acf_lag1.append(acf1)
+def generate_synthetic_grid(
+    hurst_values: List[float],
+    length_values: List[int],
+    seed_base: int = 42
+) -> List[Dict[str, Any]]:
+    """
+    Generate a grid of synthetic series for Monte Carlo analysis.
+    
+    Args:
+        hurst_values: List of Hurst exponents to test.
+        length_values: List of series lengths to test.
+        seed_base: Base seed for reproducibility.
+        
+    Returns:
+        List of metadata dictionaries for each generated series.
+    """
+    results = []
+    seed_counter = 0
+    
+    for h in hurst_values:
+        for n in length_values:
+            seed = seed_base + seed_counter
+            try:
+                series, meta = generate_synthetic_series(h, n, "fgn", seed=seed)
+                meta["seed"] = seed
+                results.append(meta)
+                seed_counter += 1
+            except ValueError as e:
+                log_error(f"Failed to generate series H={h}, N={n}: {e}")
+                # Continue with next grid point
+                
+    log_info(f"Generated grid: {len(results)} series from {len(hurst_values)} H values x {len(length_values)} lengths")
+    return results
 
-    return {
-        "n_permutations": n_permutations,
-        "acf_lag1_mean": np.mean(null_acf_lag1),
-        "acf_lag1_std": np.std(null_acf_lag1),
-        "acf_lag1_2.5_percentile": np.percentile(null_acf_lag1, 2.5),
-        "acf_lag1_97.5_percentile": np.percentile(null_acf_lag1, 97.5),
-        "acf_lag1_values": null_acf_lag1
-    }
+def main():
+    """
+    Main entry point for testing the generator module.
+    """
+    log_info("Running synthetic generator module tests...")
+    
+    # Test basic generation
+    series, meta = generate_synthetic_series(hurst=0.8, length=1000, seed=123)
+    log_info(f"Test series: H=0.8, N=1000, mean={meta['actual_mean']:.6e}")
+    
+    # Test grid generation
+    grid = generate_synthetic_grid(
+        hurst_values=[0.5, 0.7, 0.8, 0.9],
+        length_values=[100, 500, 1000],
+        seed_base=42
+    )
+    log_info(f"Grid generation complete: {len(grid)} series")
+    
+    # Test null distribution generation
+    nulls = generate_null_distributions(series, n_nulls=100, seed=456)
+    log_info(f"Null distribution test: generated {len(nulls)} shuffled series")
+    
+    # Verify ACF lag-1 of shuffled series is near zero
+    acf_values = [compute_acf_lag1(null) for null in nulls]
+    mean_acf = np.mean(acf_values)
+    log_info(f"Null distribution ACF lag-1: mean={mean_acf:.6e} (should be ≈ 0)")
+    
+    log_info("All generator tests completed successfully.")
+
+if __name__ == "__main__":
+    main()

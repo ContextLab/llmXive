@@ -1,39 +1,39 @@
 import os
 import sys
 from pathlib import Path
+import json
+from datetime import datetime
 
-# Ensure the code directory is in the path for imports
-code_root = Path(__file__).resolve().parent.parent
+# Add code directory to path if running as script
+code_root = Path(__file__).parent.parent
 if str(code_root) not in sys.path:
     sys.path.insert(0, str(code_root))
 
 from src.utils.config import get_path, ensure_dirs
-from src.utils.logging import setup_logger, log_info, log_error
 from src.utils.directory_manager import setup_project_directories, initialize_checksums
+from src.utils.logging import setup_logger, log_info, log_error
 
-def main() -> int:
+def main():
     """
-    Script entry point to execute T001: Create project structure.
+    Script entry point to create project structure and manifest.
     """
-    logger = setup_logger("setup_project_structure")
+    # Setup logging
+    logger = setup_logger("structure_setup")
+    log_info("Starting project structure initialization...")
+
     try:
-        log_info(logger, "Executing T001: Creating project structure...")
-        
-        # Ensure base directories exist before calling the manager
-        ensure_dirs()
-        
-        # Create specific directories and get the list
+        # Create directories
         created_paths = setup_project_directories()
         
-        # Generate the manifest
+        # Generate manifest
         manifest = initialize_checksums(created_paths)
         
-        log_info(logger, "T001 Completed successfully.")
-        log_info(logger, f"Manifest saved to: {get_path('state')}/structure_manifest.json")
+        log_info(f"Successfully created {len(created_paths)} directories.")
+        log_info(f"Manifest saved to: {get_path('state/structure_manifest.json')}")
         
         return 0
     except Exception as e:
-        log_error(logger, f"T001 Failed: {e}")
+        log_error(f"Failed to initialize project structure: {e}")
         return 1
 
 if __name__ == "__main__":
