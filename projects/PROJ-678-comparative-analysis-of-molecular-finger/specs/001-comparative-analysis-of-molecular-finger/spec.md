@@ -57,7 +57,7 @@ The system MUST evaluate both models on a held-out test set, perform a corrected
 - **Data Scarcity**: If the filtered organophosphate subset contains fewer than 50 compounds, the system must flag a "Low Sample Size" warning and skip the statistical significance test to avoid Type I errors, recording this limitation in the final report.
 - **Label Imbalance**: If a specific toxicity endpoint has a class imbalance ratio > 10:1 (positive:negative), the system must use stratified sampling and report Balanced Accuracy in addition to ROC-AUC.
 - **Insufficient Structural Diversity**: If the greedy maximal dissimilarity split algorithm cannot assign a test set of at least 20 samples while maintaining a Tanimoto similarity threshold of < 0.85 against all training samples, the system MUST halt execution, log "Insufficient Structural Diversity: Cannot achieve valid split," and output a report stating that statistical comparison is invalid. The system MUST NOT relax the similarity threshold.
-- **Memory Overflow**: If the full dataset exceeds 7 GB of RAM during fingerprint generation, the system MUST switch to a chunked processing mode (batch size = 500 compounds) and log the adjustment, ensuring the final model is trained on the complete dataset.
+- **Memory Overflow**: If the full dataset exceeds a substantial amount of RAM during fingerprint generation, the system MUST switch to a chunked processing mode (batch size = 500 compounds) and log the adjustment, ensuring the final model is trained on the complete dataset.
 
 ## Requirements
 
@@ -66,7 +66,7 @@ The system MUST evaluate both models on a held-out test set, perform a corrected
 - **FR-001**: System MUST filter the Tox21 dataset to include only compounds matching the SMARTS pattern `[P](=O)([O,SC])[O,SC]` to isolate organophosphates. (See US-1)
 - **FR-002**: System MUST generate Morgan fingerprints (radius=2, 2048 bits) and MACCS keys for every compound in the filtered dataset using RDKit. (See US-2)
 - **FR-003**: System MUST train two independent Random Forest classifiers (100 trees, max_depth=15) on the Morgan and MACCS feature sets respectively. (See US-2)
-- **FR-004**: System MUST perform a maximal dissimilarity split using a greedy algorithm to ensure NO compound in the test set has a Tanimoto similarity ≥ 0.85 to any compound in the training set, while maintaining an approximate 80/20 split ratio. (See US-2)
+- **FR-004**: System MUST perform a maximal dissimilarity split using a greedy algorithm to ensure NO compound in the test set has a Tanimoto similarity ≥ 0.85 to any compound in the training set, while maintaining an approximate /20 split ratio. (See US-2)
 - **FR-005**: System MUST execute a corrected resampled t-test (Nadeau & Bengio) on the test set predictions to determine if the performance difference between Morgan and MACCS models is statistically significant (p < 0.05). (See US-3)
 - **FR-006**: System MUST enforce a CPU-only execution constraint, prohibiting any GPU/CUDA operations or heavy model training that exceeds available system RAM. (See US-2)
 
