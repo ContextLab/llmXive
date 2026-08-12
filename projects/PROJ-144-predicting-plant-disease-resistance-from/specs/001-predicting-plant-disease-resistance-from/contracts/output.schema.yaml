@@ -1,204 +1,68 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-description: "Schema for the final model output and interpretation report"
-type: "object"
+title: "Pathway Analysis Output Schema"
+description: "Schema for pathway mapping and visualization data."
+type: object
 properties:
-  model_info:
-    type: "object"
-    properties:
-      model_type:
-        type: "string"
-        const: "RandomForestClassifier"
-      hyperparameters:
-        type: "object"
-        properties:
-          n_estimators:
-            type: "integer"
-          max_depth:
-            type: "integer"
-          min_samples_split:
-            type: "integer"
-          min_samples_leaf:
-            type: "integer"
-        required:
-          - n_estimators
-          - max_depth
-      random_state:
-        type: "integer"
-    required:
-      - model_type
-      - hyperparameters
-      - random_state
-  feature_importance:
-    type: "array"
-    description: "Top 10 features by mean decrease in impurity"
+  top_metabolites:
+    type: array
+    description: "Top 10 metabolites by feature importance."
     items:
-      type: "object"
+      type: object
       properties:
-        rank:
-          type: "integer"
-          minimum: 1
-        metabolite_inchi_key:
-          type: "string"
+        inchikey:
+          type: string
+          description: "InChIKey of the metabolite."
         importance_score:
-          type: "number"
+          type: number
           minimum: 0
-        significance_threshold:
-          type: "number"
-          description: "Permutation-based significance threshold"
-        is_significant:
-          type: "boolean"
-          description: "True if importance_score > significance_threshold"
-        pathway_mapping:
-          type: "array"
+        pathways:
+          type: array
+          description: "List of mapped pathways."
           items:
-            type: "object"
+            type: object
             properties:
-              database:
-                type: "string"
-                enum: ["KEGG", "MetaCyc"]
               pathway_id:
-                type: "string"
+                type: string
+                description: "KEGG or MetaCyc pathway ID."
               pathway_name:
-                type: "string"
+                type: string
+                description: "Human-readable pathway name."
+              reference:
+                type: string
+                description: "Literature reference or database URL."
             required:
-              - database
               - pathway_id
               - pathway_name
+        vif_score:
+          type: number
+          minimum: 1
+          description: "VIF score for collinearity check."
       required:
-        - rank
-        - metabolite_inchi_key
+        - inchikey
         - importance_score
-        - significance_threshold
-        - is_significant
-    minItems: 1
-    maxItems: 10
-  collinearity_diagnostics:
-    type: "array"
-    description: "SHAP values for top features"
-    items:
-      type: "object"
-      properties:
-        metabolite_inchi_key:
-          type: "string"
-        shap_mean_abs:
-          type: "number"
-          minimum: 0
-        shap_stability:
-          type: "number"
-          minimum: 0
-          maximum: 1
-          description: "Stability of SHAP values across CV folds"
-      required:
-        - metabolite_inchi_key
-        - shap_mean_abs
-        - shap_stability
-  validation_summary:
-    type: "object"
+        - pathways
+        - vif_score
+  visualization:
+    type: object
+    description: "Visualization metadata."
     properties:
-      cross_validation_scores:
-        type: "array"
-        items:
-          type: "number"
-        description: "Balanced accuracy for each fold"
-      hold_out_metrics:
-        type: "object"
-        properties:
-          balanced_accuracy:
-            type: "number"
-          roc_auc:
-            type: "number"
-          precision:
-            type: "number"
-          recall:
-            type: "number"
-        required:
-          - balanced_accuracy
-          - roc_auc
-      permutation_test:
-        type: "object"
-        properties:
-          n_permutations:
-            type: "integer"
-            minimum: 1000
-          p_value:
-            type: "number"
-            minimum: 0
-            maximum: 1
-          null_distribution_mean:
-            type: "number"
-        required:
-          - n_permutations
-          - p_value
-      learning_curve_data:
-        type: "object"
-        description: "Learning curve metrics for sample size sufficiency"
-        properties:
-          train_sizes:
-            type: "array"
-            items:
-              type: "integer"
-          train_scores:
-            type: "array"
-            items:
-              type: "number"
-          test_scores:
-            type: "array"
-            items:
-              type: "number"
-          sufficiency_flag:
-            type: "string"
-            enum: ["sufficient", "underpowered", "exploratory"]
-        required:
-          - train_sizes
-          - train_scores
-          - test_scores
-          - sufficiency_flag
+      plot_path:
+        type: string
+        const: "results/plots/pathway_barplot.png"
+        description: "Path to the generated bar plot."
+      data_source:
+        type: string
+        const: "results/pathway_analysis.json"
+        description: "Source data file for the plot."
     required:
-      - cross_validation_scores
-      - hold_out_metrics
-      - permutation_test
-      - learning_curve_data
-  sensitivity_analysis:
-    type: "object"
-    description: "Results of decision cutoff sensitivity sweep"
-    properties:
-      cutoffs:
-        type: "array"
-        items:
-          type: "number"
-          enum: [0.01, 0.05, 0.1]
-      false_positive_rates:
-        type: "array"
-        items:
-          type: "number"
-      false_negative_rates:
-        type: "array"
-        items:
-          type: "number"
-    required:
-      - cutoffs
-      - false_positive_rates
-      - false_negative_rates
-  interpretation:
-    type: "object"
-    properties:
-      biological_plausibility:
-        type: "string"
-        description: "Narrative summary of pathway mappings"
-      limitation_notes:
-        type: "array"
-        items:
-          type: "string"
-        description: "Notes on sample size, power, or data gaps"
-    required:
-      - biological_plausibility
-      - limitation_notes
+      - plot_path
+      - data_source
+  framing:
+    type: string
+    const: "associational"
+    description: "Explicit statement that findings are associational, not causal."
 required:
-  - model_info
-  - feature_importance
-  - collinearity_diagnostics
-  - validation_summary
-  - sensitivity_analysis
-  - interpretation
+  - top_metabolites
+  - visualization
+  - framing
 additionalProperties: false

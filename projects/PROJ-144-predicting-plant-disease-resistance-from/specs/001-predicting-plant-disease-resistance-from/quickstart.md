@@ -1,79 +1,85 @@
 # Quickstart: Predicting Plant Disease Resistance from Publicly Available Metabolomic Data
 
-## 1. Prerequisites
+## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to Metabolomics Workbench (public)
-*   GitHub Actions Runner (or local environment with 7GB+ RAM)
+* Python 3.11+
+* Git
+* Access to GitHub Actions (for CI execution) or local environment with 7GB+ RAM.
 
-## 2. Installation
+## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-144-predicting-plant-disease-resistance-from
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd llmxive
+ ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Install dependencies**:
+ ```bash
+ pip install -r projects/PROJ-144-predicting-plant-disease-resistance-from/code/requirements.txt
+ ```
 
-## 3. Data Acquisition
+4. **Install pre-commit hooks**:
+ ```bash
+ pre-commit install
+ ```
 
-The system is designed to fetch data from Metabolomics Workbench.
+## Running the Pipeline
 
-1.  **Configure Study IDs**: Edit `code/utils/constants.py` to include the target Metabolomics Workbench Study IDs (e.g., `["C-12345", "C-67890"]`).
-    *   *Note*: Ensure these IDs correspond to studies with pre-challenge metabolite data and resistance labels.
-2.  **Run the download script**:
-    ```bash
-    python code/data/download.py
-    ```
-    *   This will download raw intensity and phenotype files to `data/raw/`.
-    *   Checksums are automatically generated and logged.
-
-## 4. Preprocessing & Model Training
-
-Run the full pipeline:
-
+### Step 1: Data Acquisition
+Download raw data from Metabolomics Workbench.
 ```bash
-python code/main.py
+python projects/PROJ-144-predicting-plant-disease-resistance-from/code/data/download.py --study_ids ST001234 ST005678
 ```
+*Output*: `data/raw/intensity_table.csv`, `data/raw/phenotype_metadata.csv`
 
-This executes:
-1.  **Preprocessing**: Normalization, missing value filtering, InChIKey alignment, ComBat batch correction.
-2.  **Label Harmonization**: Z-scoring/stratification.
-3.  **Training**: Random Forest with Stratified 5-Fold CV and GridSearch.
-4.  **Evaluation**: Permutation testing, VIF diagnostics, sensitivity analysis.
-5.  **Interpretation**: Pathway mapping (KEGG/MetaCyc).
+### Step 2: Preprocessing
+Normalize, align, and correct batch effects.
+```bash
+python projects/PROJ-144-predicting-plant-disease-resistance-from/code/data/preprocess.py --input data/raw --output data/processed
+```
+*Output*: `data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv`
 
-## 5. Expected Outputs
+### Step 3: Model Training & Evaluation
+Train Random Forest, run permutation tests, and compute diagnostics.
+```bash
+python projects/PROJ-144-predicting-plant-disease-resistance-from/code/models/train.py --data data/processed --output results
+```
+*Output*: `results/metrics.json`, `results/shap_analysis.json`
 
-*   `data/processed/batch_corrected_matrix.csv`: Final feature matrix.
-*   `code/models/final_model.pkl`: Trained Random Forest.
-*   `results/metrics.json`: Balanced accuracy, AUC, p-values from permutation test.
-*   `results/interpretation_report.md`: Top metabolites and pathway mappings.
-*   `plots/`: ROC curves, learning curves, VIF plots.
+### Step 4: Interpretation
+Map top metabolites to pathways and generate visualizations.
+```bash
+python projects/PROJ-144-predicting-plant-disease-resistance-from/code/models/interpret.py --input results/shap_analysis.json --output results/pathway_analysis.json
+```
+*Output*: `results/pathway_analysis.json`, `results/plots/pathway_barplot.png`
 
-## 6. Verification
-
-To verify the pipeline on your local machine:
-
+### Step 5: Verification
+Run tests to ensure reproducibility and schema compliance.
 ```bash
 pytest tests/
 ```
 
-Ensure all tests pass, particularly `test_data_hygiene` (checksums) and `test_model_validation` (no data leakage).
+## Troubleshooting
 
-## 7. Troubleshooting
+* **Missing Data**: Ensure Metabolomics Workbench study IDs are valid and public.
+* **Batch Correction Failure**: If ComBat fails, check for sufficient metabolite overlap across studies.
+* **Out of Memory**: If dataset > 7GB, enable streaming mode in `download.py`.
+* **VIF > 5**: This is a diagnostic flag, not an error. Review `results/shap_analysis.json` for flagged metabolites.
 
-*   **"No datasets found"**: Verify Study IDs in `constants.py`. Check Metabolomics Workbench for public access.
-*   **"Memory Error"**: Reduce `n_estimators` in `constants.py` or filter metabolites more aggressively (>40% missing).
-*   **"ComBat Convergence"**: If batch correction fails, the script falls back to study-level z-scoring and logs a warning.
+## Output Artifacts
+
+| Artifact | Path | Description |
+|----------|------|-------------|
+| Raw Data | `data/raw/` | Unmodified downloads with checksums |
+| Processed Data | `data/processed/` | Normalized, batch-corrected matrices |
+| Metrics | `results/metrics.json` | Balanced accuracy, ROC-AUC, p-values |
+| Diagnostics | `results/shap_analysis.json` | Feature importances, VIF scores |
+| Pathways | `results/pathway_analysis.json` | Mapped pathways for top metabolites |
+| Plots | `results/plots/` | Visualizations (e.g., `pathway_barplot.png`) |

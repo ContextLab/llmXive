@@ -1,0 +1,16 @@
+status: none
+intent: download Metabolomics Workbench public metabolomics datasets via python package
+  dataset
+required_fields:
+- sample_id
+- study_id
+- metabolite_id
+- raw_intensity
+- log_normalized_intensity
+- disease_resistance_label
+- batch
+- assay_method
+- missingness_flag
+cache_key: 924b2a583266cca7d70fb228f52a3b115446965b482accbd554f93906ac8b816
+searched_at: '2026-08-12T05:51:18.392849+00:00'
+retry_count: 1

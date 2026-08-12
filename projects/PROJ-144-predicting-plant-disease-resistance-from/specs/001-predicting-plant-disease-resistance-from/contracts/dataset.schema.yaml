@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metabolomic Dataset Schema"
+description: "Schema for batch-corrected metabolite matrix and resistance labels."
+type: object
+properties:
+  batch_corrected_matrix:
+    type: object
+    description: "Normalized, log-transformed, batch-corrected intensity matrix."
+    additionalProperties:
+      type: object
+      properties:
+        sample_id:
+          type: string
+          description: "Unique sample identifier."
+        study_id:
+          type: string
+          description: "Source study identifier."
+        intensities:
+          type: object
+          description: "Mapping of InChIKey to log-transformed intensity."
+          additionalProperties:
+            type: number
+            minimum: 0
+  labels:
+    type: object
+    description: "Harmonized resistance labels."
+    additionalProperties:
+      type: object
+      properties:
+        sample_id:
+          type: string
+          description: "Unique sample identifier."
+        binary_label:
+          type: integer
+          enum: [0, 1]
+          description: "0 = Susceptible, 1 = Resistant."
+        harmonized_score:
+          type: number
+          description: "Z-scored or stratified resistance score."
+        measurement_method:
+          type: string
+          description: "Assay method used."
+required:
+  - batch_corrected_matrix
+  - labels
+additionalProperties: false

@@ -1,61 +1,67 @@
 # Data Model: Predicting Plant Disease Resistance from Publicly Available Metabolomic Data
 
-## 1. Entity Relationship Overview
+## Entity Definitions
 
-The data model consists of three primary entities: `MetaboliteProfile`, `ResistanceLabel`, and `StudyMetadata`. These are derived from raw downloads and harmonized into a single `AnalysisDataset`.
+### 1. MetaboliteProfile
+Represents the pre-challenge metabolite abundances for a single sample.
+*   **Attributes**:
+    *   `sample_id` (str): Unique identifier for the sample.
+    *   `inchikey` (str): InChIKey of the metabolite.
+    *   `intensity` (float): Raw intensity value (log-transformed during preprocessing).
+    *   `study_id` (str): Source study identifier (for batch correction).
+    *   `timestamp` (datetime): Time of sample collection (to verify pre-challenge status).
 
-```mermaid
-erDiagram
-    STUDY ||--|{ SAMPLE : "contains"
-    SAMPLE ||--|{ METABOLITE_PROFILE : "has"
-    SAMPLE ||--|| RESISTANCE_LABEL : "has"
-    STUDY ||--|| BATCH_INFO : "defined by"
-```
+### 2. ResistanceLabel
+Represents the disease-resistance phenotype for a sample.
+*   **Attributes**:
+    *   `germplasm_id` (str): Identifier for the plant variety.
+    *   `assay_score` (int/float): Raw assay score (binary 0/1 or ordinal 0–3).
+    *   `measurement_method` (str): Method used for resistance assay (e.g., "leaf spot", "wilt").
+    *   `harmonized_score` (float): Z-scored score (used ONLY for ordinal exploratory analysis).
+    *   `binary_label` (int): 1 (Resistant) or 0 (Susceptible). **Used for Random Forest training and validation.**
 
-## 2. Entity Definitions
+### 3. ModelArtifact
+Represents the trained Random Forest classifier and its metadata.
+*   **Attributes**:
+    *   `model_id` (str): Unique hash of the model configuration.
+    *   `feature_importances_` (dict): Mapping of metabolite ID to importance score.
+    *   `balanced_accuracy` (float): Performance metric on hold-out set.
+    *   `roc_auc` (float): ROC-AUC score.
+    *   `vif_scores` (dict): Mapping of metabolite ID to VIF score.
+    *   `permutation_p_value` (float): Significance against null distribution.
 
-### 2.1. Study (Source Level)
-Represents a single study from Metabolomics Workbench.
-*   `study_id`: Unique identifier (e.g., "C-12345").
-*   `source_url`: Link to the study page.
-*   `platform`: Instrument used (e.g., "LC-MS", "GC-MS").
-*   `batch_id`: Identifier for batch correction (derived from study ID).
+## Data Flow
 
-### 2.2. Sample (Observation Level)
-Represents a single biological specimen.
-*   `sample_id`: Unique ID within the study.
-*   `study_id`: Foreign key to `Study`.
-*   `germplasm_id`: Plant variety/line identifier.
-*   `timepoint`: "Pre-challenge" or "Post-challenge" (filtered to "Pre-challenge" only).
-*   `raw_intensity_table`: Path to raw data file (per sample or aggregated).
-
-### 2.3. MetaboliteProfile (Feature Level)
-*   `sample_id`: Foreign key to `Sample`.
-*   `inchi_key`: Standardized identifier for the metabolite.
-*   `intensity`: Raw intensity value.
-*   `normalized_intensity`: Log-transformed and scaled value.
-*   `missing`: Boolean (True if intensity missing).
-
-### 2.4. ResistanceLabel (Target Level)
-*   `sample_id`: Foreign key to `Sample`.
-*   `raw_score`: Original phenotype score (e.g., disease severity 0-9).
-*   `label_type`: "Binary" (Resistant/Susceptible) or "Ordinal" (0-3).
-*   `harmonized_score`: Z-scored or stratified score ready for modeling.
-
-## 3. Data Flow & Transformation
-
-1.  **Raw Download**: `data/raw/study_{id}_intensity.csv`, `data/raw/study_{id}_phenotype.csv`.
+1.  **Raw Input**: `data/raw/intensity_table.csv`, `data/raw/phenotype_metadata.csv`
 2.  **Preprocessing**:
-    *   Filter: Keep only `timepoint == "Pre-challenge"`.
-    *   Filter: Drop metabolites with >30% missing values.
-    *   Transform: `log2(intensity + 1)` for remaining values.
-    *   Align: Merge on `inchi_key` across studies.
-3.  **Batch Correction**: Apply ComBat to `normalized_intensity` using `batch_id`. Result: `data/processed/batch_corrected_matrix.csv`.
-4.  **Label Harmonization**: Z-score `raw_score` within `study_id` or stratify by `assay_method`. Result: `data/processed/labels.csv`.
-5. **Final Dataset**: Join `batch_corrected_matrix` + `labels`. Split into Train ([deferred]) and Test ([deferred]) *before* any feature selection.
+    *   Filter missing values (>30%).
+    *   Log-transform.
+    *   Align by InChIKey.
+    *   Apply ComBat (if >1 study).
+3.  **Label Harmonization**:
+    *   If `assay_score` is binary: map to `binary_label` (0/1). **Do not z-score.**
+    *   If `assay_score` is ordinal: compute `harmonized_score` (z-scored). `binary_label` is derived by thresholding `assay_score` (e.g., >1.5 = Resistant).
+4.  **Model Training**:
+    *   Input: `binary_label` (categorical) for Random Forest.
+ * Split: Train ([deferred]), Hold-out ([deferred]) if N ≥ 50.
+    *   Feature Selection: Within CV folds only.
+    *   Train: Random Forest.
+5.  **Evaluation**:
+    *   Metrics: `results/metrics.json` (using `binary_label`).
+    *   Diagnostics: `results/shap_analysis.json` (VIF, Correlations).
+    *   Interpretation: `results/pathway_analysis.json`.
 
-## 4. Schema Constraints
+## Schema Definitions (Contracts)
 
-*   **Missing Data**: Any sample with >50% missing metabolites after imputation (if used) is dropped.
-*   **Outliers**: Winsorized at 1st/99th percentile before log transform.
-*   **Class Imbalance**: If Test set has <10% of either class, stratified resampling is attempted; if impossible, flag in report.
+See `contracts/` directory for formal YAML schemas:
+*   `contracts/dataset.schema.yaml`: Defines structure of `batch_corrected_matrix.csv` and `labels.csv`.
+*   `contracts/metadata.schema.yaml`: Defines structure of `results/metrics.json` and `results/shap_analysis.json`.
+*   `contracts/output.schema.yaml`: Defines structure of `results/pathway_analysis.json` and `results/plots/*.png`.
+
+## Data Constraints
+
+*   **Missing Values**: Features with >30% missingness are dropped.
+*   **Normalization**: All intensities must be log-transformed before modeling.
+*   **Batch Correction**: ComBat applied only if `study_id` has >1 unique value.
+*   **Label Harmonization**: `binary_label` is used for RF training. `harmonized_score` is optional for exploratory analysis.
+*   **Independence**: Test set must not be used in any feature selection or hyperparameter tuning.
