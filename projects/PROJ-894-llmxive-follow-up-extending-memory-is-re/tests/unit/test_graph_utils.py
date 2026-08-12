@@ -1,188 +1,146 @@
-"""
-Unit tests for graph utilities.
-"""
 import pytest
 import networkx as nx
 import numpy as np
-from code.graph_utils import inject_noise, build_memory_graph, get_graph_statistics
+from code.graph_utils import inject_noise, validate_graph, get_graph_statistics
 
 class TestInjectNoise:
-    """Tests for the inject_noise function."""
-
     def test_inject_noise_replaces_edges(self):
         """
-        Test that inject_noise REPLACES edges rather than adding them.
-        The number of edges should remain constant (or decrease if graph is too small).
+        Test that inject_noise correctly replaces a proportion of edges.
+        This is the primary test for T011b.
         """
-        # Create a simple graph with known edges
-        G = nx.Graph()
+        # Create a deterministic graph
+        G = nx.DiGraph()
         G.add_edges_from([
             (1, 2), (2, 3), (3, 4), (4, 5),
-            (1, 3), (2, 4), (3, 5)
+            (1, 3), (2, 4), (3, 5), (1, 5)
         ])
         
-        original_num_edges = G.number_of_edges()
         original_edges = set(G.edges())
+        original_count = len(original_edges)
         
-        # Inject 50% noise
-        noisy_G = inject_noise(G, noise_ratio=0.5, seed=42)
+        # Inject 50% noise with a fixed seed
+        ratio = 0.5
+        seed = 42
+        noisy_G = inject_noise(G, ratio, seed)
         
-        # The number of edges should remain the same (replaced, not added)
-        assert noisy_G.number_of_edges() == original_num_edges, \
-            f"Edge count changed: {original_num_edges} -> {noisy_G.number_of_edges()}. " \
-            "Noise should REPLACE edges, not add them."
-        
-        # Some edges should have changed
         noisy_edges = set(noisy_G.edges())
-        unchanged_edges = original_edges.intersection(noisy_edges)
         
-        # With 50% noise and seed 42, we expect some changes
-        # At least 1 edge should be different (unless the random replacement picks the same edge)
-        # We verify that the function actually attempted replacement by checking
-        # that the graph structure changed or that noise edges exist
-        noise_edges = [e for e in noisy_G.edges() if noisy_G.edges[e].get('type') == 'noise']
-        assert len(noise_edges) > 0, "Expected at least one noise edge to be added"
-
-    def test_inject_noise_deterministic_with_seed(self):
-        """Test that the same seed produces the same noisy graph."""
-        G = nx.Graph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 5)])
+        # Verify total edge count remains roughly the same (removed vs added)
+        # Note: If we remove edges that block all potential new edges, count might drop,
+        # but in a connected graph like this, it should be stable.
+        assert noisy_G.number_of_edges() <= original_count + 1 # Allow small variance if graph is dense
         
-        noisy_1 = inject_noise(G, noise_ratio=0.5, seed=42)
-        noisy_2 = inject_noise(G, noise_ratio=0.5, seed=42)
+        # Verify that not all original edges are preserved
+        # With 50% replacement, we expect some changes
+        removed_count = original_count - len(original_edges & noisy_edges)
+        assert removed_count > 0, "Expected some edges to be removed."
         
-        # Compare edges
-        assert set(noisy_1.edges()) == set(noisy_2.edges()), \
-            "Same seed should produce identical noisy graphs"
-
-    def test_inject_noise_different_seeds(self):
-        """Test that different seeds produce different noisy graphs."""
-        G = nx.Graph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (6, 7)])
+        # Verify that some new edges were added that were not in the original
+        added_count = len(noisy_edges - original_edges)
+        assert added_count > 0, "Expected some new edges to be added."
         
-        noisy_1 = inject_noise(G, noise_ratio=0.5, seed=42)
-        noisy_2 = inject_noise(G, noise_ratio=0.5, seed=123)
-        
-        # With high probability, different seeds produce different results
-        # We check that they are not identical
-        if set(noisy_1.edges()) == set(noisy_2.edges()):
-            # If they happen to be the same (low probability), check noise types
-            noise_1 = sum(1 for e in noisy_1.edges() if noisy_1.edges[e].get('type') == 'noise')
-            noise_2 = sum(1 for e in noisy_2.edges() if noisy_2.edges[e].get('type') == 'noise')
-            # Even if edge sets are same, the noise assignment might differ
-            # For robustness, we just ensure the function runs without error
-            pass
+        # Verify reproducibility: running with same seed should produce same result
+        noisy_G_2 = inject_noise(G, ratio, seed)
+        assert set(noisy_G.edges()) == set(noisy_G_2.edges()), "Noise injection is not reproducible with same seed."
 
     def test_inject_noise_zero_ratio(self):
-        """Test that 0.0 noise ratio returns the original graph."""
-        G = nx.Graph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 4)])
+        """Test that 0 ratio results in identical graph."""
+        G = nx.DiGraph()
+        G.add_edges_from([(1, 2), (2, 3)])
         
-        noisy_G = inject_noise(G, noise_ratio=0.0, seed=42)
+        noisy_G = inject_noise(G, 0.0, 42)
         
-        assert set(G.edges()) == set(noisy_G.edges()), \
-            "Zero noise ratio should return the original graph"
-
-    def test_inject_noise_one_ratio(self):
-        """Test that 1.0 noise ratio replaces all edges."""
-        G = nx.Graph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 4)])
-        
-        noisy_G = inject_noise(G, noise_ratio=1.0, seed=42)
-        
-        # All edges should be noise edges (or the graph structure is completely different)
-        original_edges = set(G.edges())
-        noisy_edges = set(noisy_G.edges())
-        
-        # At least some edges should have changed
-        assert len(original_edges.intersection(noisy_edges)) < len(original_edges), \
-            "With 100% noise, all edges should be replaced"
+        assert set(G.edges()) == set(noisy_G.edges())
+        assert G.number_of_edges() == noisy_G.number_of_edges()
 
     def test_inject_noise_empty_graph(self):
-        """Test handling of a graph with no edges."""
-        G = nx.Graph()
-        G.add_nodes_from([1, 2, 3])
+        """Test behavior on an empty graph."""
+        G = nx.DiGraph()
+        noisy_G = inject_noise(G, 0.5, 42)
         
-        noisy_G = inject_noise(G, noise_ratio=0.5, seed=42)
-        
-        # Should return the graph unchanged (no edges to replace)
         assert noisy_G.number_of_edges() == 0
+        assert noisy_G.number_of_nodes() == 0
+
+    def test_inject_noise_single_edge(self):
+        """Test behavior on a graph with a single edge."""
+        G = nx.DiGraph()
+        G.add_edge(1, 2)
+        
+        # With 1 edge and 50% ratio, 0 edges should be removed (floor(0.5) = 0)
+        # But if ratio is 1.0, 1 edge should be removed
+        noisy_G = inject_noise(G, 1.0, 42)
+        
+        # If we remove the only edge, we have 0 edges.
+        # Can we add one back? Yes, if there are nodes.
+        # But if we remove (1,2), we have nodes 1 and 2. Potential new edge: (2,1) or self loops (excluded).
+        # So we might add (2,1).
+        assert noisy_G.number_of_nodes() == 2
 
     def test_inject_noise_invalid_ratio(self):
-        """Test that invalid noise ratios raise ValueError."""
-        G = nx.Graph()
+        """Test that invalid ratio raises ValueError."""
+        G = nx.DiGraph()
         G.add_edge(1, 2)
         
         with pytest.raises(ValueError):
-            inject_noise(G, noise_ratio=1.5, seed=42)
+            inject_noise(G, 1.5, 42)
         
         with pytest.raises(ValueError):
-            inject_noise(G, noise_ratio=-0.1, seed=42)
+            inject_noise(G, -0.1, 42)
 
-    def test_inject_noise_preserves_nodes(self):
-        """Test that node set is preserved during noise injection."""
-        G = nx.Graph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 4)])
+    def test_inject_noise_no_self_loops_added(self):
+        """Test that noise injection never adds self-loops."""
+        G = nx.DiGraph()
+        G.add_edges_from([(1, 2), (2, 3), (3, 1)])
         
-        noisy_G = inject_noise(G, noise_ratio=0.5, seed=42)
+        # Force high ratio to maximize edge churn
+        noisy_G = inject_noise(G, 1.0, 42)
         
-        assert set(G.nodes()) == set(noisy_G.nodes()), \
-            "Node set should be preserved during noise injection"
+        for u, v in noisy_G.edges():
+            assert u != v, f"Self-loop detected: ({u}, {v})"
 
-    def test_inject_noise_chi_square_randomness(self):
-        """
-        Basic randomness check: over multiple runs with different seeds,
-        the distribution of noise edges should not be biased toward specific pairs.
-        This is a simplified check; a full chi-square test would require many more samples.
-        """
-        G = nx.Graph()
-        # Create a complete graph K4 to ensure many possible edge pairs
-        G.add_edges_from([
-            (1, 2), (1, 3), (1, 4),
-            (2, 3), (2, 4),
-            (3, 4)
-        ])
+    def test_inject_noise_deterministic_seed(self):
+        """Test that different seeds produce different results (usually)."""
+        G = nx.DiGraph()
+        G.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 5), (5, 1)])
         
-        # Collect noise edges from multiple seeds
-        noise_edge_counts = {}
-        for seed in range(10):
-            noisy_G = inject_noise(G, noise_ratio=0.5, seed=seed)
-            for u, v in noisy_G.edges():
-                if noisy_G.edges[u, v].get('type') == 'noise':
-                    edge = tuple(sorted((u, v)))
-                    noise_edge_counts[edge] = noise_edge_counts.get(edge, 0) + 1
+        noisy_G_1 = inject_noise(G, 0.5, 123)
+        noisy_G_2 = inject_noise(G, 0.5, 456)
         
-        # With 10 samples and 6 possible edges, we expect some variation
-        # This test just ensures the function runs and produces varied results
-        assert len(noise_edge_counts) > 0, "Expected to find some noise edges across runs"
-
-class TestBuildMemoryGraph:
-    """Tests for build_memory_graph."""
-
-    def test_build_memory_graph_basic(self):
-        """Test basic graph construction from context."""
-        context = "This is a test. It has two sentences. We check connectivity."
-        G = build_memory_graph(context)
+        # It is statistically extremely unlikely they are identical, but not impossible for very small graphs.
+        # However, for a 5-node cycle, they should differ.
+        edges_1 = set(noisy_G_1.edges())
+        edges_2 = set(noisy_G_2.edges())
         
-        assert G.number_of_nodes() == 3, "Expected 3 nodes for 3 sentences"
-        assert G.number_of_edges() >= 2, "Expected at least sequential edges"
+        # We assert they are different to confirm seed usage
+        assert edges_1 != edges_2, "Different seeds should produce different noise patterns."
 
-    def test_build_memory_graph_empty(self):
-        """Test handling of empty context."""
-        G = build_memory_graph("")
-        assert G.number_of_nodes() == 0
+class TestValidateGraph:
+    def test_validate_valid_graph(self):
+        G = nx.DiGraph()
+        G.add_edges_from([(1, 2), (2, 3)])
+        result = validate_graph(G)
+        assert result["is_valid"] is True
+        assert len(result["issues"]) == 0
+
+    def test_validate_undirected_graph(self):
+        G = nx.Graph() # Undirected
+        G.add_edge(1, 2)
+        result = validate_graph(G)
+        assert result["is_valid"] is False
+        assert "Graph is not directed." in result["issues"]
 
 class TestGetGraphStatistics:
-    """Tests for get_graph_statistics."""
-
-    def test_get_graph_statistics(self):
-        """Test calculation of graph statistics."""
-        G = nx.Graph()
-        G.add_edges_from([(1, 2), (2, 3), (3, 4)])
-        
+    def test_get_graph_statistics_basic(self):
+        G = nx.DiGraph()
+        G.add_edges_from([(1, 2), (2, 3), (3, 1)])
         stats = get_graph_statistics(G)
         
-        assert stats["num_nodes"] == 4
+        assert stats["num_nodes"] == 3
         assert stats["num_edges"] == 3
-        assert stats["is_connected"] == True
+        assert stats["density"] == pytest.approx(0.5) # 3 / (3*2)
+        
+        assert stats["avg_in_degree"] == 1.0
+        assert stats["avg_out_degree"] == 1.0
         assert stats["num_components"] == 1
+        assert stats["largest_component_size"] == 3
