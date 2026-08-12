@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-299-assessing-the-impact-of-network-centrali",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/download/adni_downloader.py: self-declared fabricated metric \u2014 \u201c\u2026bject_list:                 # Placeholder values - in production, these would\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1); 5 declared deliverable(s) absent: data/analysis/centrality_metrics.csv; data/analysis/diagnostics.json; data/analysis/qc_log.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-299-assessing-the-impact-of-network-centrali/code/main.py\", line 17, in <module>\n    from code.main_us1 import run_us1_pipeline\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-299-assessing-the-impact-of-network-centrali/code/main_us1.py\", line 18, in <module>\n    from code.download.adni_downloader import run_downloader\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-299-assessing-the-impact-of-network-centrali/code/download/adni_downloader.py\", line 18, in"
+  ],
+  "fix_rounds": 4,
+  "model_tier": 0,
+  "total_attempts": 4,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-12T09:09:03Z"
+}

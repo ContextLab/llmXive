@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 62552ddf0caeebb7cd2bd20724a56e65630090bcc970025ed3373b2b95544f1c
+  artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Vif - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q113106917
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q113106917
+  verified_at: '2026-08-12T09:15:34.410206Z'

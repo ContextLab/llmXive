@@ -1,3 +1,3 @@
 """
-Centrality calculation modules
+Centrality package initialization.
 """

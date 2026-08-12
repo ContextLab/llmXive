@@ -1,3 +1,3 @@
 """
-Visualization and reporting modules
+Viz package initialization.
 """

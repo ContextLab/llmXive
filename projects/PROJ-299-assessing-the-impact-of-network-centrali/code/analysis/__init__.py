@@ -1,3 +1,3 @@
 """
-Data analysis and statistics modules
+Analysis package initialization.
 """

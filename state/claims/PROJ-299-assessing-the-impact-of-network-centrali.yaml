@@ -997,3 +997,583 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T18:39:53Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: calculate mean FD and percentage of volumes with FD > 0.5mm per participant
+  claim_id: c_e94d12bd
+  context: T010b [US1] Implement Framewise Displacement (FD) calculation in `code/preprocess/fMRI_pipeline.py`
+    (FR-013)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate mean FD and the percentage of volumes with FD > 0.5mm for each
+    participant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:00:17Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: exclude participants with mean FD > 0.5mm or >20% volumes > 0.5mm
+  claim_id: c_88a61091
+  context: T010c [US1] Implement QC exclusion logic in `code/preprocess/fMRI_pipeline.py`
+    (FR-013)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants with mean FD > 0.5mm OR >20% volumes > 0.5mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:00:18Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: derive N >= 85 threshold from statistical power calculation logic in
+    spec.md
+  claim_id: c_b6b91f5e
+  context: T014 [US2] Implement QC Count and Threshold Validation in `code/analysis/qc_validator.py`
+    (FR-014)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derive N>=85 threshold from the statistical power calculation logic described
+    in `spec.md`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:01:05Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: flag VIF > 5
+  claim_id: c_84e15f2e
+  context: T017 [US2] Implement statistical diagnostics and FDR correction in `code/analysis/diagnostics.py`
+    (FR-008, FR-009, FR-015)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag VIF > 5 (warnings only, do not halt).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:01:05Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: run integration test on N=20 and verify runtime < 4 hours
+  claim_id: c_daa70926
+  context: T026b [P] Run integration test on N=20 and record runtime in `outputs/perf_metrics.json`
+    to verify < 4 hour constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run integration test on N=20 and record runtime in `outputs/perf_metrics.json`
+    to verify < 4 hour constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:01:10Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Calculate mean Framewise Displacement and percentage of volumes exceeding
+    0.5mm threshold
+  claim_id: c_85103e43
+  context: T010b [US1] Implement Framewise Displacement (FD) calculation in `code/preprocess/fMRI_pipeline.py`
+    (FR-013)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate mean FD and the percentage of volumes with FD > 0.5mm for each
+    participant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:06:37Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Exclude participants with mean FD exceeding 0.5mm or more than 20% of
+    volumes exceeding 0.5mm
+  claim_id: c_e44aabb9
+  context: T010c [US1] Implement QC exclusion logic in `code/preprocess/fMRI_pipeline.py`
+    (FR-013)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_mean_FD_exceeding_0.5mm_or_more_th
+  kind: magnitude
+  raw_text: Exclude participants with mean FD > 0.5mm OR >20% volumes > 0.5mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:08:43Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Verify 90% of participants have non-missing centrality values for all
+    AAL ROIs
+  claim_id: c_bcdecbac
+  context: "Independent Test: Execute the pipeline on a subset of participants and\
+    \ verify that centrality tables are produced for *all* AAL ROIs, with \u2265 90%\
+    \ of participants having non-missing values for each metric."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that centrality tables are produced for all AAL ROIs, with \u2265\
+    \ 90% of participants having non-missing values for each metric."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:08:43Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Derive N greater than or equal to 85 threshold from statistical power
+    calculation logic
+  claim_id: c_95fc25c0
+  context: T014 [US2] Implement QC Count and Threshold Validation in `code/analysis/qc_validator.py`
+    (FR-014)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Derive_N_greater_than_or_equal_to_85_threshold_from_statisti
+  kind: magnitude
+  raw_text: 'Derive N>=85 threshold from the statistical power calculation logic described
+    in `spec.md` (Section: Assumptions).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:08:45Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if usable participant count is less than 85
+  claim_id: c_3bf8f434
+  context: T014 [US2] Implement QC Count and Threshold Validation in `code/analysis/qc_validator.py`
+    (FR-014)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_usable_participant_count_is_less_than_85
+  kind: magnitude
+  raw_text: Abort with clear error message if usable count < 85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:08:56Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Flag Variance Inflation Factor values greater than 5 as warnings
+  claim_id: c_27241b45
+  context: T017 [US2] Implement statistical diagnostics and FDR correction in `code/analysis/diagnostics.py`
+    (FR-008, FR-009, FR-015)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_Variance_Inflation_Factor_values_greater_than_5_as_warn
+  kind: magnitude
+  raw_text: Flag VIF > 5 (warnings only, do not halt).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:08:59Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Run integration test on 20 subjects and verify runtime is less than 4
+    hours
+  claim_id: c_ce70657c
+  context: T026b [P] Run integration test on N=20 and record runtime in `outputs/perf_metrics.json`
+    to verify < 4 hour constraint.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_integration_test_on_20_subjects_and_verify_runtime_is_le
+  kind: magnitude
+  raw_text: Run integration test on N=20 and record runtime in `outputs/perf_metrics.json`
+    to verify < 4 hour constraint.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:09:01Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Calculate mean Framewise Displacement and percentage of volumes with
+    FD > 0.5mm per participant
+  claim_id: c_9a1f249d
+  context: T010b [US1] Implement Framewise Displacement (FD) calculation in code/preprocess/fMRI_pipeline.py
+    (FR-013)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate mean FD and the percentage of volumes with FD > 0.5mm for each
+    participant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:11:32Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Exclude participants with mean FD > 0.5mm or more than 20% volumes with
+    FD > 0.5mm
+  claim_id: c_5e71d6b8
+  context: T010c [US1] Implement QC exclusion logic in code/preprocess/fMRI_pipeline.py
+    (FR-013)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_mean_FD_%3E_0.5mm_or_more_than_20%25_v
+  kind: magnitude
+  raw_text: Exclude participants with mean FD > 0.5mm OR >20% volumes > 0.5mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:11:33Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Compute standard Pearson correlation matrix per participant without percentile
+    threshold
+  claim_id: c_bfa26e64
+  context: T011 [US1] Implement connectivity matrix construction in code/centrality/connectivity.py
+    (FR-003)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_standard_Pearson_correlation_matrix_per_participant
+  kind: entity_fact
+  raw_text: Compute a standard Pearson correlation matrix per participant (no percentile
+    threshold).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:13:30Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Calculate degree, betweenness, and closeness centrality for every ROI
+  claim_id: c_fe8805e1
+  context: T012 [US1] Implement centrality metric calculation in code/centrality/metrics.py
+    (FR-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_degree,_betweenness,_and_closeness_centrality_for
+  kind: entity_fact
+  raw_text: Calculate degree, betweenness, and closeness centrality for every ROI
+    using networkx.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:13:37Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Derive N greater than or equal to 85 threshold from statistical power
+    calculation
+  claim_id: c_4d66afef
+  context: T014 [US2] Implement QC Count and Threshold Validation in code/analysis/qc_validator.py
+    (FR-014)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Derive_N_greater_than_or_equal_to_85_threshold_from_statisti
+  kind: magnitude
+  raw_text: 'Derive N>=85 threshold from the statistical power calculation logic described
+    in spec.md (Section: Assumptions).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:13:38Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if usable participant count is less than 85
+  claim_id: c_cc08c788
+  context: T014 [US2] Implement QC Count and Threshold Validation in code/analysis/qc_validator.py
+    (FR-014)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_usable_participant_count_is_less_than_85
+  kind: magnitude
+  raw_text: Abort with clear error message if usable count < 85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:13:40Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Control for age, sex, education, and diagnosis covariates
+  claim_id: c_378bd6b8
+  context: T016 [US2] Implement centrality aggregation and regression engine in code/analysis/regression.py
+    (FR-005, FR-007, FR-016)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_for_age,_sex,_education,_and_diagnosis_covariates
+  kind: entity_fact
+  raw_text: Control for covariates (age, sex, education, diagnosis).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:13:52Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Calculate beta, standard error, p-values, partial-r, and VIF
+  claim_id: c_85c745b3
+  context: T016 [US2] Implement centrality aggregation and regression engine in code/analysis/regression.py
+    (FR-005, FR-007, FR-016)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: entity_fact
+  raw_text: "Calculate \u03B2, SE, p-values, partial-r, and VIF."
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T09:14:00Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR correction to p-values and output q-values
+  claim_id: c_d069f290
+  context: T017 [US2] Implement statistical diagnostics and FDR correction in code/analysis/diagnostics.py
+    (FR-008, FR-009, FR-015)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_FDR_correction_to_p-values_and_outp
+  kind: entity_fact
+  raw_text: Apply Benjamini-Hochberg FDR correction to the p-values; output q-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:14:06Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: Flag Variance Inflation Factor greater than 5
+  claim_id: c_fdc0e5db
+  context: T017 [US2] Implement statistical diagnostics and FDR correction in code/analysis/diagnostics.py
+    (FR-008, FR-009, FR-015)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_Variance_Inflation_Factor_greater_than_5
+  kind: magnitude
+  raw_text: Flag VIF > 5 (warnings only, do not halt).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:14:08Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 2
+  canonical: Run integration test on 20 participants and verify runtime is less than
+    4 hours
+  claim_id: c_f769fb72
+  context: T026b [P] Run integration test on N=20 and record runtime in outputs/perf_metrics.json
+    to verify < 4 hour constraint.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_integration_test_on_20_participants_and_verify_runtime_i
+  kind: magnitude
+  raw_text: Run integration test on N=20 and record runtime in outputs/perf_metrics.json
+    to verify < 4 hour constraint.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:14:12Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: calculate mean framewise displacement and percentage of volumes exceeding
+    0.5mm threshold per participant
+  claim_id: c_e8b96c8d
+  context: T010b [US1] Implement Framewise Displacement (FD) calculation in `code/preprocess/fMRI_pipeline.py`
+    (FR-013)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate mean FD and the percentage of volumes with FD > 0.5mm for each
+    participant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:15:25Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: exclude participants with mean framewise displacement exceeding 0.5mm
+    or more than 20 percent volumes exceeding 0.5mm
+  claim_id: c_43fb95a0
+  context: T010c [US1] Implement QC exclusion logic in `code/preprocess/fMRI_pipeline.py`
+    (FR-013)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_participants_with_mean_framewise_displacement_exceed
+  kind: magnitude
+  raw_text: Exclude participants with mean FD > 0.5mm OR >20% volumes > 0.5mm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:15:27Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: derive minimum usable participant count threshold of 85 from statistical
+    power calculation
+  claim_id: c_97b72193
+  context: T014 [US2] Implement QC Count and Threshold Validation in `code/analysis/qc_validator.py`
+    (FR-014)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derive N>=85 threshold from the statistical power calculation logic described
+    in `spec.md`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:15:27Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: abort pipeline if usable participant count is less than 85
+  claim_id: c_46967f2e
+  context: T014 [US2] Implement QC Count and Threshold Validation in `code/analysis/qc_validator.py`
+    (FR-014)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_usable_participant_count_is_less_than_85
+  kind: magnitude
+  raw_text: Abort with clear error message if usable count < 85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:15:29Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: run integration test on 20 participants and verify runtime is less than
+    4 hours
+  claim_id: c_fcd39cf0
+  context: T026b [P] Optimize connectivity matrix calculation to use chunked processing
+    for memory efficiency.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_integration_test_on_20_participants_and_verify_runtime_i
+  kind: magnitude
+  raw_text: Run integration test on N=20 and record runtime in `outputs/perf_metrics.json`
+    to verify < 4 hour constraint.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:15:31Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: reduce cyclomatic complexity of fMRI pipeline script to less than 10
+  claim_id: c_b42ce24a
+  context: T025a [P] Refactor `code/preprocess/fMRI_pipeline.py` to reduce cyclomatic
+    complexity to < 10.
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Refactor `code/preprocess/fMRI_pipeline.py` to reduce cyclomatic complexity
+    to < 10.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T09:15:31Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: verify 90 percent of participants have non-missing centrality values
+    for all AAL regions of interest
+  claim_id: c_35e37763
+  context: "Independent Test: Execute the pipeline on a subset of participants and\
+    \ verify that centrality tables are produced for *all* AAL ROIs, with \u2265 90%\
+    \ of participants having non-missing values for each metric."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify centrality tables are produced for *all* AAL ROIs, with \u2265\
+    \ 90% of participants having non-missing values for each metric."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:15:31Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: flag variance inflation factor greater than 5 as warning without halting
+  claim_id: c_cb8ca6a1
+  context: T017 [US2] Implement statistical diagnostics and FDR correction in `code/analysis/diagnostics.py`
+    (FR-008, FR-009, FR-015)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_variance_inflation_factor_greater_than_5_as_warning_wit
+  kind: magnitude
+  raw_text: Flag VIF > 5 (warnings only, do not halt).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T09:15:34Z'

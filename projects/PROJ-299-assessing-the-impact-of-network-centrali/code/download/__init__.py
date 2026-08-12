@@ -1,3 +1,3 @@
 """
-Data download utilities
+Download package initialization.
 """

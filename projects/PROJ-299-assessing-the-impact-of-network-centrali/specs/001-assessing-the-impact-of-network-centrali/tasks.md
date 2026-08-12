@@ -27,7 +27,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `docs/`) with subdirectories (`code/download`, `code/preprocess`, `code/centrality`, `code/analysis`, `code/viz`, `data/raw`, `data/processed`, `data/analysis`, `outputs/viz`, `outputs/reports`, `tests/unit`, `tests/integration`).
-- [X] T002 Initialize Python 3.10 project with `requirements.txt` (nibabel, nilearn, networkx, pandas, scikit-learn, statsmodels, matplotlib, seaborn, reportlab, python-dotenv, pytest).
+- [X] T002 Initialize Python 3.10 project with `requirements.txt` (nibabel, nilearn, networkx, pandas, scikit-learn, statsmodels, matplotlib, seaborn, reportlab, python-dotenv, pytest, pyunicorn, fractal-fs).
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools; create `.ruff.toml` and `pyproject.toml` with strict settings.
 
 ---
@@ -44,7 +44,7 @@
 - [X] T006b [P] Create `code/config/network_rois.json` containing explicit lists of ROI indices for DMN and FPN networks as per the AAL atlas definition.
 - [X] T007 [P] Setup directory structure for `data/raw/`, `data/processed/`, `data/analysis/`, `outputs/` with `.gitignore` rules for large files (NIfTI, CSVs > 10MB).
 - [X] T008 [P] Implement utility functions for CSV reading/writing and checksum validation (MD5/SHA256) in `code/utils/io_utils.py` (FR-001, Data Hygiene).
-- [X] T008b [P] Generate `docs/sync_impact_report.md` documenting the Constitution (Bonferroni) vs. Spec (FDR) conflict and the ratified decision to follow the Spec, satisfying Constitution Principle V (Versioning Discipline).
+- [X] T008b [P] [US1] Generate `docs/sync_impact_report.md` documenting the Constitution (Bonferroni) vs. Spec (FDR) conflict and the ratified decision to follow the Spec (FR-008) over the Constitution (Principle VII), satisfying Constitution Principle V (Versioning Discipline) and providing the required formal amendment justification.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -63,25 +63,33 @@
  - **Input**: Read participant IDs from `data/raw/participant_list.csv` or accept `--ids` CLI argument.
  - **Validation**: Explicitly check for the presence of TMT-A and WAIS-R columns in the fetched clinical CSVs; raise error if missing.
  - Handle authentication errors and missing data gracefully. **Note**: If ADNI credentials are unavailable, the pipeline MUST abort for the primary run; mock data is only for unit/integration tests.
-- [X] T010 [US1] Implement QC and preprocessing pipeline in `code/preprocess/fMRI_pipeline.py` (FR-002, FR-013)
- - **Production Path**: Use `nilearn` for motion correction (realignment), slice-time correction, MNI normalization (Downsampling for CPU efficiency
-
-The research question is to determine the optimal resolution for efficient processing. The method involves resampling to a lower resolution. (Reference: Author et al., 2023)), and band-pass filtering (low-frequency range).
+- [X] T010a [US1] Implement fMRI preprocessing in `code/preprocess/fMRI_pipeline.py` (FR-002) <!-- FAILED: unspecified -->
+ - **Production Path**: Use `nilearn` for motion correction, slice-time correction, MNI normalization, and band-pass filtering (low-frequency range).
+ - **CI Optimization**: Explicitly implement a conditional flag `--ci-mode` that triggers resampling to a lower resolution for memory efficiency. **Do not** use downsampling in production mode.
  - **Constraint**: Do NOT generate mock NIfTI files. If real data is unavailable for CI, the script MUST fail loudly with a clear error message (Constitution Principle I).
- - Implement Framewise Displacement (FD) calculation.
- - Exclude participants with mean FD > 0.5mm or >20% volumes > 0.5mm; log exclusions to `data/analysis/qc_log.json`.
- - Output preprocessed NIfTI files.
+ - Output preprocessed NIfTI files to `data/processed/`.
+- [X] T010b [US1] Implement Framewise Displacement (FD) calculation in `code/preprocess/fMRI_pipeline.py` (FR-013)
+ - Calculate mean FD and the percentage of volumes with FD > 0.5mm for each participant. [UNRESOLVED-CLAIM: c_e8b96c8d — status=not_enough_info]
+ - Output FD metrics to `data/analysis/fd_metrics.csv`.
+- [X] T010c [US1] Implement QC exclusion logic in `code/preprocess/fMRI_pipeline.py` (FR-013)
+ - **Input**: Read `data/analysis/fd_metrics.csv`.
+ - **Logic**: Exclude participants with mean FD > 0.5mm OR >20% volumes > 0.5mm. [UNRESOLVED-CLAIM: c_43fb95a0 — status=not_enough_info]
+ - **Output**: Generate `data/analysis/qc_log.json` listing excluded participants and reasons.
+ - **Action**: Log exclusions and proceed with remaining subjects; do not abort the whole run.
 - [X] T011 [US1] Implement connectivity matrix construction in `code/centrality/connectivity.py` (FR-003)
  - Load AAL atlas (read-only) and extract mean BOLD time series for a set of cortical and subcortical regions of interest.
  - Compute a **standard Pearson correlation** matrix per participant (no percentile threshold).
+ - Output `data/processed/connectivity_matrices/*.csv` (one per participant).
 - [X] T012 [US1] Implement centrality metric calculation in `code/centrality/metrics.py` (FR-004)
  - Calculate degree, betweenness, and closeness centrality for every ROI using `networkx`.
  - Store raw ROI-level metrics.
-- [X] T013 [US1] Implement main US1 orchestration script `code/main_us1.py`
- - **Dependency**: Waits for completion of T009, T010, T011, T012.
- - Chain: Download -> QC/Preprocess -> Connectivity -> Centrality.
+ - Output `data/analysis/centrality_raw.csv` (rows=participants, columns=ROI_metric).
+- [X] T013 [US1] Implement main US1 orchestration script `code/main_us1.py` <!-- FAILED: unspecified -->
+ - **Dependency**: Waits for completion of T009, T010a, T010b, T010c, T011, T012.
+ - Chain: Download -> Preprocess -> QC -> Connectivity -> Centrality.
  - Enforce SC-001 (≥90% complete tables) and SC-002 (valid matrices).
- - Generate `data/analysis/centrality_metrics.csv` (containing raw ROI metrics and per-network means).
+ - Generate `data/analysis/centrality_metrics.csv` (containing raw ROI metrics, per-network means, and global means).
+ - **Note**: This task NO LONGER depends on or includes fractal metrics.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -95,7 +103,7 @@ The research question is to determine the optimal resolution for efficient proce
 ### Implementation for User Story 2
 
 - [X] T014 [US2] Implement QC Count and Threshold Validation in `code/analysis/qc_validator.py` (FR-014)
- - **Input**: Read `data/analysis/qc_log.json` generated by T010.
+ - **Input**: Read `data/analysis/qc_log.json` generated by T010c.
  - Calculate the number of **usable participants** (post-QC exclusions).
  - **Source**: Derive N>=85 threshold from the statistical power calculation logic described in `spec.md` (Section: Assumptions).
  - **Abort** with clear error message if usable count < 85.
@@ -109,14 +117,14 @@ The research question is to determine the optimal resolution for efficient proce
  - **Mapping**: Explicitly load DMN and FPN ROI lists from `code/config/network_rois.json` to calculate per-network means.
  - Calculate per-network means (DMN, FPN) and global means for each metric (Degree, Betweenness, Closeness).
  - **Output Schema**: Append per-network mean columns (e.g., `degree_DMN`, `degree_FPN`) to `data/analysis/centrality_metrics.csv`.
- - Fit separate linear models for each (Centrality Metric × Cognitive Domain) pair (3×3=9 models) as per FR-007.
+ - **Regression Scope**: Fit **ONLY** the specified linear models (3 centrality metrics × 3 cognitive domains) as per FR-007. Do not add new predictors or models.
  - Control for covariates (age, sex, education, diagnosis).
- - Calculate β, SE, p-values, partial-r, and VIF.
+ - {{claim:c_85c745b3}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)
  - Compute Pearson correlation matrix among centrality metrics.
 - [X] T017 [US2] Implement statistical diagnostics and FDR correction in `code/analysis/diagnostics.py` (FR-008, FR-009, FR-015)
  - Apply Benjamini-Hochberg FDR correction to the p-values; output q-values.
  - Check assumptions: Linearity, Normality (Shapiro-Wilk), Homoscedasticity (Breusch-Pagan), Independence.
- - Flag VIF > 5 (warnings only, do not halt).
+ - Flag VIF > 5 (warnings only, do not halt). [UNRESOLVED-CLAIM: c_cb8ca6a1 — status=not_enough_info]
 - [X] T018 [US2] Implement main US2 orchestration script `code/main_us2.py`
  - Chain: QC Validation (T014) -> Merge (T015) -> Regression (T016) -> Diagnostics (T017).
  - Generate `data/analysis/regression_results.csv` and `data/analysis/diagnostics.json`.
@@ -137,11 +145,13 @@ The research question is to determine the optimal resolution for efficient proce
  - Create scatter plots (Centrality vs. Cognitive Score) for standard metrics.
  - **Output**: Save intermediate plots to `outputs/viz/scatter_*.png` and `outputs/viz/heatmap_*.png`.
  - Create table visualization for FDR-adjusted q-values.
+ - **Constraint**: Do NOT generate plots for unauthorized metrics (e.g., fractal dimension).
 - [X] T020 [US3] Implement report generator in `code/viz/report_generator.py` (FR-010)
  - Assemble plots and tables into a PDF using `reportlab` or `matplotlib` + `PIL`.
  - Include QC summary (exclusions, sample size).
  - Ensure file size ≤ 5 MB (SC-004).
  - Handle missing backend errors gracefully (FR-010 scenario 2).
+ - **Content**: Include ONLY the required sections: (a) scatter plots, (b) coefficient heatmaps, (c) FDR q-value table, (d) QC summary. Do not include unauthorized theoretical discussions.
 - [X] T021 [US3] Implement main US3 orchestration script `code/main_us3.py`
  - Trigger report generation upon completion of US2.
  - Save final report to `outputs/final_report.pdf`.
@@ -157,10 +167,10 @@ The research question is to determine the optimal resolution for efficient proce
 - [X] T022 [P] Write unit tests for centrality calculation logic (`tests/unit/test_centrality.py`)
 - [X] T023 [P] Write unit tests for regression logic and FDR correction (`tests/unit/test_regression.py`)
 - [X] T024 [P] Write integration test for full pipeline flow (mock data) (`tests/integration/test_pipeline.py`)
-- [X] T025a [P] Refactor `code/preprocess/fMRI_pipeline.py` to reduce cyclomatic complexity to < 10.
+- [X] T025a [P] {{claim:c_b42ce24a}} <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T025b [P] Remove all TODO comments from `code/`.
 - [X] T026a [P] Optimize connectivity matrix calculation to use chunked processing for memory efficiency.
-- [X] T026b [P] Run integration test on N=20 and record runtime in `outputs/perf_metrics.json` to verify < 4 hour constraint.
+- [X] T026b [P] Run integration test on N=20 and record runtime in `outputs/perf_metrics.json` to verify < 4 hour constraint. [UNRESOLVED-CLAIM: c_fcd39cf0 — status=not_enough_info]
 - [X] T027 [P] Documentation updates: Add `quickstart.md` and update `README.md` with execution instructions
 
 ---
@@ -254,4 +264,8 @@ With multiple developers:
 - **Data Constraint**: Tasks must use real ADNI data or validated mock data for CI; no synthetic fabrication of cognitive scores.
 - **Data Source Constraint**: T009 must explicitly define the URL or API endpoint for ADNI data retrieval; "download from ADNI" is insufficient without a specific mechanism (e.g., `adni_downloader.py` using `requests` to the LONI IDGK portal with `--user`/`--pass` flags).
 - **Power Constraint**: T014 must strictly enforce the N ≥ 85 threshold before proceeding to regression; if N < 85, the pipeline must exit with a specific error code (e.g., 2) and a message citing "Insufficient Power for Regression (N < 85)".
-- **Preprocessing Constraint**: T010 must run the actual `nilearn` preprocessing pipeline on real data (or fail loudly if unavailable); mock data generation is prohibited to ensure reproducibility.
+- **Preprocessing Constraint**: T010a must run the actual `nilearn` preprocessing pipeline on real data (or fail loudly if unavailable); mock data generation is prohibited to ensure reproducibility.
+- **Scope Constraint**: The pipeline strictly adheres to the spec-defined metrics (degree, betweenness, closeness) and regression models (9 models). No unauthorized metrics (e.g., fractal dimension) or models are included.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [X] T028 Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

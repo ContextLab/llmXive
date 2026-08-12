@@ -1,3 +1,3 @@
 """
-Preprocessing pipeline utilities
+Preprocess package initialization.
 """
