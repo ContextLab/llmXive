@@ -1,63 +1,65 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Computed Descriptors Schema"
-description: "Schema for the computed compositional descriptors dataset"
-type: object
+title: "ProcessedDatasetSchema"
+description: "Schema for the cleaned and feature-engineered dataset used in model training."
+type: "object"
 properties:
-  material_id:
-    type: string
-    description: "Unique identifier for the material"
   formula:
-    type: string
-    description: "Chemical formula of the material"
+    type: "string"
+    description: "Chemical formula of the compound."
   formation_energy_per_atom:
-    type: number
-    description: "Formation energy per atom"
+    type: "number"
+    description: "Formation energy in eV/atom."
   crystal_system:
-    type: string
-    description: "Crystal system classification"
+    type: "string"
+    description: "Crystal system of the material."
+  chemical_family:
+    type: "string"
+    description: "Chemical family classification for stratification."
+  is_inorganic:
+    type: "boolean"
+    description: "Flag indicating if the compound is inorganic."
   mean_electronegativity:
-    type: number
-    description: "Mean electronegativity of constituent elements"
-  variance_electronegativity:
-    type: number
-    description: "Variance of electronegativity"
+    type: "number"
+    description: "Mean electronegativity of constituent elements."
+  var_electronegativity:
+    type: "number"
+    description: "Variance of electronegativity."
   mean_atomic_radius:
-    type: number
-    description: "Mean atomic radius"
-  variance_atomic_radius:
-    type: number
-    description: "Variance of atomic radius"
+    type: "number"
+    description: "Mean atomic radius."
+  var_atomic_radius:
+    type: "number"
+    description: "Variance of atomic radius."
   mean_valence_electrons:
-    type: number
-    description: "Mean valence electron count"
-  variance_valence_electrons:
-    type: number
-    description: "Variance of valence electron count"
+    type: "number"
+    description: "Mean valence electron count."
+  var_valence_electrons:
+    type: "number"
+    description: "Variance of valence electron count."
   mean_melting_point:
-    type: number
-    description: "Mean melting point"
-  variance_melting_point:
-    type: number
-    description: "Variance of melting point"
+    type: "number"
+    description: "Mean melting point."
+  var_melting_point:
+    type: "number"
+    description: "Variance of melting point."
   mean_ionization_energy:
-    type: number
-    description: "Mean first ionization energy"
-  variance_ionization_energy:
-    type: number
-    description: "Variance of first ionization energy"
+    type: "number"
+    description: "Mean first ionization energy."
+  var_ionization_energy:
+    type: "number"
+    description: "Variance of first ionization energy."
 required:
-  - material_id
   - formula
   - formation_energy_per_atom
-  - crystal_system
+  - chemical_family
   - mean_electronegativity
-  - variance_electronegativity
+  - var_electronegativity
   - mean_atomic_radius
-  - variance_atomic_radius
+  - var_atomic_radius
   - mean_valence_electrons
-  - variance_valence_electrons
+  - var_valence_electrons
   - mean_melting_point
-  - variance_melting_point
+  - var_melting_point
   - mean_ionization_energy
-  - variance_ionization_energy
+  - var_ionization_energy
 additionalProperties: false

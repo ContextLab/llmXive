@@ -20,7 +20,7 @@ properties:
           description: "Importance score from Random Forest"
         permutation_score:
           type: number
-          description: "Importance score from permutation"
+          description: "Importance score from conditional permutation"
       required:
         - rank
         - feature_name
@@ -28,10 +28,15 @@ properties:
         - permutation_score
   correlation_r:
     type: number
-    description: "Pearson correlation between tree-based and permutation importances"
+    description: "Pearson correlation between tree-based and conditional permutation importances"
   vif_scores:
     type: object
     description: "Variance Inflation Factor scores for top features"
+    additionalProperties:
+      type: number
+  shap_interaction_summary:
+    type: object
+    description: "Summary of SHAP interaction values for correlated features"
     additionalProperties:
       type: number
 required:

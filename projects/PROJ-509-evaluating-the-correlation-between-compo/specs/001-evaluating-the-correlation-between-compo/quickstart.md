@@ -2,86 +2,81 @@
 
 ## Prerequisites
 
-*   Python 3.11 or higher
-*   pip package manager
-*   7 GB+ available RAM
-*   14 GB+ available disk space
+- Python 3.11+
+- `pip` or `conda`
+- Access to the MP-2020 dataset (via `MPDS_API_KEY` environment variable or local cache)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repository_url>
-    cd projects/PROJ-509-evaluating-the-correlation-between-compo
-    ```
+1. **Clone the repository** and navigate to the project directory.
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` is located at `projects/PROJ-509-evaluating-the-correlation-between-compo/code/requirements.txt`.*
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+## Running the Pipeline
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Data Preparation
-
-The pipeline expects the Materials Project MP-2020.12.1 dataset to be downloaded automatically. If the download fails, manually place the dataset in `data/raw/mp_2020_12_1.csv`.
-
-1.  **Run the ingestion script**:
-    ```bash
-    python code/ingestion.py
-    ```
-    This will:
-    *   Download the dataset (Zenodo or Matminer fallback).
-    *   Filter for inorganic compounds.
-    *   Compute compositional descriptors.
-    *   Cap outliers conditionally (>1% threshold).
-    *   Save `data/processed/computed_descriptors.csv`.
-
-## Model Training
-
-1.  **Train the models**:
-    ```bash
-    python code/train.py
-    ```
-    This will:
-    *   Split the data (80/20 by Chemical Family).
-    *   Train Random Forest and Gradient Boosting models.
-    *   Save `data/evaluation/trained_models.pkl` and `data/evaluation/metrics.json`.
-
-## Analysis & Evaluation
-
-1.  **Run the importance analysis**:
-    ```bash
-    python code/importance.py
-    ```
-    This will:
-    *   Calculate feature importances.
-    *   Perform permutation importance validation (Pearson correlation).
-    *   Generate Accumulated Local Effects (ALE) plots (saved to `data/evaluation/ale_plots/`).
-    *   Compute VIF scores.
-    *   Save `data/evaluation/permutation_importance.json`, `data/evaluation/feature_ranking.json`, and `data/evaluation/vif_scores.json`.
-
-## Running the Full Pipeline
-
-To run the entire pipeline end-to-end:
+The pipeline is executed via `code/main.py`.
 
 ```bash
-python code/ingestion.py && python code/train.py && python code/importance.py
+cd code
+python main.py
 ```
+
+### Steps Executed
+1. **Ingestion**: Downloads/loads MP-2020 dataset (via MPDS API or local cache), filters inorganic compounds, checksums data, and verifies version.
+2. **Feature Engineering**: Computes mean/variance descriptors for 5 elemental properties and derives `chemical_family`.
+3. **Model Training**: Trains Random Forest and Gradient Boosting models (80/20 split by Chemical Family).
+4. **Evaluation**: Calculates R², MAE, RMSE; computes overfitting ratio; saves models and metrics.
+5. **Analysis**: Computes feature importance (Conditional Permutation, SHAP), VIF, and generates ALE plots.
+6. **Logging**: Records execution time, statistical tests, and ALE metrics to `data/evaluation/model_metrics.json` and related JSON files.
+
+## Output Artifacts
+
+After successful execution, the following files will be generated in `data/evaluation/`:
+
+- `model_rf.pkl`: Trained Random Forest model.
+- `model_gb.pkl`: Trained Gradient Boosting model.
+- `model_metrics.json`: Performance metrics (R², MAE, RMSE, execution time, overfitting_ratio).
+- `feature_ranking.json`: Ranked list of descriptors by importance.
+- `permutation_importance.json`: Permutation importance scores and correlation `r`.
+- `vif_scores.json`: Variance Inflation Factor scores for all features.
+- `ale_metrics.json`: Non-linearity scores for top 3 features.
+- `statistical_tests.json`: P-values and CIs for model comparison.
+- `ale_*.png`: Accumulated Local Effects plots for the top 3 features.
 
 ## Verification
 
-*   Check `data/evaluation/metrics.json` for R², MAE, and RMSE.
-*   Verify `data/evaluation/feature_ranking.json` contains the top 5 features and correlation `r`.
-*   Inspect `data/evaluation/ale_plots/*.png` for non-linear trends.
-*   Check `data/evaluation/timing.json` for total execution time.
+To verify the results:
+
+1. **Check Metrics**:
+   ```bash
+   cat data/evaluation/model_metrics.json
+   ```
+   Ensure `val_r2` > 0.0 and `execution_time` < 6 hours.
+
+2. **Check Feature Ranking**:
+   ```bash
+   cat data/evaluation/feature_ranking.json
+   ```
+   Ensure top 5 features are listed.
+
+3. **Check ALE Plots**:
+   Verify `data/evaluation/ale_*.png` files exist and are non-empty. Check `ale_metrics.json` for non-linearity scores > 0.5.
+
+4. **Run Tests**:
+   ```bash
+   pytest tests/
+   ```
 
 ## Troubleshooting
 
-*   **Memory Error**: If you encounter OOM errors, reduce the dataset size by enabling the sampling flag in `code/config.py` (though a substantial number of rows should fit).
-*   **Download Failed**: Ensure the Zenodo mirror is accessible. If not, the script will fallback to Matminer.
-*   **Missing Artifacts**: Ensure all scripts are run in the correct order (Ingestion -> Training -> Analysis).
+- **Dataset Download Failed**: Ensure `MPDS_API_KEY` is set in environment variables, or that `data/raw/mp-2020.csv` exists and is checksummed.
+- **Memory Error**: The dataset is small. If this occurs, check for memory leaks or incorrect data loading.
+- **Overfitting Flag**: If `overfitting_ratio` is high, review the stratification strategy or model hyperparameters.

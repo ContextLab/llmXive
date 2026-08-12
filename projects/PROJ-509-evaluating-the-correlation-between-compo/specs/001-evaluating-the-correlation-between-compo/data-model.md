@@ -1,64 +1,69 @@
 # Data Model: Evaluating the Correlation Between Compositional Features and Predicted Formation Energy in Inorganic Materials
 
-## Overview
-
-This document defines the data structures, schemas, and relationships for the project. It ensures that all data artifacts are consistent, versioned, and traceable.
-
-## Entities
+## Entity Definitions
 
 ### Compound
-
-Represents an inorganic material with a specific chemical formula, formation energy, and crystal system.
-
-*   **Attributes**:
-    *   `material_id`: Unique identifier (string).
-    *   `formula`: Chemical formula (string).
-    *   `formation_energy_per_atom`: Target variable (float).
-    *   `crystal_system`: Structural classification (string).
-    *   `elements`: List of constituent elements (list of strings).
-    *   `element_counts`: List of element counts (list of integers).
+Represents an inorganic material entry.
+- `formula`: str (e.g., "LiFePO4")
+- `formation_energy_per_atom`: float (eV/atom)
+- `crystal_system`: str (e.g., "cubic")
+- `chemical_family`: str (e.g., "Binary", "Alkali", "Transition", "Oxide")
+- `is_inorganic`: bool
 
 ### DescriptorSet
-
-A collection of computed features associated with a specific Compound.
-
-*   **Attributes**:
-    *   `material_id`: Foreign key to Compound.
-    *   `mean_electronegativity`: Average electronegativity (float).
-    *   `variance_electronegativity`: Variance of electronegativity (float).
-    *   `mean_atomic_radius`: Average atomic radius (float).
-    *   `variance_atomic_radius`: Variance of atomic radius (float).
-    *   `mean_valence_electrons`: Average valence electron count (float).
-    *   `variance_valence_electrons`: Variance of valence electron count (float).
-    *   `mean_melting_point`: Average melting point (float).
-    *   `variance_melting_point`: Variance of melting point (float).
-    *   `mean_ionization_energy`: Average first ionization energy (float).
-    *   `variance_ionization_energy`: Variance of first ionization energy (float).
+Computed features for a Compound.
+- `mean_electronegativity`: float
+- `var_electronegativity`: float
+- `mean_atomic_radius`: float
+- `var_atomic_radius`: float
+- `mean_valence_electrons`: float
+- `var_valence_electrons`: float
+- `mean_melting_point`: float
+- `var_melting_point`: float
+- `mean_ionization_energy`: float
+- `var_ionization_energy`: float
 
 ### ModelOutput
-
-The result of training a regression model.
-
-*   **Attributes**:
-    *   `model_type`: "RandomForest" or "GradientBoosting".
-    *   `r2_train`: Training R² score (float).
-    *   `r2_val`: Validation R² score (float).
-    *   `mae_val`: Validation MAE (float).
-    *   `rmse_val`: Validation RMSE (float).
-    *   `overfitting_ratio`: `train_r2 / val_r2` (float or null).
-    *   `feature_importances`: Dictionary of feature name to importance score (dict).
+Results of model training and evaluation.
+- `model_type`: str ("RandomForest" or "GradientBoosting")
+- `train_r2`: float
+- `val_r2`: float
+- `train_mae`: float
+- `val_mae`: float
+- `train_rmse`: float
+- `val_rmse`: float
+- `overfitting_ratio`: float (train_r2 - val_r2)
+- `feature_importances`: dict (feature_name -> importance_score)
+- `permutation_importances`: dict (feature_name -> score)
+- `vif_scores`: dict (feature_name -> VIF_score)
+- `ale_plots`: list of paths (str)
+- `ale_non_linearity_score`: float (|R²_quad - R²_lin|)
 
 ## Data Flow
 
-1.  **Raw Data**: `data/raw/mp_2020_12_1.csv` (Downloaded from Zenodo).
-2.  **Filtered Data**: `data/processed/computed_descriptors.csv` (Inorganic, complete data; descriptors computed).
-3.  **Train/Val Split**: `data/processed/train_set.csv`, `data/processed/val_set.csv` (Stratified by Chemical Family).
-4.  **Model Artifacts**: `data/evaluation/trained_models.pkl`, `data/evaluation/metrics.json`.
-5.  **Analysis Artifacts**: `data/evaluation/permutation_importance.json`, `data/evaluation/feature_ranking.json`, `data/evaluation/ale_plots/*.png`, `data/evaluation/vif_scores.json`.
+1. **Raw Data**: `data/raw/mp-2020.csv` (Downloaded, checksummed).
+2. **Cleaned Data**: `data/processed/cleaned_compounds.csv` (Filtered, outliers capped).
+3. **Feature Data**: `data/processed/with_descriptors.csv` (Compound + DescriptorSet + chemical_family).
+4. **Model Artifacts**: `data/evaluation/model_rf.pkl`, `model_gb.pkl`.
+5. **Metrics**: `data/evaluation/model_metrics.json`, `feature_ranking.json`, `permutation_importance.json`, `vif_scores.json`, `ale_metrics.json`, `statistical_tests.json`.
+6. **Visuals**: `data/evaluation/ale_*.png`.
 
-## Storage & Versioning
+## Schema Evolution
 
-*   **Raw Data**: Stored in `data/raw/` with checksums recorded in `state/projects/PROJ-509-evaluating-the-correlation-between-compo.yaml`.
-*   **Processed Data**: Stored in `data/processed/` with new filenames and checksums.
-*   **Evaluation Data**: Stored in `data/evaluation/` with JSON format for metrics and CSV for rankings.
-*   **Versioning**: Every file under `data/` carries a content hash. Changes trigger updates to the state file.
+- **v1.0**: Initial schema with 5 descriptors (mean/var).
+- **v1.1**: Added `chemical_family` for stratification.
+- **v1.2**: Added `vif_scores`, `permutation_importances`, `ale_non_linearity_score`, and `statistical_tests` for robustness checks.
+
+## Data Hygiene & Versioning
+
+- All data files in `data/` are checksummed (SHA-256) and recorded in `state/...yaml`.
+- Raw data is never modified. Derived files have `_v1`, `_v2` suffixes if schema changes.
+- `data/elemental_properties/` contains the versioned reference table for elemental properties.
+
+## Assumptions & Constraints
+
+- **Missing Data**: Rows with missing elemental properties are excluded.
+- **Collinearity**: VIF > 10 is logged but does not trigger feature removal.
+- **Negative R²**: Valid and recorded.
+- **Stratification**: By `chemical_family`, not `crystal_system`.
+- **Interpretation**: Feature rankings reflect predictive contribution, not necessarily independent physical causation due to mathematical coupling of Mean/Var descriptors.

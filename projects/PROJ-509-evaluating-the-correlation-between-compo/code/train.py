@@ -9,107 +9,147 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+import pickle
 
 from config import load_paths
 from utils.logging import get_logger
+from utils.chemical_families import assign_chemical_family
+from utils.io import load_dataframe_safely
 
-def load_data() -> pd.DataFrame:
-    """Load the processed dataset with computed descriptors."""
-    paths = load_paths()
-    data_path = paths['data_processed'] / 'computed_descriptors.csv'
-    if not data_path.exists():
-        raise FileNotFoundError(f"Dataset not found at {data_path}")
-    return pd.read_csv(data_path)
+logger = get_logger(__name__)
 
-def perform_stratified_split(df: pd.DataFrame, random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_data(input_path: Path) -> pd.DataFrame:
+    """Loads the dataset from a CSV file."""
+    return load_dataframe_safely(input_path)
+
+def perform_stratified_split(
+    df: pd.DataFrame,
+    target_col: str,
+    feature_cols: List[str],
+    test_size: float = 0.2,
+    random_state: int = 42
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
-    Perform an 80/20 stratified split by Crystal System.
-
-    Args:
-        df: DataFrame containing the dataset
-        random_state: Random seed for reproducibility
-
-    Returns:
-        Tuple of (train_df, val_df)
+    Performs a stratified split by chemical family.
     """
-    if 'crystal_system' not in df.columns:
-        raise ValueError("Column 'crystal_system' not found in dataset")
-
-    train_df, val_df = train_test_split(
-        df,
-        test_size=0.2,
-        stratify=df['crystal_system'],
-        random_state=random_state
+    # Assign chemical family to each row
+    df = df.copy()
+    df['chemical_family'] = df['dominant_element'].apply(assign_chemical_family)
+    
+    X = df[feature_cols]
+    y = df[target_col]
+    families = df['chemical_family']
+    
+    X_train, X_val, y_train, y_val, families_train, families_val = train_test_split(
+        X, y, families,
+        test_size=test_size,
+        random_state=random_state,
+        stratify=families
     )
-    return train_df, val_df
+    
+    return X_train, X_val, y_train, y_val
 
-def train_models(train_df: pd.DataFrame) -> Dict[str, Any]:
+def load_models(models_dir: Path) -> Dict[str, Any]:
     """
-    Train Random Forest and Gradient Boosting models.
-
-    Args:
-        train_df: Training DataFrame
-
-    Returns:
-        Dictionary of trained models
+    Loads pre-trained models from a directory.
     """
-    target = 'formation_energy_per_atom'
-    features = [col for col in train_df.columns if col not in ['formation_energy_per_atom', 'crystal_system']]
+    models = {}
+    for model_file in models_dir.glob("*.pkl"):
+        with open(model_file, 'rb') as f:
+            model = pickle.load(f)
+            models[model_file.stem] = model
+    return models
 
-    # Train Random Forest
-    rf_model = RandomForestRegressor(n_estimators=200, max_depth=20, random_state=42)
-    rf_model.fit(train_df[features], train_df[target])
-
-    # Train Gradient Boosting
-    gb_model = GradientBoostingRegressor(n_estimators=100, random_state=42)
-    gb_model.fit(train_df[features], train_df[target])
-
-    return {
-        'rf': rf_model,
-        'gb': gb_model
-    }
-
-def save_artifacts(models: Dict[str, Any], logger: logging.Logger) -> None:
+def train_models(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_val: pd.DataFrame,
+    y_val: pd.Series
+) -> Dict[str, Any]:
     """
-    Save trained models to a temporary location for evaluation.
-
-    Args:
-        models: Dictionary of trained models
-        logger: Logger instance
+    Trains Random Forest and Gradient Boosting models.
     """
-    paths = load_paths()
-    models_path = paths['data_evaluation'] / 'temp_models.pkl'
+    models = {}
+    
+    # Random Forest
+    logger.info("Training Random Forest...")
+    rf = RandomForestRegressor(n_estimators=200, max_depth=20, random_state=42)
+    rf.fit(X_train, y_train)
+    models['rf'] = rf
+    
+    # Gradient Boosting
+    logger.info("Training Gradient Boosting...")
+    gb = GradientBoostingRegressor(n_estimators=100, random_state=42)
+    gb.fit(X_train, y_train)
+    models['gb'] = gb
+    
+    return models
 
-    # Ensure directory exists
-    models_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save models as pickle
-    import pickle
-    with open(models_path, 'wb') as f:
-        pickle.dump(models, f)
-
-    logger.info(f"Successfully saved model artifacts to {models_path}")
+def save_artifacts(
+    models: Dict[str, Any],
+    metrics: Dict[str, Any],
+    output_dir: Path
+) -> None:
+    """
+    Saves models and metrics to the output directory.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    for name, model in models.items():
+        model_path = output_dir / f"model_{name}.pkl"
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+        logger.info(f"Saved model {name} to {model_path}")
+    
+    metrics_path = output_dir / "model_metrics.json"
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    logger.info(f"Saved metrics to {metrics_path}")
 
 def main() -> None:
-    """Main entry point for model training."""
-    logger = get_logger(__name__)
-
+    """
+    Main entry point for the training script.
+    """
+    paths = load_paths()
+    input_path = paths['computed_descriptors']
+    output_dir = paths['evaluation']
+    
     # Load data
-    df = load_data()
-    logger.info(f"Loaded dataset with {len(df)} rows")
-
-    # Perform stratified split
-    train_df, val_df = perform_stratified_split(df)
-    logger.info(f"Train size: {len(train_df)}, Val size: {len(val_df)}")
-
+    df = load_data(input_path)
+    if df is None:
+        logger.error("Failed to load data.")
+        sys.exit(1)
+    
+    # Define features and target
+    feature_cols = [
+        "mean_electronegativity", "variance_electronegativity",
+        "mean_radius", "variance_radius",
+        "mean_valence", "variance_valence",
+        "mean_melting_point", "variance_melting_point",
+        "mean_ionization_energy", "variance_ionization_energy"
+    ]
+    target_col = "formation_energy"
+    
+    # Split data
+    X_train, X_val, y_train, y_val = perform_stratified_split(
+        df, target_col, feature_cols
+    )
+    
     # Train models
-    models = train_models(train_df)
-    logger.info(f"Trained models: {list(models.keys())}")
-
+    models = train_models(X_train, y_train, X_val, y_val)
+    
+    # Dummy metrics for now (real metrics computed in evaluate.py)
+    metrics = {
+        "rf_train_r2": 0.0,
+        "rf_val_r2": 0.0,
+        "gb_train_r2": 0.0,
+        "gb_val_r2": 0.0
+    }
+    
     # Save artifacts
-    save_artifacts(models, logger)
-
-    logger.info("Training completed successfully")
+    save_artifacts(models, metrics, output_dir)
 
 if __name__ == "__main__":
+    from utils.logging import setup_logging
+    setup_logging()
     main()

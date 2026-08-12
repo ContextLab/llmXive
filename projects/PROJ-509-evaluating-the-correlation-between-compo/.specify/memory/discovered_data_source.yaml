@@ -1,19 +1,15 @@
 status: none
-intent: Materials Project MP-2020.12.1 Zenodo 10.5281/zenodo.4053859 dataset python
+intent: Materials Project MP-2020.12.1 Zenodo mirror pymatgen built-in dataset python
   package dataset
 required_fields:
-- formula
+- material_id
+- composition
 - formation_energy_per_atom
-- mean_electronegativity
-- var_electronegativity
-- mean_atomic_radius
-- var_atomic_radius
-- mean_valence_electrons
-- var_valence_electrons
-- mean_melting_point
-- var_melting_point
-- mean_ionization_energy
-- var_ionization_energy
-cache_key: c14b8457e253f9e46d3215c10de792ec5d76658540b47390fa3b1228e76537cc
-searched_at: '2026-07-18T12:58:37.127859+00:00'
+- elemental_electronegativity
+- elemental_atomic_radius
+- elemental_valence_electrons
+- elemental_melting_point
+- elemental_first_ionization_energy
+cache_key: 1cf7d95b0442e40f822aa6f6ffb46f61a8ae711e77e1870284ef36bf15061aec
+searched_at: '2026-08-12T22:21:02.798609+00:00'
 retry_count: 1

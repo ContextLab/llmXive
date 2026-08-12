@@ -2,40 +2,36 @@ import os
 from pathlib import Path
 from typing import Dict, Any
 
-def load_paths() -> Dict[str, str]:
+def load_paths() -> Dict[str, Any]:
     """
-    Load configuration paths for the project.
-    
-    Returns:
-        Dictionary containing absolute paths to key project directories and files.
+    Returns a dictionary of data and code paths.
     """
-    base_dir = Path(__file__).resolve().parent.parent
-    code_dir = base_dir / "code"
+    base_dir = Path(__file__).parent.parent
     data_dir = base_dir / "data"
+    code_dir = base_dir / "code"
     
-    paths = {
-        "base_dir": str(base_dir),
-        "code_dir": str(code_dir),
-        "data_dir": str(data_dir),
-        "raw_data_dir": str(data_dir / "raw"),
-        "processed_dir": str(data_dir / "processed"),
-        "evaluation_dir": str(data_dir / "evaluation"),
-        "logs_dir": str(data_dir / "logs"),
-        
-        # Specific file paths
-        "models_path": str(data_dir / "evaluation" / "trained_models.pkl"),
-        "processed_descriptors_path": str(data_dir / "processed" / "computed_descriptors.csv"),
-        "dataset_schema_path": str(data_dir / "contracts" / "dataset.schema.yaml"),
-        "model_output_schema_path": str(data_dir / "contracts" / "model_output.schema.yaml"),
+    return {
+        "raw_data": data_dir / "raw",
+        "elemental_properties": data_dir / "elemental_properties",
+        "processed": data_dir / "processed",
+        "evaluation": data_dir / "evaluation",
+        "logs_dir": data_dir / "logs",
+        "figures": data_dir / "figures",
+        "filtered_data": data_dir / "raw" / "mp-2020.12.1_filtered.csv",
+        "computed_descriptors": data_dir / "processed" / "computed_descriptors.csv",
+        "metrics_json": data_dir / "evaluation" / "model_metrics.json",
+        "dataset_schema": data_dir / "contracts" / "dataset.schema.yaml",
+        "model_schema": data_dir / "contracts" / "model_output.schema.yaml",
+        "verification_json": data_dir / "evaluation" / "dataset_verification.json",
+        "feature_ranking": data_dir / "evaluation" / "feature_ranking.json",
+        "figures": data_dir / "figures"
     }
-    
-    return paths
 
-def load_env() -> Dict[str, str]:
+def load_env() -> None:
     """
-    Load environment variables.
-    
-    Returns:
-        Dictionary of environment variables.
+    Loads environment variables from a .env file if present.
     """
-    return {k: v for k, v in os.environ.items()}
+    import dotenv
+    env_path = Path(__file__).parent.parent / ".env"
+    if env_path.exists():
+        dotenv.load_dotenv(env_path)

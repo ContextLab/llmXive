@@ -1,233 +1,187 @@
-"""
-Feature Importance Analysis and Multi-Collinearity Check (VIF).
-
-This module handles:
-1. Loading trained models.
-2. Extracting Random Forest importances.
-3. Calculating Permutation Importance.
-4. Validating correlation between methods.
-5. Ranking features.
-6. Calculating Variance Inflation Factor (VIF) for multi-collinearity.
-"""
 import os
 import sys
 import json
 import logging
 import pickle
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Optional
 
-import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestRegressor
+import numpy as np
 from sklearn.inspection import permutation_importance
+from scipy.stats import pearsonr
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-# Import project utilities
 from config import load_paths
 from utils.logging import get_logger
-
-# Constants
-VIF_THRESHOLD = 10.0
-CORRELATION_THRESHOLD = 0.8
+from utils.io import load_dataframe_safely
 
 logger = get_logger(__name__)
 
-def load_models(models_path: Path) -> Dict[str, Any]:
-    """Load trained models from the pickle file."""
-    if not models_path.exists():
-        raise FileNotFoundError(f"Models file not found: {models_path}")
-    
-    with open(models_path, 'rb') as f:
-        return pickle.load(f)
+def load_models(models_dir: Path) -> Dict[str, Any]:
+    """
+    Loads pre-trained models from a directory.
+    """
+    models = {}
+    for model_file in models_dir.glob("model_*.pkl"):
+        with open(model_file, 'rb') as f:
+            model = pickle.load(f)
+            name = model_file.stem.replace("model_", "")
+            models[name] = model
+    return models
 
-def load_feature_names(data_path: Path) -> List[str]:
-    """Load feature names from the processed dataset."""
-    if not data_path.exists():
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-    
-    df = pd.read_csv(data_path)
-    # Exclude target and non-feature columns
-    feature_cols = [col for col in df.columns if col not in ['formation_energy', 'material_id', 'structure_id']]
-    return feature_cols
+def load_feature_names(input_path: Path) -> List[str]:
+    """
+    Loads feature names from the dataset header.
+    """
+    df = pd.read_csv(input_path, nrows=0)
+    return list(df.columns)
 
-def extract_rf_importances(model: RandomForestRegressor, feature_names: List[str]) -> Dict[str, float]:
-    """Extract feature importances from a trained Random Forest model."""
+def extract_rf_importances(
+    model: Any,
+    feature_names: List[str]
+) -> Dict[str, float]:
+    """
+    Extracts feature importances from a Random Forest model.
+    """
     importances = model.feature_importances_
-    return dict(zip(feature_names, importances.tolist()))
+    return dict(zip(feature_names, importances))
 
 def calculate_permutation_importance(
-    model: RandomForestRegressor,
+    model: Any,
     X: pd.DataFrame,
     y: pd.Series,
-    feature_names: List[str],
+    scoring: str = 'r2',
     n_repeats: int = 10,
     random_state: int = 42
 ) -> Dict[str, float]:
-    """Calculate permutation importance for a model."""
+    """
+    Calculates permutation importance.
+    """
     result = permutation_importance(
-        model, X, y, 
-        n_repeats=n_repeats, 
-        random_state=random_state, 
-        scoring='r2'
+        model, X, y,
+        scoring=scoring,
+        n_repeats=n_repeats,
+        random_state=random_state
     )
-    # Use mean importance
-    return dict(zip(feature_names, result.importances_mean.tolist()))
+    return dict(zip(X.columns, result.importances_mean))
 
 def validate_correlation(
-    rf_importances: Dict[str, float],
-    perm_importances: Dict[str, float]
-) -> float:
-    """Calculate Pearson correlation between RF and Permutation importances."""
-    keys = list(rf_importances.keys())
-    if not keys:
-        return 0.0
+    imp1: Dict[str, float],
+    imp2: Dict[str, float]
+) -> Tuple[float, bool]:
+    """
+    Validates correlation between two importance dictionaries.
+    """
+    keys = sorted(set(imp1.keys()) & set(imp2.keys()))
+    if len(keys) < 2:
+        return 0.0, False
     
-    rf_vals = np.array([rf_importances[k] for k in keys])
-    perm_vals = np.array([perm_importances[k] for k in keys])
+    v1 = [imp1[k] for k in keys]
+    v2 = [imp2[k] for k in keys]
     
-    # Handle constant arrays
-    if np.std(rf_vals) == 0 or np.std(perm_vals) == 0:
-        return 0.0
-    
-    corr_matrix = np.corrcoef(rf_vals, perm_vals)
-    return float(corr_matrix[0, 1])
+    r, p = pearsonr(v1, v2)
+    return r, r >= 0.8
 
-def rank_features(importances: Dict[str, float]) -> List[Dict[str, Any]]:
-    """Rank features by importance score."""
-    sorted_features = sorted(importances.items(), key=lambda x: x[1], reverse=True)
+def rank_features(
+    importances: Dict[str, float],
+    top_n: int = 10
+) -> List[Dict[str, Any]]:
+    """
+    Ranks features by importance.
+    """
+    sorted_items = sorted(importances.items(), key=lambda x: x[1], reverse=True)
     return [
-        {"rank": i + 1, "feature": name, "importance": score}
-        for i, (name, score) in enumerate(sorted_features)
+        {"feature": k, "importance": v}
+        for k, v in sorted_items[:top_n]
     ]
 
-def calculate_vif(X: pd.DataFrame) -> Dict[str, float]:
+def calculate_vif(
+    df: pd.DataFrame,
+    feature_cols: List[str]
+) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factor (VIF) for each feature to detect multi-collinearity.
-    
-    VIF > 10 indicates high multi-collinearity.
-    
-    Args:
-        X: DataFrame containing only feature columns (no target).
-    
-    Returns:
-        Dictionary mapping feature names to their VIF scores.
+    Calculates Variance Inflation Factor for each feature.
     """
-    if X.empty:
-        raise ValueError("Feature DataFrame is empty.")
-    
-    # Add constant for intercept (required by VIF calculation)
-    X_with_const = sm.add_constant(X)
-    
     vif_data = {}
-    features = X.columns
-    
-    for feature in features:
-        # VIF for feature j is 1 / (1 - R_j^2)
-        # R_j^2 is from regressing feature j on all other features
-        vif = variance_inflation_factor(X_with_const.values, list(X_with_const.columns).index(feature))
-        vif_data[feature] = float(vif)
-    
+    for i, col in enumerate(feature_cols):
+        X = df[feature_cols]
+        y = df[col]  # Not used, but needed for VIF calculation context
+        # VIF is calculated for each feature against others
+        try:
+            vif = variance_inflation_factor(X.values, i)
+            vif_data[col] = vif
+        except Exception:
+            vif_data[col] = np.inf
     return vif_data
 
-def main():
-    """Main entry point for feature importance and VIF analysis."""
+def main() -> None:
+    """
+    Main entry point for the importance script.
+    """
     paths = load_paths()
-    data_dir = paths['data']
-    evaluation_dir = data_dir / 'evaluation'
-    processed_dir = data_dir / 'processed'
+    models_dir = paths['evaluation']
+    data_path = paths['computed_descriptors']
+    output_dir = paths['evaluation']
     
-    # Ensure output directory exists
-    evaluation_dir.mkdir(parents=True, exist_ok=True)
+    # Load models
+    models = load_models(models_dir)
+    if 'rf' not in models:
+        logger.error("Random Forest model not found.")
+        sys.exit(1)
     
-    # Paths
-    models_path = evaluation_dir / 'trained_models.pkl'
-    data_path = processed_dir / 'computed_descriptors.csv'
-    vif_output_path = evaluation_dir / 'vif_scores.json'
+    # Load data
+    df = load_data(data_path)
+    if df is None:
+        logger.error("Failed to load data.")
+        sys.exit(1)
     
-    # Load configuration
-    logger.info(f"Loading models from {models_path}")
-    try:
-        models = load_models(models_path)
-    except FileNotFoundError as e:
-        logger.error(f"Models file missing: {e}")
-        # Re-raise to fail loudly as per constraints
-        raise
+    feature_cols = [
+        "mean_electronegativity", "variance_electronegativity",
+        "mean_radius", "variance_radius",
+        "mean_valence", "variance_valence",
+        "mean_melting_point", "variance_melting_point",
+        "mean_ionization_energy", "variance_ionization_energy"
+    ]
     
-    logger.info(f"Loading data from {data_path}")
-    try:
-        df = pd.read_csv(data_path)
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        raise
+    # Extract RF importances
+    rf_importances = extract_rf_importances(models['rf'], feature_cols)
     
-    # Prepare features and target
-    feature_cols = [col for col in df.columns if col not in ['formation_energy', 'material_id', 'structure_id']]
-    if not feature_cols:
-        raise ValueError("No feature columns found in dataset.")
-    
+    # Calculate permutation importance
     X = df[feature_cols]
     y = df['formation_energy']
+    perm_importances = calculate_permutation_importance(models['rf'], X, y)
     
-    # 1. Extract RF Importances
-    logger.info("Extracting Random Forest importances...")
-    rf_model = models.get('random_forest')
-    if rf_model is None:
-        raise ValueError("Random Forest model not found in trained_models.pkl")
+    # Validate correlation
+    r, passed = validate_correlation(rf_importances, perm_importances)
     
-    rf_importances = extract_rf_importances(rf_model, feature_cols)
-    
-    # 2. Calculate Permutation Importance
-    logger.info("Calculating Permutation Importance...")
-    perm_importances = calculate_permutation_importance(rf_model, X, y, feature_cols)
-    
-    # 3. Validate Correlation
-    logger.info("Validating correlation between methods...")
-    corr = validate_correlation(rf_importances, perm_importances)
-    logger.info(f"Correlation (r) between RF and Permutation importance: {corr:.4f}")
-    
-    if corr < CORRELATION_THRESHOLD:
-        logger.warning(f"Correlation {corr:.4f} is below threshold {CORRELATION_THRESHOLD}. Features may be unstable.")
-    
-    # 4. Rank Features
-    logger.info("Ranking features...")
+    # Rank features
     ranked_features = rank_features(rf_importances)
     
-    # 5. Calculate VIF (Multi-Collinearity Check)
-    logger.info("Calculating Variance Inflation Factor (VIF) for multi-collinearity...")
-    vif_scores = calculate_vif(X)
+    # Calculate VIF
+    vif_scores = calculate_vif(df, feature_cols)
     
-    # Check for high VIF
-    high_vif_features = {k: v for k, v in vif_scores.items() if v > VIF_THRESHOLD}
-    if high_vif_features:
-        logger.warning(f"High VIF detected (> {VIF_THRESHOLD}) for features: {list(high_vif_features.keys())}")
-    else:
-        logger.info(f"No features with VIF > {VIF_THRESHOLD} detected.")
-    
-    # 6. Save Outputs
-    # Save VIF scores
-    logger.info(f"Saving VIF scores to {vif_output_path}")
-    with open(vif_output_path, 'w') as f:
-        json.dump(vif_scores, f, indent=2)
-    
-    # Also save other relevant outputs if not already done by previous tasks
-    # (Ensuring idempotency and completeness)
-    
-    # Save permutation importance and correlation
-    perm_output_path = evaluation_dir / 'permutation_importance.json'
-    with open(perm_output_path, 'w') as f:
-        json.dump({
-            "correlation_r": corr,
-            "permutation_scores": perm_importances
-        }, f, indent=2)
-    
-    # Save feature ranking
-    ranking_output_path = evaluation_dir / 'feature_ranking.json'
-    with open(ranking_output_path, 'w') as f:
+    # Save results
+    ranking_path = output_dir / "feature_ranking.json"
+    with open(ranking_path, 'w') as f:
         json.dump(ranked_features, f, indent=2)
     
-    logger.info("Feature importance and VIF analysis completed successfully.")
-    logger.info(f"VIF output saved to: {vif_output_path}")
+    perm_path = output_dir / "permutation_importance.json"
+    perm_data = {
+        "correlation_r": r,
+        "importance_correlation_pass": passed,
+        "permutation_importances": perm_importances
+    }
+    with open(perm_path, 'w') as f:
+        json.dump(perm_data, f, indent=2)
+    
+    vif_path = output_dir / "vif_scores.json"
+    with open(vif_path, 'w') as f:
+        json.dump(vif_scores, f, indent=2)
+    
+    logger.info("Feature importance analysis complete.")
 
 if __name__ == "__main__":
+    from utils.logging import setup_logging
+    setup_logging()
     main()

@@ -1,40 +1,95 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Metrics Schema"
-description: "Schema for model performance metrics and overfitting detection (Single Source of Truth for R²)"
-type: object
+title: "ModelMetricsSchema"
+description: "Schema for model performance metrics and execution logs."
+type: "object"
 properties:
   model_type:
-    type: string
+    type: "string"
     enum:
       - "RandomForest"
       - "GradientBoosting"
-    description: "Type of model trained"
-  r2_train:
-    type: number
-    description: "R² score on training set"
-  r2_val:
-    type: number
-    description: "R² score on validation set"
-  mae_val:
-    type: number
-    description: "Mean Absolute Error on validation set"
-  rmse_val:
-    type: number
-    description: "Root Mean Squared Error on validation set"
+    description: "Type of model trained."
+  train_r2:
+    type: "number"
+    description: "R² score on training set. Can be negative."
+  val_r2:
+    type: "number"
+    description: "R² score on validation set. Can be negative."
+  train_mae:
+    type: "number"
+    description: "Mean Absolute Error on training set."
+  val_mae:
+    type: "number"
+    description: "Mean Absolute Error on validation set."
+  train_rmse:
+    type: "number"
+    description: "Root Mean Squared Error on training set."
+  val_rmse:
+    type: "number"
+    description: "Root Mean Squared Error on validation set."
   overfitting_ratio:
-    type: ["number", "null"]
-    description: "Ratio of train_r2 to val_r2; null if val_r2 <= 0 (indicates model failure)"
+    type: "number"
+    description: "Difference between train_r2 and val_r2."
+  execution_time_seconds:
+    type: "number"
+    description: "Total execution time in seconds."
   feature_importances:
-    type: object
-    description: "Dictionary of feature names to importance scores"
+    type: "object"
+    description: "Dictionary of feature names to importance scores."
     additionalProperties:
-      type: number
+      type: "number"
+  permutation_importances:
+    type: "object"
+    description: "Dictionary of feature names to conditional permutation importance scores."
+    additionalProperties:
+      type: "number"
+  permutation_correlation:
+    type: "number"
+    description: "Correlation between tree-based and permutation importance (r)."
+  vif_scores:
+    type: "object"
+    description: "Dictionary of feature names to VIF scores."
+    additionalProperties:
+      type: "number"
+  ale_plot_paths:
+    type: "array"
+    description: "List of paths to ALE plot PNG files."
+    items:
+      type: "string"
+  ale_non_linearity_scores:
+    type: "object"
+    description: "Dictionary of feature names to non-linearity scores (|R²_quad - R²_lin|)."
+    additionalProperties:
+      type: "number"
+  statistical_tests:
+    type: "object"
+    description: "Results of paired t-tests and BH corrections."
+    additionalProperties:
+      type: "object"
+      properties:
+        p_value:
+          type: "number"
+        ci_lower:
+          type: "number"
+        ci_upper:
+          type: "number"
+        adjusted_p_value:
+          type: "number"
 required:
   - model_type
-  - r2_train
-  - r2_val
-  - mae_val
-  - rmse_val
+  - train_r2
+  - val_r2
+  - train_mae
+  - val_mae
+  - train_rmse
+  - val_rmse
   - overfitting_ratio
+  - execution_time_seconds
   - feature_importances
+  - permutation_importances
+  - permutation_correlation
+  - vif_scores
+  - ale_plot_paths
+  - ale_non_linearity_scores
+  - statistical_tests
 additionalProperties: false

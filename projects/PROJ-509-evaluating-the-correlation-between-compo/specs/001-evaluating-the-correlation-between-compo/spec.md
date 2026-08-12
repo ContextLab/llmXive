@@ -1,112 +1,71 @@
-# Feature Specification: Evaluating the Correlation Between Compositional Features and Predicted Formation Energy in Inorganic Materials
+# Specification: Evaluating the Correlation Between Compositional Features and Predicted Formation Energy in Inorganic Materials
 
-**Feature Branch**: `001-evaluating-compositional-correlation`  
-**Created**: 2023-10-27  
-**Status**: Draft  
-**Input**: User description: "Evaluating the Correlation Between Compositional Features and Predicted Formation Energy in Inorganic Materials"
+## Overview
+This project evaluates the correlation between compositional features (mean/variance of elemental properties) and predicted formation energy in inorganic materials using the MP-2020.12.1 dataset.
 
-## User Scenarios & Testing
+## Functional Requirements
 
-### User Story 1 - Data Ingestion and Descriptor Computation (Priority: P1)
+### FR-001: Data Ingestion
+The system must download the MP-2020.12.1 dataset via the MPDS API. If the API is unavailable, it must fall back to a local checksummed CSV file. If both fail, the system must raise an exception.
 
-The research pipeline MUST successfully download the Materials Project MP-2020.12.1 dataset (verified subset), filter for inorganic compounds with complete data, and compute the required compositional descriptors (mean/variance of electronegativity, atomic radius, valence electrons, melting point, first ionization energy) for every entry.
+### FR-002: Filtering
+The system must filter the dataset to include only inorganic compounds.
 
-**Why this priority**: Without a clean, computed dataset, no modeling or analysis can occur. This is the foundational step.
+### FR-003: Descriptor Computation
+The system must compute mean and variance descriptors for five elemental properties: electronegativity, radius, valence, melting point, and ionization energy.
 
-**Independent Test**: Can be fully tested by running the data ingestion script against the verified dataset source and verifying the output CSV contains a representative set of rows sufficient for statistical analysis and that all 5 descriptor columns contain non-null numeric values.
+### FR-004: Stratified Splitting
+The system must perform a stratified split of the dataset by **Chemical Family** (not crystal system) to ensure structural diversity in the validation set. The dominant element determines the family (e.g., Group 1 -> Alkali, d-block -> Transition, O-containing -> Oxide).
 
-**Acceptance Scenarios**:
+### FR-004a: Chemical Family Assignment
+The system must use a fixed set of rules to map the dominant element to a chemical family for stratification purposes.
 
-1. **Given** the verified dataset source is accessible, **When** the ingestion script executes, **Then** the output file contains a substantial set of inorganic compounds with non-missing formation energy and composition data.
-2. **Given** a compound with multiple constituent elements, **When** the descriptor computation runs, **Then** the mean and variance of electronegativity, atomic radius, valence electrons, melting point, and ionization energy are correctly calculated across the constituent elements.
-3. **Given** the dataset size (12,500 entries), **When** the computation finishes, **Then** the total memory usage does not exceed a moderate threshold and execution time is within 2 hours on a standard CPU.
+### FR-004b: Negative R² Handling
+The system must explicitly verify and record negative R² values without converting them to null or zero.
 
----
+### FR-005: Multi-Collinearity Check
+The system must perform a Variance Inflation Factor (VIF) check on descriptors to diagnose stability.
 
-### User Story 2 - Model Training and Validation (Priority: P2)
+### FR-006: Feature Importance Validation
+The system must validate feature importances using permutation importance and calculate correlation with tree-based importances.
 
-The system MUST train a Random Forest regressor (max_depth=20, 200 trees) and a Gradient Boosting regressor (estimators) on the training split, evaluate them on the validation split, and output performance metrics (R², MAE, RMSE).
-
-**Why this priority**: This delivers the core predictive capability required to answer the research question. Without valid models, feature importance cannot be determined.
-
-**Independent Test**: Can be tested by training both models on the prepared dataset and verifying that the validation R² score is calculated and stored, and that the models do not crash due to memory or CPU constraints.
-
-**Acceptance Scenarios**:
-
-1. **Given** the 80/20 stratified split by Chemical Family, **When** the Random Forest model is trained, **Then** it completes within 3 hours on a 2-core CPU runner without GPU acceleration.
-2. **Given** the trained models, **When** evaluated on the validation set, **Then** the system outputs R², MAE, and RMSE metrics for both models, including negative values if the model performs worse than a mean predictor.
-3. **Given** the stratified split by Chemical Family, **When** the model is trained, **Then** the distribution of crystal systems in the validation set matches the training set with a Total Variation Distance ≤ 0.05.
-
----
-
-### User Story 3 - Feature Importance Ranking and Sensitivity Analysis (Priority: P3)
-
-The system MUST extract feature importances from the Random Forest model, validate rankings via permutation importance, and perform a sensitivity analysis on the top 3 features by generating Accumulated Local Effects (ALE) Plots to visualize non-linear relationships.
-
-**Why this priority**: This addresses the specific research gap (ranking descriptors) and ensures the findings are robust and methodologically sound.
-
-**Independent Test**: Can be tested by running the analysis script and verifying that a ranked list of 5+ features is produced, and that a sensitivity report (ALE visualizations) is generated for the top 3.
-
-**Acceptance Scenarios**:
-
-1. **Given** the trained Random Forest model, **When** feature importance is extracted, **Then** the top 5 descriptors are ranked by contribution magnitude.
-2. **Given** the top 3 descriptors, **When** permutation importance is calculated, **Then** the ranking remains consistent (correlation of feature importance scores ≥ 0.8) with the original tree-based importances.
-3. **Given** the top 3 features, **When** Accumulated Local Effects Plots are generated, **Then** the system outputs visualizations showing the non-linear relationship between each feature and formation energy.
-
-### Edge Cases
-
-- What happens when the dataset contains compounds with missing elemental properties (e.g., unknown electronegativity for a rare element)? The system must exclude these rows and log the count.
-- How does the system handle extreme outliers in formation energy that might skew the regression? The system must detect and optionally cap values at the extreme lower and upper percentiles before training..
-- What if the Random Forest model overfits (training R² >> validation R²)? The system must flag this discrepancy *and* only perform feature importance analysis if the validation R² exceeds a minimum threshold.
-- How does the system handle VIF scores > 10? The system must log a warning that the features are highly correlated (expected due to physical reality) but MUST NOT remove them unless explicitly configured, as physical correlation is not a statistical error.
-- What if the primary dataset source fails? The system MUST attempt to download from the fallback `matminer` source, and if that fails, load from a local cache, logging the source used.
-
-## Requirements
-
-### Functional Requirements
-
-- **FR-001**: The system MUST download the Materials Project MP-2020.12.1 dataset (verified subset) and filter for inorganic compounds with complete composition and formation energy data (See US-1). If the primary source is inaccessible, attempt to download a fallback dataset from `matminer`, and if that fails, load from a local cache, logging the source used.
-- **FR-002**: The system MUST compute mean and variance descriptors for electronegativity, atomic radius, valence electrons, melting point, and first ionization energy for every compound (See US-1).
-- **FR-003**: The system MUST train a Random Forest regressor (max_depth=20, 200 trees) and a Gradient Boosting regressor (100 estimators) using scikit-learn on a CPU-only environment (See US-2).
-- **FR-003a**: The system MUST save the trained Random Forest model to `data/evaluation/model_rf.pkl` and the Gradient Boosting model to `data/evaluation/model_gb.pkl` (See US-2).
-- **FR-004**: The system MUST evaluate model performance using R², MAE, and RMSE on a validation set (See US-2).
-- **FR-004a**: The validation set data MUST be split using Chemical Family stratification to control for compositional bias, as formation energy is driven by composition rather than just crystal structure (See US-2).
-- **FR-004b**: The system MUST record negative R² values as valid metrics indicating the model performs worse than a mean predictor, and MUST NOT set them to null (See US-2).
-- **FR-005**: The system MUST extract feature importances from the Random Forest model and validate them using permutation importance (See US-3).
-- **FR-006**: The system MUST generate Accumulated Local Effects (ALE) Plots for the top 3 features to visualize their marginal effect on predicted formation energy, writing them as PNG images to `data/evaluation/ale_*.png` (See US-3).
-- **FR-007**: The system MUST log the start and end times of each pipeline phase to enable accurate measurement of total compute time (See US-1, US-2).
-- **FR-008**: The system MUST write ALE plots as PNG images to `data/evaluation/ale_*.png` (See US-3).
-- **FR-009**: The system MUST measure the total execution time of the pipeline (ingestion, training, analysis) and record it in `data/evaluation/model_metrics.json` to verify compliance with the 6-hour limit (See US-1, US-2, US-3).
-
-### Key Entities
-
-- **Compound**: Represents an inorganic material with a specific chemical formula, formation energy, and crystal system.
-- **DescriptorSet**: A collection of computed features (mean/variance of elemental properties) associated with a specific Compound.
-- **ModelOutput**: The result of training a regression model, containing metrics (R², MAE, RMSE) and feature importance rankings.
-
-## Success Criteria
-
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The R² score of the best-performing model on the validation set is measured against the baseline of 0.0 (random guessing) to confirm predictive power (See US-2).
-- **SC-002**: The correlation between tree-based feature importance and permutation importance is measured against a threshold of r ≥ 0.8 to confirm ranking stability (See US-3).
-- **SC-003**: The Accumulated Local Effects (ALE) Plots for the top 3 features are generated and contain non-linearity score > 0.5, measured against the specified threshold to confirm robustness (See US-3).
-- **SC-004**: The total compute time for the entire pipeline (ingestion, training, analysis) is measured against the time limit of the GitHub Actions free-tier runner: ≤ 6 hours (See US-1, US-2, US-3).
-- **SC-005**: ALE images are written to `data/evaluation/ale_*.png` with valid image format (See US-3).
-- **SC-006**: Downloaded dataset size is within the expected range (verified count) and checksum matches recorded value (See US-1).
+### FR-007: Phase Timing
+The system must log start and end times for each pipeline phase.
 
 ## Assumptions
 
-- The Materials Project MP-2020.12.1 dataset verified subset contains a substantial collection of inorganic compound entries with the required formation energy and composition data (source: Q47604, https://www.wikidata.org/wiki/Q47604).
-- Elemental property databases (electronegativity, atomic radius, etc.) are available in a standard format (e.g., `pymatgen` or `matminer` built-in) and do not require external API calls during execution.
-- The GitHub Actions free-tier runner (multi-core CPU, ~7 GB RAM) is sufficient to process the verified a large-scale dataset and train the specified Random Forest and Gradient Boosting models within 6 hours.
-- The dataset does not contain significant class imbalance that would require resampling techniques beyond stratified splitting by chemical family.
-- Stratification by Chemical Family is chosen over crystal system because formation energy is primarily driven by compositional thermodynamics, and this stratification better controls for compositional bias in the training/validation split.
-- Tree-based models are appropriate for capturing the expected non-linear interactions in compositional data, rather than assuming a primarily linear relationship.
-- No GPU acceleration is available or required; all computations will be performed using CPU-only scikit-learn implementations.
-- VIF scores > 10 indicate high multicollinearity (expected due to physical correlation of elemental properties) and will trigger a warning but will not result in feature removal unless explicitly configured.
-- Negative R² values are valid indicators of model failure (worse than mean predictor) and must be recorded, not nullified.
+1. **Dataset Size**: The MP-2020.12.1 dataset contains a large-scale set of inorganic compound entries (expected > 100k rows).
+2. **Memory Constraints**: The dataset may exceed available RAM (~7GB), requiring chunked processing or stratified sampling.
+3. **Stratification Strategy**: Stratified splitting by **Chemical Family** (based on the most abundant element) is sufficient to preserve statistical power and structural diversity in the validation set.
+4. **Descriptor Relevance**: Mean and variance of elemental properties are predictive of formation energy.
+5. **Model Performance**: Random Forest and Gradient Boosting models will achieve R² > 0.0 on the validation set.
+
+## Non-Functional Requirements
+
+- **Determinism**: All random operations must use a fixed seed (RANDOM_SEED = 42).
+- **Reproducibility**: The system must be reproducible end-to-end with versioned artifacts.
+- **Error Handling**: The system must fail loudly (raise exceptions) on data fetch failures or checksum mismatches.
+- **Logging**: All pipeline phases and critical decisions must be logged.
+
+## Data Flow
+
+1. **Ingest**: Download MP-2020.12.1 -> Filter Inorganic -> Save Raw CSV
+2. **Process**: Load Raw CSV -> Compute Descriptors -> Cap Outliers -> Save Processed CSV
+3. **Train**: Load Processed CSV -> Stratified Split (Chemical Family) -> Train RF/GB -> Save Models
+4. **Evaluate**: Load Models -> Calculate Metrics (R², MAE, RMSE) -> Calculate TVD -> Save Metrics
+5. **Importance**: Load RF Model -> Extract Importances -> Calculate Permutation Importance -> Validate Correlation -> Save Rankings
+6. **Plot**: Generate ALE/PDP Plots -> Save PNGs
+7. **Summary**: Aggregate Metrics -> Generate Research Summary
+
+## Artifacts
+
+- `data/raw/mp-2020.12.1.csv`: Raw downloaded dataset
+- `data/processed/computed_descriptors.csv`: Processed dataset with descriptors
+- `data/evaluation/model_rf.pkl`: Trained Random Forest model
+- `data/evaluation/model_gb.pkl`: Trained Gradient Boosting model
+- `data/evaluation/model_metrics.json`: Model performance metrics
+- `data/evaluation/permutation_importance.json`: Permutation importance scores
+- `data/evaluation/feature_ranking.json`: Ranked features
+- `data/evaluation/vif_scores.json`: VIF scores
+- `data/evaluation/ale_*.png`: ALE plots
+- `research.md`: Final research summary
