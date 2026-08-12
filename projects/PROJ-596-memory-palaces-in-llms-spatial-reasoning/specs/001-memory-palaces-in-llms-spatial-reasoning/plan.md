@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements and evaluates a "Memory Palace" architecture for transformer models, testing the hypothesis that explicit spatial organization of episodic memories improves recall accuracy compared to non-spatial baselines. The implementation involves fine-tuning a low-bit quantized `gpt-medium` model on three sequential memory benchmarks (bAbI task 3, LAMBADA, Story Cloze) with a custom 8x8 spatial memory slot mechanism. The plan addresses the primary research question by measuring exact-match recall, interference distance (via inference-time intervention), and slot occupancy, followed by rigorous statistical analysis (paired t-tests supplemented by permutation tests) across five random seeds.
+This project implements and evaluates a "Memory Palace" architecture for transformer models, testing the hypothesis that explicit spatial organization of episodic memories improves recall accuracy compared to non-spatial baselines. The implementation involves fine-tuning a low-bit quantized `gpt-medium` model on three sequential memory benchmarks (bAbI task, LAMBADA, Story Cloze) with a custom spatial memory slot mechanism. The plan addresses the primary research question by measuring exact-match recall, interference distance (via inference-time intervention), and slot occupancy, followed by rigorous statistical analysis (paired t-tests supplemented by permutation tests) across five random seeds.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This project implements and evaluates a "Memory Palace" architecture for transfo
 **Project Type**: Research / Computational Experiment  
 **Performance Goals**: Complete 5 seeds × 3 datasets fine-tuning + evaluation within 5 hours; peak RAM < 6.0 GB. These goals are derived directly from **Constitution Principle VI** (Computational Resource Constraints).  
 **Constraints**: Must run on CPU; 4-bit quantization mandatory for model size; dataset streaming required for large subsets; automatic batch size reduction if RAM > 6 GB.  
-**Scale/Scope**: Multiple datasets, multiple seeds, 2 model variants (spatial vs. non-spatial), 1 spatial grid (8x8).
+**Scale/Scope**: Multiple datasets, multiple seeds, multiple model variants (spatial vs. non-spatial), 1 spatial grid (8x8).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

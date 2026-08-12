@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:35:14.157228Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-596-memory-palaces-in-llms-spatial-reasoning
-last_run_id: e82e8411-6aac-491c-b3ec-e8fa1f6dd1ae
+last_run_id: 3b50c95e-118e-4612-9493-8a2e41494d4b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning
 title: 'Memory Palaces in LLMs: Spatial Reasoning for Enhanced Episodic Recall'
-updated_at: '2026-08-11T04:22:10.826990Z'
+updated_at: '2026-08-12T20:12:23.727815Z'
