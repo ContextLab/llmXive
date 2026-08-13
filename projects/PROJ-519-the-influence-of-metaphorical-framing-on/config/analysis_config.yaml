@@ -1,0 +1,22 @@
+# Analysis Configuration
+# Statistical parameters and visualization settings
+
+# Statistical Testing
+statistics:
+  alpha_level: 0.05
+  bonferroni_comparisons: 3 # Battle vs Journey, Battle vs Medical, Journey vs Medical
+  anova_method: "f_oneway"
+  regression_robust_se: true # Huber-White SEs
+
+# Visualization Defaults
+visualization:
+  dpi: 300
+  style: "seaborn-v0_8-whitegrid"
+  font_family: "DejaVu Sans"
+  color_palette: ["#4C72B0", "#55A868", "#C45E49"] # Blue, Green, Red for conditions
+
+# Data Validation Thresholds
+validation:
+  attention_check_threshold: 0.8
+  identical_response_threshold: 0.95
+  vif_threshold: 5.0 # Flag if VIF >= 5.0

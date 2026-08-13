@@ -1,0 +1,16 @@
+status: none
+intent: download CAMI scale vignette dataset mental health stigma battle journey medical
+  python package dataset
+required_fields:
+- participant_id
+- condition
+- vignette_text
+- cami_total_score
+- cami_subscale_scores
+- help_seeking_intent_score
+- response_timestamp
+- age
+- gender
+cache_key: 374d504e77f33a6393c2f6e05d948798398c2612a9ba5c530f71abca9e5f55f9
+searched_at: '2026-08-13T07:42:12.276926+00:00'
+retry_count: 1

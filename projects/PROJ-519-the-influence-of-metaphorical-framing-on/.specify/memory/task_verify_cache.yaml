@@ -1,0 +1,40 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `src/` and `tests/` directories being present at
+    the repository root is provided; the only material shown is a feature specification,
+    not the filesystem structure. The implementer must add the two directories (with
+    at least placeholder files) to satisfy the task.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` folder with the required subdirectories (`raw`, `processed`,
+    `derived`) is provided; the claim lacks any artifact or file listing confirming
+    the directory structure exists.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `config/` directory being present was provided; the implementer
+    did not supply any artifact showing that the required directory exists. The task
+    remains undone until the `config/` folder is created and visible in the project.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or `black` settings) are present, nor any evidence that ruff/flake8
+    and black have been set up for the project. The provided artifacts relate only
+    to the research feature, not to the required linting/formatting setup.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw`, `data/processed`, and `data/derived`\
+    \ directories or accompanying `.gitkeep` files is present; the implementer\u2019\
+    s claim is not substantiated by any provided artifacts. The task remains undone\
+    \ until the directory structure with placeholder files is created in the repository."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No .env file, dotenv loading code, or documentation of environment variable usage
+    is present; the implementer provided no tangible artifact demonstrating that configuration
+    management for API keys and paths has been set up. The required setup is therefore
+    missing.

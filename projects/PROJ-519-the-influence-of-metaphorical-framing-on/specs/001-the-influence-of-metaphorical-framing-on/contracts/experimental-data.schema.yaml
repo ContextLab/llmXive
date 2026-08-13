@@ -1,0 +1,87 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Experimental Data Schema
+description: |
+  Schema for raw and processed experimental data from the vignette study.
+  Captures participant demographics, condition assignment, vignette exposure,
+  and outcome measures (CAMI scores, help-seeking intent).
+type: object
+required:
+  - participant_id
+  - condition
+  - vignette_version
+  - exposure_timestamp
+  - cami_scores
+  - help_seeking_intent
+  - attention_check_passed
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant.
+    pattern: "^[A-Z0-9]{8}-[0-9]{4}$"
+  condition:
+    type: string
+    enum:
+      - battle
+      - journey
+      - medical
+    description: The experimental condition assigned to the participant.
+  vignette_version:
+    type: string
+    description: Version hash or identifier of the vignette text used.
+    minLength: 1
+  exposure_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when the participant was exposed to the vignette.
+  cami_scores:
+    type: object
+    description: Scores from the Community Attitudes towards the Mentally Ill (CAMI) scale.
+    required:
+      - authoritarianism
+      - benevolence
+      - social_restriction
+      - community_mental_health_ideology
+    properties:
+      authoritarianism:
+        type: number
+        minimum: 0
+        maximum: 4
+        description: Mean score for authoritarianism subscale.
+      benevolence:
+        type: number
+        minimum: 0
+        maximum: 4
+        description: Mean score for benevolence subscale.
+      social_restriction:
+        type: number
+        minimum: 0
+        maximum: 4
+        description: Mean score for social restriction subscale.
+      community_mental_health_ideology:
+        type: number
+        minimum: 0
+        maximum: 4
+        description: Mean score for community mental health ideology subscale.
+      total_score:
+        type: number
+        description: Calculated total or composite score if applicable.
+  help_seeking_intent:
+    type: integer
+    minimum: 1
+    maximum: 7
+    description: Likert scale score for intent to seek professional help (1=Very Unlikely, 7=Very Likely).
+  attention_check_passed:
+    type: boolean
+    description: Whether the participant passed the embedded attention check question.
+  completion_time_seconds:
+    type: integer
+    minimum: 0
+    description: Total time taken to complete the survey in seconds.
+  excluded:
+    type: boolean
+    default: false
+    description: Flag indicating if the participant data should be excluded from analysis.
+  exclusion_reason:
+    type: string
+    nullable: true
+    description: Reason for exclusion if flagged (e.g., "failed_attention_check", "too_fast").

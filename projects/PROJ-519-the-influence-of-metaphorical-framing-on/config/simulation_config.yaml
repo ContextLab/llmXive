@@ -1,0 +1,68 @@
+# Simulation Configuration for Project PROJ-519
+# This file controls random seeds, synthetic data generation parameters (experimental only),
+# and sampling thresholds to ensure reproducibility and manage compute resources.
+#
+# NOTE: Synthetic data generation is ONLY for Unit Tests and Local Debugging.
+# Production pipelines MUST use real data sources and fail loudly if unavailable.
+
+# -----------------------------------------------------------------------------
+# Reproducibility
+# -----------------------------------------------------------------------------
+random_seeds:
+  # Global seed for numpy, random, and torch (if used) to ensure reproducible runs
+  global_seed: 42
+  experiment_seed: 12345
+  sampling_seed: 67890
+
+# -----------------------------------------------------------------------------
+# Synthetic Data Parameters (Experimental / Unit Testing ONLY)
+# -----------------------------------------------------------------------------
+# These parameters are used ONLY if a specific test or debug mode requests synthetic data.
+# They are NOT used by the main production pipeline.
+synthetic_data:
+  enabled: false  # Set to true ONLY for local unit tests or debugging
+  participant_count: 100
+  vignette_count: 3
+  conditions:
+    - battle
+    - journey
+    - medical
+
+# -----------------------------------------------------------------------------
+# Sampling & Performance Thresholds
+# -----------------------------------------------------------------------------
+# These settings govern how large datasets are processed to respect memory (7GB)
+# and time constraints.
+
+corpus_processing:
+  # Target size for the corpus if a full download is not feasible or for initial testing.
+  # In production, this is overridden by streaming the full real dataset.
+  corpus_size: 1000
+
+  # Maximum allowed runtime for a single processing step in seconds.
+  # If exceeded, the system should trigger a fallback to a stratified sample.
+  MAX_RUNTIME_SECONDS: 3600
+
+  # Fallback sample size if streaming exceeds time/memory limits.
+  # This must be small enough to fit in memory but large enough for statistical validity.
+  SAMPLE_SIZE_FALLBACK: 5000
+
+  # Streaming chunk size for reading large datasets
+  streaming_chunk_size: 1000
+
+# -----------------------------------------------------------------------------
+# Statistical Power Settings (for experimental design)
+# -----------------------------------------------------------------------------
+statistical_power:
+  alpha: 0.05
+  power: 0.80
+  effect_size_cohen_d: 0.5  # Medium effect size assumption
+
+# -----------------------------------------------------------------------------
+# Logging & Debugging
+# -----------------------------------------------------------------------------
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  save_to_file: true
+  log_file: "logs/simulation.log"
