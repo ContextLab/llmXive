@@ -1,10 +1,18 @@
-T001c:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `state/directory_structure.txt` file containing the recursive `ls -R` output\
-    \ is present in the provided evidence, so the required artifact does not exist\
-    \ or is empty. The task\u2019s requirement to verify that directories from T001a/T001b\
-    \ exist and are writable has not been demonstrated."
+  r: "No evidence of the required root directories (`code/`, `data/`, `tests/`, `state/`,\
+    \ `results/`, `contracts/`) is provided; the implementer did not supply any artifact\
+    \ confirming their creation. The task remains unfinished until these folders are\
+    \ shown to exist and be non\u2011empty."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or file system evidence were provided showing that the\
+    \ required sub\u2011directories (`data/raw`, `data/processed`, `data/intermediate`,\
+    \ `results/plots`) actually exist; without such artifacts the claim cannot be\
+    \ verified. The implementer must create the folders and supply proof (e.g., a\
+    \ directory tree screenshot or `ls` output)."
 T005:
   c: true
   h: 5e0ec366c7256f050d6360c6e12408dce8b24f775796d2f1678451e4b2167eba
@@ -13,22 +21,6 @@ T005:
     \ and a SHA256 hash to `state/artifact_hashes.yaml` (creating the file if absent).\
     \ The required functionality is present and the code will generate the YAML log\
     \ as specified."
-T012a:
-  c: false
-  h: 7c49e8156f42b3a50cb82f41c2680cc1503f64501414c6a34809c468aad0e9b1
-  r: "The provided `verify_studies.py` contains only placeholder functions (`pass`)\
-    \ and does not perform any API queries or write output. Additionally, the required\
-    \ `data/raw/study_manifest.json` file is missing entirely. The task\u2019s core\
-    \ requirements\u2014querying the Metabolomics Workbench, generating a list of\
-    \ study IDs with metadata, and writing valid JSON to the specified file\u2014\
-    are not satisfied."
-T012b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of downloaded raw intensity tables or phenotype metadata in `data/raw/`
-    is provided, nor any SHA256 checksum files, verification of temporal metadata
-    fields, or implementation of a `TemporalVerificationError`. The required artifacts
-    and validation steps are missing.
 T013:
   c: true
   h: 7cd8a1a3de28821a8f7b2b337b64d6c8933b320b93a966043bf3ae261f01417e
@@ -37,16 +29,6 @@ T013:
     \ when none are found, and a `results/temporal_verification.json` file is created\
     \ (even if empty of studies when no data are present). The script\u2019s logic\
     \ follows the requirement to write the artifact without halting the pipeline."
-T017:
-  c: false
-  h: 0005e1846dc5dfd926b9972e6855731f306c91a3041f8e06578513e0dd246464
-  r: "The required input `data/raw/study_manifest.json` is missing, the script `code/data/preprocess.py`\
-    \ contains only placeholder `pass` statements and never creates any output, and\
-    \ the expected output files (`data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv`,\
-    \ `data/processed/preprocess_log.json`) do not exist. Consequently no real SHA\u2011\
-    256 checksums could be recorded; the hashes in `state/artifact_hashes.yaml` are\
-    \ placeholders (e.g., the hash of an empty file). The task\u2019s requirements\
-    \ are therefore not satisfied."
 T019:
   c: false
   h: 74347121ce103044f520c0bbaa7f3ed95f75f62c5caaa66cb681a60919589a76
@@ -84,9 +66,11 @@ T029b:
     \ missing, so the narrative report cannot be generated. Additionally, the existing\
     \ `results/pathway_analysis.json` is incomplete (truncated). The task\u2019s deliverables\
     \ are therefore not satisfied."
-T031:
+T030b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, diff, lint report, or any refactored files are present; the only provided\
-    \ material is a feature specification unrelated to the \u201Ccode cleanup and\
-    \ refactoring\u201D task, so the required artifact is missing."
+  r: "No CI logs, workflow run screenshots, or any runtime/RAM metrics are provided;\
+    \ there is no artifact demonstrating that the GitHub Actions pipeline was executed\
+    \ under the free\u2011tier limits (\u22646\u202Fh, \u22647\u202FGB). The implementer\
+    \ therefore has not supplied the required evidence of a successful integration\
+    \ test."

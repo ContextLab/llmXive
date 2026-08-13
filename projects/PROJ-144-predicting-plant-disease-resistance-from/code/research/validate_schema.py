@@ -5,11 +5,10 @@ import subprocess
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-from utils.constants import PROJECT_ROOT, CONTRACTS_DIR, STATE_DIR
 from utils.io import log_artifact
 
-SCHEMA_PATH = CONTRACTS_DIR / "metadata.schema.yaml"
-OUTPUT_PATH = STATE_DIR / "schema_validation_log.txt"
+SCHEMA_PATH = Path("contracts/metadata.schema.yaml")
+OUTPUT_LOG = Path("state/schema_validation_log.txt")
 
 def load_yaml_schema(path: Path) -> Dict[str, Any]:
     """Load a YAML schema file."""
@@ -19,138 +18,113 @@ def load_yaml_schema(path: Path) -> Dict[str, Any]:
 def validate_schema_structure(schema: Dict[str, Any]) -> List[str]:
     """Basic structural validation of the schema."""
     errors = []
-    if not isinstance(schema, dict):
-        errors.append("Schema root must be a dictionary.")
-        return errors
-    
-    required_keys = ['type', 'properties']
-    for key in required_keys:
-        if key not in schema:
-            errors.append(f"Missing required key: {key}")
-    
-    if 'properties' in schema:
-        if not isinstance(schema['properties'], dict):
-            errors.append("'properties' must be a dictionary.")
-        else:
-            for prop_name, prop_def in schema['properties'].items():
-                if not isinstance(prop_def, dict):
-                    errors.append(f"Property '{prop_name}' definition must be a dictionary.")
-                elif 'type' not in prop_def:
-                    errors.append(f"Property '{prop_name}' missing 'type' definition.")
-    
+    if "$schema" not in schema:
+        errors.append("Missing '$schema' key.")
+    if "type" not in schema:
+        errors.append("Missing 'type' key at root.")
+    if "$defs" not in schema:
+        errors.append("Missing '$defs' key for definitions.")
+    else:
+        if "MetaboliteProfile" not in schema["$defs"]:
+            errors.append("Missing 'MetaboliteProfile' definition.")
+        if "ResistanceLabel" not in schema["$defs"]:
+            errors.append("Missing 'ResistanceLabel' definition.")
     return errors
 
-def validate_with_jsonschema(schema: Dict[str, Any]) -> Optional[str]:
-    """Attempt to validate the schema file itself using jsonschema."""
+def validate_with_jsonschema(schema: Dict[str, Any]) -> List[str]:
+    """Validate the schema syntax using jsonschema library."""
     try:
         import jsonschema
-        # We are validating the schema document against the JSON Schema meta-schema
-        # to ensure it is a valid JSON Schema definition.
-        from jsonschema import Draft7Validator
-        validator = Draft7Validator(schema)
-        errors = list(validator.iter_errors(schema))
-        if errors:
-            return f"jsonschema validation failed:\n" + "\n".join([str(e) for e in errors])
-        return None
+        # Validate the schema itself against the meta-schema
+        jsonschema.validate(schema, jsonschema.Draft7Validator.META_SCHEMA)
+        return []
     except ImportError:
-        return "jsonschema library not installed, skipping meta-validation."
+        return ["jsonschema library not installed. Install with: pip install jsonschema"]
+    except jsonschema.exceptions.SchemaError as e:
+        return [f"Schema validation error: {e.message}"]
     except Exception as e:
-        return f"Error during jsonschema meta-validation: {str(e)}"
+        return [f"Unexpected error during schema validation: {e}"]
 
-def run_yamllint(path: Path) -> Optional[str]:
-    """Run yamllint on the schema file if available."""
+def run_yamllint(path: Path) -> List[str]:
+    """Run yamllint on the schema file."""
     try:
         result = subprocess.run(
-            ['yamllint', '-d', 'relaxed', str(path)],
+            ["yamllint", "-f", "parsable", str(path)],
             capture_output=True,
             text=True,
             check=False
         )
         if result.returncode != 0:
-            return f"yamllint found issues:\n{result.stdout}\n{result.stderr}"
-        return None
+            return result.stdout.splitlines()
+        return []
     except FileNotFoundError:
-        return "yamllint not installed, skipping lint check."
+        return ["yamllint not found. Install with: pip install yamllint"]
     except Exception as e:
-        return f"Error running yamllint: {str(e)}"
+        return [f"Error running yamllint: {e}"]
 
 def main():
-    """Execute schema validation and write results to state/schema_validation_log.txt."""
+    """Main entry point to validate the schema."""
     log_lines = []
-    log_lines.append(f"Schema Validation Log - {SCHEMA_PATH}")
-    log_lines.append("=" * 50)
-    
-    if not SCHEMA_PATH.exists():
-        error_msg = f"ERROR: Schema file not found at {SCHEMA_PATH}"
-        log_lines.append(error_msg)
-        log_lines.append("Validation FAILED.")
-        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        OUTPUT_PATH.write_text("\n".join(log_lines))
-        print("\n".join(log_lines))
-        return 1
+    log_lines.append(f"Validating schema: {SCHEMA_PATH}")
+    log_lines.append("-" * 40)
 
+    if not SCHEMA_PATH.exists():
+        log_lines.append(f"ERROR: Schema file not found at {SCHEMA_PATH}")
+        OUTPUT_LOG.write_text("\n".join(log_lines))
+        sys.exit(1)
+
+    # 1. Load YAML
     try:
         schema = load_yaml_schema(SCHEMA_PATH)
-        log_lines.append(f"Successfully loaded YAML from {SCHEMA_PATH}")
-    except yaml.YAMLError as e:
-        error_msg = f"ERROR: Failed to parse YAML: {e}"
-        log_lines.append(error_msg)
-        log_lines.append("Validation FAILED.")
-        OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        OUTPUT_PATH.write_text("\n".join(log_lines))
-        print("\n".join(log_lines))
-        return 1
+        log_lines.append("YAML loaded successfully.")
+    except Exception as e:
+        log_lines.append(f"ERROR: Failed to load YAML: {e}")
+        OUTPUT_LOG.write_text("\n".join(log_lines))
+        sys.exit(1)
 
-    # 1. Structural Check
-    struct_errors = validate_schema_structure(schema)
-    if struct_errors:
-        log_lines.append("Structural Validation FAILED:")
-        for err in struct_errors:
+    # 2. Check Structure
+    structural_errors = validate_schema_structure(schema)
+    if structural_errors:
+        log_lines.append("Structural validation failed:")
+        for err in structural_errors:
             log_lines.append(f"  - {err}")
     else:
-        log_lines.append("Structural Validation: PASSED")
+        log_lines.append("Structural validation passed.")
 
-    # 2. JSON Schema Meta-Validation
-    jsonschema_result = validate_with_jsonschema(schema)
-    if jsonschema_result:
-        if "not installed" in jsonschema_result:
-            log_lines.append(f"jsonschema check: SKIPPED ({jsonschema_result})")
-        else:
-            log_lines.append(f"jsonschema Meta-Validation FAILED:")
-            log_lines.append(jsonschema_result)
+    # 3. Validate with jsonschema
+    jsonschema_errors = validate_with_jsonschema(schema)
+    if jsonschema_errors:
+        log_lines.append("JSON Schema validation failed:")
+        for err in jsonschema_errors:
+            log_lines.append(f"  - {err}")
     else:
-        log_lines.append("jsonschema Meta-Validation: PASSED")
+        log_lines.append("JSON Schema validation passed.")
 
-    # 3. YAML Linting
-    yamllint_result = run_yamllint(SCHEMA_PATH)
-    if yamllint_result:
-        if "not installed" in yamllint_result:
-            log_lines.append(f"yamllint check: SKIPPED ({yamllint_result})")
-        else:
-            log_lines.append(f"yamllint check: ISSUES FOUND")
-            log_lines.append(yamllint_result)
+    # 4. Run yamllint
+    yamllint_errors = run_yamllint(SCHEMA_PATH)
+    if yamllint_errors:
+        log_lines.append("Yamllint found issues:")
+        for err in yamllint_errors:
+            log_lines.append(f"  - {err}")
     else:
-        log_lines.append("yamllint check: PASSED")
+        log_lines.append("Yamllint passed.")
 
-    # Final Status
-    log_lines.append("=" * 50)
-    if not struct_errors and (not jsonschema_result or "not installed" in jsonschema_result):
-        log_lines.append("OVERALL STATUS: VALID")
-        log_lines.append("The schema file is syntactically correct and structurally sound.")
+    log_lines.append("-" * 40)
+    if structural_errors or jsonschema_errors or yamllint_errors:
+        log_lines.append("VALIDATION RESULT: FAILED")
+        print("Validation FAILED. Check state/schema_validation_log.txt")
     else:
-        log_lines.append("OVERALL STATUS: INVALID")
-        log_lines.append("The schema file contains errors or warnings.")
+        log_lines.append("VALIDATION RESULT: PASSED")
+        print("Validation PASSED. See state/schema_validation_log.txt")
 
-    # Write Output
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    output_text = "\n".join(log_lines)
-    OUTPUT_PATH.write_text(output_text)
+    # Write log
+    OUTPUT_LOG.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_LOG.write_text("\n".join(log_lines))
     
-    # Log artifact
-    log_artifact(OUTPUT_PATH, "schema_validation_log")
-
-    print(output_text)
-    return 0
+    # Log artifact hash
+    from utils.io import compute_file_hash
+    hash_val = compute_file_hash(str(OUTPUT_LOG))
+    log_artifact(str(OUTPUT_LOG), hash_val)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,40 +1,83 @@
+"""
+Unit tests for the verify_structure module.
+"""
 import os
-import pytest
-from pathlib import Path
 import tempfile
-import shutil
+from pathlib import Path
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Import the functions to test
-from setup.verify_structure import check_directory_writable, REQUIRED_DIRS, PROJECT_ROOT
+from setup.verify_structure import check_directory_writable, run_ls_recursive
 
-class TestVerifyStructure:
-    
-    def test_check_directory_writable_existing(self, tmp_path):
-        """Test that an existing, writable directory returns True."""
+class TestCheckDirectoryWritable:
+    def test_existing_writable_directory(self, tmp_path):
+        """Test that an existing writable directory returns True."""
         test_dir = tmp_path / "test_dir"
         test_dir.mkdir()
+        
         assert check_directory_writable(test_dir) is True
 
-    def test_check_directory_writable_nonexistent(self, tmp_path):
+    def test_nonexistent_directory(self, tmp_path):
         """Test that a non-existent directory returns False."""
-        test_dir = tmp_path / "nonexistent"
-        assert check_directory_writable(test_dir) is False
+        non_existent = tmp_path / "non_existent"
+        
+        assert check_directory_writable(non_existent) is False
 
-    def test_check_directory_writable_file_instead_of_dir(self, tmp_path):
-        """Test that a path pointing to a file returns False."""
+    def test_file_instead_of_directory(self, tmp_path):
+        """Test that a file path returns False."""
         test_file = tmp_path / "test_file.txt"
         test_file.touch()
+        
         assert check_directory_writable(test_file) is False
 
-    def test_required_dirs_constant(self):
-        """Test that REQUIRED_DIRS is a non-empty list."""
-        assert isinstance(REQUIRED_DIRS, list)
-        assert len(REQUIRED_DIRS) > 0
-        assert "code" in REQUIRED_DIRS
-        assert "data/raw" in REQUIRED_DIRS
-        assert "tests" in REQUIRED_DIRS
+    @patch('pathlib.Path.touch')
+    def test_unwritable_directory(self, mock_touch, tmp_path):
+        """Test that an unwritable directory returns False."""
+        test_dir = tmp_path / "unwritable"
+        test_dir.mkdir()
+        
+        mock_touch.side_effect = PermissionError("Permission denied")
+        
+        assert check_directory_writable(test_dir) is False
 
-    def test_project_root_exists(self):
-        """Test that PROJECT_ROOT is a valid Path object."""
-        assert isinstance(PROJECT_ROOT, Path)
-        assert PROJECT_ROOT.exists()
+class TestRunLsRecursive:
+    def test_creates_output_file(self, tmp_path):
+        """Test that run_ls_recursive creates the output file."""
+        output_path = tmp_path / "output.txt"
+        
+        with patch('setup.verify_structure.PROJECT_ROOT', tmp_path):
+            result = run_ls_recursive(output_path)
+        
+        assert result is True
+        assert output_path.exists()
+        assert output_path.stat().st_size > 0
+
+    def test_output_contains_directories(self, tmp_path):
+        """Test that the output file contains directory listings."""
+        # Create some test directories
+        (tmp_path / "test1").mkdir()
+        (tmp_path / "test1" / "subdir").mkdir()
+        (tmp_path / "test2").mkdir()
+        
+        output_path = tmp_path / "output.txt"
+        
+        with patch('setup.verify_structure.PROJECT_ROOT', tmp_path):
+            run_ls_recursive(output_path)
+        
+        with open(output_path, 'r') as f:
+            content = f.read()
+        
+        assert "test1" in content
+        assert "test2" in content
+        assert "subdir" in content
+
+    def test_invalid_output_path(self, tmp_path):
+        """Test handling of invalid output path."""
+        invalid_path = tmp_path / "nonexistent_dir" / "output.txt"
+        
+        with patch('setup.verify_structure.PROJECT_ROOT', tmp_path):
+            result = run_ls_recursive(invalid_path)
+        
+        # Should create parent directories
+        assert result is True
+        assert invalid_path.exists()

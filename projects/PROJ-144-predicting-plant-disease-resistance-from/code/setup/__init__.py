@@ -1,1 +1,3 @@
-# Setup package
+"""
+Setup module for project initialization.
+"""

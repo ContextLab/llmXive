@@ -1,33 +1,42 @@
-$schema: http://json-schema.org/draft-07/schema#
-type: object
-properties:
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metabolomics Metadata Schema"
+type: "object"
+$defs:
   MetaboliteProfile:
-    type: object
+    type: "object"
     properties:
       sample_id:
-        type: string
+        type: "string"
       InChIKey:
-        type: string
+        type: "string"
       normalized_intensity:
-        type: number
+        type: "number"
       study_id:
-        type: string
+        type: "string"
     required:
-      - sample_id
-      - InChIKey
-      - normalized_intensity
+      - "sample_id"
+      - "InChIKey"
+      - "normalized_intensity"
   ResistanceLabel:
-    type: object
+    type: "object"
     properties:
       germplasm_id:
-        type: string
+        type: "string"
       assay_score:
-        type: number
+        type: "number"
       measurement_method:
-        type: string
+        type: "string"
       harmonized_score:
-        type: number
+        type: "number"
     required:
-      - germplasm_id
-      - assay_score
-      - harmonized_score
+      - "germplasm_id"
+      - "assay_score"
+      - "harmonized_score"
+properties:
+  metabolite_profile:
+    $ref: "#/$defs/MetaboliteProfile"
+  resistance_label:
+    $ref: "#/$defs/ResistanceLabel"
+required:
+  - "metabolite_profile"
+  - "resistance_label"

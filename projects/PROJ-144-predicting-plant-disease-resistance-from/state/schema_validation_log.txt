@@ -1,14 +1,9 @@
-Schema Validation Report
-Schema: contracts/output.schema.yaml
-Timestamp: 0
-==================================================
-
-Running yamllint...
-PASSED: No yamllint issues found.
-
-Validating with jsonschema...
-PASSED: Schema structure is valid.
-PASSED: Schema compiles successfully.
-
-==================================================
-Validation Complete
+Validating schema: contracts/output.schema.yaml
+--------------------------------------------------
+Schema loaded successfully.
+yamllint passed.
+yamllint: PASSED
+Structure validation: PASSED
+No sample data provided for validation. Schema structure check only.
+JSON Schema validity: PASSED
+Final Status: VALIDATION SUCCESSFUL

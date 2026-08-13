@@ -1,3 +1,7 @@
+"""
+Verify that all project directories created in T001a/T001b exist and are writable.
+Generates state/directory_structure.txt with the recursive directory listing.
+"""
 import os
 import sys
 import subprocess
@@ -8,136 +12,129 @@ from utils.constants import ensure_dirs, PROJECT_ROOT
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('state/verify_structure.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
 def check_directory_writable(dir_path: Path) -> bool:
     """
-    Check if a directory exists and is writable.
+    Check if a directory exists and is writable by attempting to create a temporary file.
     
     Args:
         dir_path: Path to the directory to check
         
     Returns:
-        bool: True if directory exists and is writable, False otherwise
+        True if directory exists and is writable, False otherwise
     """
+    if not dir_path.exists():
+        logger.error(f"Directory does not exist: {dir_path}")
+        return False
+    
+    if not dir_path.is_dir():
+        logger.error(f"Path exists but is not a directory: {dir_path}")
+        return False
+    
+    test_file = dir_path / ".write_test"
     try:
-        # Check if directory exists
-        if not dir_path.exists():
-            logger.error(f"Directory does not exist: {dir_path}")
-            return False
-        
-        # Check if it's a directory
-        if not dir_path.is_dir():
-            logger.error(f"Path is not a directory: {dir_path}")
-            return False
-        
-        # Check writability by attempting to create a temporary file
-        test_file = dir_path / ".write_test"
-        try:
-            test_file.touch()
-            test_file.unlink()
-            logger.info(f"Directory is writable: {dir_path}")
-            return True
-        except (OSError, PermissionError) as e:
-            logger.error(f"Directory is not writable: {dir_path} - {e}")
-            return False
-    except Exception as e:
-        logger.error(f"Error checking directory {dir_path}: {e}")
+        test_file.touch()
+        test_file.unlink()
+        logger.info(f"Directory writable: {dir_path}")
+        return True
+    except (OSError, PermissionError) as e:
+        logger.error(f"Directory not writable: {dir_path} - {str(e)}")
         return False
 
-def run_ls_recursive(base_path: Path, output_file: Path) -> bool:
+def run_ls_recursive(output_path: Path) -> bool:
     """
-    Run 'ls -R' recursively on a directory and capture output to a file.
+    Run 'find . -type d | sort' and write output to the specified file.
     
     Args:
-        base_path: Root directory to start listing from
-        output_file: Path to the output file to write the listing
+        output_path: Path where the directory structure should be written
         
     Returns:
-        bool: True if successful, False otherwise
+        True if successful, False otherwise
     """
     try:
-        logger.info(f"Running 'ls -R' on {base_path} and writing to {output_file}")
-        
         # Ensure output directory exists
-        output_file.parent.mkdir(parents=True, exist_ok=True)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Run ls -R command
+        # Run find command to get all directories
         result = subprocess.run(
-            ['ls', '-R', str(base_path)],
+            ["find", ".", "-type", "d", "|", "sort"],
+            shell=True,
             capture_output=True,
             text=True,
-            check=True
+            cwd=str(PROJECT_ROOT)
         )
         
+        if result.returncode != 0:
+            logger.error(f"find command failed: {result.stderr}")
+            return False
+        
         # Write output to file
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_path, 'w', encoding='utf-8') as f:
             f.write(result.stdout)
         
-        logger.info(f"Directory structure successfully written to {output_file}")
+        logger.info(f"Directory structure written to {output_path}")
         return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Command 'ls -R' failed: {e}")
-        logger.error(f"stderr: {e.stderr}")
-        return False
+        
     except Exception as e:
-        logger.error(f"Error running ls -R: {e}")
+        logger.error(f"Error running ls recursive: {str(e)}")
         return False
 
 def main():
     """
-    Main function to verify directory structure created in T001a/T001b.
-    
-    This function:
-    1. Ensures all required directories exist (via ensure_dirs from constants)
-    2. Checks that each directory is writable
-    3. Runs 'ls -R' to capture the directory structure
-    4. Writes the output to state/directory_structure.txt
+    Main function to verify directory structure and generate listing.
     """
-    logger.info("Starting directory structure verification (T001c)")
+    logger.info("Starting directory structure verification...")
     
-    # Ensure all directories exist
-    logger.info("Ensuring directory structure exists...")
-    ensure_dirs()
-    
-    # List of required directories to verify
-    required_dirs = [
-        PROJECT_ROOT / "code",
-        PROJECT_ROOT / "data",
-        PROJECT_ROOT / "data" / "raw",
-        PROJECT_ROOT / "data" / "processed",
-        PROJECT_ROOT / "data" / "intermediate",
-        PROJECT_ROOT / "tests",
-        PROJECT_ROOT / "state",
-        PROJECT_ROOT / "results",
-        PROJECT_ROOT / "results" / "plots",
-        PROJECT_ROOT / "contracts"
+    # Expected directories from T001a and T001b
+    expected_dirs = [
+        "code", "data", "tests", "state", "results", "contracts",
+        "data/raw", "data/processed", "data/intermediate", "results/plots"
     ]
     
-    # Check each directory
     all_writable = True
-    for dir_path in required_dirs:
+    for dir_name in expected_dirs:
+        dir_path = PROJECT_ROOT / dir_name
         if not check_directory_writable(dir_path):
             all_writable = False
-            logger.error(f"FAILED: Directory check failed for {dir_path}")
-        else:
-            logger.info(f"PASSED: Directory check passed for {dir_path}")
     
     if not all_writable:
-        logger.error("One or more directories are missing or not writable. Aborting.")
+        logger.error("Some directories are missing or not writable. Aborting.")
         sys.exit(1)
     
-    # Run ls -R and capture output
-    output_file = PROJECT_ROOT / "state" / "directory_structure.txt"
-    if not run_ls_recursive(PROJECT_ROOT, output_file):
-        logger.error("Failed to generate directory structure listing.")
+    # Generate directory structure file
+    output_path = PROJECT_ROOT / "state" / "directory_structure.txt"
+    if not run_ls_recursive(output_path):
+        logger.error("Failed to generate directory structure file.")
+        sys.exit(1)
+    
+    # Verify output file is non-empty
+    if not output_path.exists() or output_path.stat().st_size == 0:
+        logger.error("Directory structure file is empty or missing.")
+        sys.exit(1)
+    
+    # Verify expected directories are in the output
+    with open(output_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    missing_dirs = []
+    for dir_name in expected_dirs:
+        if dir_name not in content:
+            missing_dirs.append(dir_name)
+    
+    if missing_dirs:
+        logger.error(f"Expected directories missing from output: {missing_dirs}")
         sys.exit(1)
     
     logger.info("Directory structure verification completed successfully.")
-    logger.info(f"Output written to: {output_file}")
-    print(f"Directory structure verification complete. Output: {output_file}")
+    logger.info(f"Output written to: {output_path}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

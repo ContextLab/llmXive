@@ -1,53 +1,69 @@
 """
-Task T001b: Create sub-directories for the project data and results structure.
-
-Creates the following directories:
-- data/raw
-- data/processed
-- data/intermediate
-- results/plots
+Module to create required subdirectories for the plant disease resistance project.
+Implements task T001b.
 """
 import os
 import sys
 from pathlib import Path
 
-# Define the project root (assuming script is run from root or code/setup)
-# We look for a 'data' or 'results' folder to anchor, otherwise assume current dir
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Import constants from the existing utility module
+from utils.constants import (
+    PROJECT_ROOT,
+    DATA_RAW_DIR,
+    DATA_PROCESSED_DIR,
+    DATA_INTERMEDIATE_DIR,
+    RESULTS_PLOTS_DIR
+)
 
 def create_subdirectories():
-    """Create the required sub-directories."""
-    dirs_to_create = [
-        PROJECT_ROOT / "data" / "raw",
-        PROJECT_ROOT / "data" / "processed",
-        PROJECT_ROOT / "data" / "intermediate",
-        PROJECT_ROOT / "results" / "plots",
-    ]
-
-    created_count = 0
-    for dir_path in dirs_to_create:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
+    """
+    Create the required subdirectories for data and results.
     
-    print(f"Total directories created/verified: {len(dirs_to_create)}")
-    return True
+    Creates:
+    - data/raw
+    - data/processed
+    - data/intermediate
+    - results/plots
+    
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
+    """
+    directories_to_create = [
+        DATA_RAW_DIR,
+        DATA_PROCESSED_DIR,
+        DATA_INTERMEDIATE_DIR,
+        RESULTS_PLOTS_DIR
+    ]
+    
+    success = True
+    for dir_path in directories_to_create:
+        try:
+            # Ensure the directory exists (creates parent dirs if needed)
+            Path(dir_path).mkdir(parents=True, exist_ok=True)
+            # Verify it's a directory and writable
+            if not Path(dir_path).is_dir():
+                print(f"ERROR: {dir_path} was created but is not a directory.")
+                success = False
+            elif not os.access(dir_path, os.W_OK):
+                print(f"ERROR: {dir_path} is not writable.")
+                success = False
+            else:
+                print(f"SUCCESS: Created/verified directory: {dir_path}")
+        except Exception as e:
+            print(f"ERROR: Failed to create {dir_path}: {e}")
+            success = False
+    
+    return success
 
 def main():
-    """Entry point for the script."""
-    try:
-        success = create_subdirectories()
-        if success:
-            print("T001b: Sub-directories successfully created.")
-            sys.exit(0)
-        else:
-            print("T001b: Failed to create sub-directories.")
-            sys.exit(1)
-    except Exception as e:
-        print(f"Error during directory creation: {e}")
+    """Main entry point for script execution."""
+    print(f"Creating subdirectories for project at: {PROJECT_ROOT}")
+    success = create_subdirectories()
+    if success:
+        print("All subdirectories created successfully.")
+        sys.exit(0)
+    else:
+        print("Failed to create one or more subdirectories.")
         sys.exit(1)
 
 if __name__ == "__main__":
