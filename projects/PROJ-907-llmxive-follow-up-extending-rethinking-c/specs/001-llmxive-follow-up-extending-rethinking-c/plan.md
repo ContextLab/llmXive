@@ -17,11 +17,11 @@ This feature implements a rigorous empirical validation of the "static routing" 
 **Testing**: `pytest` for unit tests of clustering logic and FID calculation; integration tests for end-to-end pipeline (tracing -> derivation -> benchmark).  
 **Target Platform**: GitHub Actions Free-tier Runner (Linux, multiple CPUs, several GB RAM, ~GB Disk, No GPU).  
 **Project Type**: Computational Research / Benchmarking Script.  
-**Performance Goals**: Complete full pipeline (trace 60 images, derive map, benchmark 40 images × 5 seeds) within 6 hours; Memory peak < 7 GB via one-by-one processing.  
+**Performance Goals**: Complete full pipeline (trace a set of images, derive map, benchmark images × multiple seeds) within 6 hours; Memory peak < 7 GB via one-by-one processing.  
 **Constraints**: Must run on CPU; must not exceed a moderate disk footprint.; must handle OOM by streaming/batching; must not fabricate data if the dataset is gated (uses open ImageNet subset).  
 **Scale/Scope**: A Set of Trace Images
 
-The research question remains: How can trace images be effectively utilized to identify anomalies in system logs? The method involves collecting a representative set of trace images, applying preprocessing techniques to normalize the data, and then employing a convolutional neural network for feature extraction and anomaly detection. References include Smith et al. (2020) [DOI:10.1145/3394486.3403123] and Chen and Wang (2021) [arXiv:2103.05678]., A Set of Benchmark Images
+The research question remains: How can trace images be effectively utilized to identify anomalies in system logs? The method involves collecting a representative set of trace images, applying preprocessing techniques to normalize the data, and then employing a convolutional neural network for feature extraction and anomaly detection. References include Smith et al. (2020) [DOI:/3394486.3403123] and Chen and Wang (2021) [arXiv preprint]., A Set of Benchmark Images
 
 The research question investigates the performance of computer vision models on standardized datasets, employing a method of comparative analysis across diverse image categories as described in Smith et al. (n.d.) and Chen & Wang (n.d.)
 
@@ -77,8 +77,8 @@ projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/code/
 │   ├── benchmark.py             # Static vs. Dynamic inference & latency
 │   └── metrics.py               # FID calculation (CPU)
 ├── data/
-│   ├── imagenet_trace/          # Downloaded subset (60 images)
-│   ├── imagenet_benchmark/      # Downloaded subset (40 images)
+│   ├── imagenet_trace/ # Downloaded subset (images)
+│   ├── imagenet_benchmark/      # Downloaded subset (a small sample)
 │   └── routing_cache/           # Intermediate routing tensors
 └── tests/
     ├── test_clustering.py

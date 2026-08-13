@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1145/3394486.3403123
   verified_at: '2026-07-15T08:22:24.823752Z'
-- artifact_hash: 14732b9ffae9a0b15629e60416c42bdaf8c3fbc7ed552c18522fd7ee008c7603
+- artifact_hash: d190559e427dfb9d0960158a26e1702865d21078d6f0297f04f8fe9b43d83155
   artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-11T14:21:27.441611Z'
+  verified_at: '2026-08-13T14:14:32.245847Z'

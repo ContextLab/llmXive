@@ -65,13 +65,13 @@
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load a pre-trained SiT-XL/2 model with DAR enabled and run inference on a subset of 100 ImageNet validation images with a fixed 100-timestep schedule, recording routing weight matrices for every block at every timestep (See US-1).
+- **FR-001**: System MUST load a pre-trained SiT-XL model with DAR enabled and run inference on a subset of ImageNet validation images with a fixed timestep schedule, recording routing weight matrices for every block at every timestep. (See US-1).
 - **FR-002**: System MUST apply k-means clustering to the recorded routing vectors; if the clustering identifies < 2 clusters or a silhouette score < 0.25, the system MUST construct the static routing map as a global average of all timesteps; otherwise, it MUST average the high-probability paths within the dominant cluster (See US-1).
 - **FR-003**: System MUST replace the dynamic DAR module in the model architecture with the computed static routing weights and remove the per-timestep softmax computation overhead (See US-2).
-- **FR-004**: System MUST measure the time-to-solution for 100 steps for both the dynamic baseline and the static approximation on a standard CPU (e.g., Intel Xeon or Apple M2) and report the percentage reduction (See US-2).
+- **FR-004**: System MUST measure the time-to-solution for a representative sequence of steps for both the dynamic baseline and the static approximation on a standard CPU (e.g., Intel Xeon or Apple M2) and report the percentage reduction (See US-2).
 - **FR-005**: System MUST compute the Fréchet Inception Distance (FID) for generated samples using a pre-trained Inception network with weights fixed and independent of the routing weights being tested, and report the absolute difference (See US-2).
-- **FR-006**: System MUST analyze FID scores across 5 random seeds by reporting the mean and standard deviation; if a significance test is required, it MUST use a non-parametric bootstrap (1000 resamples) or explicitly document the statistical limitations of N=5 (See US-3).
-- **FR-007**: System MUST perform a sensitivity analysis by sweeping the clustering distance threshold over a concrete set (e.g., {0.01, 0.05, 0.1}) and report the variation in FID scores across the sweep (See US-3).
+- **FR-006**: System MUST analyze FID scores across multiple random seeds by reporting the mean and standard deviation; if a significance test is required, it MUST use a non-parametric bootstrap (1000 resamples) or explicitly document the statistical limitations of N=5 (See US-3).
+- **FR-007**: System MUST perform a sensitivity analysis by sweeping the clustering distance threshold over a representative range of values and report the variation in FID scores across the sweep. (See US-3).
 
 ### Key Entities
 
