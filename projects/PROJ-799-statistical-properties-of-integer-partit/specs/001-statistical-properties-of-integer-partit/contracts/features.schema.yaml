@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DensityFeatureSet"
+description: "Schema for density features and residuals"
+type: "object"
+properties:
+  n:
+    type: "integer"
+    minimum: 1
+    description: "The integer"
+  R_n:
+    type: "number"
+    description: "Log-residual (must not be null)"
+  pi_n:
+    type: "integer"
+    minimum: 0
+    description: "Prime-counting function π(n)"
+  inv_sq_ln_n:
+    type: "number"
+    exclusiveMinimum: 0
+    description: "Inverse squared logarithmic density 1/(ln n)^2"
+  dist_nearest_prime:
+    type: "integer"
+    minimum: 0
+    description: "Distance to nearest prime (absolute difference)"
+  sin_log_n:
+    type: "number"
+    description: "Sin(log n)"
+  cos_log_n:
+    type: "number"
+    description: "Cos(log n)"
+  gap_variance:
+    type: "number"
+    description: "Variance of prime gaps up to n"
+required:
+  - n
+  - R_n
+  - pi_n
+  - inv_sq_ln_n
+  - dist_nearest_prime
+  - sin_log_n
+  - cos_log_n
+  - gap_variance
+additionalProperties: false

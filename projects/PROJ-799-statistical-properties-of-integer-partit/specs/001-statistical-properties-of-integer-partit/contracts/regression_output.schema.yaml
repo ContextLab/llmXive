@@ -1,51 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "RegressionOutput"
-description: "Schema for the statistical model results"
+title: "RegressionModel"
+description: "Schema for regression model results"
 type: "object"
 properties:
   coefficients:
     type: "object"
-    description: "Map of feature names to regression coefficients (or smooth term stats)"
     additionalProperties:
       type: "number"
-  p_values:
-    type: "object"
-    description: "Map of feature names to uncorrected p-values"
-    additionalProperties:
-      type: "number"
-      minimum: 0
-      maximum: 1
-  adjusted_p_values:
-    type: "object"
-    description: "Map of feature names to Bonferroni-corrected p-values"
-    additionalProperties:
-      type: "number"
-      minimum: 0
-      maximum: 1
+    description: "Model coefficients"
+  intercept:
+    type: "number"
+    description: "Model intercept"
   r_squared:
     type: "number"
-    description: "R-squared value of the model"
     minimum: 0
     maximum: 1
-  mse_cv:
+    description: "Coefficient of determination"
+  mse:
     type: "number"
-    description: "Mean Squared Error from 10-fold cross-validation"
     minimum: 0
-  model_type:
-    type: "string"
-    description: "Type of model used (e.g., 'GAM')"
-  vif_scores:
+    description: "Mean squared error (training)"
+  cv_mse:
+    type: "number"
+    minimum: 0
+    description: "Mean squared error (cross-validation)"
+  p_values:
     type: "object"
-    description: "Map of feature names to Variance Inflation Factor scores"
     additionalProperties:
       type: "number"
-      minimum: 1
+      minimum: 0
+      maximum: 1
+    description: "P-values for coefficients (corrected for autocorrelation)"
 required:
   - coefficients
-  - p_values
-  - adjusted_p_values
+  - intercept
   - r_squared
-  - mse_cv
-  - model_type
-  - vif_scores
+  - mse
+  - cv_mse
+  - p_values
 additionalProperties: false

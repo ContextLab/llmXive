@@ -23,9 +23,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 [P] Create the complete directory structure for the project: `projects/PROJ-799-statistical-properties-of-integer-partit/` and all subdirectories including `code/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/schemas/`, `tests/`, `tests/data/`, `docs/`, and `state/projects/`.
-- [X] T002 Create placeholder files: `README.md`, `.gitignore`, `requirements.txt` (empty initially), `state/projects/PROJ-799.yaml` (empty initially).
-- [ ] T003a Create `code/.flake8` configuration file for linting.
-- [ ] T003b Create `code/.black` configuration file for formatting.
+- [ ] T003a [P] Create `code/.flake8` configuration file for linting.
+- [ ] T003b [P] Create `code/.black` configuration file for formatting.
 
 ---
 
@@ -36,12 +35,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 **Note**: Tasks T004 and T005 are independent and can run in parallel. T008 and T009 depend on T004 and must be executed sequentially after T004.
 
-- [ ] T004 Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes. Use a boolean array for memory optimization. The algorithm must mark composites iteratively starting from 2. **Output**: Save the list of primes to `code/utils/primes.npy` as a **1D `np.int32` array**. **Verification**: Ensure the file exists, dtype is `int32`, and shape matches the count of primes <= 50,000.
-- [X] T005 Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem. The implementation must use the leading-order term derived from the generating function $\prod (1+q^p)$. Explicitly document the leading-order formula used in the code comments. **Note**: T005 is independent of T004 and can run in parallel.
-- [X] T006 Create `data/schemas/partition_record.schema.yaml` and `data/schemas/regression_output.schema.yaml`.
-- [X] T007 Setup `state/projects/PROJ-799.yaml` structure for checksums and versioning (keys: `artifact_hashes`, `updated_at`).
-- [X] T008 [US1] Generate Reference Data: Implement `code/generate_reference.py` to compute exact $p_{\mathcal{P}}(n)$ for **all** $n$ in the range **n in [1, 100]** using the Sieve of Eratosthenes from T004 and a simplified DP logic. **Algorithm**: Use a 1D array DP iterating only over primes <= 100. **Output**: Save the output to `tests/data/reference_values.csv` with columns `n`, `p_P(n)`. **Verification**: Ensure the file contains a dataset of non-negative integer counts. **Requires T004 to complete.**
-- [X] T009 [US1] Contract test: Implement `tests/test_partition_logic.py` to verify $p_{\mathcal{P}}(n)$ matches `tests/data/reference_values.csv` for **all** $n \in [1, 100]$. **Requires T008 to complete.**
+- [ ] T004 [P] Implement `code/utils/prime_sieve.py`: Generate primes up to 50,000 using Sieve of Eratosthenes. Use a boolean array for memory optimization. The algorithm must mark composites iteratively starting from 2. **Output**: Save the list of primes to `code/utils/primes.npy` as a **1D `np.int32` array**. **Verification**: Ensure the file exists, dtype is `int32`, and shape matches the count of primes <= 50,000.
+- [ ] T005 [P] Implement `code/utils/asymptotic_baseline.py`: Implement $Q_{as}(n)$ based on the distinct-partition variant of Meinardus' theorem. The implementation must use the leading-order term derived from the generating function $\prod (1+q^p)$. Explicitly document the leading-order formula used in the code comments. **Note**: T005 is independent of T004 and can run in parallel.
+- [ ] T006 [P] Create `data/schemas/partition_record.schema.yaml` and `data/schemas/regression_output.schema.yaml`.
+- [ ] T007 [P] Setup `state/projects/PROJ-799.yaml` structure for checksums and versioning (keys: `artifact_hashes`, `updated_at`).
+- [ ] T008 [US1] Generate Reference Data: Implement `code/generate_reference.py` to compute exact $p_{\mathcal{P}}(n)$ for **all** $n$ in the range **n in [1, 100]** using the Sieve of Eratosthenes from T004 and a simplified DP logic. **Algorithm**: Use a 1D array DP iterating only over primes <= 100. **Output**: Save the output to `tests/data/reference_values.csv` with columns `n`, `p_P(n)`. **Verification**: Ensure the file contains a dataset of non-negative integer counts. **Requires T004 to complete.**
+- [ ] T009 [US1] Contract test: Implement `tests/test_partition_logic.py` to verify $p_{\mathcal{P}}(n)$ matches `tests/data/reference_values.csv` for **all** $n \in [1, 100]$. **Requires T008 to complete.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -55,32 +54,32 @@
 
 ### Tests for User Story 1
 
-- [X] T010a [P] [US1] Integration test: Verify `generate_partitions.py` completes within 2 hours and memory < 6.5 GB in `tests/test_pipeline.py`.
-- [X] T010b [P] [US1] Time-budget test: Verify that the DP generation phase completes within 1.5 hours (derived from SC-004 total time budget of 6 hours minus estimated time for US2 and US3 phases) in `tests/test_pipeline.py`. **Implementation**: Use `pytest-timeout` decorator to enforce the 1.5-hour limit. Reference SC-004 for total budget context.
-- [X] T010c [P] [US2] Time-budget test: Verify that the feature engineering and modeling phase (US2) completes within 3.5 hours (derived from SC-004 total 6h minus 1.5h DP and 1h for US3) in `tests/test_pipeline.py`.
-- [X] T010d [P] [US3] Time-budget test: Verify that the visualization phase (US3) completes within 1 hour (derived from SC-004 total 6h minus 1.5h DP and 3.5h US2) in `tests/test_pipeline.py`.
+- [ ] T010a [P] [US1] Integration test: Verify `generate_partitions.py` completes within 2 hours and memory < 6.5 GB in `tests/test_pipeline.py`.
+- [ ] T010b [P] [US1] Time-budget test: Verify that the DP generation phase completes within 1.5 hours (derived from SC-004 total time budget of 6 hours minus estimated time for US2 and US3 phases) in `tests/test_pipeline.py`. **Implementation**: Use `pytest-timeout` decorator to enforce the 1.5-hour limit. Reference SC-004 for total budget context. **Requires T011 completion.**
+- [ ] T010c [P] [US2] Time-budget test: Verify that the feature engineering and modeling phase (US2) completes within 3.5 hours (derived from SC-004 total 6h minus 1.5h DP and 1h for US3) in `tests/test_pipeline.py`.
+- [ ] T010d [P] [US3] Time-budget test: Verify that the visualization phase (US3) completes within 1 hour (derived from SC-004 total 6h minus 1.5h DP and 3.5h US2) in `tests/test_pipeline.py`.
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/generate_partitions.py`:
+- [ ] T032 [US1] Add configuration parameter to `generate_partitions.py`: Add a `--n-max` argument using `argparse` with a default set to a configurable upper bound. (matching the plan's fixed scope). Explicitly log the chosen `n_max` to stdout at runtime. **Requires T011 to be implemented after this.**
+- [ ] T013 [US1] Validate Reference Data: Implement `tests/test_reference_validation.py` to verify `tests/data/reference_values.csv` (produced by T008) contains valid integers and correct column headers. **This task validates the reference file ONLY, not the full generation output.** **Requires T008 and T009 to complete.**
+- [ ] T011 [US1] Implement `code/generate_partitions.py`:
+ - **Create** the script `code/generate_partitions.py` from scratch.
  - Use 1D `int64` array for DP to count partitions into distinct primes.
  - Iterate primes only (skip composites) to enforce distinct prime constraint.
  - Handle edge cases ($n < 5$ where $p_{\mathcal{P}}(n)=0$) by setting count to 0.
  - Calculate $Q_{as}(n)$ using the distinct-partition variant of Meinardus' theorem as defined in the plan.
  - Clamp $Q_{as}(n)$ to a small positive lower bound to prevent log(0).
- - **Load `tests/data/reference_values.csv` (produced by T008) and assert exact integer match for all n in the specified range (SC-003).**
- - **Requires T004, T005, and T008 to complete.**
-- [X] T012 [US1] Implement `code/generate_partitions.py` data export:
+ - **Generate data for the full range of n values up to n_max (default [deferred]).**
+ - **Load `tests/data/reference_values.csv` (produced by T008) and assert exact integer match for n in the range [1, 100] ONLY (SC-003) as part of the script's execution.**
+ - **Include inline validation logic to exclude rows where `p_P(n) <= 0` or `Q_as(n) <= 0` before any log-residual calculation.**
+ - **Requires T004, T005, T008, T013, and T032 to complete.**
+- [ ] T012 [US1] Implement `code/generate_partitions.py` data export:
  - Export data to `data/raw/partitions_raw.csv` with columns: `n`, `p_P(n)`, `Q_as(n)`.
  - Generate SHA-256 checksum of the output file and update `state/projects/PROJ-799.yaml` at key `artifact_hashes.generate_partitions_raw` (format: hex string).
  - Update `state/projects/PROJ-799.yaml` key `updated_at` with current ISO timestamp.
  - **Requires T011 to complete.**
-- [ ] T013 [US1] Add validation logic to `generate_partitions.py`:
- - Implement `validate_partition_data()` function that logs a warning and **excludes** rows where `p_P(n) <= 0` or `Q_as(n) <= 0` (consistent with FR-003 and spec Edge Cases for small n).
- - Call this function before any log-residual calculation to ensure valid data flow.
- - **Requires T012 to complete.**
-- [ ] T031 [US1] **Research-Stage Revision**: Add a docstring to `generate_partitions.py` explaining the generating function $\prod_{p \in \mathbb{P}} (1+q^p)$ and explicitly distinguishing it from the unrestricted partition generating function $\prod (1-q^k)^{-1}$. **Requires T011 to complete.**
-- [ ] T032 [US1] **Research-Stage Revision**: Add a configuration parameter `--n-max` to `generate_partitions.py` using `argparse` with a default set to **50000** (matching the plan's fixed scope). Explicitly log the chosen `n_max` to stdout at runtime. **Requires T011 to complete.**
+- [ ] T031 [US1] Add documentation to `generate_partitions.py`: Add a docstring explaining the generating function $\prod_{p \in \mathbb{P}} (1+q^p)$ and explicitly distinguishing it from the unrestricted partition generating function $\prod (1-q^k)^{-1}$. **Requires T011 to complete.**
 
 **Checkpoint**: US1 functional. Data generation complete.
 
@@ -94,23 +93,23 @@
 
 ### Tests for User Story 2
 
-- [X] T014 [P] [US2] Contract test: Verify $R(n)$ calculation handles log(0) gracefully and matches expected values for sample $n$ in `tests/test_feature_engineering.py`.
-- [X] T015 [P] [US2] Integration test: Verify regression model outputs valid p-values and $R^2$ score in `tests/test_regression_model.py`.
-- [X] T021 [US2] Test: Verify Benjamini-Hochberg correction is applied correctly and p-values are adjusted in `tests/test_regression_model.py`. **Must be written and failing before T017c implementation.** **Note**: Not marked [P] as it depends on T017c implementation.
+- [ ] T014 [P] [US2] Contract test: Verify $R(n)$ calculation handles log(0) gracefully and matches expected values for sample $n$ in `tests/test_feature_engineering.py`.
+- [ ] T015 [P] [US2] Integration test: Verify regression model outputs valid p-values and $R^2$ score in `tests/test_regression_model.py`.
+- [ ] T021 [US2] Test: Verify Benjamini-Hochberg correction is applied correctly and p-values are adjusted in `tests/test_regression_model.py`. **Implementation**: Test the correction function in isolation using synthetic p-values (independent of full model output). **Note**: Must be written and failing before T017c implementation.
 
 ### Implementation for User Story 2
 
-- [X] T016a [US2] Implement `code/feature_engineering.py`:
+- [ ] T016a [US2] Implement `code/feature_engineering.py`:
  - Load `data/raw/partitions_raw.csv`.
  - Compute $R(n) = \log(p_{\mathcal{P}}(n)) - \log(Q_{as}(n))$ for valid $n$.
- - Generate features: $\pi(n)$ (via precomputed sieve), $1/\ln(n)$.
+ - Generate features: $\pi(n)$ (via precomputed sieve from T004), $1/\ln(n)$.
  - Calculate 'distance to nearest prime' as the **absolute difference to the closest prime (either smaller or larger than n)**.
  - Add oscillatory features: $\sin(\log n)$, $\cos(\log n)$ to capture periodic anomalies. **Ensure these columns are saved to `data/processed/features.csv`.**
  - Save `data/processed/features.csv`.
  - **Verify** that 'distance_to_nearest_prime', 'sin_log_n', and 'cos_log_n' are present and non-null.
  - **Requires T012 completion.**
-- [ ] T016b [US2] Validate `data/processed/features.csv`: Implement `tests/test_feature_validation.py::test_features_non_null` that asserts columns 'distance_to_nearest_prime', 'sin_log_n', and 'cos_log_n' exist and are non-null in `data/processed/features.csv`. **Requires T016a to complete.** <!-- FAILED: unspecified -->
-- [X] T017a [US2] Implement `code/regression_model.py` (Full Model):
+- [ ] T016b [US2] Validate `data/processed/features.csv`: Implement `tests/test_feature_validation.py::test_features_non_null` that asserts columns 'distance_to_nearest_prime', 'sin_log_n', and 'cos_log_n' exist and are non-null in `data/processed/features.csv`. **Requires T016a to complete.**
+- [ ] T017a [US2] Implement `code/regression_model.py` (Full Model):
  - Fit Generalized Additive Model (GAM) or Linear Regression with splines for density terms.
  - **Explicitly include oscillatory terms: `sin(log(n))`, `cos(log(n))` in the model formula as required by FR-005. This requirement applies regardless of whether GAM or Linear Regression is chosen.** Add terms: beta1*sin(log(n)) + beta2*cos(log(n)) to the linear predictor.
  - Output coefficients, p-values, $R^2$ to `data/processed/model_results.json`.
@@ -123,8 +122,8 @@
 - [ ] T017c [US2] Implement `code/regression_model.py` P-value Correction:
  - Apply **Benjamini-Hochberg correction (alpha=0.05)** to p-values (FR-005, SC-005).
  - **Wait for the combined output of T017a and T017b to be written to the JSON file before applying correction.**
+ - **Requires T017a, T017b, and T021 completion.**
  - Write corrected p-values to `data/processed/model_results.json`.
- - **Requires T017a and T017b completion.**
 - [ ] T018 [US2] Implement `docs/scope_justification.md` and update `code/regression_model.py`: Explicitly define and document the asymptotic regime (small n vs large n vs transition) for the analysis. Justify the $n_{max}=50,000$ limit as a transition region where prime gaps begin to significantly impact the density of summands, distinguishing it from the unrestricted partition regime. **Addresses Reviewer Concern: "Does the current treatment account for the fact that prime gaps create 'holes'..." and "explicitly state which asymptotic regime is being targeted".**
 
 **Checkpoint**: US2 functional. Statistical model trained and validated.
@@ -159,7 +158,7 @@
 - [ ] T026 [US3] Implement `code/visualize_results.py`:
  - Generate residual vs. fitted plot to check for homoscedasticity.
  - **Requires T024 completion.**
-- [ ] T035 [US3] **Research-Stage Revision**: In `visualize_results.py`, generate a specific plot comparing the residual trend $R(n)$ against the local prime gap size. This visualization will explicitly test the hypothesis that prime gaps (the 'holes') drive the deviation from the unrestricted partition asymptotic, addressing the core concern of the research-stage review.
+- [ ] T035 [US3] Implement `code/visualize_results.py`: Generate a specific plot comparing the residual trend $R(n)$ against the local prime gap size. This visualization will explicitly test the hypothesis that prime gaps (the 'holes') drive the deviation from the unrestricted partition asymptotic, as described in the spec's Edge Cases and US2. **Requires T024 completion.**
 
 **Checkpoint**: US3 functional. All visualizations and CV metrics ready.
 
@@ -268,4 +267,5 @@ Due to strict data dependencies (US1 -> US2 -> US3), the project follows a seque
 - **Revision Constraint**: All [P] tags have been verified against dependencies. Tasks with dependencies (T008->T009, T016a->T016b, T017c->T021, T024->T022) are no longer marked [P] if they have sequential dependencies.
 - **Revision Constraint**: T018 added to explicitly address the reviewer's concern regarding the "holes" created by prime gaps and the need to define the asymptotic regime (small n vs large n vs transition) in the documentation and code.
 - **Revision Constraint**: T025 updated to include visual overlay of prime gaps to directly address the reviewer's concern about the impact of prime gaps on the asymptotic regime.
+- **Revision Constraint**: T013 and T011 have been decoupled. T013 now validates the reference file (T008) independently. T011 creates the generation script and performs the reference assertion internally. This resolves the circular dependency and the "missing file" paradox.
 - **Important**: No downstream tasks can be marked complete until their producer tasks are verified and complete.
