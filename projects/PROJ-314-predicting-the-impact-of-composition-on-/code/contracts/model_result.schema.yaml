@@ -1,93 +1,46 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ModelResult
-description: >
-  Schema for the output of the predictive modeling pipeline (US2).
-  Represents the aggregated results of model training, evaluation, and
-  statistical significance testing.
+description: Schema for storing model evaluation results and metrics.
 type: object
 required:
-  - best_model_type
-  - best_model_mae
-  - baseline_mae
-  - is_significant
-  - r2_score
-  - stratification_report
-  - timestamp
+  - model_type
+  - mae
+  - r_squared
+  - feature_importance_ranking
+  - cv_stability_scores
 properties:
-  best_model_type:
+  model_type:
     type: string
-    description: The type of the best performing model (e.g., 'RandomForest', 'GradientBoosting').
-    enum:
-      - RandomForest
-      - GradientBoosting
-      - Baseline
-  best_model_mae:
+    description: The type of model used (e.g., 'RandomForest', 'GradientBoosting').
+  mae:
     type: number
-    description: Mean Absolute Error of the best model on the validation set.
-    minimum: 0
-  baseline_mae:
+    description: Mean Absolute Error of the model predictions.
+  r_squared:
     type: number
-    description: Mean Absolute Error of the global mean baseline predictor.
-    minimum: 0
-  is_significant:
-    type: boolean
-    description: >
-      Result of the permutation test. True if p < 0.05 AND model MAE < 0.9 * baseline MAE.
-      False otherwise.
-  r2_score:
-    type: number
-    description: R-squared coefficient of determination for the best model.
-  leakage_sufficiency:
-    type: string
-    description: >
-      Result of the leakage check (FR-005.5).
-      Values: 'Potential Leakage' (drop <= 10%) or 'Descriptors Sufficient' (drop > 10%).
-    enum:
-      - Potential Leakage
-      - Descriptors Sufficient
-  leakage_drop_percentage:
-    type: number
-    description: The percentage drop in performance when the primary_anion_cation_group feature is removed.
-    minimum: 0
-  stratification_report:
+    description: R-squared (coefficient of determination) value.
+  feature_importance_ranking:
+    type: array
+    description: List of feature names ranked by importance.
+    items:
+      type: string
+  cv_stability_scores:
     type: object
-    description: Summary of the stratified split distribution.
-    required:
-      - groups
-      - distribution_train
-      - distribution_test
+    description: Stability metrics calculated across cross-validation folds.
     properties:
-      groups:
+      mean_importance:
         type: array
         items:
-          type: string
-        description: List of unique primary_anion_cation_group values present in the data.
-      distribution_train:
-        type: object
-        additionalProperties:
-          type: integer
-        description: Count of samples per group in the training set.
-      distribution_test:
-        type: object
-        additionalProperties:
-          type: integer
-        description: Count of samples per group in the test set.
-  cross_validation_scores:
-    type: array
-    description: MAE scores from each fold of the 5-fold cross-validation.
-    items:
-      type: number
-    minItems: 5
-    maxItems: 5
-  hyperparameters:
-    type: object
-    description: The best hyperparameters found during the grid search.
-    additionalProperties: true
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the model results were generated.
-  version:
-    type: string
-    description: Version of the schema used to generate this result.
-    default: "1.0.0"
+          type: number
+      std_importance:
+        type: array
+        items:
+          type: number
+      cv_coefficient:
+        type: array
+        items:
+          type: number
+    required:
+      - mean_importance
+      - std_importance
+      - cv_coefficient
+additionalProperties: true

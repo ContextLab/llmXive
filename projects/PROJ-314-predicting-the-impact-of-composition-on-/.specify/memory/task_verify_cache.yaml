@@ -1,36 +1,43 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a created project directory (e.g.,\u202F`projects/PROJ-314-predicting-the-impact-of-composition-on-\u2026\
+    `) or any of its expected sub\u2011folders/files is provided; the claim lacks\
+    \ any tangible artifact to confirm the required structure exists."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with `[tool.black]`\
+    \ and `[tool.ruff]` sections, `.ruff.toml`, or pre\u2011commit hook definitions)\
+    \ were provided, nor any evidence that `ruff` and `black` have been set up for\
+    \ the project. The required artifacts are missing."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw/`, `data/processed/`, or `data/artifacts/`\
+    \ directories was provided; the implementer\u2019s claim lacks any tangible artifact\
+    \ or listing confirming those folders exist. The task cannot be considered fulfilled\
+    \ until the directories are created and visible in the project repository."
 T010b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No evidence of a `logs/citation_validation.log` file was provided, nor any output\
     \ showing it was created or contains entries. The required artifact is missing,\
     \ so the task\u2019s verification requirement is not satisfied."
-T016a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file was presented in `specs/001-predict-weibull-modulus/`,\
-    \ nor any excerpt of its contents. The required step\u2011by\u2011step setup,\
-    \ data fetch, and pipeline execution instructions are therefore absent, so the\
-    \ task is not satisfied."
 T016b:
-  c: true
-  h: 31ec7e8e19d022cb6caeaeee6fca54fe71975cbb684bfeee241ab8db09cf0333
-  r: "The `docs/data_gap_protocol.md` file exists (3\u202FKB) and contains detailed\
-    \ steps, halting logic, and the JSON schema for `data/reports/data_availability_report.json`\
-    \ as required. No further artifacts are needed for this documentation task."
-T016c:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `specs/001-predict-weibull-modulus/data-model.md` file (or its contents) was
-    provided; therefore the required documentation of the `CeramicEntry` and `DescriptorSet`
-    entities, their relationships, and validation rules is missing. The task is not
-    satisfied.
-T017:
+  h: e8d415f0d650d459060afce04973f5e4a8df9ad9a09a2c85bc70193dd39aea59
+  r: The `docs/data_gap_protocol.md` file is present and describes the steps and halting
+    logic, but the JSON schema for `data/reports/data_availability_report.json` is
+    cut off (truncated) and does not include the full required fields and closing
+    structure. The schema must be complete for the task to be satisfied.
+T018c:
   c: false
-  h: e3fdb7094e3d03f98bfc49f50cf185038fa3b4f9b023ae6fb929356da332139d
-  r: "The `code/ingestion.py` file does not contain a `validate_data_gap()` implementation,\
-    \ and the required `data/reports/data_availability_report.json` file is missing.\
-    \ Consequently the task\u2019s specified behavior (checking N\u202F<\u202F30,\
-    \ generating the report, logging, stderr message, and exiting) is not present."
+  h: 2c6cccc6a41cc300172034ee218ee06a60f57eeba4bb3178a9c72ac72a0b355b
+  r: The repository lacks the required `fetch_materials_project_data()` implementation
+    in `code/ingestion.py` (the shown code does not define such a function) and the
+    expected output file `data/raw/materials_project_raw.json` is absent. Both the
+    core function and its saved JSON artifact are missing, so the task is not satisfied.
 T018d:
   c: false
   h: 9f1fb6b8974abebd467f301473a323c1c82619d6a63808239b2c008ba90eaaea
@@ -38,13 +45,12 @@ T018d:
     does not parse all required columns (`sample_count`, `sintering_temp`), does not
     write the raw response to `data/raw/nist_raw.json`, and the fallback logic is
     not invoked. Moreover, the expected output file `data/raw/nist_raw.json` is missing.
-T018e:
+T018g:
   c: false
-  h: 81c9cc653cf848668d8d3ed07d09093836086da86b9ab2e47958ab0b1157b1c6
-  r: The repository lacks a `fetch_arxiv_data()` implementation in `code/ingestion.py`
-    (the shown code contains only helper functions and no such function), and the
-    required output file `data/raw/arxiv_raw.json` does not exist. Both the core function
-    and its saved result are missing, so the task is not satisfied.
+  h: 97b69e08c5aa24134dad6c553ee29ab972633ea3c02dac0bb4a00cf8d0182e86
+  r: The repository lacks the required `fetch_curated_literature_data()` implementation
+    in `code/ingestion.py`, and the expected output file `data/raw/curated_literature_raw.json`
+    does not exist. Both the function and its resulting data artifact are missing.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

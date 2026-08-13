@@ -1,95 +1,141 @@
-"""
-llmXive Research Pipeline - Code Package
-PROJ-314: Predicting the Impact of Composition on the Weibull Modulus of Ceramics
-"""
 import logging
-import sys
+import os
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
-import hashlib
 
-# Configure project logger
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
+# Ensure logs directory exists
+log_dir = Path("logs")
+log_dir.mkdir(parents=True, exist_ok=True)
 
-logger = get_logger()
+# Configure basic logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(log_dir / "pipeline.log"),
+        logging.StreamHandler()
+    ]
+)
 
-__version__ = "0.1.0"
+logger = logging.getLogger("llmXive")
 
-@dataclass
-class CeramicEntry:
+# Import config
+from .config import load_environment, initialize_config
+
+# Initialize config on import
+initialize_config()
+
+def load_env():
     """
-    Dataclass representing a single ceramic material entry.
-    Corresponds to the raw or processed row in the dataset.
+    Load environment variables from a .env file in the project root.
+    Returns True if successful, False otherwise.
     """
-    composition: str
-    weibull_modulus: Optional[float] = None
-    mean_strength: Optional[float] = None
-    standard_deviation: Optional[float] = None
-    sintering_temp: Optional[float] = None
-    sintering_time: Optional[float] = None
-    source_id: Optional[str] = None
-    raw_data: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "composition": self.composition,
-            "weibull_modulus": self.weibull_modulus,
-            "mean_strength": self.mean_strength,
-            "standard_deviation": self.standard_deviation,
-            "sintering_temp": self.sintering_temp,
-            "sintering_time": self.sintering_time,
-            "source_id": self.source_id,
-            "raw_data": self.raw_data
-        }
+    from dotenv import load_dotenv
+    from pathlib import Path
 
-@dataclass
+    env_path = Path(__file__).parent.parent / ".env"
+    if not env_path.exists():
+        logger.warning(f".env file not found at {env_path}. Using system environment only.")
+        return False
+
+    success = load_dotenv(dotenv_path=env_path)
+    if success:
+        logger.info(f"Environment variables loaded from {env_path}")
+    else:
+        logger.warning("Failed to load environment variables from .env")
+    return True
+
+
 class DescriptorSet:
     """
-    Dataclass representing computed elemental descriptors for a composition.
-    Used to store the feature vector derived from a CeramicEntry.
+    Represents a set of computed elemental descriptors for a ceramic composition.
+    
+    This class encapsulates the feature vector derived from a chemical formula,
+    including physical and chemical properties used for predictive modeling.
     
     Attributes:
-        composition: The chemical formula string (e.g., "Al2O3").
-        mean_atomic_radius: Weighted mean atomic radius of constituent elements.
-        electronegativity_std: Standard deviation of electronegativity values.
-        valence_electron_concentration: Average valence electrons per atom (VEC).
-        cation_size_variance: Variance in ionic radii of cations.
-        primary_anion_cation_group: Dominant chemical group classification (e.g., "Oxide").
-        is_imputed: Flag indicating if any values were imputed.
-        imputation_details: Dictionary detailing which fields were imputed and the method used.
+        composition (str): The original chemical formula string (e.g., "Al2O3").
+        mean_atomic_radius (float): Mean atomic radius of constituent elements.
+        electronegativity_std (float): Standard deviation of electronegativity.
+        valence_electron_concentration (float): Valence electron concentration (VEC).
+        cation_size_variance (float): Variance of cation atomic radii.
+        range_uncertainty (float): Uncertainty metric derived from range values.
+        primary_anion_cation_group (str): Identified primary anion-cation group (e.g., "O-Al").
+        is_range_flag (bool): Flag indicating if original values were ranges.
+        is_imputed (bool): Flag indicating if any values were imputed.
+        sample_count (int): Number of samples for this entry.
+        weibull_modulus (float): The target Weibull modulus value.
+        sintering_temp (float): Sintering temperature in Kelvin.
+        raw_data (dict): Dictionary containing raw descriptor values before aggregation.
     """
-    composition: str
-    mean_atomic_radius: Optional[float] = None
-    electronegativity_std: Optional[float] = None
-    valence_electron_concentration: Optional[float] = None
-    cation_size_variance: Optional[float] = None
-    primary_anion_cation_group: Optional[str] = None
-    is_imputed: bool = False
-    imputation_details: Dict[str, str] = field(default_factory=dict)
     
-    def to_dict(self) -> Dict[str, Any]:
+    def __init__(
+        self,
+        composition: str,
+        mean_atomic_radius: float,
+        electronegativity_std: float,
+        valence_electron_concentration: float,
+        cation_size_variance: float = 0.0,
+        range_uncertainty: float = 0.0,
+        primary_anion_cation_group: str = "Unknown",
+        is_range_flag: bool = False,
+        is_imputed: bool = False,
+        sample_count: int = 0,
+        weibull_modulus: float = 0.0,
+        sintering_temp: float = 0.0,
+        raw_data: dict = None
+    ):
+        self.composition = composition
+        self.mean_atomic_radius = mean_atomic_radius
+        self.electronegativity_std = electronegativity_std
+        self.valence_electron_concentration = valence_electron_concentration
+        self.cation_size_variance = cation_size_variance
+        self.range_uncertainty = range_uncertainty
+        self.primary_anion_cation_group = primary_anion_cation_group
+        self.is_range_flag = is_range_flag
+        self.is_imputed = is_imputed
+        self.sample_count = sample_count
+        self.weibull_modulus = weibull_modulus
+        self.sintering_temp = sintering_temp
+        self.raw_data = raw_data or {}
+    
+    def to_dict(self) -> dict:
+        """Convert the DescriptorSet to a dictionary representation."""
         return {
             "composition": self.composition,
             "mean_atomic_radius": self.mean_atomic_radius,
             "electronegativity_std": self.electronegativity_std,
             "valence_electron_concentration": self.valence_electron_concentration,
             "cation_size_variance": self.cation_size_variance,
+            "range_uncertainty": self.range_uncertainty,
             "primary_anion_cation_group": self.primary_anion_cation_group,
+            "is_range_flag": self.is_range_flag,
             "is_imputed": self.is_imputed,
-            "imputation_details": self.imputation_details
+            "sample_count": self.sample_count,
+            "weibull_modulus": self.weibull_modulus,
+            "sintering_temp": self.sintering_temp,
+            "raw_data": self.raw_data
         }
-
-def hash_string(s: str) -> str:
-    """Helper to hash strings for versioning."""
-    return hashlib.sha256(s.encode('utf-8')).hexdigest()[:12]
+    
+    def get_feature_vector(self) -> list:
+        """
+        Extract the numeric feature vector for ML models.
+        
+        Returns:
+            list: Ordered list of float features excluding metadata fields.
+        """
+        return [
+            self.mean_atomic_radius,
+            self.electronegativity_std,
+            self.valence_electron_concentration,
+            self.cation_size_variance,
+            self.range_uncertainty,
+            float(self.is_range_flag),
+            float(self.is_imputed)
+        ]
+    
+    def __repr__(self):
+        return (
+            f"DescriptorSet(composition={self.composition}, "
+            f"weibull_modulus={self.weibull_modulus}, "
+            f"group={self.primary_anion_cation_group})"
+        )

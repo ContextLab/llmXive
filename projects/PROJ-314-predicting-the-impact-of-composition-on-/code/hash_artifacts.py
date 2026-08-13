@@ -10,6 +10,7 @@ import logging
 import sys
 import os
 import yaml
+from datetime import datetime
 
 # Ensure code directory is in path for imports if running as script
 if 'code' not in sys.path:
@@ -20,10 +21,14 @@ from config import get_project_config
 def hash_file(file_path: Path) -> str:
     """Compute SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        logging.error(f"Error hashing file {file_path}: {e}")
+        return None
 
 def hash_directory(dir_path: Path) -> dict:
     """
@@ -37,10 +42,15 @@ def hash_directory(dir_path: Path) -> dict:
     
     for file_path in sorted(dir_path.rglob("*")):
         if file_path.is_file():
+            # Skip hidden files and common temp files
+            if file_path.name.startswith('.') or file_path.name.endswith('~'):
+                continue
             rel_path = file_path.relative_to(dir_path)
             # Normalize path separators for consistency
             rel_path_str = str(rel_path).replace(os.sep, '/')
-            hashes[rel_path_str] = hash_file(file_path)
+            file_hash = hash_file(file_path)
+            if file_hash:
+                hashes[rel_path_str] = file_hash
     return hashes
 
 def update_state_file(state_path: Path, data_hashes: dict, code_hashes: dict):
@@ -62,7 +72,7 @@ def update_state_file(state_path: Path, data_hashes: dict, code_hashes: dict):
     # Update with new hashes
     current_state['data_hashes'] = data_hashes
     current_state['code_hashes'] = code_hashes
-    current_state['last_updated'] = str(Path.cwd().resolve()) # Simple timestamp placeholder or use datetime
+    current_state['last_updated'] = datetime.now().isoformat()
     
     with open(state_path, 'w') as f:
         yaml.dump(current_state, f, default_flow_style=False, sort_keys=False)

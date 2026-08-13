@@ -1,15 +1,15 @@
-- artifact_hash: f1a206dd23a6dfb1845c21844df5ae06c7935503dec97a38775e3bfc92d1ea3b
-  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/quickstart.md
+- artifact_hash: a374d81fec171e3fff945653374395180c88044f6fe868ed1e7b275d2af6ded6
+  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/docs/data_gap_protocol.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: schema#
   kind: url
-  value: https://example.com/ceramic-data
-  verification_status: mismatch
-  verified_against_url: https://example.com/ceramic-data
-  verified_at: '2026-08-09T11:37:54.826192Z'
-- artifact_hash: 19d3205f36bf9cdf21eb6a43bdd6cfb10ecf06e645e5d4660b96dfde12b290e4
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-08-13T15:48:04.524613Z'
+- artifact_hash: 44950f8fa2ea7bc3f6ace56e2f2dee29fde7fbefe4926488b965c611aba3d658
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: https://example.com
   verification_status: pending
   verified_against_url: https://example.com
-  verified_at: '2026-08-13T07:17:47.887377Z'
+  verified_at: '2026-08-13T16:19:25.532057Z'

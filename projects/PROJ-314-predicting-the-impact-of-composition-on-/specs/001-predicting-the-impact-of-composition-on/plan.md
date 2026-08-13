@@ -99,7 +99,7 @@ projects/PROJ-314-predicting-the-impact-of-composition-on-/
 - **Task 1.5**: Generate contract schemas (`ceramic_entry.schema.yaml`, `model_result.schema.yaml`).
 
 ### Phase 2: Modeling & Validation
-- **Task 2.1**: Split data. If N >= 50, use Stratified 5-fold CV. If 30 <= N < 50, use Stratified 80/20 Hold-out. If any class has < 5 samples, exclude from stratification (Rare Class Handling).
+- **Task 2.1**: Split data. If N >= 50, use Stratified 5-fold CV. If 30 <= N < 50, use Stratified /20 Hold-out. If any class has < 5 samples, exclude from stratification (Rare Class Handling).
 - **Task 2.2**: Train Random Forest and Gradient Boosting (a limited set of hyperparameter combinations).
 - **Task 2.3**: Baseline: Global mean predictor.
 - **Task 2.4**: **SC-001 Check**: Calculate MAE improvement. Perform Permutation Test (sufficient iterations to ensure statistical robustness) to determine statistical significance (p < 0.05). If not significant, flag as "Not Statistically Significant".

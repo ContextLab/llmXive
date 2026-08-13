@@ -1,2 +1,4 @@
-# Standalone Ruff config for IDE compatibility
+# Ruff configuration for linting
 extend = "pyproject.toml"
+# Specific overrides if needed, or this file can be used for per-directory rules
+# Currently, we rely on pyproject.toml for the main configuration
