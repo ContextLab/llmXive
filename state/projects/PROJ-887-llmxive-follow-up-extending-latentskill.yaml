@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T17:41:03.620189Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-887-llmxive-follow-up-extending-latentskill
-last_run_id: dea0b306-c423-4e3f-99b8-2c7bebb7f3b3
+last_run_id: 4604447d-676d-4bf9-b8d7-9e25b20abe4f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill
 title: 'llmXive follow-up: extending "LatentSkill: From In-Context Textual Skills
   to In-Weight Latent Skills"'
-updated_at: '2026-08-11T10:18:45.707508Z'
+updated_at: '2026-08-13T04:45:07.322954Z'

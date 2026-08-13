@@ -13,7 +13,7 @@ This project implements a CPU-only retrieval and interpolation mechanism to repl
 **Primary Dependencies**: `torch` (CPU only), `numpy`, `scikit-learn`, `sentence-transformers` (all-MiniLM-L-v2), `transformers` (quantized base model), `pandas`, `scipy` (statistical tests), `llama-cpp-python` (CPU-optimized inference).  
 **Storage**: Local filesystem (`data/` for raw weights, `artifacts/` for vector indices and synthesized adapters).  
 **Testing**: `pytest` (unit tests for vector math, integration tests for retrieval pipeline).  
-**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPUs, 7 GB RAM, No GPU).  
+**Target Platform**: GitHub Actions free-tier runner (Linux, multiple CPUs, ample RAM, No GPU).  
 **Project Type**: Research/Computational Experiment  
 **Performance Goals**: Skill selection latency < 1s; Total job runtime < 6h; Memory footprint < 6.5 GB (leaving GB headroom).  
 **Constraints**: No GPU/CUDA; **Primary Quantization**: `llama-cpp-python` (GGUF format); `bitsandbytes` explicitly excluded for CPU inference due to CUDA dependency and memory overhead. Strict adherence to FR-006 (Benjamini-Hochberg correction).  
