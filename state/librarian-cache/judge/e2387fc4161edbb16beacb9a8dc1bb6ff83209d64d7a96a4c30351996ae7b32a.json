@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1607.00139",
+  "judged_at": "2026-08-13T09:46:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-talk on resilience to microaggressions psychology",
+  "rationale": "The paper focuses on computational methods for detecting stress in social media text, which is an off-domain application (NLP/transportation) that does not measure the psychological mechanism of self-talk, the construct of resilience, or the specific impact of microaggressions on human subjects. It fails to satisfy any inclusion criteria as it addresses a distinct construct (automated stress detection) sharing only the general keyword \"stress\" without connecting to the user's specific variables ",
+  "relevant": false
+}

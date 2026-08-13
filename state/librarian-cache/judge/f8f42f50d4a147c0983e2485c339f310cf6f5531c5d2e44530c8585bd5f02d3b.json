@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1508.05820",
+  "judged_at": "2026-08-13T09:48:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "computational screening of deep eutectic solvent mixtures for co2 capture chemistry",
+  "rationale": "The paper focuses on the theoretical derivation and accuracy of a specific quantum dynamics simulation method (TRPMD) for general spectral calculations, without addressing the specific domain of deep eutectic solvents, CO2 capture chemistry, or the computational screening of solvent mixtures. It fails to meet any inclusion criteria as it does not measure the relevant variables, establish a baseline for the specific chemical system, or provide a foundational method specifically for the user's app",
+  "relevant": false
+}

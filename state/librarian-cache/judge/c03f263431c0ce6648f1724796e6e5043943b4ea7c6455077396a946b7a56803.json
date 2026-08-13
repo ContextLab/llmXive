@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.06621",
+  "judged_at": "2026-08-13T09:46:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-talk on resilience to microaggressions psychology",
+  "rationale": "The paper focuses on algorithmic bias in hate speech detection models and data curation, which is an off-domain topic (computer science/NLP) compared to the user's question about the psychological mechanism of self-talk and resilience in human subjects. It does not measure the psychological variables, mechanisms, or empirical populations relevant to the user's specific research question.",
+  "relevant": false
+}
