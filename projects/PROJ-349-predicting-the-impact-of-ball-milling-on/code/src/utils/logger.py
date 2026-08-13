@@ -1,96 +1,113 @@
 """
-Logging infrastructure for the project.
-Implements T006.
+Logging infrastructure for the ball milling prediction pipeline.
+Provides a centralized logger configuration with level control and file output.
 """
 import logging
 import os
 from pathlib import Path
 from typing import Optional, Union
 
-# Global logger instance
+# Global logger instance reference
 _logger: Optional[logging.Logger] = None
-_log_level: int = logging.INFO
+_handler: Optional[logging.Handler] = None
 
-def get_module_logger(name: str) -> logging.Logger:
+def get_module_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a logger for a specific module.
-    Ensures the root logger is configured.
+    Get or create a logger instance with standardized configuration.
 
     Args:
-        name: The name of the module (usually __name__).
+        name: Optional module name for the logger. If None, uses the caller's module name.
 
     Returns:
-        A configured Logger instance.
+        Configured logging.Logger instance.
     """
-    global _logger
-    if _logger is None:
-        _setup_root_logger()
+    global _logger, _handler
 
-    return logging.getLogger(name)
+    if name is None:
+        # Fallback to a default name if not provided
+        name = "ball_milling_pipeline"
 
-def _setup_root_logger() -> None:
-    """
-    Configure the root logger with a standard handler and format.
-    """
-    global _logger
-    if _logger is not None:
-        return
+    # Get the specific logger
+    logger = logging.getLogger(name)
 
-    # Create logs directory if it doesn't exist
-    log_dir = Path("logs")
-    log_dir.mkdir(exist_ok=True)
+    # If the logger already has handlers, return it (prevent duplicate handlers)
+    if logger.handlers:
+        return logger
 
-    # Configure root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(_log_level)
+    # Configure the logger
+    logger.setLevel(logging.INFO)
 
-    # Clear existing handlers to avoid duplicates
-    if root_logger.hasHandlers():
-        root_logger.handlers.clear()
-
-    # Console handler
+    # Create console handler
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(_log_level)
-    console_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-    console_handler.setFormatter(console_formatter)
-    root_logger.addHandler(console_handler)
+    console_handler.setLevel(logging.INFO)
 
-    # File handler
-    file_handler = logging.FileHandler(log_dir / "pipeline.log")
-    file_handler.setLevel(_log_level)
-    file_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
-    file_handler.setFormatter(file_formatter)
-    root_logger.addHandler(file_handler)
+    console_handler.setFormatter(formatter)
 
-    _logger = root_logger
+    # Add handler to logger
+    logger.addHandler(console_handler)
+
+    # Also add a file handler if the logs directory exists
+    logs_dir = Path("data/logs")
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    log_file = logs_dir / f"{name.replace('.', '_')}.log"
+
+    try:
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+    except (OSError, IOError) as e:
+        # Log warning but don't fail if file logging is unavailable
+        logging.warning(f"Could not create file handler for {log_file}: {e}")
+
+    return logger
 
 def set_log_level(level: Union[str, int]) -> None:
     """
-    Set the global log level.
+    Set the logging level for all handlers in the application.
 
     Args:
-        level: Log level as string (e.g., 'DEBUG') or int.
+        level: Logging level as string (e.g., 'DEBUG', 'INFO') or integer constant.
     """
-    global _log_level
+    global _logger, _handler
+
+    # Convert string level to integer if necessary
     if isinstance(level, str):
         level = getattr(logging, level.upper(), logging.INFO)
-    _log_level = level
 
-    # Update existing handlers if logger is already set
-    if _logger:
-        for handler in _logger.handlers:
-            handler.setLevel(_log_level)
+    # Apply to all existing loggers
+    for logger_name in logging.root.manager.loggerDict:
+        logger = logging.getLogger(logger_name)
+        logger.setLevel(level)
+        for handler in logger.handlers:
+            handler.setLevel(level)
+
+    # Update root logger as well
+    logging.root.setLevel(level)
 
 def reset_logger() -> None:
     """
-    Reset the logger configuration. Useful for testing.
+    Reset the logger configuration by removing all handlers and closing files.
+    Useful for testing or re-initializing logging.
     """
-    global _logger
-    root_logger = logging.getLogger()
-    root_logger.handlers.clear()
-    root_logger.setLevel(logging.NOTSET)
+    # Remove all handlers from all loggers
+    for logger_name in list(logging.root.manager.loggerDict.keys()):
+        logger = logging.getLogger(logger_name)
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+            handler.close()
+
+    # Clear root handlers
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+        handler.close()
+
+    # Reset global state
+    global _logger, _handler
     _logger = None
+    _handler = None

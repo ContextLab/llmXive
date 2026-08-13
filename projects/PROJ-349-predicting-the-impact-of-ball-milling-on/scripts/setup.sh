@@ -1,81 +1,44 @@
 #!/bin/bash
 # Setup script for PROJ-349-predicting-the-impact-of-ball-milling-on
-# Creates the directory structure defined in scripts/setup_manifest.txt
+# Creates the directory structure listed in scripts/setup_manifest.txt
 
-set -e  # Exit on any error
+set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-echo "Setting up project structure in: $PROJECT_ROOT"
+echo "Creating project directory structure in: $PROJECT_ROOT"
 
-# Read directories from manifest and create them
-while IFS= read -r line; do
-    # Skip comments and empty lines
-    [[ "$line" =~ ^#.*$ ]] && continue
-    [[ -z "$line" ]] && continue
-    
-    # Trim whitespace
-    dir=$(echo "$line" | xargs)
-    
-    if [[ -n "$dir" ]]; then
-        full_path="$PROJECT_ROOT/$dir"
-        if [[ ! -d "$full_path" ]]; then
-            mkdir -p "$full_path"
-            echo "Created: $dir"
-        else
-            echo "Exists: $dir"
-        fi
-    fi
-done < "$SCRIPT_DIR/setup_manifest.txt"
+# Core project directories
+mkdir -p "$PROJECT_ROOT/src"
+mkdir -p "$PROJECT_ROOT/tests"
+mkdir -p "$PROJECT_ROOT/data/raw"
+mkdir -p "$PROJECT_ROOT/data/processed"
+mkdir -p "$PROJECT_ROOT/data/splits"
+mkdir -p "$PROJECT_ROOT/results"
+mkdir -p "$PROJECT_ROOT/contracts"
+mkdir -p "$PROJECT_ROOT/specs"
+mkdir -p "$PROJECT_ROOT/scripts"
+mkdir -p "$PROJECT_ROOT/docs"
+mkdir -p "$PROJECT_ROOT/figures"
 
-# Create .gitignore if it doesn't exist
-GITIGNORE="$PROJECT_ROOT/.gitignore"
-if [[ ! -f "$GITIGNORE" ]]; then
-    cat > "$GITIGNORE" << 'EOF'
-    # Python
-    __pycache__/
-    *.py[cod]
-    *$py.class
-    .venv/
-    venv/
-    ENV/
-    env/
+# GitHub Actions workflows
+mkdir -p "$PROJECT_ROOT/.github/workflows"
 
-    # Jupyter
-    .ipynb_checkpoints/
+# Specific subdirectories for organization
+mkdir -p "$PROJECT_ROOT/src/cli"
+mkdir -p "$PROJECT_ROOT/src/config"
+mkdir -p "$PROJECT_ROOT/src/evaluate"
+mkdir -p "$PROJECT_ROOT/src/exceptions"
+mkdir -p "$PROJECT_ROOT/src/ingest"
+mkdir -p "$PROJECT_ROOT/src/interpret"
+mkdir -p "$PROJECT_ROOT/src/model"
+mkdir -p "$PROJECT_ROOT/src/preprocess"
+mkdir -p "$PROJECT_ROOT/src/utils"
 
-    # IDE
-    .idea/
-    .vscode/
-    *.swp
-    *.swo
+mkdir -p "$PROJECT_ROOT/tests/contract"
+mkdir -p "$PROJECT_ROOT/tests/integration"
+mkdir -p "$PROJECT_ROOT/tests/unit"
 
-    # Data
-    data/raw/*.csv
-    data/raw/*.json
-    data/processed/*.parquet
-    data/processed/*.json
-    data/splits/
-
-    # Results
-    results/
-
-    # Environment
-    .env
-    *.log
-
-    # OS
-    .DS_Store
-    Thumbs.db
-    EOF
-    echo "Created: .gitignore"
-fi
-
-echo ""
-echo "Project structure setup complete!"
-echo "Next steps:"
-echo "  1. Review the created directories"
-echo "  2. Run 'pip install -r requirements.txt' (after creating requirements.txt)"
-echo "  3. Initialize git: git init"
-echo "  4. Configure linting: black, flake8"
+echo "Directory structure created successfully."
+echo "You can verify with: ls -R $PROJECT_ROOT"

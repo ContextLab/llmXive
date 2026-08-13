@@ -1,17 +1,17 @@
-T007a:
+T003a:
   c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required schema file `contracts/dataset.schema.yaml` does not exist (only\
-    \ a missing `schema.yaml` is noted), so the explicit field definitions are absent.\
-    \ The task\u2019s core artifact is missing, making the implementation incomplete."
-T007b:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `.flake8` file was provided, nor any snippet showing that it
+    contains `max-line-length = 88`. Without the actual file or its contents, we cannot
+    confirm the required linting configuration exists. The implementer must add the
+    `.flake8` file with the specified setting.
+T004:
   c: false
-  h: 21965c8039b30fd94590e57e0250424e0424260a0d0fa194bef0d42e2b7c3064
-  r: The repository lacks the required `contracts/dataset.schema.yaml` file, so the
-    validation code cannot actually enforce the schema. Moreover, the provided `validate_schema.py`
-    excerpt does not show a `validate_schema(dataframe)` function that raises `InsufficientDataError`
-    as specified, leaving its implementation unverified. The missing schema file and
-    uncertain presence of the required function mean the task is not genuinely completed.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No repository artifacts were provided \u2013 there is no `.git` directory, no\
+    \ `.gitignore` file, and no output from `git log` showing an initial commit. Without\
+    \ these concrete items, the claim that the Git repository was initialized cannot\
+    \ be verified."
 T009:
   c: false
   h: 427b4689638c2d79a4d7019a5d0d16f6f07f2b7d7204b9d6da17cfaa18186f97
@@ -27,20 +27,37 @@ T009b:
     s core deliverable is missing."
 T010:
   c: false
-  h: 7614a2274f4f60a95cb97c289e1d5e081d5c97b579728fa4abe109d6f3087084
-  r: The test file does not contain the required `test_schema_validation_passes(df)`
-    implementation (the visible excerpt ends abruptly and no such function is defined).
-    Moreover, the referenced schema file `contracts/dataset.schema.yaml` is missing
-    from the repository, so the test could not even load the schema. Both the artifact
-    and its content fail to meet the task specifications.
+  h: b7c5d60827481409a1df108b84f750174fa1a29947d1bbdfc2a2431a5099f80d
+  r: "The `tests/contract/test_dataset_schema.py` file exists but the required schema\
+    \ file `contracts/dataset.schema.yaml` is missing, causing the test to fail before\
+    \ validation. Moreover, `test_schema_validation_passes(df)` does not use `jsonschema.validate`\
+    \ nor raise `jsonschema.ValidationError` as specified; it implements a custom\
+    \ check and returns a boolean. These issues mean the task\u2019s functional and\
+    \ dependency requirements are not satisfied."
+T012:
+  c: false
+  h: e3d4fc0553290520001ca737b07181b36dd9104c051ae7209b693b19d5da80ab
+  r: "The repository contains `src/ingest/materials_project.py`, but the file is truncated\
+    \ and does not show logic for parsing the required fields, writing `data/raw/materials_project_raw.json`,\
+    \ or flagging rows lacking `source_id`. Moreover, the required output file `data/raw/materials_project_raw.json`\
+    \ is absent. The task\u2019s core deliverables are therefore not satisfied."
 T013:
   c: false
-  h: a9f988f436e6c792d252e1eb38993442d7052bd1b9d9107e1020a7dc71eaa4e4
-  r: "The `src/ingest/nist_repo.py` file is present but the implementation is incomplete\
-    \ (truncated) and does not show handling of JSON downloads, does not log the exact\
-    \ warning \u201CSource skipped: NIST (no rows or error)\u201D, and there is no\
-    \ `contracts/dataset.schema.yaml` file to validate the output schema. These missing\
-    \ pieces prevent the task from being fully satisfied."
+  h: 49cd3a29c64a72636f04b5b17d71702c8ec59415ffc1512df76dfab4d43097fe
+  r: "The repository script exists but only contains a stubbed\u2011out `download_data`\
+    \ function that simulates a search, does not use the exact query `q=ball+milling\
+    \ AND datasetType:csv`, lacks pagination, does not record `source_id`, does not\
+    \ flag rows missing it, and never writes `data/raw/nist_raw.json`. Moreover, the\
+    \ required output file `data/raw/nist_raw.json` is absent. The task\u2019s core\
+    \ requirements are therefore unmet."
+T013b:
+  c: false
+  h: 46c9454c00e347142a141cd0b17de406ffd270e60d06963585e2c41aa4a9b064
+  r: "The repository contains `src/ingest/arxiv_extractor.py`, but the shown code\
+    \ is truncated and does not demonstrate the required pagination loop, PDF table\
+    \ extraction, or JSON output generation. Moreover, the required output file `data/raw/arxiv_tables.json`\
+    \ is missing entirely. Consequently the task\u2019s core deliverables are not\
+    \ present."
 T014c:
   c: false
   h: 72119b24bfa11fb8d4580141adcd2761151b0aa7dc77c209149d9d0d1730374b

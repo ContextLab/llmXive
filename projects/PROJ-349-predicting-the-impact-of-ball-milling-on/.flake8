@@ -1,33 +1,7 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, E501, W503
-exclude =
-    .git,
-    __pycache__,
-    .venv,
-    venv,
-    build,
-    dist,
-    .eggs,
-    *.egg-info,
-    data,
-    results,
-    tests,
-    .pytest_cache,
-    .mypy_cache,
-    htmlcov,
-    coverage,
-    .coverage
+extend-ignore = E203, W503
+exclude = .git,__pycache__,.venv,build,dist
 per-file-ignores =
-    # Allow long lines in docstrings and comments
-    */__init__.py: F401
-    tests/*: S101, E501
-    data/*: E501
-    results/*: E501
-inline-quotes = double
-multiline-quotes = double
-doctests = True
-show-source = True
-statistics = True
-count = True
-max-complexity = 10
+    __init__.py:F401
+    tests/*:S101

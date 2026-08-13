@@ -4231,24 +4231,6 @@
   updated_at: '2026-08-10T04:36:12Z'
 - artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   attempts: 1
-  canonical: Target dataset size 500 rows
-  claim_id: c_63210424
-  context: "Independent Test: Can be fully tested by executing the data ingestion\
-    \ script and verifying the output CSV/Parquet contains \u2265500 rows (target)\
-    \ or \u2265150 rows (minimum viable) with non-null values for all required predictor\
-    \ variables and target PSD metrics."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Target dataset size is 500 rows.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-10T04:36:41Z'
-- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
-  attempts: 1
   canonical: Random Forest 1000 trees
   claim_id: c_28df404b
   context: "Implement Random Forest training (\u22641000 (2304.02632, https://arxiv.org/abs/2304.02632)\
@@ -4928,3 +4910,1078 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T23:41:06Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: pin dependencies to pandas 2.2, numpy 1.26, scikit-learn 1.5, statsmodels
+    0.14, matplotlib 3.9, seaborn 0.13, requests 2.32, tqdm 4.66, pyarrow 16, pdfminer.six
+    20231228
+  claim_id: c_b74752b7
+  context: Create requirements.txt with pinned versions of pandas==2.2.*, numpy==1.26.*,
+    scikit-learn==1.5.*, statsmodels==0.14.*, matplotlib==3.9.*, seaborn==0.13.*,
+    requests==2.32.*, tqdm==4.66.*, pyarrow==16.*, pdfminer.six==20231228.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.2.*, numpy==1.26.*, scikit-learn==1.5.*, statsmodels==0.14.*,
+    matplotlib==3.9.*, seaborn==0.13.*, requests==2.32.*, tqdm==4.66.*, pyarrow==16.*,
+    pdfminer.six==20231228
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:12:59Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: include easyocr 1.7, opencv-python 4.8, pdf2image 1.16 as optional dependencies
+  claim_id: c_c7c06f84
+  context: 'Optional Dependencies: Include easyocr==1.7.*, opencv-python==4.8.*, pdf2image==1.16.*
+    ONLY if the ocr.fallback_enabled config is true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: easyocr==1.7.*, opencv-python==4.8.*, pdf2image==1.16.*
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:13:10Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: configure flake8 max-line-length to 88
+  claim_id: c_06bf1898
+  context: Create .flake8 with standard configs including max-line-length = 88.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max-line-length = 88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:13:49Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: data ingestion target 500 rows minimum viable 150 rows
+  claim_id: c_23fc9fd6
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying the output CSV/Parquet contains \u2265500 rows (target)\
+    \ or \u2265150 rows (minimum viable) with non-null values for all required predictor\
+    \ variables and target PSD metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: target 500 rows or minimum viable 150 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:14:29Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: use Canny edge detection with low threshold 50 and high threshold 150
+  claim_id: c_016a6bb7
+  context: Use cv.Canny with thresholds (low=50, high=150) followed by cv2.findContours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Canny thresholds low=50, high=150
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:15:00Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: flag page as PSD image if contour count greater than 10
+  claim_id: c_3725a226
+  context: Flag a page as containing a PSD image if the number of contours > 10 AND
+    the aspect ratio of the bounding box is within the range [0.5, 2.0].
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_page_as_PSD_image_if_contour_count_greater_than_10
+  kind: magnitude
+  raw_text: contour count threshold > 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:15:29Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: PSD image aspect ratio must be between 0.5 and 2.0
+  claim_id: c_1becf0a4
+  context: Flag a page as containing a PSD image if the number of contours > 10 AND
+    the aspect ratio of the bounding box is within the range [0.5, 2.0].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: aspect ratio range [0.5, 2.0]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:16:03Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: extract D-values using regex pattern matching D followed by digits and
+    optional decimal
+  claim_id: c_8b915794
+  context: Apply regex pattern r'D(\d+)[\s:]*([-9]+(?:\.[0-9]+)?)' to parse D-values
+    from the OCR output string.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: regex pattern r'D(\d+)[\s:]*([-9]+(?:\.[0-9]+)?)' for D-values
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:16:47Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: raise InsufficientDataError if traceable dataset size is less than 150
+    experiments
+  claim_id: c_158a444f
+  context: 'CRITICAL: If the count of traceable rows is < 150, raise InsufficientDataError
+    (halting the pipeline) with message ''Traceable dataset size < 150 experiments
+    (minimum viable) per spec SC-004''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_InsufficientDataError_if_traceable_dataset_size_is_les
+  kind: magnitude
+  raw_text: halt pipeline if traceable rows < 150
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:17:19Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: raise SystemExit code 1 if processed dataset size is less than 150 experiments
+  claim_id: c_dc776ed6
+  context: 'CRITICAL: If count < 150, raise SystemExit with code 1 and log ''Processed
+    dataset size < 150 experiments (minimum viable) per spec SC-004''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_SystemExit_code_1_if_processed_dataset_size_is_less_th
+  kind: magnitude
+  raw_text: halt pipeline if processed dataset < 150 rows
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:17:49Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: use pandas qcut with q=10 for D50 stratification
+  claim_id: c_2730d8b3
+  context: Use pandas.qcut with q=10 for D50 stratification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: q=10 for D50 stratification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:18:23Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: fallback reduce stratification bins by half if unique values insufficient
+  claim_id: c_91c04bb1
+  context: 'If unique values < q, immediately call reduce_bins(q) logic (reduce q
+    by half: 10 -> 5 -> 2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: reduce bins by half (10 -> 5 -> 2) if unique values < q
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:18:57Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: train Random Forest with maximum 1000 trees
+  claim_id: c_e8f70ca3
+  context: "Implement Random Forest training (\u22641000 trees) in src/model/train_rf.py\
+    \ using same Nested CV scheme."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Random Forest training \u22641000 trees"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:18:58Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: use significance level 0.05 for statistical tests
+  claim_id: c_d1cc261e
+  context: "Implement Nadeau & Bengio corrected resampled t-test in src/evaluate/statistical_tests.py\
+    \ (\u03B1 = 0.05) to compare ML models vs baseline."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: significance level 0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T03:19:05Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: assume Cohen's f squared 0.15 for power analysis effect size
+  claim_id: c_bcb1defb
+  context: "Calculate the minimum detectable effect size (MDES) for a target power\
+    \ level of adequate statistical power and significance level 0.05 based on the\
+    \ dataset size, assuming a hypothesized effect size (Cohen's f\xB2 = 0.15)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Cohen's f\xB2 = 0.15 hypothesized effect size"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:20:07Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: enforce total plot file size limit of 10 megabytes
+  claim_id: c_6b5febb4
+  context: "Validate total plot size \u2264 10MB and raise error if exceeded (US-3\
+    \ acceptance criteria)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "total plot size \u2264 10MB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:20:08Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: raise GPRResourceLimitExceeded if runtime exceeds 1800 seconds
+  claim_id: c_613925c5
+  context: 'Mock psutil to report runtime > 1800s. Verification: Assert that GPRResourceLimitExceeded
+    is raised, RF is trained, and GPR is not re-trained.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPR runtime limit 1800 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:20:34Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: set GitHub Actions job timeout to 360 minutes
+  claim_id: c_bac523b4
+  context: 'Enforce a job time limit of a predefined duration. using timeout-minutes:
+    360 in the workflow definition at the job level.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI job time limit 360 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:21:00Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: pipeline halts if traceable dataset size is less than 150 experiments
+  claim_id: c_f2851306
+  context: 'CRITICAL: If the count of traceable rows is < 150, raise InsufficientDataError
+    (halting the pipeline) with message ''Traceable dataset size < 150 experiments
+    (minimum viable) per spec SC-004''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_traceable_dataset_size_is_less_than_150_ex
+  kind: magnitude
+  raw_text: The pipeline must halt if the traceable dataset size is less than 150
+    experiments.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:22:28Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: minimum viable dataset size for processed dataset is 150 rows
+  claim_id: c_e73c36da
+  context: 'CRITICAL: If count < 150, raise SystemExit with code 1 and log ''Processed
+    dataset size < 150 experiments (minimum viable) per spec SC-004''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum viable dataset size for the processed dataset is 150 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:23:05Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: CI workflow enforces a job time limit of 360 minutes
+  claim_id: c_83b22edf
+  context: 'Enforce a job time limit of a predefined duration. using timeout-minutes:
+    360 in the workflow definition at the job level (e.g., jobs: build: timeout-minutes:
+    360).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI workflow enforces a job time limit of 360 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:23:33Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR training fallback to Random Forest triggers if runtime exceeds 1800
+    seconds
+  claim_id: c_121fc516
+  context: GPR fallback to Random Forest must be automatic and logged if >30min (1800s)
+    or >5GB RAM (configurable).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GPR training fallback to Random Forest triggers if runtime exceeds
+    1800 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:23:59Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR training fallback to Random Forest triggers if memory usage exceeds
+    5 GB
+  claim_id: c_992114ea
+  context: GPR fallback to Random Forest must be automatic and logged if >30min (1800s)
+    or >5GB RAM (configurable).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GPR training fallback to Random Forest triggers if memory usage exceeds
+    5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:24:16Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: statistical test uses Nadeau & Bengio corrected resampled t-test with
+    alpha 0.05
+  claim_id: c_c388c3e2
+  context: "Implement Nadeau & Bengio corrected resampled t-test in src/evaluate/statistical_tests.py\
+    \ (\u03B1 = 0.05) to compare ML models vs baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical test implementation uses the Nadeau & Bengio corrected
+    resampled t-test formula with alpha = 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:24:28Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: power analysis uses fixed hypothesized effect size Cohen f squared of
+    0.15
+  claim_id: c_37d27906
+  context: "Calculate the minimum detectable effect size (MDES) for a target power\
+    \ level of adequate statistical power and {{claim:c_d1cc261e}} (Wikipedia: P-value,\
+    \ https://en.wikipedia.org/wiki/P-value) based on the dataset size, assuming a\
+    \ hypothesized effect size (Cohen's f\xB2 = 0.15)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The power analysis uses a fixed hypothesized effect size (Cohen's f\xB2\
+    ) of 0.15."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:25:12Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: total size of generated interpretability plots must not exceed 10 MB
+  claim_id: c_c0a8c2a8
+  context: "Validate total plot size \u2264 10MB and raise error if exceeded (US-3\
+    \ acceptance criteria)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total size of generated interpretability plots must not exceed 10
+    MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:25:44Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: stratification for nested cross-validation uses q=10 quantile bins for
+    D50
+  claim_id: c_d22e27e0
+  context: Use pandas.qcut with q=10 for D50 stratification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratification for nested cross-validation uses q=10 quantile bins
+    for D50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:26:24Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Random Forest model trained with maximum of 1000 trees
+  claim_id: c_9649906e
+  context: "Implement Random Forest training (\u22641000 trees) in src/model/train_rf.py\
+    \ using same Nested CV scheme (standalone, no fallback logic needed here)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'North America from 1500 to the Present. Cambridge, United Kingdom: Cambridge
+        University Press.'
+      source_id: '2304.02632'
+      url: https://arxiv.org/abs/2304.02632
+      value: '1500'
+    filled: true
+  kind: numeric
+  raw_text: The Random Forest model is trained with a maximum of 1000 trees.
+  resolved_value: '1500'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T03:26:56Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: pipeline targets total runtime of 5 hours for optimization
+  claim_id: c_fab95ea7
+  context: "While the plan targets a '\u2264 5 h wall-clock' runtime for optimization,\
+    \ the hard CI limit MUST be 360 minutes (6 hours) to align with the spec's SC-005."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline targets a total runtime of 5 hours for optimization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:27:33Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Canny edge detection uses low threshold 50 and high threshold 150 for
+    PSD image detection
+  claim_id: c_8f8c5207
+  context: Use cv.Canny with thresholds (low=50, high=150) followed by cv2.findContours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Canny edge detection algorithm uses a low threshold of 50 and a high
+    threshold of 150 for PSD image detection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:28:03Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Canny edge detection flags page as PSD image if contours greater than
+    10
+  claim_id: c_eaf4ca5e
+  context: Flag a page as containing a PSD image if the number of contours > 10 AND
+    the aspect ratio of the bounding box is within the range [0.5, 2.0].
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Canny_edge_detection_flags_page_as_PSD_image_if_contours_gre
+  kind: magnitude
+  raw_text: The Canny edge detection algorithm flags a page as containing a PSD image
+    if the number of contours is greater than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:29:09Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: aspect ratio of bounding box must be within range 0.5 to 2.0 to flag
+    page as PSD image
+  claim_id: c_1aea55a6
+  context: Flag a page as containing a PSD image if the number of contours > 10 AND
+    the aspect ratio of the bounding box is within the range [0.5, 2.0].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The aspect ratio of the bounding box must be within the range [0.5, 2.0]
+    to flag a page as containing a PSD image.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:29:32Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: arXiv search limited to category cond-mat.mtrl-sci
+  claim_id: c_4b45fe1c
+  context: Use the arxiv Python package to search cat:cond-mat.mtrl-sci AND ball milling.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ArXiv_search_limited_to_category_cond-mat.mtrl-sci
+  kind: entity_fact
+  raw_text: The arXiv search is limited to the category cond-mat.mtrl-sci.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:30:06Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if traceable rows < 150
+  claim_id: c_5729d5b7
+  context: 'CRITICAL: If the count of traceable rows is < 150, raise InsufficientDataError
+    (halting the pipeline) with message ''Traceable dataset size < 150 experiments
+    (minimum viable) per spec SC-004''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_traceable_rows_%3C_150
+  kind: magnitude
+  raw_text: The pipeline must halt if the traceable dataset size is less than 150
+    experiments.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:37:47Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Processed dataset minimum viable size 150 rows
+  claim_id: c_18ef52ce
+  context: 'T017c Post-Processing Size Gate (HALT): Validate that the processed dataset
+    still meets the minimum viable threshold of >= 150 rows. CRITICAL: If count <
+    150, raise SystemExit with code 1 and log ''Processed dataset size < 150 experiments
+    (minimum viable) per spec SC-004''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum viable dataset size for the processed dataset is 150 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:37:48Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 2
+  canonical: Target dataset size 500 rows
+  claim_id: c_63210424
+  context: "Independent Test: Can be fully tested by executing the data ingestion\
+    \ script and verifying the output CSV/Parquet contains \u2265500 rows (target)\
+    \ or \u2265150 rows (minimum viable) with non-null values for all required predictor\
+    \ variables and target PSD metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target dataset size is 500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:38:23Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: GPR fallback to RF if runtime > 1800s or memory > 5GB
+  claim_id: c_b204ce2a
+  context: 'Critical: GPR fallback to Random Forest must be automatic and logged if
+    >30min (1800s) or >5GB RAM (configurable). BOTH GPR and RF must be trained (FR-003).
+    RF is trained in both the success and failure paths of GPR.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GPR training process must trigger a fallback to Random Forest if runtime
+    exceeds 1800 seconds or memory exceeds 5GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:38:36Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Hypothesized effect size Cohen's f squared equals 0.15
+  claim_id: c_9a1dd0e6
+  context: "A Priori: Calculate the minimum detectable effect size (MDES) for a target\
+    \ power level of adequate statistical power and {{claim:c_d1cc261e}} (Wikipedia:\
+    \ P-value, https://en.wikipedia.org/wiki/P-value) based on the dataset size, assuming\
+    \ a hypothesized effect size (Cohen's f\xB2 = 0.15)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The statistical power analysis uses a hypothesized effect size of Cohen's\
+    \ f\xB2 = 0.15."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:39:10Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Nadeau Bengio t-test alpha equals 0.05
+  claim_id: c_c8a76803
+  context: "T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in src/evaluate/statistical_tests.py\
+    \ (\u03B1 = 0.05) to compare ML models vs baseline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Nadeau & Bengio corrected resampled t-test uses a significance level
+    (alpha) of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:39:34Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Total plot size limit 10MB
+  claim_id: c_8bf1a109
+  context: "T035c Validate total plot size \u2264 10MB and raise error if exceeded\
+    \ (US-3 acceptance criteria)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_plot_size_limit_10MB
+  kind: entity_fact
+  raw_text: The total size of generated partial dependence plots must not exceed 10MB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:40:12Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Random Forest max trees 1000
+  claim_id: c_91678de7
+  context: "T029b [US2] Implement Random Forest training (\u22641000 trees) in src/model/train_rf.py\
+    \ using same Nested CV scheme (standalone, no fallback logic needed here)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'North America from 1500 to the Present. Cambridge, United Kingdom: Cambridge
+        University Press.'
+      source_id: '2304.02632'
+      url: https://arxiv.org/abs/2304.02632
+      value: '1500'
+    filled: true
+  kind: numeric
+  raw_text: The maximum number of trees for the Random Forest model is 1000.
+  resolved_value: '1500'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T03:40:46Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: ArXiv search query cond-mat.mtrl-sci AND ball milling
+  claim_id: c_102241ef
+  context: 'T013b [US1] Implement arXiv PDF extractor in src/ingest/arxiv_extractor.py.
+    Specifics: Use the arxiv Python package to search cat:cond-mat.mtrl-sci AND ball
+    milling.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ArXiv_search_query_cond-mat.mtrl-sci_AND_ball_milling
+  kind: entity_fact
+  raw_text: The arXiv search query must use the category 'cond-mat.mtrl-sci' combined
+    with 'ball milling'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:40:55Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Materials Project API endpoint next-gen.materialsproject.org/api/v2/materials
+  claim_id: c_05743bc7
+  context: 'T012 [US1] Implement Materials Project data fetcher in src/ingest/materials_project.py.
+    Specifics: Use Materials Project API v2 endpoint https://next-gen.materialsproject.org/api/v2/materials.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_endpoint_next-gen.materialsproject.org
+  kind: entity_fact
+  raw_text: The Materials Project API endpoint used is 'https://next-gen.materialsproject.org/api/v2/materials'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:41:29Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 2
+  canonical: Canny thresholds low 50 high 150 for PSD detection
+  claim_id: c_99e81ae6
+  context: 'T014a [US1] Implement image detection logic to identify PSD curves/images
+    in PDFs. Algorithm: Use pdf2image.convert_from_path to convert PDF pages to images.
+    Use cv.Canny with thresholds (low=50, high=150) followed by cv2.findContours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Canny edge detection algorithm uses low threshold 50 and high threshold
+    150 for PSD image detection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:41:31Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 2
+  canonical: PSD image bounding box aspect ratio range 0.5 to 2.0
+  claim_id: c_72a33ccf
+  context: T014a [US1] ... Flag a page as containing a PSD image if the number of
+    contours > 10 AND the aspect ratio of the bounding box is within the range [0.5,
+    2.0].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The aspect ratio of the bounding box for PSD image detection must be within
+    the range [0.5, 2.0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:42:00Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: PSD image detection contour count threshold > 10
+  claim_id: c_81dd5f21
+  context: T014a [US1] ... Flag a page as containing a PSD image if the number of
+    contours > 10 AND the aspect ratio of the bounding box is within the range [0.5,
+    2.0].
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PSD_image_detection_contour_count_threshold_%3E_10
+  kind: magnitude
+  raw_text: A page is flagged as containing a PSD image if the number of contours
+    detected is greater than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:43:04Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: ArXiv search batch size 50
+  claim_id: c_7d030bf1
+  context: T013b [US1] ... implement a dynamic loop that fetches papers in batches
+    (e.g., 50 at a time) and accumulates experiments until either the global target
+    (500 total) is met...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The arXiv search implementation fetches papers in batches of 50 at a time.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:43:35Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Nested CV stratification q equals 10
+  claim_id: c_8fe695dc
+  context: 'T021 [US2] Implement stratified nested CV with fallback logic in src/model/nested_cv.py.
+    Specifics: Use pandas.qcut with q=10 for D50 stratification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified nested cross-validation uses q=10 for D50 quantile binning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:43:57Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Pandas version 2.2
+  claim_id: c_f43c0e6c
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of pandas==2.2.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pandas library version required is 2.2.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:44:28Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Numpy version 1.26
+  claim_id: c_b96e5aa2
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of ... numpy==1.26.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The numpy library version required is 1.26.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:45:04Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Scikit-learn version 1.5
+  claim_id: c_e419a2a9
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of ... scikit-learn==1.5.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scikit-learn library version required is 1.5.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:45:30Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Statsmodels version 0.14
+  claim_id: c_8c57e129
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of ... statsmodels==0.14.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statsmodels library version required is 0.14.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:46:10Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Matplotlib version 3.9
+  claim_id: c_ec0a39c5
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of ... matplotlib==3.9.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The matplotlib library version required is 3.9.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:46:46Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Seaborn version 0.13
+  claim_id: c_30297ae2
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of ... seaborn==0.13.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The seaborn library version required is 0.13.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:47:02Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Requests version 2.32
+  claim_id: c_48ad6be7
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of ... requests==2.32.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requests library version required is 2.32.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:47:33Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Tqdm version 4.66
+  claim_id: c_8e0292af
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of ... tqdm==4.66.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The tqdm library version required is 4.66.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:47:59Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Pyarrow version 16
+  claim_id: c_f4290ca8
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of ... pyarrow==16.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pyarrow library version required is 16.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:48:28Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Pdfminer.six version 20231228
+  claim_id: c_3c9006d6
+  context: 'T002 [P] Create requirements.txt. Action: Create requirements.txt with
+    pinned versions of ... pdfminer.six==20231228.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pdfminer.six library version required is 20231228.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:48:57Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Easyocr version 1.7
+  claim_id: c_2ad2425f
+  context: 'T002 [P] Create requirements.txt. Action: ... Optional Dependencies: Include
+    easyocr==1.7.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The easyocr library version required is 1.7.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:49:12Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Opencv-python version 4.8
+  claim_id: c_02afd924
+  context: 'T002 [P] Create requirements.txt. Action: ... Optional Dependencies: Include
+    ... opencv-python==4.8.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The opencv-python library version required is 4.8.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:49:25Z'
+- artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  attempts: 1
+  canonical: Pdf2image version 1.16
+  claim_id: c_f97b74e9
+  context: 'T002 [P] Create requirements.txt. Action: ... Optional Dependencies: Include
+    ... pdf2image==1.16.*...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pdf2image library version required is 1.16.*.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:49:59Z'

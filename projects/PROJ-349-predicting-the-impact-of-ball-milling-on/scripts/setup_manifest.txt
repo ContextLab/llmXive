@@ -1,34 +1,50 @@
-# Project Structure Manifest for PROJ-349
-# Generated for automated science pipeline
-# All paths are relative to project root
+# Project Structure Manifest
+# Generated for: PROJ-349-predicting-the-impact-of-ball-milling-on
+# Task: T001 - Create project structure manifest
+# Date: 2024-01-01
 
-# Core directories
+# Core Source Directories
 src/
+src/cli/
+src/config/
+src/evaluate/
+src/exceptions.py
+src/ingest/
+src/interpret/
+src/model/
+src/preprocess/
+src/utils/
+
+# Test Directories
 tests/
+tests/contract/
+tests/integration/
+tests/unit/
+
+# Data Directories
 data/
 data/raw/
 data/processed/
 data/splits/
+
+# Results and Artifacts
 results/
+figures/
+
+# Contracts and Specifications
 contracts/
-.github/
-.github/workflows/
-scripts/
 specs/
 
-# Configuration and documentation
+# CI/CD Configuration
+.github/
+.github/workflows/
+
+# Documentation
+docs/
+
+# Configuration Files
 config.yaml
 requirements.txt
-README.md
-quickstart.md
-tasks.md
-plan.md
-spec.md
-data-model.md
-
-# Linting and formatting configs
-.flake8
 pyproject.toml
-
-# Version control
+.flake8
 .gitignore

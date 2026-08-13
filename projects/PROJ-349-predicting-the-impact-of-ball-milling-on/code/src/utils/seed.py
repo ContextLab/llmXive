@@ -1,177 +1,156 @@
 """
-Seed management utility for the llmXive ball milling prediction pipeline.
+Seed management utility for reproducible experiments.
 
-This module provides a centralized way to pin all random states across
-the entire project to ensure reproducibility of experiments and models.
+This module provides functions to pin all random states across
+Python's random, numpy, and other libraries to ensure reproducibility.
 """
 
 import os
 import random
 from typing import Optional, Dict, Any
-
 import numpy as np
 
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
-
-# Default seed value - can be overridden via environment variable
+# Default seed value for reproducibility
 DEFAULT_SEED = 42
-SEED_ENV_VAR = "BALL_MILLING_SEED"
 
-# Global seed state
-_global_seed: Optional[int] = None
-_seed_config: Dict[str, Any] = {}
+# Global seed configuration
+_seed_config: Dict[str, Any] = {
+    'global_seed': DEFAULT_SEED,
+    'python_random': DEFAULT_SEED,
+    'numpy_random': DEFAULT_SEED,
+    'torch_seed': DEFAULT_SEED,  # For PyTorch if used
+}
 
-
-def get_seed() -> int:
+def get_seed(component: Optional[str] = None) -> int:
     """
-    Retrieve the global seed value.
+    Get the seed value for a specific component or the global seed.
     
-    Checks in order:
-    1. Environment variable BALL_MILLING_SEED
-    2. Previously set global seed
-    3. Default seed (42)
+    Args:
+        component: The component name ('python_random', 'numpy_random', 
+                 'torch_seed', or None for global)
     
     Returns:
-        int: The seed value to use for random operations.
+        The seed value as an integer
     """
-    # Check environment variable first
-    env_seed = os.environ.get(SEED_ENV_VAR)
-    if env_seed is not None:
+    if component is None:
+        return _seed_config['global_seed']
+    return _seed_config.get(component, _seed_config['global_seed'])
+
+def set_seed(seed: int, component: Optional[str] = None) -> None:
+    """
+    Set the seed value for a specific component or globally.
+    
+    Args:
+        seed: The seed value to set
+        component: The component name. If None, sets global seed and
+                 propagates to all components
+    """
+    if component is None:
+        # Set global seed
+        _seed_config['global_seed'] = seed
+        _seed_config['python_random'] = seed
+        _seed_config['numpy_random'] = seed
+        _seed_config['torch_seed'] = seed
+        
+        # Apply to Python's random
+        random.seed(seed)
+        
+        # Apply to NumPy
+        np.random.seed(seed)
+        
+        # Apply to PyTorch if available
         try:
-            return int(env_seed)
-        except ValueError:
-            raise ValueError(f"Invalid seed value in {SEED_ENV_VAR}: {env_seed}. Must be an integer.")
-    
-    # Return global seed if set
-    if _global_seed is not None:
-        return _global_seed
-    
-    # Return default
-    return DEFAULT_SEED
+            import torch
+            torch.manual_seed(seed)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed(seed)
+                torch.cuda.manual_seed_all(seed)
+        except ImportError:
+            pass  # PyTorch not installed
+    else:
+        # Set seed for specific component
+        _seed_config[component] = seed
+        
+        # Apply to the specific library
+        if component == 'python_random':
+            random.seed(seed)
+        elif component == 'numpy_random':
+            np.random.seed(seed)
+        elif component == 'torch_seed':
+            try:
+                import torch
+                torch.manual_seed(seed)
+                if torch.cuda.is_available():
+                    torch.cuda.manual_seed(seed)
+                    torch.cuda.manual_seed_all(seed)
+            except ImportError:
+                pass
 
-
-def set_seed(seed: Optional[int] = None) -> int:
+def get_random_state(component: str = 'numpy_random') -> Any:
     """
-    Set the global seed and propagate to all random number generators.
+    Get the current random state for a specific component.
     
     Args:
-        seed: Optional seed value. If None, uses environment variable or default.
+        component: The component name ('python_random' or 'numpy_random')
     
     Returns:
-        int: The seed value that was set.
-    
-    Raises:
-        ValueError: If the seed value is not a non-negative integer.
+        The random state object for the specified component
     """
-    if seed is None:
-        seed = get_seed()
-    
-    if not isinstance(seed, int) or seed < 0:
-        raise ValueError(f"Seed must be a non-negative integer, got: {seed}")
-    
-    global _global_seed
-    _global_seed = seed
-    
-    # Propagate to all libraries
-    _propagate_seed(seed)
-    
-    return seed
+    if component == 'python_random':
+        return random.getstate()
+    elif component == 'numpy_random':
+        return np.random.get_state()
+    else:
+        raise ValueError(f"Unknown component: {component}")
 
-
-def _propagate_seed(seed: int) -> None:
+def set_random_state(state: Any, component: str = 'numpy_random') -> None:
     """
-    Propagate the seed to all random number generators used in the project.
+    Set the random state for a specific component.
     
     Args:
-        seed: The seed value to set.
+        state: The random state object to set
+        component: The component name ('python_random' or 'numpy_random')
     """
-    # Python's random module
-    random.seed(seed)
-    
-    # NumPy
-    np.random.seed(seed)
-    
-    # PyTorch (if available)
-    if TORCH_AVAILABLE:
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
-    
-    # Store configuration for reference
-    _seed_config['seed'] = seed
-    _seed_config['torch_available'] = TORCH_AVAILABLE
-    _seed_config['cuda_available'] = TORCH_AVAILABLE and torch.cuda.is_available() if TORCH_AVAILABLE else False
-
-
-def get_random_state() -> Dict[str, Any]:
-    """
-    Get the current state of all random number generators.
-    
-    Returns:
-        Dict containing the state of each random generator.
-    """
-    state = {
-        'python_random': random.getstate(),
-        'numpy_random': np.random.get_state(),
-    }
-    
-    if TORCH_AVAILABLE:
-        state['torch_cpu'] = torch.get_rng_state()
-        if torch.cuda.is_available():
-            state['torch_cuda'] = torch.cuda.get_rng_state_all()
-    
-    return state
-
-
-def set_random_state(state: Dict[str, Any]) -> None:
-    """
-    Restore the state of all random number generators.
-    
-    Args:
-        state: Dictionary containing states from get_random_state().
-    """
-    random.setstate(state['python_random'])
-    np.random.set_state(state['numpy_random'])
-    
-    if TORCH_AVAILABLE and 'torch_cpu' in state:
-        torch.set_rng_state(state['torch_cpu'])
-        if 'torch_cuda' in state and torch.cuda.is_available():
-            torch.cuda.set_rng_state_all(state['torch_cuda'])
-
+    if component == 'python_random':
+        random.setstate(state)
+    elif component == 'numpy_random':
+        np.random.set_state(state)
+    else:
+        raise ValueError(f"Unknown component: {component}")
 
 def get_seed_config() -> Dict[str, Any]:
     """
-    Get the current seed configuration.
+    Get the current seed configuration for all components.
     
     Returns:
-        Dict with seed value and availability flags.
+        Dictionary containing all seed values
     """
     return _seed_config.copy()
 
-
 def init_seed(seed: Optional[int] = None) -> int:
     """
-    Initialize the seed for the entire pipeline.
-    
-    This should be called at the very beginning of the main entry point
-    to ensure all subsequent random operations are reproducible.
+    Initialize all random seeds to a consistent value.
     
     Args:
-        seed: Optional seed value. If None, uses environment variable or default.
+        seed: The seed value to use. If None, uses DEFAULT_SEED
     
     Returns:
-        int: The seed value that was initialized.
-    
-    Example:
-        >>> from src.utils.seed import init_seed
-        >>> seed = init_seed()  # Uses env var or default 42
-        >>> # Now all random operations are reproducible
+        The seed value that was set
     """
-    return set_seed(seed)
+    if seed is None:
+        seed = DEFAULT_SEED
+    
+    # Set all seeds
+    set_seed(seed)
+    
+    # Also check for environment variable override
+    env_seed = os.getenv('PROJECT_SEED')
+    if env_seed is not None:
+        try:
+            env_seed = int(env_seed)
+            set_seed(env_seed)
+            seed = env_seed
+        except ValueError:
+            pass  # Invalid environment variable, ignore
+    
+    return seed

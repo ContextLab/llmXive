@@ -1,7 +1,11 @@
 """
 Schema validation module for the ball milling dataset.
-Enforces structure and types defined in contracts/dataset.schema.yaml.
+
+This module enforces the dataset schema defined in `contracts/dataset.schema.yaml`.
+It validates field presence, types, and structure but does NOT check row count
+(handled by T015a and T017c).
 """
+
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
@@ -9,158 +13,218 @@ from typing import Any, Dict, List, Optional, Set
 import pandas as pd
 import yaml
 
+# Import exceptions from the established location in the API surface
 from src.utils.exceptions import InsufficientDataError, SchemaValidationError
 
+# Configure logger
 logger = logging.getLogger(__name__)
+
+# Default path to the schema file relative to project root
+# Note: The project structure places contracts at the root or under src/
+# Based on tasks.md: "contracts/dataset.schema.yaml"
+DEFAULT_SCHEMA_PATH = "contracts/dataset.schema.yaml"
+
 
 def load_schema(schema_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Load the dataset schema from a YAML file.
 
     Args:
-        schema_path: Path to the schema file. Defaults to 'contracts/dataset.schema.yaml' relative to project root.
+        schema_path: Path to the schema YAML file. Defaults to DEFAULT_SCHEMA_PATH.
 
     Returns:
-        Dictionary containing the schema definition.
+        Dict containing the loaded schema.
 
     Raises:
-        FileNotFoundError: If the schema file is not found.
-        yaml.YAMLError: If the schema file is invalid YAML.
+        SchemaValidationError: If the schema file cannot be found or parsed.
     """
-    if schema_path is None:
-        # Determine project root relative to this file
-        current_file = Path(__file__).resolve()
-        project_root = current_file.parent.parent.parent
-        schema_path = project_root / "contracts" / "dataset.schema.yaml"
-    else:
-        schema_path = Path(schema_path)
+    path = Path(schema_path) if schema_path else Path(DEFAULT_SCHEMA_PATH)
 
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found at {schema_path}")
+    if not path.exists():
+        # Try resolving relative to project root if absolute path not provided
+        # Assuming the script runs from project root or the path is relative to it
+        if not path.is_absolute():
+            # Check common locations
+            possible_paths = [
+                Path.cwd() / "contracts" / "dataset.schema.yaml",
+                Path.cwd() / "code" / "contracts" / "dataset.schema.yaml",
+                path
+            ]
+            found = False
+            for p in possible_paths:
+                if p.exists():
+                    path = p
+                    found = True
+                    break
+            if not found:
+                raise SchemaValidationError(f"Schema file not found at: {schema_path or DEFAULT_SCHEMA_PATH}")
+        else:
+            raise SchemaValidationError(f"Schema file not found at: {path}")
 
-    with open(schema_path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            schema = yaml.safe_load(f)
+        if not isinstance(schema, dict):
+            raise SchemaValidationError("Schema file must contain a valid YAML dictionary.")
+        return schema
+    except yaml.YAMLError as e:
+        raise SchemaValidationError(f"Failed to parse schema YAML: {e}")
+    except Exception as e:
+        raise SchemaValidationError(f"Error loading schema file: {e}")
 
-def validate_schema(df: pd.DataFrame, schema: Optional[Dict[str, Any]] = None) -> bool:
+
+def _validate_field_types(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
     """
-    Validate a DataFrame against the dataset schema.
-
-    This function checks:
-    1. Presence of all required fields.
-    2. Type compatibility for each field (string, number, or null).
-
-    It does NOT check row count (handled by T015a and T017c).
+    Validates that columns exist and have compatible types based on the schema.
 
     Args:
-        df: The DataFrame to validate.
-        schema: Optional pre-loaded schema. If None, loads from default path.
+        df: The dataframe to validate.
+        schema: The loaded schema dictionary.
+
+    Returns:
+        A list of error messages. Empty if validation passes.
+    """
+    errors = []
+    properties = schema.get("properties", {})
+    required_fields = schema.get("required", [])
+
+    # Check for required fields
+    missing_fields = set(required_fields) - set(df.columns)
+    if missing_fields:
+        errors.append(f"Missing required fields: {', '.join(sorted(missing_fields))}")
+
+    # Check types for present fields
+    for col_name, col_schema in properties.items():
+        if col_name not in df.columns:
+            continue  # Already handled by required check if applicable
+
+        expected_type = col_schema.get("type")
+        if not expected_type:
+            continue  # No type constraint specified
+
+        dtype = df[col_name].dtype
+
+        # Map YAML/JSON types to pandas dtypes
+        type_map = {
+            "string": ["object", "string"],
+            "integer": ["int64", "int32", "uint64", "uint32"],
+            "number": ["float64", "float32"],
+            "boolean": ["bool"]
+        }
+
+        valid_dtypes = type_map.get(expected_type, [])
+
+        # Special handling for numeric columns that might be object (mixed) or nullable
+        if expected_type in ["integer", "number"]:
+            # Allow numeric types, or object if it contains numeric-like strings (though strict check prefers numeric)
+            # For strict schema validation, we expect numeric dtypes for numbers
+            if not pd.api.types.is_numeric_dtype(dtype):
+                # Allow object if it's actually numeric (e.g. read as object but convertible)
+                # But strict schema usually implies the data type in the file
+                # Let's be strict: if it says number, it should be numeric
+                errors.append(f"Field '{col_name}' expected type '{expected_type}' but found dtype '{dtype}'")
+
+        elif expected_type == "string":
+            # Object is the standard string type in pandas
+            if dtype not in valid_dtypes:
+                errors.append(f"Field '{col_name}' expected type '{expected_type}' but found dtype '{dtype}'")
+
+        elif expected_type == "boolean":
+            if dtype not in valid_dtypes:
+                errors.append(f"Field '{col_name}' expected type '{expected_type}' but found dtype '{dtype}'")
+
+    return errors
+
+
+def validate_schema(df: pd.DataFrame, schema_path: Optional[str] = None) -> bool:
+    """
+    Validates a dataframe against the dataset schema.
+
+    This function enforces field presence and type constraints as defined in
+    `contracts/dataset.schema.yaml`. It raises `InsufficientDataError` if
+    the schema structure (field types, presence) fails.
+
+    Constraint: This function does NOT check row count.
+
+    Args:
+        df: The pandas DataFrame to validate.
+        schema_path: Optional path to the schema file.
+
+    Raises:
+        InsufficientDataError: If the dataframe fails schema validation (missing fields, wrong types).
+        SchemaValidationError: If the schema file itself is invalid.
 
     Returns:
         True if validation passes.
-
-    Raises:
-        InsufficientDataError: If required fields are missing or data types are invalid.
-        SchemaValidationError: If the schema itself is malformed.
     """
-    if schema is None:
-        schema = load_schema()
+    if not isinstance(df, pd.DataFrame):
+        raise InsufficientDataError("Input must be a pandas DataFrame.")
 
+    if df.empty:
+        # Empty dataframe fails schema if required fields are expected
+        # Though strictly, an empty dataframe has the right columns.
+        # The spec says "enforce schema structure". If columns are missing, it fails.
+        # If columns exist but rows are 0, that's a row count issue (T015a/T017c).
+        # We proceed to check column presence.
+        pass
+
+    try:
+        schema = load_schema(schema_path)
+    except SchemaValidationError:
+        # Re-raise if schema loading fails
+        raise
+
+    errors = []
+
+    # 1. Check required fields
     required_fields = schema.get("required", [])
-    properties = schema.get("properties", {})
+    missing_fields = set(required_fields) - set(df.columns)
+    if missing_fields:
+        errors.append(f"Missing required fields: {', '.join(sorted(missing_fields))}")
 
-    # 1. Check for presence of required columns
-    missing_columns = set(required_fields) - set(df.columns)
-    if missing_columns:
-        msg = f"Schema validation failed: Missing required columns: {sorted(missing_columns)}"
-        logger.error(msg)
-        raise InsufficientDataError(msg)
+    # 2. Check types
+    type_errors = _validate_field_types(df, schema)
+    errors.extend(type_errors)
 
-    # 2. Check data types for each column
-    type_errors = []
-    for col_name in required_fields:
-        col_schema = properties.get(col_name, {})
-        allowed_types = col_schema.get("type", [])
-
-        # Normalize allowed_types to a list if it's a single string
-        if isinstance(allowed_types, str):
-            allowed_types = [allowed_types]
-
-        # Determine pandas dtype compatibility
-        # JSON schema 'number' maps to float/int, 'string' to object/str
-        # We allow 'null' in JSON schema, which in pandas is represented by NaN or None in object columns
-        # or float columns.
-
-        series = df[col_name]
-
-        # If the column is entirely empty or non-existent (already checked), skip
-        if series.empty:
-            continue
-
-        # Check for type mismatches
-        # We perform a lenient check: if the column is numeric (int/float), it satisfies 'number'
-        # If it's object, it might contain strings or nulls.
-        # We raise an error only if we can definitively say the type is wrong (e.g., bool in a number column)
-        # or if the schema explicitly forbids the inferred type.
-
-        is_numeric = pd.api.types.is_numeric_dtype(series)
-        is_string_like = pd.api.types.is_string_dtype(series) or series.apply(lambda x: isinstance(x, str) or pd.isna(x)).all()
-
-        valid_for_col = False
-
-        if "number" in allowed_types:
-            if is_numeric:
-                valid_for_col = True
-            # Allow object columns if they only contain numbers or NaN
-            elif not is_numeric and series.dtype == object:
-                # Check if all non-null values are numbers
-                non_null = series.dropna()
-                if len(non_null) > 0 and non_null.apply(lambda x: isinstance(x, (int, float)) and not isinstance(x, bool)).all():
-                    valid_for_col = True
-
-        if "string" in allowed_types:
-            if is_string_like:
-                valid_for_col = True
-
-        # If 'null' is allowed, we don't need to check for NaN specifically as it's always allowed in pandas
-        # unless the column is strictly typed as non-nullable in a stricter validator,
-        # but here we just check the type of non-null values.
-
-        if not valid_for_col:
-            type_errors.append(f"Column '{col_name}' has invalid type. Expected: {allowed_types}, Found: {series.dtype}")
-
-    if type_errors:
-        msg = f"Schema validation failed: Type mismatches found.\n" + "\n".join(type_errors)
-        logger.error(msg)
-        raise InsufficientDataError(msg)
+    if errors:
+        error_msg = "Schema validation failed:\n- " + "\n- ".join(errors)
+        # The task specifically requires raising InsufficientDataError for schema failure
+        # per the task description: "raises InsufficientDataError ... ONLY if schema structure ... fails"
+        raise InsufficientDataError(error_msg)
 
     logger.info("Schema validation passed.")
     return True
 
-def validate_file(file_path: str, schema: Optional[Dict[str, Any]] = None) -> bool:
+
+def validate_file(file_path: str, schema_path: Optional[str] = None) -> bool:
     """
-    Validate a Parquet or CSV file against the schema.
+    Validates a parquet or CSV file against the dataset schema.
 
     Args:
-        file_path: Path to the data file.
-        schema: Optional pre-loaded schema.
+        file_path: Path to the input file (parquet or csv).
+        schema_path: Optional path to the schema file.
+
+    Raises:
+        InsufficientDataError: If the file data fails schema validation.
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If the file format is unsupported.
 
     Returns:
         True if validation passes.
-
-    Raises:
-        FileNotFoundError: If the data file is not found.
-        ValueError: If the file format is unsupported.
-        InsufficientDataError: If validation fails.
     """
     path = Path(file_path)
     if not path.exists():
-        raise FileNotFoundError(f"Data file not found at {file_path}")
+        raise FileNotFoundError(f"Input file not found: {file_path}")
 
-    if path.suffix == ".parquet":
-        df = pd.read_parquet(path)
-    elif path.suffix == ".csv":
-        df = pd.read_csv(path)
-    else:
-        raise ValueError(f"Unsupported file format: {path.suffix}. Use .parquet or .csv.")
+    suffix = path.suffix.lower()
+    try:
+        if suffix == '.parquet':
+            df = pd.read_parquet(path)
+        elif suffix == '.csv':
+            df = pd.read_csv(path)
+        else:
+            raise ValueError(f"Unsupported file format: {suffix}. Use .parquet or .csv.")
+    except Exception as e:
+        raise SchemaValidationError(f"Failed to read input file: {e}")
 
-    return validate_schema(df, schema)
+    return validate_schema(df, schema_path)

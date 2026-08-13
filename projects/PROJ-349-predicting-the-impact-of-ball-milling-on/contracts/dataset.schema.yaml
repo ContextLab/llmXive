@@ -1,10 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Ball Milling Dataset Schema"
-description: "Schema for the ball milling particle size distribution dataset."
-type: "object"
+title: "Ball Milling Particle Size Distribution Dataset"
+description: "Schema for the ball milling impact prediction dataset. Defines required fields, types, and constraints for data ingestion and validation."
+
+type: object
 required:
   - experiment_id
-  - source
+  - source_name
   - source_id
   - material_type
   - milling_speed
@@ -16,44 +17,88 @@ required:
   - d50
   - d90
   - process_duration
+
 properties:
   experiment_id:
-    type: "string"
-    description: "Unique identifier for the experiment."
-  source:
-    type: "string"
+    type: string
+    description: "Unique identifier for the experiment record."
+    minLength: 1
+    
+  source_name:
+    type: string
     description: "Name of the data source (e.g., 'Materials Project', 'NIST', 'arXiv')."
+    enum:
+      - "Materials Project"
+      - "NIST"
+      - "arXiv"
+      - "Manual Curation"
+      
   source_id:
-    type: "string"
-    description: "Unique identifier for the record within the source."
+    type: string
+    description: "Unique identifier of the record within the source (e.g., DOI, MP-ID, arXiv ID)."
+    minLength: 1
+
   material_type:
-    type: "string"
-    description: "Type of material processed."
+    type: string
+    description: "Type of material being milled (e.g., 'Metal', 'Ceramic', 'Polymer')."
+    minLength: 1
+
   milling_speed:
-    type: ["number", "null"]
-    description: "Milling speed in RPM."
+    type: number
+    description: "Rotational speed of the mill in RPM."
+    minimum: 0
+    nullable: true
+
   milling_time:
-    type: ["number", "null"]
-    description: "Milling time in hours."
+    type: number
+    description: "Duration of milling in hours."
+    minimum: 0
+    nullable: true
+
   ball_to_powder_ratio:
-    type: ["number", "null"]
+    type: number
     description: "Ratio of ball mass to powder mass."
+    minimum: 0
+    nullable: true
+
   youngs_modulus:
-    type: ["number", "null"]
-    description: "Young's modulus of the material in GPa."
+    type: number
+    description: "Young's Modulus of the material in GPa."
+    minimum: 0
+    nullable: true
+
   density:
-    type: ["number", "null"]
+    type: number
     description: "Density of the material in g/cm³."
+    minimum: 0
+    nullable: true
+
   d10:
-    type: ["number", "null"]
-    description: "10th percentile of particle size distribution in micrometers."
+    type: number
+    description: "Particle size at 10% cumulative distribution in micrometers."
+    minimum: 0
+    nullable: true
+
   d50:
-    type: ["number", "null"]
-    description: "50th percentile (median) of particle size distribution in micrometers."
+    type: number
+    description: "Particle size at 50% cumulative distribution (median) in micrometers."
+    minimum: 0
+    nullable: true
+
   d90:
-    type: ["number", "null"]
-    description: "90th percentile of particle size distribution in micrometers."
+    type: number
+    description: "Particle size at 90% cumulative distribution in micrometers."
+    minimum: 0
+    nullable: true
+
   process_duration:
-    type: ["number", "null"]
-    description: "Total process duration in minutes."
-additionalProperties: true
+    type: number
+    description: "Total process duration in hours (may differ from milling time if setup/cleaning included)."
+    minimum: 0
+    nullable: true
+
+additionalProperties: false
+metadata:
+  version: "1.0.0"
+  created_by: "T007a"
+  last_updated: "2023-10-27"
