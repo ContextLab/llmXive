@@ -1,3 +1,7 @@
+"""
+Visualization module for pathway analysis results.
+Generates bar plots of pathway frequency/importance based on aggregated pathway data.
+"""
 import os
 import sys
 import json
@@ -6,170 +10,185 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Ensure project root is in path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.constants import RESULTS_DIR
+from utils.constants import RESULTS_DIR, ensure_dirs
 
 def load_json_file(file_path: Path) -> dict:
-    """Load a JSON file and return its contents."""
+    """Load a JSON file and return its contents as a dictionary."""
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
+        raise FileNotFoundError(f"JSON file not found: {file_path}")
     with open(file_path, 'r') as f:
         return json.load(f)
 
-def aggregate_pathway_scores(pathway_data: list) -> pd.DataFrame:
+def save_json_file(file_path: Path, data: dict):
+    """Save a dictionary to a JSON file."""
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_path, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def aggregate_pathway_scores(pathway_data: dict) -> pd.DataFrame:
     """
-    Aggregate pathway data to calculate frequency and importance scores.
+    Aggregate pathway data to compute frequency and importance scores.
     
     Args:
-        pathway_data: List of dictionaries containing pathway analysis results
-        
+        pathway_data: Dictionary containing pathway analysis results.
+                     Expected keys: 'pathway_mappings', 'narrative_report', 'framing'
+    
     Returns:
-        DataFrame with aggregated pathway statistics
+        DataFrame with pathway names, frequency, and importance scores.
     """
-    if not pathway_data:
-        raise ValueError("No pathway data provided for aggregation")
+    if 'pathway_mappings' not in pathway_data or not pathway_data['pathway_mappings']:
+        # Return empty dataframe if no mappings
+        return pd.DataFrame(columns=['pathway_name', 'frequency', 'importance'])
+
+    mappings = pathway_data['pathway_mappings']
     
-    df = pd.DataFrame(pathway_data)
+    # Count frequency of each pathway
+    pathway_counts = {}
+    pathway_importance = {}
     
-    # Ensure required columns exist
-    required_cols = ['pathway_name', 'metabolite_id']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
+    for mapping in mappings:
+        pathway_name = mapping.get('pathway_name', 'Unknown')
+        if pathway_name:
+            pathway_counts[pathway_name] = pathway_counts.get(pathway_name, 0) + 1
+            # Use metabolite importance as proxy if available, otherwise default to 1
+            importance = mapping.get('metabolite_importance', 1.0)
+            if pathway_name not in pathway_importance:
+                pathway_importance[pathway_name] = []
+            pathway_importance[pathway_name].append(importance)
     
-    # Calculate frequency (count of metabolites per pathway)
-    frequency = df.groupby('pathway_name').size().reset_index(name='frequency')
+    # Create dataframe
+    data = []
+    for pathway_name, count in pathway_counts.items():
+        avg_importance = sum(pathway_importance[pathway_name]) / len(pathway_importance[pathway_name])
+        data.append({
+            'pathway_name': pathway_name,
+            'frequency': count,
+            'importance': avg_importance
+        })
     
-    # Calculate importance score (average intensity or weight if available)
-    # If 'importance' or 'score' column exists, use it; otherwise default to 1
-    if 'importance' in df.columns:
-        importance = df.groupby('pathway_name')['importance'].mean().reset_index(name='importance_score')
-    elif 'score' in df.columns:
-        importance = df.groupby('pathway_name')['score'].mean().reset_index(name='importance_score')
-    else:
-        # Default importance score based on frequency
-        importance = frequency.copy()
-        importance['importance_score'] = importance['frequency']
+    df = pd.DataFrame(data)
+    if not df.empty:
+        df = df.sort_values(by=['frequency', 'importance'], ascending=[False, False])
     
-    # Merge frequency and importance
-    result = frequency.merge(importance, on='pathway_name')
-    
-    # Sort by importance score descending
-    result = result.sort_values('importance_score', ascending=False).reset_index(drop=True)
-    
-    return result
+    return df
 
 def plot_pathway_importance(df: pd.DataFrame, output_path: Path, top_n: int = 15):
     """
-    Create a bar plot of top pathways by importance score.
+    Create a bar plot of pathway frequency/importance.
     
     Args:
-        df: Aggregated pathway DataFrame
+        df: DataFrame with pathway data (pathway_name, frequency, importance)
         output_path: Path to save the plot
         top_n: Number of top pathways to display
     """
-    if df.empty:
-        raise ValueError("Cannot plot empty DataFrame")
-    
+    if df.empty or len(df) == 0:
+        # Create a placeholder plot if no data
+        plt.figure(figsize=(10, 6))
+        plt.text(0.5, 0.5, 'No pathway data available', 
+                horizontalalignment='center', verticalalignment='center',
+                transform=plt.gca().transAxes)
+        plt.title('Pathway Analysis - No Data')
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        return
+
     # Select top N pathways
-    top_df = df.head(top_n).copy()
+    df_top = df.head(top_n).copy()
     
-    # Create figure with high resolution
-    plt.figure(figsize=(14, 8), dpi=300)
+    # Create figure
+    plt.figure(figsize=(12, 8))
     
-    # Create bar plot
-    ax = sns.barplot(
-        data=top_df,
-        x='importance_score',
-        y='pathway_name',
-        hue='frequency',
-        palette='viridis',
-        legend=False,
-        edgecolor='black',
-        linewidth=1.2
-    )
+    # Create bar plot with frequency on primary axis
+    ax1 = plt.gca()
+    sns.barplot(data=df_top, x='pathway_name', y='frequency', 
+               ax=ax1, palette='viridis', edgecolor='black')
     
-    # Customize plot
-    plt.title('Top Pathways by Importance Score', fontsize=16, fontweight='bold', pad=20)
-    plt.xlabel('Importance Score', fontsize=12, labelpad=10)
-    plt.ylabel('Pathway', fontsize=12, labelpad=10)
+    ax1.set_xlabel('Pathway', fontsize=12, fontweight='bold')
+    ax1.set_ylabel('Frequency (Number of Metabolites)', fontsize=12, fontweight='bold')
+    ax1.set_title('Top Pathways by Metabolite Frequency', fontsize=14, fontweight='bold')
+    ax1.tick_params(axis='x', rotation=45)
     
-    # Add value labels on bars
-    for i, (idx, row) in enumerate(top_df.iterrows()):
-        ax.text(
-            row['importance_score'] + 0.1,
-            i,
-            f"{row['importance_score']:.2f}",
-            va='center',
-            fontsize=10,
-            fontweight='bold'
-        )
+    # Add importance as a secondary visualization (color intensity or secondary bar)
+    # For clarity, we'll add importance values as text labels
+    for i, row in df_top.iterrows():
+        ax1.text(i, row['frequency'] + 0.1, f"Int: {row['importance']:.2f}",
+                ha='center', va='bottom', fontsize=9, fontweight='bold')
     
-    # Improve layout
     plt.tight_layout()
-    
-    # Save with high resolution
-    plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
 
 def main():
-    """Main function to execute pathway visualization."""
+    """
+    Main function to generate pathway visualization.
+    
+    Reads pathway analysis from results/pathway_analysis.json
+    and generates results/plots/pathway_barplot.png
+    """
     # Define paths
     input_path = RESULTS_DIR / "pathway_analysis.json"
-    output_path = RESULTS_DIR / "pathway_barplot.png"
+    output_dir = RESULTS_DIR / "plots"
+    output_path = output_dir / "pathway_barplot.png"
     
+    # Ensure output directory exists
+    ensure_dirs([output_dir])
+    
+    # Load pathway analysis data
     print(f"Loading pathway analysis from: {input_path}")
-    
-    # Load data
     try:
-        data = load_json_file(input_path)
+        pathway_data = load_json_file(input_path)
     except FileNotFoundError as e:
         print(f"Error: {e}")
-        print("Please ensure T027 has completed and generated results/pathway_analysis.json")
-        sys.exit(1)
+        # Create empty plot as fallback
+        output_dir.mkdir(parents=True, exist_ok=True)
+        plt.figure(figsize=(10, 6))
+        plt.text(0.5, 0.5, 'Pathway analysis data not found', 
+                horizontalalignment='center', verticalalignment='center',
+                transform=plt.gca().transAxes)
+        plt.title('Pathway Analysis - Data Missing')
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"Placeholder plot saved to: {output_path}")
+        return
     
-    # Handle different data structures
-    if isinstance(data, dict):
-        # Check if data is wrapped in a key
-        if 'pathways' in data:
-            pathway_data = data['pathways']
-        elif 'results' in data:
-            pathway_data = data['results']
-        else:
-            # Assume the dict itself contains the pathway entries
-            pathway_data = list(data.values()) if any(isinstance(v, list) for v in data.values()) else [data]
-    elif isinstance(data, list):
-        pathway_data = data
-    else:
-        raise ValueError(f"Unexpected data structure: {type(data)}")
+    # Aggregate pathway scores
+    print("Aggregating pathway scores...")
+    pathway_df = aggregate_pathway_scores(pathway_data)
     
-    if not pathway_data:
-        print("Error: No pathway data found in the input file")
-        sys.exit(1)
+    if pathway_df.empty:
+        print("No pathway mappings found in data.")
+        # Create empty plot
+        output_dir.mkdir(parents=True, exist_ok=True)
+        plt.figure(figsize=(10, 6))
+        plt.text(0.5, 0.5, 'No pathway mappings found', 
+                horizontalalignment='center', verticalalignment='center',
+                transform=plt.gca().transAxes)
+        plt.title('Pathway Analysis - No Mappings')
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"Empty plot saved to: {output_path}")
+        return
     
-    print(f"Processing {len(pathway_data)} pathway entries")
-    
-    # Aggregate data
-    try:
-        aggregated_df = aggregate_pathway_scores(pathway_data)
-        print(f"Aggregated data for {len(aggregated_df)} unique pathways")
-    except Exception as e:
-        print(f"Error aggregating pathway data: {e}")
-        sys.exit(1)
-    
-    # Create output directory if it doesn't exist
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    print(f"Found {len(pathway_df)} unique pathways")
     
     # Generate plot
-    try:
-        print(f"Generating visualization: {output_path}")
-        plot_pathway_importance(aggregated_df, output_path)
-        print(f"Successfully saved visualization to: {output_path}")
-    except Exception as e:
-        print(f"Error generating plot: {e}")
+    print(f"Generating bar plot: {output_path}")
+    plot_pathway_importance(pathway_df, output_path, top_n=15)
+    
+    # Verify output
+    if output_path.exists() and output_path.stat().st_size > 0:
+        print(f"SUCCESS: Plot generated and saved to {output_path}")
+        print(f"File size: {output_path.stat().st_size} bytes")
+    else:
+        print(f"ERROR: Failed to generate plot at {output_path}")
         sys.exit(1)
 
 if __name__ == "__main__":

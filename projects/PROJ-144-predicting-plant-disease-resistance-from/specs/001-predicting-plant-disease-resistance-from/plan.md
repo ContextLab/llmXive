@@ -9,7 +9,7 @@ This project implements a reproducible machine learning pipeline to predict plan
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `scikit-learn==1.5.0`, `pandas==2.2.0`, `numpy==1.26.0`, `scipy==1.13.0`, `pyyaml==6.0.1`, `requests==2.32.0`, `joblib==1.4.0`, `pydantic==2.7.0`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `results/`); no external database.  
 **Testing**: `pytest==8.2.0` with `pytest-cov`  
@@ -121,7 +121,7 @@ state/
 ### Phase 2: Model Training & Validation (FR-005, FR-006, FR-007, FR-008, FR-011, FR-012)
 1.  **Split**: 
  * **If N ≥ 50**: Reserve independent hold-out set ([deferred]) using `binary_label` for stratification.
-    *   **If N < 50**: Skip hold-out set. Perform **Learning Curve Analysis** (SC-004) using full stratified 5-fold CV. Flag power limitation.
+    *   **If N < 50**: Skip hold-out set. Perform **Learning Curve Analysis** (SC-004) using full stratified k-fold CV. Flag power limitation.
 2.  **Train**: Random Forest (n_estimators=500, max_depth=10) with stratified 5-fold CV.
 3.  **Validate**:
     *   **3a. Exploratory Analysis**: Compute pairwise correlations (metabolite vs. resistance). Apply Benjamini-Hochberg FDR (≤0.05) to p-values. Filter for |r| > 0.4, p < 0.01. Output to `results/shap_analysis.json`.
@@ -131,7 +131,7 @@ state/
 4.  **Log**: Save `results/metrics.json` and `results/shap_analysis.json`.
 
 ### Phase 3: Interpretation & Reporting (FR-010, FR-011)
-1.  **Extract**: Top 10 metabolites by mean decrease in impurity.
+1.  **Extract**: Top metabolites by mean decrease in impurity.
 2.  **Map**: Match InChIKeys to KEGG/MetaCyc pathways.
 3.  **Visualize**: Generate `results/plots/pathway_barplot.png` from `results/pathway_analysis.json` (T028).
 4.  **Report**: Generate narrative report in `results/pathway_analysis.json` with a mandatory "framing" field set to "associational" (FR-011). **Template**: "These findings represent statistical associations between pre-challenge metabolite profiles and disease resistance phenotypes. No causal claims are made."

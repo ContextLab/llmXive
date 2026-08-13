@@ -7,7 +7,8 @@ properties:
       balanced_accuracy: {type: number}
       roc_auc: {type: number}
       permutation_p_value: {type: number}
-      required: [balanced_accuracy, roc_auc, permutation_p_value]
+      framing: {type: string}
+    required: [balanced_accuracy, roc_auc, permutation_p_value, framing]
   shap_analysis:
     type: object
     properties:
@@ -18,7 +19,7 @@ properties:
           properties:
             feature_name: {type: string}
             shap_value: {type: number}
-            required: [feature_name, shap_value]
+          required: [feature_name, shap_value]
       collinearity_vif:
         type: array
         items:
@@ -26,6 +27,6 @@ properties:
           properties:
             feature_name: {type: string}
             vif_value: {type: number}
-            required: [feature_name, vif_value]
+          required: [feature_name, vif_value]
       framing: {type: string}
-      required: [top_features, framing]
+    required: [top_features, framing]

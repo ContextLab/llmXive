@@ -1,16 +1,10 @@
-T001a:
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listing or file tree was provided showing the required folders (`code/`,
-    `data/raw`, `data/processed`, `data/intermediate`, `tests/`, `state/`, `results/`,
-    `results/plots`, `contracts/`). Without concrete evidence that these directories
-    exist, the task requirement is not satisfied.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `ls -R` output or any other evidence was provided to show that the directories
-    created in T001a exist and are writable; the required verification artifact is
-    missing.
+  r: "No `state/directory_structure.txt` file containing the recursive `ls -R` output\
+    \ is present in the provided evidence, so the required artifact does not exist\
+    \ or is empty. The task\u2019s requirement to verify that directories from T001a/T001b\
+    \ exist and are writable has not been demonstrated."
 T005:
   c: true
   h: 5e0ec366c7256f050d6360c6e12408dce8b24f775796d2f1678451e4b2167eba
@@ -19,19 +13,22 @@ T005:
     \ and a SHA256 hash to `state/artifact_hashes.yaml` (creating the file if absent).\
     \ The required functionality is present and the code will generate the YAML log\
     \ as specified."
-T006b:
+T012a:
   c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: "The required `contracts/metadata.schema.yaml` file is missing, and no validation\
-    \ output (e.g., jsonschema or yamllint results) is provided, so the task\u2019\
-    s core requirement is not satisfied."
-T012:
+  h: 7c49e8156f42b3a50cb82f41c2680cc1503f64501414c6a34809c468aad0e9b1
+  r: "The provided `verify_studies.py` contains only placeholder functions (`pass`)\
+    \ and does not perform any API queries or write output. Additionally, the required\
+    \ `data/raw/study_manifest.json` file is missing entirely. The task\u2019s core\
+    \ requirements\u2014querying the Metabolomics Workbench, generating a list of\
+    \ study IDs with metadata, and writing valid JSON to the specified file\u2014\
+    are not satisfied."
+T012b:
   c: false
-  h: 579d6ac437737481404043b4dc8215a485f0753a9e6371b02d35d2c2c9141839
-  r: "The required output file `data/raw/study_manifest.json` does not exist, so the\
-    \ script was not shown to have been executed and no study IDs or metadata were\
-    \ produced. The task therefore fails the \u201Cfile exists with valid JSON\u201D\
-    \ verification."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of downloaded raw intensity tables or phenotype metadata in `data/raw/`
+    is provided, nor any SHA256 checksum files, verification of temporal metadata
+    fields, or implementation of a `TemporalVerificationError`. The required artifacts
+    and validation steps are missing.
 T013:
   c: true
   h: 7cd8a1a3de28821a8f7b2b337b64d6c8933b320b93a966043bf3ae261f01417e
@@ -40,6 +37,16 @@ T013:
     \ when none are found, and a `results/temporal_verification.json` file is created\
     \ (even if empty of studies when no data are present). The script\u2019s logic\
     \ follows the requirement to write the artifact without halting the pipeline."
+T017:
+  c: false
+  h: 0005e1846dc5dfd926b9972e6855731f306c91a3041f8e06578513e0dd246464
+  r: "The required input `data/raw/study_manifest.json` is missing, the script `code/data/preprocess.py`\
+    \ contains only placeholder `pass` statements and never creates any output, and\
+    \ the expected output files (`data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv`,\
+    \ `data/processed/preprocess_log.json`) do not exist. Consequently no real SHA\u2011\
+    256 checksums could be recorded; the hashes in `state/artifact_hashes.yaml` are\
+    \ placeholders (e.g., the hash of an empty file). The task\u2019s requirements\
+    \ are therefore not satisfied."
 T019:
   c: false
   h: 74347121ce103044f520c0bbaa7f3ed95f75f62c5caaa66cb681a60919589a76
@@ -48,6 +55,14 @@ T019:
     \ module it imports (`code/modeling/evaluate.py`) does not exist, so the test\
     \ cannot be executed. The required implementation file is missing, preventing\
     \ the task from being truly completed."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No VIF calculation artifact, script, or output for the top\u201110 metabolites\
+    \ is present; the implementer did not provide any code, data matrix, or results\
+    \ showing that `statsmodels.stats.outliers_influence.variance_inflation_factor`\
+    \ was applied after dropping the intercept column. Consequently the required collinearity\
+    \ diagnostics are not demonstrated."
 T025:
   c: false
   h: 581f8b61ae458695fd8af0e25bf9ae76856d2ca3da52cd2465573360ca11d659
@@ -55,20 +70,20 @@ T025:
     \ and the provided `tests/unit/test_modeling.py` contains no test exercising `map_metabolites_to_pathways`\
     \ (or any other interpret module functionality). Consequently, the unit test for\
     \ pathway\u2011mapping logic is missing."
-T028:
-  c: false
-  h: 5b63f8bb553fc89adede27d463112118cc316c6838b610bb20b5eba7779a39ea
-  r: The required output file `results/pathway_barplot.png` does not exist, so the
-    visualization was never generated despite the presence of `results/pathway_analysis.json`.
-    The task therefore remains unfinished.
-T029:
+T029a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim concerns updating `README.md` with execution instructions and adding
-    validation to `quickstart.md`, but no such files or their contents are provided
-    in the evidence. Without the updated README and quickstart documentation, the
-    requirement is not met. The next implementer must supply the modified `README.md`
-    and `quickstart.md` files showing the new instructions and validation steps.
+  r: "No updated\u202FREADME.md or\u202Fquickstart.md files were presented; the evidence\
+    \ does not show any execution instructions added to the README or any validation\
+    \ content in quickstart.md. The required documentation artifacts are missing."
+T029b:
+  c: false
+  h: dbd24a23dddaf5243126a0046f5393aec10a94d768c03ec5e28d3a1aa6df3ea4
+  r: "The required `results/report_framing.md` file does not exist, and the supporting\
+    \ JSON files `results/metrics.json` and `results/shap_analysis.json` are also\
+    \ missing, so the narrative report cannot be generated. Additionally, the existing\
+    \ `results/pathway_analysis.json` is incomplete (truncated). The task\u2019s deliverables\
+    \ are therefore not satisfied."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

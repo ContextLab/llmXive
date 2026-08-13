@@ -1,1 +1,1 @@
-"""Tests package for the plant disease resistance prediction pipeline."""
+# Tests package for plant disease resistance prediction pipeline

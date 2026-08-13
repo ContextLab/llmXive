@@ -4,188 +4,220 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-# Add project root to path if running as script
-if 'code' not in sys.path[0]:
-    project_root = Path(__file__).resolve().parents[2]
-    sys.path.insert(0, str(project_root))
+# Ensure project root is in path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.constants import DATA_PROCESSED_DIR, DATA_INTERMEDIATE_DIR
-from utils.io import compute_file_hash, log_artifact
+from utils.constants import DATA_PROCESSED_DIR, RESULTS_DIR, DATA_INTERMEDIATE_DIR
+from utils.io import log_artifact
 
-try:
-    from statsmodels.stats.outliers_influence import variance_inflation_factor
-except ImportError:
-    raise ImportError(
-        "Missing dependency 'statsmodels'. Please install it via: pip install statsmodels"
-    )
-
-def calculate_vif(X: pd.DataFrame, feature_names: List[str]) -> List[float]:
+def calculate_vif(df_features: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate Variance Inflation Factor (VIF) for each feature in the dataframe.
     
     Args:
-        X: DataFrame containing feature values (numeric).
-        feature_names: List of column names corresponding to X.
-        
+        df_features: DataFrame with shape (n_samples, n_features). 
+                     Must NOT contain the target column or intercept.
+                     
     Returns:
-        List of VIF values corresponding to each feature.
+        DataFrame with columns 'feature_name' and 'vif_value'.
     """
-    if X.empty:
-        return []
+    # Drop any non-numeric columns just in case
+    numeric_df = df_features.select_dtypes(include=[np.number])
     
-    # Add constant for intercept if not present (required for VIF calculation)
-    X_with_const = sm.add_constant(X)
-    
+    if numeric_df.shape[1] == 0:
+        raise ValueError("No numeric features found for VIF calculation.")
+        
+    if numeric_df.shape[0] < numeric_df.shape[1]:
+        # Warning but proceed if possible, though VIF is unstable
+        print(f"Warning: More features ({numeric_df.shape[1]}) than samples ({numeric_df.shape[0]}). VIF may be unstable.")
+
     vif_data = []
-    for i, col in enumerate(X_with_const.columns):
-        if col == 'const':
-            vif_data.append(0.0)  # VIF is not defined for the intercept
-            continue
+    feature_names = numeric_df.columns.tolist()
+    
+    # Calculate VIF for each feature
+    for i, feature in enumerate(feature_names):
         try:
-            vif = variance_inflation_factor(X_with_const.values, i)
-            vif_data.append(vif)
+            vif = variance_inflation_factor(numeric_df.values, i)
+            vif_data.append({
+                'feature_name': feature,
+                'vif_value': float(vif)
+            })
         except Exception as e:
-            # Handle cases where VIF cannot be calculated (e.g., constant column)
-            vif_data.append(float('inf'))
+            # Handle cases where VIF cannot be calculated (e.g., perfect multicollinearity)
+            print(f"Warning: Could not calculate VIF for feature {feature}: {e}")
+            vif_data.append({
+                'feature_name': feature,
+                'vif_value': None
+            })
     
-    return vif_data
+    return pd.DataFrame(vif_data)
 
-def flag_high_collinearity(vif_scores: List[Dict[str, Any]], threshold: float = 5.0) -> List[Dict[str, Any]]:
+def flag_high_collinearity(vif_df: pd.DataFrame, threshold: float = 5.0) -> list:
     """
-    Flag features with VIF above the specified threshold.
+    Identify features with VIF above a specified threshold.
     
     Args:
-        vif_scores: List of dicts with 'feature_name' and 'vif_value'.
-        threshold: VIF threshold above which collinearity is considered high.
+        vif_df: DataFrame from calculate_vif containing 'feature_name' and 'vif_value'.
+        threshold: VIF threshold to flag high collinearity (default 5.0).
         
     Returns:
-        List of flagged features with their VIF values.
+        List of feature names with high collinearity.
     """
-    return [
-        item for item in vif_scores 
-        if item['vif_value'] > threshold
-    ]
+    if vif_df.empty:
+        return []
+        
+    # Filter out None values before comparison
+    valid_vif = vif_df[vif_df['vif_value'].notna()]
+    high_collinearity = valid_vif[valid_vif['vif_value'] > threshold]['feature_name'].tolist()
+    return high_collinearity
 
-def run_collinearity_diagnostics(
-    feature_matrix_path: str,
-    output_path: str,
-    threshold: float = 5.0
-) -> Dict[str, Any]:
+def run_collinearity_diagnostics(top_n: int = 10, output_path: str = None) -> dict:
     """
-    Run full collinearity diagnostics: calculate VIF, flag high collinearity,
-    and save results.
+    Run full collinearity diagnostics:
+    1. Load top N metabolites from feature importance ranking.
+    2. Load processed data matrix.
+    3. Subset data to top N metabolites.
+    4. Calculate VIF.
+    5. Flag high collinearity.
+    6. Save results.
     
     Args:
-        feature_matrix_path: Path to the CSV file containing the feature matrix.
-        output_path: Path where the VIF results JSON will be saved.
-        threshold: VIF threshold for flagging high collinearity.
+        top_n: Number of top metabolites to analyze (default 10).
+        output_path: Path to save VIF results JSON. Defaults to data/intermediate/vif_scores.json.
         
     Returns:
-        Dictionary containing the full VIF analysis results.
+        Dictionary containing VIF analysis results.
     """
-    import statsmodels.api as sm
-
-    # Load data
-    if not os.path.exists(feature_matrix_path):
-        raise FileNotFoundError(
-            f"Feature matrix not found at: {feature_matrix_path}. "
-            "Ensure T017 has completed successfully."
-        )
-    
-    df = pd.read_csv(feature_matrix_path)
-    
-    # Ensure numeric data only
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
-    if len(numeric_cols) == 0:
-        raise ValueError("No numeric columns found in the feature matrix.")
-    
-    X = df[numeric_cols]
-    feature_names = numeric_cols.tolist()
-    
-    # Calculate VIF
-    vif_values = calculate_vif(X, feature_names)
-    
-    # Format results
-    vif_scores = [
-        {
-            "feature_name": name,
-            "vif_value": float(vif)
-        }
-        for name, vif in zip(feature_names, vif_values)
-    ]
-    
-    # Flag high collinearity
-    flagged = flag_high_collinearity(vif_scores, threshold)
-    
-    # Prepare output
-    results = {
-        "vif_scores": vif_scores,
-        "high_collinearity_features": [item['feature_name'] for item in flagged],
-        "threshold_used": threshold,
-        "total_features": len(vif_scores),
-        "high_collinearity_count": len(flagged)
-    }
-    
+    if output_path is None:
+        output_path = os.path.join(DATA_INTERMEDIATE_DIR, "vif_scores.json")
+        
     # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # 1. Load top metabolites ranking
+    ranking_path = os.path.join(RESULTS_DIR, "feature_importance_ranking.json")
+    if not os.path.exists(ranking_path):
+        raise FileNotFoundError(f"Feature importance ranking not found at {ranking_path}. "
+                              "Ensure T020 has been executed.")
+        
+    with open(ranking_path, 'r') as f:
+        ranking_data = json.load(f)
+        
+    top_metabolites = ranking_data.get('top_metabolites', [])[:top_n]
+    
+    if not top_metabolites:
+        print("Warning: No top metabolites found in ranking. Saving empty VIF results.")
+        result = {
+            "top_metabolites_analyzed": [],
+            "vif_scores": [],
+            "high_collinearity_features": [],
+            "framing": "These results represent associations, not causation"
+        }
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        log_artifact(output_path, "VIF analysis (empty)")
+        return result
+        
+    # 2. Load processed data matrix
+    matrix_path = os.path.join(DATA_PROCESSED_DIR, "batch_corrected_matrix.csv")
+    if not os.path.exists(matrix_path):
+        raise FileNotFoundError(f"Processed data matrix not found at {matrix_path}. "
+                              "Ensure T017 has been executed.")
+                             
+    df_matrix = pd.read_csv(matrix_path, index_col=0)
+    
+    # 3. Subset data to top N metabolites
+    # Ensure we only use features that exist in the matrix
+    available_features = [m for m in top_metabolites if m in df_matrix.columns]
+    
+    if len(available_features) == 0:
+        print("Warning: None of the top metabolites found in the processed matrix. Saving empty VIF results.")
+        result = {
+            "top_metabolites_analyzed": top_metabolites,
+            "vif_scores": [],
+            "high_collinearity_features": [],
+            "framing": "These results represent associations, not causation"
+        }
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        log_artifact(output_path, "VIF analysis (no matching features)")
+        return result
+        
+    df_subset = df_matrix[available_features]
+    
+    # 4. Calculate VIF
+    # Ensure no intercept column exists (shouldn't be in metabolomics matrix, but check)
+    if 'intercept' in df_subset.columns:
+        df_subset = df_subset.drop(columns=['intercept'])
+        
+    try:
+        vif_df = calculate_vif(df_subset)
+    except Exception as e:
+        print(f"Warning: VIF calculation failed: {e}. Saving empty results.")
+        result = {
+            "top_metabolites_analyzed": available_features,
+            "vif_scores": [],
+            "high_collinearity_features": [],
+            "error": str(e),
+            "framing": "These results represent associations, not causation"
+        }
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        log_artifact(output_path, "VIF analysis (failed)")
+        return result
+    
+    # 5. Flag high collinearity
+    high_collinearity = flag_high_collinearity(vif_df, threshold=5.0)
+    
+    # 6. Prepare results
+    result = {
+        "top_metabolites_analyzed": available_features,
+        "vif_scores": vif_df.to_dict(orient='records'),
+        "high_collinearity_features": high_collinearity,
+        "framing": "These results represent associations, not causation"
+    }
     
     # Save results
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(result, f, indent=2)
+        
+    log_artifact(output_path, f"VIF analysis for {len(available_features)} top metabolites")
     
-    # Log artifact
-    if os.path.exists(output_path):
-        file_hash = compute_file_hash(output_path)
-        log_artifact(
-            path=output_path,
-            hash_value=file_hash,
-            artifact_type="collinearity_diagnostics"
-        )
-    
-    return results
+    print(f"VIF analysis complete. Results saved to {output_path}")
+    if high_collinearity:
+        print(f"High collinearity detected in features: {high_collinearity}")
+        
+    return result
 
 def main():
     """Main entry point for collinearity diagnostics."""
-    # Define paths based on project structure
-    feature_matrix_path = os.path.join(DATA_PROCESSED_DIR, "batch_corrected_matrix.csv")
-    output_path = os.path.join(DATA_INTERMEDIATE_DIR, "vif_scores.json")
-    
-    # Ensure directories exist
-    os.makedirs(DATA_INTERMEDIATE_DIR, exist_ok=True)
-    
-    print(f"Running collinearity diagnostics on: {feature_matrix_path}")
-    print(f"Output will be saved to: {output_path}")
+    print("Starting collinearity diagnostics (T022)...")
     
     try:
-        results = run_collinearity_diagnostics(
-            feature_matrix_path=feature_matrix_path,
-            output_path=output_path,
-            threshold=5.0
-        )
+        result = run_collinearity_diagnostics(top_n=10)
         
-        print(f"Analysis complete. Total features: {results['total_features']}")
-        print(f"High collinearity features (VIF > 5): {results['high_collinearity_count']}")
-        
-        if results['high_collinearity_count'] > 0:
-            print("Flagged features:")
-            for feat in results['high_collinearity_features']:
-                print(f"  - {feat}")
+        # Verify output file exists
+        output_path = os.path.join(DATA_INTERMEDIATE_DIR, "vif_scores.json")
+        if os.path.exists(output_path):
+            print(f"SUCCESS: VIF results written to {output_path}")
+            return 0
         else:
-            print("No features flagged for high collinearity.")
+            print("ERROR: Output file was not created.")
+            return 1
             
-        # Verify output file exists and is non-empty
-        if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
-            print(f"SUCCESS: Output file created and verified: {output_path}")
-        else:
-            raise RuntimeError("Output file was not created or is empty.")
-            
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}")
+        return 1
     except Exception as e:
-        print(f"ERROR: Collinearity diagnostics failed: {str(e)}")
-        raise
+        print(f"ERROR: Unexpected error during VIF calculation: {e}")
+        # Per task spec: log warning and save empty/null if calculation fails, 
+        # but we still return error code if the primary flow fails unexpectedly
+        # However, the function handles graceful degradation internally.
+        # If we reach here, it's a critical failure.
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

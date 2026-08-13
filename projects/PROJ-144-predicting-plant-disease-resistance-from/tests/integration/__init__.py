@@ -1,1 +1,1 @@
-"""Integration tests package for the plant disease resistance prediction pipeline."""
+# Integration tests package

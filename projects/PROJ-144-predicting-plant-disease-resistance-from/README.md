@@ -1,37 +1,8 @@
 # Predicting Plant Disease Resistance from Publicly Available Metabolomic Data
 
-**Project ID**: PROJ-144
-**Description**: This project implements a machine learning pipeline to predict plant disease resistance using publicly available metabolomic data from the Metabolomics Workbench. The pipeline includes data acquisition, preprocessing, model training, validation, and biological interpretation.
+## Overview
 
-## Prerequisites
-
-- Python 3.11+
-- pip (Python package manager)
-- Access to the Metabolomics Workbench API
-
-## Installation
-
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd PROJ-144-predicting-plant-disease-resistance-from
- ```
-
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
-4. **Install pre-commit hooks** (optional but recommended):
- ```bash
- pre-commit install
- ```
+This project implements a machine learning pipeline to predict plant disease resistance using publicly available metabolomic data from the Metabolomics Workbench. The pipeline follows rigorous scientific practices including temporal validation, batch-effect correction, and associational framing.
 
 ## Project Structure
 
@@ -39,188 +10,187 @@
 .
 ├── code/ # Source code
 │ ├── data/ # Data acquisition and preprocessing
-│ ├── modeling/ # Model training, evaluation, and interpretation
-│ ├── research/ # Research utilities and validation
-│ ├── utils/ # Utility functions
-│ └── setup_*.py # Project setup scripts
+│ ├── modeling/ # Model training and evaluation
+│ ├── research/ # Research utilities
+│ ├── setup/ # Project setup scripts
+│ └── utils/ # Utility functions
 ├── data/
 │ ├── raw/ # Raw downloaded data
-│ └── processed/ # Processed data artifacts
-├── results/ # Model results and reports
-├── state/ # State tracking (artifact hashes, etc.)
-├── tests/ # Unit and integration tests
-├── contracts/ # Data and output schemas
-├── specs/ # Feature specifications
-├── README.md # This file
+│ ├── processed/ # Preprocessed data matrices
+│ └── intermediate/ # Intermediate analysis results
+├── results/
+│ └── plots/ # Visualization outputs
+├── contracts/ # Schema definitions
+├── state/ # Pipeline state tracking
+├── tests/ # Test suite
 ├── requirements.txt # Python dependencies
-├── quickstart.md # Quick start guide
-└──.pre-commit-config.yaml # Pre-commit configuration
+└── README.md # This file
+```
+
+## Prerequisites
+
+- Python 3.8+
+- pip (Python package manager)
+- Access to the Metabolomics Workbench API
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd <project-directory>
+```
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
 ```
 
 ## Quick Start
 
-See [quickstart.md](quickstart.md) for a step-by-step guide to running the full pipeline.
+### Phase 0: Data Acquisition
 
-## Execution Instructions
-
-The pipeline is executed in phases. Follow the order below to ensure all dependencies are met.
-
-### Phase 0: Data Acquisition & Verification
-
-Identify and verify public datasets with specific Study IDs.
-
+1. **Verify Studies**: Search for relevant studies
 ```bash
 python code/research/verify_studies.py
 ```
+This generates `data/raw/study_manifest.json` with valid Study IDs.
 
-This will update `research.md` with specific Metabolomics Workbench Study IDs.
-
-### Phase 1: Setup
-
-Initialize the project structure and dependencies (should already be done if following installation steps).
-
+2. **Download Data**: Download raw metabolomic data
 ```bash
-python code/setup_project_structure.py
-python code/setup_linting.py
+python code/data/download_study.py --study_ids data/raw/study_manifest.json
 ```
 
-### Phase 2: Foundational
+### Phase 1: Preprocessing
 
-Set up contracts and validation schemas.
-
+Run the complete preprocessing pipeline:
 ```bash
-python code/research/validate_schema.py
-```
-
-### Phase 3: User Story 1 - Data Acquisition and Preprocessing
-
-Download, normalize, align, and harmonize public metabolomics datasets.
-
-```bash
-# Validate temporal consistency
-python code/data/validate_temporal.py
-
-# Preprocess data (download, normalize, batch correct)
-python code/data/run_preprocess.py
+python code/data/preprocess.py --study_ids data/raw/study_manifest.json --output data/processed/
 ```
 
 This generates:
 - `data/processed/batch_corrected_matrix.csv`
 - `data/processed/labels.csv`
+- `data/processed/preprocess_log.json`
 
-### Phase 4: User Story 2 - Model Training and Validation
+### Phase 2: Model Training
 
-Train a Random Forest classifier with rigorous validation.
-
+Train the Random Forest classifier:
 ```bash
-# Train the model
-python code/modeling/train.py
-
-# Evaluate model and perform correlation analysis
-python code/modeling/evaluate.py
-
-# Run collinearity diagnostics
-python code/modeling/collinearity.py
-
-# Generate final metrics and reports
-python code/modeling/generate_final_metrics.py
-python code/modeling/generate_associational_report.py
+python code/modeling/train.py --input data/processed/ --output results/
 ```
 
-This generates:
-- `results/metrics.json`
-- `results/shap_analysis.json`
+### Phase 3: Evaluation
 
-### Phase 5: User Story 3 - Biological Interpretation
-
-Map top metabolites to biological pathways.
-
+Run model evaluation and validation:
 ```bash
-# Interpret model and map pathways
-python code/modeling/interpret.py
-
-# Save pathway results
-python code/modeling/save_pathway_results.py
-
-# Visualize pathway importance
-python code/modeling/visualize_pathways.py
+python code/modeling/evaluate.py --input data/processed/ --results results/
 ```
 
-This generates:
-- `results/pathway_analysis.json`
-- `results/pathway_barplot.png`
+### Phase 4: Interpretation
+
+Generate biological interpretation:
+```bash
+python code/modeling/interpret.py --results results/
+```
+
+### Phase 5: Final Reporting
+
+Generate final metrics and reports:
+```bash
+python code/modeling/generate_final_metrics.py --results results/
+python code/modeling/generate_associational_report.py --results results/
+```
+
+## Running the Full Pipeline
+
+To run the entire pipeline from start to finish:
+
+```bash
+# Step 1: Verify and download studies
+python code/research/verify_studies.py
+python code/data/download_study.py --study_ids data/raw/study_manifest.json
+
+# Step 2: Preprocess data
+python code/data/preprocess.py --study_ids data/raw/study_manifest.json --output data/processed/
+
+# Step 3: Train model
+python code/modeling/train.py --input data/processed/ --output results/
+
+# Step 4: Evaluate
+python code/modeling/evaluate.py --input data/processed/ --results results/
+
+# Step 5: Interpret
+python code/modeling/interpret.py --results results/
+
+# Step 6: Generate final reports
+python code/modeling/generate_final_metrics.py --results results/
+python code/modeling/generate_associational_report.py --results results/
+```
 
 ## Testing
 
 Run the test suite:
-
 ```bash
 pytest tests/ -v
 ```
 
-### Unit Tests
-
+Run specific test categories:
 ```bash
+# Unit tests
 pytest tests/unit/ -v
-```
 
-### Integration Tests
-
-```bash
+# Integration tests
 pytest tests/integration/ -v
 ```
 
-## Configuration
-
-Key configuration parameters are defined in `code/utils/constants.py`:
-
-- `RANDOM_STATE`: Random seed for reproducibility (default: 42)
-- `HOLD_OUT_FRACTION`: Fraction of data for hold-out set (default: 0.20)
-- `HYPOTHESIS_THRESHOLD`: Minimum balanced accuracy for hypothesis validation (default: 0.75)
-
 ## Output Artifacts
 
-The pipeline produces the following key artifacts:
+After successful execution, the following artifacts will be generated:
 
 ### Data Artifacts
-- `data/processed/batch_corrected_matrix.csv`: Preprocessed metabolite matrix
-- `data/processed/labels.csv`: Harmonized resistance labels
-- `data/processed/split_indices.json`: Train/hold-out split indices
+- `data/raw/study_manifest.json` - Validated study IDs and metadata
+- `data/raw/*.csv` - Raw intensity tables and phenotype metadata
+- `data/processed/batch_corrected_matrix.csv` - Batch-corrected metabolite matrix
+- `data/processed/labels.csv` - Harmonized resistance labels
+- `data/processed/preprocess_log.json` - Preprocessing log and statistics
 
-### Model Artifacts
-- `results/metrics.json`: Model performance metrics (balanced accuracy, ROC-AUC, p-values)
-- `results/shap_analysis.json`: SHAP values and feature importance
-- `results/pathway_analysis.json`: Pathway mapping results
-
-### Visualization Artifacts
-- `results/pathway_barplot.png`: Visualization of pathway importance
+### Results Artifacts
+- `results/metrics.json` - Model performance metrics
+- `results/shap_analysis.json` - Feature importance and correlation analysis
+- `results/pathway_analysis.json` - Biological pathway mappings
+- `results/top_metabolites.json` - Top-ranked metabolites
+- `results/plots/*.png` - Visualization plots
 
 ### State Artifacts
-- `state/artifact_hashes.yaml`: Checksums of all data and model artifacts
+- `state/artifact_hashes.yaml` - SHA256 checksums of all artifacts
+- `state/directory_structure.txt` - Directory structure verification
 
-## Dependencies
+## Important Notes
 
-See `requirements.txt` for the complete list of dependencies. Key packages include:
+### Associational Framing
+All results generated by this pipeline represent **associations**, not causation. The pipeline explicitly includes framing statements in all output JSON files and reports to prevent misinterpretation of results.
 
-- `pandas`, `numpy`: Data manipulation
-- `scikit-learn`: Machine learning (Random Forest, preprocessing)
-- `statsmodels`: Statistical analysis (VIF, correlation)
-- `shap`: Model interpretability
-- `matplotlib`, `seaborn`: Visualization
-- `requests`: API calls to Metabolomics Workbench
+### Data Requirements
+- Minimum sample size considerations are automatically handled
+- For N < 50 samples, learning curve analysis is performed instead of hold-out validation
+- Batch-effect correction (ComBat) is only applied when ≥2 studies are present
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+### Computational Requirements
+- CPU-only execution (no GPU required)
+- Recommended: 8GB+ RAM for full dataset processing
+- Estimated runtime: 1-4 hours depending on dataset size
 
 ## License
 
-[Insert License Information Here]
+This project is licensed under the MIT License.
 
-## Contact
+## Citation
 
-For questions or issues, please open an issue in the repository.
+If you use this code in your research, please cite the associated publication and the Metabolomics Workbench data source.

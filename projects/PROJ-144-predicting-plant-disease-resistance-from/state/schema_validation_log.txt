@@ -1,0 +1,14 @@
+Schema Validation Report
+Schema: contracts/output.schema.yaml
+Timestamp: 0
+==================================================
+
+Running yamllint...
+PASSED: No yamllint issues found.
+
+Validating with jsonschema...
+PASSED: Schema structure is valid.
+PASSED: Schema compiles successfully.
+
+==================================================
+Validation Complete
