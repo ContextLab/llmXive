@@ -11,12 +11,12 @@
         "page": 37
       }
     ],
-    "audited_at": "2026-08-13T03:33:39.247923+00:00"
+    "audited_at": "2026-08-13T04:26:52.697623+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-627-trisplat-simulation-ready-feed-forward-3",
-  "updated_at": "2026-08-13T03:33:39.247940+00:00"
+  "updated_at": "2026-08-13T04:26:52.697637+00:00"
 }
