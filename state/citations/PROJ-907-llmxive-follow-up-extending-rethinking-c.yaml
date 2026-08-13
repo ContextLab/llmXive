@@ -20,18 +20,7 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1145/3394486.3403123
   verified_at: '2026-07-15T08:22:24.823752Z'
-- artifact_hash: f6932919b49e08f48ef801d2202a865dab580b011603bc7c90ac72556d52c810
-  artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/docs/README.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-13T19:41:33.581917Z'
-- artifact_hash: 514dbbce054a12106a49141dd16eb1a67ba76ab93fe25900c4d628f85869d8bb
+- artifact_hash: e6a3dd263ca099d8c21f3092a8cd233d6fb7a1d85be8f16800412133351f64df
   artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +30,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-08-13T20:26:32.648231Z'
+  verified_at: '2026-08-13T20:47:01.402468Z'

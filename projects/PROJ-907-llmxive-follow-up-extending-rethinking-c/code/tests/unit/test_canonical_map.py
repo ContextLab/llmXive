@@ -1,7 +1,5 @@
 """
-test_canonical_map.py
-
-Unit tests for the canonical_map module.
+Unit Tests for Canonical Map Derivation (T013)
 """
 import json
 import tempfile
@@ -11,29 +9,51 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 import os
 import sys
+import os
 
-# Add the project root to the path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from src.canonical_map import derive_canonical_map
+from src.clustering import save_null_hypothesis_flag, save_cluster_centers
 
-# Mock data for testing
-def mock_cluster_data_valid():
-    return {
-        "clusters": [
-            {"cluster_id": 0, "size": 50, "center": [0.1, 0.2, 0.3]},
-            {"cluster_id": 1, "size": 30, "center": [0.4, 0.5, 0.6]}
-        ],
-        "silhouette_score": 0.45,
-        "k": 2
-    }
 
-def mock_cluster_data_null():
-    return {
-        "clusters": [],
-        "silhouette_score": 0.1,
-        "k": 0
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmp:
+        yield Path(tmp)
+
+
+@pytest.fixture
+def mock_cluster_data_valid(temp_dir):
+    """Creates a valid cluster_centers.json"""
+    centers = [
+        [0.1, 0.2, 0.3],
+        [0.8, 0.7, 0.6]
+    ]
+    data = {
+        "centers": centers,
+        "k": 2,
+        "silhouette": 0.45
     }
+    path = temp_dir / "cluster_centers.json"
+    with open(path, "w") as f:
+        json.dump(data, f)
+    return path
+
+
+@pytest.fixture
+def mock_cluster_data_null(temp_dir):
+    """Creates a null_hypothesis_flag.json indicating fallback"""
+    data = {
+        "is_null_hypothesis": True,
+        "reason": "Silhouette score < 0.25",
+        "global_average_vector": [0.5, 0.5, 0.5]
+    }
+    path = temp_dir / "null_hypothesis_flag.json"
+    with open(path, "w") as f:
+        json.dump(data, f)
+    return path
 
 def mock_raw_cache(tmp_path: Path):
     """Create mock .npy files in the routing cache."""
@@ -43,206 +63,126 @@ def mock_raw_cache(tmp_path: Path):
     np.save(cache_file, mock_tensor)
     return cache_file
 
-@patch('src.canonical_map.load_routing_cache')
-@patch('src.canonical_map.Path.glob')
-def test_derive_canonical_map_valid_clusters(mock_glob, mock_load_cache, tmp_path):
-    """Test derive_canonical_map with valid clustering results."""
-    # Setup mock data
-    mock_cache_path = tmp_path / "cache"
-    mock_cache_path.mkdir()
-    mock_cluster_path = tmp_path / "cluster_centers.json"
-    mock_null_flag_path = tmp_path / "null_flag.json"
+@pytest.fixture
+def mock_raw_cache(temp_dir):
+    """Creates a mock cache directory structure"""
+    (temp_dir / "data").mkdir(parents=True)
+    (temp_dir / "data" / "routing_cache").mkdir()
+    return temp_dir / "data" / "routing_cache"
 
-    # Create mock cluster centers file
-    cluster_data = mock_cluster_data_valid()
-    with open(mock_cluster_path, 'w') as f:
-        json.dump(cluster_data, f)
 
-    # Create mock null hypothesis flag (not null)
-    null_flag_data = {"is_null_hypothesis": False}
-    with open(mock_null_flag_path, 'w') as f:
-        json.dump(null_flag_data, f)
+def test_derive_canonical_map_valid_clusters(temp_dir):
+    """Test derivation when valid clusters exist"""
+    # Setup
+    centers_path = temp_dir / "cluster_centers.json"
+    centers_data = {
+        "centers": [[0.1, 0.2], [0.9, 0.8]],
+        "k": 2,
+        "silhouette": 0.5
+    }
+    with open(centers_path, "w") as f:
+        json.dump(centers_data, f)
 
-    # Create mock routing cache file
-    mock_tensor = np.random.rand(10, 100, 5).astype(np.float32)
-    cache_file = mock_cache_path / "image_0.npy"
-    np.save(cache_file, mock_tensor)
+    null_path = temp_dir / "null_hypothesis_flag.json"
+    # No null flag (or empty/false)
+    with open(null_path, "w") as f:
+        json.dump({"is_null_hypothesis": False}, f)
 
-    # Mock load_routing_cache to return a non-empty list
-    mock_load_cache.return_value = [mock_tensor]
+    output_path = temp_dir / "canonical_map.json"
 
-    # Mock Path.glob to return our mock file
-    mock_glob.return_value = [cache_file]
-
-    # Call the function
-    output_path = tmp_path / "canonical_map.json"
+    # Execute
     result = derive_canonical_map(
-        routing_cache_path=mock_cache_path,
-        cluster_centers_path=mock_cluster_path,
-        null_hypothesis_flag_path=mock_null_flag_path,
+        cluster_centers_path=centers_path,
+        null_flag_path=null_path,
         output_path=output_path
     )
 
-    # Assertions
-    assert result["source"] == "cluster"
-    assert result["dominant_cluster_id"] == 0
-    assert len(result["entries"]) == 10
-    for entry in result["entries"]:
-        assert entry["block_id"] in range(10)
-        assert entry["source"] == "cluster"
-        assert entry["cluster_id"] == 0
-        assert len(entry["weight_vector"]) == 5
-
-    # Check file was created
+    # Verify
+    assert result is not None
+    assert "blocks" in result
+    assert "dominant" in result["blocks"]
+    assert result["source"] == "dominant_cluster"
+    
+    # Verify file on disk
     assert output_path.exists()
-    with open(output_path, 'r') as f:
-        saved_data = json.load(f)
-    assert saved_data["source"] == "cluster"
-
-@patch('src.canonical_map.load_routing_cache')
-@patch('src.canonical_map.Path.glob')
-def test_derive_canonical_map_null_hypothesis(mock_glob, mock_load_cache, tmp_path):
-    """Test derive_canonical_map with null hypothesis (global average)."""
-    # Setup mock data
-    mock_cache_path = tmp_path / "cache"
-    mock_cache_path.mkdir()
-    mock_cluster_path = tmp_path / "cluster_centers.json"
-    mock_null_flag_path = tmp_path / "null_flag.json"
-
-    # Create mock cluster centers file (empty clusters)
-    cluster_data = mock_cluster_data_null()
-    with open(mock_cluster_path, 'w') as f:
-        json.dump(cluster_data, f)
-
-    # Create mock null hypothesis flag (null)
-    null_flag_data = {"is_null_hypothesis": True}
-    with open(mock_null_flag_path, 'w') as f:
-        json.dump(null_flag_data, f)
-
-    # Create mock routing cache file
-    mock_tensor = np.random.rand(10, 100, 5).astype(np.float32)
-    cache_file = mock_cache_path / "image_0.npy"
-    np.save(cache_file, mock_tensor)
+    with open(output_path, "r") as f:
+        saved = json.load(f)
+    assert saved == result
 
     # Mock load_routing_cache to return a non-empty list
     mock_load_cache.return_value = [mock_tensor]
 
-    # Mock Path.glob to return our mock file
-    mock_glob.return_value = [cache_file]
+def test_derive_canonical_map_null_hypothesis(temp_dir):
+    """Test derivation when null hypothesis is active (fallback to global average)"""
+    # Setup
+    centers_path = temp_dir / "cluster_centers.json" # Not used
+    with open(centers_path, "w") as f:
+        json.dump({"centers": []}, f)
 
-    # Call the function
-    output_path = tmp_path / "canonical_map.json"
+    null_path = temp_dir / "null_hypothesis_flag.json"
+    null_data = {
+        "is_null_hypothesis": True,
+        "global_average_vector": [0.3, 0.3, 0.3]
+    }
+    with open(null_path, "w") as f:
+        json.dump(null_data, f)
+
+    output_path = temp_dir / "canonical_map.json"
+
+    # Execute
     result = derive_canonical_map(
-        routing_cache_path=mock_cache_path,
-        cluster_centers_path=mock_cluster_path,
-        null_hypothesis_flag_path=mock_null_flag_path,
+        cluster_centers_path=centers_path,
+        null_flag_path=null_path,
         output_path=output_path
     )
 
-    # Assertions
+    # Verify
     assert result["source"] == "global_average"
-    assert len(result["entries"]) == 10
-    for entry in result["entries"]:
-        assert entry["block_id"] in range(10)
-        assert entry["source"] == "global_average"
-        assert len(entry["weight_vector"]) == 5
-
-    # Check file was created
+    assert "global" in result["blocks"]
+    assert np.allclose(result["blocks"]["global"], [0.3, 0.3, 0.3])
     assert output_path.exists()
-    with open(output_path, 'r') as f:
-        saved_data = json.load(f)
-    assert saved_data["source"] == "global_average"
 
-@patch('src.canonical_map.load_routing_cache')
-@patch('src.canonical_map.Path.glob')
-def test_derive_canonical_map_missing_file(mock_glob, mock_load_cache, tmp_path):
-    """Test derive_canonical_map when cluster centers file is missing."""
-    # Setup mock data
-    mock_cache_path = tmp_path / "cache"
-    mock_cache_path.mkdir()
-    mock_cluster_path = tmp_path / "cluster_centers.json" # Not created
-    mock_null_flag_path = tmp_path / "null_flag.json"
 
-    # Create mock null hypothesis flag (not null)
-    null_flag_data = {"is_null_hypothesis": False}
-    with open(mock_null_flag_path, 'w') as f:
-        json.dump(null_flag_data, f)
-
-    # Create mock routing cache file
-    mock_tensor = np.random.rand(10, 100, 5).astype(np.float32)
-    cache_file = mock_cache_path / "image_0.npy"
-    np.save(cache_file, mock_tensor)
-
-    # Mock load_routing_cache to return a non-empty list
-    mock_load_cache.return_value = [mock_tensor]
-
-    # Mock Path.glob to return our mock file
-    mock_glob.return_value = [cache_file]
-
-    # Call the function - should raise FileNotFoundError
-    output_path = tmp_path / "canonical_map.json"
+def test_derive_canonical_map_missing_file(temp_dir):
+    """Test that missing cluster centers raises an error"""
+    output_path = temp_dir / "canonical_map.json"
+    
+    # No files exist
     with pytest.raises(FileNotFoundError):
         derive_canonical_map(
-            routing_cache_path=mock_cache_path,
-            cluster_centers_path=mock_cluster_path,
-            null_hypothesis_flag_path=mock_null_flag_path,
+            cluster_centers_path=temp_dir / "missing.json",
+            null_flag_path=temp_dir / "missing_null.json",
             output_path=output_path
         )
 
-@patch('src.canonical_map.load_routing_cache')
-@patch('src.canonical_map.Path.glob')
-def test_derive_canonical_map_output_file_created(mock_glob, mock_load_cache, tmp_path):
-    """Test that the output file is created with the correct structure."""
-    # Setup mock data
-    mock_cache_path = tmp_path / "cache"
-    mock_cache_path.mkdir()
-    mock_cluster_path = tmp_path / "cluster_centers.json"
-    mock_null_flag_path = tmp_path / "null_flag.json"
 
-    # Create mock cluster centers file
-    cluster_data = mock_cluster_data_valid()
-    with open(mock_cluster_path, 'w') as f:
-        json.dump(cluster_data, f)
+def test_derive_canonical_map_output_file_created(temp_dir):
+    """Verify the output file is created with correct schema"""
+    # Setup valid data
+    centers_path = temp_dir / "cluster_centers.json"
+    with open(centers_path, "w") as f:
+        json.dump({"centers": [[1.0, 2.0]], "k": 1, "silhouette": 0.1}, f)
+    
+    null_path = temp_dir / "null_hypothesis_flag.json"
+    with open(null_path, "w") as f:
+        json.dump({"is_null_hypothesis": False}, f)
+    
+    output_path = temp_dir / "canonical_map.json"
 
-    # Create mock null hypothesis flag (not null)
-    null_flag_data = {"is_null_hypothesis": False}
-    with open(mock_null_flag_path, 'w') as f:
-        json.dump(null_flag_data, f)
-
-    # Create mock routing cache file
-    mock_tensor = np.random.rand(10, 100, 5).astype(np.float32)
-    cache_file = mock_cache_path / "image_0.npy"
-    np.save(cache_file, mock_tensor)
-
-    # Mock load_routing_cache to return a non-empty list
-    mock_load_cache.return_value = [mock_tensor]
-
-    # Mock Path.glob to return our mock file
-    mock_glob.return_value = [cache_file]
-
-    # Call the function
-    output_path = tmp_path / "canonical_map.json"
-    result = derive_canonical_map(
-        routing_cache_path=mock_cache_path,
-        cluster_centers_path=mock_cluster_path,
-        null_hypothesis_flag_path=mock_null_flag_path,
+    derive_canonical_map(
+        cluster_centers_path=centers_path,
+        null_flag_path=null_path,
         output_path=output_path
     )
 
-    # Assertions on file structure
     assert output_path.exists()
-    with open(output_path, 'r') as f:
-        saved_data = json.load(f)
-
-    # Check top-level keys
-    assert "source" in saved_data
-    assert "num_blocks" in saved_data
-    assert "num_timesteps" in saved_data
-    assert "history_dim" in saved_data
-    assert "entries" in saved_data
-
-    # Check entry structure
-    for entry in saved_data["entries"]:
-        assert "block_id" in entry
-        assert "weight_vector" in entry
-        assert "source" in entry
+    with open(output_path, "r") as f:
+        data = json.load(f)
+    
+    # Verify schema keys
+    assert "source" in data
+    assert "blocks" in data
+    # Verify at least one block exists
+    assert len(data["blocks"]) > 0
+    block_key = list(data["blocks"].keys())[0]
+    assert isinstance(data["blocks"][block_key], list)
