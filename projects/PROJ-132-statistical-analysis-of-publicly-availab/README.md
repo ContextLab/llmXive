@@ -1,49 +1,39 @@
 # Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
 
+## Project Overview
+
+This project analyzes bird migration patterns and their correlation with climate change using publicly available datasets.
+
 ## Installation
 
-1. **Clone the repository**:
+1. Clone the repository
+2. Install dependencies:
  ```bash
- git clone <repository-url>
- cd PROJ-132-statistical-analysis-of-publicly-availab
+ pip install -e.
  ```
-
-2. **Create a virtual environment**:
+3. Install pre-commit hooks:
  ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
-4. **Install pre-commit hooks**:
- Ensure `pre-commit` is installed (included in `requirements.txt`), then run:
- ```bash
+ pip install pre-commit
  pre-commit install
  ```
- This will automatically run `black` and `ruff` on every commit.
 
 ## Usage
 
 Run the full pipeline:
 ```bash
-python -m src.cli.run_pipeline
+python -m src.cli.run_pipeline --help
 ```
 
-Or run specific stages:
+## Pre-commit Hooks
+
+This project uses pre-commit hooks to ensure code quality. The following hooks are configured:
+- **black**: Code formatting
+- **ruff**: Linting
+
+To run hooks manually:
 ```bash
-python code/setup_project.py
-python code/run_pipeline.py
+pre-commit run --all-files
 ```
-
-## Development
-
-- **Formatting**: Code is formatted with `black` and linted with `ruff`.
-- **Testing**: Run tests with `pytest`.
-- **Pre-commit**: Ensure all hooks pass before committing.
 
 ## Project Structure
 
@@ -51,4 +41,12 @@ python code/run_pipeline.py
 - `data/`: Data files (raw, processed, interim)
 - `tests/`: Test suite
 - `docs/`: Documentation
-- `code/`: Standalone scripts for pipeline execution
+- `data/provenance/`: Provenance tracking files
+
+## Configuration
+
+See `src/config.py` for configuration constants.
+
+## License
+
+MIT License

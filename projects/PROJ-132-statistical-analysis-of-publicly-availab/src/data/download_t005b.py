@@ -1,3 +1,16 @@
+"""
+T005b: Download Verified eBird Sample (vvud/eb-data)
+
+This script streams the verified eBird sample dataset using the Hugging Face
+datasets library with streaming enabled to minimize memory usage. It writes
+the raw files to data/raw/ebird_sample/, computes SHA-256 checksums for each
+shard, and stores them in checksums.sha256.
+
+Requirements:
+- datasets>=2.14.0
+- No synthetic fallback: aborts on any download error.
+"""
+
 import os
 import sys
 import hashlib
@@ -5,7 +18,11 @@ import json
 import logging
 import shutil
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Optional, Dict, Any, List
+
+# Add project root to path for imports if running as script
+if 'code' in os.getcwd():
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from datasets import load_dataset
 from src.config import setup_logging
@@ -13,228 +30,284 @@ from src.config import setup_logging
 # Configure logging
 logger = setup_logging("download_t005b")
 
+# Constants
 DATASET_NAME = "vvud/eb-data"
-RAW_DATA_DIR = Path("data/raw/ebird_sample")
-CHECKSUMS_FILE = RAW_DATA_DIR / "checksums.sha256"
-SUCCESS_REPORT_FILE = Path("data/provenance/download_success_report.json")
+SPLIT = "train"
+OUTPUT_DIR = Path("data/raw/ebird_sample")
+CHECKSUM_FILE = OUTPUT_DIR / "checksums.sha256"
+CHUNK_SIZE = 100_000  # Rows per chunk for streaming
+
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found for checksum: {file_path}")
+        raise
 
-def download_dataset(dataset_name: str, output_dir: Path, streaming: bool = True) -> List[Path]:
+
+def download_dataset() -> Dict[str, Any]:
     """
-    Stream the verified eBird sample dataset and save files to output_dir.
-    
-    Args:
-        dataset_name: HuggingFace dataset name
-        output_dir: Directory to save downloaded files
-        streaming: Whether to stream the dataset (True for memory efficiency)
+    Stream the verified eBird sample dataset and save to disk.
     
     Returns:
-        List of paths to downloaded files
+        Dict with metadata about the download operation.
+        
+    Raises:
+        RuntimeError: If dataset is not available or download fails.
+        FileNotFoundError: If dataset name is not found.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Attempting to download dataset: {DATASET_NAME}")
     
-    logger.info(f"Attempting to download dataset: {dataset_name}")
+    # Verify dataset exists first
+    try:
+        from datasets import get_dataset_names
+        available_datasets = get_dataset_names()
+        if DATASET_NAME not in available_datasets:
+            error_msg = f"Dataset '{DATASET_NAME}' not found in Hugging Face Hub. Aborting."
+            logger.error(error_msg)
+            raise FileNotFoundError(error_msg)
+    except Exception as e:
+        error_msg = f"Failed to verify dataset availability: {str(e)}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    
+    # Create output directory
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Output directory: {OUTPUT_DIR}")
+    
+    # Track downloaded files and their checksums
+    downloaded_files: List[Dict[str, Any]] = []
     
     try:
-        # Load dataset with streaming to handle large data
-        dataset = load_dataset(dataset_name, split="train", streaming=streaming)
+        # Load dataset with streaming enabled
+        logger.info(f"Loading dataset with streaming: {DATASET_NAME}")
+        dataset = load_dataset(DATASET_NAME, split=SPLIT, streaming=True)
         
-        downloaded_files = []
-        
-        # Stream and save chunks as files
-        chunk_size = 100000  # Rows per chunk
-        chunk_idx = 0
+        # Process in chunks and save to parquet files
+        chunk_count = 0
         current_chunk = []
+        
+        logger.info("Starting data streaming and saving...")
         
         for idx, record in enumerate(dataset):
             current_chunk.append(record)
             
-            if len(current_chunk) >= chunk_size:
-                # Write chunk to file
-                chunk_file = output_dir / f"ebird_chunk_{chunk_idx:04d}.parquet"
-                # Convert to pandas for parquet writing
+            if len(current_chunk) >= CHUNK_SIZE:
+                chunk_count += 1
+                chunk_file = OUTPUT_DIR / f"ebird_chunk_{chunk_count:04d}.parquet"
+                
+                try:
+                    import pandas as pd
+                    df_chunk = pd.DataFrame(current_chunk)
+                    df_chunk.to_parquet(chunk_file, index=False)
+                    
+                    # Compute checksum
+                    checksum = compute_sha256(chunk_file)
+                    downloaded_files.append({
+                        "filename": chunk_file.name,
+                        "sha256": checksum,
+                        "rows": len(current_chunk)
+                    })
+                    
+                    logger.info(f"Saved chunk {chunk_count}: {chunk_file.name} "
+                                f"({len(current_chunk)} rows, checksum: {checksum[:16]}...)")
+                    
+                    current_chunk = []
+                except Exception as e:
+                    error_msg = f"Failed to save chunk {chunk_count}: {str(e)}"
+                    logger.error(error_msg)
+                    raise RuntimeError(error_msg)
+        
+        # Save remaining records
+        if current_chunk:
+            chunk_count += 1
+            chunk_file = OUTPUT_DIR / f"ebird_chunk_{chunk_count:04d}.parquet"
+            
+            try:
                 import pandas as pd
                 df_chunk = pd.DataFrame(current_chunk)
                 df_chunk.to_parquet(chunk_file, index=False)
-                downloaded_files.append(chunk_file)
-                logger.info(f"Written chunk {chunk_idx} to {chunk_file}")
                 
-                current_chunk = []
-                chunk_idx += 1
+                checksum = compute_sha256(chunk_file)
+                downloaded_files.append({
+                    "filename": chunk_file.name,
+                    "sha256": checksum,
+                    "rows": len(current_chunk)
+                })
+                
+                logger.info(f"Saved final chunk {chunk_count}: {chunk_file.name} "
+                            f"({len(current_chunk)} rows, checksum: {checksum[:16]}...)")
+            except Exception as e:
+                error_msg = f"Failed to save final chunk: {str(e)}"
+                logger.error(error_msg)
+                raise RuntimeError(error_msg)
+        
+        if chunk_count == 0:
+            error_msg = "No data was downloaded. Dataset might be empty."
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
+        
+        logger.info(f"Successfully downloaded {chunk_count} chunks with {sum(f['rows'] for f in downloaded_files)} total rows")
+        
+        # Write checksums file
+        write_checksums(downloaded_files)
+        
+        return {
+            "dataset_name": DATASET_NAME,
+            "split": SPLIT,
+            "chunks_downloaded": chunk_count,
+            "total_rows": sum(f['rows'] for f in downloaded_files),
+            "files": downloaded_files,
+            "output_dir": str(OUTPUT_DIR)
+        }
+        
+    except FileNotFoundError:
+        # Re-raise file not found errors (dataset not available)
+        raise
+    except Exception as e:
+        error_msg = f"Failed to download dataset: {str(e)}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
+
+def write_checksums(files: List[Dict[str, Any]]) -> None:
+    """Write checksums to a file in standard sha256sum format."""
+    try:
+        with open(CHECKSUM_FILE, 'w') as f:
+            for file_info in files:
+                f.write(f"{file_info['sha256']}  {file_info['filename']}\n")
+        logger.info(f"Checksums written to {CHECKSUM_FILE}")
+    except Exception as e:
+        error_msg = f"Failed to write checksums file: {str(e)}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
+
+def verify_checksums() -> bool:
+    """Verify all downloaded files against their checksums."""
+    if not CHECKSUM_FILE.exists():
+        logger.error(f"Checksum file not found: {CHECKSUM_FILE}")
+        return False
+    
+    logger.info(f"Verifying checksums from {CHECKSUM_FILE}")
+    
+    try:
+        with open(CHECKSUM_FILE, 'r') as f:
+            lines = f.readlines()
+        
+        all_valid = True
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
             
-            # Progress logging
-            if (idx + 1) % 500000 == 0:
-                logger.info(f"Processed {idx + 1} records...")
-        
-        # Write remaining records
-        if current_chunk:
-            chunk_file = output_dir / f"ebird_chunk_{chunk_idx:04d}.parquet"
-            import pandas as pd
-            df_chunk = pd.DataFrame(current_chunk)
-            df_chunk.to_parquet(chunk_file, index=False)
-            downloaded_files.append(chunk_file)
-            logger.info(f"Written final chunk {chunk_idx} to {chunk_file}")
-        
-        logger.info(f"Successfully downloaded {len(downloaded_files)} chunks")
-        return downloaded_files
+            parts = line.split('  ')
+            if len(parts) != 2:
+                logger.warning(f"Invalid checksum line: {line}")
+                all_valid = False
+                continue
+            
+            expected_hash, filename = parts
+            file_path = OUTPUT_DIR / filename
+            
+            if not file_path.exists():
+                logger.error(f"File missing for checksum verification: {filename}")
+                all_valid = False
+                continue
+            
+                computed_hash = compute_sha256(file_path)
+                if computed_hash != expected_hash:
+                    logger.error(f"Checksum mismatch for {filename}: "
+                                f"expected {expected_hash}, got {computed_hash}")
+                    all_valid = False
+                else:
+                    logger.info(f"Checksum valid: {filename}")
+    
+        return all_valid
         
     except Exception as e:
-        logger.error(f"Failed to download dataset {dataset_name}: {str(e)}")
-        raise RuntimeError(f"Dataset download failed: {str(e)}")
+        logger.error(f"Failed to verify checksums: {str(e)}")
+        return False
 
-def verify_checksums(files: List[Path], checksums_file: Path) -> Dict[str, str]:
-    """
-    Compute and store SHA-256 checksums for all downloaded files.
-    
-    Args:
-        files: List of file paths to checksum
-        checksums_file: Path to write checksums file
-    
-    Returns:
-        Dictionary mapping filenames to their checksums
-    """
-    checksums = {}
-    
-    for file_path in files:
-        checksum = compute_sha256(file_path)
-        checksums[file_path.name] = checksum
-        logger.info(f"Checksum for {file_path.name}: {checksum}")
-    
-    # Write checksums to file
-    with open(checksums_file, "w") as f:
-        for filename, checksum in checksums.items():
-            f.write(f"{checksum}  {filename}\n")
-    
-    logger.info(f"Checksums written to {checksums_file}")
-    return checksums
 
-def archive_data(source_dir: Path, archive_dir: Path) -> None:
-    """
-    Copy downloaded data to archive directory.
-    
-    Args:
-        source_dir: Source directory with downloaded files
-        archive_dir: Destination archive directory
-    """
+def archive_data() -> None:
+    """Copy downloaded data to archive directory."""
+    archive_dir = Path("data/raw/archive")
     archive_dir.mkdir(parents=True, exist_ok=True)
     
-    # Copy all files from source to archive
-    for file_path in source_dir.iterdir():
-        if file_path.is_file():
-            shutil.copy2(file_path, archive_dir / file_path.name)
-            logger.info(f"Archived {file_path.name} to {archive_dir}")
+    logger.info(f"Archiving data to {archive_dir}")
     
-    # Copy checksums file
-    if CHECKSUMS_FILE.exists():
-        shutil.copy2(CHECKSUMS_FILE, archive_dir / "checksums.sha256")
-        logger.info(f"Archived checksums to {archive_dir}")
+    try:
+        for file_path in OUTPUT_DIR.glob("*"):
+            if file_path.is_file():
+                shutil.copy2(file_path, archive_dir / file_path.name)
+        logger.info("Data archived successfully")
+    except Exception as e:
+        logger.error(f"Failed to archive data: {str(e)}")
+        raise RuntimeError(f"Archive failed: {str(e)}")
 
-def write_success_report(
-    dataset_name: str,
-    downloaded_files: List[Path],
-    checksums: Dict[str, str],
-    output_dir: Path,
-    archive_dir: Path
-) -> None:
-    """
-    Write a success report documenting the download.
+
+def write_success_report(report_data: Dict[str, Any]) -> None:
+    """Write a success report to data/provenance."""
+    provenance_dir = Path("data/provenance")
+    provenance_dir.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        dataset_name: Name of the dataset
-        downloaded_files: List of downloaded file paths
-        checksums: Dictionary of filename -> checksum
-        output_dir: Directory where files were saved
-        archive_dir: Directory where files were archived
-    """
-    report = {
-        "dataset_name": dataset_name,
-        "timestamp": None,  # Will be set by caller
-        "download_status": "success",
-        "output_directory": str(output_dir),
-        "archive_directory": str(archive_dir),
-        "files_downloaded": len(downloaded_files),
-        "file_details": [
-            {
-                "filename": f.name,
-                "path": str(f),
-                "checksum": checksums.get(f.name, "unknown")
-            }
-            for f in downloaded_files
-        ],
-        "total_size_bytes": sum(f.stat().st_size for f in downloaded_files if f.exists())
-    }
+    report_file = provenance_dir / "ebird_download_report.json"
     
-    # Add timestamp
-    from datetime import datetime, timezone
-    report["timestamp"] = datetime.now(timezone.utc).isoformat()
-    
-    # Ensure provenance directory exists
-    SUCCESS_REPORT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(SUCCESS_REPORT_FILE, "w") as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Success report written to {SUCCESS_REPORT_FILE}")
+    try:
+        with open(report_file, 'w') as f:
+            json.dump(report_data, f, indent=2, default=str)
+        logger.info(f"Success report written to {report_file}")
+    except Exception as e:
+        logger.error(f"Failed to write success report: {str(e)}")
+        raise RuntimeError(f"Report write failed: {str(e)}")
+
 
 def run_download_pipeline() -> Dict[str, Any]:
-    """
-    Execute the full download pipeline for T005b.
+    """Run the complete download pipeline."""
+    logger.info("Starting eBird sample download pipeline")
     
-    Returns:
-        Dictionary with pipeline execution results
-    """
-    logger.info("Starting eBird sample download pipeline (T005b)")
-    
-    # Step 1: Download dataset
-    downloaded_files = download_dataset(DATASET_NAME, RAW_DATA_DIR)
-    
-    if not downloaded_files:
-        raise RuntimeError("No files were downloaded from the dataset")
-    
-    # Step 2: Verify checksums
-    checksums = verify_checksums(downloaded_files, CHECKSUMS_FILE)
-    
-    # Step 3: Archive data
-    archive_dir = Path("data/raw/archive/ebird_sample")
-    archive_data(RAW_DATA_DIR, archive_dir)
-    
-    # Step 4: Write success report
-    write_success_report(
-        dataset_name=DATASET_NAME,
-        downloaded_files=downloaded_files,
-        checksums=checksums,
-        output_dir=RAW_DATA_DIR,
-        archive_dir=archive_dir
-    )
-    
-    logger.info("eBird sample download pipeline completed successfully")
-    
-    return {
-        "status": "success",
-        "files_downloaded": len(downloaded_files),
-        "output_dir": str(RAW_DATA_DIR),
-        "archive_dir": str(archive_dir),
-        "checksums_file": str(CHECKSUMS_FILE),
-        "report_file": str(SUCCESS_REPORT_FILE)
-    }
+    try:
+        # Download dataset
+        download_report = download_dataset()
+        
+        # Verify checksums
+        if not verify_checksums():
+            raise RuntimeError("Checksum verification failed")
+        
+        # Archive data
+        archive_data()
+        
+        # Write success report
+        write_success_report(download_report)
+        
+        logger.info("Download pipeline completed successfully")
+        return download_report
+        
+    except Exception as e:
+        logger.error(f"Download pipeline failed: {str(e)}")
+        raise
+
 
 def main():
-    """Main entry point for the download script."""
+    """Main entry point."""
+    logger.info("T005b: Download Verified eBird Sample")
+    
     try:
         result = run_download_pipeline()
-        print(json.dumps(result, indent=2))
+        print(json.dumps(result, indent=2, default=str))
         return 0
     except Exception as e:
         logger.error(f"Pipeline failed: {str(e)}")
         print(f"ERROR: {str(e)}", file=sys.stderr)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

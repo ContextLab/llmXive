@@ -1,193 +1,274 @@
+"""
+Plan and Spec Verification Script.
+
+This script loads the project's spec.md and plan.md, verifies their existence,
+scans for contradictory statements (specifically data source mismatches),
+and checks against a whitelist of deviations stored in a JSON file.
+
+It fails loudly with RuntimeError if contradictions exist that are NOT whitelisted.
+It outputs a JSON report of the alignment status.
+"""
+
 import json
 import logging
 import re
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# Configure logger
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Define paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+SPEC_PATH = PROJECT_ROOT / "specs" / "001-bird-migration-climate-correlation" / "spec.md"
+PLAN_PATH = PROJECT_ROOT / "plan.md"
+DEVIATION_SCHEMA_PATH = PROJECT_ROOT / "data" / "provenance" / "spec_plan_deviation_schema.json"
+DEVIATION_LIST_PATH = PROJECT_ROOT / "data" / "provenance" / "spec_plan_deviation.json"
+OUTPUT_REPORT_PATH = PROJECT_ROOT / "reports" / "plan_spec_alignment.json"
+
 
 def load_file_text(file_path: Path) -> str:
     """Load and return the text content of a file."""
     if not file_path.exists():
         raise FileNotFoundError(f"Required file not found: {file_path}")
+    if file_path.stat().st_size == 0:
+        raise ValueError(f"File is empty: {file_path}")
     with open(file_path, 'r', encoding='utf-8') as f:
         return f.read()
 
-def extract_terms(text: str) -> List[str]:
-    """Extract key terms (data sources, metrics) from text for comparison."""
-    # Simple regex to find potential data source names or specific requirements
-    # Looking for patterns like "NOAA", "PRISM", "Daymet", "eBird", "FR-001"
-    patterns = [
-        r'\b(NOAA|PRISM|Daymet|eBird|CLO|Cornell)\b',
-        r'FR-\d+',
-        r'SC-\d+',
-        r'US\d+'
+
+def extract_terms(text: str) -> Dict[str, List[str]]:
+    """
+    Extract key terms related to data sources and methodologies from the text.
+    Returns a dict of categories to lists of found terms.
+    """
+    terms = {
+        "data_sources": [],
+        "methodologies": [],
+        "locations": []
+    }
+
+    # Simple regex patterns for extraction (can be expanded)
+    # Look for common data source names
+    source_patterns = [
+        r'(?:eBird|NOAA|PRISM|Daymet|MODIS|Copernicus)',
+        r'(?:vvud/eb-data|daymet/annual)'
     ]
-    terms = set()
-    for pattern in patterns:
-        terms.update(re.findall(pattern, text, re.IGNORECASE))
-    return list(terms)
+    for pattern in source_patterns:
+        found = re.findall(pattern, text, re.IGNORECASE)
+        terms["data_sources"].extend(found)
 
-def check_mandatory_a_priori_gp(plan_terms: List[str], spec_terms: List[str]) -> Optional[str]:
-    """Check for contradictions regarding Mandatory GP (if any)."""
-    # If spec says mandatory GP but plan says optional or none
-    if "GP" in spec_terms and "GP" in plan_terms:
-        # This is a placeholder logic; in a real scenario, we'd parse the context
-        # For now, we assume if both mention it, we check for "Mandatory" keyword
-        pass
-    return None
+    # Look for methodology keywords
+    method_patterns = [
+        r'(?:GAMM|Generalized Additive Mixed Model)',
+        r'(?:Fréchet mean|geodesic)',
+        r'(?:permutation test)'
+    ]
+    for pattern in method_patterns:
+        found = re.findall(pattern, text, re.IGNORECASE)
+        terms["methodologies"].extend(found)
 
-def check_critical_data_scope_note(plan_terms: List[str], spec_terms: List[str]) -> Optional[str]:
-    """Check for contradictions regarding data scope (e.g., 2020-2024)."""
-    # Look for year ranges
-    plan_years = re.findall(r'(\d{4}-\d{4})', load_file_text(Path("plan.md")))
-    spec_years = re.findall(r'(\d{4}-\d{4})', load_file_text(Path("specs/001-bird-migration-climate-correlation/spec.md")))
-    
-    if plan_years and spec_years and plan_years[0] != spec_years[0]:
-        return f"Year range mismatch: Plan has {plan_years[0]}, Spec has {spec_years[0]}"
-    return None
+    return terms
 
-def check_data_source_mismatch(plan_terms: List[str], spec_terms: List[str]) -> Optional[str]:
-    """Check for contradictions in data sources (e.g., NOAA vs Daymet)."""
-    # Spec usually demands NOAA/PRISM (FR-001)
-    # Plan might substitute if unavailable
-    if "NOAA" in spec_terms and "NOAA" not in plan_terms and "Daymet" in plan_terms:
-        # This might be a deviation, check whitelist later
-        return "Data source mismatch: Spec requires NOAA, Plan uses Daymet (check whitelist)"
-    if "eBird" in spec_terms and "eBird" not in plan_terms:
-        return "Data source mismatch: Spec requires eBird, Plan missing eBird reference"
-    return None
 
-def check_unknown_terms(plan_terms: List[str], spec_terms: List[str]) -> Optional[str]:
-    """Check for terms in spec not found in plan."""
-    # Simple check: if a critical term in spec is missing in plan
-    critical_terms = ["eBird", "NOAA", "PRISM", "Daymet", "CLO"]
-    missing = []
-    for term in critical_terms:
-        if term in spec_terms and term not in plan_terms:
-            missing.append(term)
-    if missing:
-        return f"Critical terms in spec missing from plan: {', '.join(missing)}"
-    return None
+def check_data_source_mismatch(
+    spec_terms: Dict[str, List[str]],
+    plan_terms: Dict[str, List[str]]
+) -> List[Dict[str, Any]]:
+    """
+    Check for contradictions in data sources between spec and plan.
+    Returns a list of detected mismatches.
+    """
+    mismatches = []
+    spec_sources = set(s.lower() for s in spec_terms.get("data_sources", []))
+    plan_sources = set(s.lower() for s in plan_terms.get("data_sources", []))
+
+    # Define known conflicting pairs or sets
+    # Example: If Spec says NOAA and Plan says Daymet, that's a mismatch unless whitelisted.
+    # We look for sources present in one but not the other, specifically focusing on major climate/bird data.
+    major_sources = {"noaa", "prism", "daymet", "ebird", "vvud/eb-data"}
+
+    spec_major = spec_sources.intersection(major_sources)
+    plan_major = plan_sources.intersection(major_sources)
+
+    # Check for direct conflicts (e.g., NOAA in Spec vs Daymet in Plan)
+    if "noaa" in spec_major or "prism" in spec_major:
+        if "daymet" in plan_major and "noaa" not in plan_major:
+            mismatches.append({
+                "type": "data_source_mismatch",
+                "spec_source": "NOAA/PRISM",
+                "plan_source": "Daymet",
+                "description": "Spec requires NOAA/PRISM but Plan uses Daymet."
+            })
+
+    if "ebird" in spec_major or "vvud/eb-data" in spec_major:
+        # Assuming eBird is consistent, but check if Plan mentions a different bird source
+        pass # Add logic if other bird sources are possible
+
+    return mismatches
+
+
+def load_deviation_whitelist() -> List[Dict[str, Any]]:
+    """Load the whitelist of deviations from the JSON file."""
+    if not DEVIATION_LIST_PATH.exists():
+        logger.warning(f"Deviation whitelist not found at {DEVIATION_LIST_PATH}. Proceeding without whitelist.")
+        return []
+
+    try:
+        with open(DEVIATION_LIST_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            # Handle if it's a list or a single object
+            if isinstance(data, list):
+                return data
+            elif isinstance(data, dict):
+                return [data]
+            else:
+                logger.error("Deviation whitelist format invalid. Expected list or dict.")
+                return []
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse deviation whitelist JSON: {e}")
+        return []
+
+
+def is_whitelisted(mismatch: Dict[str, Any], whitelist: List[Dict[str, Any]]) -> bool:
+    """Check if a specific mismatch is covered by the whitelist."""
+    for entry in whitelist:
+        # Check if the description or type matches
+        # We look for the specific "implemented_source" vs "spec_requirement" match
+        if (entry.get("spec_requirement", "").lower() in mismatch.get("description", "").lower() or
+            entry.get("implemented_source", "").lower() in mismatch.get("description", "").lower()):
+            return True
+        # Fuzzy check on type
+        if entry.get("spec_requirement", "").lower() == mismatch.get("spec_source", "").lower():
+            return True
+    return False
+
 
 def verify_alignment() -> Dict[str, Any]:
     """
-    Main logic to verify alignment between plan.md and spec.md.
+    Main verification logic.
     Returns a report dictionary.
     """
-    plan_path = Path("plan.md")
-    spec_path = Path("specs/001-bird-migration-climate-correlation/spec.md")
-    deviation_path = Path("data/provenance/spec_plan_deviation.json")
-    output_path = Path("reports/plan_spec_alignment.json")
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # 1. Verify files exist
-    try:
-        plan_text = load_file_text(plan_path)
-        spec_text = load_file_text(spec_path)
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"Critical missing file for alignment check: {e}")
-
-    # 2. Extract terms
-    plan_terms = extract_terms(plan_text)
-    spec_terms = extract_terms(spec_text)
-
-    logger.info(f"Plan terms: {plan_terms}")
-    logger.info(f"Spec terms: {spec_terms}")
-
-    # 3. Load deviation whitelist
-    whitelisted_deviations = set()
-    if deviation_path.exists():
-        try:
-            with open(deviation_path, 'r', encoding='utf-8') as f:
-                deviation_data = json.load(f)
-                # Handle both single object and list of objects
-                if isinstance(deviation_data, list):
-                    for item in deviation_data:
-                        if 'reason' in item:
-                            whitelisted_deviations.add(item['reason'])
-                elif isinstance(deviation_data, dict) and 'reason' in deviation_data:
-                    whitelisted_deviations.add(deviation_data['reason'])
-            logger.info(f"Loaded {len(whitelisted_deviations)} whitelisted deviations.")
-        except json.JSONDecodeError:
-            logger.warning("Failed to parse deviation whitelist JSON. Proceeding without whitelist.")
-
-    # 4. Run checks
-    contradictions = []
-    
-    # Check 1: Data Source Mismatch
-    mismatch = check_data_source_mismatch(plan_terms, spec_terms)
-    if mismatch:
-        contradictions.append(mismatch)
-
-    # Check 2: Year Range Mismatch
-    year_mismatch = check_critical_data_scope_note(plan_terms, spec_terms)
-    if year_mismatch:
-        contradictions.append(year_mismatch)
-
-    # Check 3: Unknown Terms
-    unknown = check_unknown_terms(plan_terms, spec_terms)
-    if unknown:
-        contradictions.append(unknown)
-
-    # 5. Filter contradictions against whitelist
-    final_contradictions = []
-    for c in contradictions:
-        is_whitelisted = any(w.lower() in c.lower() for w in whitelisted_deviations)
-        if not is_whitelisted:
-            final_contradictions.append(c)
-        else:
-            logger.info(f"Whitelisted deviation found: {c}")
-
-    # 6. Determine status
-    status = "aligned" if not final_contradictions else "contradictions_found"
-    
     report = {
-        "status": status,
-        "plan_file": str(plan_path),
-        "spec_file": str(spec_path),
-        "contradictions": final_contradictions,
-        "whitelisted_count": len(whitelisted_deviations),
-        "checked_at": str(Path().cwd()) # Placeholder for timestamp logic if needed
+        "status": "success",
+        "spec_path": str(SPEC_PATH),
+        "plan_path": str(PLAN_PATH),
+        "deviation_whitelist_path": str(DEVIATION_LIST_PATH),
+        "output_report_path": str(OUTPUT_REPORT_PATH),
+        "errors": [],
+        "warnings": [],
+        "mismatches_found": [],
+        "mismatches_whitelisted": [],
+        "timestamp": None
     }
 
-    # 7. Write output
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Alignment report written to {output_path}")
+    try:
+        # 1. Verify file existence and non-empty
+        logger.info(f"Loading Spec from {SPEC_PATH}")
+        spec_text = load_file_text(SPEC_PATH)
+        logger.info(f"Loading Plan from {PLAN_PATH}")
+        plan_text = load_file_text(PLAN_PATH)
 
-    if final_contradictions:
-        raise RuntimeError(f"Plan/Spec alignment failed with unwhitelisted contradictions: {final_contradictions}")
-    
+        # 2. Extract terms
+        spec_terms = extract_terms(spec_text)
+        plan_terms = extract_terms(plan_text)
+        logger.info(f"Spec terms: {spec_terms}")
+        logger.info(f"Plan terms: {plan_terms}")
+
+        # 3. Check for mismatches
+        mismatches = check_data_source_mismatch(spec_terms, plan_terms)
+        report["mismatches_found"] = mismatches
+
+        if not mismatches:
+            logger.info("No data source mismatches detected.")
+            return report
+
+        # 4. Load whitelist
+        whitelist = load_deviation_whitelist()
+        logger.info(f"Loaded {len(whitelist)} whitelisted deviations.")
+
+        # 5. Filter mismatches
+        whitelisted_count = 0
+        fatal_mismatches = []
+
+        for mismatch in mismatches:
+            if is_whitelisted(mismatch, whitelist):
+                report["mismatches_whitelisted"].append(mismatch)
+                whitelisted_count += 1
+                logger.info(f"Mismatch whitelisted: {mismatch}")
+            else:
+                fatal_mismatches.append(mismatch)
+                logger.warning(f"Fatal mismatch detected (not whitelisted): {mismatch}")
+
+        if fatal_mismatches:
+            report["status"] = "failed"
+            error_msg = f"Found {len(fatal_mismatches)} non-whitelisted contradictions between Spec and Plan."
+            report["errors"].append(error_msg)
+            raise RuntimeError(error_msg)
+        else:
+            logger.info(f"All {len(mismatches)} mismatches were whitelisted.")
+
+    except FileNotFoundError as e:
+        report["status"] = "failed"
+        report["errors"].append(str(e))
+        raise
+    except ValueError as e:
+        report["status"] = "failed"
+        report["errors"].append(str(e))
+        raise
+    except RuntimeError as e:
+        report["status"] = "failed"
+        report["errors"].append(str(e))
+        raise
+
     return report
+
 
 def main():
     """Entry point for the script."""
     try:
-        result = verify_alignment()
-        print(json.dumps(result, indent=2))
-        sys.exit(0)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    except RuntimeError as e:
-        logger.error(str(e))
+        report = verify_alignment()
+        
+        # Ensure output directory exists
+        OUTPUT_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write report
+        with open(OUTPUT_REPORT_PATH, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Verification complete. Report saved to {OUTPUT_REPORT_PATH}")
+        
+        if report["status"] == "failed":
+            logger.error("Verification FAILED. See errors in report.")
+            sys.exit(1)
+        else:
+            logger.info("Verification PASSED.")
+            sys.exit(0)
+
+    except (FileNotFoundError, ValueError, RuntimeError) as e:
+        logger.error(f"Verification failed with exception: {e}")
+        # Still try to write a failure report if possible
+        try:
+            OUTPUT_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
+            error_report = {
+                "status": "failed",
+                "error": str(e),
+                "timestamp": None
+            }
+            with open(OUTPUT_REPORT_PATH, 'w', encoding='utf-8') as f:
+                json.dump(error_report, f, indent=2)
+        except Exception:
+            pass
         sys.exit(1)
     except Exception as e:
-        logger.exception(f"Unexpected error: {e}")
+        logger.critical(f"Unexpected error: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -4,13 +4,15 @@ from pathlib import Path
 
 def create_directories():
     """
-    Create the required project directory structure for PROJ-132.
-    This implements T002a: Create Project Structure.
+    Creates the required project directory structure for the bird migration analysis pipeline.
+    Directories created:
+    - src/data, src/models, src/analysis, src/utils, src/cli
+    - data/raw, data/processed, data/interim
+    - tests/contract, tests/unit, tests/integration
+    - docs
     """
-    # Define the root directory (project root)
-    root = Path(__file__).resolve().parent.parent.parent
-
-    # Define the directories to create relative to root
+    base_path = Path(__file__).resolve().parent.parent.parent
+    
     directories = [
         "src/data",
         "src/models",
@@ -28,28 +30,24 @@ def create_directories():
 
     created_count = 0
     for dir_name in directories:
-        target_path = root / dir_name
-        if not target_path.exists():
-            target_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {target_path}")
+        full_path = base_path / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
             created_count += 1
-        else:
-            print(f"Directory already exists: {target_path}")
-
-    print(f"Project structure setup complete. {created_count} new directories created.")
-    return True
+        # Ensure __init__.py exists in Python packages to make them importable
+        if dir_name.startswith("src/") or dir_name.startswith("tests/"):
+            init_file = full_path / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
+    
+    return created_count
 
 def main():
-    """Entry point for the setup script."""
-    try:
-        success = create_directories()
-        if success:
-            sys.exit(0)
-        else:
-            sys.exit(1)
-    except Exception as e:
-        print(f"Error during project structure creation: {e}")
-        sys.exit(1)
+    """Entry point for the script."""
+    print("Creating project directory structure...")
+    count = create_directories()
+    print(f"Successfully created {count} new directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

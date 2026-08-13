@@ -1,151 +1,98 @@
+"""
+Unit tests for preprocessing pipeline.
+"""
 import pytest
-import pandas as pd
-import numpy as np
+import polars as pl
 from pathlib import Path
-from datetime import datetime, timedelta
 import tempfile
 import os
 
 from src.data.preprocess import (
-    filter_migratory_species,
     assign_grid_cell,
-    add_grid_cells,
-    aggregate_to_weekly_grid,
+    filter_migratory_species,
     compute_phenology_metrics,
-    mark_insufficient_data,
-    calculate_observer_effort,
-    run_preprocessing_pipeline
+    mark_insufficient_cells,
+    generate_provenance,
 )
 
-@pytest.fixture
-def sample_ebird_data():
-    """Create sample eBird data for testing."""
-    data = {
-        'species': ['American Robin', 'American Robin', 'Gray Catbird', 'Black-capped Chickadee', 'American Robin'],
-        'lat': [40.0, 40.5, 40.0, 40.0, 40.0],
-        'lon': [-75.0, -75.0, -75.0, -75.0, -75.0],
-        'date': [
-            datetime(2023, 3, 1),
-            datetime(2023, 3, 8),
-            datetime(2023, 3, 1),
-            datetime(2023, 3, 15),
-            datetime(2023, 3, 1)
-        ],
-        'count': [5, 10, 3, 2, 0],
-        'checklist_id': ['A', 'B', 'C', 'D', 'E']
-    }
-    return pd.DataFrame(data)
-
-@pytest.fixture
-def sample_phenology_data():
-    """Create sample data with phenology metrics already computed."""
-    data = {
-        'species': ['American Robin', 'American Robin'],
-        'grid_cell': ['40.0_-75.0', '40.0_-75.0'],
-        'week': [1, 2],
-        'count': [5, 10],
-        'year': [2023, 2023]
-    }
-    return pd.DataFrame(data)
-
-def test_filter_migratory_species(sample_ebird_data):
-    """Test filtering to migratory species."""
-    clo_list = ['American Robin', 'Gray Catbird']
-    result = filter_migratory_species(sample_ebird_data, clo_list)
-    
-    assert len(result) == 3  # Only American Robin and Gray Catbird
-    assert all(result['species'].isin(clo_list))
-
 def test_assign_grid_cell():
-    """Test grid cell assignment."""
-    lat, lon = assign_grid_cell(40.3, -75.2, grid_res=0.5)
-    assert lat == 40.0
-    assert lon == -75.0
+    assert assign_grid_cell(40.5, -74.0, 0.5) == "lat_81_lon_-148"
+    assert assign_grid_cell(0.0, 0.0, 0.5) == "lat_0_lon_0"
 
-def test_add_grid_cells(sample_ebird_data):
-    """Test adding grid cells to DataFrame."""
-    result = add_grid_cells(sample_ebird_data, grid_res=0.5)
-    
-    assert 'grid_cell' in result.columns
-    assert len(result) == len(sample_ebird_data)
-    assert result['grid_cell'].iloc[0] == '40.0_-75.0'
+def test_filter_migratory_species():
+    df = pl.DataFrame({
+        "species": ["SpeciesA", "SpeciesB", "SpeciesC"],
+        "count": [1, 2, 3],
+    })
+    species_set = {"SpeciesA", "SpeciesC"}
+    result = filter_migratory_species(df, species_set)
+    assert result.height == 2
+    assert result["species"].to_list() == ["SpeciesA", "SpeciesC"]
 
-def test_aggregate_to_weekly_grid(sample_ebird_data):
-    """Test aggregation to weekly grid."""
-    # Add grid cells first
-    df_with_grid = add_grid_cells(sample_ebird_data, grid_res=0.5)
-    result = aggregate_to_weekly_grid(df_with_grid)
-    
-    assert 'week' in result.columns
-    assert 'count' in result.columns
-    assert len(result) <= len(df_with_grid)  # Aggregation reduces rows
+def test_compute_phenology_metrics():
+    # Create sample data with dates
+    df = pl.DataFrame({
+        "species": ["A", "A", "A", "A", "A"],
+        "grid_cell": ["cell1", "cell1", "cell1", "cell1", "cell1"],
+        "year": [2020, 2020, 2020, 2020, 2020],
+        "date": ["2020-03-01", "2020-03-10", "2020-03-15", "2020-03-20", "2020-03-25"],
+        "checklist_id": ["1", "2", "3", "4", "5"],
+    })
+    df = df.with_columns(pl.col("date").str.to_date())
 
-def test_compute_phenology_metrics(sample_phenology_data):
-    """Test phenology metric computation."""
-    result = compute_phenology_metrics(sample_phenology_data)
-    
-    assert 'first_arrival' in result.columns
-    assert 'median_arrival' in result.columns
-    assert 'stopover_duration' in result.columns
-    assert result['first_arrival'].iloc[0] == 1
+    # Aggregate to daily first (simulating the pipeline step)
+    df_daily = (
+        df.group_by(["species", "grid_cell", "year", "date"])
+        .agg(pl.col("checklist_id").count().alias("count"))
+    )
 
-def test_mark_insufficient_data(sample_ebird_data):
-    """Test marking insufficient data."""
-    # Add grid cells first
-    df_with_grid = add_grid_cells(sample_ebird_data, grid_res=0.5)
-    result = mark_insufficient_data(df_with_grid, min_observations=5)
-    
-    assert 'data_quality' in result.columns
-    assert result['data_quality'].isin(['sufficient', 'insufficient']).all()
-    
-    # Check that cells with < 5 observations are marked insufficient
-    insufficient = result[result['data_quality'] == 'insufficient']
-    assert len(insufficient) > 0  # At least some cells should be insufficient
+    # Now compute phenology on daily data
+    # We need to adapt the function to accept daily data
+    # For this test, we will simulate the group_by step inside the test
+    # or call the function on the daily data.
+    # The function `compute_phenology_metrics` expects a DataFrame with 'date' column.
+    # We will group by species, grid_cell, year and compute.
+    # Since the function implementation does the grouping, we pass the daily data.
+    # But the function implementation expects the input to be the raw/daily data.
+    # Let's adjust the test to match the function's expected input.
+    # The function does: group_by -> agg -> compute percentiles.
+    # So we pass the daily data.
+    result = compute_phenology_metrics(df_daily)
+    assert result.height == 1
+    assert "first_arrival_date" in result.columns
+    assert "stopover_duration" in result.columns
+    assert result["stopover_duration"][0] > 0
 
-def test_calculate_observer_effort(sample_ebird_data):
-    """Test observer effort calculation."""
-    df_with_grid = add_grid_cells(sample_ebird_data, grid_res=0.5)
-    result = calculate_observer_effort(df_with_grid)
-    
-    assert 'observer_effort' in result.columns
-    assert result['observer_effort'].iloc[0] >= 1
+def test_mark_insufficient_cells():
+    df = pl.DataFrame({
+        "species": ["A", "B"],
+        "grid_cell": ["1", "2"],
+        "year": [2020, 2020],
+        "observation_count": [5, 15],
+    })
+    result = mark_insufficient_cells(df)
+    assert result["data_quality"].to_list() == ["insufficient", "sufficient"]
 
-def test_empty_dataframe_handling():
-    """Test handling of empty DataFrame."""
-    empty_df = pd.DataFrame(columns=['species', 'lat', 'lon', 'date', 'count', 'checklist_id'])
-    
-    with pytest.raises(ValueError):
-        filter_migratory_species(empty_df, ['American Robin'])
-
-def test_missing_columns():
-    """Test error handling for missing columns."""
-    df = pd.DataFrame({'species': ['A'], 'lat': [1.0]})
-    
-    with pytest.raises(ValueError):
-        add_grid_cells(df, grid_res=0.5)
-
-def test_mark_insufficient_data_edge_cases():
-    """Test edge cases for insufficient data marking."""
-    # Create data with exactly min_observations
-    data = {
-        'species': ['A'] * 5,
-        'grid_cell': ['X'] * 5,
-        'week': [1, 2, 3, 4, 5],
-        'count': [1, 1, 1, 1, 1]
-    }
-    df = pd.DataFrame(data)
-    
-    result = mark_insufficient_data(df, min_observations=5)
-    assert all(result['data_quality'] == 'sufficient')
-    
-    # Create data with one less than min_observations
-    data = {
-        'species': ['A'] * 4,
-        'grid_cell': ['X'] * 4,
-        'week': [1, 2, 3, 4],
-        'count': [1, 1, 1, 1]
-    }
-    df = pd.DataFrame(data)
-    
-    result = mark_insufficient_data(df, min_observations=5)
-    assert all(result['data_quality'] == 'insufficient')
+def test_generate_provenance():
+    df = pl.DataFrame({
+        "species": ["A"],
+        "grid_cell": ["1"],
+        "year": [2020],
+        "first_arrival_date": [pl.date(2020, 3, 1)],
+        "median_arrival_date": [pl.date(2020, 3, 10)],
+        "stopover_duration": [5.0],
+        "observation_count": [10],
+        "data_quality": ["sufficient"],
+    })
+    with tempfile.TemporaryDirectory() as tmpdir:
+        path = Path(tmpdir) / "mapping.json"
+        generate_provenance(df, path)
+        assert path.exists()
+        import json
+        with open(path) as f:
+            data = json.load(f)
+        assert len(data) == 1
+        assert "processed_row_id" in data[0]
+        assert "original_checklist_id" in data[0]
+        assert "species" in data[0]
+        assert "grid_cell" in data[0]

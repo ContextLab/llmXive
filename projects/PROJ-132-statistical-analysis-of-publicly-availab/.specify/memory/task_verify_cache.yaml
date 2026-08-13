@@ -1,25 +1,11 @@
-T005a:
+T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No data files, ingestion/preprocessing scripts, or resulting CSV outputs were
-    supplied, and there is no evidence (e.g., logs, screenshots, test results) that
-    the eBird and NOAA datasets are present or that the pipeline has been run to produce
-    the required columns. The implementer therefore has not demonstrated that the
-    data availability requirement is satisfied.
-T005b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a downloaded eBird sample (e.g., CSV, zip, or script that retrieves\
-    \ the verified dataset) is present; the only provided material is a high\u2011\
-    level feature specification, not the required data artifact. The task\u2019s core\
-    \ deliverable\u2014a verified eBird sample file\u2014is missing."
-T005d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No archive directory (`data/raw/archive/`) containing the copied raw files is
-    provided, nor any evidence (e.g., CI artifact logs, upload scripts, or artifact
-    IDs) that the archive was uploaded to CI. Consequently the required artifact is
-    missing.
+  r: No directory listing or other proof is provided showing that the required folders
+    (`src/data`, `src/models`, `src/analysis`, `src/utils`, `src/cli`, `data/raw`,
+    `data/processed`, `data/interim`, `tests/contract`, `tests/unit`, `tests/integration`,
+    `docs`) actually exist on disk. Without such evidence the claim that the project
+    structure was created cannot be verified.
 T010c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -27,22 +13,6 @@ T010c:
     \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
     \ task. Consequently the required log entry and its format\u2011compliance verification\
     \ are missing."
-T015b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No preprocessing scripts, data files, or resulting CSVs were supplied; the implementer
-    did not provide any tangible code, documentation, or output that demonstrates
-    ingestion of eBird and NOAA data, filtering, aggregation, or calculation of phenology
-    metrics as required. Consequently, the core deliverable of the preprocessing pipeline
-    is missing.
-T016:
-  c: false
-  h: 30666c17a580ede3b85e603be744f3cecf0226a796987d04404d0218b46ea23f
-  r: "The `generate_provenance` function in `src/data/preprocess.py` is truncated\
-    \ and does not construct the full mapping (it stops after `\"original_checklist_id\"\
-    ` and never adds `\"species\"` or `\"grid_cell\"`). Moreover, the required output\
-    \ file `data/provenance/row_mapping.json` does not exist on disk. The task\u2019\
-    s requirement of creating a complete provenance JSON file is therefore unmet."
 T017d:
   c: true
   h: 51dd9381e1eb53865c4eebf3987f448a27e3924a34c5584d65da38025d026fcb
@@ -57,13 +27,6 @@ T018:
     \ the required logic to flag grid cells with fewer than 5 observations per Plan\
     \ Phase\u202F2 and to exclude them from downstream modeling. Consequently, the\
     \ artifact demanded by T018 is missing."
-T023a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides only the specification text; there are no actual code files,
-    preprocessing scripts, GAMM fitting scripts, or resulting datasets/figures present
-    on disk. Consequently, the required artifacts for data acquisition, model fitting,
-    and output validation are missing, so the task is not genuinely completed.
 T023b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -101,12 +64,12 @@ T043:
     \ (e.g., a numeric result, a data file, or reproducible code) that derives this\
     \ proportion from the preprocessed dataset."
 T045a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, module, or documentation implementing a file\u2011based lock wrapper\
-    \ with `filelock.FileLock` is present in the provided artifacts. The claim cannot\
-    \ be verified because the required implementation file (e.g., `lock_wrapper.py`\
-    \ or similar) is missing entirely."
+  c: true
+  h: be30fb64f0b20e53e09498e971a4c003f3fe7adac09c57ce631e2e48fba09fca
+  r: "The `src/utils/locks.py` file exists, is non\u2011empty, and defines `pipeline_lock\
+    \ = FileLock(str(LOCK_FILE_PATH))` where `LOCK_FILE_PATH` resolves to `\"data/interim/pipeline.lock\"\
+    `, exactly matching the task specification. The absence of an actual lock file\
+    \ on disk is acceptable, as the lock is created lazily when used."
 T045b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -122,3 +85,17 @@ T045c:
     contention test. The required test file (e.g., a unit\u2011 or integration\u2011\
     test that creates competing threads/processes to provoke lock contention and asserts\
     \ expected behavior) is missing."
+T050a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer supplied only a feature specification for bird\u2011migration\
+    \ data processing; no schema definition, file, or code for a \u201CDeviation Whitelist\
+    \ Schema\u201D was presented. Consequently the required artifact is missing, so\
+    \ the task is not satisfied."
+T050b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No preprocessing, modeling, or verification scripts, datasets, or result files
+    were provided; the claim lacks any tangible artifact to confirm that the plan
+    and spec verification steps were implemented. The required code and output artifacts
+    are missing.

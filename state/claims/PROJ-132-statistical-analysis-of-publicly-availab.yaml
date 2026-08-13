@@ -1016,3 +1016,326 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T19:54:27Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: EBD sample vvud/eb-data for North America 2020-2024 and Daymet climate
+    data download
+  claim_id: c_d5c5aac4
+  context: "T005c0 Action: Edit spec.md to modify FR-001. Change: Update FR-001 text\
+    \ to: 'System MUST download and cache eBird Basic Dataset (EBD) sample (vvud/eb-data)\
+    \ for North America (2020\u20132024) and Daymet climate data...'"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "System MUST download and cache eBird Basic Dataset (EBD) sample (vvud/eb-data)\
+    \ for North America (2020\u20132024) and Daymet climate data"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T01:57:49Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: geomstats dependency version 2.4.0 or higher
+  claim_id: c_d457a74b
+  context: 'T003c Action: Append geomstats>=2.4.0 to the dependencies list in pyproject.toml
+    under [project].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add geomstats>=2.4.0 to the dependencies list in pyproject.toml
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T01:58:06Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 10000 permutations for permutation test
+  claim_id: c_6a844e52
+  context: 'T025b Action: Execute full 10 000 permutations (config.PERMUTATIONS) in
+    chunks of 1 000...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute 10,000 permutations for the permutation test loop
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T01:58:22Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: 10000 permutation shuffles for trajectory analysis p-value
+  claim_id: c_7f37a617
+  context: 'T031c Action: Perform 10,000 permutation shuffles to derive the p-value.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 10,000 permutation shuffles to derive the p-value in trajectory
+    analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T01:58:29Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: eBird streaming memory usage less than 6 GB
+  claim_id: c_f4f69a3c
+  context: 'T051 Action: Implement src/data/stream_utils.py... ensuring memory usage
+    < 6 GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/EBird_streaming_memory_usage_less_than_6_GB
+  kind: magnitude
+  raw_text: Ensure memory usage is less than 6 GB when streaming verified full eBird
+    data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:00:52Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: pipeline runtime less than 6 hours
+  claim_id: c_507fa8a7
+  context: "T043 Logic: SC-005 (Runtime) \u2013 Run src/analysis/runtime_validation.py\
+    \ to ensure total pipeline runtime < 6 h..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Ensure total pipeline runtime is less than 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:01:25Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: grid resolution 0.5 degrees
+  claim_id: c_bbba962b
+  context: 'T010a Action: Write src/config.py defining GRID_RES=0.5...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define grid resolution as 0.5 degrees
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:01:36Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: minimum observations threshold 10
+  claim_id: c_24f90071
+  context: 'T010a Action: Write src/config.py defining MIN_OBSERVATIONS=10...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define minimum observations threshold as 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:03:27Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: random seed 42
+  claim_id: c_d2a44558
+  context: 'T010a Action: Write src/config.py defining RANDOM_SEED=42...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set random seed to 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:03:43Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: confidence interval width target 7
+  claim_id: c_7efeda81
+  context: 'T010a Action: Write src/config.py defining CI_WIDTH_TARGET=7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set target confidence interval width to 7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:03:59Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: stopover duration calculated as 90th percentile minus 10th percentile
+  claim_id: c_600cade7
+  context: 'T015b Logic: Compute first_arrival (min date), median_arrival (median
+    date), stopover_duration (90th - 10th percentile).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stopover_duration_calculated_as_90th_percentile_minus_10th_p
+  kind: entity_fact
+  raw_text: Compute stopover duration as the difference between the 90th and 10th
+    percentile dates
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:04:17Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: eBird data streaming chunk size 100000 rows
+  claim_id: c_0ad59254
+  context: 'T051 Action: Implement src/data/stream_utils.py... to yield records in
+    chunks of 100 000 rows...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream eBird data in chunks of 100,000 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:07:13Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: permutation test chunk size 1000
+  claim_id: c_3abafc72
+  context: 'T025b Action: Execute full 10 000 permutations... in chunks of 1 000...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run permutation test in chunks of 1,000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:10:32Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: GAMM GP refit condition Moran's I greater than 0.15
+  claim_id: c_9d6e5e3c
+  context: 'T023c Action: IF value > 0.15: Refit the model using pygam with a Gaussian
+    Process (GP) random effect...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GAMM_GP_refit_condition_Moran's_I_greater_than_0.15
+  kind: magnitude
+  raw_text: Refit GAMM model with Gaussian Process random effect if Moran's I value
+    is greater than 0.15
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:10:38Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: trajectory permutation test runtime less than 1000ms per species
+  claim_id: c_9b957651
+  context: 'T039b2 Action: Parallelize trajectory permutation tests with joblib: Target:
+    achieve < 1000ms per species.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trajectory_permutation_test_runtime_less_than_1000ms_per_spe
+  kind: magnitude
+  raw_text: Parallelize trajectory permutation tests to achieve less than 1000ms per
+    species
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:10:43Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: permutation test runtime less than 500ms per chunk
+  claim_id: c_1574e902
+  context: 'T039b1 Action: Parallelize permutation tests with joblib: Target: achieve
+    < 500ms per chunk.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_runtime_less_than_500ms_per_chunk
+  kind: magnitude
+  raw_text: Parallelize permutation tests to achieve less than 500ms per chunk
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:11:04Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: eBird DataFrame columns species lat lon date count checklist_id
+  claim_id: c_5f8878ba
+  context: 'T006 Action: tests/contract/test_schemas.py::test_ebird_schema_columns
+    asserts that the eBird DataFrame contains columns [species, lat, lon, date, count,
+    checklist_id]...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EBird_DataFrame_columns_species_lat_lon_date_count_checklist
+  kind: entity_fact
+  raw_text: Verify eBird DataFrame contains columns species, lat, lon, date, count,
+    checklist_id
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:11:18Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Daymet climate data download 2020 to 2024
+  claim_id: c_304c8e55
+  context: 'T005c1 Action: Use datasets.load_dataset(''daymet/annual'',...) to download
+    climate variables... Write to data/raw/daymet/ as Parquet files (daymet_2020_2024.parquet).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download Daymet climate data for the period 2020 to 2024
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:11:24Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: seasonal climate averages March to May
+  claim_id: c_5b157034
+  context: 'T017b Action: ...compute seasonal averages (Mar-May)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Seasonal_climate_averages_March_to_May
+  kind: entity_fact
+  raw_text: Compute seasonal climate averages for March to May
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:13:50Z'
