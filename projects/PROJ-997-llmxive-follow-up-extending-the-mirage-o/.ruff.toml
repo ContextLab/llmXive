@@ -1,0 +1,43 @@
+# Ruff configuration for llmXive project
+# Enforces strict code quality standards consistent with research pipeline requirements
+
+line-length = 100
+target-version = "py310"
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501", # Line too long (handled by line-length)
+    "B008", # Do not perform function call in argument defaults (often needed for logging)
+    "SIM105", # Use contextlib.suppress (sometimes less explicit for error handling)
+]
+
+[lint.per-file-ignores]
+# Allow specific patterns in test files
+"tests/**/*.py" = [
+    "S101", # Use of assert detected (pytest uses assert)
+    "D100", # Missing docstring in public module
+]
+
+[lint.isort]
+known-first-party = ["src", "scripts", "tests"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[format]
+# Black-compatible formatting settings
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

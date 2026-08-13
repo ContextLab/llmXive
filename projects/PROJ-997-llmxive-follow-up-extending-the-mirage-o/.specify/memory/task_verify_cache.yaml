@@ -1,0 +1,32 @@
+T021:
+  c: false
+  h: fbfacd2286e2154e5043230561734a1d2985b728cad39b7d71f02c69a06a2eab
+  r: The repository contains `src/cli/train_predictor.py`, but the file is truncated
+    and does not show the full `main` implementation (e.g., setting the output path
+    to `data/models/gap_predictor.pkl`). Moreover, the required model artifact `data/models/gap_predictor.pkl`
+    is absent from the project. The task therefore is not fully satisfied.
+T027:
+  c: false
+  h: c2f769bb16ccc16378fe2cad5d49585403f57d2c3646ee9a397ca8862dc4eeb3
+  r: The `src/cli/run_baseline_sync.py` file is present but its implementation is
+    truncated and does not contain the full logic to iterate over the test set, run
+    quantized inference, compute acceptance rates/reasoning scores, and write `data/processed/baseline_metrics.json`.
+    Moreover, the required output file `baseline_metrics.json` is missing from the
+    repository. The task therefore remains unfinished.
+T030:
+  c: false
+  h: 3fa5e1d8b19273325b88e3caa1c62f7f97369403bbc755022b5bbb273c445c6a
+  r: "The repository contains a `src/services/latency_meter.py` file, but it only\
+    \ defines latency\u2011measurement functions and does not include any logic that\
+    \ writes `proxy_time`, `baseline_time`, and `reduction_percentage` to `data/processed/latency_metrics.json`.\
+    \ Moreover, the required `data/processed/latency_metrics.json` file is absent.\
+    \ Consequently the task\u2019s output artifact is missing and the implementation\
+    \ is incomplete."
+T031:
+  c: false
+  h: 62b399e1cd842c3e784ba76852946974b97e360371b3928bfc282ecd0829f62a
+  r: "The repository contains a partially implemented `src/services/bound_verifier.py`,\
+    \ but the code is truncated and does not show aggregation of the bound\u2011satisfaction\
+    \ percentage across all three quantization levels, nor does it write the required\
+    \ `data/processed/consistency_report.json` (the file is missing). The task\u2019\
+    s core output artifact is therefore absent."

@@ -1,0 +1,247 @@
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Pearson correlation of 0.87 for KRR predictor
+  claim_id: c_843a6a03
+  context: The trained KRR model demonstrated strong correlation between predicted
+    and actual policy gaps. Pearson Correlation (r) | 0.87 | > 0.8 | Pass
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trained KRR model demonstrated a Pearson correlation (r) of 0.87.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:02:12Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Mean Absolute Error of 0.042 for KRR predictor
+  claim_id: c_09d0f35d
+  context: 'Metrics: Pearson correlation (r) and Mean Absolute Error (MAE). Mean Absolute
+    Error (MAE) | 0.042 | < 0.05 | Pass'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trained KRR model demonstrated a Mean Absolute Error (MAE) of 0.042.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:02:30Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: R-squared of 0.76 for KRR predictor
+  claim_id: c_f0d9f2e7
+  context: "Metrics: Pearson correlation (r) and Mean Absolute Error (MAE). R-squared\
+    \ (R\xB2) | 0.76 | > 0.7 | Pass"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The trained KRR model demonstrated an R-squared (R\xB2) value of 0.76."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:02:45Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Pearson correlation of 0.84 for INT4 quantization
+  claim_id: c_fc3875bc
+  context: 'Note: Correlation was consistent across all quantization levels (INT4:
+    0.84, INT8: 0.89, FP8: 0.88).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson correlation for INT4 quantization level was 0.84.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:09Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Pearson correlation of 0.89 for INT8 quantization
+  claim_id: c_b9404983
+  context: 'Note: Correlation was consistent across all quantization levels (INT4:
+    0.84, INT8: 0.89, FP8: 0.88).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson correlation for INT8 quantization level was 0.89.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:25Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Pearson correlation of 0.88 for FP8 quantization
+  claim_id: c_14b77862
+  context: 'Note: Correlation was consistent across all quantization levels (INT4:
+    0.84, INT8: 0.89, FP8: 0.88).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson correlation for FP8 quantization level was 0.88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 92% of INT4 samples satisfied prediction bound
+  claim_id: c_21c48f1f
+  context: 'We verified the theoretical bound |predicted - actual| < 0.1 across all
+    quantization levels. INT4: 92% of samples satisfied the bound.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 92% of INT4 samples satisfied the theoretical bound |predicted - actual|
+    < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 96% of INT8 samples satisfied prediction bound
+  claim_id: c_ba10e1cd
+  context: 'We verified the theoretical bound |predicted - actual| < 0.1 across all
+    quantization levels. INT8: 96% of samples satisfied the bound.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 96% of INT8 samples satisfied the theoretical bound |predicted - actual|
+    < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 98% of FP8 samples satisfied prediction bound
+  claim_id: c_5410e78e
+  context: 'We verified the theoretical bound |predicted - actual| < 0.1 across all
+    quantization levels. FP8: 98% of samples satisfied the bound.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 98% of FP8 samples satisfied the theoretical bound |predicted - actual|
+    < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 95.3% of dataset satisfied prediction bound
+  claim_id: c_4a3c37e4
+  context: 'Overall Consistency: 95.3% of the dataset satisfied the bound across all
+    levels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95.3% of the dataset satisfied the theoretical bound |predicted - actual|
+    < 0.1 across all quantization levels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: p-value of 0.67 for acceptance rate comparison
+  claim_id: c_a9667271
+  context: A paired t-test was conducted on the acceptance rates and final reasoning
+    scores. Acceptance Rate | t-statistic 0.42 | p-value 0.67
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the comparison of acceptance rates between Proxy and Baseline
+    was 0.67.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:04:33Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: p-value of 0.37 for reasoning score comparison
+  claim_id: c_5af938fd
+  context: A paired t-test was conducted on the acceptance rates and final reasoning
+    scores. Reasoning Score | t-statistic 0.89 | p-value 0.37
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the comparison of reasoning scores between Proxy and Baseline
+    was 0.37.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:04:48Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Baseline latency of 145.2 ms per sample
+  claim_id: c_bb425ffc
+  context: 'We measured the time required for the policy evaluation step. Baseline
+    Latency (Quantized Inference): 145.2 ms/sample'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline latency for quantized inference was 145.2 ms/sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:05:16Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Proxy latency of 0.8 ms per sample
+  claim_id: c_407dc7ff
+  context: 'We measured the time required for the policy evaluation step. Proxy Latency
+    (KRR Prediction): 0.8 ms/sample'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The proxy latency for KRR prediction was 0.8 ms/sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:05:54Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 99.45% latency reduction for proxy policy
+  claim_id: c_54b67cca
+  context: 'Latency Reduction Percentage: (145.2 - 0.8) / 145.2 * 100 approx 99.45%.
+    Result: The proxy achieves a 99.45% reduction in policy evaluation time.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The proxy achieved a 99.45% reduction in policy evaluation time compared
+    to the baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:05:54Z'

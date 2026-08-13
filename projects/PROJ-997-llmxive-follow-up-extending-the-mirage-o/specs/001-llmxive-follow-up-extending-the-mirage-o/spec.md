@@ -69,7 +69,7 @@ As a researcher, I need to verify if a consistent theoretical bound holds across
 - **FR-004**: System MUST train a lightweight regression model (e.g., Kernel Ridge Regression) to predict the hardware-measured gap using only the extracted training features (gradient norms, curvature), trained jointly on data from INT4, INT8, and FP8 quantization levels. (See US-002)
 - **FR-005**: System MUST evaluate the trained model on a held-out test set and report the Pearson correlation coefficient between predicted and actual divergence. (See US-002)
 - **FR-006**: System MUST perform a statistical comparison (paired t-test) of policy acceptance rates and final scores between the proxy-based MIPU loop and the full-hardware-sync baseline. (See US-003)
-- **FR-007**: System MUST verify if the theoretical bound (|predicted - actual| < 0.1) holds consistently across at least three different quantization bit-widths (INT4, INT8, and FP8). (See US-003)
+- **FR-007**: System MUST verify if the theoretical bound (|predicted - actual| < 0.1) holds consistently across at least three different quantization bit-widths (low, medium, and high precision). (See US-003)
 
 ### Key Entities
 
@@ -86,7 +86,7 @@ As a researcher, I need to verify if a consistent theoretical bound holds across
 - **SC-001**: The correlation between predicted and actual policy gap is measured against the Pearson correlation coefficient (r) threshold of > 0.8 on the held-out test set. (See US-002, US-003)
 - **SC-002**: The latency reduction of the proxy method is measured against the baseline full-hardware-sync method, targeting a reduction of ≥ 90% in the policy evaluation step. (See US-003)
 - **SC-003**: The statistical equivalence of training stability is measured against a paired t-test (p > 0.05) comparing final reasoning scores of the proxy vs. baseline MIPU loops. (See US-003)
-- **SC-004**: The robustness of the bound is measured against the consistency of the correlation coefficient (r > 0.8) across at least three distinct quantization levels (INT4, INT8, and FP8). (See US-003)
+- **SC-004**: The robustness of the bound is measured against the consistency of the correlation coefficient (r > 0.8) across at least three distinct quantization levels (low-bit, medium-bit, and floating-point formats). (See US-003)
 - **SC-005**: The computational feasibility is measured against the constraint that the entire analysis (dataset generation + model training + validation) completes within 6 hours on an ubuntu-latest runner; if this exceeds 6 hours, the dataset size is reduced until the constraint is met while maintaining statistical power (n ≥ 300 samples). (See FR-004, FR-005)
 
 ## Assumptions
