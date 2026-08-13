@@ -1,38 +1,35 @@
-# Quickstart Guide
+# Quickstart – End‑to‑End Execution
 
-This guide runs the full pipeline end-to-end.
-
-## Setup
-
-```bash
-pip install -r requirements.txt
-```
-
-## Execution
-
-Run the scripts in order:
+This document lists the commands that constitute the full analysis
+pipeline. The commands are ordered to respect the data contracts
+defined in the specification.
 
 ```bash
-# 1. Download Tox21 dataset
+# 1️⃣ Download the raw Tox21 dataset.
 python code/download.py
 
-# 2. Filter for organophosphates
+# 2️⃣ Filter for organophosphate compounds.
 python code/filter.py
 
-# 3. Generate fingerprints
+# 3️⃣ Generate molecular fingerprints.
 python code/fingerprints.py
 
-# 4. Split data
+# 4️⃣ Create training / test splits (single split + K‑fold).
 python code/split.py
 
-# 5. Train models
+# 5️⃣ Train models (final model + K‑fold cross‑validation).
 python code/train.py
 
-# 6. Evaluate and generate report
+# 6️⃣ Evaluate and generate the final research report.
 python code/evaluate.py
 ```
 
-## Outputs
+The unit tests for the statistical utilities can be run independently
+with:
 
-- `data/processed/organophosphates_filtered.csv`: Filtered compounds
-- `data/processed/research_results.md`: Final report
+```bash
+pytest tests/unit/test_stats.py
+```
+
+All artefacts produced by the pipeline are written under the ``data/``
+directory as described in the task specifications.

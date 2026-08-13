@@ -34,14 +34,6 @@ T013b:
   r: The provided `code/filter.py` does not contain any code that writes `data/processed/sample_size_status.json`,
     and the file `data/processed/sample_size_status.json` is absent from the repository.
     Consequently the required JSON output and trigger file are missing.
-T018c:
-  c: false
-  h: 8b019f3d9b2025644bde250f94405c5c3c610d792ca99cf39a517fb8c5297d76
-  r: "The provided `split_summary.json` correctly indicates an INVALID status, but\
-    \ the required output files `data/processed/invalid_split_report.md` and `data/processed/research_results.md`\
-    \ are missing, so the task\u2019s core behavior (writing the reports and ensuring\
-    \ the final `research_results.md` exists before exit) was not performed. The implementer\
-    \ must generate both files with the specified content."
 T020b:
   c: false
   h: 05703c0b7bec84e5c4055c6f4e6e81223b77151ca70c2c864bdd4547ed5dc2c9

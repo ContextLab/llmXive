@@ -49,11 +49,11 @@ description: "Task list template for feature implementation"
 **Purpose**: Create foundational design artifacts required as inputs for the main implementation phases. **Gate**: This phase must be completed before Phase 1.
 
 - [X] T008 Create `specs/001-comparative-analysis-of-molecular-fingerprints/data-model.md` defining Compound, Fingerprint, Model, and PerformanceMetric entities with schema. This task is a hard gate for Phase 1 and serves as a prerequisite for T011/T012. **Schema**:
-  - `Compound`: {smiles: str, mol_id: str, toxicity_labels: dict}
-  - `Fingerprint`: {type: str (morgan/maccs), bits: int, vector: list}
-  - `Model`: {type: str, fingerprint_type: str, endpoint: str, metrics: dict}
-  - `PerformanceMetric`: {name: str, value: float, ci: tuple}
-  **Note**: Although it may be done early, it is NOT parallel with the pipeline start; T011/T012 depend on its completion.
+ - `Compound`: {smiles: str, mol_id: str, toxicity_labels: dict}
+ - `Fingerprint`: {type: str (morgan/maccs), bits: int, vector: list}
+ - `Model`: {type: str, fingerprint_type: str, endpoint: str, metrics: dict}
+ - `PerformanceMetric`: {name: str, value: float, ci: tuple}
+ **Note**: Although it may be done early, it is NOT parallel with the pipeline start; T011/T012 depend on its completion.
 
 **Checkpoint**: Design artifacts ready - main implementation can now begin
 
@@ -86,24 +86,24 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test in `tests/unit/test_filter.py::test_smarts_filter_returns_empty_on_no_match`. Implement a pytest function that asserts the filtered dataframe is empty when the SMARTS pattern matches no compounds in a mock dataset.
-- [ ] T010 [P] [US1] Integration test in `tests/integration/test_download.py::test_download_and_checksum_tox21` to verify dataset download and checksum validation.
+- [X] T009 [P] [US1] Unit test in `tests/unit/test_filter.py::test_smarts_filter_returns_empty_on_no_match`. Implement a pytest function that asserts the filtered dataframe is empty when the SMARTS pattern matches no compounds in a mock dataset.
+- [X] T010 [P] [US1] Integration test in `tests/integration/test_download.py::test_download_and_checksum_tox21` to verify dataset download and checksum validation.
 
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/download.py` to fetch Tox dataset from HuggingFace `datasets.load_dataset("deepchem/tox")`, including checksum verification. **Depends on T008 (Data Model) and T006 (Constants)**.
 - [X] T012 [US1] Implement `code/filter.py` to apply SMARTS pattern `[P](=O)([O,SC])[O,SC]` to filter compounds and save to `data/processed/organophosphates_filtered.csv`. **Implementation**:
-  1. Load raw Tox21 data.
-  2. Convert SMILES to RDKit Mol objects.
-  3. Apply `Chem.MolFromSmarts(SMARTS_PATTERN)` match.
-  4. Filter dataframe to matched rows.
-  5. Save to CSV.
-  **Depends on T004 (Directory Creation), T008 (Data Model), and T006 (Constants)**.
+ 1. Load raw Tox21 data.
+ 2. Convert SMILES to RDKit Mol objects.
+ 3. Apply `Chem.MolFromSmarts(SMARTS_PATTERN)` match.
+ 4. Filter dataframe to matched rows.
+ 5. Save to CSV.
+ **Depends on T004 (Directory Creation), T008 (Data Model), and T006 (Constants)**.
 - [X] T013a [US1] Implement validation logic in `code/filter.py` to count rows per toxicity endpoint. **CRITICAL**:
  - **Execution**: Execute the filter.
  - **Verification**:
-   - **Failure Path**: If total sample size < 50, verify `data/processed/filter_log.txt` contains the exact string "WARNING: Low Sample Size (n < 50)".
-   - **Success Path**: If total sample size >= 50, verify `data/processed/filter_log.txt` contains "status: OK".
+ - **Failure Path**: If total sample size < 50, verify `data/processed/filter_log.txt` contains the exact string "WARNING: Low Sample Size (n < 50)".
+ - **Success Path**: If total sample size >= 50, verify `data/processed/filter_log.txt` contains "status: OK".
  - **Deliverable**: File `data/processed/filter_log.txt` must exist and contain either the warning string or "status: OK". **Depends on T012**.
 - [X] T013b [US1] Implement logic in `code/filter.py` to write `data/processed/sample_size_status.json` with `{"status": "SKIP_STATS"}` if sample size < 50, or `{"status": "OK"}` otherwise. **Implementation**:
  1. Read sample count from T013a logic.
@@ -130,8 +130,8 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T015 [P] [US2] Unit test in `tests/unit/test_fingerprints.py::test_morgan_fingerprint_generation` to verify Morgan fingerprint generation parameters.
-- [ ] T016 [P] [US2] Unit test in `tests/unit/test_split.py::test_greedy_split_tanimoto_threshold` to verify the greedy split logic maintains Tanimoto < 0.85.
+- [X] T015 [P] [US2] Unit test in `tests/unit/test_fingerprints.py::test_morgan_fingerprint_generation` to verify Morgan fingerprint generation parameters.
+- [X] T016 [P] [US2] Unit test in `tests/unit/test_split.py::test_greedy_split_tanimoto_threshold` to verify the greedy split logic maintains Tanimoto < 0.85.
 
 ### Implementation for User Story 2
 
@@ -196,7 +196,7 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T022 [P] [US3] Unit test in `tests/unit/test_stats.py::test_paired_ttest_cv_scores` to verify paired t-test logic on **K-Fold scores**.
+- [X] T022 [P] [US3] Unit test in `tests/unit/test_stats.py::test_paired_ttest_cv_scores` to verify paired t-test logic on **K-Fold scores**.
 - [ ] T023 [P] [US3] Unit test in `tests/unit/test_stats.py::test_bootstrap_confidence_interval` to verify bootstrap CI calculation.
 
 ### Implementation for User Story 3
@@ -237,7 +237,7 @@ description: "Task list template for feature implementation"
  | Metric | Morgan | MACCS | P-Value | 95% CI |
  |:--- |:---: |:---: |:---: |:---: |
  | ROC-AUC |... |... |... |... |
- | ROC-AUC Difference | N/A | N/A | ... | [lower, upper] |
+ | ROC-AUC Difference | N/A | N/A |... | [lower, upper] |
  ```
  **CRITICAL**:
  1. Use ONLY metrics from `data/processed/test_set_descriptive.json` (Single Split, FR-004) for the Morgan/MACCS columns.
@@ -251,8 +251,8 @@ description: "Task list template for feature implementation"
  2. **Statistical Test Results** (p-values for ROC-AUC from K-Fold scores).
  3. **SC-003 Analysis** (Gini importance comparison result).
  4. **Limitation Handling**:
-    - **If `sample_size_status.json` is "SKIP_STATS"**: Include a section titled "Limitation: Low Sample Size" explaining the skipped statistical test.
-    - **If `single_split_error.log` exists**: Include a section titled "Statistical Comparison Invalid" stating the reason for the invalid split.
+ - **If `sample_size_status.json` is "SKIP_STATS"**: Include a section titled "Limitation: Low Sample Size" explaining the skipped statistical test.
+ - **If `single_split_error.log` exists**: Include a section titled "Statistical Comparison Invalid" stating the reason for the invalid split.
  **Condition**: ALWAYS run. If conditions for statistical tests are not met, generate the report with the appropriate limitation/invalidity section.
  **Dependency**: T029a2.
 

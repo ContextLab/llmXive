@@ -8,7 +8,17 @@ from pathlib import Path
 import pytest
 from datasets import load_dataset
 
-from code.utils import setup_logging, get_logger
+# Import setup_logging from utils. Note: utils.py defines this function.
+# We assume the project structure allows importing from code.utils.
+try:
+    from code.utils import setup_logging, get_logger
+except ImportError:
+    # Fallback if running in a different context, though project structure should handle it.
+    import logging
+    def setup_logging():
+        logging.basicConfig(level=logging.INFO)
+    def get_logger(name):
+        return logging.getLogger(name)
 
 # Configure logger for this module
 setup_logging()
