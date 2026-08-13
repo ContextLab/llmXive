@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-009-build-a-mesh-network-that-forms-the-larg",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory tree, `__init__.py` files, or `.gitignore` content were provided; without visible evidence of the required folder structure and files, the task\u2019s deliverable cannot be confirmed as completed. The implementer must supply the actual project layout showing all listed directories, the initialization files, and a `.gitignore` with the specified exclusions.",
+      "first_seen": "2026-08-13T11:14:45.569591+00:00",
+      "last_seen": "2026-08-13T11:14:45.569591+00:00"
+    },
+    {
+      "task_key": "T013c",
+      "reject_count": 1,
+      "last_reason": "No `heartbeat_monitoring.py` file (or any code) was presented in the evidence, so the required implementation for heartbeat loss detection and task re\u2011assignment is missing. The task remains undone.",
+      "first_seen": "2026-08-13T11:14:50.739307+00:00",
+      "last_seen": "2026-08-13T11:14:50.739307+00:00"
+    },
+    {
+      "task_key": "T012",
+      "reject_count": 1,
+      "last_reason": "No `code/orchestrator/remote_tools_manager.py` file or its contents were provided; therefore we cannot verify that the required implementation exists, is non\u2011empty, or fulfills the specification of verifying and installing CLI tools on remote nodes. The necessary artifact is missing.",
+      "first_seen": "2026-08-13T11:14:50.740309+00:00",
+      "last_seen": "2026-08-13T11:14:50.740309+00:00"
+    }
+  ],
+  "updated_at": "2026-08-13T11:14:50.740309+00:00"
+}

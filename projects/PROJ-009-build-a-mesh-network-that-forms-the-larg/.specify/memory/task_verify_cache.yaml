@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree, `__init__.py` files, or `.gitignore` content were provided;\
-    \ without visible evidence of the required folder structure and files, the task\u2019\
-    s deliverable cannot be confirmed as completed. The implementer must supply the\
-    \ actual project layout showing all listed directories, the initialization files,\
-    \ and a `.gitignore` with the specified exclusions."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,19 +5,28 @@ T007:
     for `ExecutionRun` or `RegressionModel`, nor any implementation using `jsonschema`/`pydantic`
     to perform runtime validation. The required artifacts are missing, so the task
     is not satisfied.
-T012:
+T013a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `code/orchestrator/remote_tools_manager.py` file or its contents were provided;\
-    \ therefore we cannot verify that the required implementation exists, is non\u2011\
-    empty, or fulfills the specification of verifying and installing CLI tools on\
-    \ remote nodes. The necessary artifact is missing."
-T013c:
+  r: "No `code/orchestrator/node_manager.py` file was presented, nor any excerpt showing\
+    \ its implementation of SSH handling, heartbeat pings, or device discovery. Without\
+    \ the actual artifact, we cannot confirm the required functionality exists. The\
+    \ implementer must provide a non\u2011empty `node_manager.py` containing the specified\
+    \ logic."
+T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `heartbeat_monitoring.py` file (or any code) was presented in the evidence,\
-    \ so the required implementation for heartbeat loss detection and task re\u2011\
-    assignment is missing. The task remains undone."
+  r: "No `completion_feedback.py` file (or any code) is present in `code/orchestrator/`,\
+    \ and therefore the required functions `receive_task_status` and `update_scheduler_state`\
+    \ that modify the `SchedulerState` object are missing. The task\u2019s core implementation\
+    \ is absent."
+T013d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The repository does not contain a `code/orchestrator/scheduler_state.py` file\
+    \ (or it is empty/placeholder), so the required runtime `SchedulerState` machine\
+    \ and feedback handler logic are not present. The implementer\u2019s claim cannot\
+    \ be verified without the actual implementation."
 T015a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,3 +54,24 @@ T017:
   r: "No `code/orchestrator/data_collector.py` file was provided, and there is no\
     \ evidence of a generated CSV in `code/data/raw/`. Without the script and its\
     \ output, the task\u2019s requirement cannot be confirmed as met."
+T046a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `code/analysis/radio_metrics_extractor.py` file or the resulting `radio_metrics_extracted.json`
+    is provided; without these artifacts we cannot verify that raw radio metrics and
+    network stats are processed as required. The implementer must add the script and
+    generate the unified JSON output.
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `radio_metrics_collector.py` file (or its contents) was presented for inspection,\
+    \ so we cannot confirm that it exists, is non\u2011empty, or actually measures\
+    \ `snr_db` and `bandwidth_Mbps` as required. The implementer must provide the\
+    \ concrete source file located at `code/orchestrator/radio_metrics_collector.py`\
+    \ with a working implementation."
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `node_profiler.py` file (or its contents) was provided in the evidence, so
+    we cannot confirm that a script measuring and recording CPU details was actually
+    implemented in `code/orchestrator/`. The required artifact is missing.

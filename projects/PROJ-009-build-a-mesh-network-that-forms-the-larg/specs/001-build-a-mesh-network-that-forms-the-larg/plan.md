@@ -30,7 +30,7 @@ This project implements a physical testbed for a mesh network supercomputer that
 | Principle | Compliance Status | Action / Note |
 |-----------|-------------------|---------------|
 | **I. Reproducibility** | **COMPLIANT** | Random seeds pinned in `code/`; all external data (if any) fetched from canonical sources; `requirements.txt` pins dependencies. |
-| **II. Verified Accuracy** | **COMPLIANT** | Ong & Motani (2007) citation will be validated against primary source; title overlap ≥ 0.7 enforced. |
+| **II. Verified Accuracy** | **COMPLIANT** | Ong & Motani citation will be validated against primary source; title overlap ≥ 0.7 enforced. |
 | **III. Data Hygiene** | **COMPLIANT** | Raw execution logs preserved unchanged; derived statistics written to new files with checksums recorded in state YAML. |
 | **IV. Single Source of Truth** | **COMPLIANT** | All figures/statistics trace to `data/` rows and `code/` blocks; no hand-typed numbers in paper. |
 | **V. Versioning Discipline** | **COMPLIANT** | Content hashes tracked; `updated_at` timestamps updated on artifact changes. |

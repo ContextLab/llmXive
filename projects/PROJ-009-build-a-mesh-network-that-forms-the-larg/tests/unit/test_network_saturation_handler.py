@@ -1,181 +1,203 @@
 """
-Unit tests for NetworkSaturationHandler (T014b).
-
-These tests verify the logic of signal handling, termination attempts,
-and error raising without requiring real SSH connections.
+Unit tests for NetworkSaturationHandler (T014b)
 """
 import pytest
-from unittest.mock import MagicMock, patch, call
-import time
+import json
+import os
+import tempfile
+from pathlib import Path
+from unittest.mock import Mock, patch, MagicMock
+from datetime import datetime
 
 from orchestrator.network_saturation_handler import (
     NetworkSaturationHandler,
-    NetworkSaturationSignal,
-    NetworkSaturationError,
     TerminationFailedError,
+    NetworkSaturationError,
     TerminationResult,
     create_handler
 )
 
+@pytest.fixture
+def mock_config():
+    return {
+        "ssh_timeout": 5,
+        "termination_retries": 2,
+        "termination_delay": 0.1
+    }
 
 @pytest.fixture
-def mock_signal():
-    """Create a mock NetworkSaturationSignal."""
-    return NetworkSaturationSignal(
-        node_ids=["192.168.1.10", "192.168.1.11"],
-        benchmark_pids={"192.168.1.10": 1234, "192.168.1.11": 5678},
-        run_id="test-run-001",
-        packet_loss_rate=0.25
+def mock_logger():
+    logger = Mock()
+    logger.debug = Mock()
+    logger.warning = Mock()
+    logger.error = Mock()
+    logger.info = Mock()
+    logger.critical = Mock()
+    return logger
+
+@pytest.fixture
+def temp_status_file():
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+        f.write(json.dumps({"runs": {}}))
+        path = f.name
+    yield path
+    if os.path.exists(path):
+        os.remove(path)
+
+@pytest.fixture
+def handler(mock_logger, mock_config, temp_status_file):
+    h = NetworkSaturationHandler(
+        logger=mock_logger,
+        config=mock_config,
+        validation_status_path=Path(temp_status_file)
     )
+    return h
 
-
-@pytest.fixture
-def handler():
-    """Create a handler instance."""
-    return NetworkSaturationHandler()
-
-
-def test_create_handler():
-    """Test factory function."""
-    h = create_handler()
-    assert isinstance(h, NetworkSaturationHandler)
-
-
-def test_signal_representation(mock_signal):
-    """Test signal string representation."""
-    repr_str = repr(mock_signal)
-    assert "test-run-001" in repr_str
-    assert "192.168.1.10" in repr_str
-    assert "0.25" in repr_str
-
-
-@patch('orchestrator.network_saturation_handler.SSHClient')
-@patch('orchestrator.network_saturation_handler.AutoAddPolicy')
-def test_handle_signal_success(mock_policy, mock_ssh_class, handler, mock_signal):
-    """
-    Test successful termination and verification flow.
-    Expects NetworkSaturationError to be raised after successful handling.
-    """
-    # Mock SSH client
-    mock_client = MagicMock()
-    mock_ssh_class.return_value = mock_client
-    
-    # Mock exec_command for kill
-    mock_stdin = MagicMock()
-    mock_stdout = MagicMock()
-    mock_stderr = MagicMock()
-    mock_stdout.channel.recv_exit_status.return_value = 0
-    
-    mock_client.exec_command.return_value = (mock_stdin, mock_stdout, mock_stderr)
-    
-    # Mock exec_command for verification (ps -p)
-    # First call (during kill check? No, separate call) -> returns 0 (process gone)
-    # We need to track calls.
-    # Call 1: kill -9
-    # Call 2: ps -p ...
-    
-    # Setup sequence
-    def exec_side_effect(cmd):
-        if "kill -9" in cmd:
-            return mock_stdin, mock_stdout, mock_stderr
-        elif "ps -p" in cmd:
-            # Return exit code 1 (process not found)
-            mock_ps_stdout = MagicMock()
-            mock_ps_stdout.read.return_value = b"1\n" # Exit code 1
-            return mock_stdin, mock_ps_stdout, mock_stderr
-        return mock_stdin, mock_stdout, mock_stderr
-
-    mock_client.exec_command.side_effect = exec_side_effect
-
-    # Execute
-    with pytest.raises(NetworkSaturationError) as exc_info:
-        handler.handle_signal(mock_signal)
-
-    # Verify error raised
-    assert exc_info.value.run_id == "test-run-001"
-    assert exc_info.value.error_code == "NETWORK_SATURATION"
-    
-    # Verify SSH calls
-    assert mock_client.connect.called
-    assert mock_client.exec_command.call_count >= 4 # 2 nodes * 2 commands (kill, verify)
-    mock_client.close.assert_called()
-
-
-@patch('orchestrator.network_saturation_handler.SSHClient')
-@patch('orchestrator.network_saturation_handler.AutoAddPolicy')
-def test_handle_signal_retry_logic(mock_policy, mock_ssh_class, handler, mock_signal):
-    """
-    Test retry logic when verification fails initially but succeeds later.
-    """
-    mock_client = MagicMock()
-    mock_ssh_class.return_value = mock_client
-    
-    mock_stdin = MagicMock()
-    mock_stdout = MagicMock()
-    mock_stderr = MagicMock()
-    mock_stdout.channel.recv_exit_status.return_value = 0
-    
-    call_count = 0
-    def exec_side_effect(cmd):
-        nonlocal call_count
-        if "kill -9" in cmd:
-            return mock_stdin, mock_stdout, mock_stderr
-        elif "ps -p" in cmd:
-            call_count += 1
-            mock_ps_stdout = MagicMock()
-            # Fail first time, succeed second time
-            if call_count <= 2: # First check for both nodes
-                mock_ps_stdout.read.return_value = b"0\n" # Process exists
-            else:
-                mock_ps_stdout.read.return_value = b"1\n" # Process gone
-            return mock_stdin, mock_ps_stdout, mock_stderr
-        return mock_stdin, mock_stdout, mock_stderr
-
-    mock_client.exec_command.side_effect = exec_side_effect
-
-    # With retry logic, this should eventually succeed
-    # Note: The handler loops 3 times.
-    with pytest.raises(NetworkSaturationError):
-        handler.handle_signal(mock_signal)
-    
-    # Verify close was called
-    mock_client.close.assert_called()
-
-
-@patch('orchestrator.network_saturation_handler.SSHClient')
-@patch('orchestrator.network_saturation_handler.AutoAddPolicy')
-def test_handle_signal_failure_raises(mock_policy, mock_ssh_class, handler, mock_signal):
-    """
-    Test that if termination fails after retries, NetworkSaturationError is still raised
-    (with failure message) and the pipeline is aborted.
-    """
-    mock_client = MagicMock()
-    mock_ssh_class.return_value = mock_client
-    
-    mock_stdin = MagicMock()
-    mock_stdout = MagicMock()
-    mock_stderr = MagicMock()
-    mock_stdout.channel.recv_exit_status.return_value = 1 # Kill failed
-    
-    mock_client.exec_command.return_value = (mock_stdin, mock_stdout, mock_stderr)
-
-    # Should raise NetworkSaturationError even on failure
-    with pytest.raises(NetworkSaturationError) as exc_info:
-        handler.handle_signal(mock_signal)
-    
-    assert exc_info.value.run_id == "test-run-001"
-    assert "Failed to terminate" in str(exc_info.value)
-
-
-def test_termination_result_dataclass():
-    """Test TerminationResult dataclass structure."""
+def test_termination_result_creation():
     result = TerminationResult(
-        node_id="1.1.1.1",
-        pid=999,
+        node_id="user@192.168.1.1",
+        pid=12345,
         success=True,
-        message="OK",
-        attempts=1
+        message="Success"
     )
-    assert result.node_id == "1.1.1.1"
+    assert result.node_id == "user@192.168.1.1"
+    assert result.pid == 12345
     assert result.success is True
-    assert result.attempts == 1
+    assert result.message == "Success"
+
+@patch('paramiko.SSHClient')
+def test_terminate_remote_process_success(mock_ssh_client, handler, mock_logger):
+    # Mock the SSH client behavior
+    mock_client_instance = Mock()
+    mock_ssh_client.return_value = mock_client_instance
+    
+    # Mock exec_command to return success
+    mock_channel = Mock()
+    mock_channel.recv_exit_status.return_value = 0 # Process not found after kill
+    
+    mock_stdout = Mock()
+    mock_stdout.channel = mock_channel
+    mock_stderr = Mock()
+    
+    # First call (kill -15), second call (check), third call (kill -9), fourth call (check)
+    mock_client_instance.exec_command.side_effect = [
+        (Mock(), mock_stdout, mock_stderr), # kill -15
+        (Mock(), mock_stdout, mock_stderr), # check
+        (Mock(), mock_stdout, mock_stderr), # kill -9
+        (Mock(), mock_stdout, mock_stderr)  # check final
+    ]
+    
+    result = handler.terminate_remote_process(
+        node_ip="192.168.1.1",
+        node_username="testuser",
+        benchmark_pid=12345
+    )
+    
+    assert result.success is True
+    assert "terminated successfully" in result.message
+    mock_client_instance.connect.assert_called_once()
+    mock_client_instance.close.assert_called_once()
+
+@patch('paramiko.SSHClient')
+def test_terminate_remote_process_failure(mock_ssh_client, handler):
+    mock_client_instance = Mock()
+    mock_ssh_client.return_value = mock_client_instance
+    
+    # Simulate process always existing (exit status 0 for ps check)
+    mock_channel = Mock()
+    mock_channel.recv_exit_status.return_value = 0 
+    
+    mock_stdout = Mock()
+    mock_stdout.channel = mock_channel
+    
+    # Mock connection failure
+    mock_client_instance.connect.side_effect = Exception("Connection refused")
+    
+    result = handler.terminate_remote_process(
+        node_ip="192.168.1.1",
+        node_username="testuser",
+        benchmark_pid=12345
+    )
+    
+    assert result.success is False
+    assert "error" in result.message.lower()
+
+def test_update_validation_status(handler, temp_status_file):
+    run_id = "test_run_123"
+    failed_terminations = [
+        {"node_id": "user@1.1.1.1", "pid": 999, "error": "Connection timeout"}
+    ]
+    
+    handler._update_validation_status(run_id, failed_terminations)
+    
+    # Verify file content
+    with open(temp_status_file, 'r') as f:
+        data = json.load(f)
+    
+    assert run_id in data["runs"]
+    assert data["runs"][run_id]["status"] == "excluded"
+    assert data["runs"][run_id]["error_code"] == "NETWORK_SATURATION"
+    assert "saturation_event" in data["runs"][run_id]["details"]
+
+@patch('paramiko.SSHClient')
+def test_handle_saturation_event_success(mock_ssh_client, handler):
+    mock_client_instance = Mock()
+    mock_ssh_client.return_value = mock_client_instance
+    
+    # Mock successful termination
+    mock_channel = Mock()
+    mock_channel.recv_exit_status.return_value = 0 
+    mock_stdout = Mock()
+    mock_stdout.channel = mock_channel
+    
+    mock_client_instance.exec_command.side_effect = [
+        (Mock(), mock_stdout, Mock()), # kill
+        (Mock(), mock_stdout, Mock()), # check
+        (Mock(), mock_stdout, Mock()), # kill -9
+        (Mock(), mock_stdout, Mock())  # check
+    ]
+    
+    node_details = [{"ip": "192.168.1.1", "username": "user"}]
+    benchmark_pids = {"user@192.168.1.1": 12345}
+    
+    with pytest.raises(NetworkSaturationError) as exc_info:
+        handler.handle_saturation_event(
+            node_details=node_details,
+            benchmark_pids=benchmark_pids,
+            run_id="run_456"
+        )
+    
+    assert "Network saturation detected" in str(exc_info.value)
+
+@patch('paramiko.SSHClient')
+def test_handle_saturation_event_partial_failure(mock_ssh_client, handler):
+    mock_client_instance = Mock()
+    mock_ssh_client.return_value = mock_client_instance
+    
+    # First node fails
+    mock_client_instance.connect.side_effect = Exception("SSH Error")
+    
+    node_details = [{"ip": "192.168.1.1", "username": "user"}]
+    benchmark_pids = {"user@192.168.1.1": 12345}
+    
+    with pytest.raises(TerminationFailedError) as exc_info:
+        handler.handle_saturation_event(
+            node_details=node_details,
+            benchmark_pids=benchmark_pids,
+            run_id="run_789"
+        )
+    
+    assert "Failed to terminate processes" in str(exc_info.value)
+
+def test_create_handler(mock_config):
+    with patch('orchestrator.network_saturation_handler.get_logger') as mock_get_logger:
+        mock_logger = Mock()
+        mock_get_logger.return_value = mock_logger
+        
+        h = create_handler(mock_config)
+        
+        assert isinstance(h, NetworkSaturationHandler)
+        assert h.ssh_timeout == 5
+        assert h.termination_retries == 2
+        assert h.termination_delay == 0.1
+        mock_get_logger.assert_called_once()

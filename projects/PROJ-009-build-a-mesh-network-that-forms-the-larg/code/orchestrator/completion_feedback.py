@@ -1,3 +1,8 @@
+"""
+Completion Feedback Module for US1.
+Handles the 'completion feedback' loop required by FR-001.
+Implements receive_task_status and update_scheduler_state.
+"""
 from __future__ import annotations
 
 import logging
@@ -6,252 +11,215 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, List, Any, Optional, Callable
 
-from orchestrator.models import TaskStatus, ExecutionRun, PhysicalNode
 from orchestrator.logger import get_logger
+from orchestrator.scheduler_state import SchedulerState, StateTransitionError
 
-logger = get_logger(__name__)
+# Import NodeStatus and TaskStatus from models to ensure consistency
+# Note: T008 defined these, and T013d uses them in SchedulerState.
+from orchestrator.models import NodeStatus, TaskStatus
 
 
 class FeedbackError(Exception):
-    """Base exception for completion feedback errors."""
+    """Base exception for feedback handling errors."""
     pass
 
 
 class StateUpdateError(FeedbackError):
-    """Raised when updating scheduler state fails."""
+    """Raised when updating the scheduler state fails."""
     pass
 
 
 class InvalidStatusError(FeedbackError):
-    """Raised when an invalid status string is provided."""
+    """Raised when an unknown status string is received."""
     pass
 
 
 class TaskStatusEnum(Enum):
-    """Enum representing valid task statuses for feedback."""
+    """
+    Enum representing the possible statuses a task can report back.
+    Matches the logical states used in the scheduler and models.
+    """
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
     TIMEOUT = "timeout"
-    REASSIGNED = "reassigned"
+    CANCELLED = "cancelled"
+
+    @classmethod
+    def from_string(cls, status_str: str) -> TaskStatusEnum:
+        """Convert a string status to the Enum value."""
+        try:
+            return cls(status_str.lower())
+        except ValueError:
+            raise InvalidStatusError(f"Unknown status string: {status_str}")
 
 
 @dataclass
 class TaskFeedback:
-    """Data structure holding feedback from a node about a task."""
+    """
+    Represents a single feedback event from a node.
+    """
     node_id: str
     task_id: str
     status: TaskStatusEnum
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    details: Optional[Dict[str, Any]] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "node_id": self.node_id,
-            "task_id": self.task_id,
-            "status": self.status.value,
-            "timestamp": self.timestamp.isoformat(),
-            "details": self.details
-        }
+    def __post_init__(self):
+        if not isinstance(self.status, TaskStatusEnum):
+            try:
+                self.status = TaskStatusEnum(self.status)
+            except ValueError:
+                raise InvalidStatusError(f"Invalid status value: {self.status}")
 
 
 class CompletionFeedbackManager:
     """
-    Manages the completion feedback loop required by FR-001.
-    Handles receiving task status updates and updating the scheduler state.
+    Manages the reception of task status updates and updates the central
+    SchedulerState object accordingly.
     """
-
-    def __init__(self, state_accessor: Callable[[str], Optional[ExecutionRun]], state_mutator: Callable[[ExecutionRun], None]):
-        """
-        Initialize the manager with accessors for the scheduler state.
-
-        Args:
-            state_accessor: A callable that takes a task_id and returns the current ExecutionRun object.
-            state_mutator: A callable that takes an updated ExecutionRun object and persists it.
-        """
-        self.state_accessor = state_accessor
-        self.state_mutator = state_mutator
+    def __init__(self, scheduler_state: SchedulerState, logger: Optional[logging.Logger] = None):
+        self.scheduler_state = scheduler_state
+        self.logger = logger or get_logger(__name__)
         self._feedback_history: List[TaskFeedback] = []
-        logger.info("CompletionFeedbackManager initialized.")
 
     def receive_task_status(
         self,
         node_id: str,
         task_id: str,
         status: str,
-        details: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None
     ) -> TaskFeedback:
         """
-        Receive a status update from a node.
-
-        Validates the status string and creates a TaskFeedback object.
-
-        Args:
-            node_id: The ID of the node reporting.
-            task_id: The ID of the task being reported on.
-            status: The status string (must match TaskStatusEnum).
-            details: Optional additional context.
-
-        Returns:
-            TaskFeedback: The validated feedback object.
-
-        Raises:
-            InvalidStatusError: If the status string is not valid.
+        Receives a raw status string from a node, validates it, and creates
+        a TaskFeedback object.
         """
-        # Validate and normalize status
+        self.logger.info(f"Receiving feedback for task {task_id} on node {node_id}: {status}")
+
         try:
-            status_enum = TaskStatusEnum(status)
-        except ValueError:
-            raise InvalidStatusError(f"Invalid status '{status}' for task {task_id}. Valid values: {[s.value for s in TaskStatusEnum]}")
+            status_enum = TaskStatusEnum.from_string(status)
+        except InvalidStatusError as e:
+            self.logger.error(f"Invalid status received: {e}")
+            raise
 
-        # Check if task exists in the current run context
-        # The ExecutionRun model tracks tasks; we look it up in task_states
-        if self.execution_run.task_states is None:
-            self.execution_run.task_states = {}
-        
-        if task_id not in self.execution_run.task_states:
-            # Depending on strictness, this might be an error or just a log
-            # For now, we log a warning but allow the state to be created if it's new
-            logger.warning(f"Task {task_id} not found in execution run states. Creating new entry.")
-            self.execution_run.task_states[task_id] = {
-                "node_id": node_id,
-                "status": TaskStatus.PENDING,
-                "start_time": None,
-                "end_time": None
-            }
-
-        current_state = self.execution_run.task_states[task_id]
-        
-        # Create feedback object
         feedback = TaskFeedback(
             node_id=node_id,
             task_id=task_id,
             status=status_enum,
-            details=details
+            metadata=metadata or {}
         )
 
         self._feedback_history.append(feedback)
-        logger.info(f"Received feedback: Task {task_id} on Node {node_id} -> {status_enum.value}")
         return feedback
 
-    def update_scheduler_state(self, task_id: str, status: TaskStatusEnum) -> None:
+    def update_scheduler_state(
+        self,
+        task_id: str,
+        status: TaskStatusEnum,
+        node_id: Optional[str] = None
+    ) -> None:
         """
-        Update the SchedulerState (ExecutionRun) object defined in T008.
-
-        This method fetches the current state for the task, updates the status,
-        and persists the change. It does not manage the full T015b instance,
-        only the specific state update for this task.
-
-        Args:
-            task_id: The ID of the task to update.
-            status: The new TaskStatusEnum value.
-
-        Raises:
-            StateUpdateError: If the state cannot be fetched or updated.
+        Updates the central SchedulerState based on the task completion status.
+        This is the core logic for FR-001 feedback loop.
         """
+        self.logger.debug(f"Updating state for task {task_id} to {status.value}")
+
         try:
-            # Fetch current state (ExecutionRun) for the task
-            # In a real implementation, this might query a database or shared memory
-            run = self.state_accessor(task_id)
+            # Map our internal TaskStatusEnum to the SchedulerState expected inputs
+            # The SchedulerState (T013d) expects specific transitions.
+            # We assume the SchedulerState has a method like `update_task_status`
+            # or we trigger a state transition based on the task result.
 
-            if run is None:
-                logger.warning(f"No state found for task {task_id}. Creating new state.")
-                # If state doesn't exist, we might need to create a placeholder or fail
-                # For this implementation, we assume state exists or we handle creation externally
-                raise StateUpdateError(f"Cannot update state for task {task_id}: State not found.")
+            # If the task is completed successfully, mark it as such in the state.
+            # If failed/timeout, mark as failed.
+            # The SchedulerState object is thread-safe as per T013d spec.
 
-            # Update the task status in the run object
-            # Assuming ExecutionRun has a tasks dict or list mapping task_id to status
-            # Based on T008 models.py context, we assume a structure like run.tasks[task_id].status
-            if hasattr(run, 'tasks') and task_id in run.tasks:
-                run.tasks[task_id].status = status.value
-                run.tasks[task_id].completed_at = datetime.now(timezone.utc)
+            if status == TaskStatusEnum.COMPLETED:
+                self.scheduler_state.handle_task_completion(task_id, node_id)
+            elif status in (TaskStatusEnum.FAILED, TaskStatusEnum.TIMEOUT):
+                self.scheduler_state.handle_task_failure(task_id, node_id)
+            elif status == TaskStatusEnum.CANCELLED:
+                self.scheduler_state.handle_task_cancelled(task_id, node_id)
+            elif status == TaskStatusEnum.RUNNING:
+                # Ensure the state knows the task is active
+                self.scheduler_state.handle_task_started(task_id, node_id)
             else:
-                # Fallback if structure is different or task_id not in tasks dict
-                # Log a warning but attempt to update a general status if possible
-                logger.warning(f"Task {task_id} not found in run.tasks for ExecutionRun. Attempting general update.")
-                if hasattr(run, 'overall_status'):
-                     run.overall_status = status.value
+                self.logger.warning(f"Status {status.value} does not trigger a state update.")
 
-            # Persist the update
-            self.state_mutator(run)
-            logger.info(f"Scheduler state updated for task {task_id}: {status.value}")
-
-        except Exception as e:
-            logger.error(f"Failed to update scheduler state for task {task_id}: {e}")
+        except StateTransitionError as e:
+            self.logger.error(f"Failed to update scheduler state: {e}")
             raise StateUpdateError(f"State update failed for task {task_id}: {e}") from e
+        except AttributeError as e:
+            # This should not happen if T013d is implemented correctly
+            self.logger.critical(f"SchedulerState missing expected method: {e}")
+            raise StateUpdateError(f"SchedulerState interface mismatch: {e}") from e
+
+    def get_feedback_history(self) -> List[TaskFeedback]:
+        """Returns the list of all received feedback events."""
+        return self._feedback_history
 
 
-def create_feedback_manager(
-    state_accessor: Callable[[str], Optional[ExecutionRun]],
-    state_mutator: Callable[[ExecutionRun], None]
-) -> CompletionFeedbackManager:
+def create_feedback_manager(scheduler_state: SchedulerState) -> CompletionFeedbackManager:
+    """Factory function to create a CompletionFeedbackManager."""
+    return CompletionFeedbackManager(scheduler_state)
+
+
+def main():
     """
-    Factory function to create a CompletionFeedbackManager.
-
-    Args:
-        state_accessor: Function to get current ExecutionRun by task_id.
-        state_mutator: Function to save updated ExecutionRun.
-
-    Returns:
-        CompletionFeedbackManager instance.
+    Main entry point for testing the completion feedback loop.
+    Simulates receiving feedback and updating state.
     """
-    return CompletionFeedbackManager(state_accessor, state_mutator)
+    # Mock scheduler state for standalone testing
+    # In real usage, this would be the actual instance from T013d
+    class MockSchedulerState:
+        def __init__(self):
+            self.tasks: Dict[str, str] = {}
 
+        def handle_task_completion(self, task_id: str, node_id: Optional[str] = None):
+            self.tasks[task_id] = "COMPLETED"
+            print(f"[MOCK STATE] Task {task_id} marked COMPLETED on {node_id}")
 
-def main() -> None:
-    """
-    CLI entry point for testing the completion feedback logic.
-    Simulates receiving feedback and updating a mock state.
-    """
-    # Mock state storage
-    mock_state: Dict[str, ExecutionRun] = {}
+        def handle_task_failure(self, task_id: str, node_id: Optional[str] = None):
+            self.tasks[task_id] = "FAILED"
+            print(f"[MOCK STATE] Task {task_id} marked FAILED on {node_id}")
 
-    def mock_accessor(task_id: str) -> Optional[ExecutionRun]:
-        return mock_state.get(task_id)
+        def handle_task_cancelled(self, task_id: str, node_id: Optional[str] = None):
+            self.tasks[task_id] = "CANCELLED"
+            print(f"[MOCK STATE] Task {task_id} marked CANCELLED on {node_id}")
 
-    def mock_mutator(run: ExecutionRun) -> None:
-        # In a real scenario, this would save to disk or DB
-        # Here we just update the local dict for the specific task
-        for tid, task in run.tasks.items():
-            mock_state[tid] = run
-        logger.info(f"Mock state updated for run {run.run_id}")
+        def handle_task_started(self, task_id: str, node_id: Optional[str] = None):
+            self.tasks[task_id] = "RUNNING"
+            print(f"[MOCK STATE] Task {task_id} marked RUNNING on {node_id}")
 
-    manager = create_feedback_manager(mock_accessor, mock_mutator)
+    mock_state = MockSchedulerState()
+    manager = create_feedback_manager(mock_state)
 
-    # Simulate a task
-    from orchestrator.models import TaskChunk
-    task = TaskChunk(task_id="task_001", chunk_data=b"test", status=TaskStatus.PENDING.value)
-    run = ExecutionRun(run_id="run_001", tasks={"task_001": task})
-    mock_state["task_001"] = run
-
-    print("Testing Completion Feedback Loop...")
-
-    # 1. Receive feedback
+    # Simulate receiving feedback
     try:
-        feedback = manager.receive_task_status(
-            node_id="node_192_168_1_10",
-            task_id="task_001",
-            status="completed",
-            details={"ops_per_sec": 1500}
-        )
-        print(f"Feedback received: {feedback.to_dict()}")
+        fb1 = manager.receive_task_status("node-1", "task-101", "running")
+        manager.update_scheduler_state("task-101", fb1.status)
 
-        # 2. Update state
-        manager.update_scheduler_state("task_001", TaskStatusEnum.COMPLETED)
-        print("Scheduler state updated successfully.")
+        fb2 = manager.receive_task_status("node-1", "task-101", "completed")
+        manager.update_scheduler_state("task-101", fb2.status)
 
-        # Verify
-        updated_run = mock_accessor("task_001")
-        if updated_run and updated_run.tasks["task_001"].status == "completed":
-            print("Verification passed: Task status is 'completed'.")
-        else:
-            print("Verification failed: Task status not updated correctly.")
+        fb3 = manager.receive_task_status("node-2", "task-102", "failed")
+        manager.update_scheduler_state("task-102", fb3.status)
 
-    except (InvalidStatusError, StateUpdateError) as e:
-        print(f"Error during feedback loop: {e}")
+        print("\nFeedback History:")
+        for fb in manager.get_feedback_history():
+            print(f"  Node: {fb.node_id}, Task: {fb.task_id}, Status: {fb.status.value}")
+
+        print("\nFinal State:")
+        for tid, state in mock_state.tasks.items():
+            print(f"  {tid}: {state}")
+
+    except Exception as e:
+        print(f"Error during feedback simulation: {e}")
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())

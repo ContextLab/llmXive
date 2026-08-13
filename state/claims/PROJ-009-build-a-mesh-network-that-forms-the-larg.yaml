@@ -268,3 +268,179 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T06:59:10Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'dropout rate calculation formula: total heartbeat losses / total task
+    assignments'
+  claim_id: c_a8cb0bcd
+  context: 'Dropout Rate Calculation: Explicitly calculate dropout_rate per run: Count
+    total heartbeat losses / total task assignments. Write this rate to data/raw/dropout_events.json
+    with run_id, dropout_rate, and list of dropped_node_ids. This metric is required
+    as a covariate for the regression model (SC-006).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dropout_rate_calculation_formula:_total_heartbeat_losses_/_t
+  kind: entity_fact
+  raw_text: The dropout rate is calculated per run as the count of total heartbeat
+    losses divided by total task assignments.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:11:16Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'heterogeneity score formula: (cpu_speed_mhz / max_latency_ms) * (1 -
+    packet_loss_rate)'
+  claim_id: c_d5aac272
+  context: 'Re-assignment: Explicitly implement the heterogeneity-aware re-assignment
+    algorithm: ... Calculate a heterogeneity score for each available node: score
+    = (cpu_speed_mhz / max_latency_ms) * (1 - packet_loss_rate).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The heterogeneity score for node re-assignment is calculated as (cpu_speed_mhz
+    / max_latency_ms) * (1 - packet_loss_rate).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:11:42Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'network saturation threshold: packet loss > 20%'
+  claim_id: c_8a4152a7
+  context: 'Network Saturation Detection: Implement check_network_saturation() that
+    computes packet loss using ip -s link show <interface> (parse the RX and TX drop/err
+    fields). If loss >20 % raise NetworkSaturationException (sent to T014b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Network saturation is detected when packet loss exceeds 20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:11:42Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'coordination overhead ratio formula: handshake_time / total_execution_time'
+  claim_id: c_a5ce3c72
+  context: 'Implement overhead_calculator.py in code/analysis/ to compute coordination_overhead_ratio.
+    Specifics: Formula: coordination_overhead_ratio = handshake_time / total_execution_time.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coordination_overhead_ratio_formula:_handshake_time_/_total
+  kind: entity_fact
+  raw_text: The coordination overhead ratio is defined as handshake_time divided by
+    total_execution_time.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:12:14Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'statistical significance threshold: p < 0.05'
+  claim_id: c_6cecd92c
+  context: 'Implement anova_test.py in code/analysis/ to determine statistical significance
+    (p < 0.05) of granularity differences. Specifics: ... If p < 0.05, flag as statistically
+    significant.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/statistical_significance_threshold:_p_%3C_0.05
+  kind: magnitude
+  raw_text: Statistical significance for granularity differences is determined using
+    a p-value threshold of less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:12:41Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'theoretical bound calculation: Ong & Motani formula using bandwidth_Mbps
+    and snr_db'
+  claim_id: c_2d4690d5
+  context: 'Implement theoretical_bound_calculator.py in code/analysis/ to calculate
+    Ong & Motani capacity limits ... Specifics: Use the capacity formula from Ong
+    & Motani with measured bandwidth_Mbps and snr_db from T046a ... This task explicitly
+    satisfies FR-006/SC-002 on the physical data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theoretical_bound_calculation:_Ong_%26_Motani_formula_using_ba
+  kind: entity_fact
+  raw_text: The theoretical capacity bound is calculated using the Ong & Motani formula
+    with measured bandwidth_Mbps and snr_db.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:13:18Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'calibration convergence criteria: relative_change < 1e-4 for 5 steps
+    or max_iterations = 1000'
+  claim_id: c_1144735d
+  context: 'Implement des_convergence_checker.py in code/simulation/ to check calibration
+    convergence. Specifics: ... Stop when relative_change < 1e-4 for five consecutive
+    checks or after max_iterations = 1000.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/calibration_convergence_criteria:_relative_change_%3C_1e-4_for
+  kind: magnitude
+  raw_text: The simulation calibration stops when the relative change in MSE is less
+    than 1e-4 for five consecutive checks or after 1000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:13:53Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'simulation validation tolerance: 0.05 * mean physical throughput'
+  claim_id: c_382b49bc
+  context: "Implement internal_state_validator.py in code/simulation/ to compare DES\
+    \ outputs against the Golden Dataset. Specifics: ... Tolerance: If abs(simulated\
+    \ - physical) > tolerance (tolerance = 0.05 \xD7 mean physical), raise ValidationFailure."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_validation_tolerance:_0.05_*_mean_physical_throug
+  kind: entity_fact
+  raw_text: The simulation validation tolerance is defined as 0.05 times the mean
+    physical throughput.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:14:21Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 2
+  canonical: 'adaptive chunking minimum size: 1 MB'
+  claim_id: c_d797d9c0
+  context: 'Adaptive Chunking Algorithm: ... If available_ram < chunk_size, recursively
+    halve the chunk until it fits (minimum 1 MB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum chunk size for adaptive chunking is 1 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:14:45Z'

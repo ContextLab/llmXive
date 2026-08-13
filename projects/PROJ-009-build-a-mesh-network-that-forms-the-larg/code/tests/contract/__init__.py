@@ -1,1 +1,3 @@
-# Contract tests (schema validation)
+"""
+Contract tests.
+"""

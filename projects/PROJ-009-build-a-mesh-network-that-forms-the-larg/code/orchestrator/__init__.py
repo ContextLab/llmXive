@@ -1,1 +1,3 @@
-# Orchestrator module for managing the mesh network
+"""
+Orchestrator module for managing the mesh network testbed.
+"""

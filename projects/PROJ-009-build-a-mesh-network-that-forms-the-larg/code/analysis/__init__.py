@@ -1,1 +1,3 @@
-# Analysis module for statistical modeling and validation
+"""
+Analysis module for statistical processing and modeling.
+"""

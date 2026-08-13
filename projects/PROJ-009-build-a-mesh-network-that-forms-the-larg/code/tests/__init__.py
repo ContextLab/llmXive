@@ -1,1 +1,3 @@
-# Tests module root
+"""
+Test suite root.
+"""

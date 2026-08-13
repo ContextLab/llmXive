@@ -2,358 +2,353 @@
 Network Saturation Handler Module (T014b)
 
 Implements the abort logic for network saturation events.
-Receives NetworkSaturationSignal from T014a, terminates remote benchmark processes,
-verifies termination, and raises NetworkSaturationError to stop the pipeline.
+Receives NetworkSaturationException from T014a, terminates remote processes,
+verifies termination, logs the failure, and updates the validation status.
 """
 from __future__ import annotations
 
 import logging
 import time
+import os
+import json
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Dict, Any, Optional
+from pathlib import Path
 
 import paramiko
-from paramiko import SSHClient, AutoAddPolicy, SSHException
 
 from orchestrator.logger import get_logger
-from orchestrator.models import PhysicalNode
+from orchestrator.config import get_config
 
-# Configure logger
-logger = get_logger(__name__)
-
+# --- Exceptions ---
 
 class TerminationFailedError(Exception):
     """Raised when remote process termination fails after retries."""
     pass
 
-
-class NetworkSaturationSignal:
-    """
-    Signal object received from T014a (RemoteInstrumentor).
-    Contains the necessary context to abort the current run.
-    """
-    def __init__(
-        self,
-        node_ids: List[str],
-        benchmark_pids: Dict[str, int],
-        run_id: str,
-        packet_loss_rate: float
-    ):
-        self.node_ids = node_ids
-        self.benchmark_pids = benchmark_pids  # Dict: node_id -> pid
-        self.run_id = run_id
-        self.packet_loss_rate = packet_loss_rate
-
-    def __repr__(self):
-        return (f"NetworkSaturationSignal(run_id={self.run_id}, "
-                f"nodes={self.node_ids}, loss_rate={self.packet_loss_rate:.2%})")
-
+class NetworkSaturationSignal(Enum):
+    """Signal type for network saturation events."""
+    NETWORK_SATURATION = "NETWORK_SATURATION"
+    TERMINATION_FAILED = "TERMINATION_FAILED"
 
 class NetworkSaturationError(Exception):
     """
-    Raised to signal the orchestrator (T017, T015b) to stop the pipeline
-    and exclude the current run due to network saturation.
+    Exception raised to signal the orchestrator to stop the pipeline
+    and exclude the run due to network saturation.
     """
-    def __init__(self, message: str, run_id: str, signal: NetworkSaturationSignal):
-        super().__init__(message)
-        self.run_id = run_id
-        self.signal = signal
-        self.error_code = "NETWORK_SATURATION"
+    pass
 
+# --- Data Classes ---
 
 @dataclass
 class TerminationResult:
-    """Result of attempting to terminate a process on a node."""
+    """Result of a remote process termination attempt."""
     node_id: str
     pid: int
     success: bool
     message: str
-    attempts: int
 
-
+@dataclass
 class NetworkSaturationHandler:
     """
     Handles the abort logic for network saturation events.
-    Responsible for terminating remote processes and verifying their death.
     """
+    logger: logging.Logger
+    config: Dict[str, Any]
+    ssh_timeout: int = 10
+    termination_retries: int = 3
+    termination_delay: float = 1.0
+    validation_status_path: Path = Path("code/data/raw/validation_status.json")
 
-    def __init__(self, ssh_config: Optional[Dict[str, Any]] = None):
+    def terminate_remote_process(
+        self,
+        node_ip: str,
+        node_username: str,
+        benchmark_pid: int,
+        ssh_key_path: Optional[str] = None
+    ) -> TerminationResult:
         """
-        Initialize the handler.
-        
+        Terminates the benchmark process on a remote node.
+
         Args:
-            ssh_config: Optional dictionary with 'username', 'password', 'key_filename', 
-                        'timeout' for SSH connections.
-        """
-        self.ssh_config = ssh_config or {
-            'username': 'root',
-            'timeout': 10
-        }
-        self.logger = logger
+            node_ip: IP address of the target node.
+            node_username: Username for SSH connection.
+            benchmark_pid: Process ID to terminate.
+            ssh_key_path: Path to SSH private key (optional).
 
-    def _create_ssh_client(self, node_id: str) -> SSHClient:
-        """Establish an SSH connection to the target node."""
-        client = SSHClient()
-        client.set_missing_host_key_policy(AutoAddPolicy())
-        
-        # Determine host from node_id (assuming node_id is IP or resolvable hostname)
-        host = node_id
-        
-        try:
-            client.connect(
-                hostname=host,
-                username=self.ssh_config.get('username', 'root'),
-                password=self.ssh_config.get('password'),
-                key_filename=self.ssh_config.get('key_filename'),
-                timeout=self.ssh_config.get('timeout', 10)
-            )
-            self.logger.debug(f"SSH connected to {host}")
-            return client
-        except Exception as e:
-            self.logger.error(f"SSH connection failed for {host}: {e}")
-            raise
-
-    def _terminate_process(self, client: SSHClient, pid: int, node_id: str) -> bool:
-        """
-        Attempt to kill a process by PID on the remote node.
-        
-        Args:
-            client: Active SSHClient instance.
-            pid: Process ID to kill.
-            node_id: Identifier of the node (for logging).
-            
         Returns:
-            True if process was successfully killed, False otherwise.
+            TerminationResult with success status and message.
         """
+        client = paramiko.SSHClient()
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
         try:
-            # Send SIGKILL immediately for fast termination
-            cmd = f"kill -9 {pid}"
-            self.logger.info(f"Sending SIGKILL to PID {pid} on {node_id}")
-            
-            stdin, stdout, stderr = client.exec_command(cmd)
-            exit_status = stdout.channel.recv_exit_status()
-            
-            if exit_status == 0:
-                self.logger.info(f"Successfully sent kill signal to PID {pid} on {node_id}")
-                return True
+            # Connect to the node
+            connect_kwargs = {
+                "hostname": node_ip,
+                "username": node_username,
+                "timeout": self.ssh_timeout
+            }
+            if ssh_key_path and os.path.exists(ssh_key_path):
+                connect_kwargs["key_filename"] = ssh_key_path
             else:
-                error_msg = stderr.read().decode('utf-8', errors='ignore').strip()
-                self.logger.warning(f"Kill command returned non-zero for PID {pid} on {node_id}: {error_msg}")
-                return False
-        except Exception as e:
-            self.logger.error(f"Error executing kill command on {node_id}: {e}")
-            return False
+                # Fallback to password or agent if key not provided
+                # In production, this should be configured properly
+                pass
 
-    def _verify_termination(self, client: SSHClient, pid: int, node_id: str) -> bool:
-        """
-        Verify that the process is no longer running.
-        
-        Args:
-            client: Active SSHClient instance.
-            pid: Process ID to check.
-            node_id: Identifier of the node.
-            
-        Returns:
-            True if process is confirmed dead, False if still running.
-        """
-        try:
-            # Check if process exists
-            cmd = f"ps -p {pid} > /dev/null 2>&1; echo $?"
-            stdin, stdout, stderr = client.exec_command(cmd)
-            exit_code_str = stdout.read().decode('utf-8', errors='ignore').strip()
-            
-            # Exit code 0 means process exists, 1 means it doesn't
-            try:
-                exit_code = int(exit_code_str)
-                if exit_code != 0:
-                    self.logger.info(f"Verified PID {pid} is terminated on {node_id}")
-                    return True
-                else:
-                    self.logger.warning(f"PID {pid} still running on {node_id}")
-                    return False
-            except ValueError:
-                self.logger.warning(f"Could not parse exit code for PID check on {node_id}: {exit_code_str}")
-                return False
-        except Exception as e:
-            self.logger.error(f"Error verifying termination on {node_id}: {e}")
-            return False
+            client.connect(**connect_kwargs)
+            self.logger.debug(f"Connected to {node_ip} to terminate PID {benchmark_pid}")
 
-    def handle_signal(self, signal: NetworkSaturationSignal) -> List[TerminationResult]:
+            # Retry loop for termination
+            for attempt in range(1, self.termination_retries + 1):
+                try:
+                    # First try SIGTERM
+                    stdin, stdout, stderr = client.exec_command(f"kill -15 {benchmark_pid}")
+                    exit_status = stdout.channel.recv_exit_status()
+                    
+                    # Wait a moment for graceful termination
+                    time.sleep(self.termination_delay)
+
+                    # Check if process is still running
+                    stdin_check, stdout_check, stderr_check = client.exec_command(f"ps -p {benchmark_pid}")
+                    exit_status_check = stdout_check.channel.recv_exit_status()
+                    
+                    if exit_status_check != 0:
+                        # Process terminated successfully
+                        return TerminationResult(
+                            node_id=f"{node_username}@{node_ip}",
+                            pid=benchmark_pid,
+                            success=True,
+                            message=f"Process {benchmark_pid} terminated successfully on {node_ip}."
+                        )
+                    
+                    # If still running, try SIGKILL
+                    self.logger.warning(f"Process {benchmark_pid} still running on {node_ip}, sending SIGKILL.")
+                    stdin_kill, stdout_kill, stderr_kill = client.exec_command(f"kill -9 {benchmark_pid}")
+                    exit_status_kill = stdout_kill.channel.recv_exit_status()
+                    
+                    # Verify termination again
+                    time.sleep(self.termination_delay)
+                    stdin_final, stdout_final, stderr_final = client.exec_command(f"ps -p {benchmark_pid}")
+                    exit_status_final = stdout_final.channel.recv_exit_status()
+
+                    if exit_status_final != 0:
+                        return TerminationResult(
+                            node_id=f"{node_username}@{node_ip}",
+                            pid=benchmark_pid,
+                            success=True,
+                            message=f"Process {benchmark_pid} forcefully terminated on {node_ip}."
+                        )
+                    else:
+                        raise Exception(f"Process {benchmark_pid} still alive after SIGKILL on {node_ip}.")
+
+                except Exception as e:
+                    self.logger.warning(f"Attempt {attempt}/{self.termination_retries} failed on {node_ip}: {str(e)}")
+                    if attempt == self.termination_retries:
+                        raise
+                    time.sleep(self.termination_delay)
+
+            # Should not reach here if retries work, but safety net
+            return TerminationResult(
+                node_id=f"{node_username}@{node_ip}",
+                pid=benchmark_pid,
+                success=False,
+                message=f"Failed to terminate process {benchmark_pid} on {node_ip} after {self.termination_retries} attempts."
+            )
+
+        except paramiko.SSHException as e:
+            self.logger.error(f"SSH connection failed for {node_ip}: {str(e)}")
+            return TerminationResult(
+                node_id=f"{node_username}@{node_ip}",
+                pid=benchmark_pid,
+                success=False,
+                message=f"SSH connection error: {str(e)}"
+            )
+        except Exception as e:
+            self.logger.error(f"Unexpected error during termination on {node_ip}: {str(e)}")
+            return TerminationResult(
+                node_id=f"{node_username}@{node_ip}",
+                pid=benchmark_pid,
+                success=False,
+                message=f"Unexpected error: {str(e)}"
+            )
+        finally:
+            client.close()
+
+    def handle_saturation_event(
+        self,
+        node_details: List[Dict[str, Any]],
+        benchmark_pids: Dict[str, int],
+        run_id: str
+    ) -> None:
         """
-        Main entry point to handle a NetworkSaturationSignal.
-        
-        This method performs the following actions:
-        1. Iterates through all affected nodes.
-        2. Attempts to terminate the benchmark process (SIGKILL).
-        3. Verifies termination with retries (up to 3 attempts, 1s delay).
-        4. Logs failures and raises NetworkSaturationError if any termination fails.
-        
+        Handles the network saturation event by terminating processes and logging.
+
         Args:
-            signal: The NetworkSaturationSignal containing node IDs and PIDs.
-            
-        Returns:
-            List of TerminationResult objects.
-            
+            node_details: List of dicts with 'ip', 'username', 'ssh_key' (optional).
+            benchmark_pids: Dict mapping node_id to benchmark_pid.
+            run_id: Current run identifier for logging.
+
         Raises:
-            NetworkSaturationError: Always raised after handling to signal the orchestrator
-                                   to abort the pipeline, unless all were successfully handled.
+            NetworkSaturationError: Always raised to signal abort.
+            TerminationFailedError: If any critical termination fails.
         """
-        self.logger.error(f"Handling NetworkSaturationSignal: {signal}")
-        results = []
-        any_failed = False
+        self.logger.critical(f"NETWORK SATURATION DETECTED in run {run_id}. Initiating abort sequence.")
+        
+        termination_results: List[TerminationResult] = []
+        failed_terminations: List[Dict[str, Any]] = []
 
-        for node_id in signal.node_ids:
-            pid = signal.benchmark_pids.get(node_id)
+        for node_info in node_details:
+            node_ip = node_info.get("ip")
+            node_user = node_info.get("username", "root")
+            ssh_key = node_info.get("ssh_key")
+            
+            # Get PID for this node if available
+            pid = benchmark_pids.get(f"{node_user}@{node_ip}")
+            
             if pid is None:
-                self.logger.warning(f"No PID found for {node_id} in signal. Skipping termination.")
-                results.append(TerminationResult(
-                    node_id=node_id,
-                    pid=0,
-                    success=True,
-                    message="No PID found",
-                    attempts=0
-                ))
+                self.logger.warning(f"No PID found for {node_info.get('ip')}, skipping termination.")
                 continue
 
-            result = self._terminate_and_verify(node_id, pid)
-            results.append(result)
+            result = self.terminate_remote_process(
+                node_ip=node_ip,
+                node_username=node_user,
+                benchmark_pid=pid,
+                ssh_key_path=ssh_key
+            )
+            termination_results.append(result)
+
             if not result.success:
-                any_failed = True
+                failed_terminations.append({
+                    "node_id": result.node_id,
+                    "pid": result.pid,
+                    "error": result.message
+                })
 
         # Log summary
-        success_count = sum(1 for r in results if r.success)
-        total_count = len([r for r in results if r.pid > 0])
-        self.logger.info(f"Termination summary: {success_count}/{total_count} processes terminated.")
+        success_count = sum(1 for r in termination_results if r.success)
+        total_count = len(termination_results)
+        self.logger.info(f"Termination summary: {success_count}/{total_count} processes terminated successfully.")
 
-        # ALWAYS raise NetworkSaturationError to signal the orchestrator to stop the pipeline
-        # as per spec requirement: "Raise NetworkSaturationError exception to signal the orchestrator"
-        if any_failed:
-            raise NetworkSaturationError(
-                f"Failed to terminate benchmark processes on {total_count - success_count} nodes.",
-                run_id=signal.run_id,
-                signal=signal
-            )
-        else:
-            # Even if successful, we must raise the error to abort the run
-            raise NetworkSaturationError(
-                f"Network saturation detected (loss={signal.packet_loss_rate:.2%}). Aborting run {signal.run_id}.",
-                run_id=signal.run_id,
-                signal=signal
-            )
+        # Update validation status file
+        self._update_validation_status(run_id, failed_terminations)
 
-    def _terminate_and_verify(self, node_id: str, pid: int) -> TerminationResult:
-        """
-        Attempt to terminate and verify a single process with retries.
+        # Raise error to signal orchestrator to stop
+        if failed_terminations:
+            raise TerminationFailedError(
+                f"Failed to terminate processes on {len(failed_terminations)} nodes. "
+                f"Details: {failed_terminations}"
+            )
         
-        Args:
-            node_id: Target node ID.
-            pid: Process ID.
-            
-        Returns:
-            TerminationResult.
+        raise NetworkSaturationError(
+            f"Network saturation detected in run {run_id}. All processes terminated. Run excluded."
+        )
+
+    def _update_validation_status(self, run_id: str, failed_terminations: List[Dict[str, Any]]) -> None:
         """
-        client = None
-        max_retries = 3
-        delay = 1.0
-        success = False
-        last_error = "Unknown"
+        Updates the validation_status.json file with the saturation event.
 
-        try:
-            client = self._create_ssh_client(node_id)
-            
-            for attempt in range(1, max_retries + 1):
-                if attempt > 1:
-                    self.logger.info(f"Retry {attempt}/{max_retries} for PID {pid} on {node_id}")
-                    time.sleep(delay)
+        Args:
+            run_id: Current run identifier.
+            failed_terminations: List of failed termination details.
+        """
+        status_path = self.validation_status_path
+        
+        # Ensure directory exists
+        status_path.parent.mkdir(parents=True, exist_ok=True)
 
-                # 1. Terminate
-                if not self._terminate_process(client, pid, node_id):
-                    last_error = "Kill command failed"
-                    continue
-                
-                # 2. Verify
-                if self._verify_termination(client, pid, node_id):
-                    success = True
-                    last_error = "Success"
-                    break
-                else:
-                    last_error = "Process still running after kill"
-                    continue
-
-        except SSHException as e:
-            last_error = f"SSH Error: {e}"
-        except Exception as e:
-            last_error = f"Unexpected Error: {e}"
-        finally:
-            if client:
-                try:
-                    client.close()
-                except:
-                    pass
-
-        if success:
-            return TerminationResult(
-                node_id=node_id,
-                pid=pid,
-                success=True,
-                message="Process terminated and verified",
-                attempts=attempt
-            )
+        # Load existing status or create new
+        if status_path.exists():
+            try:
+                with open(status_path, 'r') as f:
+                    status_data = json.load(f)
+            except (json.JSONDecodeError, IOError) as e:
+                self.logger.error(f"Failed to load validation status file: {e}")
+                status_data = {"runs": {}}
         else:
-            return TerminationResult(
-                node_id=node_id,
-                pid=pid,
-                success=False,
-                message=f"Failed after {max_retries} attempts: {last_error}",
-                attempts=max_retries
-            )
+            status_data = {"runs": {}}
 
+        # Initialize run entry if missing
+        if run_id not in status_data["runs"]:
+            status_data["runs"][run_id] = {
+                "status": "excluded",
+                "critical_missing": [],
+                "non_critical_missing": [],
+                "excluded_terms": [],
+                "warnings": [],
+                "error_code": None,
+                "details": {}
+            }
 
-def create_handler(ssh_config: Optional[Dict[str, Any]] = None) -> NetworkSaturationHandler:
+        run_entry = status_data["runs"][run_id]
+        run_entry["status"] = "excluded"
+        run_entry["error_code"] = "NETWORK_SATURATION"
+        run_entry["details"]["saturation_event"] = {
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()),
+            "failed_terminations": failed_terminations,
+            "reason": "Packet loss exceeded 20% threshold"
+        }
+
+        # Write back
+        with open(status_path, 'w') as f:
+            json.dump(status_data, f, indent=2)
+        
+        self.logger.info(f"Updated validation status for run {run_id}: excluded due to NETWORK_SATURATION")
+
+# --- Factory and Main ---
+
+def create_handler(config: Optional[Dict[str, Any]] = None) -> NetworkSaturationHandler:
     """Factory function to create a NetworkSaturationHandler instance."""
-    return NetworkSaturationHandler(ssh_config=ssh_config)
-
+    logger = get_logger(__name__)
+    cfg = config or get_config()
+    return NetworkSaturationHandler(
+        logger=logger,
+        config=cfg,
+        ssh_timeout=cfg.get("ssh_timeout", 10),
+        termination_retries=cfg.get("termination_retries", 3),
+        termination_delay=cfg.get("termination_delay", 1.0)
+    )
 
 def main():
     """
-    CLI entry point for testing the handler.
-    Simulates receiving a signal and attempting to abort.
+    Main entry point for testing the handler directly.
+    Expects environment variables or config file for node details.
     """
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Test Network Saturation Handler")
-    parser.add_argument("--node", type=str, required=True, help="Target node IP/hostname")
-    parser.add_argument("--pid", type=int, required=True, help="PID to kill")
-    parser.add_argument("--run-id", type=str, default="test-run", help="Run ID")
-    parser.add_argument("--loss", type=float, default=0.25, help="Packet loss rate (e.g., 0.25)")
-    parser.add_argument("--username", type=str, default="root", help="SSH username")
-    parser.add_argument("--password", type=str, default=None, help="SSH password")
+    import sys
+
+    parser = argparse.ArgumentParser(description="Network Saturation Handler")
+    parser.add_argument("--run-id", type=str, required=True, help="Run ID for logging")
+    parser.add_argument("--nodes", type=str, required=True, help="JSON string of node details")
+    parser.add_argument("--pids", type=str, required=True, help="JSON string of node->pid mapping")
     
     args = parser.parse_args()
-    
-    signal = NetworkSaturationSignal(
-        node_ids=[args.node],
-        benchmark_pids={args.node: args.pid},
-        run_id=args.run_id,
-        packet_loss_rate=args.loss
-    )
-    
-    handler = create_handler({
-        'username': args.username,
-        'password': args.password
-    })
+
+    try:
+        node_details = json.loads(args.nodes)
+        benchmark_pids = json.loads(args.pids)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing JSON arguments: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    handler = create_handler()
     
     try:
-        handler.handle_signal(signal)
+        handler.handle_saturation_event(
+            node_details=node_details,
+            benchmark_pids=benchmark_pids,
+            run_id=args.run_id
+        )
     except NetworkSaturationError as e:
-        print(f"NetworkSaturationError raised as expected: {e}")
-        print(f"Run ID: {e.run_id}")
-        print(f"Error Code: {e.error_code}")
-        return 0
+        print(f"Network saturation handled: {e}")
+        sys.exit(0) # Normal exit after handling
+    except TerminationFailedError as e:
+        print(f"Termination failed: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error: {e}")
-        return 1
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        sys.exit(2)
 
 if __name__ == "__main__":
-    exit(main())
+    main()

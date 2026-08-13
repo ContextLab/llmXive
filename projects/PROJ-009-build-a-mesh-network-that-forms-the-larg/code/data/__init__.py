@@ -1,1 +1,3 @@
-# Data module root
+"""
+Data storage module.
+"""

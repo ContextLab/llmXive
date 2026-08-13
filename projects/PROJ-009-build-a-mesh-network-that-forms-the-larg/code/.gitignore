@@ -1,48 +1,7 @@
-# Data directories - large files, not for version control
-code/data/raw/
-code/data/processed/
 data/
-
-# Logs
 *.log
-code/orchestrator/*.log
-code/analysis/*.log
-code/simulation/*.log
-
-# Python cache
 __pycache__/
-*.py[cod]
-*$py.class
-.pytest_cache/
-.mypy_cache/
-
-# IDE and editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Virtual environments
+*.pyc
+.env
 venv/
-env/
-.venv/
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# Build artifacts
-build/
-dist/
-*.egg-info/
-.eggs/
-
-# Coverage and testing
-.coverage
-htmlcov/
-.tox/
-
-# Configuration overrides (optional)
-config.local.yaml
-secrets.yaml
+.pytest_cache/
