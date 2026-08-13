@@ -1,0 +1,31 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree, configuration files, or README showing the required project
+    structure were provided; the claim contains no tangible artifacts to confirm that
+    a proper project scaffold was created. The implementer must supply the actual
+    folder layout (e.g., `raw/`, `results/`, `scripts/`, `config/`, `pipeline.log`
+    etc.) and any initial files that constitute the project structure.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer only supplied a feature specification and user stories; there\
+    \ is no repository, configuration file, or script that actually creates a Python\u202F\
+    3.11 / R\u202F4.3 project or declares the listed dependencies (e.g., no `pyproject.toml`,\
+    \ `requirements.txt`, `renv.lock`, Dockerfile, or environment setup script). Consequently\
+    \ the required artifact\u2014an initialized project with the specified packages\u2014\
+    is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting/formatting configuration files (e.g., `.flake8`, `pyproject.toml`
+    with Black settings, or a `pre-commit` hook) or any documentation of their setup
+    are present. Consequently the required artifact that demonstrates flake8 and Black
+    have been configured for the project is missing.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files were found under `src/data_models/`, and there is no code defining\
+    \ the required classes (`RNASeqSample`, `SplicingEvent`, `EnrichmentResult`, `PhylogeneticTree`).\
+    \ The implementer must add non\u2011empty Python (or appropriate language) modules\
+    \ in that directory containing the base data model definitions."

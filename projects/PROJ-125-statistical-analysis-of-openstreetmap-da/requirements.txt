@@ -1,3 +1,4 @@
+# Base dependencies
 osmnx
 geopandas
 rasterio
@@ -10,6 +11,7 @@ pandas
 joblib
 pytest
 python-dotenv
-requests
-shapely
-scipy
+
+# Memory profiling dependencies
+memory-profiler
+psutil

@@ -31,3 +31,14 @@
   verification_status: pending
   verified_against_url: https://pysal.org/
   verified_at: '2026-07-04T12:54:40.005180Z'
+- artifact_hash: 03fbc986ec23f28747317544d0677c8ceccdd18f6f10630322f55cebe75d7d74
+  artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/specs/001-statistical-analysis-of-openstreetmap-da/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Reprojection &mdash; rasterio 1.5.1 documentation
+  kind: url
+  value: https://rasterio.readthedocs.io/en/latest/topics/reproject.html
+  verification_status: pending
+  verified_against_url: https://rasterio.readthedocs.io/en/latest/topics/reproject.html
+  verified_at: '2026-08-13T19:25:40.602494Z'

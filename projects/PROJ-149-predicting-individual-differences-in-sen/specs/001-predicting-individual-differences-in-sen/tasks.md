@@ -55,12 +55,20 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.py` to define constants (paths, filter params, seeds, band definitions). **Must run after T003 completes**.
-- [X] T004b [P] Implement seed pinning for all random operations (numpy, sklearn, python random) within `code/config.py` and any subsequent scripts. **Must run after T004 completes**.
-- [X] T005 [P] Implement `code/utils/eeg_helpers.py` with band-pass, notch, and variance rejection utilities
-- [X] T006 [P] Implement `code/utils/stats_helpers.py` with Bonferroni, permutation, and MDES utilities
-- [X] T007 Create `code/01_download_data.py` to fetch PhysioNet EEG Motor Movement/Imagery data and verify checksums (FR-001)
-- [X] T008a [US0] Create `code/00_feasibility_check_join.py` to join EEG and RT datasets on `participant_id`. **Mandatory Checks**: Verify that the RT dataset contains a **simple reaction-time task** (not motor imagery) and validate demographic metadata (age, sex) alignment between sources. **Primary Deliverable**: If the join fails, cognitive tasks mismatch, or demographics are incompatible, the script MUST generate `data/processed/feasibility_report.md` detailing the failure, exit with code 1, and **block all downstream tasks (Phase 3+)** from executing. **Output**: `data/interim/joined_metadata.csv` on success. **Must run after T007 completes**.
+- [X] T004 Create `code/config.py` to define constants (paths, filter params, seeds, band definitions) **AND implement global seed pinning** for numpy, sklearn, and python random. **Must run after T003 completes**.
+- [X] T005 [P] Implement `code/utils/eeg_helpers.py` with band-pass, notch, and variance rejection utilities. **Must run after T004 completes**.
+- [X] T006 [P] Implement `code/utils/stats_helpers.py` with Bonferroni, permutation, and MDES utilities. **Must run after T004 completes**.
+- [X] T007 [P] Create `code/01_download_data.py` to fetch PhysioNet EEG Motor Movement/Imagery data and verify checksums (FR-001). **Mandatory Logic**: 
+  1. Implement "Fail Loudly" principle: if download fails, raise `RuntimeError` immediately. **NO** synthetic fallbacks. **NO** streaming fallbacks if the primary method fails.
+  2. **Log exact cognitive task names** found in dataset metadata to `data/interim/detected_tasks.log`.
+  3. **Halt if mismatch**: If the detected task names do not match the expected set (e.g., "Motor Imagery" is found but "Simple Reaction Time" is required for the hypothesis), raise `RuntimeError` and exit with code 1.
+  **Must run after T004 completes**.
+- [X] T008a [US0] Create `code/00_feasibility_check_join.py` to join EEG and RT datasets on `participant_id`. **Mandatory Checks**: 
+  1. Verify that the RT dataset contains a **simple reaction-time task** by checking for exact strings in metadata: `["Simple Reaction Time", "SRT", "Simple RT"]`.
+  2. Verify demographic metadata matches between sources.
+  3. **Primary Deliverable**: If the join fails, cognitive tasks mismatch, or demographics are incompatible, the script MUST generate `data/processed/feasibility_report.md` detailing the failure, exit with code 1, and **block all downstream tasks (Phase 3+)** from executing. **NO fallback dataset is defined; the pipeline halts.**
+  4. **Output**: `data/interim/joined_metadata.csv` on success.
+  **Must run after T007 completes**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,11 +82,12 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] Implement `code/02_preprocess_eeg.py`: Apply a **1–40 Hz** band-pass filter, 50/60Hz notch, reject channels >3SD variance, implement ICA cleaning to remove ocular/muscle artifacts, and implement participant exclusion logic. **Critical Constraint**: Channel rejection and the **30% exclusion threshold** (drop if `channels_rejected / total_channels > 0.30`) MUST be applied **AFTER** ICA cleaning. **Primary Execution Path**: Must use ICA. The `--no-ica` flag is strictly for robustness testing only. **Output**: `data/interim/cleaned_eeg`. **Must run after T008a completes**.
-- [X] T012 [US1] Implement `code/03_extract_features.py`: Compute Welch's PSD on continuous 5-minute epochs using **-second windows** with **-second overlap ([deferred])** and aggregate power into delta, theta, alpha, low-beta, high-beta, and gamma bands (FR-003). **Output**: `data/interim/eeg_psd.csv` containing **raw power values** (Centered Log-Ratio transformation is deferred to T015). **Must run after T010 completes**.
+- [X] T010a [US1] Implement `code/02_preprocess_eeg.py` (Part 1): Apply a **1–40 Hz** band-pass filter, 50/60Hz notch, and apply ICA cleaning to remove ocular/muscle artifacts. **Constraint**: ICA is the primary cleaning method. **Output**: `data/interim/cleaned_eeg_raw/` directory containing `.fif` files for each participant. **Must run after T008a completes**.
+- [X] T010b [US1] Implement `code/02_preprocess_eeg.py` (Part 2): Apply participant exclusion logic. **Constraint**: Exclude participant if `channels_rejected / total_channels > 0.30`. **Output**: `data/interim/cleaned_eeg_final/` directory containing `.fif` files for retained participants and `data/interim/exclusion_log.csv`. **Must run after T010a completes**.
+- [X] T012 [US1] Implement `code/03_extract_features.py`: Compute Welch's PSD on continuous 5-minute epochs using **4-second windows** with 2-second overlap and aggregate power into delta, theta, alpha, low-beta, high-beta, and gamma bands (FR-003). **Note**: **Chunked processing** must be implemented to handle large datasets within RAM. **Output**: `data/interim/eeg_psd.csv` containing **raw power values**. **Must run after T010b completes**.
 - [X] T013 [P] [US1] Implement behavioral parsing: extract median RT, exclude outliers (<100ms, >2000ms), exclude participants if <70% trials remain (FR-004). **Output**: `data/interim/behavioral_metrics.csv` AND `data/interim/behavioral_exclusion_log.csv` (verifying ≥70% trials remain). **Must run after T008a completes**. **Note**: T013 is independent of T010's output; it only depends on T008a.
-- [X] T015 [US1] Implement relative power calculation (band/total) AND **apply Centered Log-Ratio (CLR) transformation** to handle compositional data constraints as mandated by Plan Phase 1 (FR-010). **Input**: `data/interim/eeg_psd.csv` (columns: delta, theta, alpha, low-beta, high-beta, gamma) and `data/interim/behavioral_metrics.csv`. **Process**: First calculate relative power (band/total) from raw values, then apply CLR. **Output**: `data/processed/features.csv` containing **CLR-transformed relative power values**. **Must run after T012 and T013 complete**.
-- [X] T016 [US1] Validate schema of `data/processed/features.csv` (no nulls, correct columns, valid RT range **150ms to 1000ms**; explicitly exclude outliers <100ms or >2000ms). **Must run after T015 completes**.
+- [X] T015 [US1] Implement relative power calculation (band/total) as mandated by Plan Phase 1 (FR-010). **Input**: `data/interim/eeg_psd.csv` (columns: delta, theta, alpha, low-beta, high-beta, gamma) and `data/interim/behavioral_metrics.csv`. **Process**: Calculate relative power (band/total) from raw values. **NO CLR transformation**. **Output**: `data/processed/features.csv` containing **relative power values**. **Must run after T012 and T013 complete**.
+- [X] T035a [US1] Validate schema of `data/processed/features.csv` (no nulls, correct columns, valid RT range **150ms to 1000ms**; explicitly exclude outliers <100ms or >2000ms). **Must run after T015 completes**.
 
 **Parallel Execution Note**: Tasks T012 (EEG PSD) and T013 (Behavioral Metrics) are independent of each other. T012 depends on T010, and T013 depends on T008a. Once their respective prerequisites are met, T012 and T013 can be executed in parallel. T015 depends on the completion of both.
 
@@ -94,15 +103,17 @@
 
 ### Implementation for User Story 2
 
-- [X] T017 [P] [US2] Implement `code/04_modeling.py`: Fit Multiple Linear Regression with **5-fold** cross-validation (depends on `data/processed/features.csv`) (FR-005). **Output**: `data/interim/split_indices.json`, `data/processed/model_results.json` (partial). **Must run after T016 completes**.
+- [X] T017 [P] [US2] Implement `code/04_modeling.py`: Fit Multiple Linear Regression with **5-fold** cross-validation (depends on `data/processed/features.csv`) (FR-005). **Constraint**: Implement **chunked processing** for memory efficiency. **Output**: `data/interim/split_indices.json`, `data/processed/model_results.json` (partial). **Must run after T015 completes**.
 - [X] T018 [US2] Implement LASSO regression with lambda tuning to minimize RMSE (FR-005). **Must run after T017 completes**.
 - [X] T019 [US2] Calculate and log Adjusted R² and optimal lambda to `data/processed/model_results.json`. **Must run after T018 completes**.
-- [X] T020 [P] [US2] Implement Pearson correlation tests between relative band powers and median RT (depends on `data/processed/features.csv`) (FR-006). **Must run after T016 completes**.
+- [X] T020 [P] [US2] Implement Pearson correlation tests between relative band powers and median RT (depends on `data/processed/features.csv`) (FR-006). **Must run after T015 completes**.
 - [X] T021 [US2] Apply Bonferroni correction for 6 bands (0.05/6 = 0.0083) as per Spec FR-006 and flag significant results. **Must run after T020 completes**.
-- [X] T022 [US2] Implement permutation test: **Shuffle RT values** [deferred] times ONLY on the **held-out test set** (identified by indices marked as 'test' in `data/interim/split_indices.json` from T017), re-evaluate the **trained model** from T019 for each shuffle to generate the null distribution, and assess significance of the full model's R² (FR-007). **Input**: `data/interim/split_indices.json` (from T017) and `data/processed/model_results.json` (from T019). **Output**: Append permutation results to `data/processed/model_results.json`. **Must run after T017 and T019 complete**.
-- [X] T023 [US2] Perform post-hoc power analysis to estimate the required sample size (N) for R²=0.10 with power ≥ 0.80 and report in `data/processed/model_results.json` (FR-011). **Must run after T019 completes**.
+- [X] T022a [US2] Implement Permutation Test (Part 1): **Generate Null Distribution**. Shuffle RT values **[deferred] times** across the **entire dataset** (or within each CV fold on the training data) to simulate the null hypothesis of no relationship. Re-evaluate the model for each shuffle to generate the null distribution of R². **Input**: `data/interim/split_indices.json` and `data/processed/model_results.json`. **Output**: `data/interim/permutation_null_distribution.npy`. **Must run after T019 completes**.
+- [X] T022b [US2] Implement Permutation Test (Part 2): **Calculate Significance**. Compare the observed R² against the null distribution from T022a to calculate the p-value. **Output**: Append permutation results to `data/processed/model_results.json`. **Must run after T022a completes**.
+- [X] T023 [US2] Perform post-hoc power analysis to estimate the required sample size (N) for R²=0.10 with power ≥ 0.80 and report in `data/processed/model_results.json` (FR-011). **If the result is non-significant, report the null result with effect sizes and confidence intervals as per Spec Edge Cases. Do NOT apply a hard "Exploratory" flag unless explicitly required by a future amendment.** **Must run after T019 completes**.
 - [X] T024 [P] [US2] Implement non-linear interaction analysis (polynomial alpha/beta, degree=2) and F-test comparison (FR-012). **Decision Criterion**: Report if the model explains significantly more variance with **p < 0.05**. **Must run after T019 completes**.
 - [X] T025 [US2] Generate `data/processed/correlations.csv` and `data/processed/non_linear_comparison.json`. **Must run after T021 and T024 complete**.
+- [X] T035b [US2] Validate schema of `data/processed/model_results.json` and `data/processed/correlations.csv`. **Must run after T025 completes**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -116,9 +127,9 @@
 
 ### Implementation for User Story 3
 
-- [X] T026 [US3] Implement `code/05_robustness_analysis.py`: **Re-run `code/02_preprocess_eeg.py` with `--no-ica` and `--window-size 2` (-second windows as robustness alternative to the 4s primary)** and `code/04_modeling.py` to generate robustness metrics (FR-008). **Constraint**: All robustness artifacts MUST be written to `data/interim/robustness/` to prevent overwriting primary artifacts. **Dependency**: Must run after T010 and T012 scripts are implemented (code readiness), but **does NOT depend** on T015/T016 data artifacts. **Output**: `data/interim/robustness/features.csv`, `data/interim/robustness/robustness_report.csv`.
+- [X] T026 [US3] Implement `code/05_robustness_analysis.py`: **Re-run `code/02_preprocess_eeg.py` with `--no-ica` and `--window-size 2` (2-second windows as robustness alternative)** and **re-run `code/03_extract_features.py`** to generate raw PSD, **THEN apply the relative power calculation logic from T015** to these new features (creating robustness features), and **re-run `code/04_modeling.py`** to generate robustness metrics (FR-008). **Constraint**: All robustness artifacts MUST be written to `data/interim/robustness/` to prevent overwriting primary artifacts. **Dependency**: Must run after T010a, T010b, T012, T015, and T017 scripts are implemented. **Output**: `data/interim/robustness/features.csv`, `data/interim/robustness/robustness_report.csv`.
 - [X] T027 [US3] Compare R² stability and report percentage difference in alpha power means (FR-008). **Must run after T026 completes**.
-- [X] T028 [US3] Implement `code/06_sensitivity_analysis.py`: **Sweep p-value threshold across a low-to-moderate range in incremental steps** and record count of significant correlations at each step (FR-009). **Must run after T021 completes**.
+- [X] T028 [US3] Implement `code/06_sensitivity_analysis.py`: **Sweep p-value threshold across a range of significance levels in incremental steps** (0.01 to 0.10) and record count of significant correlations at each step (FR-009). **Must run after T021 completes**.
 - [X] T029 [US3] Generate sensitivity plot and report exact threshold where result becomes non-significant (FR-009). **Must run after T028 completes**.
 - [X] T030 [US3] Generate `data/processed/robustness_report.csv` and `data/processed/sensitivity_plot.png`. **Must run after T027 and T029 complete**.
 
@@ -134,7 +145,7 @@
 - [X] T032 [US3] Verify SC-001 to SC-005: Adjusted R², Bonferroni p-value, stability metrics, sensitivity threshold, and CPU feasibility. **Mechanism**: Run pipeline with `time` and `psutil` monitoring, log max RAM and total duration to `data/processed/verification_log.json`. **Task must FAIL** if runtime > 6 hours or RAM > 7 GB. **Must run after T031 completes**.
 - [X] T033 [P] Run unit tests for `utils/` helpers. **Must run after T005/T006 code is committed**.
 - [X] T034 [US3] Run integration test `tests/integration/test_pipeline.py` to ensure end-to-end flow. **Must run after T030 completes**.
-- [X] T035 [US3] Run contract tests for `feature_schema` and `result_schema`. **Must run after T015 and T019 generate artifacts**.
+- [X] T036 [US3] Run contract tests for `feature_schema` and `result_schema`. **Must run after T015 and T019 generate artifacts**.
 
 ---
 
@@ -212,34 +223,27 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: Do NOT use `load_in_8bit` or GPU-specific code. All processing must run on CPU-only CI.
 - **CRITICAL**: Ensure `code/00_feasibility_check_join.py` and `code/00_feasibility_check_report.py` run AFTER `code/01_download_data.py` to prevent wasted compute on missing data.
-- **CRITICAL**: Primary analysis uses **4-second windows** (Spec FR-003) with **2-second overlap ([deferred])**; robustness check uses short-duration windows (Spec FR-008).
+- **CRITICAL**: Primary analysis uses **4-second windows** (Spec FR-003) with **2-second overlap**; robustness check uses short-duration windows (Spec FR-008).
 - **NOTE**: Plan.md Phase 1 now correctly states 4-second windows as primary.
 - **REVISED**: T017 clarified to ensure 5-fold CV is implemented correctly with stratified splits if needed to maintain class balance (though continuous RT does not have classes, ensure fold distribution is representative) and explicitly saves `split_indices.json`.
-- **REVISED**: T022 clarified to explicitly state **[deferred] shuffles** on the **held-out test set** only, and depending on T019's model results and T017's split indices.
-- **REVISED**: T023 clarified to use `statsmodels.stats.power` or equivalent to calculate MDES, ensuring the calculation accounts for the actual N available after exclusion criteria, and appends to `model_results.json`.
+- **REVISED**: T022 clarified to explicitly state **[deferred] shuffles** on the **entire dataset** (or training folds) to generate a valid null distribution for the model's R².
+- **REVISED**: T023 clarified to use `statsmodels.stats.power` or equivalent to calculate MDES, ensuring the calculation accounts for the actual N available after exclusion criteria, and appends to `model_results.json`. **Removed hard "Exploratory" flag**.
 - **REVISED**: T024 clarified to specify polynomial degree (e.g., degree=2) for non-linear terms and to use an F-test for model comparison as per FR-012.
 - **REVISED**: T028 clarified to explicitly state the sweep range (0.01 to 0.10) and step size (0.01).
-- **REVISED**: T026 clarified to explicitly state 2-second windows, `--no-ica` flags, **isolated output path** `data/interim/robustness/`, and **updated dependency** to depend on T010/T012 script readiness rather than T016 validation result.
-- **REVISED**: T010 clarified to ensure ICA is applied as the primary cleaning method per Spec FR-002 and Constitution Principle VI, with explicit handling for ocular artifacts and **implementation of `--no-ica` flag**, and **explicit constraint that primary run MUST use ICA**.
-- **REVISED**: T012 clarified to ensure Welch's PSD uses **4-second windows** with **2-second overlap ([deferred])** as the primary configuration, with robustness checks using 2-second windows.
-- **REVISED**: T015 clarified to ensure relative power calculation is performed **with CLR transformation** as mandated by Plan Phase 1, and the output file contains **CLR-transformed values**.
+- **REVISED**: T026 clarified to explicitly state 2-second windows, `--no-ica` flags, **isolated output path** `data/interim/robustness/`, **explicitly re-run T015 logic** on robustness features, and **updated dependency** to depend on T010/T012 script readiness rather than T016 validation result.
+- **REVISED**: T010 clarified to ensure ICA is applied as the primary cleaning method per Spec FR-002 and Constitution Principle VI, with explicit handling for ocular artifacts and **implementation of `--no-ica` flag**, and **explicit constraint that primary run MUST use ICA**. **Split into T010a (ICA/Filter) and T010b (Exclusion)**.
+- **REVISED**: T012 clarified to ensure Welch's PSD uses **4-second windows** with **2-second overlap** as the primary configuration, with robustness checks using 2-second windows.
+- **REVISED**: T015 clarified to ensure relative power calculation is performed **without CLR transformation** as per Spec FR-010, and the output file contains **relative power values**.
 - **REVISED**: T020 clarified to ensure Pearson correlations are computed on relative band powers (band/total) as per FR-010.
 - **REVISED**: T026 clarified to ensure robustness analysis includes both window size variation and ICA removal as distinct test conditions with isolated artifacts.
 - **REVISED**: T028 clarified to ensure sensitivity analysis sweeps p-value thresholds from 0.01 to 0.10 in 0.01 increments.
-- **REVISED**: T032 clarified to ensure all success criteria (SC-001 to SC-005) are explicitly verified and logged in `verification_log.json` using `time` and `psutil`, and **task fails if thresholds exceeded**.
-- **REVISED**: T008a clarified to ensure it exits with code 1 and generates `feasibility_report.md` if datasets cannot be joined or are incompatible, preventing downstream processing on invalid data, and outputs `joined_metadata.csv` on success.
-- **REVISED**: T013 clarified to ensure behavioral metrics are computed only for participants with sufficient trials (≥70%) after outlier exclusion, and outputs `behavioral_exclusion_log.csv`.
-- **REVISED**: T016 clarified to ensure schema validation includes checks for null values, correct column names, and valid RT ranges (150ms to 1000ms; outliers <100ms or >2000ms).
-- **REVISED**: T019 clarified to ensure Adjusted R² is calculated for both Linear Regression and LASSO models and logged to `model_results.json`.
-- **REVISED**: T021 clarified to ensure Bonferroni correction is applied for 6 bands (0.05/6 = 0.0083) and significant results are flagged in `correlations.csv`.
-- **REVISED**: T022 clarified to ensure permutation test uses **shuffles** on the **held-out test set** and assesses significance of the full model's R² distribution.
-- **REVISED**: T023 clarified to ensure post-hoc power analysis estimates sample size required for R²=0.10 with power ≥ 0.80 and reports this in `model_results.json`.
-- **REVISED**: T024 clarified to ensure non-linear analysis uses polynomial terms of degree 2 for alpha and beta bands, compares models using an F-test, and **explicitly reports significance if p < 0.05**.
-- **REVISED**: T025 clarified to ensure `correlations.csv` and `non_linear_comparison.json` are generated with all required metrics.
-- **REVISED**: T027 clarified to ensure robustness comparison includes percentage difference in alpha power means and flags results exceeding a substantial difference.
-- **REVISED**: T029 clarified to ensure sensitivity plot is generated and the exact threshold where results become non-significant is reported.
 - **REVISED**: T030 clarified to ensure `robustness_report.csv` and `sensitivity_plot.png` are generated with all required metrics.
 - **REVISED**: T031 clarified to ensure `final_report.md` aggregates all metrics from previous phases into a comprehensive summary.
 - **REVISED**: T033 clarified to ensure unit tests cover all helper functions in `utils/`.
 - **REVISED**: T034 clarified to ensure integration tests verify the end-to-end pipeline flow from data download to final report generation.
-- **REVISED**: T035 clarified to ensure contract tests validate `feature_schema` and `result_schema` against generated data.
+- **REVISED**: T036 clarified to ensure contract tests validate `feature_schema` and `result_schema` against generated data.
+- **CRITICAL**: **NO SYNTHETIC FALLBACKS**. If real data fetch fails, the run MUST fail (T007).
+- **CRITICAL**: **NO TOY DATASETS**. Use chunked processing for large datasets (T012, T017).
+- **CRITICAL**: **TASK ALIGNMENT**. Verify "Simple RT" vs "Motor Imagery" explicitly (T008a).
+- **CRITICAL**: **MINIMUM EPOCH**. Enforce 5-minute minimum (T012).
+- **CRITICAL**: **POWER SANITY**. Report MDES in results (T023).

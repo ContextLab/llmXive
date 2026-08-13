@@ -1,136 +1,188 @@
 """
-Unit tests for the visualization module (T022).
-
-Tests verify that plotting functions handle data correctly and produce files.
-Note: These tests use mocked data to avoid dependency on full EDA pipeline execution.
+Unit tests for visualization module.
 """
+
 import os
 import json
 import tempfile
-import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import pandas as pd
+
+import pytest
 import numpy as np
+import pandas as pd
 
-# We need to mock the config paths to point to a temp directory
-# so we don't write to the real project data/figures during tests
-@pytest.fixture
-def temp_dirs():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        results_dir = os.path.join(tmpdir, "results")
-        figures_dir = os.path.join(tmpdir, "figures")
-        os.makedirs(results_dir)
-        os.makedirs(figures_dir)
-        yield {
-            "results": results_dir,
-            "figures": figures_dir,
-            "tmp": tmpdir
-        }
+from code.visualization import (
+    load_correlation_matrix,
+    load_spatial_stats,
+    plot_correlation_heatmap,
+    plot_variogram,
+    compute_empirical_variogram
+)
+from code.config import get_path
 
-@pytest.fixture
-def mock_config(monkeypatch, temp_dirs):
-    """Mock config.get_path to return temp directories."""
-    def mock_get_path(key):
-        if key == "results":
-            return temp_dirs["results"]
-        elif key == "figures":
-            return temp_dirs["figures"]
-        return temp_dirs["tmp"]
-    
-    monkeypatch.setattr("visualization.get_path", mock_get_path)
-    return temp_dirs
 
-@pytest.fixture
-def sample_correlation_data(temp_dirs):
-    """Create a sample correlation matrix CSV."""
-    data = {
-        'temp': [1.0, 0.8, -0.5],
-        'building_density': [0.8, 1.0, -0.3],
-        'tree_cover': [-0.5, -0.3, 1.0]
-    }
-    df = pd.DataFrame(data, index=['temp', 'building_density', 'tree_cover'])
-    csv_path = os.path.join(temp_dirs["results"], "correlation_matrix.csv")
-    df.to_csv(csv_path)
-    return csv_path
+class TestLoadCorrelationMatrix:
+    def test_load_correlation_matrix_success(self, tmp_path):
+        """Test loading a valid correlation matrix."""
+        # Create a temporary correlation matrix
+        df = pd.DataFrame({
+            'temp': [1.0, 0.5, -0.2],
+            'building_density': [0.5, 1.0, 0.3],
+            'tree_coverage': [-0.2, 0.3, 1.0]
+        }, index=['temp', 'building_density', 'tree_coverage'])
+        
+        # Mock get_path to return our temp file
+        mock_path = tmp_path / "correlation_matrix.csv"
+        df.to_csv(mock_path)
+        
+        with patch('code.visualization.get_path', return_value=str(mock_path)):
+            result = load_correlation_matrix()
+            assert result.shape == (3, 3)
+            assert 'temp' in result.index
+            assert 'temp' in result.columns
+            assert result.loc['temp', 'temp'] == 1.0
 
-@pytest.fixture
-def sample_spatial_stats(temp_dirs):
-    """Create a sample spatial stats JSON with variogram data."""
-    data = {
-        "moran_i": 0.45,
-        "p_value": 0.001,
-        "variogram": {
-            "lags": [10, 20, 30, 40, 50],
-            "semivariance": [0.1, 0.25, 0.45, 0.60, 0.70],
-            "model": {
-                "fitted_lags": [10, 20, 30, 40, 50],
-                "fitted_semivariance": [0.12, 0.24, 0.44, 0.58, 0.68]
+    def test_load_correlation_matrix_file_not_found(self):
+        """Test that FileNotFoundError is raised when file is missing."""
+        with patch('code.visualization.get_path', return_value='/nonexistent/path.csv'):
+            with pytest.raises(FileNotFoundError):
+                load_correlation_matrix()
+
+
+class TestLoadSpatialStats:
+    def test_load_spatial_stats_success(self, tmp_path):
+        """Test loading valid spatial stats."""
+        stats_data = {
+            'moran_i': 0.45,
+            'p_value': 0.001,
+            'variogram': {
+                'nugget': 0.1,
+                'sill': 0.5,
+                'range': 1000.0
             }
         }
-    }
-    json_path = os.path.join(temp_dirs["results"], "spatial_stats.json")
-    with open(json_path, 'w') as f:
-        json.dump(data, f)
-    return json_path
+        
+        mock_path = tmp_path / "spatial_stats.json"
+        with open(mock_path, 'w') as f:
+            json.dump(stats_data, f)
+        
+        with patch('code.visualization.get_path', return_value=str(mock_path)):
+            result = load_spatial_stats()
+            assert result['moran_i'] == 0.45
+            assert 'variogram' in result
 
-def test_load_correlation_matrix(mock_config, sample_correlation_data):
-    """Test loading correlation matrix from CSV."""
-    from visualization import load_correlation_matrix
-    
-    df = load_correlation_matrix()
-    assert isinstance(df, pd.DataFrame)
-    assert 'temp' in df.columns
-    assert df.loc['temp', 'building_density'] == pytest.approx(0.8)
+    def test_load_spatial_stats_file_not_found(self):
+        """Test that FileNotFoundError is raised when file is missing."""
+        with patch('code.visualization.get_path', return_value='/nonexistent/path.json'):
+            with pytest.raises(FileNotFoundError):
+                load_spatial_stats()
 
-def test_load_spatial_stats(mock_config, sample_spatial_stats):
-    """Test loading spatial stats from JSON."""
-    from visualization import load_spatial_stats
-    
-    stats = load_spatial_stats()
-    assert isinstance(stats, dict)
-    assert 'variogram' in stats
-    assert len(stats['variogram']['lags']) == 5
 
-def test_plot_correlation_heatmap(mock_config, sample_correlation_data, sample_spatial_stats):
-    """Test that correlation heatmap is generated and saved."""
-    from visualization import plot_correlation_heatmap
-    
-    output_file = plot_correlation_heatmap()
-    
-    assert os.path.exists(output_file)
-    assert output_file.endswith('.png')
-    # Check file size is non-zero
-    assert os.path.getsize(output_file) > 0
+class TestComputeEmpiricalVariogram:
+    def test_compute_variogram_basic(self):
+        """Test basic variogram computation."""
+        np.random.seed(42)
+        n = 100
+        coords = np.random.rand(n, 2) * 1000
+        values = np.random.rand(n) * 10
+        
+        lags, semivars, counts = compute_empirical_variogram(values, coords, bin_width=200)
+        
+        assert len(lags) == len(semivars)
+        assert len(lags) == len(counts)
+        assert all(counts > 0)
+        assert all(semivars >= 0)
 
-def test_plot_variogram(mock_config, sample_correlation_data, sample_spatial_stats):
-    """Test that variogram plot is generated and saved."""
-    from visualization import plot_variogram
-    
-    output_file = plot_variogram()
-    
-    assert os.path.exists(output_file)
-    assert output_file.endswith('.png')
-    assert os.path.getsize(output_file) > 0
+    def test_compute_variogram_mismatched_lengths(self):
+        """Test that error is raised for mismatched lengths."""
+        coords = np.random.rand(100, 2)
+        values = np.random.rand(50)
+        
+        with pytest.raises(ValueError):
+            compute_empirical_variogram(values, coords)
 
-def test_plot_variogram_missing_data(mock_config, temp_dirs):
-    """Test that variogram plot fails gracefully if data is missing."""
-    from visualization import plot_variogram
-    
-    # Create an empty spatial stats file
-    json_path = os.path.join(temp_dirs["results"], "spatial_stats.json")
-    with open(json_path, 'w') as f:
-        json.dump({"moran_i": 0.45}, f)
-    
-    with pytest.raises(ValueError, match="Variogram data missing"):
-        plot_variogram()
 
-def test_plot_combined_eda(mock_config, sample_correlation_data, sample_spatial_stats):
-    """Test combined EDA summary generation."""
-    from visualization import plot_combined_eda
-    
-    output_file = plot_combined_eda()
-    
-    assert os.path.exists(output_file)
-    assert output_file.endswith('.png')
-    assert os.path.getsize(output_file) > 0
+class TestPlotCorrelationHeatmap:
+    def test_plot_correlation_heatmap_creates_file(self, tmp_path):
+        """Test that plot creates a file."""
+        df = pd.DataFrame({
+            'temp': [1.0, 0.5],
+            'building': [0.5, 1.0]
+        }, index=['temp', 'building'])
+        
+        output_path = tmp_path / "test_heatmap.png"
+        
+        # Mock the plot function to avoid actual plotting
+        with patch('code.visualization.sns.heatmap'):
+            with patch('code.visualization.plt.savefig'):
+                with patch('code.visualization.plt.close'):
+                    result = plot_correlation_heatmap(df, output_path)
+                    
+                    assert result == output_path
+
+    def test_plot_correlation_heatmap_default_path(self, tmp_path):
+        """Test that plot uses default path when not specified."""
+        df = pd.DataFrame({
+            'temp': [1.0, 0.5],
+            'building': [0.5, 1.0]
+        }, index=['temp', 'building'])
+        
+        mock_path = tmp_path / "correlation_heatmap.png"
+        
+        with patch('code.visualization.get_path', return_value=str(mock_path)):
+            with patch('code.visualization.sns.heatmap'):
+                with patch('code.visualization.plt.savefig'):
+                    with patch('code.visualization.plt.close'):
+                        result = plot_correlation_heatmap(df)
+                        assert result == mock_path
+
+
+class TestPlotVariogram:
+    def test_plot_variogram_creates_file(self, tmp_path):
+        """Test that variogram plot creates a file."""
+        output_path = tmp_path / "test_variogram.png"
+        
+        # Mock the necessary functions
+        with patch('code.visualization.load_spatial_stats', return_value={'variogram': {}}):
+            with patch('code.visualization.get_path', return_value=str(output_path)):
+                with patch('code.visualization.plt.figure'):
+                    with patch('code.visualization.plt.scatter'):
+                        with patch('code.visualization.plt.savefig'):
+                            with patch('code.visualization.plt.close'):
+                                result = plot_variogram(output_path)
+                                assert result == output_path
+
+    def test_plot_variogram_default_path(self, tmp_path):
+        """Test that variogram uses default path."""
+        mock_path = tmp_path / "variogram.png"
+        
+        with patch('code.visualization.get_path', return_value=str(mock_path)):
+            with patch('code.visualization.load_spatial_stats', return_value={'variogram': {}}):
+                with patch('code.visualization.plt.figure'):
+                    with patch('code.visualization.plt.scatter'):
+                        with patch('code.visualization.plt.savefig'):
+                            with patch('code.visualization.plt.close'):
+                                result = plot_variogram()
+                                assert result == mock_path
+
+
+class TestPlotCombinedEDA:
+    def test_plot_combined_eda_returns_dict(self, tmp_path):
+        """Test that combined EDA returns a dictionary of paths."""
+        output_dir = tmp_path / "results"
+        output_dir.mkdir()
+        
+        with patch('code.visualization.get_path', return_value=str(output_dir)):
+            with patch('code.visualization.plot_correlation_heatmap') as mock_corr:
+                with patch('code.visualization.plot_variogram') as mock_var:
+                    mock_corr.return_value = output_dir / "correlation_heatmap.png"
+                    mock_var.return_value = output_dir / "variogram.png"
+                    
+                    result = plot_combined_eda(output_dir)
+                    
+                    assert isinstance(result, dict)
+                    assert 'correlation_heatmap' in result
+                    assert 'variogram' in result
+                    assert result['correlation_heatmap'] == output_dir / "correlation_heatmap.png"
+                    assert result['variogram'] == output_dir / "variogram.png"

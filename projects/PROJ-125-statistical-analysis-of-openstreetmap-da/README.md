@@ -1,25 +1,24 @@
 # Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
 
-A research pipeline to analyze Urban Heat Island (UHI) effects using OpenStreetMap (OSM)
-vector data and satellite thermal imagery (MODIS/Landsat). This project implements
-spatial regression models, exploratory data analysis, and proxy validity testing.
+This project implements a pipeline to ingest OpenStreetMap (OSM) and satellite thermal data,
+perform exploratory spatial analysis, and fit spatial regression models to study Urban Heat Island (UHI) effects.
 
 ## Prerequisites
 
 - Python 3.9+
-- pip
-- Required system libraries: GDAL, GEOS (via `geos` or `proj` packages)
-- API Keys: Overpass API (no key required, but rate limits apply), AWS (optional for satellite data)
+- pip (Python package manager)
+- A valid Overpass API key (optional for small queries, recommended for production use)
+- AWS credentials (optional, for satellite data retrieval if using AWS sources)
 
 ## Installation
 
 1. Clone the repository:
  ```bash
  git clone <repository-url>
- cd <project-directory>
+ cd statistical-analysis-of-openstreetmap-data
  ```
 
-2. Create a virtual environment and activate it:
+2. Create a virtual environment (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
@@ -31,9 +30,15 @@ spatial regression models, exploratory data analysis, and proxy validity testing
  ```
 
 4. Configure environment variables:
+ - Copy `.env.example` to `.env`:
  ```bash
  cp.env.example.env
- # Edit.env to add your API keys if necessary
+ ```
+ - Edit `.env` and add your API keys:
+ ```
+ OVERPASS_API_KEY=your_overpass_key_here
+ AWS_ACCESS_KEY_ID=your_aws_key
+ AWS_SECRET_ACCESS_KEY=your_aws_secret
  ```
 
 ## Project Structure
@@ -41,123 +46,85 @@ spatial regression models, exploratory data analysis, and proxy validity testing
 ```
 .
 ├── code/ # Source code
-│ ├── config.py # Configuration and constants
-│ ├── ingest.py # OSM and satellite data ingestion
-│ ├── eda.py # Exploratory spatial analysis
+│ ├── config.py # Configuration and path constants
+│ ├── ingest.py # Data ingestion (OSM, Satellite)
+│ ├── eda.py # Exploratory Data Analysis
 │ ├── modeling.py # Spatial regression models
-│ ├── metrics_exporter.py # Metrics export utilities
-│ ├── proxy_validity.py # Proxy validity analysis
-│ ├── sensitivity_report.py # Sensitivity analysis report generation
-│ ├── fetch_literature_bounds.py # Fetch literature bounds
-│ ├── stack_output.py # Aligned raster stack creation
-│ ├── visualizations.py # Visualization utilities
-│ ├── setup_dirs.py # Directory setup script
-│ ├── models/ # Data models
-│ │ ├── base.py
-│ │ ├── city_boundary.py
-│ │ ├── raster_covariate.py
-│ │ └── temperature_raster.py
-│ └── utils/ # Utility modules
-│ ├── logging.py
-│ ├── memory.py
-│ └── env_manager.py
+│ ├── utils/ # Utility modules (logging, memory, env)
+│ └──...
 ├── data/ # Data directories
 │ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed/aligned data
-│ └── results/ # Analysis results and reports
+│ ├── processed/ # Aligned raster stacks
+│ └── results/ # Analysis outputs (metrics, reports)
 ├── tests/ # Test suite
-├── docs/ # Documentation
+├── specs/ # Feature specifications
 ├── requirements.txt # Python dependencies
-├──.env.example # Environment variable template
 └── README.md # This file
 ```
 
-## CLI Usage Examples
+## CLI Usage
+
+The pipeline is composed of several scripts. Each script can be run independently.
 
 ### 1. Setup Project Directories
-Initializes the required directory structure (`data/raw`, `data/processed`, `data/results`, etc.).
+Creates the necessary directory structure.
 ```bash
-python code/setup_dirs.py
+python code/setup_project.py
 ```
 
-### 2. Ingest Data (OSM + Satellite)
-Downloads OSM vector data and satellite thermal imagery for a specified city,
-aligns them to a common CRS, and creates a raster stack.
+### 2. Ingest Data (OSM & Satellite)
+Downloads OSM vector data and satellite thermal imagery, then aligns them to a common raster grid.
 ```bash
-python code/ingest.py --city "New York" --output-dir data/processed --crs EPSG:3857
+python code/ingest.py --city "New York"
 ```
-*Options:*
-- `--city`: City name (must match definitions in `code/config.py`)
-- `--output-dir`: Output directory for processed data
-- `--crs`: Target CRS (default: EPSG:3857)
+*Output*: Aligned GeoTIFFs in `data/processed/` and metadata in `data/metadata.json`.
 
-### 3. Run Exploratory Data Analysis (EDA)
-Computes correlation matrices, Moran's I, and variograms, then generates a summary report.
+### 3. Exploratory Data Analysis (EDA)
+Computes correlation matrices, spatial autocorrelation (Moran's I), and variograms.
 ```bash
-python code/eda.py --input-dir data/processed --output-dir data/results
+python code/eda.py
 ```
-*Options:*
-- `--input-dir`: Directory containing aligned GeoTIFFs
-- `--output-dir`: Directory for EDA results (CSV, JSON, MD)
+*Output*: `data/results/correlation_matrix.csv`, `data/results/spatial_stats.json`, `data/results/eda_report.md`.
 
-### 4. Run Spatial Modeling Pipeline
-Fits OLS, SAR, and GWR models, performs spatial cross-validation, and applies FDR correction.
+### 4. Fetch Literature Bounds
+Retrieves upper-bound R² values from literature for proxy validity checks.
 ```bash
-python code/modeling.py --input-dir data/processed --output-dir data/results --max-blocks 100
+python code/fetch_literature_bounds.py
 ```
-*Options:*
-- `--input-dir`: Directory containing aligned raster data
-- `--output-dir`: Directory for model results
-- `--max-blocks`: Maximum number of spatial blocks for sampling (default: 100)
-- `--seed`: Random seed for reproducibility (default: 42)
+*Output*: `data/literature_bounds.json`.
 
-### 5. Fetch Literature Bounds
-Retrieves literature-derived upper bounds for OSM-only UHI models.
+### 5. Run Spatial Modeling Pipeline
+Fits OLS, SAR, and GWR models with spatial cross-validation and sensitivity analysis.
 ```bash
-python code/fetch_literature_bounds.py --output data/literature_bounds.json
+python code/modeling.py
 ```
+*Output*: Model coefficients, cross-validation metrics, and sensitivity reports in `data/results/`.
 
-### 6. Calculate Proxy Validity Gap
-Computes the "Unexplained Variance Gap" between literature bounds and observed model performance.
+### 6. Export Metrics
+Consolidates all metrics into a single CSV file.
 ```bash
-python code/proxy_validity.py --literature data/literature_bounds.json --metrics data/results/metrics.csv --output data/results/metrics.csv
+python code/metrics_exporter.py
 ```
+*Output*: `data/results/metrics.csv`.
 
-### 7. Generate Sensitivity Report
-Visualizes GWR bandwidth sweep results and stability metrics.
-```bash
-python code/sensitivity_report.py --input data/results/gwr_bandwidth_sweep.json --output data/results/sensitivity_report.md
-```
-
-### 8. Export Metrics to CSV
-Consolidates cross-validation, FDR, proxy gap, and sensitivity metrics into a single CSV.
-```bash
-python code/metrics_exporter.py --input-dir data/results --output data/results/metrics.csv
-```
+### 7. Generate Reports
+- **EDA Report**: `python code/reports/eda_report_generator.py`
+- **Sensitivity Report**: `python code/sensitivity_report.py`
 
 ## Configuration
 
-Edit `code/config.py` to customize:
-- City boundaries (lat/lon boxes)
-- CRS settings (EPSG codes)
-- `MAX_BLOCKS` (default: 100) for memory safety
-- Default paths and timeouts
+Edit `code/config.py` to modify:
+- `MAX_BLOCKS`: Maximum number of spatial blocks for sampling (default: 100).
+- `CITY_BOUNDS`: Default city boundaries.
+- `CRS`: Coordinate Reference System settings.
 
-## Memory Safety
+## Testing
 
-The pipeline respects a 7GB RAM limit by:
-- Using spatial block sampling (`MAX_BLOCKS=100` by default)
-- Automatically degrading to OLS if memory constraints are exceeded
-- Estimating array sizes before allocation
+Run the test suite using pytest:
+```bash
+pytest tests/ -v
+```
 
 ## License
 
-MIT License - See LICENSE file for details.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
+[Insert License Information Here]

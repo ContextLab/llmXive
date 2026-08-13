@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Neuroimaging Dataset Metadata
+description: Schema for validated dataset metadata containing fMRI and clinical scores.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the participant.
+  pre_treatment_score:
+    type: number
+    description: Anxiety score before treatment.
+  post_treatment_score:
+    type: number
+    description: Anxiety score after treatment.
+  anxiety_instrument:
+    type: string
+    description: Name of the clinical scale (e.g., GAD-7, HAM-A).
+  study_design:
+    type: string
+    description: Design type (e.g., "randomized", "observational").
+  randomized:
+    type: boolean
+    description: Boolean flag indicating random assignment.
+  age:
+    type: integer
+    description: Participant age.
+  medication_status:
+    type: string
+    description: Current medication status.
+  fmri_path:
+    type: string
+    description: Relative path to the fMRI NIfTI file.
+required:
+  - subject_id
+  - pre_treatment_score
+  - post_treatment_score
+  - anxiety_instrument
+  - fmri_path
+additionalProperties: false

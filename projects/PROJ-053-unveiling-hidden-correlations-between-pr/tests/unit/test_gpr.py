@@ -1,158 +1,134 @@
 import pytest
 import numpy as np
-from unittest.mock import patch, MagicMock
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C, WhiteKernel
-from sklearn.model_selection import ParameterGrid
-
-# Import the trainer module to test the hyperparameter logic
-# We assume gpr_trainer.py is in code/models/
-import sys
+import pandas as pd
+import tempfile
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
+from sklearn.model_selection import cross_val_score, KFold
 
+# Import from the project's models module
 from models.gpr_trainer import optimize_hyperparameters, train_gpr_model
 
+def test_optimize_hyperparameters():
+    """Test GPR hyperparameter optimization - T021."""
+    # Create synthetic data with known non-linear relationship
+    np.random.seed(42)
+    n_samples = 50
+    X = np.random.uniform(0, 1, (n_samples, 2))
+    y = np.sin(X[:, 0] * 10) + np.cos(X[:, 1] * 10) + np.random.normal(0, 0.1, n_samples)
+    
+    # Optimize hyperparameters
+    best_kernel, best_params = optimize_hyperparameters(X, y, n_iterations=5)
+    
+    # Verify results
+    assert best_kernel is not None
+    assert best_params is not None
+    assert isinstance(best_kernel, (C * RBF))
+    
+    # Verify parameters are reasonable
+    assert 'constant_value' in best_params
+    assert 'length_scale' in best_params
 
-class TestGPRHyperparameterOptimization:
-    """
-    Unit tests for GPR hyperparameter optimization logic.
-    Focuses on the search space, parameter grid generation, and selection logic.
-    """
+def test_train_gpr_model():
+    """Test GPR model training and prediction."""
+    # Create synthetic data
+    np.random.seed(42)
+    n_samples = 50
+    X = np.random.uniform(0, 1, (n_samples, 2))
+    y = np.sin(X[:, 0] * 10) + np.cos(X[:, 1] * 10) + np.random.normal(0, 0.1, n_samples)
+    
+    # Split into train and test
+    split_idx = int(0.8 * n_samples)
+    X_train, X_test = X[:split_idx], X[split_idx:]
+    y_train, y_test = y[:split_idx], y[split_idx:]
+    
+    # Train GPR model
+    model, metrics = train_gpr_model(X_train, y_train, X_test, y_test)
+    
+    # Verify model is trained
+    assert model is not None
+    assert isinstance(model, GaussianProcessRegressor)
+    
+    # Verify metrics are computed
+    assert 'r2' in metrics
+    assert 'rmse' in metrics
+    assert 'mae' in metrics
+    
+    # Verify predictions are reasonable
+    assert metrics['r2'] > -1.0  # R2 can be negative but should be > -1 for reasonable model
+    assert metrics['rmse'] >= 0
+    assert metrics['mae'] >= 0
 
-    def test_optimize_hyperparameters_search_space(self):
-        """
-        Test that the hyperparameter optimization function explores the expected
-        range of kernel combinations (Constant * RBF + White).
-        """
-        # Create dummy data
-        X = np.random.rand(50, 2)
-        y = np.random.rand(50)
+def test_gpr_uncertainty_quantification():
+    """Test that GPR provides uncertainty estimates."""
+    np.random.seed(42)
+    n_samples = 50
+    X = np.random.uniform(0, 1, (n_samples, 2))
+    y = np.sin(X[:, 0] * 10) + np.random.normal(0, 0.1, n_samples)
+    
+    split_idx = int(0.8 * n_samples)
+    X_train, X_test = X[:split_idx], X[split_idx:]
+    y_train, y_test = y[:split_idx], y[split_idx:]
+    
+    model, _ = train_gpr_model(X_train, y_train, X_test, y_test)
+    
+    # Predict with uncertainty
+    y_pred, y_std = model.predict(X_test, return_std=True)
+    
+    # Verify uncertainty estimates
+    assert y_pred.shape == y_test.shape
+    assert y_std.shape == y_test.shape
+    assert all(y_std >= 0)  # Standard deviation should be non-negative
 
-        # Mock the cross-validation scoring to return predictable values
-        # so we can verify the function iterates and selects the best
-        mock_scores = []
-        
-        def mock_cv_score(kernel, X_train, y_train):
-            # Simulate a scenario where a specific combination is best
-            # We just need to ensure the function runs the loop
-            return np.random.rand()
+def test_gpr_cross_validation():
+    """Test that GPR uses cross-validation for hyperparameter tuning."""
+    np.random.seed(42)
+    n_samples = 60
+    X = np.random.uniform(0, 1, (n_samples, 2))
+    y = np.sin(X[:, 0] * 10) + np.cos(X[:, 1] * 10) + np.random.normal(0, 0.1, n_samples)
+    
+    # Optimize with cross-validation
+    best_kernel, best_params = optimize_hyperparameters(X, y, n_iterations=10)
+    
+    # Verify the kernel has been optimized
+    assert best_kernel is not None
+    assert best_params is not None
+    
+    # The optimized kernel should have different parameters than default
+    default_kernel = C(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-2, 1e2))
+    assert best_kernel != default_kernel or best_params != {'constant_value': 1.0, 'length_scale': 1.0}
 
-        with patch('sklearn.model_selection.cross_val_score', return_value=np.array([0.9])):
-            best_kernel, best_score = optimize_hyperparameters(X, y)
+def test_gpr_with_small_dataset():
+    """Test GPR performance on small dataset (N=50) - T026 validation."""
+    np.random.seed(42)
+    n_samples = 50
+    X = np.random.uniform(0, 1, (n_samples, 2))
+    y = np.sin(X[:, 0] * 10) + np.cos(X[:, 1] * 10) + np.random.normal(0, 0.1, n_samples)
+    
+    split_idx = int(0.8 * n_samples)
+    X_train, X_test = X[:split_idx], X[split_idx:]
+    y_train, y_test = y[:split_idx], y[split_idx:]
+    
+    model, metrics = train_gpr_model(X_train, y_train, X_test, y_test)
+    
+    # Verify the model can achieve reasonable performance on small data
+    # This is the success metric from T026: R² > 0.5
+    assert metrics['r2'] > 0.5, f"GPR failed to recover signal on synthetic data (R²={metrics['r2']})"
 
-            # Assertions
-            assert best_kernel is not None
-            assert best_score is not None
-            # The kernel should be a combination of the base types defined in the strategy
-            # We check the type of the kernel structure
-            assert hasattr(best_kernel, 'hyperparameters')
-
-    def test_kernel_structure_validity(self):
-        """
-        Verify that the optimized kernel is a valid sklearn GPR kernel composition.
-        """
-        # Define the search space explicitly as used in the trainer
-        # This mirrors the logic in gpr_trainer.py
-        c_bounds = [(0.1, 10.0)]
-        rbf_bounds = [(0.1, 10.0)]
-        noise_bounds = [(0.01, 1.0)]
-
-        # Generate a grid to verify the structure
-        param_grid = []
-        for c_val in np.logspace(*c_bounds[0], 5):
-            for rbf_val in np.logspace(*rbf_bounds[0], 5):
-                for noise_val in np.logspace(*noise_bounds[0], 5):
-                    kernel = C(c_val) * RBF(rbf_val) + WhiteKernel(noise_val)
-                    param_grid.append(kernel)
-
-        # Verify we can instantiate these kernels without error
-        assert len(param_grid) > 0
-        for k in param_grid:
-            assert isinstance(k, (C * RBF + WhiteKernel, C, RBF, WhiteKernel)) or \
-                   (hasattr(k, 'alpha') and hasattr(k, 'theta')) or \
-                   str(type(k)) != "<class 'NoneType'>"
-
-    def test_optimize_hyperparameters_returns_best(self):
-        """
-        Ensure the function returns the kernel with the highest log marginal likelihood.
-        """
-        X = np.random.rand(20, 2)
-        y = np.sin(X).ravel()
-
-        # We mock the inner optimization of GPR to return specific LML values
-        # to force a specific outcome for testing
-        with patch.object(GaussianProcessRegressor, 'fit') as mock_fit:
-            with patch.object(GaussianProcessRegressor, 'log_marginal_likelihood') as mock_lml:
-                # Simulate: first kernel gets 0.5, second gets 0.8 (best)
-                mock_lml.side_effect = [0.5, 0.8, 0.3] 
-                
-                # We need to mock the grid search loop logic if it's internal
-                # Assuming optimize_hyperparameters iterates a grid
-                # Let's test the logic by checking if it handles the return correctly
-                
-                # Since the actual implementation might be complex to mock fully without
-                # seeing the code, we test the public interface behavior:
-                # It should return a kernel and a score.
-                
-                # If the implementation uses GridSearchCV-like logic:
-                from sklearn.model_selection import GridSearchCV
-                
-                # Create a simple GPR with fixed kernel to test the wrapper logic
-                # This test ensures the wrapper correctly identifies the best parameters
-                pass
-
-    def test_train_gpr_model_with_optimized_kernel(self):
-        """
-        Test that the training function accepts the optimized kernel and fits correctly.
-        """
-        X = np.random.rand(30, 3)
-        y = np.random.rand(30)
-        
-        # Create a dummy kernel
-        kernel = C(1.0) * RBF(1.0) + WhiteKernel(0.1)
-        
-        model, metrics = train_gpr_model(X, y, kernel=kernel)
-        
-        assert model is not None
-        assert isinstance(model, GaussianProcessRegressor)
-        assert metrics is not None
-        assert 'lml' in metrics or 'log_marginal_likelihood' in metrics
-
-    def test_edge_case_small_dataset(self):
-        """
-        Test hyperparameter optimization on a very small dataset.
-        """
-        X = np.random.rand(5, 2)
-        y = np.random.rand(5)
-        
-        # Should not crash, though results may be unstable
-        # We mock the CV to avoid overfitting errors in the test environment
-        with patch('sklearn.model_selection.cross_val_score', return_value=np.array([0.5])):
-            best_kernel, best_score = optimize_hyperparameters(X, y)
-            assert best_kernel is not None
-            assert best_score is not None
-
-    def test_kernel_parameter_ranges(self):
-        """
-        Verify that the search ranges for C, RBF, and WhiteKernel are within
-        physically reasonable bounds for AM process data (typically 0.01 to 100).
-        """
-        # This test documents the expected bounds. If the implementation changes,
-        # this test will catch it.
-        expected_c_range = (0.1, 10.0)
-        expected_rbf_range = (0.1, 10.0)
-        expected_noise_range = (0.01, 1.0)
-        
-        # We verify these are the bounds used in the grid generation logic
-        # by checking the source or mocking the grid generation.
-        # For now, we assert the logic exists by checking the function signature
-        # or docstring if available, or simply rely on the integration test.
-        # Here we assert the function exists and takes the right args.
-        import inspect
-        sig = inspect.signature(optimize_hyperparameters)
-        assert 'X' in sig.parameters
-        assert 'y' in sig.parameters
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+def test_gpr_kernel_structure():
+    """Test that the GPR kernel has the correct structure."""
+    np.random.seed(42)
+    n_samples = 50
+    X = np.random.uniform(0, 1, (n_samples, 2))
+    y = np.random.normal(0, 1, n_samples)
+    
+    best_kernel, _ = optimize_hyperparameters(X, y, n_iterations=5)
+    
+    # Verify kernel structure
+    assert hasattr(best_kernel, 'k1')  # C * RBF structure
+    assert hasattr(best_kernel, 'k2')
+    
+    # Verify it's a product of ConstantKernel and RBF
+    from sklearn.gaussian_process.kernels import ConstantKernel as C, RBF
+    assert isinstance(best_kernel, C * RBF)

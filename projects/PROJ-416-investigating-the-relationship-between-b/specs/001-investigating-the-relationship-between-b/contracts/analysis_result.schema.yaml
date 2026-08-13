@@ -10,14 +10,17 @@ required:
   - p_value_corrected
   - effect_size
   - model_type
+  - framing
+  - collinearity_flag
+  - is_significant
 properties:
   result_id:
     type: "string"
     description: "Unique identifier for the result."
   metric_type:
     type: "string"
-    enum: ["modularity", "global_efficiency", "local_efficiency", "PC1"]
-    description: "Type of network metric tested."
+    enum: ["modularity", "global_efficiency", "local_efficiency", "PC1", "PC2"]
+    description: "Type of network metric tested. PC1/PC2 used only for exploratory/robustness checks."
   coefficient:
     type: "number"
     description: "Regression coefficient."
@@ -36,8 +39,8 @@ properties:
     description: "Effect size (Cohen's d)."
   model_type:
     type: "string"
-    enum: ["ANCOVA", "Ridge", "Univariate", "PCA"]
-    description: "Statistical model used (Primary: ANCOVA, Fallback: Ridge, Univariate, or PCA)."
+    enum: ["ANCOVA", "Univariate", "PCA_Exploratory"]
+    description: "Statistical model used. Primary: ANCOVA/Univariate; PCA only for exploratory."
   is_significant:
     type: "boolean"
     description: "True if corrected p-value < 0.05."
@@ -48,4 +51,8 @@ properties:
   collinearity_flag:
     type: "boolean"
     description: "True if VIF > 5 was detected."
+  outcome_definition:
+    type: "string"
+    enum: ["change_score", "residual", "raw_post"]
+    description: "Definition of the outcome variable used."
 additionalProperties: false

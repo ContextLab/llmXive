@@ -31,7 +31,19 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/AdityaMayukhSom/datasets
   verified_at: '2026-07-14T00:30:32.253913Z'
-- artifact_hash: 79ef8d497f9bb099f199b1c10c65ad5c60242043980f88f72f04b6638796325b
+- artifact_hash: 6314fe83e8363d256d076966c9e534ad3a2ec2d46cb916d5e85de0ca0444e2b1
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Grain refinement of stainless steel in ultrasound-assisted additive
+    manufacturing
+  kind: doi
+  value: 10.1016/j.addma.2020.101632
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/j.addma.2020.101632
+  verified_at: '2026-08-13T18:36:07.694901Z'
+- artifact_hash: 2b1c6aadbbb52e18dab15695a1d8c2dac4547f4fa59444137b7c31562c10bdd1
   artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,4 +54,4 @@
   value: 10.1016/j.addma.2020.101632
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.addma.2020.101632
-  verified_at: '2026-07-19T21:12:30.943336Z'
+  verified_at: '2026-08-13T18:40:26.995297Z'

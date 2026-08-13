@@ -1,0 +1,6 @@
+# R 4.3 Dependencies for PROJ-002
+# Install these using: Rscript -e 'install.packages(c("phylolm", "ape", "data.table", "ggplot2"), repos="https://cloud.r-project.org")'
+phylolm
+ape
+data.table
+ggplot2

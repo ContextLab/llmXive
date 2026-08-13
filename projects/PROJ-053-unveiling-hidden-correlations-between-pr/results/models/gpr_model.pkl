@@ -1,0 +1,3 @@
+(Placeholder binary content for GPR model - generated at runtime by main_save.py)
+# Note: The actual file will be a pickled sklearn GaussianProcessRegressor object.
+# This placeholder is to indicate the file path. The real file is created when main_save.py runs.

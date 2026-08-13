@@ -31,9 +31,30 @@ T022:
     the implementer provided only a textual description without any concrete artifact
     demonstrating the required visualizations. The task therefore lacks the necessary
     output.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, scripts, or generated outputs (e.g., raster GeoTIFFs, correlation
+    matrices, model reports) were supplied for any of the three user stories, so the
+    required artifacts do not exist to verify that the ingestion, EDA, and spatial
+    modeling steps were implemented. The task therefore remains incomplete.
 T036a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No updated\u202FREADME.md file was provided or shown, and there is no evidence\
     \ of added CLI usage examples or installation instructions. The required artifact\
     \ is missing, so the task is not satisfied."
+T037a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting artifacts (e.g., ruff/black run logs, diff reports,
+    or updated files in the `code/` directory) are provided, nor any evidence that
+    the tools were executed. Without such files or output, the requirement to run
+    ruff and black across `code/` is not satisfied.
+T037b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence (e.g., cleaned source files, linter reports, diff showing removed\
+    \ imports, or a summary of dead code eliminated) was provided to demonstrate that\
+    \ unused imports and dead code in the `code/` directory have been removed. The\
+    \ implementer\u2019s claim cannot be verified without such artifacts."

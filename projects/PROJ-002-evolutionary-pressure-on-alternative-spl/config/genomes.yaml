@@ -1,0 +1,199 @@
+# Genome Assembly Configuration for PROJ-002
+# Defines reference assemblies and associated metadata for:
+# Human (GRCh38), Chimpanzee (panTro6), Rhesus Macaque (rheMac10), Marmoset (calJac4)
+#
+# This file is consumed by the pipeline to resolve reference paths,
+# chromosome naming conventions, and annotation sources.
+
+assemblies:
+  human:
+    species: "Homo sapiens"
+    assembly: "GRCh38"
+    assembly_id: "GRCh38.p14"
+    chromosomes:
+      - "chr1"
+      - "chr2"
+      - "chr3"
+      - "chr4"
+      - "chr5"
+      - "chr6"
+      - "chr7"
+      - "chr8"
+      - "chr9"
+      - "chr10"
+      - "chr11"
+      - "chr12"
+      - "chr13"
+      - "chr14"
+      - "chr15"
+      - "chr16"
+      - "chr17"
+      - "chr18"
+      - "chr19"
+      - "chr20"
+      - "chr21"
+      - "chr22"
+      - "chrX"
+      - "chrY"
+      - "chrM"
+    paths:
+      fasta: "data/references/GRCh38.fa"
+      gtf: "data/references/GRCh38.gtf"
+      star_index: "data/references/GRCh38_star_index"
+      bigwig: "data/references/GRCh38.bw"
+    sra_accession: "SRP010775"
+    phyloP_track: "phyloP100way.hg38.bw"
+
+  chimp:
+    species: "Pan troglodytes"
+    assembly: "panTro6"
+    assembly_id: "panTro6"
+    chromosomes:
+      - "chr1"
+      - "chr2"
+      - "chr3"
+      - "chr4"
+      - "chr5"
+      - "chr6"
+      - "chr7"
+      - "chr8"
+      - "chr9"
+      - "chr10"
+      - "chr11"
+      - "chr12"
+      - "chr13"
+      - "chr14"
+      - "chr15"
+      - "chr16"
+      - "chr17"
+      - "chr18"
+      - "chr19"
+      - "chr20"
+      - "chr21"
+      - "chr22"
+      - "chrX"
+      - "chrY"
+      - "chrM"
+    paths:
+      fasta: "data/references/panTro6.fa"
+      gtf: "data/references/panTro6.gtf"
+      star_index: "data/references/panTro6_star_index"
+      bigwig: "data/references/panTro6.bw"
+    sra_accession: "SRP009050"
+    phyloP_track: "phyloP100way.panTro6.bw"
+
+  macaque:
+    species: "Macaca mulatta"
+    assembly: "rheMac10"
+    assembly_id: "rheMac10"
+    chromosomes:
+      - "chr1"
+      - "chr2"
+      - "chr3"
+      - "chr4"
+      - "chr5"
+      - "chr6"
+      - "chr7"
+      - "chr8"
+      - "chr9"
+      - "chr10"
+      - "chr11"
+      - "chr12"
+      - "chr13"
+      - "chr14"
+      - "chr15"
+      - "chr16"
+      - "chr17"
+      - "chr18"
+      - "chr19"
+      - "chr20"
+      - "chr21"
+      - "chrX"
+      - "chrY"
+      - "chrM"
+    paths:
+      fasta: "data/references/rheMac10.fa"
+      gtf: "data/references/rheMac10.gtf"
+      star_index: "data/references/rheMac10_star_index"
+      bigwig: "data/references/rheMac10.bw"
+    sra_accession: "SRP009051"
+    phyloP_track: "phyloP100way.rheMac10.bw"
+
+  marmoset:
+    species: "Callithrix jacchus"
+    assembly: "calJac4"
+    assembly_id: "calJac4"
+    chromosomes:
+      - "chr1"
+      - "chr2"
+      - "chr3"
+      - "chr4"
+      - "chr5"
+      - "chr6"
+      - "chr7"
+      - "chr8"
+      - "chr9"
+      - "chr10"
+      - "chr11"
+      - "chr12"
+      - "chr13"
+      - "chr14"
+      - "chr15"
+      - "chr16"
+      - "chr17"
+      - "chr18"
+      - "chr19"
+      - "chr20"
+      - "chr21"
+      - "chr22"
+      - "chrX"
+      - "chrY"
+      - "chrM"
+    paths:
+      fasta: "data/references/calJac4.fa"
+      gtf: "data/references/calJac4.gtf"
+      star_index: "data/references/calJac4_star_index"
+      bigwig: "data/references/calJac4.bw"
+    sra_accession: "SRP009052"
+    phyloP_track: "phyloP100way.calJac4.bw"
+
+# Global configuration
+defaults:
+  min_replicates: 3
+  max_replicates: 5
+  psi_threshold: 0.1
+  fdr_threshold: 0.05
+  flank_size_bp: 500
+  phyloP_track_base: "phyloP100way"
+  tree_file: "data/references/primate_tree.nwk"
+
+# Lineage definitions for differential analysis
+lineages:
+  human_specific:
+    name: "Human"
+    target: "human"
+    outgroups:
+      - "chimp"
+      - "macaque"
+      - "marmoset"
+  chimp_specific:
+    name: "Chimpanzee"
+    target: "chimp"
+    outgroups:
+      - "human"
+      - "macaque"
+      - "marmoset"
+  macaque_specific:
+    name: "Rhesus Macaque"
+    target: "macaque"
+    outgroups:
+      - "human"
+      - "chimp"
+      - "marmoset"
+  marmoset_specific:
+    name: "Marmoset"
+    target: "marmoset"
+    outgroups:
+      - "human"
+      - "chimp"
+      - "macaque"

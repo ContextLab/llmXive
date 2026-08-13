@@ -7,11 +7,4 @@ required_columns:
 optional_columns:
   - fatigue_life
   - alloy_type
-column_types:
-  laser_power: numeric
-  scan_speed: numeric
-  layer_thickness: numeric
-  yield_strength: numeric
-  ductility: numeric
-  fatigue_life: numeric
-  alloy_type: categorical
+description: "Schema for AM alloy dataset"

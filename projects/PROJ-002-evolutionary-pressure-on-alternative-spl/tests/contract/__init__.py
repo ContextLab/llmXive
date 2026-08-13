@@ -1,3 +1,3 @@
 """
-Contract tests for API boundaries.
+Contract tests for API interfaces.
 """

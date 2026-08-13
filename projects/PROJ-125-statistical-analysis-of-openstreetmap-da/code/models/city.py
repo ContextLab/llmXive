@@ -1,124 +1,120 @@
 """
-City boundary model for OSM data ingestion.
+CityBoundary model for handling urban area definitions.
 """
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from shapely.geometry import box, Polygon, mapping
 from shapely.wkt import loads
 import json
 from .base import BaseModel
 from config import get_city_crs
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CityBoundary(BaseModel):
     """
-    Represents a city boundary with associated metadata.
+    Represents a city boundary with metadata.
     
     Attributes:
-        city_name: Name of the city
-        country: Country code or name
-        geometry: WKT string representation of the boundary polygon
-        epsg_code: EPSG code for the coordinate reference system
-        area_km2: Calculated area in square kilometers (optional)
-        source: Data source (e.g., 'OSM', 'Natural Earth')
+        city_name: Name of the city.
+        geometry: Shapely geometry object (Polygon or MultiPolygon).
+        crs: Coordinate Reference System (EPSG code or string).
+        source: Source of the boundary data (e.g., 'osm', 'gadm').
+        metadata: Additional arbitrary metadata.
     """
-    
-    REQUIRED_FIELDS = ["city_name", "country", "geometry"]
 
     def __init__(
         self,
         city_name: str,
-        country: str,
-        geometry: str,
-        epsg_code: int = 4326,
-        area_km2: Optional[float] = None,
-        source: str = "OSM",
+        geometry: Any,
+        crs: Optional[str] = None,
+        source: str = "osm",
+        metadata: Optional[Dict[str, Any]] = None,
     ):
-        """
-        Initialize a CityBoundary instance.
-        
-        Args:
-            city_name: Name of the city
-            country: Country code or name
-            geometry: WKT string representation of the boundary polygon
-            epsg_code: EPSG code for the CRS
-            area_km2: Pre-calculated area in km²
-            source: Data source identifier
-        """
         self.city_name = city_name
-        self.country = country
-        self.geometry = geometry
-        self.epsg_code = epsg_code
-        self.area_km2 = area_km2
+        self.crs = crs or get_city_crs(city_name)
         self.source = source
+        self.metadata = metadata or {}
+        
+        # Handle geometry serialization/deserialization
+        if isinstance(geometry, str):
+            self.geometry = loads(geometry)
+        elif isinstance(geometry, dict) and "type" in geometry:
+            # GeoJSON dict
+            self.geometry = loads(json.dumps(geometry))
+        else:
+            self.geometry = geometry
 
-        # Validate schema on init
-        self.validate_schema(
-            self.to_dict(), 
-            self.REQUIRED_FIELDS
-        )
+    def validate(self) -> bool:
+        """
+        Validate the CityBoundary instance.
+        
+        Checks:
+        1. City name is not empty.
+        2. Geometry is valid.
+        3. CRS is defined.
+        """
+        if not self.city_name or not isinstance(self.city_name, str):
+            logger.error("City name must be a non-empty string.")
+            return False
 
-    @property
-    def shapely_geom(self) -> Polygon:
-        """Return the geometry as a Shapely Polygon object."""
-        return loads(self.geometry)
+        if self.geometry is None:
+            logger.error("Geometry cannot be None.")
+            return False
 
-    @property
-    def bbox(self) -> tuple:
-        """Return the bounding box (minx, miny, maxx, maxy)."""
-        return self.shapely_geom.bounds
+        if not self.geometry.is_valid:
+            logger.error(f"Geometry is invalid: {self.geometry.is_valid_reason}")
+            return False
 
-    def to_wkt(self) -> str:
-        """Return the geometry as a WKT string."""
-        return self.geometry
+        if not self.crs:
+            logger.error("CRS is not defined.")
+            return False
 
-    def to_geojson(self) -> Dict[str, Any]:
-        """Convert to GeoJSON Feature dictionary."""
+        return True
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the CityBoundary to a dictionary (GeoJSON compatible).
+        """
         return {
             "type": "Feature",
             "properties": {
                 "city_name": self.city_name,
-                "country": self.country,
-                "epsg_code": self.epsg_code,
-                "area_km2": self.area_km2,
                 "source": self.source,
+                "metadata": self.metadata,
             },
-            "geometry": mapping(self.shapely_geom),
+            "geometry": mapping(self.geometry),
+            "crs": {"type": "name", "properties": {"name": self.crs}},
         }
 
-    def get_crs(self) -> int:
-        """Get the EPSG code for the coordinate reference system."""
-        return self.epsg_code
+    def get_bounds(self) -> tuple:
+        """
+        Return the bounding box (minx, miny, maxx, maxy).
+        """
+        return self.geometry.bounds
 
     @classmethod
-    def from_osm_query(cls, city_name: str, country: str, wkt: str) -> "CityBoundary":
+    def from_geojson(cls, geojson_path: str) -> "CityBoundary":
         """
-        Factory method to create CityBoundary from OSM query results.
-        
-        Args:
-            city_name: Name of the city
-            country: Country code or name
-            wkt: WKT geometry string from OSM
-            
-        Returns:
-            CityBoundary instance
+        Load a CityBoundary from a GeoJSON file.
+        Expects a FeatureCollection or a single Feature.
         """
-        # Calculate area if possible
-        geom = loads(wkt)
-        area_km2 = None
-        if geom.area > 0:
-            # Assume input is in degrees (EPSG:4326), convert roughly
-            # For precise area, reprojection would be needed, but this is a proxy
-            bbox = geom.bounds
-            width = bbox[2] - bbox[0]
-            height = bbox[3] - bbox[1]
-            # Approximate conversion: 1 deg ~ 111 km at equator
-            area_km2 = width * height * 111 * 111 * 0.7 # Rough adjustment for mid-latitudes
-        
-        return cls(
-            city_name=city_name,
-            country=country,
-            geometry=wkt,
-            epsg_code=4326,
-            area_km2=area_km2,
-            source="OSM"
-        )
+        with open(geojson_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if data.get("type") == "FeatureCollection":
+            if len(data["features"]) == 0:
+                raise ValueError("GeoJSON FeatureCollection is empty.")
+            feature = data["features"][0]
+        elif data.get("type") == "Feature":
+            feature = data
+        else:
+            raise ValueError("Invalid GeoJSON structure.")
+
+        props = feature.get("properties", {})
+        city_name = props.get("city_name", "Unknown")
+        geometry = feature.get("geometry")
+        crs = data.get("crs", {}).get("properties", {}).get("name", "EPSG:4326")
+
+        return cls(city_name=city_name, geometry=geometry, crs=crs, source="file")

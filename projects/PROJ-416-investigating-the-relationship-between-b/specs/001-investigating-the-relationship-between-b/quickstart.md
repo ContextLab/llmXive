@@ -2,13 +2,14 @@
 
 ## Prerequisites
 
-- **Python**: 3.11 or higher.
-- **Dependencies**: `pip install -r requirements.txt`.
-- **Data**: The pipeline expects the dataset to be available via the verified HuggingFace link. No manual download is required if using the automated downloader.
+- Python 3.11+
+- GB free disk space
+- Internet access (to download OpenNeuro data)
+- `datalad` installed (`pip install datalad`)
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project root).
+1.  **Clone the repository** and navigate to the project directory.
 2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
@@ -18,44 +19,50 @@
     ```bash
     pip install -r requirements.txt
     ```
+    *Note: `requirements.txt` will pin `nilearn`, `scikit-learn`, `statsmodels`, `pandas`, `networkx`, `bctpy`, `datalad`.*
 
-## Running the Pipeline
+## Execution
 
-The pipeline is executed via the CLI. It performs the following steps in order:
-1.  **Verify** dataset availability and variables.
-2.  **Download** and preprocess data (streamed).
-3.  **Compute** network metrics.
-4.  **Run** statistical analysis and sensitivity checks.
-5.  **Generate** reports.
-
-### Command
-
+### Step 1: Data Validation (Critical)
+Before running the full pipeline, verify that the dataset contains the required variables.
 ```bash
-python -m src.cli.run_pipeline --config config/default.yaml
+python code/data/validate.py --dataset "openneuro" --check-variables "pre_treatment_score,post_treatment_score,anxiety_instrument"
 ```
+- **Success**: Exits 0 and logs "Variables found".
+- **Failure**: Exits 1 and logs "Data Unavailable: Missing [variable_name]" or "Invalid Instrument: [name]".
 
-### Configuration
+### Step 2: Power Analysis (Gate)
+Run the power analysis to determine if the dataset is sufficient.
+```bash
+python code/analysis/power.py --effect-size 0.15 --alpha 0.05 --power 0.8
+```
+- **If N < 5**: Exits 1 with "Insufficient Power: N < 5".
+- **If 5 <= N < required**: Logs warning and switches to exploratory mode.
 
-The `config/default.yaml` file contains:
-- `dataset_url`: The verified HuggingFace URL.
-- `motion_threshold`: Default 3.0 mm.
-- `atlas`: Default 'Schaefer-100'.
-- `max_subjects`: Default 20.
+### Step 3: Preprocessing & Metric Computation
+Run the pipeline on a subset (N=20) to fit within CI constraints.
+```bash
+python code/main.py --mode full --max-subjects 20 --atlas "Schaefer-100"
+```
+- This will:
+  1.  Download/stream data.
+  2.  Preprocess (motion correction, normalization).
+  3.  Compute network metrics.
+  4.  Exclude subjects with FD > 3mm.
 
-## Expected Outputs
+### Step 4: Statistical Analysis & Sensitivity
+Run the ANCOVA and sensitivity analysis.
+```bash
+python code/main.py --mode analysis --correction "fdr" --sweep-motion "2.0,3.0" --sweep-pval "0.01,0.05,0.1" --sweep-outcome "change,residual,raw"
+```
+- Generates `reports/analysis_report.md` and `reports/sensitivity_analysis.md`.
 
-After successful execution, the following artifacts will be generated:
-
-- `data/processed/`: Preprocessed NIfTI files.
-- `data/metrics/network_metrics.csv`: Computed graph metrics.
-- `reports/statistical_results.json`: Regression coefficients, p-values, effect sizes.
-- `reports/sensitivity_analysis.md`: Summary of sensitivity sweeps (motion: {2.0, 3.0} mm; p: {0.01, 0.05, 0.1}).
-- `reports/diagnostic_plots/`: Scatter plots and residual diagnostics.
-- `data/verified_sources.json`: Verified dataset ID and validation log.
+### Step 5: View Results
+Open `reports/analysis_report.md` and `reports/sensitivity_analysis.md` to view the findings, framed as associational (unless randomized metadata is found).
 
 ## Troubleshooting
 
-- **"Missing required variable"**: The dataset lacks pre/post anxiety scores. The pipeline halts. No synthetic data is generated.
-- **"Memory Error"**: The `streaming=True` flag should prevent this. If it occurs, reduce `max_subjects` in config.
-- **"VIF > 5"**: The pipeline automatically switches to Ridge regression. Check `reports/statistical_results.json` for the `model_type` field.
-- **"No Open Longitudinal Dataset Found"**: The pipeline could not find a dataset with both rs-fMRI and pre/post clinical scores. The study cannot proceed.
+- **Memory Error**: Ensure `streaming=True` is used in `data/download.py`.
+- **Collinearity Error**: If VIF > 5, the system automatically runs PCA for exploratory visualization. Primary tests remain univariate.
+- **Missing Data**: If the pipeline halts with "Data Unavailable", the verified dataset lacks the required clinical scores. No synthetic data will be generated for hypothesis testing.
+- **No VR Data**: If no longitudinal VR dataset is found, the pipeline may halt or switch to proxy data (if configured).

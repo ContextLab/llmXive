@@ -389,3 +389,202 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-09T04:13:06Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: 'SRA accessions: Human SRP010775, Chimp SRP009050, Macaque SRP009051,
+    Marmoset SRP009052'
+  claim_id: c_0036c927
+  context: Implement SRA download script (src/pipeline/download.py) to fetch FASTQs
+    for Human (SRP010775), Chimp (SRP009050), Macaque (SRP009051), Marmoset (SRP009052)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SRA_accessions:_Human_SRP010775,_Chimp_SRP009050,_Macaque_SR
+  kind: entity_fact
+  raw_text: Download FASTQs for Human (SRP010775), Chimp (SRP009050), Macaque (SRP009051),
+    Marmoset (SRP009052)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:14:01Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts with error code 101 when replicate count is less than
+    3
+  claim_id: c_cacb6b58
+  context: Verify pipeline aborts with error 101 if <3 replicates and error 102 if
+    >5 replicates, including informative error messages as specified in US-1 acceptance
+    scenarios.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_with_error_code_101_when_replicate_count_is
+  kind: magnitude
+  raw_text: Pipeline aborts with error code 101 if <3 replicates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:14:20Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts with error code 102 when replicate count is greater than
+    5
+  claim_id: c_c612e66e
+  context: Verify pipeline aborts with error 101 if <3 replicates and error 102 if
+    >5 replicates, including informative error messages as specified in US-1 acceptance
+    scenarios.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_with_error_code_102_when_replicate_count_is
+  kind: magnitude
+  raw_text: Pipeline aborts with error code 102 if >5 replicates
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:14:37Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Lineage-specific event detection threshold is absolute delta PSI greater
+    than 0.1
+  claim_id: c_f8789344
+  context: "Implement lineage-specific event detection (src/pipeline/detect_events.py)\
+    \ applying |\u0394PSI| > 0.1 and FDR < 0.05 thresholds"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lineage-specific_event_detection_threshold_is_absolute_delta
+  kind: magnitude
+  raw_text: "Lineage-specific event detection applies |\u0394PSI| > 0.1 threshold"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:15:12Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Lineage-specific event detection FDR threshold is less than 0.05
+  claim_id: c_b77ba535
+  context: "Implement lineage-specific event detection (src/pipeline/detect_events.py)\
+    \ applying |\u0394PSI| > 0.1 and FDR < 0.05 thresholds"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lineage-specific_event_detection_FDR_threshold_is_less_than
+  kind: magnitude
+  raw_text: Lineage-specific event detection applies FDR < 0.05 threshold
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:15:38Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Flanking sequence extraction uses 500 base pair regions
+  claim_id: c_bd785dd7
+  context: "Implement flanking sequence extraction (src/pipeline/extract_flanks.py)\
+    \ using bedtools getfasta for \xB1500 bp regions"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Flanking sequence extraction uses \xB1500 bp regions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:16:00Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: PhyloP score retrieval uses UCSC 100-way Vertebrate Conservation track
+  claim_id: c_322286b0
+  context: Implement phyloP score retrieval (src/pipeline/annotate_phyloP.py) using
+    pyBigWig to query UCSC 100-way Vertebrate Conservation track
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PhyloP score retrieval uses UCSC 100-way Vertebrate Conservation track
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:16:14Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Permutation test executes at least 1000 iterations
+  claim_id: c_07e66a46
+  context: "Implement permutation test (\u22651,000 iterations) in stats.R shuffling\
+    \ LSE status across combined LSE+Control cohort while preserving genomic distance"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_executes_at_least_1000_iterations
+  kind: magnitude
+  raw_text: "Permutation test executes \u22651,000 iterations"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:16:30Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction applied across 4 lineage tests
+  claim_id: c_55672e73
+  context: Implement Benjamini-Hochberg FDR correction across the 4 lineage tests
+    in stats.R
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Benjamini-Hochberg FDR correction applied across 4 lineage tests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:17:26Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Minimum 3 replicates required to detect absolute delta PSI of 0.1
+  claim_id: c_584afa5a
+  context: "Execute power_analysis.R to validate the minimum 3 replicates requirement\
+    \ for detecting |\u0394PSI| \u2265 0.1"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Minimum 3 replicates required for detecting |\u0394PSI| \u2265 0.1"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:18:01Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Alignment duration validation checks for duration less than or equal
+    to 2 hours
+  claim_id: c_f63795b7
+  context: "Unit test for alignment duration validation script (validate_alignment_time.py)\
+    \ in tests/unit/test_align_time.py: Verify script correctly parses duration from\
+    \ pipeline.log and asserts \u22642 hours."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_duration_validation_checks_for_duration_less_than
+  kind: magnitude
+  raw_text: "Validation script checks alignment duration \u22642 hours"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T19:18:13Z'

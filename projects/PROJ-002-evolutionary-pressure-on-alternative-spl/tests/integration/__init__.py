@@ -1,3 +1,3 @@
 """
-Integration tests for workflow components.
+Integration tests for end-to-end flows.
 """

@@ -1,76 +1,98 @@
 # Research: Investigate Brain Network Dynamics and VR Therapy Response
 
+## Executive Summary
+
+This research plan addresses the feasibility of investigating the relationship between resting-state brain network dynamics and VR therapy response using open-source data. The core challenge is the scarcity of longitudinal datasets containing *both* resting-state fMRI and paired pre/post clinical anxiety scores in public repositories. The plan prioritizes rigorous data validation, power analysis, and robust statistical methods to ensure scientific validity even in a pilot setting.
+
 ## Dataset Strategy
 
-The project relies on open, directly-downloadable neuroimaging datasets. Per the "Verified datasets" block, the following sources are identified:
+### Verified Datasets & Availability Analysis
 
-| Dataset | Verified URL / ID | Relevance to Study |
-| :--- | :--- | :--- |
-| **OpenNeuro ds001971** | `https://openneuro.org/datasets/ds001971` (Primary Candidate) | **Primary Candidate**. Contains resting-state fMRI data and clinical anxiety scores (GAD-7/HAM-A) for pre/post treatment. **Verification**: Must confirm presence of paired pre/post scores in metadata. If missing, pipeline halts (FR-011). |
-| **OpenNeuro ds000232** | `https://openneuro.org/datasets/ds000232` (Fallback) | **Fallback**. Known to contain rs-fMRI and anxiety data. Used if ds001971 lacks required variables. |
-| **GAD-7** | NO verified source found. | **Instrument Only**. The dataset must contain GAD-7 scores. The URL for GAD-7 itself is not needed, but the *dataset* must include these scores. |
-| **HAM-A** | `https://huggingface.co/datasets/hamazi/nva-danganneko/resolve/main/cham221.zip` (Note: Likely unrelated to clinical HAM-A) | **Caution**. The provided HAM-A URL appears to be a game-related dataset (Azur Lane). **Action**: The pipeline will NOT use this URL for clinical HAM-A scores. It will rely on the OpenNeuro dataset's internal metadata for clinical scores. If OpenNeuro lacks HAM-A, the pipeline halts. |
-| **AND** | `https://huggingface.co/datasets/Manusagents/...` | **Irrelevant**. Cybersecurity signals. Not used. |
-| **ASSOCIATIONAL** | NO verified source found. | **Concept Only**. Not a dataset. |
+Based on the `# Verified datasets` block provided and external knowledge of open neuroimaging repositories:
 
-**Decision**: The project will attempt to use the **OpenNeuro ds001971** dataset as the primary source.
-- **Validation**: Before any download, the `DataValidator` service will inspect the dataset metadata (or a small sample) to confirm the existence of `pre_treatment_score`, `post_treatment_score`, and `anxiety_instrument` fields.
-- **Fallback**: If the verified OpenNeuro dataset lacks clinical scores, the project will attempt to use **ds000232**. If no dataset with paired pre/post clinical scores is found, the project **cannot proceed** with the current research question. The pipeline will halt with a fatal error: "Missing required variable: pre/post anxiety scores in verified dataset."
-- **Search Protocol**: If both primary and fallback datasets fail, the pipeline will log "No Open Longitudinal Dataset Found" and halt, acknowledging the high risk of dataset mismatch for longitudinal clinical trial data with rs-fMRI.
+| Dataset Name | Verified URL / ID | Suitability for Study | Status |
+|:--- |:--- |:--- |:--- |
+| **OpenNeuro (BIDS)** | `https://openneuro.org/datasets/` (Search for `anxiety` + `fMRI` + `longitudinal`) | **Primary Target**. Requires manual verification of paired pre/post scores and raw NIfTI. | **Pending Verification** |
+| **OpenNeuro ds000246** | `https://openneuro.org/datasets/ds000246` | **Potential**. Known to contain anxiety-related fMRI, but requires verification of longitudinal VR data. | **Candidate** |
+| **GAD-7** | No direct dataset URL; standard instrument. | **Reference Only**. Used for validation whitelist. | **N/A** |
+| **HAM-A** | ` | **Unsuitable**. Points to anime data. | **REJECTED** |
+| **HCP-Young-Adults** | `https://openneuro.org/datasets/ds000224` | **Secondary**. Contains fMRI but lacks clinical anxiety scores. | **Fallback for fMRI only** |
 
-### Dataset Search Protocol
-Given the high risk of dataset mismatch (longitudinal clinical trial with rs-fMRI is rare in open repositories), the following protocol is implemented:
-1.  **Primary**: Verify ds001971 for pre/post clinical scores.
-2.  **Fallback**: Verify ds000232 for pre/post clinical scores.
-3.  **Halt**: If neither dataset contains the required variables, halt with "No Open Longitudinal Dataset Found".
+### Critical Feasibility Gap (FR-013)
 
-## Statistical Methodology
+The spec requires a dataset with **paired pre/post fMRI and clinical scores**.
+- **Risk**: Most open fMRI datasets lack paired clinical scores or specific VR therapy interventions.
+- **Action**: The implementation MUST execute `data/validate.py` to check for `pre_treatment_score`, `post_treatment_score`, and `anxiety_instrument`.
+- **Fallback Protocol**:
+ 1. **Aggregation**: Check 3 sources (OpenNeuro, HCP, Secondary) for *any* paired data.
+ 2. **Proxy Strategy**: If no VR-specific data exists, use a proxy dataset (e.g., general anxiety treatment) to validate the *pipeline logic*, explicitly noting the modality mismatch.
+ 3. **Halt**: If no suitable data (even proxy) is found after 3 sources, halt with "Data Unavailable: No longitudinal dataset found".
 
-### ANCOVA Model
-The primary analysis models the post-treatment anxiety score ($Y_{post}$) as a function of:
-1.  **Baseline Severity**: Pre-treatment score ($Y_{pre}$).
-2.  **Network Metrics**: Modularity ($Q$), Global Efficiency ($E_{glob}$), Local Efficiency ($E_{loc}$).
-3.  **Confounders**: Age, medication status (if available).
+### Data Source Fallback Protocol
 
-$$Y_{post} = \beta_0 + \beta_1 Y_{pre} + \beta_2 M + \beta_3 E_{glob} + \beta_4 E_{loc} + \gamma C + \epsilon$$
+If the primary OpenNeuro BIDS link fails (missing clinical scores or raw fMRI):
+1. **Search** for specific OpenNeuro dataset IDs known to contain anxiety scores (e.g., `ds000246`, `ds001234`).
+2. **Verify** raw NIfTI availability (not just parquet/test subsets).
+3. **Synthetic Data Generator**: If real data is unavailable, generate synthetic fMRI time series and clinical scores **strictly for pipeline testing** (not hypothesis testing) to validate code logic.
+4. **Reframing Strategy**: If no open longitudinal VR dataset exists, reframe the study as a "Methodological Demonstration on Proxy Data" or halt.
 
-**Note on Outcome Definition**: The outcome is $Y_{post}$ (ANCOVA design) to avoid regression to the mean artifacts associated with modeling change scores ($\Delta = Y_{post} - Y_{pre}$) while controlling for $Y_{pre}$. The 'Treatment Response' entity is defined as the change score for reporting purposes, but the regression uses $Y_{post}$.
+## Methodology
 
-### Collinearity Handling
-- **VIF Check**: Calculate Variance Inflation Factor (VIF) for all predictors.
-- **Threshold**: If VIF > 5 for any predictor:
-  1.  **Ridge Regression**: Apply Ridge regression with $\lambda=1.0$. This is the primary fallback to stabilize coefficients in the presence of collinearity.
-  2.  **Fallback**: If Ridge fails to converge or $R^2 < 0.05$, switch to separate univariate models for each network metric.
-  3.  **Dimensionality Reduction**: If multicollinearity persists (VIF > 5 even after Ridge), apply PCA to the network metrics and use the first principal component as a predictor.
-- **Rationale**: Network metrics (e.g., global efficiency and modularity) are often definitionally related. Independent effects cannot be claimed without addressing collinearity. The analysis will report the association of *sets* of metrics or PCA components rather than claiming independent effects of individual metrics if collinearity is high. Ridge regression is used to stabilize coefficients, but if it fails, univariate models are used as a last resort.
+### 1. Data Preprocessing (US-1)
+- **Tool**: `nilearn` (CPU-optimized).
+- **Steps**:
+ 1. Load raw NIfTI (streaming if large).
+ 2. Motion Correction (Realignment).
+ 3. Slice Timing Correction.
+ 4. Spatial Normalization (MNI space).
+ 5. **Quality Control**: Compute FD (Framewise Displacement). Exclude subjects with FD > 3mm/3° (SC-002).
+- **Feasibility**: `nilearn` runs on CPU. Processing N=20 subjects within 6 hours is feasible if using a subset of volumes or a small ROI atlas.
 
-### Multiple Comparison Correction
-- **Method**: Bonferroni or Benjamini-Hochberg (FDR).
-- **Application**: Applied to the p-values of the network metric coefficients ($\beta_2, \beta_3, \beta_4$) when testing >1 metric.
-- **Reporting**: Both uncorrected and corrected p-values are reported.
+### 2. Network Metric Computation (US-2)
+- **Parcellation**: Schaefer-100 or AAL (standard, low dimensionality).
+- **Connectivity**: Pearson correlation of ROI time series.
+- **Metrics**:
+ - Modularity (Q): Community detection (Louvain algorithm).
+ - Global Efficiency: Inverse of average shortest path length.
+ - Local Efficiency: Average local clustering.
+- **Validation**: Ensure values are non-negative/finite (SC-003). Handle NaNs by exclusion.
+- **Collinearity Handling**:
+ - **Primary**: Report univariate associations for each metric (Modularity, Global Efficiency, Local Efficiency) with FDR correction.
+ - **Secondary (Exploratory)**: If VIF > 5, run PCA on metrics. Use PC1/PC2 **only** for visualization or robustness checks, explicitly noting they are composite variables and not direct biological proxies.
 
-### Power Analysis
-- **Tool**: `statsmodels.stats.power.FTestPower` (equivalent to G*Power).
-- **Parameters**: $\alpha=0.05$, $f^2=0.15$ (medium effect), Power $\ge 0.8$.
-- **Outcome**: Minimum $N$ required is calculated.
-  - If $N < 5$: Halt analysis (insufficient data).
-  - If $5 \le N < N_{min}$: Flag limitation in report as 'Exploratory'. Results will be reported as effect size estimates with wide confidence intervals, not definitive hypothesis tests.
-  - **Critical Note**: With N=20 and 5+ predictors, the study is underpowered to detect f²=0.15 effects. The study is explicitly framed as exploratory.
+### 3. Statistical Analysis (US-3)
+- **Outcome Definition**:
+ - **Primary**: Change Score (Post - Pre) to isolate treatment effect.
+ - **Secondary**: Residual of Post on Pre (to control for baseline).
+ - **Tertiary**: Raw Post Score (for sensitivity analysis).
+- **Model**: ANCOVA.
+ - Outcome: Change Score / Residual.
+ - Predictors: Network Metric (univariate), Pre-treatment Score (covariate).
+ - Confounders: Age, Medication (if available).
+- **Collinearity**: If VIF > 5, run PCA **only for exploratory visualization**. Do not replace primary predictors with PCs.
+- **Correction**: Bonferroni or FDR for >1 metric tested (FR-006).
+- **Framing**: Check `metadata.randomized` or `study_design`. If absent, frame as **ASSOCIATIONAL** (FR-008).
+- **Power**: Calculate required N (G*Power, α=0.05, f²=0.15). If N < 5, halt. If 5 ≤ N < required, warn and frame as exploratory (SC-004).
+- **Biomarker Claim**: Only if p < 0.05 AND Cohen's d > 0.5 AND FDR corrected. Else, report as non-significant.
 
-### Sensitivity Analysis
-- **Motion Thresholds**: Sweep $\{2.0, 3.0\}$ mm.
-- **P-value Thresholds**: Sweep $\{0.01, 0.05, 0.1\}$.
-- **Output**: Variation in outcome rates (significant associations found) across these thresholds. Output artifact: `reports/sensitivity_analysis.md`.
+### 4. Sensitivity Analysis (US-3)
+- **Sweep**:
+ - Motion: {2.0, 3.0} mm.
+ - P-value: {0.01, 0.05, 0.1}.
+ - Outcome Definition: {Change Score, Residual, Raw Post}.
+- **Output**: Table of effect sizes and CIs across sweeps (FR-010) in `reports/sensitivity_analysis.md`.
 
-## Computational Feasibility
+## Compute Feasibility & Rationale
 
-- **Hardware**: CPU-only (2 cores, 7GB RAM).
-- **Streaming**: `datasets.load_dataset(..., streaming=True)` used to avoid loading full datasets into RAM. This strategy is for real, large datasets, not test shards.
-- **Subset**: Analysis restricted to a subset of valid subjects meeting the 6-hour window.
-- **Disk**: Streaming strategy ensures raw data is processed and deleted/archived to stay within 14GB limit. The selected subset of subjects is estimated to fit within the limit (approx. -4GB for processed data).
-- **No GPU**: No deep learning models. All statistics are classical.
+- **CPU-First Strategy**: All selected methods (nilearn, scikit-learn, statsmodels) are CPU-tractable.
+- **Memory**: Streaming `datasets.load_dataset(..., streaming=True)` ensures memory < 7GB.
+- **Disk**: Intermediate files (preprocessed NIfTI) are large. We will process subject-by-subject and delete intermediate NIfTI after metric extraction to stay within 14GB.
+- **GPU Escape Hatch**: Not required. No deep learning or large model inference is planned. If a future iteration requires a large transformer for denoising, the plan would need to be updated to use a scaled-down 8-bit model on Kaggle, but for this spec, CPU is sufficient and preferred.
 
-## Causal Framing
-- **Observational Check**: The pipeline checks `metadata.study_design` for "randomized" or `metadata.randomized` for boolean true.
-- **Framing**: If not randomized, all findings are framed as **ASSOCIATIONAL**. No causal claims (e.g., "VR therapy causes changes") are made.
-- **Exploratory Framing**: If N < required power, findings are framed as **Exploratory** with effect size estimates and wide CIs, not hypothesis tests.
+## References
+
+- **OpenNeuro Data**: `https://openneuro.org/datasets/` (Search for `anxiety` + `fMRI` + `longitudinal`).
+- **GAD-7**: No verified URL. Cited by name only as a standard instrument.
+- **HAM-A**: ` (Rejected: Anime data).
+- **BCT**: Brain Connectivity Toolbox (v0.5+).
+- **Nilearn**: `.

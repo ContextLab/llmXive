@@ -12,7 +12,7 @@ properties:
     description: Timepoint of the assessment.
   instrument:
     type: string
-    enum: [GAD-7, HAM-A]
+    enum: [GAD-7, HAM-A, BAI]
     description: Validated anxiety assessment instrument.
   score:
     type: number

@@ -5,7 +5,7 @@ type: object
 properties:
   model_type:
     type: string
-    enum: [ANCOVA, Ridge, Univariate, PCA]
+    enum: [ANCOVA, Univariate, PCA_Exploratory]
     description: Type of model used.
   predictor:
     type: string
@@ -37,6 +37,10 @@ properties:
     type: string
     enum: [associational, causal, exploratory]
     description: Framing of the result.
+  outcome_definition:
+    type: string
+    enum: [change_score, residual, raw_post]
+    description: Definition of the outcome variable used.
 required:
   - model_type
   - predictor
@@ -46,4 +50,5 @@ required:
   - effect_size_cohen_d
   - sample_size
   - framing
+  - outcome_definition
 additionalProperties: false

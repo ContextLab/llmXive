@@ -164,11 +164,11 @@
 - [X] T031 [US3] Implement Multiple-Comparison Correction in `code/modeling.py` (FR-008)
  - Apply Permutation-based FDR with Meff adjustment for p-values.
  - Output adjusted p-values for all predictors.
-- [ ] T032a [US3] Fetch literature-derived upper bounds for OSM-only models (e.g., EPA UHI Review 2023) and store in `data/literature_bounds.json`
+- [X] T032a [US3] Fetch literature-derived upper bounds for OSM-only models (e.g., EPA UHI Review 2023) and store in `data/literature_bounds.json`
 - [ ] T032 [US3] Implement Proxy Validity Sensitivity (FR-010)
  - Calculate "Unexplained Variance Gap" = Literature_Max_R2 (from T032a) - Observed_R2 (from T030/T031).
  - Output gap to `data/results/metrics.csv` as SC-006.
-- [ ] T034 [US3] Implement GWR bandwidth sweep in `code/modeling.py` (FR-009)
+- [X] T034 [US3] Implement GWR bandwidth sweep in `code/modeling.py` (FR-009)
  - Sweep over a configurable set of bandwidth values immediately after GWR fitting.
  - Record R² variation across the sweep.
 - [ ] T035 [US3] Generate sensitivity report in `data/results/sensitivity_report.md` (SC-004)
@@ -185,9 +185,9 @@
 
 - [ ] T036a [P] Update README.md with CLI usage examples and installation instructions
 - [X] T036b [P] Create `docs/quickstart.md` with step-by-step pipeline guide
-- [~] T037a Run `ruff` and `black` to fix linting and formatting issues across `code/` <!-- FAILED: unspecified -->
-- [~] T037b Remove unused imports and dead code identified by linters in `code/`
-- [ ] T038a Profile memory usage of `code/ingest.py` and `code/modeling.py` using `memory_profiler`
+- [ ] T037a Run `ruff` and `black` to fix linting and formatting issues across `code/` <!-- FAILED: unspecified -->
+- [ ] T037b Remove unused imports and dead code identified by linters in `code/`
+- [X] T038a Profile memory usage of `code/ingest.py` and `code/modeling.py` using `memory_profiler`
 - [ ] T038b Tune MAX_BLOCKS in `config.py` to ensure peak memory < 6GB
 - [ ] T039 [P] Add unit tests for `config.py` and `utils/memory.py` in `tests/unit/`
 - [ ] T040 [P] Implement API key rotation logic and secure storage in `code/config.py`

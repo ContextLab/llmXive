@@ -25,7 +25,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 and R 4.3 project with dependencies [UNRESOLVED-CLAIM: c_b0a1dfb9 — status=not_enough_info] (pandas, numpy, pyyaml, biopython, requests, tqdm, pybedtools, pyBigWig, scikit-learn, loguru, phylolm, ape, data.table, ggplot2)
+- [ ] T002 Initialize Python 3.11 and R 4.3 project with dependencies (pandas, numpy, pyyaml, biopython, requests, tqdm, pybedtools, pyBigWig, scikit-learn, loguru, phylolm, ape, data.table, ggplot2)
 - [ ] T003 [P] Configure linting (flake8, black) and formatting tools
 
 ---
@@ -36,7 +36,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup configuration management for genome assemblies (GRCh, panTro6, rheMac10, calJac4) in `config/genomes.yaml`
+- [X] T004 Setup configuration management for genome assemblies (GRCh, panTro6, rheMac10, calJac4) in `config/genomes.yaml`
 - [ ] T005 [P] Implement logging infrastructure (`src/utils/logger.py`) with timestamped, multi-level logging and error code tracking
 - [ ] T006 [P] Setup artifact hashing utilities (`src/utils/hash.py`) to generate SHA-256 checksums for all intermediate and final files
 - [ ] T007 Create base data models for `RNASeqSample`, `SplicingEvent`, `EnrichmentResult`, and `PhylogeneticTree` in `src/data_models/`
@@ -58,7 +58,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data download and replicate validation in `tests/contract/test_download_replicates.py`: Verify pipeline aborts with error 101 if <3 replicates and error 102 if >5 replicates [UNRESOLVED-CLAIM: c_f0b1e31e — status=not_enough_info], including informative error messages as specified in US-1 acceptance scenarios.
+- [ ] T010 [P] [US1] Contract test for data download and replicate validation in `tests/contract/test_download_replicates.py`: Verify pipeline aborts with error 101 if <3 replicates and error 102 if >5 replicates, including informative error messages as specified in US-1 acceptance scenarios.
 - [ ] T011 [P] [US1] Integration test for full alignment and PSI quantification flow in `tests/integration/test_psi_pipeline.py`: Verify PSI table is produced, `pipeline.log` contains timestamps, and at least one splice junction is reported.
 - [ ] T012 [P] [US1] Unit test for alignment duration validation script (`validate_alignment_time.py`) in `tests/unit/test_align_time.py`: Verify script correctly parses duration from `pipeline.log` and asserts ≤2 hours.
 

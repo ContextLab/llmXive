@@ -1,0 +1,6 @@
+# R dependencies for PROJ-002
+# Install via: Rscript -e "install.packages(c('phylolm', 'ape', 'data.table', 'ggplot2'))"
+phylolm
+ape
+data.table
+ggplot2

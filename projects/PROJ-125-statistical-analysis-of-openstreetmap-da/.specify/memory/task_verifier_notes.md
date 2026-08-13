@@ -8,4 +8,9 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T015a** — No `data-model.md` file or its contents were provided; without the actual markdown document we cannot confirm that reprojection and resampling methods are documented as required. The task remains undone.
 - **T021** — declared artifact(s) missing/empty/invalid: data/results/eda_report.md
 - **T022** — No variogram or correlation heatmap images, code, or generated files are present; the implementer provided only a textual description without any concrete artifact demonstrating the required visualizations. The task therefore lacks the necessary output.
+- **T032** — No code, data files, scripts, or generated outputs (e.g., raster GeoTIFFs, correlation matrices, model reports) were supplied for any of the three user stories, so the required artifacts do not exist to verify that the ingestion, EDA, and spatial modeling steps were implemented. The task therefore remains incomplete.
+- **T035** — declared artifact(s) missing/empty/invalid: data/results/sensitivity_report.md
+- **T033** — declared artifact(s) missing/empty/invalid: data/results/metrics.csv
 - **T036a** — No updated README.md file was provided or shown, and there is no evidence of added CLI usage examples or installation instructions. The required artifact is missing, so the task is not satisfied.
+- **T037a** — No linting or formatting artifacts (e.g., ruff/black run logs, diff reports, or updated files in the `code/` directory) are provided, nor any evidence that the tools were executed. Without such files or output, the requirement to run ruff and black across `code/` is not satisfied.
+- **T037b** — No evidence (e.g., cleaned source files, linter reports, diff showing removed imports, or a summary of dead code eliminated) was provided to demonstrate that unused imports and dead code in the `code/` directory have been removed. The implementer’s claim cannot be verified without such artifacts.
