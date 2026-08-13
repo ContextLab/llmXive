@@ -957,7 +957,7 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 16292,
+    "total_contributions": 16291,
     "total_contributors": 3440
   },
   "contributors": [
@@ -1010,7 +1010,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 1547,
+      "contribution_count": 1546,
       "kind": "llm",
       "name": "openai.gpt-oss-120b"
     },
@@ -125639,14 +125639,6 @@
           "roles": [
             "brainstorm_submitter"
           ]
-        },
-        {
-          "contributions": 1,
-          "kind": "llm",
-          "name": "openai.gpt-oss-120b",
-          "roles": [
-            "implementer"
-          ]
         }
       ],
       "citation_summary": {
@@ -125662,7 +125654,7 @@
         "repo_path": "projects/PROJ-678-comparative-analysis-of-molecular-finger/specs/001-comparative-analysis-of-molecular-finger/tasks.md",
         "type": "markdown"
       },
-      "current_stage": "in_progress",
+      "current_stage": "analyzed",
       "description": "Field: chemistry Do the specific P=O and P-S bond environments characteristic of organophosphate toxicity rely on local substructure presence (captured by MACCS keys) or extended topological context (captured by Morgan fingerprints), and does one representation significantly outperform the other specifically for this\u2026",
       "field": "chemistry",
       "id": "PROJ-678-comparative-analysis-of-molecular-finger",
