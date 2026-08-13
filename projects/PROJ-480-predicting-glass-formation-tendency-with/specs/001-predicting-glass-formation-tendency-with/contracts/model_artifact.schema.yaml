@@ -1,0 +1,75 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "ModelArtifact Schema"
+description: "Schema for the trained model and associated diagnostics."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model artifact."
+  model_type:
+    type: string
+    enum:
+      - "XGBRegressor"
+      - "XGBClassifier"
+      - "Ridge"
+    description: "Type of model trained (XGBoost or Ridge)."
+  hyperparameters:
+    type: object
+    description: "Hyperparameters used for training."
+  performance_metrics:
+    type: object
+    description: "Metrics such as R2, AUC, Accuracy, etc."
+    properties:
+      metric_name:
+        type: number
+      metric_std:
+        type: number
+  feature_importance:
+    type: array
+    description: "List of features sorted by importance."
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factor scores for top predictors."
+    additionalProperties:
+      type: number
+  power_analysis:
+    type: object
+    description: "Post-hoc power analysis results."
+    properties:
+      mdes:
+        type: number
+      power:
+        type: number
+      alpha:
+        type: number
+  circularity_check:
+    type: object
+    description: "Results of the permutation test for circularity."
+    properties:
+      shuffled_mean_r2:
+        type: number
+      real_mean_r2:
+        type: number
+      is_circular:
+        type: boolean
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the artifact."
+required:
+  - model_id
+  - model_type
+  - hyperparameters
+  - performance_metrics
+  - feature_importance
+  - vif_scores
+  - power_analysis
+  - circularity_check
+  - checksum
+additionalProperties: false

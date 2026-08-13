@@ -1,55 +1,84 @@
 # Data Model: Predicting Glass Formation Tendency
 
-## Overview
+## 1. Entity Relationship Diagram (Conceptual)
 
-This document defines the data structures used throughout the pipeline, from raw ingestion to model output. All data is stored in CSV/Parquet format under `data/` and validated against the schemas in `contracts/`.
+```mermaid
+erDiagram
+    CompositionRecord ||--|{ DescriptorSet : "has"
+    CompositionRecord ||--|| ModelArtifact : "trains"
+    CompositionRecord {
+        string composition "Chemical Formula"
+        string chemical_family "Derived from majority element"
+        float dc "Critical Casting Thickness (Nullable)"
+        int label "Binary Label (Nullable)"
+        string target_type "Regression or Classification"
+    }
+    DescriptorSet {
+        float delta_atomic_size
+        float delta_enthalpy
+        float delta_electronegativity
+        float atomic_weight
+        float electronegativity
+    }
+    ModelArtifact {
+        string model_type "XGBoost Regressor/Classifier or Ridge"
+        json hyperparameters
+        json feature_importance
+        json vif_scores
+        string checksum
+    }
+```
 
-## Entities
+## 2. Data Dictionary
 
-### CompositionRecord
-
-Represents a single alloy sample.
-
-| Field | Type | Description | Source |
+### CompositionRecord (Primary Dataset)
+| Field | Type | Description | Constraints |
 | :--- | :--- | :--- | :--- |
-| `composition` | `str` | Chemical formula (e.g., "Zr50Cu40Al10") | Raw Data |
-| `target_type` | `str` | "regression" ($D_c$) or "classification" (binary) | Detected |
-| `target_value` | `float` | Critical casting thickness ($D_c$) or binary label (0/1) | Raw Data |
-| `atomic_size_mismatch` | `float` | $\delta$ (atomic size mismatch) | Computed |
-| `mixing_enthalpy` | `float` | $\Delta H_{mix}$ (kJ/mol) | Computed |
-| `electronegativity_diff` | `float` | $\Delta \chi$ (Pauling) | Computed |
-| `entropy_mixing` | `float` | $\Delta S_{mix}$ (J/mol-K) | Computed (Optional) |
-| `cooling_rate` | `float` | Cooling rate (K/s) | Raw Data (Optional) |
-| `is_valid` | `bool` | True if all descriptors computed successfully | Pipeline |
+| `id` | string | Unique identifier (UUID or hash) | Not null, Unique |
+| `composition` | string | Chemical formula (e.g., "Zr50Cu40Al10") | Not null, Valid Hill notation |
+| `chemical_family` | string | Derived from majority element (e.g., "Zr-based") | Not null |
+| `dc` | float | Critical casting thickness (mm) | Nullable (if regression not applicable) |
+| `label` | int | Binary label (0=Crystal, 1=Glass) | Nullable (if classification not applicable) |
+| `target_type` | string | "regression" or "classification" | Enum |
+| `source` | string | Origin dataset (e.g., "Figshare-EXPERIMENTAL") | Not null |
+| `checksum` | string | SHA-256 of the row data | Not null |
 
-### DescriptorSet
+### DescriptorSet (Computed Features)
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `record_id` | string | FK to CompositionRecord | Not null |
+| `delta_atomic_size` | float | Atomic size mismatch (Std Dev) | Not null, >= 0 |
+| `delta_enthalpy` | float | Mixing enthalpy (kJ/mol) | Not null |
+| `delta_electronegativity` | float | Electronegativity difference (Variance) | Not null, >= 0 |
+| `mean_atomic_weight` | float | Weighted average atomic weight | Not null |
+| `mean_electronegativity` | float | Weighted average electronegativity | Not null |
 
-A collection of computed thermodynamic properties for a composition.
-*Note: This is a logical grouping; data is stored flat in `CompositionRecord`.*
+### ModelArtifact (Trained Model)
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `model_id` | string | Unique identifier | Not null |
+| `model_type` | string | "XGBRegressor", "XGBClassifier", or "Ridge" | Enum |
+| `hyperparameters` | json | Model configuration | Not null |
+| `performance_metrics` | json | R², AUC, Accuracy, etc. | Not null |
+| `feature_importance` | json | Ranked features | Not null |
+| `vif_scores` | json | Collinearity diagnostics | Not null |
+| `power_analysis` | json | MDES, Power | Not null |
+| `circularity_check` | json | Permutation test results | Not null |
+| `checksum` | string | SHA-256 of the artifact | Not null |
 
-### ModelArtifact
+## 3. Data Flow
 
-The trained model and its metadata.
+1.  **Ingestion**: Raw CSV/JSON from Verified Experimental Source (or local file) -> `data/raw/`.
+2.  **Validation**: Check for missing columns, chemical balance, **and circularity** -> `data/validated/`.
+3.  **Computation**: `pymatgen` descriptor calculation -> `data/computed/`.
+4.  **Training**: Split (Adaptive LOGO) -> Train XGBoost/Ridge -> `models/trained/`.
+5.  **Evaluation**: CV, Power Analysis, VIF -> `models/artifacts/`.
+6.  **Reporting**: Generate `report.md` with associational framing.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_type` | `str` | "XGBRegressor" or "XGBClassifier" |
-| `hyperparameters` | `dict` | JSON-serializable model params |
-| `feature_importances` | `dict` | Map of feature name to importance score |
-| `metrics` | `dict` | R², AUC, RMSE, Accuracy, etc. |
-| `vif_scores` | `dict` | Variance Inflation Factor for top features |
-| `report_disclaimer` | `str` | The mandatory associational disclaimer text |
+## 4. Integrity Constraints
 
-## Data Flow
-
-1.  **Raw Data**: Downloaded CSVs from public sources (Matbench, UCI).
-2.  **Preprocessed Data**: CSV with computed descriptors. Dropped rows (missing elements) are logged.
-3.  **Training Data**: Split into Train/Test (80/20) or used for Group K-Fold CV.
-4.  **Model Output**: Pickled model file + JSON metrics file.
-
-## Constraints
-
-- **Missing Values**: No null values allowed in primary predictors (`atomic_size_mismatch`, `mixing_enthalpy`, `electronegativity_diff`). Rows with nulls are dropped.
-- **Target Variable**: Must be either continuous ($D_c$) or binary (0/1).
-- **Sample Size**: Minimum 30 samples required for training.
-- **Cooling Rate**: If available, it is used for confounding control. If missing, a warning is logged.
+- **Chemical Balance**: Sum of atomic percentages must be within [99.0, 101.0].
+- **Target Consistency**: If `target_type` is "regression", `dc` must be non-null. If "classification", `label` must be non-null.
+- **Descriptor Validity**: No NaN or Inf values allowed in descriptors.
+- **Circularity**: Permutation test R² < 0.95 * Real R².
+- **Family Derivation**: `chemical_family` must be derived from the majority element in the composition.

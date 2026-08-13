@@ -1,13 +1,13 @@
 status: none
-intent: Metallic glass composition dataset from Materials Project and Zenodo with
-  descriptors python package dataset
+intent: Metallic glass composition dataset Zenodo 10.5281/zenodo.5778205 matminer
+  python package dataset
 required_fields:
 - composition
-- detected_target_type
+- target_type
 - target_value
 - atomic_size_mismatch
 - mixing_enthalpy
 - electronegativity
-cache_key: 7f4a22bfaceac18acb9c505b5dc668b6f6cefb40b7add67989231d47fd124eb9
-searched_at: '2026-07-30T13:23:44.838616+00:00'
+cache_key: 17c75ba0d4655e232cc0391b6c380ce9f6a6a7ec59f11681e4d097150595f893
+searched_at: '2026-08-13T19:06:14.817749+00:00'
 retry_count: 1

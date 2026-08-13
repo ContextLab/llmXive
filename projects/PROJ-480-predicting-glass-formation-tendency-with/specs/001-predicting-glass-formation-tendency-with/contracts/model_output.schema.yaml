@@ -8,7 +8,8 @@ properties:
     enum:
       - "XGBRegressor"
       - "XGBClassifier"
-    description: "Type of XGBoost model trained."
+      - "Ridge"
+    description: "Type of model trained."
   hyperparameters:
     type: "object"
     description: "JSON-serializable dictionary of model hyperparameters."
@@ -34,7 +35,7 @@ properties:
         description: "Accuracy (for classification)."
       std_dev:
         type: "number"
-        description: "Standard deviation of metrics across 5-fold CV."
+        description: "Standard deviation of metrics across CV."
     required:
       - std_dev
     additionalProperties: true
@@ -51,6 +52,12 @@ properties:
     type: "string"
     description: "Mandatory associational disclaimer text."
     const: "These findings are associational, not causal, as the data is observational."
+  circularity_flag:
+    type: "boolean"
+    description: "True if the task was flagged as trivial due to circularity."
+  selection_bias_k_s:
+    type: "number"
+    description: "Kolmogorov-Smirnov statistic for selection bias."
 required:
   - model_type
   - hyperparameters
@@ -58,4 +65,6 @@ required:
   - metrics
   - random_seed
   - report_disclaimer
+  - circularity_flag
+  - selection_bias_k_s
 additionalProperties: false

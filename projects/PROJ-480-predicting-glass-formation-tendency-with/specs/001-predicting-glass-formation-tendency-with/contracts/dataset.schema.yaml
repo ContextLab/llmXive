@@ -1,44 +1,56 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
 title: "CompositionRecord Schema"
-description: "Schema for the processed composition dataset with computed descriptors."
-type: "object"
+description: "Schema for the processed metallic glass composition dataset."
+type: object
 properties:
+  id:
+    type: string
+    description: "Unique identifier for the record."
   composition:
-    type: "string"
-    description: "Chemical formula in Hill notation or standard elemental percentages."
+    type: string
+    description: "Chemical formula in Hill notation."
+    pattern: "^[A-Z][a-z]?[0-9.]*[A-Z][a-z]?[0-9.]*$"
+  chemical_family:
+    type: string
+    description: "Derived chemical family based on majority element (e.g., 'Zr-based')."
+    pattern: "^[A-Z][a-z]?-based$|Multi-Component$"
+  dc:
+    type: ["number", "null"]
+    description: "Critical casting thickness in mm. Null if not available."
+  label:
+    type: ["integer", "null"]
+    description: "Binary label (0 or 1). Null if not available."
   target_type:
-    type: "string"
+    type: string
     enum:
       - "regression"
       - "classification"
-    description: "Type of target variable: 'regression' for D_c, 'classification' for binary label."
-  target_value:
-    type: "number"
-    description: "Critical casting thickness (D_c) or binary label (0/1)."
-  atomic_size_mismatch:
-    type: "number"
-    description: "Atomic size mismatch (delta) computed via pymatgen."
-  mixing_enthalpy:
-    type: "number"
-    description: "Mixing enthalpy (Delta H_mix) in kJ/mol."
-  electronegativity_diff:
-    type: "number"
-    description: "Electronegativity difference (Delta chi)."
-  entropy_mixing:
-    type: "number"
-    description: "Entropy of mixing (Delta S_mix) in J/mol-K."
-  cooling_rate:
-    type: "number"
-    description: "Cooling rate (K/s) if available."
-  is_valid:
-    type: "boolean"
-    description: "True if all descriptors were successfully computed."
+    description: "Type of target variable."
+  delta_atomic_size:
+    type: number
+    description: "Computed atomic size mismatch (Std Dev of radii)."
+    minimum: 0
+  delta_enthalpy:
+    type: number
+    description: "Computed mixing enthalpy."
+  delta_electronegativity:
+    type: number
+    description: "Computed electronegativity difference (Variance)."
+    minimum: 0
+  source:
+    type: string
+    description: "Source dataset identifier."
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the row."
 required:
+  - id
   - composition
+  - chemical_family
   - target_type
-  - target_value
-  - atomic_size_mismatch
-  - mixing_enthalpy
-  - electronegativity_diff
-  - is_valid
+  - delta_atomic_size
+  - delta_enthalpy
+  - delta_electronegativity
+  - source
+  - checksum
 additionalProperties: false

@@ -1,105 +1,107 @@
 # Research: Predicting Glass Formation Tendency with Machine Learning on Public Data
 
-## Overview
+## 1. Problem Definition & Hypothesis
 
-This research plan investigates the predictability of metallic glass formation using thermodynamic descriptors derived from chemical composition. The study leverages a **verified, static public dataset** (Matbench Glass Formation Benchmark) to train an XGBoost model, aiming to identify key descriptors (e.g., mixing enthalpy, atomic size mismatch) that align with Inoue's rules. The plan explicitly addresses data availability, statistical power, and the risk of tautological validation.
+**Research Question**: Can atomic descriptors (atomic size mismatch, mixing enthalpy, electronegativity) computed from chemical composition predict the glass formation tendency (critical casting thickness $D_c$ or binary glass/crystal label) of metallic alloys?
 
-## Dataset Strategy
+**Hypothesis**: A small set of top descriptors identified by the model will align with established materials science theories (e.g., Inoue's Rules), specifically highlighting "Mixing Enthalpy" and "Atomic Size Mismatch" as dominant predictors.
 
-### Verified Datasets
+**Causal Framing**: All findings will be framed as **associational**. The data is observational; no causal claims (e.g., "X causes Y") will be made. The report will explicitly state the limitations of causal inference.
 
-The plan relies **exclusively** on the following verified datasets to ensure reproducibility and avoid runtime discovery failures:
+## 2. Dataset Strategy
 
-- **Primary Dataset**: Matbench Glass Formation Benchmark
-  - **Source URL**: `https://github.com/materialsvirtuallab/matbench` (or the specific Zenodo DOI for the glass dataset, e.g., `10.5281/zenodo.xxxxxx` if available)
-  - **Target Variable**: Continuous critical casting thickness ($D_c$) or binary glass/crystal label.
-  - **Access Method**: `matbench.load_dataset('glass_formation')` or direct CSV download.
-  - **Status**: **Verified**. This dataset is known to contain experimental glass formation labels.
+### Primary Source
+- **Source**: Verified Experimental Dataset (Figshare).
+- **Content**: Raw experimental critical casting thickness ($D_c$) and/or binary glass/crystal labels.
+- **Access**:
+ - **Automated**: Attempt download via verified API/URL.
+ - **Manual Fallback**: If API fails (auth/network), the pipeline expects `data/raw/glass_data.csv` to be pre-placed by the user. This satisfies Constitution Principle I (Reproducibility) by ensuring the exact same data file is used regardless of network status.
+- **Data Quality Gate**: The dataset MUST contain raw experimental $D_c$ values or empirically observed binary labels. Datasets containing only calculated descriptors or predicted scores are rejected.
 
-- **Fallback Dataset**: UCI Glass Identification
-  - **Source URL**: `https://archive.ics.uci.edu/ml/datasets/glass+identification`
-  - **Target Variable**: Binary (Glass vs. Crystal) or Type of Glass.
-  - **Access Method**: `sklearn.datasets.fetch_openml(name="glass")` or direct CSV download.
-  - **Status**: **Verified**. This dataset is known to contain binary glass labels, but lacks continuous $D_c$. If used, the research question is re-framed to "Binary Glass Formation Prediction".
+### Data Verification & Integrity
+- **Checksum**: SHA-256 of the processed dataset will be computed and stored in `state/`.
+- **Validation**:
+ - **A Priori Power**: Minimum $N \ge 77$ recommended for medium effect size ($f^2=0.15$).
+ - **Hard Minimum**: $N \ge 30$. If $N < 30$, halt with `DataValidationError`.
+ - **Underpowered Range**: If $30 \le N < 77$, proceed with a `PowerWarning` and report MDES.
+ - **Chemical Balance**: Sum of atomic percentages must be within ±1% of [deferred].
+ - **Missing Variable**: Rows with missing target or descriptors are dropped; missing entire columns halt execution.
 
-**Fallback Strategy**: If the Matbench dataset is unreachable, the pipeline attempts to load the UCI Glass Identification dataset. If neither is available, the pipeline halts with a `DataValidationError`. No dynamic discovery of alternative sources (e.g., Zenodo, Materials Project) is permitted, as these often lack the specific target variable or require authentication, violating Principle II (Verified Accuracy).
+### Variable Mapping
+| Variable | Type | Source/Computation |
+|:--- |:--- |:--- |
+| `composition` | String | Raw input (e.g., "Zr50Cu40Al10") |
+| `chemical_family` | String | Derived: Majority element (e.g., "Zr-based") |
+| `D_c` | Float | Direct from dataset (Regression target) |
+| `label` | Binary | Direct from dataset (Classification target) |
+| `delta_atomic_size` | Float | Computed via `pymatgen` (Std Dev of radii) |
+| `delta_enthalpy` | Float | Computed via `pymatgen` (Weighted avg) |
+| `delta_electronegativity` | Float | Computed via `pymatgen` (Variance) |
 
-**Dataset Table**:
+## 3. Methodology
 
-| Dataset Name | Source Type | Target Variable | Access Method | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| Matbench Glass Formation | Matbench / Zenodo | Continuous $D_c$ or Binary | `matbench.load_dataset('glass_formation')` | Verified |
-| UCI Glass Identification | UCI | Binary | `sklearn.datasets.fetch_openml(name="glass")` | Verified (Fallback) |
+### Feature Engineering (Descriptor Computation)
+Using `pymatgen`, compute the following descriptors for every composition:
+1. **Atomic Size Mismatch ($\delta$)**: $\delta = \sqrt{\sum c_i (1 - \frac{r_i}{\bar{r}})^2}$.
+2. **Mixing Enthalpy ($\Delta H_{mix}$)**: $\Delta H_{mix} = \sum_{i \neq j} 4 c_i c_j \Delta H_{ij}^{mix}$.
+3. **Electronegativity Difference ($\Delta \chi$)**: Variance of electronegativity weighted by atomic fraction.
+*Note*: All descriptors must be non-null. If an element is unknown to `pymatgen`, the sample is flagged and excluded.
 
-### Data Availability & Feasibility
-
-- **Feasibility**: The plan assumes the Matbench dataset contains ≥ 30 samples. If the dataset size is < 30, the pipeline halts.
-- **Streaming**: If the dataset > 7GB (unlikely for this specific domain), the code will use `pandas.read_csv(..., chunksize=...)` to stream and aggregate statistics.
-- **Data Hygiene**: Raw downloads are saved to `data/raw/` with SHA256 checksums recorded in `state/artifacts.yaml`. Processed data is also checksummed.
-
-## Methodology
-
-### Feature Engineering (Descriptors)
-
-The core hypothesis is that thermodynamic properties derived from composition predict glass formation.
-1.  **Atomic Size Mismatch ($\delta$)**: Calculated using atomic radii from `pymatgen`.
-2.  **Mixing Enthalpy ($\Delta H_{mix}$)**: Calculated using `pymatgen`'s thermodynamic database.
-3.  **Electronegativity ($\Delta \chi$)**: Calculated using Pauling electronegativities.
-4.  **Entropy of Mixing ($\Delta S_{mix}$)**: Optional, if data supports.
-
-*Validation*: `pymatgen` will be used to ensure all elements in the dataset have known properties. Unknown elements will be logged and samples excluded.
-
-### Ground Truth Verification
-
-**Critical Step**: Before training, the system must verify that the target variable (e.g., $D_c$ or binary label) is an **experimental observation** from literature, NOT a value calculated from the same descriptors (e.g., a rule-based "Glass" label derived from $\Delta H_{mix}$ thresholds). If the target is derived from the features, the model will simply recover the physical rule (tautology). The plan mandates checking the dataset's metadata for "experimental" or "measured" tags. If the target is found to be a derived proxy for the descriptors, the plan will flag this as a "Potential Tautology" and halt or proceed with a severe warning.
-
-### Binary Task Validity Check
-
-If the target is binary, the system must verify that the binary labels are derived from experimental observations (e.g., 'glass formed at cooling rate X') and not from the descriptors themselves. It also adds a requirement to report the 'class balance' and 'feature separability' (e.g., via t-SNE or PCA) to ensure the binary task is not trivial. If the task is trivial (e.g., perfect separation by a single descriptor), the plan halts with a "Trivial Task" warning.
-
-### Confounding Check
-
-Glass formation is sensitive to cooling rate. Public datasets often mix samples prepared at different rates. The plan requires:
-- If the dataset lacks cooling rate metadata, the report must explicitly state: "Model trained on data with mixed processing conditions; results reflect associations under heterogeneous conditions."
-- If cooling rate is available, the model will control for it (if continuous) or stratify by it (if categorical).
-
-### Modeling Strategy
-
-- **Algorithm**: XGBoost (Gradient Boosting).
+### Model Training & Validation
+- **Algorithm**: XGBoost (Gradient Boosting) by default.
+- **Collinearity Fallback**: If VIF > 10, switch to **Ridge Regression**. If VIF > 30, use **PCA**.
 - **Mode Selection**:
-  - If $D_c$ (continuous) is present: **Regressor** (Target: $D_c$).
-  - If only Binary Label (Glass/Crystal) is present: **Classifier**.
+ - If $D_c$ is present: Regression (Target: $D_c$).
+ - Else if binary label is present: Classification (Target: Glass/Crystal).
+ - Else: Halt with `DataValidationError`.
+- **Cross-Validation**: **Adaptive Leave-One-Group-Out (LOGO) CV**.
+ - **Standard**: Train on all chemical families except one, test on the left-out family. Repeat for all families.
+ - **Rationale**: The "chemical family" is derived from the majority element (e.g., "Zr-based"), which serves as a physically meaningful proxy for the matrix packing efficiency driving glass formation.
 - **Constraints**:
-  - **CPU-Only**: `tree_method='hist'` or `approx` for efficiency.
-  - **Memory**: Batch processing if needed (though unlikely for < 1000 samples).
-  - **Reproducibility**: `random_state=42` for all splits and model initialization.
-  - **Cross-Validation**: **Group K-Fold** (grouped by chemical family, e.g., Zr-based, Cu-based) to prevent data leakage from similar compositions.
+ - CPU-only execution.
+ - Max runtime 6 hours (target < 30 mins).
+ - Random seed: fixed for reproducibility.
 
-### Statistical Rigor
+### Statistical Rigor & Diagnostics
+1. **Power Analysis**:
+ - **A Priori**: Calculate required $N$ for $f^2=0.15$, $\alpha=0.05$, Power=0.80. **Result**: N=77.
+ - **Post-Hoc**: Calculate MDES and achieved power. Report if Power < 0.80 (i.e., if N < 77).
+2. **Collinearity**: Variance Inflation Factor (VIF) for top predictors. If VIF > 10, switch model to Ridge.
+3. **Circularity Check (Robust, Relative)**:
+ - **Permutation Test**: Train model on shuffled targets (multiple iterations).
+ - **Threshold**: If Mean R²/AUC of shuffled model $\ge 0.95 \times$ Real Model Performance, flag as `CircularDataError`.
+ - **Note**: High R² (0.6-0.8) on real data is valid (physical correlation). The check only flags if the model learns the shuffled data almost as well as the real data.
+4. **Selection Bias**:
+ - Compare dataset descriptor distribution against a **physically constrained random distribution** (compositions satisfying Inoue's Rules).
+ - Report Kolmogorov-Smirnov (K-S) statistic.
 
-- **Power Analysis**: A power calculation will be performed to determine the Minimum Detectable Effect Size (MDES) given the sample size (N) and number of predictors (k). The formula for MDES in regression is:
-  $MDES = \sqrt{\frac{F_{critical} \cdot (1 - R^2_{null})}{N - k - 1}}$
-  where $F_{critical}$ is derived from the F-distribution at $\alpha=0.05$ and power=0.80. The plan mandates running this calculation at runtime using `statsmodels.stats.power.FTestPower` and logging the result. If N is insufficient for a medium effect size, the report will explicitly flag this as a limitation.
-- **Multiple Comparisons**: Not applicable for a single primary model, but if multiple descriptor subsets are tested, Bonferroni correction will be applied to p-values.
-- **Causal Framing**: All results will be framed as **associational**. No causal claims (e.g., "increasing $\Delta H_{mix}$ *causes* glass formation") will be made.
-- **Collinearity**: Variance Inflation Factor (VIF) will be computed for top predictors. High VIF (> 5 or 10) will be reported as a limitation, acknowledging physical correlations between descriptors. The plan explicitly notes that high VIF may indicate the model is recovering known physical definitions rather than new patterns.
+### Interpretability & Sensitivity
+- **Feature Importance**: Ranked list of all descriptors (or Ridge coefficients).
+- **Visualization**: 2D plot of top 2 descriptors (Partial Dependence for regression, Decision Boundary for classification).
+- **Threshold Sensitivity**: For classification, sweep threshold across the full range in multiple steps. Report F1-score, Precision, Recall, and optimal cutoff.
 
-## Decision Rationale
+## 4. Compute Feasibility
 
-| Decision | Rationale |
-| :--- | :--- |
-| **Matbench Glass Formation** | Verified, open, and contains the required target variable. Avoids the "dynamic discovery" failure mode. |
-| **UCI Glass Identification (Fallback)** | Verified, open, and contains binary labels. Used if Matbench is unavailable, with a re-framed research question. |
-| **XGBoost over Neural Nets** | XGBoost is robust on small tabular datasets, interpretable, and runs efficiently on CPU (meeting the 2-core constraint). |
-| **CPU-Only Execution** | The dataset size (≤ 1000 samples) does not require GPU acceleration. This ensures the pipeline runs on standard CI runners. |
-| **Group K-Fold CV** | Prevents data leakage from chemically similar samples, ensuring the model generalizes to novel chemical spaces. |
-| **Associational Framing** | The data is observational (public repositories). Causal inference requires randomized experiments or specific instrumental variables not present here. |
+- **CPU-First**: XGBoost/Ridge is highly efficient on CPU. Training on ≤ 1,000 samples with adaptive LOGO CV is expected to complete in < 30 minutes on a 2-core runner.
+- **Memory**: Estimated peak memory < 2GB (well within 7GB limit).
+- **Disk**: Dataset size < 10MB.
+- **GPU Escape Hatch**: Not required for this specific workflow.
 
-## Risk Assessment
+## 5. Risks & Mitigations
 
-- **Data Scarcity**: If Matbench (or UCI) is unreachable or < 30 samples. *Mitigation*: Pipeline halts with `DataValidationError`.
-- **Missing Descriptors**: If `pymatgen` lacks properties for rare earth elements in the dataset. *Mitigation*: Exclude samples with unknown elements and log the count.
-- **Collinearity**: High correlation between descriptors (e.g., mixing enthalpy and size mismatch) may inflate VIF. *Mitigation*: Report VIF scores and interpret feature importance with caution.
-- **Tautology**: If the target variable is derived from the same descriptors. *Mitigation*: Check metadata; flag in report if tautology is suspected.
-- **Confounding**: Missing cooling rate data. *Mitigation*: Explicitly state limitation in the report.
-- **Trivial Task**: If the binary classification task is trivial (perfect separation). *Mitigation*: Halt with a "Trivial Task" warning.
+| Risk | Impact | Mitigation |
+|:--- |:--- |:--- |
+| **Experimental Data Unavailable** | High (No ground truth) | Fallback to manual file upload. If no experimental data exists, the pipeline halts. |
+| **Insufficient Samples (<30)** | High (No model) | Halt execution with `DataValidationError`. |
+| **Power < 0.80 (30 <= N < 77)** | Medium (False negatives) | Proceed with warning and report MDES. Do not claim "no effect". |
+| **Circular Target** | High (Invalid model) | Robust permutation test with relative threshold. Halt if detected. |
+| **Collinearity** | Medium (Misleading importance) | Automatic switch to Ridge Regression or PCA. |
+| **Missing Cooling Rate** | Medium (Confounder) | Document as a limitation in the final report. |
+
+## 6. Decision Rationale
+
+- **XGBoost/Ridge**: XGBoost for performance; Ridge for stability when collinearity is high.
+- **Adaptive LOGO CV**: Ensures valid generalization estimates even with sparse chemical families, avoiding unstable fold metrics.
+- **Robust Circularity**: Permutation test with relative threshold detects non-linear circularity and distinguishes strong physics from identity.
+- **A Priori Power**: Justifies sample size requirements scientifically (N=77 target).
+- **Associational Framing**: Essential for scientific integrity given the observational nature of the data.
