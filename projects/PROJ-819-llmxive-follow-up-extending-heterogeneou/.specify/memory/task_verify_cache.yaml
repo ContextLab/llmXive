@@ -28,3 +28,16 @@ T019:
     logic that would call `_log_eviction`, and the required log file `data/derived/cache_events.log`
     does not exist on disk. Consequently, eviction events are not being recorded as
     the task demands.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` content was provided; without seeing the file we cannot
+    confirm that execution instructions and environment setup were added as required.
+    The implementer must supply the modified README showing the new sections.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the contents of `data/derived/` were compared
+    against `state/manifest.json`. The implementer did not supply a verification report,
+    script output, or any indication that the final sanity check was performed, so
+    the required artifact is missing.
