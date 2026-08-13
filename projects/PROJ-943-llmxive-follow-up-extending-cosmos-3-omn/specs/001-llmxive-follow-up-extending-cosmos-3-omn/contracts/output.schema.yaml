@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model_Output"
+description: "Schema for the output of the trained proxy models and evaluation metrics."
+type: "object"
+required:
+  - "sample_id"
+  - "model_type"
+  - "predicted_value"
+  - "brier_score"
+properties:
+  sample_id:
+    type: "string"
+    description: "Reference to the original sample ID."
+  model_type:
+    type: "string"
+    enum:
+      - "hard_proxy"
+      - "soft_proxy"
+    description: "The model that generated this output."
+  predicted_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Probability score of the prediction."
+  brier_score:
+    type: "number"
+    description: "Squared error between predicted value and target."
+  is_correct:
+    type: "boolean"
+    description: "True if prediction matches the symbolic label (hard proxy only)."
+    nullable: true
+  failure_mode:
+    type: "string"
+    enum:
+      - "visual ambiguity"
+      - "logical complexity"
+      - "context mismatch"
+      - null
+    description: "Categorized failure mode if prediction is incorrect."
+    nullable: true

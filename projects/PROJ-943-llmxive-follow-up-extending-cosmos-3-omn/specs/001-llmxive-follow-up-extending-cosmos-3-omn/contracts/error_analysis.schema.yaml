@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Error Analysis Schema"
+description: "Schema for categorized failure modes and error patterns"
+type: "object"
+properties:
+  total_misclassified:
+    type: "integer"
+    description: "Total number of misclassified samples"
+  failure_modes:
+    type: "object"
+    properties:
+      visual_ambiguity:
+        type: "object"
+        properties:
+          count:
+            type: "integer"
+          percentage:
+            type: "number"
+          description:
+            type: "string"
+            description: "Qualitative description of visual ambiguity errors"
+        required:
+          - count
+          - percentage
+          - description
+      logical_complexity:
+        type: "object"
+        properties:
+          count:
+            type: "integer"
+          percentage:
+            type: "number"
+          description:
+            type: "string"
+            description: "Qualitative description of logical complexity errors"
+        required:
+          - count
+          - percentage
+          - description
+      context_mismatch:
+        type: "object"
+        properties:
+          count:
+            type: "integer"
+          percentage:
+            type: "number"
+          description:
+            type: "string"
+            description: "Qualitative description of context mismatch errors"
+        required:
+          - count
+          - percentage
+          - description
+    required:
+      - visual_ambiguity
+      - logical_complexity
+      - context_mismatch
+  correlation_summary:
+    type: "string"
+    description: "Summary of correlations between input features and failure types"
+required:
+  - total_misclassified
+  - failure_modes
+  - correlation_summary
+additionalProperties: false

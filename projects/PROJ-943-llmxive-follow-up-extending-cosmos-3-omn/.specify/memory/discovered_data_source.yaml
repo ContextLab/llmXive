@@ -1,0 +1,10 @@
+status: none
+intent: download Cosmos 3 synthetic dataset and BridgeV2 from Hugging Face datasets
+  python package dataset
+required_fields:
+- action_vector
+- label
+- instance_id
+cache_key: d0bdd2e227122c64c55668065533eb01d249138de0bce5734daeb599932641da
+searched_at: '2026-08-13T13:12:02.102325+00:00'
+retry_count: 1
