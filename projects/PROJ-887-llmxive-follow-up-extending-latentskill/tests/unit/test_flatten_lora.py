@@ -1,13 +1,6 @@
 """
 Unit tests for src/ingestion/flatten_lora.py
-
-Tests:
-  - load_weights_npz: Verify loading of .npz files with standard LoRA keys
-  - flatten_and_normalize: Verify flattening and L2 normalization logic
-  - process_weights_file: Verify end-to-end processing and file output
-  - Dimension consistency checks
 """
-
 import os
 import sys
 import tempfile
@@ -15,156 +8,234 @@ import numpy as np
 import pytest
 from pathlib import Path
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from ingestion.flatten_lora import (
-    load_weights_npz,
-    flatten_and_normalize,
-    process_weights_file
+from src.ingestion.flatten_lora import (
+    load_weight_file,
+    flatten_matrices,
+    l2_normalize,
+    process_single_file,
+    validate_dimensions,
+    flatten_lora_weights
 )
 
 
-class TestLoadWeightsNpz:
-    def test_load_standard_lora_keys(self, tmp_path):
-        """Test loading .npz file with 'A' and 'B' keys"""
-        A = np.random.rand(4096, 8).astype(np.float32)
-        B = np.random.rand(8, 4096).astype(np.float32)
+class TestLoadWeightFile:
+    """Tests for load_weight_file function."""
 
-        filepath = tmp_path / "test_weights.npz"
-        np.savez(filepath, A=A, B=B)
+    def test_load_valid_npz(self, tmp_path):
+        """Test loading a valid NPZ file with A and B matrices."""
+        # Create test data
+        a_matrix = np.random.randn(4, 8).astype(np.float32)
+        b_matrix = np.random.randn(8, 4).astype(np.float32)
 
-        result = load_weights_npz(filepath)
+        # Save to temp file
+        npz_file = tmp_path / "test_weights.npz"
+        np.savez(npz_file, A=a_matrix, B=b_matrix)
 
-        assert 'A' in result
-        assert 'B' in result
-        np.testing.assert_array_equal(result['A'], A)
-        np.testing.assert_array_equal(result['B'], B)
+        # Load and verify
+        loaded = load_weight_file(npz_file)
 
-    def test_load_lora_A_B_keys(self, tmp_path):
-        """Test loading .npz file with 'lora_A' and 'lora_B' keys"""
-        A = np.random.rand(4096, 8).astype(np.float32)
-        B = np.random.rand(8, 4096).astype(np.float32)
-
-        filepath = tmp_path / "test_weights.npz"
-        np.savez(filepath, lora_A=A, lora_B=B)
-
-        result = load_weights_npz(filepath)
-
-        assert 'A' in result
-        assert 'B' in result
-        np.testing.assert_array_equal(result['A'], A)
-        np.testing.assert_array_equal(result['B'], B)
+        assert 'A' in loaded
+        assert 'B' in loaded
+        assert np.allclose(loaded['A'], a_matrix)
+        assert np.allclose(loaded['B'], b_matrix)
+        assert loaded['A'].shape == a_matrix.shape
+        assert loaded['B'].shape == b_matrix.shape
 
     def test_file_not_found(self, tmp_path):
-        """Test that FileNotFoundError is raised for missing file"""
+        """Test that FileNotFoundError is raised for missing file."""
+        missing_file = tmp_path / "nonexistent.npz"
         with pytest.raises(FileNotFoundError):
-            load_weights_npz(tmp_path / "nonexistent.npz")
+            load_weight_file(missing_file)
 
-    def test_incompatible_dimensions(self, tmp_path):
-        """Test handling of incompatible A/B dimensions"""
-        A = np.random.rand(100, 8).astype(np.float32)
-        B = np.random.rand(10, 200).astype(np.float32)  # Incompatible
 
-        filepath = tmp_path / "test_weights.npz"
-        np.savez(filepath, A=A, B=B)
+class TestFlattenMatrices:
+    """Tests for flatten_matrices function."""
+
+    def test_flatten_correct_dimensions(self):
+        """Test that flattening produces correct vector size."""
+        a_matrix = np.random.randn(4, 8)
+        b_matrix = np.random.randn(8, 4)
+
+        weight_dict = {'A': a_matrix, 'B': b_matrix}
+
+        vector, metadata = flatten_matrices(weight_dict)
+
+        expected_size = a_matrix.size + b_matrix.size
+        assert vector.shape[0] == expected_size
+        assert metadata['a_size'] == a_matrix.size
+        assert metadata['b_size'] == b_matrix.size
+        assert metadata['total_size'] == expected_size
+
+    def test_flatten_missing_matrices(self):
+        """Test that ValueError is raised when A or B is missing."""
+        with pytest.raises(ValueError):
+            flatten_matrices({'A': np.random.randn(4, 8)})
 
         with pytest.raises(ValueError):
-            load_weights_npz(filepath)
-            flatten_and_normalize(A, B)
+            flatten_matrices({'B': np.random.randn(8, 4)})
+
+    def test_flatten_non_2d(self):
+        """Test that ValueError is raised for non-2D matrices."""
+        with pytest.raises(ValueError):
+            flatten_matrices({
+                'A': np.random.randn(4, 8, 2),
+                'B': np.random.randn(8, 4)
+            })
 
 
-class TestFlattenAndNormalize:
-    def test_flatten_and_normalize_basic(self):
-        """Test basic flattening and normalization"""
-        A = np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float32)  # 2x2
-        B = np.array([[5.0, 6.0], [7.0, 8.0]], dtype=np.float32)  # 2x2
+class TestL2Normalize:
+    """Tests for l2_normalize function."""
 
-        vector, in_f, out_f, rank = flatten_and_normalize(A, B)
+    def test_normalize_unit_length(self):
+        """Test that normalized vector has unit length."""
+        vector = np.random.randn(100)
+        normalized = l2_normalize(vector)
 
-        # Expected: A_flat = [1, 2, 3, 4], B_flat = [5, 6, 7, 8]
-        # Combined = [1, 2, 3, 4, 5, 6, 7, 8]
-        expected_combined = np.array([1, 2, 3, 4, 5, 6, 7, 8], dtype=np.float32)
-        expected_norm = np.linalg.norm(expected_combined)
-        expected_normalized = expected_combined / expected_norm
+        norm = np.linalg.norm(normalized)
+        assert np.isclose(norm, 1.0)
 
-        assert vector.shape == (8,)
-        np.testing.assert_array_almost_equal(vector, expected_normalized)
-        assert in_f == 2
-        assert out_f == 2
-        assert rank == 2
+    def test_normalize_zero_vector(self):
+        """Test handling of zero vector."""
+        zero_vector = np.zeros(100)
+        normalized = l2_normalize(zero_vector)
 
-    def test_l2_normalization(self):
-        """Test that the output vector has unit L2 norm"""
-        A = np.random.rand(100, 10).astype(np.float32)
-        B = np.random.rand(10, 100).astype(np.float32)
+        # Should return zero vector unchanged
+        assert np.allclose(normalized, zero_vector)
 
-        vector, _, _, _ = flatten_and_normalize(A, B)
+    def test_normalize_preserves_direction(self):
+        """Test that normalization preserves direction."""
+        vector = np.array([3.0, 4.0])
+        normalized = l2_normalize(vector)
 
-        norm = np.linalg.norm(vector)
-        assert np.isclose(norm, 1.0, atol=1e-6)
-
-    def test_zero_norm_handling(self):
-        """Test handling of zero-norm vectors"""
-        A = np.zeros((10, 5), dtype=np.float32)
-        B = np.zeros((5, 10), dtype=np.float32)
-
-        vector, in_f, out_f, rank = flatten_and_normalize(A, B)
-
-        assert np.allclose(vector, 0)
-        assert in_f == 10
-        assert out_f == 10
-        assert rank == 5
-
-    def test_dimension_consistency(self):
-        """Test that dimensions are correctly inferred"""
-        A = np.random.rand(4096, 8).astype(np.float32)
-        B = np.random.rand(8, 4096).astype(np.float32)
-
-        vector, in_f, out_f, rank = flatten_and_normalize(A, B)
-
-        assert in_f == 4096
-        assert out_f == 4096
-        assert rank == 8
-        assert vector.size == 4096 * 8 * 2  # A + B
+        # Original direction: [3/5, 4/5]
+        expected = np.array([0.6, 0.8])
+        assert np.allclose(normalized, expected)
 
 
-class TestProcessWeightsFile:
-    def test_process_weights_file_success(self, tmp_path):
-        """Test successful processing of a weight file"""
-        A = np.random.rand(100, 10).astype(np.float32)
-        B = np.random.rand(10, 100).astype(np.float32)
+class TestProcessSingleFile:
+    """Tests for process_single_file function."""
 
-        input_path = tmp_path / "input.npz"
-        np.savez(input_path, A=A, B=B)
+    def test_full_pipeline(self, tmp_path):
+        """Test complete processing pipeline."""
+        # Create test data
+        a_matrix = np.random.randn(4, 8).astype(np.float32)
+        b_matrix = np.random.randn(8, 4).astype(np.float32)
 
-        output_path = tmp_path / "output.npz"
+        npz_file = tmp_path / "test.npz"
+        np.savez(npz_file, A=a_matrix, B=b_matrix)
 
-        result = process_weights_file(input_path, output_path, "test_task")
+        vector, metadata = process_single_file(npz_file)
 
-        assert result['status'] == 'success'
-        assert result['task_id'] == 'test_task'
-        assert output_path.exists()
+        # Check normalization
+        assert np.isclose(np.linalg.norm(vector), 1.0)
+        assert metadata['normalized'] is True
+        assert metadata['a_shape'] == list(a_matrix.shape)
+        assert metadata['b_shape'] == list(b_matrix.shape)
 
-        # Verify output content
-        data = np.load(output_path)
-        assert 'vector' in data
-        assert 'task_id' in data
-        assert 'in_features' in data
-        assert 'out_features' in data
-        assert 'rank' in data
 
-        # Verify normalization
-        vector = data['vector']
-        norm = np.linalg.norm(vector)
-        assert np.isclose(norm, 1.0, atol=1e-6)
+class TestValidateDimensions:
+    """Tests for validate_dimensions function."""
 
-    def test_process_weights_file_missing_input(self, tmp_path):
-        """Test handling of missing input file"""
-        output_path = tmp_path / "output.npz"
-        input_path = tmp_path / "nonexistent.npz"
+    def test_consistent_dimensions(self):
+        """Test that consistent dimensions pass validation."""
+        vectors = [
+            np.random.randn(100),
+            np.random.randn(100),
+            np.random.randn(100)
+        ]
+        names = ['v1', 'v2', 'v3']
 
-        result = process_weights_file(input_path, output_path, "test_task")
+        assert validate_dimensions(vectors, names) is True
 
-        assert result['status'] == 'failed'
-        assert 'error' in result
+    def test_inconsistent_dimensions(self):
+        """Test that inconsistent dimensions raise ValueError."""
+        vectors = [
+            np.random.randn(100),
+            np.random.randn(200),
+            np.random.randn(100)
+        ]
+        names = ['v1', 'v2', 'v3']
+
+        with pytest.raises(ValueError):
+            validate_dimensions(vectors, names)
+
+    def test_single_vector(self):
+        """Test that single vector passes validation."""
+        vectors = [np.random.randn(100)]
+        names = ['v1']
+
+        assert validate_dimensions(vectors, names) is True
+
+
+class TestFlattenLoraWeights:
+    """Tests for main flatten_lora_weights function."""
+
+    def test_process_multiple_files(self, tmp_path):
+        """Test processing multiple weight files."""
+        # Create input directory
+        input_dir = tmp_path / "raw"
+        input_dir.mkdir()
+
+        output_dir = tmp_path / "processed"
+        output_dir.mkdir()
+
+        # Create test files
+        for i in range(3):
+            a_matrix = np.random.randn(4, 8).astype(np.float32)
+            b_matrix = np.random.randn(8, 4).astype(np.float32)
+            np.savez(input_dir / f"weight_{i}.npz", A=a_matrix, B=b_matrix)
+
+        # Run flattening
+        result = flatten_lora_weights(input_dir, output_dir)
+
+        # Verify outputs
+        assert 'vectors' in result
+        assert 'metadata' in result
+        assert 'index_file' in result
+
+        # Check index file exists
+        assert result['index_file'].exists()
+
+        # Load and verify shape
+        loaded_matrix = np.load(result['index_file'])
+        assert loaded_matrix.shape[0] == 3  # 3 files
+        assert loaded_matrix.shape[1] == 96  # 4*8 + 8*4 = 32 + 64 = 96
+
+        # Check metadata file exists
+        assert result['metadata_file'].exists()
+
+        # Verify all vectors are normalized
+        for vec in loaded_matrix:
+            assert np.isclose(np.linalg.norm(vec), 1.0)
+
+    def test_empty_directory(self, tmp_path):
+        """Test that empty directory raises FileNotFoundError."""
+        input_dir = tmp_path / "empty_raw"
+        input_dir.mkdir()
+
+        output_dir = tmp_path / "processed"
+        output_dir.mkdir()
+
+        with pytest.raises(FileNotFoundError):
+            flatten_lora_weights(input_dir, output_dir)
+
+    def test_dimension_mismatch(self, tmp_path):
+        """Test that dimension mismatch raises ValueError."""
+        input_dir = tmp_path / "raw"
+        input_dir.mkdir()
+
+        output_dir = tmp_path / "processed"
+        output_dir.mkdir()
+
+        # Create files with different dimensions
+        a1, b1 = np.random.randn(4, 8), np.random.randn(8, 4)
+        a2, b2 = np.random.randn(2, 4), np.random.randn(4, 2)
+
+        np.savez(input_dir / "weight_1.npz", A=a1, B=b1)
+        np.savez(input_dir / "weight_2.npz", A=a2, B=b2)
+
+        with pytest.raises(ValueError):
+            flatten_lora_weights(input_dir, output_dir)

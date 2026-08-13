@@ -1,269 +1,213 @@
-"""
-Linearity Check Implementation (T030)
-
-Calculates Pearson correlation between text-space and weight-space distances
-for a held-out set of known task pairs.
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, List, Tuple
+import yaml
+
 import numpy as np
 from scipy.stats import pearsonr
 
-# Configure logging
+# Import config for path resolution
+from src.utils.config import get_project_root, get_data_path, get_results_path
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-DATA_RESULTS = PROJECT_ROOT / "data" / "results"
-SKILL_INDEX_PATH = DATA_PROCESSED / "skill_index.npz"
-PAIRS_PATH = DATA_PROCESSED / "pairs.yaml"
-OUTPUT_PATH = DATA_RESULTS / "linearity_check.json"
-
-# Ensure output directory exists
-DATA_RESULTS.mkdir(parents=True, exist_ok=True)
-
-
-def load_skill_index() -> Dict[str, np.ndarray]:
+def load_pairs(pairs_path: Path) -> List[Dict[str, Any]]:
     """
-    Load the flattened skill index from disk.
-    Expected format: npz file with keys mapping to flattened weight vectors.
+    Load the synthetic known composite task pairs from T022g.
+    Input: data/processed/known_composites_pairs.yaml
     """
-    if not SKILL_INDEX_PATH.exists():
-        raise FileNotFoundError(
-            f"Skill index not found at {SKILL_INDEX_PATH}. "
-            "Please run T014b to generate the index first."
-        )
+    if not pairs_path.exists():
+        raise FileNotFoundError(f"Pairs file not found at {pairs_path}. "
+                                "Ensure T022g has been executed successfully.")
     
-    logger.info(f"Loading skill index from {SKILL_INDEX_PATH}")
-    data = np.load(SKILL_INDEX_PATH, allow_pickle=True)
+    with open(pairs_path, 'r') as f:
+        data = yaml.safe_load(f)
     
-    # Convert to dictionary if loaded as an npz object
-    result = {}
-    for key in data.files:
-        result[key] = data[key]
+    # Expected structure: list of dicts with 'task_pair', 'text_embedding_1', 'text_embedding_2', 'weight_vector_1', 'weight_vector_2'
+    # Or similar structure where text and weight vectors are available.
+    # Based on T022g description: "synthetic known composite tasks ... true weights ... linear interpolation"
+    # The pairs file should contain the ground truth pairs used for validation.
     
-    logger.info(f"Loaded {len(result)} skill vectors")
-    return result
+    logger.info(f"Loaded {len(data)} task pairs from {pairs_path}")
+    return data
 
-
-def load_pairs() -> List[Dict[str, Any]]:
+def load_skill_index(index_path: Path) -> np.ndarray:
     """
-    Load the held-out task pairs from YAML.
-    Expected format: list of dicts with 'task_a', 'task_b', 'alpha', 'text_a', 'text_b'.
+    Load the flattened skill index generated in T014d.
+    Input: data/processed/skill_index.npz
     """
-    if not PAIRS_PATH.exists():
-        raise FileNotFoundError(
-            f"Pairs file not found at {PAIRS_PATH}. "
-            "Please ensure T022c has generated the ground truth and pairs file."
-        )
+    if not index_path.exists():
+        raise FileNotFoundError(f"Skill index not found at {index_path}. "
+                                "Ensure T014d has been executed successfully.")
     
-    import yaml
-    logger.info(f"Loading pairs from {PAIRS_PATH}")
-    with open(PAIRS_PATH, 'r') as f:
-        pairs = yaml.safe_load(f)
+    data = np.load(index_path)
+    # Assuming the index contains a 'vectors' key or similar array of flattened weights
+    if 'vectors' in data:
+        vectors = data['vectors']
+    elif 'data' in data:
+        vectors = data['data']
+    else:
+        # Fallback: try to load the first array found
+        vectors = next(iter(data.values()))
     
-    if not isinstance(pairs, list):
-        raise ValueError(f"Pairs file must contain a list, got {type(pairs)}")
-    
-    logger.info(f"Loaded {len(pairs)} task pairs")
-    return pairs
+    logger.info(f"Loaded skill index with shape {vectors.shape}")
+    return vectors
 
-
-def get_text_embeddings(task_ids: List[str]) -> np.ndarray:
+def get_vector_from_index(index_vectors: np.ndarray, vector_id: str) -> np.ndarray:
     """
-    Generate text embeddings for a list of task IDs/descriptions.
-    Uses the same embedding model as T019 (all-MiniLM-L6-v2).
-    """
-    from sentence_transformers import SentenceTransformer
+    Retrieve a specific vector from the index by ID.
+    This assumes the index has a parallel metadata structure or ID mapping.
+    For T022g synthetic pairs, the 'weight_vector_1' and 'weight_vector_2' 
+    are likely already provided in the pairs file as the 'true weights' 
+    generated via interpolation. 
     
-    logger.info("Loading sentence transformer model...")
-    model = SentenceTransformer('all-MiniLM-L6-v2')
+    However, the task asks to calculate correlation between text-space and weight-space.
+    If the pairs file contains the 'true weights' (which are the ground truth for the composite),
+    we use those directly for weight-space distance.
     
-    # Extract descriptions from task_ids (assuming task_ids are actually descriptions or map to them)
-    # In the context of T022c, pairs likely contain text descriptions directly or IDs that map to them.
-    # We assume the 'pairs.yaml' contains 'text_a' and 'text_b' fields directly.
-    # If task_ids are just IDs, we would need a mapping. For now, we assume the caller passes descriptions.
-    # However, the function signature takes task_ids. Let's assume the pairs list contains the text.
-    # This function is a helper to get embeddings for the text parts of the pairs.
-    return model.encode(task_ids, convert_to_numpy=True)
-
-
-def compute_weight_distance(w1: np.ndarray, w2: np.ndarray) -> float:
-    """
-    Compute the cosine distance between two weight vectors.
-    """
-    # Ensure vectors are 1D
-    v1 = w1.flatten()
-    v2 = w2.flatten()
+    If the pairs file only contains task IDs and we need to look up the interpolated weights
+    from the index, we would do so here.
     
-    # Normalize
-    norm1 = np.linalg.norm(v1)
-    norm2 = np.linalg.norm(v2)
-    
-    if norm1 == 0 or norm2 == 0:
-        return 1.0  # Maximum distance if one is zero vector
-    
-    cosine_sim = np.dot(v1, v2) / (norm1 * norm2)
-    # Clip to avoid numerical errors
-    cosine_sim = np.clip(cosine_sim, -1.0, 1.0)
-    
-    return 1.0 - cosine_sim
-
-
-def compute_text_distance(t1: np.ndarray, t2: np.ndarray) -> float:
+    Given T022g generates 'known_composites_true_weights.npz' and 'known_composites_pairs.yaml',
+    the pairs.yaml likely references the specific vectors or contains the interpolated weights directly.
+    We will assume the pairs file contains the necessary vectors or IDs to retrieve them.
     """
-    Compute the cosine distance between two text embedding vectors.
-    """
-    cosine_sim = np.dot(t1, t2) / (np.linalg.norm(t1) * np.linalg.norm(t2))
-    cosine_sim = np.clip(cosine_sim, -1.0, 1.0)
-    return 1.0 - cosine_sim
+    # If the vector is already in the pair dict, return it.
+    # Otherwise, we might need to look it up by ID.
+    # For this implementation, we assume the pairs file contains the vectors directly
+    # or the logic is handled in the distance calculation.
+    raise NotImplementedError("This function is a placeholder. The actual vector retrieval "
+                              "depends on the exact schema of known_composites_pairs.yaml. "
+                              "We will handle this in compute_distances.")
 
-
-def calculate_linearity_correlation(skill_index: Dict[str, np.ndarray], pairs: List[Dict[str, Any]]) -> Tuple[float, float, List[Dict]]:
+def compute_distances(pairs: List[Dict[str, Any]], skill_index: np.ndarray) -> Tuple[List[float], List[float]]:
     """
-    Calculate Pearson correlation between text-space and weight-space distances.
+    Compute pairwise distances in text-space and weight-space for all pairs.
     
     Returns:
-        correlation: Pearson correlation coefficient
-        p_value: P-value for the correlation
-        details: List of detailed results for each pair
+        text_distances: List of distances between text embeddings of the pair members.
+        weight_distances: List of distances between weight vectors of the pair members.
     """
     text_distances = []
     weight_distances = []
-    details = []
-    
-    logger.info("Computing distances for each pair...")
-    
-    # We need text embeddings for all unique tasks first
-    unique_texts = set()
+
     for pair in pairs:
-        if 'text_a' in pair and 'text_b' in pair:
-            unique_texts.add(pair['text_a'])
-            unique_texts.add(pair['text_b'])
-        elif 'task_a' in pair and 'task_b' in pair:
-            # If only IDs are present, we assume the IDs map to descriptions in the index keys
-            # or we need a separate mapping. For this implementation, we assume text fields exist.
-            # If not, we fall back to using the key itself if it's in the skill_index keys.
-            pass
+        # Expected keys in pair: 'text_embedding_1', 'text_embedding_2', 'weight_vector_1', 'weight_vector_2'
+        # Or: 'task_id_1', 'task_id_2' which map to vectors in skill_index.
+        
+        # Case 1: Vectors are directly provided in the pair dict (likely for synthetic ground truth)
+        if 'text_embedding_1' in pair and 'text_embedding_2' in pair:
+            t1 = np.array(pair['text_embedding_1'])
+            t2 = np.array(pair['text_embedding_2'])
+            # Cosine distance for text
+            dist_t = 1 - np.dot(t1, t2) / (np.linalg.norm(t1) * np.linalg.norm(t2) + 1e-8)
+            text_distances.append(dist_t)
+        
+        if 'weight_vector_1' in pair and 'weight_vector_2' in pair:
+            w1 = np.array(pair['weight_vector_1'])
+            w2 = np.array(pair['weight_vector_2'])
+            # Cosine distance for weights
+            dist_w = 1 - np.dot(w1, w2) / (np.linalg.norm(w1) * np.linalg.norm(w2) + 1e-8)
+            weight_distances.append(dist_w)
+        
+        # Case 2: Only IDs are provided, need to look up in skill_index
+        # This logic would be implemented if the pairs file only contains IDs.
+        # For now, we assume T022g provides the vectors directly as "synthetic ground truth weights".
+        # If not, we would need to reconstruct the logic to find the vectors in the index.
+        # Given the task description "Use the held-out set of synthetic known task pairs generated in T022g",
+        # and T022g generates "true weights", it's highly likely the vectors are in the pairs file.
+        
+        if len(text_distances) != len(weight_distances):
+            raise ValueError("Mismatch in text and weight vector availability in pair data.")
+
+    logger.info(f"Computed {len(text_distances)} distance pairs.")
+    return text_distances, weight_distances
+
+def calculate_correlation(text_distances: List[float], weight_distances: List[float]) -> Tuple[float, float]:
+    """
+    Calculate Pearson correlation coefficient between text-space and weight-space distances.
     
-    # Map text to embedding
-    text_to_embedding = {}
-    if unique_texts:
-        embeddings = get_text_embeddings(list(unique_texts))
-        for i, text in enumerate(unique_texts):
-            text_to_embedding[text] = embeddings[i]
-    
-    for pair in pairs:
-        try:
-            # Get weight vectors
-            # Assuming pair has keys 'task_a' and 'task_b' that correspond to keys in skill_index
-            # OR 'id_a' and 'id_b'. Let's check common patterns.
-            # Based on T022c, pairs likely have 'task_a' and 'task_b' as identifiers.
-            id_a = pair.get('task_a') or pair.get('id_a')
-            id_b = pair.get('task_b') or pair.get('id_b')
-            
-            if id_a not in skill_index:
-                logger.warning(f"Task ID '{id_a}' not found in skill index, skipping pair.")
-                continue
-            if id_b not in skill_index:
-                logger.warning(f"Task ID '{id_b}' not found in skill index, skipping pair.")
-                continue
-            
-            w_a = skill_index[id_a]
-            w_b = skill_index[id_b]
-            
-            # Compute weight distance
-            w_dist = compute_weight_distance(w_a, w_b)
-            weight_distances.append(w_dist)
-            
-            # Compute text distance
-            text_a = pair.get('text_a', id_a) # Fallback to ID if text not found
-            text_b = pair.get('text_b', id_b)
-            
-            if text_a in text_to_embedding and text_b in text_to_embedding:
-                t_dist = compute_text_distance(text_to_embedding[text_a], text_to_embedding[text_b])
-            else:
-                # Fallback: if text embeddings not available, use 0 distance or skip?
-                # We'll skip if we can't compute text distance to avoid noise
-                logger.warning(f"Text embeddings missing for pair {id_a}-{id_b}, skipping.")
-                continue
-                
-            text_distances.append(t_dist)
-            
-            details.append({
-                'pair': f"{id_a}-{id_b}",
-                'text_distance': float(t_dist),
-                'weight_distance': float(w_dist)
-            })
-            
-        except Exception as e:
-            logger.error(f"Error processing pair {pair}: {e}")
-            continue
-    
+    Returns:
+        correlation: Pearson r value.
+        p_value: p-value for the correlation.
+    """
     if len(text_distances) < 2:
-        logger.warning("Not enough valid pairs to compute correlation.")
-        return 0.0, 1.0, details
+        raise ValueError("Need at least 2 data points to calculate correlation.")
     
-    # Compute Pearson correlation
-    correlation, p_value = pearsonr(text_distances, weight_distances)
-    
-    logger.info(f"Calculated Pearson correlation: {correlation:.4f} (p-value: {p_value:.4f})")
-    
-    return float(correlation), float(p_value), details
+    r, p = pearsonr(text_distances, weight_distances)
+    logger.info(f"Pearson correlation (r): {r:.4f}, p-value: {p:.4f}")
+    return r, p
 
+def save_results(results: Dict[str, Any], output_path: Path) -> None:
+    """
+    Save the linearity check results to a JSON file.
+    Output: data/results/linearity_check.json
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Results saved to {output_path}")
 
-def main():
+def main() -> None:
     """
-    Main entry point for the linearity check.
+    Main entry point for T030: Linearity Check.
+    
+    1. Load pairs from data/processed/known_composites_pairs.yaml (T022g).
+    2. Load skill index from data/processed/skill_index.npz (T014d).
+    3. Compute text-space and weight-space distances.
+    4. Calculate Pearson correlation.
+    5. Save results to data/results/linearity_check.json.
     """
+    project_root = get_project_root()
+    pairs_path = project_root / "data" / "processed" / "known_composites_pairs.yaml"
+    index_path = project_root / "data" / "processed" / "skill_index.npz"
+    output_path = project_root / "data" / "results" / "linearity_check.json"
+
+    logger.info("Starting Linearity Check (T030)...")
+
     try:
-        # Load data
-        skill_index = load_skill_index()
-        pairs = load_pairs()
-        
-        # Calculate correlation
-        correlation, p_value, details = calculate_linearity_correlation(skill_index, pairs)
-        
-        # Determine validity flag (True if >= 0.6)
-        validity_flag = correlation >= 0.6
-        
-        # Prepare output
-        result = {
-            'correlation': correlation,
-            'p_value': p_value,
-            'validity_flag': validity_flag,
-            'threshold': 0.6,
-            'num_pairs_analyzed': len(details),
-            'details': details
-        }
-        
-        # Write output
-        with open(OUTPUT_PATH, 'w') as f:
-            json.dump(result, f, indent=2)
-        
-        logger.info(f"Linearity check complete. Results saved to {OUTPUT_PATH}")
-        logger.info(f"Correlation: {correlation:.4f}, Validity Flag: {validity_flag}")
-        
-        return 0
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
-        return 1
-    except Exception as e:
-        logger.error(f"Unexpected error during linearity check: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
-        return 1
+        # 1. Load pairs
+        pairs = load_pairs(pairs_path)
+        if not pairs:
+            raise ValueError("No pairs found in the input file.")
 
+        # 2. Load skill index (potentially needed for lookup if not in pairs)
+        skill_index = load_skill_index(index_path)
+
+        # 3. Compute distances
+        text_dists, weight_dists = compute_distances(pairs, skill_index)
+
+        # 4. Calculate correlation
+        r, p = calculate_correlation(text_dists, weight_dists)
+
+        # 5. Prepare results
+        results = {
+            "task_id": "T030",
+            "description": "Pearson correlation between text-space and weight-space distances",
+            "num_pairs": len(text_dists),
+            "pearson_r": float(r),
+            "p_value": float(p),
+            "interpretation": "Strong positive correlation supports linearity assumption." if r > 0.7 else 
+                            "Moderate correlation suggests some non-linearity." if r > 0.3 else 
+                            "Weak correlation indicates significant non-linearity."
+        }
+
+        # 6. Save results
+        save_results(results, output_path)
+
+        logger.info("Linearity Check completed successfully.")
+        print(f"Linearity Check Result: r={r:.4f}, p={p:.4f}")
+
+    except Exception as e:
+        logger.error(f"Linearity Check failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

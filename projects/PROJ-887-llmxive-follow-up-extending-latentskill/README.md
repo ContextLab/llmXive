@@ -1,135 +1,87 @@
-# llmXive: Extending LatentSkill
+# llmXive: Extending "LatentSkill"
 
-An automated science pipeline for transforming in-context textual skills into in-weight latent skills. This project implements the retrieval, interpolation, and evaluation of LoRA adapters based on task descriptions.
-
-## Project Overview
-
-llmXive investigates the linearity of skill spaces by:
-1. Ingesting pre-trained LoRA adapters (A and B matrices) from ALFWorld and Search-QA benchmarks.
-2. Flattening and normalizing these weights into a high-dimensional skill vector database.
-3. Retrieving nearest neighbors based on text embeddings of task descriptions.
-4. Synthesizing new adapters via interpolation strategies (unweighted mean, cosine-weighted averaging).
-5. Validating performance on composite tasks using a CPU-optimized TinyLlama model.
-
-## Prerequisites
-
-- Python 3.11+
-- CPU-only environment (Max 7GB RAM for inference)
-- `llama-cpp-python` support
+An automated science pipeline for constructing, retrieving, and validating latent skills from LoRA adapters. This project implements the research follow-up to "LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills".
 
 ## Installation
 
-1. **Clone the repository**:
+1. Clone the repository and navigate to the project root.
+2. Create a virtual environment (recommended):
  ```bash
- git clone <repository-url>
- cd llmXive-follow-up-extending-latentskill
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-
-2. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
- *Note: `faiss-cpu` is intentionally excluded as per project constraints.*
-
-3. **Setup Data Directories**:
- Ensure the following directories exist (created via `T001c`):
- - `data/raw/`
- - `data/processed/`
- - `data/results/`
- - `artifacts/synthesized_adapters/`
- - `specs/001-lattentskill-retrieval-geometry/contracts/`
-
-## Data Sources
-
-The project relies on specific HuggingFace datasets for LoRA weights. If real weights are unavailable, the system falls back to a documented proxy generation method (T012).
-
-- **ALFWorld Weights**: `latent-skills/alfworld-weights` (Path: `weights/alfworld/*.npz`)
-- **Search-QA Weights**: `latent-skills/searchqa-weights` (Path: `weights/searchqa/*.npz`)
-
-**Verification**:
-Run the citation check script to verify source availability before ingestion:
-```bash
-python code/src/validate/citation_check.py
-```
+4. Ensure the required directories exist (created by T001c):
+ ```bash
+ mkdir -p data/raw data/processed data/results artifacts/figures
+ ```
 
 ## Usage
 
-### 1. Ingest and Flatten Weights (User Story 1)
+The pipeline is executed in stages corresponding to the User Stories.
 
-Download weights (or generate proxies) and build the skill vector index.
-
+### Phase 1: Setup & Validation
+Verify data sources and download weights:
 ```bash
-# Download weights (T012)
-python code/src/ingestion/download_weights.py
-
-# Flatten and normalize (T013)
-python code/src/ingestion/flatten_lora.py
-
-# Build the static index (T014b)
-python code/scripts/run_t014b.py
+python src/validate/citation_check.py
+python src/ingestion/download_weights.py
 ```
-*Output*: `data/processed/skill_index.npz`
 
-### 2. Retrieve and Synthesize Adapters (User Story 2)
-
-Query the database with a task description and synthesize a new adapter.
-
+### Phase 2: Ingestion (Skill Vector Database)
+Flatten LoRA weights and build the vector index:
 ```bash
-# Run the full synthesis pipeline (T019, T022a, T022b)
-python code/scripts/run_t022b.py
+python src/ingestion/flatten_lora.py
+python src/retrieval/vector_db.py
 ```
-*Output*: Synthesized adapters in `artifacts/synthesized_adapters/`
 
-### 3. Evaluation (User Story 3)
-
-Evaluate synthesized adapters on the TinyLlama model.
-
+### Phase 3: Retrieval & Interpolation
+Query the database and synthesize adapters:
 ```bash
-# Ensure base model is downloaded and quantized (T026a)
-python code/scripts/download_and_quantize_model.py
-
-# Run evaluation (T026)
-python code/src/evaluation/runner.py
-```
-*Output*: Statistical report in `data/results/stats_report.json`
-
-## Project Structure
-
-```text
-.
-├── code/
-│ ├── src/
-│ │ ├── ingestion/ # Weight download and flattening
-│ │ ├── retrieval/ # Vector DB, query, and synthesis strategies
-│ │ ├── evaluation/ # Runner, stats, and report generation
-│ │ ├── validate/ # Citation and schema checks
-│ │ └── utils/ # Config and versioning
-│ └── scripts/ # Execution wrappers for specific tasks
-├── data/
-│ ├── raw/ # Raw weights (real or proxy)
-│ ├── processed/ # Flattened vectors, indices, ground truth
-│ └── results/ # Final statistical reports
-├── artifacts/
-│ └── synthesized_adapters/ # Generated LoRA files
-├── tests/ # Unit, integration, and contract tests
-├── specs/ # Design documents and contracts
-├── requirements.txt
-└── README.md
+python src/retrieval/query.py
+python src/retrieval/strategies.py
 ```
 
-## Validation & Testing
-
-Run the full test suite to ensure pipeline integrity:
-
+### Phase 4: Validation (Linearity & Reconstruction)
+Check linearity assumptions and reconstruction errors:
 ```bash
-pytest tests/
+python src/validation/linearity_check.py
+python src/validation/reconstruction_error.py
 ```
 
-Specific validation steps:
-- **Linearity Check**: `data/results/linearity_check.json` (T030)
-- **Reconstruction Error**: `data/results/reconstruction_error.json` (T022d)
-- **Statistical Report**: `data/results/stats_report.json` (T032)
+### Phase 5: Evaluation (Environment Logic)
+Run the full evaluation loop, sensitivity sweeps, and statistical analysis:
+```bash
+python src/evaluation/runner.py
+python src/evaluation/run_sensitivity_sweep.py
+python src/evaluation/stats.py
+```
 
-## License
+### Generate Final Report
+```bash
+python src/evaluation/report_generator.py
+```
 
-[Insert License Information]
+## Data Sources
+
+The project relies on the following verified data sources defined in `data_sources.yaml`:
+
+- **ALFWorld Weights**: HuggingFace dataset `latent-skills/alfworld-weights` (Path: `weights/alfworld/*.npz`)
+- **Search-QA Weights**: HuggingFace dataset `latent-skills/searchqa-weights` (Path: `weights/searchqa/*.npz`)
+- **Base Model**: `TinyLlama/TinyLlama-Chat-v1.0` (Converted to GGUF format via `scripts/download_and_quantize_model.py`)
+
+All raw data is stored in `data/raw/`, processed indices in `data/processed/`, and results in `data/results/`.
+
+## Results
+
+Upon successful execution of the pipeline, the following artifacts are generated:
+
+- **Skill Index**: `data/processed/skill_index.npz` (Flattened, normalized skill vectors)
+- **Synthesized Adapters**: `artifacts/synthesized_adapters/` (Generated LoRA weights)
+- **Linearity Analysis**: `data/results/linearity_correlation.json` (Pearson correlation between text and weight spaces)
+- **Reconstruction Error**: `data/results/reconstruction_error.json` (Cosine distance metrics)
+- **Sensitivity Sweep**: `data/results/sensitivity.yaml` (Performance across different k values)
+- **Statistical Report**: `data/results/stats_report.json` (Final statistical validation with BH correction)
+- **Final Report**: `data/results/report_final.md` (Aggregated findings)

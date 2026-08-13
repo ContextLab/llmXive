@@ -7,21 +7,20 @@ T001b:
     files.
 T012:
   c: false
-  h: 84dc57baa27f3f49e0645a83bd4e5efa84cc6aacaf0b84cd667bc85df278fa0d
-  r: "The `download_weights.py` script is present, but it does not create the required\
-    \ `data/raw/proxy_alfworld_weights.npz` and `data/raw/proxy_searchqa_weights.npz`\
-    \ files (both are missing). Moreover, the proxy generation uses a fixed scale\
-    \ of\u202F0.02 and does not set `seed=42` or a standard deviation of\u202F1 as\
-    \ specified, and it saves individual `.npy` files in `data/processed/proxy_weights`\
-    \ instead of a single `.npz` in `data/raw`. The task\u2019s output requirements\
-    \ are therefore not met."
-T014b:
+  h: 193173be5c4750f4159a2821ca713d32bdca93416dfed2ab7beccca5df0de321
+  r: "The `src/ingestion/download_weights.py` file is truncated and does not contain\
+    \ a complete implementation (e.g., the `load_real_weights` function ends abruptly).\
+    \ Moreover, the required output files `data/raw/alfworld_weights.npz` and `data/raw/searchqa_weights.npz`\
+    \ are absent, indicating the script has not successfully generated or saved the\
+    \ weights. The task\u2019s specifications are therefore not met."
+T014d:
   c: false
   h: d3a25ae8e6b817eda42c5bdfc0a819744e1e9bc0d3e06256d0feafe849264cb8
-  r: The required output file `data/processed/skill_index.npz` is missing, and there
-    is no evidence that `src/retrieval/vector_db.py` was run or that the index was
-    created and verified. The implementer must execute the script to generate the
-    index file and provide confirmation of its existence and integrity.
+  r: "The repository contains the `src/retrieval/vector_db.py` script, but the required\
+    \ output file `data/processed/skill_index.npz` is absent, and there is no evidence\
+    \ of the script having been executed, nor any checksum or data\u2011type validation.\
+    \ The task\u2019s core requirement\u2014producing and verifying the static index\
+    \ file\u2014has not been fulfilled."
 T022b:
   c: false
   h: 021df1d3f20ea2ff5b8b7eb2aafc69f14460731120f37c8f2362f960365b3874
@@ -29,30 +28,37 @@ T022b:
     \ with \u201Cw\u201D) and never reaches the code that writes the JSON result.\
     \ Consequently, `data/results/reconstruction_error.json` does not exist, so the\
     \ required output file is missing. The task is not fully implemented."
-T022c:
+T022d:
   c: false
-  h: fc561d9c055bb139e779a5b3a74d414fe3a14c1eb257c75921ec32a3e4402166
-  r: "The script `src/validation/generate_ground_truth.py` exists, but the required\
-    \ output artifacts `data/processed/composite_ground_truth.npz` and `data/processed/pairs.yaml`\
-    \ are not present on disk. Without these files the task\u2019s core requirement\u2014\
-    generating and saving the synthetic composite adapters and their metadata\u2014\
-    is unmet. The next implementer must run the script (or ensure it creates) and\
-    \ verify that both output files are created and contain the expected data."
-T031:
+  h: 744844338eb5a6bd8e20de3fdf6d89b094635d35b8a9532582ab67950513cb7e
+  r: "The required output file `data/results/reconstruction_error.json` is missing,\
+    \ and the provided `src/validation/reconstruction_error.py` snippet is truncated\
+    \ before any code that writes mean/max errors or flags the threshold, so the task\u2019\
+    s output requirement is not satisfied."
+T022e:
   c: false
-  h: 98b2ce71b433ef59428af0a80c623bb6b5966eff145771ac1bb6fcf0d3d44663
-  r: "The repository lacks the required `data/results/stats_report.json` file, and\
-    \ the provided excerpts of `src/retrieval/strategies.py` and `src/evaluation/runner.py`\
-    \ do not show any implemented sensitivity\u2011analysis logic for the k values\
-    \ {1,\u202F3,\u202F5,\u202F10} nor code that writes a `sensitivity_analysis` key\
-    \ to the JSON report. These essential artifacts are missing, so the task is not\
-    \ fulfilled."
-T033a:
+  h: a1c2594c83df488f69ddeb9601365852e5a602f3ab13aaba143e589030fd7281
+  r: "The provided `src/validation/generate_eval_tasks.py` is truncated (the `load_composite_pairs`\
+    \ function ends abruptly and the rest of the script is missing), so it cannot\
+    \ actually generate the required `data/processed/eval_tasks.yaml`. Moreover, the\
+    \ `eval_tasks.yaml` file does not exist in the repository. The task\u2019s output\
+    \ artifact is therefore missing."
+T022g:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a modified `README.md` is provided; the claim lacks the actual
-    file showing installation instructions, usage examples, and data source details.
-    The required documentation update is missing.
+  h: 4a4c90fb901f6798019ee5a0101dee81ae3933192f2f7bee79dad9b5f187f316
+  r: "The repository lacks the required output files `data/processed/known_composites_true_weights.npz`\
+    \ and `data/processed/known_composites_pairs.yaml`, and the provided `src/validation/generate_eval_tasks.py`\
+    \ script does not implement the synthesis of known composite tasks or their true\
+    \ weights as specified. The task\u2019s core functionality and expected artifacts\
+    \ are missing."
+T030:
+  c: false
+  h: 31697337b899f18abe6471214bde5c40b27567ac80fc0488cd5a29d5047bd7bf
+  r: "The required `data/processed/known_composites_pairs.yaml` file is absent, so\
+    \ the script cannot read the held\u2011out synthetic pairs. Moreover, the provided\
+    \ `src/validation/linearity_check.py` snippet stops before any logic that computes\
+    \ text\u2011space and weight\u2011space distances or calculates a Pearson correlation,\
+    \ indicating the core functionality is not implemented."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

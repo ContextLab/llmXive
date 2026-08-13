@@ -1949,3 +1949,127 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T10:18:43Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: ALFWorld and Search-QA LoRA weights dimensions 4096x1024
+  claim_id: c_694f7b95
+  context: 'Expected Dimensions: If real data is found, verify shapes match `in_features=4096,
+    out_features=1024` (or log mismatch).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the ALFWorld and Search-QA benchmarks, if real LoRA weights are available,
+    they are expected to have dimensions of in_features=4096 and out_features=1024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:24:29Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Evaluation requires at least 5 independent runs per task
+  claim_id: c_cb1278fd
+  context: Implement `src/evaluation/runner.py` loop to execute N >= 5 independent
+    runs per task (FR-008) and record binary outcomes, calculating the mean of these
+    outcomes.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Evaluation_requires_at_least_5_independent_runs_per_task
+  kind: magnitude
+  raw_text: The evaluation strategy requires executing N greater than or equal to
+    5 independent runs per task.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:25:18Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Base LLM inference memory limit 7GB
+  claim_id: c_2b5c583d
+  context: Implement memory validation and streaming/chunking logic in `src/evaluation/runner.py`
+    to ensure the base LLM inference fits within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Base_LLM_inference_memory_limit_7GB
+  kind: entity_fact
+  raw_text: The base LLM inference is mandated to fit within 7GB of RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:25:44Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis k values 1 3 5 10
+  claim_id: c_275efd6e
+  context: Implement sensitivity analysis logic (SC-004) for k in {1, 3, 5, 10} in
+    `src/evaluation/run_sensitivity_sweep.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis logic is implemented for k values of 1, 3, 5, and
+    10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:27:26Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Base LLM TinyLlama/TinyLlama-Chat-v1.0
+  claim_id: c_64d98fd2
+  context: 'Action: Use `llama.cpp` to download `TinyLlama/TinyLlama-Chat-v1.0`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses TinyLlama/TinyLlama-Chat-v1.0 as the base LLM model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:27:47Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: HuggingFace latent-skills/alfworld-weights path weights/alfworld/*.npz
+  claim_id: c_d8722fef
+  context: 'Implement `src/ingestion/download_weights.py` to fetch real LoRA weights
+    from the **HuggingFace dataset ''latent-skills/alfworld-weights''** (path: `weights/alfworld/*.npz`)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_latent-skills/alfworld-weights_path_weights/alfw
+  kind: entity_fact
+  raw_text: The HuggingFace dataset 'latent-skills/alfworld-weights' contains weight
+    files in the path weights/alfworld/*.npz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:28:05Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: HuggingFace latent-skills/searchqa-weights path weights/searchqa/*.npz
+  claim_id: c_6f1b2de4
+  context: 'and **''latent-skills/searchqa-weights''** (path: `weights/searchqa/*.npz`)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_latent-skills/searchqa-weights_path_weights/sear
+  kind: entity_fact
+  raw_text: The HuggingFace dataset 'latent-skills/searchqa-weights' contains weight
+    files in the path weights/searchqa/*.npz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T11:28:54Z'

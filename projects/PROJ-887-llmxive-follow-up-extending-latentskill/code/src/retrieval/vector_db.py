@@ -1,17 +1,18 @@
 """
-Vector Database Construction Module for LatentSkill Project.
-
-This module handles the loading of flattened LoRA vectors, computation of index structures,
-and serialization of the static CPU-compatible skill index.
+Vector DB construction for Skill Vector Database (US1).
+Loads flattened LoRA vectors, computes index structure, serializes to disk.
 """
 import os
 import sys
 import logging
 import time
+import hashlib
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 
 import numpy as np
+
+from src.utils.config import get_project_root, get_data_path, ensure_directories
 
 # Configure logging
 logging.basicConfig(
@@ -20,199 +21,262 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Path constants relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-FLATTENED_DATA_DIR = PROJECT_ROOT / "data" / "processed" / "flattened_vectors"
-OUTPUT_INDEX_PATH = PROJECT_ROOT / "data" / "processed" / "skill_index.npz"
 
-
-def load_flattened_vectors() -> Dict[str, np.ndarray]:
+def load_flattened_vectors(data_dir: Path) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    Load flattened and L2-normalized vectors from the ingestion stage.
-
-    Expects .npy files in data/processed/flattened_vectors/ where:
-    - Filename format: <dataset>_<adapter_name>.npy
-    - Content: 1D numpy array of normalized weights
-
-    Returns:
-        Dict mapping adapter identifiers to their vector arrays.
-    """
-    if not FLATTENED_DATA_DIR.exists():
-        logger.error(f"Flattened data directory not found: {FLATTENED_DATA_DIR}")
-        raise FileNotFoundError(f"Flattened data directory not found: {FLATTENED_DATA_DIR}")
-
-    vectors = {}
-    npy_files = list(FLATTENED_DATA_DIR.glob("*.npy"))
-
-    if not npy_files:
-        logger.warning(f"No .npy files found in {FLATTENED_DATA_DIR}")
-        return vectors
-
-    for file_path in npy_files:
-        try:
-            vec = np.load(file_path)
-            if vec.ndim != 1:
-                logger.warning(f"Skipping {file_path}: expected 1D array, got {vec.ndim}D")
-                continue
-            # Derive key from filename
-            key = file_path.stem
-            vectors[key] = vec
-            logger.info(f"Loaded vector: {key} (shape: {vec.shape})")
-        except Exception as e:
-            logger.error(f"Failed to load {file_path}: {e}")
-            raise
-
-    logger.info(f"Total vectors loaded: {len(vectors)}")
-    return vectors
-
-
-def compute_index_structure(vectors: Dict[str, np.ndarray]) -> Dict[str, Any]:
-    """
-    Compute metadata and structure for the vector index.
-
-    Args:
-        vectors: Dictionary of adapter names to 1D arrays.
-
-    Returns:
-        Dictionary containing:
-            - 'metadata': List of dicts with adapter info (name, shape, norm)
-            - 'dim': The dimensionality of the vectors (assumed uniform)
-            - 'count': Total number of vectors
-    """
-    if not vectors:
-        raise ValueError("Cannot compute index structure for empty vector set.")
-
-    # Check uniformity of dimensions
-    first_key = next(iter(vectors))
-    dim = vectors[first_key].shape[0]
+    Load flattened LoRA vectors from data/raw/ and combine into a single index.
     
-    metadata = []
-    for name, vec in vectors.items():
-        if vec.shape[0] != dim:
-            logger.warning(f"Dimension mismatch for {name}: {vec.shape[0]} vs {dim}")
-        norm = np.linalg.norm(vec)
-        metadata.append({
-            "name": name,
-            "shape": list(vec.shape),
-            "norm": float(norm)
-        })
+    Expects:
+      - data/raw/alfworld_weights.npz
+      - data/raw/searchqa_weights.npz
+    
+    Returns:
+      - vectors: np.ndarray of shape (N, D) where N is total adapters, D is flattened dim
+      - metadata: dict with task_desc, source, original_shape for each vector
+    """
+    weights_files = {
+        "alfworld": data_dir / "alfworld_weights.npz",
+        "searchqa": data_dir / "searchqa_weights.npz"
+    }
+    
+    all_vectors = []
+    all_metadata = {
+        "task_desc": [],
+        "source": [],
+        "original_shape": []
+    }
+    
+    for source_name, weights_path in weights_files.items():
+        if not weights_path.exists():
+            logger.error(f"Required weights file missing: {weights_path}")
+            raise FileNotFoundError(f"Missing weights file: {weights_path}")
+        
+        logger.info(f"Loading {source_name} weights from {weights_path}")
+        data = np.load(weights_path)
+        
+        # Expected keys: 'A' and 'B' matrices
+        if 'A' not in data or 'B' not in data:
+            raise ValueError(f"Invalid weights format in {weights_path}: missing A or B keys")
+        
+        A = data['A']
+        B = data['B']
+        
+        # Flatten A and B, concatenate
+        A_flat = A.flatten()
+        B_flat = B.flatten()
+        combined = np.concatenate([A_flat, B_flat])
+        
+        # L2 normalize
+        norm = np.linalg.norm(combined)
+        if norm == 0:
+            logger.warning(f"Zero norm vector for {source_name}, skipping")
+            continue
+        
+        normalized = combined / norm
+        
+        all_vectors.append(normalized)
+        all_metadata["task_desc"].append(f"LoRA adapter for {source_name}")
+        all_metadata["source"].append(source_name)
+        all_metadata["original_shape"].append({"A": A.shape, "B": B.shape})
+        
+        logger.info(f"Loaded {source_name}: A={A.shape}, B={B.shape}, flattened={combined.shape}")
+    
+    if not all_vectors:
+        raise ValueError("No valid vectors loaded from weights files")
+    
+    vectors = np.vstack(all_vectors)
+    logger.info(f"Combined index shape: {vectors.shape}")
+    
+    return vectors, all_metadata
 
-    index_structure = {
+
+def compute_index_structure(vectors: np.ndarray, metadata: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Compute structural information about the index for validation and debugging.
+    """
+    n_samples, dim = vectors.shape
+    
+    structure = {
+        "n_samples": n_samples,
+        "dimension": dim,
+        "dtype": str(vectors.dtype),
+        "metadata_keys": list(metadata.keys()),
+        "sample_metadata": {
+            k: v[0] if isinstance(v, list) and len(v) > 0 else v 
+            for k, v in metadata.items()
+        },
+        "norms": np.linalg.norm(vectors, axis=1).tolist()
+    }
+    
+    # Verify L2 normalization (should be ~1.0)
+    max_norm_deviation = max(abs(n - 1.0) for n in structure["norms"])
+    structure["max_norm_deviation"] = max_norm_deviation
+    
+    logger.info(f"Index structure computed: {n_samples} samples, dim={dim}")
+    logger.info(f"Max norm deviation from 1.0: {max_norm_deviation:.2e}")
+    
+    if max_norm_deviation > 1e-5:
+        logger.warning(f"Norm deviation {max_norm_deviation} exceeds tolerance")
+    
+    return structure
+
+
+def prepare_for_serialization(vectors: np.ndarray, metadata: Dict[str, Any], structure: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Prepare the complete index package for serialization.
+    """
+    package = {
+        "vectors": vectors,
         "metadata": metadata,
-        "dim": dim,
-        "count": len(vectors),
-        "source_dir": str(FLATTENED_DATA_DIR)
+        "structure": structure,
+        "version": "1.0",
+        "created_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
-
-    logger.info(f"Index structure computed: {len(vectors)} vectors, dim={dim}")
-    return index_structure
-
-
-def prepare_for_serialization(vectors: Dict[str, np.ndarray], structure: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Prepare data for serialization into the final index file.
-
-    Combines the raw vectors and the computed structure into a single payload.
-
-    Args:
-        vectors: Raw vector dictionary.
-        structure: Computed index structure metadata.
-
-    Returns:
-        Dictionary ready for np.savez.
-    """
-    # Convert vector dict to arrays for savez
-    # We need to pad or handle variable lengths if necessary, but here we assume uniform dim.
-    # To store variable names in npz, we pass them as kwargs or use a structured array.
-    # Here we store the vectors as a list of arrays and metadata as a separate array.
     
-    vector_names = list(vectors.keys())
-    vector_arrays = [vectors[k] for k in vector_names]
+    # Validate data types
+    if not np.issubdtype(vectors.dtype, np.floating):
+        logger.warning(f"Vectors dtype {vectors.dtype} is not floating point")
     
-    # Convert metadata to a list of strings or a structured array for saving
-    # Since np.savez doesn't handle complex dicts well directly, we serialize metadata to a string
-    import json
-    metadata_json = json.dumps(structure['metadata'])
+    # Check for NaN/Inf
+    if np.any(np.isnan(vectors)) or np.any(np.isinf(vectors)):
+        raise ValueError("Vectors contain NaN or Inf values")
+    
+    logger.info("Index package prepared for serialization")
+    return package
 
-    payload = {
-        "vector_names": np.array(vector_names, dtype=object),
-        "vectors": np.array(vector_arrays, dtype=object), # Store as object array of 1D arrays
-        "metadata_json": np.array(metadata_json, dtype=object),
-        "dim": np.array(structure['dim']),
-        "count": np.array(structure['count'])
+
+def save_index(package: Dict[str, Any], output_path: Path) -> Dict[str, Any]:
+    """
+    Save the index to disk as .npz and compute checksum.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save as npz
+    np.savez_compressed(
+        output_path,
+        vectors=package["vectors"],
+        task_desc=package["metadata"]["task_desc"],
+        source=package["metadata"]["source"],
+        original_shape=np.array(package["metadata"]["original_shape"], dtype=object)
+    )
+    
+    # Compute checksum
+    checksum = hashlib.sha256()
+    with open(output_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            checksum.update(chunk)
+    
+    file_size = output_path.stat().st_size
+    
+    result = {
+        "path": str(output_path),
+        "exists": True,
+        "size_bytes": file_size,
+        "checksum_sha256": checksum.hexdigest(),
+        "vectors_shape": package["vectors"].shape,
+        "dtype": str(package["vectors"].dtype),
+        "n_samples": package["structure"]["n_samples"],
+        "dimension": package["structure"]["dimension"]
     }
-
-    logger.info("Data prepared for serialization.")
-    return payload
-
-
-def save_index(payload: Dict[str, np.ndarray], output_path: Path) -> None:
-    """
-    Save the prepared payload to a .npz file.
-
-    Args:
-        payload: Dictionary of arrays to save.
-        output_path: Destination path for the .npz file.
-    """
-    if not output_path.parent.exists():
-        output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Saving index to {output_path}")
-    np.savez(output_path, **payload)
+    logger.info(f"Index saved to {output_path}")
+    logger.info(f"Checksum: {result['checksum_sha256']}")
+    logger.info(f"Size: {file_size} bytes")
     
-    # Verify file existence and size
-    if output_path.exists():
-        size_mb = output_path.stat().st_size / (1024 * 1024)
-        logger.info(f"Index saved successfully. Size: {size_mb:.2f} MB")
-    else:
-        raise RuntimeError(f"Failed to create output file: {output_path}")
+    return result
 
 
-def main() -> None:
+def main():
     """
-    Main entry point to execute the vector DB construction pipeline.
-    
-    1. Load flattened vectors from data/processed/flattened_vectors/
-    2. Compute index structure
-    3. Prepare for serialization
-    4. Save to data/processed/skill_index.npz
-    5. Verify output
+    Main entry point for T014d: Construct and save the static skill index.
     """
-    logger.info("Starting Vector DB Construction (T014b)")
     start_time = time.time()
-
+    
+    project_root = get_project_root()
+    data_dir = get_data_path(project_root)
+    processed_dir = project_root / "data" / "processed"
+    
+    ensure_directories(project_root)
+    
+    input_weights_dir = data_dir / "raw"
+    output_path = processed_dir / "skill_index.npz"
+    
+    logger.info("=" * 60)
+    logger.info("T014d: Constructing Skill Vector Database Index")
+    logger.info("=" * 60)
+    logger.info(f"Input weights dir: {input_weights_dir}")
+    logger.info(f"Output path: {output_path}")
+    
     try:
-        # 1. Load
-        vectors = load_flattened_vectors()
-        if not vectors:
-            logger.error("No vectors loaded. Aborting.")
-            sys.exit(1)
-
-        # 2. Compute Structure
-        structure = compute_index_structure(vectors)
-
-        # 3. Prepare
-        payload = prepare_for_serialization(vectors, structure)
-
-        # 4. Save
-        save_index(payload, OUTPUT_INDEX_PATH)
-
-        # 5. Verify
-        logger.info("Verifying output integrity...")
-        with np.load(OUTPUT_INDEX_PATH, allow_pickle=True) as data:
-            loaded_names = data['vector_names']
-            loaded_count = int(data['count'])
-            if len(loaded_names) != loaded_count:
-                raise ValueError("Verification failed: Name count mismatch.")
-            logger.info(f"Verification passed. {loaded_count} vectors indexed.")
-
+        # Step 1: Load flattened vectors
+        vectors, metadata = load_flattened_vectors(input_weights_dir)
+        
+        # Step 2: Compute index structure
+        structure = compute_index_structure(vectors, metadata)
+        
+        # Step 3: Prepare for serialization
+        package = prepare_for_serialization(vectors, metadata, structure)
+        
+        # Step 4: Save index and verify
+        save_result = save_index(package, output_path)
+        
+        # Step 5: Verification
+        if not output_path.exists():
+            raise RuntimeError(f"Output file was not created: {output_path}")
+        
+        # Validate data type compatibility
+        loaded = np.load(output_path)
+        if "vectors" not in loaded:
+            raise RuntimeError("Saved index missing 'vectors' key")
+        
+        loaded_vectors = loaded["vectors"]
+        if loaded_vectors.dtype != vectors.dtype:
+            logger.warning(f"Loaded dtype {loaded_vectors.dtype} differs from original {vectors.dtype}")
+        
+        # Verify checksum
+        checksum = hashlib.sha256()
+        with open(output_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                checksum.update(chunk)
+        
+        if checksum.hexdigest() != save_result["checksum_sha256"]:
+            raise RuntimeError("Checksum mismatch after save")
+        
         elapsed = time.time() - start_time
-        logger.info(f"Pipeline completed successfully in {elapsed:.2f} seconds.")
-
+        
+        logger.info("=" * 60)
+        logger.info("T014d COMPLETED SUCCESSFULLY")
+        logger.info("=" * 60)
+        logger.info(f"Output file: {output_path}")
+        logger.info(f"Checksum: {save_result['checksum_sha256']}")
+        logger.info(f"Shape: {save_result['vectors_shape']}")
+        logger.info(f"Dtype: {save_result['dtype']}")
+        logger.info(f"Samples: {save_result['n_samples']}")
+        logger.info(f"Dimension: {save_result['dimension']}")
+        logger.info(f"Elapsed time: {elapsed:.2f}s")
+        
+        # Return summary for programmatic access
+        return {
+            "status": "success",
+            "output_path": str(output_path),
+            "checksum": save_result["checksum_sha256"],
+            "shape": save_result["vectors_shape"],
+            "dtype": save_result["dtype"],
+            "n_samples": save_result["n_samples"],
+            "dimension": save_result["dimension"],
+            "elapsed_seconds": elapsed
+        }
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"T014d FAILED: {str(e)}", exc_info=True)
+        elapsed = time.time() - start_time
+        return {
+            "status": "failed",
+            "error": str(e),
+            "elapsed_seconds": elapsed
+        }
 
 
 if __name__ == "__main__":
-    main()
+    result = main()
+    sys.exit(0 if result["status"] == "success" else 1)

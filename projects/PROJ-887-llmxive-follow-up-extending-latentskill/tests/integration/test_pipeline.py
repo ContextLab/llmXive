@@ -1,124 +1,191 @@
 """
-Integration test for the ingestion pipeline (Task T011).
-
-This test verifies that the full ingestion pipeline (from raw weights to
-the final skill index) runs successfully on CPU without requiring GPU resources.
-It depends on T013 (flatten_lora) and T014b (vector_db) being implemented.
+Integration tests for the ingestion pipeline.
+Verifies that the full pipeline from raw weights to skill index generation
+runs successfully on CPU without requiring GPU resources.
 """
-
 import os
 import sys
 import tempfile
 import shutil
-import logging
+import json
 from pathlib import Path
 
-import numpy as np
 import pytest
+import numpy as np
 
-# Ensure project root is in path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path if not already present
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.ingestion.flatten_lora import flatten_and_normalize_weights
-from src.retrieval.vector_db import load_flattened_vectors, compute_index_structure, save_index
+from src.utils.config import get_project_root, get_data_path, ensure_directories, set_seed
+from src.ingestion.download_weights import process_dataset, save_weights
+from src.ingestion.flatten_lora import flatten_and_normalize, validate_dimensions
+from src.retrieval.vector_db import load_flattened_vectors, compute_index_structure, prepare_for_serialization, save_index
 
-# Configure logging for the test
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
-@pytest.fixture
-def temp_raw_data_dir():
-    """Create a temporary directory with mock raw LoRA weights for testing."""
-    temp_dir = tempfile.mkdtemp(prefix="test_ingestion_")
-    raw_dir = Path(temp_dir) / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
+class TestIngestionPipeline:
+    """Integration tests for the skill vector ingestion pipeline."""
 
-    # Create mock LoRA weights (simulating A and B matrices)
-    # Dimensions based on T012 spec: in_features=4096, out_features=1024
-    # Total flattened size = 4096 * 1024 * 2 (A and B)
-    mock_a = np.random.randn(1024, 4096).astype(np.float32)
-    mock_b = np.random.randn(4096, 1024).astype(np.float32)
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        """Setup test environment and cleanup after tests."""
+        # Setup
+        set_seed(42)
+        self.project_root = get_project_root()
+        self.data_path = get_data_path()
+        
+        # Create temporary directories for test artifacts
+        self.test_dir = tempfile.mkdtemp(prefix="llmxive_test_")
+        self.test_data_path = Path(self.test_dir) / "data"
+        self.test_data_raw = self.test_data_path / "raw"
+        self.test_data_processed = self.test_data_path / "processed"
+        
+        self.test_data_raw.mkdir(parents=True, exist_ok=True)
+        self.test_data_processed.mkdir(parents=True, exist_ok=True)
+        
+        # Store original paths to restore later
+        self._original_data_path = self.data_path
+        
+        # Mock config to use test paths
+        # We'll pass paths explicitly to functions instead of relying on global config
+        
+        yield
+        
+        # Teardown
+        if os.path.exists(self.test_dir):
+            shutil.rmtree(self.test_dir)
 
-    # Save as .npz (simulating the output of download_weights.py)
-    np.savez(raw_dir / "alfworld_weights.npz", A=mock_a, B=mock_b)
-    np.savez(raw_dir / "searchqa_weights.npz", A=mock_a, B=mock_b)
+    def test_full_ingestion_pipeline_cpu(self):
+        """
+        Test the complete ingestion pipeline on CPU:
+        1. Generate synthetic proxy weights (simulating T012)
+        2. Flatten and normalize weights (T013)
+        3. Build vector database index (T014c, T014d)
+        4. Verify output file exists and contains valid data
+        
+        This test verifies the pipeline works end-to-end without GPU.
+        """
+        # Step 1: Generate synthetic proxy weights (simulating T012 output)
+        # We create minimal synthetic weights to test the pipeline
+        num_skills = 3
+        in_features = 4096
+        out_features = 1024
+        
+        synthetic_weights_path = self.test_data_raw / "test_weights.npz"
+        
+        # Create synthetic A and B matrices for multiple skills
+        np.savez(
+            str(synthetic_weights_path),
+            skill_1_A=np.random.randn(in_features, out_features).astype(np.float32),
+            skill_1_B=np.random.randn(out_features, in_features).astype(np.float32),
+            skill_2_A=np.random.randn(in_features, out_features).astype(np.float32),
+            skill_2_B=np.random.randn(out_features, in_features).astype(np.float32),
+            skill_3_A=np.random.randn(in_features, out_features).astype(np.float32),
+            skill_3_B=np.random.randn(out_features, in_features).astype(np.float32),
+        )
+        
+        assert synthetic_weights_path.exists(), "Synthetic weights file not created"
+        
+        # Step 2: Flatten and normalize weights (T013 logic)
+        flattened_vectors, metadata = flatten_and_normalize(
+            str(synthetic_weights_path),
+            data_dir=self.test_data_raw
+        )
+        
+        # Verify flattening results
+        assert len(flattened_vectors) == num_skills, f"Expected {num_skills} vectors, got {len(flattened_vectors)}"
+        assert metadata is not None, "Metadata should not be None"
+        assert "skill_ids" in metadata, "Metadata should contain skill_ids"
+        assert len(metadata["skill_ids"]) == num_skills, "Metadata skill_ids count mismatch"
+        
+        # Verify dimensions
+        expected_dim = in_features * out_features * 2  # A and B matrices
+        for vec in flattened_vectors:
+            assert vec.shape[0] == expected_dim, f"Vector dimension mismatch: expected {expected_dim}, got {vec.shape[0]}"
+            # Verify L2 normalization
+            norm = np.linalg.norm(vec)
+            assert np.isclose(norm, 1.0, atol=1e-5), f"Vector not normalized: norm={norm}"
+        
+        # Step 3: Validate dimensions consistency (T015 logic)
+        is_valid, error_msg = validate_dimensions(flattened_vectors)
+        assert is_valid, f"Dimension validation failed: {error_msg}"
+        
+        # Step 4: Build vector database index (T014c, T014d logic)
+        index_data = compute_index_structure(flattened_vectors, metadata)
+        
+        assert "vectors" in index_data, "Index data missing 'vectors' key"
+        assert "metadata" in index_data, "Index data missing 'metadata' key"
+        assert "checksum" in index_data, "Index data missing 'checksum' key"
+        
+        # Verify index structure
+        assert index_data["vectors"].shape[0] == num_skills
+        assert index_data["vectors"].shape[1] == expected_dim
+        
+        # Step 5: Serialize and save index (T014d)
+        output_path = self.test_data_processed / "test_skill_index.npz"
+        save_index(index_data, str(output_path))
+        
+        # Step 6: Verify output file exists and contains valid data
+        assert output_path.exists(), f"Output index file not created at {output_path}"
+        
+        # Load and verify saved index
+        loaded_index = np.load(str(output_path), allow_pickle=True)
+        
+        # Check required keys
+        assert "vectors" in loaded_index.files, "Saved index missing 'vectors' array"
+        assert "metadata" in loaded_index.files, "Saved index missing 'metadata' array"
+        
+        # Verify data integrity
+        loaded_vectors = loaded_index["vectors"]
+        assert loaded_vectors.shape[0] == num_skills, "Loaded vector count mismatch"
+        assert loaded_vectors.shape[1] == expected_dim, "Loaded vector dimension mismatch"
+        
+        # Verify metadata
+        loaded_metadata = loaded_index["metadata"].item()
+        assert "skill_ids" in loaded_metadata, "Loaded metadata missing 'skill_ids'"
+        assert len(loaded_metadata["skill_ids"]) == num_skills, "Loaded metadata skill count mismatch"
+        
+        # Verify checksum was computed
+        assert "checksum" in loaded_metadata, "Loaded metadata missing 'checksum'"
+        
+        print(f"✓ Full ingestion pipeline completed successfully")
+        print(f"  - Generated {num_skills} skill vectors")
+        print(f"  - Vector dimension: {expected_dim}")
+        print(f"  - Output file: {output_path}")
+        print(f"  - File size: {output_path.stat().st_size} bytes")
 
-    yield raw_dir
+    def test_pipeline_with_empty_weights(self):
+        """Test pipeline behavior with empty or malformed weight files."""
+        # Create an empty weights file
+        empty_weights_path = self.test_data_raw / "empty_weights.npz"
+        np.savez(str(empty_weights_path))
+        
+        # Verify the pipeline handles this gracefully
+        # The flatten_and_normalize function should raise an error or handle empty data
+        with pytest.raises((ValueError, KeyError, IndexError)):
+            flatten_and_normalize(str(empty_weights_path), data_dir=self.test_data_raw)
 
-    # Cleanup
-    shutil.rmtree(temp_dir)
+    def test_pipeline_dimension_mismatch(self):
+        """Test pipeline behavior when dimensions are inconsistent."""
+        # Create weights with mismatched dimensions
+        mismatched_path = self.test_data_raw / "mismatched_weights.npz"
+        np.savez(
+            str(mismatched_path),
+            skill_1_A=np.random.randn(4096, 1024).astype(np.float32),
+            skill_1_B=np.random.randn(1024, 4096).astype(np.float32),
+            skill_2_A=np.random.randn(2048, 512).astype(np.float32),  # Different dimensions
+            skill_2_B=np.random.randn(512, 2048).astype(np.float32),
+        )
+        
+        flattened_vectors, _ = flatten_and_normalize(str(mismatched_path), data_dir=self.test_data_raw)
+        
+        # Dimension validation should catch this
+        is_valid, error_msg = validate_dimensions(flattened_vectors)
+        assert not is_valid, "Should detect dimension mismatch"
+        assert "inconsistent" in error_msg.lower() or "dimension" in error_msg.lower()
 
-@pytest.fixture
-def temp_processed_dir(temp_raw_data_dir):
-    """Create a temporary processed directory."""
-    processed_dir = temp_raw_data_dir.parent / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    return processed_dir
 
-def test_ingestion_pipeline_cpu(temp_raw_data_dir, temp_processed_dir):
-    """
-    Integration test: Verify the full ingestion pipeline runs on CPU.
-
-    Steps:
-    1. Load raw weights from temp directory.
-    2. Flatten and normalize using flatten_lora module.
-    3. Compute index structure using vector_db module.
-    4. Save the index to disk.
-    5. Verify the saved index file exists and can be loaded.
-    """
-    logger.info("Starting ingestion pipeline integration test...")
-
-    # Step 1: Define paths
-    raw_weights_path = temp_raw_data_dir
-    output_index_path = temp_processed_dir / "skill_index.npz"
-    flattened_output_path = temp_processed_dir / "flattened_vectors.npz"
-
-    # Step 2: Flatten and normalize weights (T013)
-    logger.info(f"Flattening weights from {raw_weights_path}...")
-    # The function expects a directory containing .npz files
-    flatten_and_normalize_weights(
-        input_dir=raw_weights_path,
-        output_file=str(flattened_output_path)
-    )
-
-    assert flattened_output_path.exists(), "Flattened vectors file was not created."
-    logger.info(f"Flattened vectors saved to {flattened_output_path}")
-
-    # Step 3: Load flattened vectors and compute index (T014a)
-    logger.info("Computing index structure...")
-    vectors_data = load_flattened_vectors(str(flattened_output_path))
-    index_structure = compute_index_structure(vectors_data)
-
-    assert "vectors" in index_structure, "Index structure missing 'vectors' key."
-    assert "metadata" in index_structure, "Index structure missing 'metadata' key."
-    logger.info(f"Index structure computed with {len(index_structure['metadata'])} entries.")
-
-    # Step 4: Save the index (T014b)
-    logger.info(f"Saving index to {output_index_path}...")
-    save_index(index_structure, str(output_index_path))
-
-    assert output_index_path.exists(), "Skill index file was not created."
-    logger.info(f"Skill index saved to {output_index_path}")
-
-    # Step 5: Verify integrity by loading the saved index
-    logger.info("Verifying saved index integrity...")
-    loaded_data = np.load(output_index_path, allow_pickle=True)
-    loaded_vectors = loaded_data["vectors"]
-    loaded_metadata = loaded_data["metadata"].item()
-
-    assert loaded_vectors.shape[0] == len(loaded_metadata), \
-        "Mismatch between vector count and metadata entries."
-    
-    # Verify dimensions (should be 4096 * 1024 * 2 = 8,388,608 per vector)
-    expected_dim = 4096 * 1024 * 2
-    assert loaded_vectors.shape[1] == expected_dim, \
-        f"Vector dimension mismatch. Expected {expected_dim}, got {loaded_vectors.shape[1]}"
-
-    logger.info("Ingestion pipeline integration test PASSED.")
-    print(f"SUCCESS: Index generated at {output_index_path}")
-    print(f"Vector shape: {loaded_vectors.shape}")
-    print(f"Metadata entries: {len(loaded_metadata)}")
+if __name__ == "__main__":
+    # Allow running the test directly
+    pytest.main([__file__, "-v"])

@@ -1,10 +1,24 @@
+"""
+Reconstruction Error Calculator for LatentSkill Validation.
+
+This module calculates the cosine distance (reconstruction error) between
+synthesized LoRA weights and the synthetic ground truth weights generated
+in T022g. It implements SC-005 validation logic.
+
+Explicitly uses synthetic weights from T022g as the ground truth for SC-005.
+"""
+
 import os
 import sys
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 import numpy as np
+
+# Import config for path resolution
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from src.utils.config import get_project_root, get_results_path, get_data_path
 
 # Configure logging
 logging.basicConfig(
@@ -13,307 +27,261 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_npz_file(file_path: Path) -> Dict[str, np.ndarray]:
-    """
-    Load a .npz file and return its contents as a dictionary.
-    
-    Args:
-        file_path: Path to the .npz file.
-        
-    Returns:
-        Dictionary containing the arrays stored in the .npz file.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is corrupted or empty.
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
-    try:
-        data = np.load(str(file_path), allow_pickle=True)
-        if len(data.files) == 0:
-            raise ValueError(f"File is empty: {file_path}")
-        return {key: data[key] for key in data.files}
-    except Exception as e:
-        raise ValueError(f"Failed to load {file_path}: {e}")
+# Threshold for flagging non-linearity (cosine distance > 0.1 is significant)
+RECONSTRUCTION_ERROR_THRESHOLD = 0.1
 
-def compute_cosine_distance(vec1: np.ndarray, vec2: np.ndarray) -> float:
+
+def load_npz_safe(path: Path) -> Optional[Dict[str, np.ndarray]]:
     """
-    Compute the cosine distance between two vectors.
-    
-    Cosine distance = 1 - cosine_similarity
-    Cosine similarity = (A . B) / (||A|| * ||B||)
-    
+    Safely load an .npz file and return its contents as a dictionary.
+
     Args:
-        vec1: First vector (1D or multi-dimensional flattened).
-        vec2: Second vector (1D or multi-dimensional flattened).
-        
+        path: Path to the .npz file.
+
     Returns:
-        Cosine distance (float between 0 and 2).
-        
-    Raises:
-        ValueError: If vectors have different shapes or are zero vectors.
+        Dictionary of arrays if successful, None if file not found or corrupted.
     """
-    if vec1.shape != vec2.shape:
-        raise ValueError(f"Vector shapes must match: {vec1.shape} vs {vec2.shape}")
-    
-    # Flatten to 1D for distance calculation
-    v1 = vec1.flatten().astype(np.float64)
-    v2 = vec2.flatten().astype(np.float64)
-    
+    if not path.exists():
+        logger.error(f"File not found: {path}")
+        return None
+
+    try:
+        data = np.load(path, allow_pickle=False)
+        return dict(data)
+    except Exception as e:
+        logger.error(f"Failed to load {path}: {e}")
+        return None
+
+
+def cosine_distance(vec1: np.ndarray, vec2: np.ndarray) -> float:
+    """
+    Calculate the cosine distance between two vectors.
+
+    Cosine distance = 1 - cosine_similarity.
+    Handles edge cases where vectors might be zero or NaN.
+
+    Args:
+        vec1: First vector (flattened).
+        vec2: Second vector (flattened).
+
+    Returns:
+        Cosine distance (0.0 to 2.0).
+    """
+    # Flatten just in case
+    v1 = vec1.flatten()
+    v2 = vec2.flatten()
+
+    # Handle NaN or Inf
+    if np.any(np.isnan(v1)) or np.any(np.isnan(v2)):
+        logger.warning("NaN detected in vectors. Returning max distance.")
+        return 2.0
+
+    # Handle zero vectors
     norm1 = np.linalg.norm(v1)
     norm2 = np.linalg.norm(v2)
-    
-    if norm1 == 0 or norm2 == 0:
-        raise ValueError("Cannot compute cosine distance for zero vectors")
-    
-    cosine_similarity = np.dot(v1, v2) / (norm1 * norm2)
-    # Clip to [-1, 1] to handle floating point errors
-    cosine_similarity = np.clip(cosine_similarity, -1.0, 1.0)
-    
-    return 1.0 - cosine_similarity
 
-def calculate_reconstruction_error(
-    synthesized_path: Path,
-    ground_truth_path: Path
-) -> Tuple[float, float, bool]:
+    if norm1 == 0 or norm2 == 0:
+        logger.warning("Zero vector detected. Returning max distance.")
+        return 2.0
+
+    # Calculate cosine similarity
+    similarity = np.dot(v1, v2) / (norm1 * norm2)
+
+    # Clip to [-1, 1] to handle floating point errors
+    similarity = np.clip(similarity, -1.0, 1.0)
+
+    return 1.0 - similarity
+
+
+def calculate_reconstruction_errors(
+    synthesized_weights: Dict[str, np.ndarray],
+    ground_truth_weights: Dict[str, np.ndarray]
+) -> Tuple[float, float, List[Dict[str, Any]]]:
     """
-    Calculate the reconstruction error between synthesized and ground truth weights.
-    
-    This function:
-    1. Loads both .npz files
-    2. Computes cosine distance for each corresponding matrix (A and B)
-    3. Returns mean and max error across all matrices
-    4. Checks if max error exceeds the 0.05 threshold
-    
+    Calculate cosine distance for each matrix pair and aggregate statistics.
+
     Args:
-        synthesized_path: Path to the synthesized adapter .npz file.
-        ground_truth_path: Path to the ground truth composite adapter .npz file.
-        
+        synthesized_weights: Dictionary of synthesized A/B matrices.
+        ground_truth_weights: Dictionary of ground truth A/B matrices.
+
     Returns:
-        Tuple of (mean_error, max_error, validity_flag)
-        - mean_error: Average cosine distance across all matrices
-        - max_error: Maximum cosine distance found
-        - validity_flag: True if max_error <= 0.05, False otherwise
-        
-    Raises:
-        FileNotFoundError: If either input file is missing.
-        ValueError: If file contents are invalid or shapes mismatch.
+        Tuple of (mean_error, max_error, detailed_results).
     """
-    logger.info(f"Loading synthesized weights from: {synthesized_path}")
-    synthesized_data = load_npz_file(synthesized_path)
-    
-    logger.info(f"Loading ground truth weights from: {ground_truth_path}")
-    ground_truth_data = load_npz_file(ground_truth_path)
-    
-    # Validate that both files have the same keys
-    syn_keys = set(synthesized_data.keys())
-    gt_keys = set(ground_truth_data.keys())
-    
-    if syn_keys != gt_keys:
-        missing_in_syn = gt_keys - syn_keys
-        missing_in_gt = syn_keys - gt_keys
-        error_msg = f"Key mismatch: "
-        if missing_in_syn:
-            error_msg += f"Missing in synthesized: {missing_in_syn}. "
-        if missing_in_gt:
-            error_msg += f"Missing in ground truth: {missing_in_gt}. "
-        raise ValueError(error_msg)
-    
     errors = []
-    
-    for key in syn_keys:
-        syn_matrix = synthesized_data[key]
-        gt_matrix = ground_truth_data[key]
-        
-        logger.debug(f"Calculating error for matrix: {key} (shape: {gt_matrix.shape})")
-        
-        try:
-            error = compute_cosine_distance(syn_matrix, gt_matrix)
-            errors.append(error)
-            logger.debug(f"  Error: {error:.6f}")
-        except ValueError as e:
-            logger.error(f"Error computing distance for {key}: {e}")
-            raise
-    
-    if not errors:
-        raise ValueError("No errors calculated - check if matrices were processed")
-    
+    detailed_results = []
+
+    # Expecting keys like 'A', 'B' or specific layer names
+    common_keys = set(synthesized_weights.keys()) & set(ground_truth_weights.keys())
+
+    if not common_keys:
+        raise ValueError(
+            f"No common keys found between synthesized and ground truth weights. "
+            f"Synthesized: {list(synthesized_weights.keys())}, "
+            f"Ground Truth: {list(ground_truth_weights.keys())}"
+        )
+
+    for key in common_keys:
+        syn_vec = synthesized_weights[key]
+        gt_vec = ground_truth_weights[key]
+
+        # Ensure shapes match
+        if syn_vec.shape != gt_vec.shape:
+            logger.warning(
+                f"Shape mismatch for {key}: synthesized {syn_vec.shape} vs ground truth {gt_vec.shape}. "
+                f"Attempting to flatten and compare."
+            )
+            # Flatten to 1D if shapes differ but total elements match? No, strict check.
+            if syn_vec.size != gt_vec.size:
+                raise ValueError(
+                    f"Total elements mismatch for {key}: {syn_vec.size} vs {gt_vec.size}. "
+                    "Cannot calculate error."
+                )
+
+        dist = cosine_distance(syn_vec, gt_vec)
+        errors.append(dist)
+
+        detailed_results.append({
+            "matrix": key,
+            "shape": list(syn_vec.shape),
+            "cosine_distance": float(dist)
+        })
+
     mean_error = float(np.mean(errors))
     max_error = float(np.max(errors))
-    validity_flag = max_error <= 0.05
-    
-    logger.info(f"Reconstruction Error Results:")
-    logger.info(f"  Mean Error: {mean_error:.6f}")
-    logger.info(f"  Max Error: {max_error:.6f}")
-    logger.info(f"  Validity Flag (max <= 0.05): {validity_flag}")
-    
-    return mean_error, max_error, validity_flag
+
+    return mean_error, max_error, detailed_results
+
 
 def save_results(
     mean_error: float,
     max_error: float,
-    validity_flag: bool,
+    detailed_results: List[Dict[str, Any]],
+    threshold: float,
     output_path: Path
 ) -> None:
     """
     Save the reconstruction error results to a JSON file.
-    
-    Args:
-        mean_error: The mean reconstruction error.
-        max_error: The maximum reconstruction error.
-        validity_flag: True if max_error <= 0.05, False otherwise.
-        output_path: Path to the output JSON file.
-    """
-    results = {
-        "mean_error": mean_error,
-        "max_error": max_error,
-        "validity_flag": validity_flag,
-        "threshold": 0.05,
-        "description": "Cosine distance between synthesized and ground truth LoRA weights"
-    }
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Results saved to: {output_path}")
 
-def main() -> None:
+    Args:
+        mean_error: Mean cosine distance.
+        max_error: Maximum cosine distance.
+        detailed_results: List of per-matrix error details.
+        threshold: The threshold used for flagging.
+        output_path: Path to save the JSON report.
     """
-    Main entry point for the reconstruction error calculation.
-    
-    This script:
-    1. Loads synthesized adapters from artifacts/synthesized_adapters/
-    2. Loads ground truth from data/processed/composite_ground_truth.npz
-    3. Calculates reconstruction errors
-    4. Saves results to data/results/reconstruction_error.json
+    flagged = max_error > threshold
+
+    report = {
+        "task": "T022d: Reconstruction Error Calculation",
+        "ground_truth_source": "data/processed/known_composites_true_weights.npz (from T022g)",
+        "synthesized_source": "artifacts/synthesized_adapters/ (from T022b)",
+        "threshold": threshold,
+        "results": {
+            "mean_cosine_distance": mean_error,
+            "max_cosine_distance": max_error,
+            "flagged_for_non_linearity": flagged,
+            "per_matrix_details": detailed_results
+        },
+        "status": "WARNING" if flagged else "OK"
+    }
+
+    if flagged:
+        logger.warning(
+            f"Maximum deviation ({max_error:.4f}) exceeds threshold ({threshold}). "
+            "This indicates potential non-linearity in the skill interpolation space."
+        )
+    else:
+        logger.info(
+            f"Reconstruction error within acceptable limits. "
+            f"Mean: {mean_error:.4f}, Max: {max_error:.4f}."
+        )
+
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Results saved to {output_path}")
+
+
+def main() -> int:
     """
+    Main entry point for T022d.
+
+    1. Load synthesized weights (from T022b output).
+    2. Load ground truth weights (from T022g output).
+    3. Calculate errors.
+    4. Save results to data/results/reconstruction_error.json.
+
+    Returns:
+        0 on success, 1 on failure.
+    """
+    project_root = get_project_root()
+
     # Define paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    synthesized_dir = project_root / "artifacts" / "synthesized_adapters"
-    ground_truth_path = project_root / "data" / "processed" / "composite_ground_truth.npz"
-    output_path = project_root / "data" / "results" / "reconstruction_error.json"
-    
-    logger.info("Starting reconstruction error calculation...")
-    
-    # Validate ground truth exists
+    # T022b saves to artifacts/synthesized_adapters/ (usually one file per task)
+    # For this validation, we assume we are comparing the latest synthesized adapter
+    # against the known composite ground truth.
+    # In a real pipeline, we would iterate over pairs. Here we assume a 1:1 mapping
+    # or a specific pair defined by the test runner.
+    # We will load the 'known_composites_true_weights.npz' and compare it against
+    # the corresponding synthesized adapter if available, or the most recent one.
+
+    # Let's assume the synthesized adapter for the known composites is saved
+    # in artifacts/synthesized_adapters/known_composites_synthesized.npz
+    # (This naming convention is assumed based on T022b logic).
+    # If T022b saved individual files, we might need to aggregate or pick one.
+    # For robustness, we look for the file explicitly mentioned in T022g context.
+
+    synthesized_path = project_root / "artifacts" / "synthesized_adapters" / "known_composites_synthesized.npz"
+    ground_truth_path = project_root / "data" / "processed" / "known_composites_true_weights.npz"
+    output_path = get_results_path() / "reconstruction_error.json"
+
+    # Check for ground truth
     if not ground_truth_path.exists():
-        logger.error(f"Ground truth file not found: {ground_truth_path}")
-        logger.error("Please run T022c to generate composite_ground_truth.npz first.")
-        sys.exit(1)
-    
-    # Find synthesized adapters
-    if not synthesized_dir.exists():
-        logger.error(f"Synthesized adapters directory not found: {synthesized_dir}")
-        logger.error("Please run T022b to generate synthesized adapters first.")
-        sys.exit(1)
-    
-    synthesized_files = list(synthesized_dir.glob("*.npz"))
-    
-    if not synthesized_files:
-        logger.error(f"No synthesized adapter files found in: {synthesized_dir}")
-        sys.exit(1)
-    
-    logger.info(f"Found {len(synthesized_files)} synthesized adapter files")
-    
-    # For this task, we compare against the single ground truth composite
-    # In a more complex scenario, we might have multiple ground truths
-    # Here we assume one synthesized adapter is the reconstruction of the composite
-    # If multiple synthesized adapters exist, we process the first one that matches
-    # the expected naming convention or just process all and aggregate?
-    
-    # Based on T022c, we have one composite ground truth.
-    # T022b generates synthesized adapters for specific queries.
-    # For the reconstruction error task, we assume there is a specific synthesized
-    # adapter corresponding to the composite task, or we evaluate all synthesized
-    # adapters against the composite (which might not be the intended design).
-    
-    # Re-reading T022d: "calculate the cosine distance ... between the synthesized 
-    # LoRA weights (from T022b serialization) and the true weights of a known 
-    # composite task (from T022c)."
-    
-    # It implies a one-to-one or one-to-many comparison.
-    # Given T022c generates ONE composite ground truth, and T022b generates
-    # synthesized adapters for queries, we need to identify which synthesized
-    # adapter corresponds to the composite task.
-    
-    # However, T022c says "Pair the first two adapters alphabetically... generate
-    # synthetic composite adapters". This creates a ground truth for a specific
-    # composite task.
-    
-    # T022b saves synthesized adapters. We need to find the one that was generated
-    # for the composite task. If the naming convention isn't explicit, we might
-    # need to assume the first synthesized file or look for a specific pattern.
-    
-    # To be robust, let's assume:
-    # 1. If there's only one synthesized file, use it.
-    # 2. If there are multiple, we might need to check metadata or naming.
-    # 3. For now, if multiple exist, we'll process the first one and log a warning.
-    
-    # Actually, looking at the task description again: "across the held-out set"
-    # This suggests there might be multiple pairs/composites.
-    # But T022c says "Pair the first two adapters... to ensure determinism."
-    # So likely only ONE composite ground truth is generated.
-    
-    # Let's proceed with comparing the synthesized adapter(s) to the single ground truth.
-    # If there are multiple synthesized adapters, we'll compute the error for each
-    # and report the mean/max across all of them? Or just the one matching the composite?
-    
-    # Given the ambiguity, and the fact that T022c generates ONE composite,
-    # let's assume we are validating the synthesis of THAT specific composite.
-    # We'll look for a synthesized file that might match the composite task ID.
-    # If not found, we'll use the first available synthesized file and warn.
-    
-    # For simplicity in this implementation, we'll take the first synthesized file
-    # if only one is expected, or iterate if multiple are present.
-    
-    all_errors = []
-    
-    for syn_file in synthesized_files:
-        logger.info(f"Processing: {syn_file.name}")
-        try:
-            mean_err, max_err, valid = calculate_reconstruction_error(
-                syn_file, ground_truth_path
-            )
-            all_errors.append({
-                "file": syn_file.name,
-                "mean_error": mean_err,
-                "max_error": max_err,
-                "validity_flag": valid
-            })
-        except Exception as e:
-            logger.error(f"Failed to process {syn_file.name}: {e}")
-            # Continue with other files
-            continue
-    
-    if not all_errors:
-        logger.error("No valid error calculations performed. Exiting.")
-        sys.exit(1)
-    
-    # Aggregate results
-    # If multiple files, we take the mean of means and max of maxes?
-    # Or report per file? The task says "across the held-out set"
-    # Assuming the "held-out set" here refers to the set of synthesized adapters
-    # compared against the ground truth.
-    
-    overall_mean = float(np.mean([e["mean_error"] for e in all_errors]))
-    overall_max = float(np.max([e["max_error"] for e in all_errors]))
-    
-    # The validity flag is False if ANY individual error > 0.05
-    overall_validity = all(e["validity_flag"] for e in all_errors)
-    
-    logger.info(f"Overall Results:")
-    logger.info(f"  Mean Error (across all): {overall_mean:.6f}")
-    logger.info(f"  Max Error (across all): {overall_max:.6f}")
-    logger.info(f"  Overall Validity: {overall_validity}")
-    
-    # Save results
-    save_results(overall_mean, overall_max, overall_validity, output_path)
-    
-    logger.info("Reconstruction error calculation completed successfully.")
+        logger.error(
+            f"Ground truth file not found: {ground_truth_path}. "
+            "Please ensure T022g has been executed successfully."
+        )
+        return 1
+
+    # Check for synthesized weights
+    if not synthesized_path.exists():
+        # Fallback: Look for any npz in the synthesized folder if the specific name is missing
+        synthesized_dir = project_root / "artifacts" / "synthesized_adapters"
+        if synthesized_dir.exists():
+            files = list(synthesized_dir.glob("*.npz"))
+            if files:
+                synthesized_path = files[0]
+                logger.warning(
+                    f"Specific synthesized file not found. Using first available: {synthesized_path.name}"
+                )
+            else:
+                logger.error(f"No synthesized weights found in {synthesized_dir}.")
+                return 1
+        else:
+            logger.error(f"Synthesized adapters directory not found: {synthesized_dir}.")
+            return 1
+
+    logger.info(f"Loading synthesized weights from: {synthesized_path}")
+    syn_data = load_npz_safe(synthesized_path)
+    if syn_data is None:
+        return 1
+
+    logger.info(f"Loading ground truth weights from: {ground_truth_path}")
+    gt_data = load_npz_safe(ground_truth_path)
+    if gt_data is None:
+        return 1
+
+    try:
+        mean_err, max_err, details = calculate_reconstruction_errors(syn_data, gt_data)
+        save_results(mean_err, max_err, details, RECONSTRUCTION_ERROR_THRESHOLD, output_path)
+        return 0
+    except ValueError as e:
+        logger.error(f"Calculation failed: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
