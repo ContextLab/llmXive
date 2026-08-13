@@ -1,62 +1,62 @@
 # Data Model: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code
 
-## Entities
+## Entity Definitions
 
 ### CodeSnippet
-Represents a single unit of source code.
-- `id`: string (UUID or hash of code + source)
-- `language`: enum['python', 'c', 'javascript']
-- `source_code`: string (raw code, truncated if necessary)
-- `ground_truth_label`: enum['vulnerable', 'safe', 'unknown']
-- `ground_truth_category`: string (e.g., 'CWE-89', 'CWE-119') or null
-- `source_dataset`: string (e.g., 'vuldeepecker', 'bigvul')
-- `truncated`: boolean (true if code was truncated for LLM context)
+Represents a single unit of source code with attributes.
+- `id`: Unique string identifier (e.g., `py_001_vuln`).
+- `language`: Enum (`C`, `Python`, `JavaScript`).
+- `source_code`: String (raw code snippet).
+- `ground_truth_label`: Enum (`Vulnerable`, `Safe`).
+- `ground_truth_category`: String (e.g., `CWE-89` for SQLi).
+- `source_dataset`: String (e.g., `VulDeePecker`, `JSVulnDB`, `NIST_Juliet`).
+- `truncated`: Boolean (true if code was truncated for context window).
 
 ### FeatureVector
-Extracted properties of a CodeSnippet.
-- `snippet_id`: string (FK to CodeSnippet.id)
-- `ast_depth`: integer (max depth of AST)
-- `node_count`: integer (total AST nodes)
-- `cyclomatic_complexity`: float (McCabe complexity)
-- `taint_api_count`: integer (frequency of taint-source APIs)
-- `sanitization_present`: boolean (true if sanitization found)
-- `embedding_similarity_score`: float (cosine similarity to vulnerable pattern)
-- `parse_error`: boolean (true if parsing failed)
+Represents the extracted properties of a snippet.
+- `snippet_id`: Foreign key to `CodeSnippet.id`.
+- `ast_depth`: Integer (max depth of AST).
+- `node_count`: Integer (total nodes in AST).
+- `cyclomatic_complexity`: Float (McCabe complexity).
+- `taint_api_count`: Integer (frequency of taint-source APIs).
+- `sanitization_present`: Boolean (presence of known sanitizers).
+- `parse_error`: Boolean (true if parsing failed).
+- `language`: Enum (`C`, `Python`, `JavaScript`).
+- `embedding_similarity_score`: Float (Optional/Nullable; excluded from primary regression).
 
 ### PredictionResult
-Output of LLM or Static Analyzer.
-- `snippet_id`: string (FK to CodeSnippet.id)
-- `model_name`: string (e.g., 'phi-3', 'bandit')
-- `predicted_label`: enum['vulnerable', 'safe']
-- `predicted_category`: string (or null)
-- `confidence_score`: float (0.0 to 1.0)
-- `is_correct`: boolean (matches ground_truth_label)
-- `inference_time_ms`: float (MANDATORY for FR-007)
-- `truncation_event`: boolean (true if input was truncated)
-- `timeout_risk`: boolean (true if processed after circuit breaker trigger)
+Represents the LLM or Analyzer's output.
+- `snippet_id`: Foreign key to `CodeSnippet.id`.
+- `model_type`: Enum (`LLM_ZeroShot`, `Bandit`, `Cppcheck`).
+- `predicted_label`: Enum (`Vulnerable`, `Safe`, `Uncertain`).
+- `predicted_category`: String (e.g., `SQLi`, `BufferOverflow`).
+- `confidence_score`: Float (0.0 to 1.0).
+- `is_correct`: Boolean (matches `ground_truth_label`).
+- `inference_time_ms`: Float (execution time).
+- `truncation_event`: Boolean (true if input was truncated).
 
 ### AnalysisMetric
-Statistical results.
-- `metric_name`: string (e.g., 'Point-Biserial_r', 'McNemar_chi2')
-- `feature_name`: string (or 'model_comparison')
-- `value`: float
-- `p_value`: float
-- `adjusted_p_value`: float (if corrected)
-- `significance`: enum['significant', 'not_significant']
-- `vif`: float (Variance Inflation Factor, if applicable)
+Represents a statistical result.
+- `metric_name`: String (e.g., `Pearson_r`, `McFadden_R2`).
+- `feature_name`: String (e.g., `ast_depth`).
+- `model_type`: String (e.g., `LLM_ZeroShot`).
+- `value`: Float.
+- `p_value`: Float.
+- `adjusted_p_value`: Float (Bonferroni corrected).
+- `significance`: Enum (`Significant`, `Not_Significant`).
 
 ## Data Flow
 
-1.  **Download**: Raw datasets downloaded to `data/raw/`. Checksums computed.
-2. **Preprocess**: Datasets merged, filtered (max [deferred]), stratified. Output: `data/processed/samples.csv` (CodeSnippet).
-3.  **Feature Extraction**: `samples.csv` → `data/processed/features.csv` (FeatureVector).
-4.  **Inference**: `samples.csv` → `data/processed/predictions_llm.csv` + `data/processed/predictions_static.csv` (PredictionResult). **Logging `inference_time_ms` is mandatory.**
-5.  **Analysis**: `features.csv` + `predictions_*.csv` → `data/processed/metrics.json` (AnalysisMetric).
-6.  **Versioning**: `src/utils/hash_artifacts.py` computes content hashes and records them in `state.yaml` after each stage.
+1. **Ingestion**: Raw datasets (`data/raw`) → `CodeSnippet` records (`data/processed/raw_snippets.parquet`).
+2. **Feature Extraction**: `CodeSnippet` → `FeatureVector` (stored in `data/processed/features.parquet`).
+3. **Inference**: `CodeSnippet` + `FeatureVector` → `PredictionResult` (LLM & Static Analyzers).
+4. **Analysis**: `PredictionResult` + `FeatureVector` → `AnalysisMetric` (stored in `data/results/analysis_metrics.csv`).
 
-## Storage Format
+## Storage Schema
 
-- **Raw Data**: Parquet (preserved as-is).
-- **Processed Data**: CSV (for readability and ease of statistical import) with UTF-8 encoding.
-- **Metrics**: JSON (structured for programmatic access).
-- **Logs**: JSONL (structured logs).
+- **Raw Data**: Parquet/JSONL in `data/raw/`.
+- **Processed Data**: Parquet in `data/processed/` (merged features + snippets).
+- **Results**: CSV/JSON in `data/results/` (predictions, metrics).
+- **Logs**: JSON in `data/logs/` (errors, stratification verification, dataset substitution justification).
+  - `data/logs/stratification_verification.json`: Logs the stratification process and sample counts per category.
+  - `data/logs/dataset_substitution_justification.json`: Logs the justification for using JSVulnDB over BigVul and NIST Juliet via git clone.

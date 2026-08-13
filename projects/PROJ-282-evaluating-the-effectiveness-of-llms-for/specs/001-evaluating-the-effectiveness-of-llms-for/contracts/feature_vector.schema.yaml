@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "FeatureVector"
-description: "Schema for extracted structural and semantic features."
+description: "Schema for extracted structural and semantic features (Canonical SSoT)."
 type: "object"
 properties:
   snippet_id:
@@ -25,12 +25,7 @@ properties:
   sanitization_present:
     type: "boolean"
     description: "True if sanitization functions are present."
-  embedding_similarity_score:
-    type: "number"
-    minimum: -1.0
-    maximum: 1.0
-    description: "Cosine similarity to vulnerable patterns."
-  parsing_error:
+  parse_error:
     type: "boolean"
     description: "True if parsing failed."
   language:
@@ -44,7 +39,6 @@ required:
   - node_count
   - taint_api_count
   - sanitization_present
-  - embedding_similarity_score
-  - parsing_error
+  - parse_error
   - language
 additionalProperties: false

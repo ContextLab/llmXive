@@ -3,70 +3,57 @@
 ## Prerequisites
 
 - Python 3.11+
-- `bandit` (Python) and `cppcheck` (C) installed in the system path.
-- Access to a GitHub Actions runner or local environment with ≥7GB RAM.
+- Git
+- `bandit` and `cppcheck` installed globally (or via Docker)
+- Standard GitHub Actions runner with sufficient RAM and CPU cores to support the research question using the specified method (Citation: [DOI/arXiv/author-year]).
 
-## Installation
+## Setup
 
-1.  **Clone & Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-282-evaluating-the-effectiveness-of-llms-for
-    python -m venv venv
-    source venv/bin/activate
-    ```
+1. **Clone the Repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-282-evaluating-the-effectiveness-of-llms-for
+   ```
 
-2.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    # requirements.txt includes: transformers, datasets, pandas, scikit-learn, tree-sitter, bandit, pydantic
-    ```
+2. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3.  **Install System Tools**:
-    ```bash
-    # Ubuntu/Debian
-    sudo apt-get update && sudo apt-get install -y cppcheck
-    ```
+3. **Download Datasets**:
+   Run the ingestion script to fetch and checksum data:
+   ```bash
+   python src/data/ingest.py --download
+   ```
+   *Note*: This will fetch VulDeePecker and JSVulnDB from Hugging Face. For NIST Juliet, it will `git clone` the official repository.
 
-## Running the Pipeline
+4. **Extract Features**:
+   ```bash
+   python src/data/feature_extractor.py --run
+   ```
+   This generates `data/processed/features.parquet` and logs `data/logs/stratification_verification.json` and `data/logs/dataset_substitution_justification.json`.
 
-### 1. Download Data
-```bash
-python src/main.py --stage download
-```
-*Downloads VulDeePecker, BigVul, and JS datasets to `data/raw/` and computes checksums.*
+5. **Run Inference & Baselines**:
+   ```bash
+   python src/main.py --run-inference --run-baseline
+   ```
+   This executes LLM zero-shot inference and static analyzers, saving results to `data/results/predictions.csv`.
 
-### 2. Preprocess & Sample
-```bash
-python src/main.py --stage preprocess
-```
-*Stratified sampling to a representative subset. Output: `data/processed/samples.csv`.*
-
-### 3. Extract Features
-```bash
-python src/main.py --stage features
-```
-*Computes AST, complexity, and embeddings. Output: `data/processed/features.csv`.*
-
-### 4. Run Inference (LLM + Static)
-```bash
-python src/main.py --stage inference
-```
-*Runs zero-shot LLM and static analyzers. Output: `data/processed/predictions_llm.csv`, `predictions_static.csv`.*
-
-### 5. Analyze Results
-```bash
-python src/main.py --stage analysis
-```
-*Computes metrics, correlations, regression, and McNemar's test. Output: `data/processed/metrics.json`.*
+6. **Perform Statistical Analysis**:
+   ```bash
+   python src/models/regression.py --run-analysis
+   ```
+   This generates `data/results/analysis_metrics.csv` and plots.
 
 ## Verification
 
-- **Check Sum**: `python src/utils/hash_artifacts.py --verify`
-- **Run Tests**: `pytest tests/`
+- Check `data/logs/stratification_verification.json` to ensure balanced sampling.
+- Check `data/logs/dataset_substitution_justification.json` for dataset source changes.
+- Verify `data/results/analysis_metrics.csv` contains non-null p-values and adjusted p-values.
+- Run `pytest tests/` to ensure all unit and integration tests pass.
 
 ## Troubleshooting
 
-- **OOM Error**: Reduce `BATCH_SIZE` in `src/config.py` to 1.
-- **Missing Tool**: Ensure `cppcheck` is in `$PATH` for C analysis.
-- **Timeout**: If runtime > 6h, the job will fail. Reduce sample size in `src/config.py`.
+- **Memory Error**: Reduce `--sample-size` in `ingest.py` or enable `--streaming`.
+- **Parsing Error**: Check `data/logs/parse_errors.log` for malformed code snippets.
+- **Timeout**: If runtime exceeds a predetermined threshold, the pipeline will automatically reduce the sample size.

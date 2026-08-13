@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "AnalysisMetric"
-description: "Schema for statistical analysis results (Canonical SSoT)."
+description: "Schema for statistical analysis results"
 type: "object"
 properties:
   metric_name:
@@ -9,9 +9,6 @@ properties:
   feature_name:
     type: "string"
     description: "Name of the feature being analyzed"
-  category:
-    type: "string"
-    description: "Vulnerability category (CWE) if applicable."
   model_type:
     type: "string"
     description: "Model type associated with the metric"
@@ -34,11 +31,10 @@ properties:
       - "Significant"
       - "Not_Significant"
     description: "Statistical significance status"
-  notes:
-    type: "string"
-    description: "Optional free-form commentary."
 required:
   - metric_name
+  - feature_name
+  - model_type
   - value
   - p_value
   - adjusted_p_value

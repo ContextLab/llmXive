@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PredictionResult"
-description: "Schema for LLM and Static Analyzer predictions."
+description: "Schema for LLM and Static Analyzer predictions (Canonical SSoT)."
 type: "object"
 properties:
   snippet_id:
@@ -8,11 +8,11 @@ properties:
     description: "Foreign key to CodeSnippet."
   model_type:
     type: "string"
-    enum: ["LLM", "StaticAnalyzer"]
+    enum: ["LLM_ZeroShot", "Bandit", "Cppcheck"]
     description: "Type of model used."
   predicted_label:
-    type: "integer"
-    enum: [0, 1]
+    type: "string"
+    enum: ["Vulnerable", "Safe", "Uncertain"]
     description: "Predicted vulnerability label."
   predicted_category:
     type: "string"
@@ -33,9 +33,6 @@ properties:
   truncation_event:
     type: "boolean"
     description: "True if input was truncated."
-  timeout_risk:
-    type: "boolean"
-    description: "True if processed after circuit breaker trigger."
 required:
   - snippet_id
   - model_type

@@ -1,11 +1,12 @@
 status: none
-intent: download VulDeePecker NIST Juliet BigVul vulnerability datasets python package
-  dataset
+intent: download VulDeePecker BigVul NIST Juliet datasets from Hugging Face python
+  package
 required_fields:
-- code_snippet
+- code
 - language
-- vulnerability_category
+- vulnerability_type
 - ground_truth_label
-cache_key: 1ebae41911cc62d5ff45391c42777bb7ca5121c82157bd13a90a2c788a5ed734
-searched_at: '2026-07-26T00:07:38.270458+00:00'
+- sample_id
+cache_key: 26330df02e3ed475243d5e11708402eba4b726bc9c1dc51340dbb883983766ab
+searched_at: '2026-08-13T04:00:18.387924+00:00'
 retry_count: 1

@@ -1,5 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "CodeSnippet Dataset Schema"
+description: "Schema for raw code snippets (Canonical SSoT)."
 type: object
 properties:
   id:
@@ -39,3 +40,4 @@ required:
   - ground_truth_label
   - source_dataset
   - truncated
+additionalProperties: false

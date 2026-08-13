@@ -1,45 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "PredictionResult Schema"
-type: object
+title: "PredictionResult"
+description: "Schema for LLM and Static Analyzer prediction results"
+type: "object"
 properties:
   snippet_id:
-    type: string
-    description: "Reference to CodeSnippet.id"
-  model_name:
-    type: string
-    description: "Name of the model or analyzer used"
-  predicted_label:
-    type: string
+    type: "string"
+    description: "Unique identifier for the code snippet"
+  model_type:
+    type: "string"
     enum:
-      - "vulnerable"
-      - "safe"
-    description: "Predicted vulnerability status"
+      - "LLM_ZeroShot"
+      - "Bandit"
+      - "Cppcheck"
+    description: "Type of model that generated the prediction"
+  predicted_label:
+    type: "string"
+    enum:
+      - "Vulnerable"
+      - "Safe"
+      - "Uncertain"
+    description: "Binary or uncertain label predicted by the model"
   predicted_category:
-    type: string
-    nullable: true
-    description: "Predicted vulnerability category"
+    type: "string"
+    description: "Specific vulnerability category (e.g., 'SQLi', 'CWE-89')"
   confidence_score:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Confidence score of the prediction"
+    description: "Model confidence score (if available)"
   is_correct:
-    type: boolean
-    description: "True if prediction matches ground truth"
+    type: "boolean"
+    description: "Whether the prediction matches the ground truth"
   inference_time_ms:
-    type: number
+    type: "number"
     description: "Time taken for inference in milliseconds"
-  truncation_event:
-    type: boolean
-    description: "True if input was truncated"
-  timeout_risk:
-    type: boolean
-    description: "True if processed after circuit breaker trigger"
 required:
   - snippet_id
-  - model_name
+  - model_type
   - predicted_label
-  - confidence_score
   - is_correct
   - inference_time_ms
-  - truncation_event
+additionalProperties: false

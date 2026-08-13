@@ -1,30 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "FeatureVector Schema"
-type: object
+title: "FeatureVector"
+description: "Schema for extracted code features"
+type: "object"
 properties:
   snippet_id:
-    type: string
-    description: "Reference to CodeSnippet.id"
+    type: "string"
+    description: "Unique identifier for the code snippet"
   ast_depth:
-    type: integer
+    type: "integer"
+    minimum: 0
     description: "Maximum depth of the Abstract Syntax Tree"
   node_count:
-    type: integer
+    type: "integer"
+    minimum: 0
     description: "Total number of nodes in the AST"
   cyclomatic_complexity:
-    type: number
-    description: "McCabe cyclomatic complexity score"
+    type: "number"
+    minimum: 0.0
+    description: "Cyclomatic complexity score"
   taint_api_count:
-    type: integer
-    description: "Frequency of taint-source APIs detected"
+    type: "integer"
+    minimum: 0
+    description: "Frequency of known taint-source APIs"
   sanitization_present:
-    type: boolean
-    description: "True if sanitization functions are present"
+    type: "boolean"
+    description: "Whether known sanitization functions are present"
   embedding_similarity_score:
-    type: number
-    description: "Cosine similarity to known vulnerable patterns"
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Cosine similarity to known vulnerable patterns (Optional/Exploratory)"
+    nullable: true
   parse_error:
-    type: boolean
+    type: "boolean"
     description: "True if parsing failed"
 required:
   - snippet_id
@@ -33,5 +41,5 @@ required:
   - cyclomatic_complexity
   - taint_api_count
   - sanitization_present
-  - embedding_similarity_score
   - parse_error
+additionalProperties: false
