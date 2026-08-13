@@ -631,3 +631,256 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T06:09:53Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: maximum 50 clusters
+  claim_id: c_9c08121c
+  context: Verify output contains up to 50 clusters, minimum 100 samples per cluster
+    (if k>1), and kinematic features are normalized within physical bounds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains up to 50 clusters
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:45:39Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: minimum 100 samples per cluster when k is greater than 1
+  claim_id: c_95320e3b
+  context: Verify output contains up to 50 clusters, minimum 100 samples per cluster
+    (if k>1), and kinematic features are normalized within physical bounds.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_100_samples_per_cluster_when_k_is_greater_than_1
+  kind: magnitude
+  raw_text: minimum 100 samples per cluster if k > 1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:47:49Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: silhouette score greater than 0.25
+  claim_id: c_700e148d
+  context: '> NOTE: Write these tests FIRST, ensure they FAIL before implementation
+
+
+    - [X] T011 [P] [US1] Integration test for clustering pipeline with synthetic data
+    in `code/tests/test_cluster.py` (Assert: silhouette_score > 0.25, cluster count
+    <= 50).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The silhouette value is a measure of how similar an object is to its\
+        \ own cluster (cohesion) compared to other clusters (separation). The silhouette\
+        \ value ranges from \u22121 to +1, where a high value indicates that the object\
+        \ is well matched to its own cluster and poorly matched to neighboring clusters.\
+        \ If most objects have a high value, then the clustering configuration is\
+        \ appropriate. If many points have a low or negative value, then the clustering\
+        \ configuration may have too many or too few clusters. A clustering with an\
+        \ average silhouette width of over 0.7 is considered to be \"strong\", a value\
+        \ over 0.5 \"reasonable\", and over 0.25 \"weak\". However, with an increasing\
+        \ dimensionality of the data, it becomes difficult to achieve such high values\
+        \ because of the curse of dimensionality, as the distances become more similar.\
+        \  The silhouette score is specialized for measuring cluster quality when\
+        \ the clusters are convex-shaped, and may not perform well if the data clusters\
+        \ have irregular shapes or are of varying sizes. The silhouette value can\
+        \ be calculated with any distance metric, such as Euclidean distance or Manhattan\
+        \ distance."
+      source_id: Silhouette (clustering)
+      url: https://en.wikipedia.org/wiki/Silhouette_(clustering)
+      value: '0.25'
+    filled: true
+  kind: magnitude
+  raw_text: silhouette score > 0.25
+  resolved_value: '0.25'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T03:48:14Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: maximum of 50 clusters
+  claim_id: c_710dae32
+  context: '> NOTE: Write these tests FIRST, ensure they FAIL before implementation
+
+
+    - [X] T011 [P] [US1] Integration test for clustering pipeline with synthetic data
+    in `code/tests/test_cluster.py` (Assert: silhouette_score > 0.25, cluster count
+    <= 50).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "cluster count \u2264 50"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:48:14Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: streaming data loader handles datasets greater than 7 GB
+  claim_id: c_a7b39c2e
+  context: Implement streaming data loader in `code/01_ingest_cluster.py` to handle
+    datasets >7GB using `datasets.load_dataset(..., streaming=True)` and chunked processing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_data_loader_handles_datasets_greater_than_7_GB
+  kind: magnitude
+  raw_text: datasets load_dataset(..., streaming=True) can handle datasets >7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:49:10Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: inference time less than 2 seconds per prompt
+  claim_id: c_d8a57950
+  context: "- [X] T022 [US2] Implement Sequential Model Training in `code/02_train_models.py`\
+    \ to satisfy FR-003 (\"Decision Tree or GMM\"): \n 1. For each cluster:\n a. Split\
+    \ data into training and testing subsets using a stratified approach based on\
+    \ cluster labels, with the `random_state` parameter sourced from `seeds.py`.\n\
+    \ b. Train a Decision Tree regressor mapping BERT embeddings to actions.\n c.\
+    \ Evaluate the Decision Tree on the held-out set. Calculate R\xB2 and inference\
+    \ time.\n d. If R\xB2 >= 0.6 AND inference time < 2s/prompt: Select Decision Tree.\
+    \ **Stop training for this cluster.**"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_time_less_than_2_seconds_per_prompt
+  kind: magnitude
+  raw_text: inference time < 2s/prompt
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:50:06Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: clustering coverage is greater than or equal to 98%
+  claim_id: c_c02487b8
+  context: "Ensure \u2265 98% coverage. **If coverage < 98%**: The pipeline MUST log\
+    \ a warning \"Clustering coverage < 98% (SC-005 violation).\" and **PROCEED**\
+    \ (do not abort)."
+  evidence:
+    candidates:
+    - - ''
+      - 98.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Clustering_coverage_is_greater_than_or_equal_to_98%25
+  kind: magnitude
+  raw_text: "\u2265 98% coverage of assigned samples to total ingested samples"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-13T03:50:58Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: trajectory generation time less than or equal to 2 seconds per prompt
+  claim_id: c_36e32f82
+  context: "**Independent Test**: Verify held-out R\xB2 \u2265 0.6 for the selected\
+    \ model, valid trajectory generation within 2s/prompt, and no GPU usage on CPU\
+    \ runner."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trajectory_generation_time_less_than_or_equal_to_2_seconds_p
+  kind: magnitude
+  raw_text: valid trajectory generation within 2s/prompt
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:51:48Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: peak RAM usage less than 7 GB
+  claim_id: c_5570835d
+  context: "Ensure memory < 7GB and time \u2264 10 minutes."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: memory < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:54:07Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: execution time is less than or equal to 10 minutes
+  claim_id: c_7ba2ab20
+  context: "Ensure memory < 7GB and time \u2264 10 minutes."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execution_time_is_less_than_or_equal_to_10_minutes
+  kind: magnitude
+  raw_text: "time \u2264 10 minutes"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T03:55:33Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: silhouette score is greater than or equal to 0.25
+  claim_id: c_ab0c1453
+  context: '- [X] T035b [US3] **Paired T-Tests (Binary Success)**: Perform **Paired
+    T-Tests** for binary success rates comparing non-neural vs. random vs. VLA proxy
+    (Satisfies FR-006/SC-004) using `scipy.stats.ttest_rel` on binary success arrays.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The silhouette value is a measure of how similar an object is to its\
+        \ own cluster (cohesion) compared to other clusters (separation). The silhouette\
+        \ value ranges from \u22121 to +1, where a high value indicates that the object\
+        \ is well matched to its own cluster and poorly matched to neighboring clusters.\
+        \ If most objects have a high value, then the clustering configuration is\
+        \ appropriate. If many points have a low or negative value, then the clustering\
+        \ configuration may have too many or too few clusters. A clustering with an\
+        \ average silhouette width of over 0.7 is considered to be \"strong\", a value\
+        \ over 0.5 \"reasonable\", and over 0.25 \"weak\". However, with an increasing\
+        \ dimensionality of the data, it becomes difficult to achieve such high values\
+        \ because of the curse of dimensionality, as the distances become more similar.\
+        \  The silhouette score is specialized for measuring cluster quality when\
+        \ the clusters are convex-shaped, and may not perform well if the data clusters\
+        \ have irregular shapes or are of varying sizes. The silhouette value can\
+        \ be calculated with any distance metric, such as Euclidean distance or Manhattan\
+        \ distance."
+      source_id: Silhouette (clustering)
+      url: https://en.wikipedia.org/wiki/Silhouette_(clustering)
+      value: '0.25'
+    filled: true
+  kind: magnitude
+  raw_text: silhouette score >= 0.25
+  resolved_value: '0.25'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T03:55:36Z'

@@ -27,6 +27,16 @@ T036:
     \ of the \u201Ctrajectory fidelity metric\u201D was provided. Consequently there\
     \ is no evidence that the percentage of kinematic features within the VLA proxy\
     \ error margin was computed or documented. The required output is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no actual `quickstart.md` or `research.md` files, nor any\
+    \ excerpts showing that `research.md` lists the selection rationale for DT vs\
+    \ GMM or the exact command\u2011line flags. Without these documents present and\
+    \ containing the required information, the documentation update task is not satisfied.\
+    \ The next implementer must add the two markdown files (or update the existing\
+    \ ones) and ensure `research.md` explicitly compares DT and GMM performance per\
+    \ T022 and lists the pipeline\u2019s command\u2011line flags."
 T039b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -57,10 +67,25 @@ T044:
   r: "The required files `code/utils/data_loader.py` and `code/tests/test_data_loader.py`\
     \ are missing entirely, so no refactoring or unit test exists to verify the new\
     \ error handling behavior. The task\u2019s output artifacts are absent."
-T064:
+T067:
   c: false
-  h: 3aa51cca7464c1302c68629c3a6f4d2218febbb1b59100dc884651eabf220762
-  r: The repository contains `code/01_ingest_cluster.py`, but the shown code (and
-    the truncated remainder) does not include any logic that writes `data/results/clustering_method_log.json`
-    or asserts its existence/contents. Moreover, the expected log file is absent from
-    the filesystem. The required output file and verification check are missing.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, logs, or test output are present that demonstrate running the combined\
+    \ training pipeline (T057\u202F+\u202FT061) and verifying the CPU\u2011only enforcement\
+    \ and Construct Validity Gate behavior. The required evidence\u2014error messages\
+    \ when conditions fail and successful execution when they pass\u2014is missing."
+T069:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No output files, logs, or other artifacts were provided to demonstrate that\
+    \ the full ingestion\u2011clustering\u2011model\u2011simulation pipeline was actually\
+    \ run, nor any evidence that the data used came exclusively from the real Qwen\u2011\
+    VLA dataset or the VLA Proxy baseline. The implementer\u2019s claim cannot be\
+    \ verified without those concrete artifacts."
+T070:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `quickstart.md`, `research.md`, or `README.md` files were provided
+    or referenced, and there is no evidence that their contents were modified to reflect
+    Phases O, P, and Q. The required documentation artifacts are missing, so the task
+    is not satisfied.

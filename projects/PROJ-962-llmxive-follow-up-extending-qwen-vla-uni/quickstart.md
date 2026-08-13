@@ -1,130 +1,153 @@
-# llmXive Quickstart Guide
+# Quickstart Guide: Non-Neural VLA Approximation Pipeline
 
-## Overview
-This guide provides step-by-step instructions to execute the full Non-Neural VLA Approximation pipeline, from dataset ingestion to final evaluation report generation.
+This guide provides instructions for executing the full research pipeline to approximate Qwen-VLA behaviors using non-neural models (Decision Trees and GMMs) on CPU-only hardware.
 
 ## Prerequisites
+
 - Python 3.9+
-- pip installed
-- Sufficient disk space (~15GB for data and artifacts)
-- CPU-only environment (GPU detection will cause the pipeline to fail as per SC-003)
+- System with at least 8GB RAM (16GB recommended for full dataset processing)
+- No GPU required (CPU-only enforcement is active)
 
 ## Installation
 
-1. **Clone and Setup**
- ```bash
- git clone <repository-url>
- cd llmXive-project
- ```
+1. Clone the repository and navigate to the project root.
+2. Install dependencies:
 
-2. **Install Dependencies**
- ```bash
- pip install -r requirements.txt
- ```
+```bash
+pip install -r requirements.txt
+```
 
-3. **Create Directory Structure**
- Run the setup script to create required directories:
- ```bash
- python code/setup_directories.py
- ```
+## Directory Structure
 
-## Execution Pipeline
+The pipeline expects the following structure (created automatically by T001a):
+- `code/`: Source scripts
+- `data/raw/`: Raw downloaded data
+- `data/processed/`: Intermediate artifacts (embeddings, clusters)
+- `data/results/`: Final reports and logs
+- `artifacts/models/`: Trained model pickles
 
-The pipeline consists of the following stages. Execute them in order.
+## Execution Instructions
 
-### 1. Dataset Ingestion and Clustering (User Story 1)
-Downloads the Qwen-VLA dataset, extracts kinematic features, and performs adaptive K-means clustering.
+Run the pipeline stages sequentially. Each stage produces artifacts required by the next.
+
+### Step 1: Ingestion and Clustering (User Story 1)
+
+Downloads the Qwen-VLA dataset, extracts kinematic features, and performs adaptive clustering.
 
 ```bash
 python code/01_ingest_cluster.py \
  --dataset "Qwen/Qwen-VLA" \
- --output-dir data/processed \
- --max-clusters 50 \
- --silhouette-threshold 0.25
+ --split "train" \
+ --k_initial 50 \
+ --silhouette_threshold 0.25 \
+ --k_step 5 \
+ --output_dir data/processed \
+ --streaming
 ```
 
-**Output Artifacts:**
-- `data/processed/clusters.json`
-- `data/processed/assignments.parquet`
-- `data/results/clustering_method_log.json`
+**Flags:**
+- `--dataset`: HuggingFace dataset ID (default: "Qwen/Qwen-VLA")
+- `--split`: Dataset split (default: "train")
+- `--k_initial`: Initial number of clusters (default: 50)
+- `--silhouette_threshold`: Minimum acceptable silhouette score (default: 0.25)
+- `--k_step`: Step size for k-reduction loop (default: 5)
+- `--output_dir`: Directory for artifacts (default: "data/processed")
+- `--streaming`: Enable streaming mode for large datasets
 
-### 2. Embedding Generation and Model Training (User Story 2)
-Generates BERT embeddings for text instructions and trains lightweight models (Decision Tree or GMM) per cluster.
+**Outputs:**
+- `data/processed/clusters.json`: Cluster centers and metadata
+- `data/processed/assignments.parquet`: Sample-to-cluster mapping
+- `data/results/clustering_method_log.json`: Method selection and metrics
+
+### Step 2: Model Training (User Story 2)
+
+Generates BERT embeddings and trains Decision Trees or GMMs per cluster.
 
 ```bash
 python code/02_train_models.py \
- --input-dir data/processed \
- --output-dir artifacts/models \
- --bert-model "bert-base-uncased" \
- --r2-threshold 0.6
+ --embeddings_path data/processed/train_embeddings.parquet \
+ --clusters_path data/processed/clusters.json \
+ --assignments_path data/processed/assignments.parquet \
+ --model_dir artifacts/models \
+ --r2_threshold 0.6 \
+ --cpu_only
 ```
 
-**Output Artifacts:**
-- `data/processed/train_embeddings.parquet`
-- `artifacts/models/cluster_{id}_selected.pkl`
-- `data/results/model_selection_decision.md`
+**Flags:**
+- `--embeddings_path`: Path to pre-computed BERT embeddings
+- `--clusters_path`: Path to cluster metadata
+- `--assignments_path`: Path to cluster assignments
+- `--model_dir`: Output directory for trained models
+- `--r2_threshold`: Minimum R² for model acceptance (default: 0.6)
+- `--cpu_only`: Force CPU execution (enforced by default)
 
-### 3. VLA Proxy Baseline Generation (User Story 3)
-Generates the VLA Proxy baseline from ground-truth data for comparison.
+**Outputs:**
+- `artifacts/models/cluster_{id}_selected.pkl`: Trained model per cluster
+- `artifacts/models/cluster_{id}_selection.json`: Selection rationale (DT vs GMM)
+- `data/results/model_selection_decision.md`: Aggregate selection report
+
+### Step 3: Inference (User Story 2)
+
+Generates trajectories for new prompts using the trained non-neural models.
+
+```bash
+python code/03_inference.py \
+ --prompt "grasp the red block" \
+ --model_dir artifacts/models \
+ --clusters_path data/processed/clusters.json \
+ --output_path data/results/inference_trajectory.json
+```
+
+**Flags:**
+- `--prompt`: Text instruction for trajectory generation
+- `--model_dir`: Path to trained models
+- `--clusters_path`: Path to cluster metadata
+- `--output_path`: Output file for generated trajectory
+
+**Outputs:**
+- `data/results/inference_trajectory.json`: Generated action sequence
+
+### Step 4: Simulation and Evaluation (User Story 3)
+
+Executes trajectories in PyBullet and compares against baselines.
 
 ```bash
 python code/04_simulate_eval.py \
- --mode generate_baseline \
- --input-dir data/processed \
- --output data/processed/vla_proxy_baseline.parquet
+ --baseline_path data/processed/vla_proxy_baseline.parquet \
+ --inference_results data/results/inference_trajectory.json \
+ --output_csv data/results/simulation_logs.csv \
+ --tasks grasp,navigate,place \
+ --seed 42
 ```
 
-**Output Artifacts:**
-- `data/processed/vla_proxy_baseline.parquet`
+**Flags:**
+- `--baseline_path`: Path to VLA Proxy baseline artifact
+- `--inference_results`: Path to non-neural inference results
+- `--output_csv`: Output CSV for simulation logs
+- `--tasks`: Comma-separated list of task types to evaluate
+- `--seed`: Random seed for reproducibility
 
-### 4. Simulation and Evaluation (User Story 3)
-Executes simulated trajectories, compares against baselines, and runs statistical tests.
-
-```bash
-python code/04_simulate_eval.py \
- --mode evaluate \
- --input-dir data/processed \
- --models-dir artifacts/models \
- --baseline data/processed/vla_proxy_baseline.parquet \
- --output-dir data/results
-```
-
-**Output Artifacts:**
-- `data/results/simulation_logs.csv`
-- `data/results/fidelity_metrics.json`
-- `data/results/evaluation_report.md`
-
-## Command-Line Flags Reference
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--dataset` | HuggingFace dataset ID | `Qwen/Qwen-VLA` |
-| `--output-dir` | Output directory for processed data | `data/processed` |
-| `--max-clusters` | Maximum number of clusters (k) | `50` |
-| `--silhouette-threshold` | Minimum silhouette score for clustering | `0.25` |
-| `--bert-model` | Pretrained BERT model name | `bert-base-uncased` |
-| `--r2-threshold` | Minimum R² score for model selection | `0.6` |
-| `--mode` | Execution mode (generate_baseline, evaluate) | `evaluate` |
-| `--models-dir` | Directory containing trained models | `artifacts/models` |
-| `--baseline` | Path to VLA Proxy baseline file | `data/processed/vla_proxy_baseline.parquet` |
+**Outputs:**
+- `data/results/simulation_logs.csv`: Simulation outcomes
+- `data/results/fidelity_metrics.json`: Trajectory fidelity scores
+- `data/results/evaluation_report.md`: Final statistical report
 
 ## Verification
 
-To verify the pipeline execution and artifact integrity:
+To verify the pipeline execution:
 
 ```bash
-python code/validate_quickstart.py \
- --log-path data/results/e2e_run_log.txt
+python code/validate_quickstart.py
 ```
 
-This script validates that all required output files exist and contain valid data.
+This script checks for the presence of all expected artifacts and validates data integrity.
 
 ## Troubleshooting
 
-- **Memory Errors**: Ensure you have at least 7GB of RAM available. Use `--streaming` flag if available.
-- **Clustering Failure**: If silhouette score remains low, check data normalization or reduce `--max-clusters`.
-- **Model Selection Failure**: If no model meets R² threshold, lower `--r2-threshold` or check data quality.
-- **GPU Detected**: The pipeline enforces CPU-only execution. If a GPU is detected, the script will raise a `RuntimeError`.
+- **Memory Errors**: Ensure `--streaming` is used in Step 1. Reduce `--k_initial` if necessary.
+- **GPU Detected**: The pipeline enforces CPU-only. If you see a GPU error, ensure `torch.cuda.is_available()` returns False or remove GPU drivers.
+- **Data Fetch Failures**: Ensure network connectivity to HuggingFace. The pipeline will fail loudly if data cannot be fetched.
 
-## Next Steps
-After successful execution, review `data/results/evaluation_report.md` for detailed performance metrics and statistical analysis.
+## Research Notes
+
+For detailed methodology, see `research.md`.
