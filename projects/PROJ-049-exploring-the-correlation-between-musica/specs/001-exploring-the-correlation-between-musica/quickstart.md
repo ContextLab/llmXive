@@ -1,68 +1,98 @@
 # Quickstart: Exploring the Correlation Between Musical Preference and Personality Traits
 
-This guide shows how to run the full analysis on a fresh GitHub Actions runner (or locally) using the provided scripts.
+This guide walks you through running the full analysis pipeline on a fresh GitHub Actions runner (or locally) using the provided code and, for testing purposes, a synthetic placeholder dataset.
 
 ## Prerequisites
 - Python 3.11
-- Internet access (to download the OpenML Personality‑Music dataset)
-- GitHub Actions free‑tier runner (2 CPU cores, ≤ 6 GB RAM)
+- Git
+- Internet access (to download the BFI‑2 dataset)
 
 ## Setup
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/your-org/PROJ-049-exploring-the-correlation-between-musica.git
-cd PROJ-049-exploring-the-correlation-between-musica
+# Clone the repository (assumes you are in the project root)
+git clone https://github.com/your-org/your-repo.git
+cd your-repo
 
-# 2. Create a virtual environment and install dependencies
+# Create a virtual environment
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt   # pins exact versions
+
+# Install pinned dependencies
+pip install -r requirements.txt
 ```
 
-## Run the Full Pipeline
+## Step‑by‑Step Execution
+
+1. **Download & Prepare Data**
 
 ```bash
-# Step 0: Ingest raw data (download + checksum verification)
-python -m code.ingest
+# Fetch the verified BFI‑2 dataset
+python -m src.ingest.download   # aborts if a real linked Last.fm dataset is not available
 
-# Step 1: Preprocess (genre mapping, proportion, log transform, imputation)
-python -m code.preprocess
+# OPTIONAL: generate synthetic Last.fm data for CI testing only
+python -m src.synthetic_data     # writes data/raw/lastfm_synthetic.parquet and data/processed/synthetic_data.csv
 
-# Step 2: Power analysis (reports required sample size)
-python -m code.analysis --power
-
-# Step 3: Statistical analysis (correlation, regression, diagnostics, corrections)
-python -m code.analysis
-
-# Step 4: Visualizations (heatmaps, coefficient plots, diagnostics)
-python -m code.visualize
-
-# Step 5: Generate final report CSV
-python -m code.report
+# Clean, merge, map genres, compute totals, and impute missing demographics
+python -m src.ingest.preprocess
+# Output: data/processed/merged_dataset.csv
 ```
 
-All intermediate and final artifacts will appear under `data/processed/` and `results/`.
-
-## Verify Outputs (Contract Tests)
+2. **Power Analysis (hard abort if under‑powered)**
 
 ```bash
-pytest -q tests/contract
+python -m src.analysis.power_analysis
+# Logs required N ≈ a sufficiently large sample size; aborts if actual N < required.
 ```
 
-Successful tests confirm that:
-- `data/processed/merged_clean.csv` matches `contracts/processed_dataset.schema.yaml`.
-- `data/processed/analysis_results.csv` matches `contracts/analysis_output.schema.yaml`.
-- `data/processed/coefficient_deltas.csv` matches `contracts/results.schema.yaml`.
-- `results/results_report.csv` matches `contracts/report.schema.yaml`.
-- Required figures (`*.png`) exist.
+3. **Correlation Computation (with diagnostics & fallback)**
 
-## Reproducibility
-- Random seeds are fixed in `code/utils.py`.
-- External downloads are deterministic (same OpenML ID, same dataset version).
-- Checksums are stored in `data/checksums.txt`; the ingest script aborts if mismatched.
+```bash
+python -m src.analysis.correlations
+# Produces data/processed/analysis_results.csv
+# Includes diagnostic logs; uses Spearman if Pearson assumptions fail.
+```
+
+4. **Fit Regression Models & Compute Coefficient Deltas**
+
+```bash
+python -m src.analysis.regressions
+# Uses raw listening_minutes as predictors + covariates (age, gender, country, total_minutes)
+# Generates:
+#   data/processed/analysis_results.csv   (beta, SE, etc.)
+#   data/processed/coefficient_deltas.csv
+```
+
+5. **Generate Visualizations & Report**
+
+```bash
+python -m src.reporting.visualizations   # creates results/correlation_heatmap.png
+python -m src.reporting.report           # creates results/results_report.csv
+```
+
+6. **Validate Contracts**
+
+```bash
+python -m src.utils.validate_contracts
+# Validates merged_dataset.csv, analysis_results.csv, coefficient_deltas.csv,
+# and results_report.csv against their respective schemas.
+# Exits with non‑zero status on any mismatch.
+```
+
+7. **Run Tests (CI style)**
+
+```bash
+pytest -vv
+```
+
+## Expected Outputs
+- `data/processed/merged_dataset.csv` – cleaned, merged data (validated).  
+- `data/processed/analysis_results.csv` – full statistical table (correlations, regressions).  
+- `data/processed/coefficient_deltas.csv` – delta analysis for regression coefficients.  
+- `results/correlation_heatmap.png` – heatmap of correlation matrix.  
+- `results/results_report.csv` – CSV with Cohen’s d, 95 % CI, and explicit significance labels.  
+
+**Important**: The synthetic data generated in step 1 is **only** for pipeline verification. For any scientific conclusion, a genuine, consented linked BFI‑2 + Last.fm dataset must be supplied; otherwise the pipeline aborts per FR‑001.
 
 ---
-
-
 

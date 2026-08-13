@@ -1,66 +1,64 @@
-$schema: "https://json-schema.org/draft/2020-12/schema"
+$schema: "http://json-schema.org/draft-07/schema#"
 title: "Processed Merged Dataset Schema"
-description: "Schema for data/processed/merged_clean.csv after ingestion and preprocessing."
 type: "object"
 properties:
-  user_id_hashed:
+  user_id:
     type: "string"
     description: "Hashed identifier for the participant."
-  openness:
+  openness_score:
     type: "number"
-    description: "Openness score from BFI‑2."
-  conscientiousness:
+    description: "BFI‑2 Openness score (1‑5)."
+  conscientiousness_score:
     type: "number"
-    description: "Conscientiousness score from BFI‑2."
-  extraversion:
+    description: "BFI‑2 Conscientiousness score (1‑5)."
+  extraversion_score:
     type: "number"
-    description: "Extraversion score from BFI‑2."
-  agreeableness:
+    description: "BFI‑2 Extraversion score (1‑5)."
+  agreeableness_score:
     type: "number"
-    description: "Agreeableness score from BFI‑2."
-  neuroticism:
+    description: "BFI‑2 Agreeableness score (1‑5)."
+  neuroticism_score:
     type: "number"
-    description: "Neuroticism score from BFI‑2."
+    description: "BFI‑2 Neuroticism score (1‑5)."
   age:
     type: "integer"
-    description: "Age"
-    minimum: 0
+    description: "Age in years."
   gender:
     type: "string"
     enum: ["Male", "Female", "Other"]
-    description: "Gender."
+    description: "Self‑reported gender."
   country:
     type: "string"
-    description: "Country ISO‑code (rare < 1 % → \"Other\")."
-  genre:
+    description: "Country code (ISO‑3166‑1 alpha‑2), rare values collapsed to \"Other\"."
+  genre_name:
     type: "string"
-    enum: ["Rock", "Pop", "Hip-Hop", "Classical", "Electronic", "Jazz", "Folk", "Country", "Metal", "Other"]
-    description: "Standardized genre."
+    enum: ["Rock", "Pop", "Hip‑Hop", "Classical", "Electronic", "Jazz", "Folk", "Country", "Metal", "Other"]
+    description: "Standardized genre category."
   listening_minutes:
     type: "number"
-    description: "Aggregated listening minutes for this user‑genre pair."
+    description: "Total minutes listened to this genre by the user."
   total_minutes:
     type: "number"
-    description: "Total listening minutes across all genres for this user."
-  listening_proportion:
+    description: "Aggregate listening minutes across all genres for the user."
+  genre_proportion:
     type: "number"
-    description: "Proportion of total minutes: listening_minutes / total_minutes."
-  log_proportion:
+    description: "Proportion of listening minutes for this genre (listening_minutes / total_minutes)."
+  genre_score:
     type: "number"
-    description: "Log‑transformed proportion (log1p)."
+    description: "Log‑transformed genre proportion (log10(genre_proportion + ε))."
 required:
-  - user_id_hashed
-  - openness
-  - conscientiousness
-  - extraversion
-  - agreeableness
-  - neuroticism
+  - user_id
+  - openness_score
+  - conscientiousness_score
+  - extraversion_score
+  - agreeableness_score
+  - neuroticism_score
   - age
   - gender
   - country
-  - genre
+  - genre_name
   - listening_minutes
   - total_minutes
-  - listening_proportion
-  - log_proportion
+  - genre_proportion
+  - genre_score
 additionalProperties: false

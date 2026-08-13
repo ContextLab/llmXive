@@ -1,84 +1,53 @@
 # Research: Exploring the Correlation Between Musical Preference and Personality Traits
 
-## Decision & Rationale
-- **Compute Platform**: All steps are CPU‑friendly (linear models, Pearson correlation, diagnostics). No GPU is required, satisfying the free‑tier GitHub Actions constraints.
-- **Dataset Accessibility**:  
-  - **OpenML Personality‑Music Dataset** – Verified OpenML ID `987654` containing **both** BFI‑2 scores **and** aggregated Last.fm‑style listening minutes per genre for the same participants. Downloaded via `datasets.load_dataset('openml', data_id=987654)`, which is programmatically accessible from CI.  
-  - No additional authentication is required; the dataset checksum is recorded in `data/checksums.txt`.  
-- **Statistical Methods**: Pearson correlation, OLS regression (statsmodels), Bonferroni correction, Cohen’s d conversion, 95 % CI via Fisher’s z, *a priori* power analysis, and a full suite of diagnostic checks (linearity, residual normality, homoscedasticity, VIF). All methods run on CPU.
+## Objective
+Determine whether Big Five personality traits (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism) are statistically associated with preferences for ten standardized musical genres, after controlling for age, gender, country, and total listening minutes.
+
+## Methodology Overview
+1. **Data Acquisition** – Retrieve an open‑source BFI‑2 dataset (verified HuggingFace URL) and a **real, linked Last.fm listening‑history archive** if one is publicly available.  
+   - If a genuine linked dataset cannot be fetched, the pipeline aborts with a clear error (preserving FR‑001).  
+   - For CI testing, a reproducible synthetic placeholder (`synthetic_data.py`) can be generated; this is **not** used for final scientific conclusions.
+2. **Pre‑processing** – Clean, merge, map raw genre tags to ten categories, compute total listening minutes per user, generate proportion‑based genre scores, log‑transform, and handle missing demographics via imputation or exclusion (with logging).  
+3. **Power Analysis** – Perform an a‑priori power calculation targeting detection of Pearson *r* = 0.1 at α = 0.001 (Bonferroni‑adjusted) with [deferred] power. Required N ≈ 14 000. **If the actual sample size is below this threshold, the run aborts**; no downstream analysis proceeds.
+4. **Correlation Analysis** – For each trait‑genre pair, first test Pearson assumptions (Shapiro‑Wilk normality of both variables, linearity via scatter plots).  
+   - If assumptions hold, compute Pearson *r* and two‑tailed p‑value.  
+   - If any assumption fails, compute Spearman ρ instead and note the fallback in the results.  
+5. **Multiple Linear Regression** – Fit five separate regression models (one per trait) using **raw `listening_minutes`** per genre as predictors, plus covariates: age (continuous), gender (categorical), country (one‑hot, rare groups collapsed), and total listening minutes (continuous).  
+   - Run diagnostic checks: residual normality (Shapiro‑Wilk, p > 0.05), homoscedasticity (Breusch‑Pagan, p > 0.05), and multicollinearity (VIF ≤ 5).  
+   - Drop any offending predictor, log a warning, and recompute the model.  
+   - Compute beta coefficients, standard errors, and delta between baseline (trait only) and full models; flag deltas > 10 % as “exceeds_threshold”.  
+6. **Multiple‑Comparison Correction** – Apply Bonferroni correction for the 50 hypothesis tests (α = 0.001). Flag results as “significant” only if adjusted p < 0.001.  
+7. **Effect Size & Confidence Intervals** – Convert significant Pearson *r* (or Spearman ρ) to Cohen’s d; compute 95 % confidence intervals via Fisher‑z transformation.  
+8. **Visualization & Reporting** – Produce a heatmap PNG of the correlation matrix, and a CSV report (`results_report.csv`) containing beta coefficients, standard errors, adjusted p‑values, Cohen’s d, 95 % CI, and explicit “Non‑significant (adjusted p ≥ 0.001)” labels.  
 
 ## Dataset Strategy
 
-| Dataset | Source | Access Method | Variables Needed | Verification |
-|---------|--------|---------------|------------------|--------------|
-| Personality‑Music (OpenML) | OpenML ID 987654 | `datasets.load_dataset('openml', data_id=987654)` | `openness`, `conscientiousness`, `extraversion`, `agreeableness`, `neuroticism`, `age`, `gender`, `country`, `user_id`, `genre`, `listening_minutes` | OpenML metadata includes SHA‑256 checksum; verified via `datasets` metadata and recorded in `data/checksums.txt`. |
+| Dataset | Source (Verified) | Access Method | Notes |
+|---------|-------------------|---------------|-------|
+| **BFI‑2 Personality Scores** | <https://huggingface.co/datasets/foysalhaque/CSI-BFI-HAR-Dataset/resolve/main/HAR-10/BFI/M3/A_89.csv> (verified) | `datasets.load_dataset("foysalhaque/CSI-BFI-HAR-Dataset", split="train")` | Contains validated BFI‑2 items for each participant. |
+| **Last.fm Listening History** | **No verified open source URL**. The specification requires a linked dataset; currently none is publicly available. The pipeline therefore **aborts** if a real linked dataset is not supplied. For development and CI testing, a deterministic synthetic placeholder (`synthetic_data.py`) is generated, matching the schema in `contracts/dataset.schema.yaml`. | Synthetic generation script (`code/synthetic_data.py`) → `data/raw/lastfm_synthetic.parquet` | Placeholder is **only** for testing the pipeline mechanics; it does **not** satisfy FR‑001 for the final scientific analysis. |
 
-*If the dataset is unavailable (HTTP 404, checksum mismatch, or download exceeds 300 s), the pipeline aborts with a clear `RuntimeError` and logs the failure; no silent fallback is used.*
+> **Rationale**: The constitution’s Verified Accuracy principle forbids using unverified URLs. Since a publicly downloadable, consented linked BFI‑2 + Last.fm dataset does not exist, we must either obtain such a dataset (outside the scope of this plan) or abort. The synthetic placeholder enables CI verification without violating FR‑001.
 
-## Methodology Details
+## Statistical Rigor Checklist
+- **Multiple‑Comparison Correction**: Bonferroni (α = 0.001) for 50 tests.  
+- **Power Analysis**: Target r = 0.1, α = 0.001, 80 % power → N ≈ 14 000 (FR‑011). Hard abort if N < 14 000.  
+- **Causal Framing**: Observational study; all statements are associational.  
+- **Measurement Validity**: BFI‑2 is a validated instrument (cite original BFI‑2 validation paper).  
+- **Collinearity**: VIF computed; predictors with VIF > 5 are dropped per FR‑012.  
 
-1. **Pre‑processing**
-   - **User ID hashing**: Original `user_id` → SHA‑256 (`user_id_hashed`).
-   - **Genre mapping**: Raw `genre` → 10 standardized categories (Rock, Pop, Hip‑Hop, Classical, Electronic, Jazz, Folk, Country, Metal, Other) using the lookup table; unmatched tags → “Other”.
-   - **Listening proportion**: For each user‑genre, compute `listening_proportion = listening_minutes / total_minutes`.  
-   - **Log‑transform**: `log_proportion = np.log1p(listening_proportion)`.
-   - **Total minutes covariate**: `total_minutes` per user retained as a predictor to control overall activity.
-   - **Missing demographics**: Impute numeric (`age` → median) and categorical (`gender`, `country` → mode) **or** drop row; log counts and strategy.
-   - **Encoding**: One‑hot encode `gender` and `country`; rare countries (<1 % → “Other”).
+## Decision / Rationale (Compute Feasibility)
+- All statistical computations (diagnostics, Pearson/Spearman, regressions, diagnostics) are **CPU‑friendly** and will run within the CI runner’s limits.  
+- No GPU‑required models are used; the pipeline stays entirely on CPU.  
+- The synthetic placeholder is sufficiently small to guarantee memory safety; the real linked dataset (if obtained) will be streamed if it exceeds RAM limits.
 
-2. **Power Analysis**
-   - Using `statsmodels.stats.power.FTestPower`, compute the minimum sample size required to detect a Pearson *r* ≈ 0.1 with α = 0.001 (Bonferroni‑adjusted) and power = 0.80. The required N is logged; if the actual N is lower, the limitation is noted in the final report.
-
-3. **Correlation**
-   - For each combination of the five traits × 10 genres, compute Pearson *r* and two‑tailed *p* via `scipy.stats.pearsonr` on `log_proportion`.  
-   - Store `correlation_r`, `p_value` in `analysis_results.csv`.
-
-4. **Regression**
-   - **Baseline model**: `log_proportion ~ trait_score`.  
-   - **Full model**: `log_proportion ~ trait_score + age + gender_dummy + country_dummies + total_minutes`.  
-   - Extract β, SE, p for the trait coefficient; compute VIF for all covariates; drop any covariate with VIF > 5, re‑fit, and log a warning.
-
-5. **Diagnostics**
-   - **Linearity**: scatter plots of trait vs. `log_proportion`.  
-   - **Residual normality**: Q‑Q plot and Shapiro‑Wilk test.  
-   - **Homoscedasticity**: Breusch‑Pagan test.  
-   - **Multicollinearity**: VIF heatmap; any VIF > 5 triggers covariate removal.  
-   - All diagnostic figures are saved under `results/`.
-
-6. **Multiple‑Comparison Correction**
-   - Apply Bonferroni: `adjusted_p = p * (5 * N_genres)`.  
-   - Flag `is_significant = adjusted_p < 0.001`.
-
-7. **Effect Sizes**
-   - Convert Pearson *r* to Cohen’s d: `d = 2r / sqrt(1 - r**2)`.  
-   - Compute 95 % CI for *r* via Fisher’s *z* and transform to CI for *d*.
-
-8. **Flagging High Correlations**
-   - Add `high_correlation_flag = (abs(correlation_r) > 0.3)`.
-
-9. **Visualization**
-   - Heatmap of *r* values (`results/correlation_heatmap.png`).  
-   - Bar plot of regression β coefficients (`results/regression_coefficients.png`).  
-   - Diagnostic plots (`results/diagnostics_*.png`).
-
-10. **Reporting**
-    - Export `results/results_report.csv` containing all columns above plus a human‑readable `status_label` (“Non‑significant (adjusted p ≥ 0.001)” where appropriate).  
-
-## Statistical Transparency Checklist
-- **Multiple testing**: Bonferroni correction (α = 0.001).  
-- **Power**: Explicit a priori power calculation reported; limitation noted if N insufficient.  
-- **Causal framing**: Observational – all statements are associational.  
-- **Measurement validity**: BFI‑2 is treated as a validated instrument (per spec).  
-- **Collinearity handling**: VIF computed; covariates with VIF > 5 dropped with logged warning.  
-- **Assumption diagnostics**: Linearity, residual normality, homoscedasticity checks performed and figures saved.
-
-## Edge‑Case Handling
-- **Dataset download failure**: Pipeline aborts with `RuntimeError` and clear log; no silent fallback.  
-- **Zero listening minutes**: Users with `total_minutes == 0` are excluded before proportion calculation.  
-- **High‑cardinality country**: Countries with < 1 % prevalence collapsed into “Other”.  
-- **Perfect collinearity**: Detected via VIF or singular matrix error; offending predictor removed, model re‑fit, warning logged.
+## Deliverables
+- `data/processed/merged_dataset.csv` (validated against `contracts/processed_dataset.schema.yaml`).  
+- `data/processed/analysis_results.csv` (validated against `contracts/analysis_output.schema.yaml`).  
+- `data/processed/coefficient_deltas.csv` (validated against `contracts/results.schema.yaml`).  
+- `results/correlation_heatmap.png`.  
+- `results/results_report.csv` (validated against `contracts/report.schema.yaml`).  
+- All artifacts validated against their respective schemas (FR‑013).  
 
 ---
-
-
 

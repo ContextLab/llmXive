@@ -1,3 +1,12 @@
+T000a:
+  c: false
+  h: d0aa1d645a42ce4b89b9e14648f954c38b9f36ba2fdccaea736da6a81f4f2d9d
+  r: The required output file `results/power_analysis.txt` does not exist, nor does
+    the state file `state/projects/PROJ-049-exploring-the-correlation-between-musica.yaml`.
+    Moreover, the provided `code/power_analysis.py` is truncated and lacks the logic
+    to parse the written file and update `research.md` and the state file, so the
+    script cannot run successfully as specified. The missing artifacts and incomplete
+    script must be added/fixed.
 T008:
   c: false
   h: af53fd992ccd8583b2bbd5496ed5f793c3dcaf57059b417111cfc77ac461caf6
@@ -6,14 +15,6 @@ T008:
     \ is missing) and the required `contracts/dataset.schema.yaml` is also absent,\
     \ so the column\u2011name compliance cannot be verified. The task\u2019s core\
     \ output (the saved CSV matching the schema) is not present."
-T012:
-  c: false
-  h: 55c26fa05fca1ac58a85667314afc024020b0e23fc4a29a75e600fe17cab1b71
-  r: "The `code/ingest.py` file is truncated and does not demonstrate the required\
-    \ timeout download, fallback logging (`FALLBACK: SYNTHETIC`), invocation of `generate_synthetic_data`,\
-    \ mapping, merging, missing\u2011data handling, or checksum saving. Moreover,\
-    \ the expected output file `data/processed/merged_data.csv` is absent. The task\u2019\
-    s core artifacts are therefore missing or incomplete."
 T017:
   c: false
   h: 0a35ad2b764485e5a2608e59fd51ed747deddd75c24eaac0c43ed078bd07f36d

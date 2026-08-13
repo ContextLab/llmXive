@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 556b5a4e7ded92db0f7ed8e3047d66785ce10aac20b7ac450a849e2521222eb0
+  artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: A_89.csv
+  kind: url
+  value: https://huggingface.co/datasets/foysalhaque/CSI-BFI-HAR-Dataset/resolve/main/HAR-10/BFI/M3/A_89.csv
+  verification_status: pending
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/foysalhaque/CSI-BFI-HAR-Dataset/c3013b3edc5a563a9cf6759f5d464a9d9b6f456a/HAR-10%2FBFI%2FM3%2FA_89.csv?%2Fdatasets%2Ffoysalhaque%2FCSI-BFI-HAR-Dataset%2Fresolve%2Fmain%2FHAR-10%2FBFI%2FM3%2FA_89.csv=&etag=%222777f2e06e613dc63391af0910fcbb920bcc016c%22
+  verified_at: '2026-08-12T23:29:59.067440Z'
+- artifact_hash: 91255ccb79bc61c1e82c3ae32b959905ab3a150411cc037b8773940ba565e7c5
+  artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: pending
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-08-12T23:30:24.273785Z'

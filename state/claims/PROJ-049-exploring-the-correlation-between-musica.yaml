@@ -1,0 +1,235 @@
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: OpenML BFI-2 dataset ID 42473
+  claim_id: c_9b187235
+  context: "Write research.md describing the choice of OpenML BFI\u20112 (ID 42473)\
+    \ and HuggingFace lastfm/lastfm_1k"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The OpenML BFI\u20112 dataset has ID 42473."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T23:59:52Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: HuggingFace dataset lastfm/lastfm_1k
+  claim_id: c_d3e8f31b
+  context: "Write research.md describing the choice of OpenML BFI\u20112 (ID 42473)\
+    \ and HuggingFace lastfm/lastfm_1k"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_dataset_lastfm/lastfm_1k
+  kind: entity_fact
+  raw_text: The HuggingFace dataset is named lastfm/lastfm_1k.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:03:14Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset contains at least 100 users
+  claim_id: c_a88c4755
+  context: Create data/processed/synthetic_data.csv containing realistic Big Five
+    scores... for at least 100 users.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_contains_at_least_100_users
+  kind: magnitude
+  raw_text: The synthetic dataset for fallback testing contains at least 100 users.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:06:21Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Genre lookup maps to 10 standardized categories
+  claim_id: c_f4c2c170
+  context: "Create contracts/genre_lookup.yaml defining mapping from raw tags to standardized\
+    \ categories (Rock, Pop, Hip\u2011Hop, Classical, Electronic, Jazz, Folk, Country,\
+    \ Metal, Other)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The genre lookup table maps raw tags to 10 standardized categories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:06:29Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Overlap size warning threshold 200
+  claim_id: c_b597e428
+  context: Compute the number of users present in both datasets; log a warning if
+    the count is < 200
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Overlap_size_warning_threshold_200
+  kind: magnitude
+  raw_text: The overlap size check warns if the user overlap count is less than 200.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:06:46Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction N 50
+  claim_id: c_13650eca
+  context: "Using fixed N = 50 (5 traits \xD7 10 genres), compute adjusted_p_value\
+    \ = p_value * 50"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction uses a fixed N of 50 tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:07:02Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Significance threshold adjusted p-value 0.001
+  claim_id: c_e57eb2e2
+  context: Flag is_significant when adjusted_p_value < 0.001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The significance threshold for adjusted p-values is 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:07:17Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Correlation heatmap resolution 150 dpi
+  claim_id: c_68a32776
+  context: "Produce results/correlation_heatmap.png (800\xD7600, 150 dpi) using seaborn.heatmap"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation heatmap resolution is 150 dpi.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:08:58Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Cohen's d 95% confidence interval
+  claim_id: c_f4281bf1
+  context: Compute Cohen's d from Pearson r and derive 95 % CI via Fisher's z transformation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen's d effect sizes are derived with a 95% confidence interval.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:08:58Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Ingestion phase runtime limit 300 seconds
+  claim_id: c_d68f07f1
+  context: "Assert that the total time taken by the ingestion phase... is \u2264 300\
+    \ seconds on the CI runner."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingestion_phase_runtime_limit_300_seconds
+  kind: magnitude
+  raw_text: The ingestion phase runtime is asserted to be less than or equal to 300
+    seconds.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:09:36Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Rare countries grouping threshold 1%
+  claim_id: c_d9f57fa6
+  context: Group rare countries (frequency < 1%) into an 'Other' category to handle
+    high-cardinality.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rare_countries_grouping_threshold_1%25
+  kind: magnitude
+  raw_text: Rare countries with frequency less than 1% are grouped into an 'Other'
+    category.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:10:23Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: High correlation flag threshold 0.3
+  claim_id: c_da54e40c
+  context: Add boolean high_correlation_flag where abs(rho) > 0.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: High correlation is flagged when the absolute Pearson r exceeds 0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:11:45Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: VIF collinearity threshold 5
+  claim_id: c_010275ae
+  context: Compute VIF for covariates; if any VIF > 5, drop that predictor
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Collinearity is flagged if the Variance Inflation Factor (VIF) exceeds
+    5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:12:10Z'
+- artifact_path: projects/PROJ-049-exploring-the-correlation-between-musica/specs/001-exploring-the-correlation-between-musica/tasks.md
+  attempts: 1
+  canonical: Synthetic merged dataset minimum 5 users
+  claim_id: c_1431498a
+  context: "Create data/processed/synthetic_merged.csv with \u2265 5 users, full trait,\
+    \ genre, and demographic fields."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_merged_dataset_minimum_5_users
+  kind: magnitude
+  raw_text: The synthetic dataset for independent testing contains at least 5 users.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:12:52Z'
