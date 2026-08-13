@@ -1,10 +1,47 @@
-T008:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file was presented, and there is no evidence that a document\
-    \ with verified citations exists. Consequently the critical requirement of the\
-    \ Reference-Validator Agent\u2014having a real, citation\u2011verified `research.md`\u2014\
-    is not satisfied. The implementer must add the file with proper, verifiable references."
+  r: No directory listings or file system evidence were provided, so we cannot confirm
+    that the required paths (`projects/PROJ-328-predicting-the-impact-of-composition-on-/data/raw`,
+    `data/processed`, `data/outputs`, `code/`, `code/ingestion`, `code/features`,
+    `code/models`, `code/evaluation`, `code/visualization`, `tests/`, `models/`) actually
+    exist. The implementer must supply a concrete view (e.g., `tree` output or screenshots)
+    showing these exact directories created.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are present, nor any CI step\
+    \ that runs flake8/black after T001. Without these artifacts the requirement to\
+    \ configure and enforce linting/formatting is not satisfied."
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the `code/ingestion/` directory or the required files (`__init__.py`,
+    `aggregator.py`, `cleaner.py`, `validator.py`) was presented; without seeing these
+    artifacts, we cannot confirm they exist or contain any content. The task remains
+    unverified.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing the `code/features/` directory (or its contents) was provided;\
+    \ without concrete evidence of the directory\u2019s existence, the requirement\
+    \ cannot be confirmed. The implementer must supply a file\u2011tree listing or\
+    \ screenshots proving the directory structure is present."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/models/` directory or files named `SolderComposition.py`
+    / `CompositionalDescriptor.py` (or similar) was provided, nor any content showing
+    these entities defined. The required model files are missing, so the task is not
+    satisfied.
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I looked for the required file `specs/001-predict-solder-hardness/research.md`
+    and for any listed URLs or citations to Materials Project, NIST, OpenAlloy, and
+    the literature PDFs. No such markdown file or source listings were provided, so
+    the critical prerequisite for data ingestion is missing.
 T008b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -15,12 +52,21 @@ T008b:
     \ configuration) and error\u2011handling utilities in the `code/utils/` directory."
 T009b:
   c: false
-  h: 459e824f6b9f21e6dff662dc6fc9a7409e130ae8ec732d16ca84084c731f6c31
-  r: "The `data/config/sources.yaml` file is present, but its contents include placeholder\
-    \ entries (e.g., \u201C# Placeholder for actual UCI ID if exists\u201D) and an\
-    \ incomplete `validation` section (`room_temp_threshold_c` without a value), indicating\
-    \ it was not fully populated with the specific, verified URLs and API endpoints\
-    \ required by the task."
+  h: 6a2922d41fe084a93e61d8ca912a3371568066ce3ce8583746ea94f2fc4f54b7
+  r: The provided `data/config/sources.yaml` contains placeholder URLs (e.g., `https://example.com/...`)
+    and notes that they must be replaced with actual verified URLs from `research.md`.
+    Because the file does not contain the specific, verified URLs and API endpoints
+    required by the task, the artifact does not satisfy the requirement. The task
+    needs a fully populated `sources.yaml` with real, verified source links.
+T012:
+  c: false
+  h: 841e24fccfdbec5975e33815fa86c9f95150553f06a1d426ee539188cd5a5937
+  r: "The provided `aggregator.py` loads `sources.yaml` and logs to `ingestion_log.txt`,\
+    \ but it never checks for the existence or verification status of `research.md`,\
+    \ does not implement the total\u2011record count logic (N\u202F<\u202F100\u202F\
+    \u2265\u202F50 warning, N\u202F<\u202F50 critical flag), and lacks any PDF\u2011\
+    scraping code with `pdfplumber`. These core requirements are missing, so the task\
+    \ is not fully satisfied."
 T014:
   c: false
   h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a
@@ -31,14 +77,6 @@ T014:
     \ to `data/processed/.ingestion_status.json`. Moreover, the required `.ingestion_status.json`\
     \ file is absent. The implementer must add the missing validation logic and ensure\
     \ the status JSON is created with the exact fields."
-T016b:
-  c: false
-  h: a7cccb66bb7f297d1fc5545ac16b0c8df8e518a8203300d6d27a47da3b4cac4d
-  r: The provided `generate_validation_report.py` script exists and reads the JSON,
-    but it contains a bug (`warning` undefined) and the code that writes `validation_report.yaml`
-    is not shown (the file is missing). The script therefore does not reliably generate
-    the required YAML report. The script must be corrected to use `warning_text` and
-    include logic that writes the constructed report to `data/processed/validation_report.yaml`.
 T029:
   c: false
   h: 81679e6964426da75467d7ee2722b513d0bc72b5a142c2eaf41187489fe1708c

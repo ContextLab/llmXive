@@ -4,21 +4,28 @@ import logging
 from pathlib import Path
 from utils.logging_config import get_logger
 
-def setup_directories(project_root: Path) -> None:
+def setup_directories(base_path: Path) -> None:
     """
-    Creates the required directory structure for the PROJ-328 project.
-    This function ensures all necessary folders exist before any data processing
-    or model training begins.
+    Create the project directory structure as defined in T001.
+    
+    Creates the following directories relative to base_path:
+    - data/raw
+    - data/processed
+    - data/outputs
+    - code/ingestion
+    - code/features
+    - code/models
+    - code/evaluation
+    - code/visualization
+    - tests/
+    - models/
+    
+    Also ensures the root 'code' directory exists if not already present.
     """
     logger = get_logger(__name__)
     
-    # Define the specific directories required by T001
-    # Note: The task specifies `projects/PROJ-328-predicting-the-impact-of-composition-on-/` as the root context,
-    # but the execution environment is `code/`. We create the structure relative to the project root.
-    # The task lists: `data/raw`, `data/processed`, `data/outputs`, `code/`, `code/ingestion`, 
-    # `code/features`, `code/models`, `code/evaluation`, `code/visualization`, `tests/`, `models/`.
-    
-    directories = [
+    # Define the relative paths to create
+    relative_paths = [
         "data/raw",
         "data/processed",
         "data/outputs",
@@ -32,42 +39,42 @@ def setup_directories(project_root: Path) -> None:
     ]
     
     created_count = 0
-    skipped_count = 0
-
-    for dir_path in directories:
-        full_path = project_root / dir_path
+    for rel_path in relative_paths:
+        full_path = base_path / rel_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             logger.info(f"Created directory: {full_path}")
             created_count += 1
         else:
             logger.debug(f"Directory already exists: {full_path}")
-            skipped_count += 1
-
-    logger.info(f"Directory setup complete. Created: {created_count}, Skipped: {skipped_count}")
+    
+    # Ensure the main 'code' directory exists (it might be created by the sub-paths above, 
+    # but we explicitly check/ensure it)
+    code_root = base_path / "code"
+    if not code_root.exists():
+        code_root.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {code_root}")
+        created_count += 1
+        
+    logger.info(f"Directory setup complete. Created {created_count} new directories.")
 
 def main():
     """
-    Entry point for the project structure setup script.
+    Main entry point for the setup script.
+    Expects to be run from the project root or accepts a path argument.
     """
-    # Determine project root (assuming script is run from the root or 'code' directory)
-    # We look for the root by checking if 'data' and 'code' exist relative to the script location
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent if (script_dir / "data").exists() else script_dir
-
-    # If we are in 'code/', project_root is the parent. If we are at root, it's here.
-    # The task implies we are setting up the structure from the project root.
+    # Determine base path: use current working directory
+    base_path = Path.cwd()
     
-    logger = get_logger(__name__)
-    logger.info(f"Starting project structure setup from: {project_root}")
+    # Check if we are inside the specific project folder or if we need to navigate
+    # The task specifies: projects/PROJ-328-predicting-the-impact-of-composition-on-/
+    # If the script is run from the repo root, we might need to target that specific subfolder.
+    # However, standard practice for these scripts is to run from the project root.
+    # We will assume the script is run from the root of the project tree where these dirs should exist.
     
-    try:
-        setup_directories(project_root)
-        logger.info("Project structure setup completed successfully.")
-        return 0
-    except Exception as e:
-        logger.error(f"Failed to setup project structure: {e}", exc_info=True)
-        return 1
+    print(f"Setting up directory structure in: {base_path}")
+    setup_directories(base_path)
+    print("Done.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

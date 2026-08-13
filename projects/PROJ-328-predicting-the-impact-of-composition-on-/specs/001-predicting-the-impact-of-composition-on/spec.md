@@ -13,7 +13,7 @@ A materials scientist can aggregate published Vickers hardness measurements and 
 
 **Why this priority**: This is the foundational data layer; without ≥100 validated records, no predictive modeling can proceed with sufficient statistical power for cross-validation comparisons. This represents the minimum viable research artifact.
 
-**Independent Test**: Can be fully tested by executing the data ingestion pipeline on a GitHub Actions free-tier runner and verifying the output dataset contains ≥100 unique compositions with non-null hardness values and complete elemental breakdowns. If the dataset is between 50 and 100, the system must emit a specific warning.
+**Independent Test**: Can be fully tested by executing the data ingestion pipeline on a GitHub Actions free-tier runner and verifying the output dataset contains ≥100 unique compositions with non-null hardness values and complete elemental breakdowns. If the dataset is between a lower and upper threshold, the system must emit a specific warning.
 
 **Acceptance Scenarios**:
 
@@ -32,8 +32,8 @@ A materials scientist can train gradient boosting (XGBoost) and linear regressio
 
 **Acceptance Scenarios**:
 
-1. **Given** the validated dataset from US-001, **When** model training completes, **Then** both XGBoost and linear regression models produce cross-validated R² scores with 95% confidence intervals via 1000 bootstrap resamples on the held-out test set
-2. **Given** trained models, **When** feature importance analysis runs, **Then** SHAP values identify the top 3 compositional features (e.g., electronegativity variance, atomic radius variance, weighted mean atomic mass) with ranked contribution scores
+1. **Given** the validated dataset from US-001, **When** model training completes, **Then** both XGBoost and linear regression models produce cross-validated R² scores with confidence intervals via 1000 bootstrap resamples on the held-out test set
+2. **Given** trained models, **When** feature importance analysis runs, **Then** SHAP values identify the top compositional features (e.g., electronegativity variance, atomic radius variance, weighted mean atomic mass) with ranked contribution scores
 3. **Given** the compositional descriptors, **When** collinearity diagnostics run, **Then** VIF scores are reported for all predictors, flagging any with VIF ≥ 5
 
 ---
@@ -68,7 +68,7 @@ A materials scientist can generate a scatter plot of predicted vs. measured hard
 - **FR-003**: System MUST compute compositional descriptors including weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration on log-ratio transformed composition data (See US-002)
 - **FR-004**: System MUST train both XGBoost gradient boosting regressor and linear regression baseline using k-fold cross-validation with hyperparameter grid limited to ≤10 combinations (See US-002)
 - **FR-005**: System MUST report model performance metrics (R², RMSE) with confidence intervals via bootstrap resamples on held-out test set (See US-002)
-- **FR-006**: System MUST generate SHAP-based feature importance rankings identifying the top 3 compositional drivers (See US-002)
+- **FR-006**: System MUST generate SHAP-based feature importance rankings identifying the top compositional drivers. (See US-002)
 - **FR-007**: System MUST frame all composition-hardness findings as ASSOCIATIONAL rather than causal, given the observational nature of the dataset (See US-002)
 - **FR-009**: System MUST include a sensitivity analysis that sweeps the R² performance threshold over a range of values and reports the fraction of bootstrap samples where the model's R² exceeds each threshold. (See US-002)
 - **FR-010**: System MUST run all computations on CPU-only infrastructure without GPU, CUDA, or accelerator dependencies (See US-001)
@@ -92,10 +92,10 @@ A materials scientist can generate a scatter plot of predicted vs. measured hard
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Cross-validated R² performance is measured against the null baseline (mean predictor) on held-out test set (See US-002)
-- **SC-002**: Model comparison significance is measured against paired t-test on 5 cross-validation folds (See US-002)
-- **SC-003**: Feature importance rankings are measured against SHAP value magnitudes identifying top 3 compositional drivers (See US-002)
+- **SC-002**: Model comparison significance is measured against paired t-test on multiple cross-validation folds (See US-002)
+- **SC-003**: Feature importance rankings are measured against SHAP value magnitudes identifying the top compositional drivers. (See US-002)
 - **SC-004**: Dataset completeness is measured against the ≥100 unique compositions target with [deferred] non-null hardness validation (See US-001)
-- **SC-005**: Sensitivity analysis outcomes are measured against R² threshold sweep {0.3, 0.5, 0.6, 0.7} reporting the fraction of bootstrap samples exceeding each threshold (See US-002)
+- **SC-005**: Sensitivity analysis outcomes are measured against R² threshold sweep {low, medium, high} reporting the fraction of bootstrap samples exceeding each threshold. (See US-002)
 - **SC-006**: Collinearity diagnostics are measured against VIF scores ≥5 for definitionally related predictors (See US-002)
 - **SC-007**: Compute feasibility is measured against ≤6 hours CPU time, ~7 GB RAM, ~14 GB disk on free-tier runner (See Assumptions)
 

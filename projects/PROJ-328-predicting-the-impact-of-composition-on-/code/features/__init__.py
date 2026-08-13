@@ -1,19 +1,18 @@
 """
-Features module for descriptor engineering and compositional transformations.
-
-This module contains utilities for:
-- CLR transformation of compositional data
-- Descriptor computation for solder alloys
-- Collinearity analysis (VIF)
+Features module for descriptor engineering.
+Contains transformers, descriptor engines, and collinearity utilities.
 """
 
-from .transformer import CLRTransformer
-from .descriptor_engine import DescriptorEngine
-from .collinearity import calculate_vif, get_collinear_features
+from .transformer import CLRTransformer, main
+from .descriptor_engine import DescriptorEngine, main
+from .collinearity import calculate_vif, get_collinear_features, remove_collinear_features, save_vif_report, main
 
 __all__ = [
     'CLRTransformer',
     'DescriptorEngine',
     'calculate_vif',
-    'get_collinear_features'
+    'get_collinear_features',
+    'remove_collinear_features',
+    'save_vif_report',
+    'main'
 ]

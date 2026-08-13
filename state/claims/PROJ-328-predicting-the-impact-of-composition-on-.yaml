@@ -82,3 +82,53 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T09:14:52Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research.md
+  attempts: 1
+  canonical: Jain et al. 2013 cited as source for Materials Project
+  claim_id: c_80fabf18
+  context: Citation provided for the Materials Project API and database description.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Jain, A. et al. (2013). ''Commentary: The Materials Project: A materials
+    genome approach to accelerating materials innovation.'' APL Materials, 1(1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T01:59:00Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research.md
+  attempts: 1
+  canonical: Dua and Graff 2019 cited as source for UCI Machine Learning Repository
+  claim_id: c_1b554541
+  context: Citation provided for the UCI Machine Learning Repository Solder datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Dua, D. and Graff, C. (2019). UCI Machine Learning Repository. Irvine,
+    CA: University of California.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:01:43Z'
+- artifact_path: projects/PROJ-328-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/research.md
+  attempts: 1
+  canonical: Jain et al. 2013 APL Materials 1.1 011002
+  claim_id: c_cc3bf6bd
+  context: 'Citation: Jain, A., et al. ''Commentary: The Materials Project: A materials
+    genome approach to accelerating materials innovation.'' APL Materials 1.1 (2013):
+    011002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Jain, A., et al. ''Commentary: The Materials Project: A materials genome
+    approach to accelerating materials innovation.'' APL Materials 1.1 (2013): 011002.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T02:09:12Z'

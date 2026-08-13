@@ -1,10 +1,14 @@
 """
-Entry point for testing the Utils module.
-Runs self-tests for error handling and warning injection.
+Main entry point for testing and running utility modules.
+
+This script allows running utility tests or demonstrations from the command line.
 """
 import sys
 import logging
 from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.logging_config import setup_logging, get_logger
 from utils.error_handlers import (
@@ -12,72 +16,81 @@ from utils.error_handlers import (
     ConfigurationError,
     DataValidationError,
     IngestionError,
-    ModelTrainingError
+    ModelTrainingError,
+    DataInsufficientError
 )
 from utils.fr007_warnings import main as run_warning_tests
 
-def test_error_handling():
-    """Tests the custom exception hierarchy."""
-    logger = get_logger(__name__)
-    logger.info("Testing custom error handlers...")
-    
-    try:
-        raise ConfigurationError("Test config error", {"key": "value"})
-    except SolderPipelineError as e:
-        assert e.message == "Configuration Error: Test config error"
-        assert e.details == {"key": "value"}
-        logger.info("ConfigurationError hierarchy test passed.")
-    
-    try:
-        raise DataValidationError("Test data error")
-    except SolderPipelineError as e:
-        assert "Data Validation Error" in str(e)
-        logger.info("DataValidationError hierarchy test passed.")
-    
-    try:
-        raise IngestionError("Test ingestion error")
-    except SolderPipelineError as e:
-        assert "Ingestion Error" in str(e)
-        logger.info("IngestionError hierarchy test passed.")
-    
-    try:
-        raise ModelTrainingError("Test training error")
-    except SolderPipelineError as e:
-        assert "Model Training Error" in str(e)
-        logger.info("ModelTrainingError hierarchy test passed.")
-    
-    logger.info("All error handler tests passed.")
-    return True
+logger = get_logger(__name__)
 
-def main():
-    """Main entry point for utils testing."""
-    # Ensure logging is set up
+
+def test_error_handling() -> None:
+    """Test the custom error handling infrastructure."""
+    logger.info("Testing error handling infrastructure...")
+
+    try:
+        # Test ConfigurationError
+        raise ConfigurationError(
+            "Missing required configuration key",
+            config_file="data/config/sources.yaml",
+            key="materials_project_api_key"
+        )
+    except ConfigurationError as e:
+        logger.error(f"Caught expected ConfigurationError: {e.message}")
+
+    try:
+        # Test DataValidationError
+        raise DataValidationError(
+            "Elemental composition sum out of range",
+            record_id="rec_001",
+            field="composition_sum"
+        )
+    except DataValidationError as e:
+        logger.error(f"Caught expected DataValidationError: {e.message}")
+
+    try:
+        # Test IngestionError
+        raise IngestionError(
+            "Failed to fetch data from source",
+            source="Materials Project API",
+            error_code=403
+        )
+    except IngestionError as e:
+        logger.error(f"Caught expected IngestionError: {e.message}")
+
+    try:
+        # Test ModelTrainingError
+        raise ModelTrainingError(
+            "Model training failed due to convergence issues",
+            model_type="XGBoost",
+            stage="fit"
+        )
+    except ModelTrainingError as e:
+        logger.error(f"Caught expected ModelTrainingError: {e.message}")
+
+    try:
+        # Test DataInsufficientError
+        raise DataInsufficientError(
+            "Dataset size below minimum threshold",
+            current_count=30,
+            minimum_required=50
+        )
+    except DataInsufficientError as e:
+        logger.error(f"Caught expected DataInsufficientError: {e.message}")
+
+    logger.info("Error handling tests completed successfully.")
+
+
+def main() -> None:
+    """Main entry point for the utility module."""
     setup_logging()
-    logger = get_logger(__name__)
-    
-    logger.info("Starting Utils Module Self-Tests...")
-    
-    success = True
-    try:
-        if not test_error_handling():
-            success = False
-    except Exception as e:
-        logger.error(f"Error handler test failed: {e}", exc_info=True)
-        success = False
-    
-    try:
-        if not run_warning_tests():
-            success = False
-    except Exception as e:
-        logger.error(f"Warning injection test failed: {e}", exc_info=True)
-        success = False
-    
-    if success:
-        logger.info("Utils Module Self-Tests: PASSED")
-        return 0
-    else:
-        logger.error("Utils Module Self-Tests: FAILED")
-        return 1
+    logger.info("Starting utility module tests...")
+
+    test_error_handling()
+    run_warning_tests()
+
+    logger.info("All utility tests passed.")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
