@@ -1,3 +1,7 @@
+"""
+Memory monitoring utilities for the llmXive pipeline.
+Implements strict memory usage checks to prevent exceeding system limits.
+"""
 import os
 import sys
 import logging
@@ -5,177 +9,176 @@ import gc
 from pathlib import Path
 from typing import Optional, Dict, Any
 
+# Try to import psutil; if missing, we fail loudly as per project constraints
 try:
     import psutil
+    HAS_PSUTIL = True
 except ImportError:
-    raise ImportError(
-        "psutil is required for memory monitoring. "
-        "Install it via: pip install psutil"
-    )
+    HAS_PSUTIL = False
+    logging.warning("psutil not installed. Memory monitoring disabled. Install with: pip install psutil")
 
-# Import project configuration utilities
-from config import get_int_config, initialize_config, load_environment
+from .config import get_int_config
+from . import logger
 
-# Ensure logging is initialized
-from code import logger
+# Ensure logs directory exists
+LOGS_DIR = Path("logs")
+LOGS_DIR.mkdir(exist_ok=True)
+MEMORY_LOG_PATH = LOGS_DIR / "memory_monitor.log"
 
-MEMORY_LIMIT_GB = 6  # Default fallback if config is missing
+def _get_logger() -> logging.Logger:
+    """Get the logger configured for memory monitoring."""
+    return logger
 
-def get_memory_usage_gb() -> float:
+def get_memory_usage_gb(process: Optional[Any] = None) -> float:
     """
-    Get the current Resident Set Size (RSS) memory usage of the current process in GB.
-    
-    Returns:
-        float: Memory usage in GB.
-    """
-    process = psutil.Process(os.getpid())
-    # mem_info = process.memory_info()
-    # rss is in bytes
-    rss_bytes = process.memory_info().rss
-    return rss_bytes / (1024 ** 3)
-
-def check_memory_limit(limit_gb: Optional[float] = None) -> bool:
-    """
-    Check if the current memory usage exceeds the specified limit.
+    Get the current memory usage of the process in GB.
     
     Args:
-        limit_gb (float, optional): The memory limit in GB. Defaults to config.MEMORY_LIMIT_GB or 6GB.
-        
+        process: Optional psutil Process object. If None, uses current process.
+    
     Returns:
-        bool: True if memory usage is within limits, False otherwise.
-        
+        Memory usage in GB.
+    
     Raises:
+        RuntimeError: If psutil is not available.
+    """
+    if not HAS_PSUTIL:
+        raise RuntimeError("psutil is required for memory monitoring but is not installed.")
+    
+    if process is None:
+        process = psutil.Process(os.getpid())
+    
+    # Get memory info (RSS - Resident Set Size)
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 ** 3)  # Convert bytes to GB
+
+def check_memory_limit(limit_gb: Optional[int] = None) -> bool:
+    """
+    Check if current memory usage is within the specified limit.
+    
+    Args:
+        limit_gb: Memory limit in GB. Defaults to config value (default 6GB).
+    
+    Returns:
+        True if within limit, False otherwise.
+    
+    Raises:
+        RuntimeError: If psutil is not available.
         MemoryError: If memory usage exceeds the limit.
     """
+    if not HAS_PSUTIL:
+        # If psutil is not available, we cannot check memory. 
+        # Per task requirements, we should fail loudly if we can't monitor.
+        # However, for robustness, we might allow execution if the user explicitly
+        # disables monitoring, but the task spec says "raise MemoryError if > 6GB".
+        # Since we can't check, we raise an error to force installation.
+        raise RuntimeError("psutil is required for memory monitoring. Please install it.")
+    
     if limit_gb is None:
-        # Try to get from config, fallback to default
-        try:
-            # Ensure config is loaded
-            load_environment()
-            initialize_config()
-            limit_gb = get_int_config("MEMORY_LIMIT_GB", default=6)
-        except Exception:
-            limit_gb = MEMORY_LIMIT_GB
-
+        limit_gb = get_int_config("MEMORY_LIMIT_GB", default=6)
+    
     current_usage = get_memory_usage_gb()
     
     if current_usage > limit_gb:
-        error_msg = (
-            f"Memory limit exceeded: Current usage {current_usage:.2f} GB "
-            f"exceeds limit {limit_gb} GB"
-        )
-        logger.error(error_msg)
-        raise MemoryError(error_msg)
+        msg = f"Memory limit exceeded: {current_usage:.2f}GB > {limit_gb}GB"
+        _log_memory_event("ERROR", msg)
+        raise MemoryError(msg)
     
-    logger.debug(f"Memory check passed: {current_usage:.2f} GB / {limit_gb} GB")
+    _log_memory_event("INFO", f"Memory usage OK: {current_usage:.2f}GB <= {limit_gb}GB")
     return True
 
 def force_garbage_collection() -> None:
-    """
-    Force Python garbage collection to free up unused memory.
-    """
+    """Force garbage collection to free up memory."""
     gc.collect()
-    logger.debug("Garbage collection triggered")
+    if HAS_PSUTIL:
+        current = get_memory_usage_gb()
+        _log_memory_event("INFO", f"Garbage collection triggered. Current usage: {current:.2f}GB")
+    else:
+        _log_memory_event("INFO", "Garbage collection triggered.")
 
-def validate_dataset_size(df: Any, limit_gb: Optional[float] = None) -> bool:
+def validate_dataset_size(file_path: str, limit_gb: Optional[int] = None) -> bool:
     """
-    Estimate the memory usage of a pandas DataFrame and check against limit.
+    Validate that a dataset file size is within the memory limit.
     
     Args:
-        df: A pandas DataFrame object.
-        limit_gb (float, optional): The memory limit in GB.
-        
+        file_path: Path to the dataset file.
+        limit_gb: Memory limit in GB.
+    
     Returns:
-        bool: True if estimated size is within limits, False otherwise.
-        
+        True if file size is within limit, False otherwise.
+    
     Raises:
-        MemoryError: If estimated size exceeds the limit.
+        FileNotFoundError: If the file does not exist.
     """
-    if hasattr(df, 'memory_usage'):
-        # Estimate total memory usage in bytes
-        estimated_bytes = df.memory_usage(deep=True).sum()
-        estimated_gb = estimated_bytes / (1024 ** 3)
-    else:
-        estimated_gb = 0
-        logger.warning("Input object does not have memory_usage method, skipping size check")
-        return True
-
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Dataset file not found: {file_path}")
+    
+    file_size_bytes = os.path.getsize(file_path)
+    file_size_gb = file_size_bytes / (1024 ** 3)
+    
     if limit_gb is None:
-        try:
-            load_environment()
-            initialize_config()
-            limit_gb = get_int_config("MEMORY_LIMIT_GB", default=6)
-        except Exception:
-            limit_gb = MEMORY_LIMIT_GB
-
-    if estimated_gb > limit_gb:
-        error_msg = (
-            f"Dataset size validation failed: Estimated size {estimated_gb:.2f} GB "
-            f"exceeds limit {limit_gb} GB"
-        )
-        logger.error(error_msg)
-        raise MemoryError(error_msg)
-
-    logger.info(f"Dataset size check passed: {estimated_gb:.2f} GB / {limit_gb} GB")
+        limit_gb = get_int_config("MEMORY_LIMIT_GB", default=6)
+    
+    if file_size_gb > limit_gb:
+        msg = f"Dataset file too large: {file_size_gb:.2f}GB > {limit_gb}GB limit"
+        _log_memory_event("WARNING", msg)
+        return False
+    
+    _log_memory_event("INFO", f"Dataset size OK: {file_size_gb:.2f}GB <= {limit_gb}GB")
     return True
 
-def log_memory_usage(message: str = "Memory Usage Check") -> Dict[str, float]:
+def _log_memory_event(level: str, message: str) -> None:
+    """Log a memory event to both the logger and the memory_monitor.log file."""
+    timestamp = __import__('time').strftime("%Y-%m-%d %H:%M:%S")
+    log_entry = f"[{timestamp}] {level}: {message}"
+    
+    # Log to the main logger
+    if level == "ERROR":
+        logger.error(message)
+    elif level == "WARNING":
+        logger.warning(message)
+    else:
+        logger.info(message)
+    
+    # Log to the specific memory monitor log file
+    try:
+        with open(MEMORY_LOG_PATH, "a") as f:
+            f.write(log_entry + "\n")
+    except IOError as e:
+        logger.error(f"Failed to write to memory monitor log: {e}")
+
+def log_memory_usage(label: str = "Current") -> None:
     """
-    Log the current memory usage and return the metrics.
+    Log the current memory usage with a label.
     
     Args:
-        message (str): A descriptive message for the log entry.
-        
-    Returns:
-        dict: A dictionary containing current memory usage metrics.
+        label: Label for the memory usage log entry.
     """
-    current_gb = get_memory_usage_gb()
-    log_entry = {
-        "message": message,
-        "current_memory_gb": current_gb,
-        "limit_gb": get_int_config("MEMORY_LIMIT_GB", default=6)
-    }
-    
-    log_line = f"{message}: Current memory usage = {current_gb:.2f} GB"
-    logger.info(log_line)
-    
-    # Also write to a specific memory monitor log file if needed
-    # Ensure logs directory exists
-    logs_dir = Path("logs")
-    logs_dir.mkdir(exist_ok=True)
-    
-    memory_log_path = logs_dir / "memory_monitor.log"
-    with open(memory_log_path, "a") as f:
-        f.write(f"{log_line}\n")
-        
-    return log_entry
+    if HAS_PSUTIL:
+        usage = get_memory_usage_gb()
+        _log_memory_event("INFO", f"{label} memory usage: {usage:.2f}GB")
+    else:
+        _log_memory_event("WARNING", f"{label} memory usage: Unable to measure (psutil not installed)")
 
 def main() -> None:
     """
-    Main entry point for memory monitoring checks.
-    This function performs a basic check and logs the results.
-    It can be called by other pipeline stages to enforce memory constraints.
+    Main entry point for memory monitoring.
+    This function can be called to perform a self-check of memory usage.
     """
-    logger.info("Starting memory monitor check...")
+    _log_memory_event("INFO", "Memory monitor started.")
+    log_memory_usage("Initial")
     
     try:
-        # Force garbage collection before checking
-        force_garbage_collection()
-        
-        # Check current memory usage
-        log_memory_usage("Initial Check")
-        
-        # Check against limit (raises MemoryError if exceeded)
         check_memory_limit()
-        
-        logger.info("Memory check completed successfully.")
-        
+        _log_memory_event("INFO", "Memory check passed.")
     except MemoryError as e:
-        logger.critical(f"Memory check failed: {e}")
+        _log_memory_event("ERROR", str(e))
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during memory check: {e}")
+    except RuntimeError as e:
+        _log_memory_event("ERROR", str(e))
         sys.exit(1)
+    
+    _log_memory_event("INFO", "Memory monitor finished.")
 
 if __name__ == "__main__":
     main()

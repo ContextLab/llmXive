@@ -1,199 +1,204 @@
 """
-Timeout enforcement module for the modeling pipeline.
-
-Implements a signal-based timeout handler to enforce a maximum runtime
-for the modeling execution, preventing indefinite hangs.
+Timeout enforcement module for the llmXive pipeline.
+Implements a 6-hour execution limit for the full modeling pipeline.
 """
 import signal
 import time
 import logging
 import sys
-from typing import Callable, Any, Optional
-from pathlib import Path
-import multiprocessing
-import os
 import json
-from datetime import datetime
+from pathlib import Path
+from typing import Callable, Any, Optional, Dict
+from multiprocessing import Process, Queue, Event
 
-# Configure logger
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/pipeline_timing.log')
+    ]
+)
 logger = logging.getLogger(__name__)
 
 class TimeoutExceededError(Exception):
-    """Raised when the execution time exceeds the configured limit."""
+    """Raised when the pipeline execution exceeds the allowed time limit."""
     pass
 
 class TimeoutHandler:
     """
-    Context manager and decorator for enforcing timeouts on functions.
-    Uses multiprocessing.Process to safely terminate long-running tasks
-    on Unix systems where signal-based timeouts might be unreliable for complex
-    object graphs.
+    Context manager and utility for enforcing execution timeouts.
+    Uses multiprocessing to ensure a hard kill on timeout.
     """
-    
-    def __init__(self, timeout_seconds: int, log_path: Optional[Path] = None):
+    def __init__(self, timeout_seconds: int = 21600):
         """
         Initialize the timeout handler.
         
         Args:
-            timeout_seconds: Maximum allowed runtime in seconds.
-            log_path: Path to the log file for runtime metrics.
+            timeout_seconds: Maximum allowed execution time in seconds.
+                             Default is 6 hours (21600 seconds).
         """
         self.timeout_seconds = timeout_seconds
-        self.log_path = log_path or Path("logs/timeout_metrics.json")
+        self.logger = logging.getLogger(__name__)
         self.start_time: Optional[float] = None
         self.end_time: Optional[float] = None
-        self.status: str = "unknown"
-        self.runtime_duration: float = 0.0
 
-    def _handle_timeout(self, signum, frame):
-        """Signal handler for the timeout event."""
-        raise TimeoutExceededError(f"Execution exceeded {self.timeout_seconds} seconds limit.")
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
 
-    def run_with_timeout(self, func: Callable, *args, **kwargs) -> Any:
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end_time = time.time()
+        duration = self.end_time - self.start_time
+        self.logger.info(f"Pipeline execution completed in {duration:.2f} seconds.")
+        
+        if exc_type is TimeoutExceededError:
+            self.logger.error(f"TIMEOUT: Execution exceeded {self.timeout_seconds} seconds limit.")
+            return False  # Re-raise the exception
+        return True
+
+    def check_timeout(self):
+        """Check if the timeout has been exceeded."""
+        if self.start_time is None:
+            return False
+        elapsed = time.time() - self.start_time
+        if elapsed > self.timeout_seconds:
+            raise TimeoutExceededError(
+                f"Execution timeout exceeded: {elapsed:.2f}s > {self.timeout_seconds}s"
+            )
+        return False
+
+    def run_with_timeout(self, func: Callable, args: tuple = (), kwargs: dict = None) -> Any:
         """
-        Execute a function with a strict timeout.
+        Run a function with a timeout using multiprocessing.
         
         Args:
             func: The function to execute.
-            *args: Positional arguments for the function.
-            **kwargs: Keyword arguments for the function.
-        
+            args: Positional arguments for the function.
+            kwargs: Keyword arguments for the function.
+            
         Returns:
-            The return value of the function.
-        
+            The result of the function execution.
+            
         Raises:
             TimeoutExceededError: If the function execution exceeds the timeout.
         """
-        self.start_time = time.time()
-        self.status = "started"
+        if kwargs is None:
+            kwargs = {}
+
+        result_queue = Queue()
+        error_queue = Queue()
+        process = Process(target=self._run_func, args=(func, args, kwargs, result_queue, error_queue))
         
-        try:
-            # Use signal-based timeout for the main process if on Unix
-            # This is lighter weight than spawning a new process for simple scripts
-            if os.name != 'nt':
-                # Set the signal handler
-                old_handler = signal.signal(signal.SIGALRM, self._handle_timeout)
-                # Set the alarm
-                signal.alarm(self.timeout_seconds)
-                
-                try:
-                    result = func(*args, **kwargs)
-                    self.status = "completed"
-                    return result
-                finally:
-                    # Cancel the alarm and restore the old handler
-                    signal.alarm(0)
-                    signal.signal(signal.SIGALRM, old_handler)
-            else:
-                # Fallback for Windows (where SIGALRM is not available)
-                # Use a thread with a timeout check (simpler than Process for this context)
-                # Note: For heavy CPU bound tasks on Windows, a Process pool is safer
-                # but requires more complex serialization. We use a join-able thread approach
-                # or simply rely on the fact that modeling.py is the entry point.
-                # Given the constraints, we will use a simpler approach:
-                # Run in a thread and join with timeout.
-                import threading
-                result_container = []
-                exception_container = []
-                
-                def target():
-                    try:
-                        result_container.append(func(*args, **kwargs))
-                    except Exception as e:
-                        exception_container.append(e)
-                
-                thread = threading.Thread(target=target)
-                thread.daemon = True
-                thread.start()
-                thread.join(self.timeout_seconds)
-                
-                if thread.is_alive():
-                    # Thread is still alive, meaning timeout
-                    raise TimeoutExceededError(f"Execution exceeded {self.timeout_seconds} seconds limit.")
-                
-                if exception_container:
-                    raise exception_container[0]
-                
-                return result_container[0]
+        process.start()
+        process.join(timeout=self.timeout_seconds)
 
-        except TimeoutExceededError:
-            self.status = "timeout"
-            raise
-        finally:
-            self.end_time = time.time()
-            self.runtime_duration = self.end_time - self.start_time
-            self._save_metrics()
+        if process.is_alive():
+            process.terminate()
+            process.join()
+            raise TimeoutExceededError(
+                f"Execution timeout exceeded: {self.timeout_seconds}s"
+            )
 
-    def _save_metrics(self):
-        """Save runtime metrics to the log file."""
+        if not result_queue.empty():
+            return result_queue.get()
+        
+        if not error_queue.empty():
+            raise error_queue.get()
+
+        raise RuntimeError("Function execution failed without returning a result or error.")
+
+    @staticmethod
+    def _run_func(func: Callable, args: tuple, kwargs: dict, result_queue: Queue, error_queue: Queue):
+        """Helper method to run the function in a separate process."""
         try:
-            self.log_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            metrics = {
-                "timestamp": datetime.now().isoformat(),
-                "timeout_limit_seconds": self.timeout_seconds,
-                "actual_runtime_seconds": self.runtime_duration,
-                "status": self.status,
-                "timed_out": self.status == "timeout"
-            }
-            
-            # Append to existing file if it exists
-            if self.log_path.exists():
-                try:
-                    with open(self.log_path, 'r') as f:
-                        history = json.load(f)
-                        if not isinstance(history, list):
-                            history = [history]
-                except (json.JSONDecodeError, TypeError):
-                    history = []
-                history.append(metrics)
-            else:
-                history = [metrics]
-            
-            with open(self.log_path, 'w') as f:
-                json.dump(history, f, indent=2)
-                
-            logger.info(f"Runtime metrics saved to {self.log_path}: {self.status}, {self.runtime_duration:.2f}s")
-            
+            result = func(*args, **kwargs)
+            result_queue.put(result)
         except Exception as e:
-            logger.error(f"Failed to save timeout metrics: {e}")
+            error_queue.put(e)
+
+def ensure_output_dir(output_dir: str = "data/results"):
+    """Ensure the output directory exists."""
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+def save_runtime_metrics(duration: float, status: str = "completed"):
+    """
+    Save runtime metrics to a JSON file.
+    
+    Args:
+        duration: Execution duration in seconds.
+        status: Execution status (completed, timeout, error).
+    """
+    ensure_output_dir()
+    metrics = {
+        "duration_seconds": duration,
+        "status": status,
+        "timeout_limit_seconds": 21600
+    }
+    
+    output_path = Path("data/results/runtime_metrics.json")
+    with open(output_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    logger.info(f"Runtime metrics saved to {output_path}")
+
+def run_full_pipeline():
+    """
+    Main pipeline execution function wrapped with timeout enforcement.
+    This function orchestrates the full modeling pipeline.
+    """
+    logger.info("Starting full pipeline execution with 6-hour timeout limit.")
+    
+    start_time = time.time()
+    
+    try:
+        with TimeoutHandler(timeout_seconds=21600) as handler:
+            # Import here to avoid circular imports if this file is imported elsewhere
+            from ingestion import main as run_ingestion
+            from modeling import main as run_modeling
+            from report import main as run_report
+            
+            # Execute pipeline stages
+            logger.info("Stage 1: Data Ingestion")
+            run_ingestion()
+            handler.check_timeout()
+            
+            logger.info("Stage 2: Modeling and Training")
+            run_modeling()
+            handler.check_timeout()
+            
+            logger.info("Stage 3: Reporting and Interpretation")
+            run_report()
+            handler.check_timeout()
+            
+            end_time = time.time()
+            duration = end_time - start_time
+            
+            logger.info(f"Pipeline completed successfully in {duration:.2f} seconds.")
+            save_runtime_metrics(duration, "completed")
+            
+    except TimeoutExceededError as e:
+        end_time = time.time()
+        duration = end_time - start_time
+        logger.error(f"Pipeline timed out: {e}")
+        save_runtime_metrics(duration, "timeout")
+        raise
+    except Exception as e:
+        end_time = time.time()
+        duration = end_time - start_time
+        logger.error(f"Pipeline failed with error: {e}")
+        save_runtime_metrics(duration, "error")
+        raise
 
 def main():
-    """
-    Entry point for testing the timeout wrapper.
-    This function simulates a long-running task to verify the timeout mechanism.
-    """
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    # Define a test function that sleeps
-    def slow_function(seconds):
-        logger.info(f"Starting slow function for {seconds} seconds...")
-        time.sleep(seconds)
-        logger.info("Slow function completed.")
-        return "Success"
-    
-    # Configuration
-    timeout_limit = 5  # 5 seconds
-    test_duration = 10 # 10 seconds (should timeout)
-    
-    handler = TimeoutHandler(timeout_seconds=timeout_limit)
-    
+    """Main entry point for the timeout wrapper script."""
     try:
-        result = handler.run_with_timeout(slow_function, test_duration)
-        print(f"Result: {result}")
-    except TimeoutExceededError as e:
-        print(f"Timeout caught: {e}")
-        print("The pipeline was successfully terminated due to timeout.")
+        run_full_pipeline()
+    except TimeoutExceededError:
         sys.exit(1)
-    
-    # Test a successful short run
-    print("\nTesting short run (should succeed)...")
-    handler2 = TimeoutHandler(timeout_seconds=timeout_limit)
-    try:
-        result = handler2.run_with_timeout(slow_function, 1)
-        print(f"Result: {result}")
-    except TimeoutExceededError as e:
-        print(f"Unexpected timeout: {e}")
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

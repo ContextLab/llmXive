@@ -8,9 +8,10 @@ scipy
 pymatgen
 arxiv
 pdfplumber
-psutil
+datasets
 python-dotenv
-joblib
+psutil
+jsonschema
 numpy
 matplotlib
-psutil
+seaborn

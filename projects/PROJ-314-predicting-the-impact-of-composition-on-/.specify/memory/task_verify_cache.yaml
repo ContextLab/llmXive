@@ -24,14 +24,13 @@ T016c:
     provided; therefore the required documentation of the `CeramicEntry` and `DescriptorSet`
     entities, their relationships, and validation rules is missing. The task is not
     satisfied.
-T018c:
+T017:
   c: false
-  h: 863d6116562d7c902c8f07f72ee5711ef47dcd53003d61e4a55a2bd972fd3157
-  r: "The repository lacks a `fetch_materials_project_data()` implementation in `code/ingestion.py`\
-    \ (the shown code only contains NIST\u2011related helpers and is truncated before\
-    \ any such function) and the required output file `data/raw/materials_project_raw.json`\
-    \ does not exist. Both the core function and its raw JSON output are missing,\
-    \ so the task is not satisfied."
+  h: e3fdb7094e3d03f98bfc49f50cf185038fa3b4f9b023ae6fb929356da332139d
+  r: "The `code/ingestion.py` file does not contain a `validate_data_gap()` implementation,\
+    \ and the required `data/reports/data_availability_report.json` file is missing.\
+    \ Consequently the task\u2019s specified behavior (checking N\u202F<\u202F30,\
+    \ generating the report, logging, stderr message, and exiting) is not present."
 T018d:
   c: false
   h: 9f1fb6b8974abebd467f301473a323c1c82619d6a63808239b2c008ba90eaaea
@@ -39,14 +38,13 @@ T018d:
     does not parse all required columns (`sample_count`, `sintering_temp`), does not
     write the raw response to `data/raw/nist_raw.json`, and the fallback logic is
     not invoked. Moreover, the expected output file `data/raw/nist_raw.json` is missing.
-T018g:
+T018e:
   c: false
-  h: 82094d849d192c7bc2dc3f8a4b427c7fdacc0446cb84ebc4e2b0ed5a73231f0e
-  r: "The repository lacks a `fetch_curated_literature_data()` implementation in `code/ingestion.py`\
-    \ (the shown code only contains NIST\u2011related helpers and is truncated before\
-    \ any such function). Moreover, the required output file `data/raw/curated_literature_raw.json`\
-    \ does not exist. Both the function and its expected output are missing, so the\
-    \ task is not satisfied."
+  h: 81c9cc653cf848668d8d3ed07d09093836086da86b9ab2e47958ab0b1157b1c6
+  r: The repository lacks a `fetch_arxiv_data()` implementation in `code/ingestion.py`
+    (the shown code contains only helper functions and no such function), and the
+    required output file `data/raw/arxiv_raw.json` does not exist. Both the core function
+    and its saved result are missing, so the task is not satisfied.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -70,21 +68,6 @@ T028b:
     \ implementation, and the required output file `data/results/baseline_metrics.json`\
     \ is absent. Consequently the task\u2019s core requirement\u2014creating the baseline\
     \ predictor and saving its MAE\u2014is not satisfied."
-T029:
-  c: false
-  h: 08d8004df6404951ccc9ec8e52b2a2c07ab4e02c85372a2b8710aedeed58b6f8
-  r: "The repository lacks the required `data/results/permutation_test_report.json`\
-    \ file, and a review of `code/modeling.py` shows no `run_permutation_test()` implementation\
-    \ (the shown code only defines data loading and split preparation). Consequently,\
-    \ the task\u2019s core functionality and output are missing."
-T030:
-  c: false
-  h: 118f401b0ea736b9b3902ee9a6a2f6ea8487178b38167877d1d910cd48a594b5
-  r: "The `check_leakage` function in `code/diagnostics.py` is truncated and never\
-    \ writes the required `data/results/leakage_check.json`. Moreover, the expected\
-    \ warning message and the exact 10\u202F% drop logic are not fully implemented,\
-    \ and the output file is missing. The task\u2019s core requirements are therefore\
-    \ not satisfied."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -93,14 +76,6 @@ T032:
     \ splitting. Without an artifact showing the implemented change (e.g., updated\
     \ data pipeline, unit test, or commit diff), the requirement cannot be confirmed\
     \ as met."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I examined the repository for any files under `data/results/` that would be\
-    \ SHAP summary plots (e.g., PNG/JPEG/HTML) or feature\u2011ranking tables (e.g.,\
-    \ CSV/TSV). No such artifacts are present, nor is any placeholder or generated\
-    \ output provided. Consequently the required SHAP visualizations and ranking tables\
-    \ have not been delivered."
 T044:
   c: false
   h: e2b0c1d4fdf570584ce7b7fc65343bce91cd175ebf5c69f0771a16289e50ac67
@@ -109,18 +84,19 @@ T044:
     alone is insufficient; the task demanded execution of the script and the resulting
     updated YAML file, which is missing. The next implementer must run the script
     and ensure the YAML file is created with the `data_hashes` and `code_hashes` entries.
-T055:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, tests, or documentation were provided that demonstrate\
-    \ a \u201Cfail loudly\u201D policy preventing synthetic data fallback; the claim\
-    \ lacks any concrete artifact to verify the requirement. The task remains unimplemented."
 T050:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No code, configuration, or documentation was provided showing that `train_models`\
     \ and `run_permutation_test` are now wrapped in a timeout handler limiting execution\
     \ to 6\u202Fhours. The required runtime\u2011enforcement implementation is missing."
+T052:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log file implementing the described memory monitor\
+    \ was provided; there is no evidence of a `psutil`\u2011based wrapper around the\
+    \ ingestion tasks, nor of a `logs/memory_monitor.log` being created. The required\
+    \ artifact is missing."
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
