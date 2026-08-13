@@ -310,3 +310,23 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T22:55:59Z'
+- artifact_path: projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/specs/001-llmxive-follow-up-extending-sciatlas-a-l/tasks.md
+  attempts: 1
+  canonical: maximum embedding latency per node must be <= 50ms
+  claim_id: c_8612af09
+  context: "T033 [P] Verify embedding performance against SC-005: Create `tests/bench/test_embedding_speed.py`\
+    \ to run a benchmark on a representative sample, measure **maximum latency per\
+    \ node**, and assert that the max latency is \u2264 50ms. The test must fail if\
+    \ the threshold is exceeded, providing evidence that SC-005 is met."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/maximum_embedding_latency_per_node_must_be_%3C=_50ms
+  kind: entity_fact
+  raw_text: The test must fail if the maximum latency per node exceeds 50ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:36:16Z'

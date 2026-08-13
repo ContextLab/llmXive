@@ -1,11 +1,3 @@
-"""
-LDA Model Validator for Topic Drift Analysis.
-
-This module implements validation logic for Latent Dirichlet Allocation (LDA) models,
-specifically computing c_v coherence scores to ensure topic quality before downstream
-processing. It prevents analysis of windows where topic coherence falls below the
-required threshold (0.4).
-"""
 import os
 import json
 import logging
@@ -14,84 +6,62 @@ from typing import Dict, Any, Optional, List, Tuple
 import numpy as np
 
 from src.utils.logging import get_logger
-from src.utils.manifest import load_reproducibility_manifest, save_reproducibility_manifest
-from src.models.lda.saver import load_topic_vectors_from_proportions
+from src.models.lda.fitter import fit_lda_model, load_processed_data_for_lda
 
-# Import required scikit-learn components
-try:
-    from gensim import corpora, models
-    from gensim.models import CoherenceModel
-    GENSIM_AVAILABLE = True
-except ImportError:
-    GENSIM_AVAILABLE = False
-    get_logger(__name__).warning("Gensim not available. Coherence calculation disabled.")
-
-# Import from local project structure
-# Note: We need to load tokenized data to compute coherence
-from src.data.preprocess.tokenizer import load_preprocessed_data
-
-logger = get_logger(__name__)
-
+# Coherence threshold as per specification
 COHERENCE_THRESHOLD = 0.4
 
-
 def compute_c_v_coherence(
-    tokenized_documents: List[List[str]],
-    topic_model: Any,
-    dictionary: Optional[corpora.Dictionary] = None,
-    num_top_words: int = 10
+    lda_model,
+    corpus: List[List[int]],
+    dictionary: Any,
+    top_n: int = 10
 ) -> float:
     """
-    Compute c_v coherence score for an LDA model.
-
+    Compute the c_v coherence score for a trained LDA model.
+    
     Args:
-        tokenized_documents: List of tokenized documents (list of lists of strings).
-        topic_model: Trained LDA model (gensim.models.LdaModel or compatible).
-        dictionary: Gensim Dictionary object. If None, will be inferred or created.
-        num_top_words: Number of top words to consider for coherence calculation.
-
+        lda_model: The trained LDA model (sklearnLatentDirichletAllocation).
+        corpus: The document-term matrix (list of lists or scipy sparse).
+        dictionary: The vocabulary dictionary (gensim corpora.Dictionary or similar mapping).
+        top_n: Number of top words to consider for coherence calculation.
+        
     Returns:
-        float: c_v coherence score.
-
+        float: The c_v coherence score.
+        
     Raises:
-        RuntimeError: If gensim is not available or coherence calculation fails.
+        ImportError: If gensim is not installed (required for c_v coherence).
+        ValueError: If coherence score cannot be computed.
     """
-    if not GENSIM_AVAILABLE:
-        raise RuntimeError(
-            "Cannot compute coherence: gensim is not installed. "
-            "Please add 'gensim' to requirements.txt and install."
-        )
-
     try:
-        # Ensure we have a dictionary
-        if dictionary is None:
-            logger.warning("No dictionary provided, creating one from documents.")
-            dictionary = corpora.Dictionary(tokenized_documents)
+        from gensim import corpora
+        from gensim.models import CoherenceModel
+    except ImportError:
+        logger = get_logger(__name__)
+        logger.error("gensim is required for c_v coherence calculation. Please install it.")
+        raise ImportError("gensim is required for c_v coherence calculation.")
 
-        # Create corpus if not already in gensim format
-        if not isinstance(tokenized_documents[0], list) or not all(
-            isinstance(word, str) for doc in tokenized_documents for word in doc
-        ):
-            # Assume documents are already in (id, freq) format or convert
-            # For simplicity, assume input is list of lists of strings
-            pass
-
-        # Compute coherence
+    # If dictionary is not a gensim Dictionary, try to convert or use as is
+    # Assuming dictionary is already a gensim corpora.Dictionary or compatible
+    if not isinstance(dictionary, corpora.Dictionary):
+        logger = get_logger(__name__)
+        logger.warning("Dictionary is not a gensim Dictionary. Attempting to use as is.")
+    
+    # Calculate coherence
+    try:
         coherence_model = CoherenceModel(
-            model=topic_model,
-            texts=tokenized_documents,
+            model=lda_model,
+            texts=corpus,
             dictionary=dictionary,
-            coherence='c_v'
+            coherence='c_v',
+            topn=top_n
         )
-
         coherence_score = coherence_model.get_coherence()
-        logger.info(f"Computed c_v coherence: {coherence_score:.4f}")
-        return coherence_score
-
+        return float(coherence_score)
     except Exception as e:
-        logger.error(f"Failed to compute coherence: {e}")
-        raise RuntimeError(f"Coherence calculation failed: {e}")
-
+        logger = get_logger(__name__)
+        logger.error(f"Error computing coherence: {e}")
+        raise ValueError(f"Failed to compute coherence score: {e}")
 
 def validate_lda_model(
     window_name: str,
@@ -100,107 +70,86 @@ def validate_lda_model(
 ) -> Tuple[bool, str]:
     """
     Validate an LDA model based on its coherence score.
-
+    
     Args:
-        window_name: Name/identifier of the time window.
+        window_name: Name of the time window being validated.
         coherence_score: The computed c_v coherence score.
         threshold: Minimum acceptable coherence score.
-
+        
     Returns:
-        Tuple of (is_valid, message)
+        Tuple[bool, str]: (is_valid, message)
     """
+    logger = get_logger(__name__)
+    
     if coherence_score < threshold:
-        msg = (
-            f"Window '{window_name}' FAILED validation: "
-            f"coherence {coherence_score:.4f} < threshold {threshold}. "
-            "Downstream processing BLOCKED for this window."
-        )
-        logger.error(msg)
+        msg = f"Window {window_name} failed validation: coherence {coherence_score:.4f} < threshold {threshold}"
+        logger.warning(msg)
         return False, msg
     else:
-        msg = (
-            f"Window '{window_name}' PASSED validation: "
-            f"coherence {coherence_score:.4f} >= threshold {threshold}."
-        )
+        msg = f"Window {window_name} passed validation: coherence {coherence_score:.4f} >= threshold {threshold}"
         logger.info(msg)
         return True, msg
-
 
 def validate_and_save_results(
     window_name: str,
     coherence_score: float,
     is_valid: bool,
-    output_dir: str = "results/stats",
-    manifest_path: str = "results/manifest.json"
+    output_dir: Optional[Path] = None,
+    model=None,
+    topic_words: Optional[List[List[str]]] = None
 ) -> Dict[str, Any]:
     """
-    Validate results and save to statistics file and update manifest.
-
+    Validate the model and save the results to a JSON file.
+    
     Args:
         window_name: Name of the time window.
         coherence_score: Computed coherence score.
         is_valid: Whether the model passed validation.
-        output_dir: Directory to save validation results.
-        manifest_path: Path to the reproducibility manifest.
-
+        output_dir: Directory to save results. Defaults to results/stats/lda_validation.
+        model: The trained LDA model (optional, for saving).
+        topic_words: List of top words per topic (optional).
+        
     Returns:
-        Dictionary containing validation results.
+        Dict[str, Any]: The validation results dictionary.
     """
+    if output_dir is None:
+        output_dir = Path("results/stats/lda_validation")
+    
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
     results = {
         "window": window_name,
-        "coherence_score": coherence_score,
-        "threshold": COHERENCE_THRESHOLD,
+        "coherence_score": float(coherence_score),
         "is_valid": is_valid,
+        "threshold": COHERENCE_THRESHOLD,
         "status": "passed" if is_valid else "failed"
     }
-
-    # Ensure output directory exists
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-
-    # Save individual window results
-    results_file = Path(output_dir) / f"validation_{window_name}.json"
-    with open(results_file, 'w', encoding='utf-8') as f:
+    
+    if topic_words:
+        results["topic_words"] = topic_words
+        
+    output_file = output_dir / f"validation_{window_name.replace('-', '_')}.json"
+    with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2)
-
-    logger.info(f"Saved validation results to {results_file}")
-
-    # Update manifest if it exists
-    if Path(manifest_path).exists():
-        try:
-            manifest = load_reproducibility_manifest(manifest_path)
-            if "validation_results" not in manifest:
-                manifest["validation_results"] = {}
-
-            manifest["validation_results"][window_name] = {
-                "coherence_score": coherence_score,
-                "is_valid": is_valid,
-                "status": "passed" if is_valid else "failed"
-            }
-
-            save_reproducibility_manifest(manifest, manifest_path)
-            logger.info(f"Updated manifest at {manifest_path}")
-        except Exception as e:
-            logger.error(f"Failed to update manifest: {e}")
-    else:
-        logger.warning(f"Manifest not found at {manifest_path}, skipping update.")
-
+        
     return results
-
 
 def main():
     """
-    Main entry point for running the validator on all windows.
-
+    Main function to validate LDA models for all windows.
+    
     This function:
-    1. Loads processed data for each of the 5 windows
-    2. Loads topic models (from T020)
-    3. Computes c_v coherence for each window
-    4. Validates against threshold (0.4)
-    5. Blocks downstream processing if validation fails
-    6. Saves results to results/stats/ and updates manifest
+    1. Loads processed data for each window (as generated by T016).
+    2. Fits an LDA model for each window (as per T020).
+    3. Computes c_v coherence.
+    4. Validates against the threshold (0.4).
+    5. Saves validation results.
+    6. If any window fails, logs a critical error and prevents downstream processing.
     """
+    logger = get_logger(__name__)
     logger.info("Starting LDA model validation for all windows.")
-
+    
+    # Define the 5-year windows as per specification
     windows = [
         "2000-2004",
         "2005-2009",
@@ -208,117 +157,96 @@ def main():
         "2015-2019",
         "2020-2024"
     ]
-
-    all_results = {}
-    any_failed = False
-
+    
+    data_dir = Path("data/processed")
+    all_valid = True
+    validation_results = {}
+    
     for window in windows:
         logger.info(f"Processing window: {window}")
-
+        
+        # Load processed data for this window
         try:
-            # Load tokenized data for this window
-            # Path structure: data/processed/processed_{window}.csv
-            data_path = Path(f"data/processed/processed_{window}.csv")
-            if not data_path.exists():
-                logger.error(f"Data file not found: {data_path}")
-                all_results[window] = {
+            corpus, dictionary = load_processed_data_for_lda(window, data_dir)
+            if corpus is None or len(corpus) == 0:
+                logger.error(f"No data found for window {window}. Skipping.")
+                validation_results[window] = {
                     "status": "error",
-                    "message": f"Data file not found: {data_path}"
+                    "message": "No data found"
                 }
-                any_failed = True
+                all_valid = False
                 continue
-
-            # Load preprocessed data
-            tokenized_docs = load_preprocessed_data(data_path)
-            logger.info(f"Loaded {len(tokenized_docs)} documents for {window}")
-
-            if len(tokenized_docs) == 0:
-                logger.error(f"No documents found for window {window}")
-                all_results[window] = {
-                    "status": "error",
-                    "message": "No documents found"
-                }
-                any_failed = True
-                continue
-
-            # Load topic model for this window
-            # Expected path: results/stats/topic_vectors_{window}.json
-            # We need to reconstruct the model or load it from saved state
-            # For now, we assume the model was saved in a way that allows reloading
-            # This depends on how T020 saves the models
-
-            model_path = Path(f"results/stats/lda_model_{window}.pkl")
-            if not model_path.exists():
-                # Alternative: try to load from topic vectors and reconstruct
-                logger.warning(f"Model file not found: {model_path}")
-                # We'll need to handle this case - perhaps the model wasn't saved
-                # In a real scenario, T020 should save the model
-                all_results[window] = {
-                    "status": "error",
-                    "message": f"Model file not found: {model_path}"
-                }
-                any_failed = True
-                continue
-
-            # Load the model (implementation depends on how it was saved)
-            # This is a placeholder - actual implementation depends on T020's output
-            try:
-                import pickle
-                with open(model_path, 'rb') as f:
-                    topic_model = pickle.load(f)
-            except Exception as e:
-                logger.error(f"Failed to load model: {e}")
-                all_results[window] = {
-                    "status": "error",
-                    "message": f"Failed to load model: {e}"
-                }
-                any_failed = True
-                continue
-
-            # Create dictionary from documents
-            dictionary = corpora.Dictionary(tokenized_docs)
-
-            # Compute coherence
-            coherence = compute_c_v_coherence(tokenized_docs, topic_model, dictionary)
-
-            # Validate
-            is_valid, message = validate_lda_model(window, coherence)
-
-            # Save results
-            results = validate_and_save_results(window, coherence, is_valid)
-            all_results[window] = results
-
-            if not is_valid:
-                any_failed = True
-
         except Exception as e:
-            logger.error(f"Error processing window {window}: {e}")
-            all_results[window] = {
+            logger.error(f"Failed to load data for window {window}: {e}")
+            validation_results[window] = {
                 "status": "error",
                 "message": str(e)
             }
-            any_failed = True
-
+            all_valid = False
+            continue
+        
+        # Fit LDA model (re-using T020 logic)
+        try:
+            lda_model = fit_lda_model(corpus, k=10, max_iter=20)
+            logger.info(f"Model fitted for window {window}.")
+        except Exception as e:
+            logger.error(f"Failed to fit model for window {window}: {e}")
+            validation_results[window] = {
+                "status": "error",
+                "message": f"Model fitting failed: {e}"
+            }
+            all_valid = False
+            continue
+        
+        # Compute coherence
+        try:
+            coherence = compute_c_v_coherence(lda_model, corpus, dictionary)
+            logger.info(f"Coherence for {window}: {coherence:.4f}")
+        except Exception as e:
+            logger.error(f"Failed to compute coherence for window {window}: {e}")
+            validation_results[window] = {
+                "status": "error",
+                "message": f"Coherence calculation failed: {e}"
+            }
+            all_valid = False
+            continue
+        
+        # Validate
+        is_valid, msg = validate_lda_model(window, coherence)
+        
+        # Get top words for this model (for saving)
+        topic_words = []
+        try:
+            feature_names = dictionary.get_tokens()
+            for topic_idx in range(lda_model.n_components):
+                topic_weights = lda_model.components_[topic_idx]
+                top_indices = np.argsort(topic_weights)[::-1][:10]
+                top_words = [feature_names[i] for i in top_indices]
+                topic_words.append(top_words)
+        except Exception as e:
+            logger.warning(f"Could not extract topic words for {window}: {e}")
+        
+        # Save results
+        results = validate_and_save_results(
+            window, coherence, is_valid, topic_words=topic_words
+        )
+        validation_results[window] = results
+        
+        if not is_valid:
+            all_valid = False
+    
     # Final summary
-    if any_failed:
-        logger.error("VALIDATION FAILED: One or more windows did not meet coherence threshold.")
-        logger.error("Downstream processing is BLOCKED for failed windows.")
+    logger.info("Validation complete.")
+    if all_valid:
+        logger.info("All windows passed validation. Downstream processing can proceed.")
     else:
-        logger.info("VALIDATION SUCCESS: All windows passed coherence threshold.")
+        logger.critical("One or more windows failed validation. Downstream processing is blocked.")
+        raise RuntimeError(
+            f"LDA validation failed for one or more windows. "
+            f"Check logs for details. Blocked: {validation_results}"
+        )
+    
+    return validation_results
 
-    # Save summary
-    summary = {
-        "total_windows": len(windows),
-        "passed": sum(1 for r in all_results.values() if r.get("is_valid") == True),
-        "failed": sum(1 for r in all_results.values() if r.get("is_valid") == False),
-        "errors": sum(1 for r in all_results.values() if r.get("status") == "error"),
-        "windows": all_results
-    }
-
-    summary_path = Path("results/stats/validation_summary.json")
-    with open(summary_path, 'w', encoding='utf-8') as f:
-        json.dump(summary, f, indent=2)
-
-    logger.info(f"Validation summary saved to {summary_path}")
-
-    return summary
+if __name__ == "__main__":
+    main()

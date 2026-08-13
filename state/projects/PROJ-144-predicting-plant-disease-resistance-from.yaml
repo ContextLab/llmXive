@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T12:28:55.953044Z'
-current_stage: tasked
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-144-predicting-plant-disease-resistance-from
-last_run_id: 3ca81a52-c970-4acd-80c4-26abba5dfe4b
+last_run_id: 877cf597-14b4-4f18-80f4-25ae66a09c5d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from
 title: Predicting Plant Disease Resistance from Publicly Available Metabolomic Data
-updated_at: '2026-08-12T16:26:16.582039Z'
+updated_at: '2026-08-13T00:53:14.956900Z'

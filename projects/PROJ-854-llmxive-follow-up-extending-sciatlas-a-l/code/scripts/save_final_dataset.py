@@ -1,137 +1,240 @@
 """
-Script to save the final analysis dataset combining all computed metrics.
+Script to save the final analysis dataset combining citations, novelty scores, and clusters.
 
-This script loads the processed graph with structural clusters and bridging coefficients,
-merges it with citation data and novelty scores, and saves the result as a Parquet file.
+This script aggregates data from:
+1. The processed graph with bridging coefficients and primary clusters (US1)
+2. The embedding-based novelty scores and topic clusters (US2)
+
+The final output is saved as a Parquet file for efficient storage and analysis.
 """
 import os
 import sys
 import logging
 import pandas as pd
 import networkx as nx
+from pathlib import Path
+from typing import Dict, Any, Optional
 
-# Add project root to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.lib import config
 from src.services.ingest import fetch_and_build_subgraph
-from src.models.graph_utils import calc_bridging
-from src.services.embeddings import (
-    load_embedding_model,
-    filter_valid_nodes,
-    generate_embeddings_batched,
-    compute_novelty_scores,
-    save_excluded_nodes
-)
-from src.services.clustering import (
-    assign_topic_clusters_to_dataframe,
-    compute_cluster_centroids
-)
+from src.services.save_graph import save_graph_to_parquet
+from src.services.embeddings import generate_embeddings_for_dataset, compute_novelty_scores
+from src.services.clustering import assign_topic_clusters_to_dataframe
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def main():
-    logger.info("Starting final dataset generation...")
-
-    # 1. Fetch and build the subgraph (US1)
-    logger.info("Fetching and building OpenAlex subgraph...")
-    G = fetch_and_build_subgraph(target_size=config.TARGET_SUBGRAPH_SIZE)
+def load_graph_data() -> Optional[nx.Graph]:
+    """
+    Load the processed graph from the intermediate Parquet file.
     
-    if G.number_of_nodes() == 0:
-        logger.error("No nodes fetched. Aborting.")
-        sys.exit(1)
-
-    # 2. Assign primary clusters and calculate bridging coefficients (US1)
-    # Note: louvain_cluster is imported from graph_utils in the API surface
-    from src.models.graph_utils import louvain_cluster
-    clusters = louvain_cluster(G)
+    Returns:
+        networkx.Graph: The graph with bridging coefficients and primary clusters,
+                       or None if the file doesn't exist or loading fails.
+    """
+    input_path = Path(config.DATA_PROCESSED_DIR) / "subgraph_with_clusters.parquet"
     
-    # Update node attributes with primary_cluster
-    for node, cluster_id in clusters.items():
-        G.nodes[node]['primary_cluster'] = cluster_id
-
-    # Calculate bridging coefficients
-    bridging_coeffs = calc_bridging(G, clusters)
-    for node, coeff in bridging_coeffs.items():
-        G.nodes[node]['bridging_coefficient'] = coeff
-
-    logger.info(f"Graph processed: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges")
-
-    # 3. Convert Graph to DataFrame for merging with embeddings/novelty
-    # We extract node attributes that we need
-    node_data = []
-    for node_id, data in G.nodes(data=True):
-        node_data.append({
-            'id': node_id,
-            'title': data.get('title', ''),
-            'citation_count': data.get('citation_count', 0),
-            'primary_cluster': data.get('primary_cluster', -1),
-            'bridging_coefficient': data.get('bridging_coefficient', 0.0)
-        })
+    if not input_path.exists():
+        logger.warning(f"Intermediate graph file not found at {input_path}. "
+                     "Attempting to rebuild from scratch...")
+        try:
+            G = fetch_and_build_subgraph(target_size=1000)
+            save_graph_to_parquet(G, output_path=input_path)
+            logger.info(f"Rebuilt and saved graph to {input_path}")
+            return G
+        except Exception as e:
+            logger.error(f"Failed to rebuild graph: {e}")
+            return None
     
-    df_graph = pd.DataFrame(node_data)
-    logger.info(f"Converted graph to DataFrame with {len(df_graph)} rows")
+    try:
+        # Load the graph from Parquet
+        df = pd.read_parquet(input_path)
+        G = nx.Graph()
+        
+        # Reconstruct graph from DataFrame
+        # Assuming the DataFrame has columns: id, title, citation_count, 
+        # embedding_vector, primary_cluster, topic_cluster, bridging_coefficient
+        for _, row in df.iterrows():
+            G.add_node(
+                row['id'],
+                title=row.get('title', ''),
+                citation_count=row.get('citation_count', 0),
+                primary_cluster=row.get('primary_cluster', -1),
+                bridging_coefficient=row.get('bridging_coefficient', 0.0)
+            )
+        
+        logger.info(f"Loaded graph with {G.number_of_nodes()} nodes from {input_path}")
+        return G
+    except Exception as e:
+        logger.error(f"Failed to load graph from {input_path}: {e}")
+        return None
 
-    # 4. Process embeddings and novelty scores (US2)
-    logger.info("Loading embedding model...")
-    model = load_embedding_model()
-
-    logger.info("Filtering valid nodes for embedding...")
-    valid_nodes, excluded_nodes = filter_valid_nodes(df_graph)
+def merge_novelty_data(graph_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Merge novelty scores and topic clusters into the main dataset.
     
-    if excluded_nodes:
-        save_excluded_nodes(excluded_nodes, config.EXCLUDED_NODES_PATH)
-        logger.info(f"Saved {len(excluded_nodes)} excluded nodes to {config.EXCLUDED_NODES_PATH}")
-
-    logger.info("Generating embeddings in batches...")
-    embeddings_df = generate_embeddings_batched(valid_nodes, model, batch_size=config.EMBEDDING_BATCH_SIZE)
-
-    logger.info("Assigning topic clusters (k-means)...")
-    # assign_topic_clusters_to_dataframe expects a dataframe with embeddings
-    df_with_topic_clusters = assign_topic_clusters_to_dataframe(embeddings_df, k=config.TOPIC_CLUSTER_K)
-
-    logger.info("Computing novelty scores...")
-    df_with_novelty = compute_novelty_scores(df_with_topic_clusters)
-
-    # 5. Merge all data
-    # We need to merge df_graph (all nodes) with df_with_novelty (only valid nodes)
-    # df_with_novelty contains: id, topic_cluster, novelty_score, embedding_vector
+    Args:
+        graph_df: DataFrame containing graph data with node attributes.
+        
+    Returns:
+        pd.DataFrame: DataFrame with added novelty_score and topic_cluster columns.
+    """
+    if graph_df.empty:
+        logger.warning("Input DataFrame is empty, cannot merge novelty data.")
+        return graph_df
     
-    # Drop the embedding vector from the final dataset if it's too large, 
-    # but keep the other metrics. The task says "citations, novelty scores, and clusters".
-    # We will keep the vector if it fits, otherwise we might drop it. 
-    # For now, let's keep it as per "final dataset" usually implying raw features too.
-    # However, parquet can be large. Let's assume we keep it.
+    # Filter nodes with valid titles for embedding processing
+    valid_nodes_df = graph_df[graph_df['title'].notna() & (graph_df['title'] != '')].copy()
     
-    # Merge on 'id'
-    df_final = df_graph.merge(
-        df_with_novelty[['id', 'topic_cluster', 'novelty_score']], 
-        on='id', 
-        how='left'
+    if valid_nodes_df.empty:
+        logger.warning("No valid nodes with titles found for novelty calculation.")
+        # Add default values for all nodes
+        graph_df['novelty_score'] = 0.0
+        graph_df['topic_cluster'] = -1
+        return graph_df
+    
+    logger.info(f"Processing {len(valid_nodes_df)} nodes for novelty calculation...")
+    
+    # Generate embeddings for valid nodes
+    embeddings = generate_embeddings_for_dataset(valid_nodes_df)
+    
+    if embeddings is None or len(embeddings) == 0:
+        logger.warning("Failed to generate embeddings, using default novelty scores.")
+        graph_df['novelty_score'] = 0.0
+        graph_df['topic_cluster'] = -1
+        return graph_df
+    
+    # Compute novelty scores
+    novelty_results = compute_novelty_scores(valid_nodes_df, embeddings)
+    
+    if novelty_results is None or 'novelty_score' not in novelty_results.columns:
+        logger.warning("Failed to compute novelty scores, using defaults.")
+        graph_df['novelty_score'] = 0.0
+        graph_df['topic_cluster'] = -1
+        return graph_df
+    
+    # Merge results back to the main DataFrame
+    # Create a mapping from node_id to novelty_score and topic_cluster
+    novelty_map = novelty_results.set_index('id')[['novelty_score', 'topic_cluster']].to_dict('index')
+    
+    graph_df['novelty_score'] = graph_df['id'].map(
+        lambda x: novelty_map.get(x, {}).get('novelty_score', 0.0)
     )
-
-    # Fill NaN for novelty_score for excluded nodes (if any) with 0.0 or NaN?
-    # Spec says: "retain them in the dataset for citation analysis"
-    # So we keep the rows, but novelty might be NaN. Let's fill with -1.0 or keep NaN?
-    # Usually, NaN is fine for "missing". But let's check if we need a sentinel.
-    # The task doesn't specify a sentinel, so we leave as NaN or fill with 0.
-    # Given the context of "novelty score", 0 might imply "not novel at all" which is different from "not calculated".
-    # We will leave as NaN for excluded nodes, or fill with 0.0 if the downstream analysis requires it.
-    # Let's fill with 0.0 to ensure the column is numeric for the analysis step.
-    df_final['novelty_score'] = df_final['novelty_score'].fillna(0.0)
-
-    logger.info(f"Final dataset shape: {df_final.shape}")
-    logger.info(f"Columns: {list(df_final.columns)}")
-
-    # 6. Save to Parquet
-    output_path = config.FINAL_DATASET_PATH
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    graph_df['topic_cluster'] = graph_df['id'].map(
+        lambda x: novelty_map.get(x, {}).get('topic_cluster', -1)
+    )
     
-    df_final.to_parquet(output_path, index=False)
-    logger.info(f"Saved final dataset to {output_path}")
+    # For nodes without valid titles, assign default values
+    graph_df.loc[graph_df['novelty_score'].isna(), 'novelty_score'] = 0.0
+    graph_df.loc[graph_df['topic_cluster'].isna(), 'topic_cluster'] = -1
+    
+    logger.info(f"Merged novelty data: {graph_df['novelty_score'].notna().sum()} nodes with scores")
+    return graph_df
 
-    return output_path
+def save_final_dataset(df: pd.DataFrame, output_path: Path) -> bool:
+    """
+    Save the final analysis dataset to Parquet format.
+    
+    Args:
+        df: DataFrame containing the final analysis data.
+        output_path: Path where the Parquet file will be saved.
+        
+    Returns:
+        bool: True if successful, False otherwise.
+    """
+    try:
+        # Ensure output directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Save to Parquet
+        df.to_parquet(output_path, index=False)
+        
+        logger.info(f"Successfully saved final dataset to {output_path}")
+        logger.info(f"Dataset shape: {df.shape}")
+        logger.info(f"Columns: {list(df.columns)}")
+        
+        # Log summary statistics
+        logger.info(f"Nodes with citation_count > 0: {(df['citation_count'] > 0).sum()}")
+        logger.info(f"Nodes with novelty_score > 0: {(df['novelty_score'] > 0).sum()}")
+        logger.info(f"Unique primary clusters: {df['primary_cluster'].nunique()}")
+        logger.info(f"Unique topic clusters: {df['topic_cluster'].nunique()}")
+        
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save final dataset to {output_path}: {e}")
+        return False
+
+def main():
+    """
+    Main entry point for the final dataset generation pipeline.
+    
+    This function:
+    1. Loads the processed graph with bridging coefficients
+    2. Merges novelty scores and topic clusters
+    3. Saves the combined dataset to Parquet
+    """
+    logger.info("Starting final dataset generation...")
+    
+    # Load graph data
+    G = load_graph_data()
+    if G is None:
+        logger.error("Failed to load graph data. Aborting.")
+        sys.exit(1)
+    
+    # Convert graph to DataFrame
+    try:
+        nodes_data = []
+        for node_id, attrs in G.nodes(data=True):
+            nodes_data.append({
+                'id': node_id,
+                'title': attrs.get('title', ''),
+                'citation_count': attrs.get('citation_count', 0),
+                'primary_cluster': attrs.get('primary_cluster', -1),
+                'bridging_coefficient': attrs.get('bridging_coefficient', 0.0)
+            })
+        
+        graph_df = pd.DataFrame(nodes_data)
+        logger.info(f"Converted graph to DataFrame with {len(graph_df)} rows")
+    except Exception as e:
+        logger.error(f"Failed to convert graph to DataFrame: {e}")
+        sys.exit(1)
+    
+    # Merge novelty data
+    final_df = merge_novelty_data(graph_df)
+    
+    if final_df.empty:
+        logger.error("Final dataset is empty. Aborting.")
+        sys.exit(1)
+    
+    # Ensure required columns exist
+    required_columns = [
+        'id', 'title', 'citation_count', 'primary_cluster', 
+        'bridging_coefficient', 'novelty_score', 'topic_cluster'
+    ]
+    
+    missing_cols = [col for col in required_columns if col not in final_df.columns]
+    if missing_cols:
+        logger.warning(f"Missing required columns: {missing_cols}. Adding with default values.")
+        for col in missing_cols:
+            final_df[col] = 0 if col in ['citation_count', 'bridging_coefficient', 'novelty_score'] else -1
+    
+    # Save final dataset
+    output_path = Path(config.DATA_PROCESSED_DIR) / "final_analysis_dataset.parquet"
+    success = save_final_dataset(final_df, output_path)
+    
+    if not success:
+        logger.error("Failed to save final dataset.")
+        sys.exit(1)
+    
+    logger.info("Final dataset generation completed successfully!")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

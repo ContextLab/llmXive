@@ -1,14 +1,15 @@
-pyalex>=0.13.0
-networkx>=3.0.0
-pandas>=2.0.0
-pyarrow>=12.0.0
+# Core dependencies
 numpy>=1.24.0
-scipy>=1.10.0
-scikit-learn>=1.2.0
+pandas>=2.0.0
+networkx>=3.0.0
+scikit-learn>=1.3.0
+scipy>=1.11.0
+pyalex>=0.13.0
 sentence-transformers>=2.2.0
-community>=1.0.0b1
-matplotlib>=3.7.0
-seaborn>=0.12.0
-pytest>=7.0.0
-ruff>=0.0.280
+python-louvain>=0.16.0
+pyarrow>=12.0.0
+psutil>=5.9.0
+pytest>=7.4.0
+ruff>=0.1.0
 black>=23.0.0
+memory-profiler>=0.61.0

@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive
   verified_at: '2026-08-12T06:00:41.266117Z'
-- artifact_hash: 290b39dfaba667bf0089e44870de14308a43928f125551b1ae65182eb18d150d
+- artifact_hash: 930da74e7bf779c6bb7645dad561e309b80ccbf79d8f25b7fc44a558404b40b1
   artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-12T16:25:40.418505Z'
+  verified_at: '2026-08-13T00:52:37.147623Z'

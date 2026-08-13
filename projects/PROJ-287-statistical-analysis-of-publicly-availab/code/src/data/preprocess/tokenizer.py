@@ -3,7 +3,8 @@ import re
 import logging
 from pathlib import Path
 from typing import List, Dict, Optional, Set, Tuple, Generator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+import json
 
 import nltk
 from nltk.corpus import stopwords
@@ -13,7 +14,7 @@ import spacy
 
 from src.utils.logging import get_logger
 
-# Ensure necessary NLTK resources are available
+# Ensure required NLTK data is available
 try:
     stopwords.words('english')
 except LookupError:
@@ -24,186 +25,342 @@ except LookupError:
     nltk.download('punkt', quiet=True)
 try:
     WordNetLemmatizer().lemmatize("test")
-    # Ensure wordnet data is present
-    nltk.download('wordnet', quiet=True)
 except LookupError:
     nltk.download('wordnet', quiet=True)
+try:
+    word_tokenize("test", language='english')
+    nltk.download('punkt_tab', quiet=True)
+except:
+    pass
 
-# Load spaCy model lazily
-_nlp = None
+# Load spaCy model (small English model)
+try:
+    nlp = spacy.load("en_core_web_sm")
+except OSError:
+    # If model not found, try to download it
+    import subprocess
+    subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"], check=True)
+    nlp = spacy.load("en_core_web_sm")
 
-def _get_nlp():
-    global _nlp
-    if _nlp is None:
-        try:
-            _nlp = spacy.load("en_core_web_sm")
-        except OSError:
-            # Fallback if model not installed, though requirements.txt should handle it
-            # In a real execution environment, this would raise an error if not found
-            import subprocess
-            subprocess.run(["python", "-m", "spacy", "download", "en_core_web_sm"], check=True)
-            _nlp = spacy.load("en_core_web_sm")
-    return _nlp
 
 @dataclass
 class TokenizationResult:
-    """Container for tokenized and lemmatized text."""
+    """Container for tokenization results of a single record."""
+    record_id: str
+    source: str
     original_text: str
     tokens: List[str]
-    lemmas: List[str]
-    window: str
-    source: str
-    record_id: str
+    lemmatized_tokens: List[str]
     token_count: int
+    window: Optional[str] = None
+    is_filtered: bool = False
+    filter_reason: Optional[str] = None
+
 
 class WindowStopwordLoader:
-    """Loads window-specific stopwords from data files."""
-
-    def __init__(self, stopword_dir: Optional[Path] = None):
-        self.stopword_dir = stopword_dir or Path("data/stopwords")
-        self._cache: Dict[str, Set[str]] = {}
-
-    def _load_stopwords_from_file(self, filepath: Path) -> Set[str]:
-        """Load stopwords from a text file, one word per line."""
-        if not filepath.exists():
-            raise FileNotFoundError(f"Stopword file not found: {filepath}")
+    """
+    Loads and manages window-specific stopword lists.
+    
+    Windows are defined as 5-year periods:
+    - 2000-2004
+    - 2005-2009
+    - 2010-2014
+    - 2015-2019
+    - 2020-2024
+    
+    Each window may have custom stopwords in addition to standard English stopwords.
+    """
+    
+    def __init__(self, custom_stopwords_dir: Optional[Path] = None):
+        self.logger = get_logger(__name__)
+        self.base_stopwords: Set[str] = set(stopwords.words('english'))
+        self.window_stopwords: Dict[str, Set[str]] = {}
+        self.custom_stopwords_dir = custom_stopwords_dir
         
-        stopwords_set = set()
-        with open(filepath, 'r', encoding='utf-8') as f:
-            for line in f:
-                word = line.strip().lower()
-                if word:
-                    stopwords_set.add(word)
-        return stopwords_set
-
+        # Define standard windows
+        self.windows = [
+            "2000-2004",
+            "2005-2009",
+            "2010-2014",
+            "2015-2019",
+            "2020-2024"
+        ]
+        
+        # Initialize empty sets for each window
+        for window in self.windows:
+            self.window_stopwords[window] = set()
+        
+        # Load custom stopwords if directory provided
+        if custom_stopwords_dir:
+            self._load_custom_stopwords(custom_stopwords_dir)
+    
+    def _load_custom_stopwords(self, custom_dir: Path) -> None:
+        """Load custom stopwords from JSON files in the specified directory."""
+        if not custom_dir.exists():
+            self.logger.warning(f"Custom stopwords directory does not exist: {custom_dir}")
+            return
+        
+        for window in self.windows:
+            file_path = custom_dir / f"stopwords_{window}.json"
+            if file_path.exists():
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        custom_words = json.load(f)
+                        if isinstance(custom_words, list):
+                            self.window_stopwords[window].update(
+                                word.lower().strip() for word in custom_words
+                            )
+                            self.logger.info(
+                                f"Loaded {len(custom_words)} custom stopwords for window {window}"
+                            )
+                        else:
+                            self.logger.warning(
+                                f"Invalid format in {file_path}: expected list of strings"
+                            )
+                except (json.JSONDecodeError, IOError) as e:
+                    self.logger.error(f"Error loading {file_path}: {e}")
+            else:
+                self.logger.info(f"No custom stopwords file found for window {window}")
+    
     def get_stopwords(self, window: str) -> Set[str]:
-        """Get the combined stopwords for a specific window."""
-        if window in self._cache:
-            return self._cache[window]
-
-        # Base English stopwords from NLTK
-        base_stopwords = set(stopwords.words('english'))
-        
-        # Load window-specific stopwords if they exist
-        window_file = self.stopword_dir / f"{window}_stopwords.txt"
-        
-        if window_file.exists():
-            try:
-                window_specific = self._load_stopwords_from_file(window_file)
-                combined = base_stopwords.union(window_specific)
-            except FileNotFoundError:
-                logging.warning(f"Window-specific stopwords file {window_file} not found. Using base stopwords only.")
-                combined = base_stopwords
-        else:
-            # If no specific file, just use base stopwords
-            combined = base_stopwords
-
-        self._cache[window] = combined
-        return combined
-
-class AbstractTokenizer:
-    """Handles tokenization, lemmatization, and filtering for abstracts."""
-
-    def __init__(self, stopword_loader: WindowStopwordLoader):
-        self.stopword_loader = stopword_loader
-        self.lemmatizer = WordNetLemmatizer()
-        self.nlp = _get_nlp()
-
-    def _clean_text(self, text: str) -> str:
-        """Basic text cleaning."""
-        if not text:
-            return ""
-        # Convert to lowercase
-        text = text.lower()
-        # Remove URLs
-        text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
-        # Remove email addresses
-        text = re.sub(r'\S+@\S+', '', text)
-        # Remove special characters but keep spaces
-        text = re.sub(r'[^a-z0-9\s]', ' ', text)
-        # Remove extra whitespace
-        text = re.sub(r'\s+', ' ', text).strip()
-        return text
-
-    def _tokenize_with_nltk(self, text: str) -> List[str]:
-        """Tokenize text using NLTK."""
-        return word_tokenize(text)
-
-    def _lemmatize_tokens(self, tokens: List[str]) -> List[str]:
-        """Lemmatize tokens using WordNetLemmatizer."""
-        # Simple POS tagging approximation (default to noun)
-        # For better accuracy, one could use spacy for POS tagging
-        return [self.lemmatizer.lemmatize(token) for token in tokens]
-
-    def _remove_stopwords(self, tokens: List[str], stopwords_set: Set[str]) -> List[str]:
-        """Remove stopwords from tokens."""
-        return [token for token in tokens if token not in stopwords_set]
-
-    def _remove_short_tokens(self, tokens: List[str], min_length: int = 2) -> List[str]:
-        """Remove tokens shorter than min_length."""
-        return [token for token in tokens if len(token) >= min_length]
-
-    def tokenize_record(self, record: Dict[str, any], window: str) -> Optional[TokenizationResult]:
         """
-        Process a single abstract record.
+        Get the complete stopwords set for a specific window.
         
         Args:
-            record: Dictionary containing 'text', 'source', and 'id' keys.
-            window: The 5-year window string (e.g., '2000-2004').
+            window: Window identifier (e.g., "2000-2004")
         
         Returns:
-            TokenizationResult or None if text is empty.
+            Set of stopwords for the window (base + custom)
         """
-        text = record.get('text', '')
+        if window not in self.window_stopwords:
+            self.logger.warning(f"Unknown window: {window}, using base stopwords only")
+            return self.base_stopwords.copy()
+        
+        # Combine base stopwords with window-specific custom stopwords
+        combined = self.base_stopwords.copy()
+        combined.update(self.window_stopwords[window])
+        return combined
+    
+    def add_custom_stopwords(self, window: str, words: List[str]) -> None:
+        """
+        Add custom stopwords to a specific window.
+        
+        Args:
+            window: Window identifier
+            words: List of words to add as stopwords
+        """
+        if window not in self.window_stopwords:
+            self.logger.warning(f"Unknown window: {window}, skipping addition")
+            return
+        
+        normalized = {word.lower().strip() for word in words if word and word.strip()}
+        self.window_stopwords[window].update(normalized)
+        self.logger.debug(f"Added {len(normalized)} stopwords to window {window}")
+
+
+class AbstractTokenizer:
+    """
+    Tokenizer for academic abstracts using NLTK and spaCy.
+    
+    Features:
+    - Tokenization using NLTK
+    - Lemmatization using spaCy
+    - Window-specific stopword removal
+    - Lowercasing and punctuation removal
+    - Token counting
+    """
+    
+    def __init__(
+        self,
+        stopword_loader: WindowStopwordLoader,
+        remove_punctuation: bool = True,
+        lowercase: bool = True,
+        min_token_length: int = 2
+    ):
+        """
+        Initialize the tokenizer.
+        
+        Args:
+            stopword_loader: WindowStopwordLoader instance for window-specific stopwords
+            remove_punctuation: Whether to remove punctuation tokens
+            lowercase: Whether to lowercase all tokens
+            min_token_length: Minimum length of tokens to keep
+        """
+        self.stopword_loader = stopword_loader
+        self.remove_punctuation = remove_punctuation
+        self.lowercase = lowercase
+        self.min_token_length = min_token_length
+        self.logger = get_logger(__name__)
+        
+        # Initialize spaCy pipeline
+        self.nlp = nlp
+        
+        # Initialize NLTK lemmatizer (fallback)
+        self.lemmatizer = WordNetLemmatizer()
+    
+    def _clean_token(self, token: str) -> str:
+        """Clean a single token."""
+        if self.lowercase:
+            token = token.lower()
+        
+        if self.remove_punctuation:
+            # Remove punctuation
+            token = re.sub(r'[^\w\s]', '', token)
+        
+        return token.strip()
+    
+    def _is_valid_token(self, token: str) -> bool:
+        """Check if a token meets filtering criteria."""
+        if not token:
+            return False
+        
+        if len(token) < self.min_token_length:
+            return False
+        
+        # Check if token is alphanumeric (after cleaning)
+        if not re.match(r'^[a-z0-9]+$', token, re.IGNORECASE):
+            return False
+        
+        return True
+    
+    def _lemmatize_tokens(self, tokens: List[str], window: Optional[str] = None) -> List[str]:
+        """
+        Lemmatize tokens using spaCy for better accuracy.
+        
+        Args:
+            tokens: List of tokens to lemmatize
+            window: Optional window identifier for context-aware lemmatization
+        
+        Returns:
+            List of lemmatized tokens
+        """
+        # Use spaCy for lemmatization (more accurate than NLTK)
+        doc = self.nlp(" ".join(tokens))
+        lemmatized = [token.lemma_ for token in doc]
+        
+        # Clean lemmatized tokens
+        cleaned = []
+        for lemma in lemmatized:
+            cleaned_token = self._clean_token(lemma)
+            if self._is_valid_token(cleaned_token):
+                cleaned.append(cleaned_token)
+        
+        return cleaned
+    
+    def tokenize(
+        self,
+        text: str,
+        record_id: str,
+        source: str,
+        window: Optional[str] = None
+    ) -> TokenizationResult:
+        """
+        Tokenize and preprocess a single abstract.
+        
+        Args:
+            text: The abstract text
+            record_id: Unique identifier for the record
+            source: Data source (e.g., 'arxiv', 'pubmed')
+            window: Optional window identifier for stopword selection
+        
+        Returns:
+            TokenizationResult containing all processing details
+        """
         if not text or not text.strip():
-            return None
-
-        source = record.get('source', 'unknown')
-        record_id = record.get('id', 'unknown')
-
-        # Clean text
-        cleaned = self._clean_text(text)
-        if not cleaned:
-            return None
-
-        # Tokenize
-        tokens = self._tokenize_with_nltk(cleaned)
+            return TokenizationResult(
+                record_id=record_id,
+                source=source,
+                original_text=text,
+                tokens=[],
+                lemmatized_tokens=[],
+                token_count=0,
+                window=window,
+                is_filtered=True,
+                filter_reason="Empty text"
+            )
         
-        # Get stopwords for this window
-        stopwords_set = self.stopword_loader.get_stopwords(window)
+        # Step 1: Tokenize using NLTK
+        try:
+            raw_tokens = word_tokenize(text)
+        except Exception as e:
+            self.logger.error(f"Tokenization failed for {record_id}: {e}")
+            raw_tokens = text.split()  # Fallback to simple split
         
-        # Remove stopwords
-        tokens_no_stop = self._remove_stopwords(tokens, stopwords_set)
+        # Step 2: Clean and filter tokens
+        cleaned_tokens = []
+        for token in raw_tokens:
+            cleaned = self._clean_token(token)
+            if self._is_valid_token(cleaned):
+                cleaned_tokens.append(cleaned)
         
-        # Remove short tokens
-        tokens_filtered = self._remove_short_tokens(tokens_no_stop)
+        # Step 3: Remove stopwords
+        if window:
+            stopwords_set = self.stopword_loader.get_stopwords(window)
+        else:
+            stopwords_set = self.stopword_loader.get_stopwords("2000-2004")  # Default
         
-        # Lemmatize
-        lemmas = self._lemmatize_tokens(tokens_filtered)
-
-        # Final filter: remove empty strings after lemmatization
-        lemmas = [l for l in lemmas if l]
-
+        filtered_tokens = [
+            token for token in cleaned_tokens
+            if token.lower() not in stopwords_set
+        ]
+        
+        # Step 4: Lemmatize
+        lemmatized_tokens = self._lemmatize_tokens(filtered_tokens, window)
+        
+        # Determine if record should be filtered based on token count
+        # (Minimum 20 tokens as per requirements)
+        is_filtered = len(lemmatized_tokens) < 20
+        filter_reason = "Insufficient tokens (< 20)" if is_filtered else None
+        
         return TokenizationResult(
-            original_text=record['text'],
-            tokens=tokens_filtered,
-            lemmas=lemmas,
-            window=window,
-            source=source,
             record_id=record_id,
-            token_count=len(lemmas)
+            source=source,
+            original_text=text,
+            tokens=filtered_tokens,
+            lemmatized_tokens=lemmatized_tokens,
+            token_count=len(lemmatized_tokens),
+            window=window,
+            is_filtered=is_filtered,
+            filter_reason=filter_reason
         )
+    
+    def tokenize_batch(
+        self,
+        records: List[Dict[str, any]],
+        window: Optional[str] = None
+    ) -> Generator[TokenizationResult, None, None]:
+        """
+        Tokenize a batch of records.
+        
+        Args:
+            records: List of record dictionaries with 'id', 'text', 'source' keys
+            window: Optional window identifier
+        
+        Yields:
+            TokenizationResult for each record
+        """
+        for record in records:
+            result = self.tokenize(
+                text=record.get('text', ''),
+                record_id=record.get('id', 'unknown'),
+                source=record.get('source', 'unknown'),
+                window=window
+            )
+            yield result
 
-def load_preprocessed_data(input_path: Path) -> Generator[Dict[str, any], None, None]:
+
+def load_preprocessed_data(input_path: Path) -> List[Dict[str, any]]:
     """
     Load preprocessed data from a JSONL file.
     
     Args:
-        input_path: Path to the JSONL file.
-        
-    Yields:
-        Dictionary for each record.
+        input_path: Path to the JSONL file
+    
+    Returns:
+        List of record dictionaries
     """
+    records = []
+    
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
@@ -212,100 +369,98 @@ def load_preprocessed_data(input_path: Path) -> Generator[Dict[str, any], None, 
             line = line.strip()
             if not line:
                 continue
+            
             try:
-                import json
-                yield json.loads(line)
+                record = json.loads(line)
+                # Validate required fields
+                if 'id' not in record or 'text' not in record:
+                    raise ValueError(f"Missing required fields at line {line_num}")
+                records.append(record)
             except json.JSONDecodeError as e:
-                logging.error(f"Error decoding JSON at line {line_num}: {e}")
-                continue
+                raise ValueError(f"Invalid JSON at line {line_num}: {e}")
+    
+    return records
 
-def save_tokenized_results(results: List[TokenizationResult], output_path: Path):
+
+def save_tokenized_results(
+    results: List[TokenizationResult],
+    output_path: Path,
+    include_filtered: bool = True
+) -> None:
     """
     Save tokenization results to a JSONL file.
     
     Args:
-        results: List of TokenizationResult objects.
-        output_path: Path to the output file.
+        results: List of TokenizationResult objects
+        output_path: Output file path
+        include_filtered: Whether to include filtered-out records
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    import json
     with open(output_path, 'w', encoding='utf-8') as f:
         for result in results:
-            record = {
+            if not include_filtered and result.is_filtered:
+                continue
+            
+            # Convert dataclass to dict
+            record_dict = {
+                'id': result.record_id,
+                'source': result.source,
+                'window': result.window,
                 'original_text': result.original_text,
                 'tokens': result.tokens,
-                'lemmas': result.lemmas,
-                'window': result.window,
-                'source': result.source,
-                'id': result.record_id,
-                'token_count': result.token_count
+                'lemmatized_tokens': result.lemmatized_tokens,
+                'token_count': result.token_count,
+                'is_filtered': result.is_filtered,
+                'filter_reason': result.filter_reason
             }
-            f.write(json.dumps(record) + '\n')
+            f.write(json.dumps(record_dict) + '\n')
+    
+    # Log summary
+    total = len(results)
+    filtered = sum(1 for r in results if r.is_filtered)
+    kept = total - filtered
+    
+    logger = get_logger(__name__)
+    logger.info(f"Saved {kept}/{total} records to {output_path}")
+    if filtered > 0:
+        logger.info(f"Filtered out {filtered} records ({filtered/total*100:.1f}%)")
+
 
 def main():
-    """
-    Main entry point for the tokenizer script.
-    Processes raw JSONL data from data/raw/ and saves tokenized results to data/processed/.
-    """
-    logger = get_logger(__name__)
-    logger.info("Starting tokenizer process...")
-
-    # Define paths
-    input_dir = Path("data/raw")
-    output_dir = Path("data/processed")
-    stopword_dir = Path("data/stopwords")
+    """Main entry point for tokenizer module."""
+    import argparse
     
-    # Ensure output directories exist
-    output_dir.mkdir(parents=True, exist_ok=True)
-    stopword_dir.mkdir(parents=True, exist_ok=True)
-
+    parser = argparse.ArgumentParser(description='Tokenize academic abstracts')
+    parser.add_argument('--input', type=str, required=True, help='Input JSONL file path')
+    parser.add_argument('--output', type=str, required=True, help='Output JSONL file path')
+    parser.add_argument('--window', type=str, default='2000-2004', help='Time window for stopwords')
+    parser.add_argument('--custom-stopwords-dir', type=str, default=None, help='Directory with custom stopwords')
+    
+    args = parser.parse_args()
+    
     # Initialize components
-    stopword_loader = WindowStopwordLoader(stopword_dir)
-    tokenizer = AbstractTokenizer(stopword_loader)
+    stopword_loader = WindowStopwordLoader(
+        custom_stopwords_dir=Path(args.custom_stopwords_dir) if args.custom_stopwords_dir else None
+    )
+    tokenizer = AbstractTokenizer(stopword_loader=stopword_loader)
+    
+    # Load data
+    logger = get_logger(__name__)
+    logger.info(f"Loading data from {args.input}")
+    records = load_preprocessed_data(Path(args.input))
+    logger.info(f"Loaded {len(records)} records")
+    
+    # Process
+    logger.info(f"Tokenizing with window: {args.window}")
+    results = list(tokenizer.tokenize_batch(records, window=args.window))
+    
+    # Save
+    logger.info(f"Saving results to {args.output}")
+    save_tokenized_results(results, Path(args.output), include_filtered=True)
+    
+    logger.info("Tokenization complete")
 
-    # Define windows
-    windows = [
-        "2000-2004",
-        "2005-2009",
-        "2010-2014",
-        "2015-2019",
-        "2020-2024"
-    ]
 
-    # Process each window
-    for window in windows:
-        input_file = input_dir / f"raw_{window}.jsonl"
-        output_file = output_dir / f"tokenized_{window}.jsonl"
-
-        if not input_file.exists():
-            logger.warning(f"Input file not found for window {window}: {input_file}")
-            continue
-
-        logger.info(f"Processing window: {window}")
-        results = []
-        count = 0
-        error_count = 0
-
-        for record in load_preprocessed_data(input_file):
-            try:
-                result = tokenizer.tokenize_record(record, window)
-                if result:
-                    results.append(result)
-                    count += 1
-            except Exception as e:
-                logger.error(f"Error processing record {record.get('id', 'unknown')}: {e}")
-                error_count += 1
-
-        if results:
-            save_tokenized_results(results, output_file)
-            logger.info(f"Saved {len(results)} tokenized records to {output_file}")
-        else:
-            logger.warning(f"No valid records found for window {window}")
-
-        logger.info(f"Window {window}: Processed {count}, Errors {error_count}")
-
-    logger.info("Tokenizer process completed.")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

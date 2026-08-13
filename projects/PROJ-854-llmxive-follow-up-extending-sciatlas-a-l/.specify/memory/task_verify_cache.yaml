@@ -1,0 +1,42 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a claim placeholder and no actual artifacts (no\
+    \ code, dataset, computed metrics, or analysis results). Required outputs such\
+    \ as a data ingestion pipeline, per\u2011node `bridging_coefficient` and `primary_cluster`\
+    \ values, citation counts, novelty scores, and the correlation/regression analysis\
+    \ are missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or computed results were supplied; there is no implementation\
+    \ that computes title embeddings, derives topic\u2011cluster centroids, or calculates\
+    \ cosine\u2011distance novelty scores as required. Consequently the task\u2019\
+    s deliverable (a functional novelty\u2011score calculation) is missing."
+T023:
+  c: false
+  h: 497a2050671199295e3fba2208f34f62352d787c1a98b69ca9c9b6e031e82d95
+  r: "The required source file `src/services/embeddings.py` does not exist, and the\
+    \ log file `data/logs/excluded_nodes.csv` is also missing, so the edge\u2011case\
+    \ handling and logging specified in the task have not been implemented. The next\
+    \ implementer must create/modify the embeddings module and generate the CSV log."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided that implements a multiple\u2011\
+    comparison correction (Bonferroni or Benjamini\u2011Hochberg) nor a CLI flag to\
+    \ select the method. Without such artifacts, the requirement is not satisfied."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the `specs/001-bridging-coefficient-analysis/quickstart.md` file\
+    \ or its updated \u201CPrerequisites\u201D and \u201CRun\u201D sections is provided;\
+    \ without the actual documentation changes, we cannot verify that the required\
+    \ updates were made. The implementer must supply the modified markdown file showing\
+    \ the final pipeline steps, dependencies, and exact CLI commands."
+T037:
+  c: false
+  h: f7f5b88c96870b1aab41276122c3c490cc8a53a8a2bb79661ca0c19f95d2979d
+  r: The required file `tests/integration/test_statistical_pipeline.py` does not exist,
+    so the integration test with `test_binned_analysis_execution` is missing entirely.
+    No evidence of the requested test implementation is present.

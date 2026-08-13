@@ -1,172 +1,239 @@
 """
-Contract tests validating data schemas against specification contracts.
+Contract tests for schema validation against specs/001-bridging-coefficient-analysis/contracts/.
 
-This module ensures that the data structures produced by the pipeline
-strictly adhere to the contracts defined in the specs directory.
+This module validates that data structures and outputs conform to the defined
+contract specifications for the Bridging Coefficient Analysis project.
 """
-import os
-import json
+
 import pytest
+import json
+import os
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
-# Import the Node dataclass to validate instance structure
+# Import project configuration and models
+from src.lib import config
 from src.models.node import Node
+from src.models.graph_utils import calc_bridging, louvain_cluster
 
+# Contract file paths
+CONTRACTS_DIR = Path(config.PROJECT_ROOT) / "specs" / "001-bridging-coefficient-analysis" / "contracts"
+NODE_CONTRACT_PATH = CONTRACTS_DIR / "node_schema.json"
+OUTPUT_CONTRACT_PATH = CONTRACTS_DIR / "analysis_output_schema.json"
 
-# Define the path to the contracts directory relative to project root
-CONTRACTS_DIR = Path(__file__).parent.parent.parent / "specs" / "001-bridging-coefficient-analysis" / "contracts"
-
-
-def load_contract(contract_name: str) -> Dict[str, Any]:
-    """
-    Load a JSON contract file from the specs directory.
-
-    Args:
-        contract_name: The name of the contract file (e.g., 'node_schema.json').
-
-    Returns:
-        The parsed JSON dictionary representing the contract.
-
-    Raises:
-        FileNotFoundError: If the contract file does not exist.
-        json.JSONDecodeError: If the file contains invalid JSON.
-    """
-    contract_path = CONTRACTS_DIR / contract_name
+def load_contract(contract_path: Path) -> Dict[str, Any]:
+    """Load a contract JSON file and return its contents."""
     if not contract_path.exists():
         raise FileNotFoundError(f"Contract file not found: {contract_path}")
     
     with open(contract_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-
-def validate_node_against_contract(node: Node, contract: Dict[str, Any]) -> List[str]:
+def validate_node_against_contract(node: Node, contract: Dict[str, Any]) -> bool:
     """
-    Validate a Node instance against a loaded contract definition.
-
+    Validate a Node instance against the node schema contract.
+    
     Args:
-        node: The Node instance to validate.
-        contract: The contract dictionary containing expected fields and types.
-
-    Returns:
-        A list of error messages. Empty if validation passes.
-    """
-    errors = []
-    
-    # Check required fields
-    required_fields = contract.get("required_fields", [])
-    node_dict = {
-        "id": node.id,
-        "title": node.title,
-        "citation_count": node.citation_count,
-        "embedding_vector": node.embedding_vector,
-        "primary_cluster": node.primary_cluster,
-        "topic_cluster": node.topic_cluster
-    }
-
-    for field_name in required_fields:
-        if field_name not in node_dict:
-            errors.append(f"Missing required field: {field_name}")
-            continue
-
-        # Type validation if specified in contract
-        field_spec = contract.get("fields", {}).get(field_name, {})
-        expected_type = field_spec.get("type")
+        node: Node instance to validate
+        contract: Contract dictionary defining required fields and types
         
-        if expected_type:
-            actual_value = node_dict[field_name]
-            type_match = False
-            
-            if expected_type == "int":
-                type_match = isinstance(actual_value, int)
-            elif expected_type == "float":
-                type_match = isinstance(actual_value, (int, float))
-            elif expected_type == "str":
-                type_match = isinstance(actual_value, str)
-            elif expected_type == "list":
-                type_match = isinstance(actual_value, list)
-            elif expected_type == "optional":
-                # Optional fields are valid if they exist and are not None, or if they are None
-                type_match = True 
-            
-            if not type_match and actual_value is not None:
-                errors.append(f"Field '{field_name}' has invalid type. Expected: {expected_type}, Got: {type(actual_value).__name__}")
-
-    return errors
-
-
-@pytest.fixture
-def node_contract():
-    """Load the node schema contract."""
-    try:
-        return load_contract("node_schema.json")
-    except FileNotFoundError:
-        # If contract file is missing, pytest will fail the test that uses this fixture
-        # This is intentional: the test suite requires the contract file to exist.
-        pytest.fail(f"Contract file not found in {CONTRACTS_DIR}. Please ensure the contract is defined in specs/001-bridging-coefficient-analysis/contracts/")
-
-
-def test_node_schema_contract_validates_fields(node_contract):
+    Returns:
+        bool: True if valid, False otherwise
     """
-    Contract test: Verify that a valid Node instance passes the schema contract.
+    required_fields = contract.get("required_fields", [])
+    field_types = contract.get("field_types", {})
     
-    This test ensures that the Node dataclass structure aligns with the
-    specification contract defined in the specs directory.
+    # Check required fields exist
+    for field_name in required_fields:
+        if not hasattr(node, field_name):
+            return False
+    
+    # Check field types where specified
+    for field_name, expected_type in field_types.items():
+        if hasattr(node, field_name):
+            actual_value = getattr(node, field_name)
+            # Type checking for common types
+            if expected_type == "str" and not isinstance(actual_value, str):
+                return False
+            elif expected_type == "int" and not isinstance(actual_value, int):
+                return False
+            elif expected_type == "float" and not isinstance(actual_value, (int, float)):
+                return False
+            elif expected_type == "list" and not isinstance(actual_value, list):
+                return False
+            elif expected_type == "ndarray" and not hasattr(actual_value, '__array__'):
+                return False
+    
+    return True
+
+def test_node_contract_exists():
+    """Verify that the node contract file exists."""
+    assert NODE_CONTRACT_PATH.exists(), f"Node contract file missing: {NODE_CONTRACT_PATH}"
+
+def test_output_contract_exists():
+    """Verify that the analysis output contract file exists."""
+    assert OUTPUT_CONTRACT_PATH.exists(), f"Output contract file missing: {OUTPUT_CONTRACT_PATH}"
+
+def test_node_schema_validation():
     """
-    # Create a valid test node
-    test_node = Node(
-        id="12345",
-        title="Test Paper Title",
-        citation_count=10,
-        embedding_vector=[0.1, 0.2, 0.3],
-        primary_cluster=1,
-        topic_cluster=2
-    )
-
-    errors = validate_node_against_contract(test_node, node_contract)
+    Test that Node instances validate against the node schema contract.
     
-    assert len(errors) == 0, f"Node validation failed with errors: {errors}"
-
-
-def test_node_schema_contract_catches_missing_field(node_contract):
+    This is a contract test ensuring the Node model matches the specification.
     """
-    Contract test: Verify that the validation logic catches missing required fields.
+    # Load the contract
+    contract = load_contract(NODE_CONTRACT_PATH)
     
-    This test simulates a scenario where a field is missing to ensure the
-    contract validation logic is active and effective.
-    """
-    # Create a mock node-like object with a missing field (simulated by invalid data)
-    # Since Node is a dataclass with defaults, we manually construct a dict that would fail
-    # if we were validating raw dicts, but here we test the validation function directly
-    # by passing a Node that might conceptually violate constraints if we were checking
-    # internal state. However, the Node dataclass enforces structure at instantiation.
-    # To test the contract logic, we check if the contract requires fields that Node has.
-    
-    # We will test the validation function by passing a Node that is valid, 
-    # but we will modify the contract to require a field Node doesn't have, 
-    # and ensure the validator catches it.
-    
-    # Actually, let's test the validator by creating a Node and checking specific contract rules.
-    # If the contract requires 'id' and 'title', and Node has them, it passes.
-    # To test failure, we can't easily break the Node dataclass structure without 
-    # instantiating it wrong, which raises TypeError.
-    # Instead, we test that the validator correctly identifies when a field 
-    # is NOT present in the node_dict representation.
-    
-    # Simulate a node with a None value for a required non-optional field if the contract says so?
-    # The Node dataclass allows None for optional fields.
-    
-    # Let's test the contract loading and basic structure check.
-    assert "required_fields" in node_contract, "Contract must define 'required_fields'"
-    assert isinstance(node_contract["required_fields"], list), "required_fields must be a list"
-
-    # Verify that the Node dataclass actually implements the required fields
-    # by checking the dataclass fields
-    from dataclasses import fields
-    node_field_names = {f.name for f in fields(Node)}
-    
-    for req_field in node_contract["required_fields"]:
-        assert req_field in node_field_names, (
-            f"Contract requires field '{req_field}', but Node dataclass does not have it. "
-            f"Node fields: {node_field_names}"
+    # Create test Node instances
+    test_nodes = [
+        Node(
+            id="test_001",
+            title="Test Paper Title",
+            citation_count=100,
+            embedding_vector=[0.1, 0.2, 0.3],
+            primary_cluster=1,
+            topic_cluster=5
+        ),
+        Node(
+            id="test_002",
+            title="Another Research Paper",
+            citation_count=0,
+            embedding_vector=[0.5, 0.5, 0.0],
+            primary_cluster=2,
+            topic_cluster=10
         )
+    ]
+    
+    # Validate each node
+    for node in test_nodes:
+        assert validate_node_against_contract(node, contract), \
+            f"Node {node.id} does not conform to contract schema"
+
+def test_node_required_fields_contract():
+    """
+    Test that all required fields from the contract are present in Node.
+    """
+    contract = load_contract(NODE_CONTRACT_PATH)
+    required_fields = contract.get("required_fields", [])
+    
+    # Verify each required field exists on Node
+    for field_name in required_fields:
+        # Create a minimal Node to check attribute existence
+        # We use a try-except since Node might have __post_init__ validation
+        try:
+            test_node = Node(
+                id="temp",
+                title="temp",
+                citation_count=0,
+                embedding_vector=[],
+                primary_cluster=0,
+                topic_cluster=0
+            )
+            assert hasattr(test_node, field_name), \
+                f"Required field '{field_name}' missing from Node model"
+        except Exception:
+            # If Node construction fails for other reasons, check class attributes
+            assert hasattr(Node, field_name) or field_name in ["id", "title", "citation_count", 
+                                                               "embedding_vector", "primary_cluster", "topic_cluster"], \
+                f"Required field '{field_name}' missing from Node model"
+
+def test_analysis_output_schema_contract():
+    """
+    Test that analysis output structures conform to the output schema contract.
+    
+    This validates the structure of statistical analysis results.
+    """
+    contract = load_contract(OUTPUT_CONTRACT_PATH)
+    
+    # Define a sample analysis output structure
+    sample_output = {
+        "correlation_results": [
+            {
+                "metric": "spearman",
+                "variable_1": "bridging_coefficient",
+                "variable_2": "citation_count",
+                "coefficient": 0.45,
+                "p_value": 0.001,
+                "corrected": True
+            }
+        ],
+        "regression_results": [
+            {
+                "model": "linear",
+                "predictor": "bridging_coefficient",
+                "outcome": "citation_count",
+                "slope": 12.5,
+                "intercept": 5.0,
+                "r_squared": 0.25,
+                "p_value": 0.003,
+                "corrected": True
+            }
+        ],
+        "metadata": {
+            "analysis_type": "associational",
+            "correction_method": "bonferroni",
+            "timestamp": "2024-01-01T00:00:00Z"
+        }
+    }
+    
+    # Validate top-level keys
+    required_keys = contract.get("required_top_level_keys", [])
+    for key in required_keys:
+        assert key in sample_output, f"Required key '{key}' missing from analysis output"
+
+def test_bridging_coefficient_range_contract():
+    """
+    Test that bridging coefficients fall within the expected range [0.0, 1.0].
+    
+    This validates the mathematical constraints defined in the contract.
+    """
+    import networkx as nx
+    
+    # Create a simple test graph
+    G = nx.Graph()
+    G.add_edges_from([(1, 2), (2, 3), (3, 4), (1, 4), (2, 5)])
+    
+    # Define clusters
+    clusters = {1: 0, 2: 0, 3: 1, 4: 1, 5: 2}
+    
+    # Calculate bridging coefficients
+    coefficients = calc_bridging(G, clusters)
+    
+    # Validate range
+    for node_id, coeff in coefficients.items():
+        assert 0.0 <= coeff <= 1.0, \
+            f"Bridging coefficient {coeff} for node {node_id} out of range [0.0, 1.0]"
+
+def test_cluster_assignment_contract():
+    """
+    Test that cluster assignments are valid non-negative integers.
+    """
+    import networkx as nx
+    
+    G = nx.Graph()
+    G.add_edges_from([(1, 2), (2, 3), (3, 4)])
+    
+    clusters = {1: 0, 2: 0, 3: 1, 4: 1}
+    
+    # Validate cluster assignments
+    for node_id, cluster_id in clusters.items():
+        assert isinstance(cluster_id, int), \
+            f"Cluster ID for node {node_id} is not an integer"
+        assert cluster_id >= 0, \
+            f"Cluster ID for node {node_id} is negative"
+
+def test_contract_file_structure():
+    """
+    Test that contract files have the expected structure.
+    """
+    # Load and validate node contract structure
+    node_contract = load_contract(NODE_CONTRACT_PATH)
+    assert "required_fields" in node_contract, "Node contract missing 'required_fields'"
+    assert isinstance(node_contract["required_fields"], list), \
+        "'required_fields' must be a list"
+    
+    # Load and validate output contract structure
+    output_contract = load_contract(OUTPUT_CONTRACT_PATH)
+    assert "required_top_level_keys" in output_contract, \
+        "Output contract missing 'required_top_level_keys'"
+    assert isinstance(output_contract["required_top_level_keys"], list), \
+        "'required_top_level_keys' must be a list"

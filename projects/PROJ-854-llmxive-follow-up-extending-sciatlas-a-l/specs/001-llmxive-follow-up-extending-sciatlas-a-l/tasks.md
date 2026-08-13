@@ -23,7 +23,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan: Execute `mkdir -p src/{models,services,cli,lib} tests/{contract,integration,unit} data/{raw,processed} artifacts/{results,plots}` to create all required directories. <!-- FAILED: unspecified -->
-- [ ] T002 {{claim:c_d6eb7e14}} <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T002 {{claim:c_d6eb7e14}} <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `pyproject.toml` with explicit sections `[tool.black]` (line_length=88, target_version=['py311']) and `[tool.ruff]` (select=['E402', 'F401', 'I001'], ignore=[]) defining specific rules.
 
 ---
@@ -37,7 +37,7 @@
 - [X] T004 Setup `src/lib/config.py` for constants, random seeds, and paths (`data/`, `artifacts/`)
 - [X] T005 [P] Implement `src/models/node.py` dataclass with fields: `id`, `title`, `citation_count`, `embedding_vector`, `primary_cluster`, `topic_cluster`
 - [X] T006 [P] Create `src/models/graph_utils.py` with **stub signatures** and docstrings for `louvain_cluster(G)` and `calc_bridging(G, clusters)` functions; full implementation deferred to T014.
-- [ ] T007 Setup `tests/contract/test_schemas.py` to validate against `specs/001-bridging-coefficient-analysis/contracts/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T007 Setup `tests/contract/test_schemas.py` to validate against `specs/001-bridging-coefficient-analysis/contracts/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T008 Configure `pytest` with `conftest.py` for temporary data directories and seed pinning <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
  in "<unicode string>", line 1, column 7:
  def logging_config():
@@ -60,7 +60,7 @@ expected <block end>, but found '<scalar>'
 ### Tests for User Story 1
 
 - [X] T010 [P] [US1] Contract test for node schema in `tests/contract/test_node_schema.py` with function `test_node_has_required_fields`.
-- [ ] T011 [P] [US1] Integration test for ingestion pipeline on sample data in `tests/integration/test_ingest_pipeline.py` with function `test_ingest_creates_subgraph`. <!-- FAILED: unspecified -->
+- [X] T011 [P] [US1] Integration test for ingestion pipeline on sample data in `tests/integration/test_ingest_pipeline.py` with function `test_ingest_creates_subgraph`. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -87,10 +87,10 @@ expected <block end>, but found '<scalar>'
 
 ### Implementation for User Story 2
 
-- [~] T023 [US2] Handle edge cases: Modify `src/services/embeddings.py` to **filter out nodes with missing/empty titles for novelty calculation ONLY, but retain them in the dataset for citation analysis**, logging excluded node IDs to `data/logs/excluded_nodes.csv` (See spec.md Edge Cases).
+- [ ] T023 [US2] Handle edge cases: Modify `src/services/embeddings.py` to **filter out nodes with missing/empty titles for novelty calculation ONLY, but retain them in the dataset for citation analysis**, logging excluded node IDs to `data/logs/excluded_nodes.csv` (See spec.md Edge Cases).
 - [ ] T020 [US2] Implement `src/services/embeddings.py`: Load `sentence-transformers/all-MiniLM-L6-v2` (CPU mode) and generate embeddings for all valid node titles in **batches** to meet 7GB RAM constraint, ensuring **no individual node latency exceeds a low-latency threshold** (See plan.md Complexity Tracking: Batched Embedding).
 - [X] T021 [US2] Implement `src/services/clustering.py`: Perform k-means clustering (k=100) on title embeddings to assign `topic_cluster` IDs (independent of Louvain) (See FR-008).
-- [~] T022 [US2] Implement novelty calculation: Compute **cosine distance** between each node's title embedding and the **centroid** of its assigned `topic_cluster` to derive the `novelty_score`, ensuring the predictor (topology) and outcome (novelty) are mathematically independent (See FR-004).
+- [ ] T022 [US2] Implement novelty calculation: Compute **cosine distance** between each node's title embedding and the **centroid** of its assigned `topic_cluster` to derive the `novelty_score`, ensuring the predictor (topology) and outcome (novelty) are mathematically independent (See FR-004).
 - [ ] T024 [US2] Save final dataset with citations, novelty scores, and clusters to `data/processed/final_analysis_dataset.parquet`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -105,8 +105,8 @@ expected <block end>, but found '<scalar>'
 
 ### Tests for User Story 3
 
-- [ ] T036 [P] [US3] Contract test for analysis output schema in `tests/contract/test_analysis_output_schema.py` with function `test_report_has_associational_label`.
-- [~] T037 [P] [US3] Integration test for full statistical pipeline in `tests/integration/test_statistical_pipeline.py` with function `test_binned_analysis_execution`. <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+- [X] T036 [P] [US3] Contract test for analysis output schema in `tests/contract/test_analysis_output_schema.py` with function `test_report_has_associational_label`.
+- [ ] T037 [P] [US3] Integration test for full statistical pipeline in `tests/integration/test_statistical_pipeline.py` with function `test_binned_analysis_execution`. <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
  in "<unicode string>", line 1, column 1:
  def test_pipeline_integration_wi...
  ^
@@ -120,7 +120,7 @@ expected <block end>, but found '<scalar>'
 - [X] T026 [US3] Implement `src/services/analysis.py`: Calculate Spearman rank correlation between `bridging_coefficient` and `citation_count`/`novelty_score` (See FR-005).
 - [X] T027b [US3] Implement `src/services/analysis.py`: Perform **linear regression** between `bridging_coefficient` and `citation_count`/`novelty_score` (See FR-005).
 - [X] T027c [US3] Implement `src/services/analysis.py`: Perform **binned non-linear analysis** (to detect inverted-U effects) as an exploratory extension (See plan.md Complexity Tracking: Binned Analysis).
-- [~] T028 [US3] Apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) to all p-values, **configurable via a CLI flag** to allow selection of method (See FR-006).
+- [ ] T028 [US3] Apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) to all p-values, **configurable via a CLI flag** to allow selection of method (See FR-006).
 - [ ] T029 [US3] Generate final report in `artifacts/results/analysis_report.md` explicitly labeling results as "associational" (See FR-007).
 - [ ] T030 [US3] Save statistical outputs (coefficients, p-values, plots) to `artifacts/results/statistical_metrics.json`.
 
@@ -132,7 +132,7 @@ expected <block end>, but found '<scalar>'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T031 [P] Documentation updates in `specs/001-bridging-coefficient-analysis/quickstart.md`: Update the "Prerequisites" and "Run" sections to reflect the final pipeline steps, dependencies, and exact CLI commands.
+- [ ] T031 [P] Documentation updates in `specs/001-bridging-coefficient-analysis/quickstart.md`: Update the "Prerequisites" and "Run" sections to reflect the final pipeline steps, dependencies, and exact CLI commands.
 - [X] T032 [P] Code cleanup and refactoring for memory efficiency (Ingest): Refactor `src/services/ingest.py` to use **generator expressions** for data loading to reduce peak RAM.
 - [~] T032b [P] Code cleanup and refactoring for memory efficiency (Embeddings): Refactor `src/services/embeddings.py` to ensure strict batch processing and memory release between batches.
 - [X] T033 [P] Verify embedding performance against SC-005: Create `tests/bench/test_embedding_speed.py` to run a benchmark on a representative sample, measure **maximum latency per node**, and assert that the max latency is ≤ 50ms. The test must fail if the threshold is exceeded, providing evidence that SC-005 is met.

@@ -64,7 +64,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/constants.py` with random seeds (`random_state=42`), file paths, and hypothesis thresholds (Balanced Acc > 0.75). **Define `HOLD_OUT_FRACTION = 0.20` for T020.**
+- [ ] T004 [P] Implement `code/utils/constants.py` with random seeds (`random_state=42`), file paths, and hypothesis thresholds (Balanced Acc > 0.75). **Define `HOLD_OUT_FRACTION = 0.20` for T020. Define `MAX_DEPTH_GRID = [5, 10, 15]` for T020.**
 - [ ] T005 [P] Implement `code/utils/io.py` for checksumming (MD5/SHA256) and logging artifacts to `state/artifact_hashes.yaml`
 - [ ] T006a [P] Create `contracts/metadata.schema.yaml` defining `MetaboliteProfile` and `ResistanceLabel` schemas (Mandatory for Constitution Principle III). **Write the file with the following content:**
  ```yaml
@@ -147,15 +147,14 @@
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `code/data/validate_temporal.py` to verify FR-014: **Explicitly check metadata for 'pre-challenge', 'baseline', or timestamps prior to pathogen inoculation. If metadata lacks these, raise `TemporalVerificationError` and halt the pipeline for that study. Do NOT skip.**
-- [ ] T014 [US1] Implement `code/data/harmonize_labels.py` to encode resistance as binary/ordinal and apply z-scoring or stratification (FR-003, FR-013). **Ensure `binary_label` is passed to the trainer and `harmonized_score` is used ONLY for exploratory correlation.**
+- [ ] T014 [US1] Implement `code/data/harmonize_labels.py` to encode resistance as binary/ordinal and apply z-scoring or stratification (FR-003, FR-013). **Ensure `binary_label` is passed to the trainer and `harmonized_score` is used ONLY for exploratory correlation. For binary labels, map directly to 0/1. For ordinal, apply z-scoring within study.**
 - [ ] T015 [US1] Implement `code/data/preprocess.py` to:
  - Log-transform intensities and discard features missing >30% (FR-002)
  - Align metabolites via InChIKey across studies
- - Perform covariate residualization for biological confounders
  - Apply ComBat batch-effect correction when ≥2 studies are combined (FR-004)
  - **Handle InChIKey alignment failures**: Log missing metabolites to `results/alignment_missing.json` and proceed with the intersection of aligned metabolites.
 - [ ] T016 [US1] Add logging for data acquisition and preprocessing steps to `code/utils/io.py`
-- [ ] T017 [US1] **Execute** `code/data/preprocess.py` to generate `data/processed/batch_corrected_matrix.csv` and `data/processed/labels.csv` (Mandatory for Data Hygiene; T020 depends on this completion). **Verify file existence, non-empty content, and record SHA256 checksums in `state/artifact_hashes.yaml`. If files are missing or empty, raise an error and halt.** <!-- FAILED: unspecified -->
+- [ ] T017 [US1] **Execute** `code/data/preprocess.py` using the command `python code/data/preprocess.py --study_ids data/raw/study_manifest.json --output data/processed/` to generate `data/processed/batch_corrected_matrix.csv` and `data/processed/labels.csv` (Mandatory for Data Hygiene; T020 depends on this completion). **Verify file existence, non-empty content, and record SHA256 checksums in `state/artifact_hashes.yaml`. If files are missing or empty, raise an error and halt.** <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -178,24 +177,23 @@
  - **Split data into train/hold-out using stratified sampling on binary_label BEFORE any feature selection or scaling. This split MUST occur BEFORE the GridSearchCV loop begins to satisfy FR-006.**
  - Output `train_indices` and `holdout_indices` lists to `data/processed/split_indices.json`.
  - Train Random Forest (n_estimators=500, max_depth=10) with Stratified k-fold CV (FR-005)
- - Perform GridSearchCV within the CV loop with `param_grid={'max_depth': [low, medium, high]}` (tunable up to 20)
+ - Perform GridSearchCV within the CV loop with `param_grid={'max_depth': [5, 10, 15]}` (tunable up to 20, referencing T004 constants)
  - **Dependency**: Requires T017 completion.
 - [ ] T021a [US2] Implement `code/modeling/evaluate.py` (Correlation Analysis):
  - **Filter input data to ONLY the training subset (using `train_indices` from T020).**
  - Compute pairwise correlations (metabolite vs. resistance) on the **training data only**.
- - Apply Benjamini-Hochberg FDR correction (≤0.05) to p-values (FR-008, SC-002).
- - Filter for |r| > 0.4, p < 0.01.
+ - **Apply Benjamini-Hochberg FDR correction (≤0.05) to p-values BEFORE filtering.** (FR-008, SC-002).
+ - Filter for |r| > 0.4, p < 0.01 (using FDR-corrected p-values).
  - Output to `results/shap_analysis.json` (partial).
  - **Dependency**: Requires T020 completion.
 - [ ] T021b [US2] Implement `code/modeling/evaluate.py` (Model Validation):
- - **Execute Learning Curve Analysis unconditionally for ALL runs.**
- - If the resulting curve indicates insufficient power (N < 50), flag power limitation in the report.
- - Compute Balanced Accuracy, ROC-AUC, Precision-Recall on the independent hold-out set (SC-001) using `holdout_indices` from T020.
+ - **Execute Learning Curve Analysis ONLY if the sample size N < 50.** If N < 50, generate the curve plot, flag power limitation in the report, and skip hold-out set. If N ≥ 50, skip this step.
+ - Compute Balanced Accuracy, ROC-AUC, Precision-Recall on the independent hold-out set (SC-001) using `holdout_indices` from T020 (if N ≥ 50).
  - **Execute permutation testing on the trained model from T020 with exactly n_permutations=1000 to generate the null distribution and assess significance (FR-007, SC-003).**
- - Perform Sensitivity Analysis sweeping decision cutoffs over a range of absolute diff values. and report FP/FN rates (FR-009, SC-005).
+ - Perform Sensitivity Analysis sweeping decision cutoffs over the specific thresholds **{0.01, 0.05, 0.1}** and report False Positive Rate (FPR) and False Negative Rate (FNR) at each threshold (FR-009, SC-005).
  - **Dependency**: Requires T020 and T021a completion.
 - [ ] T022 [US2] **Execute** collinearity diagnostics (VIF calculation) for selected metabolites using `statsmodels.stats.outliers_influence.variance_inflation_factor`. **Must run after T020. Flag VIF > 5 and save results to `data/intermediate/vif_scores.json` (Mandatory per FR-012). Verify file existence and non-empty content.**
-- [ ] T024 [US2] **Execute** generation of `results/metrics.json` and `results/shap_analysis.json` by aggregating results from T021a, T021b, and T022. **Read VIF scores from `data/intermediate/vif_scores.json`. Include the mandatory "framing" field set to "associational" with the exact string: "These results represent associations, not causation" (FR-011). Verify JSON validity and presence of required keys (balanced_accuracy, permutation_p_value, framing).**
+- [ ] T024 [US2] **Execute** generation of `results/metrics.json` and `results/shap_analysis.json` by aggregating results from T021a, T021b, and T022. **Read VIF scores from `data/intermediate/vif_scores.json` (expected schema: `{"vif_scores": [{"feature_name": str, "vif_value": float}, ...]}`). Merge correlation data from T021a and VIF data from T022 into `results/shap_analysis.json` to prevent overwriting. Include the mandatory "framing" field set to "associational" with the exact string: "These results represent associations, not causation" (FR-011). Verify JSON validity and presence of required keys (balanced_accuracy, permutation_p_value, framing).**
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -216,8 +214,8 @@
 - [ ] T026 [US3] Implement `code/modeling/interpret.py` to:
  - Extract top-ranked metabolites ranked by **mean decrease in impurity (feature_importances_)** from the trained Random Forest model (FR-010).
  - Map metabolites to KEGG/MetaCyc pathways using the KEGG REST API (no auth) or InChIKey lookups. **Fallback**: If KEGG fails, use MetaCyc.
- - Generate interpretation report discussing biological plausibility (e.g., phytoalexins, phenolics).
- - **Dependency**: Requires trained model from T020 and T024.
+ - Generate interpretation report discussing biological plausibility (e.g., phytoalexins, phenolics). **Explicitly include the mandatory "framing" text in the narrative report: "These findings represent statistical associations between pre-challenge metabolite profiles and disease resistance phenotypes. No causal claims are made."**
+ - **Dependency**: Requires trained model from T020 and T024 (for metrics context) or T027 (for framing).
 - [ ] T027 [US3] Save pathway mapping results to `results/pathway_analysis.json`. **Include fields: metabolite_id, pathway_name, database_source (KEGG/MetaCyc). Ensure the "framing" field is set to "associational" with the exact string: "These results represent associations, not causation" (FR-011).**
 - [ ] T028 [US3] **Execute** generation of visualization `results/plots/pathway_barplot.png` using `matplotlib` (via `seaborn`) based on data from `results/pathway_analysis.json`. **Plot the most prominent pathways by frequency/importance. Save as PNG with high resolution. Verify file existence and non-empty content.**
 
@@ -230,7 +228,8 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T029 [P] Update `README.md` with execution instructions and `quickstart.md` validation
-- [ ] T030 [P] Run full pipeline integration test on GitHub Actions free-tier (verify ≤6h runtime, ≤7GB RAM) <!-- ATOMIZE: requested -->
+- [ ] T030a [P] **Configure** GitHub Actions workflow (`.github/workflows/ci.yml`) to define the pipeline environment, dependencies, and execution steps for the free-tier runner.
+- [ ] T030b [P] **Execute** the full pipeline integration test on GitHub Actions free-tier (verify ≤6h runtime, ≤7GB RAM) using the configured workflow.
 - [ ] T031 [P] Code cleanup and refactoring based on linting feedback
 - [ ] T033 [P] Verify `state/artifact_hashes.yaml` tracks all data and model artifacts correctly
 
