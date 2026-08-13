@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1807.00035",
+  "judged_at": "2026-08-13T13:39:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+  "rationale": "This paper satisfies criterion (b) as it measures the independent variable of \"precision agriculture\" and \"modern information and communications technologies\" (a core component of Climate-Smart Agricultural Practices) to improve the dependent variable of \"crop yield\" (a direct proxy for food security) within the agricultural domain. Additionally, it serves as a foundational methodology reference (criterion d) for the data infrastructure required to implement and analyze these specific agricultur",
+  "relevant": true
+}

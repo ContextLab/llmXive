@@ -4,3 +4,13 @@
 {"at": "2026-07-12T07:05:33.191894+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "46c4d5c6-9077-410b-8d8b-90dbd4d0f004", "to_stage": "flesh_out_complete"}
 {"at": "2026-07-16T00:55:46.716669+00:00", "from_stage": "flesh_out_complete", "last_run_id": "5e5fc1bc-736b-4028-b24b-9e48392cfbd7", "to_stage": "flesh_out_in_progress"}
 {"at": "2026-07-16T12:46:35.435693+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "7223df06-2c4c-4d09-b800-935f3a91a38e", "to_stage": "flesh_out_complete"}
+{"at": "2026-08-13T13:39:20.792061+00:00", "from_stage": "flesh_out_complete", "last_run_id": "f9901121-e384-43ba-b6eb-793d99293135", "to_stage": "flesh_out_in_progress"}
+{"at": "2026-08-13T13:40:31.098439+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "057cbd61-b463-4054-85e9-1ef219088cca", "to_stage": "flesh_out_complete"}
+{"at": "2026-08-13T13:40:41.740189+00:00", "from_stage": "flesh_out_complete", "last_run_id": "9740cc69-888a-4789-a16c-0bc195e58267", "to_stage": "flesh_out_in_progress"}
+{"at": "2026-08-13T13:41:10.265724+00:00", "from_stage": "flesh_out_in_progress", "last_run_id": "1b9fc29d-3e43-4eeb-8a4f-9cae59f5d37b", "to_stage": "flesh_out_complete"}
+{"at": "2026-08-13T13:41:19.862656+00:00", "from_stage": "flesh_out_complete", "last_run_id": "5429c3e0-70b0-465d-bd39-1480eef887ff", "to_stage": "validated"}
+{"at": "2026-08-13T13:41:40.218872+00:00", "from_stage": "validated", "last_run_id": "ef5807ed-d097-4942-9914-ea27dc91493c", "to_stage": "project_initialized"}
+{"at": "2026-08-13T13:43:02.191887+00:00", "from_stage": "project_initialized", "last_run_id": "0251ecb9-59f6-4ee2-a753-8eed7ffc1d9f", "to_stage": "specified"}
+{"at": "2026-08-13T14:01:52.629504+00:00", "from_stage": "specified", "last_run_id": "c6e7e110-cd19-422b-8a9b-edc7fea1a427", "to_stage": "clarified"}
+{"at": "2026-08-13T14:18:18.393883+00:00", "from_stage": "clarified", "last_run_id": "4ca68090-ecf7-40d1-955d-487f88c6c4d8", "to_stage": "planned"}
+{"at": "2026-08-13T14:25:42.882931+00:00", "from_stage": "planned", "last_run_id": "6172e859-4605-4cef-b70b-41b783973bce", "to_stage": "tasked"}

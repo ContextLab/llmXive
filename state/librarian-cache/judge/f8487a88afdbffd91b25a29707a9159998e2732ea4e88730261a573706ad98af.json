@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.12338",
+  "judged_at": "2026-08-13T13:40:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+  "rationale": "This paper satisfies criteria (a) and (b) as it explicitly addresses the mechanism of using \"smart connected farms\" and \"networked farmers\" (technology and social integration) to tackle \"climate change impacts\" and enhance \"farm production,\" which directly maps to the user's variables of climate-smart practices and food security in an agricultural domain.",
+  "relevant": true
+}

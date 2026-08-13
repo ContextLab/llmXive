@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.26989",
+  "judged_at": "2026-08-13T13:40:01Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "climate-smart agricultural practices in rural areas to improve food security agriculture",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates \"smart farming\" (Climate-Smart Agricultural Practices) using IoT and AI to address \"climate variability\" and \"sustainable practices\" (mechanisms) within the agricultural domain, directly measuring variables relevant to the user's question even though the specific pilot is viticulture.",
+  "relevant": true
+}
