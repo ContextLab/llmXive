@@ -75,7 +75,7 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2410.21676
   verified_at: '2026-08-12T15:52:33.437743Z'
-- artifact_hash: f078d9925bb77764443e3392b3498f71f568ff02161088642bcf7a87e0c83f53
+- artifact_hash: f2239695654e7dfa9423634ff8567ef104d8fde99a6d69a6eaeb6e8e915345eb
   artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,4 +85,4 @@
   value: https://huggingface.co/datasets/AgentDoG/safety-taxonomy`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/AgentDoG/safety-taxonomy
-  verified_at: '2026-08-12T16:15:09.775998Z'
+  verified_at: '2026-08-13T17:07:47.037771Z'

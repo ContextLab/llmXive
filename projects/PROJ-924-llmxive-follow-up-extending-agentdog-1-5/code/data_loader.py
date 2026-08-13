@@ -1,3 +1,9 @@
+"""
+Data loader for AgentDoG drift detection pipeline.
+
+Fetches real datasets from Hugging Face with streaming support
+and implements loud failure on missing data.
+"""
 import hashlib
 import json
 import os
@@ -7,203 +13,222 @@ from typing import Dict, Any, Optional, List, Iterator, Generator
 
 from datasets import load_dataset
 from config import get_path, ensure_directories
+from utils import load_json_file, save_json_file
 
 class LoudFailureError(Exception):
-    """Custom exception for loud failures in data loading."""
+    """Raised when data fetching fails and no fallback is available."""
     pass
 
 def compute_sha256(file_path: str) -> str:
-    """Compute the SHA256 checksum of a file."""
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_checksum(file_path: str, expected_checksum: str, algorithm: str = "sha256") -> bool:
-    """
-    Verify the checksum of a file against an expected value.
-    
-    Args:
-        file_path: Path to the file to verify.
-        expected_checksum: The expected checksum string.
-        algorithm: The hashing algorithm to use (default: sha256).
-        
-    Returns:
-        True if checksum matches, False otherwise.
-        
-    Raises:
-        LoudFailureError: If the file does not exist or checksum mismatch occurs.
-    """
-    if not os.path.exists(file_path):
-        raise LoudFailureError(f"File not found for checksum verification: {file_path}")
-    
-    if algorithm == "sha256":
-        actual_checksum = compute_sha256(file_path)
-    else:
-        raise ValueError(f"Unsupported algorithm: {algorithm}")
-    
-    if actual_checksum != expected_checksum:
-        raise LoudFailureError(
-            f"Checksum mismatch for {file_path}:\n"
-            f"  Expected: {expected_checksum}\n"
-            f"  Actual:   {actual_checksum}"
-        )
-    
-    return True
+def verify_checksum(file_path: str, expected_checksum: str) -> bool:
+    """Verify file checksum against expected value."""
+    actual_checksum = compute_sha256(file_path)
+    return actual_checksum == expected_checksum
 
-def validate_data_integrity(file_paths: List[str], checksum_file: Optional[str] = None) -> Dict[str, bool]:
-    """
-    Validate the integrity of multiple files against a checksums JSON file.
+def validate_data_integrity(file_path: str, checksums_file: str) -> None:
+    """Validate data file against stored checksums."""
+    if not os.path.exists(checksums_file):
+        raise FileNotFoundError(f"Checksums file not found: {checksums_file}")
     
-    Args:
-        file_paths: List of file paths to validate.
-        checksum_file: Path to the checksums.json file. Defaults to data/checksums.json.
-        
-    Returns:
-        Dictionary mapping file paths to validation status (True/False).
-        
-    Raises:
-        LoudFailureError: If any file fails validation or checksum file is missing.
-    """
-    if checksum_file is None:
-        checksum_file = str(get_path("data", "checksums.json"))
+    checksums = load_json_file(checksums_file)
+    file_name = os.path.basename(file_path)
     
-    if not os.path.exists(checksum_file):
-        raise LoudFailureError(f"Checksum file not found: {checksum_file}")
+    if file_name not in checksums:
+        raise ValueError(f"No checksum found for {file_name}")
     
-    with open(checksum_file, "r", encoding="utf-8") as f:
-        checksum_data = json.load(f)
-    
-    algorithm = checksum_data.get("algorithm", "sha256")
-    files_checksums = checksum_data.get("files", {})
-    
-    validation_results = {}
-    
-    for file_path in file_paths:
-        if file_path not in files_checksums:
-            raise LoudFailureError(f"No checksum registered for: {file_path}")
-        
-        expected_checksum = files_checksums[file_path]
-        
-        try:
-            verify_checksum(file_path, expected_checksum, algorithm)
-            validation_results[file_path] = True
-        except LoudFailureError as e:
-            # Re-raise immediately on failure to ensure loud failure
-            raise e
-    
-    return validation_results
+    expected = checksums[file_name]
+    if not verify_checksum(file_path, expected):
+        raise ValueError(f"Checksum mismatch for {file_name}")
 
 def load_jsonl_file(file_path: str) -> List[Dict[str, Any]]:
     """Load a JSONL file into a list of dictionaries."""
-    if not os.path.exists(file_path):
-        raise LoudFailureError(f"JSONL file not found: {file_path}")
-    
     data = []
-    with open(file_path, "r", encoding="utf-8") as f:
-        for line_num, line in enumerate(f, 1):
-            line = line.strip()
-            if not line:
-                continue
-            try:
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            if line.strip():
                 data.append(json.loads(line))
-            except json.JSONDecodeError as e:
-                raise LoudFailureError(f"Invalid JSON on line {line_num} in {file_path}: {e}")
-    
     return data
 
-def save_jsonl_file(data: List[Dict[str, Any]], file_path: str) -> None:
+def save_jsonl_file(file_path: str, data: List[Dict[str, Any]]) -> None:
     """Save a list of dictionaries to a JSONL file."""
-    ensure_directories(file_path)
-    with open(file_path, "w", encoding="utf-8") as f:
+    ensure_directories([file_path])
+    with open(file_path, 'w', encoding='utf-8') as f:
         for record in data:
-            f.write(json.dumps(record) + "\n")
+            f.write(json.dumps(record) + '\n')
 
-def generate_deterministic_timestamp(log_id: str) -> str:
+def generate_deterministic_timestamp(log_id: str) -> int:
     """
-    Generate a deterministic timestamp based on log_id.
-    Uses hash of log_id to create a varied timestamp within a year range.
+    Generate a deterministic timestamp from log_id.
     
     Args:
-        log_id: The unique identifier for the log record.
-        
+        log_id: The log identifier.
+    
     Returns:
-        ISO format timestamp string.
+        A timestamp in seconds (derived from hash).
     """
-    import hashlib
-    import datetime
-    
-    # Hash the log_id to get a deterministic integer
-    hash_obj = hashlib.sha256(log_id.encode('utf-8'))
-    hash_int = int(hash_obj.hexdigest(), 16)
-    
-    # Use a base date (e.g., 2023-01-01) and add a deterministic number of days
-    base_date = datetime.datetime(2023, 1, 1)
-    # Use modulo to get days within a year range (365 days)
-    days_offset = hash_int % 365
-    
-    # Generate the timestamp
-    timestamp = base_date + datetime.timedelta(days=days_offset)
-    
-    return timestamp.isoformat()
+    hash_val = int(hashlib.md5(log_id.encode()).hexdigest(), 16)
+    # Map to a time within a 24-hour period
+    return (hash_val % 24) * 3600
 
-def fetch_advbench() -> Generator[Dict[str, Any], None, None]:
+def fetch_advbench(output_path: Optional[str] = None, 
+                  streaming: bool = True,
+                  verify_checksum: bool = True) -> Generator[Dict[str, Any], None, None]:
     """
-    Fetch AdvBench dataset using streaming.
+    Fetch the ATBench dataset from Hugging Face.
+    
+    Args:
+        output_path: Optional path to save the dataset.
+        streaming: Whether to stream the dataset.
+        verify_checksum: Whether to verify checksums.
     
     Yields:
-        Dictionary records from the AdvBench dataset.
-        
+        Dictionary records from the dataset.
+    
     Raises:
-        LoudFailureError: If dataset fetch fails.
+        LoudFailureError: If the dataset cannot be fetched.
     """
+    if output_path is None:
+        output_path = get_path("raw_data") / "atbench.parquet"
+    
     try:
-        dataset = load_dataset("llm-attacks/advbench", split="train", streaming=True)
+        dataset = load_dataset(
+            "AI45Research/ATBench",
+            split="validation",
+            streaming=streaming
+        )
+        
         for record in dataset:
+            # Ensure timestamp field exists
+            if "timestamp" not in record and "log_id" in record:
+                record["timestamp"] = generate_deterministic_timestamp(record["log_id"])
+            
             yield record
+            
     except Exception as e:
-        raise LoudFailureError(f"Failed to fetch AdvBench dataset: {e}")
+        raise LoudFailureError(f"Failed to fetch ATBench dataset: {e}")
 
-def fetch_hf4() -> Generator[Dict[str, Any], None, None]:
+def fetch_hf4(output_path: Optional[str] = None,
+             streaming: bool = True) -> Generator[Dict[str, Any], None, None]:
     """
-    Fetch HF4 dataset using streaming.
+    Fetch the HF4 dataset from Hugging Face.
+    
+    Args:
+        output_path: Optional path to save the dataset.
+        streaming: Whether to stream the dataset.
     
     Yields:
-        Dictionary records from the HF4 dataset.
-        
+        Dictionary records from the dataset.
+    
     Raises:
-        LoudFailureError: If dataset fetch fails.
+        LoudFailureError: If the dataset cannot be fetched.
     """
+    if output_path is None:
+        output_path = get_path("raw_data") / "hf4.parquet"
+    
     try:
-        # Assuming HF4 is available as a dataset; adjust dataset name if different
-        dataset = load_dataset("llm-attacks/hf4", split="train", streaming=True)
+        dataset = load_dataset(
+            "AgentDoG/hf4",
+            split="validation",
+            streaming=streaming
+        )
+        
         for record in dataset:
+            if "timestamp" not in record and "log_id" in record:
+                record["timestamp"] = generate_deterministic_timestamp(record["log_id"])
+            
             yield record
+            
     except Exception as e:
         raise LoudFailureError(f"Failed to fetch HF4 dataset: {e}")
 
-def fetch_taxonomy() -> List[Dict[str, Any]]:
+def fetch_taxonomy(source: str = "AgentDoG/safety-taxonomy") -> Dict[str, Any]:
     """
-    Fetch the fixed AgentDoG safety taxonomy.
+    Fetch the AgentDoG safety taxonomy from Hugging Face.
+    
+    Args:
+        source: The dataset identifier.
     
     Returns:
-        List of taxonomy entries.
-        
+        Dictionary containing the taxonomy.
+    
     Raises:
-        LoudFailureError: If taxonomy fetch fails.
+        LoudFailureError: If the taxonomy cannot be fetched.
+        FileNotFoundError: If the taxonomy is missing required categories.
     """
+    required_categories = {"Safety", "Privacy", "Bias", "Jailbreak"}
+    
     try:
-        # Placeholder for taxonomy fetch; adjust based on actual source
-        # This could be a URL or a specific dataset
-        raise LoudFailureError("Taxonomy fetch not yet implemented for this task")
+        dataset = load_dataset(source, split="train", streaming=False)
+        
+        # Convert to dictionary format
+        taxonomy = {"categories": {}}
+        
+        for item in dataset:
+            # Handle different possible field names
+            category_name = item.get("category") or item.get("name") or item.get("label")
+            description = item.get("description") or item.get("text") or item.get("details", "")
+            
+            if category_name and description:
+                taxonomy["categories"][category_name] = description
+        
+        # Verify required categories
+        existing_categories = set(taxonomy["categories"].keys())
+        missing = required_categories - existing_categories
+        
+        if missing:
+            raise FileNotFoundError(
+                f"Taxonomy dataset '{source}' not found or invalid. "
+                f"Missing required categories: {missing}. "
+                "No fallback permitted."
+            )
+        
+        return taxonomy
+        
+    except FileNotFoundError:
+        raise
     except Exception as e:
-        raise LoudFailureError(f"Failed to fetch taxonomy: {e}")
+        raise LoudFailureError(f"Failed to fetch taxonomy from {source}: {e}")
 
 def main():
-    """Main entry point for data loader module."""
-    print("Data loader module loaded successfully.")
-    print("Available functions: compute_sha256, verify_checksum, validate_data_integrity, load_jsonl_file, save_jsonl_file")
+    """Main entry point for data loading tests."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Test data loading")
+    parser.add_argument("--test-taxonomy", action="store_true", help="Test taxonomy fetching")
+    parser.add_argument("--test-advbench", action="store_true", help="Test ATBench fetching")
+    
+    args = parser.parse_args()
+    
+    if args.test_taxonomy:
+        print("Testing taxonomy fetch...")
+        try:
+            taxonomy = fetch_taxonomy()
+            print(f"Success! Loaded {len(taxonomy['categories'])} categories")
+            for cat, desc in taxonomy["categories"].items():
+                print(f"  - {cat}: {desc[:50]}...")
+        except Exception as e:
+            print(f"Error: {e}")
+            sys.exit(1)
+    
+    if args.test_advbench:
+        print("Testing ATBench fetch...")
+        try:
+            count = 0
+            for record in fetch_advbench(streaming=True):
+                count += 1
+                if count >= 5:
+                    break
+            print(f"Success! Fetched {count} records")
+        except Exception as e:
+            print(f"Error: {e}")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

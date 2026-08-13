@@ -1,111 +1,114 @@
-# Quickstart Guide: llmXive Drift Detection
+# Quickstart Guide
 
-This guide provides a step-by-step walkthrough for setting up and running the zero-shot drift detection pipeline.
+## Overview
+
+This project implements a zero-shot drift detection system for AI agent logs,
+following the AgentDoG methodology. The system builds taxonomy centroids,
+computes drift scores, and validates results against human annotations.
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip package manager
-- At least 7GB of available RAM
-- CPU (GPU not required, but supported for acceleration if configured)
+- Python 3.11+
+- pip
+- Access to Hugging Face datasets
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root):
- ```bash
- cd projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5
- ```
+```bash
+# Install dependencies
+pip install -r requirements.txt
 
-2. **Create a virtual environment** (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+# Install development dependencies
+pip install pytest black ruff
+```
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
+## Directory Structure
 
-## Configuration
-
-The project uses `code/config.py` to manage paths, random seeds, and batch sizes.
-
-Default configuration:
-- **Taxonomy Model**: `all-MiniLM-L6-v2`
-- **Batch Size**: 32
-- **Max Memory**: 7GB
-- **Drift Threshold**: 1.5
-
-You can override these settings by modifying `code/config.py` or setting environment variables.
+```
+projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/
+├── code/ # Source code
+├── data/
+│ ├── raw/ # Raw downloaded data
+│ ├── processed/ # Processed data and outputs
+│ └── test/ # Test fixtures
+├── specs/ # Specification documents
+├── docs/ # Documentation
+└── tests/ # Test suite
+```
 
 ## Running the Pipeline
 
-### Option 1: Full Pipeline
+### 1. Build Taxonomy Centroids
 
-Run the entire drift detection workflow (Data Loading → Taxonomy Building → Scoring → Validation):
-
-```bash
-python code/run_full_pipeline.py
-```
-
-This will:
-1. Fetch raw data (AdvBench, HF4, OWASP Taxonomy).
-2. Build taxonomy centroids.
-3. Compute drift scores for all logs.
-4. Generate stratified batches for annotation.
-5. (Optional) Run baseline comparison.
-
-### Option 2: Individual Stages
-
-You can run specific stages independently:
-
-**1. Data Loading & Taxonomy Mapping**:
-```bash
-python code/data_loader.py
-```
-
-**2. Taxonomy Centroid Generation**:
-```bash
-python code/taxonomy_builder.py
-```
-
-**3. Drift Scoring**:
-```bash
-python code/drift_scoring.py
-```
-
-**4. Validation & Statistics**:
-```bash
-python code/validation.py
-```
-
-## Output Artifacts
-
-After a successful run, you will find the following outputs in the `data/` directory:
-
-- `data/raw/taxonomy_owasp.json`: Downloaded OWASP taxonomy.
-- `data/processed/taxonomy_centroids.json`: Taxonomy with computed embeddings.
-- `data/processed/drift_scores.csv`: Drift scores for all processed logs.
-- `data/processed/blinded_annotation_batches/`: CSVs ready for human review.
-- `data/processed/validation_stats.json`: Statistical validation results.
-
-## Verification
-
-To verify the installation and project structure:
+First, ensure the taxonomy data is available at `data/processed/taxonomy_agentdog.json`.
+Then run:
 
 ```bash
-python code/verify_project_structure.py
+python -m code.taxonomy_builder --source "agentdog_1_5_paper" --output data/processed/taxonomy_centroids.json
 ```
 
-## Troubleshooting
+This command:
+- Loads the taxonomy from the configured path
+- Builds centroid embeddings using `all-MiniLM-L6-v2`
+- Saves centroids to `data/processed/taxonomy_centroids.json`
 
-- **Memory Errors**: Ensure your system has at least 7GB of free RAM. Reduce `batch_size` in `config.py` if needed.
-- **Dataset Fetch Failures**: Ensure you have an active internet connection and that the Hugging Face datasets library is up to date.
-- **Import Errors**: Make sure you are running the script from the project root and that the virtual environment is activated.
+### 2. Run Drift Scoring
 
-## Next Steps
+```bash
+python -m code.drift_scoring \
+ --input data/raw/atbench.parquet \
+ --taxonomy data/processed/taxonomy_centroids.json \
+ --output data/processed/drift_results.csv
+```
 
-- Review `data-model.md` for schema details.
-- Check `specs/001-llmxive-drift-detection/` for design documents.
-- Run `pytest tests/` to execute the test suite.
+### 3. Run Validation
+
+```bash
+python -m code.validation \
+ --drift data/processed/drift_results.csv \
+ --ground_truth data/raw/atbench.parquet \
+ --annotations data/processed/gold_standard_proxy.csv \
+ --output data/processed/validation_report.json
+```
+
+### 4. Run Full Pipeline
+
+For end-to-end execution:
+
+```bash
+python code/main.py --validate
+```
+
+## Configuration
+
+Edit `code/config.py` to modify:
+- `RANDOM_SEED`: Random seed for reproducibility
+- `MAX_RAM_GB`: Maximum RAM limit (default: 7 GB)
+- `BATCH_SIZE`: Batch size for encoding (default: 64)
+
+## Testing
+
+Run the test suite:
+
+```bash
+pytest tests/
+```
+
+Run with coverage:
+
+```bash
+pytest tests/ --cov=code --cov-report=html
+```
+
+## Data Sources
+
+- **ATBench**: `AI45Research/ATBench` - Adversarial testing dataset
+- **Taxonomy**: `AgentDoG/safety-taxonomy` - Safety taxonomy from AgentDoG paper
+- **Agent Logs**: `mlfoundations/agent_logs` - Large-scale agent logs
+
+## Output Files
+
+- `data/processed/taxonomy_centroids.json`: Centroid embeddings for each category
+- `data/processed/drift_results.csv`: Drift scores for each log
+- `data/processed/validation_report.json`: Statistical validation results
+- `data/processed/us01_final_stats.json`: US-01 validation statistics

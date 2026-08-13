@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-924-llmxive-follow-up-extending-agentdog-1-5",
+  "ok": false,
+  "reason": "4 command(s) failed: python -m code.taxonomy_builder --source \"agentdog_1_5_paper\" --output data/processed/taxonomy_centroids.json (rc=1); python -m code.drift_scoring --input data/raw/atbench.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_results.csv (rc=1); python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/gold_standard_proxy.csv --output data/processed/validation_report.json (rc=1); 3 declared deliverable(s) absent: data/processed/drift_scores.csv; data/processed/taxonomy_centroids.json; data/processed/us01_final_stats.json",
+  "artifacts": [],
+  "failures": [
+    "python -m code.taxonomy_builder --source \"agentdog_1_5_paper\" --output data/processed/taxonomy_centroids.json -> rc=1\n    2026-08-13 16:40:00,627 - ERROR - Error in main: \"Path 'raw_taxonomy' not found in configuration.\"\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/taxonomy_builder.py\", line 201, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-",
+    "python -m code.drift_scoring --input data/raw/atbench.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_results.csv -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/drift_scoring.py\", line 9, in <module>\n    from sentence_transformers import SentenceTransformer\nModuleNotFoundError: No module named 'sentence_transformers'",
+    "python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/gold_standard_proxy.csv --output data/processed/validation_report.json -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/validation.py\", line 15, in <module>\n    from scipy import stats\nModuleNotFoundError: No module named 'scipy'",
+    "python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/human_annotations.csv --output data/processed/validation_report.json -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/code/validation.py\", line 15, in <module>\n    from scipy import stats\nModuleNotFoundError: No module named 'scipy'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-13T16:40:02Z"
+}

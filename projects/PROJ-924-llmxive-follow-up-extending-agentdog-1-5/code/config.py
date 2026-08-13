@@ -1,151 +1,98 @@
-"""
-Configuration management for the AgentDoG Drift Detection pipeline.
-
-Handles random seeds, memory constraints, batch sizes, and path resolution.
-"""
 import os
 import random
 from pathlib import Path
 from typing import Any, Dict, Optional, List
-
 import numpy as np
 
-# --- Core Constants ---
+# Configuration constants
 RANDOM_SEED = 42
 MAX_RAM_GB = 7
-# Batch size reference: arxiv.org/abs/2410.21676
-BATCH_SIZE = 64 
+BATCH_SIZE = 64
 
-# --- Project Paths ---
-# Assuming the project root is the parent of the 'code' directory
-# or we can infer it from the current working directory if run as a script.
-# For robustness, we define relative paths from the project root.
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_DATA_ROOT = _PROJECT_ROOT / "data"
-_DATA_RAW = _DATA_ROOT / "raw"
-_DATA_PROCESSED = _DATA_ROOT / "processed"
-_DATA_TEST = _DATA_ROOT / "test"
-_CODE_ROOT = _PROJECT_ROOT / "code"
-_SPEC_ROOT = _PROJECT_ROOT / "specs"
-_DOCS_ROOT = _PROJECT_ROOT / "docs"
+# Model configurations
+CENTROID_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+BASELINE_MODEL = "google/flan-t5-small"
 
-# --- Global Config State ---
+# Path configuration
+_PATHS = {
+    "project_root": Path(__file__).resolve().parent.parent,
+    "code": "code",
+    "data_raw": "data/raw",
+    "data_processed": "data/processed",
+    "data_test": "data/test",
+    "specs": "specs",
+    "docs": "docs",
+    "raw_taxonomy": "data/processed/taxonomy_agentdog.json",
+    "checksums": "data/checksums.json",
+}
+
 _config: Dict[str, Any] = {
     "random_seed": RANDOM_SEED,
     "max_ram_gb": MAX_RAM_GB,
     "batch_size": BATCH_SIZE,
-    "drift_threshold": 0.5,
-    "centroid_model": "all-MiniLM-L6-v2",
-    "baseline_model": "google/flan-t5-small",
-    "paths": {
-        "raw": str(_DATA_RAW),
-        "processed": str(_DATA_PROCESSED),
-        "test": str(_DATA_TEST),
-        "code": str(_CODE_ROOT),
-        "specs": str(_SPEC_ROOT),
-        "docs": str(_DOCS_ROOT),
-        "root": str(_PROJECT_ROOT),
-    }
+    "centroid_model": CENTROID_MODEL,
+    "baseline_model": BASELINE_MODEL,
+    "paths": _PATHS,
 }
 
 def set_seed(seed: Optional[int] = None) -> None:
-    """
-    Set the random seed for reproducibility across numpy, random, and torch (if available).
-    
-    Args:
-        seed: The seed value. Defaults to RANDOM_SEED if None.
-    """
+    """Set random seeds for reproducibility."""
     if seed is None:
         seed = RANDOM_SEED
-    
     random.seed(seed)
     np.random.seed(seed)
-    
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
-    
-    _config["random_seed"] = seed
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
 def get_config() -> Dict[str, Any]:
-    """Return the current configuration dictionary."""
+    """Return the current configuration."""
     return _config.copy()
 
 def update_config(key: str, value: Any) -> None:
-    """Update a specific configuration value."""
-    if key in _config:
-        _config[key] = value
-    elif key in _config["paths"]:
-        _config["paths"][key] = value
-    else:
-        # Allow adding new top-level keys if not predefined
-        _config[key] = value
+    """Update a configuration value."""
+    _config[key] = value
 
-def get_config_summary() -> str:
-    """Return a human-readable summary of the current configuration."""
-    return (
-        f"Seed: {_config['random_seed']}, "
-        f"Max RAM: {_config['max_ram_gb']}GB, "
-        f"Batch Size: {_config['batch_size']}, "
-        f"Centroid Model: {_config['centroid_model']}, "
-        f"Baseline Model: {_config['baseline_model']}"
-    )
+def get_config_summary() -> Dict[str, Any]:
+    """Return a summary of the configuration for logging."""
+    return {
+        "random_seed": _config["random_seed"],
+        "max_ram_gb": _config["max_ram_gb"],
+        "batch_size": _config["batch_size"],
+        "centroid_model": _config["centroid_model"],
+        "baseline_model": _config["baseline_model"],
+    }
 
 def get_path(name: str) -> Path:
     """
-    Retrieve a path from the configuration.
-    
-    Args:
-        name: The key of the path (e.g., 'raw', 'processed', 'root').
-    
-    Returns:
-        The Path object corresponding to the key.
-    
-    Raises:
-        KeyError: If the path name is not found in configuration.
+    Get a path from the configuration.
+    Raises KeyError if the path name is not found.
     """
-    if name in _config["paths"]:
-        return Path(_config["paths"][name])
-    raise KeyError(f"Path '{name}' not found in configuration.")
+    if name not in _config["paths"]:
+        raise KeyError(f"Path '{name}' not found in configuration.")
+    base = _config["paths"]["project_root"]
+    path_str = _config["paths"][name]
+    return base / path_str
 
-def get_output_path(subdir: str, filename: str) -> Path:
-    """
-    Construct a full output path within the processed directory.
-    
-    Args:
-        subdir: Subdirectory name (e.g., 'drift_results').
-        filename: The file name.
-    
-    Returns:
-        Full Path to the output file.
-    """
-    base = get_path("processed")
-    return base / subdir / filename
+def get_output_path(name: str, filename: str) -> Path:
+    """Get an output path combining a directory name and filename."""
+    dir_path = get_path(name)
+    return dir_path / filename
 
-def ensure_directories() -> None:
-    """
-    Ensure all directories defined in the configuration exist.
-    Creates them if they are missing.
-    """
-    for path_str in _config["paths"].values():
-        path = Path(path_str)
-        path.mkdir(parents=True, exist_ok=True)
+def ensure_directories(paths: List[Path]) -> None:
+    """Ensure that the given paths exist as directories."""
+    for p in paths:
+        p.mkdir(parents=True, exist_ok=True)
 
 def get_batch_size() -> int:
     """Return the configured batch size."""
     return _config["batch_size"]
 
-def get_max_memory_gb() -> int:
+def get_max_memory_gb() -> float:
     """Return the configured maximum RAM in GB."""
     return _config["max_ram_gb"]
 
 def get_drift_threshold() -> float:
-    """Return the configured drift threshold."""
-    return _config["drift_threshold"]
+    """Return the drift threshold for flagging reviews."""
+    return 1.5  # Default threshold
 
 def get_centroid_model() -> str:
     """Return the configured centroid model name."""

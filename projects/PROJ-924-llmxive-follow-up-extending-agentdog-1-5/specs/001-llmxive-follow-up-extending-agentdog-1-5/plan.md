@@ -38,7 +38,7 @@ This project implements a Zero-Shot Drift Detection system for the AgentDoG 1.5 
 | **IV. Single Source of Truth** | PASS | All figures/stats trace to `data/processed`. No hand-typed numbers. |
 | **V. Versioning Discipline** | PASS | Content hashes recorded in state YAML. |
 | **VI. Zero-Shot Drift Validity** | PASS | Plan includes Human-in-the-Loop validation (US-02) with Kappa > 0.6 target. Uses "Gold-Standard Proxy" for CI to validate pipeline logic, with explicit protocol for real human annotation in production. |
-| **VII. Resource-Constrained Integrity** | PASS | Uses `all-MiniLM-L6-v2` (CPU-friendly). Batch size 64 (verified source). Streaming enabled for large datasets. |
+| **VII. Resource-Constrained Integrity** | PASS | Uses a lightweight `all-MiniLM` sentence transformer model. (CPU-friendly). Batch size 64 (verified source). Streaming enabled for large datasets. |
 
 ## Project Structure
 

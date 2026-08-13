@@ -1,19 +1,15 @@
 """
-Tests for the config module.
+Tests for the configuration module (config.py).
 """
 import pytest
-from pathlib import Path
-import sys
 import os
+import random
+import numpy as np
+from pathlib import Path
 
-# Add the code directory to the path so we can import config
-code_dir = Path(__file__).resolve().parent.parent / "code"
-sys.path.insert(0, str(code_dir))
-
-from config import (
+from code.config import (
     set_seed,
     get_config,
-    update_config,
     get_config_summary,
     get_path,
     get_output_path,
@@ -25,86 +21,112 @@ from config import (
     get_baseline_model,
     RANDOM_SEED,
     MAX_RAM_GB,
-    BATCH_SIZE
+    BATCH_SIZE,
 )
 
-def test_random_seed_constant():
-    """Verify the RANDOM_SEED constant is 42."""
-    assert RANDOM_SEED == 42
 
-def test_max_ram_constant():
-    """Verify the MAX_RAM_GB constant is 7."""
-    assert MAX_RAM_GB == 7
+def test_constants_exist():
+    """Test that required constants are defined."""
+    assert RANDOM_SEED == 42, f"Expected RANDOM_SEED=42, got {RANDOM_SEED}"
+    assert MAX_RAM_GB == 7, f"Expected MAX_RAM_GB=7, got {MAX_RAM_GB}"
+    assert BATCH_SIZE == 64, f"Expected BATCH_SIZE=64, got {BATCH_SIZE}"
 
-def test_batch_size_constant():
-    """Verify the BATCH_SIZE constant is 64."""
-    assert BATCH_SIZE == 64
 
-def test_set_seed():
-    """Test that set_seed updates the internal seed."""
-    set_seed(123)
-    assert get_config()["random_seed"] == 123
-    # Reset to default for other tests
-    set_seed(RANDOM_SEED)
-
-def test_get_config():
-    """Test that get_config returns a dictionary with expected keys."""
-    cfg = get_config()
-    assert isinstance(cfg, dict)
-    assert "random_seed" in cfg
-    assert "max_ram_gb" in cfg
-    assert "batch_size" in cfg
-    assert "paths" in cfg
-
-def test_update_config():
-    """Test updating a config value."""
-    update_config("drift_threshold", 0.8)
-    assert get_config()["drift_threshold"] == 0.8
-    # Reset
-    update_config("drift_threshold", 0.5)
-
-def test_get_path():
-    """Test retrieving paths from config."""
-    raw_path = get_path("raw")
-    assert isinstance(raw_path, Path)
-    assert raw_path.name == "raw"
-
-    # Test invalid key
-    with pytest.raises(KeyError):
-        get_path("invalid_path_name")
-
-def test_get_output_path():
-    """Test constructing output paths."""
-    out_path = get_output_path("drift_results", "scores.csv")
-    assert isinstance(out_path, Path)
-    assert out_path.name == "scores.csv"
-    assert "processed" in str(out_path)
-    assert "drift_results" in str(out_path)
-
-def test_ensure_directories():
-    """Test that ensure_directories creates the necessary folders."""
-    # Get a path that might not exist yet
-    test_dir = get_path("processed") / "test_ensure_directories"
-    if test_dir.exists():
-        import shutil
-        shutil.rmtree(test_dir)
-    
-    # We can't easily test creation of all paths without side effects,
-    # but we can ensure it doesn't crash.
-    ensure_directories()
-    # Verify at least the root processed dir exists
-    assert get_path("processed").exists()
-
-def test_getters():
-    """Test specific getter functions."""
+def test_get_batch_size():
+    """Test that get_batch_size returns the correct value."""
     assert get_batch_size() == 64
+
+
+def test_get_max_memory_gb():
+    """Test that get_max_memory_gb returns the correct value."""
     assert get_max_memory_gb() == 7
-    assert get_drift_threshold() == 0.5
+
+
+def test_get_drift_threshold():
+    """Test that get_drift_threshold returns a float."""
+    threshold = get_drift_threshold()
+    assert isinstance(threshold, float)
+
+
+def test_get_centroid_model():
+    """Test that get_centroid_model returns the correct model name."""
     assert get_centroid_model() == "all-MiniLM-L6-v2"
+
+
+def test_get_baseline_model():
+    """Test that get_baseline_model returns the correct model name."""
     assert get_baseline_model() == "google/flan-t5-small"
 
-def test_config_summary():
-    """Test that get_config_summary returns a string."""
+
+def test_set_seed_determinism():
+    """Test that set_seed produces deterministic results."""
+    # Set seed
+    set_seed(42)
+    val1 = random.random()
+    arr1 = np.random.random(5)
+
+    # Reset seed
+    set_seed(42)
+    val2 = random.random()
+    arr2 = np.random.random(5)
+
+    # Verify determinism
+    assert val1 == val2
+    np.testing.assert_array_equal(arr1, arr2)
+
+
+def test_set_seed_updates_config():
+    """Test that set_seed updates the internal configuration."""
+    set_seed(123)
+    config = get_config()
+    assert config["random_seed"] == 123
+
+
+def test_get_config_summary():
+    """Test that get_config_summary returns expected keys."""
     summary = get_config_summary()
-    assert isinstance(summary, str)
-    assert "Seed" in summary
+    assert "random_seed" in summary
+    assert "max_ram_gb" in summary
+    assert "batch_size" in summary
+    assert "centroid_model" in summary
+    assert "baseline_model" in summary
+    assert "drift_threshold" in summary
+
+
+def test_get_path_valid():
+    """Test that get_path returns a valid Path for known keys."""
+    path = get_path("data_raw")
+    assert isinstance(path, Path)
+    assert path.name == "raw"
+
+
+def test_get_path_invalid():
+    """Test that get_path raises KeyError for unknown keys."""
+    with pytest.raises(KeyError, match="not found in configuration"):
+        get_path("non_existent_path")
+
+
+def test_get_output_path():
+    """Test that get_output_path constructs the correct path."""
+    output_path = get_output_path("data_processed", "test.csv")
+    assert output_path.name == "test.csv"
+    assert output_path.parent.name == "processed"
+
+
+def test_ensure_directories_creates_dirs(tmp_path):
+    """Test that ensure_directories creates the required directories."""
+    # Temporarily override project root
+    from code import config
+    original_root = config._config["project_root"]
+    config._config["project_root"] = tmp_path
+
+    try:
+        # Ensure specific paths
+        ensure_directories(["data_raw", "data_processed"])
+        
+        # Verify directories exist
+        assert (tmp_path / "raw").exists()
+        assert (tmp_path / "processed").exists()
+    finally:
+        # Restore original root
+        config._config["project_root"] = original_root

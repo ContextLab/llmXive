@@ -1,0 +1,8 @@
+[
+  {
+    "data_file": "data/processed/taxonomy_centroids.json",
+    "required": [
+      "Path"
+    ]
+  }
+]

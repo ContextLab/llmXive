@@ -6743,3 +6743,760 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T21:18:28Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: 'AgentDoG safety taxonomy categories: Safety, Privacy, Bias, Jailbreak'
+  claim_id: c_bf75da6e
+  context: 'T012d-fixed: Implement fetch_taxonomy to load the fixed AgentDoG safety
+    taxonomy from https://huggingface.co/datasets/AgentDoG/safety-taxonomy. Categories:
+    The taxonomy MUST contain these exact categories...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AgentDoG_safety_taxonomy_categories:_Safety,_Privacy,_Bias,
+  kind: entity_fact
+  raw_text: 'The taxonomy MUST contain these exact categories from the AgentDoG paper:
+    ''Safety'' (harmful content), ''Privacy'' (PII exposure), ''Bias'' (discriminatory
+    output), ''Jailbreak'' (prompt injection).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:42:13Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: System runs zero-shot google/flan-t5-small classifier
+  claim_id: c_ff27be50
+  context: 'T-002-AmendUS03: Update US-03 to explicitly state: ''The system runs a
+    zero-shot LLM classifier (google/flan-t5-small) on a subset of logs.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_runs_zero-shot_google/flan-t5-small_classifier
+  kind: entity_fact
+  raw_text: The system runs a zero-shot LLM classifier (google/flan-t5-small) on a
+    subset of logs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:42:30Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: System memory limit 7 GB
+  claim_id: c_68b1aea7
+  context: 'T001-DeviationLog: Create plan_deviation_log.md documenting the substitution
+    of gpt-4o-mini with google/flan-t5-small in US-03 due to memory constraints on
+    GitHub Actions free-tier. Action: Write a formal log entry citing the constraint
+    (7GB RAM)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must enforce a runtime memory limit of 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:42:49Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Benchmark runtime limit 30 minutes
+  claim_id: c_f81537f2
+  context: "T045a: Implement benchmark_performance.py to run large-scale log benchmark\
+    \ on data/raw/agent_logs.csv using optimal batch size; enforce \u2264 30 min runtime,\
+    \ raise TimeoutError otherwise."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must enforce a 30-minute runtime limit for large-scale log
+    benchmarks.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:43:30Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: 'Simulated rater noise models: A (bias 0.1, error 0.15), B (bias -0.1,
+    error 0.1), C (bias 0, error 0.2)'
+  claim_id: c_77541c1e
+  context: 'T032b-SimPanel: Generate 3 simulated rater streams (rater_A.csv, rater_B.csv,
+    rater_C.csv) with distinct noise models (bias=0.1, error_rate=0.15 for A; bias=-0.1,
+    error_rate=0.1 for B; bias=0, error_rate=0.2 for C).'
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: 'The system generates 3 simulated rater streams with distinct noise models:
+    bias=0.1, error_rate=0.15 for Rater A; bias=-0.1, error_rate=0.1 for Rater B;
+    bias=0, error_rate=0.2 for Rater C.'
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T16:43:32Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: 'Taxonomy dataset source: AgentDoG/safety-taxonomy'
+  claim_id: c_c905e728
+  context: 'T012d-fixed: Implement fetch_taxonomy in data_loader.py to load the fixed
+    AgentDoG safety taxonomy from https://huggingface.co/datasets/AgentDoG/safety-taxonomy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Taxonomy_dataset_source:_AgentDoG/safety-taxonomy
+  kind: entity_fact
+  raw_text: The taxonomy dataset 'AgentDoG/safety-taxonomy' must be fetched from https://huggingface.co/datasets/AgentDoG/safety-taxonomy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:44:05Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: 'Benchmark dataset source: mlfoundations/agent_logs'
+  claim_id: c_68a95ca9
+  context: 'T012f: Fetch the large-scale log dataset for performance benchmarking.
+    Source: datasets.load_dataset(''mlfoundations/agent_logs'', split=''train'', streaming=True).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_source:_mlfoundations/agent_logs
+  kind: entity_fact
+  raw_text: The large-scale log dataset for performance benchmarking is sourced from
+    mlfoundations/agent_logs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:44:09Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: 'Centroid embedding model: all-MiniLM-L6-v2'
+  claim_id: c_d43ec87e
+  context: 'T016a: Implement taxonomy_builder.py to generate centroid embeddings using
+    all-MiniLM-L6-v2 (CPU-first, dynamic batching to stay <7 GB RAM)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Centroid_embedding_model:_all-MiniLM-L6-v2
+  kind: entity_fact
+  raw_text: The system uses the all-MiniLM-L6-v2 model for generating centroid embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:44:13Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: 'Classification model: google/flan-t5-small'
+  claim_id: c_e8a0ce53
+  context: 'T039-gpt-setup: Prepare flan_config.json (model name, tokenizer cache,
+    prompt template). Schema: {''model_name'': ''google/flan-t5-small'', ''temperature'':
+    0.0, ''prompt_template'': ''Classify the following text as ''benign'' or ''novel'':
+    {text}''}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Classification_model:_google/flan-t5-small
+  kind: entity_fact
+  raw_text: The system uses google/flan-t5-small for zero-shot classification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:44:17Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: 'Maximum cosine distance for empty logs: 2.0'
+  claim_id: c_a54f2730
+  context: 'T021c: Implement handle_empty_logs assigning the fixed theoretical maximum
+    cosine distance of 2.0 and setting review_flag=True.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed theoretical maximum cosine distance assigned to empty logs is
+    2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:44:24Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AgentDoG safety taxonomy contains categories Safety, Privacy, Bias, and
+    Jailbreak
+  claim_id: c_a900fae3
+  context: 'Implement fetch_taxonomy in data_loader.py to load the fixed AgentDoG
+    safety taxonomy from https://huggingface.co/datasets/AgentDoG/safety-taxonomy.
+    Categories: The taxonomy MUST contain these exact categories from the AgentDoG
+    paper...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AgentDoG_safety_taxonomy_contains_categories_Safety,_Privacy
+  kind: entity_fact
+  raw_text: 'The taxonomy MUST contain these exact categories from the AgentDoG paper:
+    ''Safety'' (harmful content), ''Privacy'' (PII exposure), ''Bias'' (discriminatory
+    output), ''Jailbreak'' (prompt injection).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:47:50Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Timestamp derived from log_id hash using hash(log_id) % 24 * 3600 if
+    missing
+  claim_id: c_a40470e4
+  context: 'Timestamp Handling: If the source dataset lacks a timestamp field, derive
+    it deterministically from log_id hash using hash(log_id) % 24 * 3600.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the source dataset lacks a timestamp field, derive it deterministically
+    from log_id hash using hash(log_id) % 24 * 3600.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:48:30Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Empty logs assigned maximum cosine distance of 2.0
+  claim_id: c_f47a437d
+  context: Implement handle_empty_logs assigning the fixed theoretical maximum cosine
+    distance of 2.0 and setting review_flag=True.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign the fixed theoretical maximum cosine distance of 2.0 for empty
+    logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:48:48Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Simulated rater A bias 0.1 error rate 0.15
+  claim_id: c_20982f0d
+  context: Generate 3 simulated rater streams (rater_A.csv, rater_B.csv, rater_C.csv)
+    with distinct noise models (bias=0.1, error_rate=0.15 for A...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulated rater A has bias=0.1 and error_rate=0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:49:34Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Simulated rater B bias -0.1 error rate 0.1
+  claim_id: c_91f7936c
+  context: '...bias=-0.1, error_rate=0.1 for B...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulated rater B has bias=-0.1 and error_rate=0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:51:42Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Simulated rater C bias 0 error rate 0.2
+  claim_id: c_b0dabde7
+  context: '...bias=0, error_rate=0.2 for C).'
+  evidence:
+    asserted: '0.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: Simulated rater C has bias=0 and error_rate=0.2.
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T16:51:43Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Validation dataset is AI45Research/ATBench
+  claim_id: c_22eff05e
+  context: 'NOTE: This task fetches the validation dataset (AI45Research/ATBench)
+    required for US-01 and US-03.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_dataset_is_AI45Research/ATBench
+  kind: entity_fact
+  raw_text: The validation dataset is AI45Research/ATBench.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:52:16Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Large-scale log dataset is mlfoundations/agent_logs
+  claim_id: c_e244bce0
+  context: 'Source: datasets.load_dataset("mlfoundations/agent_logs", split="train",
+    streaming=True).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Large-scale_log_dataset_is_mlfoundations/agent_logs
+  kind: entity_fact
+  raw_text: The large-scale log dataset for performance benchmarking is mlfoundations/agent_logs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:52:21Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Taxonomy dataset is AgentDoG/safety-taxonomy
+  claim_id: c_0bf6e46e
+  context: Implement fetch_taxonomy in data_loader.py to load the fixed AgentDoG safety
+    taxonomy from https://huggingface.co/datasets/AgentDoG/safety-taxonomy.
+  evidence:
+    entailment_evidence: Taxonomy dataset is AgentDoG/safety-taxonomy
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Taxonomy_dataset_is_AgentDoG/safety-taxonomy
+  kind: entity_fact
+  raw_text: The taxonomy dataset is AgentDoG/safety-taxonomy.
+  resolved_value: Taxonomy dataset is AgentDoG/safety-taxonomy
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T16:52:23Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Centroid embeddings use all-MiniLM-L6-v2 model
+  claim_id: c_59a782e3
+  context: "Implement taxonomy_builder.py to generate centroid embeddings using all-MiniLM-L6-v2\
+    \ (CPU\u2011first, dynamic batching to stay <7 GB RAM)..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Centroid_embeddings_use_all-MiniLM-L6-v2_model
+  kind: entity_fact
+  raw_text: The sentence-transformers model used for centroid embeddings is all-MiniLM-L6-v2.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:52:28Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 0
+  canonical: Simulated rater C bias 0 error rate 0.2
+  claim_id: c_3b104c8f
+  context: Generate 3 simulated rater streams... (bias=0, error_rate=0.2 for C).
+  evidence:
+    asserted: '0.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: Simulated rater C has bias=0 and error_rate=0.2.
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T16:55:41Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AgentDoG safety taxonomy contains Safety, Privacy, Bias, and Jailbreak
+    categories
+  claim_id: c_c446b7ff
+  context: 'Implement fetch_taxonomy in data_loader.py to load the fixed AgentDoG
+    safety taxonomy from https://huggingface.co/datasets/AgentDoG/safety-taxonomy.
+    Categories: The taxonomy MUST contain these exact categories from the AgentDoG
+    paper...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AgentDoG_safety_taxonomy_contains_Safety,_Privacy,_Bias,_and
+  kind: entity_fact
+  raw_text: 'The taxonomy MUST contain these exact categories from the AgentDoG paper:
+    ''Safety'' (harmful content), ''Privacy'' (PII exposure), ''Bias'' (discriminatory
+    output), ''Jailbreak'' (prompt injection).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:55:48Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: System uses google/flan-t5-small for zero-shot LLM classification
+  claim_id: c_85d05812
+  context: 'Amend US-03 Acceptance Criteria: Update spec.md US-03 to explicitly state:
+    ''The system runs a zero-shot LLM classifier (google/flan-t-small) on a subset
+    of logs.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_uses_google/flan-t5-small_for_zero-shot_LLM_classific
+  kind: entity_fact
+  raw_text: The system runs a zero-shot LLM classifier (google/flan-t5-small) on a
+    subset of logs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:55:51Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Empty logs assigned fixed theoretical maximum cosine distance of 2.0
+  claim_id: c_f541204a
+  context: Implement handle_empty_logs assigning the fixed theoretical maximum cosine
+    distance of 2.0 and setting review_flag=True.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign the fixed theoretical maximum cosine distance of 2.0 for empty
+    logs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:55:52Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Simulated rater A bias 0.1 error rate 0.15
+  claim_id: c_abf2fcc3
+  context: Generate 3 simulated rater streams (rater_A.csv, rater_B.csv, rater_C.csv)
+    with distinct noise models (bias=0.1, error_rate=0.15 for A...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulated rater A has bias=0.1 and error_rate=0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:55:53Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Simulated rater B bias -0.1 error rate 0.1
+  claim_id: c_d4e93519
+  context: Generate 3 simulated rater streams... (bias=-0.1, error_rate=0.1 for B...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulated rater B has bias=-0.1 and error_rate=0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:55:54Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AgentDoG safety taxonomy hosted at Hugging Face dataset AgentDoG/safety-taxonomy
+  claim_id: c_468c667e
+  context: Implement fetch_taxonomy in data_loader.py to load the fixed AgentDoG safety
+    taxonomy from https://huggingface.co/datasets/AgentDoG/safety-taxonomy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AgentDoG_safety_taxonomy_hosted_at_Hugging_Face_dataset_Agen
+  kind: entity_fact
+  raw_text: The taxonomy dataset is hosted at https://huggingface.co/datasets/AgentDoG/safety-taxonomy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:56:15Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Large-scale log dataset from mlfoundations/agent_logs
+  claim_id: c_c1080135
+  context: "Fetch the large\u2011scale log dataset for performance benchmarking. Source:\
+    \ datasets.load_dataset('mlfoundations/agent_logs', split='train', streaming=True)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Large-scale_log_dataset_from_mlfoundations/agent_logs
+  kind: entity_fact
+  raw_text: The large-scale log dataset for performance benchmarking is from mlfoundations/agent_logs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:56:17Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model used for centroid embeddings
+  claim_id: c_78eab045
+  context: Implement taxonomy_builder.py to generate centroid embeddings using all-MiniLM-L6-v2...
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/All-MiniLM-L6-v2_model_used_for_centroid_embeddings
+  kind: entity_fact
+  raw_text: The system uses the all-MiniLM-L6-v2 model for generating centroid embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-13T16:56:20Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AgentDoG safety taxonomy contains Safety Privacy Bias and Jailbreak categories
+  claim_id: c_de60e1c7
+  context: Task T012d-fixed requires implementing fetch_taxonomy to load the fixed
+    AgentDoG safety taxonomy from https://huggingface.co/datasets/AgentDoG/safety-taxonomy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AgentDoG_safety_taxonomy_contains_Safety_Privacy_Bias_and_Ja
+  kind: entity_fact
+  raw_text: 'The taxonomy MUST contain these exact categories from the AgentDoG paper:
+    ''Safety'' (harmful content), ''Privacy'' (PII exposure), ''Bias'' (discriminatory
+    output), ''Jailbreak'' (prompt injection).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:57:56Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: System uses google/flan-t5-small for zero-shot classification
+  claim_id: c_9459901f
+  context: Task T-002-AmendUS03 updates US-03 Acceptance Criteria to explicitly state
+    the use of google/flan-t5-small.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_uses_google/flan-t5-small_for_zero-shot_classificatio
+  kind: entity_fact
+  raw_text: The system runs a zero-shot LLM classifier (google/flan-t5-small) on a
+    subset of logs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:57:58Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Validation dataset is AI45Research/ATBench
+  claim_id: c_2734f480
+  context: Task T012a notes that this task fetches the validation dataset required
+    for US-01 and US-03.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_dataset_is_AI45Research/ATBench
+  kind: entity_fact
+  raw_text: The validation dataset is AI45Research/ATBench.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:58:01Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Benchmark dataset is mlfoundations/agent_logs
+  claim_id: c_40be50ad
+  context: Task T012f specifies the source for the large-scale log dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_dataset_is_mlfoundations/agent_logs
+  kind: entity_fact
+  raw_text: The large-scale log dataset for performance benchmarking is from mlfoundations/agent_logs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:58:03Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: AgentDoG safety taxonomy URL
+  claim_id: c_f8af0d97
+  context: Task T012d-fixed implements fetch_taxonomy to load the taxonomy from this
+    URL.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AgentDoG_safety_taxonomy_URL
+  kind: entity_fact
+  raw_text: The fixed AgentDoG safety taxonomy is hosted at https://huggingface.co/datasets/AgentDoG/safety-taxonomy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:58:28Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: No fallback permitted for AgentDoG safety taxonomy
+  claim_id: c_4fac0b4a
+  context: Task T012d-fixed specifies that if the dataset is unreachable or missing
+    categories, a FileNotFoundError must be raised with a specific message.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_fallback_permitted_for_AgentDoG_safety_taxonomy
+  kind: entity_fact
+  raw_text: The taxonomy dataset 'AgentDoG/safety-taxonomy' must be used with no fallback
+    permitted.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:58:49Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Maximum cosine distance is 2.0
+  claim_id: c_55327f12
+  context: Task T021c implements handle_empty_logs assigning the fixed theoretical
+    maximum cosine distance of 2.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed theoretical maximum cosine distance is 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T17:00:08Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: 'Simulated panel noise models: Rater A bias 0.1 error 0.15 Rater B bias
+    -0.1 error 0.1 Rater C bias 0 error 0.2'
+  claim_id: c_83fb4b0c
+  context: Task T032b-SimPanel generates 3 simulated rater streams with these specific
+    noise parameters for CI testing.
+  evidence:
+    asserted: '3.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: 'The simulated human panel uses 3 raters with distinct noise models: bias=0.1
+    and error_rate=0.15 for Rater A; bias=-0.1 and error_rate=0.1 for Rater B; bias=0
+    and error_rate=0.2 for Rater C.'
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T17:00:09Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Centroid embeddings use all-MiniLM-L6-v2 model
+  claim_id: c_3ab5ff8f
+  context: Task T016a implements taxonomy_builder.py to generate centroid embeddings
+    using this model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Centroid_embeddings_use_all-MiniLM-L6-v2_model
+  kind: entity_fact
+  raw_text: The project uses the all-MiniLM-L6-v2 model for generating centroid embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T17:00:28Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42
+  claim_id: c_c787e687
+  context: Task T011 creates config.py containing RANDOM_SEED=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires RANDOM_SEED=42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T17:01:10Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Maximum RAM limit is 7 GB
+  claim_id: c_e0db68b4
+  context: Task T011 creates config.py containing MAX_RAM_GB=7, and T016b raises MemoryError
+    if peak RAM exceeds 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires a maximum RAM limit of 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T17:01:26Z'
+- artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
+  attempts: 1
+  canonical: Batch size is 64
+  claim_id: c_ac3dd4ae
+  context: Task T011 creates config.py containing BATCH_SIZE = 64.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires a batch size of 64.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T17:01:47Z'

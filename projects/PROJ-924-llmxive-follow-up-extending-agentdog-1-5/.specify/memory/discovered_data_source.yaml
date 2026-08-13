@@ -1,28 +1,5 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "from datasets import load_dataset\n\nds_dict = load_dataset(\"AI45Research/ATBench\"\
-  , \"ATBench\")\ntotal_records = sum(len(split) for split in ds_dict.values())\n\
-  print(f\"RECORDS={total_records}\")\nif total_records:\n    sample_record = next(iter(ds_dict.values()))[0]\n\
-  \    fields = list(sample_record.keys())\n    print(\"FIELDS=\" + \",\".join(fields))"
-record_count: 1000
-sample_fields:
-- id
-- tool_used
-- contents
-- label
-- risk_source
-- failure_mode
-- reason
-- real_world_harm
-field_coverage: 0.5
-required_fields:
-- prompt
-- adversarial_prompt
-- label
-- risk_category
-- checksum
-- source
-intent: download AgentDoG 1.5 taxonomy dataset HuggingFace ultrachat_200k advbench
-  OWASP Top 10 python package dataset
-cache_key: 6984dcfb622e58db807d82d677c9f63599620abb12b5049b25c3c15e293f8205
+status: none
+reason: no data intent found in planning artifacts
+cache_key: f1427091b73c02581a170f72904497ca1abbe691616d969f33eff9bd21087fe1
+searched_at: '2026-08-13T16:40:02.638976+00:00'
+retry_count: 3
