@@ -2,73 +2,74 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   `pip` or `conda`
--   Access to a Linux environment (GitHub Actions runner recommended).
+*   Python 3.11+
+*   Git
+*   Access to a terminal (local or GitHub Codespaces)
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project root).
-2.  **Install dependencies**:
+1.  **Clone the Repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-145-evaluating-the-predictive-power-of-machi
+    ```
+
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install Dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` pins `pymatgen`, `scikit-learn`, `pandas`, `datasets`, `scipy`.*
+    *Note: `requirements.txt` pins `pymatgen`, `scikit-learn`, `datasets`, `pandas`, `numpy`, `scipy`.*
 
-## Data Preparation
+## Data Setup
 
-The pipeline automatically downloads data from the verified HuggingFace source (`hmao/all_apis_for_multiapi`).
+The pipeline automatically downloads data from verified Hugging Face sources if `data/raw/` is empty.
 
-1.  **Run Ingestion**:
+1.  **Run Data Ingestion**:
     ```bash
     python code/data_ingestion.py
     ```
-    *Output*: `data/processed/heas_train.csv`, `data/processed/holdout_known.csv`, `data/processed/true_novel.csv`.
+    *This script fetches parquet files, filters for 5+ element systems, and generates `heas_train.csv`, `holdout_known.csv`, and `true_novel.csv`.*
 
 2.  **Verify Data**:
-    Check `data/processed/` for the presence of the three CSV files. Ensure `num_elements >= 5` in all rows.
+    Check `data/processed/` for the generated CSV files. Ensure `holdout_known.csv` and `true_novel.csv` are not empty.
 
 ## Running the Pipeline
 
-Execute the full pipeline (Feature Engineering -> Training -> Evaluation):
+Execute the full pipeline (Feature Engineering -> Training -> Evaluation -> Report):
 
 ```bash
-python code/train_models.py && python code/evaluate.py
+python code/train_model.py
+python code/evaluate.py
+python code/report_gen.py
 ```
 
-*This will:*
-1.  Calculate descriptors for all datasets.
-2.  Train Random Forest and Gradient Boosting models (5-fold CV).
-3.  Evaluate on `holdout_known.csv` (Error metrics).
-4.  Evaluate on `true_novel.csv` (Uncertainty metrics).
-5.  Generate `data/reports/final_report.csv` and `data/reports/metrics_summary.json`.
+### Output Locations
 
-## Generating the Report
+*   **Models**: `data/models/rf_model.pkl`, `data/models/gb_model.pkl`
+*   **Metrics**: `data/processed/metrics_summary.csv`
+*   **Novel Candidates**: `data/processed/top_100_novel_candidates.csv`
+*   **Logs**: `logs/pipeline.log`
 
-The final report includes:
--   Interpolation $R^2$ (Training).
--   Extrapolation $R^2$ (Hold-out Known).
--   T-test p-value (Error degradation) *if N sufficient*.
--   Spearman correlation (Uncertainty vs. Distance in feature space).
--   Top 100 Novel Candidates ranked by uncertainty.
+## Testing
 
-View the report:
+Run unit and integration tests:
+
 ```bash
-cat data/reports/final_report.csv
+pytest tests/ -v
 ```
+
+*   `tests/unit/test_descriptors.py`: Validates `pymatgen` descriptor calculation.
+*   `tests/unit/test_data_split.py`: Verifies no overlap between training and hold-out sets.
+*   `tests/integration/test_pipeline.py`: Runs the full ingestion-to-evaluation flow on a small sample.
 
 ## Troubleshooting
 
--   **`KeyError` in descriptors**: Ensure `pymatgen` is installed and the dataset columns match the expected schema (`elements`, `element_fractions`).
--   **Memory Error**: If the dataset is too large, check `code/data_ingestion.py` for streaming logic. The script should handle datasets > 7GB by sampling or streaming.
--   **API Rate Limit**: The ingestion script includes exponential backoff. If it fails, check network connectivity.
-
-## Expected Outputs
-
--   `data/processed/heas_train.csv`
--   `data/processed/holdout_known.csv`
--   `data/processed/true_novel.csv`
--   `data/models/random_forest.pkl`
--   `data/models/gradient_boosting.pkl`
--   `data/reports/final_report.csv`
--   `data/reports/metrics_summary.json`
+*   **OOM Error**: If `MemoryError` occurs, ensure `datasets` is using streaming mode or reduce the `sample_size` in `code/config.py`.
+*   **Descriptor Errors**: If `pymatgen` fails to find an element, verify the chemical formula format in `data/raw/`.
+*   **Convex Hull Error**: If the dataset is too small for a hull calculation, the script will fallback to centroid distance (logged).

@@ -98,6 +98,6 @@ The researcher needs to apply the trained models to the "Hold-out Known" set to 
 - The Materials Project and AFLOWlib APIs provide sufficient coverage of 5+ element HEA systems to train a robust model, and their data formats remain stable during the retrieval window.
 - The study distinguishes between "unseen in training" (Hold-out Known) and "unmeasured in nature" (True Novel). The "Hold-out Known" set allows for direct error measurement ($R^2$), while the "True Novel" set allows for uncertainty calibration analysis.
 - Standard compositional descriptors (atomic radius, electronegativity, VEC) are sufficient to capture the majority of variance in the training set, even if they fail in the extrapolation regime.
-- The GitHub Actions free-tier runner (2 CPU, 7 GB RAM) is sufficient to process the dataset and train the Random Forest/Gradient Boosting models within the 6-hour limit, as these are CPU-tractable methods.
+- The GitHub Actions free-tier runner (standard CPU, 7 GB RAM) is sufficient to process the dataset and train the Random Forest/Gradient Boosting models within the 6-hour limit., as these are CPU-tractable methods.
 - The `pymatgen` library is available and correctly installed in the CI environment to calculate the required compositional descriptors.
 - A Spearman correlation coefficient $\rho > 0.5$ between variance and distance from the convex hull is expected for the "True Novel" set, indicating that the model correctly identifies its own uncertainty in unexplored regions.

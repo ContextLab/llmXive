@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction Output Schema"
+description: "Schema for novel candidate predictions and metrics"
+type: object
+properties:
+  composition_id:
+    type: string
+    description: "Unique SHA256 hash"
+  predicted_energy:
+    type: number
+    description: "Predicted formation energy"
+  uncertainty_variance:
+    type: number
+    description: "Ensemble variance of predictions"
+    minimum: 0
+  hull_distance:
+    type: number
+    description: "Distance from training convex hull"
+    minimum: 0
+  rank:
+    type: integer
+    description: "Rank among top 100 candidates (1 = lowest uncertainty)"
+    minimum: 1
+    maximum: 100
+required:
+  - composition_id
+  - predicted_energy
+  - uncertainty_variance
+  - hull_distance
+  - rank
+additionalProperties: false

@@ -1,74 +1,87 @@
 # Data Model: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
 
-## 1. Entity Relationship Overview
+## 1. Conceptual Model
 
-The data model consists of three primary input datasets derived from the source API, two intermediate feature datasets, and one output prediction dataset.
+The data model revolves around three core entities: `Composition`, `DescriptorSet`, and `PredictionResult`.
 
-1.  **Source Data**: Raw thermodynamic data from `hmao/all_apis_for_multiapi`.
-2.  **Training Set (`heas_train.csv`)**: Filtered 5+ element systems used for model training.
-3.  **Hold-out Known (`holdout_known.csv`)**: 5+ element systems present in source but excluded from training.
-4.  **True Novel (`true_novel.csv`)**: Synthetic 5-element compositions not found in source (database novelty).
-5.  **Feature Data**: All three sets augmented with `pymatgen` descriptors.
-6.  **Predictions**: Model outputs with uncertainty metrics.
+1.  **Composition**: Represents a chemical formula (e.g., `CoCrFeMnNi`). Contains elemental counts and a unique hash.
+2.  **DescriptorSet**: Derived features (mean/var of radius, electronegativity, etc.) calculated from the Composition.
+3.  **PredictionResult**: Model output (predicted formation energy, uncertainty) and ground truth (if available).
 
-## 2. Schema Definitions
+## 2. Physical Data Flow
 
-### 2.1. Source Data (Raw)
-*Derived from `hmao/all_apis_for_multiapi`.*
--   `composition`: String (e.g., "Fe0.2Co0.2Ni0.2Cr0.2Mn0.2")
--   `formation_energy_per_atom`: Float (eV/atom)
--   `mixing_enthalpy`: Float (eV/atom) - *Optional, may be derived or null*
--   `elements`: List of Strings (e.g., ["Fe", "Co", "Ni", "Cr", "Mn"])
--   `element_fractions`: List of Floats
+```mermaid
+graph TD
+    A[Raw Parquet (AFLOW/API)] -->|Filter 5+ Elements| B(heas_train.csv)
+    B -->|Feature Eng (pymatgen)| C(heas_train_descriptors.csv)
+    B -->|Split 10%| D(holdout_known.csv)
+    D -->|Feature Eng| E(holdout_known_descriptors.csv)
+    B -->|Combinatorial Gen| F(true_novel_candidates)
+    F -->|Thermo Stability Filter| G(stable_candidates)
+    G -->|Filter Not in Source| H(true_novel.csv)
+    H -->|Final API Check| I(true_novel_final.csv)
+    I -->|Feature Eng| J(true_novel_descriptors.csv)
+    C -->|Train| K(Model RF/GB)
+    E -->|Eval| L(Holdout Metrics)
+    J -->|Predict| M(Novel Predictions)
+    M -->|Uncertainty Calc| N(Report CSV)
+```
 
-### 2.2. Feature-Engineered Data (Train/Holdout/Novel)
-*Common schema for all three sets after `feature_engineering.py`.*
+## 3. File Schemas
 
-| Column Name | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `composition_id` | String | Unique hash of composition string | Generated |
-| `composition` | String | Original composition string | Raw |
-| `num_elements` | Integer | Count of unique elements | Filtered |
-| `formation_energy` | Float | Target variable (eV/atom) | Raw |
-| `mixing_enthalpy` | Float | Target variable (eV/atom) | Raw/Null |
-| `mean_atomic_radius` | Float | Weighted mean of atomic radii | `pymatgen` |
-| `var_atomic_radius` | Float | Weighted variance of atomic radii | `pymatgen` |
-| `mean_electronegativity` | Float | Weighted mean of electronegativity | `pymatgen` |
-| `var_electronegativity` | Float | Weighted variance of electronegativity | `pymatgen` |
-| `mean_VEC` | Float | Weighted mean of Valence Electron Count | `pymatgen` |
-| `var_VEC` | Float | Weighted variance of VEC | `pymatgen` |
-| `mean_melting_point` | Float | Weighted mean of melting points | `pymatgen` |
-| `var_melting_point` | Float | Weighted variance of melting points | `pymatgen` |
-| `distance_to_hull` | Float | Distance from training convex hull **in descriptor feature space** | Calculated |
+### 3.1 Input: Raw Data (Parquet)
+*Source*: Verified Hugging Face datasets.
+*Structure*: Flexible, depends on source. Key columns expected: `composition`, `formation_energy`, `mixing_enthalpy`. **Schema validation ensures presence of these columns.**
 
-**Note on `distance_to_hull`**: This metric is calculated in the space of the compositional descriptors (radius, VEC, etc.), not in thermodynamic space. It represents the geometric distance of a new composition from the training data distribution in feature space.
+### 3.2 Intermediate: Processed HEA (CSV)
+*File*: `data/processed/heas_train.csv`, `holdout_known.csv`, `true_novel.csv`
+*Columns*:
+*   `composition_id`: Unique hash (SHA256 of sorted elemental string).
+*   `formula`: Human-readable formula (e.g., `CoCrFeMnNi`).
+*   `elements`: JSON list of elements.
+*   `formation_energy`: Float (Target).
+*   `mixing_enthalpy`: Float (Target).
 
-### 2.3. Predictions Output
-*Output of `evaluate.py`.*
+### 3.3 Feature-Engineered Data (CSV)
+*File*: `data/processed/heas_train_features.csv` (and equivalents for test sets)
+*Columns*:
+*   `composition_id`: PK.
+*   `radius_mean`, `radius_var`: Float.
+*   `electroneg_mean`, `electroneg_var`: Float.
+*   `vec_mean`, `vec_var`: Float.
+*   `melting_mean`, `melting_var`: Float.
+*   `target`: Float (Formation Energy).
+*   **Streaming Constraint**: Data is processed in chunks to respect the 7GB RAM limit.
 
-| Column Name | Type | Description |
-| :--- | :--- | :--- |
-| `composition_id` | String | Unique hash |
-| `composition` | String | Composition string |
-| `target_energy` | Float | Ground truth (if available, else `NaN`) |
-| `pred_energy` | Float | Predicted formation energy |
-| `pred_std` | Float | Ensemble standard deviation (uncertainty metric) |
-| `distance_to_hull` | Float | Distance from training convex hull (in descriptor space) |
-| `is_novel` | Boolean | True if "True Novel" set |
+### 3.4 Output: Predictions & Metrics (CSV)
+*File*: `data/processed/predictions_novel.csv`
+*Columns*:
+*   `composition_id`.
+*   `predicted_energy`: Float.
+*   `uncertainty_variance`: Float.
+*   `hull_distance`: Float (Mahalanobis distance).
+*   `rank`: Integer (1-100).
 
-## 3. Data Flow
+*File*: `data/processed/metrics_summary.csv`
+*Columns*:
+*   `metric_name`: String (e.g., `train_r2`, `holdout_r2`, `spearman_rho`).
+*   `value`: Float.
+*   `p_value`: Float (if applicable).
+*   `description`: String.
 
-1. **Ingestion**: Load raw data -> Filter `num_elements >= 5` -> Split into `Train` ([deferred]), `Holdout` ([deferred]).
-2.  **Novel Generation**: Enumerate random 5-element combos -> Check against `Train` + `Holdout` (and `hmao/all_apis_for_multiapi` index) -> Save as `True Novel`.
-3.  **Feature Engineering**: Apply `pymatgen` calculations to all three sets.
-4.  **Training**: Fit RF/GB on `Train`.
-5.  **Evaluation**: Predict on `Holdout` (calculate error) and `True Novel` (calculate uncertainty).
-6.  **Report**: Aggregate metrics, run t-tests, Spearman correlations.
+### 3.5 Split Metadata (CSV)
+*File*: `data/processed/split_metadata.csv`
+*Columns*:
+*   `split_name`: String (e.g., `train`, `holdout`, `novel`).
+*   `row_count`: Integer.
+*   `checksum`: String (SHA256).
+*   `validation_status`: String (e.g., `passed`, `failed`).
 
-## 4. Constraints & Validation
+## 4. Constraints & Rules
 
--   **Clamping**: All variance features clamped to minimum $1e-6$ to prevent division by zero.
--   **Uniqueness**: `composition_id` must be unique across all sets.
--   **Completeness**: No `NaN` in target variables for training/holdout sets.
--   **Consistency**: `distance_to_hull` calculated relative to the `Train` set convex hull in descriptor space.
--   **Novelty Definition**: "True Novel" is defined as "absent from `hmao/all_apis_for_multiapi`", not "absent from physical reality".
+*   **Clamping**: `radius_var`, `electroneg_var`, etc., must be $\ge 1e-6$.
+*   **Uniqueness**: `composition_id` must be unique within each file.
+*   **Missing Data**: Rows with missing `formation_energy` are dropped during ingestion.
+*   **Precision**: All floats stored with 6 decimal places.
+*   **Streaming**: Ingestion is limited to a scalable total dataset size, processed in 1000-row chunks.
+*   **Stability Filter**: "True Novel" candidates must have predicted formation energy < 0.1 eV/atom.

@@ -1,36 +1,39 @@
 # Implementation Plan: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
 
-**Branch**: `001-eva-predictive-power-hea` | **Date**: 2026-07-09 | **Spec**: `specs/001-evaluating-the-predictive-power-of-machi/spec.md`
+**Branch**: `001-eva-predictive-power-hea` | **Date**: 2026-08-01 | **Spec**: `specs/001-evaluating-the-predictive-power-of-machi/spec.md`
+**Input**: Feature specification from `/specs/001-evaluating-the-predictive-power-of-machi/spec.md`
 
 ## Summary
 
-This feature implements a computational pipeline to evaluate the extrapolative capability of machine learning models (Random Forest, Gradient Boosting) in predicting thermodynamic properties (formation energy, mixing enthalpy) for High-Entropy Alloys (HEAs). The approach involves ingesting data from the verified open proxy `hmao/all_apis_for_multiapi` (representing AFLOW/Materials Project), generating "Hold-out Known" and "True Novel" test sets, calculating compositional descriptors via `pymatgen`, training baseline models, and rigorously analyzing performance degradation and uncertainty calibration in unexplored chemical spaces.
+This project evaluates the extrapolative capability of descriptor-based Machine Learning (Random Forest, Gradient Boosting) for High-Entropy Alloys (HEAs). The technical approach involves ingesting thermodynamic data from verified Hugging Face sources (AFLOW, API-derived datasets), engineering compositional descriptors (atomic radius, electronegativity, VEC, melting point) using `pymatgen`, and training models under strict CPU constraints. The core innovation is the separation of test sets into "Hold-out Known" (for error measurement) and "True Novel" (for uncertainty calibration), addressing the research question of whether standard descriptors can reliably identify novel compositions in unexplored chemical spaces. **Crucially, the "True Novel" set is filtered for thermodynamic stability to ensure physical plausibility.**
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pymatgen`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `datasets` (Hugging Face), `matplotlib`, `seaborn`
-**Storage**: Local CSV/Parquet files (`data/`), no external database.
-**Testing**: `pytest` (unit tests for descriptor calc, integration tests for pipeline flow).
-**Target Platform**: Linux (GitHub Actions free-tier: 2 vCPU, 7GB RAM).
-**Project Type**: Data Science / Computational Materials Science Pipeline.
-**Performance Goals**: Complete full pipeline (ingestion -> training -> evaluation) within 6 hours; RAM usage < 7 GB.
-**Constraints**: CPU-only execution for training; no GPU dependencies; strict adherence to open data sources only.
-**Scale/Scope**: Dataset size depends on API availability (estimated < 50k rows for 5+ element systems); models trained on CPU.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pymatgen` (v2024+), `scikit-learn` (v1.5+), `pandas`, `numpy`, `datasets` (Hugging Face), `scipy`, `statsmodels`  
+**Storage**: Local CSV/Parquet files under `data/processed/` and `data/models/`  
+**Testing**: `pytest` with `pytest-cov`  
+**Target Platform**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM)  
+**Project Type**: Computational Research Pipeline  
+**Performance Goals**: Complete end-to-end pipeline (ingestion to report) within 6 hours; RAM usage < 7 GB.  
+**Constraints**: No GPU access for training; must use streaming or sampling for large datasets; strict reproducibility (random seeds).  
+**Scale/Scope**: Ingest a substantial corpus of known HEA entries, ranging from thousands to tens of thousands. (estimated from source); generate ~1k Hold-out and ~1k True Novel candidates. **Streaming chunk size: A moderate batch size is selected to balance latency and throughput.; Max row limit: a large, scalable threshold sufficient for comprehensive dataset analysis..**
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Action |
-|-----------|--------|---------------------|
-| **I. Reproducibility** | PASS | Random seeds pinned in `code/`; `requirements.txt` locks versions; data fetched from canonical HF URL (`hmao/all_apis_for_multiapi`). |
-| **II. Verified Accuracy** | PASS | All dataset URLs cited in `research.md` are from the verified list; Reference-Validator Agent run in Phase 0; no invented citations. |
-| **III. Data Hygiene** | PASS | Raw data checksums recorded; derivations saved as new files (`heas_train.csv`, `holdout_known.csv`, etc.). |
-| **IV. Single Source of Truth** | PASS | All statistics in `paper/` will be generated via `code/` scripts, not hand-typed. |
-| **V. Versioning Discipline** | PASS | Artifacts will carry content hashes; `state/` updated on changes. |
-| **VI. Extrapolation Integrity** | PASS | Plan explicitly separates "Hold-out Known" (error measurement) from "True Novel" (uncertainty calibration); uncertainty metrics (variance) mandatory for novel claims. |
-| **VII. Descriptor-Traceability** | PASS | All descriptors (radius, electronegativity, VEC, melting point) calculated strictly via `pymatgen` with versioned constants. |
+| Principle | Status | Action Required |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/config.py`; `requirements.txt` pins versions. |
+| **II. Verified Accuracy** | **PASS** | All dataset URLs sourced from the "# Verified datasets" block; no external URLs invented. |
+| **III. Data Hygiene** | **PASS** | Checksums recorded in `state/...yaml`; raw data preserved in `data/raw/`. |
+| **IV. Single Source of Truth** | **PASS** | All metrics in `paper/` derived from `data/processed/metrics_summary.csv`. |
+| **V. Versioning Discipline** | **PASS** | Content hashes tracked for all artifacts in `data/` and `code/`. |
+| **VI. Extrapolation Integrity** | **PASS** | Plan explicitly separates "Hold-out Known" (error) and "True Novel" (uncertainty) sets. **Uncertainty metrics (variance + Mahalanobis distance + Conformal Prediction intervals) are explicitly mapped to this principle.** |
+| **VII. Descriptor-Traceability** | **PASS** | All descriptors (radius, electronegativity, VEC, melting point) calculated via `pymatgen` with versioned constants. |
 
 ## Project Structure
 
@@ -43,79 +46,63 @@ specs/001-evaluating-the-predictive-power-of-machi/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+│   ├── hea_dataset.schema.yaml
+│   ├── heas_train.schema.yaml
+│   ├── output_schema.schema.yaml
+│   ├── prediction_output.schema.yaml
+│   └── split_metadata.schema.yaml  # NEW: Schema for split validation
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-145-evaluating-the-predictive-power-of-machi/
-├── code/
-│   ├── __init__.py
-│   ├── config.py              # Hyperparameters, seeds, paths
-│   ├── data_ingestion.py      # FR-001, FR-002: API/DF loading, filtering, splitting
-│   ├── feature_engineering.py # FR-003: pymatgen descriptor calculation
-│   ├── train_models.py        # FR-004: RF/GB training, 5-fold CV
-│   ├── evaluate.py            # FR-005, FR-006, FR-007: Extrapolation, t-test, Spearman
-│   └── report.py              # FR-008: Final report generation
-├── data/
-│   ├── raw/                   # Downloaded raw data (if any)
-│   ├── processed/             # heas_train.csv, holdout_known.csv, true_novel.csv
-│   └── models/                # Trained .pkl artifacts
-├── tests/
-│   ├── unit/
-│   │   ├── test_descriptors.py
-│   │   └── test_ingestion.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── README.md
+code/
+├── __init__.py
+├── config.py            # Seeds, paths, hyperparameters
+├── data_ingestion.py    # FR-001, FR-002: Download and filter HEA data
+├── descriptor_calc.py   # FR-003: Calculate pymatgen descriptors
+├── train_model.py       # FR-004: Train RF/GB models with 5-fold CV
+├── evaluate.py          # FR-005, FR-006, FR-007: Extrapolation & Uncertainty
+├── report_gen.py        # FR-008: Generate final CSV and stats
+├── validate_splits.py   # FR-002: Verify no overlap between sets
+└── utils.py             # Helpers (clamping, hashing)
+
+data/
+├── raw/                 # Downloaded parquet/jsonl (immutable)
+│   ├── aflow_thermalcond.parquet
+│   └── api_thermal.parquet
+├── processed/           # Cleaned, feature-engineered data
+│   ├── heas_train.csv
+│   ├── holdout_known.csv
+│   ├── true_novel.csv
+│   └── metrics_summary.csv
+└── models/              # Pickle artifacts
+    ├── rf_model.pkl
+    └── gb_model.pkl
+
+tests/
+├── __init__.py
+├── unit/
+│   ├── test_descriptors.py
+│   └── test_data_split.py
+└── integration/
+    └── test_pipeline.py
+
+specs/001-evaluating-the-predictive-power-of-machi/
+└── contracts/
+    ├── hea_dataset.schema.yaml
+    └── output_schema.schema.yaml
 ```
 
-**Structure Decision**: Single-project structure chosen. The workflow is linear (Ingest -> Features -> Train -> Evaluate -> Report), making a monolithic `code/` directory with modular scripts more maintainable than a microservices architecture. This aligns with the CPU-bound, batch-processing nature of the task.
+**Structure Decision**: Single project structure selected. The pipeline is linear (Ingest -> Feature Eng -> Train -> Evaluate -> Report), making a monolithic `code/` directory with modular scripts the most maintainable approach for a research pipeline. `tests/` is separated to ensure unit tests for descriptor calculation and data splitting logic can run without downloading data.
 
-## Phase Plan
+## Complexity Tracking
 
-### Phase 0: Research & Data Strategy
-- **Goal**: Identify and verify open HEA datasets containing 5+ element systems with formation energy/mixing enthalpy.
-- **Action**: 
-  1. Scan verified dataset list.
-  2. **Reference-Validator Step**: Run the Reference-Validator Agent on `research.md` citations to ensure Constitution Principle II compliance before proceeding.
-  3. Confirm `hmao/all_apis_for_multiapi` contains required columns.
-  4. Explicitly exclude `lavita/ChatDoctor-HealthCareMagic-100k` (false positive).
-- **Deliverable**: `research.md`.
-
-### Phase 1: Data Model & Contracts
-- **Goal**: Define schema for training data, test sets, and model outputs.
-- **Action**: Create YAML contracts for `heas_train.csv`, `holdout_known.csv`, `true_novel.csv`, and `predictions.csv`.
-- **Deliverable**: `data-model.md`, `quickstart.md`, `contracts/hea_dataset.schema.yaml`, `contracts/prediction_output.schema.yaml`.
-
-### Phase 2: Implementation (Code Generation)
-- **Goal**: Generate Python scripts for ingestion, feature engineering, training, and evaluation.
-- **Action**: Implement FR-001 through FR-008. Ensure `pymatgen` usage and CPU-tractability.
-- **Deliverable**: `code/` directory.
-
-### Phase 3: Execution & Validation
-- **Goal**: Run pipeline on GitHub Actions.
-- **Action**: Execute `setup-plan.sh` -> `run_pipeline.sh`. Validate outputs against `contracts/`.
-- **Deliverable**: `data/` artifacts, `report.csv`, `paper/` draft.
-
-## Compute Feasibility Strategy
-
-- **CPU-First**: All models (Random Forest, Gradient Boosting) are CPU-tractable. We will use `scikit-learn` default settings optimized for memory (e.g., limiting `max_depth` if necessary).
-- **Data Streaming**: If the source dataset exceeds 7GB RAM, `datasets.load_dataset(..., streaming=True)` will be used to iterate and aggregate statistics without loading the full dataset into memory.
-- **No GPU Required**: The spec explicitly targets CPU resources. No CUDA escape hatch is needed for this feature as the methods are classical ML.
-
-## Data Availability Strategy
-
-- **Primary Source**: We will use the **`hmao/all_apis_for_multiapi`** dataset from HuggingFace. This dataset is the verified open proxy for AFLOW and Materials Project repositories, containing the required thermodynamic targets (`formation_energy_per_atom`, `mixing_enthalpy`) and elemental compositions.
-- **Constraint**: Direct API calls to Materials Project/AFLOW (FR-001) are bypassed in the CI environment due to the lack of API keys (Constitution Principle I). The `hmao/all_apis_for_multiapi` dataset is the *only* valid source for FR-001 compliance in this CI context.
-- **Excluded Datasets**: 
-  - `lavita/ChatDoctor-HealthCareMagic-100k`: Explicitly excluded (false positive "HEA" label, healthcare data).
-  - `foundry-ml/dataset_thermalcond_aflow`: Excluded (thermal conductivity, not thermodynamic stability).
-- **Fallback**: If `hmao/all_apis_for_multiapi` lacks sufficient 5+ element systems, the study will proceed with the available data, explicitly reporting the statistical power limitation (underpowered for small effects) rather than switching to unverified proxies.
-
-## FR-001 & FR-002 Compliance Note
-
-- **FR-001 (Data Retrieval)**: Satisfied by loading `hmao/all_apis_for_multiapi`, which aggregates data from the required repositories (AFLOW/MP).
-- **FR-002 (Novelty Verification)**: Satisfied by querying the `hmao/all_apis_for_multiapi` composition index to verify "True Novel" compositions are absent from this open database. The "Source API" is defined as this verified dataset for CI reproducibility.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **Separation of Hold-out vs. True Novel** | Required to distinguish between "unseen in training" (interpolation error) and "unmeasured in nature" (extrapolation/uncertainty). | A single test set would conflate these distinct research questions, failing to address the specific hypothesis about novel composition identification. |
+| **Streaming Data Load** | Source datasets (AFLOW) may exceed 7GB RAM if fully loaded. | Loading full datasets into memory risks OOM on GitHub Actions; streaming ensures CPU-first feasibility. **Chunk size: 1000 rows.** |
+| **Convex Hull Distance Calculation** | Required for "True Novel" uncertainty calibration (FR-007). | Simple variance is insufficient for chemical space extrapolation; distance from training hull provides a geometric proxy for reliability. **Now uses Mahalanobis distance with StandardScaler normalization.** |
+| **Thermodynamic Stability Filter** | Required to ensure "True Novel" set contains physically plausible, stable phases. | A set of random compositions may be thermodynamically unstable, rendering uncertainty calibration meaningless for the goal of identifying *stable* novel HEAs. |
+| **Live API Verification** | Required to satisfy FR-001 and FR-002 (verify absence from source API). | Checking only against local dumps is insufficient; a live API check is needed to confirm true novelty. |

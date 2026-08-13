@@ -1,62 +1,68 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "HEA Dataset Schema"
-description: "Schema for the feature-engineered HEA datasets (train, holdout, novel)"
-type: "object"
+description: "Schema for processed HEA datasets (train, holdout, novel)"
+type: object
 properties:
   composition_id:
-    type: "string"
-    description: "Unique hash of the composition string"
-  composition:
-    type: "string"
-    description: "Original composition string (e.g., 'Fe0.2Co0.2...')"
-  num_elements:
-    type: "integer"
-    description: "Number of unique elements in the composition"
-    minimum: 5
+    type: string
+    description: "Unique SHA256 hash of the sorted composition string"
+  formula:
+    type: string
+    description: "Human-readable chemical formula (e.g., CoCrFeMnNi)"
+  elements:
+    type: array
+    items:
+      type: string
+    description: "List of constituent elements"
   formation_energy:
-    type: "number"
-    description: "Formation energy per atom (eV/atom)"
+    type: number
+    description: "Formation energy in eV/atom"
+    minimum: -100
+    maximum: 100
   mixing_enthalpy:
-    type: ["number", "null"]
-    description: "Mixing enthalpy (eV/atom), may be null if not in source"
-  mean_atomic_radius:
-    type: "number"
-    description: "Weighted mean atomic radius (Angstrom)"
-  var_atomic_radius:
-    type: "number"
-    description: "Weighted variance atomic radius (Angstrom^2)"
-  mean_electronegativity:
-    type: "number"
-    description: "Weighted mean electronegativity (Pauling)"
-  var_electronegativity:
-    type: "number"
-    description: "Weighted variance electronegativity (Pauling^2)"
-  mean_VEC:
-    type: "number"
-    description: "Weighted mean Valence Electron Count"
-  var_VEC:
-    type: "number"
-    description: "Weighted variance Valence Electron Count"
-  mean_melting_point:
-    type: "number"
+    type: number
+    description: "Mixing enthalpy in kJ/mol"
+    minimum: -500
+    maximum: 500
+  radius_mean:
+    type: number
+    description: "Weighted mean atomic radius"
+  radius_var:
+    type: number
+    description: "Weighted variance of atomic radius (clamped >= 1e-6)"
+    minimum: 0.000001
+  electroneg_mean:
+    type: number
+    description: "Weighted mean electronegativity"
+  electroneg_var:
+    type: number
+    description: "Weighted variance of electronegativity (clamped >= 1e-6)"
+    minimum: 0.000001
+  vec_mean:
+    type: number
+    description: "Weighted mean valence electron count"
+  vec_var:
+    type: number
+    description: "Weighted variance of VEC (clamped >= 1e-6)"
+    minimum: 0.000001
+  melting_mean:
+    type: number
     description: "Weighted mean melting point (K)"
-  var_melting_point:
-    type: "number"
-    description: "Weighted variance melting point (K^2)"
-  distance_to_hull:
-    type: "number"
-    description: "Distance from the training convex hull in descriptor feature space (Angstrom/eV units)"
+  melting_var:
+    type: number
+    description: "Weighted variance of melting point (clamped >= 1e-6)"
+    minimum: 0.000001
 required:
   - composition_id
-  - composition
-  - num_elements
+  - formula
+  - elements
   - formation_energy
-  - mean_atomic_radius
-  - var_atomic_radius
-  - mean_electronegativity
-  - var_electronegativity
-  - mean_VEC
-  - var_VEC
-  - mean_melting_point
-  - var_melting_point
+  - radius_mean
+  - radius_var
+  - electroneg_mean
+  - electroneg_var
+  - vec_mean
+  - vec_var
+  - melting_mean
+  - melting_var
 additionalProperties: false

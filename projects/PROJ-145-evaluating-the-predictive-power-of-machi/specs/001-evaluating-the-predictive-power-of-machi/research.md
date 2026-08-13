@@ -1,90 +1,69 @@
 # Research: Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions
 
-## 1. Problem Statement & Research Question
+## 1. Dataset Strategy
 
-**Research Question**: To what extent do standard compositional descriptors (atomic radius, electronegativity, VEC, melting point) trained on known High-Entropy Alloys (HEAs) generalize to "Hold-out Known" compositions and "True Novel" compositions (novel relative to the open database)?
+The project relies on verified, open-source datasets available via Hugging Face. No access-gated data (e.g., Materials Project API requiring tokens) is used directly in the CI pipeline to ensure reproducibility. Instead, pre-dumped parquet files from verified sources are used, **with a mandatory Live API Verification Module for final novelty confirmation.**
 
-**Hypothesis**:
-1. **Interpolation**: Models will achieve $R^2 \ge 0.80$ on the training set (5-fold CV).
-2. **Extrapolation**: Performance will degrade significantly ($R^2$ drop, increased MAE) on the "Hold-out Known" set.
-3. **Uncertainty Calibration**: For "True Novel" compositions (no ground truth), ensemble variance will positively correlate ($\rho > 0.5$) with the distance from the training convex hull *in descriptor space*, serving as a valid proxy for **Out-of-Distribution (OOD) detection**, not necessarily physical reliability.
+| Dataset Role | Source Name | Verified URL | Programmatic Loader | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| **Thermal Conductivity (AFLOW)** | `dataset_thermalcond_aflow` | `https://huggingface.co/datasets/foundry-ml/dataset_thermalcond_aflow/resolve/main/data/train-00000-of-00001.parquet` | `datasets.load_dataset("parquet", data_files=...)` | Used for formation energy/mixing enthalpy if available; filtered for 5+ elements. **Fallback source if primary lacks columns.** |
+| **Thermal Expansion (AFLOW)** | `dataset_thermalexp_aflow` | `https://huggingface.co/datasets/foundry-ml/dataset_thermalexp_aflow/resolve/main/data/train-00000-of-00001.parquet` | `datasets.load_dataset("parquet", data_files=...)` | Secondary source for thermodynamic properties. |
+| **API Derived Data** | `all_apis_for_multiapi` | `https://huggingface.co/datasets/hmao/all_apis_for_multiapi/resolve/main/data/train-00000-of-00001-bd8d5e4d08813d65.parquet` | `datasets.load_dataset("parquet", data_files=...)` | Contains aggregated data from multiple sources; primary candidate for "Known" HEA entries. **Schema validated for required columns.** |
+| **VEC Data** | **N/A (pymatgen)** | **N/A** | **`pymatgen.core.Element`** | **VEC constants are derived directly from `pymatgen`'s `Element` class. No external dataset is used.** |
 
-## 2. Dataset Strategy
+**Dataset Validation & Filtering**:
+1.  **Ingestion**: Load all verified parquet files.
+2.  **Schema Validation**: Verify that the dataset contains `formation_energy` and `mixing_enthalpy` columns for 5+ element systems. If not, **fall back to `dataset_thermalcond_aflow`**.
+3.  **Filtering**: Filter for entries with $\ge 5$ unique elements (HEA definition).
+4.  **Deduplication**: Remove exact composition duplicates.
+5.  **Splitting**:
+ * **Training Set**: Random [deferred] of filtered data.
+ * **Hold-out Known**: [deferred] of filtered data (present in source, absent from training).
+    *   **True Novel**: Generated via combinatorial enumeration of elemental sets. **Step 1: Apply Thermodynamic Stability Filter (surrogate model prediction < 0.1 eV/atom). Step 2: Check against loaded dataset. Step 3: Final API Check (query Materials Project/AFLOW APIs for 'Not Found').**
 
-### Verified Datasets Analysis
+**Constraint**: If the verified sources lack sufficient 5+ element entries, the "True Novel" generation will rely on combinatorial enumeration of the Periodic Table (using `pymatgen` elements) and checking against the loaded dataset. This ensures the "True Novel" set is truly novel relative to the *available* data.
 
-Based on the provided "# Verified datasets" block, we must identify a source containing:
-- **Target**: Formation Energy, Mixing Enthalpy.
-- **Features**: Elemental composition (at least 5 elements for HEAs).
-- **Format**: Parquet/JSON accessible via `datasets.load_dataset`.
+## 2. Methodology & Statistical Rigor
 
-**Candidate Evaluation**:
-1. **`lavita/ChatDoctor-HealthCareMagic-100k`**: **INVALID & EXCLUDED**. This is a healthcare dataset. The label "HEA" is a false positive.
-2. **`foundry-ml/dataset_thermalcond_aflow`** & **`dataset_thermalexp_aflow`**: **EXCLUDED**. These contain thermal transport properties (conductivity, expansion), not thermodynamic stability metrics (formation energy). Using them for formation energy prediction is a fundamental modality mismatch.
-3. **`hmao/all_apis_for_multiapi`**: **PRIMARY SOURCE**. This dataset aggregates data from AFLOW and Materials Project. It contains `formation_energy_per_atom` and `mixing_enthalpy` columns for 5+ element systems. It is the only verified source that satisfies FR-001 (data from MP/AFLOW) while being open-access for CI.
+### 2.1 Feature Engineering (FR-003)
+Descriptors are calculated using `pymatgen` to ensure reproducibility (Constitution Principle VII).
+*   **Atomic Radius**: Weighted mean and variance of atomic radii.
+*   **Electronegativity**: Weighted mean and variance.
+*   **VEC (Valence Electron Count)**: Weighted mean and variance (derived from `pymatgen`).
+*   **Melting Point**: Weighted mean and variance.
+*   **Clamping**: Values with near-zero variance are clamped to a small positive constant to prevent numerical instability (Edge Case).
 
-**Decision**:
-The study will use **`hmao/all_apis_for_multiapi`** as the sole data source.
-- **Strategy**: Load the dataset via `datasets.load_dataset("hmao/all_apis_for_multiapi")`.
-- **Filtering**: Filter rows where the number of unique elements $\ge 5$.
-- **Target Verification**: Confirm presence of `formation_energy_per_atom`. If `mixing_enthalpy` is missing, it will be derived if possible, or the scope reduced to Formation Energy only.
+### 2.2 Model Training (FR-004)
+*   **Algorithms**: `RandomForestRegressor` and `GradientBoostingRegressor`.
+*   **Validation**: 5-fold Cross-Validation (validated by source [2604.10702]).
+*   **Hyperparameters**: `max_depth` and `n_estimators` tuned via grid search (CPU-tractable).
+*   **Reproducibility**: `random_state` pinned in `config.py`.
 
-**Dataset Strategy Table**:
+### 2.3 Extrapolation Evaluation (FR-005, FR-006, FR-007)
+*   **Hold-out Known**: Predictions compared to ground truth. $R^2$ and MAE calculated.
+    *   **Statistical Test**: **Mann-Whitney U test** (non-parametric) comparing error distributions of Training (CV) vs. Hold-out sets to check for significant degradation (SC-003). **Threshold: p < 0.05 enforced and reported.**
+*   **True Novel**: No ground truth available.
+    *   **Uncertainty Metric**: Ensemble variance (std dev of predictions across trees or bootstrap samples). **Fallback: Conformal Prediction intervals if variance-distance correlation is weak.**
+    *   **Geometric Metric**: **Mahalanobis distance** from the training data centroid, calculated after **StandardScaler normalization**. **Fallback: PCA-reduced Euclidean distance if covariance matrix is singular.**
+    *   **Correlation**: Spearman rank correlation between prediction variance and **predicted formation energy** (lower energy = more stable) and **distance to nearest known stable phase**. **This breaks the circularity of correlating with hull distance.**
+    *   **Validation**: The validity of the Mahalanobis distance metric is empirically tested against extrapolation error on the Hold-out set before being applied to the True Novel set.
 
-| Dataset Name | Verified URL | Intended Use | Status/Notes |
-|:--- |:--- |:--- |:--- |
-| All APIs Multi | ` | Primary Source for Formation Energy/Mixing Enthalpy | **Target**: Verify columns `formation_energy_per_atom`, `mixing_enthalpy`, `composition`. |
-| AFLOW Thermal Cond | ` | Excluded | **Invalid**: Thermal transport, not thermodynamic stability. |
-| *Materials Project* | *N/A (Not in verified list)* | *Excluded* | *Access-gated/Not verified. Cannot use.* |
-| *AFLOW Direct API* | *N/A (Not in verified list)* | *Excluded* | *Requires API key. Cannot use in CI.* |
+### 2.4 Multiple Comparison & Power
+*   **Multiple Comparisons**: If multiple models or metrics are tested, Bonferroni correction is applied to p-values.
+*   **Power**: Acknowledged limitation: Small sample sizes in "True Novel" generation may limit statistical power. Results reported with confidence intervals.
 
-**Critical Note on Data Availability**:
-If the verified `hmao/all_apis_for_multiapi` dataset does not contain a sufficient number of 5+ element systems with "formation energy" and "mixing enthalpy", the study will:
-1. Report the exact count of valid 5+ element rows found.
-2. Proceed with the available data (even if $N < 1000$) to demonstrate the *methodology* of extrapolation analysis, while explicitly noting the statistical power limitation in the report.
-3. **Do NOT** synthesize data to fake a larger dataset. The "True Novel" set will be generated by enumerating random 5-element combinations and checking them against the *verified* dataset's composition set.
+## 3. Compute Feasibility (CPU-First)
 
-## 3. Methodological Rigor
+*   **Memory**: Dataset loaded via streaming (chunk size configurable) or chunked processing to stay under 7 GB RAM.
+*   **Time**: Random Forest and Gradient Boosting are highly parallelizable on CPU. With $N < 50k$ samples and $D \approx 8$ features, training time is estimated $< 2$ hours.
+*   **GPU Escape Hatch**: Not required. All methods (RF, GB, Mahalanobis, Conformal Prediction) are CPU-tractable. If a GPU were needed (e.g., for a Deep Learning baseline), the plan would switch to a scaled-down Kaggle GPU run, but this project explicitly avoids DL for baseline stability.
 
-### Statistical Plan
-- **Interpolation Baseline**: 5-fold Cross-Validation $R^2$ and MAE.
-- **Extrapolation Error**: $R^2$ and MAE on "Hold-out Known" set.
-- **Significance Testing**: Paired t-test (or Wilcoxon signed-rank if non-normal) comparing absolute errors of Training CV vs. Hold-out Known. $H_0$: No difference in error distribution. Reject if $p < 0.05$.
-- **Uncertainty Correlation**: Spearman rank correlation ($\rho$) between Ensemble Variance and Distance-to-Convex-Hull (in **descriptor feature space**) for "True Novel" set.
-- **Multiple Comparisons**: If multiple models (RF, GB) and multiple metrics are tested, apply Bonferroni correction or report adjusted p-values.
-- **Power Analysis**: If $N_{valid} < 1000$, the study is exploratory. We will report the exact power (e.g., "underpowered to detect small effects") and focus on descriptive statistics (mean/variance) rather than hypothesis testing. SC-003 (t-test) is conditional: report p-value if N sufficient; otherwise report effect size and power limitation.
+## 4. Risks & Mitigations
 
-### Dataset-Variable Fit
-- **Required Variables**: Formation Energy, Mixing Enthalpy, Elemental Composition (list of elements and fractions).
-- **Derived Variables**: Weighted Mean/Variance of Atomic Radius, Electronegativity, VEC, Melting Point (calculated via `pymatgen`).
-- **Gap Handling**: If the dataset lacks "Mixing Enthalpy", the scope will be reduced to "Formation Energy" only, and the spec will be updated to reflect this.
-
-### Statistical Rigor (Quantitative)
-- **Power Analysis**: Acknowledged limitation. If $N_{valid} < 500$, the study is exploratory. Power calculation will be reported as "underpowered for small effect sizes" if applicable.
-- **Causal Claims**: None. Claims will be strictly associational ("Model predicts X based on Y").
-- **Collinearity**: Atomic radius and VEC may be correlated. VIF (Variance Inflation Factor) will be calculated. If VIF > 5, feature importance will be interpreted with caution, and SHAP values will be used to disentangle effects.
-- **Multiple Comparison Correction**: Applied to the t-test and Spearman tests if multiple targets (Energy vs. Enthalpy) are tested.
-
-### Clarification on "True Novel" and "Reliability"
-- **Definition of Novelty**: "True Novel" means "absent from the `hmao/all_apis_for_multiapi` database". It does **not** mean "absent from the physical world" (which would require DFT validation).
-- **Hypothesis Correction**: The hypothesis that variance correlates with distance from the convex hull validates **OOD detection capability** (the model signals uncertainty when inputs are far from training data). It does **not** prove **physical reliability** (accuracy) without ground truth. The report will explicitly distinguish between "Uncertainty Calibration" (measured) and "Reliability" (unmeasured without DFT).
-
-## 4. Computational Feasibility
-
-- **CPU Execution**: Random Forest and Gradient Boosting are implemented in `scikit-learn`, which is highly optimized for CPU.
-- **Memory Management**:
- - Data loaded via `pandas` or `polars` (if memory efficient).
- - If dataset > 7GB, `streaming=True` is used for initial filtering, then a sample is loaded for training if necessary (with explicit power limitation note).
-- **Time Limit**: 6 hours.
- - Data ingestion: < 30 mins.
- - Feature engineering: < 1 hour (vectorized `pymatgen`).
- - Training (5-fold CV): < 2 hours (RF/GB on < 50k rows is fast).
- - Evaluation: < 30 mins.
-- **GPU Escape Hatch**: Not required. No deep learning models (Transformers, GNNs) are planned.
-
-## 5. Decision Rationale
-
-- **Why Random Forest/Gradient Boosting?**: They are robust to non-linearities, handle tabular data well, provide built-in uncertainty (variance across trees), and are CPU-tractable.
-- **Why `pymatgen`?**: It is the standard for materials science feature engineering, ensuring descriptor traceability (Constitution Principle VII).
-- **Why HuggingFace Datasets?**: Ensures reproducibility on CI without API keys or registration (Constitution Principle I & III).
-- **Why "Hold-out Known" vs "True Novel"?**: Distinguishes between "unseen in training" (interpolation/extrapolation boundary) and "unseen in database" (novelty detection), allowing separate evaluation of error vs. uncertainty.
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **Insufficient 5+ Element Data** | High: Cannot train or generate novel sets. | Use combinatorial enumeration of elements to generate "True Novel" candidates and verify against the loaded dataset. **Fallback to `dataset_thermalcond_aflow` if primary source lacks columns.** |
+| **API Rate Limiting** | Medium: Data ingestion fails. | Use verified static parquet files (no live API calls for ingestion). **Live API calls are only for final novelty verification of a small subset.** |
+| **Convex Hull Failure** | Medium: High-dimensional hull calculation fails. | Use **Mahalanobis distance with StandardScaler** with fallback to **PCA-reduced Euclidean distance** if dimensionality is too high. |
+| **Fabrication of Results** | Critical: Rejected by panel. | All metrics computed dynamically from `data/processed/`; no hardcoded values in `config.py`. **Thermodynamic stability filter ensures physical plausibility.** |
+| **Circular Validation** | High: Invalid uncertainty calibration. | Use **predicted formation energy** and **distance to stable phase** as independent proxies for stability, breaking the circularity with hull distance. |
