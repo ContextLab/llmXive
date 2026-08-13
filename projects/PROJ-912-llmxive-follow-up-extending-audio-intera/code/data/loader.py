@@ -1,279 +1,392 @@
+"""
+Audio data loading with filtering, streaming, and integrity verification.
+"""
 import os
 import json
 import hashlib
 import logging
+import yaml
 from typing import Dict, List, Set, Optional, Iterator, Any, Tuple
 from pathlib import Path
-import yaml
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 from datasets import load_dataset
-
 from config import get_path_config, get_dataset_config
-from utils.logger import get_logger, DataLoadError
+from utils.logger import get_logger, LlmXiveError
 
-# Configure logging
 logger = get_logger(__name__)
 
-# Constants
-DATASET_NAME = "esc50"  # Using ESC-50 as the base dataset for audio cues
-DATASET_SPLIT = "train"
-STREAMING_BUFFER_SIZE = 1000  # Number of examples to buffer during streaming
+class DataIntegrityError(LlmXiveError):
+    """Raised when data integrity verification fails."""
+    pass
 
 def compute_file_checksum(file_path: Path) -> str:
-    """Compute SHA256 checksum of a file."""
+    """
+    Compute SHA-256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file to checksum.
+        
+    Returns:
+        Hex digest of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found for checksum: {file_path}")
+    
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
+    except IOError as e:
+        raise IOError(f"Failed to read file for checksum: {file_path}") from e
 
-def save_checksum_to_state(checksum: str, filename: str, state_dir: Path) -> None:
-    """Save checksum to state tracking file."""
-    state_dir.mkdir(parents=True, exist_ok=True)
-    state_file = state_dir / f"{filename}.checksum"
-    with open(state_file, "w") as f:
-        f.write(checksum)
-    logger.info(f"Saved checksum for {filename} to {state_file}")
-
-def verify_checksum(file_path: Path, state_dir: Path, filename: str) -> bool:
-    """Verify file checksum against stored value."""
-    if not state_dir.exists():
-        raise FileNotFoundError(f"State directory not found: {state_dir}")
+def save_checksum_to_state(file_path: Path, checksum: str, state_file: Optional[Path] = None) -> None:
+    """
+    Save a file checksum to the state manifest.
     
-    state_file = state_dir / f"{filename}.checksum"
+    Args:
+        file_path: Path to the file.
+        checksum: The computed checksum.
+        state_file: Path to the state manifest file. Defaults to state/checksums.json.
+    """
+    path_config = get_path_config()
+    if state_file is None:
+        state_file = path_config.state_dir / "checksums.json"
+    
+    # Ensure state directory exists
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing checksums or create new dict
+    if state_file.exists():
+        try:
+            with open(state_file, "r") as f:
+                checksums = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            checksums = {}
+    else:
+        checksums = {}
+    
+    # Update with new checksum
+    checksums[file_path.name] = {
+        "path": str(file_path),
+        "checksum": checksum,
+        "algorithm": "sha256"
+    }
+    
+    # Atomic write
+    temp_file = state_file.with_suffix(".tmp")
+    with open(temp_file, "w") as f:
+        json.dump(checksums, f, indent=2)
+    temp_file.replace(state_file)
+    logger.info(f"Saved checksum for {file_path.name} to {state_file}")
+
+def verify_checksum(file_path: Path, state_file: Optional[Path] = None) -> Tuple[bool, str]:
+    """
+    Verify a file's checksum against the state manifest.
+    
+    Args:
+        file_path: Path to the file to verify.
+        state_file: Path to the state manifest file. Defaults to state/checksums.json.
+        
+    Returns:
+        Tuple of (is_valid, message).
+        
+    Raises:
+        DataIntegrityError: If the file is missing or checksum mismatch.
+    """
+    path_config = get_path_config()
+    if state_file is None:
+        state_file = path_config.state_dir / "checksums.json"
+    
+    if not file_path.exists():
+        msg = f"Data integrity check failed: File not found - {file_path}"
+        raise DataIntegrityError(msg)
+    
     if not state_file.exists():
-        logger.warning(f"No stored checksum found for {filename}")
-        return False
+        msg = f"Data integrity check failed: State manifest not found - {state_file}. Cannot verify checksum."
+        raise DataIntegrityError(msg)
     
-    with open(state_file, "r") as f:
-        stored_checksum = f.read().strip()
+    try:
+        with open(state_file, "r") as f:
+            checksums = json.load(f)
+    except (json.JSONDecodeError, IOError) as e:
+        msg = f"Data integrity check failed: Could not read state manifest - {e}"
+        raise DataIntegrityError(msg)
     
-    current_checksum = compute_file_checksum(file_path)
-    return current_checksum == stored_checksum
+    file_name = file_path.name
+    if file_name not in checksums:
+        msg = f"Data integrity check failed: No checksum record found for {file_name} in {state_file}"
+        raise DataIntegrityError(msg)
+    
+    expected_checksum = checksums[file_name]["checksum"]
+    actual_checksum = compute_file_checksum(file_path)
+    
+    if actual_checksum != expected_checksum:
+        msg = (
+            f"Data integrity check FAILED for {file_path}.\n"
+            f"  Expected checksum: {expected_checksum}\n"
+            f"  Actual checksum:   {actual_checksum}\n"
+            f"  File may be corrupted or modified."
+        )
+        raise DataIntegrityError(msg)
+    
+    return True, f"Data integrity verified for {file_name}"
 
-def load_class_config(config_path: Path) -> Dict[str, List[int]]:
-    """Load class configuration from YAML file."""
+def load_class_config(config_path: Path) -> List[str]:
+    """
+    Load a list of class names/IDs from a YAML config file.
+    
+    Args:
+        config_path: Path to the YAML config file.
+        
+    Returns:
+        List of class identifiers (strings or ints).
+        
+    Raises:
+        FileNotFoundError: If config file not found.
+        ValueError: If config format is invalid.
+    """
     if not config_path.exists():
         raise FileNotFoundError(f"Class config file not found: {config_path}")
     
-    with open(config_path, "r") as f:
-        config = yaml.safe_load(f)
+    try:
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        raise ValueError(f"Invalid YAML in class config {config_path}: {e}")
     
-    # Validate structure
-    if "subtle_classes" not in config or "control_classes" not in config:
-        raise ValueError(f"Invalid class config format in {config_path}")
-    
-    return {
-        "subtle_classes": config["subtle_classes"],
-        "control_classes": config["control_classes"]
-    }
+    if "subtle_classes" in config:
+        return config["subtle_classes"]
+    elif "control_classes" in config:
+        return config["control_classes"]
+    elif "classes" in config:
+        return config["classes"]
+    else:
+        raise ValueError(f"Invalid class config format in {config_path}: missing 'subtle_classes', 'control_classes', or 'classes' key")
 
 class FilteredAudioDataset:
     """
-    A streaming dataset wrapper that filters audio examples based on class IDs.
+    A dataset wrapper that filters audio samples based on class configuration.
+    Uses streaming to avoid loading full dataset into memory.
     """
     def __init__(
         self,
-        dataset_name: str,
-        split: str,
-        subtle_class_ids: Set[int],
-        control_class_ids: Set[int],
-        label_mapping: Dict[int, int],
-        buffer_size: int = STREAMING_BUFFER_SIZE
+        dataset_name: str = "esc50",
+        subtle_classes: Optional[List] = None,
+        control_classes: Optional[List] = None,
+        split: str = "train",
+        streaming: bool = True
     ):
         self.dataset_name = dataset_name
+        self.subtle_classes = set(subtle_classes) if subtle_classes else set()
+        self.control_classes = set(control_classes) if control_classes else set()
         self.split = split
-        self.subtle_class_ids = subtle_class_ids
-        self.control_class_ids = control_class_ids
-        self.label_mapping = label_mapping
-        self.buffer_size = buffer_size
+        self.streaming = streaming
         
-        # Load dataset in streaming mode
-        logger.info(f"Loading dataset {dataset_name} in streaming mode...")
-        self.dataset = load_dataset(
-            dataset_name,
-            split=split,
-            streaming=True
-        )
+        # Determine target classes
+        self.target_classes = self.subtle_classes | self.control_classes
         
-        # Validate that the dataset has the required features
-        features = self.dataset.features
-        if "audio" not in features:
-            raise DataLoadError(f"Dataset {dataset_name} missing 'audio' feature")
-        if "class" not in features:
-            raise DataLoadError(f"Dataset {dataset_name} missing 'class' feature")
+        if not self.target_classes:
+            raise ValueError("At least one of subtle_classes or control_classes must be provided.")
         
-        logger.info(f"Dataset loaded successfully. Features: {list(features.keys())}")
+        logger.info(f"FilteredAudioDataset initialized. Target classes: {len(self.target_classes)}")
+        logger.info(f"  Subtle classes: {len(self.subtle_classes)}")
+        logger.info(f"  Control classes: {len(self.control_classes)}")
 
     def __iter__(self) -> Iterator[Dict[str, Any]]:
-        """Iterate through dataset and yield filtered examples."""
-        for example in self.dataset:
-            class_id = example["class"]
+        """
+        Iterate over the dataset, filtering by class.
+        """
+        try:
+            ds = load_dataset(
+                self.dataset_name,
+                split=self.split,
+                streaming=self.streaming,
+                trust_remote_code=True
+            )
+        except Exception as e:
+            raise LlmXiveError(f"Failed to load dataset {self.dataset_name}: {e}") from e
+        
+        count = 0
+        filtered_count = 0
+        for item in ds:
+            count += 1
+            # ESC-50 uses 'label' as int, AudioSet might use 'class_label' or similar.
+            # We assume 'label' for now based on T020 schema.
+            item_class = item.get("label")
             
-            # Determine label: 1 for subtle, 0 for control
-            if class_id in self.subtle_class_ids:
-                label = 1
-            elif class_id in self.control_class_ids:
-                label = 0
-            else:
-                # Skip examples that don't match either category
-                continue
+            if item_class is None:
+                # Try alternative keys
+                item_class = item.get("class_label")
             
-            # Map class_id to a standardized label if needed
-            standardized_class_id = self.label_mapping.get(class_id, class_id)
+            if item_class in self.target_classes:
+                filtered_count += 1
+                yield item
             
-            # Extract audio path (if available) or use dataset index
-            # For streaming datasets, we might not have a direct file path
-            # We'll use a synthetic path based on dataset info
-            audio_path = f"{self.dataset_name}/{self.split}/{class_id}_{id(example)}"
-            
-            yield {
-                "audio_path": audio_path,
-                "class_id": standardized_class_id,
-                "label": label
-            }
+            # Optional: progress logging
+            if count % 1000 == 0:
+                logger.debug(f"Processed {count} items, yielded {filtered_count}")
 
 class FilteredDataLoader:
     """
-    A data loader that streams and filters audio data based on class configurations.
+    Data loader that streams filtered audio data and handles checksum verification.
     """
     def __init__(
         self,
-        subtle_config_path: Path,
-        control_config_path: Path,
-        output_path: Path,
-        state_dir: Optional[Path] = None
+        parquet_path: Optional[Path] = None,
+        subtle_config_path: Optional[Path] = None,
+        control_config_path: Optional[Path] = None,
+        verify_integrity: bool = True
     ):
+        self.parquet_path = parquet_path
         self.subtle_config_path = subtle_config_path
         self.control_config_path = control_config_path
-        self.output_path = output_path
-        self.state_dir = state_dir or Path("state")
+        self.verify_integrity = verify_integrity
         
-        # Ensure output directory exists
-        self.output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Load class configurations
-        logger.info("Loading class configurations...")
-        try:
-            subtle_config = load_class_config(self.subtle_config_path)
-            control_config = load_class_config(self.control_config_path)
-        except Exception as e:
-            raise DataLoadError(f"Failed to load class configurations: {e}")
-        
-        # Combine configurations
-        self.subtle_class_ids = set(subtle_config["subtle_classes"])
-        self.control_class_ids = set(control_config["control_classes"])
-        
-        logger.info(f"Loaded {len(self.subtle_class_ids)} subtle classes and {len(self.control_class_ids)} control classes")
-        
-        # Create label mapping (identity mapping for now)
-        all_class_ids = self.subtle_class_ids.union(self.control_class_ids)
-        self.label_mapping = {cid: cid for cid in all_class_ids}
-        
-        # Initialize dataset
-        self.dataset = FilteredAudioDataset(
-            dataset_name=DATASET_NAME,
-            split=DATASET_SPLIT,
-            subtle_class_ids=self.subtle_class_ids,
-            control_class_ids=self.control_class_ids,
-            label_mapping=self.label_mapping
-        )
+        self.path_config = get_path_config()
+        self.logger = get_logger(__name__)
 
-    def stream_and_save(self, max_examples: Optional[int] = None) -> Path:
+    def load_subtle_classes(self) -> List:
+        if not self.subtle_config_path:
+            self.subtle_config_path = self.path_config.processed_dir / "class_config_subtle.yaml"
+        return load_class_config(self.subtle_config_path)
+
+    def load_control_classes(self) -> List:
+        if not self.control_config_path:
+            self.control_config_path = self.path_config.processed_dir / "class_config_control.yaml"
+        return load_class_config(self.control_config_path)
+
+    def verify_data_integrity(self, file_path: Path) -> None:
         """
-        Stream filtered data and save to Parquet file.
+        Verify the integrity of a data file against the state manifest.
         
         Args:
-            max_examples: Maximum number of examples to process (None for unlimited)
+            file_path: Path to the data file to verify.
         
-        Returns:
-            Path to the saved Parquet file
+        Raises:
+            DataIntegrityError: If verification fails.
         """
-        logger.info(f"Starting data streaming to {self.output_path}")
-        
-        # Prepare data for Parquet
-        data_rows = []
-        example_count = 0
+        if not self.verify_integrity:
+            self.logger.info("Data integrity verification skipped.")
+            return
         
         try:
-            for example in self.dataset:
-                data_rows.append(example)
-                example_count += 1
-                
-                if max_examples and example_count >= max_examples:
-                    break
-                
-                # Log progress every 1000 examples
-                if example_count % 1000 == 0:
-                    logger.info(f"Processed {example_count} examples...")
+            is_valid, message = verify_checksum(file_path)
+            self.logger.info(f"Integrity check passed: {message}")
+            self._log_integrity_result(file_path, True, message)
+        except DataIntegrityError as e:
+            self.logger.error(f"Integrity check failed: {e}")
+            self._log_integrity_result(file_path, False, str(e))
+            raise
+
+    def _log_integrity_result(self, file_path: Path, success: bool, message: str) -> None:
+        """
+        Log the result of an integrity check to a file.
         
-        except Exception as e:
-            raise DataLoadError(f"Error during data streaming: {e}")
+        Args:
+            file_path: The file that was checked.
+            success: Whether the check passed.
+            message: The result message.
+        """
+        log_path = self.path_config.processed_dir / "integrity_log.txt"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
         
-        if not data_rows:
-            raise DataLoadError("No data was collected. Check class configurations and dataset.")
+        from datetime import datetime
+        timestamp = datetime.now().isoformat()
+        status = "PASS" if success else "FAIL"
         
-        # Create PyArrow table and save to Parquet
-        logger.info(f"Saving {len(data_rows)} examples to Parquet...")
-        table = pa.Table.from_pylist(data_rows)
-        pq.write_table(table, self.output_path)
+        log_entry = f"[{timestamp}] [{status}] {file_path.name}: {message}\n"
         
-        logger.info(f"Successfully saved data to {self.output_path}")
+        with open(log_path, "a") as f:
+            f.write(log_entry)
+
+    def get_filtered_dataset(self) -> FilteredAudioDataset:
+        """
+        Get a filtered dataset instance.
         
-        # Compute and save checksum
-        checksum = compute_file_checksum(self.output_path)
-        logger.info(f"File checksum: {checksum}")
+        Returns:
+            FilteredAudioDataset instance.
+        """
+        subtle_classes = self.load_subtle_classes()
+        control_classes = self.load_control_classes()
         
-        if self.state_dir:
-            save_checksum_to_state(checksum, "subtle_cue_subset", self.state_dir)
-            logger.info("Checksum saved to state directory")
+        return FilteredAudioDataset(
+            subtle_classes=subtle_classes,
+            control_classes=control_classes,
+            streaming=True
+        )
+
+    def load_parquet_with_verification(self) -> pd.DataFrame:
+        """
+        Load the parquet file after verifying its integrity.
         
-        return self.output_path
+        Returns:
+            DataFrame containing the audio subset.
+        
+        Raises:
+            DataIntegrityError: If integrity check fails.
+        """
+        if not self.parquet_path:
+            self.parquet_path = self.path_config.processed_dir / "subtle_cue_subset.parquet"
+        
+        # Verify integrity before loading
+        self.verify_data_integrity(self.parquet_path)
+        
+        self.logger.info(f"Loading verified parquet file: {self.parquet_path}")
+        df = pd.read_parquet(self.parquet_path)
+        self.logger.info(f"Loaded {len(df)} rows from parquet.")
+        return df
 
 def main():
-    """Main entry point for the filtered data loader."""
+    """
+    Main entry point for data loading and integrity verification.
+    Demonstrates the workflow: load configs -> verify integrity -> load data.
+    """
     path_config = get_path_config()
-    dataset_config = get_dataset_config()
     
     # Define paths
-    subtle_config_path = path_config.processed_dir / "class_config_subtle.yaml"
-    control_config_path = path_config.processed_dir / "class_config_control.yaml"
-    output_path = path_config.processed_dir / "subtle_cue_subset.parquet"
-    state_dir = path_config.state_dir
+    subtle_config = path_config.processed_dir / "class_config_subtle.yaml"
+    control_config = path_config.processed_dir / "class_config_control.yaml"
+    parquet_file = path_config.processed_dir / "subtle_cue_subset.parquet"
     
-    logger.info(f"Subtle config path: {subtle_config_path}")
-    logger.info(f"Control config path: {control_config_path}")
-    logger.info(f"Output path: {output_path}")
-    
-    # Check if config files exist
-    if not subtle_config_path.exists():
-        raise FileNotFoundError(f"Subtle class config not found: {subtle_config_path}")
-    if not control_config_path.exists():
-        raise FileNotFoundError(f"Control class config not found: {control_config_path}")
+    # Check if files exist (fail loudly if not)
+    if not subtle_config.exists():
+        raise FileNotFoundError(f"Missing subtle class config: {subtle_config}")
+    if not control_config.exists():
+        raise FileNotFoundError(f"Missing control class config: {control_config}")
+    if not parquet_file.exists():
+        raise FileNotFoundError(f"Missing parquet subset: {parquet_file}")
     
     # Initialize loader
     loader = FilteredDataLoader(
-        subtle_config_path=subtle_config_path,
-        control_config_path=control_config_path,
-        output_path=output_path,
-        state_dir=state_dir
+        parquet_path=parquet_file,
+        subtle_config_path=subtle_config,
+        control_config_path=control_config,
+        verify_integrity=True
     )
     
-    # Stream and save data
-    # For testing purposes, we limit to a small number of examples
-    # In production, remove the max_examples parameter to process all data
-    output_file = loader.stream_and_save(max_examples=1000)
-    
-    logger.info(f"Data loading complete. Output file: {output_file}")
-    
-    # Verify the output file
-    if output_file.exists():
-        logger.info(f"Verification: Output file exists at {output_file}")
-        logger.info(f"File size: {output_file.stat().st_size} bytes")
-    else:
-        raise DataLoadError(f"Output file was not created: {output_file}")
+    try:
+        # Verify integrity
+        loader.verify_data_integrity(parquet_file)
+        
+        # Load data
+        df = loader.load_parquet_with_verification()
+        
+        # Basic stats
+        print(f"Dataset loaded successfully.")
+        print(f"  Total samples: {len(df)}")
+        if 'label' in df.columns:
+            print(f"  Unique labels: {df['label'].nunique()}")
+        
+    except DataIntegrityError as e:
+        print(f"CRITICAL: Data integrity verification failed. Aborting.")
+        print(f"Error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

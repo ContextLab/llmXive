@@ -2946,3 +2946,581 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T11:13:21Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: requirements include torch==2.1.0, torchaudio==2.1.0, scikit-learn==1.3.2,
+    datasets==2.14.6, pandas==2.1.1, matplotlib==3.8.0, numpy==1.26.0
+  claim_id: c_ac089130
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create code/requirements.txt with core dependencies: torch==2.1.0, torchaudio==2.1.0,
+    scikit-learn==1.3.2, datasets==2.14.6, pandas==2.1.1, matplotlib==3.8.0, numpy==1.26.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:05:28Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Subtle Cue classes defined as dominant frequency > 8kHz or amplitude
+    < -40dBFS
+  claim_id: c_628e3f74
+  context: 'Phase 2.5: Data Preparation - Task T021a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subtle_Cue_classes_defined_as_dominant_frequency_%3E_8kHz_or_a
+  kind: entity_fact
+  raw_text: 'Define criteria: ''Subtle Cue'' classes are those with dominant frequency
+    > 8kHz OR amplitude < -40dBFS.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:06:07Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: MelSpectrogram parameters n_mels=128, n_fft=2048, hop_length=512, window='hann'
+  claim_id: c_cafa1832
+  context: 'Phase 2.5: Data Preparation - Task T021a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use torchaudio.transforms.MelSpectrogram with n_mels=128, n_fft=2048,
+    hop_length=512, window='hann' to compute frequency bins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:06:29Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Control Set classes include engine hum, wind, rain, babbling, chainsaw,
+    drilling, gunshot, jackhammer, siren, street music
+  claim_id: c_8fa99f35
+  context: 'Phase 2.5: Data Preparation - Task T021c'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_Set_classes_include_engine_hum,_wind,_rain,_babbling
+  kind: entity_fact
+  raw_text: 'Map class names to dataset IDs using a hardcoded mapping table: [''engine
+    hum'', ''wind'', ''rain'', ''babbling'', ''chainsaw'', ''drilling'', ''gunshot'',
+    ''jackhammer'', ''siren'', ''street music''].'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:07:08Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: facebook/wav2vec2-base-960h used as substitute for DeSTA2.5-Audio
+  claim_id: c_1c0bae59
+  context: 'Phase 3: User Story 1 - Task T011'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load facebook/wav2vec2-base-960h as verified substitute for non-existent
+    DeSTA2.5-Audio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:07:43Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: KD loss formula uses KL_Div and CrossEntropy weighted by KD_ALPHA and
+    KD_TEMP
+  claim_id: c_b20a3aad
+  context: 'Phase 3: User Story 1 - Task T014a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute KD loss: Loss = KL_Div(student_logits/T, teacher_logits/T) *
+    KD_ALPHA + CrossEntropy(student_logits, labels) * (1 - KD_ALPHA), reading KD_ALPHA
+    and KD_TEMP from code/config.py.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:08:10Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Job fails if >5% of files are corrupted
+  claim_id: c_db20a7e8
+  context: 'Phase 3: User Story 1 - Task T014a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail the job if >5% of files are corrupted during streaming reads.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:08:11Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Defaults: STEP_CHANGE_THRESHOLD=0.10, PRUNING_RATIOS=[0.1, 0.2, 0.3],
+    KD_ALPHA=0.5, KD_TEMP=4.0, WEIGHTS_SCORE=[0.5, 0.5]'
+  claim_id: c_47b2fd5b
+  context: 'Phase 2: Foundational - Task T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default configuration values include STEP_CHANGE_THRESHOLD=0.10, PRUNING_RATIOS=[0.1,
+    0.2, 0.3], KD_ALPHA=0.5, KD_TEMP=4.0, WEIGHTS_SCORE=[0.5, 0.5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:08:41Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: CI runner configured with MAX_RAM_GB=7 and MAX_CORES=2
+  claim_id: c_1fe3db26
+  context: 'Phase 2: Foundational - Task T008b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure CI runner environment variables to set PYTHONUNBUFFERED=1, MAX_RAM_GB=7,
+    and MAX_CORES=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:09:10Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Breaking point identified where relative AUC drop exceeds 10%
+  claim_id: c_eb212bbe
+  context: 'Phase 5: User Story 3 - Task T030'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify the 'breaking point' where relative AUC drop exceeds >10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:09:11Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Threshold sweep over set {0.01, 0.05, 0.1}
+  claim_id: c_3982582b
+  context: 'Phase 5: User Story 3 - Task T031'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds over the fixed set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:10:07Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Robustness curve plot with X-axis bit-width and Y-axis AUC
+  claim_id: c_90dbad4a
+  context: 'Phase 5: User Story 3 - Task T032a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Robustness_curve_plot_with_X-axis_bit-width_and_Y-axis_AUC
+  kind: entity_fact
+  raw_text: 'Output robustness_curve.png with X-axis: bit-width, Y-axis: AUC.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:10:44Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Process must complete within 6 hours and RAM under 7GB
+  claim_id: c_7bc342e9
+  context: 'Phase 4: User Story 2 - Task T023'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert process completed within 6h and RAM < 7GB during measurement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:11:31Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: CI runner constrained to exactly 2 cores
+  claim_id: c_ead6c451
+  context: 'Phase 4: User Story 2 - Task T019'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the CI runner environment is constrained to exactly 2 cores
+    during measurement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:12:06Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Batch size search range start=1, end=128, step=1
+  claim_id: c_c9b0daed
+  context: 'Phase N: Polish - Task T044a1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Search range for batch size optimization is start=1, end=128, step=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:12:42Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Batch size optimization stops when RAM < 6GB for 3 consecutive runs
+  claim_id: c_3bf01b7c
+  context: 'Phase N: Polish - Task T044a1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stop when RAM < 6GB for 3 consecutive runs during batch size optimization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:12:42Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Skip batch if RAM > 6GB after 3 reductions
+  claim_id: c_1a419a07
+  context: 'Phase N: Polish - Task T049'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If RAM usage remains >6GB after 3 reductions, log a warning and skip the
+    batch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:12:43Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Logits output as 1D float array with 6 decimal places
+  claim_id: c_0dfe7f86
+  context: 'Phase 4: User Story 4 - Task T039a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output logits_json as a 1D array of floats with 6 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:13:10Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Robustness metrics CSV with auc 4 decimals, latency_ms 2 decimals, ram_gb
+    2 decimals
+  claim_id: c_c506d911
+  context: 'Phase 4: User Story 2 - Task T024'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output robustness_metrics.csv with auc (float, 4 decimal places), latency_ms
+    (float, 2 decimal places), ram_gb (float, 2 decimal places).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:13:38Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Core dependencies: torch 2.1.0, torchaudio 2.1.0, scikit-learn 1.3.2,
+    datasets 2.14.6, pandas 2.1.1, matplotlib 3.8.0, numpy 1.26.0'
+  claim_id: c_2ac5c10f
+  context: 'Create `code/requirements.txt` with core dependencies: `torch==2.1.0`,
+    `torchaudio==2.1.0`, `scikit-learn==1.3.2`, `datasets==2.14.6`, `pandas==2.1.1`,
+    `matplotlib==3.8.0`, `numpy==1.26.0`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Core dependencies include torch==2.1.0, torchaudio==2.1.0, scikit-learn==1.3.2,
+    datasets==2.14.6, pandas==2.1.1, matplotlib==3.8.0, numpy==1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:18:06Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Configuration defaults: STEP_CHANGE_THRESHOLD 0.10, PRUNING_RATIOS [0.1,
+    0.2, 0.3], KD_ALPHA 0.5, KD_TEMP 4.0, WEIGHTS_SCORE [0.5, 0.5]'
+  claim_id: c_adfd3bf9
+  context: 'Configure global configuration in `code/config.py`... **Defaults**: `STEP_CHANGE_THRESHOLD=0.10`,
+    `PRUNING_RATIOS=[0.1, 0.2, 0.3]`, `KD_ALPHA=0.5`, `KD_TEMP=4.0`, `WEIGHTS_SCORE=[0.5,
+    0.5]`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Defaults for configuration are STEP_CHANGE_THRESHOLD=0.10, PRUNING_RATIOS=[0.1,
+    0.2, 0.3], KD_ALPHA=0.5, KD_TEMP=4.0, WEIGHTS_SCORE=[0.5, 0.5].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:18:43Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'CI runner environment variables: PYTHONUNBUFFERED 1, MAX_RAM_GB 7, MAX_CORES
+    2'
+  claim_id: c_26cc8574
+  context: Configure CI runner environment variables in `.github/workflows/ci.yml`
+    to set `PYTHONUNBUFFERED=1`, `MAX_RAM_GB=7`, and `MAX_CORES=2`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI runner environment variables are set to PYTHONUNBUFFERED=1, MAX_RAM_GB=7,
+    and MAX_CORES=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:19:22Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Subtle Cue class definition: dominant frequency > 8kHz OR amplitude
+    < -40dBFS'
+  claim_id: c_d045389f
+  context: 'Define criteria: ''Subtle Cue'' classes are those with dominant frequency
+    > 8kHz OR amplitude < -40dBFS.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subtle_Cue_class_definition:_dominant_frequency_%3E_8kHz_OR_am
+  kind: entity_fact
+  raw_text: Subtle Cue classes are defined as those with dominant frequency > 8kHz
+    OR amplitude < -40dBFS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:20:30Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'MelSpectrogram parameters: n_mels 128, n_fft 2048, hop_length 512, window
+    hann'
+  claim_id: c_f38b7a91
+  context: Use `torchaudio.transforms.MelSpectrogram` (n_mels=128, n_fft=2048, hop_length=512,
+    window='hann') to compute frequency bins.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MelSpectrogram algorithm uses n_mels=128, n_fft=2048, hop_length=512,
+    and window='hann'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:21:02Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Control Set classes: engine hum, wind, rain, babbling, chainsaw, drilling,
+    gunshot, jackhammer, siren, street music'
+  claim_id: c_808b7f97
+  context: 'Map class names to dataset IDs using a hardcoded mapping table: `[''engine
+    hum'', ''wind'', ''rain'', ''babbling'', ''chainsaw'', ''drilling'', ''gunshot'',
+    ''jackhammer'', ''siren'', ''street music'']`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_Set_classes:_engine_hum,_wind,_rain,_babbling,_chain
+  kind: entity_fact
+  raw_text: 'The Control Set includes the classes: engine hum, wind, rain, babbling,
+    chainsaw, drilling, gunshot, jackhammer, siren, street music.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:21:57Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Teacher model: facebook/wav2vec2-base-960h'
+  claim_id: c_7bc6906c
+  context: Load `facebook/wav2vec2-base-960h` as verified substitute for non-existent
+    `DeSTA2.5-Audio` per Plan.md 'Spec Gap Alert'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The teacher model used is facebook/wav2vec2-base-960h as a substitute
+    for DeSTA2.5-Audio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:22:25Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Supported quantization levels: FP32, INT8, INT4'
+  claim_id: c_bec3ee77
+  context: Implement compression logic in `code/models/compress.py` using `torch.ao.quantization`
+    for FP32, INT8, INT4 (Dynamic Quantization).
+  evidence:
+    entailment_evidence: 'Supported quantization levels: FP32, INT8, INT4'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Supported_quantization_levels:_FP32,_INT8,_INT4
+  kind: entity_fact
+  raw_text: Compression logic supports FP32, INT8, and INT4 quantization.
+  resolved_value: 'Supported quantization levels: FP32, INT8, INT4'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T10:22:30Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Job failure threshold: >5% corrupted files'
+  claim_id: c_0758dce6
+  context: fail the job if >5% of files are corrupted.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Job_failure_threshold:_%3E5%25_corrupted_files
+  kind: magnitude
+  raw_text: The job fails if more than 5% of audio files are corrupted during streaming.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:23:11Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'robustness_metrics.csv schema: auc 4 decimals, latency_ms 2 decimals,
+    ram_gb 2 decimals'
+  claim_id: c_7adc5ff7
+  context: 'Ensure schema: `model_id` (str), `auc` (float, 4 decimal places), `latency_ms`
+    (float, 2 decimal places), `ram_gb` (float, 2 decimal places).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The robustness_metrics.csv schema includes auc (float, 4 decimal places),
+    latency_ms (float, 2 decimal places), and ram_gb (float, 2 decimal places).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:23:41Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Breaking point definition: relative AUC drop > 10%'
+  claim_id: c_9989c807
+  context: Identify the 'breaking point' where relative AUC drop exceeds **>10%**
+    (read threshold from `config.py`).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The breaking point is identified where relative AUC drop exceeds 10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:23:41Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Compression intensity score formula: (- bits/32) * 0.5 + (1 - params/baseline_params)
+    * 0.5'
+  claim_id: c_693123c6
+  context: 'Compute a `compression_intensity_score` for each model: `score = (- bits/32)
+    * 0.5 + (1 - params/baseline_params) * 0.5`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The compression intensity score formula is score = (- bits/32) * 0.5 +
+    (1 - params/baseline_params) * 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:24:32Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Threshold sensitivity sweep values: 0.01, 0.05, 0.1'
+  claim_id: c_f9a372d1
+  context: Sweep thresholds over the **fixed set {0.01, 0.05, 0.1}** as mandated by
+    FR-006 and SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold sensitivity analysis sweeps over the fixed set {0.01, 0.05,
+    0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:25:27Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Batch size optimization search range: start 1, end 128, step 1'
+  claim_id: c_16a4eda9
+  context: 'Parameters: Search range `start=1, end=128, step=1`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch size optimization search range is start=1, end=128, step=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:25:28Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Batch size optimization stopping condition: RAM < 6GB for 3 consecutive
+    runs'
+  claim_id: c_e08824cf
+  context: 'Stopping Condition: Stop when RAM < 6GB for 3 consecutive runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch size optimization stops when RAM is < 6GB for 3 consecutive
+    runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T10:25:28Z'

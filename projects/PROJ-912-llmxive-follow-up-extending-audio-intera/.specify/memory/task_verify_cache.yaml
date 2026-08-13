@@ -83,3 +83,20 @@ T039b:
     \ missing logic to read `ablation_logits.parquet`, perform per\u2011configuration\
     \ latency/RAM measurements on a 2\u2011core CPU, and write the CSV). These core\
     \ requirements are not met."
+T048:
+  c: false
+  h: ccb4cd004a8b04c25223fd52e73b0f4e97ce68bdb3144b5a4971c63e174f3ebc
+  r: The repository contains a partially implemented `loader.py` with checksum utilities,
+    but the required `data/processed/subtle_cue_subset.parquet` file is absent, and
+    no `integrity_log.txt` is created. Moreover, the code does not show an automatic
+    verification call for that specific file before training/inference, nor does it
+    log the result to the specified log file. These missing artifacts and integration
+    steps must be added to satisfy the task.
+T049:
+  c: false
+  h: 08fba9ac932fd7bdd38c047e7252f220f724a430608d9717c78c21a6e4c90a8c
+  r: "The provided `runner.py` is truncated and does not contain the required batch\u2011\
+    size\u2011adjustment loop, RAM\u2011threshold checks, retry/skip logic, or code\
+    \ that writes the final batch size to `data/processed/inference_config.yaml`.\
+    \ Moreover, the `inference_config.yaml` file is missing entirely. The task\u2019\
+    s core requirements are therefore not satisfied."
