@@ -1,6 +1,19 @@
 {
+  "project_id": "PROJ-902-llmxive-follow-up-extending-on-the-geome",
+  "ok": false,
+  "reason": "4 command(s) failed: python -m src.data.download_gsm8k (rc=1); python -m src.cli.run_experiment  --condition frozen_opd  --seed 42  --dry-run (rc=1); python -m src.analysis.generate_report --state results/state.yaml (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python -m src.data.download_gsm8k -> rc=1\n    Traceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/src/data/download_gsm8k.py\", line 21, in <module>\n    from src.data.checksums import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/code/src/data/checksums.py\", line 27, in <module>\n    from src.data.download_gsm8k import compute_sha256, save_checksums, loa",
+    "python -m src.cli.run_experiment  --condition frozen_opd  --seed 42  --dry-run -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/code/.venv/bin/python: Error while finding module specification for 'src.cli.run_experiment' (ModuleNotFoundError: No module named 'src.cli')",
+    "python -m src.analysis.generate_report --state results/state.yaml -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/code/.venv/bin/python: Error while finding module specification for 'src.analysis.generate_report' (ModuleNotFoundError: No module named 'src.analysis')",
+    "python -m src.cli.run_experiment  --condition frozen_opd  --variance-threshold 0.90  --seed-list 1 2 3... 30 -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/code/.venv/bin/python: Error while finding module specification for 'src.cli.run_experiment' (ModuleNotFoundError: No module named 'src.cli')"
+  ],
+  "fix_rounds": 4,
   "model_tier": 1,
-  "fix_rounds": 0,
-  "updated_at": "2026-08-04T11:05:08Z",
-  "project_id": "PROJ-902-llmxive-follow-up-extending-on-the-geome"
+  "total_attempts": 4,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-13T17:07:42Z"
 }

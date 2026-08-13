@@ -1,25 +1,10 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-
-  ds = datasets.load_dataset("openai/gsm8k", "main", split="train")
-
-  print(f"RECORDS={len(ds)}")
-
-  sample = ds[0]
-
-  print("FIELDS=" + ",".join(sample.keys()))'
-record_count: 7473
-sample_fields:
-- question
-- answer
-field_coverage: 0.667
+status: none
+intent: download GSM8K dataset with train test splits python package dataset
 required_fields:
 - question
 - answer
 - solution
-intent: pip install gsm8k dataset python package including questions answers solutions
-  python package dataset
-cache_key: fea66f1408b3ca7360870bc836977055c4b2deddbda11fed34cc0bc9cdd2c452
+- split
+cache_key: f8948322804d67cfb281728787dec77ba0c4549e2150aca7958f9fbde0e31d7f
+searched_at: '2026-08-13T17:08:31.686495+00:00'
+retry_count: 1

@@ -940,3 +940,428 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T08:32:05Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: spec requests statistical-test and CI-resource validation
+  claim_id: c_ac230b85
+  context: "Tests: The spec requests statistical\u2011test validation and CI\u2011\
+    resource validation. Contract\u2011style tests are added for schema compliance\
+    \ and for key utility functions."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spec_requests_statistical-test_and_CI-resource_validation
+  kind: entity_fact
+  raw_text: "The spec requests statistical\u2011test validation and CI\u2011resource\
+    \ validation."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:31:06Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: US-1 OPD baseline uses 30 seeds
+  claim_id: c_61885c2e
+  context: "T015b Seed\u2011Loop Orchestrator for OPD baseline (file: `src/pipeline/orchestrate_baseline_seeds.py`)\
+    \ \u2013 satisfies FR\u2011006, US\u20111 N=30"
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: "T015b Seed\u2011Loop Orchestrator for OPD baseline (file: `src/pipeline/orchestrate_baseline_seeds.py`)\
+    \ \u2013 satisfies FR\u2011006, US\u20111 N=30"
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T16:31:09Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: SVD cumulative variance threshold is 95%
+  claim_id: c_cfe4977b
+  context: "T016a Add unit test that cumulative variance \u2265 95% (file: `tests/unit/test_svd_variance.py`)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T016a Add unit test that cumulative variance \u2265 95%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:31:20Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: selected subspace meets 95% variance criterion
+  claim_id: c_a60ed979
+  context: "T018d Add test that selected subspace meets \u2265 95 % variance criterion\
+    \ (file: `tests/unit/test_mask_variance_criterion.py`)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T018d Add test that selected subspace meets \u2265 95 % variance criterion"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:31:33Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: US-1 Frozen-Subspace OPD uses 30 seeds
+  claim_id: c_9ee70987
+  context: "T019b Seed Loop Orchestrator for Frozen\u2011Subspace OPD (file: `src/pipeline/orchestrate_frozen_opd_seeds.py`)\
+    \ \u2013 satisfies FR\u2011006, US\u20111 N=30"
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: "T019b Seed Loop Orchestrator for Frozen\u2011Subspace OPD (file: `src/pipeline/orchestrate_frozen_opd_seeds.py`)\
+    \ \u2013 satisfies FR\u2011006, US\u20111 N=30"
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T16:31:35Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: US-2 paired t-tests use effect size 0.03
+  claim_id: c_283b3492
+  context: "T021_pre_SFT Perform pre\u2011study power analysis for US\u20112 paired\
+    \ t\u2011tests (effect size \u03B4=0.03) (file: `src/evaluation/power_analysis_sft.py`)\
+    \ **(new)**"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T021_pre_SFT Perform pre\u2011study power analysis for US\u20112 paired\
+    \ t\u2011tests (effect size \u03B4=0.03)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:32:08Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: US-2 Frozen-Subspace SFT uses 30 seeds
+  claim_id: c_94b31a39
+  context: "T026b Implement Seed Loop Orchestrator for Frozen\u2011Subspace SFT (file:\
+    \ `src/pipeline/orchestrate_sft_seeds.py`) \u2013 satisfies FR\u2011006, US\u2011\
+    2 N=30"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T026b Implement Seed Loop Orchestrator for Frozen\u2011Subspace SFT (file:\
+    \ `src/pipeline/orchestrate_sft_seeds.py`) \u2013 satisfies FR\u2011006, US\u2011\
+    2 N=30"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:32:21Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: per-run RAM limit is 7 GB and wall-clock limit is 360 minutes
+  claim_id: c_359e9a71
+  context: "T031a Extend CI sanity test to parse `ci_metrics.json` and assert per\u2011\
+    run RAM \u2264 7 GB and wall\u2011clock \u2264 360 min."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T031a Extend CI sanity test to parse `ci_metrics.json` and assert per\u2011\
+    run RAM \u2264 7 GB and wall\u2011clock \u2264 360 min."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:32:33Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksums computed for all GSM8K files
+  claim_id: c_f1bbf440
+  context: "T041 Compute and record SHA\u2011256 checksums for all GSM8K files under\
+    \ `data/gsm8k/` (file: `data/checksums.txt`) **(completed)**"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute and record SHA\u2011256 checksums for all GSM8K files under `data/gsm8k/`\
+    \ (file: `data/checksums.txt`) **(completed)**"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:33:45Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: contract test verifies checksums.txt includes entry for each downloaded
+    file
+  claim_id: c_895aafbf
+  context: 'T041a [P] Add contract test that `data/checksums.txt` exists and contains
+    an entry for each downloaded file (file: `tests/contract/test_checksums_generation.py`)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Contract_test_verifies_checksums.txt_includes_entry_for_each
+  kind: entity_fact
+  raw_text: Add contract test that `data/checksums.txt` exists and contains an entry
+    for each downloaded file
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:34:13Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: US-2 uses 30 seeds
+  claim_id: c_a76bee11
+  context: "T026b Implement Seed Loop Orchestrator for Frozen\u2011Subspace SFT (file:\
+    \ src/pipeline/orchestrate_sft_seeds.py) \u2013 satisfies FR\u2011006, US\u2011\
+    2 N=30"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Seed Loop Orchestrator for Frozen\u2011Subspace SFT \u2013 satisfies\
+    \ FR\u2011006, US\u20112 N=30"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:35:09Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: effect size delta equals 0.03 for US-2 power analysis
+  claim_id: c_115cf9ba
+  context: "T021_pre_SFT Perform pre\u2011study power analysis for US\u20112 paired\
+    \ t\u2011tests (effect size \u03B4=0.03) (file: src/evaluation/power_analysis_sft.py)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pre\u2011study power analysis for US\u20112 paired t\u2011tests uses\
+    \ effect size \u03B4=0.03"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:36:12Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: SVD spectrum requires >10% of parameters to reach variance threshold
+  claim_id: c_6ba51c4c
+  context: "Implement logic to detect when the SVD spectrum requires >10\u202F% of\
+    \ total parameters to reach the variance threshold; log a warning and flag for\
+    \ manual review"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "the SVD spectrum requires >10\u202F% of total parameters to reach the\
+    \ variance threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:36:52Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: mask-derivation seeds are disjoint from evaluation seed set
+  claim_id: c_47ed8fd7
+  context: "Add unit test confirming that the mask\u2011derivation seeds are disjoint\
+    \ from the evaluation seed set."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mask-derivation_seeds_are_disjoint_from_evaluation_seed_set
+  kind: entity_fact
+  raw_text: "the mask\u2011derivation seeds are disjoint from the evaluation seed\
+    \ set"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:37:21Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: state.yaml includes power analysis fields achieved_power, effect_size,
+    n_observed, n_required
+  claim_id: c_50474bb6
+  context: 'Update src/evaluation/statistical_tests.py to include a detailed power
+    analysis report in state.yaml with fields: achieved_power, effect_size, n_observed,
+    n_required'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/State.yaml_includes_power_analysis_fields_achieved_power,_ef
+  kind: entity_fact
+  raw_text: 'state.yaml contains the required power analysis fields: achieved_power,
+    effect_size, n_observed, n_required'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:38:02Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksums recorded for all GSM8K files
+  claim_id: c_effa296c
+  context: "T041 Compute and record SHA\u2011256 checksums for all GSM8K files under\
+    \ data/gsm8k/ (completed)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "SHA\u2011256 checksums have been computed and recorded for all GSM8K\
+    \ files under data/gsm8k/"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:38:21Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: "SHA\u2011256 checksums computed and recorded for all GSM8K files"
+  claim_id: c_cb213a0a
+  context: "T041 Compute and record SHA\u2011256 checksums for all GSM8K files under\
+    \ `data/gsm8k/` (file: `data/checksums.txt`) (completed)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute and record SHA\u2011256 checksums for all GSM8K files under data/gsm8k/"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:38:45Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: dataset download script aborts on checksum mismatch
+  claim_id: c_d6eb9d84
+  context: "T044 Extend the dataset\u2011download script to verify the recorded SHA\u2011\
+    256 checksums before returning data, aborting on mismatch \u2013 ensures data\u2011\
+    hygiene enforcement (completed)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extend the dataset\u2011download script to verify the recorded SHA\u2011\
+    256 checksums before returning data, aborting on mismatch"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:39:10Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: "mask\u2011derivation seeds are disjoint from the 30 evaluation seeds"
+  claim_id: c_c473d5e6
+  context: "T052 Implement mask\u2011derivation using multiple independent seeds (distinct\
+    \ from the 30 evaluation seeds) to compute the OPD subspace mask (file: `src/model/mask_derivation.py`)\
+    \ (now completed)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Mask\u2011derivation uses multiple independent seeds (distinct from the\
+    \ 30 evaluation seeds) to compute the OPD subspace mask"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:39:35Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: state.yaml schema compliance with contracts/experiment.schema.yaml
+  claim_id: c_c45a503b
+  context: 'T054a Add contract test that `state.yaml` conforms to `contracts/experiment.schema.yaml`
+    (file: `tests/contract/test_state_yaml_schema.py`) (completed)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/State.yaml_schema_compliance_with_contracts/experiment.schem
+  kind: entity_fact
+  raw_text: state.yaml conforms to contracts/experiment.schema.yaml
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:39:52Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: SVD spectrum requires >10% of parameters to reach variance threshold
+  claim_id: c_dbfe30c6
+  context: "T057 Implement logic to detect when the SVD spectrum requires >10\u202F\
+    % of total parameters to reach the variance threshold; log a warning and flag\
+    \ for manual review (file: `src/data/svd_compute.py`)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Detect when the SVD spectrum requires >10\u202F% of total parameters\
+    \ to reach the variance threshold; log a warning and flag for manual review"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:39:52Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: training aborts when loss increase >0.5 in one epoch
+  claim_id: c_f9dc52e2
+  context: "T058 Implement loss\u2011divergence detection: if loss increases by >0.5\
+    \ in a single epoch, abort training and record the failure (file: `src/utils/training_monitor.py`)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If loss increases by >0.5 in a single epoch, abort training and record
+    the failure
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:39:53Z'
+- artifact_path: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome/tasks.md
+  attempts: 1
+  canonical: CI workflow uploads ci_metrics.json artifact with peak_ram_gb and wall_clock_min
+  claim_id: c_27f3b99f
+  context: "T034 Update the GitHub Actions workflow to invoke `python -m src.pipeline.run_all`\
+    \ and to upload `ci_metrics.json` as an artifact (file: `.github/workflows/ci.yml`)\
+    \ \u2013 ensures SC\u2011003 & SC\u2011004 are exercised"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_workflow_uploads_ci_metrics.json_artifact_with_peak_ram_g
+  kind: entity_fact
+  raw_text: The CI workflow uploads ci_metrics.json as an artifact containing peak_ram_gb
+    and wall_clock_min
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T16:40:21Z'

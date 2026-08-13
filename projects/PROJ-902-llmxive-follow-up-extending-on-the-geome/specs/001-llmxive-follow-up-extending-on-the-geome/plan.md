@@ -25,7 +25,7 @@ The project must (1) download the GSM8K dataset, (2) run On‑Policy Distillatio
 | Principle | Compliance Statement |
 |-----------|----------------------|
 | I. Reproducibility | All random seeds are pinned in `src/config/seeds.yaml`. Dataset download uses deterministic `datasets` loader with fixed version tags. |
-| II. Verified Accuracy | All external citations (He et al., Halko 2011, Wikipedia Power) are verified via the Reference‑Validator. |
+| II. Verified Accuracy | All external citations (He et al., Halko et al., Wikipedia Power) are verified via the Reference‑Validator. |
 | III. Data Hygiene | `data/checksums.txt` contains SHA‑256 hashes for every downloaded GSM8K shard; `src/data/download_gsm8k.py` validates them before caching. |
 | IV. Single Source of Truth | Every metric, figure, and table is written to `state.yaml`; downstream scripts read exclusively from this file. |
 | V. Versioning Discipline | `state.yaml` includes a content hash for each artifact; CI fails if the hash changes without updating the timestamp in the project state file. |

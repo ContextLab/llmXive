@@ -1,9 +1,3 @@
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `README.md` file was provided in the evidence, and thus there is no top\u2011\
-    level README containing quick\u2011start instructions as required. The implementer\
-    \ must add a non\u2011empty `README.md` at the project root."
 T036a:
   c: false
   h: 4a8b30181929c877f1da61397bac5010761d7f00950a364d06383f9b1fbd2abc
@@ -17,10 +11,3 @@ T041a:
     empty, and implements a test that asserts `data/checksums.txt` exists and that\
     \ every regular file under `data/gsm8k/` has a corresponding checksum entry, satisfying\
     \ the task\u2019s requirement."
-T064b:
-  c: false
-  h: 945bc4c6c038017c47cbe56bac4c81ab6e461cdf2fd066dd189cb9a03b0f748f
-  r: "The required test file `tests/contract/test_config_hyperparams.py` does not\
-    \ exist, so no contract test verifies that the hyper\u2011parameter keys are defined\
-    \ and within the expected ranges. The `src/config.py` file is present, but without\
-    \ the accompanying test the task is not fulfilled."

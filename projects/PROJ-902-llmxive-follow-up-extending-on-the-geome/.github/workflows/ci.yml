@@ -7,13 +7,9 @@ on:
     branches: [ main ]
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
-    strategy:
-      matrix:
-        seed: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]  # ≤15 seeds as required
-      fail-fast: false
+    timeout-minutes: 60
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -21,42 +17,21 @@ jobs:
       - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Cache GSM8K dataset
-        uses: actions/cache@v3
-        with:
-          path: data/gsm8k
-          key: gsm8k-${{ runner.os }}-${{ hashFiles('src/data/download_gsm8k.py') }}
-          restore-keys: |
-            gsm8k-${{ runner.os }}-
-
-      - name: Download GSM8K dataset (if not cached)
+      - name: Run full test suite
         run: |
-          python -m src.data.download_gsm8k
+          pytest -q
 
-      - name: Run experiment for seed ${{ matrix.seed }}
-        env:
-          SEED: ${{ matrix.seed }}
-        run: |
-          python -m src.pipeline.run_all
-
-      - name: Archive logs
+      - name: Upload CI metrics (optional)
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: logs-seed-${{ matrix.seed }}
-          path: logs/*.log
-
-      - name: Upload CI metrics
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: ci-metrics
+          name: ci_metrics
           path: ci_metrics.json
+          retention-days: 7

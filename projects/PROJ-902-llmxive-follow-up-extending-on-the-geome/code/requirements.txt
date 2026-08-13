@@ -9,3 +9,4 @@ psutil
 # here to ensure the baseline script can import them.
 # (If they already exist in the original file, this list replaces the
 # content with a superset that includes the new packages.)
+numpy  # auto-added: imported by run-book but missing from venv
