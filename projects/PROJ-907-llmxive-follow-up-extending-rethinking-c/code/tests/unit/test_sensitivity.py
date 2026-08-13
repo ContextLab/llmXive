@@ -1,3 +1,6 @@
+"""
+Unit tests for sensitivity analysis logic (T027).
+"""
 import pytest
 import json
 import numpy as np
@@ -6,169 +9,122 @@ from unittest.mock import patch, MagicMock, mock_open
 import sys
 import os
 
-# Ensure the src directory is in the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.sensitivity import run_sensitivity_sweep, calculate_fid_degradation
-
+from src.sensitivity import run_clustering_with_threshold, run_benchmark_for_threshold, run_sensitivity_sweep, THRESHOLD_SET
 
 class TestSensitivitySweepLogic:
-    """
-    Unit tests for the sensitivity sweep logic in src/sensitivity.py.
     
-    This task verifies:
-    1. The sweep iterates over the EXACT required thresholds: {0.01, 0.05, 0.1}.
-    2. The logic correctly calls the benchmark runner for each threshold.
-    3. The logic correctly aggregates results and calculates FID degradation ranges.
-    4. The output structure matches the specification (sensitivity_sweep.json).
-    """
-
-    @pytest.fixture
-    def mock_benchmark_runner(self):
-        """
-        Mocks the benchmark runner (src/benchmark.run_benchmark) to return
-        deterministic, realistic FID scores for different thresholds.
-        """
-        with patch('src.sensitivity.run_benchmark') as mock_run:
-            # Simulate that different thresholds yield different FID scores.
-            # We assume the 'dynamic' baseline FID is fixed for this test context.
-            # The static model FID varies based on the threshold quality.
-            def side_effect(threshold, *args, **kwargs):
-                # Simulate results: (latency, fid_static, fid_dynamic)
-                if threshold == 0.01:
-                    return (120.5, 45.2, 40.0) # High degradation
-                elif threshold == 0.05:
-                    return (115.0, 42.1, 40.0) # Moderate degradation
-                elif threshold == 0.1:
-                    return (110.0, 41.5, 40.0) # Low degradation
-                else:
-                    return (100.0, 50.0, 40.0) # Fallback
-            
-            mock_run.side_effect = side_effect
-            yield mock_run
-
-    @pytest.fixture
-    def mock_output_paths(self, tmp_path):
-        """
-        Mocks the output path generation to use a temporary directory.
-        """
-        output_file = tmp_path / "sensitivity_sweep.json"
-        return str(output_file)
-
-    def test_sweep_thresholds_exact_set(self, mock_benchmark_runner, mock_output_paths, tmp_path):
-        """
-        Verify that the sweep logic iterates over the EXACT set {0.01, 0.05, 0.1}.
-        """
-        # Mock the save function to capture the output
-        with patch('src.sensitivity.save_sensitivity_results') as mock_save:
-            run_sensitivity_sweep(
-                canonical_map_path="dummy_path",
-                benchmark_image_indices=list(range(100, 140)),
-                output_path=mock_output_paths
-            )
-            
-            # Check that run_benchmark was called exactly 3 times
-            assert mock_benchmark_runner.call_count == 3
-            
-            # Extract the arguments passed to run_benchmark
-            called_thresholds = [call[0][0] for call in mock_benchmark_runner.call_args_list]
-            
-            # Verify the set of thresholds matches the requirement exactly
-            expected_thresholds = {0.01, 0.05, 0.1}
-            actual_thresholds = set(called_thresholds)
-            
-            assert actual_thresholds == expected_thresholds, \
-                f"Expected thresholds {expected_thresholds}, got {actual_thresholds}"
-
-    def test_fid_degradation_calculation(self):
-        """
-        Verify the helper function calculates FID degradation correctly.
-        """
-        # Static FID = 45.0, Dynamic FID = 40.0 -> Degradation = 5.0
-        degradation = calculate_fid_degradation(45.0, 40.0)
-        assert degradation == 5.0, f"Expected 5.0, got {degradation}"
-
-        # Static FID = 40.0, Dynamic FID = 40.0 -> Degradation = 0.0
-        degradation_zero = calculate_fid_degradation(40.0, 40.0)
-        assert degradation_zero == 0.0
-
-        # Static FID < Dynamic FID (improvement) -> Negative degradation
-        degradation_neg = calculate_fid_degradation(38.0, 40.0)
-        assert degradation_neg == -2.0
-
-    def test_aggregation_and_range_calculation(self, mock_benchmark_runner, mock_output_paths):
-        """
-        Verify that the sweep correctly aggregates results and computes the FID range.
-        """
-        with patch('src.sensitivity.save_sensitivity_results') as mock_save:
-            run_sensitivity_sweep(
-                canonical_map_path="dummy_path",
-                benchmark_image_indices=list(range(100, 140)),
-                output_path=mock_output_paths
-            )
-            
-            # Verify save was called with the correct structure
-            assert mock_save.called
-            call_args = mock_save.call_args
-            results_data = call_args[0][0] # First positional argument
-            
-            # Check for required keys
-            assert "thresholds" in results_data
-            assert "fid_degradations" in results_data
-            assert "fid_range" in results_data
-            assert "min_degradation" in results_data
-            assert "max_degradation" in results_data
-            assert "threshold_for_min" in results_data
-            assert "threshold_for_max" in results_data
-
-            # Verify the range calculation based on our mock data
-            # Mock data: {0.01: 5.2, 0.05: 2.1, 0.1: 1.5} (assuming dynamic=40.0)
-            degradations = results_data["fid_degradations"]
-            assert len(degradations) == 3
-            
-            # Check min/max logic
-            min_deg = min(degradations)
-            max_deg = max(degradations)
-            
-            assert results_data["min_degradation"] == min_deg
-            assert results_data["max_degradation"] == max_deg
-            
-            # Verify the range (max - min)
-            assert results_data["fid_range"] == (max_deg - min_deg)
-
-    def test_output_file_creation(self, mock_benchmark_runner, tmp_path):
-        """
-        Verify that the output JSON file is actually created and written to disk.
-        """
-        output_file = tmp_path / "sensitivity_sweep.json"
+    @patch('src.sensitivity.load_routing_cache')
+    @patch('src.sensitivity.compute_mean_routing_vectors')
+    @patch('src.sensitivity.perform_clustering')
+    @patch('src.sensitivity.save_cluster_centers')
+    @patch('src.sensitivity.save_null_hypothesis_flag')
+    def test_run_clustering_with_threshold_valid(
+        self, mock_save_flag, mock_save_centers, mock_perform, mock_compute, mock_load
+    ):
+        """Test that clustering derivation runs and saves artifacts for a valid threshold."""
+        mock_compute.return_value = np.random.rand(10, 32) # 10 timesteps, 32 dim
+        mock_perform.return_value = (np.random.rand(2, 32), 0.5, False) # centers, score, is_null
         
-        # Run the sweep with real file writing (mocking only the heavy benchmark)
-        with patch('src.sensitivity.run_benchmark') as mock_run:
-            mock_run.return_value = (100.0, 45.0, 40.0) # (latency, static_fid, dynamic_fid)
+        # Mock the get_routing_cache_path to return a dummy path that exists
+        with patch('src.sensitivity.get_routing_cache_path') as mock_path:
+            mock_path.return_value = MagicMock(exists=True)
             
-            run_sensitivity_sweep(
-                canonical_map_path="dummy_path",
-                benchmark_image_indices=list(range(100, 140)),
-                output_path=str(output_file)
-            )
-        
-        # Verify file exists
-        assert output_file.exists(), "Output file was not created on disk."
-        
-        # Verify file content is valid JSON
-        with open(output_file, 'r') as f:
-            data = json.load(f)
-        
-        assert "thresholds" in data
-        assert isinstance(data["thresholds"], list)
-        assert len(data["thresholds"]) == 3
+            centers, is_null = run_clustering_with_threshold(0.05)
+            
+            assert centers is not None
+            assert is_null is False
+            mock_perform.assert_called_once()
+            mock_save_centers.assert_called_once()
+            mock_save_flag.assert_called_once()
 
-    def test_invalid_threshold_handling(self):
-        """
-        Verify that the logic handles unexpected threshold values gracefully
-        (though the main loop should only pass valid ones, this tests robustness).
-        """
-        # This test ensures that if the logic were to iterate over a different set,
-        # it wouldn't crash, but specifically we test the calculation logic.
-        # The primary test is test_sweep_thresholds_exact_set which enforces the set.
-        pass
+    @patch('src.sensitivity.load_routing_cache')
+    @patch('src.sensitivity.compute_mean_routing_vectors')
+    @patch('src.sensitivity.perform_clustering')
+    @patch('src.sensitivity.generate_global_average')
+    @patch('src.sensitivity.save_cluster_centers')
+    @patch('src.sensitivity.save_null_hypothesis_flag')
+    def test_run_clustering_with_threshold_null_hypothesis(
+        self, mock_save_flag, mock_save_centers, mock_gen_avg, mock_perform, mock_compute, mock_load
+    ):
+        """Test that null hypothesis is triggered and global average is generated."""
+        mock_compute.return_value = np.random.rand(10, 32)
+        # Simulate a low score that triggers null
+        mock_perform.return_value = (np.random.rand(1, 32), 0.1, True) 
+        
+        mock_gen_avg.return_value = np.random.rand(32) # Global average vector
+        
+        with patch('src.sensitivity.get_routing_cache_path') as mock_path:
+            mock_path.return_value = MagicMock(exists=True)
+            
+            centers, is_null = run_clustering_with_threshold(0.05)
+            
+            assert is_null is True
+            mock_gen_avg.assert_called_once()
+            mock_save_flag.assert_called_with(True, overwrite=True)
+
+    @patch('subprocess.run')
+    @patch('pandas.read_csv')
+    @patch('src.sensitivity.get_results_path')
+    def test_run_benchmark_for_threshold(self, mock_get_path, mock_read_csv, mock_subprocess):
+        """Test that benchmark execution parses FID correctly."""
+        mock_subprocess.return_value = MagicMock(returncode=0)
+        
+        # Mock CSV content
+        mock_df = MagicMock()
+        mock_df.__getitem__ = lambda self, key: {'model_type': ['static', 'dynamic'], 'fid_score': [15.5, 12.0]}[key]
+        mock_df.iloc = [[15.5, 12.0]] # Simplified
+        mock_read_csv.return_value = mock_df
+        
+        # Mock the dataframe filtering
+        with patch.object(mock_df, '__getitem__', return_value=pd.Series(['static', 'dynamic'])):
+            with patch.object(mock_df, 'iloc', new_callable=MagicMock) as mock_iloc:
+                # Setup mock for filtering
+                mock_filtered = MagicMock()
+                mock_filtered.iloc = [MagicMock(__getitem__=lambda self, key: 15.5)]
+                mock_df.__getitem__ = lambda self, key: mock_filtered if key == 'model_type' else None
+                # Actually, let's mock the DataFrame logic more simply
+                pass
+
+        # Re-mock for simplicity
+        mock_read_csv.return_value = MagicMock(
+            **{'iloc[-1]': {'fid_score': 15.5, 'model_type': 'static'}},
+            **{'__getitem__': lambda self, key: [True, False] if key == 'model_type' else []} # Simplified filter
+        )
+        
+        # Better mock for pandas
+        import pandas as pd
+        mock_df = pd.DataFrame({'model_type': ['static', 'dynamic'], 'fid_score': [15.5, 12.0]})
+        mock_read_csv.return_value = mock_df
+
+        mock_path_instance = MagicMock()
+        mock_path_instance.__truediv__ = lambda self, name: MagicMock(exists=True)
+        mock_get_path.return_value = mock_path_instance
+
+        fid = run_benchmark_for_threshold()
+        assert fid == 15.5
+        mock_subprocess.assert_called_once()
+
+    @patch('src.sensitivity.run_clustering_with_threshold')
+    @patch('src.sensitivity.run_benchmark_for_threshold')
+    def test_run_sensitivity_sweep(self, mock_bench, mock_cluster):
+        """Test the full sweep logic aggregates results correctly."""
+        mock_cluster.return_value = (MagicMock(), False)
+        mock_bench.return_value = 15.0
+        
+        with patch('src.sensitivity.THRESHOLD_SET', [0.01, 0.05]):
+            with patch('src.sensitivity.ensure_directories_exist'):
+                with patch('builtins.open', mock_open()) as mock_file:
+                    results = run_sensitivity_sweep()
+                    
+                    assert len(results['thresholds']) == 2
+                    assert len(results['fid_scores']) == 2
+                    assert 'summary' in results
+                    assert results['summary']['min_fid'] == 15.0
+                    assert results['summary']['max_fid'] == 15.0
+                    assert results['summary']['range'] == 0.0
+                    mock_file.assert_called()

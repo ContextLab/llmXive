@@ -1,11 +1,12 @@
 T011:
   c: false
-  h: 972a3bbb04c06c4f20062bdb86d35a5b25d920dfd969e2ebff91580aa389c5c4
-  r: "The repository contains a `tracing.py` file, but it is truncated and shows no\
-    \ evidence of iterating over 100 ImageNet validation images, saving routing matrices,\
-    \ or producing the required log files. Both `data/results/tracing_log.jsonl` and\
-    \ `data/results/memory_profile_raw.jsonl` are missing, and there are no routing\
-    \ cache files in `data/routing_cache/`. The task\u2019s core outputs are absent."
+  h: 8e5b6657b14ee1c198dde6b543bf314b08b1860b6bc66e2eaf1849c7209f9585
+  r: "The provided `tracing.py` contains only placeholder functions and does not load\
+    \ SiT\u2011XL/2, enforce batch\u2011size\u20111 processing, use a fixed linear\
+    \ timestep schedule, record routing matrices to `data/routing_cache/`, or produce\
+    \ the required JSON\u2011line logs. Moreover, the expected output files `data/results/tracing_log.jsonl`,\
+    \ `data/results/memory_profile_raw.jsonl`, and the routing cache `.npy/.pt` files\
+    \ are absent."
 T017:
   c: false
   h: 5439a9acc7939eae102461b42ac18f65594af7ccd4a9e3017cfd8489084cd7cc
@@ -15,24 +16,25 @@ T017:
     functional code that computes and asserts FID on dummy samples.
 T019:
   c: false
-  h: ebb12a8bf597fbdb076ef842d6ecbbf77a1044c5dd483f5a7d5d149ee54cb927
-  r: "The repository lacks a functional `src/metrics.py`, and the required result\
-    \ files `data/results/benchmark_results.csv` and `.json` are not present. Moreover,\
-    \ `benchmark.py` contains placeholder generation logic and does not actually run\
-    \ inference, compute FID, or write the specified schema, so the task\u2019s core\
-    \ requirements are unmet."
+  h: 8a7aa1535c013d14b00e475e56d13efe96f9f5f52b9fef659d8b4e8c9fb892b3
+  r: "The repository lacks the required `src/metrics.py` (used for FID calculation)\
+    \ and the result files `data/results/benchmark_results.csv` and `.json`. Moreover,\
+    \ the provided `benchmark.py` is truncated and contains placeholder generation\
+    \ logic without full implementation of dual\u2011model inference, seed\u2011sharing,\
+    \ shard checksum logging, or result appending. These missing components mean the\
+    \ task\u2019s specifications are not met."
 T025:
   c: false
-  h: 9415cfeb28213ddbcb93ef9309d23db8fb7aca7ace720b1ea508b72c4246cd1d
-  r: The repository contains a partially implemented `stats_analysis.py`, but the
-    required output file `data/results/statistical_analysis.json` is missing, and
-    the script does not demonstrably run the benchmark five times, collect static/dynamic
-    FID scores, compute paired differences, and write a JSON with the keys `mean`,
-    `std`, and `bootstrap_results`. The implementer must add the execution logic and
-    generate the specified JSON file.
-T037:
+  h: 5a35b0438d17bb54cd4f457cbcaedd78f4956d22c47b0dea91a1fad6a0ef2c60
+  r: "The required output file `data/results/statistical_analysis.json` is missing,\
+    \ and the provided `stats_analysis.py` snippet does not show the full logic for\
+    \ running five seeds, computing paired differences, and writing the required JSON\
+    \ with the specified keys. The implementation therefore does not satisfy the task\u2019\
+    s verification requirements."
+T031b:
   c: false
-  h: 0b6740802decca809d87e0a94d6a7134acdef36c0aa661753a4e5daf61cda49c
-  r: The required file `src/tracing.py` is missing entirely, so there is no code to
-    verify batch size, memory logging, or RAM usage. Without the artifact, the task
-    cannot be considered fulfilled.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided material contains only a feature specification for a research task\
+    \ and no evidence of running `ruff check src/` or `black --check src/`. There\
+    \ are no command outputs, logs, or reports showing that both tools returned an\
+    \ exit code of\u202F0, so the linting requirement is not demonstrated."

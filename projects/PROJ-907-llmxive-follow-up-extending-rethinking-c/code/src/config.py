@@ -8,78 +8,72 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Environment variable names
-ENV_IMAGENET_PATH = "IMAGENET_PATH"
-ENV_SEED = "LLMXIVE_SEED"
-ENV_ROUTING_CACHE = "ROUTING_CACHE_PATH"
-ENV_RESULTS = "RESULTS_PATH"
-
-def _get_env_or_default(key: str, default: str) -> str:
-    """Retrieves environment variable or returns default. Logs the value."""
-    val = os.environ.get(key, default)
-    logger.debug(f"Config: {key} = {val}")
-    return val
+# Project root is two levels up from code/src
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+DATA_DIR = CODE_DIR / "data"
+RESULTS_DIR = DATA_DIR / "results"
+ROUTING_CACHE_DIR = DATA_DIR / "routing_cache"
 
 def set_seed(seed: Optional[int] = None):
-    """
-    Sets random seeds for reproducibility.
-    If seed is None, attempts to read from environment variable.
-    """
+    """Set random seeds for reproducibility."""
     if seed is None:
-        seed_str = os.environ.get(ENV_SEED)
-        if seed_str:
-            seed = int(seed_str)
-        else:
-            seed = 42 # Default seed if not specified
+        seed = int(os.getenv('RANDOM_SEED', '42'))
     
-    logger.info(f"Setting global seed to {seed}")
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+    
+    logger.info(f"Random seed set to {seed}")
 
 def get_seed() -> int:
-    """Returns the current seed."""
-    seed_str = os.environ.get(ENV_SEED, "42")
-    return int(seed_str)
+    """Get the current random seed."""
+    return int(os.getenv('RANDOM_SEED', '42'))
 
-def get_imagenet_path() -> Optional[str]:
-    """Returns the path to ImageNet if set, else None (will use streaming)."""
-    path = os.environ.get(ENV_IMAGENET_PATH)
-    if path:
-        logger.info(f"Using ImageNet path from env: {path}")
-        return path
-    return None
+def get_imagenet_path() -> Path:
+    """Get path to ImageNet dataset (not used in streaming mode)."""
+    # In streaming mode, we don't need a local path
+    return DATA_DIR / "imagenet"
 
-def get_routing_cache_path() -> str:
-    """Returns the path for routing cache."""
-    # Default to project structure if not set
-    default_path = "data/routing_cache"
-    return _get_env_or_default(ENV_ROUTING_CACHE, default_path)
+def get_routing_cache_path() -> Path:
+    """Get path to routing cache directory."""
+    return ROUTING_CACHE_DIR
 
-def get_results_path() -> str:
-    """Returns the path for results."""
-    default_path = "data/results"
-    return _get_env_or_default(ENV_RESULTS, default_path)
+def get_results_path() -> Path:
+    """Get path to results directory."""
+    return RESULTS_DIR
 
 def ensure_directories_exist():
-    """Creates necessary directories if they don't exist."""
-    paths = [
-        get_routing_cache_path(),
-        get_results_path(),
-        "data/imagenet_trace",
-        "data/imagenet_benchmark"
+    """Ensure all necessary directories exist."""
+    directories = [
+        CODE_DIR / "src",
+        CODE_DIR / "tests",
+        DATA_DIR,
+        RESULTS_DIR,
+        ROUTING_CACHE_DIR,
+        DATA_DIR / "imagenet_trace",
+        DATA_DIR / "imagenet_benchmark",
+        DATA_DIR / "routing_cache",
+        DATA_DIR / "results",
+        PROJECT_ROOT / "docs"
     ]
-    for p in paths:
-        Path(p).mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory exists: {p}")
+    for dir_path in directories:
+        dir_path.mkdir(parents=True, exist_ok=True)
+    logger.info("Directories ensured.")
 
 def get_config_summary() -> Dict[str, Any]:
-    """Returns a summary of the current configuration."""
+    """Get a summary of the current configuration."""
     return {
         "seed": get_seed(),
-        "imagenet_path": get_imagenet_path(),
-        "routing_cache": get_routing_cache_path(),
-        "results": get_results_path()
+        "trace_set_size": int(os.getenv('TRACE_SET_SIZE', '100')),
+        "benchmark_set_start": int(os.getenv('BENCHMARK_SET_START', '100')),
+        "project_root": str(PROJECT_ROOT),
+        "data_dir": str(DATA_DIR),
+        "results_dir": str(RESULTS_DIR),
+        "routing_cache_dir": str(ROUTING_CACHE_DIR)
     }
+
+# Initialize directories on module import
+ensure_directories_exist()

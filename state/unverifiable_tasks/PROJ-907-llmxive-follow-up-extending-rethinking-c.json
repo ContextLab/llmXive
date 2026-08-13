@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-907-llmxive-follow-up-extending-rethinking-c",
+  "tasks": [
+    {
+      "task_key": "T012",
+      "reject_count": 1,
+      "last_reason": "The provided `clustering.py` is only partially shown and does not contain the full logic for silhouette computation, null\u2011hypothesis handling, writing `null_hypothesis_flag.json`, or saving `cluster_centers.json`. Moreover, the required output files `data/results/null_hypothesis_flag.json` and `data/routing_cache/cluster_centers.json` are missing. The implementation must be completed to meet all specified behaviors.",
+      "first_seen": "2026-08-13T20:26:38.030369+00:00",
+      "last_seen": "2026-08-13T20:26:38.030369+00:00"
+    },
+    {
+      "task_key": "T013",
+      "reject_count": 1,
+      "last_reason": "The repository contains `code/src/canonical_map.py`, but the required output file `data/routing_cache/canonical_map.json` does not exist, so the verification condition (file existence and correct dict structure) is not met. The implementer must generate and save the canonical map JSON at the specified location.",
+      "first_seen": "2026-08-13T20:26:38.031762+00:00",
+      "last_seen": "2026-08-13T20:26:38.031762+00:00"
+    },
+    {
+      "task_key": "T018",
+      "reject_count": 1,
+      "last_reason": "The repository contains a `static_model.py` file, but it is truncated (ends mid\u2011method) and does not provide a complete implementation that removes the dynamic softmax computation. Moreover, the required `data/routing_cache/canonical_map.json` file is absent, so the model cannot even be instantiated as specified. Both the code and the necessary data artifact are missing/incomplete.",
+      "first_seen": "2026-08-13T20:26:39.657937+00:00",
+      "last_seen": "2026-08-13T20:26:39.657937+00:00"
+    },
+    {
+      "task_key": "T026",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/stats_analysis.py, data/results/statistical_analysis.json",
+      "first_seen": "2026-08-13T20:26:43.495438+00:00",
+      "last_seen": "2026-08-13T20:26:43.495438+00:00"
+    }
+  ],
+  "updated_at": "2026-08-13T20:26:43.495438+00:00"
+}

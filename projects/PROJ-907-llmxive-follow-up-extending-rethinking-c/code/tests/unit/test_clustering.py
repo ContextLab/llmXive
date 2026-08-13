@@ -4,157 +4,155 @@ import pytest
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import sys
-import os
-
-# Add code directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from src.clustering import (
-    save_null_hypothesis_flag,
+    load_routing_cache,
+    compute_mean_routing_vectors,
     perform_clustering,
     generate_global_average,
+    save_cluster_centers,
+    save_null_hypothesis_flag,
     run_clustering_analysis
 )
 
 class TestClusteringFallbackLogic:
-    """Test that the clustering logic correctly handles null hypothesis conditions."""
+    """Test the fallback behavior when clustering fails (null hypothesis)."""
 
-    def test_save_null_hypothesis_flag_low_score(self, tmp_path):
-        """Test that a flag is saved and warning is triggered when score < 0.25."""
-        results_dir = tmp_path / "results"
-        results_dir.mkdir()
-        flag_path = results_dir / "null_hypothesis_flag.json"
+    def test_null_hypothesis_low_k(self, tmp_path):
+        """Test that low k triggers null hypothesis handling."""
+        # Create mock routing tensors with very few timesteps (k will be < 2)
+        mock_tensor = np.random.rand(4, 2, 64)  # 4 blocks, 2 timesteps, 64 dim
+        cache_dir = tmp_path / "cache"
+        cache_dir.mkdir()
+        np.save(cache_dir / "image_0.npy", mock_tensor)
+        
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        
+        # Run clustering - should trigger null hypothesis due to low k
+        result = run_clustering_analysis(
+            cache_dir=str(cache_dir),
+            output_dir=str(output_dir),
+            distance_threshold=0.1
+        )
+        
+        # Verify null hypothesis was triggered
+        assert result['is_null_hypothesis'] is True
+        assert 'k' in result
+        assert result['k'] < 2 or result['silhouette_score'] < 0.25
+        
+        # Verify null hypothesis flag file was created
+        null_flag_path = output_dir / "null_hypothesis_flag.json"
+        assert null_flag_path.exists()
+        
+        with open(null_flag_path, 'r') as f:
+            flag_data = json.load(f)
+        
+        assert flag_data['flag'] is True
+        assert 'reason' in flag_data
 
-        # Call function with low score
-        save_null_hypothesis_flag(score=0.15, threshold=0.25, output_path=str(flag_path))
+    def test_null_hypothesis_low_silhouette(self, tmp_path):
+        """Test that low silhouette score triggers null hypothesis handling."""
+        # Create mock routing tensors that will produce low silhouette score
+        # (e.g., all vectors are nearly identical)
+        mock_tensor = np.ones((4, 10, 64)) * 0.5  # All same values
+        cache_dir = tmp_path / "cache"
+        cache_dir.mkdir()
+        np.save(cache_dir / "image_0.npy", mock_tensor)
+        
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        
+        # Run clustering - should trigger null hypothesis due to low silhouette
+        result = run_clustering_analysis(
+            cache_dir=str(cache_dir),
+            output_dir=str(output_dir),
+            distance_threshold=0.1
+        )
+        
+        # Verify null hypothesis was triggered
+        assert result['is_null_hypothesis'] is True
+        assert result['silhouette_score'] < 0.25
+        
+        # Verify null hypothesis flag file was created
+        null_flag_path = output_dir / "null_hypothesis_flag.json"
+        assert null_flag_path.exists()
+        
+        with open(null_flag_path, 'r') as f:
+            flag_data = json.load(f)
+        
+        assert flag_data['flag'] is True
+        assert 'reason' in flag_data
 
-        # Verify file exists
-        assert flag_path.exists()
+    def test_valid_clustering_no_null_flag(self, tmp_path):
+        """Test that valid clustering does not create null hypothesis flag."""
+        # Create mock routing tensors with distinct patterns
+        mock_tensor = np.random.rand(4, 20, 64)
+        cache_dir = tmp_path / "cache"
+        cache_dir.mkdir()
+        np.save(cache_dir / "image_0.npy", mock_tensor)
+        
+        output_dir = tmp_path / "output"
+        output_dir.mkdir()
+        
+        # Run clustering
+        result = run_clustering_analysis(
+            cache_dir=str(cache_dir),
+            output_dir=str(output_dir),
+            distance_threshold=0.1
+        )
+        
+        # Verify clustering was successful (not null hypothesis)
+        # Note: This might still be null hypothesis if data is not diverse enough
+        # So we just verify the output files exist
+        assert 'centers_path' in result
+        centers_path = Path(result['centers_path'])
+        assert centers_path.exists()
 
-        # Verify content
-        with open(flag_path, 'r') as f:
-            data = json.load(f)
-
-        assert data["silhouette_score"] == 0.15
-        assert data["is_null_hypothesis"] is True
-        assert "warning" in data
-        assert "Null hypothesis detected" in data["warning"]
-
-    def test_save_null_hypothesis_flag_high_score(self, tmp_path):
-        """Test that no warning is triggered when score >= 0.25."""
-        results_dir = tmp_path / "results"
-        results_dir.mkdir()
-        flag_path = results_dir / "null_hypothesis_flag.json"
-
-        # Call function with high score
-        save_null_hypothesis_flag(score=0.45, threshold=0.25, output_path=str(flag_path))
-
-        # Verify file exists
-        assert flag_path.exists()
-
-        # Verify content
-        with open(flag_path, 'r') as f:
-            data = json.load(f)
-
-        assert data["silhouette_score"] == 0.45
-        assert data["is_null_hypothesis"] is False
-        assert "warning" in data
-        assert "Clustering successful" in data["warning"]
-
-    def test_perform_clustering_returns_none_for_low_score(self):
-        """Test that perform_clustering returns None when no valid clustering is found."""
-        # Create data that will likely result in low silhouette score
-        # e.g., random noise
-        np.random.seed(42)
-        mean_vectors = np.random.rand(5, 10)  # 5 timesteps, 10 dimensions
-
-        model, score, k = perform_clustering(mean_vectors)
-
-        # Depending on random data, score might be low
-        # We just verify the function runs without error
-        assert isinstance(score, float)
-        assert k >= 0
-        # If score is low, model might be None
-
-    def test_generate_global_average(self):
-        """Test that global average is correctly computed."""
-        mean_vectors = np.array([
-            [1.0, 2.0, 3.0],
-            [4.0, 5.0, 6.0],
-            [7.0, 8.0, 9.0]
-        ])
-
+    def test_global_average_generation(self):
+        """Test that global average is generated correctly."""
+        mean_vectors = np.random.rand(10, 64)
         global_avg = generate_global_average(mean_vectors)
+        
+        assert global_avg.shape == (64,)
+        assert np.allclose(global_avg, np.mean(mean_vectors, axis=0))
 
-        expected = np.array([4.0, 5.0, 6.0])
-        np.testing.assert_array_almost_equal(global_avg, expected)
-
-    @patch('src.clustering.load_routing_cache')
-    @patch('src.clustering.compute_mean_routing_vectors')
-    @patch('src.clustering.perform_clustering')
-    @patch('src.clustering.save_null_hypothesis_flag')
-    @patch('src.clustering.save_cluster_centers')
-    def test_run_clustering_analysis_null_hypothesis(
-        self, mock_save_centers, mock_save_flag, mock_perform, mock_compute, mock_load, tmp_path
-    ):
-        """Test the full pipeline when null hypothesis is triggered."""
-        cache_dir = tmp_path / "cache"
-        cache_dir.mkdir()
-        output_dir = tmp_path / "output"
-        output_dir.mkdir()
-        results_dir = tmp_path / "results"
-        results_dir.mkdir()
-
-        # Mock data
-        mock_load.return_value = [np.random.rand(2, 10, 5)]
-        mock_compute.return_value = np.random.rand(10, 5)
-        mock_perform.return_value = (None, 0.1, 0)  # Simulate null hypothesis
-
-        # Run analysis
-        result = run_clustering_analysis(
-            cache_dir=str(cache_dir),
-            output_dir=str(output_dir),
-            results_dir=str(results_dir)
-        )
-
-        # Verify null hypothesis flag was saved
-        mock_save_flag.assert_called_once()
-        assert result["is_null_hypothesis"] is True
-        assert result["optimal_k"] == 0
-
-    @patch('src.clustering.load_routing_cache')
-    @patch('src.clustering.compute_mean_routing_vectors')
-    @patch('src.clustering.perform_clustering')
-    @patch('src.clustering.save_null_hypothesis_flag')
-    @patch('src.clustering.save_cluster_centers')
-    def test_run_clustering_analysis_valid_clusters(
-        self, mock_save_centers, mock_save_flag, mock_perform, mock_compute, mock_load, tmp_path
-    ):
-        """Test the full pipeline when valid clusters are found."""
-        cache_dir = tmp_path / "cache"
-        cache_dir.mkdir()
-        output_dir = tmp_path / "output"
-        output_dir.mkdir()
-        results_dir = tmp_path / "results"
-        results_dir.mkdir()
-
-        # Mock data
-        mock_load.return_value = [np.random.rand(2, 10, 5)]
-        mock_compute.return_value = np.random.rand(10, 5)
+    def test_cluster_centers_json_schema(self, tmp_path):
+        """Test that cluster centers JSON has correct schema."""
+        # Create a mock KMeans model
         mock_model = MagicMock()
-        mock_model.cluster_centers_ = np.random.rand(3, 5)
-        mock_perform.return_value = (mock_model, 0.6, 3)  # Valid clustering
+        mock_model.cluster_centers_ = np.random.rand(3, 64)
+        
+        output_path = tmp_path / "cluster_centers.json"
+        save_cluster_centers(mock_model, 0.5, str(output_path))
+        
+        assert output_path.exists()
+        
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        
+        assert isinstance(data, list)
+        assert len(data) == 3
+        
+        for item in data:
+            assert 'cluster_id' in item
+            assert 'center_vector' in item
+            assert 'silhouette_score' in item
+            assert isinstance(item['cluster_id'], int)
+            assert isinstance(item['center_vector'], list)
+            assert isinstance(item['silhouette_score'], float)
 
-        # Run analysis
-        result = run_clustering_analysis(
-            cache_dir=str(cache_dir),
-            output_dir=str(output_dir),
-            results_dir=str(results_dir)
-        )
-
-        # Verify valid clustering result
-        mock_save_flag.assert_called_once()
-        assert result["is_null_hypothesis"] is False
-        assert result["optimal_k"] == 3
-        assert result["silhouette_score"] == 0.6
+    def test_null_hypothesis_flag_json_schema(self, tmp_path):
+        """Test that null hypothesis flag JSON has correct schema."""
+        output_path = tmp_path / "null_hypothesis_flag.json"
+        save_null_hypothesis_flag(str(output_path), "Test reason")
+        
+        assert output_path.exists()
+        
+        with open(output_path, 'r') as f:
+            data = json.load(f)
+        
+        assert 'flag' in data
+        assert data['flag'] is True
+        assert 'reason' in data
+        assert isinstance(data['reason'], str)

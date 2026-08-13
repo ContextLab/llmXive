@@ -1,253 +1,267 @@
 """
-Canonical Map Derivation Module (T013)
+canonical_map.py
 
 Derives the "Canonical Routing Map" (static weight vector per block) from the
-dominant cluster centers computed in T012, or falls back to a global average
-if the clustering analysis indicated a null hypothesis.
+dominant cluster or global average, and saves it to data/routing_cache/canonical_map.json.
 
-Output:
-    data/routing_cache/canonical_map.json
-        A JSON file containing a dictionary with keys:
-        - "block_id": int
-        - "weight_vector": list of floats (the static routing weights)
+Dependency: T012 (clustering.py)
 """
 import json
 import logging
+import os
+import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-
 import numpy as np
 
-from src.clustering import (
-    load_routing_cache,
-    compute_mean_routing_vectors,
-    perform_clustering,
-    generate_global_average,
-    save_cluster_centers,
-    save_null_hypothesis_flag,
-)
-from src.config import get_routing_cache_path, get_results_path
+# Import from existing sibling module as per API surface
+from src.clustering import load_routing_cache, compute_mean_routing_vectors, perform_clustering, generate_global_average, save_cluster_centers, save_null_hypothesis_flag, run_clustering_analysis
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-CANONICAL_MAP_FILENAME = "canonical_map.json"
-NULL_HYPOTHESIS_FLAG_FILENAME = "null_hypothesis_flag.json"
-
-
 def derive_canonical_map(
-    cache_path: Optional[Path] = None,
-    results_path: Optional[Path] = None,
-    silhouette_threshold: float = 0.25,
-    min_k: int = 2,
+    routing_cache_path: Optional[Path] = None,
+    cluster_centers_path: Optional[Path] = None,
+    null_hypothesis_flag_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    k: int = 5,
+    distance_threshold: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Derives the canonical routing map from clustering results.
-
-    This function:
-    1. Loads the raw routing cache (from T011).
-    2. Computes mean routing vectors per timestep.
-    3. Performs clustering (from T012).
-    4. Checks for the null hypothesis (k < min_k or silhouette < threshold).
-    5. If null hypothesis is true, generates a global average vector.
-    6. Constructs the canonical map: a static weight vector for each block.
-    7. Saves the map to `data/routing_cache/canonical_map.json`.
+    Derives the canonical routing map from clustering results or global average.
 
     Args:
-        cache_path: Path to the routing cache directory. Defaults to config.
-        results_path: Path to the results directory. Defaults to config.
-        silhouette_threshold: Minimum acceptable silhouette score.
-        min_k: Minimum number of clusters to consider valid.
+        routing_cache_path: Path to the routing cache directory containing .npy files.
+        cluster_centers_path: Path to the cluster centers JSON file (output of T012).
+        null_hypothesis_flag_path: Path to the null hypothesis flag JSON file (output of T012).
+        output_path: Path where the canonical map JSON will be saved.
+        k: Number of clusters for k-means (default 5).
+        distance_threshold: Threshold for clustering (default 0.05).
 
     Returns:
-        Dict containing the canonical map structure.
+        A dictionary representing the canonical routing map.
+        Structure: {
+            "block_id": int,
+            "weight_vector": List[float],
+            "source": "cluster" | "global_average",
+            "cluster_id": int (if from cluster),
+            "silhouette_score": float (if from cluster),
+            "num_timesteps": int
+        }
     """
-    if cache_path is None:
-        cache_path = get_routing_cache_path()
-    if results_path is None:
-        results_path = get_results_path()
+    if routing_cache_path is None:
+        routing_cache_path = Path(os.getenv("ROUTING_CACHE_PATH", "data/routing_cache"))
+    if cluster_centers_path is None:
+        cluster_centers_path = Path(os.getenv("CLUSTER_CENTERS_PATH", "data/routing_cache/cluster_centers.json"))
+    if null_hypothesis_flag_path is None:
+        null_hypothesis_flag_path = Path(os.getenv("NULL_HYPOTHESIS_FLAG_PATH", "data/results/null_hypothesis_flag.json"))
+    if output_path is None:
+        output_path = Path(os.getenv("CANONICAL_MAP_PATH", "data/routing_cache/canonical_map.json"))
 
-    cache_path = Path(cache_path)
-    results_path = Path(results_path)
-    results_path.mkdir(parents=True, exist_ok=True)
-    cache_path.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Loading routing cache from: {cache_path}")
-    # Load raw data to determine block count and dimensionality
-    # We assume the cache contains files named like: routing_image_{idx}.npz
-    # or a single aggregated file. We use the clustering module's loader.
+    logger.info(f"Loading routing cache from: {routing_cache_path}")
+    # Load raw routing data to determine block count and history_dim
+    # We need to know the structure to construct the final map
+    # Re-run the loading logic to get the shape info
     try:
-        routing_data = load_routing_cache(cache_path)
-    except FileNotFoundError as e:
-        logger.error(f"Routing cache not found: {e}")
+        # Load all routing tensors to infer dimensions
+        # This is a simplified re-load for dimension inference
+        # In a production scenario, we might cache this metadata
+        all_tensors = load_routing_cache(routing_cache_path)
+        if not all_tensors:
+            raise ValueError("No routing tensors found in the cache.")
+
+        # Infer block count and history_dim from the first tensor
+        # Assuming tensors are stored as [block, timestep, history_dim]
+        # We need to aggregate across blocks and timesteps to get the mean vector per timestep
+        # But for the canonical map, we want a static vector per block.
+        # The task description says: "Derive the 'Canonical Routing Map' (static weight vector per block)"
+        # However, the clustering is done on the mean routing vector across all images/blocks for each timestep.
+        # This implies the clustering result is per-timestep.
+        # But the canonical map is supposed to be per-block.
+        # Let's re-read T012: "compute the mean routing vector across all images/blocks for each timestep"
+        # And T013: "Derive the 'Canonical Routing Map' (static weight vector per block)"
+        # There seems to be a mismatch in the task description vs. the clustering logic.
+        # Let's assume the canonical map is a single static vector that is used for all blocks,
+        # or perhaps the clustering result is applied to each block independently?
+        # Given the ambiguity, and the fact that T012 clusters timesteps, the most logical interpretation
+        # is that the canonical map is a time-invariant weight vector (i.e., the same for all timesteps).
+        # But the output schema in T013 says: {block_id, weight_vector}.
+        # This suggests a per-block static map.
+        # Let's assume the clustering is done per-block? No, T012 says "across all images/blocks".
+        # Perhaps the canonical map is the dominant cluster center, repeated for each block?
+        # Or perhaps the canonical map is the global average, repeated for each block?
+        # Given the task description "static weight vector per block", and the clustering is on timesteps,
+        # I will interpret this as: the canonical map is a single vector (the dominant cluster center or global average)
+        # that is used for all blocks and all timesteps. But the output format requires block_id.
+        # So I will create an entry for each block, with the same weight vector.
+        # This is a reasonable interpretation of "static" (time-invariant) and "per block" (applied to each block).
+
+        # Let's get the number of blocks and history_dim from the data
+        # We need to load at least one file to get the shape
+        first_file = None
+        for file in routing_cache_path.glob("*.npy"):
+            first_file = file
+            break
+        if first_file is None:
+            for file in routing_cache_path.glob("*.pt"):
+                first_file = file
+                break
+
+        if first_file is None:
+            raise FileNotFoundError("No .npy or .pt files found in routing cache.")
+
+        first_tensor = np.load(first_file) if str(first_file).endswith('.npy') else torch.load(first_file, map_location='cpu')
+        if not isinstance(first_tensor, np.ndarray):
+            first_tensor = first_tensor.numpy()
+
+        # Shape should be [block, timestep, history_dim]
+        if len(first_tensor.shape) != 3:
+            raise ValueError(f"Expected 3D tensor, got shape {first_tensor.shape}")
+
+        num_blocks, num_timesteps, history_dim = first_tensor.shape
+        logger.info(f"Detected {num_blocks} blocks, {num_timesteps} timesteps, {history_dim} history_dim")
+
+    except Exception as e:
+        logger.error(f"Failed to load routing cache for dimension inference: {e}")
         raise
 
-    if not routing_data:
-        logger.error("Routing cache is empty. Cannot derive canonical map.")
-        raise ValueError("Routing cache is empty.")
+    # Check if clustering was successful (i.e., not a null hypothesis)
+    null_hypothesis = False
+    if null_hypothesis_flag_path.exists():
+        try:
+            with open(null_hypothesis_flag_path, 'r') as f:
+                flag_data = json.load(f)
+                null_hypothesis = flag_data.get("is_null_hypothesis", False)
+                logger.info(f"Null hypothesis flag: {null_hypothesis}")
+        except Exception as e:
+            logger.warning(f"Could not read null hypothesis flag: {e}")
+            null_hypothesis = False
 
-    logger.info("Computing mean routing vectors...")
-    mean_vectors = compute_mean_routing_vectors(routing_data)
+    if null_hypothesis:
+        logger.info("Null hypothesis detected. Using global average vector for all blocks.")
+        # Generate global average vector
+        # We need to compute the global average across all blocks, timesteps, and images
+        # Re-load all tensors and compute the mean
+        all_data = []
+        for file in routing_cache_path.glob("*.npy"):
+            tensor = np.load(file)
+            all_data.append(tensor)
+        for file in routing_cache_path.glob("*.pt"):
+            tensor = torch.load(file, map_location='cpu').numpy()
+            all_data.append(tensor)
 
-    # mean_vectors shape: [num_timesteps, history_dim]
-    # We need to determine the number of blocks.
-    # The routing_data structure usually contains block info.
-    # Let's infer block count from the raw data keys or structure if available.
-    # For now, we assume the clustering module returns enough context or we
-    # infer from the data structure.
-    # A robust way: Check the shape of a single sample if available.
-    # However, T012 clustering logic usually determines the 'k'.
-    # We need the number of blocks to assign a weight vector to each.
+        if not all_data:
+            raise ValueError("No data found to compute global average.")
 
-    # Re-load raw data to inspect block structure if not in mean_vectors
-    # Assuming routing_data is a dict or list of arrays with block info.
-    # Let's assume the raw data keys are 'image_X' and values are dicts
-    # or arrays with shape [blocks, timesteps, dim].
-    # Since load_routing_cache is abstracted, we rely on the fact that
-    # perform_clustering returns the cluster centers and the null flag.
+        concatenated = np.concatenate(all_data, axis=0) # Concatenate over images
+        global_avg_vector = np.mean(concatenated, axis=(0, 1)) # Mean over blocks and timesteps
 
-    logger.info("Performing clustering analysis...")
-    cluster_result = perform_clustering(
-        mean_vectors,
-        min_k=min_k,
-        silhouette_threshold=silhouette_threshold,
-    )
-
-    is_null_hypothesis = cluster_result.get("is_null_hypothesis", False)
-    silhouette_score = cluster_result.get("silhouette_score", 0.0)
-    k = cluster_result.get("k", 0)
-    cluster_centers = cluster_result.get("cluster_centers", None)
-
-    logger.info(f"Clustering result: k={k}, silhouette={silhouette_score:.4f}, null={is_null_hypothesis}")
-
-    # Save the null hypothesis flag if applicable
-    if is_null_hypothesis:
-        flag_data = {
-            "is_null_hypothesis": True,
-            "reason": f"k < {min_k} ({k} < {min_k}) or silhouette < {silhouette_threshold} ({silhouette_score:.4f} < {silhouette_threshold})",
-            "silhouette_score": silhouette_score,
-            "k": k,
-            "timestamp": str(Path(cache_path).stat().st_mtime), # Approximate
+        canonical_map = {
+            "source": "global_average",
+            "num_blocks": num_blocks,
+            "num_timesteps": num_timesteps,
+            "history_dim": history_dim,
+            "entries": []
         }
-        flag_path = results_path / NULL_HYPOTHESIS_FLAG_FILENAME
-        with open(flag_path, "w") as f:
-            json.dump(flag_data, f, indent=2)
-        logger.warning(f"Null hypothesis detected. Flag saved to {flag_path}")
 
-    # Determine the source of the static weights
-    if is_null_hypothesis:
-        logger.info("Generating global average vector due to null hypothesis.")
-        # generate_global_average expects mean_vectors (timesteps, dim)
-        # It should return a single vector of shape (dim,)
-        # But wait, the canonical map needs a vector PER BLOCK.
-        # If clustering fails, we assume the routing is constant across timesteps
-        # AND potentially constant across blocks? Or we average across blocks too?
-        # The spec says: "global average vector".
-        # Let's assume the global average is computed across all timesteps for the mean vector.
-        # But we need to know the number of blocks.
-        # Let's infer block count from the raw data structure if possible.
-        # If routing_data is a list of dicts where each dict has 'blocks': [block0, block1...],
-        # we can count.
-        
-        # Fallback: Assume the mean_vectors are averaged over blocks already?
-        # No, T012 says: "compute the mean routing vector across all images/blocks for each timestep".
-        # So mean_vectors[t] is the average over all blocks and images for timestep t.
-        # If we fall back to global average, we average over timesteps too.
-        # This gives ONE vector.
-        # How do we assign it to blocks?
-        # Assumption: In the null hypothesis, the routing is uniform across blocks.
-        # So every block gets the same global average vector.
-        
-        global_avg_vector = generate_global_average(mean_vectors)
-        num_blocks = len(routing_data) # This might be number of images, not blocks.
-        # We need the number of blocks.
-        # Let's look at the shape of the raw data for one image.
-        # Assuming routing_data is a list of numpy arrays of shape [blocks, timesteps, dim]
-        # or similar.
-        
-        # Let's try to infer from the first item if it's a structured array or list
-        first_item = list(routing_data.values())[0] if isinstance(routing_data, dict) else routing_data[0]
-        
-        if isinstance(first_item, np.ndarray):
-            if first_item.ndim == 3:
-                num_blocks = first_item.shape[0]
-            else:
-                # Fallback: hardcode or error?
-                # SiT-XL typically has 28 blocks.
-                num_blocks = 28 
-                logger.warning(f"Could not infer block count from array shape {first_item.shape}. Defaulting to {num_blocks}.")
-        else:
-            # If it's a dict of arrays
-            first_array = list(first_item.values())[0] if isinstance(first_item, dict) else first_item
-            if hasattr(first_array, 'shape') and first_array.ndim == 3:
-                num_blocks = first_array.shape[0]
-            else:
-                num_blocks = 28
-                logger.warning(f"Could not infer block count. Defaulting to {num_blocks}.")
-
-        canonical_map_entries = []
-        for b in range(num_blocks):
-            canonical_map_entries.append({
-                "block_id": b,
+        for block_id in range(num_blocks):
+            canonical_map["entries"].append({
+                "block_id": block_id,
                 "weight_vector": global_avg_vector.tolist(),
+                "source": "global_average"
             })
+
     else:
-        logger.info("Using dominant cluster center.")
-        # cluster_centers shape: [k, history_dim]
-        # We need to select the dominant cluster.
-        # If k >= 2, we pick the cluster with the most points (or just the first if equal).
-        # The perform_clustering function should return the dominant center.
-        dominant_center = cluster_centers[0] # Assuming first is dominant or we sort by size
-        
-        # We need num_blocks again.
-        first_item = list(routing_data.values())[0] if isinstance(routing_data, dict) else routing_data[0]
-        if isinstance(first_item, np.ndarray) and first_item.ndim == 3:
-            num_blocks = first_item.shape[0]
+        # Clustering was successful
+        if not cluster_centers_path.exists():
+            raise FileNotFoundError(f"Cluster centers file not found: {cluster_centers_path}")
+
+        with open(cluster_centers_path, 'r') as f:
+            cluster_data = json.load(f)
+
+        # Find the dominant cluster (largest cluster size)
+        # cluster_data structure: {"clusters": [{"cluster_id": int, "size": int, "center": [...]}, ...]}
+        if "clusters" not in cluster_data or not cluster_data["clusters"]:
+            logger.warning("No clusters found. Falling back to global average.")
+            # Fallback to global average if no clusters
+            # Re-compute global average
+            all_data = []
+            for file in routing_cache_path.glob("*.npy"):
+                tensor = np.load(file)
+                all_data.append(tensor)
+            for file in routing_cache_path.glob("*.pt"):
+                tensor = torch.load(file, map_location='cpu').numpy()
+                all_data.append(tensor)
+
+            concatenated = np.concatenate(all_data, axis=0)
+            global_avg_vector = np.mean(concatenated, axis=(0, 1))
+
+            canonical_map = {
+                "source": "global_average",
+                "num_blocks": num_blocks,
+                "num_timesteps": num_timesteps,
+                "history_dim": history_dim,
+                "entries": []
+            }
+
+            for block_id in range(num_blocks):
+                canonical_map["entries"].append({
+                    "block_id": block_id,
+                    "weight_vector": global_avg_vector.tolist(),
+                    "source": "global_average"
+                })
         else:
-            num_blocks = 28
-            logger.warning(f"Could not infer block count for cluster path. Defaulting to {num_blocks}.")
+            # Sort clusters by size to find the dominant one
+            sorted_clusters = sorted(cluster_data["clusters"], key=lambda x: x["size"], reverse=True)
+            dominant_cluster = sorted_clusters[0]
+            dominant_center = np.array(dominant_cluster["center"])
 
-        canonical_map_entries = []
-        for b in range(num_blocks):
-            canonical_map_entries.append({
-                "block_id": b,
-                "weight_vector": dominant_center.tolist(),
-            })
+            logger.info(f"Using dominant cluster {dominant_cluster['cluster_id']} with size {dominant_cluster['size']}")
 
-    canonical_map = {
-        "num_blocks": num_blocks,
-        "timesteps": mean_vectors.shape[0],
-        "history_dim": mean_vectors.shape[1],
-        "is_null_hypothesis": is_null_hypothesis,
-        "silhouette_score": silhouette_score,
-        "k": k,
-        "entries": canonical_map_entries,
-    }
+            canonical_map = {
+                "source": "cluster",
+                "dominant_cluster_id": dominant_cluster["cluster_id"],
+                "num_blocks": num_blocks,
+                "num_timesteps": num_timesteps,
+                "history_dim": history_dim,
+                "silhouette_score": cluster_data.get("silhouette_score", None),
+                "entries": []
+            }
 
-    output_path = cache_path / CANONICAL_MAP_FILENAME
-    with open(output_path, "w") as f:
+            for block_id in range(num_blocks):
+                canonical_map["entries"].append({
+                    "block_id": block_id,
+                    "weight_vector": dominant_center.tolist(),
+                    "source": "cluster",
+                    "cluster_id": dominant_cluster["cluster_id"]
+                })
+
+    # Save the canonical map
+    with open(output_path, 'w') as f:
         json.dump(canonical_map, f, indent=2)
 
-    logger.info(f"Canonical map saved to {output_path}")
+    logger.info(f"Canonical map saved to: {output_path}")
     return canonical_map
 
-
 def main():
-    """Entry point for deriving the canonical map."""
-    logger.info("Starting Canonical Map Derivation (T013)...")
-    try:
-        result = derive_canonical_map()
-        logger.info("Canonical map derivation completed successfully.")
-        print(f"Output: data/routing_cache/{CANONICAL_MAP_FILENAME}")
-        return 0
-    except Exception as e:
-        logger.error(f"Failed to derive canonical map: {e}", exc_info=True)
-        return 1
+    """Main entry point for deriving the canonical map."""
+    logger.info("Starting canonical map derivation...")
 
+    try:
+        canonical_map = derive_canonical_map()
+        logger.info("Canonical map derivation completed successfully.")
+        print(f"Canonical map saved to: {os.getenv('CANONICAL_MAP_PATH', 'data/routing_cache/canonical_map.json')}")
+    except Exception as e:
+        logger.error(f"Failed to derive canonical map: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    main()

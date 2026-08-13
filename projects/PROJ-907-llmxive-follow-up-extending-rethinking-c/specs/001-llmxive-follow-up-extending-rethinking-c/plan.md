@@ -21,7 +21,7 @@ This feature implements a rigorous empirical validation of the "static routing" 
 **Constraints**: Must run on CPU; must not exceed a moderate disk footprint.; must handle OOM by streaming/batching; must not fabricate data if the dataset is gated (uses open ImageNet subset).  
 **Scale/Scope**: A Set of Trace Images
 
-The research question remains: How can trace images be effectively utilized to identify anomalies in system logs? The method involves collecting a representative set of trace images, applying preprocessing techniques to normalize the data, and then employing a convolutional neural network for feature extraction and anomaly detection. References include Smith et al. (2020) [DOI:/3394486.3403123] and Chen and Wang (2021) [arXiv preprint]., A Set of Benchmark Images
+The research question remains: How can trace images be effectively utilized to identify anomalies in system logs? The method involves collecting a representative set of trace images, applying preprocessing techniques to normalize the data, and then employing a convolutional neural network for feature extraction and anomaly detection. References include Smith et al. () [DOI:/3394486.3403123] and Chen and Wang () [arXiv preprint]., A Set of Benchmark Images
 
 The research question investigates the performance of computer vision models on standardized datasets, employing a method of comparative analysis across diverse image categories as described in Smith et al. (n.d.) and Chen & Wang (n.d.)
 
