@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-13T06:42:51.513629+00:00'
+issue_number: 1304
+project_id: PROJ-873-llmxive-follow-up-extending-active-learn
