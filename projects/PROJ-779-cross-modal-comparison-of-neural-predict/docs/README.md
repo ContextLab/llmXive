@@ -1,32 +1,12 @@
 # Cross-Modal Comparison of Neural Prediction Error Signals
 
-## Project Overview
+This project implements an automated pipeline to download, preprocess, and analyze EEG data from OpenNeuro datasets (ds000246 for auditory, ds000117 for visual) to compare neural prediction error signals across modalities.
 
-This project implements an automated pipeline for comparing neural prediction error signals across auditory and visual modalities using EEG data from OpenNeuro datasets.
+## Prerequisites
 
-## Data Integrity and Source Policy
-
-**CRITICAL POLICY: REAL DATA ONLY**
-
-This project strictly adheres to the following data integrity principles:
-
-1. **Mandatory Real Data Sources**: All analysis data MUST originate from verified OpenNeuro datasets:
- - **Auditory Modality**: OpenNeuro dataset `ds000246`
- - **Visual Modality**: OpenNeuro dataset `ds000117` (via Hugging Face Hub mirror)
-
-2. **Prohibition of Synthetic Data**:
- - **NO synthetic data generation** is permitted at any stage of the pipeline.
- - **NO placeholder or mock datasets** are allowed.
- - **NO fallback to simulated values** if real data fetch fails.
- - Any attempt to substitute real measurements with generated values constitutes a violation of the project's core scientific integrity.
-
-3. **Failure Protocol**:
- - If a real data source is unreachable or fails validation, the pipeline must **fail loudly** (raise an explicit error) and halt execution.
- - Silent fallbacks to synthetic data are strictly forbidden and will be rejected by the execution verification stage.
-
-4. **Data Verification**:
- - All downloaded datasets are validated for sampling rate (≥500 Hz) [UNRESOLVED-CLAIM: c_a17308bf — status=not_enough_info] and trial counts (≥100 oddball, ≥300 standard) immediately upon fetch.
- - Data integrity is further verified via checksums recorded in `data/manifest.json`.
+- Python 3.9+
+- pip
+- Virtual environment (recommended)
 
 ## Installation
 
@@ -47,46 +27,45 @@ This project strictly adheres to the following data integrity principles:
  pip install -r requirements.txt
  ```
 
-4. **Configure environment** (optional):
- - Create a `.env` file in the project root if custom paths or API keys are needed.
- - Refer to `code/config.py` for default configuration values.
-
-## Usage
-
-Run the full pipeline:
-```bash
-python code/main.py
-```
-
-This will:
-1. Download and validate datasets from OpenNeuro.
-2. Preprocess the data (filtering, ICA, re-referencing).
-3. Extract prediction error signals (difference waves, peak latency, amplitude).
-4. Perform source localization and statistical comparisons.
-5. Generate a final report in `data/results/final_report.md`.
+4. **Configure environment variables** (optional):
+ Copy `.env.example` to `.env` and update any necessary paths or credentials:
+ ```bash
+ cp.env.example.env
+ ```
 
 ## Project Structure
 
 ```
 .
-├── code/
-│ ├── data/ # Data loading, download, preprocessing
-│ ├── analysis/ # Signal extraction, source localization, stats
+├── code/ # Source code
+│ ├── data/ # Data loading and preprocessing
+│ ├── analysis/ # Metrics and source localization
 │ ├── validation/ # Reliability checks
-│ ├── utils/ # Logging, utilities
-│ ├── config.py # Project configuration
+│ ├── utils/ # Utilities (logging, etc.)
+│ ├── config.py # Global configuration
 │ └── main.py # Orchestration script
-├── data/
-│ ├── raw/ # Downloaded raw datasets
-│ ├── processed/ # Cleaned data artifacts
-│ └── results/ # Analysis outputs and reports
-├── docs/
-│ └── README.md # This file
-├── tests/ # Unit and integration tests
+├── data/ # Data artifacts (generated)
+│ ├── raw/ # Raw downloaded data
+│ ├── processed/ # Preprocessed data
+│ └── results/ # Analysis results
+├── docs/ # Documentation
+├── tests/ # Test suites
 ├── requirements.txt # Dependencies
-└── venv/ # Virtual environment (gitignored)
+└── README.md # This file
 ```
+
+## Usage
+
+See `docs/quickstart.md` for a step-by-step guide to running the pipeline.
+
+## Data Sources
+
+This project uses real data from OpenNeuro:
+- **Auditory**: ds000246
+- **Visual**: ds000117
+
+No synthetic data is generated or used.
 
 ## License
 
-This project is intended for research purposes.
+[Insert License Information]

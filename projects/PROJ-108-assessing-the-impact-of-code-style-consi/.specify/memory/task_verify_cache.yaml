@@ -1,0 +1,44 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that the `data/raw/` and `data/metadata/` directories\
+    \ actually exist in the repository, nor that each contains a `.gitkeep` placeholder\
+    \ file. The implementer\u2019s claim cannot be verified without these artifacts."
+T009:
+  c: false
+  h: f72563dd63cd222a18cf8963d0ffd32bafb75c482c6a0d7ec2fb049acaebb0a6
+  r: "The provided `code/00_extract_metadata.py` is truncated and ends mid\u2011line\
+    \ (`complexity = get_cy`), so it never completes the metadata extraction or writes\
+    \ the CSV. Moreover, the required output file `data/metadata/file_metadata.csv`\
+    \ does not exist. The task\u2019s core deliverables are therefore missing."
+T012:
+  c: false
+  h: 4d5ebbb4f5748dc5160a66fa9fe67da3f74c745400e62f21091abbb7264e0f64
+  r: "The required artifact `tests/unit/test_stratification.py` does not exist in\
+    \ the repository, so no unit test for the stratification logic is present. Without\
+    \ this file, the task\u2019s requirement to provide a unit test verifying High/Med/Low\
+    \ group assignment is unmet. The implementer must add the missing test file with\
+    \ appropriate test cases."
+T015:
+  c: false
+  h: 8eec668ea79575632b0227ce16e0d9dbdf8f9e72b569ce3c4759b14638587d3a
+  r: The provided `code/03_sensitivity_analysis.py` is truncated (ends abruptly with
+    a typo `FileNotFoundE`) and does not contain the logic to run T014 with the three
+    threshold sets, compute the required stability comparison, or write `data/processed/sensitivity_report.json`.
+    Moreover, the expected JSON report file is absent. The task therefore remains
+    unfinished.
+T019:
+  c: false
+  h: 92dbc7bddbfc17db82d96744fb4a37928f4becf549b6faa5611c4b483e529c68
+  r: The required artifact `tests/integration/test_timeout.py` does not exist in the
+    repository, so the integration test for timeout enforcement is missing. The task
+    cannot be considered completed until this file is added with the appropriate test
+    implementation.
+T020:
+  c: false
+  h: 67f956511cd49f3a32dbc27f0752a3b1bcfc87f44faecc6240bfe9a3835fe873
+  r: "The repository contains `code/03_inference.py`, but the file is truncated and\
+    \ does not show the full implementation needed to read stratified samples, generate\
+    \ both summaries and line\u2011number predictions, and write results. Moreover,\
+    \ the required output file `data/processed/inference_results.jsonl` is absent.\
+    \ Without a complete script and the generated results file, the task is not fulfilled."

@@ -1,102 +1,83 @@
-"""
-Evaluation module for solubility prediction models.
-
-Implements evaluation logic to calculate RMSE, MAE, and R² for all models
-on a hold-out test set. Reads trained models from data/artifacts/trained_models.pkl
-and outputs detailed metrics to data/artifacts/evaluation_results.json.
-"""
 import os
 import sys
 import json
 import pickle
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, Tuple, List
+from scipy import stats
 
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent))
+# Import constants and error types from the project's utility modules
+# Assuming these are available in the PYTHONPATH when running from the project root
+try:
+    from utils.constants import DATA_DIR, ARTIFACTS_DIR
+    from utils.errors import CustomDataError
+except ImportError:
+    # Fallback for direct execution or different environment setup
+    # This block ensures the script can at least be imported syntactically
+    DATA_DIR = Path("data")
+    ARTIFACTS_DIR = DATA_DIR / "artifacts"
+    
+    class CustomDataError(Exception):
+        pass
 
-from utils.constants import DATA_DIR, ARTIFACTS_DIR
-from utils.errors import CustomDataError
-
-# Import evaluation utilities from training module to ensure consistency
-# Note: We assume train_xgboost, train_random_forest, train_abraham_baseline
-# and their evaluation logic are consistent with how models were saved.
-# We will re-implement the metric calculations here to avoid circular deps if needed,
-# or import if the training module exposes them cleanly.
-# Given the API surface, we will implement metrics directly here to be safe.
-
-def load_test_data() -> Tuple[np.ndarray, np.ndarray]:
+def load_test_data():
     """
-    Load the hold-out test set features and labels.
-    Expects the processed dataset from T018: data/processed/solubility_features.csv
-    and a predefined split or a separate test file if generated during training.
-    For this implementation, we assume the training script saved a test split
-    or we load the full processed data and re-split with a fixed seed if not found.
-    
-    However, T021/T022 should have saved the test set features/labels or the models
-    were trained on a split. To be robust, we look for `data/processed/test_features.npy`
-    and `data/processed/test_labels.npy` which are standard outputs of a split step.
-    If not found, we attempt to load the full CSV and re-split (last resort).
+    Loads the test set features and labels from the processed dataset.
+    Assumes the data has been split and saved by the training pipeline.
     """
-    test_feat_path = DATA_DIR / "processed" / "test_features.npy"
-    test_lab_path = DATA_DIR / "processed" "test_labels.npy"
-    
-    if test_feat_path.exists() and test_lab_path.exists():
-        X_test = np.load(test_feat_path)
-        y_test = np.load(test_lab_path)
-        return X_test, y_test
-    
-    # Fallback: Load full CSV and re-split (should ideally not happen in pipeline)
-    import pandas as pd
-    from sklearn.model_selection import train_test_split
-    
-    csv_path = DATA_DIR / "processed" / "solubility_features.csv"
-    if not csv_path.exists():
-        raise CustomDataError(f"Processed dataset not found at {csv_path}. "
-                              "Ensure T018 has completed.")
-    
-    df = pd.read_csv(csv_path)
-    # Assume last column is target 'solubility' or similar, and others are features
-    # Adjust column names based on actual T018 output schema
-    if 'solubility' not in df.columns:
-        # Try to find target column
-        target_col = [c for c in df.columns if 'solubility' in c.lower()][0]
-    else:
-        target_col = 'solubility'
-        
-    X = df.drop(columns=[target_col]).values
-    y = df[target_col].values
-    
-    # Re-split with fixed seed for reproducibility
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
-    )
-    
-    # Save the split for future runs
-    np.save(test_feat_path, X_test)
-    np.save(test_lab_path, y_test)
+    # The training script (03_model_training.py) is responsible for saving
+    # the test features and labels, or the main pipeline saves them.
+    # Based on T023, we expect the data to be available.
+    # For this implementation, we assume a standard split file exists.
+    test_data_path = ARTIFACTS_DIR / "test_features.pkl"
+    test_labels_path = ARTIFACTS_DIR / "test_labels.pkl"
+
+    if not test_data_path.exists() or not test_labels_path.exists():
+        # If split files don't exist, try loading the full processed dataset
+        # and assume the last 20% is the test set (re-splitting for demo purposes)
+        # In a real run, this should be handled by the training script.
+        full_data_path = DATA_DIR / "processed" / "solubility_features.csv"
+        if full_data_path.exists():
+            import pandas as pd
+            df = pd.read_csv(full_data_path)
+            # Simple split for fallback
+            split_idx = int(len(df) * 0.8)
+            test_df = df.iloc[split_idx:]
+            # Assuming 'logS' is the target column
+            X_test = test_df.drop(columns=['logS'])
+            y_test = test_df['logS']
+            return X_test, y_test
+        else:
+            raise FileNotFoundError(f"Test data not found at {test_data_path} or {full_data_path}")
+
+    with open(test_data_path, 'rb') as f:
+        X_test = pickle.load(f)
+    with open(test_labels_path, 'rb') as f:
+        y_test = pickle.load(f)
     
     return X_test, y_test
 
-def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float]:
+def load_models():
     """
-    Calculate RMSE, MAE, and R².
+    Loads the trained models from the artifacts directory.
     """
-    if len(y_true) != len(y_pred):
-        raise CustomDataError("y_true and y_pred must have the same length.")
+    models_path = ARTIFACTS_DIR / "trained_models.pkl"
+    if not models_path.exists():
+        raise FileNotFoundError(f"Trained models not found at {models_path}")
     
+    with open(models_path, 'rb') as f:
+        models = pickle.load(f)
+    return models
+
+def calculate_metrics(y_true, y_pred):
+    """
+    Calculates RMSE, MAE, and R² for a given set of predictions.
+    """
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
     
-    # RMSE
     rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
-    
-    # MAE
     mae = np.mean(np.abs(y_true - y_pred))
-    
-    # R²
     ss_res = np.sum((y_true - y_pred) ** 2)
     ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
     r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
@@ -107,72 +88,107 @@ def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Dict[str, float
         "r2": float(r2)
     }
 
-def load_models() -> Dict[str, Any]:
+def evaluate_models(X_test, y_test, models):
     """
-    Load trained models from data/artifacts/trained_models.pkl.
-    """
-    models_path = ARTIFACTS_DIR / "trained_models.pkl"
-    if not models_path.exists():
-        raise CustomDataError(
-            f"Trained models not found at {models_path}. "
-            "Ensure T021 and T022 have completed successfully."
-        )
-    
-    with open(models_path, 'rb') as f:
-        models = pickle.load(f)
-    
-    return models
-
-def evaluate_models(models: Dict[str, Any], X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, Dict[str, float]]:
-    """
-    Evaluate each model on the test set and return metrics.
-    Expected model keys: 'xgboost', 'random_forest', 'abraham_baseline'
+    Evaluates all loaded models on the test set and returns predictions.
     """
     results = {}
+    predictions = {}
     
     for name, model in models.items():
         try:
-            predictions = model.predict(X_test)
-            metrics = calculate_metrics(y_test, predictions)
-            results[name] = metrics
-            print(f"Evaluation for {name}: RMSE={metrics['rmse']:.4f}, "
-                  f"MAE={metrics['mae']:.4f}, R²={metrics['r2']:.4f}")
+            y_pred = model.predict(X_test)
+            predictions[name] = y_pred
+            results[name] = calculate_metrics(y_test, y_pred)
         except Exception as e:
-            print(f"Error evaluating {name}: {e}")
             results[name] = {"error": str(e)}
-    
-    return results
+            predictions[name] = None
+            
+    return results, predictions
 
-def save_results(results: Dict[str, Dict[str, float]], output_path: Path):
+def save_results(results, predictions, output_path):
     """
-    Save evaluation results to a JSON file.
+    Saves the evaluation results and statistical test results to JSON.
+    Implements T024: Paired t-test on absolute errors.
     """
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Prepare statistical test results
+    statistical_tests = {}
+    
+    # Identify model pairs for comparison (e.g., XGBoost vs Random Forest)
+    model_names = list(predictions.keys())
+    valid_models = [m for m in model_names if predictions[m] is not None]
+    
+    if len(valid_models) >= 2:
+        # Perform paired t-test between the first two valid models
+        # as a representative comparison (or all pairs if needed)
+        # Per T024: "paired t-test on absolute errors"
+        m1_name = valid_models[0]
+        m2_name = valid_models[1]
+        
+        y_true = np.array(y_test)
+        err1 = np.abs(y_true - predictions[m1_name])
+        err2 = np.abs(y_true - predictions[m2_name])
+        
+        # Perform paired t-test
+        t_stat, p_value = stats.ttest_rel(err1, err2)
+        
+        statistical_tests[f"{m1_name}_vs_{m2_name}"] = {
+            "t_statistic": float(t_stat),
+            "p_value": float(p_value),
+            "significant_at_0.05": bool(p_value < 0.05),
+            "method": "paired_t_test_absolute_errors"
+        }
+    else:
+        statistical_tests["error"] = "Not enough valid models to perform paired t-test"
+
+    # Combine all results
+    final_output = {
+        "metrics": results,
+        "statistical_tests": statistical_tests,
+        "constitutional_principle": "VII (Paired t-test overrides FR-005 Wilcoxon)"
+    }
+    
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    print(f"Evaluation results saved to {output_path}")
+        json.dump(final_output, f, indent=2)
 
 def main():
     """
-    Main entry point for evaluation.
+    Main entry point for the evaluation script.
     """
-    print("Starting model evaluation (T023)...")
+    print("Starting Evaluation Phase...")
     
-    # Load models
-    models = load_models()
-    
-    # Load test data
-    X_test, y_test = load_test_data()
-    
-    # Evaluate
-    results = evaluate_models(models, X_test, y_test)
-    
-    # Save results
-    output_path = ARTIFACTS_DIR / "evaluation_results.json"
-    save_results(results, output_path)
-    
-    print("Evaluation complete.")
-    return results
+    try:
+        # Load data and models
+        X_test, y_test = load_test_data()
+        models = load_models()
+        
+        # Evaluate models
+        results, predictions = evaluate_models(X_test, y_test, models)
+        
+        # Save results including statistical tests (T024)
+        output_path = ARTIFACTS_DIR / "statistical_test_results.json"
+        save_results(results, predictions, output_path)
+        
+        print(f"Evaluation complete. Results saved to {output_path}")
+        
+        # Print summary
+        for model_name, metrics in results.items():
+            if "error" not in metrics:
+                print(f"Model: {model_name}")
+                print(f"  RMSE: {metrics['rmse']:.4f}")
+                print(f"  R²: {metrics['r2']:.4f}")
+        
+        if statistical_tests := results.get("statistical_tests"): # type: ignore
+           print("Statistical Tests:")
+           for pair, stats_data in statistical_tests.items():
+               print(f"  {pair}: p={stats_data['p_value']:.4f}, t={stats_data['t_statistic']:.4f}")
+               
+    except Exception as e:
+        print(f"Error during evaluation: {e}", file=sys.stderr)
+        raise
 
 if __name__ == "__main__":
     main()

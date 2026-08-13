@@ -162,7 +162,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T050 [P] Documentation updates: Create `docs/README.md` with installation steps and `docs/quickstart.md` with usage examples.
+- [X] T050 [P] Documentation updates: Create `docs/README.md` with installation steps and `docs/quickstart.md` with usage examples.
 - [ ] T051 Code cleanup and refactoring
 - [ ] T052 Performance optimization to ensure <6h runtime on CI (e.g., subsampling if needed, optimizing MNE parameters)
 - [ ] T053 [P] Additional unit tests for edge cases (missing modalities, low SNR) in `tests/unit/`

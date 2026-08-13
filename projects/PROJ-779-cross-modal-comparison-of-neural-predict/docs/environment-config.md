@@ -1,107 +1,131 @@
-# Environment Configuration Guide
+# Environment Configuration Management
 
 ## Overview
 
-This project uses environment configuration management to control all runtime settings. Configuration is loaded from a `.env` file with secure defaults.
+This project uses environment variables for configuration management, allowing flexible deployment across different environments (development, testing, production) without code changes.
 
-## Setup
+## Configuration Loading
 
-1. Copy the example file:
+Configuration is loaded from a `.env` file in the project root, with fallback to sensible defaults defined in `code/config/env_config.py`.
+
+### How it Works
+
+1. On startup, `get_env_config()` is called
+2. It looks for a `.env` file in the project root
+3. If found, variables are loaded using `python-dotenv`
+4. Any missing variables fall back to defaults
+5. Critical values are validated (sampling rate, trial counts, log level)
+
+## Configuration Keys
+
+### Paths
+- `PROJECT_ROOT`: Root directory of the project
+- `DATA_DIR`: Directory for raw and processed data
+- `CODE_DIR`: Directory containing source code
+- `RESULTS_DIR`: Directory for analysis results
+- `PROCESSED_DIR`: Directory for preprocessed data artifacts
+
+### Logging
+- `LOG_LEVEL`: One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+- `LOG_FILE`: Path to log file
+
+### Data Processing
+- `SAMPLING_RATE_THRESHOLD`: Minimum acceptable sampling rate (Hz)
+- `TRIAL_ODDBALL_MIN`: Minimum oddball trials required
+- `TRIAL_STANDARD_MIN`: Minimum standard trials required
+- `TIME_WINDOW_START`: Start of analysis window (seconds)
+- `TIME_WINDOW_END`: End of analysis window (seconds)
+
+### Analysis
+- `RANDOM_SEED`: Random seed for reproducibility
+- `N_PERMUTATIONS`: Number of permutations for statistical tests
+
+### ICA
+- `ICA_MAX_ITER`: Maximum iterations for ICA
+- `ICA_METHOD`: ICA algorithm (picard, fastica, infomax)
+
+### Source Localization
+- `HEAD_MODEL`: Head model template (icbm152)
+- `SOURCE_SPACE_RES`: Source space resolution (mm)
+
+## Usage
+
+### Setting Up
+
+1. Copy `.env.example` to `.env`:
  ```bash
  cp.env.example.env
  ```
 
-2. Edit `.env` to customize settings for your environment.
+2. Edit `.env` to customize values:
+ ```bash
+ LOG_LEVEL=DEBUG
+ SAMPLING_RATE_THRESHOLD=1000
+ ```
 
-3. The configuration is automatically loaded when the pipeline runs.
-
-## Configuration Keys
-
-### Data Paths
-- `DATA_ROOT`: Root directory for all data (default: `data`)
-- `RAW_DATA_DIR`: Directory for raw downloaded data
-- `PROCESSED_DATA_DIR`: Directory for preprocessed data
-- `RESULTS_DIR`: Directory for analysis results
-- `FIGURES_DIR`: Directory for generated figures
-
-### Dataset Identifiers
-- `AUDITORY_DATASET_ID`: OpenNeuro dataset ID for auditory data (default: `ds000246`)
-- `VISUAL_DATASET_ID`: Dataset ID for visual data (default: `openneuro/ds000117`)
-- `VISUAL_DATASET_VERSION`: Version tag for visual dataset (default: `r.0`)
-
-### Processing Parameters
-- `SAMPLING_RATE_THRESHOLD`: Minimum sampling rate in Hz (default: `500`)
-- `MIN_ODDBALL_TRIALS`: Minimum oddball trials required (default: `100`)
-- `MIN_STANDARD_TRIALS`: Minimum standard trials required (default: `300`)
-- `BANDPASS_LOW`: Low-frequency cutoff for bandpass filter (default: `1.0`)
-- `BANDPASS_HIGH`: High-frequency cutoff for bandpass filter (default: `40.0`)
-
-### Analysis Parameters
-- `AUDITORY_WINDOW_START`: Start of auditory analysis window (default: `0.05`)
-- `AUDITORY_WINDOW_END`: End of auditory analysis window (default: `0.20`)
-- `VISUAL_WINDOW_START`: Start of visual analysis window (default: `0.10`)
-- `VISUAL_WINDOW_END`: End of visual analysis window (default: `0.30`)
-- `LATENCY_THRESHOLD_MS`: Maximum allowed latency difference (default: `50`)
-- `DICE_THRESHOLD`: Minimum Dice coefficient for source overlap (default: `0.6`)
-- `TOST_ALPHA`: Alpha level for equivalence testing (default: `0.05`)
-
-### Execution Parameters
-- `RANDOM_SEED`: Random seed for reproducibility (default: `42`)
-- `N_JOBS`: Number of parallel jobs (default: `1`)
-- `MAX_MEMORY_GB`: Maximum memory in GB (default: `7`)
-- `TIMEOUT_HOURS`: Maximum runtime in hours (default: `6`)
-
-### Logging
-- `LOG_LEVEL`: Logging level (DEBUG, INFO, WARNING, ERROR)
-- `LOG_FILE`: Path to log file
-
-## Programmatic Access
+### Accessing Configuration
 
 ```python
-from code.config.env_config import get_env_config
+from code.config import get_env_config
 
-# Get configuration
 config = get_env_config()
 
-# Access values with type safety
-sampling_rate = config.get_int("SAMPLING_RATE_THRESHOLD")
-data_root = config.get_path("DATA_ROOT")
+# Get string value
 log_level = config.get("LOG_LEVEL")
 
-# Get all configuration
-all_config = config.get_dict()
+# Get integer value
+seed = config.get_int("RANDOM_SEED")
+
+# Get float value
+time_start = config.get_float("TIME_WINDOW_START")
+
+# Get boolean value
+debug = config.get_bool("DEBUG_MODE")
+
+# Get Path object
+data_dir = config.get_path("DATA_DIR")
+
+# Get as dictionary
+all_config = config.to_dict()
+```
+
+### Programmatic Override
+
+For testing or specific use cases:
+```python
+from code.config import reload_config
+
+# Load from specific path
+config = reload_config("/path/to/custom/.env")
 ```
 
 ## Validation
 
-The configuration is automatically validated on load. Invalid values will raise a `ConfigError`:
+The configuration manager validates:
+- Sampling rate threshold must be a positive integer
+- Trial counts must be positive integers
+- Log level must be a valid logging level
 
-- Sampling rate threshold must be >= 100 Hz
-- Trial counts must be >= 10
-- Time windows must be ordered correctly
-- Dice threshold must be between 0.0 and 1.0
-- TOST alpha must be between 0.0 and 1.0
+Invalid configurations raise `ConfigError` with descriptive messages.
 
-## Reloading Configuration
+## Best Practices
 
-To reload configuration from a new `.env` file:
+1. **Never commit `.env` files** with sensitive data to version control
+2. **Use `.env.example`** as a template for required variables
+3. **Validate early**: Call `get_env_config()` at module import or entry point
+4. **Use typed getters**: Prefer `get_int()`, `get_float()` over raw `get()`
+5. **Document changes**: Update this file when adding new configuration keys
 
-```python
-from code.config.env_config import reload_config
+## Error Handling
 
-config = reload_config(Path("/path/to/new/.env"))
-```
-
-## Environment-Specific Configuration
-
-For different environments (development, testing, production), create separate `.env` files:
-
-- `.env.dev` - Development settings
-- `.env.test` - Testing settings
-- `.env.prod` - Production settings
-
-Then load the appropriate file:
+Configuration errors raise `code.config.ConfigError`. Catch these at the application entry point:
 
 ```python
-config = get_env_config(Path(".env.dev"))
+from code.config import get_env_config, ConfigError
+
+try:
+ config = get_env_config()
+except ConfigError as e:
+ print(f"Configuration error: {e}")
+ exit(1)
 ```

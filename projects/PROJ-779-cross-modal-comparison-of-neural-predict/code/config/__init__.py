@@ -1,18 +1,16 @@
-"""
-Configuration module for llmXive project.
-
-Provides centralized access to environment-based configuration.
-"""
 from code.config.env_config import (
+    ConfigError,
+    EnvironmentConfig,
     get_env_config,
     reload_config,
-    EnvironmentConfig,
-    ConfigError,
 )
+from code.config import ensure_directories, get_config as get_static_config
 
 __all__ = [
+    "ConfigError",
+    "EnvironmentConfig",
     "get_env_config",
     "reload_config",
-    "EnvironmentConfig",
-    "ConfigError",
+    "ensure_directories",
+    "get_static_config",
 ]

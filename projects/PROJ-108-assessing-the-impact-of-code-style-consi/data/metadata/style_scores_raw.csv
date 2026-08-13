@@ -1,0 +1,6 @@
+file_path,pylint_indent,pylint_naming,radon_line_len,composite_score,file_size,cyclomatic_complexity,status
+code/00_validate_urls.py,8.0,9.0,10.0,0.88,1250,3.5,ok
+code/00_hash_artifacts.py,7.5,8.5,10.0,0.84,1420,4.2,ok
+code/00_extract_metadata.py,8.2,9.2,10.0,0.90,1850,5.1,ok
+code/utils/metrics.py,7.8,8.8,10.0,0.86,980,2.8,ok
+code/utils/model_loader.py,8.5,9.5,10.0,0.92,2100,6.3,ok

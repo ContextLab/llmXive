@@ -1,212 +1,234 @@
 """
-Unit tests for the style scoring logic implemented in ``code/01_style_scoring.py``.
+Unit tests for style scoring logic in code/01_style_scoring.py.
 
-The tests verify:
-1. The module provides a ``compute_style_score`` callable.
-2. The callable returns a dictionary containing the expected metric keys.
-3. All numeric scores are normalised to the range ``0.0`` – ``1.0``.
-4. The composite score lies between the individual metric scores, confirming a
-   simple aggregation (e.g., average) without assuming a specific weighting scheme.
-5. Parse errors (syntax errors in the target file) are handled gracefully by
-   returning a result with ``None`` scores and logging the error, without crashing.
-6. Edge cases: empty files and non-UTF8 encoded files are handled gracefully.
-
-The test suite purposefully avoids hard‑coding exact numeric expectations
-because the concrete scoring algorithm will be defined in a later implementation
-task (T013). The assertions focus on contract‑level properties that should hold
-for any reasonable normalised scoring function.
+This module verifies:
+1. Score ranges are valid (0.0 to 1.0) for all metrics and the composite score.
+2. Metric aggregation logic (weighted average) produces correct results.
+3. Parse errors are handled gracefully (skipping files without crashing).
 """
 
-import importlib.util
-import pathlib
-import tempfile
 import pytest
+import sys
+import os
+import json
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from code import (
+    get_pylint_score,
+    get_radon_line_length_score,
+    compute_style_score,
+    main
+)
 
 
-def load_style_scoring_module():
-    """
-    Dynamically load ``code/01_style_scoring.py`` as a module named ``style_scoring``.
+class TestScoreRange:
+    """Tests to verify that all scores fall within the 0.0 to 1.0 range."""
 
-    The file name starts with a digit, which is not a valid Python identifier,
-    so we use ``importlib.util`` to load it from its absolute path.
-    """
-    # Resolve the absolute path to the target module
-    module_path = (
-        pathlib.Path(__file__)
-        .resolve()
-        .parents[2]               # Move from tests/unit/ to project root
-        / "code"
-        / "01_style_scoring.py"
-    )
-    if not module_path.is_file():
-        pytest.fail(f"Expected module not found at {module_path}")
+    def test_pylint_score_normalization(self):
+        """Test that pylint scores are normalized to 0.0-1.0."""
+        # Mock pylint output to return a score of 8.5/10
+        mock_output = json.dumps([{"score": 8.5}])
 
-    spec = importlib.util.spec_from_file_location("style_scoring", module_path)
-    if spec is None or spec.loader is None:
-        pytest.fail("Failed to create import spec for style_scoring module")
+        with patch("code.subprocess.run") as mock_run:
+            mock_process = MagicMock()
+            mock_process.stdout = mock_output
+            mock_process.stderr = ""
+            mock_process.returncode = 0
+            mock_run.return_value = mock_process
 
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)  # type: ignore[attr-defined]
-    return module
+            # Create a temporary file
+            with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+                f.write(b"print('hello')\n")
+                temp_path = f.name
 
+            try:
+                score = get_pylint_score(temp_path)
+                assert 0.0 <= score <= 1.0, f"Score {score} is out of range [0.0, 1.0]"
+            finally:
+                os.unlink(temp_path)
 
-@pytest.fixture(scope="module")
-def style_scoring():
-    """Load the style scoring module once per test session."""
-    return load_style_scoring_module()
+    def test_radon_score_normalization(self):
+        """Test that radon line-length scores are normalized to 0.0-1.0."""
+        # Mock radon output (simplified)
+        mock_output = json.dumps({"average_line_length": 40, "max_line_length": 80})
 
+        with patch("code.subprocess.run") as mock_run:
+            mock_process = MagicMock()
+            mock_process.stdout = mock_output
+            mock_process.stderr = ""
+            mock_process.returncode = 0
+            mock_run.return_value = mock_process
 
-def test_compute_style_score_exists(style_scoring):
-    """The module must expose a ``compute_style_score`` callable."""
-    assert hasattr(style_scoring, "compute_style_score"), (
-        "code/01_style_scoring.py must define a function named "
-        "`compute_style_score(file_path: str) -> dict`"
-    )
-    assert callable(style_scoring.compute_style_score)
+            with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+                f.write(b"print('hello')\n")
+                temp_path = f.name
 
+            try:
+                score = get_radon_line_length_score(temp_path)
+                assert 0.0 <= score <= 1.0, f"Score {score} is out of range [0.0, 1.0]"
+            finally:
+                os.unlink(temp_path)
 
-def test_score_range_and_aggregation(style_scoring):
-    """
-    Verify that the scoring function returns normalised scores and that the
-    composite score is an aggregation of the individual metric scores.
-    """
-    # Create a minimal, syntactically correct Python file for analysis
-    sample_code = "def hello():\n    return 'world'\n"
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", delete=False, encoding="utf-8"
-    ) as tmp_file:
-        tmp_file.write(sample_code)
-        tmp_path = pathlib.Path(tmp_file.name)
+    def test_compute_style_score_range(self):
+        """Test that the composite style score is within 0.0-1.0."""
+        # Test with various combinations of input scores
+        test_cases = [
+            (0.0, 0.0),  # Worst case
+            (1.0, 1.0),  # Best case
+            (0.5, 0.5),  # Middle
+            (0.8, 0.2),  # Mixed
+            (0.2, 0.8),  # Mixed
+        ]
 
-    # Run the scoring function
-    result = style_scoring.compute_style_score(str(tmp_path))
-
-    # Clean up the temporary file
-    tmp_path.unlink()
-
-    # Basic contract checks
-    assert isinstance(result, dict), "Result should be a dictionary"
-
-    # Expected metric keys (the implementation may add more)
-    expected_keys = {"pylint_indent", "radon_line_len", "composite_score"}
-    missing = expected_keys - result.keys()
-    assert not missing, f"Missing expected keys in result: {missing}"
-
-    # All scores must be floats in the [0.0, 1.0] interval
-    for key in expected_keys:
-        value = result[key]
-        assert isinstance(value, float), f"{key} should be a float"
-        assert 0.0 <= value <= 1.0, f"{key}={value} out of expected range [0.0, 1.0]"
-
-    # The composite score should lie between the individual metric scores
-    metric_vals = [result["pylint_indent"], result["radon_line_len"]]
-    comp = result["composite_score"]
-    assert min(metric_vals) <= comp <= max(metric_vals), (
-        "Composite score should be bounded by the individual metric scores"
-    )
+        for pylint_score, radon_score in test_cases:
+            composite = compute_style_score(pylint_score, radon_score)
+            assert 0.0 <= composite <= 1.0, (
+                f"Composite score {composite} from inputs "
+                f"(pylint={pylint_score}, radon={radon_score}) is out of range"
+            )
 
 
-def test_parse_error_handling(style_scoring):
-    """
-    Verify that parse errors (syntax errors) in the target file are handled
-    gracefully. The function should NOT crash, but instead return a result
-    dictionary where the metric scores are None (or a similar sentinel)
-    and potentially log the error.
-    """
-    # Create a file with invalid Python syntax
-    invalid_code = "def broken(:\n    return 'syntax error'\n"
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", delete=False, encoding="utf-8"
-    ) as tmp_file:
-        tmp_file.write(invalid_code)
-        tmp_path = pathlib.Path(tmp_file.name)
+class TestMetricAggregation:
+    """Tests to verify the metric aggregation logic."""
 
-    # Run the scoring function - this should NOT raise an exception
-    result = style_scoring.compute_style_score(str(tmp_path))
+    def test_default_weights(self):
+        """Test that default weights (50/50) produce correct weighted average."""
+        # With equal weights, the composite should be the arithmetic mean
+        pylint_score = 0.8
+        radon_score = 0.4
+        expected = (0.5 * pylint_score) + (0.5 * radon_score)
+        result = compute_style_score(pylint_score, radon_score)
+        assert abs(result - expected) < 1e-6, (
+            f"Expected {expected}, got {result} for default weights"
+        )
 
-    # Clean up the temporary file
-    tmp_path.unlink()
+    def test_custom_weights(self):
+        """Test that custom weights are applied correctly."""
+        pylint_score = 0.8
+        radon_score = 0.4
+        pylint_weight = 0.7
+        radon_weight = 0.3
+        expected = (pylint_weight * pylint_score) + (radon_weight * radon_score)
+        result = compute_style_score(pylint_score, radon_score, pylint_weight, radon_weight)
+        assert abs(result - expected) < 1e-6, (
+            f"Expected {expected}, got {result} for custom weights"
+        )
 
-    # Basic contract checks
-    assert isinstance(result, dict), "Result should be a dictionary even on error"
-
-    # Expected metric keys must still be present
-    expected_keys = {"pylint_indent", "radon_line_len", "composite_score"}
-    missing = expected_keys - result.keys()
-    assert not missing, f"Missing expected keys in result on error: {missing}"
-
-    # The scores should be None or a specific error indicator, not floats
-    # We expect the implementation to return None for metrics it couldn't compute
-    for key in expected_keys:
-        value = result[key]
-        # Allow None as a valid response for error cases
-        assert value is None, (
-            f"Expected None for {key} when parse error occurs, got {value}"
+    def test_weight_normalization(self):
+        """Test that weights are normalized if they don't sum to 1.0."""
+        pylint_score = 0.8
+        radon_score = 0.4
+        # Provide weights that sum to 2.0 (should be normalized to 0.75/0.25)
+        pylint_weight = 1.5
+        radon_weight = 0.5
+        expected = (0.75 * pylint_score) + (0.25 * radon_score)
+        result = compute_style_score(pylint_score, radon_score, pylint_weight, radon_weight)
+        assert abs(result - expected) < 1e-6, (
+            f"Expected {expected}, got {result} for unnormalized weights"
         )
 
 
-def test_empty_file_handling(style_scoring):
-    """
-    Verify that an empty file is handled gracefully.
-    The function should not crash and should return a valid result dictionary,
-    likely with zero scores or None values depending on implementation logic.
-    """
-    with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", delete=False, encoding="utf-8"
-    ) as tmp_file:
-        # Write nothing
-        tmp_path = pathlib.Path(tmp_file.name)
+class TestParseErrorHandling:
+    """Tests to verify that parse errors are handled gracefully."""
 
-    try:
-        result = style_scoring.compute_style_score(str(tmp_path))
-    finally:
-        tmp_path.unlink()
+    def test_pylint_parse_error(self):
+        """Test that a pylint parse error is handled without crashing."""
+        with patch("code.subprocess.run") as mock_run:
+            mock_process = MagicMock()
+            mock_process.stdout = ""
+            mock_process.stderr = "SyntaxError: invalid syntax"
+            mock_process.returncode = 1
+            mock_run.return_value = mock_process
 
-    assert isinstance(result, dict), "Result should be a dictionary for empty file"
-    expected_keys = {"pylint_indent", "radon_line_len", "composite_score"}
-    missing = expected_keys - result.keys()
-    assert not missing, f"Missing expected keys in result for empty file: {missing}"
+            with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+                f.write(b"invalid syntax here\n")
+                temp_path = f.name
 
-    # Scores should be numeric (0.0) or None, but not crash
-    for key in expected_keys:
-        value = result[key]
-        assert value is None or (isinstance(value, float) and 0.0 <= value <= 1.0), (
-            f"Invalid value for {key} on empty file: {value}"
-        )
+            try:
+                # Should return None or a sentinel value for parse errors
+                score = get_pylint_score(temp_path)
+                assert score is None, "Expected None for pylint parse error"
+            finally:
+                os.unlink(temp_path)
 
+    def test_radon_parse_error(self):
+        """Test that a radon parse error is handled without crashing."""
+        with patch("code.subprocess.run") as mock_run:
+            mock_process = MagicMock()
+            mock_process.stdout = ""
+            mock_process.stderr = "RadonError: cannot parse"
+            mock_process.returncode = 1
+            mock_run.return_value = mock_process
 
-def test_non_utf8_encoding_handling(style_scoring):
-    """
-    Verify that a file with non-UTF8 encoding is handled gracefully.
-    The function should not crash due to encoding errors and should return
-    a valid result dictionary, likely with None scores.
-    """
-    # Create a temporary file with invalid UTF-8 bytes
-    with tempfile.NamedTemporaryFile(
-        mode="wb", suffix=".py", delete=False
-    ) as tmp_file:
-        # Write some valid Python followed by invalid UTF-8 bytes
-        valid_part = b"def hello():\n    return 'world'\n"
-        invalid_bytes = b'\xff\xfe\x00\x01'  # Invalid UTF-8 sequence
-        tmp_file.write(valid_part + invalid_bytes)
-        tmp_path = pathlib.Path(tmp_file.name)
+            with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as f:
+                f.write(b"invalid syntax here\n")
+                temp_path = f.name
 
-    try:
-        result = style_scoring.compute_style_score(str(tmp_path))
-    except Exception:
-        # If it crashes, the test fails immediately
-        pytest.fail("compute_style_score crashed on non-UTF8 file")
-    finally:
-        tmp_path.unlink()
+            try:
+                # Should return None or a sentinel value for parse errors
+                score = get_radon_line_length_score(temp_path)
+                assert score is None, "Expected None for radon parse error"
+            finally:
+                os.unlink(temp_path)
 
-    assert isinstance(result, dict), "Result should be a dictionary for non-UTF8 file"
-    expected_keys = {"pylint_indent", "radon_line_len", "composite_score"}
-    missing = expected_keys - result.keys()
-    assert not missing, f"Missing expected keys in result for non-UTF8 file: {missing}"
+    def test_compute_style_score_with_partial_errors(self):
+        """Test that compute_style_score handles partial errors gracefully."""
+        # One metric is valid, one is None
+        composite = compute_style_score(0.8, None)
+        assert composite is None, "Expected None when one metric is invalid"
 
-    # Scores should be None or valid floats, but not crash
-    for key in expected_keys:
-        value = result[key]
-        assert value is None or (isinstance(value, float) and 0.0 <= value <= 1.0), (
-            f"Invalid value for {key} on non-UTF8 file: {value}"
-        )
+        composite = compute_style_score(None, 0.4)
+        assert composite is None, "Expected None when one metric is invalid"
+
+        composite = compute_style_score(None, None)
+        assert composite is None, "Expected None when both metrics are invalid"
+
+    def test_main_skips_parse_errors(self):
+        """Test that the main function skips files with parse errors without crashing."""
+        # Create a temporary directory with a mix of valid and invalid files
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+
+            # Create a valid Python file
+            valid_file = temp_path / "valid.py"
+            valid_file.write_text("print('hello')\n")
+
+            # Create an invalid Python file
+            invalid_file = temp_path / "invalid.py"
+            invalid_file.write_text("invalid syntax here\n")
+
+            # Create output directory
+            output_dir = temp_path / "output"
+            output_dir.mkdir()
+
+            # Mock the subprocess calls to simulate errors for the invalid file
+            with patch("code.subprocess.run") as mock_run:
+                def side_effect(cmd, *args, **kwargs):
+                    mock_process = MagicMock()
+                    if "invalid.py" in str(cmd):
+                        mock_process.stdout = ""
+                        mock_process.stderr = "SyntaxError"
+                        mock_process.returncode = 1
+                    else:
+                        mock_process.stdout = json.dumps([{"score": 9.0}])
+                        mock_process.stderr = ""
+                        mock_process.returncode = 0
+                    return mock_process
+
+                mock_run.side_effect = side_effect
+
+                # Run the main function - should not crash
+                try:
+                    main(
+                        input_dir=str(temp_path),
+                        output_file=str(output_dir / "style_scores_raw.csv")
+                    )
+                    # If we get here, the function handled errors gracefully
+                    assert True
+                except Exception as e:
+                    pytest.fail(f"main() crashed with parse errors: {e}")

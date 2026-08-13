@@ -1,4 +1,4 @@
-name: CI Pipeline - Full Cross-Modal Analysis
+name: CI Pipeline - Full Research Execution
 
 on:
   push:
@@ -6,85 +6,102 @@ on:
   pull_request:
     branches: [ main ]
 
+# Constraints: GitHub Actions Free Tier (2-core CPU, 7GB RAM, 6h timeout)
+# The pipeline is optimized to run on a subset of subjects to ensure
+# it completes within time and memory limits while validating the full logic.
+
 jobs:
-  run-pipeline:
+  run-full-pipeline:
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # 6 hours limit
-    
+    timeout-minutes: 360 # 6 hours max
+    container:
+      image: python:3.9-slim
+      options: --memory 7g --cpus 2
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Install system dependencies
+        run: |
+          apt-get update && apt-get install -y \
+            build-essential \
+            libgl1-mesa-glx \
+            libglib2.0-0 \
+            libsm6 \
+            libxext6 \
+            libxrender-dev \
+            wget \
+            git \
+            && rm -rf /var/lib/apt/lists/*
 
-    - name: Cache pip packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        # Ensure MNE has necessary dependencies for head models
-        pip install nibabel
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
-    - name: Run Full Pipeline
-      id: pipeline_run
-      run: |
-        echo "Starting full pipeline execution..."
-        python code/main.py
-        echo "Pipeline execution completed."
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # Ensure MNE-Python is available for EEG processing
+          pip install mne
 
-    - name: Verify Artifacts
-      run: |
-        echo "Checking for required output artifacts..."
-        
-        # Check for cleaned data
-        if [ ! -f "data/processed/cleaned_data.fif" ]; then
-          echo "ERROR: Cleaned data artifact not found!"
-          exit 1
-        fi
-        
-        # Check for metrics summary
-        if [ ! -f "data/results/metrics_summary.json" ]; then
-          echo "ERROR: Metrics summary not found!"
-          exit 1
-        fi
-        
-        # Check for sensitivity analysis
-        if [ ! -f "data/results/sensitivity_analysis.csv" ]; then
-          echo "ERROR: Sensitivity analysis not found!"
-          exit 1
-        fi
-        
-        # Check for final report
-        if [ ! -f "data/results/final_report.md" ]; then
-          echo "ERROR: Final report not found!"
-          exit 1
-        fi
-        
-        echo "All required artifacts verified successfully."
+      - name: Create necessary directories
+        run: |
+          mkdir -p data/processed data/results data/interim figures
 
-    - name: Upload Results
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: pipeline-results
-        path: |
-          data/
-          data/results/
-          logs/
-        retention-days: 7
+      - name: Run Full Pipeline (Orchestration)
+        # This step executes the full research pipeline defined in code/main.py.
+        # It handles:
+        # 1. Data Download (Auditory/Visual) - limited to 1 subject per modality for CI speed
+        # 2. Validation (Sampling rate, trial counts)
+        # 3. Preprocessing (Filter, ICA, Re-reference)
+        # 4. Metric Extraction (Difference waves, peaks)
+        # 5. Source Localization (ICBM152, Lead fields, Inverse)
+        # 6. Statistics (Permutation, T-test, TOST)
+        # 7. Reliability (Split-half)
+        # 8. Final Report Generation
+        run: |
+          python code/main.py \
+            --max-subjects-auditory 1 \
+            --max-subjects-visual 1 \
+            --fast-mode \
+            --output-dir data/results
 
-    - name: Memory and Time Check
-      run: |
-        echo "Pipeline completed within time limits."
-        echo "Memory usage check: Passed (Ubuntu runner has sufficient RAM for this workload)."
-        echo "CI Integration Test: SUCCESS"
+      - name: Verify Artifacts
+        run: |
+          echo "Checking for required output artifacts..."
+          test -f data/processed/cleaned_data.fif || (echo "ERROR: cleaned_data.fif missing" && exit 1)
+          test -f data/results/metrics_summary.json || (echo "ERROR: metrics_summary.json missing" && exit 1)
+          test -f data/results/sensitivity_analysis.csv || (echo "ERROR: sensitivity_analysis.csv missing" && exit 1)
+          test -f data/results/final_report.md || (echo "ERROR: final_report.md missing" && exit 1)
+          echo "All artifacts verified."
+
+      - name: Upload Results Artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: research-results
+          path: |
+            data/results/
+            data/processed/
+          retention-days: 7
+
+      - name: Upload Logs
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: pipeline-logs
+          path: |
+            ./*.log
+            data/interim/*.log
+          retention-days: 7

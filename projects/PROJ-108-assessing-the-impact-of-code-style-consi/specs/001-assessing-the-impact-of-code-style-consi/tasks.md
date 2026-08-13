@@ -74,15 +74,15 @@
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] Unit test for style scoring logic in `tests/unit/test_style_scoring.py` (verify score range and metric aggregation)
-- [ ] T011 [P] [US1] Unit test for error handling in `tests/unit/test_style_scoring.py` (verify parse errors skip without crash) <!-- ATOMIZE: requested -->
+- [X] T010 [P] [US1] Unit test for style scoring logic in `tests/unit/test_style_scoring.py` (verify score range and metric aggregation)
+- [X] T011 [P] [US1] Unit test for error handling in `tests/unit/test_style_scoring.py` (verify parse errors skip without crash) <!-- ATOMIZE: requested -->
 - [ ] T012 [P] [US1] Unit test for stratification logic in `tests/unit/test_stratification.py` (verify High/Med/Low group assignment)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/01_style_scoring.py` to run `pylint` (indentation/naming) and `radon` (line-length), compute composite score, AND extract `file_size` and `cyclomatic_complexity` (if not already in T009), logging errors for skipped files. Output to `data/metadata/style_scores_raw.csv`.
+- [X] T013 [US1] Implement `code/01_style_scoring.py` to run `pylint` (indentation/naming) and `radon` (line-length), compute composite score, AND extract `file_size` and `cyclomatic_complexity` (if not already in T009), logging errors for skipped files. Output to `data/metadata/style_scores_raw.csv`.
 - [X] T014 [US1] Implement `code/02_stratification.py` to read style scores and accept threshold arguments (e.g., `--low-threshold 0.25 --high-threshold 0.75`) to assign groups: Low (<low), Medium (low-high), High (>high). Output to `data/processed/style_scores_threshold_<low>_<high>.csv`.
-- [~] T015 [US1] Implement `code/03_sensitivity_analysis.py` to run T014 with multiple threshold sets (15/85, 25/75, 30/70), compare group stability (e.g., variance of group means), and output `data/processed/sensitivity_report.json` identifying the optimal threshold set.
+- [ ] T015 [US1] Implement `code/03_sensitivity_analysis.py` to run T014 with multiple threshold sets (15/85, 25/75, 30/70), compare group stability (e.g., variance of group means), and output `data/processed/sensitivity_report.json` identifying the optimal threshold set.
 - [ ] T016 [US1] Generate `data/processed/style_scores.csv` using the optimal thresholds from T015, containing columns: `file_path`, `pylint_indent`, `radon_line_len`, `composite_score`, `group`, `file_size`, `cyclomatic_complexity`, `file_age`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -99,11 +99,11 @@
 
 - [X] T017 [P] [US2] Integration test for inference pipeline in `tests/integration/test_inference.py` (verify output format and timeout handling)
 - [X] T018 [P] [US2] Unit test for metrics calculation in `tests/unit/test_metrics.py` (verify BLEU handles null references gracefully)
-- [~] T019 [P] [US2] Integration test for timeout enforcement in `tests/integration/test_timeout.py` (verify exit code on resource exhaustion)
+- [ ] T019 [P] [US2] Integration test for timeout enforcement in `tests/integration/test_timeout.py` (verify exit code on resource exhaustion)
 
 ### Implementation for User Story 2
 
-- [~] T020 [US2] Implement `code/03_inference.py` to load StarCoder in CPU mode, process stratified samples (from T016), and generate BOTH natural-language summaries (max 64 tokens) AND bug-localization predictions (line numbers) in a single pass. Handle errors (timeout, context overflow, missing ground truth) gracefully, outputting `data/processed/inference_results.jsonl`.
+- [ ] T020 [US2] Implement `code/03_inference.py` to load StarCoder in CPU mode, process stratified samples (from T016), and generate BOTH natural-language summaries (max 64 tokens) AND bug-localization predictions (line numbers) in a single pass. Handle errors (timeout, context overflow, missing ground truth) gracefully, outputting `data/processed/inference_results.jsonl`.
 - [X] T021 [US2] Implement `code/04_evaluation.py` to compute BLEU-4 for summaries and Precision/Recall/F1 for bug localization, handling null metrics gracefully.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

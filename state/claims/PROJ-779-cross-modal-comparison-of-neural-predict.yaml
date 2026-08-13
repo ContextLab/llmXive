@@ -382,26 +382,6 @@
   updated_at: '2026-07-10T15:25:55Z'
 - artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
   attempts: 1
-  canonical: Latency classification checks if absolute difference in latency is less
-    than 50ms
-  claim_id: c_94d8c8a6
-  context: "Implement code/main.py logic for Latency Classification: Check |\u0394\
-    t| < 50ms (SC-001) and set classification field."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Latency_classification_checks_if_absolute_difference_in_late
-  kind: magnitude
-  raw_text: Latency classification checks if the absolute difference in latency is
-    less than 50ms.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-10T15:26:24Z'
-- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
-  attempts: 1
   canonical: Source overlap classification requires Dice coefficient greater than
     0.6
   claim_id: c_4a74aadf
@@ -1194,3 +1174,197 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T01:11:37Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/docs/README.md
+  attempts: 1
+  canonical: Project uses OpenNeuro auditory dataset ds000246
+  claim_id: c_2b304605
+  context: 'This project uses real data from OpenNeuro: - Auditory: ds000246 - Visual:
+    ds000117'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_OpenNeuro_auditory_dataset_ds000246
+  kind: entity_fact
+  raw_text: 'This project uses real data from OpenNeuro: Auditory: ds000246'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T21:33:59Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/docs/README.md
+  attempts: 1
+  canonical: Project uses OpenNeuro visual dataset ds000117
+  claim_id: c_2c77ba0a
+  context: 'This project uses real data from OpenNeuro: - Auditory: ds000246 - Visual:
+    ds000117'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_OpenNeuro_visual_dataset_ds000117
+  kind: entity_fact
+  raw_text: 'This project uses real data from OpenNeuro: Visual: ds000117'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T21:34:22Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 0
+  canonical: OpenNeuro datasets ds000246 and ds000117 targeted
+  claim_id: c_4d7782fd
+  context: 'Goal: Download OpenNeuro datasets (ds000246, ds000117), validate trial
+    counts and sampling rates, and apply standardized preprocessing.'
+  evidence:
+    entailment_evidence: Project targets OpenNeuro datasets ds000246 and ds000117
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Project_targets_OpenNeuro_datasets_ds000246_and_ds000117
+  kind: entity_fact
+  raw_text: The project targets OpenNeuro datasets ds000246 and ds000117.
+  resolved_value: Project targets OpenNeuro datasets ds000246 and ds000117
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T21:34:39Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Sampling rate validation halts execution if less than 500 Hz
+  claim_id: c_ea82d265
+  context: "Configure linting (ruff) and formatting (black) tools. Create code/config.py\
+    \ defining paths, random seeds, sampling rate threshold (\u2265500 Hz), trial\
+    \ thresholds (\u2265100 oddball, \u2265300 standard), and time windows."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sampling_rate_validation_halts_execution_if_less_than_500_Hz
+  kind: magnitude
+  raw_text: Sampling rate validation halts execution if the rate is less than 500
+    Hz.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T21:35:03Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Auditory data validation requires at least 100 oddball and 300 standard
+    trials
+  claim_id: c_40dfb8dd
+  context: "Implement code/data/download.py validation logic for Auditory: check sampling\
+    \ rate (\u2265500 Hz) and trial counts (\u2265100 oddball, \u2265300 standard);\
+    \ halt with specific error codes if failed."
+  evidence:
+    candidates:
+    - - ''
+      - 100.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Auditory_data_validation_requires_at_least_100_oddball_and_3
+  kind: magnitude
+  raw_text: Auditory data validation requires at least 100 oddball trials and 300
+    standard trials.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-13T21:35:21Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Visual data validation requires at least 100 oddball and 300 standard
+    trials
+  claim_id: c_09eceae6
+  context: "Implement code/data/download.py validation logic for Visual: check sampling\
+    \ rate (\u2265500 Hz) and trial counts (\u2265100 oddball, \u2265300 standard);\
+    \ halt with specific error codes if failed."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Visual_data_validation_requires_at_least_100_oddball_and_300
+  kind: magnitude
+  raw_text: Visual data validation requires at least 100 oddball trials and 300 standard
+    trials.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T21:35:39Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime limit is 6 hours on GitHub Actions free-tier
+  claim_id: c_cfb34d2d
+  context: 'Independent Test: Run full pipeline on GitHub Actions free-tier (limited
+    CPU, GB RAM); verify exit code 0 within 6 hours, source maps generated, and statistical
+    decisions reported.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline must run within 6 hours on GitHub Actions free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T21:35:58Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free-tier provides 7GB RAM
+  claim_id: c_ea21e4ee
+  context: 'Critical Constraint: All tasks must be executable on CPU-only GitHub Actions
+    free-tier (limited CPU resources, 7GB RAM, 6h limit).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_free-tier_provides_7GB_RAM
+  kind: entity_fact
+  raw_text: The GitHub Actions free-tier provides 7GB of RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T21:36:19Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 2
+  canonical: Latency classification checks if absolute difference in latency is less
+    than 50ms
+  claim_id: c_94d8c8a6
+  context: "Implement code/main.py logic for Latency Classification: Check |\u0394\
+    t| < 50ms (SC-001) and set classification field."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_classification_checks_if_absolute_difference_in_late
+  kind: magnitude
+  raw_text: Latency classification checks if the absolute difference in latency is
+    less than 50ms.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T21:36:48Z'
+- artifact_path: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict/tasks.md
+  attempts: 1
+  canonical: Source overlap classification requires Dice > 0.6 and TOST p < 0.05
+  claim_id: c_588ecdef
+  context: 'Implement code/main.py logic for Source Overlap: Check Dice > 0.6 AND
+    TOST p < 0.05 (Plan Logic) and set classification field.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Source_overlap_classification_requires_Dice_%3E_0.6_and_TOST_p
+  kind: magnitude
+  raw_text: Source overlap classification requires a Dice coefficient greater than
+    0.6 and a TOST p-value less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T21:37:32Z'

@@ -5,13 +5,6 @@ T011b:
     \ contains an explicit \u201CExcluded Sources: DSSTox is explicitly excluded\u201D\
     \ line under FR\u2011001, with a rationale that cites the Plan\u2019s \u201CAssumptions\
     \ & Gaps\u201D section, fulfilling the task\u2019s documentation requirement."
-T013:
-  c: false
-  h: fa0257b91dc5ab6ed1a40837608c2dcda239febacd65ceeaa3d812b765fc6e49
-  r: "The required source file `code/01_data_ingestion.py` and the log file `data/artifacts/imputation_log.txt`\
-    \ are both missing, so no KNN imputation implementation, row\u2011dropping logic,\
-    \ or logging of the imputation rate is present. The task\u2019s deliverables are\
-    \ absent."
 T016:
   c: false
   h: dd7c3912fddb9d113a312f971c69dab0030f1faba4ca6e84dd84233deaff5cb8
@@ -35,11 +28,21 @@ T017c:
     the verification step cannot be performed as specified.
 T023:
   c: false
-  h: df64a85d7f09e8363832213a9f33ed8674524247e69d7cfb5e4ac4462dfd0175
-  r: The required `data/artifacts/trained_models.pkl` file does not exist, so the
-    evaluation script cannot load any models. Moreover, `code/04_evaluation.py` is
-    incomplete (syntax errors, truncated logic, missing implementation of metric calculations).
-    Both the necessary artifact and a functional evaluation implementation are absent.
+  h: d2cddf946add8bf275002921dea3ea8401003e1ad907bc3b5bd922e72b9eccc7
+  r: "The required artifact `data/artifacts/trained_models.pkl` does not exist, so\
+    \ the evaluation script cannot load any models. Moreover, the provided `code/04_evaluation.py`\
+    \ is truncated and does not show logic that iterates over all loaded models to\
+    \ compute RMSE, MAE, and R\xB2. Both the missing model file and the incomplete\
+    \ script prevent the task from being fulfilled."
+T024:
+  c: false
+  h: 49d4776d30c1b411c12d2729b9d454c5301a74f8d92df7f6c051a37752bea81e
+  r: "The required artifact `data/artifacts/trained_models.pkl` does not exist, and\
+    \ the output file `data/artifacts/statistical_test_results.json` is also missing.\
+    \ Moreover, the provided `code/04_evaluation.py` does not contain a paired t\u2011\
+    test on absolute errors nor code to write the p\u2011value and t\u2011statistic\
+    \ to the JSON file. These core components must be added for the task to be considered\
+    \ complete."
 T031:
   c: false
   h: aa9908f2c982791557715c253720c20ddd63e88698799e6595d1b734adaf1228

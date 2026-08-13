@@ -1,36 +1,8 @@
-T010:
+T048:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration files, or documentation were presented that demonstrate
-    loading settings from a `.env` file or providing default values. The required
-    artifact for environment configuration management is missing, so the task is not
-    satisfied.
-T022:
-  c: false
-  h: b7e08dcfcdc450456f15aa18d522af8096fe96efa67b3e6cb2691b7912e83e75
-  r: "The required output file `data/processed/cleaned_data.fif` does not exist, and\
-    \ the provided `code/data/preprocess.py` snippet shows no code that writes a cleaned\
-    \ data artifact or logs trial rejections. Consequently the task\u2019s core requirement\
-    \ is unmet."
-T032:
-  c: false
-  h: 04cb47215622b2f2189995c460fae939a7334312eb540df2cd70c31e2c47313a
-  r: The repository lacks the required `data/results/metrics_summary.json` file, and
-    the shown portion of `code/main.py` does not demonstrate a call to the extraction
-    step after preprocessing nor any code that writes a JSON summary to that path.
-    Both the artifact and the expected behavior are missing.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only the task description; there is no GitHub Actions workflow,\
-    \ run logs, or any evidence that the full pipeline was executed on the free\u2011\
-    tier runner and stayed within the 7\u202FGB RAM / \u22646\u202Fh limits. Without\
-    \ these artifacts the CI integration test cannot be verified."
-T039:
-  c: false
-  h: ed71639131a713959a0e65f5bca3fa0a64c05a1f22b617bd62e389ab4afb0402
-  r: "The provided `code/analysis/source.py` contains only head\u2011model and forward\u2011\
-    solution setup code; there is no implementation of a spatial\u2011smoothing kernel\
-    \ sweep, Coefficient of Variation calculation, or CSV export. Moreover, the required\
-    \ output file `data/results/sensitivity_analysis.csv` does not exist. Both the\
-    \ functional code and the expected result artifact are missing."
+  h: f6eed9a677e5c7ffb349f2d45c0ea1cc42864835e48a78a10deae451eb56a1f5
+  r: "The required `data/manifest.json` file is absent, and the provided `code/main.py`\
+    \ contains no logic that reads a manifest and verifies checksums of processed\
+    \ data artifacts (it only defines latency classification and other analysis functions).\
+    \ Consequently, the core requirement of checksum\u2011based data integrity verification\
+    \ is not met."
