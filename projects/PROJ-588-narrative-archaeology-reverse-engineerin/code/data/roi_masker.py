@@ -1,5 +1,5 @@
 """
-ROI Masking utilities for Hippocampus, mPFC, PCC, Lateral Temporal Cortex.
+ROI masking utilities for extracting timecourses.
 """
 import numpy as np
 from pathlib import Path
@@ -10,38 +10,39 @@ import code.config as config
 
 logger = logging.getLogger(__name__)
 
-# Define ROIs based on standard atlases (Harvard-Oxford or similar)
-ROI_LABELS = {
-    'hippocampus': 'Left-Hippocampus', # Simplified mapping
-    'mpfc': 'Frontal-Mid',
-    'pcc': 'Post-Cingulate-Cortex',
-    'ltc': 'Temporal-Sup'
-}
-
-def load_roi_mask(roi_name, template='MNI152'):
+def load_roi_mask(roi_name):
     """
-    Load an ROI mask. In a real pipeline, this loads from a specific atlas file.
+    Load an ROI mask (e.g., from Harvard-Oxford or AAL).
     """
-    logger.info(f"Loading mask for {roi_name}")
-    # Placeholder for actual atlas loading logic
+    # Simplified: In reality, this would load specific atlas files
+    # For now, we assume a placeholder or fetch from nilearn
+    if roi_name == "hippocampus":
+        # Example: Load from Harvard-Oxford
+        ho = datasets.fetch_atlas_harvard_oxford('sub-maxprob-thr50-1mm')
+        # This is a placeholder logic; actual implementation needs specific index
+        return None 
     return None
 
-def extract_roi_timecourse(nifti_img, mask_img):
+def extract_roi_timecourse(nii_img, mask_img):
     """
     Extract mean timecourse from an ROI mask.
     """
-    return masking.apply_mask(nifti_img, mask_img).mean(axis=1)
+    return masking.apply_mask(nii_img, mask_img)
 
-def extract_all_rois(nifti_img, rois=None):
+def extract_all_rois(nii_img, roi_names):
     """
-    Extract timecourses for all defined ROIs.
-    Returns a dict: {roi_name: timecourse_array}
-    """
-    if rois is None:
-        rois = ROI_LABELS.keys()
+    Extract timecourses for a list of ROIs.
     
+    Args:
+        nii_img: 4D fMRI image.
+        roi_names: List of ROI names.
+    
+    Returns:
+        dict: Mapping of ROI name to timecourse.
+    """
     results = {}
-    for roi in rois:
-        # Simulate extraction
-        results[roi] = np.random.rand(100) # Placeholder for real extraction
+    for name in roi_names:
+        # Placeholder: In real code, load specific mask
+        logger.warning(f"ROI {name} mask loading not fully implemented in this skeleton.")
+        results[name] = np.array([])
     return results

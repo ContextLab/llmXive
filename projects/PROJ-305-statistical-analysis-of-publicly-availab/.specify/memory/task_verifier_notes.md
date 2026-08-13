@@ -17,6 +17,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T016** — declared artifact(s) missing/empty/invalid: src/data/clean.py
 - **T018** — declared artifact(s) missing/empty/invalid: src/data/clean.py
 - **T019** — Both required artifacts (`src/analysis/disproportionality.py` and `tests/unit/test_disproportionality.py`) are missing from the repository, so no unit test or implementation exists to verify the ROR/PRR/IC calculation logic. The task’s deliverable is therefore not present.
-- **T022** — declared artifact(s) missing/empty/invalid: src/analysis/disproportionality.py
-- **T023** — declared artifact(s) missing/empty/invalid: src/analysis/disproportionality.py
-- **T024** — declared artifact(s) missing/empty/invalid: src/analysis/disproportionality.py

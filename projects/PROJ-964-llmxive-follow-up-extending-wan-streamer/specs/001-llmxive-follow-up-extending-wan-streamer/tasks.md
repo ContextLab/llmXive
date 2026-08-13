@@ -92,7 +92,7 @@
 - [X] T014c [US1] Implement `code/data/preprocess.py` event labeling logic to label events as "high-priority" or "low-priority" with counts logged (FR-001, US-1).
 - [X] T014d [US1] Implement `code/data/preprocess.py` validation logic to ensure all required columns are non-null and correctly typed (FR-001, US-1).
 - [X] T015 [US1] Implement `code/data/validate_sampling.py` to explicitly validate that the stratified sampling process preserves the distribution of turn-taking events (FR-015) and log the distribution comparison results (US-1). **Dependency**: T014b.
-- [ ] T016 [P] [US1] Implement `code/tasks/reduce_sample_size.py` module to reduce dataset sample size by [deferred] amount on power limit exceedance, or fail with "Power Limitation" error if minimum sample size is reached (FR-014, FR-023). **Note**: This module must be importable by Phase 4 tasks; define `MIN_SAMPLE_SIZE` constant explicitly.
+- [X] T016 [P] [US1] Implement `code/tasks/reduce_sample_size.py` module to reduce dataset sample size by [deferred] amount on power limit exceedance, or fail with "Power Limitation" error if minimum sample size is reached (FR-014, FR-023). **Note**: This module must be importable by Phase 4 tasks; define `MIN_SAMPLE_SIZE` constant explicitly.
 - [ ] T015b [US1] **Critical Validation**: Implement logic to validate sampling distribution preservation (FR-015) and log results. **Dependency**: T014b.
 - [ ] T029b [US1] **Critical Statistical Prep**: Perform 'a priori' power analysis to specify expected variance and minimum detectable effect size for the TOST test; log calculated parameters (variance, effect size) to `data/metrics/power_analysis.json` to justify sample size (FR-016, US-3); **must run after T013 (Extraction) to use pilot data for variance estimation, but before T014b (Sampling)**. **Dependency**: T013.
 
@@ -108,14 +108,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Contract test for model output schema in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/contract/test_model_output_schema.py`
-- [ ] T022 [P] [US2] Integration test for training loop and memory constraints in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_training_constraints.py`
+- [X] T021 [P] [US2] Contract test for model output schema in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/contract/test_model_output_schema.py`
+- [X] T022 [P] [US2] Integration test for training loop and memory constraints in `projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/tests/integration/test_training_constraints.py`
 
 ### Implementation for User Story 2
 
 - [ ] T018 [US2] Implement `code/models/gru_estimator.py` defining the lightweight GRU architecture with CPU-compatible operations; ensure the model outputs a tensor of shape `[batch, 2]` where column 0 is the predicted delta magnitude and column 1 is the `UncertaintyScore` (0.0-1.0); save checkpoint to `data/models/estimator_checkpoint.pt` with a `pending_validation` flag (FR-002, US-2); **Do NOT finalize the checkpoint; save only as 'pending'**.
-- [ ] T019 [US2] Implement `code/models/trainer.py` with a CPU-optimized training loop, ensuring memory usage stays ≤ 7 GB (FR-002).
-- [ ] T020 [US2] Implement baseline comparison logic (zero-delta predictor) to validate MSE improvement on the prediction task; output `data/metrics/baseline_comparison.json` with MSE values and p-values; explicitly defer the correlation with FID stability (r ≥ 0.7) to T043 in Phase 5 where the simulation data exists (SC-003, FR-010).
+- [X] T019 [US2] Implement `code/models/trainer.py` with a CPU-optimized training loop, ensuring memory usage stays ≤ 7 GB (FR-002).
+- [X] T020 [US2] Implement baseline comparison logic (zero-delta predictor) to validate MSE improvement on the prediction task; output `data/metrics/baseline_comparison.json` with MSE values and p-values; explicitly defer the correlation with FID stability (r ≥ 0.7) to T043 in Phase 5 where the simulation data exists (SC-003, FR-010).
 - [ ] T021b [US2] **Implementation**: Implement logic to compute and output an `UncertaintyScore` alongside predictions (FR-002); explicitly reference T044 for MOS validation logic (FR-012, FR-013, SC-007).
 - [ ] T023 [US2] Implement job-level timeout monitoring logic in `code/models/trainer.py` to monitor wall-clock time (FR-014).
 - [ ] T023b [US2] Implement sample size reduction logic in `code/models/trainer.py` that calls the `code/tasks/reduce_sample_size.py` module (T016) if the 6-hour limit is approached; fail gracefully with "Power Limitation" error if the minimum sample size is reached (US-2, FR-014).

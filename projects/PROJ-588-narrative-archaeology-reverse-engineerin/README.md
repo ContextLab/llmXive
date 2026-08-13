@@ -1,92 +1,50 @@
 # Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data
 
-This project implements the analysis pipeline for reverse-engineering story memories from fMRI brain data, focusing on the distinction between early and late event patterns in the hippocampus and mPFC.
+**Project ID**: PROJ-588
+**Status**: MVP Implementation (User Story 1)
 
-## Prerequisites
-
-- Python 3.11 or higher
-- pip (Python package installer)
-
-## Installation
-
-1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd narrative-archaeology
- ```
-
-2. Create a virtual environment (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-4. For development (optional):
- ```bash
- pip install -e ".[dev]"
- ```
+## Overview
+This project implements a pipeline to reverse-engineer narrative memories from fMRI data,
+specifically focusing on the "Natural Stories" dataset (OpenNeuro ds000234).
+The goal is to decode neural patterns associated with early vs. late event phases
+and reconstruct narrative elements (plot, character, theme).
 
 ## Project Structure
-
 ```
 .
 ├── code/ # Source code
-│ ├── config.py # Configuration and paths
-│ ├── data/ # Data ingestion and preprocessing
-│ ├── models/ # Analysis models (RSA, decoding)
-│ └── utils/ # Utilities (stats, visualization)
-├── data/ # Data storage (downloaded datasets, preprocessed files)
-├── tests/ # Test suite
+│ ├── config.py # Global configuration, seeds, paths
+│ ├── utils/ # Utility functions (stats, viz)
+│ ├── data/ # Data ingestion, preprocessing, segmentation
+│ └── models/ # RSA, decoding, semantic analysis
+├── data/ # Data storage (raw, processed)
+├── tests/ # Unit and integration tests
 ├── docs/ # Documentation
 ├── requirements.txt # Python dependencies
-├── pyproject.toml # Project configuration
-└── README.md # This file
+└── setup.py # Project setup (optional)
 ```
 
-## Configuration
+## Quick Start
+1. **Setup Environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate
+ pip install -r requirements.txt
+ ```
 
-Before running any analysis, ensure `code/config.py` is properly configured with:
-- Random seeds for reproducibility
-- CPU-only constraints (no GPU usage)
-- Correct paths to data directories
-- Motion artifact thresholds
+2. **Configuration**:
+ Edit `code/config.py` to set data paths and random seeds.
 
-## Running the Pipeline
+3. **Run Pipeline**:
+ See individual module scripts in `code/data/` for download and preprocessing.
 
-The pipeline consists of several stages:
-
-1. **Data Download**: Download OpenNeuro datasets (e.g., ds000234)
-2. **Preprocessing**: Run fMRIPrep or nilearn-based preprocessing
-3. **Segmentation**: Align story events to BOLD signal
-4. **ROI Extraction**: Extract timecourses from hippocampus, mPFC, PCC, etc.
-5. **Analysis**:
- - RSA: Compare early vs. late event patterns
- - Decoding: Predict narrative elements from neural patterns
-
-Example usage:
-```bash
-# Run preprocessing
-python code/data/preprocess.py --subject sub-01
-
-# Run RSA analysis
-python code/models/rsa.py --roi mPFC
-
-# Run decoding analysis
-python code/models/decoder.py --category plot
-```
-
-## Testing
-
-Run the test suite:
-```bash
-pytest tests/
-```
+## Dependencies
+- Python 3.11+
+- PyTorch (CPU only)
+- Nilearn
+- Transformers
+- Pandas, NumPy, Scikit-learn
+- OpenNeuro CLI
 
 ## License
-
-MIT License
+MIT

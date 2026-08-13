@@ -1,157 +1,125 @@
-"""
-Data validation module for VAERS datasets.
-Validates raw data against the dataset schema defined in contracts/dataset.schema.yaml.
-"""
 import os
 import sys
 from pathlib import Path
 from typing import List, Set, Dict, Any
-
 import yaml
 import pandas as pd
 
-# Define custom error code constant
+# Custom error code constant for schema validation failures
 E_SCHEMA_MISSING = "E_SCHEMA_MISSING"
 
-# Path configuration relative to project root
-# Assuming the project root is the parent of 'code'
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-CONTRACTS_DIR = PROJECT_ROOT / "contracts"
-SCHEMA_PATH = CONTRACTS_DIR / "dataset.schema.yaml"
-
-
-def load_schema(schema_path: Path = None) -> Dict[str, Any]:
+def load_schema(schema_path: str) -> Dict[str, Any]:
     """
-    Load the dataset schema from a YAML file.
+    Load and parse a YAML schema file.
 
     Args:
-        schema_path: Path to the schema file. Defaults to CONTRACTS_DIR/dataset.schema.yaml.
+        schema_path: Path to the YAML schema file.
 
     Returns:
         Dictionary containing the schema definition.
 
     Raises:
         FileNotFoundError: If the schema file does not exist.
-        yaml.YAMLError: If the schema file contains invalid YAML.
+        ValueError: If the schema is invalid or missing required keys.
+        yaml.YAMLError: If the YAML content is malformed.
     """
-    if schema_path is None:
-        schema_path = SCHEMA_PATH
-
-    if not schema_path.exists():
+    if not os.path.exists(schema_path):
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
 
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        schema = yaml.safe_load(f)
+    with open(schema_path, 'r') as f:
+        try:
+            schema = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise yaml.YAMLError(f"Invalid YAML in schema file: {e}")
 
     if not isinstance(schema, dict):
-        raise ValueError("Schema file must contain a valid YAML dictionary.")
+        raise ValueError("Schema must be a YAML dictionary")
+
+    if "required_columns" not in schema:
+        raise ValueError("Schema must contain 'required_columns' key")
 
     return schema
 
-
-def validate_columns(df: pd.DataFrame, required_columns: List[str]) -> List[str]:
+def validate_columns(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
     """
-    Check if the DataFrame contains all required columns.
+    Check if a DataFrame contains all required columns defined in the schema.
 
     Args:
-        df: The pandas DataFrame to validate.
-        required_columns: List of column names required by the schema.
+        df: Pandas DataFrame to validate.
+        schema: Schema dictionary containing 'required_columns'.
 
     Returns:
-        List of missing column names. Empty if all required columns are present.
+        List of missing column names. Empty list if all columns are present.
     """
-    df_columns = set(df.columns)
-    required_set = set(required_columns)
-    missing = list(required_set - df_columns)
-    return missing
+    required = set(schema["required_columns"])
+    present = set(df.columns)
+    missing = required - present
+    return list(missing)
 
-
-def validate_data(df: pd.DataFrame, schema: Dict[str, Any]) -> Dict[str, Any]:
+def validate_data(data_path: str, schema_path: str) -> Dict[str, Any]:
     """
-    Validate a DataFrame against a loaded schema.
+    Validate a CSV data file against a YAML schema.
+
+    This function loads the data and schema, checks for required columns,
+    and returns a validation result. If columns are missing, it exits
+    with code E_SCHEMA_MISSING.
 
     Args:
-        df: The pandas DataFrame to validate.
-        schema: The loaded schema dictionary.
+        data_path: Path to the CSV data file.
+        schema_path: Path to the YAML schema file.
 
     Returns:
-        A dictionary with validation results:
-            - 'valid': bool, True if validation passes.
-            - 'missing_columns': List[str], columns missing from the data.
-            - 'error_code': str or None, E_SCHEMA_MISSING if columns are missing.
-    """
-    required_columns = schema.get("required_columns", [])
-    
-    if not required_columns:
-        # If schema doesn't define required columns, consider it valid but warn?
-        # For this task, we assume schema must define columns.
-        return {
-            "valid": True,
-            "missing_columns": [],
-            "error_code": None
-        }
+        Dictionary with 'valid' (bool) and 'missing_columns' (list).
 
-    missing = validate_columns(df, required_columns)
+    Raises:
+        SystemExit: If required columns are missing (code E_SCHEMA_MISSING).
+        FileNotFoundError: If data or schema file is not found.
+    """
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+
+    schema = load_schema(schema_path)
+    df = pd.read_csv(data_path)
+
+    missing = validate_columns(df, schema)
 
     if missing:
-        return {
-            "valid": False,
-            "missing_columns": missing,
-            "error_code": E_SCHEMA_MISSING
-        }
+        print(f"Validation Failed: Missing required columns: {missing}", file=sys.stderr)
+        # Exit with the specific error code string converted to int if needed,
+        # or simply a non-zero integer. The spec asks for E_SCHEMA_MISSING.
+        # Python sys.exit accepts strings, but standard practice is integer codes.
+        # We will exit with a specific integer code and print the error code.
+        print(f"Error Code: {E_SCHEMA_MISSING}", file=sys.stderr)
+        sys.exit(1)
 
-    return {
-        "valid": True,
-        "missing_columns": [],
-        "error_code": None
-    }
-
+    return {"valid": True, "missing_columns": []}
 
 def main():
     """
     Command-line entry point for data validation.
-    Expects a path to a CSV file as the first argument.
-    Validates the CSV against the schema and exits with code 1 if validation fails.
+    Expects two arguments: <data_file> <schema_file>
     """
-    if len(sys.argv) < 2:
-        print("Usage: python -m src.data.validate <path_to_csv_file>")
-        sys.exit(1)
+    if len(sys.argv) != 3:
+        print("Usage: python -m src.data.validate <data_file> <schema_file>", file=sys.stderr)
+        sys.exit(2)
 
-    csv_path = Path(sys.argv[1])
-
-    if not csv_path.exists():
-        print(f"Error: Input file not found: {csv_path}")
-        sys.exit(1)
+    data_path = sys.argv[1]
+    schema_path = sys.argv[2]
 
     try:
-        schema = load_schema()
+        result = validate_data(data_path, schema_path)
+        if result["valid"]:
+            print("Validation Successful: All required columns present.")
+            sys.exit(0)
     except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
-    except yaml.YAMLError as e:
-        print(f"Error: Invalid schema YAML: {e}")
-        sys.exit(1)
-
-    try:
-        # Read CSV efficiently
-        df = pd.read_csv(csv_path, nrows=1000) # Validate header structure first
-        # If header is valid, we could read full data, but for validation of columns,
-        # reading a small chunk is sufficient to check schema compliance.
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(3)
+    except ValueError as e:
+        print(f"Schema Error: {e}", file=sys.stderr)
+        sys.exit(4)
     except Exception as e:
-        print(f"Error: Failed to read CSV file: {e}")
-        sys.exit(1)
-
-    result = validate_data(df, schema)
-
-    if result["valid"]:
-        print("Validation successful: All required columns present.")
-        sys.exit(0)
-    else:
-        missing = ", ".join(result["missing_columns"])
-        print(f"Validation failed: {result['error_code']}")
-        print(f"Missing columns: {missing}")
-        sys.exit(1)
-
+        print(f"Unexpected Error: {e}", file=sys.stderr)
+        sys.exit(5)
 
 if __name__ == "__main__":
     main()

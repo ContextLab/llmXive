@@ -1,65 +1,95 @@
-"""
-Setup script to create and verify data directories for the project.
-Creates: data/raw/, data/processed/, data/models/
-Verifies existence using os.path.isdir.
-"""
 import os
 import sys
 from pathlib import Path
 
-# Project root is the directory containing this script's parent
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
 def setup_data_directories():
     """
-    Create the required data subdirectories and verify their existence.
+    Create the required data subdirectories:
+    - data/raw/
+    - data/processed/
+    - data/models/
     
     Returns:
-        bool: True if all directories were created and verified successfully.
-        
-    Raises:
-        RuntimeError: If any directory creation fails or verification fails.
+        tuple: (success: bool, created_paths: list)
     """
-    base_path = PROJECT_ROOT / "data"
+    project_root = Path(__file__).resolve().parent.parent
+    data_root = project_root / "data"
     
-    directories = [
-        base_path / "raw",
-        base_path / "processed",
-        base_path / "models"
+    required_dirs = [
+        "raw",
+        "processed",
+        "models"
     ]
     
-    created_dirs = []
+    created_paths = []
     
-    for dir_path in directories:
-        try:
-            # Create directory with parents if needed, no error if exists
+    for dir_name in required_dirs:
+        dir_path = data_root / dir_name
+        if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(dir_path)
-            print(f"Created/Verified: {dir_path}")
-        except OSError as e:
-            raise RuntimeError(f"Failed to create directory {dir_path}: {e}")
+            created_paths.append(str(dir_path))
+        else:
+            created_paths.append(str(dir_path))
     
-    # Verification step: assert os.path.isdir returns True for each
-    for dir_path in created_dirs:
-        if not os.path.isdir(dir_path):
-            raise RuntimeError(f"Verification failed: {dir_path} is not a valid directory.")
-        
-    print(f"Successfully created and verified {len(created_dirs)} data directories.")
-    return True
+    return True, created_paths
+
+def verify_data_directories():
+    """
+    Verify that the required data subdirectories exist.
+    
+    Returns:
+        tuple: (all_exist: bool, missing_dirs: list, existing_dirs: list)
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    data_root = project_root / "data"
+    
+    required_dirs = [
+        "raw",
+        "processed",
+        "models"
+    ]
+    
+    existing_dirs = []
+    missing_dirs = []
+    
+    for dir_name in required_dirs:
+        dir_path = data_root / dir_name
+        if os.path.isdir(dir_path):
+            existing_dirs.append(str(dir_path))
+        else:
+            missing_dirs.append(str(dir_path))
+    
+    all_exist = len(missing_dirs) == 0
+    return all_exist, missing_dirs, existing_dirs
 
 def main():
-    """Entry point for the script."""
-    try:
-        success = setup_data_directories()
-        if success:
-            print("Setup completed successfully.")
-            sys.exit(0)
-    except RuntimeError as e:
-        print(f"Setup failed: {e}", file=sys.stderr)
+    """
+    Main entry point to create and verify data directories.
+    """
+    print("Setting up data directories...")
+    success, created = setup_data_directories()
+    
+    if success:
+        print(f"Successfully created/verified directories:")
+        for path in created:
+            print(f"  - {path}")
+    else:
+        print("Failed to create data directories.")
         sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+    
+    print("\nVerifying data directories...")
+    all_exist, missing, existing = verify_data_directories()
+    
+    if all_exist:
+        print("All required data directories exist.")
+        for path in existing:
+            print(f"  ✓ {path}")
+        return 0
+    else:
+        print("ERROR: Some required data directories are missing:")
+        for path in missing:
+            print(f"  ✗ {path}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

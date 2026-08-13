@@ -1,2 +1,1 @@
-# Models module
-pass
+# Models package

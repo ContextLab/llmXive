@@ -1,89 +1,81 @@
-"""
-T002: Create code/ subdirectories.
-
-Creates the required directory structure under the 'code/' folder:
-- code/
-- code/data/
-- code/models/
-- code/inference/
-- code/evaluation/
-- code/utils/
-- code/tasks/
-- code/tests/
-
-Verification: Runs os.path.isdir on each path and asserts True.
-"""
 import os
 import sys
 from pathlib import Path
 
-
-def setup_code_directories(base_path: Path) -> bool:
+def setup_code_directories():
     """
-    Create the required code/ subdirectories and verify their existence.
-    
-    Args:
-        base_path: The project root path (parent of 'code' directory).
-        
-    Returns:
-        True if all directories were created and verified successfully.
-        
-    Raises:
-        AssertionError: If any directory creation or verification fails.
+    Create the required subdirectories under 'code/'.
+    Returns a list of created paths.
     """
+    base_path = Path(__file__).resolve().parent.parent
     code_dir = base_path / "code"
-    required_subdirs = [
+    
+    subdirs = [
+        "",  # code/ itself
         "data",
         "models",
         "inference",
         "evaluation",
         "utils",
         "tasks",
-        "tests",
+        "tests"
     ]
     
-    # Ensure the base code directory exists
-    code_dir.mkdir(parents=True, exist_ok=True)
+    created_paths = []
     
-    created_dirs = []
-    for subdir_name in required_subdirs:
-        subdir_path = code_dir / subdir_name
-        subdir_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(subdir_path)
-    
-    # Verification step: Assert all directories exist
-    print("Verifying directory creation...")
-    for dir_path in created_dirs:
-        is_dir = os.path.isdir(str(dir_path))
-        print(f"  Checking {dir_path}: {'EXISTS' if is_dir else 'MISSING'}")
-        assert is_dir, f"Failed to create or verify directory: {dir_path}"
-    
-    # Also verify the root code directory
-    assert os.path.isdir(str(code_dir)), f"Failed to create or verify directory: {code_dir}"
-    print(f"  Checking {code_dir}: EXISTS")
-    
-    print("\nAll code/ subdirectories created and verified successfully.")
-    return True
+    for subdir in subdirs:
+        target_path = code_dir / subdir
+        os.makedirs(target_path, exist_ok=True)
+        created_paths.append(target_path)
+        print(f"Created directory: {target_path}")
+        
+    return created_paths
 
+def verify_directories():
+    """
+    Verify that all required code subdirectories exist.
+    Returns True if all exist, False otherwise.
+    """
+    base_path = Path(__file__).resolve().parent.parent
+    code_dir = base_path / "code"
+    
+    subdirs = [
+        "",
+        "data",
+        "models",
+        "inference",
+        "evaluation",
+        "utils",
+        "tasks",
+        "tests"
+    ]
+    
+    all_exist = True
+    for subdir in subdirs:
+        target_path = code_dir / subdir
+        if not os.path.isdir(target_path):
+            print(f"ERROR: Directory does not exist: {target_path}")
+            all_exist = False
+        else:
+            print(f"Verified: {target_path}")
+            
+    return all_exist
 
 def main():
-    """Entry point for the script."""
-    # Determine project root (parent of this file's directory)
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
+    """
+    Main entry point to create and verify code directories.
+    """
+    print("Setting up code directories...")
+    created = setup_code_directories()
+    print(f"\nCreated {len(created)} directories.")
     
-    print(f"Project root: {project_root}")
-    print(f"Creating code/ subdirectories in: {project_root / 'code'}")
-    
-    success = setup_code_directories(project_root)
-    
-    if success:
-        print("\nTask T002 completed successfully.")
-        sys.exit(0)
+    print("\nVerifying directories...")
+    if verify_directories():
+        print("\nAll required code directories exist.")
+        return 0
     else:
-        print("\nTask T002 failed.")
-        sys.exit(1)
-
+        print("\nSome directories are missing.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,2 +1,1 @@
-# Unit tests module
-pass
+# Unit tests package

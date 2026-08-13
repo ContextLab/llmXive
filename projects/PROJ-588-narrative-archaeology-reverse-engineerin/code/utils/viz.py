@@ -11,54 +11,42 @@ logger = logging.getLogger(__name__)
 
 def plot_rsa_matrix(matrix, title="RSA Matrix", save_path=None):
     """
-    Plot a Representational Similarity Analysis (RSA) matrix.
-    
-    Args:
-        matrix: 2D numpy array representing the dissimilarity matrix.
-        title: Plot title.
-        save_path: Optional path to save the figure.
+    Plot a Representational Similarity Analysis (RSA) dissimilarity matrix.
     """
     plt.figure(figsize=(8, 6))
-    plt.imshow(matrix, cmap='viridis', interpolation='nearest')
+    plt.imshow(matrix, cmap='coolwarm', interpolation='nearest')
+    plt.colorbar(label='Dissimilarity')
     plt.title(title)
-    plt.colorbar(label="Dissimilarity")
-    
+    plt.xlabel("Events")
+    plt.ylabel("Events")
+
     if save_path:
-        save_path = Path(save_path)
-        save_path.parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        logger.info(f"Saved RSA matrix plot to {save_path}")
+        plt.savefig(save_path, dpi=300)
+        logger.info(f"RSA matrix saved to {save_path}")
     else:
-        plt.show()
+        # Default save path if not provided
+        default_path = Path(config.FIGURES_DIR) / f"rsa_{title.replace(' ', '_')}.png"
+        plt.savefig(default_path, dpi=300)
+        logger.info(f"RSA matrix saved to {default_path}")
     plt.close()
 
-def plot_decoding_accuracy(accuracies, chance_level=0.0, title="Decoding Accuracy", save_path=None):
+def plot_decoding_accuracy(accuracies, chance_level, title="Decoding Accuracy", save_path=None):
     """
-    Plot decoding accuracies with chance level baseline.
-    
-    Args:
-        accuracies: List or array of accuracy scores.
-        chance_level: Baseline chance accuracy.
-        title: Plot title.
-        save_path: Optional path to save the figure.
+    Plot decoding accuracy with chance baseline.
     """
-    plt.figure(figsize=(10, 6))
-    x = np.arange(len(accuracies))
-    plt.bar(x, accuracies, color='skyblue', edgecolor='black', label='Observed')
-    plt.axhline(y=chance_level, color='red', linestyle='--', label=f'Chance ({chance_level:.2f})')
-    
-    plt.xlabel('Condition / ROI')
-    plt.ylabel('Accuracy')
+    plt.figure(figsize=(8, 6))
+    plt.bar(range(len(accuracies)), accuracies, color='skyblue', label='Accuracy')
+    plt.axhline(y=chance_level, color='r', linestyle='--', label=f'Chance ({chance_level:.2f})')
+    plt.xlabel("Fold / Category")
+    plt.ylabel("Accuracy")
     plt.title(title)
-    plt.xticks(x, [f'Cond {i+1}' for i in x])
     plt.legend()
-    plt.grid(axis='y', alpha=0.3)
-    
+
     if save_path:
-        save_path = Path(save_path)
-        save_path.parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        logger.info(f"Saved decoding accuracy plot to {save_path}")
+        plt.savefig(save_path, dpi=300)
+        logger.info(f"Decoding accuracy plot saved to {save_path}")
     else:
-        plt.show()
+        default_path = Path(config.FIGURES_DIR) / f"decoding_{title.replace(' ', '_')}.png"
+        plt.savefig(default_path, dpi=300)
+        logger.info(f"Decoding accuracy plot saved to {default_path}")
     plt.close()

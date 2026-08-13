@@ -3,7 +3,7 @@ Contract test for model output schema (T021).
 
 Validates that the GRU Estimator model output adheres to the required schema:
 - Output shape: [batch_size, 2]
-- Column 0: predicted_delta_magnitude (float)
+- Column 0: predicted_delta_magnitude (float, non-negative)
 - Column 1: uncertainty_score (float, range 0.0-1.0)
 
 This test ensures FR-002 compliance and references T031 for MOS validation logic.
@@ -16,6 +16,7 @@ import numpy as np
 from pathlib import Path
 
 # Add project root to path to allow imports
+# The project root is the parent of 'projects'
 project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
@@ -98,10 +99,7 @@ def test_uncertainty_score_range(model, dummy_batch):
 def test_delta_magnitude_non_negative(model, dummy_batch):
     """
     Contract: Column 0 (predicted_delta_magnitude) should logically be non-negative.
-    While the raw model output might be any float, the specification implies a magnitude.
-    We enforce a ReLU or absolute value logic in the model if not already done,
-    or here we check for reasonable bounds if the model is expected to output raw deltas.
-    However, for a 'magnitude', it should be >= 0.
+    The specification implies a magnitude, which is by definition non-negative.
     """
     model.eval()
     with torch.no_grad():
@@ -110,21 +108,8 @@ def test_delta_magnitude_non_negative(model, dummy_batch):
     delta_magnitudes = output[:, 0]
     
     # Assuming the model outputs magnitude directly or we enforce it.
-    # If the model outputs raw delta, we check for validity.
-    # Given the name 'magnitude', we expect >= 0.
-    # If the implementation uses absolute value or ReLU, this passes.
-    # If it outputs raw signed delta, this test might fail, indicating a schema mismatch.
     # Based on FR-002 "predicted delta magnitude", it implies non-negative.
     # We assert that the model should be designed to output non-negative magnitudes.
-    # If the current model doesn't enforce this, the model code needs adjustment,
-    # but this test validates the CONTRACT.
-    # For this test to pass, the model must ensure non-negative output for col 0.
-    # We assume the model implementation (T018) handles this (e.g., via ReLU).
-    # If the model outputs negative values, this test fails, correctly flagging a contract violation.
-    
-    # Note: If the model is trained to predict signed deltas, the schema might be "delta" not "magnitude".
-    # The task T021 specifically asks for "delta magnitude".
-    # We enforce the contract: magnitude >= 0.
     min_delta = delta_magnitudes.min().item()
     assert min_delta >= 0.0, \
         f"Predicted delta magnitude {min_delta} is negative, violating magnitude contract"
@@ -136,6 +121,7 @@ def test_output_consistency_with_schema(model, dummy_batch):
     - Shape is correct
     - Uncertainty is in [0, 1]
     - Delta magnitude is non-negative
+    - No NaNs or Infs
     """
     model.eval()
     with torch.no_grad():

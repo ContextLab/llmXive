@@ -1,6 +1,5 @@
 """
-Semantic feature extraction using BERT (CPU-only).
-Features are used for RSA or as covariates, NOT as primary decoder inputs.
+Semantic feature extraction using BERT.
 """
 import torch
 from transformers import BertTokenizer, BertModel
@@ -12,32 +11,30 @@ logger = logging.getLogger(__name__)
 
 def get_semantic_features(texts):
     """
-    Extract BERT embeddings for a list of text strings.
-    Runs in CPU-only mode.
+    Extract semantic features from a list of text strings.
+    
+    Args:
+        texts (list): List of strings.
+    
+    Returns:
+        np.array: Feature matrix (n_texts, hidden_size).
     """
-    if not texts:
-        return np.array([])
-
-    logger.info("Loading BERT model (CPU)...")
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     model = BertModel.from_pretrained('bert-base-uncased')
     model.eval()
-
-    if config.CPU_ONLY:
-        model = model.cpu()
-
+    
+    # Move to CPU
+    model.to(config.DEVICE)
+    
     features = []
     with torch.no_grad():
         for text in texts:
-            inputs = tokenizer(text, return_tensors='pt', truncation=True, padding=True)
-            if config.CPU_ONLY:
-                inputs = {k: v.cpu() for k, v in inputs.items()}
-            
+            inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True)
+            inputs = {k: v.to(config.DEVICE) for k, v in inputs.items()}
             outputs = model(**inputs)
-            # Use last hidden state mean pooling
-            last_hidden = outputs.last_hidden_state
-            mask = inputs['attention_mask']
-            pooled = (last_hidden * mask.unsqueeze(-1)).sum(1) / mask.sum(-1, keepdim=True)
-            features.append(pooled.numpy())
-
-    return np.vstack(features)
+            # Use last hidden state mean pool
+            last_hidden_state = outputs.last_hidden_state
+            feature = last_hidden_state.mean(dim=1).squeeze().cpu().numpy()
+            features.append(feature)
+    
+    return np.array(features)

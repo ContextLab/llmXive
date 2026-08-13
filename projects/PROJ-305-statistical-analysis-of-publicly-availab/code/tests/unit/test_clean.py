@@ -11,140 +11,93 @@ project_root = Path(__file__).resolve().parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from src.data.clean import map_soc_codes, process_data, get_memory_usage_gb
+from src.data.clean import get_memory_usage_gb, map_soc_codes, process_data
 
 class TestMapSOC:
-    def test_map_soc_codes_with_llt(self):
-        """Test mapping with LLT_CODE column."""
+    def test_map_soc_codes_basic(self):
+        """Test basic SOC mapping functionality."""
         df = pd.DataFrame({
-            'LLT_CODE': ['10000001', '10000002', '10000026'],
-            'OTHER': ['A', 'B', 'C']
+            'SOC_CODE': ['10021881', '10007541', '10000000'],
+            'LLT': ['A', 'B', 'C'],
+            'REPT_DATE': ['2021-01-01', '2021-01-02', '2021-01-03']
         })
         result = map_soc_codes(df)
+        
         assert 'SOC' in result.columns
-        assert result.loc[0, 'SOC'] == 'Blood and lymphatic system disorders'
+        assert result.loc[0, 'SOC'] == 'Infections and infestations'
         assert result.loc[1, 'SOC'] == 'Cardiac disorders'
-        assert result.loc[2, 'SOC'] == 'Vascular disorders'
+        assert result.loc[2, 'SOC'] == 'Unknown'  # Code not in mapping
 
-    def test_map_soc_codes_with_unknown_code(self):
-        """Test mapping with a code not in dictionary."""
+    def test_map_soc_codes_missing_column(self):
+        """Test behavior when mapping column is missing."""
         df = pd.DataFrame({
-            'LLT_CODE': ['99999999', '10000001'],
-        })
-        result = map_soc_codes(df)
-        assert pd.isna(result.loc[0, 'SOC'])
-        assert result.loc[1, 'SOC'] == 'Blood and lymphatic system disorders'
-
-    def test_map_soc_codes_no_code_column(self):
-        """Test mapping when no code column exists."""
-        df = pd.DataFrame({
-            'NAME': ['Test'],
+            'OTHER': ['A', 'B'],
+            'REPT_DATE': ['2021-01-01', '2021-01-02']
         })
         result = map_soc_codes(df)
         assert 'SOC' in result.columns
-        assert pd.isna(result.loc[0, 'SOC'])
+        assert all(result['SOC'] == 'Unknown')
 
 class TestProcessData:
-    def test_process_data_creation(self):
-        """Test that process_data creates output files and filters correctly."""
+    def test_process_data_filtering(self):
+        """Test that process_data correctly filters by VAX_TYPE."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            input_dir = Path(tmpdir) / "raw"
-            output_dir = Path(tmpdir) / "processed"
-            input_dir.mkdir()
+            input_path = Path(tmpdir) / "input.csv"
+            output_parquet = Path(tmpdir) / "output.parquet"
+            output_csv = Path(tmpdir) / "output.csv"
             
-            # Create a mock CSV
-            mock_data = {
-                'CASE_ID': ['1', '2', '3', '4', '5'],
-                'VAX_TYPE': ['COVID-19', 'Influenza', 'Hepatitis B', 'COVID-19', 'Unknown'],
-                'LLT_CODE': ['10000001', '10000002', '10000003', '10000004', '10000005'],
-                'REPT_DATE': ['2021-01-01', '2021-01-02', '2021-01-03', '2021-01-04', '2021-01-05'],
-                'AGE': [30, 40, 50, 60, 70]
+            # Create mock data
+            data = {
+                'VAX_TYPE': ['COVID-19', 'Influenza', 'Non-COVID', 'COVID-19', 'Influenza'],
+                'SOC_CODE': ['10021881', '10007541', '10021881', '10007541', '10021881'],
+                'LLT': ['A', 'B', 'C', 'D', 'E'],
+                'REPT_DATE': ['2021-01-01', '2021-01-02', '2021-01-03', '2021-01-04', '2021-01-05']
             }
-            df = pd.DataFrame(mock_data)
-            csv_path = input_dir / "test.csv"
-            df.to_csv(csv_path, index=False)
+            pd.DataFrame(data).to_csv(input_path, index=False)
             
-            # Run process
-            total, covid, non_covid, non_covid_non_flu = process_data(str(input_dir), str(output_dir))
+            total, covid, non_covid, non_covid_non_flu = process_data(
+                input_path, output_parquet, output_csv
+            )
             
             # Verify outputs exist
-            assert (output_dir / "cleaned_vaers.parquet").exists()
-            assert (output_dir / "cleaned_vaers.csv").exists()
+            assert output_parquet.exists()
+            assert output_csv.exists()
             
-            # Load and verify counts
-            result_df = pd.read_parquet(output_dir / "cleaned_vaers.parquet")
-            
-            # Row 1: COVID-19 -> Group COVID-19
-            # Row 2: Influenza -> Group Non-COVID, Sensitivity None (is Flu)
-            # Row 3: Hepatitis B -> Group Non-COVID, Sensitivity Non-COVID, Non-Flu
-            # Row 4: COVID-19 -> Group COVID-19
-            # Row 5: Unknown -> Group Non-COVID (contains "COVID-19"? No. Contains "Influenza"? No.) -> Non-COVID, Non-Flu?
-            # Wait, logic: "Non-COVID" is NOT containing "COVID-19".
-            # "Non-COVID, Non-Flu" is Non-COVID AND NOT containing "Influenza".
-            # "Unknown" does not contain "COVID-19" -> Non-COVID.
-            # "Unknown" does not contain "Influenza" -> Non-COVID, Non-Flu.
-            
-            # Expected:
-            # Total: 5 (all have valid dates and mapped SOCs)
-            # COVID-19: 2 (Row 1, 4)
-            # Non-COVID: 3 (Row 2, 3, 5)
-            # Non-COVID, Non-Flu: 2 (Row 3, 5) - Row 2 is Flu
-            
-            assert total == 5
+            # Verify counts
+            # COVID-19: 2 rows
+            # Non-COVID (Influenza + Non-COVID): 3 rows
+            # Non-COVID, Non-Flu: 1 row (the 'Non-COVID' one)
             assert covid == 2
             assert non_covid == 3
-            assert non_covid_non_flu == 2
+            assert non_covid_non_flu == 1
 
-    def test_process_data_missing_soc_excluded(self):
-        """Test that rows with unmapped SOC are excluded."""
+    def test_process_data_missing_rept_date(self):
+        """Test that records with missing REPT_DATE are dropped."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            input_dir = Path(tmpdir) / "raw"
-            output_dir = Path(tmpdir) / "processed"
-            input_dir.mkdir()
+            input_path = Path(tmpdir) / "input.csv"
+            output_parquet = Path(tmpdir) / "output.parquet"
+            output_csv = Path(tmpdir) / "output.csv"
             
-            # Code 99999999 is not in mapping, so SOC will be NaN
-            mock_data = {
-                'CASE_ID': ['1', '2'],
-                'VAX_TYPE': ['COVID-19', 'Influenza'],
-                'LLT_CODE': ['10000001', '99999999'], # Second one maps to NaN
-                'REPT_DATE': ['2021-01-01', '2021-01-02'],
-                'AGE': [30, 40]
+            data = {
+                'VAX_TYPE': ['COVID-19', 'Influenza', 'Non-COVID'],
+                'SOC_CODE': ['10021881', '10007541', '10021881'],
+                'LLT': ['A', 'B', 'C'],
+                'REPT_DATE': ['2021-01-01', None, '2021-01-03']
             }
-            df = pd.DataFrame(mock_data)
-            csv_path = input_dir / "test.csv"
-            df.to_csv(csv_path, index=False)
+            pd.DataFrame(data).to_csv(input_path, index=False)
             
-            total, _, _, _ = process_data(str(input_dir), str(output_dir))
+            total, covid, non_covid, non_covid_non_flu = process_data(
+                input_path, output_parquet, output_csv
+            )
             
-            # Only row 1 should be kept
-            assert total == 1
-
-    def test_process_data_missing_date_excluded(self):
-        """Test that rows with missing REPT_DATE are excluded."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_dir = Path(tmpdir) / "raw"
-            output_dir = Path(tmpdir) / "processed"
-            input_dir.mkdir()
-            
-            mock_data = {
-                'CASE_ID': ['1', '2'],
-                'VAX_TYPE': ['COVID-19', 'Influenza'],
-                'LLT_CODE': ['10000001', '10000002'],
-                'REPT_DATE': ['2021-01-01', None], # Second one missing
-                'AGE': [30, 40]
-            }
-            df = pd.DataFrame(mock_data)
-            csv_path = input_dir / "test.csv"
-            df.to_csv(csv_path, index=False)
-            
-            total, _, _, _ = process_data(str(input_dir), str(output_dir))
-            
-            # Only row 1 should be kept
-            assert total == 1
+            # Only 2 rows should remain (COVID-19 and Non-COVID)
+            assert total == 2
+            assert covid == 1
+            assert non_covid == 1
 
 class TestMemoryUsage:
     def test_get_memory_usage_gb(self):
-        """Test that memory usage function returns a positive float."""
-        usage = get_memory_usage_gb()
-        assert isinstance(usage, float)
-        assert usage >= 0.0
+        """Test that memory usage function returns a non-negative float."""
+        mem = get_memory_usage_gb()
+        assert isinstance(mem, float)
+        assert mem >= 0.0

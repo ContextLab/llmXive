@@ -1,211 +1,277 @@
+"""
+Error handling infrastructure for the Narrative Archaeology pipeline.
+
+This module provides utilities to:
+1. Calculate motion metrics from fMRIPrep outputs.
+2. Check subjects against motion thresholds.
+3. Log errors in a structured JSON format to data/errors.log.
+4. Handle subject-level errors gracefully (skip and log).
+"""
 import os
 import json
 import logging
 import time
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, Any, Optional, List
+
 import numpy as np
+import pandas as pd
 
-# Configure logging for the module
+# Import config to access thresholds and paths
+import code.config as config
+
+# Configure logger for this module
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
-# Default motion threshold in mm (can be overridden in config)
-DEFAULT_MOTION_THRESHOLD_MM = 3.0
 
-def calculate_motion_metrics(translations: np.ndarray, rotations: np.ndarray) -> dict:
+def calculate_motion_metrics(subject_id: str, preproc_dir: Path) -> Dict[str, float]:
     """
-    Calculate motion metrics from fMRIPrep transformation parameters.
+    Calculate motion metrics (FD and DVARS) for a subject.
+
+    This function attempts to read the 'confounds_regressors.tsv' file generated
+    by fMRIPrep (or nilearn preprocessing) to compute Framewise Displacement (FD)
+    and DVARS.
 
     Args:
-        translations: Array of shape (n_timepoints, 3) containing x, y, z translations (mm).
-        rotations: Array of shape (n_timepoints, 3) containing roll, pitch, yaw (radians).
+        subject_id: The subject identifier (e.g., 'sub-01').
+        preproc_dir: Path to the subject's preprocessed directory.
 
     Returns:
-        Dictionary containing:
-            - 'max_displacement_mm': Maximum instantaneous displacement (mm).
-            - 'mean_displacement_mm': Mean instantaneous displacement (mm).
-            - 'max_rotation_deg': Maximum instantaneous rotation (degrees).
-            - 'mean_rotation_deg': Mean instantaneous rotation (degrees).
-            - 'framedrops': Number of timepoints exceeding the motion threshold.
+        A dictionary containing:
+            - 'mean_fd': Mean Framewise Displacement (mm).
+            - 'max_fd': Maximum Framewise Displacement (mm).
+            - 'mean_dvars': Mean DVARS.
+            - 'pct_high_fd': Percentage of timepoints with FD > 0.5mm.
+
+    Raises:
+        FileNotFoundError: If the confounds file is not found.
+        ValueError: If the required columns are missing.
     """
-    if translations.shape[0] != rotations.shape[0]:
-        raise ValueError("Translations and rotations must have the same number of timepoints.")
+    confounds_file = preproc_dir / f"{subject_id}_desc-confounds_regressors.tsv"
+    
+    if not confounds_file.exists():
+        # Fallback to common nilearn/nipype naming if standard fmriprep name is missing
+        # Look for any tsv with 'confounds' in the name in the directory
+        candidates = list(preproc_dir.glob("*confounds*.tsv"))
+        if candidates:
+            confounds_file = candidates[0]
+        else:
+            raise FileNotFoundError(f"Confounds file not found for {subject_id} in {preproc_dir}")
 
-    # Calculate instantaneous displacement (Friston et al. 1996)
-    # Displacement = sqrt(dx^2 + dy^2 + dz^2)
-    diffs = np.diff(translations, axis=0)
-    displacements = np.sqrt(np.sum(diffs**2, axis=1))
+    logger.info(f"Reading confounds from {confounds_file}")
+    try:
+        confounds = pd.read_csv(confounds_file, sep='\t', low_memory=False)
+    except Exception as e:
+        raise ValueError(f"Failed to parse confounds file for {subject_id}: {e}")
 
-    # Calculate instantaneous rotation (in mm, approximated for 50mm radius)
-    # Rotation = 50 * sqrt(droll^2 + dpitch^2 + dyaw^2)
-    rot_diffs = np.diff(rotations, axis=0)
-    rotations_mm = 50.0 * np.sqrt(np.sum(rot_diffs**2, axis=1))
-
-    # Total instantaneous motion
-    total_motion = displacements + rotations_mm
-
-    # Convert rotation diffs to degrees for reporting
-    rot_diffs_deg = np.degrees(np.linalg.norm(rot_diffs, axis=1))
-
-    max_disp = float(np.max(total_motion))
-    mean_disp = float(np.mean(total_motion))
-    max_rot = float(np.max(rot_diffs_deg))
-    mean_rot = float(np.mean(rot_diffs_deg))
-
-    # Count frames exceeding threshold
-    framedrops = int(np.sum(total_motion > DEFAULT_MOTION_THRESHOLD_MM))
-
-    return {
-        "max_displacement_mm": max_disp,
-        "mean_displacement_mm": mean_disp,
-        "max_rotation_deg": max_rot,
-        "mean_rotation_deg": mean_rot,
-        "framedrops": framedrops,
-        "motion_threshold_mm": DEFAULT_MOTION_THRESHOLD_MM
+    # Check for required columns
+    # Standard fmriprep: 'trans_x', 'trans_y', 'trans_z', 'rot_x', 'rot_y', 'rot_z'
+    # Or 'framewise_displacement' directly if pre-calculated
+    
+    metrics = {
+        'mean_fd': 0.0,
+        'max_fd': 0.0,
+        'mean_dvars': 0.0,
+        'pct_high_fd': 0.0,
+        'raw_fd_values': []
     }
 
-def check_motion_artifacts(metrics: dict, threshold_mm: float = None) -> tuple:
+    # Calculate FD if not present
+    if 'framewise_displacement' in confounds.columns:
+        fd_series = confounds['framewise_displacement'].dropna()
+    else:
+        # Calculate FD from displacement and rotation
+        required_trans = ['trans_x', 'trans_y', 'trans_z']
+        required_rot = ['rot_x', 'rot_y', 'rot_z']
+        
+        if not all(col in confounds.columns for col in required_trans + required_rot):
+            # Try alternative column names sometimes used
+            available_cols = confounds.columns.tolist()
+            if not all(col in available_cols for col in required_trans):
+                raise ValueError(f"Missing translation columns. Found: {available_cols}")
+            if not all(col in available_cols for col in required_rot):
+                raise ValueError(f"Missing rotation columns. Found: {available_cols}")
+
+        trans = confounds[required_trans].values
+        rot = confounds[required_rot].values
+
+        # FD = sum of absolute differences in translation (mm) + sum of absolute differences in rotation (mm)
+        # Rotation is in radians; convert to mm assuming 50mm radius (standard convention)
+        radius = 50.0
+        
+        diff_trans = np.abs(np.diff(trans, axis=0))
+        diff_rot = np.abs(np.diff(rot, axis=0))
+        
+        fd = np.sum(diff_trans, axis=1) + radius * np.sum(diff_rot, axis=1)
+        fd_series = pd.Series(fd)
+
+    # Handle potential NaNs in FD
+    fd_series = fd_series.dropna()
+    
+    if len(fd_series) == 0:
+        logger.warning(f"No valid FD values found for {subject_id}")
+        return metrics
+
+    metrics['mean_fd'] = float(fd_series.mean())
+    metrics['max_fd'] = float(fd_series.max())
+    metrics['raw_fd_values'] = fd_series.tolist()
+    
+    # Calculate percentage of high motion timepoints
+    high_motion_threshold = config.MOTION_THRESHOLD_MM
+    if high_motion_threshold is None:
+        high_motion_threshold = 0.5 # Default fallback if config missing
+        
+    pct_high = (fd_series > high_motion_threshold).mean() * 100
+    metrics['pct_high_fd'] = float(pct_high)
+
+    # DVARS calculation if available
+    if 'dvars' in confounds.columns:
+        dvars_series = confounds['dvars'].dropna()
+        if len(dvars_series) > 0:
+            metrics['mean_dvars'] = float(dvars_series.mean())
+
+    return metrics
+
+
+def check_motion_artifacts(metrics: Dict[str, float], threshold_mm: Optional[float] = None) -> bool:
     """
-    Check if motion metrics exceed acceptable thresholds.
+    Determine if a subject should be skipped based on motion metrics.
 
     Args:
         metrics: Dictionary returned by calculate_motion_metrics.
-        threshold_mm: Optional override for the motion threshold.
+        threshold_mm: Motion threshold in mm (defaults to config.MOTION_THRESHOLD_MM).
 
     Returns:
-        Tuple (is_valid, reason):
-            - is_valid: True if motion is acceptable, False otherwise.
-            - reason: String explaining the decision.
+        True if the subject has excessive motion and should be SKIPPED.
+        False if the subject is acceptable.
     """
     if threshold_mm is None:
-        threshold_mm = DEFAULT_MOTION_THRESHOLD_MM
+        threshold_mm = config.MOTION_THRESHOLD_MM
+        if threshold_mm is None:
+            threshold_mm = 0.5 # Default safety threshold
 
-    max_disp = metrics.get("max_displacement_mm", 0.0)
-    framedrops = metrics.get("framedrops", 0)
-    total_frames = metrics.get("total_frames", 0) # Optional context
+    mean_fd = metrics.get('mean_fd', 0.0)
+    pct_high = metrics.get('pct_high_fd', 0.0)
 
-    # Criterion 1: Maximum displacement exceeds threshold
-    if max_disp > threshold_mm:
-        return False, f"Max displacement ({max_disp:.2f}mm) exceeds threshold ({threshold_mm}mm)"
+    # Skip if mean FD exceeds threshold
+    if mean_fd > threshold_mm:
+        logger.warning(f"Motion check failed (mean FD): {mean_fd:.4f} > {threshold_mm}")
+        return True
 
-    # Criterion 2: Excessive number of censored frames (>20% of total)
-    if total_frames > 0 and framedrops > 0.2 * total_frames:
-        return False, f"Excessive motion censoring: {framedrops} frames ({100*framedrops/total_frames:.1f}%) exceed threshold"
+    # Skip if > 20% of timepoints have high motion
+    if pct_high > 20.0:
+        logger.warning(f"Motion check failed (pct high FD): {pct_high:.1f}% > 20%")
+        return True
 
-    return True, "Motion metrics within acceptable limits"
+    return False
 
-def log_error(error_log_path: Path, subject_id: str, error_code: str, details: dict):
+
+def log_error(subject_id: str, error_code: str, error_message: str, motion_mm: float = 0.0) -> None:
     """
-    Log an error to a JSON-formatted log file.
+    Log an error to the data/errors.log file in JSON format.
 
     Args:
-        error_log_path: Path to the error log file.
-        subject_id: Identifier for the subject.
-        error_code: Short code for the error type (e.g., 'MOTION', 'MISSING_FILE').
-        details: Dictionary of additional error details.
+        subject_id: The subject identifier.
+        error_code: A short code (e.g., 'MOTION_ARTIFACT', 'FILE_NOT_FOUND').
+        error_message: Detailed description of the error.
+        motion_mm: The mean FD value associated with the error (if applicable).
     """
     log_entry = {
         "timestamp": datetime.now().isoformat(),
         "subject_id": subject_id,
         "error_code": error_code,
-        **details
+        "error_message": error_message,
+        "motion_mm": motion_mm
     }
 
-    # Ensure directory exists
-    error_log_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure data directory exists
+    data_dir = Path(config.DATA_DIR)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    
+    log_file = data_dir / "errors.log"
 
-    # Append to log file
-    with open(error_log_path, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(log_entry) + '\n')
+    try:
+        with open(log_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(log_entry) + '\n')
+        logger.info(f"Error logged for {subject_id}: {error_code}")
+    except Exception as e:
+        logger.error(f"Failed to write to error log: {e}")
 
-    logger.warning(f"Logged error for {subject_id}: {error_code} - {details}")
 
-def handle_subject_error(subject_id: str, error_type: str, metrics: dict = None, error_log_path: Path = None):
+def handle_subject_error(subject_id: str, error_code: str, error_message: str, motion_mm: float = 0.0) -> None:
     """
-    Handle a subject error by checking motion and logging if necessary.
+    Centralized handler for subject-level errors.
+    
+    This function logs the error and raises a specific exception to signal
+    the calling pipeline to skip the subject.
 
     Args:
-        subject_id: Subject identifier.
-        error_type: Type of error (e.g., 'MOTION_ARTIFACT', 'PREPROCESSING_FAILED').
-        metrics: Optional motion metrics dictionary.
-        error_log_path: Path to the error log file. Defaults to 'data/errors.log'.
-
-    Returns:
-        bool: True if the subject should be skipped (error logged), False otherwise.
+        subject_id: The subject identifier.
+        error_code: A short code.
+        error_message: Detailed description.
+        motion_mm: Motion metric value.
     """
-    if error_log_path is None:
-        error_log_path = Path("data/errors.log")
+    log_error(subject_id, error_code, error_message, motion_mm)
+    raise RuntimeError(f"Skipping subject {subject_id} due to {error_code}: {error_message}")
 
-    if error_type == "MOTION_ARTIFACT" and metrics:
-        is_valid, reason = check_motion_artifacts(metrics)
-        if not is_valid:
-            log_error(
-                error_log_path,
-                subject_id,
-                "MOTION_ARTIFACT",
-                {
-                    "motion_mm": metrics.get("max_displacement_mm", 0.0),
-                    "framedrops": metrics.get("framedrops", 0),
-                    "reason": reason
-                }
-            )
-            return True
-    elif error_type:
-        # Log other errors without motion metrics
-        log_error(
-            error_log_path,
-            subject_id,
-            error_type,
-            {"reason": "Unspecified processing failure"}
-        )
-        return True
 
-    return False
-
-def get_error_summary(error_log_path: Path) -> dict:
+def get_error_summary(log_file: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Generate a summary of errors from the log file.
+    Read the error log and return a summary of errors.
 
     Args:
-        error_log_path: Path to the error log file.
+        log_file: Path to errors.log. Defaults to config.DATA_DIR/errors.log.
 
     Returns:
-        Dictionary with counts of errors by type and subject list.
+        Dictionary with counts per error_code and total errors.
     """
-    if not error_log_path.exists():
-        return {"total_errors": 0, "by_code": {}, "subjects": []}
+    if log_file is None:
+        log_file = Path(config.DATA_DIR) / "errors.log"
+
+    if not log_file.exists():
+        return {"total_errors": 0, "by_code": {}}
 
     errors = []
-    with open(error_log_path, 'r', encoding='utf-8') as f:
+    with open(log_file, 'r', encoding='utf-8') as f:
         for line in f:
-            if line.strip():
-                errors.append(json.loads(line))
+            line = line.strip()
+            if line:
+                try:
+                    errors.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
 
-    by_code = {}
-    subjects = set()
-    for err in errors:
-        code = err.get("error_code", "UNKNOWN")
-        by_code[code] = by_code.get(code, 0) + 1
-        subjects.add(err.get("subject_id", "UNKNOWN"))
-
-    return {
+    summary = {
         "total_errors": len(errors),
-        "by_code": by_code,
-        "subjects": list(subjects)
+        "by_code": {}
     }
 
-def clear_error_log(error_log_path: Path = None):
+    for err in errors:
+        code = err.get('error_code', 'UNKNOWN')
+        summary['by_code'][code] = summary['by_code'].get(code, 0) + 1
+
+    return summary
+
+
+def clear_error_log(log_file: Optional[Path] = None) -> None:
     """
-    Clear the error log file.
+    Clear the error log file. Use with caution.
 
     Args:
-        error_log_path: Path to the error log file. Defaults to 'data/errors.log'.
+        log_file: Path to errors.log. Defaults to config.DATA_DIR/errors.log.
     """
-    if error_log_path is None:
-        error_log_path = Path("data/errors.log")
+    if log_file is None:
+        log_file = Path(config.DATA_DIR) / "errors.log"
 
-    if error_log_path.exists():
-        error_log_path.unlink()
-        logger.info(f"Cleared error log at {error_log_path}")
+    if log_file.exists():
+        log_file.unlink()
+        logger.info("Error log cleared.")
     else:
-        logger.info(f"No error log found at {error_log_path} to clear.")
+        logger.info("Error log does not exist, nothing to clear.")

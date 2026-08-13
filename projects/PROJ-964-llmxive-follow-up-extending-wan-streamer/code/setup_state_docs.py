@@ -1,59 +1,93 @@
+"""
+Setup script for creating and verifying 'state/' and 'docs/' directories.
+Implements T004: Create state/ and docs/ directories.
+"""
 import os
 import sys
 from pathlib import Path
 
-def setup_state_docs_directories():
+
+def setup_state_docs_directories(root_dir: Path) -> list:
     """
-    Creates the 'state/' and 'docs/' directories at the project root.
-    These directories are required for Constitution Principle V (state tracking)
-    and for storing research documentation.
+    Create the 'state' and 'docs' directories if they do not exist.
+
+    Args:
+        root_dir: The project root directory path.
 
     Returns:
-        bool: True if all directories were created successfully, False otherwise.
+        A list of created directory paths.
     """
-    # Determine project root (assuming script is run from project root or code/ subdirectory)
-    # If running from code/, go up one level
-    current_dir = Path.cwd()
-    if current_dir.name == "code":
-        project_root = current_dir.parent
-    else:
-        project_root = current_dir
-
-    # Define the directories to create
     directories = [
-        project_root / "state",
-        project_root / "docs"
+        root_dir / "state",
+        root_dir / "docs",
+    ]
+    created = []
+
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            created.append(str(directory))
+            print(f"Created directory: {directory}")
+        else:
+            print(f"Directory already exists: {directory}")
+
+    return created
+
+
+def verify_state_docs_directories(root_dir: Path) -> bool:
+    """
+    Verify that 'state' and 'docs' directories exist and are directories.
+
+    Args:
+        root_dir: The project root directory path.
+
+    Returns:
+        True if all directories exist and are directories, False otherwise.
+    """
+    directories = [
+        root_dir / "state",
+        root_dir / "docs",
     ]
 
-    success = True
+    all_valid = True
     for directory in directories:
-        try:
-            directory.mkdir(parents=True, exist_ok=True)
-            # Verification step: assert existence
-            if not directory.is_dir():
-                print(f"ERROR: Failed to create or verify directory: {directory}")
-                success = False
-            else:
-                print(f"SUCCESS: Directory created/verified: {directory}")
-        except OSError as e:
-            print(f"ERROR: Could not create directory {directory}: {e}")
-            success = False
+        if not directory.exists():
+            print(f"FAIL: Directory does not exist: {directory}")
+            all_valid = False
+        elif not directory.is_dir():
+            print(f"FAIL: Path exists but is not a directory: {directory}")
+            all_valid = False
+        else:
+            print(f"PASS: Directory verified: {directory}")
 
-    return success
+    return all_valid
+
 
 def main():
-    """
-    Entry point for the script.
-    """
-    print("Starting setup of 'state/' and 'docs/' directories...")
-    success = setup_state_docs_directories()
-    
-    if success:
-        print("All directories created and verified successfully.")
-        sys.exit(0)
+    """Main entry point for the script."""
+    # Determine project root (assume script is in code/ or code/tasks/)
+    script_path = Path(__file__).resolve()
+    # Navigate up to project root (assuming structure: code/setup_state_docs.py -> root)
+    root_dir = script_path.parent.parent
+
+    print(f"Project root: {root_dir}")
+
+    # Setup
+    created = setup_state_docs_directories(root_dir)
+    if created:
+        print(f"Successfully created {len(created)} directories.")
     else:
-        print("Failed to create one or more directories.")
-        sys.exit(1)
+        print("No new directories created (all already existed).")
+
+    # Verification
+    print("\nVerifying directories...")
+    if verify_state_docs_directories(root_dir):
+        print("\nVerification PASSED: All required directories exist.")
+        return 0
+    else:
+        print("\nVerification FAILED: Some directories are missing or invalid.")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

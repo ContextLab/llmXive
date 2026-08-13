@@ -1,2 +1,3 @@
-# Narrative Archaeology Pipeline
-pass
+"""
+Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data
+"""

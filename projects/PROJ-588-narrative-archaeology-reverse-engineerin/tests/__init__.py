@@ -1,2 +1,1 @@
-# Tests module
-pass
+"""Test package for Narrative Archaeology."""

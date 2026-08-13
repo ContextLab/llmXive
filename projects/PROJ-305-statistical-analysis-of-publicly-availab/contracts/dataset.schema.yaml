@@ -1,43 +1,106 @@
-version: "1.0.0"
-description: "Schema for VAERS dataset after initial validation but before cleaning. Defines required columns for the statistical analysis pipeline."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VAERS COVID-19 Vaccine Adverse Event Dataset Schema"
+description: >
+  Schema definition for the cleaned and processed VAERS dataset.
+  Defines the required columns, data types, and constraints for
+  the statistical analysis pipeline.
 required_columns:
   - name: VAX_TYPE
     type: string
-    description: "Vaccine type administered. Must contain values like 'COVID-19' or other vaccine identifiers. Used to define exposure groups."
+    description: "Type of vaccine administered. Must contain 'COVID-19' for the case group or be a valid non-COVID vaccine for the control group."
     constraints:
-      min_length: 1
-      allow_null: false
+      - non_empty: true
+      - valid_values: ["COVID-19", "Non-COVID"] # Post-cleaning categorization
+    source_columns:
+      - VAX_TYPE # Original raw column
   - name: SOC_CODE
     type: string
-    description: "System Organ Class code from MedDRA. Used for grouping adverse events."
+    description: "System Organ Class code (MedDRA). Used for grouping adverse events."
     constraints:
-      allow_null: false
-      # Note: LLT (Lowest Level Term) is an alternative or additional field in raw data,
-      # but SOC_CODE is the primary grouping key for this analysis.
+      - non_empty: true
+      - pattern: "^\\d{5}$" # Standard MedDRA SOC code format
+    source_columns:
+      - SOC_CODE
   - name: LLT
     type: string
-    description: "Lowest Level Term from MedDRA. Optional but required for granular mapping if SOC_CODE is missing."
+    description: "Lowest Level Term (MedDRA) description. Optional but recommended for granular analysis."
     constraints:
-      allow_null: true
+      - non_empty: false
+    source_columns:
+      - LLT
   - name: REPT_DATE
     type: date
-    format: "YYYY-MM-DD"
-    description: "Date of report submission. Used for temporal analysis and filtering."
+    description: "Date the adverse event was reported to VAERS (MM/DD/YYYY)."
     constraints:
-      allow_null: false
+      - non_empty: true
+      - format: "MM/DD/YYYY"
+    source_columns:
+      - REPT_DATE
   - name: AGE
     type: numeric
     description: "Age of the patient at the time of the event."
     constraints:
-      allow_null: true
-      min_value: 0
-      max_value: 120
-source: "VAERS Data Files (2020-2023)"
+      - non_empty: false
+      - min_value: 0
+      - max_value: 120
+    source_columns:
+      - AGE
+  - name: SEX
+    type: string
+    description: "Sex of the patient."
+    constraints:
+      - non_empty: false
+      - valid_values: ["M", "F", "U"]
+    source_columns:
+      - SEX
+  - name: VAX_DATE
+    type: date
+    description: "Date of vaccination (MM/DD/YYYY). May be missing in raw data."
+    constraints:
+      - non_empty: false
+      - format: "MM/DD/YYYY"
+    source_columns:
+      - VAX_DATE
+  - name: STATE
+    type: string
+    description: "State where the adverse event was reported."
+    constraints:
+      - non_empty: false
+    source_columns:
+      - STATE
+  - name: GROUP
+    type: string
+    description: "Analysis group assignment after cleaning: 'COVID-19', 'Non-COVID', 'Non-COVID-Non-Flu', or 'Flu-only'."
+    constraints:
+      - non_empty: true
+      - valid_values: ["COVID-19", "Non-COVID", "Non-COVID-Non-Flu", "Flu-only"]
+    computed: true
+    logic: "Derived in src/data/clean.py based on VAX_TYPE content."
+
 validation_rules:
-  - "At least one of SOC_CODE or LLT must be present."
-  - "VAX_TYPE must not be empty."
-  - "REPT_DATE must be a valid date string."
-notes: |
-  This schema is used by src/data/validate.py to ensure raw data downloaded in T013
-  contains the necessary fields before proceeding to cleaning (T014).
-  Columns are case-sensitive as per VAERS CSV headers.
+  - rule: "All records must have a valid REPT_DATE"
+    severity: "error"
+    action: "drop"
+  - rule: "All records must have a valid SOC_CODE"
+    severity: "error"
+    action: "drop"
+  - rule: "AGE must be between 0 and 120 if present"
+    severity: "warning"
+    action: "filter_invalid"
+  - rule: "VAX_TYPE must resolve to a valid GROUP"
+    severity: "error"
+    action: "drop"
+
+file_format:
+  primary: "parquet"
+  fallback: "csv"
+  encoding: "utf-8"
+  delimiter: ","
+  compression: "snappy" # For parquet
+
+metadata:
+  version: "1.0"
+  created_by: "T005 Implementation"
+  last_updated: "2023-10-27"
+  source_system: "VAERS"
+  processing_stage: "cleaned"

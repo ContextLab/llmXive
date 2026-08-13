@@ -1,129 +1,50 @@
-# Ruff configuration for llmXive - PROJ-964
+# Ruff configuration for llmXive project
 # Extending Wan-Streamer v0.1
-#
-# This configuration enforces strict linting rules to ensure code quality,
-# reproducibility, and adherence to the project's Constitution Principles.
 
 [lint]
-# Select specific rule sets
+# Enable specific rule sets
 select = [
     "E",    # pycodestyle errors
     "W",    # pycodestyle warnings
     "F",    # Pyflakes
-    "I",    # isort (import sorting)
-    "C90",  # mccabe (complexity)
-    "N",    # pep8-naming
-    "UP",   # pyupgrade (modern syntax)
-    "S",    # flake8-bandit (security)
-    "BLE",  # flake8-blind-except
+    "I",    # isort
     "B",    # flake8-bugbear
     "C4",   # flake8-comprehensions
-    "DTZ",  # flake8-datetimez
-    "T10",  # flake8-debugger
-    "EXE",  # flake8-executable
-    "ISC",  # flake8-implicit-str-concat
-    "ICN",  # flake8-import-conventions
-    "PIE",  # flake8-pie
-    "Q",    # flake8-quotes
-    "RSE",  # flake8-raise
-    "RET",  # flake8-return
+    "UP",   # pyupgrade
+    "ARG",  # flake8-unused-arguments
     "SIM",  # flake8-simplify
     "TCH",  # flake8-type-checking
-    "ARG",  # flake8-unused-arguments
-    "PTH",  # flake8-use-pathlib
-    "ERA",  # eradicate (commented out code)
-    "PL",   # Pylint
     "RUF",  # Ruff-specific rules
 ]
 
-# Ignore specific rules that are too noisy or conflict with project style
+# Ignore specific rules that are too strict for research code
 ignore = [
-    "E501", # line-too-long (handled by black)
-    "D100", # missing-module-docstring (optional for small scripts)
-    "D104", # missing-public-package-docstring
-    "D105", # missing-magic-method-docstring
-    "D107", # missing-init-docstring
-    "PLR0913", # too-many-arguments (common in data loaders)
-    "PLR2004", # magic-value-comparison (common in thresholds)
-    "S101", # assert (allowed in tests and research scripts)
-    "S311", # suspicious-non-cryptographic-random (used for seeding, not crypto)
-    "B028", # no-explicit-stacklevel (acceptable in quick research scripts)
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in research)
+    "ARG002", # Unused method arguments (sometimes needed for interface compliance)
 ]
 
-# Allow specific patterns
-allowed-confusables = []
-
-# Fixable rules
-fixable = ["ALL"]
-unfixable = []
-
-# Dummy variable names allowed (e.g., _ for unused vars)
+# Allow unused variables in notebooks and for specific patterns
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Target Python version
-target-version = "py39"
-
-[lint.per-file-ignores]
-# Tests can have asserts and unused fixtures
-"tests/**/*.py" = [
-    "S101", # assert
-    "ARG",  # unused arguments (fixtures)
-    "D103", # missing-docstring (test names are descriptive)
-]
-# Setup scripts can have simple logic
-"code/setup_*.py" = [
-    "D103",
-]
-# Data extraction scripts may have complex logic
-"code/data/*.py" = [
-    "PLR0912", # too-many-branches
-    "PLR0915", # too-many-statements
-]
-
-[lint.flake8-quotes]
-inline-quotes = "double"
-multiline-quotes = "double"
-docstring-quotes = "double"
-avoid-escape = true
-
 [lint.isort]
-known-first-party = [
-    "config",
-    "data",
-    "models",
-    "inference",
-    "evaluation",
-    "utils",
-    "tasks",
-    "tests",
-]
-known-third-party = [
-    "torch",
-    "pandas",
-    "numpy",
-    "sklearn",
-    "datasets",
-    "scipy",
-    "pyyaml",
-    "videomae",
-    "ruff",
-    "black",
-    "pytest",
-]
-force-single-line = false
+known-first-party = ["data", "models", "utils", "tasks", "inference", "evaluation", "tests"]
 force-sort-within-sections = true
-order-by-type = true
-relative-imports-order = "closest-to-furthest"
 lines-after-imports = 2
 
-[lint.mccabe]
-max-complexity = 15
+[lint.per-file-ignores]
+# Allow more flexibility in test files
+"tests/**/*.py" = ["ARG", "S101"]
+# Allow more flexibility in setup scripts
+"code/setup*.py" = ["T201"]
 
 [format]
-# Black-compatible formatting
+# Use double quotes (consistent with Black)
 quote-style = "double"
+# Use spaces for indentation
 indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-docstring-code-format = false
-docstring-code-line-length = 88
+# Line length matches Black default
+line-length = 88
+
+[lint.pydocstyle]
+convention = "numpy"

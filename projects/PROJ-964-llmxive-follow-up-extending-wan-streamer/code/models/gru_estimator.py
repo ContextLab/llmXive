@@ -4,375 +4,318 @@ import torch.nn.functional as F
 import os
 import sys
 from pathlib import Path
+from typing import Dict, Any, Optional, Tuple
 import numpy as np
-from typing import Tuple, Optional, Dict, Any
+import pandas as pd
+import json
+import logging
 
-# Import config to ensure paths are consistent
-# Note: We assume config.py is in the code root relative to this import
-# If running as a script, we adjust sys.path
-def load_config():
+# Import shared utilities from the project's API surface
+from utils.config import get_config_summary, set_seed
+from utils.validators import validate_model_output, ValidationError
+from utils.update_state_yaml import compute_file_hash
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def load_config() -> Dict[str, Any]:
     """
-    Load configuration from code/config.py or default values.
-    Returns a dictionary with necessary hyperparameters.
+    Load configuration for the GRU Estimator.
+    Returns a dictionary with model hyperparameters and paths.
     """
-    # Default configuration
-    config = {
-        'input_dim': 512,  # Default latent dimension
-        'hidden_dim': 256,
+    config = get_config_summary()
+    # Ensure specific keys exist for this model
+    if 'gru' not in config:
+        config['gru'] = {}
+    
+    # Defaults if not specified
+    defaults = {
+        'input_dim': 10,  # Default latent vector dimension
+        'hidden_dim': 64,
         'num_layers': 2,
-        'dropout': 0.3,
-        'device': 'cpu',
-        'seed': 42,
-        'checkpoint_path': 'data/models/estimator_checkpoint.pt'
+        'dropout': 0.2,
+        'learning_rate': 1e-3,
+        'batch_size': 32,
+        'epochs': 10,
+        'checkpoint_path': 'data/models/estimator_checkpoint.pt',
+        'seed': 42
     }
     
-    # Try to load from code/config.py if it exists
-    try:
-        # Adjust path based on execution context
-        script_dir = Path(__file__).parent
-        project_root = script_dir.parent
-        config_file = project_root / 'config.py'
-        
-        if config_file.exists():
-            # Import the config module dynamically
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("config_module", config_file)
-            config_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(config_module)
-            
-            # Extract relevant config values if available
-            if hasattr(config_module, 'get_config_summary'):
-                summary = config_module.get_config_summary()
-                if isinstance(summary, dict):
-                    config.update(summary)
-    except Exception as e:
-        # If config loading fails, continue with defaults
-        pass
-        
-    return config
+    for k, v in defaults.items():
+        if k not in config['gru']:
+            config['gru'][k] = v
+    
+    return config['gru']
 
 class GRUEstimator(nn.Module):
     """
-    Lightweight GRU model for predicting latent delta magnitude and uncertainty.
-    
-    Output shape: [batch_size, 2]
-    - Column 0: Predicted delta magnitude (float)
-    - Column 1: UncertaintyScore (0.0 to 1.0)
+    Lightweight GRU model for CPU inference.
+    Outputs a tensor of shape [batch, 2]:
+      - Column 0: Predicted Delta Magnitude
+      - Column 1: Uncertainty Score (0.0 - 1.0)
     """
-    
-    def __init__(self, input_dim: int = 512, hidden_dim: int = 256, 
-                num_layers: int = 2, dropout: float = 0.3):
+    def __init__(self, input_dim: int, hidden_dim: int, num_layers: int, dropout: float):
         super(GRUEstimator, self).__init__()
-        
-        self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.num_layers = num_layers
-        
-        # GRU layers
+
+        # GRU Layer
         self.gru = nn.GRU(
             input_size=input_dim,
             hidden_size=hidden_dim,
             num_layers=num_layers,
             batch_first=True,
-            dropout=dropout if num_layers > 1 else 0,
-            bidirectional=False
+            dropout=dropout if num_layers > 1 else 0.0
         )
-        
-        # Dropout layer
-        self.dropout = nn.Dropout(dropout)
-        
-        # Fully connected layers for dual output
-        self.fc_delta = nn.Linear(hidden_dim, 1)
-        self.fc_uncertainty = nn.Linear(hidden_dim, 1)
-        
-        # Sigmoid for uncertainty normalization to [0, 1]
-        self.sigmoid = nn.Sigmoid()
-    
+
+        # Fully connected layers for head
+        # We map the last hidden state to 2 outputs
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim // 2, 2)
+        )
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
-        Forward pass through the GRU estimator.
-        
         Args:
-            x: Input tensor of shape [batch_size, seq_len, input_dim]
-            
+            x: Input tensor of shape [batch, seq_len, input_dim]
         Returns:
-            output: Tensor of shape [batch_size, 2]
-                    - Column 0: Predicted delta magnitude
-                    - Column 1: UncertaintyScore (0.0-1.0)
+            output: Tensor of shape [batch, 2]
         """
-        # Ensure input is 3D: [batch, seq_len, input_dim]
-        if x.dim() == 2:
-            x = x.unsqueeze(1)  # Add sequence dimension if missing
+        # x shape: (batch, seq_len, input_dim)
+        # GRU output: (batch, seq_len, hidden_dim)
+        # We only need the last hidden state
+        gru_out, hidden = self.gru(x)
         
-        # GRU forward pass
-        # gru_output: [batch, seq_len, hidden_dim]
-        # hidden: [num_layers, batch, hidden_dim]
-        gru_output, hidden = self.gru(x)
+        # Take the last time step
+        last_hidden = gru_out[:, -1, :]  # (batch, hidden_dim)
         
-        # Use the last hidden state for prediction
-        last_hidden = hidden[-1]  # [batch, hidden_dim]
+        # Pass through head
+        out = self.fc(last_hidden)  # (batch, 2)
         
-        # Apply dropout
-        last_hidden = self.dropout(last_hidden)
+        # Apply activation to separate concerns
+        # Column 0: Delta Magnitude (can be any positive value, use ReLU)
+        # Column 1: Uncertainty Score (0-1, use Sigmoid)
+        delta_mag = F.relu(out[:, 0:1])
+        uncertainty = torch.sigmoid(out[:, 1:2])
         
-        # Compute delta magnitude prediction
-        delta_pred = self.fc_delta(last_hidden)  # [batch, 1]
-        
-        # Compute uncertainty score
-        uncertainty_raw = self.fc_uncertainty(last_hidden)  # [batch, 1]
-        uncertainty = self.sigmoid(uncertainty_raw)  # [batch, 1], range [0, 1]
-        
-        # Concatenate outputs: [batch, 2]
-        output = torch.cat([delta_pred, uncertainty], dim=1)
-        
-        return output
+        return torch.cat([delta_mag, uncertainty], dim=1)
 
-def train_step(model: nn.Module, batch: Tuple[torch.Tensor, torch.Tensor], 
-              optimizer: torch.optim.Optimizer, criterion: nn.Module,
-              device: str) -> Tuple[float, float]:
+def train_step(model: GRUEstimator, batch: torch.Tensor, targets: torch.Tensor, optimizer: torch.optim.Optimizer, criterion: nn.Module) -> Tuple[float, float]:
     """
-    Single training step.
-    
+    Performs a single training step.
     Args:
-        model: The GRU estimator model
-        batch: Tuple of (inputs, targets)
-        optimizer: Torch optimizer
-        criterion: Loss function (MSE)
-        device: Device to run on
-        
+        model: The GRU model
+        batch: Input tensor [batch, seq_len, input_dim]
+        targets: Target tensor [batch, 2] (delta_mag, uncertainty)
+        optimizer: Optimizer instance
+        criterion: Loss function (e.g., MSELoss)
     Returns:
-        loss: Current loss value
-        delta_loss: Loss component for delta prediction
-        uncertainty_loss: Loss component for uncertainty prediction
+        loss_value, delta_loss, unc_loss
     """
     model.train()
-    inputs, targets = batch
-    
-    inputs = inputs.to(device)
-    targets = targets.to(device)
-    
     optimizer.zero_grad()
     
-    # Forward pass
-    predictions = model(inputs)  # [batch, 2]
+    outputs = model(batch)
+    pred_delta = outputs[:, 0]
+    pred_unc = outputs[:, 1]
+    target_delta = targets[:, 0]
+    target_unc = targets[:, 1]
     
-    # Split predictions
-    delta_pred = predictions[:, 0:1]
-    uncertainty_pred = predictions[:, 1:2]
+    # Combined loss: MSE for both, weighted equally for now
+    # Note: Uncertainty targets should be in [0, 1] for MSE to make sense with sigmoid output
+    loss = criterion(pred_delta, target_delta) + criterion(pred_unc, target_unc)
     
-    # Split targets
-    delta_target = targets[:, 0:1]
-    # For uncertainty, we might use a calibration target or proxy
-    # For now, we'll use a simple approach: minimize uncertainty when delta is small
-    # In a full implementation, this would use actual calibration data
-    uncertainty_target = torch.zeros_like(delta_target)  # Placeholder
-    
-    # Compute losses
-    delta_loss = criterion(delta_pred, delta_target)
-    uncertainty_loss = criterion(uncertainty_pred, uncertainty_target)
-    
-    # Combined loss (weighted sum)
-    loss = delta_loss + 0.1 * uncertainty_loss
-    
-    # Backward pass
     loss.backward()
     optimizer.step()
     
-    return loss.item(), delta_loss.item(), uncertainty_loss.item()
+    return loss.item(), criterion(pred_delta, target_delta).item(), criterion(pred_unc, target_unc).item()
 
-def validate_step(model: nn.Module, batch: Tuple[torch.Tensor, torch.Tensor], 
-                 criterion: nn.Module, device: str) -> Tuple[float, float, float]:
+def validate_step(model: GRUEstimator, batch: torch.Tensor, targets: torch.Tensor, criterion: nn.Module) -> Tuple[float, float, float]:
     """
-    Single validation step.
-    
-    Args:
-        model: The GRU estimator model
-        batch: Tuple of (inputs, targets)
-        criterion: Loss function
-        device: Device to run on
-        
-    Returns:
-        loss: Current loss value
-        delta_loss: Loss component for delta prediction
-        uncertainty_loss: Loss component for uncertainty prediction
+    Performs a single validation step.
     """
     model.eval()
-    inputs, targets = batch
-    
-    inputs = inputs.to(device)
-    targets = targets.to(device)
+    with torch.no_grad():
+        outputs = model(batch)
+        pred_delta = outputs[:, 0]
+        pred_unc = outputs[:, 1]
+        target_delta = targets[:, 0]
+        target_unc = targets[:, 1]
+        
+        loss = criterion(pred_delta, target_delta) + criterion(pred_unc, target_unc)
+        return loss.item(), criterion(pred_delta, target_delta).item(), criterion(pred_unc, target_unc).item()
+
+def compute_uncertainty_correlation(model: GRUEstimator, data_loader: torch.utils.data.DataLoader, device: torch.device) -> float:
+    """
+    Computes the correlation between predicted uncertainty and actual error on the validation set.
+    Returns Pearson correlation coefficient.
+    """
+    model.eval()
+    all_errors = []
+    all_uncertainties = []
     
     with torch.no_grad():
-        predictions = model(inputs)  # [batch, 2]
-        
-        # Split predictions
-        delta_pred = predictions[:, 0:1]
-        uncertainty_pred = predictions[:, 1:2]
-        
-        # Split targets
-        delta_target = targets[:, 0:1]
-        uncertainty_target = torch.zeros_like(delta_target)  # Placeholder
-        
-        # Compute losses
-        delta_loss = criterion(delta_pred, delta_target)
-        uncertainty_loss = criterion(uncertainty_pred, uncertainty_target)
-        
-        loss = delta_loss + 0.1 * uncertainty_loss
+        for batch, targets in data_loader:
+            batch = batch.to(device)
+            targets = targets.to(device)
+            
+            outputs = model(batch)
+            pred_delta = outputs[:, 0]
+            pred_unc = outputs[:, 1]
+            target_delta = targets[:, 0]
+            
+            # Calculate error (absolute difference)
+            errors = torch.abs(pred_delta - target_delta)
+            
+            all_errors.extend(errors.cpu().numpy().flatten())
+            all_uncertainties.extend(pred_unc.cpu().numpy().flatten())
     
-    return loss.item(), delta_loss.item(), uncertainty_loss.item()
-
-def compute_uncertainty_correlation(predictions: torch.Tensor, 
-                                   actual_errors: torch.Tensor) -> float:
-    """
-    Compute correlation between uncertainty scores and actual prediction errors.
+    all_errors = np.array(all_errors)
+    all_uncertainties = np.array(all_uncertainties)
     
-    Args:
-        predictions: Model predictions [batch, 2] where column 1 is uncertainty
-        actual_errors: Actual prediction errors [batch]
-        
-    Returns:
-        correlation: Pearson correlation coefficient
-    """
-    uncertainties = predictions[:, 1].cpu().numpy()
-    errors = actual_errors.cpu().numpy()
-    
-    # Compute Pearson correlation
-    if len(uncertainties) < 2:
+    if len(all_errors) < 2:
+        logger.warning("Not enough data points to compute correlation.")
         return 0.0
     
-    correlation = np.corrcoef(uncertainties, errors)[0, 1]
-    
-    # Handle NaN case
+    correlation = np.corrcoef(all_uncertainties, all_errors)[0, 1]
     if np.isnan(correlation):
         return 0.0
     
     return float(correlation)
 
-def save_checkpoint(model: nn.Module, optimizer: torch.optim.Optimizer, 
-                   epoch: int, loss: float, path: str):
+def save_checkpoint(model: GRUEstimator, optimizer: torch.optim.Optimizer, epoch: int, path: str, status: str = 'pending_validation'):
     """
-    Save model checkpoint.
-    
+    Saves the model checkpoint.
     Args:
-        model: The GRU estimator model
-        optimizer: Torch optimizer
+        model: The GRU model
+        optimizer: The optimizer
         epoch: Current epoch
-        loss: Current loss
-        path: Path to save checkpoint
+        path: Path to save the checkpoint
+        status: 'pending_validation' or 'finalized'
     """
+    # Ensure directory exists
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    
     checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
-        'loss': loss,
+        'status': status,
+        'config': load_config() # Save config context
     }
     
-    # Ensure directory exists
-    Path(path).parent.mkdir(parents=True, exist_ok=True)
-    
     torch.save(checkpoint, path)
-    print(f"Checkpoint saved to {path}")
+    logger.info(f"Checkpoint saved to {path} with status: {status}")
+    
+    # Update state.yaml with hash if finalized (though task says don't finalize here)
+    # We only compute hash here for logging or future use if status changes
+    if status == 'finalized':
+        file_hash = compute_file_hash(path)
+        logger.info(f"Checkpoint hash: {file_hash}")
 
-def load_checkpoint(model: nn.Module, optimizer: Optional[torch.optim.Optimizer], 
-                   path: str) -> Dict[str, Any]:
+def load_checkpoint(path: str, model: GRUEstimator, optimizer: Optional[torch.optim.Optimizer] = None) -> Tuple[GRUEstimator, Optional[torch.optim.Optimizer], int, str]:
     """
-    Load model checkpoint.
+    Loads a model checkpoint.
+    Returns: model, optimizer, epoch, status
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Checkpoint not found at {path}")
     
-    Args:
-        model: The GRU estimator model
-        optimizer: Torch optimizer (optional)
-        path: Path to checkpoint
-        
-    Returns:
-        checkpoint: Dictionary with checkpoint data
-    """
     checkpoint = torch.load(path, map_location='cpu')
-    
     model.load_state_dict(checkpoint['model_state_dict'])
+    
+    epoch = checkpoint.get('epoch', 0)
+    status = checkpoint.get('status', 'unknown')
     
     if optimizer is not None and 'optimizer_state_dict' in checkpoint:
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     
-    return checkpoint
+    return model, optimizer, epoch, status
 
 def main():
     """
-    Main function for testing the GRU estimator model.
-    This creates a sample model and runs a forward pass to verify
-    the output shape and uncertainty score computation.
+    Main entry point for T018 implementation.
+    This script defines the model, creates a dummy training loop to verify architecture,
+    and saves a 'pending_validation' checkpoint as required.
     """
-    print("Testing GRU Estimator Model...")
+    logger.info("Starting T018: Implementing GRU Estimator")
     
-    # Load configuration
+    # 1. Load Config
     config = load_config()
+    set_seed(config.get('seed', 42))
     
-    # Set device
-    device = torch.device(config['device'])
-    print(f"Using device: {device}")
+    input_dim = config['input_dim']
+    hidden_dim = config['hidden_dim']
+    num_layers = config['num_layers']
+    dropout = config['dropout']
+    learning_rate = config['learning_rate']
+    batch_size = config['batch_size']
+    epochs = config['epochs']
+    checkpoint_path = config['checkpoint_path']
     
-    # Create model
-    model = GRUEstimator(
-        input_dim=config.get('input_dim', 512),
-        hidden_dim=config.get('hidden_dim', 256),
-        num_layers=config.get('num_layers', 2),
-        dropout=config.get('dropout', 0.3)
-    ).to(device)
+    device = torch.device('cpu') # CPU-only constraint
+    logger.info(f"Device: {device}")
     
-    # Create sample input
-    batch_size = 4
+    # 2. Instantiate Model
+    model = GRUEstimator(input_dim, hidden_dim, num_layers, dropout).to(device)
+    logger.info(f"Model architecture:\n{model}")
+    
+    # 3. Dummy Data Generation for Verification (Real data loading handled by trainer T019)
+    # We create a small synthetic sequence to verify forward pass and output shape
     seq_len = 10
-    input_dim = config.get('input_dim', 512)
+    dummy_batch_size = 4
+    dummy_x = torch.randn(dummy_batch_size, seq_len, input_dim)
+    dummy_y = torch.rand(dummy_batch_size, 2) # [delta_mag, uncertainty]
     
-    sample_input = torch.randn(batch_size, seq_len, input_dim).to(device)
+    # Verify forward pass
+    model.eval()
+    with torch.no_grad():
+        output = model(dummy_x)
     
-    # Forward pass
-    output = model(sample_input)
+    assert output.shape == (dummy_batch_size, 2), f"Output shape mismatch: {output.shape}"
+    assert torch.all(output[:, 1] >= 0.0) and torch.all(output[:, 1] <= 1.0), "Uncertainty out of bounds"
+    assert torch.all(output[:, 0] >= 0.0), "Delta magnitude negative"
     
-    print(f"Input shape: {sample_input.shape}")
-    print(f"Output shape: {output.shape}")
-    print(f"Expected output shape: [{batch_size}, 2]")
+    logger.info(f"Forward pass verified. Output shape: {output.shape}")
     
-    # Verify output shape
-    assert output.shape == (batch_size, 2), f"Output shape mismatch: {output.shape} != ({batch_size}, 2)"
+    # 4. Setup Training Components (Minimal for verification)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    criterion = nn.MSELoss()
     
-    # Verify uncertainty score is in [0, 1]
-    uncertainties = output[:, 1]
-    assert torch.all((uncertainties >= 0.0) & (uncertainties <= 1.0)), \
-        f"Uncertainty scores out of range: [{uncertainties.min()}, {uncertainties.max()}]"
+    # 5. Simulate a few steps to ensure training loop logic is sound
+    # In a real run, this would load data from T014/T015 outputs
+    logger.info("Running verification training steps...")
+    for epoch in range(1, 3): # Just a couple of steps
+        # Create a tiny batch
+        x_batch = torch.randn(batch_size, seq_len, input_dim)
+        y_batch = torch.rand(batch_size, 2)
+        
+        loss, d_loss, u_loss = train_step(model, x_batch, y_batch, optimizer, criterion)
+        if epoch == 1:
+            logger.info(f"Epoch {epoch} - Loss: {loss:.4f}, Delta Loss: {d_loss:.4f}, Unc Loss: {u_loss:.4f}")
     
-    print(f"Delta predictions range: [{output[:, 0].min():.4f}, {output[:, 0].max():.4f}]")
-    print(f"Uncertainty scores range: [{uncertainties.min():.4f}, {uncertainties.max():.4f}]")
+    # 6. Save Checkpoint with 'pending_validation' status
+    # Task Requirement: "save checkpoint to data/models/estimator_checkpoint.pt with a pending_validation flag"
+    # Task Requirement: "Do NOT finalize the checkpoint; save only as 'pending'"
     
-    # Test saving and loading checkpoint
-    checkpoint_path = config.get('checkpoint_path', 'data/models/estimator_checkpoint.pt')
-    print(f"\nTesting checkpoint save/load to: {checkpoint_path}")
+    save_checkpoint(model, optimizer, epoch=2, path=checkpoint_path, status='pending_validation')
     
-    # Save checkpoint
-    save_checkpoint(model, None, 0, 0.0, checkpoint_path)
+    # 7. Validation: Verify the file exists and contains the correct status
+    if os.path.exists(checkpoint_path):
+        chk = torch.load(checkpoint_path, map_location='cpu')
+        assert chk['status'] == 'pending_validation', "Checkpoint status is not pending_validation"
+        logger.info(f"Successfully saved pending checkpoint at {checkpoint_path}")
+    else:
+        raise FileNotFoundError("Checkpoint file was not created.")
     
-    # Load checkpoint
-    loaded_model = GRUEstimator(
-        input_dim=config.get('input_dim', 512),
-        hidden_dim=config.get('hidden_dim', 256),
-        num_layers=config.get('num_layers', 2),
-        dropout=config.get('dropout', 0.3)
-    ).to(device)
-    
-    load_checkpoint(loaded_model, None, checkpoint_path)
-    
-    # Verify loaded model produces same output
-    loaded_output = loaded_model(sample_input)
-    assert torch.allclose(output, loaded_output, atol=1e-6), "Loaded model output mismatch"
-    
-    print("✓ All tests passed!")
-    print(f"✓ UncertaintyScore is correctly computed and normalized to [0, 1]")
-    print(f"✓ Model output shape is [batch, 2] as required")
-    print(f"✓ Checkpoint saved to {checkpoint_path}")
-    
-    # Reference to T031 for MOS validation
-    print("\nNote: UncertaintyScore will be validated against MOS in T031 (FR-012, FR-013, SC-007)")
-    
-    return True
+    logger.info("T018 Implementation Complete.")
 
 if __name__ == "__main__":
     main()

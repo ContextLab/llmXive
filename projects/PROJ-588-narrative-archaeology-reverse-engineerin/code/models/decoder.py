@@ -1,6 +1,5 @@
 """
-Linear Decoder for narrative element reconstruction.
-Uses Ridge Regression and K-Fold Cross-Validation.
+Decoder models for predicting narrative elements.
 """
 import numpy as np
 from sklearn.linear_model import RidgeClassifier
@@ -8,58 +7,43 @@ from sklearn.model_selection import cross_val_score, KFold
 from sklearn.preprocessing import LabelEncoder
 import json
 from pathlib import Path
-import logging
 import code.config as config
 
-logger = logging.getLogger(__name__)
-
-def train_and_evaluate(X, y, n_splits=5):
+def train_and_evaluate(features, labels, n_splits=5):
     """
-    Train RidgeClassifier with K-Fold CV.
-
+    Train a Ridge Classifier with K-Fold cross-validation.
+    
     Args:
-        X (np.ndarray): Features (N_samples, N_features).
-        y (np.ndarray): Labels (N_samples,).
+        features (np.array): Feature matrix (n_samples, n_features).
+        labels (np.array): Target labels.
         n_splits (int): Number of CV folds.
-
+    
     Returns:
-        dict: Results including accuracy, chance baseline, and metadata.
+        dict: Results including accuracy and chance level.
     """
-    # Encode labels
     le = LabelEncoder()
-    y_encoded = le.fit_transform(y)
-    unique_labels = le.classes_
-    n_classes = len(unique_labels)
-
-    # Handle low sample counts per spec T030
-    # If any class has < 5 samples, aggregate to "Miscellaneous"
-    # (Simplified logic for this skeleton)
+    encoded_labels = le.fit_transform(labels)
+    n_classes = len(le.classes_)
+    
+    # Chance level: 1 / N_actual (after aggregation logic if applied)
+    chance_level = 1.0 / n_classes
     
     model = RidgeClassifier()
-    cv = KFold(n_splits=n_splits, shuffle=True, random_state=config.RANDOM_SEED)
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=config.RANDOM_SEED)
+    scores = cross_val_score(model, features, encoded_labels, cv=kf)
     
-    scores = cross_val_score(model, X, y_encoded, cv=cv)
-    mean_acc = scores.mean()
-    chance_baseline = 1.0 / n_classes
-
-    return {
-        "accuracy": float(mean_acc),
-        "chance_baseline": float(chance_baseline),
-        "n_classes": int(n_classes),
-        "cv_scores": scores.tolist(),
-        "labels": list(unique_labels)
+    results = {
+        "mean_accuracy": float(np.mean(scores)),
+        "std_accuracy": float(np.std(scores)),
+        "chance_level": chance_level,
+        "n_classes": n_classes,
+        "classes": list(le.classes_)
     }
+    return results
 
 def run_decoder_analysis(data_path, output_path):
     """
-    Orchestrate decoder analysis pipeline.
+    Run full decoder analysis pipeline.
     """
-    logger.info(f"Running decoder analysis on {data_path}")
-    # Load data logic here
-    # X, y = load_data(data_path)
-    # results = train_and_evaluate(X, y)
-    
-    # Save results
-    # with open(output_path, 'w') as f:
-    #     json.dump(results, f)
-    return {"status": "placeholder"}
+    # Placeholder for full pipeline logic
+    pass

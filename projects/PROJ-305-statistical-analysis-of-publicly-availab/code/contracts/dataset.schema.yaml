@@ -1,0 +1,38 @@
+version: "1.0"
+description: Schema for raw VAERS dataset validation
+required_columns:
+  - VAX_TYPE
+  - SOC_CODE
+  - LLT
+  - REPT_DATE
+  - AGE
+column_definitions:
+  VAX_TYPE:
+    type: string
+    description: Vaccine type
+    allow_empty: false
+  SOC_CODE:
+    type: string
+    description: System Organ Class code (MedDRA)
+    allow_empty: false
+  LLT:
+    type: string
+    description: Lowest Level Term
+    allow_empty: true
+  REPT_DATE:
+    type: date
+    description: Report date
+    allow_empty: false
+  AGE:
+    type: number
+    description: Patient age
+    allow_empty: true
+validation_rules:
+  - rule: no_missing_required
+    message: "Missing required columns detected"
+  - rule: no_empty_values
+    columns:
+      - VAX_TYPE
+      - SOC_CODE
+      - REPT_DATE
+    message: "Required columns contain empty values"

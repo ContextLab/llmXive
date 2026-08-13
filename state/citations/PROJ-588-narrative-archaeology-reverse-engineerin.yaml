@@ -9,3 +9,14 @@
   verification_status: verified
   verified_against_url: https://openneuro.org/datasets/ds000234
   verified_at: '2026-07-09T11:49:29.694615Z'
+- artifact_hash: 4ed250482f16860e7245a81d85f7cdff867e54e6f019c55c22e0dc56594c851c
+  artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Giant panda - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Pandas_
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Pandas
+  verified_at: '2026-08-13T04:40:36.467669Z'

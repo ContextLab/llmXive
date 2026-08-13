@@ -47,6 +47,10 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 Whichever you choose, every call site of `AppConfig` across the codebase must stop raising `AttributeError`/`TypeError`.
 
 `AppConfig.get` call sites (25):
+- code/code/performance_optimizer.py: logger.info(f"Regression result: R2={reg_res.get('rsquared', 'N/A')}")
+- code/code/config/env_config.py: return super().get(key, default)
+- code/code/config/env_config.py: return super().get(key)
+- code/code/config/env_config.py: return self.config.get(key, default)
 - code/models/data_models.py: modality_str = str(row.get('stimulus_modality', 'unknown')).lower()
 - code/models/data_models.py: source_str = str(row.get('source_label', 'unknown')).lower()
 - code/models/data_models.py: trial_id=str(row.get('trial_id', str(uuid.uuid4()))),
@@ -54,21 +58,17 @@ Whichever you choose, every call site of `AppConfig` across the codebase must st
 - code/models/data_models.py: participant_response=str(row.get('participant_response', '')),
 - code/models/data_models.py: confidence_rating=float(row.get('confidence_rating', 0.0)),
 - code/models/data_models.py: reaction_time=float(row.get('reaction_time')) if row.get('reaction_time') is not None else None
-- code/tests/unit/test_generate_report.py: self.assertEqual(output.get("coefficients", []), [])
-- code/tests/unit/test_generate_report.py: self.assertFalse(output["diagnostics"].get("normality_passed", True))
-- code/tests/unit/test_generate_report.py: self.assertFalse(output["diagnostics"].get("homoscedasticity_passed", True))
-- code/tests/unit/test_generate_report.py: self.assertFalse(output["diagnostics"].get("collinearity_flagged", True))
-- code/code/performance_optimizer.py: logger.info(f"Regression result: R2={reg_res.get('rsquared', 'N/A')}")
-- code/code/config/env_config.py: return super().get(key, default)
-- code/code/config/env_config.py: return super().get(key)
-- code/code/config/env_config.py: return self.config.get(key, default)
-- code/config/env_config.py: return self.get(key)
-- code/config/env_config.py: return super().get(key, default)
-- code/config/env_config.py: config.get("paths.base", "projects/PROJ-179-the-influence-of-metacognitive-awareness")
-- code/config/env_config.py: current = current.get(part, default)
-- code/src/analysis/filter.py: return [row for row in trial_rows if row.get("stimulus_modality") == modality]
 - code/src/analysis/diagnostics.py: base_dir = Path(config.get("paths", {}).get("base", "projects/PROJ-179-the-influence-of-metacognitive-awareness"))
 - code/src/analysis/diagnostics.py: results_dir = Path(base_dir) / config.get("paths", {}).get("results", "data/results")
 - code/src/analysis/diagnostics.py: derived_dir = Path(base_dir) / config.get("paths", {}).get("derived_data", "data/derived")
 - code/src/analysis/diagnostics.py: residuals = regression_results.get("residuals", [])
 - code/src/analysis/diagnostics.py: y_values = regression_results.get("y_values", [])
+- code/src/analysis/diagnostics.py: "normality_passed": normality_result.get("is_normal", False),
+- code/src/analysis/diagnostics.py: "homoscedasticity_passed": homoscedasticity_result.get("is_homoscedastic", False),
+- code/src/analysis/diagnostics.py: "collinearity_flagged": vif_result.get("collinearity_flag", False),
+- code/src/analysis/diagnostics.py: normality_result.get("is_normal", False) and
+- code/src/analysis/diagnostics.py: homoscedasticity_result.get("is_homoscedastic", False) and
+- code/src/analysis/diagnostics.py: not vif_result.get("collinearity_flag", False)
+- code/src/analysis/diagnostics.py: logger.error(f"Diagnostics failed: {results.get('reason', 'Unknown error')}")
+- code/src/analysis/filter.py: return [row for row in trial_rows if row.get("stimulus_modality") == modality]
+- code/src/report/generate.py: float(item.get("p_value", 0.0))

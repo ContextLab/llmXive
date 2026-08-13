@@ -1,3 +1,7 @@
+"""
+Disproportionality Analysis Module for VAERS Data.
+Implements ROR, PRR, IC calculations with continuity correction and confidence intervals.
+"""
 import os
 import sys
 import math
@@ -7,345 +11,405 @@ from typing import Dict, List, Tuple, Optional, Any
 
 import pandas as pd
 import numpy as np
-from scipy import stats
-
-# Import from project utils to ensure consistent thresholds and background rates
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-from src.utils.config import KNOWN_BACKGROUND_RATES
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def apply_continuity_correction(count: int) -> float:
+def apply_continuity_correction(a: int, b: int, c: int, d: int) -> Tuple[float, float, float, float]:
     """
-    Apply continuity correction (add 0.5) to prevent division by zero.
-    """
-    return count + 0.5
-
-def build_contingency_table(df: pd.DataFrame, soc_code: str) -> Dict[str, int]:
-    """
-    Build a 2x2 contingency table for a specific SOC.
+    Apply 0.5 continuity correction to a 2x2 contingency table to avoid division by zero.
+    
+    Args:
+        a: Event in exposed group (COVID-19 + Event)
+        b: No event in exposed group (COVID-19 + No Event)
+        c: Event in unexposed group (Non-COVID + Event)
+        d: No event in unexposed group (Non-COVID + No Event)
     
     Returns:
-        dict: {
-            'a': COVID-19 with event,
-            'b': COVID-19 without event,
-            'c': Non-COVID with event,
-            'd': Non-COVID without event
-        }
+        Tuple of corrected (a, b, c, d)
     """
-    # Filter for the specific SOC
-    soc_df = df[df['SOC'] == soc_code]
+    return (a + 0.5, b + 0.5, c + 0.5, d + 0.5)
+
+def build_contingency_table(df: pd.DataFrame, soc_code: str, 
+                            exposed_col: str = 'VAX_TYPE_GROUP', 
+                            event_col: str = 'SOC_CODE') -> Dict[str, int]:
+    """
+    Build a 2x2 contingency table for a specific SOC code.
     
-    if soc_df.empty:
-        return {'a': 0, 'b': 0, 'c': 0, 'd': 0}
+    Table structure:
+                | Event (SOC match) | No Event (SOC mismatch)
+    -----------------------------------------------------------
+    Exposed (COVID)   |      a        |          b
+    Unexposed (Non-COVID) |      c        |          d
     
-    # Count events in COVID-19 group
-    covid_events = soc_df[soc_df['VAX_TYPE'] == 'COVID-19'].shape[0]
-    # Count non-events in COVID-19 group (Total COVID - Events)
-    # We assume the input dataframe only contains relevant reports, 
-    # so 'b' is the count of COVID reports NOT in this specific SOC row?
-    # Correction: The contingency table logic in disproportionality analysis
-    # usually compares the count of the specific event (SOC) vs all other events 
-    # within the exposure groups.
+    Args:
+        df: DataFrame with 'VAX_TYPE_GROUP' and 'SOC_CODE' columns
+        soc_code: The specific SOC code to analyze
+        exposed_col: Column name for exposure status
+        event_col: Column name for event status
     
-    # Let's re-interpret based on standard VAERS analysis:
-    # a = Count(COVID AND SOC)
-    # b = Count(COVID AND NOT SOC) -> This requires the total count of COVID reports
-    # c = Count(Non-COVID AND SOC)
-    # d = Count(Non-COVID AND NOT SOC) -> This requires the total count of Non-COVID reports
+    Returns:
+        Dictionary with keys 'a', 'b', 'c', 'd'
+    """
+    # Create mask for event presence
+    event_mask = df[event_col] == soc_code
     
-    # However, the input 'df' is likely already filtered to contain only the reports 
-    # of interest. If 'df' is the full cleaned dataset:
+    # Create mask for exposure (COVID-19)
+    exposed_mask = df[exposed_col] == 'COVID-19'
     
-    total_covid = df[df['VAX_TYPE'] == 'COVID-19'].shape[0]
-    total_non_covid = df[df['VAX_TYPE'] == 'Non-COVID'].shape[0]
-    
-    a = soc_df[soc_df['VAX_TYPE'] == 'COVID-19'].shape[0]
-    c = soc_df[soc_df['VAX_TYPE'] == 'Non-COVID'].shape[0]
-    
-    b = total_covid - a
-    d = total_non_covid - c
+    # Calculate counts
+    a = int((event_mask & exposed_mask).sum())
+    b = int((~event_mask & exposed_mask).sum())
+    c = int((event_mask & ~exposed_mask).sum())
+    d = int((~event_mask & ~exposed_mask).sum())
     
     return {'a': a, 'b': b, 'c': c, 'd': d}
 
-def calculate_ror(a: int, b: int, c: int, d: int) -> float:
+def calculate_ror(a: float, b: float, c: float, d: float) -> float:
     """
     Calculate Reporting Odds Ratio (ROR).
-    ROR = (a/b) / (c/d) = (a*d) / (b*c)
+    ROR = (a/c) / (b/d) = (a*d) / (b*c)
+    
+    Args:
+        a, b, c, d: Continuity-corrected contingency table values
+    
+    Returns:
+        ROR value
     """
-    if b == 0 or c == 0:
+    if b * c == 0:
         return float('inf')
     return (a * d) / (b * c)
 
-def calculate_prr(a: int, b: int, c: int, d: int) -> float:
+def calculate_prr(a: float, b: float, c: float, d: float) -> float:
     """
     Calculate Proportional Reporting Ratio (PRR).
-    PRR = (a / (a+c)) / (b / (b+d))
+    PRR = (a / (a+b)) / (c / (c+d))
+    
+    Args:
+        a, b, c, d: Continuity-corrected contingency table values
+    
+    Returns:
+        PRR value
     """
-    if (a + c) == 0 or (b + d) == 0:
+    if (a + b) == 0 or (c + d) == 0:
         return float('inf')
-    return (a / (a + c)) / (b / (b + d))
+    
+    p1 = a / (a + b)
+    p2 = c / (c + d)
+    
+    if p2 == 0:
+        return float('inf')
+    
+    return p1 / p2
 
-def calculate_ic(a: int, b: int, c: int, d: int) -> float:
+def calculate_ic(a: float, b: float, c: float, d: float) -> float:
     """
     Calculate Information Component (IC).
-    IC = log2( (a * (a+b+c+d)) / ((a+c) * (a+b)) )
+    IC = log2( (a / (a+b)) / ( (a+c) / (a+b+c+d) ) )
+    
+    Args:
+        a, b, c, d: Continuity-corrected contingency table values
+    
+    Returns:
+        IC value
     """
     total = a + b + c + d
-    if (a + c) == 0 or (a + b) == 0 or a == 0:
-        return float('-inf')
-    expected = ((a + c) * (a + b)) / total
+    if total == 0 or (a + b) == 0 or (a + c) == 0:
+        return float('nan')
+    
+    observed = a / (a + b)
+    expected = (a + c) / total
+    
     if expected == 0:
         return float('inf')
-    return math.log2(a / expected)
+    
+    return math.log2(observed / expected)
 
-def calculate_p_value_chi2(a: int, b: int, c: int, d: int) -> float:
+def calculate_p_value_chi2(a: float, b: float, c: float, d: float) -> float:
     """
-    Calculate p-value using Chi-square test for independence.
+    Calculate p-value using Chi-squared test with Yates' continuity correction.
+    Uses the standard formula for 2x2 table chi-squared statistic.
+    
+    Args:
+        a, b, c, d: Continuity-corrected contingency table values
+    
+    Returns:
+        p-value from chi-squared distribution (1 degree of freedom)
     """
-    # Observed matrix
-    observed = np.array([[a, b], [c, d]])
-    try:
-        chi2, p, dof, expected = stats.chi2_contingency(observed, correction=True)
-        return p
-    except Exception:
+    n = a + b + c + d
+    if n == 0:
         return 1.0
+    
+    # Expected values
+    row1 = a + b
+    row2 = c + d
+    col1 = a + c
+    col2 = b + d
+    
+    if row1 == 0 or row2 == 0 or col1 == 0 or col2 == 0:
+        return 1.0
+    
+    # Chi-squared with Yates' correction
+    # |ad - bc| - n/2
+    numerator = abs(a * d - b * c) - (n / 2)
+    if numerator < 0:
+        numerator = 0
+    
+    denominator = (row1 * row2 * col1 * col2) / (n ** 2)
+    
+    if denominator == 0:
+        return 1.0
+    
+    chi2 = (numerator ** 2) / denominator
+    
+    # Approximate p-value using survival function of chi-squared(1)
+    # Using the approximation: p = exp(-chi2/2) for large chi2
+    # For better accuracy, we use the standard normal approximation
+    z = math.sqrt(chi2)
+    # Standard normal CDF approximation
+    p_value = 2 * (1 - 0.5 * (1 + math.erf(z / math.sqrt(2))))
+    
+    return max(0.0, min(1.0, p_value))
 
-def calculate_ci_ror(a: int, b: int, c: int, d: int, alpha: float = 0.05) -> Tuple[float, float]:
+def calculate_ci_ror(a: float, b: float, c: float, d: float, alpha: float = 0.05) -> Tuple[float, float]:
     """
     Calculate 95% Confidence Interval for ROR.
-    CI = exp( ln(ROR) +/- Z * sqrt(1/a + 1/b + 1/c + 1/d) )
+    CI = exp(ln(ROR) ± Z * sqrt(1/a + 1/b + 1/c + 1/d))
+    
+    Args:
+        a, b, c, d: Continuity-corrected contingency table values
+        alpha: Significance level (default 0.05 for 95% CI)
+    
+    Returns:
+        Tuple of (lower_bound, upper_bound)
     """
     if a <= 0 or b <= 0 or c <= 0 or d <= 0:
         return (float('-inf'), float('inf'))
     
-    ror = calculate_ror(a, b, c, d)
-    if ror <= 0:
-        return (float('-inf'), float('inf'))
-        
-    z = stats.norm.ppf(1 - alpha / 2)
+    lor = math.log((a * d) / (b * c))
     se = math.sqrt(1/a + 1/b + 1/c + 1/d)
     
-    log_ror = math.log(ror)
-    lower = math.exp(log_ror - z * se)
-    upper = math.exp(log_ror + z * se)
+    # Z-score for 95% CI
+    z = 1.96 if alpha == 0.05 else 2.576
+    
+    lower = math.exp(lor - z * se)
+    upper = math.exp(lor + z * se)
     
     return (lower, upper)
 
-def calculate_ci_prr(a: int, b: int, c: int, d: int, alpha: float = 0.05) -> Tuple[float, float]:
+def calculate_ci_prr(a: float, b: float, c: float, d: float, alpha: float = 0.05) -> Tuple[float, float]:
     """
     Calculate 95% Confidence Interval for PRR.
-    Using normal approximation on log scale.
+    CI = exp(ln(PRR) ± Z * sqrt(1/a - 1/(a+b) + 1/c - 1/(c+d)))
+    
+    Args:
+        a, b, c, d: Continuity-corrected contingency table values
+        alpha: Significance level (default 0.05 for 95% CI)
+    
+    Returns:
+        Tuple of (lower_bound, upper_bound)
     """
-    if a <= 0 or b <= 0 or c <= 0 or d <= 0:
+    if a <= 0 or c <= 0:
         return (float('-inf'), float('inf'))
-        
-    prr = calculate_prr(a, b, c, d)
-    if prr <= 0:
+    
+    p1 = a / (a + b)
+    p2 = c / (c + d)
+    
+    if p1 <= 0 or p2 <= 0:
         return (float('-inf'), float('inf'))
-        
-    z = stats.norm.ppf(1 - alpha / 2)
-    # SE for log(PRR) = sqrt( (1/a - 1/(a+c)) + (1/b - 1/(b+d)) )
-    # Simplified approximation often used: sqrt(1/a - 1/(a+c) + 1/b - 1/(b+d))
-    # Or simpler: sqrt( (1/a) - (1/(a+c)) + (1/b) - (1/(b+d)) )
     
-    term1 = (1/a) - (1/(a+c))
-    term2 = (1/b) - (1/(b+d))
+    lpr = math.log(p1 / p2)
+    se = math.sqrt((1/a) - (1/(a+b)) + (1/c) - (1/(c+d)))
     
-    if term1 < 0: term1 = 0 # Handle numerical edge cases
-    if term2 < 0: term2 = 0
+    z = 1.96 if alpha == 0.05 else 2.576
     
-    se = math.sqrt(term1 + term2)
-    
-    log_prr = math.log(prr)
-    lower = math.exp(log_prr - z * se)
-    upper = math.exp(log_prr + z * se)
+    lower = math.exp(lpr - z * se)
+    upper = math.exp(lpr + z * se)
     
     return (lower, upper)
 
-def calculate_ci_ic(a: int, b: int, c: int, d: int, alpha: float = 0.05) -> Tuple[float, float]:
+def calculate_ci_ic(a: float, b: float, c: float, d: float, alpha: float = 0.05) -> Tuple[float, float]:
     """
     Calculate 95% Confidence Interval for IC.
-    IC_025 = IC - 1.96 * SE(IC)
-    SE(IC) approx 1 / sqrt(a) * log2(e) ? 
-    Standard formula: SE(IC) = sqrt( (1/a) * (log2(e))^2 ) ? 
-    More robust: SE(IC) = sqrt( (1/a) - (1/(a+c)) ) * log2(e) ?
-    Let's use the standard WHO-UMC approximation:
-    SE(IC) = sqrt( (1/a) - (1/(a+c)) ) * log2(e) is not quite right.
-    Common approximation: SE(IC) = sqrt( (1/a) * (log2(e))^2 ) = log2(e)/sqrt(a)
-    Actually, for IC, the variance is often approximated as 1/a * (log2(e))^2.
-    Let's use: SE = sqrt(1/a) * log2(e)
+    IC_CI = IC ± Z * sqrt(1/a + 1/c)
+    Note: This is an approximation for the IC variance.
+    
+    Args:
+        a, b, c, d: Continuity-corrected contingency table values
+        alpha: Significance level (default 0.05 for 95% CI)
+    
+    Returns:
+        Tuple of (lower_bound, upper_bound)
     """
-    if a <= 0:
+    if a <= 0 or c <= 0:
         return (float('-inf'), float('inf'))
-        
+    
     ic = calculate_ic(a, b, c, d)
-    if not math.isfinite(ic):
+    if math.isnan(ic) or math.isinf(ic):
         return (float('-inf'), float('inf'))
-        
-    z = stats.norm.ppf(1 - alpha / 2)
-    log2_e = math.log2(math.e)
-    se = (1 / math.sqrt(a)) * log2_e
+    
+    se = math.sqrt(1/a + 1/c)
+    z = 1.96 if alpha == 0.05 else 2.576
     
     lower = ic - z * se
     upper = ic + z * se
     
     return (lower, upper)
 
-def calculate_disproportionality_metrics(df: pd.DataFrame, min_reports: int = 5) -> pd.DataFrame:
+def calculate_disproportionality_metrics(df: pd.DataFrame, soc_code: str, 
+                                         continuity_correction: bool = True) -> Dict[str, Any]:
     """
-    Calculate ROR, PRR, IC with 95% CIs for all SOCs with >= min_reports.
+    Calculate all disproportionality metrics for a given SOC code.
     
     Args:
-        df: Cleaned dataframe with columns 'VAX_TYPE', 'SOC', 'REPT_DATE', etc.
-        min_reports: Minimum total reports for an SOC to be included.
-        
+        df: DataFrame with 'VAX_TYPE_GROUP' and 'SOC_CODE' columns
+        soc_code: The SOC code to analyze
+        continuity_correction: Whether to apply 0.5 correction
+    
     Returns:
-        DataFrame with metrics for each SOC.
+        Dictionary with ROR, PRR, IC, p-value, and confidence intervals
     """
-    logger.info(f"Calculating disproportionality metrics for SOCs with >= {min_reports} reports...")
+    table = build_contingency_table(df, soc_code)
+    a, b, c, d = table['a'], table['b'], table['c'], table['d']
     
-    # Count total reports per SOC
-    soc_counts = df.groupby('SOC').size().reset_index(name='total_reports')
-    valid_socs = soc_counts[soc_counts['total_reports'] >= min_reports]['SOC'].tolist()
+    # Apply continuity correction if requested
+    if continuity_correction:
+        a, b, c, d = apply_continuity_correction(a, b, c, d)
     
-    logger.info(f"Found {len(valid_socs)} SOCs with >= {min_reports} reports.")
+    # Calculate metrics
+    ror = calculate_ror(a, b, c, d)
+    prr = calculate_prr(a, b, c, d)
+    ic = calculate_ic(a, b, c, d)
+    p_value = calculate_p_value_chi2(a, b, c, d)
     
-    results = []
+    # Calculate confidence intervals
+    ci_ror = calculate_ci_ror(a, b, c, d)
+    ci_prr = calculate_ci_prr(a, b, c, d)
+    ci_ic = calculate_ci_ic(a, b, c, d)
     
-    for soc in valid_socs:
-        # Build contingency table
-        counts = build_contingency_table(df, soc)
-        a, b, c, d = counts['a'], counts['b'], counts['c'], counts['d']
-        
-        # Calculate metrics
-        ror = calculate_ror(a, b, c, d)
-        prr = calculate_prr(a, b, c, d)
-        ic = calculate_ic(a, b, c, d)
-        p_val = calculate_p_value_chi2(a, b, c, d)
-        
-        # Calculate CIs
-        ci_ror = calculate_ci_ror(a, b, c, d)
-        ci_prr = calculate_ci_prr(a, b, c, d)
-        ci_ic = calculate_ci_ic(a, b, c, d)
-        
-        # Check background rate
-        bg_rate_known = soc in KNOWN_BACKGROUND_RATES
-        
-        results.append({
-            'SOC': soc,
-            'total_reports': counts['a'] + counts['c'],
-            'covid_reports': counts['a'],
-            'non_covid_reports': counts['c'],
-            'ror': ror,
-            'ror_ci_lower': ci_ror[0],
-            'ror_ci_upper': ci_ror[1],
-            'prr': prr,
-            'prr_ci_lower': ci_prr[0],
-            'prr_ci_upper': ci_prr[1],
-            'ic': ic,
-            'ic_ci_lower': ci_ic[0],
-            'ic_ci_upper': ci_ic[1],
-            'p_value': p_val,
-            'background_rate_known': bg_rate_known
-        })
-        
-    result_df = pd.DataFrame(results)
-    
-    # Sort by p-value ascending (most significant first)
-    result_df = result_df.sort_values(by='p_value', ascending=True)
-    
-    logger.info(f"Disproportionality analysis complete. {len(result_df)} SOCs processed.")
-    return result_df
+    return {
+        'soc_code': soc_code,
+        'a': int(table['a']),
+        'b': int(table['b']),
+        'c': int(table['c']),
+        'd': int(table['d']),
+        'ror': ror,
+        'prr': prr,
+        'ic': ic,
+        'p_value': p_value,
+        'ror_ci_lower': ci_ror[0],
+        'ror_ci_upper': ci_ror[1],
+        'prr_ci_lower': ci_prr[0],
+        'prr_ci_upper': ci_prr[1],
+        'ic_ci_lower': ci_ic[0],
+        'ic_ci_upper': ci_ic[1]
+    }
 
-def benjamini_hochberg(p_values: pd.Series) -> pd.Series:
+def benjamini_hochberg(p_values: List[float]) -> List[float]:
     """
-    Apply Benjamini-Hochberg FDR correction to a series of p-values.
+    Apply Benjamini-Hochberg FDR correction to a list of p-values.
     
     Args:
-        p_values: Series of p-values.
-        
+        p_values: List of raw p-values
+    
     Returns:
-        Series of adjusted p-values.
+        List of adjusted p-values
     """
     n = len(p_values)
     if n == 0:
-        return pd.Series(dtype=float)
-        
-    # Sort p-values
-    sorted_indices = p_values.argsort()
-    sorted_p = p_values.iloc[sorted_indices]
+        return []
+    
+    # Sort p-values with their original indices
+    sorted_indices = sorted(range(n), key=lambda i: p_values[i])
+    sorted_p_values = [p_values[i] for i in sorted_indices]
     
     # Calculate adjusted p-values
-    adjusted_p = np.zeros(n)
-    for i in range(n):
+    adjusted = [0.0] * n
+    min_adj = 1.0
+    
+    for i in range(n - 1, -1, -1):
         rank = i + 1
-        adjusted_p[i] = sorted_p.iloc[i] * n / rank
-        
-    # Ensure monotonicity (cumulative min from the end)
+        adj_p = min(1.0, sorted_p_values[i] * n / rank)
+        min_adj = min(min_adj, adj_p)
+        adjusted[sorted_indices[i]] = min_adj
+    
+    # Ensure monotonicity
     for i in range(n - 2, -1, -1):
-        adjusted_p[i] = min(adjusted_p[i], adjusted_p[i+1])
-        
-    # Cap at 1.0
-    adjusted_p = np.minimum(adjusted_p, 1.0)
+        adjusted[sorted_indices[i]] = min(adjusted[sorted_indices[i]], adjusted[sorted_indices[i+1]])
     
-    # Reorder to original indices
-    final_adjusted = pd.Series(0.0, index=p_values.index)
-    final_adjusted.iloc[sorted_indices] = adjusted_p
-    
-    return final_adjusted
+    return adjusted
 
-def run_analysis(input_path: str, output_path: str, min_reports: int = 5) -> None:
+def run_analysis(df: pd.DataFrame, min_reports: int = 5) -> pd.DataFrame:
     """
-    Run the full disproportionality analysis pipeline.
+    Run disproportionality analysis on all SOCs with at least min_reports.
     
     Args:
-        input_path: Path to the cleaned CSV/Parquet file.
-        output_path: Path to save the signals CSV.
-        min_reports: Minimum reports threshold.
+        df: Cleaned DataFrame with 'VAX_TYPE_GROUP' and 'SOC_CODE' columns
+        min_reports: Minimum number of total reports required for analysis
+    
+    Returns:
+        DataFrame with all metrics and signal flags
     """
-    logger.info(f"Loading data from {input_path}...")
-    if input_path.endswith('.parquet'):
-        df = pd.read_parquet(input_path)
-    else:
-        df = pd.read_csv(input_path)
-        
-    # Ensure necessary columns exist
-    required_cols = ['VAX_TYPE', 'SOC']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
+    logger.info(f"Running disproportionality analysis on {len(df)} records")
     
-    # Run metrics calculation
-    metrics_df = calculate_disproportionality_metrics(df, min_reports=min_reports)
+    # Filter SOCs with at least min_reports
+    soc_counts = df['SOC_CODE'].value_counts()
+    valid_socs = soc_counts[soc_counts >= min_reports].index.tolist()
     
-    # Apply BH correction
-    metrics_df['adjusted_p'] = benjamini_hochberg(metrics_df['p_value'])
+    logger.info(f"Analyzing {len(valid_socs)} SOCs with >= {min_reports} reports")
     
-    # Save results
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    results = []
+    for soc in valid_socs:
+        try:
+            metrics = calculate_disproportionality_metrics(df, soc)
+            results.append(metrics)
+        except Exception as e:
+            logger.warning(f"Error processing SOC {soc}: {e}")
+            continue
     
-    metrics_df.to_csv(output_path, index=False)
-    logger.info(f"Results saved to {output_path}")
+    if not results:
+        logger.warning("No results generated")
+        return pd.DataFrame()
+    
+    df_results = pd.DataFrame(results)
+    
+    # Apply Benjamini-Hochberg correction
+    df_results['adjusted_p'] = benjamini_hochberg(df_results['p_value'].tolist())
+    
+    # Flag signals based on 2-out-of-3 rule
+    # ROR>2.0/CI>1.0, PRR>1.5/CI>1.0, IC>0/CI>0
+    df_results['signal_ror'] = (df_results['ror'] > 2.0) & (df_results['ror_ci_lower'] > 1.0)
+    df_results['signal_prr'] = (df_results['prr'] > 1.5) & (df_results['prr_ci_lower'] > 1.0)
+    df_results['signal_ic'] = (df_results['ic'] > 0) & (df_results['ic_ci_lower'] > 0)
+    
+    # 2-out-of-3 rule
+    df_results['is_signal'] = (
+        df_results['signal_ror'].astype(int) + 
+        df_results['signal_prr'].astype(int) + 
+        df_results['signal_ic'].astype(int)
+    ) >= 2
+    
+    return df_results
 
 def main():
-    """Main entry point for the script."""
-    import argparse
+    """Main entry point for disproportionality analysis."""
+    # Example usage
+    logger.info("Disproportionality analysis module loaded")
     
-    parser = argparse.ArgumentParser(description='Calculate disproportionality metrics for VAERS data.')
-    parser.add_argument('--input', type=str, required=True, help='Path to cleaned data file (CSV or Parquet).')
-    parser.add_argument('--output', type=str, required=True, help='Path to save signals CSV.')
-    parser.add_argument('--min-reports', type=int, default=5, help='Minimum reports per SOC.')
+    # Create sample data for testing
+    data = {
+        'VAX_TYPE_GROUP': ['COVID-19'] * 100 + ['Non-COVID'] * 100,
+        'SOC_CODE': ['SOC001'] * 20 + ['SOC002'] * 10 + ['SOC003'] * 5 + 
+                    ['SOC001'] * 15 + ['SOC002'] * 5 + ['SOC003'] * 2
+    }
+    df = pd.DataFrame(data)
     
-    args = parser.parse_args()
-    
-    run_analysis(args.input, args.output, args.min_reports)
+    results = run_analysis(df, min_reports=5)
+    if not results.empty:
+        print(results.to_string())
+    else:
+        logger.warning("No results to display")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

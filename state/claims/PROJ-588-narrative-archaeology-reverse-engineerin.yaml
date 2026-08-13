@@ -645,3 +645,298 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T04:27:07Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/docs/limitations.md
+  attempts: 1
+  canonical: OpenNeuro ds000234 lacks told vs. experienced control condition
+  claim_id: c_3204c970
+  context: The OpenNeuro ds000234 dataset does not include a 'told vs. experienced'
+    control condition. To simulate null models, we use 'label shuffling' rather than
+    a true control task.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ds000234_lacks_told_vs._experienced_control_condit
+  kind: entity_fact
+  raw_text: The OpenNeuro ds000234 dataset does not include a 'told vs. experienced'
+    control condition.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:29:22Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/docs/limitations.md
+  attempts: 1
+  canonical: fMRIPrep run sequentially per subject due to 7GB RAM constraints
+  claim_id: c_2f5ffced
+  context: fMRIPrep is run sequentially per subject to comply with 7GB RAM constraints,
+    overriding the default parallel execution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FMRIPrep_run_sequentially_per_subject_due_to_7GB_RAM_constra
+  kind: entity_fact
+  raw_text: fMRIPrep is run sequentially per subject to comply with 7GB RAM constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:29:57Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: fMRIPrep configuration requires 7GB RAM with specific thread flags
+  claim_id: c_ddef0514
+  context: 'T008-SEQ [P] Implement sequential execution wrapper logic in code/data/preprocess.py:
+    Run fMRIPrep on individual subjects with flags --output-spaces MNI, --fs-no-reconall,
+    --omp-num-threads 2, --nthreads 2 to satisfy 7GB RAM constraints (Plan override
+    of Spec FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run fMRIPrep on individual subjects with flags --output-spaces MNI, --fs-no-reconall,
+    --omp-num-threads 2, --nthreads 2 to satisfy 7GB RAM constraints
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:32:29Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: Event segmentation output must have 5% or fewer missing timepoints
+  claim_id: c_af51c65f
+  context: "Tests for User Story 1 - [ ] T012 [P] [US1] Verify event segmentation\
+    \ output matches annotation file (\u22645% missing timepoints) in tests/integration/test_segmentation.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify event segmentation output matches annotation file (\u22645% missing\
+    \ timepoints)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:32:30Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: FDR correction applied with q < 0.05 across ROIs
+  claim_id: c_2390e7cb
+  context: '- [ ] T023 [US2] Apply FDR correction (q < 0.05) across ROIs and report
+    statistical significance'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply FDR correction (q < 0.05) across ROIs and report statistical significance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:32:30Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: Categories with fewer than 5 samples are aggregated into Miscellaneous
+  claim_id: c_73f24028
+  context: '- [ ] T030-PRIMARY [US3] Implement code/models/decoder.py with Ridge Regression
+    for N unique labels (derived from data). Logic: If a category has <5 samples,
+    aggregate into Miscellaneous.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Categories_with_fewer_than_5_samples_are_aggregated_into_Mis
+  kind: magnitude
+  raw_text: If a category has <5 samples, aggregate into Miscellaneous
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:33:34Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: All tasks must run on GitHub Actions free-tier with no GPU
+  claim_id: c_851e1df0
+  context: '- Critical Constraint: All tasks MUST run on GitHub Actions free-tier
+    (limited vCPU and RAM, no GPU). No 8-bit quantization, no CUDA, no large model
+    training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_tasks_must_run_on_GitHub_Actions_free-tier_with_no_GPU
+  kind: entity_fact
+  raw_text: All tasks MUST run on GitHub Actions free-tier (limited vCPU and RAM,
+    no GPU)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:34:02Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: All data must be real from OpenNeuro ds000234
+  claim_id: c_f7b44424
+  context: '- Data Integrity: All data must be real (OpenNeuro ds000234). No synthetic
+    data or hard-coded placeholders allowed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_data_must_be_real_from_OpenNeuro_ds000234
+  kind: entity_fact
+  raw_text: All data must be real (OpenNeuro ds000234)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:34:59Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: fMRIPrep configuration requires 7GB RAM
+  claim_id: c_eb77d3d0
+  context: 'T008-SEQ [P] Implement sequential execution wrapper logic in code/data/preprocess.py:
+    Run fMRIPrep on individual subjects with flags --output-spaces MNI, --fs-no-reconall,
+    --omp-num-threads 2, --nthreads 2 to satisfy 7GB RAM constraints (Plan override
+    of Spec FR-001)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run fMRIPrep on individual subjects with flags --output-spaces MNI, --fs-no-reconall,
+    --omp-num-threads 2, --nthreads 2 to satisfy 7GB RAM constraints
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:38:38Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: Event segmentation output allows up to 5% missing timepoints
+  claim_id: c_fc704dc7
+  context: "T012 [P] [US1] Verify event segmentation output matches annotation file\
+    \ (\u22645% missing timepoints) in tests/integration/test_segmentation.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify event segmentation output matches annotation file (\u22645% missing\
+    \ timepoints)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:38:39Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: RSA used to identify reconfiguration in hippocampus and mPFC
+  claim_id: c_9f6025cc
+  context: 'Goal: Compare neural patterns between Early and Late events (Adapted from
+    Encoding vs. Recognition) using RSA to identify reconfiguration in hippocampus
+    and mPFC.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RSA_used_to_identify_reconfiguration_in_hippocampus_and_mPFC
+  kind: entity_fact
+  raw_text: Compare neural patterns between Early and Late events using RSA to identify
+    reconfiguration in hippocampus and mPFC
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:39:19Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: Semantic features extracted using BERT-base-uncased
+  claim_id: c_eb365abd
+  context: T029 [P] [US3] Implement code/models/semantic.py to extract semantic features
+    using pre-trained BERT-base-uncased (CPU-only, inference only).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_features_extracted_using_BERT-base-uncased
+  kind: entity_fact
+  raw_text: Implement code/models/semantic.py to extract semantic features using pre-trained
+    BERT-base-uncased (CPU-only, inference only)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:39:56Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: Categories with less than 5 samples are aggregated
+  claim_id: c_4c88fb3f
+  context: 'T030-PRIMARY [US3] Implement code/models/decoder.py with Ridge Regression
+    for N unique labels (derived from data). Logic: If a category has <5 samples,
+    aggregate into Miscellaneous.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Categories_with_less_than_5_samples_are_aggregated
+  kind: magnitude
+  raw_text: If a category has <5 samples, aggregate into Miscellaneous
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:39:58Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: Chance baseline calculated as 1/N_actual
+  claim_id: c_03e56609
+  context: 'T030-PRIMARY [US3] ... Metric: Calculate chance baseline as 1/N_actual
+    where N_actual is the count of unique labels in the test fold after aggregation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate chance baseline as 1/N_actual where N_actual is the count of
+    unique labels in the test fold after aggregation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:40:26Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: Tasks run on GitHub Actions free-tier with no GPU
+  claim_id: c_7b3c9828
+  context: 'Critical Constraint: All tasks MUST run on GitHub Actions free-tier (limited
+    vCPU and RAM, no GPU). No 8-bit quantization, no CUDA, no large model training.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_run_on_GitHub_Actions_free-tier_with_no_GPU
+  kind: entity_fact
+  raw_text: All tasks MUST run on GitHub Actions free-tier (limited vCPU and RAM,
+    no GPU)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T04:40:31Z'
+- artifact_path: projects/PROJ-588-narrative-archaeology-reverse-engineerin/specs/001-narrative-archaeology-reverse-engineerin/tasks.md
+  attempts: 1
+  canonical: Data source is OpenNeuro ds000234
+  claim_id: c_d6b097f2
+  context: 'Data Integrity: All data must be real (OpenNeuro ds000234). No synthetic
+    data or hard-coded placeholders allowed.'
+  evidence:
+    entailment_evidence: Data source is OpenNeuro ds000234
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data_source_is_OpenNeuro_ds000234
+  kind: entity_fact
+  raw_text: All data must be real (OpenNeuro ds000234)
+  resolved_value: Data source is OpenNeuro ds000234
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T04:40:36Z'

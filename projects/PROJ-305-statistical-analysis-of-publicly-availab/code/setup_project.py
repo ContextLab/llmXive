@@ -3,44 +3,40 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the project directory structure as per the implementation plan.
-    Directories: src/, tests/, data/, output/
+    Create the project directory structure as defined in the implementation plan.
+    Creates: src/, tests/, data/, output/, and subdirectories for data/raw and data/processed.
     """
     base_dir = Path(__file__).parent.parent
     
-    # Define the required directories
     directories = [
-        base_dir / "src",
-        base_dir / "tests",
-        base_dir / "data",
-        base_dir / "output"
+        "src",
+        "src/analysis",
+        "src/data",
+        "src/utils",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "data",
+        "data/raw",
+        "data/processed",
+        "output",
+        "output/temporal_profiles",
+        "specs",
+        "contracts",
+        "figures"
     ]
     
-    # Create subdirectories for organization
-    subdirectories = [
-        base_dir / "src" / "utils",
-        base_dir / "src" / "data",
-        base_dir / "src" / "analysis",
-        base_dir / "tests" / "unit",
-        base_dir / "tests" / "integration",
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "output" / "temporal_profiles"
-    ]
+    for dir_path in directories:
+        full_path = base_dir / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        # Create __init__.py for Python packages
+        if dir_path.startswith("src") or dir_path.startswith("tests"):
+            init_file = full_path / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
     
-    all_dirs = directories + subdirectories
-    
-    created_count = 0
-    for directory in all_dirs:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {directory.relative_to(base_dir)}")
-        else:
-            print(f"Directory already exists: {directory.relative_to(base_dir)}")
-    
-    print(f"Project structure setup complete. {created_count} new directories created.")
-    return all_dirs
+    print(f"Project structure created at: {base_dir}")
+    return True
 
 if __name__ == "__main__":
     create_directories()

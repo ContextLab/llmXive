@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with dependencies , transformers, pandas, numpy (Wikipedia: Pandas (software), https://en.wikipedia.org/wiki/Pandas_(software)), openneuro-cli)
+- [ ] T002 Initialize Python 3.11 project with dependencies, transformers, pandas, numpy (Wikipedia: Pandas (software), https://en.wikipedia.org/wiki/Pandas_(software)), openneuro-cli)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
@@ -77,7 +77,7 @@
 
 - [ ] T013-RUN [US1] Orchestrate download of a subject subset of an OpenNeuro dataset (dsXXXXX). using `code/data/download.py` (T007) with checksum validation
 - [ ] T014-RUN [US1] Configure and run nilearn pipeline for ds000234 (specific flags, HRF convolution) using `code/data/preprocess.py` (T008-SEQ)
-- [ ] T015 [US1] Implement `code/data/segment.py` to align story events (plot, character, theme) with BOLD signal using HRF convolution
+- [X] T015 [US1] Implement `code/data/segment.py` to align story events (plot, character, theme) with BOLD signal using HRF convolution
 - [ ] T016 [US1] Create `code/data/roi_masker.py` to extract timecourses for hippocampus, mPFC, PCC, and lateral temporal cortex for **both Early and Late event phases separately**
 - [ ] T017 [US1] Add robust error handling: skip subjects with motion artifacts (threshold defined in `code/config.py`) and log to `data/errors.log` with JSON format: `{"timestamp": "...", "subject_id": "...", "error_code": "...", "motion_mm": 0.0}`
 - [ ] T018 [US1] Implement data hygiene: checksum raw data, ensure no in-place modifications, enforce PII scanning
@@ -86,7 +86,7 @@
 
 - [ ] T010 [P] [US1] Unit test for OpenNeuro downloader in `tests/unit/test_download.py`
 - [ ] T011 [P] [US1] Integration test for preprocessing pipeline on a small cohort of subjects in `tests/integration/test_preprocess.py`
-- [ ] T012 [P] [US1] Verify event segmentation output matches annotation file (≤5% missing timepoints) in `tests/integration/test_segmentation.py`
+- [ ] T012 [P] [US1] Verify event segmentation output matches annotation file (≤5% missing timepoints) [UNRESOLVED-CLAIM: c_fc704dc7 — status=not_enough_info] in `tests/integration/test_segmentation.py`
 
 **Checkpoint**: User Story 1 is fully functional; clean, event-aligned dataset is ready for analysis.
 
@@ -231,8 +231,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks MUST run on GitHub Actions free-tier (limited vCPU and RAM, no GPU). No 8-bit quantization, no CUDA, no large model training.
-- **Data Integrity**: All data must be real (OpenNeuro ds000234). No synthetic data or hard-coded placeholders allowed.
+- **Critical Constraint**: All tasks MUST run on GitHub Actions free-tier (limited vCPU and RAM, no GPU) [UNRESOLVED-CLAIM: c_7b3c9828 — status=not_enough_info]. No 8-bit quantization, no CUDA, no large model training.
+- **Data Integrity**: {{claim:c_d6b097f2}}. No synthetic data or hard-coded placeholders allowed.
 - **Adaptation Note**: The "Encoding vs. Recognition" comparison (FR-004) is implemented as "Early vs. Late Event Stability" per the fallback authorization in FR-003 and FR-004.
 - **Scope Boundary**: **Phase 6 and Phase 7 (tempo, affect, consolidation metrics) have been REMOVED.** These tasks were identified as unapproved scope creep absent from spec.md and plan.md, violating Constitution Principle IV (Single Source of Truth). The project strictly adheres to encoding/early-late pattern comparison and linear decoding.
 - **Metric Definition**: SC-003 (1/N) is implemented using `N_actual` (observed unique labels after aggregation) to ensure calculability. The report documents the aggregation logic.
