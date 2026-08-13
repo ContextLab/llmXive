@@ -957,8 +957,8 @@
     "human_contributors": 3432,
     "papers_posted": 0,
     "total_collaborations": 0,
-    "total_contributions": 16321,
-    "total_contributors": 3440
+    "total_contributions": 16493,
+    "total_contributors": 3442
   },
   "contributors": [
     {
@@ -984,7 +984,7 @@
         "robotics",
         "statistics"
       ],
-      "contribution_count": 10440,
+      "contribution_count": 10442,
       "kind": "llm",
       "name": "qwen.qwen3.5-122b"
     },
@@ -28652,7 +28652,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-08-13T20:15:09.605252+00:00",
+  "generated_at": "2026-08-13T20:27:30.610160+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -55667,7 +55667,7 @@
         "type": "markdown"
       },
       "current_stage": "analyzed",
-      "description": "Verdict: pass The question asks about a substantive relationship between neural oscillations (resting-state EEG power) and behavioral performance (sensory-processing speed), independent of any specific ML method or computational constraint. The core inquiry is about brain-behavior relationships, not whether a\u2026",
+      "description": "Field: neuroscience Can the power of specific resting\u2011state EEG frequency bands (e.g., alpha, beta) predict individual differences in sensory\u2011processing speed measured by simple reaction\u2011time tasks? Resting\u2011state EEG is inexpensive, easy to acquire, and yields quantitative spectral descriptors of brain activity. If\u2026",
       "field": "neuroscience",
       "id": "PROJ-149-predicting-individual-differences-in-sen",
       "keywords": [],
@@ -157817,126 +157817,6 @@
   "recent_activity": [
     {
       "agent": "implementer",
-      "duration_s": 0.779466,
-      "ended_at": "2026-08-13T20:14:50.043121Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:49.263655Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.727333,
-      "ended_at": "2026-08-13T20:14:49.203525Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:48.476192Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.914194,
-      "ended_at": "2026-08-13T20:14:48.415606Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:47.501412Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.780721,
-      "ended_at": "2026-08-13T20:14:47.441558Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:46.660837Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.796595,
-      "ended_at": "2026-08-13T20:14:46.601024Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:45.804429Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.753745,
-      "ended_at": "2026-08-13T20:14:45.744661Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:44.990916Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.817174,
-      "ended_at": "2026-08-13T20:14:44.930318Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:44.113144Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.764751,
-      "ended_at": "2026-08-13T20:14:44.050571Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:43.285820Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 0.769203,
-      "ended_at": "2026-08-13T20:14:43.226263Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:42.457060Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 3.651832,
-      "ended_at": "2026-08-13T20:14:42.388696Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
-      "project_stage": "in_progress",
-      "severity": "ok",
-      "started_at": "2026-08-13T20:14:38.736864Z"
-    },
-    {
-      "agent": "implementer",
       "duration_s": 53.831516,
       "ended_at": "2026-08-13T19:31:48.576821Z",
       "failure_reason": "",
@@ -163814,6 +163694,126 @@
       "project_stage": "tasked",
       "severity": "ok",
       "started_at": "2026-08-13T13:41:40.272864Z"
+    },
+    {
+      "agent": "project_initializer",
+      "duration_s": 20.242584,
+      "ended_at": "2026-08-13T13:41:40.212957Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-006-agriculture-optimization",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:41:19.970373Z"
+    },
+    {
+      "agent": "research_question_validator",
+      "duration_s": 9.4828,
+      "ended_at": "2026-08-13T13:41:19.856596Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-006-agriculture-optimization",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:41:10.373796Z"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 28.412166,
+      "ended_at": "2026-08-13T13:41:10.259637Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-006-agriculture-optimization",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:40:41.847471Z"
+    },
+    {
+      "agent": "research_question_validator",
+      "duration_s": 10.527489,
+      "ended_at": "2026-08-13T13:40:41.734110Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-006-agriculture-optimization",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:40:31.206621Z"
+    },
+    {
+      "agent": "flesh_out",
+      "duration_s": 70.190281,
+      "ended_at": "2026-08-13T13:40:31.091956Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-006-agriculture-optimization",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:39:20.901675Z"
+    },
+    {
+      "agent": "research_question_validator",
+      "duration_s": 15.315031,
+      "ended_at": "2026-08-13T13:39:20.781819Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-006-agriculture-optimization",
+      "project_stage": "tasked",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:39:05.466788Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.775684,
+      "ended_at": "2026-08-13T13:35:33.538054Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:35:32.762370Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.713551,
+      "ended_at": "2026-08-13T13:35:32.702152Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:35:31.988601Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.605595,
+      "ended_at": "2026-08-13T13:35:31.927051Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:35:31.321456Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.696977,
+      "ended_at": "2026-08-13T13:35:31.260308Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-547-the-impact-of-perceived-agency-in-ai-dri",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-08-13T13:35:30.563331Z"
     }
   ],
   "reviewed_preprints": [
