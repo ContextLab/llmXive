@@ -1,0 +1,16 @@
+status: none
+intent: MATH dataset AIME 2024 subset download python package dataset
+required_fields:
+- problem_id
+- year
+- contest
+- problem_number
+- problem_text
+- solution_text
+- answer
+- solution_steps
+- tokenized_problem
+- tokenized_solution
+cache_key: b989d8c7612d2ec719dc7034f066c4bb4a666530ceef0f6137579a2cc341c94c
+searched_at: '2026-08-13T14:39:04.832006+00:00'
+retry_count: 1

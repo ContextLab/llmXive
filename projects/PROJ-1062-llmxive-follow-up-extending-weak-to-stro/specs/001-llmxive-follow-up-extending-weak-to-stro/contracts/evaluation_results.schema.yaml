@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Results Schema"
+description: "Schema for the final evaluation results of the cross-architecture distillation experiment."
+type: "object"
+required:
+  - "problem_id"
+  - "student_arch"
+  - "training_method"
+  - "log_prob_improvement"
+  - "tokens_evaluated"
+  - "is_human_verified_subset"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the AIME problem."
+  student_arch:
+    type: "string"
+    enum:
+      - "MoE"
+      - "SSM"
+    description: "Architecture of the student model."
+  training_method:
+    type: "string"
+    enum:
+      - "Direct-OPD"
+      - "Baseline"
+    description: "Training method used (Implicit Reward vs. Standard Distillation)."
+  log_prob_improvement:
+    type: "number"
+    description: "Difference in log-probability of ground-truth tokens between Direct-OPD and Baseline."
+  tokens_evaluated:
+    type: "integer"
+    minimum: 1
+    description: "Number of tokens evaluated in this problem."
+  is_human_verified_subset:
+    type: "boolean"
+    description: "True if this problem is from the human-verified subset (SC-006)."
+additionalProperties: false
