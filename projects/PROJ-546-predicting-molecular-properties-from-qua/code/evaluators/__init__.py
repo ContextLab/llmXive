@@ -1,1 +1,1 @@
-# Evaluators package
+"""Model evaluation and physical interpretability modules."""

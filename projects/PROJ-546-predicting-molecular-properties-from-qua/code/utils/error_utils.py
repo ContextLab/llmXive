@@ -1,345 +1,294 @@
 """
-Error handling utilities for quantum chemical calculations.
+Error handling utilities for molecular property prediction pipeline.
 
-This module provides utilities to:
-1. Detect convergence failures in DFTB+/Psi4 output logs.
-2. Detect Out-Of-Memory (OOM) conditions.
-3. Monitor subprocess memory usage in real-time.
-4. Handle errors by skipping molecules or logging detailed warnings.
-5. Kill subprocesses that exceed memory limits.
+This module provides tools to handle convergence failures, OOM detection,
+and structural failures in quantum chemical calculations.
 """
-
 import logging
 import os
 import re
 import signal
 import subprocess
 import sys
-import time
-from typing import Optional, List, Tuple, Callable, Any
+from datetime import datetime
+from pathlib import Path
+from typing import Optional, Dict, Any
 
-# Configure logger for this module
-logger = logging.getLogger(__name__)
 
-# Custom Exceptions
 class ConvergenceError(Exception):
-    """Raised when a quantum calculation fails to converge."""
-    def __init__(self, message: str, details: Optional[str] = None):
-        super().__init__(message)
-        self.details = details
+    """Raised when a quantum chemical calculation fails to converge."""
+    pass
+
 
 class OOMError(Exception):
-    """Raised when a calculation exceeds memory limits."""
-    def __init__(self, message: str, pid: Optional[int] = None):
-        super().__init__(message)
-        self.pid = pid
+    """Raised when a process exceeds memory limits (OOM)."""
+    pass
 
 
-# --- Convergence Detection ---
+class StructuralError(Exception):
+    """Raised when a calculation produces structurally invalid results (e.g., HOMO >= LUMO)."""
+    pass
+
+
+# Log file paths (relative to project root)
+LOGS_DIR = Path("logs")
+CONVERGENCE_LOG = LOGS_DIR / "convergence_failures.log"
+OOM_LOG = LOGS_DIR / "oom_failures.log"
+STRUCTURAL_LOG = LOGS_DIR / "structural_failures.log"
+
+
+def _ensure_log_dir():
+    """Ensure the logs directory exists."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def _write_log_entry(log_path: Path, entry: Dict[str, Any]):
+    """
+    Write a log entry to the specified log file in CSV format.
+    
+    Args:
+        log_path: Path to the log file.
+        entry: Dictionary containing log fields.
+    """
+    _ensure_log_dir()
+    file_exists = log_path.exists()
+    
+    with open(log_path, 'a') as f:
+        if not file_exists:
+            # Write header if file doesn't exist
+            f.write(','.join(entry.keys()) + '\n')
+        
+        # Write values, handling potential commas in messages by quoting
+        values = []
+        for key in entry.keys():
+            val = str(entry.get(key, ''))
+            if ',' in val or '"' in val or '\n' in val:
+                val = '"' + val.replace('"', '""') + '"'
+            values.append(val)
+        f.write(','.join(values) + '\n')
+
 
 def detect_convergence_failure(log_content: str) -> bool:
     """
-    Detects convergence failure in quantum chemistry log output.
-
-    Checks for common failure patterns in DFTB+ and Psi4 outputs.
-
+    Detect convergence failure patterns in DFTB+ or similar output logs.
+    
     Args:
-        log_content: The full text content of the output log file.
-
+        log_content: String content of the calculation log.
+        
     Returns:
         True if convergence failure is detected, False otherwise.
     """
-    if not log_content:
-        return False
-
-    # Common patterns for convergence failure
-    failure_patterns = [
-        r"convergence.*failed",
-        r"did not converge",
-        r"maximum.*exceeded",
-        r"SCF.*convergence.*failure",
-        r"calculation.*terminated",
-        r"error.*convergence",
-        r"no.*convergence",
-        r"failed to converge",
-        r"convergence.*not reached",
-        r"max.*iterations.*exceeded",
-        # DFTB+ specific
-        r"Error.*convergence",
-        r"Warning.*convergence",
-        # Psi4 specific
-        r"ConvergenceFailure",
-        r"SCF.*convergence.*failed",
-    ]
-
-    lower_content = log_content.lower()
-    for pattern in failure_patterns:
-        if re.search(pattern, lower_content, re.IGNORECASE):
-            logger.debug(f"Convergence failure pattern detected: {pattern}")
-            return True
-
-    # Check for early termination without success markers
-    success_markers = [
-        "converged",
-        "calculation terminated successfully",
-        "energy:",
-        "final energy",
+    patterns = [
+        r'convergence.*not.*reached',
+        r'failed.*to.*converge',
+        r'convergence.*error',
+        r'cycle.*limit.*reached',
+        r'scf.*not.*converged',
+        r'no.*convergence',
     ]
     
-    has_success = any(re.search(marker, lower_content) for marker in success_markers)
-    has_error = any(re.search(p, lower_content, re.IGNORECASE) for p in failure_patterns)
-
-    # If we see errors and no success, assume failure
-    if has_error and not has_success:
-        return True
-        
+    log_lower = log_content.lower()
+    for pattern in patterns:
+        if re.search(pattern, log_lower, re.IGNORECASE):
+            return True
     return False
 
 
 def check_oom_in_log(log_content: str) -> bool:
     """
-    Detects Out-Of-Memory (OOM) conditions in log output.
-
-    Checks for common OOM error patterns.
-
+    Detect OOM (Out of Memory) signals in log content.
+    
     Args:
-        log_content: The full text content of the output log file.
-
+        log_content: String content of the calculation log.
+        
     Returns:
         True if OOM is detected, False otherwise.
     """
-    if not log_content:
-        return False
-
-    oom_patterns = [
-        r"out of memory",
-        r"oom",
-        r"memory allocation failed",
-        r"cannot allocate memory",
-        r"exceeded memory limit",
-        r"segfault",
-        r"segmentation fault",
-        r"killed", # Often indicates OOM killer
+    patterns = [
+        r'out.*of.*memory',
+        r'oom',
+        r'memory.*allocation.*failed',
+        r'cannot.*allocate.*memory',
+        r'killed',
+        r'signal.*9',
+        r'signal.*kill',
     ]
-
-    lower_content = log_content.lower()
-    for pattern in oom_patterns:
-        if re.search(pattern, lower_content, re.IGNORECASE):
-            logger.debug(f"OOM pattern detected: {pattern}")
+    
+    log_lower = log_content.lower()
+    for pattern in patterns:
+        if re.search(pattern, log_lower, re.IGNORECASE):
             return True
-
     return False
 
 
-# --- Memory Monitoring ---
-
-def monitor_memory_usage(pid: int) -> Optional[int]:
+def monitor_memory_usage(pid: Optional[int] = None) -> int:
     """
-    Monitors the RSS (Resident Set Size) of a process by PID.
-
+    Monitor the current process memory usage (RSS) in bytes.
+    
     Args:
-        pid: Process ID to monitor.
-
+        pid: Process ID to monitor. If None, monitors current process.
+        
     Returns:
-        Current RSS in bytes, or None if process not found.
+        Memory usage in bytes.
     """
+    if pid is None:
+        pid = os.getpid()
+    
     try:
-        if sys.platform == "linux" or sys.platform == "linux2":
-            # Linux: read from /proc/<pid>/status
-            status_path = f"/proc/{pid}/status"
-            if os.path.exists(status_path):
-                with open(status_path, 'r') as f:
-                    for line in f:
-                        if line.startswith("VmRSS:"):
-                            # Format: "VmRSS:    12345 kB"
-                            parts = line.split()
-                            if len(parts) >= 2:
-                                rss_kb = int(parts[1])
-                                return rss_kb * 1024 # Convert to bytes
-        elif sys.platform == "darwin":
-            # macOS: use ps command
-            proc = subprocess.Popen(
-                ["ps", "-o", "rss=", "-p", str(pid)],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
-            stdout, _ = proc.communicate()
-            if proc.returncode == 0 and stdout:
-                rss_kb = int(stdout.decode().strip())
-                return rss_kb * 1024
-        else:
-            logger.warning("Memory monitoring not implemented for this OS.")
-            return None
+        with open(f'/proc/{pid}/statm', 'r') as f:
+            parts = f.read().split()
+            # Second field is RSS in pages
+            rss_pages = int(parts[1])
+            page_size = os.sysconf('SC_PAGE_SIZE')
+            return rss_pages * page_size
+    except (FileNotFoundError, IndexError, ValueError):
+        # Fallback for non-Linux systems or errors
+        try:
+            import resource
+            usage = resource.getrusage(resource.RUSAGE_SELF)
+            return usage.ru_maxrss * 1024  # Convert KB to bytes
+        except Exception:
+            return 0
 
-    except (ProcessLookupError, ValueError, FileNotFoundError, PermissionError):
-        # Process likely terminated or we don't have permission
-        return None
-
-    return None
-
-
-# --- Error Handling Logic ---
 
 def handle_convergence_failure(
     molecule_id: str,
-    log_path: str,
-    skip: bool = True,
-    log_level: int = logging.WARNING
-) -> Tuple[bool, str]:
+    error_message: str,
+    retry_count: int = 0,
+    status: str = "failed_after_retry"
+):
     """
-    Handles a detected convergence failure.
-
+    Handle a convergence failure by logging it and raising an exception.
+    
     Args:
         molecule_id: Identifier for the molecule being processed.
-        log_path: Path to the log file containing the failure.
-        skip: If True, the molecule will be skipped (returns False).
-              If False, an exception is raised.
-        log_level: The logging level to use for the warning/error.
-
-    Returns:
-        A tuple (success, message).
-        If skip=True: (False, "Skipped <id> due to convergence failure")
-        If skip=False: (True, "") but raises ConvergenceError
+        error_message: Description of the error.
+        retry_count: Number of retries attempted (default 0).
+        status: Status string for the log entry.
     """
-    message = f"Molecule {molecule_id} failed convergence."
-    
-    # Log the issue
-    if log_level == logging.ERROR:
-        logger.error(message)
-    else:
-        logger.log(log_level, message)
-
-    if log_path and os.path.exists(log_path):
-        logger.log(log_level, f"Log file: {log_path}")
-        # Read last few lines for context
-        try:
-            with open(log_path, 'r') as f:
-                lines = f.readlines()
-                tail = lines[-10:] if len(lines) > 10 else lines
-                logger.log(log_level, "Last 10 lines of log:")
-                for line in tail:
-                    logger.log(log_level, f"  {line.strip()}")
-        except Exception as e:
-            logger.warning(f"Could not read log file for context: {e}")
-
-    if skip:
-        return False, f"Skipped {molecule_id} due to convergence failure."
-    else:
-        raise ConvergenceError(
-            message,
-            details=f"Check log file at {log_path}"
-        )
+    timestamp = datetime.utcnow().isoformat()
+    entry = {
+        "molecule_id": molecule_id,
+        "timestamp": timestamp,
+        "error_code": "CONVERGENCE_FAILURE",
+        "error_message": error_message,
+        "status": status
+    }
+    _write_log_entry(CONVERGENCE_LOG, entry)
+    raise ConvergenceError(f"Convergence failure for {molecule_id}: {error_message}")
 
 
 def handle_oom(
     molecule_id: str,
-    pid: Optional[int] = None,
-    skip: bool = True,
-    log_level: int = logging.ERROR
-) -> Tuple[bool, str]:
+    error_message: str,
+    memory_usage_bytes: int,
+    status: str = "failed_after_retry"
+):
     """
-    Handles an Out-Of-Memory condition.
-
-    Args:
-        molecule_id: Identifier for the molecule.
-        pid: Process ID of the failing subprocess.
-        skip: If True, the molecule is skipped.
-        log_level: Logging level.
-
-    Returns:
-        A tuple (success, message).
-    """
-    message = f"Molecule {molecule_id} triggered OOM protection."
+    Handle an OOM failure by logging it and raising an exception.
     
-    if log_level == logging.ERROR:
-        logger.error(message)
-    else:
-        logger.log(log_level, message)
+    Args:
+        molecule_id: Identifier for the molecule being processed.
+        error_message: Description of the error.
+        memory_usage_bytes: Memory usage at the time of failure.
+        status: Status string for the log entry.
+    """
+    timestamp = datetime.utcnow().isoformat()
+    entry = {
+        "molecule_id": molecule_id,
+        "timestamp": timestamp,
+        "error_code": "OOM_FAILURE",
+        "error_message": error_message,
+        "status": status,
+        "memory_usage_bytes": memory_usage_bytes
+    }
+    _write_log_entry(OOM_LOG, entry)
+    raise OOMError(f"OOM failure for {molecule_id}: {error_message}")
 
-    if pid:
-        logger.log(log_level, f"Process ID: {pid}")
-        # Kill the process if it's still running
-        try:
-            os.kill(pid, signal.SIGKILL)
-            logger.info(f"Killed process {pid} due to OOM.")
-        except ProcessLookupError:
-            logger.info(f"Process {pid} already terminated.")
-        except PermissionError:
-            logger.warning(f"Permission denied to kill process {pid}.")
 
-    if skip:
-        return False, f"Skipped {molecule_id} due to OOM. Consider reducing subset size."
-    else:
-        raise OOMError(message, pid=pid)
+def handle_structural_failure(
+    molecule_id: str,
+    error_message: str,
+    status: str = "failed_after_retry"
+):
+    """
+    Handle a structural failure (e.g., HOMO >= LUMO) by logging it.
+    
+    Args:
+        molecule_id: Identifier for the molecule being processed.
+        error_message: Description of the error.
+        status: Status string for the log entry.
+    """
+    timestamp = datetime.utcnow().isoformat()
+    entry = {
+        "molecule_id": molecule_id,
+        "timestamp": timestamp,
+        "error_code": "STRUCTURAL_FAILURE",
+        "error_message": error_message,
+        "status": status
+    }
+    _write_log_entry(STRUCTURAL_LOG, entry)
+    raise StructuralError(f"Structural failure for {molecule_id}: {error_message}")
 
 
 def run_with_oom_protection(
-    cmd: List[str],
-    molecule_id: str,
-    memory_limit_gb: float = 6.5,
-    check_interval: float = 1.0
-) -> Tuple[Optional[subprocess.CompletedProcess], bool, str]:
+    func,
+    *args,
+    memory_limit_bytes: int = 7 * 1024**3,  # 7 GB default
+    molecule_id: str = "unknown",
+    **kwargs
+):
     """
-    Runs a subprocess with real-time memory monitoring.
+    Run a function with memory protection, killing the process if it exceeds the limit.
     
-    If the subprocess exceeds `memory_limit_gb`, it is killed and an OOM error
-    is handled.
-
     Args:
-        cmd: Command and arguments to run.
-        molecule_id: Identifier for the molecule.
-        memory_limit_gb: Memory limit in Gigabytes.
-        check_interval: Seconds between memory checks.
-
+        func: Function to run.
+        *args: Positional arguments for the function.
+        memory_limit_bytes: Memory limit in bytes.
+        molecule_id: Identifier for logging purposes.
+        **kwargs: Keyword arguments for the function.
+        
     Returns:
-        Tuple of (completed_process, success, message).
-        - If success: (CompletedProcess, True, "Success")
-        - If OOM: (None, False, "Skipped due to OOM")
-        - If other error: (CompletedProcess, False, "Error message")
+        Result of the function if successful.
+        
+    Raises:
+        OOMError: If memory limit is exceeded.
     """
-    limit_bytes = int(memory_limit_gb * 1024 * 1024 * 1024)
-    logger.info(f"Starting {molecule_id} with memory limit {memory_limit_gb}GB")
+    import signal
+    
+    def memory_limit_handler(signum, frame):
+        raise OOMError(f"Memory limit exceeded for {molecule_id}")
+    
+    # Set up signal handler (Unix only)
+    old_handler = None
+    try:
+        old_handler = signal.signal(signal.SIGXCPU, memory_limit_handler)
+    except (AttributeError, ValueError):
+        # SIGXCPU not available on this platform
+        pass
     
     try:
-        # Start the process
-        proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
+        # Start monitoring memory in a separate thread if possible
+        # For simplicity, we'll rely on the process being killed by the OS
+        # and catching the signal, or using resource limits
+        import resource
+        # Set soft and hard limits (in bytes, converted to KB for Unix)
+        limit_kb = memory_limit_bytes // 1024
+        resource.setrlimit(resource.RLIMIT_AS, (limit_kb, limit_kb))
         
-        pid = proc.pid
-        
-        while proc.poll() is None:
-            # Process is still running
-            current_rss = monitor_memory_usage(pid)
-            
-            if current_rss is not None:
-                if current_rss > limit_bytes:
-                    logger.warning(f"Memory limit exceeded for {molecule_id}. RSS: {current_rss/1e9:.2f}GB")
-                    handle_oom(molecule_id, pid=pid, skip=True)
-                    return None, False, f"Skipped {molecule_id} due to OOM (limit: {memory_limit_gb}GB)"
-            
-            time.sleep(check_interval)
-        
-        # Process finished
-        stdout, stderr = proc.communicate()
-        
-        # Check for OOM in stderr/stdout even if process finished (e.g. killed by OOM killer)
-        if check_oom_in_log(stdout + stderr):
-            handle_oom(molecule_id, pid=pid, skip=True)
-            return None, False, f"Skipped {molecule_id} due to OOM detected in log."
-        
-        # Check for convergence failure
-        if detect_convergence_failure(stdout + stderr):
-            # Create a temporary log path for error handling context if needed
-            # In a real pipeline, we might write to a file first
-            handle_convergence_failure(molecule_id, log_path=None, skip=True)
-            return proc, False, f"Skipped {molecule_id} due to convergence failure."
-
-        return proc, True, "Success"
-
-    except Exception as e:
-        logger.error(f"Exception running {molecule_id}: {e}")
-        return None, False, str(e)
+        return func(*args, **kwargs)
+    except OOMError:
+        raise
+    except MemoryError:
+        raise OOMError(f"MemoryError caught for {molecule_id}")
+    except subprocess.CalledProcessError as e:
+        if check_oom_in_log(e.stderr or ""):
+            raise OOMError(f"Process killed due to OOM for {molecule_id}: {e.stderr}")
+        raise
+    finally:
+        # Restore old handler
+        if old_handler is not None:
+            try:
+                signal.signal(signal.SIGXCPU, old_handler)
+            except (AttributeError, ValueError):
+                pass

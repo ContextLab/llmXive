@@ -1,1 +1,2 @@
-# Logs directory placeholder
+# Logs directory for execution traces and error logs
+# Do not remove this file; it ensures the directory exists in git.

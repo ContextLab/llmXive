@@ -1,11 +1,14 @@
-'|assert hour runtime':
-  quote: "The Central Board of Film Certification (CBFC) did not mandate any visual\
-    \ cuts for Stree 2. However, the board requested two audio modifications: the\
-    \ removal of a celebrity's name and the muting of a national monument's name.\
-    \ After these changes, the film was granted a U/A rating and has a runtime of\
-    \ 149 minutes. One improvised scene involved Rajkummar Rao singing \"Calm Down\"\
-    \ by Rema and Selena Gomez, which led to the producers paying \u20B925 lakh in\
-    \ residuals."
-  source_id: Stree 2
-  url: https://en.wikipedia.org/wiki/Stree_2
-  value: 149 minutes
+'|hour less runtime than verify':
+  quote: The film's storyline draws loose inspiration from multiple real-life geopolitical
+    events and conflicts in South Asia, including the 1999 IC-814 hijacking, the 2001
+    Indian Parliament attack, the 2008 Mumbai attacks, and developments linked to
+    Pakistan's Operation Lyari. Principal photography for Dhurandhar took place from
+    July 2024 to October 2025 across multiple locations in India and abroad, including
+    the states and union territories of Punjab, Maharashtra, Chandigarh, Ladakh and
+    Himachal Pradesh, as well as Thailand. The film features music composed by Shashwat
+    Sachdev, cinematography by Vikash Nowlakha, and editing by Shivkumar V. Panicker.
+    With a runtime of 214 minutes, Dhurandhar ranks as one of the longest Indian films
+    ever produced.
+  source_id: Dhurandhar
+  url: https://en.wikipedia.org/wiki/Dhurandhar
+  value: 214 minutes

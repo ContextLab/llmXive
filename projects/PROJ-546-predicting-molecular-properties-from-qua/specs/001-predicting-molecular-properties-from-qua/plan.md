@@ -9,7 +9,7 @@ This project implements a comparative modeling pipeline to predict molecular bar
 
 **Critical Clarification**: This study is **purely correlational**. We do not claim that DFTB+ or DFT descriptors *cause* the barrier heights, nor do we validate the physical accuracy of the quantum calculations against the experimental data. The comparison is between two approximations of the same function (mapping descriptors to experimental barriers). The analysis cannot distinguish whether the Semi-Empirical model fails due to poor descriptors or poor model fit, as the 'truth' is fixed. The goal is to measure the correlation strength of gas-phase electronic properties with macroscopic experimental barriers, acknowledging the category error in validation.
 
-The plan strictly adheres to the GitHub Actions free-tier constraints (limited CPU cores, 7 GB RAM, 6h limit) by using a self-contained CPU-only Conda environment, streaming data, and avoiding external GPU offloads. All results are reproducible and traceable.
+The plan strictly adheres to the GitHub Actions free-tier constraints (limited CPU cores, limited RAM, time limits) by using a self-contained CPU-only Conda environment, streaming data, and avoiding external GPU offloads. All results are reproducible and traceable.
 
 ## Technical Context
 
@@ -135,7 +135,7 @@ projects/PROJ-546-predicting-molecular-properties-from-qua/
 - **Constitution Link**: Principle VI (same geometries).
 
 ### Phase 3: Modeling & Statistical Analysis
-- **Shared Split**: The sample subset is split into 5 folds.
+- **Shared Split**: The sample subset is split into multiple folds.
 - **Training**: Train two Random Forest models (Semi-Empirical RF, DFT RF) using **k-fold Cross-Validation**.
 - **Prediction**: Generate **out-of-fold** predictions for the entire 50-sample set.
 - **Confound Control**: Include MW and functional group features in a partial correlation analysis to isolate descriptor effects. Report change in R².
@@ -159,7 +159,7 @@ projects/PROJ-546-predicting-molecular-properties-from-qua/
 |------|------------|
 | **Convergence Failures** | Retry once; log failures. Skip only if `failed_after_retry`. |
 | **OOM** | Monitor memory; kill and log. Reduce batch size if needed. |
-| **Low Statistical Power (N=50)** | Use 5-fold CV with out-of-fold predictions; apply bootstrapping/Wilcoxon if normality fails; interpret results with caution. |
+| **Low Statistical Power (N=50)** | Use k-fold CV with out-of-fold predictions; apply bootstrapping/Wilcoxon if normality fails; interpret results with caution. |
 | **Overfitting** | Use simple RF (`max_depth=5`); rely on out-of-fold predictions for t-test. |
 | **Installation Time** | Use optimized Conda environment; estimate <30 mins install, leaving >5.5h for calc. |
 | **Circular Validation** | Explicitly acknowledge in report that comparison is between two approximations of the same function, not a validation of physical accuracy. |

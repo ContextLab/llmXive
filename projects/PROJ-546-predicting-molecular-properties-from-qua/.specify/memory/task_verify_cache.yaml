@@ -1,3 +1,25 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No project directory `projects/PROJ-546-predicting-molecular-properties-from-qua/`
+    or any of its subfolders/files is present in the provided evidence, so the required
+    project structure has not been created. The implementer must add the full directory
+    hierarchy (e.g., `data/`, `logs/`, `reports/`, `idea/`, etc.) as specified in
+    the implementation plan.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` entries
+    for ruff/black, `.ruff.toml`, `.pre-commit-config.yaml`, or similar) are present,
+    nor any documentation or scripts showing that ruff and black have been set up
+    for the project. Consequently, the required artifact for task T003 is missing.
+T011:
+  c: false
+  h: bf26df44db9bf9dca192e5c96fe3795a70db4377fd86cc4e9511bea513bea030
+  r: The test file `tests/test_fetch.py` is present but appears truncated (the `test_main_with_mocked_download`
+    function ends abruptly) and cannot import the required module because `code/fetch_data.py`
+    is missing entirely, so the contract test cannot actually run or verify Zenodo
+    fetching. Both the implementation file and a complete, runnable test are needed.
 T012:
   c: false
   h: 8a524a5c561da86fe4b7d34b687e66a62b1c8aef3852c37fb636326fd0c87b59
@@ -5,42 +27,3 @@ T012:
     \ in the repository, so there is no test that runs `code/generate_descriptors.py`\
     \ on 50 molecules or validates its output. Without this artifact, the task\u2019\
     s requirement is unmet."
-T058:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `reports/sensitivity.csv` (or any other output) is present to confirm that\
-    \ feature\u2011importance and sensitivity analysis were performed, nor are logs\
-    \ or documentation showing the required stability checks or physical interpretation.\
-    \ The required artifact is missing, so the US3 acceptance criteria are not satisfied."
-T073:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `reports/sensitivity.csv` file or any related analysis was provided, and\
-    \ the implementer marked US3 as \u201Cremoved/out of scope\u201D rather than delivering\
-    \ the required feature\u2011importance and sensitivity\u2011analysis output. The\
-    \ task\u2019s acceptance criteria are therefore unmet."
-T074:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The task T074 is marked as \u201CREMOVED: Out of scope\u201D, meaning no deliverables\
-    \ are required; therefore the absence of artifacts does not constitute a failure\
-    \ to meet any requirement."
-T075:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The task T075 is marked as \u201CREMOVED: Out of scope\u201D, meaning no deliverable\
-    \ is required. Consequently, the absence of any artifact does not constitute a\
-    \ failure, and the implementer\u2019s claim aligns with the specification."
-T076:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts such as `data/descriptors_semi.csv`, geometry files, logs, or report\
-    \ files (`reports/evaluation.json`, `reports/sensitivity.csv`) are present, so\
-    \ the acceptance criteria for US1\u2011US3 cannot be verified. The implementer\
-    \ provided no evidence that any of the required outputs were generated."
-T077:
-  c: true
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The task T077 is marked as \u201CREMOVED: Out of scope,\u201D meaning no deliverables\
-    \ are required. Consequently, there are no expected artifacts to verify, and the\
-    \ absence of files does not constitute a failure."

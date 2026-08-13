@@ -1,1 +1,4 @@
-# PROJ-546 Code Package
+"""
+llmXive Project: PROJ-546
+Predicting Molecular Properties from Quantum Chemical Calculations
+"""
