@@ -1,83 +1,63 @@
-# Quickstart: llmXive Geometry Extension
+# Quickstart: llmXive follow-up – Geometry Extension
 
-This guide reproduces the full experimental pipeline on a fresh GitHub Actions runner or a local Linux environment.
+This guide walks a new researcher from a fresh clone to reproducing the full experimental matrix on a free GitHub Actions runner.
 
-## 1. Clone the Repository
-```bash
-git clone
-cd llmxive-geometry-extension
-```
+## Prerequisites
+- GitHub account (to trigger CI).
+- No local GPU required.
 
-## 2. Set Up the Python Environment
-```bash
-python -m venv.venv
-source.venv/bin/activate
-pip install -r requirements.txt
-```
-*The `requirements.txt` pins exact versions (see `requirements.txt`).*
+## Step‑by‑Step
 
-## 3. Verify Data Integrity
-```bash
-python -m src.data.download_gsm8k
-# Output shows SHA‑256 verification success and caches the dataset under data/gsm8k/
-```
+1. **Clone the repository**
+ ```bash
+ git clone
+ cd llmxive-geometry-extension
+ ```
 
-## 4. Run a Single Condition Locally (optional)
-Example: run the full‑parameter OPD baseline for seed 0.
-```bash
-python -m src.training.opd \
- --seed 0 \
- --epochs 2 \
- --batch-size 8 \
- --output results/opd_full_0.json
-```
-The script prints peak RAM, wall‑clock time, per‑epoch loss, ΔL, and plateau detection. The JSON file conforms to `contracts/experiment_results.schema.yaml`.
+2. **Set up the Python environment**
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate
+ pip install -r requirements.txt
+ ```
 
-## 5. Execute the Full CI Matrix Locally (for debugging)
-```bash
-# The helper script runs the same matrix as the CI workflow:
-python scripts/run_matrix.py
-```
-`run_matrix.py` iterates over all conditions and seeds, respecting the **≤ 15 seeds per job** limit (the full experiment uses 30 seeds per condition split across two parallel jobs).
+3. **Verify dataset download (optional local test)**
+ ```bash
+ python -m src.data.download_gsm8k
+ # Should print "✅ GSM8K downloaded and checksum verified"
+ ```
 
-## 6. Run the GitHub Actions Workflow
-Push a branch to trigger CI, or run manually:
-```bash
-git checkout -b test-run
-git add.
-git commit -m "trigger CI"
-git push origin test-run
-# In the GitHub UI, go to Actions → ci.yml → "Run workflow"
-```
-The workflow will:
-1. Install dependencies.
-2. Download and checksum GSM8K.
-3. Execute each condition in parallel jobs (≤ 15 seeds per job).
-4. Validate each result JSON against **both** `contracts/experiment.schema.yaml` **and** `contracts/experiment_results.schema.yaml`.
-5. Aggregate all metrics into `state.yaml` and upload it as an artifact.
+4. **Run a single seed locally (debug)**
+ ```bash
+ python -m src.cli.run_experiment \
+ --condition frozen_opd \
+ --seed 42 \
+ --dry-run
+ ```
+ This executes the full pipeline for one seed and writes a temporary `state.yaml`.
 
-## 7. Inspect Results
-After CI finishes, download the `state.yaml` artifact and view:
-```bash
-cat state.yaml
-```
-Key sections:
-* `experiment_results` – per‑seed metrics (accuracy, RAM, time, loss, ΔL, plateau epoch).
-* `analysis` – power, TOST, t‑test outcomes, normality diagnostics, and “inconclusive” flags.
-* `resource_usage` – confirms compliance with the stipulated GB / 6 h limits.
+5. **Trigger the full CI matrix**
+ - Push a branch or open a PR; GitHub Actions will automatically start the workflow defined in `.github/workflows/ci.yml`.
+ - The matrix contains five jobs (full_opd, frozen_opd, frozen_sft, random_sft, full_sft) each using the **TinyLlama‑430M** model and running **3 epochs**. Jobs run a set of seeds in parallel batches that respect the defined memory and time limits.
 
-## 8. Re‑run a Specific Seed (e.g., to debug a failure)
-```bash
-python -m src.training.frozen_sft \
- --seed 12 \
- --mask-file results/mask.json \
- --epochs 2 \
- --output results/frozen_sft_12.json
-```
+6. **Inspect results**
+ - After CI succeeds, download the artifact `state.yaml` from the workflow summary.
+ - Use the provided analysis script to generate figures:
+ ```bash
+ python -m src.analysis.generate_report --state results/state.yaml
+ ```
+ - The script produces `report.pdf` and a `figures/` directory.
 
-## 9. Reproduce Figures (optional)
-```bash
-python -m src.analysis.plot_results --state state.yaml --output-dir results/figures
-```
+7. **Re‑run with modified variance threshold (optional)**
+ ```bash
+ python -m src.cli.run_experiment \
+ --condition frozen_opd \
+ --variance-threshold 0.90 \
+ --seed-list 1 2 3... 30
+ ```
 
-All commands are deterministic; the same `state.yaml` will be generated on any runner that follows the steps above.
+All random seeds are listed in `src/config/seeds.yaml`; they are pinned for reproducibility (Constitution Principle I).
+
+---
+
+

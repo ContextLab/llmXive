@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T21:35:10.653935Z'
-current_stage: planned
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-902-llmxive-follow-up-extending-on-the-geome
-last_run_id: 95f8e297-f987-4ad1-8a0a-8d8a11736a6b
+last_run_id: 089502df-f54d-4202-9135-cc1b58c578dd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-902-llmxive-follow-up-extending-on-the-geome/specs/001-llmxive-follow-up-extending-on-the-geome
 title: 'llmXive follow-up: extending "On the Geometry of On-Policy Distillation"'
-updated_at: '2026-08-13T08:32:12.199215Z'
+updated_at: '2026-08-13T09:27:20.041085Z'

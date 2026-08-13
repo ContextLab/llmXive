@@ -1,74 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Experiment Result Schema"
-description: "Schema for per‑seed JSON artifacts produced by the llmXive geometry extension pipeline."
+title: "Experiment State Schema"
 type: object
-properties:
-  seed:
-    type: integer
-    minimum: 0
-    description: "Random seed used for this run."
-  condition:
-    type: string
-    enum:
-      - "full_opd"
-      - "frozen_opd"
-      - "frozen_sft_opdmask"
-      - "frozen_sft_random"
-    description: "Experimental condition."
-  variance_explained:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Cumulative variance explained by the selected subspace."
-  k_selected:
-    type: integer
-    minimum: 1
-    description: "Number of singular vectors retained."
-  accuracy:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Test accuracy on the held‑out generalization subset."
-  peak_ram_mb:
-    type: number
-    minimum: 0
-    description: "Maximum resident set size (VmRSS) observed during the run, in megabytes."
-  wall_time_sec:
-    type: number
-    minimum: 0
-    description: "Total wall‑clock time for the run, in seconds."
-  loss_plateau_epoch:
-    type: integer
-    minimum: 1
-    description: "Epoch at which loss plateau is first detected."
-  tost_p_lower:
-    type: [number, "null"]
-    minimum: 0
-    maximum: 1
-    description: "One‑sided p‑value for the lower bound of the TOST equivalence test (null: μ_frozen ≤ μ_full − Δ)."
-  tost_p_upper:
-    type: [number, "null"]
-    minimum: 0
-    maximum: 1
-    description: "One‑sided p‑value for the upper bound of the TOST equivalence test (null: μ_frozen ≥ μ_full + Δ)."
-  t_test_p:
-    type: [number, "null"]
-    minimum: 0
-    maximum: 1
-    description: "Two‑sample (paired) t‑test p‑value for SFT comparisons."
-  power:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Achieved statistical power for the equivalence or t‑test."
 required:
-  - seed
-  - condition
-  - variance_explained
-  - k_selected
-  - accuracy
-  - peak_ram_mb
-  - wall_time_sec
-  - loss_plateau_epoch
-  - power
-additionalProperties: false
+  - version
+  - generated_at
+  - runs
+  - aggregated
+properties:
+  version:
+    type: string
+    description: "Semantic version of the experiment schema."
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+  generated_at:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp when state.yaml was written."
+  runs:
+    type: array
+    description: "List of individual experiment runs."
+    items:
+      $ref: "experiment_results.schema.yaml"
+  aggregated:
+    type: object
+    description: "Aggregated metrics per condition."
+    additionalProperties:
+      type: object
+      required:
+        - condition
+        - mean_accuracy
+        - std_accuracy
+        - power_estimate
+        - equivalence_result
+        - t_test_result
+      properties:
+        condition:
+          type: string
+          enum: [full_opd, frozen_opd, frozen_sft, random_sft, full_sft]
+        mean_accuracy:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        std_accuracy:
+          type: number
+          minimum: 0.0
+        power_estimate:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        equivalence_result:
+          type: string
+          enum: [equivalent, inconclusive, not_equivalent]
+        t_test_result:
+          type: string
+          enum: [significant, non-significant, inconclusive]

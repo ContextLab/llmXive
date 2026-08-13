@@ -1,132 +1,44 @@
-# Data Model: llmXive follow‑up – extending “On the Geometry of On‑Policy Distillation”
+# Data Model: llmXive follow-up: extending "On the Geometry of On-Policy Distillation"
 
-## 1. GSM8K Dataset Schema
-| Field | Type | Description |
-|-------|------|-------------|
-| `question` | string | Natural‑language math problem statement. |
-| `answer` | string | Ground‑truth solution (may contain LaTeX). |
-| `category` *(optional)* | string | Difficulty tier supplied by the original dataset. |
-| `id` | string | Unique identifier for the example. |
+## Core Entities
+| Entity | Description | Primary Fields |
+|--------|-------------|----------------|
+| **GSM8KRecord** | One question‑answer pair from the GSM8K dataset. | `question: str`, `answer: str`, `difficulty: int (optional)` |
+| **ModelCheckpoint** | Serialized TinyLlama weights after a training epoch. | `epoch: int`, `seed: int`, `path: str` |
+| **ParameterDelta** | Per‑layer weight change Δθ collected during OPD epochs. | `layer_name: str`, `delta_matrix: np.ndarray (stored as .npz)` |
+| **SVDResult** | Output of randomized SVD per layer. | `layer_name: str`, `U: np.ndarray`, `S: np.ndarray`, `Vt: np.ndarray`, `cum_variance: list[float]` |
+| **SubspaceMask** | Binary mask derived from top‑k singular vectors. | `layer_name: str`, `mask: np.ndarray (bool)`, `k: int`, `variance_explained: float` |
+| **ExperimentRun** | One training/evaluation run (specific condition, seed). | `run_id: str`, `condition: enum[full_opd, frozen_opd, frozen_sft, random_sft, full_sft]`, `seed: int`, `accuracy: float`, `peak_ram_gb: float`, `wall_time_sec: float`, `loss_log_path: str` |
+| **AggregatedMetrics** | Consolidated statistics for a condition. | `condition: str`, `mean_accuracy: float`, `std_accuracy: float`, `power_estimate: float`, `equivalence_result: enum[equivalent,inconclusive,not_equivalent]`, `t_test_result: enum[significant,non‑significant,inconclusive]` |
 
-*The dataset is accessed via `datasets.load_dataset("openai/gsm8k", "main")`. The loader returns a `DatasetDict` with splits `train`, `test`.*
+## File Layout
+- `data/raw/` – Original GSM8K parquet files (unchanged).  
+- `data/processed/` –  
+  - `parameter_deltas/` (per‑layer `.npz`)  
+  - `svd_results/` (per‑layer `.npz`)  
+  - `subspace_masks/` (`mask_{seed}.json`)  
+  - `random_masks/` (`randmask_{seed}.json`)  
+- `results/` –  
+  - `run_logs/` (`run_{run_id}.jsonl`)  
+  - `loss_logs/` (`loss_{run_id}.jsonl`)  
+  - `state.yaml` (single source of truth).  
 
-## 2. Subspace Mask Schema (`mask.json`)
-```yaml
-type: object
-description: "Binary mask per model layer indicating which parameters are trainable."
-properties:
-  layer_name:
-    type: array
-    items:
-      type: boolean
-    description: "Boolean mask for the flattened weight matrix of the layer."
-required:
-  - layer_name
-additionalProperties: false
-```
+## Validation & Independence Guarantees
+- **Mask‑derivation split**: The Δθ used for SVD are computed on a **held‑out validation split** of GSM8K that is disjoint from the training split used for OPD/SFT and from the held‑out generalization subset used for final evaluation. This ensures the subspace mask is independent of the evaluation data, addressing potential data‑leakage concerns.
+- **Seed separation**: Mask derivation uses several dedicated seeds distinct from the evaluation seeds (FR‑020).  
 
-## 3. Experiment Result Schema (`contracts/experiment_results.schema.yaml`)
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "ExperimentResults"
-description: "Per‑run metrics for a single experimental condition."
-type: object
-properties:
-  condition:
-    type: string
-    description: "One of: opd_full, frozen_opd, frozen_sft, random_sft."
-  seed:
-    type: integer
-    description: "Random seed used for this run."
-  accuracy:
-    type: number
-    description: "Test accuracy on the held‑out generalization subset (0‑1)."
-  peak_ram_gb:
-    type: number
-    description: "Maximum resident memory (GiB) recorded during the run."
-  wall_time_sec:
-    type: number
-    description: "Total wall‑clock time (seconds) for the run."
-  loss_per_epoch:
-    type: array
-    items:
-      type: number
-    description: "List of loss values (one per epoch)."
-  delta_loss:
-    type: array
-    items:
-      type: number
-    description: "ΔL = loss_i − loss_{i‑1} for each epoch i>0."
-  plateau_epoch:
-    type: [integer, "null"]
-    description: "First epoch where ΔL < 0.001 for two consecutive epochs; null if never plateaued."
-required:
-  - condition
-  - seed
-  - accuracy
-  - peak_ram_gb
-  - wall_time_sec
-  - loss_per_epoch
-  - delta_loss
-  - plateau_epoch
-additionalProperties: false
-```
+## Schema Overview
+Two JSON‑Schema contracts are provided (see `contracts/`):
+1. `experiment.schema.yaml` – validates the overall `state.yaml` top‑level structure.  
+2. `experiment_results.schema.yaml` – validates each `ExperimentRun` entry.
 
-## 4. Authority Artifact (`state.yaml`)
-`state.yaml` aggregates all experiment results and analysis:
+Both schemas enforce:
+- Presence of required fields.  
+- Correct data types (e.g., `accuracy` ∈ [0,1]).  
+- Numeric ranges for RAM (`<=7`) and wall‑time (`<=21600`).  
 
-```yaml
-metadata:
-  generated_at: "2026-08-11T12:00:00Z"
-  git_commit: "<SHA>"
-  config_hash: "<hash>"
-experiment_results:
-  - condition: opd_full
-    seed: 0
-    accuracy: high
-    peak_ram_gb: on the order of a few gigabytes
-    wall_time_sec: appropriate duration for the planned experiments
-    loss_per_epoch: [higher loss, moderate loss, 1.62]
-    delta_loss: [a modest negative value]
-    plateau_epoch: null
-  # ... more entries for each seed & condition ...
-analysis:
-  power_opd: elevated (qualitative assessment)
-  tost:
-    p_lower: a qualitatively low probability threshold.
-    p_upper: a modest upper bound
-    decision: "equivalent"
-    inconclusive: false
-  sft_opd_mask:
-    mean_drop: a modest reduction
-    t_stat: a modest positive value
-    p_value: indicative of a non‑significant result
-    decision: "no significant drop"
-    inconclusive: false
-  sft_random_mask:
-    mean_drop: a modest reduction.
-    t_stat: significant (indicating a statistically notable effect)
-    p_value: indicates statistical significance.
-    decision: "significant drop"
-    inconclusive: false
-  sensitivity:
-    variance_thresholds: [a lower variance capture level (qualitatively high), 0.99]
-    tost_results:
-      - threshold: 0.90
-        p_lower: 0.07
-        p_upper: 0.09
-        decision: "non‑equivalent"
-      - threshold: 0.95
-        p_lower: 0.032
-        p_upper: 0.041
-        decision: "equivalent"
-      - threshold: 0.99
-        p_lower: 0.12
-        p_upper: 0.15
-        decision: "non‑equivalent"
-resource_usage:
-  max_peak_ram_gb: sufficient to accommodate the anticipated workload.
-  max_wall_time_sec: a sufficiently large maximum wall‑time
-```
+All downstream scripts read only from these validated structures.
 
-*All fields are validated against the schemas above during CI (`jsonschema` library).*
+---
+
+

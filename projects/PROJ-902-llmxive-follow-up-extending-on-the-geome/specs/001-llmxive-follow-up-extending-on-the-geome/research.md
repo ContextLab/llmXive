@@ -1,82 +1,85 @@
-# Research: llmXive follow-up – extending “On the Geometry of On‑Policy Distillation”
+# Research: llmXive follow-up: extending "On the Geometry of On-Policy Distillation"
 
-## Objectives & Hypotheses
-| ID | Objective | Hypothesis |
-|----|-----------|------------|
-| **US‑1** | Verify that the low‑dimensional subspace identified after the first two OPD epochs is sufficient for full‑parameter performance when the rest of the model is frozen. | *Equivalence*: Frozen‑Subspace OPD accuracy ≈ Full‑Parameter OPD accuracy (Δ ≤ 0.02) on a held‑out GSM8K generalization subset. |
-| **US‑2** | Test whether the OPD‑identified subspace confers a geometric advantage over a random subspace for standard SFT. | *Geometry*: Frozen‑Subspace SFT does **not** suffer a ≥ 3 % accuracy drop vs. OPD baseline, whereas Random‑Mask SFT does. |
-| **US‑3** | Demonstrate that the entire pipeline runs within the CPU‑only free‑tier constraints. | *Feasibility*: Peak RAM ≤ 7 GB, wall‑clock ≤ 6 h per CI job. |
+## Overview
+This document details the scientific methodology that will be executed by the implementation pipeline. It aligns each user story with concrete experimental designs, statistical analyses, and resource considerations.
 
 ## Dataset Strategy
-| Dataset | Source (verified URL) | Role | Split Strategy |
-|---------|-----------------------|------|----------------|
-| **GSM8K** (questions & answers) | ` | Training & evaluation of OPD & SFT | The **test** split is stratified by problem difficulty (`category`). We further split the test set into: <br>• **Evaluation set** (used for early‑stop monitoring) <br>• **Held‑out generalization subset** (final accuracy & statistical tests). The split uses a fixed random seed (`seed=12345`). |
+| Role | Source | Loader | Notes |
+|------|--------|--------|-------|
+| GSM8K training & test | https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/train-00000-of-00001.parquet (train) and https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet (test) | `datasets.load_dataset("openai/gsm8k", "main", split="train")` / `"test"` | Verified parquet files; checksum validated (see `data/checksums.txt`). |
+| Base model (TinyLlama‑430M) | https://huggingface.co/TinyLlama/TinyLlama-430M-Chat-v0.1 | `transformers.AutoModelForCausalLM.from_pretrained(..., device_map="cpu", load_in_8bit=True)` | 8‑bit CPU‑compatible loading reduces RAM. |
+| OPD / SFT algorithms | No external code source – implemented in‑house per spec. | N/A | No verified URL; algorithms are re‑implemented from the original paper (He 2023). |
 
-*No other external datasets are required.*
+No other external datasets are required.
 
-## Methodology
+## Experimental Design
 
-### 1. Model & Training
-* **Base model**: TinyLlama‑430M, loaded with bitsandbytes **8‑bit CPU quantization** (`bnb.nn.Linear8bit`). This runs on CPUs without CUDA.
-* **OPD loss**: KL‑divergence between student logits and teacher logits (teacher = same TinyLlama in full precision). Optimizer = AdamW (lr = 5e‑5, weight decay = 0.01).
-* **SFT loss**: Cross‑entropy on ground‑truth answers.
-* **Training schedule**: **2 epochs**, batch size = 8, deterministic seeding (`torch.manual_seed`, `numpy.random.seed`). Reduced epochs keep each run well under the 6‑hour wall‑clock limit.
+### 1. Baseline Full‑Parameter OPD (US‑1)
+- **Goal**: Establish reference performance.
+- **Procedure**: For each seed (listed in `src/config/seeds.yaml`), run OPD for 3 epochs on the GSM8K training split, updating all model parameters. Record per‑layer Δθ after each epoch.
+- **Output**: Accuracy on a held‑out GSM8K generalization subset ([deferred] stratified by difficulty, randomly sampled with fixed seed).
 
-### 2. Subspace Identification
-* **Parameter trajectory**: For each of the **10** mask‑derivation seeds, collect per‑layer weight deltas `Δθ` after every OPD update step during the first **2** epochs.
-* **Randomized SVD**: Implemented per Halko et al. (2011) using `scipy.sparse.linalg.svds` with streaming to keep RAM ≤ 7 GB. Target rank is increased until cumulative variance ≥ 95 % (primary) and also evaluated at [deferred] and [deferred] for sensitivity (SC‑006).
-* **Mask creation**: Binary mask per layer where entries corresponding to the selected singular vectors are set to `true`; all others `false`. Stored as JSON `{layer_name: [bool,…]}`.
+### 2. Baseline Full‑Parameter SFT (US‑2 Control)
+- **Goal**: Provide a direct SFT baseline for geometric comparison.
+- **Procedure**: Run standard supervised fine‑tuning for a modest number of epochs on the same GSM benchmark training split using the full parameter set, across the same 30 seeds.
+- **Output**: Accuracy on the same held‑out generalization subset.
 
-### 3. Training under Masks
-* **Frozen‑Subspace OPD**: Apply the mask; only masked parameters receive gradients.
-* **Frozen‑Subspace SFT**: Same mask, but loss is standard SFT.
-* **Random‑Mask SFT**: Generate a mask with the same number of active parameters per layer, sampled uniformly at random (seeded).
+### 3. Subspace Identification (FR‑003, FR‑008)
+- **Method**: Layer‑wise randomized SVD (Halko et al., 2011) on the concatenated Δθ from epochs 1‑3 **derived from a held‑out validation split** (distinct from training and evaluation data) using multiple mask‑derivation seeds.
+- **Variance thresholds**: 90 %, 95 %, 99 % (three points). For each threshold, compute minimal `k` satisfying cumulative variance ≥ threshold.  
+- **Sensitivity sweep**: Run downstream Frozen‑Subspace OPD for each `k` to examine TOST outcomes (US‑1, SC‑006).  
 
-### 4. Evaluation
-* After training, evaluate on the **held‑out generalization subset**, using a sufficiently large sample to assess generalization. Compute **accuracy** (exact match) per seed.
+### 4. Mask Construction (FR‑004, FR‑020)
+- **Binary mask**: For each layer, set entries belonging to the selected top‑k singular vectors to 1, all others to 0.  
+- **Derivation seeds**: 10 seeds distinct from the 30 evaluation seeds; stored in `data/processed/mask_derivation_seeds.json`.  
+- **Random mask**: Generated by sampling the same number of parameters uniformly at random (per layer) using the same 10 seeds.
 
-### 5. Statistical Analysis
-| Test | Comparison | Metric | Method |
-|------|------------|--------|--------|
-| **Normality diagnostics** | All seed‑wise accuracy differences | Shapiro‑Wilk, QQ‑plot | If p > 0.05 → assume normal; else fallback to Wilcoxon signed‑rank. |
-| **TOST Equivalence** | Frozen‑Subspace OPD vs. Full‑Parameter OPD (paired) | Accuracy difference | Paired TOST, Δ = 0.02, α = 0.05 (or Wilcoxon‑based equivalence if non‑normal). |
-| **Paired t‑test / Wilcoxon** | Frozen‑Subspace SFT vs. Full‑Parameter OPD | Accuracy drop | Paired t‑test (α = 0.05) or Wilcoxon signed‑rank if normality fails. |
-| **Paired t‑test / Wilcoxon** | Random‑Mask SFT vs. Full‑Parameter OPD | Accuracy drop | Same as above. |
-| **Sensitivity sweep** | Same as above across variance thresholds {0.90, 0.95, 0.99} | Accuracy difference | Apply Bonferroni correction (α/3). |
+### 5. Frozen‑Subspace OPD (US‑1, FR‑006)
+- **Training**: Freeze all parameters except those selected by the mask; train for 3 epochs on GSM8K training data (30 seeds).  
+- **Evaluation**: Compute accuracy on the held‑out generalization subset.  
+- **Statistical test**: Paired Two One‑Sided Tests (TOST) equivalence with Δ = 0.02, α = 0.05. Use paired differences across the 30 shared seeds (baseline vs. frozen).  
+- **Power analysis**: Prior to testing, compute achieved power assuming σ = 0.015 (He 2023). If power < 0.80, flag result as “inconclusive” (FR‑009, FR‑011).  
 
-*Power analysis*: Prior to each test, compute required N using `statsmodels.stats.power.TTestPower` with effect size δ (0.02 for OPD, 0.03 for SFT), σ = 0.015 (He 2023), α = 0.05. With **N = 30** seeds, report achieved power; if power < 0.80 (the conventional target), flag the result as **“inconclusive”** (FR‑009, FR‑011, FR‑021).
+### 6. Frozen‑Subspace SFT (US‑2, FR‑006)
+- **Pilot Power Analysis**: Run a pilot SFT with multiple seeds using the OPD‑derived mask to estimate σ for SFT performance. Use this σ in the final power calculation (FR‑017, FR‑021).  
+- **Training**: Same mask, but use the standard supervised fine‑tuning loss on GSM8K (30 seeds).  
+- **Metric**: Accuracy drop relative to both the Full‑Parameter OPD baseline **and** the Full‑Parameter SFT baseline.  
+- **Statistical test**: Paired two‑sample t‑test (α = 0.05) for each comparison.  
+- **Decision rule**:  
+  - If mean drop < 3 pp **and** p > 0.05 when compared to Full‑Parameter OPD **and** also when compared to Full‑Parameter SFT, the hypothesis that the OPD‑mask SFT retains performance is supported.  
+  - Power analysis as above (δ = 0.03, σ from pilot, α = 0.05).  
 
-### 6. Resource Monitoring
-* `src/utils/logging.py` records `peak_ram_gb`, `wall_time_sec`, **per‑epoch loss**, `delta_loss`, and `plateau_epoch` (ΔL < 0.001 for two consecutive epochs). All metrics are written to `state.yaml` and validated against `contracts/experiment_results.schema.yaml`.
+### 7. Random‑Mask SFT Control (US‑2)
+- **Training**: Same SFT objective, random mask (30 seeds).  
+- **Metric**: Accuracy drop relative to the Full‑Parameter OPD baseline.  
+- **Statistical test**: Paired two‑sample t‑test (α = 0.05).  
+- **Decision rule**: Mean drop ≥ 3 pp **and** p < 0.05 → confirms that geometry, not dimensionality alone, matters.
 
-### 7. CI & Reproducibility
-* The GitHub Actions workflow (`.github/workflows/ci.yml`) creates a matrix of jobs:
- - Conditions: `opd_full`, `frozen_opd`, `frozen_sft`, `random_sft`
- - Seeds per job: **≤ 15** (splitting the required 30 seeds across two parallel jobs per condition).
-* Each job runs the full pipeline for its assigned seeds, validates the resulting JSON against **both** `contracts/experiment.schema.yaml` **and** `contracts/experiment_results.schema.yaml`. Failures abort the job.
-* After all jobs finish, an aggregation step merges per‑run JSON files into a single `state.yaml` artifact and uploads it.
+### 8. Loss‑Landscape Logging (FR‑010)
+- For every training run, log per‑epoch loss, ΔL, plateau detection (`ΔL < 0.001` for two consecutive epochs), and the epoch of convergence. Stored as JSON‑lines under `results/loss_logs/`.
 
-## Compute Feasibility Decision
-All heavy computations are **CPU‑first** using 8‑bit quantization on TinyLlama‑430M, which fits comfortably within 7 GB RAM. No GPU is required; the plan therefore stays on the free‑tier runner. If any step unexpectedly exceeds limits, CI will fail and the design will be revisited.
+### 9. Resource Logging (FR‑007)
+- `utils.logging` records peak VmRSS (`/proc/self/status`) and total wall‑clock time per run. Values are aggregated in `state.yaml`.
+
+## Statistical Rigor Checklist
+- **Multiple comparison correction**: Sensitivity sweep (3 variance thresholds) → apply Bonferroni correction to α (0.05/3) for each TOST decision.  
+- **Power**: Explicit pre‑study calculations using `statsmodels.stats.power.TTestPower`. Target ≥ 0.80 (source: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics)); otherwise flag “inconclusive”.  
+- **Assumptions**: Tests are paired (same seeds) → independence of residuals assumed; normality assessed via Shapiro‑Wilk on the difference distribution; if violated, fallback to non‑parametric Wilcoxon signed‑rank (documented).  
+- **Effect size**: δ = 0.02 for OPD equivalence, δ = 0.03 for SFT drop. σ for OPD taken from He 2023 (0.015); σ for SFT estimated from the pilot runs.
+
+## Decision / Rationale (CPU vs GPU)
+All computations are designed for the CPU‑only GitHub Actions environment:
+- Model loading uses 8‑bit quantization (`bitsandbytes`) to stay within 7 GB RAM.  
+- Randomized SVD is streamed layer‑wise, never materializing full Δθ matrices.  
+- No GPU‑only operations are required; therefore the plan does **not** invoke the Kaggle GPU escape hatch.  
+
+If during pilot runs a specific step proves infeasible on CPU (e.g., SVD exceeds RAM), a fallback GPU‑offload will be triggered automatically by the execution harness, but the plan explicitly prefers the CPU path.
 
 ## Expected Deliverables
-* `state.yaml` containing:
- * Per‑seed accuracies, RAM, time, loss metrics, plateau epoch.
- * Subspace mask summary (`k`, variance explained).
- * Power analysis results.
- * Statistical test outcomes (p‑values, decisions, “inconclusive” flags).
-* Figures (accuracy distributions, loss trajectories, variance‑explained sweep) under `results/figures/`.
-* Fully validated CI workflow and contract schemas.
+- `state.yaml` containing: seed‑level accuracies, RAM & time logs, power estimates, TOST outcomes, t‑test outcomes, loss‑landscape JSON.  
+- Figures (accuracy distributions, variance‑explained vs. equivalence outcome) generated from `state.yaml`.  
+- Full CI matrix results visible in GitHub Actions logs.  
 
 ---
 
-## Constitution Check (re‑affirmed)
-| Principle | Satisfaction |
-|-----------|---------------|
-| I. Reproducibility | Deterministic seeds, dataset download, CI matrix. |
-| II. Verified Accuracy | Citations pre‑validated; dataset URLs from verified block. |
-| III. Data Hygiene | Checksums, no in‑place mutation. |
-| IV. Single Source of Truth | All metrics in `state.yaml`. |
-| V. Versioning Discipline | Content hashes, pinned dependencies. |
-| VI. Geometric Subspace Validation | Paired‑seed TOST and controls with random mask. |
-| VII. Extreme Resource Constraints Verification | RAM & time logged; CI enforces limits. |
+
