@@ -465,3 +465,365 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T15:49:34Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Power analysis justification requires N=150
+  claim_id: c_e7d4fbfd
+  context: 'T019 [P] Implement power analysis justification: Generate `docs/power_analysis_report.md`
+    containing calculated effect size, alpha, power, and N=150 justification (FR-008)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate docs/power_analysis_report.md containing calculated effect size,
+    alpha, power, and N=150 justification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:08:47Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Participants flagged if error margin exceeds 2dB or calibration status
+    is missing
+  claim_id: c_f6092773
+  context: 'T014 [US1] Implement device-specific calibration protocol simulation in
+    `code/data_ingestion.py` (FR-009): flag participants if `error_margin > 2dB` or
+    `calibration_status` missing'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Participants_flagged_if_error_margin_exceeds_2dB_or_calibrat
+  kind: entity_fact
+  raw_text: flag participants if error_margin > 2dB or calibration_status missing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:09:22Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Participants excluded if valid hours are less than 80%
+  claim_id: c_70c0b13d
+  context: 'T015 [US1] Implement gap analysis logic in `code/data_ingestion.py` (FR-007):
+    bin noise logs into 1-minute intervals, calculate `valid_logging_proportion`,
+    exclude participants with <80% valid hours'
+  evidence:
+    candidates:
+    - - ''
+      - 80.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_valid_hours_are_less_than_80%25
+  kind: magnitude
+  raw_text: exclude participants with <80% valid hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-13T07:10:10Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Participants flagged if single continuous gap exceeds 20% of total session
+    time
+  claim_id: c_8467defa
+  context: 'T015 [US1] Implement gap analysis logic in `code/data_ingestion.py` (FR-007):
+    ...detect and flag any single continuous gap >20% of total session time'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: detect and flag any single continuous gap >20% of total session time
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:10:10Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Reaction times removed if greater than 3 standard deviations from mean
+  claim_id: c_5f6414e5
+  context: 'T016 [US1] Implement outlier removal and edge case handling in `code/data_ingestion.py`:
+    remove reaction times >3 SD from mean'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reaction_times_removed_if_greater_than_3_standard_deviations
+  kind: magnitude
+  raw_text: remove reaction times >3 SD from mean
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:10:50Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Participants flagged if silent sessions exceed 90%
+  claim_id: c_ac8279b6
+  context: T016 [US1] ...flag participants with >90% silent sessions for model singularity
+    check
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: flag participants with >90% silent sessions for model singularity check
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:10:50Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Noise levels categorized as Low (<45dB), Moderate (45-65dB), and High
+    (>65dB)
+  claim_id: c_e396b1c8
+  context: 'T042 [US2] Generate descriptive statistics table: Aggregate continuous
+    logs into three discrete categories (Low: <45dB, Moderate: 45-65dB, High: >65dB)
+    as per FR-001'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Aggregate continuous logs into three discrete categories (Low: <45dB,
+    Moderate: 45-65dB, High: >65dB)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:11:26Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Residualized variability approach applied if VIF exceeds 5
+  claim_id: c_461ae13d
+  context: 'T024 [US2] Implement collinearity diagnostic in `code/model_fitting.py`:
+    compute VIF for `noise_level` and `noise_variability`; if VIF > 5, apply residualized
+    variability approach'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if VIF > 5, apply residualized variability approach
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:11:26Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Statistical methods run on standard multi-core CPU without GPU acceleration
+  claim_id: c_4537e44c
+  context: 'CPU Constraint: All statistical methods must run on a standard multi-core
+    CPU configuration with sufficient memory for typical workloads, without requiring
+    GPU acceleration.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_methods_run_on_standard_multi-core_CPU_without_G
+  kind: entity_fact
+  raw_text: All statistical methods must run on a standard multi-core CPU configuration
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:12:24Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: End-to-end pipeline validation completes in under 6 hours using less
+    than 6GB RAM
+  claim_id: c_2b8b7fdc
+  context: 'T039 [P] Execute end-to-end pipeline validation on GitHub Actions runner
+    (NFR-001: <6 hours, <6GB RAM).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_pipeline_validation_completes_in_under_6_hours_us
+  kind: magnitude
+  raw_text: 'Execute end-to-end pipeline validation on GitHub Actions runner (NFR-001:
+    <6 hours, <6GB RAM)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:13:06Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Sample size justification of N=150
+  claim_id: c_483fba6d
+  context: Generate `docs/power_analysis_report.md` containing calculated effect size,
+    alpha, power, and N=150 justification (FR-008)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=150 justification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:16:15Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Participants excluded if error margin exceeds 2dB
+  claim_id: c_dd75c4b0
+  context: Unit test for calibration logic (error margin >2dB exclusion) in `tests/unit/test_data_ingestion.py`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_error_margin_exceeds_2dB
+  kind: entity_fact
+  raw_text: error margin >2dB exclusion
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:16:56Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Participants excluded if valid logging proportion is less than 80%
+  claim_id: c_cc687e7d
+  context: exclude participants with <80% valid hours OR detect and flag any single
+    continuous gap >20% of total session time
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participants_excluded_if_valid_logging_proportion_is_less_th
+  kind: magnitude
+  raw_text: exclude participants with <80% valid hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:17:00Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Flag participants with single continuous gaps exceeding 20% of total
+    session time
+  claim_id: c_83296833
+  context: exclude participants with <80% valid hours OR detect and flag any single
+    continuous gap >20% of total session time
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: detect and flag any single continuous gap >20% of total session time
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:17:01Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Remove reaction times greater than 3 standard deviations from the mean
+  claim_id: c_2eafcff0
+  context: remove reaction times >3 SD from mean; handle 0dB as 'Low' noise
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Remove_reaction_times_greater_than_3_standard_deviations_fro
+  kind: magnitude
+  raw_text: remove reaction times >3 SD from mean
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:17:02Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Classify 0dB as 'Low' noise category
+  claim_id: c_2d442479
+  context: handle 0dB as 'Low' noise; flag participants with >90% silent sessions
+    for model singularity check
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Classify_0dB_as_'Low'_noise_category
+  kind: entity_fact
+  raw_text: handle 0dB as 'Low' noise
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:17:43Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Flag participants with more than 90% silent sessions for model singularity
+    check
+  claim_id: c_cf3f37b4
+  context: handle 0dB as 'Low' noise; flag participants with >90% silent sessions
+    for model singularity check
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_participants_with_more_than_90%25_silent_sessions_for_mod
+  kind: magnitude
+  raw_text: flag participants with >90% silent sessions for model singularity check
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:18:29Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Categorize noise levels into Low (<45dB), Moderate (45-65dB), and High
+    (>65dB)
+  claim_id: c_286b0710
+  context: 'Aggregate continuous logs into three discrete categories (Low: <45dB,
+    Moderate: 45-65dB, High: >65dB) as per FR-001'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Aggregate continuous logs into three discrete categories (Low: <45dB,
+    Moderate: 45-65dB, High: >65dB)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:18:29Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Apply residualized variability approach if Variance Inflation Factor
+    exceeds 5
+  claim_id: c_501efb85
+  context: compute VIF for `noise_level` and `noise_variability`; if VIF > 5, apply
+    residualized variability approach
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if VIF > 5, apply residualized variability approach
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:18:29Z'
+- artifact_path: projects/PROJ-114-the-impact-of-ambient-noise-on-cognitive/specs/001-the-impact-of-ambient-noise-on-cognitive/tasks.md
+  attempts: 1
+  canonical: Pipeline validation must complete in less than 6 hours using less than
+    6GB RAM
+  claim_id: c_f5a1c579
+  context: 'Execute end-to-end pipeline validation on GitHub Actions runner (NFR-001:
+    <6 hours, <6GB RAM)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_validation_must_complete_in_less_than_6_hours_using
+  kind: magnitude
+  raw_text: 'NFR-001: <6 hours, <6GB RAM'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T07:19:14Z'

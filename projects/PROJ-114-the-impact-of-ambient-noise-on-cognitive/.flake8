@@ -1,21 +1,6 @@
 [flake8]
 max-line-length = 88
-extend-ignore = E203, W503
-exclude =
-    .git,
-    __pycache__,
-    data/raw,
-    data/processed,
-    data/models,
-    docs,
-    state,
-    build,
-    dist,
-    *.egg-info,
-    .venv,
-    venv
+exclude = .git,__pycache__,venv,.venv
+ignore = E203, E266, W503
 per-file-ignores =
-    # Allow unused imports in __init__.py if any
-    */__init__.py: F401
-    # Allow assert statements in tests
-    tests/*: S101
+    code/scripts/*: E501

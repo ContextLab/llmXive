@@ -1,126 +1,172 @@
+"""
+Model Selection Module for llmXive Pipeline.
+
+This module implements the deterministic model selection logic (T004a).
+It selects the first model from the candidate list that passes capability checks
+and logs the selection to data/logs/model_selection.json.
+"""
 import os
+import json
 import logging
-import threading
 from typing import Dict, Any, Optional, List
+from datetime import datetime
+from pathlib import Path
 
 from src.utils.config import get_config, set_seed, get_candidate_models
-from src.utils.logger import get_logger
+from src.utils.logger import get_logger, log_stage_start, log_stage_complete, log_stage_failure
 
-# Thread-safe logger lock for parallel execution contexts
-_log_lock = threading.Lock()
+# Constants
+MODEL_SELECTION_LOG_PATH = "data/logs/model_selection.json"
 
-# Capability map: Model -> Supported Languages
-# These are deterministic, static configurations.
-# Based on typical capabilities of CPU-compatible quantized models.
-MODEL_CAPABILITIES = {
-    "microsoft/phi-2": ["Python", "JavaScript", "C", "C++", "Java", "Go"],
-    "microsoft/phi-1.5": ["Python", "JavaScript", "C", "C++", "Java"],
-    "stabilityai/stable-code-3b": ["Python", "JavaScript", "C", "C++"],
-    "bigcode/starcoderbase-1b": ["Python", "JavaScript", "C", "C++", "Java", "Go", "Rust"],
-    "Salesforce/codegen-6B-mono": ["Python", "JavaScript", "C", "C++", "Java"],
-    "codellama/CodeLlama-7b-hf": ["Python", "JavaScript", "C", "C++", "Java", "Go", "Rust"],
-}
 
-# Required languages for the stratified sample (from T012/US1)
-REQUIRED_LANGUAGES = {"Python", "JavaScript", "C"}
-
-def get_compatible_models(candidate_models: Optional[List[str]] = None) -> List[str]:
+def get_compatible_models(capability_check_results: Optional[Dict[str, bool]] = None) -> List[str]:
     """
-    Filter the candidate list to only models that support all required languages
-    (C, Python, JavaScript) based on the static capability map.
-    
+    Filter candidate models based on capability check results.
+
     Args:
-        candidate_models: Optional override list. If None, uses config list.
-        
+        capability_check_results: Dict mapping model names to boolean capability status.
+            If None, assumes all candidates are compatible (fallback).
+
     Returns:
-        List of model IDs that are compatible with the required languages.
+        List of model names that are compatible.
     """
-    if candidate_models is None:
-        candidate_models = get_candidate_models()
-    
+    candidate_models = get_candidate_models()
+    if not candidate_models:
+        logging.warning("No candidate models found in configuration.")
+        return []
+
+    if capability_check_results is None:
+        # Fallback: if no results provided, return all candidates
+        logging.warning("No capability check results provided. Returning all candidate models.")
+        return candidate_models
+
     compatible = []
-    logger = get_logger("model_selector")
-    
-    for model_id in candidate_models:
-        if model_id not in MODEL_CAPABILITIES:
-            logger.warning(f"Model '{model_id}' not found in capability map. Skipping.")
-            continue
-        
-        supported = set(MODEL_CAPABILITIES[model_id])
-        if REQUIRED_LANGUAGES.issubset(supported):
-            compatible.append(model_id)
+    for model_name in candidate_models:
+        # Check if model passed capability check
+        if capability_check_results.get(model_name, False):
+            compatible.append(model_name)
         else:
-            missing = REQUIRED_LANGUAGES - supported
-            logger.info(f"Model '{model_id}' missing support for: {missing}. Skipping.")
-    
+            logging.info(f"Model '{model_name}' failed capability check or not in results.")
+
     return compatible
 
-def select_model_with_seed(seed: int = 42, candidate_models: Optional[List[str]] = None) -> str:
+
+def select_model_with_seed(capability_check_results: Optional[Dict[str, bool]] = None) -> str:
     """
-    Deterministically select a model from the compatible list using a fixed seed.
-    This ensures reproducibility across runs (Constitution Principle I).
-    
+    Deterministically select the first compatible model from the candidate list.
+
+    This implements the T004a requirement: select the first model in the candidate list
+    (from T004) that passes the capability check in T004c.
+
     Args:
-        seed: The random seed for selection.
-        candidate_models: Optional override list.
-        
+        capability_check_results: Dict mapping model names to boolean capability status.
+
     Returns:
-        The selected model ID.
-        
+        The name of the selected model.
+
     Raises:
         ValueError: If no compatible models are found.
     """
-    # Set seed for deterministic selection
-    set_seed(seed)
-    
-    compatible = get_compatible_models(candidate_models)
-    
-    logger = get_logger("model_selector")
-    
-    if not compatible:
-        error_msg = "No candidate models support all required languages (C, Python, JavaScript)."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    # Deterministic selection: sort to ensure order, then pick based on seed
-    # Using sorted() ensures the list is ordered consistently regardless of dict/set iteration
-    sorted_compatible = sorted(compatible)
-    
-    # Use a simple deterministic index based on seed
-    # If we have N models, index = seed % N
-    import random
-    rng = random.Random(seed)
-    selected_index = rng.randint(0, len(sorted_compatible) - 1)
-    selected_model = sorted_compatible[selected_index]
-    
-    with _log_lock:
-        logger.info(f"Deterministic selection (seed={seed}): Selected '{selected_model}' from {len(sorted_compatible)} candidates.")
-        logger.info(f"Capabilities: {MODEL_CAPABILITIES.get(selected_model, 'Unknown')}")
-    
+    set_seed(42)  # Ensure deterministic behavior
+    compatible_models = get_compatible_models(capability_check_results)
+
+    if not compatible_models:
+        raise ValueError(
+            "No compatible models found. "
+            "Ensure T004c (Model Capability Verification) has been executed successfully "
+            "and capability_check_results contain at least one passing model."
+        )
+
+    # Deterministic selection: first in the list
+    selected_model = compatible_models[0]
+    logging.info(f"Deterministically selected model: {selected_model}")
     return selected_model
 
-def select_model() -> str:
-    """
-    Main entry point for model selection. Uses the default seed from config.
-    """
-    config = get_config()
-    seed = config.runtime_config.seed if hasattr(config, 'runtime_config') else 42
-    return select_model_with_seed(seed=seed)
 
-def main():
+def select_model(capability_check_results: Optional[Dict[str, bool]] = None) -> str:
     """
-    CLI entry point to demonstrate model selection.
+    Main entry point for model selection.
+
+    Selects the model and logs the result to data/logs/model_selection.json.
+
+    Args:
+        capability_check_results: Dict mapping model names to boolean capability status.
+
+    Returns:
+        The name of the selected model.
     """
-    logger = get_logger("model_selector")
-    logger.info("Starting model selection process...")
-    
+    logger = get_logger(__name__)
+    log_stage_start(logger, "Model Selection (T004a)")
+
     try:
-        selected = select_model()
-        logger.info(f"Selection complete. Model: {selected}")
-        return selected
+        selected_model = select_model_with_seed(capability_check_results)
+
+        # Prepare selection record
+        selection_record = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "selected_model": selected_model,
+            "candidate_models": get_candidate_models(),
+            "compatible_models": get_compatible_models(capability_check_results),
+            "capability_check_results": capability_check_results or {},
+            "selection_logic": "First compatible model from candidate list (deterministic)",
+            "status": "success"
+        }
+
+        # Ensure log directory exists
+        log_dir = Path(MODEL_SELECTION_LOG_PATH).parent
+        log_dir.mkdir(parents=True, exist_ok=True)
+
+        # Write selection log
+        with open(MODEL_SELECTION_LOG_PATH, "w", encoding="utf-8") as f:
+            json.dump(selection_record, f, indent=2)
+
+        log_stage_complete(
+            logger,
+            "Model Selection (T004a)",
+            artifact_path=MODEL_SELECTION_LOG_PATH
+        )
+
+        return selected_model
+
     except Exception as e:
-        logger.error(f"Model selection failed: {e}")
+        log_stage_failure(
+            logger,
+            "Model Selection (T004a)",
+            error=str(e)
+        )
         raise
+
+
+def main() -> str:
+    """
+    CLI entry point for model selection.
+
+    Reads capability check results from data/logs/model_capability_check.json
+    (if it exists) and performs model selection.
+
+    Returns:
+        The name of the selected model.
+    """
+    logger = get_logger(__name__)
+    capability_check_path = Path("data/logs/model_capability_check.json")
+
+    capability_check_results = None
+    if capability_check_path.exists():
+        try:
+            with open(capability_check_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # Expecting a dict with model names as keys and boolean status
+                capability_check_results = data.get("capability_results", {})
+                logger.info(f"Loaded capability check results from {capability_check_path}")
+        except (json.JSONDecodeError, KeyError) as e:
+            logger.warning(f"Could not parse capability check results: {e}. Proceeding without results.")
+    else:
+        logger.warning(f"Capability check file not found at {capability_check_path}. Proceeding without results.")
+
+    selected_model = select_model(capability_check_results)
+    logger.info(f"Model selection complete. Selected: {selected_model}")
+    return selected_model
+
 
 if __name__ == "__main__":
     main()

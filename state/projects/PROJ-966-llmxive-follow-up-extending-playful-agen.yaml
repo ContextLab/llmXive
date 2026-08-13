@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T19:00:39.691338Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-966-llmxive-follow-up-extending-playful-agen
-last_run_id: null
+last_run_id: f8224695-20d5-4bd5-9349-853a26d2fb9f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Playful Agentic Robot Learning"'
-updated_at: '2026-07-03T19:00:39.691338Z'
+updated_at: '2026-08-13T07:05:22.430980Z'

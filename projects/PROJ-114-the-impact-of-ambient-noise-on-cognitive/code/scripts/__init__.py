@@ -1,3 +1,3 @@
 """
-Scripts package for pipeline execution.
+Script modules for running pipelines and analysis.
 """

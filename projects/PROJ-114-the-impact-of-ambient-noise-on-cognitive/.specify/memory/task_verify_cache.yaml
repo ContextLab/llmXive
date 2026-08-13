@@ -29,16 +29,17 @@ T004:
     \ are provided. The task\u2019s core artifact is absent."
 T005:
   c: false
-  h: 713cb76eabe2b7f97cdc889e606a2f3ec4318f3e55eaa414920531b056b51783
-  r: The provided `code/scripts/update_state.py` contains a syntax error (`print`
-    without parentheses) that prevents it from executing and therefore cannot create
-    or update `state/projects/PROJ-114-.../current_stage.yaml`. The required output
-    file is missing, indicating the task is not genuinely fulfilled.
+  h: 0628f1d13f035bf42b1abbc14d5037e63f775667cf8be3a2b30ee6a26c156450
+  r: "The `code/scripts/update_state.py` file is truncated (ends with an unfinished\
+    \ `print(f\"S` line) and lacks a proper `if __name__ == \"__main__\":` guard,\
+    \ making it syntactically invalid and non\u2011runnable. Additionally, the expected\
+    \ `state/projects/PROJ-114-.../current_stage.yaml` file does not exist, indicating\
+    \ the script has not successfully performed the required update. The task therefore\
+    \ remains unfinished."
 T013:
   c: false
-  h: a851e1762856c139769a5884ac55e872f25ed5fc3b8e91552b7bf5dde6f7f218
-  r: "The repository contains a non\u2011empty `code/data_ingestion.py`, but it only\
-    \ loads JSONL files (no CSV handling) and relies on a schema file that is missing\
-    \ (`contracts/dataset.schema.yaml` does not exist). Consequently the required\
-    \ validation step cannot be performed, so the implementation does not meet the\
-    \ task specification."
+  h: fd595774d8ec1eff2bdec4256196f0bc06fa3c375cb8a5c5d8604652d8e7b138
+  r: "The `code/data_ingestion.py` file exists and contains logic to load JSONL/CSV\
+    \ and call a schema validator, but the required schema file `contracts/dataset.schema.yaml`\
+    \ is missing, so the validation step cannot be performed. The implementation therefore\
+    \ does not meet the task\u2019s requirement."

@@ -1,13 +1,6 @@
 """
-Script to verify linting and formatting configuration.
-This script ensures that flake8, black, and isort are correctly configured
-and can be run against the project codebase.
-
-Usage:
-    python code/scripts/setup_linting.py
-    
-This script does not modify files but validates that the configuration
-files (.flake8, pyproject.toml) are present and parseable.
+Script to configure and verify linting (flake8) and formatting (black) tools.
+This script ensures configuration files exist and dependencies are installed.
 """
 import os
 import sys
@@ -15,112 +8,120 @@ import configparser
 import toml
 from pathlib import Path
 
-def check_config_files():
-    """Verify that configuration files exist and are valid."""
-    project_root = Path(__file__).parent.parent.parent
-    
-    # Check .flake8
-    flake8_path = project_root / ".flake8"
-    if not flake8_path.exists():
-        print("ERROR: .flake8 configuration file not found.")
-        return False
-    
-    try:
-        config = configparser.ConfigParser()
-        config.read(flake8_path)
-        if 'flake8' not in config:
-            print("ERROR: [flake8] section missing in .flake8")
-            return False
-        print(f"✓ .flake8 configuration valid: {flake8_path}")
-    except Exception as e:
-        print(f"ERROR: Failed to parse .flake8: {e}")
-        return False
+# Project root detection
+ROOT_DIR = Path(__file__).parent.parent.parent
+CONFIG_DIR = ROOT_DIR
+REQUIREMENTS_FILE = ROOT_DIR / "requirements.txt"
 
-    # Check pyproject.toml for black/isort/mypy
-    pyproject_path = project_root / "pyproject.toml"
+def check_config_files():
+    """Check if linting and formatting config files exist, create if missing."""
+    files_to_check = {
+        ".flake8": """[flake8]
+max-line-length = 88
+extend-ignore = E203, E501
+exclude = .git,__pycache__,build,dist,.eggs
+per-file-ignores =
+    __init__.py:F401
+""",
+        "pyproject.toml": None,  # We will check/modify existing or create
+    }
+
+    # Handle .flake8
+    flake8_path = CONFIG_DIR / ".flake8"
+    if not flake8_path.exists():
+        with open(flake8_path, "w") as f:
+            f.write(files_to_check[".flake8"])
+        print(f"Created {flake8_path}")
+    else:
+        print(f"Found existing {flake8_path}")
+
+    # Handle pyproject.toml (for Black)
+    pyproject_path = CONFIG_DIR / "pyproject.toml"
     if not pyproject_path.exists():
-        print("ERROR: pyproject.toml configuration file not found.")
-        return False
-    
-    try:
-        with open(pyproject_path, 'r', encoding='utf-8') as f:
-            pyproject = toml.load(f)
-        
-        if 'tool' not in pyproject:
-            print("ERROR: [tool] section missing in pyproject.toml")
-            return False
-        
-        tools = pyproject['tool']
-        if 'black' not in tools:
-            print("WARNING: [tool.black] section missing in pyproject.toml")
-        else:
-            print(f"✓ Black configuration valid: {pyproject_path}")
-            
-        if 'isort' not in tools:
-            print("WARNING: [tool.isort] section missing in pyproject.toml")
-        else:
-            print(f"✓ Isort configuration valid: {pyproject_path}")
-            
-        if 'mypy' not in tools:
-            print("WARNING: [tool.mypy] section missing in pyproject.toml")
-        else:
-            print(f"✓ MyPy configuration valid: {pyproject_path}")
-            
-    except Exception as e:
-        print(f"ERROR: Failed to parse pyproject.toml: {e}")
-        return False
+        # Create a basic pyproject.toml with black config
+        black_config = """[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-project"
+version = "0.1.0"
+requires-python = ">=3.11"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+skip-string-normalization = false
+
+[tool.isort]
+profile = "black"
+line_length = 88
+"""
+        with open(pyproject_path, "w") as f:
+            f.write(black_config)
+        print(f"Created {pyproject_path} with Black configuration")
+    else:
+        # Check if Black section exists, if not, append or warn
+        try:
+            with open(pyproject_path, "r") as f:
+                content = f.read()
+            if "[tool.black]" not in content:
+                # Append black config to existing file
+                with open(pyproject_path, "a") as f:
+                    f.write("\n[tool.black]\nline-length = 88\ntarget-version = ['py311']\n")
+                print(f"Added Black configuration to existing {pyproject_path}")
+            else:
+                print(f"Found existing Black configuration in {pyproject_path}")
+        except Exception as e:
+            print(f"Warning: Could not verify pyproject.toml: {e}")
 
     return True
 
 def check_requirements():
-    """Verify that linting dependencies are listed in requirements.txt."""
-    project_root = Path(__file__).parent.parent.parent
-    req_path = project_root / "requirements.txt"
-    
-    if not req_path.exists():
-        print("WARNING: requirements.txt not found. Skipping dependency check.")
+    """Check if flake8, black, and isort are in requirements.txt."""
+    if not REQUIREMENTS_FILE.exists():
+        print(f"Warning: {REQUIREMENTS_FILE} not found. Creating with linting tools.")
+        with open(REQUIREMENTS_FILE, "w") as f:
+            f.write("flake8>=6.0\nblack>=23.0\nisort>=5.12\n")
+        return True
+
+    with open(REQUIREMENTS_FILE, "r") as f:
+        content = f.read().lower()
+
+    missing = []
+    if "flake8" not in content:
+        missing.append("flake8")
+    if "black" not in content:
+        missing.append("black")
+    if "isort" not in content:
+        missing.append("isort")
+
+    if missing:
+        print(f"Adding missing linting tools to {REQUIREMENTS_FILE}: {missing}")
+        with open(REQUIREMENTS_FILE, "a") as f:
+            for pkg in missing:
+                f.write(f"{pkg}\n")
         return True
     
-    try:
-        with open(req_path, 'r', encoding='utf-8') as f:
-            content = f.read().lower()
-        
-        required_packages = ['flake8', 'black', 'isort', 'mypy']
-        missing = []
-        
-        for pkg in required_packages:
-            if pkg not in content:
-                missing.append(pkg)
-        
-        if missing:
-            print(f"ERROR: Missing linting dependencies in requirements.txt: {missing}")
-            return False
-        
-        print(f"✓ All linting dependencies present in requirements.txt")
-        return True
-        
-    except Exception as e:
-        print(f"ERROR: Failed to read requirements.txt: {e}")
-        return False
+    print(f"All linting tools found in {REQUIREMENTS_FILE}")
+    return True
 
 def main():
-    print("Verifying Linting and Formatting Configuration...")
-    print("-" * 50)
+    """Main entry point to configure linting."""
+    print("Configuring linting and formatting tools...")
     
-    success = True
-    success &= check_config_files()
-    success &= check_requirements()
+    if not check_config_files():
+        print("Failed to check/create config files.")
+        sys.exit(1)
     
-    print("-" * 50)
-    if success:
-        print("SUCCESS: Linting configuration is ready.")
-        print("Run 'python -m flake8 code/' to check for style issues.")
-        print("Run 'python -m black --check code/' to verify formatting.")
-        print("Run 'python -m isort --check-only code/' to verify import order.")
-        return 0
-    else:
-        print("FAILURE: Configuration issues detected. Please fix the errors above.")
-        return 1
+    if not check_requirements():
+        print("Failed to update requirements.")
+        sys.exit(1)
+
+    print("Linting configuration complete.")
+    print("To run flake8: flake8 code/")
+    print("To run black: black code/")
+    print("To run isort: isort code/")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

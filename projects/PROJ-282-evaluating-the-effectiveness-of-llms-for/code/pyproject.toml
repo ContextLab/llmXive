@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-eval-llm-security"
+name = "llmxive-proj-282"
 version = "0.1.0"
 description = "Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities in Open-Source Code"
+readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "transformers",
@@ -21,81 +22,78 @@ dependencies = [
     "radon",
     "statsmodels",
     "pydantic",
-    "parquet",
-    "torch",
-]
-
-[project.optional-dependencies]
-dev = [
     "ruff",
     "black",
     "pre-commit",
+    "torch",
+    "numpy",
+    "parquet",
+    "fastparquet"
 ]
 
 [tool.setuptools.packages.find]
 where = ["code"]
-include = ["src*", "tests*", "scripts*", "utils*"]
-
-[tool.black]
-line-length = 88
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
 
 [tool.ruff]
-# Same as Black.
-line-length = 88
+# Target Python version
 target-version = "py39"
-
-# Exclude a few directories.
-extend-exclude = [
-    "__pycache__",
+line-length = 88
+exclude = [
     ".git",
-    ".mypy_cache",
+    "__pycache__",
+    ".eggs",
+    "*.egg-info",
     ".venv",
+    "venv",
     "build",
     "dist",
+    "data",
+    "state",
+    "logs"
 ]
 
 [tool.ruff.lint]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
-select = ["E", "F", "I", "N", "W", "B", "C4", "UP"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "RUF"  # ruff-specific rules
+]
 ignore = [
-    "E501",  # Line too long (handled by black)
-    "B008",  # Do not perform function call in argument defaults (common in dataclasses)
-    "C408",  # Unnecessary dict/list/tuple call (stylistic preference)
+    "E501", # Line too long (handled by black)
+    "B904"  # raise-without-from-inside-except (optional strictness)
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
-
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/*" = ["S101", "B011"]
-
 [tool.ruff.lint.isort]
-known-first-party = ["src", "tests", "scripts", "utils"]
+known-first-party = ["src", "scripts", "tests"]
+force-sort-within-sections = true
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | state
+)/
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
-]

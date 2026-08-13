@@ -1,17 +1,17 @@
-T001:
+T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure is presented in the provided evidence; there are no listings
-    or screenshots showing the required folders (`src/`, `tests/`, `data/`, `data/raw/`,
-    `data/processed/`, `data/results/`, `state/`). Without concrete proof that these
-    directories exist, the task requirement is not satisfied.
-T003:
+  h: 3354d3e992db5f084c9e7ca8f186e41d1bb0163408a9535f189dd4b092f54154
+  r: The required artifact `data/logs/core_files.json` is missing, so the verification
+    step is not satisfied. Without this file listing the created core files and their
+    checksums, the task cannot be considered complete.
+T004a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    or a `black` config) were presented, and there is no evidence of ruff/black being
-    set up in the repository. Without these artifacts, the requirement to configure
-    linting (ruff) and formatting (black) is not satisfied.
+  h: c473fce05cbc213b5dd0edd9ccf3b69c9a846790637ee7a612e8c6360cd818f3
+  r: "The required artifact `data/logs/model_selection.json` does not exist, so the\
+    \ model selection was neither performed nor logged as specified. The task\u2019\
+    s core requirement\u2014deterministically selecting a model and recording it in\
+    \ the JSON log\u2014is unmet. The implementer must create the log file with the\
+    \ selected model entry."
 T007b:
   c: false
   h: ef729a03e7e24ae0b154897db1de2a63e30534c75e9c31687b22c760a75e0a30
@@ -42,3 +42,11 @@ T009e:
     `contracts/analysis_metric.schema.yaml` is missing, so we cannot confirm that
     the generated code matches the schema or that the generation script was actually
     run. Additionally, there is no evidence that the task was executed after T009d.
+T010a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/vuldeepecker_*` files is provided; the
+    response contains only task description and project specifications, with no actual
+    downloaded dataset or file listings to verify that the VulDeePecker Python dataset
+    was saved to `data/raw/`. The implementer must supply the downloaded files (or
+    a directory listing) to satisfy the task definition.

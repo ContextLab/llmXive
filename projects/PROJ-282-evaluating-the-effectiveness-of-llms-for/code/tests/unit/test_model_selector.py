@@ -1,137 +1,175 @@
 """
-Unit tests for src.utils.model_selector
+Unit tests for model_selector.py (T004a).
+
+Tests deterministic model selection logic.
 """
-import pytest
 import os
 import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import pytest
 
 from src.utils.model_selector import (
     get_compatible_models,
-    select_model,
     select_model_with_seed,
-    MODEL_LANGUAGE_COMPATIBILITY,
-    SUPPORTED_LANGUAGES
+    select_model,
+    main,
+    MODEL_SELECTION_LOG_PATH
 )
-from src.utils.config import get_config, reset_config, set_seed
+from src.utils.config import get_candidate_models
+
 
 class TestModelSelector:
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        """Reset config before each test."""
-        reset_config()
-        # Ensure a valid config state
-        set_seed(42)
+    """Test suite for model selection logic."""
 
-    def test_supported_languages_constant(self):
-        """Test that SUPPORTED_LANGUAGES contains the required languages."""
-        assert "Python" in SUPPORTED_LANGUAGES
-        assert "C" in SUPPORTED_LANGUAGES
-        assert "JavaScript" in SUPPORTED_LANGUAGES
+    @pytest.fixture
+    def mock_candidate_models(self):
+        """Mock candidate models configuration."""
+        return ["model-a", "model-b", "model-c"]
 
-    @patch('src.utils.model_selector.get_candidate_models')
-    def test_get_compatible_models_filters_correctly(self, mock_get_candidates):
-        """Test that only models supporting all languages are returned."""
-        # Mock candidate list with some incompatible models
-        mock_get_candidates.return_value = [
-            "microsoft/Phi-3-mini-4k-instruct", # Compatible
-            "some/unknown-model",               # Not in map
-            "incompatible/model"                # Not in map
-        ]
+    @pytest.fixture
+    def mock_capability_results(self):
+        """Mock capability check results."""
+        return {
+            "model-a": False,
+            "model-b": True,
+            "model-c": True
+        }
 
-        result = get_compatible_models()
-        
-        # Should only return the one in the compatibility map that supports all
-        assert "microsoft/Phi-3-mini-4k-instruct" in result
-        assert "some/unknown-model" not in result
-        assert "incompatible/model" not in result
+    @patch("src.utils.model_selector.get_candidate_models")
+    def test_get_compatible_models_returns_filtered_list(
+        self,
+        mock_get_candidates,
+        mock_candidate_models,
+        mock_capability_results
+    ):
+        """Test that get_compatible_models returns only passing models."""
+        mock_get_candidates.return_value = mock_candidate_models
 
-    @patch('src.utils.model_selector.get_candidate_models')
-    def test_select_model_deterministic(self, mock_get_candidates):
-        """Test that selection is deterministic (sorted first)."""
-        mock_get_candidates.return_value = [
-            "z-model",
-            "a-model",
-            "microsoft/Phi-3-mini-4k-instruct"
-        ]
+        result = get_compatible_models(mock_capability_results)
 
-        # Run twice
-        model1 = select_model()
-        model2 = select_model()
+        assert result == ["model-b", "model-c"]
+        assert "model-a" not in result
 
-        # Should pick the first in sorted order: "microsoft/..." or "a-model"?
-        # Let's check the actual logic: sorted list -> index 0.
-        # Sorted: ["microsoft/Phi-3-mini-4k-instruct", "a-model", "z-model"] (alphabetical)
-        # Wait, "a-model" comes before "microsoft..." alphabetically?
-        # 'a' < 'm'. So "a-model" is first.
-        # But "a-model" is not in the compatibility map, so it won't be in the result of get_compatible_models.
-        # So result of get_compatible_models is ["microsoft/Phi-3-mini-4k-instruct"]
-        # Sorted: ["microsoft/Phi-3-mini-4k-instruct"]
-        # Selected: "microsoft/Phi-3-mini-4k-instruct"
+    @patch("src.utils.model_selector.get_candidate_models")
+    def test_get_compatible_models_empty_when_none_pass(
+        self,
+        mock_get_candidates,
+        mock_candidate_models
+    ):
+        """Test behavior when no models pass capability check."""
+        mock_get_candidates.return_value = mock_candidate_models
+        all_fail = {"model-a": False, "model-b": False, "model-c": False}
 
-        # Let's adjust the mock to be more realistic
-        mock_get_candidates.return_value = [
-            "microsoft/Phi-3-mini-4k-instruct",
-            "codellama/CodeLlama-7b-Instruct-hf"
-        ]
-        
-        model1 = select_model()
-        model2 = select_model()
+        result = get_compatible_models(all_fail)
 
-        assert model1 == model2
-        # Should be the first one alphabetically among compatible ones
-        # "codellama..." < "microsoft..."
-        # So it should be "codellama/CodeLlama-7b-Instruct-hf"
-        assert model1 == "codellama/CodeLlama-7b-Instruct-hf"
+        assert result == []
 
-    @patch('src.utils.model_selector.get_candidate_models')
-    def test_select_model_with_seed_reproducible(self, mock_get_candidates):
-        """Test that selection with seed is reproducible."""
-        mock_get_candidates.return_value = [
-            "microsoft/Phi-3-mini-4k-instruct",
-            "codellama/CodeLlama-7b-Instruct-hf",
-            "mistralai/Mistral-7B-Instruct-v0.2"
-        ]
+    @patch("src.utils.model_selector.get_candidate_models")
+    def test_get_compatible_models_returns_all_when_no_results(
+        self,
+        mock_get_candidates,
+        mock_candidate_models
+    ):
+        """Test fallback behavior when no capability results provided."""
+        mock_get_candidates.return_value = mock_candidate_models
 
-        model1 = select_model_with_seed(123)
-        model2 = select_model_with_seed(123)
+        result = get_compatible_models(None)
 
-        assert model1 == model2
+        assert result == mock_candidate_models
 
-    @patch('src.utils.model_selector.get_candidate_models')
-    def test_select_model_with_seed_different(self, mock_get_candidates):
-        """Test that different seeds can yield different results (if random)."""
-        mock_get_candidates.return_value = [
-            "microsoft/Phi-3-mini-4k-instruct",
-            "codellama/CodeLlama-7b-Instruct-hf",
-            "mistralai/Mistral-7B-Instruct-v0.2"
-        ]
+    @patch("src.utils.model_selector.get_candidate_models")
+    @patch("src.utils.model_selector.set_seed")
+    def test_select_model_with_seed_deterministic(
+        self,
+        mock_set_seed,
+        mock_get_candidates,
+        mock_candidate_models,
+        mock_capability_results
+    ):
+        """Test that selection is deterministic and uses first compatible model."""
+        mock_get_candidates.return_value = mock_candidate_models
 
-        model1 = select_model_with_seed(123)
-        model2 = select_model_with_seed(456)
-        
-        # Note: It's possible they are the same by chance, but unlikely with 3 items.
-        # We just verify the function runs without error.
-        assert isinstance(model1, str)
-        assert isinstance(model2, str)
+        selected = select_model_with_seed(mock_capability_results)
 
-    @patch('src.utils.model_selector.get_candidate_models')
-    def test_no_compatible_models_raises(self, mock_get_candidates):
-        """Test that an empty compatible list raises an error."""
-        mock_get_candidates.return_value = [
-            "unknown/model-1",
-            "unknown/model-2"
-        ]
+        # Should select the first passing model (model-b)
+        assert selected == "model-b"
+        mock_set_seed.assert_called_once_with(42)
 
-        with pytest.raises(ValueError, match="No compatible models available"):
-            select_model()
+    @patch("src.utils.model_selector.get_candidate_models")
+    def test_select_model_with_seed_raises_when_none_compatible(
+        self,
+        mock_get_candidates,
+        mock_candidate_models
+    ):
+        """Test that selection raises ValueError when no models are compatible."""
+        mock_get_candidates.return_value = mock_candidate_models
+        all_fail = {"model-a": False, "model-b": False, "model-c": False}
 
-    @patch('src.utils.model_selector.get_candidate_models')
-    def test_empty_candidate_list_raises(self, mock_get_candidates):
-        """Test that an empty candidate list raises an error."""
-        mock_get_candidates.return_value = []
+        with pytest.raises(ValueError, match="No compatible models found"):
+            select_model_with_seed(all_fail)
 
-        with pytest.raises(ValueError, match="No compatible models available"):
-            select_model()
+    @patch("src.utils.model_selector.get_candidate_models")
+    @patch("src.utils.model_selector.set_seed")
+    @patch("src.utils.model_selector.get_logger")
+    @patch("src.utils.model_selector.log_stage_start")
+    @patch("src.utils.model_selector.log_stage_complete")
+    @patch("builtins.open")
+    @patch("pathlib.Path.mkdir")
+    def test_select_model_logs_to_file(
+        self,
+        mock_mkdir,
+        mock_open,
+        mock_log_complete,
+        mock_log_start,
+        mock_get_logger,
+        mock_set_seed,
+        mock_get_candidates,
+        mock_candidate_models,
+        mock_capability_results
+    ):
+        """Test that select_model writes to model_selection.json."""
+        mock_get_candidates.return_value = mock_candidate_models
+        mock_logger = MagicMock()
+        mock_get_logger.return_value = mock_logger
+
+        selected = select_model(mock_capability_results)
+
+        assert selected == "model-b"
+        mock_open.assert_called()
+        # Verify JSON was written
+        call_args = mock_open.call_args
+        assert call_args is not None
+
+    @patch("src.utils.model_selector.select_model")
+    def test_main_reads_capability_check_file(self, mock_select_model):
+        """Test that main() reads capability check results from file."""
+        mock_select_model.return_value = "model-b"
+
+        with patch("pathlib.Path.exists", return_value=True):
+            with patch("builtins.open", MagicMock()) as mock_open:
+                mock_open.return_value.__enter__.return_value.read.return_value = json.dumps({
+                    "capability_results": {"model-a": True}
+                })
+
+                result = main()
+
+                assert result == "model-b"
+                mock_select_model.assert_called_once()
+
+    @patch("src.utils.model_selector.get_candidate_models")
+    def test_select_model_preserves_candidate_order(
+        self,
+        mock_get_candidates,
+        mock_candidate_models
+    ):
+        """Test that selection respects the order in candidate list."""
+        mock_get_candidates.return_value = mock_candidate_models
+        # All pass
+        all_pass = {"model-a": True, "model-b": True, "model-c": True}
+
+        selected = select_model_with_seed(all_pass)
+
+        # Should select first in list
+        assert selected == "model-a"

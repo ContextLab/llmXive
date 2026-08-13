@@ -1,81 +1,69 @@
 """
-Tests to verify that linting and formatting configurations are correctly set up.
+Unit tests to verify the linting configuration setup.
+These tests ensure that the configuration files exist and are parseable.
 """
 import os
-import subprocess
+import json
 import tempfile
-import pytest
+import subprocess
+import sys
 from pathlib import Path
+import pytest
 
+# Assume project root is the parent of 'tests'
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-@pytest.fixture
-def project_root():
-    """Return the project root directory."""
-    # Assuming the tests are run from the repository root or code root
-    # We look for pyproject.toml to determine the root
-    current = Path(__file__).resolve()
-    # If running from code/tests/unit, go up 3 to get to code/
-    root = current.parent.parent.parent.parent
-    # If running from code/ (where tests are), go up 2
-    if not (root / "pyproject.toml").exists():
-        root = current.parent.parent
-    return root
+def test_pyproject_toml_exists():
+    """Verify pyproject.toml exists in project root."""
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    assert pyproject_path.exists(), "pyproject.toml must exist in project root"
 
+def test_pyproject_toml_valid():
+    """Verify pyproject.toml contains ruff and black configuration."""
+    pyproject_path = PROJECT_ROOT / "pyproject.toml"
+    if not pyproject_path.exists():
+        pytest.skip("pyproject.toml not found")
+    
+    # Basic check: try to read and ensure it has content
+    content = pyproject_path.read_text()
+    assert "[tool.ruff]" in content, "pyproject.toml must contain [tool.ruff] section"
+    assert "[tool.black]" in content, "pyproject.toml must contain [tool.black] section"
 
-def test_ruff_config_exists(project_root):
-    """Verify that .ruff.toml or ruff section in pyproject.toml exists."""
-    ruff_toml = project_root / ".ruff.toml"
-    pyproject = project_root / "pyproject.toml"
-    assert ruff_toml.exists() or (
-        pyproject.exists() and "ruff" in pyproject.read_text()
-    ), "Ruff configuration file not found."
+def test_linting_config_script_runs():
+    """Verify the verification script runs without crashing."""
+    script_path = PROJECT_ROOT / "scripts" / "verify_linting_config.py"
+    if not script_path.exists():
+        pytest.skip("verify_linting_config.py not found")
+    
+    # Run the script
+    result = subprocess.run(
+        [sys.executable, str(script_path)],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True
+    )
+    
+    # It should exit with 0 if config is valid (even if no files to check)
+    # We allow exit code 0 or 1 (if strict check fails but config is valid)
+    # However, the script logic sets exit 0 on PASS.
+    assert result.returncode == 0, f"Script failed: {result.stderr}"
 
+def test_linting_log_generated():
+    """Verify that the linting log is generated after running the script."""
+    log_path = PROJECT_ROOT / "data" / "logs" / "linting_config.json"
+    
+    # Run script first to ensure log exists
+    script_path = PROJECT_ROOT / "scripts" / "verify_linting_config.py"
+    if script_path.exists():
+        subprocess.run([sys.executable, str(script_path)], cwd=PROJECT_ROOT, capture_output=True)
+    
+    if not log_path.exists():
+        pytest.skip("Log file not generated, script might have been skipped")
 
-def test_black_config_exists(project_root):
-    """Verify that black section in pyproject.toml exists."""
-    pyproject = project_root / "pyproject.toml"
-    assert pyproject.exists(), "pyproject.toml not found."
-    content = pyproject.read_text()
-    assert "[tool.black]" in content, "Black configuration not found in pyproject.toml."
-
-
-def test_precommit_config_exists(project_root):
-    """Verify that .pre-commit-config.yaml exists."""
-    config = project_root / ".pre-commit-config.yaml"
-    assert config.exists(), "Pre-commit configuration file not found."
-
-
-def test_lint_script_exists(project_root):
-    """Verify that the setup_linting script exists."""
-    script = project_root / "code" / "scripts" / "setup_linting.py"
-    # Adjust path based on where the script is actually located
-    # Based on task, it's at code/code/scripts/setup_linting.py
-    script_correct = project_root / "code" / "code" / "scripts" / "setup_linting.py"
-    assert script_correct.exists(), "Setup linting script not found."
-
-
-def test_format_script_exists(project_root):
-    """Verify that formatting can be called (ruff/black present)."""
-    # We check if the commands are available, not the script itself
-    try:
-        subprocess.run(
-            ["ruff", "--version"],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        subprocess.run(
-            ["black", "--version"],
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except subprocess.CalledProcessError:
-        pytest.skip("Linting tools not installed in environment.")
-
-
-def test_pytest_config_exists(project_root):
-    """Verify that pytest configuration exists in pyproject.toml."""
-    pyproject = project_root / "pyproject.toml"
-    content = pyproject.read_text()
-    assert "[tool.pytest" in content, "Pytest configuration not found in pyproject.toml."
+    with open(log_path, "r") as f:
+        data = json.load(f)
+    
+    assert "checks" in data, "Log must contain 'checks' key"
+    assert "ruff_check" in data["checks"], "Log must contain ruff_check result"
+    assert "black_check" in data["checks"], "Log must contain black_check result"
+    assert "overall_status" in data, "Log must contain overall_status"

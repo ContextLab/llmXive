@@ -1,33 +1,48 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Ambient Noise Cognitive Flexibility Dataset
-description: Schema for the raw and processed data of the ambient noise study.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ambient Noise Cognitive Flexibility Dataset"
+description: "JSON Schema for raw logs and processed entities in the ambient noise study."
 
 definitions:
   Participant:
     type: object
     required:
       - participant_id
-      - age
-      - gender
+      - start_time
+      - end_time
       - device_id
+      - calibration_status
+      - calibration_error_margin
     properties:
       participant_id:
         type: string
-        description: Unique identifier for the participant.
-      age:
-        type: integer
-        minimum: 18
-        maximum: 100
-      gender:
-        type: string
-        enum: ["Male", "Female", "Non-binary", "Prefer not to say", "Other"]
-      device_id:
-        type: string
-        description: Identifier for the recording device used.
-      recruitment_date:
+        description: "Unique identifier for the participant"
+      start_time:
         type: string
         format: date-time
-    additionalProperties: false
+        description: "ISO 8601 timestamp of session start"
+      end_time:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of session end"
+      device_id:
+        type: string
+        description: "Identifier for the recording device"
+      calibration_status:
+        type: string
+        enum: ["PASS", "FAIL", "MISSING"]
+        description: "Status of the device calibration"
+      calibration_error_margin:
+        type: number
+        description: "Calibration error in decibels (dB)"
+      demographic_info:
+        type: object
+        properties:
+          age:
+            type: integer
+          gender:
+            type: string
+          work_experience_years:
+            type: number
 
   NoiseLog:
     type: object
@@ -35,6 +50,7 @@ definitions:
       - participant_id
       - timestamp
       - db_level
+      - frequency_band
     properties:
       participant_id:
         type: string
@@ -43,53 +59,48 @@ definitions:
         format: date-time
       db_level:
         type: number
-        description: Noise level in decibels.
-      calibration_status:
+        description: "Sound pressure level in decibels"
+      frequency_band:
         type: string
-        enum: ["OK", "WARN", "ERROR"]
-      error_margin:
-        type: number
-        description: Calibration error margin in dB.
-    additionalProperties: false
+        enum: ["Low", "Mid", "High", "Full"]
+        description: "Frequency band of the measurement"
+      source:
+        type: string
+        description: "Source of the noise (e.g., 'ambient', 'device')"
 
   TaskPerformance:
     type: object
     required:
       - participant_id
-      - session_id
-      - reaction_time
+      - task_id
+      - timestamp
+      - reaction_time_ms
       - error_count
+      - correct
     properties:
       participant_id:
         type: string
-      session_id:
+      task_id:
         type: string
-      reaction_time:
+        description: "Identifier for the specific cognitive task"
+      timestamp:
+        type: string
+        format: date-time
+      reaction_time_ms:
         type: number
-        description: Reaction time in milliseconds.
+        description: "Reaction time in milliseconds"
       error_count:
         type: integer
-        minimum: 0
-      noise_category:
+        description: "Number of errors in the task trial"
+      correct:
+        type: boolean
+        description: "Whether the trial was correct"
+      task_type:
         type: string
-        enum: ["Low", "Moderate", "High"]
-    additionalProperties: false
+        enum: ["switching", "n_back", "stroop"]
+        description: "Type of cognitive task performed"
 
-allOf:
-  - $ref: '#/definitions/Participant'
-  - $ref: '#/definitions/NoiseLog'
-  - $ref: '#/definitions/TaskPerformance'
-# Note: This schema defines the individual record structures.
-# The actual data files (JSONL/CSV) will contain lists of these objects.
-# For JSONL, each line is one of these objects.
-# For CSV, the headers must match the properties.
-
-# To validate a file containing a list of records, the root schema would be:
-# type: array
-# items:
-#   oneOf:
-#     - $ref: '#/definitions/Participant'
-#     - $ref: '#/definitions/NoiseLog'
-#     - $ref: '#/definitions/TaskPerformance'
-
-# However, since we load by entity type, we validate each list against its specific definition.
+oneOf:
+  - $ref: "#/definitions/Participant"
+  - $ref: "#/definitions/NoiseLog"
+  - $ref: "#/definitions/TaskPerformance"

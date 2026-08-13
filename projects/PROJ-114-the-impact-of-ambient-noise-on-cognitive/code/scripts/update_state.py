@@ -38,17 +38,17 @@ def scan_artifacts(base_dir: Path, artifact_dirs: List[str]) -> List[Dict[str, s
         for file_path in dir_path.rglob("*"):
             if file_path.is_file() and (file_path.suffix in extensions or file_path.name.endswith(".py")):
                 try:
-                  rel_path = file_path.relative_to(base_dir)
-                  file_hash = compute_file_hash(file_path)
-                  artifacts.append({
-                      "path": str(rel_path),
-                      "hash": file_hash,
-                      "size_bytes": file_path.stat().st_size,
-                      "modified": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat()
-                  })
+                    rel_path = file_path.relative_to(base_dir)
+                    file_hash = compute_file_hash(file_path)
+                    artifacts.append({
+                        "path": str(rel_path),
+                        "hash": file_hash,
+                        "size_bytes": file_path.stat().st_size,
+                        "modified": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat()
+                    })
                 except Exception:
                     continue
-    
+
     return sorted(artifacts, key=lambda x: x["path"])
 
 def update_state_file(state_dir: Path, artifacts: List[Dict[str, str]], project_id: str) -> None:
@@ -69,14 +69,14 @@ def update_state_file(state_dir: Path, artifacts: List[Dict[str, str]], project_
 def main():
     """Main entry point for updating project state."""
     print(f"Scanning artifacts for project: {PROJECT_ID}")
-    
+
     artifacts = scan_artifacts(PROJECT_ROOT, ARTIFACT_DIRS)
-    
+
     if not artifacts:
         print("Warning: No artifacts found to hash.")
-    
+
     update_state_file(STATE_DIR, artifacts, PROJECT_ID)
-    
+
     print(f"State updated successfully. Found {len(artifacts)} artifacts.")
     print(f"Output written to: {STATE_DIR / 'current_stage.yaml'}")
 

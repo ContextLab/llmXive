@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-ambient-noise-cognitive"
+name = "llmXive-ambient-noise-cognitive"
 version = "0.1.0"
 description = "Impact of Ambient Noise on Cognitive Flexibility in Remote Workers"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.0.0",
@@ -16,41 +17,22 @@ dependencies = [
     "pyyaml>=6.0.0",
     "jsonschema>=4.17.0",
     "pytest>=7.4.0",
-    "flake8>=6.1.0",
-    "black>=23.0.0",
-    "isort>=5.12.0",
-    "toml>=0.10.2",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "flake8>=6.1.0",
+    "mypy>=1.5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
-    | docs
-    | state
-)/
-'''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["config", "models", "preprocess", "robustness", "scripts"]
-skip = ["data", "docs", "state", ".venv"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+pythonpath = ["code"]

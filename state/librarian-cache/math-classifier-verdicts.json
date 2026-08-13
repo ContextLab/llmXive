@@ -1767,6 +1767,10 @@
     "classified_at": "2026-07-04T18:41:34Z",
     "verdict": false
   },
+  "PROJ-966-llmxive-follow-up-extending-playful-agen::1.6.0": {
+    "classified_at": "2026-08-13T07:04:20Z",
+    "verdict": false
+  },
   "PROJ-967-llmxive-follow-up-extending-beyond-scala::1.6.0": {
     "classified_at": "2026-07-05T04:34:01Z",
     "verdict": false

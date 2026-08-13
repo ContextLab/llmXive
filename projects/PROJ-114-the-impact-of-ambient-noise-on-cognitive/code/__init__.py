@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline: Ambient Noise & Cognitive Flexibility
+Core modules for the ambient noise cognitive flexibility study.
 """
