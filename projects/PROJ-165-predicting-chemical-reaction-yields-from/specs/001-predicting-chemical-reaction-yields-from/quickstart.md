@@ -2,87 +2,74 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to Hugging Face datasets (no login required for public datasets)
+-   Python 3.11+
+-   Git
+-   Access to a GitHub Actions runner (or local environment with 8GB+ RAM)
 
 ## Installation
 
-1. **Clone Repository**:
-   ```bash
-   git clone <repo-url>
-   cd <repo-name>
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-165-predicting-chemical-reaction-yields-from
+    ```
 
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r src/requirements.txt
+    ```
 
-## Data Preparation
+## Running the Pipeline
 
-1. **Run Ingestion Script**:
-   ```bash
-   python src/cli/main.py --step ingestion
-   ```
-   - Downloads datasets from verified Hugging Face URLs.
-   - Generates checksums in `state/artifact_hashes.yaml`.
+The entire pipeline (Data Generation -> Preprocessing -> Training -> Evaluation) can be run via the CLI:
 
-2. **Run Preprocessing Script**:
-   ```bash
-   python src/cli/main.py --step preprocessing
-   ```
-   - Resamples spectra, normalizes, computes fingerprints.
-   - **Generates Synthetic Yield** from descriptors.
-   - Splits data by reaction template.
-   - Outputs `data/processed/` and `data/artifacts/leakage_report.json`.
+```bash
+python src/cli/main.py --run-full
+```
 
-## Model Training
+### Steps Executed
 
-1. **Train Attention Model**:
-   ```bash
-   python src/cli/main.py --step train --model attention
-   ```
-   - Trains on CPU (or GPU if available).
-   - Saves model to `data/artifacts/model_checkpoint.pth`.
+1.  **Data Generation**:
+    -   Generates synthetic dataset (several thousand reactions) using physics-based simulator with stochastic noise.
+    -   Computes and logs checksums.
+    -   Performs Simulated Data Integrity Check (FR-015).
+    -   *Output*: `data/raw/synthetic_data.parquet`, `state/artifact_hashes.yaml`.
 
-2. **Train Baselines**:
-   ```bash
-   python src/cli/main.py --step train --model baseline
-   ```
+2.  **Preprocessing**:
+    -   Resamples spectra to fixed grids (IR/Raman/NMR).
+    -   Generates ECFP4 fingerprints.
+    -   Splits data by reaction template AND condition bucket (zero leakage).
+    -   *Output*: `data/processed/train.parquet`, `data/processed/val.parquet`, `data/processed/test.parquet`, `data/artifacts/leakage_report.json`.
 
-## Evaluation
+3.  **Training**:
+    -   Trains the attention model and baselines.
+    -   Saves checkpoints and logs.
+    -   *Output*: `data/artifacts/model_weights.pth`, `data/artifacts/training_log.json`.
 
-1. **Run Evaluation**:
-   ```bash
-   python src/cli/main.py --step evaluate
-   ```
-   - Computes RMSE, MAE, R².
-   - Performs t-tests, permutation tests, **Partial Correlation**.
-   - **Integrity Check**: Verifies yield not a function of spectra.
-   - Generates attention heatmaps.
-   - Outputs `data/artifacts/metrics.json`, `data/artifacts/integrity_report.json`.
+4.  **Evaluation**:
+    -   Computes RMSE, MAE, R².
+    -   Performs t-tests, Wilcoxon tests, and permutation tests.
+    -   Computes VIF and attention correlations.
+    -   Generates attention heatmaps (Top 1%, 5%, 10% thresholds).
+    -   *Output*: `data/artifacts/evaluation_report.json`, `data/artifacts/attention_plots/`.
 
-2. **View Results**:
-   - Metrics: `data/artifacts/metrics.json`
-   - Heatmaps: `data/artifacts/heatmaps/`
-   - Leakage Report: `data/artifacts/leakage_report.json`
-   - Integrity Report: `data/artifacts/integrity_report.json`
+## Verifying Results
 
-## Reproducibility
+To verify reproducibility, run the pipeline again with the same seed:
 
-- **Random Seeds**: All seeds are pinned in `src/utils/seeds.py`.
-- **Data Versioning**: Checksums recorded in `state/artifact_hashes.yaml`.
-- **Re-run**: `python src/cli/main.py --step all` to run full pipeline.
+```bash
+python src/cli/main.py --run-full --seed 42
+```
+
+Compare the checksums in `state/artifact_hashes.yaml` and the metrics in `data/artifacts/evaluation_report.json` to ensure they match.
 
 ## Troubleshooting
 
-- **OOM Error**: Reduce `batch_size` in `config/defaults.yaml`.
-- **Data Download Failed**: Check internet connection; verify Hugging Face URLs.
-- **Template Leakage**: Check `data/artifacts/leakage_report.json` for errors.
+-   **OOM Errors**: If you encounter Out-of-Memory errors, reduce the `batch_size` in `src/models/attention_net.py` or enable streaming in `src/data/ingestion.py`.
+-   **High Collinearity**: If VIF > 5, check the simulation parameters in `src/data/ingestion.py` to ensure sufficient stochastic noise is injected.

@@ -21,6 +21,9 @@ properties:
   bonferroni_adjusted_p:
     type: "number"
     description: "Bonferroni-adjusted p-value."
+  wilcoxon_p_value:
+    type: "number"
+    description: "P-value from Wilcoxon signed-rank test."
   permutation_r_squared:
     type: "number"
     description: "R-squared from permutation test (should be < 0.05)."
@@ -29,7 +32,7 @@ properties:
     description: "Pearson correlation between attention weights and yield residuals."
   top_peaks_nist_match:
     type: "number"
-    description: "Percentage of top 5 attention peaks matching NIST functional groups (within ±50 cm⁻¹)."
+    description: "Percentage of top 5 attention peaks matching NIST functional groups (within ±50 cm⁻¹) or simulation injection points."
   vif_score:
     type: "number"
     description: "Variance Inflation Factor between spectral and fingerprint inputs."

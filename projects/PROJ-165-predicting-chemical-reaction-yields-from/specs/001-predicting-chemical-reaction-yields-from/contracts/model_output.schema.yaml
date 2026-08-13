@@ -1,8 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "EvaluationReport"
-description: "Schema for the model evaluation report."
+title: "ModelOutput"
+description: "Schema for model evaluation results and predictions."
 type: "object"
 properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'attention', 'fingerprint_only')."
   metrics:
     type: "object"
     properties:
@@ -14,79 +17,43 @@ properties:
         description: "Mean Absolute Error."
       r_squared:
         type: "number"
-        description: "R-squared score."
+        description: "R-squared coefficient."
     required:
       - rmse
       - mae
       - r_squared
-  baselines:
+  statistical_test:
+    type: "object"
+    properties:
+      p_value:
+        type: "number"
+        description: "P-value from paired t-test."
+      wilcoxon_p_value:
+        type: "number"
+        description: "P-value from Wilcoxon signed-rank test."
+      significant:
+        type: "boolean"
+        description: "Whether the result is statistically significant (after correction)."
+    required:
+      - p_value
+      - significant
+  attention_peaks:
     type: "array"
     items:
       type: "object"
       properties:
-        name:
-          type: "string"
-        rmse:
+        wavenumber:
           type: "number"
-        r_squared:
+          description: "Wavenumber or ppm of the peak."
+        weight:
           type: "number"
+          description: "Attention weight at this peak."
       required:
-        - name
-        - rmse
-        - r_squared
-  statistical_tests:
-    type: "object"
-    properties:
-      paired_t_test:
-        type: "object"
-        properties:
-          p_value:
-            type: "number"
-            description: "P-value from paired t-test (Bonferroni corrected)."
-          significant:
-            type: "boolean"
-          valid:
-            type: "boolean"
-            description: "True if N_templates >= 50."
-        required:
-          - p_value
-          - significant
-          - valid
-      permutation_test:
-        type: "object"
-        properties:
-          mean_r_squared:
-            type: "number"
-            description: "Mean R-squared from permutation test (should be < 0.05)."
-          passed:
-            type: "boolean"
-        required:
-          - mean_r_squared
-          - passed
-    required:
-      - paired_t_test
-      - permutation_test
-  attention_analysis:
-    type: "object"
-    properties:
-      top_peaks_wavenumbers:
-        type: "array"
-        items:
-          type: "number"
-        description: "Top 5 attention peak wavenumbers."
-      correlation_with_residuals:
-        type: "number"
-        description: "Correlation coefficient between attention weights and residuals."
-      nist_alignment_score:
-        type: "number"
-        description: "Percentage of peaks within 50 cm-1 of simulated injection points."
-    required:
-      - top_peaks_wavenumbers
-      - correlation_with_residuals
-      - nist_alignment_score
+        - wavenumber
+        - weight
+    description: "Top attention peaks identified."
 required:
+  - model_name
   - metrics
-  - baselines
-  - statistical_tests
-  - attention_analysis
+  - statistical_test
 additionalProperties: false

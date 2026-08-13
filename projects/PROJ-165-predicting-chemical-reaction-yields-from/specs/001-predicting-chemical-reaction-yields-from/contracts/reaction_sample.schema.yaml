@@ -1,43 +1,48 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ReactionSample"
-description: "Schema for a single chemical reaction instance with spectral and structural data."
+description: "Schema for a single reaction sample including spectral and structural data."
 type: "object"
 properties:
   reaction_smiles:
     type: "string"
-    description: "Canonical SMILES of the reaction."
+    description: "Canonical SMILES string of the reaction."
   yield_percent:
     type: "number"
     minimum: 0
     maximum: 100
-    description: "Reaction yield (0-100)."
+    description: "Reaction yield percentage."
   ir_spectrum:
     type: "array"
     items:
       type: "number"
-    description: "IR spectrum intensities (resampled to fixed grid)."
+    description: "Resampled IR spectrum array (400-4000 cm⁻¹)."
   nmr_spectrum:
     type: "array"
     items:
       type: "number"
-    description: "NMR spectrum intensities (resampled to fixed grid)."
-  rfp:
+    description: "Resampled NMR spectrum array (0-10 ppm)."
+  raman_spectrum:
     type: "array"
     items:
       type: "number"
-    description: "ECFP4 fingerprint (2048 bits)."
-  reaction_template_id:
+    description: "Resampled Raman spectrum array (400-4000 cm⁻¹)."
+  fingerprint:
+    type: "array"
+    items:
+      type: "integer"
+    description: "ECFP4 fingerprint vector."
+  template_id:
     type: "string"
-    description: "Hash of reaction center substructure."
+    description: "MD5 hash of the reaction template."
   solvent_id:
     type: "integer"
-    description: "Encoded solvent ID."
+    description: "Encoded solvent identifier."
   catalyst_id:
     type: "integer"
-    description: "Encoded catalyst ID."
+    description: "Encoded catalyst identifier."
   temperature_k:
     type: "number"
-    description: "Temperature in Kelvin."
+    description: "Reaction temperature in Kelvin."
   split:
     type: "string"
     enum:
@@ -50,10 +55,8 @@ required:
   - yield_percent
   - ir_spectrum
   - nmr_spectrum
-  - rfp
-  - reaction_template_id
-  - solvent_id
-  - catalyst_id
-  - temperature_k
+  - raman_spectrum
+  - fingerprint
+  - template_id
   - split
 additionalProperties: false

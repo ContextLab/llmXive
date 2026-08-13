@@ -1,92 +1,96 @@
 # Feature Specification: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms
 
 **Feature Branch**: `001-predict-reaction-yields-from-spectra`  
-**Created**: 2026-07-14  
+**Created**: 2026-08-14  
 **Status**: Draft  
 **Input**: User description: "Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
+### User Story 1 - Data Ingestion, Preprocessing, and Leakage-Free Splitting (Priority: P1)
 
-**User Journey**: A researcher uploads or selects a dataset of chemical reactions containing SMILES strings, spectroscopic data (IR, Raman, NMR), and reaction conditions (solvent, catalyst, temperature). The system ingests this data, encodes the conditions, resamples all spectra to a standardized wavenumber/chemical shift grid, normalizes intensities, and generates a clean, split-ready dataset with a train/validation/test partition ensuring no reaction template leakage between sets. The pipeline must also validate against an independent experimental dataset if available, or generate a Simulated Validation Report if only simulated data is present.
+**User Journey**: A researcher initiates the data pipeline to ingest the USPTO-50k reaction dataset. The system programmatically queries the NIST Chemistry WebBook and PubChem APIs to retrieve experimentally measured IR and ¹H-NMR spectra for reactants and products. It filters the dataset to retain only reactions with successfully retrieved real experimental spectra for BOTH modalities (IR and NMR), resamples all spectra to a fixed grid (IR: 400–4000 cm⁻¹ at 1 cm⁻¹ steps, NMR: 0–10 ppm at 0.01 ppm steps), normalizes intensities, and encodes reaction conditions (solvent, temperature) as feature vectors. The system computes the Variance Inflation Factor (VIF) for each spectral wavenumber bin against the concatenated fingerprint vector to detect lack of independent variance. Crucially, the system splits the data into training, validation, and test sets using a reaction-template-based split (ensuring zero overlap of reaction centers) AND performs a scaffold split (Bemis-Murcko) to verify generalization across chemically distinct scaffolds. The system validates the split using MD5 hashing of template IDs to prevent leakage.
 
-**Why this priority**: Without a robust, leakage-free data pipeline that accounts for reaction conditions and validates against independent data (or documents the limitation for simulated data), no model training or validation is possible. This is the foundational step that enables all subsequent analysis and determines the validity of the research question.
+**Why this priority**: This is the foundational step. Without real experimental data retrieval, rigorous leakage prevention, multi-modal verification, and standardized preprocessing, the subsequent model training and scientific claims regarding "independent predictive signal" are invalid. The pivot to simulated data is explicitly excluded from the primary scientific claim in this spec to address the "FABRICATED-RESULT" concern; the spec requires real data.
 
-**Independent Test**: The pipeline can be executed on a subset of the USPTO or ZINC data, producing three distinct CSV/Parquet files (train, val, test) and a log confirming the absence of overlapping reaction templates across splits (verified via MD5 hash of template IDs), verifying that reaction conditions are encoded as features (assert feature names in log contain condition vectors), and verifying that the leakage report is generated.
+**Independent Test**: The pipeline executes on the USPTO-50k subset, producing three distinct CSV/Parquet files (train, val, test) and a `leakage_report.json` confirming zero template overlap (intersection count = 0). The system must also generate an `ingestion_log.json` detailing the number of successful API retrievals versus failures and a `vif_report.json` listing VIF values per spectral bin.
 
 **Acceptance Scenarios**:
 
-1. **Given** a raw dataset containing reaction SMILES, raw spectral arrays, and reaction conditions, **When** the preprocessing script is executed, **Then** the output files contain resampled spectra on a common grid (e.g., 400–4000 cm⁻¹), normalized intensities, and encoded condition vectors.
-2. **Given** the training and test splits, **When** the reaction template substructures are extracted and compared, **Then** the intersection of templates between the training set and test set is exactly zero.
-3. **Given** an independent experimental validation dataset (e.g., from a separate publication), **When** the pipeline processes it, **Then** the system generates a separate evaluation report comparing predictions against this independent ground truth to verify lack of circular validation. If no independent dataset exists, the system MUST generate a Simulated Validation Report using a hold-out set of simulated data.
+1. **Given** the USPTO-50k SMILES list, **When** the ingestion script runs, **Then** the system queries NIST/PubChem and retains only samples where *both* reactant and product experimental IR and NMR spectra are successfully retrieved and stored.
+2. **Given** the raw spectra, **When** the preprocessing step runs, **Then** all IR spectra are resampled to a standard range covering the mid-infrared region and NMR to the typical chemical shift range, with uniform point counts appropriate for each modality, with intensities normalized to unit variance.
+3. **Given** the split indices, **When** the template overlap check runs, **Then** the intersection of reaction template IDs between the training set and test set is empty, ensuring no overlap in reaction mechanisms., verified via MD5 hash comparison.
+4. **Given** the preprocessed data, **When** the VIF check runs, **Then** the system computes VIF for each wavenumber bin against the fingerprint vector using Ridge Regression (alpha=1.0) and flags bins with VIF > 5.
 
 ---
 
 ### User Story 2 - Attention-Based Yield Prediction Model Training (Priority: P2)
 
-**User Journey**: A researcher initiates the training of the attention-based neural network. The system trains the model on the prepared dataset, combining spectral inputs, structural fingerprints, and reaction condition vectors, and saves the model weights and training logs (loss curves) to a reproducible artifact.
+**User Journey**: A researcher triggers the training job on the preprocessed dataset. The system trains a PyTorch multi-head self-attention model that accepts concatenated spectral tensors and ECFP4 fingerprint vectors (fused along the feature dimension before projection into the attention mechanism) and reaction condition embeddings. The training runs on a CPU-only environment (GitHub Actions free tier) for a maximum of 15 epochs with early stopping (patience=3) on validation RMSE. The system saves the model weights, training logs, and a `state/compute_manifest.json` recording the exact random seeds and hardware constraints used.
 
-**Why this priority**: This implements the core hypothesis that spectroscopic data contains independent predictive signal. It is the primary mechanism for generating the results required to answer the research question.
+**Why this priority**: This implements the core hypothesis. It generates the primary results required to answer the research question. The constraint to run on CPU without GPU ensures the project remains feasible within the CI environment.
 
-**Independent Test**: The training script executes successfully on a CPU-only environment, producing a saved model file and a log showing a decreasing validation loss over a defined number of epochs (or early stopping), without requiring GPU acceleration.
+**Independent Test**: The training script executes successfully on a CPU-only runner, producing a saved model file (`model.pth`) and a `training_log.csv` showing a decreasing validation loss. The total execution time must be ≤ 6 hours.
 
 **Acceptance Scenarios**:
 
 1. **Given** the preprocessed training set, **When** the model training job starts, **Then** the model converges (validation loss decreases) and completes within the 6-hour GitHub Actions CPU limit.
-2. **Given** the trained model, **When** it is evaluated on the validation set, **Then** it produces a numerical yield prediction (0–100) for every input sample.
-3. **Given** a random seed configuration, **When** the training is re-run with the same seed, **Then** the resulting model weights and validation metrics are identical (deterministic reproducibility).
+2. **Given** the trained model, **When** it is evaluated on the validation set, **Then** it produces a numerical yield prediction (0–100) for every input sample without CUDA errors.
+3. **Given** a specific random seed (e.g., 42), **When** the training is re-run with the same seed, **Then** the resulting model weights and validation metrics are identical (deterministic reproducibility).
 
 ---
 
-### User Story 3 - Model Evaluation and Interpretability Analysis (Priority: P3)
+### User Story 3 - Model Evaluation, Statistical Significance, and Interpretability (Priority: P3)
 
-**User Journey**: A researcher evaluates the trained model against baselines (fingerprint-only, flattened-spectrum-only, condition-only) and visualizes the attention weights to identify which spectral regions (wavenumbers/chemical shifts) the model deems most predictive of yield, specifically analyzing the correlation between attention peaks and yield residuals.
+**User Journey**: A researcher evaluates the trained model against three baselines: (1) Fingerprint-only (ECFP4), (2) Spectrum-only (flattened), and (3) Condition-only. The system computes RMSE, MAE, and R² for all models, performs a Wilcoxon signed-rank test on absolute errors to assess significance, and generates attention heatmaps. The system also runs a permutation test (shuffling yield labels 100 times) to verify the model is not learning noise. The system retrieves reference functional group frequencies from the NIST Chemistry WebBook to validate attention peaks against known literature values. Additionally, the system runs a linear baseline (Ridge Regression, alpha=1.0) on spectra alone to verify signal independence via residual analysis against fingerprints.
 
-**Why this priority**: This delivers the scientific insight required by the research question: quantifying the "independent predictive signal" and identifying "specific spectral regions." Without this, the model is a black box with no scientific utility.
+**Why this priority**: This delivers the scientific insight required by the research question: quantifying the "independent predictive signal" and identifying "specific spectral regions." It also validates the statistical robustness of the findings.
 
-**Independent Test**: The evaluation script runs on the test set, outputs RMSE/MAE/R² metrics for all models, performs a paired t-test on errors, and generates an attention heatmap image highlighting specific wavenumber ranges.
+**Independent Test**: The evaluation script runs on the test set, outputs a comparison table of metrics, reports a p-value from the statistical test, and generates an attention heatmap image. The permutation test must show a performance drop to near-random levels.
 
 **Acceptance Scenarios**:
 
-1. **Given** the test set predictions from the attention model and the baseline models, **When** the evaluation script runs, **Then** it outputs a table comparing RMSE and R², and reports a p-value from a paired t-test on absolute errors.
-2. **Given** a specific reaction instance, **When** the attention visualization is generated, **Then** the heatmap highlights the top [deferred] percentile of spectral weights, and a sensitivity analysis is reported over low, medium, and high thresholds.
-3. **Given** a permutation test where *yield* labels are shuffled, **When** the model is re-evaluated, **Then** the performance drops to near-random levels (e.g., R² < 0.05), confirming the model learned signal rather than noise.
+1. **Given** the test set predictions from the attention model and the baselines, **When** the evaluation script runs, **Then** it outputs a table comparing RMSE and R², and reports a p-value from a Wilcoxon signed-rank test on absolute errors.
+2. **Given** a specific reaction instance, **When** the attention visualization is generated, **Then** the heatmap highlights the top 95th percentile of spectral weights, and a sensitivity analysis is reported over the set {90th, 95th, 99th percentiles}.
+3. **Given** a permutation test where *yield* labels are shuffled 100 times, **When** the model is re-evaluated, **Then** the mean R² across permutations is < 0.05, confirming the model learned signal rather than noise.
+4. **Given** the attention peaks, **When** the validation step runs, **Then** the system retrieves NIST reference data for the specific functional groups present and reports whether each peak aligns with known frequencies or is identified as novel, with group-specific tolerances.
 
 ---
 
 ### Edge Cases
 
-- **Data Scarcity**: What happens if the experimental spectral dataset (NIST/ZINC) is insufficient to train a meaningful model? The system must pivot to using simulated DFT spectra (MolSpectra) and flag this limitation in the output report.
-- **Spectral Mismatch**: How does the system handle reactions where only IR is available but not NMR? The system must either exclude these samples or use a masking mechanism to handle missing channels, ensuring the model architecture does not crash.
-- **Out-of-Distribution**: How does the system handle a reaction type in the test set that was not present in the training set (template leakage prevention ensures this, but chemical similarity might still be an issue)? The model should flag high prediction uncertainty or the evaluation should note the performance drop on these specific templates.
+- **Data Scarcity (Real Data)**: If the NIST/PubChem API fails to retrieve experimental spectra for >80% of the USPTO-50k subset, the system MUST halt with a `DATA_INSUFFICIENT` error and generate a `data/validation_status.json` flagging the inability to proceed with real data. *Note: This spec does NOT allow a pivot to simulated data for the primary scientific claim to avoid fabricated results.*
+- **Data Not Found**: If the NIST/PubChem API fails to retrieve experimental spectra for [deferred] of the subset ([deferred] retrieval), the system MUST terminate with a `DATA_NOT_FOUND` error.
+- **Spectral Mismatch**: If a reaction has IR but no NMR data (or vice versa), the system MUST exclude that sample from the dataset to ensure consistent multi-channel input, logging the exclusion count in `ingestion_log.json`. The model strictly requires both modalities.
+- **Out-of-Distribution**: If the test set contains reaction templates chemically distinct from the training set (despite template splitting), the model should flag high prediction uncertainty. The evaluation report must include a `scaffold_generalization_score` comparing performance on novel Bemis-Murcko scaffolds.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST preprocess raw spectral data by resampling to a fixed grid (typical IR/Raman ranges, 0–10 ppm for NMR), normalizing to unit variance, and encoding reaction conditions (solvent, catalyst, temperature) as input vectors (See US-1).
-- **FR-002**: System MUST split the dataset into training ([deferred]), validation ([deferred]), and test ([deferred]) sets ensuring zero overlap of reaction templates (substructures at the reaction center) between splits. This constraint applies to the source reaction SMILES and must prevent leakage of the simulation logic if simulated data is used (See US-1).
-- **FR-003**: System MUST implement a multi-head self-attention neural network that accepts concatenated spectral tensors, ECFP4 fingerprint vectors, and reaction condition embeddings as input (See US-2).
-- **FR-004**: System MUST train the model using the Adam optimizer with a learning rate of 1e-3 and batch size of 32, running for a maximum of 10 epochs with early stopping on validation RMSE (See US-2).
+- **FR-001**: System MUST preprocess raw spectral data by resampling to a fixed grid (IR: 400–4000 cm⁻¹ at 1 cm⁻¹ steps, NMR: 0–10 ppm at 0.01 ppm steps), normalizing to unit variance, and encoding reaction conditions (solvent, catalyst, temperature) as input vectors (See US-1).
+- **FR-002**: System MUST split the dataset into training, validation, and test sets ensuring zero overlap of reaction templates (substructures at the reaction center) between splits. This constraint applies to the source reaction SMILES and must be verified via MD5 hashing of template IDs (See US-1).
+- **FR-003**: System MUST implement a multi-head self-attention neural network with multiple attention heads. that accepts concatenated spectral tensors and ECFP4 fingerprint vectors (fused along the feature dimension) and reaction condition embeddings as input (See US-2).
+- **FR-004**: System MUST train the model using the Adam optimizer with a learning rate of an appropriate magnitude and batch size of 32. (to fit 7GB RAM), running for a maximum of 15 epochs with early stopping on validation RMSE (patience=3) (See US-2).
 - **FR-005**: System MUST compute and report RMSE, MAE, and R² metrics for the attention model, a fingerprint-only baseline, a spectrum-only baseline, and a condition-only baseline on the test set (See US-3).
-- **FR-006**: System MUST perform a paired t-test on the absolute errors of the attention model versus the best baseline to determine statistical significance (See US-3).
+- **FR-006**: System MUST perform a statistical significance test on the absolute errors of the attention model versus the best baseline using the Wilcoxon signed-rank test (See US-3).
 - **FR-007**: System MUST generate attention weight visualizations mapping the spectral axis to highlight regions with the highest predictive contribution (See US-3).
-- **FR-008**: System MUST execute a permutation test where *yield* labels are shuffled to verify the model is not learning spurious correlations or structural priors alone. If simulated data is used, the test must verify that the model does not overfit to the simulation noise (See US-3).
-- **FR-009**: System MUST define the attention visualization threshold as a high percentile of weights by default, and perform a sensitivity analysis over the set {[deferred], [deferred], [deferred]} to ensure robustness of identified regions (See US-3).
-- **FR-010**: System MUST validate the model's predictive performance against an independent experimental dataset (if available) to prevent circular validation and confirm generalizability. If no independent experimental dataset exists, the system MUST generate a Simulated Validation Report using a hold-out set of simulated data and document the limitation (See US-1).
+- **FR-008**: System MUST execute a permutation test where *yield* labels are shuffled 100 times to verify the model is not learning spurious correlations. The mean R² of the permuted models MUST be < 0.05 (See US-3).
+- **FR-009**: System MUST define the attention visualization threshold as a high percentile of weights by default, and perform a sensitivity analysis over the set of high percentiles to ensure robustness of identified regions (See US-3).
+- **FR-010**: System MUST validate the model's predictive performance against an independent experimental dataset (e.g., a held-out subset from a different literature source). If no such external independent dataset exists, the system MUST document this limitation in the final report but MUST NOT substitute simulated data; the project proceeds with internal template-based split validation (See US-1).
 - **FR-011**: System MUST explicitly encode reaction conditions (solvent, catalyst, temperature) as input features to prevent confounding by reaction environment when splitting by template (See US-1).
-- **FR-010a**: System MUST generate an evaluation report comparing predictions against independent ground truth (or simulated hold-out data) as a distinct artifact (See US-1).
-- **FR-012**: System MUST retrieve reference functional group frequencies from the NIST Chemistry WebBook to validate attention peaks against literature values (See SC-003).
-- **FR-013**: System MUST compute and report the Pearson correlation coefficient between attention-weighted spectral features and yield residuals (See US-3).
-- **FR-014**: System MUST use MD5 hashing of canonical SMILES and reaction template IDs to deterministically verify zero overlap between splits (See FR-002).
-- **FR-015**: System MUST perform a Simulated Data Integrity Check to verify that simulated spectra are not deterministic functions of the fingerprint input alone, flagging any high collinearity (See Scope).
-- **FR-016**: System MUST compute the Variance Inflation Factor (VIF) between spectral and fingerprint inputs and flag if VIF > 5 to detect lack of independent variance (See Scientific Soundness).
+- **FR-012**: System MUST retrieve reference functional group frequencies from the NIST Chemistry WebBook API endpoint `/webbook/v1/compound/` using the compound's InChIKey (derived from SMILES) to validate attention peaks against known literature values (See US-3).
+- **FR-013**: System MUST correlate attention-weighted spectral features with known chemical shifts from NIST (external validation) rather than model residuals (See US-3).
+- **FR-014**: System MUST use MD5 hashing of reaction template IDs to deterministically verify zero overlap between splits (See FR-002).
+- **FR-015**: System MUST compute the Variance Inflation Factor (VIF) for each spectral wavenumber bin against the concatenated fingerprint vector using Ridge Regression (alpha=1.0) and flag if VIF > 5 to detect lack of independent variance (See US-1).
+- **FR-016**: System MUST verify that spectra contain independent predictive signal by running a linear baseline (Ridge Regression, alpha=1.0) on spectra alone and performing a residual analysis against fingerprints to confirm independence (See US-3).
+- **FR-017**: System MUST perform a scaffold split (Bemis-Murcko) to verify generalization across chemically distinct scaffolds, acknowledging that template splitting alone is insufficient for full chemical independence (See US-1).
+- **FR-018**: System MUST apply a Bonferroni correction to p-values derived from multiple comparisons (attention model vs. multiple baselines) to control the family-wise error rate (See US-3).
 
 ### Key Entities
 
 - **ReactionSample**: Represents a single chemical reaction instance. Key attributes: `reaction_smiles`, `yield_percent`, `ir_spectrum` (array), `nmr_spectrum` (array), `rfp` (ECFP4 vector), `reaction_template_id`, `solvent_id`, `catalyst_id`, `temperature_k`.
-- **SpectralGrid**: Defines the standardized domain for spectral data. Key attributes: `type` (IR, Raman, NMR), `min_value`, `max_value`, `num_bins`.
+- **SpectralGrid**: Defines the standardized domain for spectral data. Key attributes: `type` (IR, Raman, NMR), `min_value`, `max_value`, `num_bins`, `resolution`.
 - **ModelCheckpoint**: Represents a saved state of the trained model. Key attributes: `epoch`, `validation_rmse`, `weights_path`, `config_hash`.
 
 ## Success Criteria
@@ -95,21 +99,21 @@
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The predictive performance (RMSE) of the attention model is measured against the fingerprint-only baseline and the flattened-spectrum baseline to quantify the independent signal of spectral data (See FR-005).
-- **SC-002**: The statistical significance of the performance improvement is measured against a null hypothesis of no difference using a paired t-test on per-sample errors (See FR-006).
-- **SC-003**: The interpretability of the model is measured by the correlation between attention-weighted spectral features and yield residuals (after controlling for fingerprints), requiring a statistically significant correlation (p < 0.05) and that ≥80% of the top 5 attention peaks fall within ±50 cm⁻¹ of literature values from the NIST Chemistry WebBook for known functional group frequencies (See FR-007, FR-012).
-- **SC-003b**: If simulated data is used, the interpretability of the model is measured by the alignment of attention peaks with the simulation logic, requiring ≥95% of the top 5 attention peaks to fall within ±50 cm⁻¹ of the spectral bins used to inject functional group signals in the simulation (See FR-007, FR-015).
-- **SC-004**: The robustness of the model against overfitting is measured by the performance drop in the permutation test where yield labels are shuffled, requiring R² < 0.05 (See FR-008).
+- **SC-001**: The predictive performance (RMSE) of the attention model is measured against the fingerprint-only baseline and the flattened-spectrum baseline to quantify the independent signal of spectral data (See FR-005). All metrics MUST be computed at runtime from real experimental data; no hardcoded or simulated values are permitted.
+- **SC-002**: The statistical significance of the performance improvement is measured against a null hypothesis of no difference using the Wilcoxon signed-rank test on per-sample errors, with Bonferroni correction applied (See FR-006, FR-018).
+- **SC-003**: The interpretability of the model is measured by the system's ability to retrieve NIST reference data for the specific functional groups present in the reactants and report whether attention peaks align with known frequencies or are identified as novel, using group-specific tolerances (e.g., ±100 cm⁻¹ for broad bands, ±20 cm⁻¹ for sharp peaks) (See FR-007, FR-012).
+- **SC-004**: The robustness of the model against overfitting is measured by the performance drop in the permutation test where yield labels are shuffled, requiring the mean R² of the permuted models to be < 0.05 (See FR-008).
 - **SC-005**: The computational feasibility is measured by the total execution time on a CPU-only runner, ensuring it completes within 6 hours (See US-2).
 
 ## Assumptions
 
-- **Dataset Availability**: It is assumed that a sufficient subset of reactions with paired experimental or high-fidelity simulated (DFT) spectra can be assembled from USPTO, NIST, ZINC, or MolSpectra within a feasible disk storage limit. If experimental data is insufficient, the project will pivot to simulated data with a clear limitation note.
-- **Compute Constraints**: The entire training and evaluation pipeline is assumed to run on a GitHub Actions free-tier runner (limited CPU cores, constrained RAM, no GPU). The model architecture and dataset size are scoped to fit within these constraints.
-- **Spectral Normalization**: It is assumed that resampling to a common grid and normalizing to unit variance is sufficient to align spectra from different sources (e.g., different instruments or simulation methods) for model ingestion.
-- **Reaction Yield Definition**: It is assumed that the "yield" values in the source datasets are consistent (0–100) and represent the final isolated yield, not conversion or theoretical yield.
-- **Template Leakage Prevention**: It is assumed that splitting by reaction template (reaction center substructure), combined with explicit encoding of reaction conditions, effectively prevents data leakage and ensures the model generalizes to new reaction types. This applies to the source SMILES regardless of whether spectra are experimental or simulated.
+- **Dataset Availability**: It is assumed that a sufficient subset of reactions with paired *real* experimental IR and ¹H-NMR spectra can be retrieved from the NIST Chemistry WebBook and PubChem APIs within the USPTO-50k dataset. If the API retrieval rate is < 50 samples ([deferred] retrieval), the project is considered infeasible for this specific research question and will be terminated with a `DATA_NOT_FOUND` report.
+- **Compute Constraints**: The entire training and evaluation pipeline is assumed to run on a GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM, no GPU). The model architecture and dataset size are scoped to fit within these constraints.
+- **Spectral Normalization**: It is assumed that resampling to a common grid and normalizing to unit variance is sufficient to align spectra from different sources (e.g., different instruments) for model ingestion.
+- **Reaction Yield Definition**: It is assumed that the "yield" values in the USPTO-50k dataset are consistent (0–100) and represent the final isolated yield, not conversion or theoretical yield.
+- **Template Leakage Prevention**: Splitting by reaction template (reaction center substructure), combined with explicit encoding of reaction conditions, reduces but does not guarantee full chemical environment independence. Scaffold splitting (FR-017) is required to address residual leakage risks.
 - **Threshold Justification**: The attention visualization threshold is set to a high percentile of weights by default, with a sensitivity analysis performed over a range of high-percentile thresholds to ensure robustness.
-- **Multiplicity Correction**: Since the evaluation involves multiple comparisons (attention model vs. multiple baselines), a Bonferroni correction will be applied to the p-values derived from the t-tests to control the family-wise error rate.
-- **Hypothesis Duality**: If experimental data is unavailable and the project pivots to simulated data, the research question is explicitly redefined to "Can a model learn to map simulated spectra to yield?" acknowledging that the claim of "independent predictive signal" cannot be validated with simulated data.
-- **Data Source Validity**: If simulated data is used, the system MUST verify via FR-015 and FR-016 that the simulation does not introduce circular dependencies or perfect collinearity between inputs, and any such findings must be reported as limitations.
+- **Multiplicity Correction**: Since the evaluation involves multiple comparisons (attention model vs. multiple baselines), a Bonferroni correction will be applied to the p-values derived from the Wilcoxon tests to control the family-wise error rate.
+- **No Simulated Data for Primary Claim**: This project assumes that *real* experimental data is required to validate the hypothesis of "independent predictive signal." Simulated data (DFT) is explicitly excluded from the primary scientific claim to avoid fabricated results; if real data is unavailable, the project scope is invalid.
+- **Data Source Validity**: The NIST Chemistry WebBook and PubChem APIs are assumed to be accessible and return valid spectral data for the queried compounds.
+- **No Fabricated Metrics**: All performance metrics (RMSE, R², p-values) MUST be computed at runtime from real experimental data. No hardcoded, simulated, or placeholder metric values are permitted in the final report. State logs in `state/` MUST record the actual computation source.

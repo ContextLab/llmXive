@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2206.04801",
+  "judged_at": "2026-08-13T08:58:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "rationale": "The paper focuses on relation prediction in knowledge graphs using attention mechanisms, which is a distinct domain from predicting chemical reaction yields from spectroscopic data. While both utilize \"attention mechanisms,\" the paper does not measure the same biological/chemical pathway, physical observable, or empirical population (spectroscopic data vs. graph entities), nor does it establish a baseline for the specific chemical prediction task, failing to meet criteria (a) through (f).",
+  "relevant": false
+}

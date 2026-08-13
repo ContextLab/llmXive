@@ -28,6 +28,13 @@ properties:
     minItems: 200
     maxItems: 200
     description: "Resampled NMR spectrum (0-10 ppm)."
+  raman_spectrum:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 200
+    maxItems: 200
+    description: "Resampled Raman spectrum (400-4000 cm-1)."
   rfp:
     type: "array"
     items:
@@ -62,6 +69,7 @@ required:
   - yield_percent
   - ir_spectrum
   - nmr_spectrum
+  - raman_spectrum
   - rfp
   - reaction_template_id
   - source

@@ -11,7 +11,7 @@ properties:
     properties:
       rmse:
         type: "number"
-        description: "Root Mean Squared Error."
+        description: "Root Mean Square Error."
         minimum: 0.0
       mae:
         type: "number"
@@ -33,6 +33,9 @@ properties:
       bonferroni_corrected_p_value:
         type: "number"
         description: "Bonferroni-corrected p-value."
+      wilcoxon_p_value:
+        type: "number"
+        description: "P-value from Wilcoxon signed-rank test."
       permutation_test_r_squared:
         type: "number"
         description: "R-squared from permutation test (should be < 0.05)."
@@ -53,9 +56,24 @@ properties:
         description: "Percentage of peaks within 50 cm-1 of simulated injection points."
         minimum: 0.0
         maximum: 100.0
+      sensitivity_analysis:
+        type: "object"
+        description: "Robustness across Top 1%, 5%, 10% thresholds."
+        properties:
+          top_1_percent_consistency:
+            type: "number"
+          top_5_percent_consistency:
+            type: "number"
+          top_10_percent_consistency:
+            type: "number"
+        required:
+          - top_1_percent_consistency
+          - top_5_percent_consistency
+          - top_10_percent_consistency
     required:
       - top_peaks_wavenumbers
       - nist_alignment_score
+      - sensitivity_analysis
   vif_score:
     type: "number"
     description: "Variance Inflation Factor between spectral and fingerprint inputs."
