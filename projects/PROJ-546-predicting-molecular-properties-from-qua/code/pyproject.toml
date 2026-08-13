@@ -1,3 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "molecular-properties-pipeline"
+version = "0.1.0"
+description = "Predicting molecular properties from quantum chemical calculations"
+requires-python = ">=3.11"
+dependencies = [
+    "scikit-learn",
+    "pandas",
+    "rdkit",
+    "requests",
+    "pytest",
+]
+
 [tool.black]
 line-length = 100
 target-version = ['py311']
@@ -5,18 +22,25 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
+
+[tool.ruff]
+# Inherit configuration from .ruff.toml for consistency, but allow project-specific overrides here if needed.
+# The primary lint rules are defined in .ruff.toml to keep the root clean.
+line-length = 88
+target-version = "py311"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"

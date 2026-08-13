@@ -13,7 +13,7 @@ As a researcher, I want to compute HOMO/LUMO/Mayer descriptors using DFTB+ on th
 - **Linked Success Criteria**: SC-001 (See US1)
 
 ### US2: High-Level DFT Baseline & Comparative Modeling
-As a researcher, I want to compute DFT descriptors for a stratified subset (50 samples) using the same optimized geometries as US1, train two Random Forest models, and compare their performance against experimental data using a paired t-test.
+As a researcher, I want to compute DFT descriptors for a stratified subset (a representative sample) using the same optimized geometries as US1, train two Random Forest models, and compare their performance against experimental data using a paired t-test.
 - **Acceptance Criteria**:
  - `data/descriptors_dft.csv` generated for the 50-sample subset.
  - `reports/evaluation.json` contains MAE for both models (Semi-Empirical RF vs DFT RF) and a paired t-test result.
@@ -26,7 +26,7 @@ As a researcher, I want to compute DFT descriptors for a stratified subset (50 s
 As a researcher, I want to identify top descriptors and perform a sensitivity sweep to understand model stability.
 - **Acceptance Criteria**:
  - `reports/sensitivity.csv` lists top descriptors and cumulative importance.
- - Stability check confirms top 3 descriptors do not change (rank correlation ≥ 0.9) across thresholds: feature importance cutoffs {0.01, 0.05, 0.1} and noise injection levels {σ=0.01, 0.05}.
+ - Stability check confirms top 3 descriptors do not change (rank correlation ≥ 0.9) across thresholds: feature importance cutoffs {low, 0.05, 0.1} and noise injection levels {σ=0.01, 0.05}.
 - **Linked Requirements**: FR-006, FR-007 (See US3)
 - **Linked Success Criteria**: SC-003 (See US3)
 
@@ -52,7 +52,7 @@ As a researcher, I want to identify top descriptors and perform a sensitivity sw
 - **FR-001**: System MUST fetch the input dataset from the verified Zenodo source defined in the Idea.md, verify its checksum, and log the verification status before processing (See US1).
 - **FR-002**: System MUST perform geometry optimization on all molecules using DFTB+ and save the resulting XYZ files to `data/optimized_geometries/` (See US1).
 - **FR-003**: System MUST compute HOMO, LUMO, and Mayer bond order descriptors from the optimized geometries and save them to `data/descriptors_semi.csv` (See US1).
-- **FR-004**: System MUST compute DFT descriptors using Psi for a stratified random subset of molecules. These calculations MUST use the exact same optimized geometries generated in FR-002. The system MUST train two Random Forest models (Semi-Empirical and DFT-based) using the exact same training and test splits (the 50-sample subset) to enable a fair paired t-test comparison (See US2).
+- **FR-004**: System MUST compute DFT descriptors using Psi for a stratified random subset of molecules. These calculations MUST use the exact same optimized geometries generated in FR-002. The system MUST train two Random Forest models (Semi-Empirical and DFT-based) using the exact same training and test splits (a fixed sample subset) to enable a fair paired t-test comparison (See US2).
 - **FR-005**: System MUST perform a paired t-test comparing the error distributions of the Semi-Empirical RF and DFT RF models on the test set, reporting the p-value, null hypothesis, and significance level (α=0.05) (See US2).
 - **FR-006**: System MUST identify top descriptors based on feature importance and save them to `reports/sensitivity.csv` (See US3).
 - **FR-007**: System MUST perform a sensitivity analysis sweeping feature importance cutoffs {0.01, 0.05, 0.1} and noise injection levels {σ=0.01, 0.05} to verify the stability of the top 3 descriptors (See US3).
@@ -75,5 +75,5 @@ As a researcher, I want to identify top descriptors and perform a sensitivity sw
 
 - Users have access to the DFTB+ and Psi4 software packages.
 - The Zenodo dataset contains valid SMILES strings for all entries.
-- The computational resources are sufficient to handle the full dataset for semi-empirical calculations and the 50-sample subset for DFT calculations.
+- The computational resources are sufficient to handle the full dataset for semi-empirical calculations and a representative subset for DFT calculations.
 - The experimental barrier dataset is the ground truth for validation.

@@ -1,66 +1,62 @@
 """
-Test task T003: Verify linting and formatting configuration.
-
-This test ensures that ruff and black are correctly configured
-and can be invoked without errors against the codebase.
+Unit tests for T003: Linting and Formatting Configuration.
+Verifies that configuration files exist, are non-empty, and contain expected keys.
 """
-import subprocess
-import sys
 import os
+import sys
+import toml
+import pytest
 from pathlib import Path
 
-import pytest
+# Add code directory to path for imports if needed, though we mostly check files
+CODE_DIR = Path(__file__).parent.parent / "code"
 
-PROJECT_ROOT = Path(__file__).parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
+@pytest.fixture
+def ruff_config_path():
+    return CODE_DIR / ".ruff.toml"
 
-def test_ruff_config_exists():
-    """Verify ruff configuration file exists."""
-    ruff_config = PROJECT_ROOT / "ruff.toml"
-    assert ruff_config.exists(), "ruff.toml must exist in project root"
-    content = ruff_config.read_text()
-    assert "select" in content, "ruff.toml must define lint rules"
-    assert "E" in content or "F" in content, "ruff.toml must include standard checks"
+@pytest.fixture
+def pyproject_path():
+    return CODE_DIR / "pyproject.toml"
 
-def test_black_config_exists():
-    """Verify black configuration exists in pyproject.toml."""
-    pyproject = PROJECT_ROOT / "pyproject.toml"
-    assert pyproject.exists(), "pyproject.toml must exist"
-    content = pyproject.read_text()
-    assert "[tool.black]" in content, "pyproject.toml must contain black config"
-    assert "line-length" in content, "black config must define line-length"
+@pytest.fixture
+def requirements_path():
+    return CODE_DIR / "requirements.txt"
 
-def test_ruff_can_run():
-    """Verify ruff can be executed against the codebase."""
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", str(CODE_DIR)],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        # ruff returns 0 if no errors, 1 if errors found. 
-        # We just want to ensure it runs and doesn't crash (exit code 2 or signal).
-        assert result.returncode in (0, 1), f"Ruff crashed: {result.stderr}"
-    except FileNotFoundError:
-        pytest.skip("ruff not installed in environment")
-    except subprocess.TimeoutExpired:
-        pytest.fail("Ruff execution timed out")
+def test_ruff_config_exists(ruff_config_path):
+    """Verify .ruff.toml exists."""
+    assert ruff_config_path.exists(), "ruff config file .ruff.toml must exist"
 
-def test_black_can_run():
-    """Verify black can be executed against the codebase."""
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "black", "--check", "--diff", str(CODE_DIR)],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        # black returns 0 if formatted correctly, 1 if changes needed.
-        assert result.returncode in (0, 1), f"Black crashed: {result.stderr}"
-    except FileNotFoundError:
-        pytest.skip("black not installed in environment")
-    except subprocess.TimeoutExpired:
-        pytest.fail("Black execution timed out")
+def test_ruff_config_not_empty(ruff_config_path):
+    """Verify .ruff.toml is not empty."""
+    assert ruff_config_path.stat().st_size > 0, "ruff config file must not be empty"
+
+def test_ruff_config_valid_toml(ruff_config_path):
+    """Verify .ruff.toml is valid TOML and contains 'lint' section."""
+    with open(ruff_config_path, "r") as f:
+        config = toml.load(f)
+    assert "lint" in config, "ruff config must contain [lint] section"
+    assert "select" in config["lint"], "ruff config must specify rules to select"
+
+def test_black_config_exists(pyproject_path):
+    """Verify pyproject.toml exists."""
+    assert pyproject_path.exists(), "pyproject.toml must exist"
+
+def test_black_config_not_empty(pyproject_path):
+    """Verify pyproject.toml is not empty."""
+    assert pyproject_path.stat().st_size > 0, "pyproject.toml must not be empty"
+
+def test_black_config_valid_toml(pyproject_path):
+    """Verify pyproject.toml is valid TOML and contains 'tool.black' section."""
+    with open(pyproject_path, "r") as f:
+        config = toml.load(f)
+    assert "tool" in config, "pyproject.toml must contain [tool] section"
+    assert "black" in config["tool"], "pyproject.toml must contain [tool.black] section"
+    assert "line-length" in config["tool"]["black"], "black config must specify line-length"
+    assert config["tool"]["black"]["line-length"] == 88, "black line-length should be 88"
+
+def test_requirements_includes_dev_tools(requirements_path):
+    """Verify requirements.txt includes black and ruff."""
+    content = requirements_path.read_text()
+    assert "black" in content.lower(), "requirements.txt must include black"
+    assert "ruff" in content.lower(), "requirements.txt must include ruff"

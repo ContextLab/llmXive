@@ -1169,339 +1169,268 @@
   updated_at: '2026-08-04T17:36:02Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
   attempts: 1
-  canonical: stratified random subset of 50 samples binned into 5 quantiles
-  claim_id: c_b91b20ad
-  context: 'Subset Selection: Select a stratified random subset of 50 valid samples
-    from the full dataset, stratified by experimental_barrier (binned into 5 quantiles),
-    and verify statistical validity (balance across bins) before proceeding.'
+  canonical: Psi4 B3LYP/def2-SVP calculations performed on stratified subset of 50
+    samples
+  claim_id: c_0f516174
+  context: 'Phase 4: User Story 2 - High-Level DFT Baseline & Comparative Modeling.
+    T020 explicitly requires importing optimized geometries to ensure identical molecular
+    geometries.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Select a stratified random subset of 50 valid samples from the full dataset,
-    stratified by experimental_barrier (binned into 5 quantiles).
+  raw_text: Implement code/dft_calculator.py to invoke Psi4 for B3LYP/def2-SVP on
+    a stratified random subset of 50 valid samples (stratified by experimental_barrier
+    bins).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-13T00:05:05Z'
+  updated_at: '2026-08-13T00:41:35Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
   attempts: 1
-  canonical: noise injection sigma 0.01 and 0.05
-  claim_id: c_c1ee949d
-  context: "Implement code/generate_thresholded_descriptors.py to prepare data for\
-    \ the sensitivity sweep by applying noise injection (\u03C3=0.01, 0.05) and preparing\
-    \ datasets for feature importance cutoffs."
+  canonical: Pipeline runtime validation threshold is 6 hours with peak memory limit
+    of 7 GB
+  claim_id: c_53e1f30e
+  context: 'Phase 6: Pipeline Validation & Polish. T033b validates runtime logs from
+    the full pipeline execution.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Apply noise injection with sigma values of 0.01 and 0.05.
+  raw_text: "Verify total runtime \u2264 6 hours and peak memory \u2264 7 GB per Constitution\
+    \ Principle VII (Resource-Bound Execution)."
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-13T00:05:20Z'
+  updated_at: '2026-08-13T00:41:35Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
   attempts: 1
-  canonical: total runtime less than or equal to 6 hours
-  claim_id: c_805d4525
-  context: "Validate runtime logs from T033a: verify total runtime \u2264 6 hours\
-    \ and peak memory \u2264 7 GB per Constitution Principle VII (Resource-Bound Execution)\
-    \ and write validation result to reports/runtime_validation.json."
+  canonical: Sensitivity analysis sweep parameters include feature importance cutoffs
+    0.01, 0.05, 0.1 and noise levels 0.01, 0.05
+  claim_id: c_6347d1ce
+  context: 'Phase 5: User Story 3 - Feature Importance & Sensitivity Analysis. T031
+    implements the sweep using outputs from T030b.'
   evidence:
-    fill:
-      channel: wikipedia
-      conflicts: []
-      quote: The film's storyline draws loose inspiration from multiple real-life
-        geopolitical events and conflicts in South Asia, including the 1999 IC-814
-        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
-        developments linked to Pakistan's Operation Lyari. Principal photography for
-        Dhurandhar took place from July 2024 to October 2025 across multiple locations
-        in India and abroad, including the states and union territories of Punjab,
-        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
-        The film features music composed by Shashwat Sachdev, cinematography by Vikash
-        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
-        Dhurandhar ranks as one of the longest Indian films ever produced.
-      source_id: Dhurandhar
-      url: https://en.wikipedia.org/wiki/Dhurandhar
-      value: 214 minutes
-    filled: true
-  kind: magnitude
-  raw_text: Verify total runtime is less than or equal to 6 hours.
-  resolved_value: 214 minutes
-  resolver: fill:wikipedia
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity sweep over feature importance cutoffs {0.01, 0.05,\
+    \ 0.1} and noise injection levels {\u03C3=0.01, 0.05}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
-  status: verified
-  updated_at: '2026-08-13T00:05:41Z'
+  status: not_enough_info
+  updated_at: '2026-08-13T00:42:00Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
   attempts: 1
-  canonical: semi-MAE exceeds DFT-MAE by more than 20 percent
-  claim_id: c_39a49dbf
-  context: 'Implement logic to compute MAE flags: 1) Flag if semi-MAE exceeds DFT-MAE
-    by >20%. (spec.md US2).'
+  canonical: Descriptor stability threshold defined as Spearman's rank correlation
+    rho >= 0.9
+  claim_id: c_e6ec8a17
+  context: 'Phase 5: User Story 3 - Feature Importance & Sensitivity Analysis. T032a
+    verifies stability of top descriptors across sweep combinations.'
   evidence:
-    candidates_found: 1
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Descriptor_stability_threshold_defined_as_Spearman's_rank_co
+  kind: causal
+  raw_text: Record result in reports/sensitivity.csv where stable = True if rho >=
+    0.9.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:42:03Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Gaussian noise injection levels of sigma 0.01 and 0.05 applied to descriptor
+    features
+  claim_id: c_ecb319c3
+  context: 'Phase 5: User Story 3 - Feature Importance & Sensitivity Analysis. T030b
+    implements noise injection for perturbed datasets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Inject Gaussian noise (\u03C3=0.01, \u03C3=0.05) into the descriptor\
+    \ features of the training set."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:42:31Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Independent test for User Story 1 requires 50 molecules with 50 rows
+    in output file
+  claim_id: c_55483142
+  context: 'Phase 3: User Story 1 - Semi-Empirical Descriptor Generation. Independent
+    test definition for the MVP.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on 50 molecules; verify descriptors_semi.csv has 50 rows, no NaN,
+    HOMO/LUMO in eV, charges sum to net charge.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:42:43Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: MAE flag condition triggers when semi-empirical MAE exceeds DFT MAE by
+    more than 20 percent
+  claim_id: c_aab0a183
+  context: 'Phase 4: User Story 2 - High-Level DFT Baseline & Comparative Modeling.
+    T023 implements logic to compute MAE flags.'
+  evidence:
+    candidates_found: 0
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Semi-MAE_exceeds_DFT-MAE_by_more_than_20_percent
+    source_url: https://en.wikipedia.org/wiki/MAE_flag_condition_triggers_when_semi-empirical_MAE_exceeds
   kind: magnitude
-  raw_text: Flag if semi-MAE exceeds DFT-MAE by more than 20%.
+  raw_text: Flag if semi-MAE exceeds DFT-MAE by >20%.
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-13T00:06:03Z'
+  updated_at: '2026-08-13T00:43:21Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
   attempts: 1
-  canonical: feature importance cutoffs 0.01, 0.05, 0.1
-  claim_id: c_2bd2df11
-  context: "Implement sensitivity sweep over feature importance cutoffs {0.01, 0.05,\
-    \ 0.1} and noise injection levels {\u03C3=0.01, 0.05} (spec.md US3) using the\
-    \ output of T030b."
+  canonical: fetch experimental barrier dataset from Zenodo
+  claim_id: c_7e4a2dcf
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004 [P] Implement code/download_data.py
+    to fetch experimental barrier dataset from Zenodo (spec.md Data Model) with checksum
+    verification'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_experimental_barrier_dataset_from_Zenodo
+  kind: entity_fact
+  raw_text: Implement code/download_data.py to fetch experimental barrier dataset
+    from Zenodo (spec.md Data Model) with checksum verification
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T00:49:21Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: invoke Psi4 for B3LYP/def2-SVP on a stratified random subset of 50 valid
+    samples
+  claim_id: c_f02a8db9
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T020 [US2] Implement
+    code/dft_calculator.py to invoke Psi4 for B3LYP/def2-SVP on a stratified random
+    subset of 50 valid samples (stratified by experimental_barrier bins).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Sweep feature importance cutoffs at 0.01, 0.05, and 0.1.
+  raw_text: Implement code/dft_calculator.py to invoke Psi4 for B3LYP/def2-SVP on
+    a stratified random subset of 50 valid samples (stratified by experimental_barrier
+    bins)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-13T00:09:21Z'
+  updated_at: '2026-08-13T00:49:21Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
   attempts: 1
-  canonical: integration test on 50 molecules
-  claim_id: c_281e5795
-  context: Integration test for code/generate_descriptors.py on 50 molecules in tests/test_descriptors.py
+  canonical: inject Gaussian noise with sigma 0.01 and 0.05 into descriptor features
+  claim_id: c_1c52119b
+  context: "Phase 5: User Story 3 - Implementation for User Story 3 - T030b [US3]\
+    \ [FR-007] Implement code/noise_injection.py to inject Gaussian noise (\u03C3\
+    =0.01, \u03C3=0.05) into the descriptor features of the training set."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Run integration test on 50 molecules.
+  raw_text: "Implement code/noise_injection.py to inject Gaussian noise (\u03C3=0.01,\
+    \ \u03C3=0.05) into the descriptor features of the training set"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-13T00:10:39Z'
+  updated_at: '2026-08-13T00:50:32Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
   attempts: 1
-  canonical: Python version 3.11
-  claim_id: c_0e9c93d9
-  context: Initialize Python 3.11 project with requirements.txt (scikit-learn, pandas,
-    rdkit, requests)
+  canonical: sweep feature importance cutoffs 0.01, 0.05, 0.1 and noise levels 0.01,
+    0.05
+  claim_id: c_10450781
+  context: "Phase 5: User Story 3 - Implementation for User Story 3 - T031 [US3] Implement\
+    \ sensitivity sweep over feature importance cutoffs {0.01, 0.05, 0.1} and noise\
+    \ injection levels {\u03C3=0.01, 0.05} (spec.md US3) using the outputs from T030b."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Use Python 3.11.
+  raw_text: "Implement sensitivity sweep over feature importance cutoffs {0.01, 0.05,\
+    \ 0.1} and noise injection levels {\u03C3=0.01, 0.05}"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-13T00:10:52Z'
+  updated_at: '2026-08-13T00:50:32Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
   attempts: 1
-  canonical: stratified random subset of 50 samples binned into 5 quantiles by experimental
-    barrier
-  claim_id: c_ecebc52e
-  context: 'Subset Selection: Select a stratified random subset of 50 valid samples
-    from the full dataset, stratified by experimental_barrier (binned into 5 quantiles),
-    and verify statistical validity (balance across bins) before proceeding.'
+  canonical: compute Spearman's rank correlation of top 3 descriptors across sweep
+    combinations
+  claim_id: c_7aaedf4c
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T032a [US3]
+    Implement logic to verify stability of top descriptors (spec.md US3) by computing
+    Spearman''s rank correlation of the top 3 descriptors across all sweep combinations.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Select a stratified random subset of 50 valid samples from the full dataset,
-    stratified by experimental_barrier (binned into 5 quantiles)
+  raw_text: Compute Spearman's rank correlation of the top 3 descriptors across all
+    sweep combinations
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-13T00:12:21Z'
+  updated_at: '2026-08-13T00:51:06Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  attempts: 2
-  canonical: peak memory less than or equal to 7 GB
-  claim_id: c_edd5a05c
-  context: "Validate runtime logs from T033a: verify total runtime \u2264 6 hours\
-    \ and peak memory \u2264 7 GB per Constitution Principle VII (Resource-Bound Execution)\
-    \ and write validation result to reports/runtime_validation.json."
+  attempts: 1
+  canonical: stability threshold rho greater than or equal to 0.9
+  claim_id: c_745a5ebe
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T032a [US3]
+    ... Threshold: stable = True if rho >= 0.9. Record result in reports/sensitivity.csv.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Peak_memory_less_than_or_equal_to_7_GB
+    source_url: https://en.wikipedia.org/wiki/Stability_threshold_rho_greater_than_or_equal_to_0.9
   kind: magnitude
-  raw_text: Verify peak memory is less than or equal to 7 GB.
+  raw_text: 'Threshold: stable = True if rho >= 0.9'
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-13T00:12:27Z'
+  updated_at: '2026-08-13T00:51:41Z'
 - artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
   attempts: 1
-  canonical: noise injection sigma values 0.01 and 0.05
-  claim_id: c_d8dd88a0
-  context: "Implement code/generate_thresholded_descriptors.py to prepare data for\
-    \ the sensitivity sweep by applying noise injection (\u03C3=0.01, 0.05) and preparing\
-    \ datasets for feature importance cutoffs."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "noise injection (\u03C3=0.01, 0.05)"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-13T00:13:04Z'
-- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  attempts: 1
-  canonical: sensitivity sweep feature importance cutoffs 0.01 0.05 0.1
-  claim_id: c_38b8ddf7
-  context: "Implement sensitivity sweep over feature importance cutoffs {0.01, 0.05,\
-    \ 0.1} and noise injection levels {\u03C3=0.01, 0.05} (spec.md US3) using the\
-    \ output of T030b."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: sensitivity sweep over feature importance cutoffs {0.01, 0.05, 0.1}
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-13T00:13:34Z'
-- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  attempts: 2
-  canonical: top 3 descriptors change 0 times across sweep
-  claim_id: c_de9b74b8
-  context: Implement logic to verify stability of top descriptors (spec.md US3) by
-    checking if the top 3 descriptors change 0 times (change < 1 time) across the
-    sweep and recording the result in reports/sensitivity.csv.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Verify if the top 3 descriptors change 0 times across the sweep.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-13T00:13:34Z'
-- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  attempts: 1
-  canonical: semi-MAE exceeds DFT-MAE by greater than 20 percent
-  claim_id: c_44680182
-  context: 'Implement logic to compute MAE flags: 1) Flag if semi-MAE exceeds DFT-MAE
-    by >20%. (spec.md US2).'
+  canonical: verify total runtime less than or equal to 6 hours and peak memory less
+    than or equal to 7 GB
+  claim_id: c_e97b2ba3
+  context: "Phase 6: Pipeline Validation & Polish - T033b [P] Validate runtime logs\
+    \ from T033a: verify total runtime \u2264 6 hours and peak memory \u2264 7 GB\
+    \ per Constitution Principle VII (Resource-Bound Execution) and write validation\
+    \ result to reports/runtime_validation.json."
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Semi-MAE_exceeds_DFT-MAE_by_greater_than_20_percent
+    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_less_than_or_equal_to_6_hours_and_peak
   kind: magnitude
-  raw_text: Flag if semi-MAE exceeds DFT-MAE by >20%
+  raw_text: "verify total runtime \u2264 6 hours and peak memory \u2264 7 GB per Constitution\
+    \ Principle VII (Resource-Bound Execution)"
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-13T00:13:54Z'
-- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  attempts: 1
-  canonical: retry once with different initial guess
-  claim_id: c_21d2c6f7
-  context: 'Retry Logic: 1) If geometry optimization fails, retry ONCE with different
-    initial guess. 2) If HOMO_energy >= LUMO_energy (Physical Invalidity), retry ONCE
-    the descriptor calculation with a different initial guess.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Retry_once_with_different_initial_guess
-  kind: entity_fact
-  raw_text: Retry ONCE with different initial guess
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-13T00:14:29Z'
-- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  attempts: 1
-  canonical: verify descriptors_semi.csv rows no NaN HOMO LUMO in eV charges sum to
-    net charge
-  claim_id: c_309955fa
-  context: 'Independent Test: Run on a representative set of molecules; verify descriptors_semi.csv
-    has a corresponding number of rows, no NaN, HOMO/LUMO in eV, charges sum to net
-    charge.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Verify_descriptors_semi.csv_rows_no_NaN_HOMO_LUMO_in_eV_char
-  kind: entity_fact
-  raw_text: Run on a representative set of molecules; verify descriptors_semi.csv
-    has a corresponding number of rows, no NaN, HOMO/LUMO in eV, charges sum to net
-    charge
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-13T00:15:04Z'
-- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  attempts: 1
-  canonical: verify output reports MAE_semi MAE_DFT p-value flags comparison against
-    experimental ground truth
-  claim_id: c_26ad4676
-  context: 'Independent Test: Run on subset; verify output reports MAE_semi, MAE_DFT,
-    p-value, flags, and explicit comparison against experimental ground truth.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Verify_output_reports_MAE_semi_MAE_DFT_p-value_flags_compari
-  kind: entity_fact
-  raw_text: Run on subset; verify output reports MAE_semi, MAE_DFT, p-value, flags,
-    and explicit comparison against experimental ground truth
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-13T00:15:41Z'
-- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  attempts: 1
-  canonical: verify output lists top descriptors cumulative sum and MAE table for
-    threshold percentiles
-  claim_id: c_5b5a4f92
-  context: 'Independent Test: Run analysis; verify output lists top descriptors, cumulative
-    sum, and MAE table for a set of threshold percentiles.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Verify_output_lists_top_descriptors_cumulative_sum_and_MAE_t
-  kind: entity_fact
-  raw_text: Run analysis; verify output lists top descriptors, cumulative sum, and
-    MAE table for a set of threshold percentiles
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-13T00:16:48Z'
-- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  attempts: 1
-  canonical: integration test generate_descriptors.py on 50 molecules
-  claim_id: c_e0d270cb
-  context: T012 [US1] Integration test for code/generate_descriptors.py on 50 molecules
-    in tests/test_descriptors.py
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Integrate test for code/generate_descriptors.py on 50 molecules
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-13T00:17:32Z'
+  updated_at: '2026-08-13T00:52:05Z'

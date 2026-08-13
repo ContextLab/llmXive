@@ -1,3 +1,9 @@
+[project]
+name = "molecular-property-prediction"
+version = "0.1.0"
+description = "Predicting molecular properties from quantum chemical calculations"
+requires-python = ">=3.11"
+
 [tool.black]
 line-length = 88
 target-version = ["py311"]
@@ -17,15 +23,13 @@ exclude = '''
 '''
 
 [tool.ruff]
+# Same as .ruff.toml for IDE compatibility if needed, but .ruff.toml is primary
 line-length = 88
 target-version = "py311"
-include = ["code/**/*.py", "tests/**/*.py"]
 
 [tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4"]
-ignore = ["E501"]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008", "C901"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]

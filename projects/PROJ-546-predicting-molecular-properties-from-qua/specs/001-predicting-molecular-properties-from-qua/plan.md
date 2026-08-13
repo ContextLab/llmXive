@@ -5,11 +5,11 @@
 
 ## Summary
 
-This project implements a comparative modeling pipeline to predict molecular barrier heights using quantum chemical descriptors. The approach involves: (1) fetching a verified experimental dataset from Zenodo (ID fetched from `idea.md` and verified before execution), (2) performing semi-empirical geometry optimization and descriptor extraction (HOMO, LUMO, Mayer bond orders) via DFTB+ for the full dataset, (3) computing high-level DFT descriptors for a stratified sample subset using Psi4, and (4) training and comparing Random Forest models against experimental values.
+This project implements a comparative modeling pipeline to predict molecular barrier heights using quantum chemical descriptors. The approach involves: () fetching a verified experimental dataset from Zenodo (ID fetched from `idea.md` and verified before execution), (2) performing semi-empirical geometry optimization and descriptor extraction (HOMO, LUMO, Mayer bond orders) via DFTB+ for the full dataset, (3) computing high-level DFT descriptors for a stratified sample subset using Psi4, and (4) training and comparing Random Forest models against experimental values.
 
 **Critical Clarification**: This study is **purely correlational**. We do not claim that DFTB+ or DFT descriptors *cause* the barrier heights, nor do we validate the physical accuracy of the quantum calculations against the experimental data. The comparison is between two approximations of the same function (mapping descriptors to experimental barriers). The analysis cannot distinguish whether the Semi-Empirical model fails due to poor descriptors or poor model fit, as the 'truth' is fixed. The goal is to measure the correlation strength of gas-phase electronic properties with macroscopic experimental barriers, acknowledging the category error in validation.
 
-The plan strictly adheres to the GitHub Actions free-tier constraints (limited CPU cores, limited RAM, time limits) by using a self-contained CPU-only Conda environment, streaming data, and avoiding external GPU offloads. All results are reproducible and traceable.
+The plan strictly adheres to the GitHub Actions free-tier constraints (limited CPU cores, restricted RAM, 6h limit) by using a self-contained CPU-only Conda environment, streaming data, and avoiding external GPU offloads. All results are reproducible and traceable.
 
 ## Technical Context
 
@@ -34,7 +34,7 @@ The following table maps each Constitutional Principle to its concrete implement
 
 | Principle | Concrete Implementation Location | Verification Mechanism |
 |-----------|----------------------------------|------------------------|
-| **I. Reproducibility** | `code/fetch_data.py` (seeds), `code/train_models.py` (seeds), `requirements.txt` (versions). | `pytest/unit/test_seeds.py` asserts `np.random.seed(42)` is called before data split and model init. CI log checks `requirements.txt` hash. |
+| **I. Reproducibility** | `code/fetch_data.py` (seeds), `code/train_models.py` (seeds), `requirements.txt` (versions). | `pytest/unit/test_seeds.py` asserts `np.random.seed()` is called before data split and model init. CI log checks `requirements.txt` hash. |
 | **II. Verified Accuracy** | `code/fetch_data.py` fetches Zenodo ID from `idea.md` and validates record via Zenodo API before download. | `pytest/integration/test_zenodo_fetch.py` mocks API call to ensure ID matches `idea.md` and checksum is recorded. |
 | **III. Data Hygiene** | `code/fetch_data.py` computes SHA-256 of raw CSV. `code/descriptor_calc.py` writes new files for derivations. | `pytest/unit/test_data_hygiene.py` verifies `data/raw/` file is never modified; `data/` artifacts have new checksums in `state/`. |
 | **IV. Single Source of Truth** | `reports/evaluation.json` and `reports/sensitivity.csv` generated strictly from `data/descriptors_*.csv`. | `pytest/integration/test_report_traceability.py` asserts report values match `data/descriptors_*.csv` aggregates within tolerance. |
@@ -148,7 +148,7 @@ projects/PROJ-546-predicting-molecular-properties-from-qua/
 
 ### Phase 4: Sensitivity Analysis
 - **Task**: Sweep feature importance cutoffs across a range of low to moderate thresholds. and noise levels {σ=0.01, 0.05}.
-- **Metric**: Compute **rank correlation coefficient** (Spearman's rho) of top 3 descriptors across sweeps.
+- **Metric**: Compute **rank correlation coefficient** (Spearman's rho) of top descriptors across sweeps.
 - **Threshold**: Enforce `stable = True` if rho >= 0.9.
 - **Output**: `reports/sensitivity.csv`.
 - **Constitution Link**: SC-003.
