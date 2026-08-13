@@ -1,81 +1,65 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-$id: "https://llmxive.org/schemas/ceramic_entry.schema.yaml"
-title: "Ceramic Entry"
-description: |
-  Schema for a single ceramic material entry containing stoichiometry,
-  processing conditions, and target properties. Used for ingestion and
-  validation of raw/processed data.
 type: object
-required:
-  - composition
-  - weibull_modulus
-  - source_id
-  - primary_anion_cation_group
 properties:
   composition:
     type: string
-    description: "Chemical formula string (e.g., 'Al2O3', 'Y3Al5O12'). Must be parseable by chemparse."
-    pattern: "^[A-Z][a-z]?[0-9]*([A-Z][a-z]?[0-9]*)*$"
-    
+    description: Chemical formula string, e.g., 'Al2O3'
   weibull_modulus:
     type: number
-    description: "Weibull modulus (m) of the ceramic."
-    minimum: 0
-    
+    description: The Weibull modulus (m) value
   sample_count:
     type: integer
-    description: "Number of samples tested (N). Used for filtering (N >= 30)."
     minimum: 1
-    
+    description: Number of samples used for measurement (N)
   is_range_flag:
     type: boolean
-    description: "True if the weibull_modulus was originally a range."
-    
+    description: True if weibull_modulus was a range midpoint
   range_original:
-    type: string
-    nullable: true
-    description: "Original range string (e.g., '10-15') if is_range_flag is true."
-    
-  range_uncertainty:
-    type: number
-    nullable: true
-    description: "Calculated uncertainty (max-min)/2 if is_range_flag is true."
-    
-  primary_anion_cation_group:
-    type: string
-    description: "Derived grouping based on primary anion/cation groups (e.g., 'Group_IIIA-Group_VIA')."
-    
-  sintering_temp:
-    type: number
-    nullable: true
-    description: "Sintering temperature in Celsius."
-    
+    anyOf:
+      - type: string
+      - type: 'null'
+    description: Original range string if is_range_flag is True
   is_imputed:
     type: boolean
-    description: "True if any fields were imputed during cleaning."
-    
-  source_id:
-    type: string
-    description: "Unique identifier for the source (URL, DOI, or internal ID)."
-    
-  source_url:
-    type: string
-    format: uri
-    nullable: true
-    description: "Source URL if available."
-    
-  doi:
-    type: string
-    nullable: true
-    description: "DOI if available."
-    
-  raw_metadata:
-    type: object
-    nullable: true
-    description: "Additional metadata from the source."
-    
-  processed_at:
-    type: string
-    format: date-time
-    description: "Timestamp of data processing."
-additionalProperties: false
+    description: True if any descriptors were imputed
+  primary_anion_cation_group:
+    anyOf:
+      - type: string
+      - type: 'null'
+    description: e.g., 'O-Al', 'N-Si'
+  sintering_temp:
+    anyOf:
+      - type: number
+      - type: 'null'
+    description: Sintering temperature in Kelvin
+  mean_atomic_radius:
+    anyOf:
+      - type: number
+      - type: 'null'
+    minimum: 0.0
+    description: Mean atomic radius of cations
+  electronegativity_std:
+    anyOf:
+      - type: number
+      - type: 'null'
+    minimum: 0.0
+    description: Std dev of electronegativity
+  valence_electron_concentration:
+    anyOf:
+      - type: number
+      - type: 'null'
+    minimum: 0.0
+    description: Valence electron concentration
+  cation_size_variance:
+    anyOf:
+      - type: number
+      - type: 'null'
+    minimum: 0.0
+  range_uncertainty:
+    anyOf:
+      - type: number
+      - type: 'null'
+    minimum: 0.0
+required:
+  - composition
+  - weibull_modulus
+  - sample_count

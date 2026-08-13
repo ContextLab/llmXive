@@ -1,23 +1,24 @@
 T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a created project directory (e.g.,\u202F`projects/PROJ-314-predicting-the-impact-of-composition-on-\u2026\
+  r: "No evidence of a created project directory (e.g., `projects/PROJ-314-predicting-the-impact-of-composition-on-\u2026\
     `) or any of its expected sub\u2011folders/files is provided; the claim lacks\
     \ any tangible artifact to confirm the required structure exists."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No linting or formatting configuration files (e.g., `pyproject.toml` with `[tool.black]`\
-    \ and `[tool.ruff]` sections, `.ruff.toml`, or pre\u2011commit hook definitions)\
-    \ were provided, nor any evidence that `ruff` and `black` have been set up for\
-    \ the project. The required artifacts are missing."
+    \ or `[tool.ruff]`, `.ruff.toml`, or pre\u2011commit hook definitions) were presented,\
+    \ nor any evidence that `ruff` and `black` have been set up for the project. Without\
+    \ these artifacts the requirement to configure linting and formatting is not satisfied."
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/raw/`, `data/processed/`, or `data/artifacts/`\
-    \ directories was provided; the implementer\u2019s claim lacks any tangible artifact\
-    \ or listing confirming those folders exist. The task cannot be considered fulfilled\
-    \ until the directories are created and visible in the project repository."
+  r: "No directory listings, creation scripts, or any file\u2011system evidence for\
+    \ `data/raw/`, `data/processed/`, or `data/artifacts/` were provided, so we cannot\
+    \ confirm that the required directories have been set up. The implementer must\
+    \ supply proof (e.g., a tree view, `os.makedirs` calls, or actual files in those\
+    \ folders)."
 T010b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,19 +26,28 @@ T010b:
     \ showing it was created or contains entries. The required artifact is missing,\
     \ so the task\u2019s verification requirement is not satisfied."
 T016b:
+  c: true
+  h: 5bc0036081b6adb01b9d77f00f6f1eedd048667bb9ce228158dec669f1a9ff77
+  r: "The `docs/data_gap_protocol.md` file exists, is non\u2011empty, and contains\
+    \ the detailed protocol steps, the full JSON schema for `data/reports/data_availability_report.json`,\
+    \ and the required halting logic. The task\u2019s sole deliverable was this documentation,\
+    \ which is present and complete."
+T017a:
   c: false
-  h: e8d415f0d650d459060afce04973f5e4a8df9ad9a09a2c85bc70193dd39aea59
-  r: The `docs/data_gap_protocol.md` file is present and describes the steps and halting
-    logic, but the JSON schema for `data/reports/data_availability_report.json` is
-    cut off (truncated) and does not include the full required fields and closing
-    structure. The schema must be complete for the task to be satisfied.
+  h: b34bb97679776d6579f3025dbd7862b4d62419acb0a9dd0cbd7f9a0d9f4eb63c
+  r: "The repository lacks the required `data/processed/step0_sample_count_filtered.csv`\
+    \ file, and a quick scan of `code/ingestion.py` shows no implementation of `filter_valid_sample_count()`\
+    \ (the snippet ends before such a function). Consequently the per\u2011entry sample\u2011\
+    count filtering logic and its CSV output are not present."
 T018c:
   c: false
-  h: 2c6cccc6a41cc300172034ee218ee06a60f57eeba4bb3178a9c72ac72a0b355b
-  r: The repository lacks the required `fetch_materials_project_data()` implementation
-    in `code/ingestion.py` (the shown code does not define such a function) and the
-    expected output file `data/raw/materials_project_raw.json` is absent. Both the
-    core function and its saved JSON artifact are missing, so the task is not satisfied.
+  h: b598b5747f9fcb6cf1fe115db94aa90cae35bf52ca2edb4a8af438b8fb770017
+  r: "The `fetch_materials_project_data()` function is present, but it does not verify\
+    \ that the loaded dataset contains any rows (no \u201Cno\u2011data\u201D check)\
+    \ and therefore does not raise the required `RuntimeError` when the API returns\
+    \ an empty result. Moreover, the expected output file `data/raw/materials_project_raw.json`\
+    \ is missing from the repository. Both issues must be fixed for the task to be\
+    \ considered complete."
 T018d:
   c: false
   h: 9f1fb6b8974abebd467f301473a323c1c82619d6a63808239b2c008ba90eaaea
@@ -45,12 +55,20 @@ T018d:
     does not parse all required columns (`sample_count`, `sintering_temp`), does not
     write the raw response to `data/raw/nist_raw.json`, and the fallback logic is
     not invoked. Moreover, the expected output file `data/raw/nist_raw.json` is missing.
+T018f:
+  c: false
+  h: d20e497f53c16924117ed18f0b843eb47c8b091151850a398414ece2ba3686d0
+  r: The repository contains `code/ingestion.py`, but the required `clean_data_pipeline()`
+    function is not present (or not fully implemented) and the expected output file
+    `data/processed/step_final_cleaned.csv` does not exist. Both the core pipeline
+    implementation and its resulting CSV are missing, so the task is not satisfied.
 T018g:
   c: false
-  h: 97b69e08c5aa24134dad6c553ee29ab972633ea3c02dac0bb4a00cf8d0182e86
-  r: The repository lacks the required `fetch_curated_literature_data()` implementation
-    in `code/ingestion.py`, and the expected output file `data/raw/curated_literature_raw.json`
-    does not exist. Both the function and its resulting data artifact are missing.
+  h: 32a3acb1438c10b81593593ccbf64529359853ae37627a96c7edaece170223d6
+  r: The repository lacks a `fetch_curated_literature_data()` implementation in `code/ingestion.py`,
+    and the expected output file `data/raw/curated_literature_raw.json` does not exist.
+    Consequently the required data fetching, parsing, merging, and saving steps are
+    not present.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

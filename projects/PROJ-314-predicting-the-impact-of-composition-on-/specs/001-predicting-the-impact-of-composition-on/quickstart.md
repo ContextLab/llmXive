@@ -1,116 +1,105 @@
 # Quickstart Guide: Predicting the Impact of Composition on the Weibull Modulus of Ceramics
 
-This guide provides step-by-step instructions to set up the environment, fetch real data, and run the full analysis pipeline for **PROJ-314**.
+This guide provides step-by-step instructions to set up the environment, fetch real data, and execute the full analysis pipeline for predicting Weibull modulus from ceramic composition.
 
 ## 1. Prerequisites & Install
 
-Ensure you have Python 3.11+ installed.
+### System Requirements
+- Python 3.11 or higher
+- pip package manager
+- 8GB+ RAM recommended for full dataset processing
 
-### 1.1. Create Virtual Environment
-```bash
-cd projects/PROJ-314-predicting-the-impact-of-composition-on-
-python -m venv.venv
-source.venv/bin/activate # On Windows:.venv\Scripts\activate
-```
+### Environment Setup
+1. Navigate to the project root:
+ ```bash
+ cd projects/PROJ-314-predicting-the-impact-of-composition-on-
+ ```
 
-### 1.2. Install Dependencies
-Install all required packages defined in `requirements.txt`:
-```bash
-pip install -r requirements.txt
-```
-*Note: This includes `chemparse`, `scikit-learn`, `shap`, `datasets`, `huggingface_hub`, `pandas`, `numpy`, `scipy`, `pyyaml`, `requests`, `pdfplumber`, `arxiv`, `tabula-py`, `camelot-py`, `psutil`, and `python-dotenv`.*
+2. Create and activate a virtual environment:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ ```
 
-### 1.3. Environment Configuration
-Create a `.env` file in the project root if not already present (copy from `.env.example`):
-```bash
-cp.env.example.env
-```
-Ensure any required API keys (e.g., for Materials Project if applicable, though this pipeline primarily uses HuggingFace) are set.
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+ *Required packages include: pandas, scikit-learn, shap, chemparse, requests, pyyaml, scipy, datasets, huggingface_hub, arxiv, pdfplumber, psutil, python-dotenv, pydantic.*
+
+4. (Optional) Configure environment variables:
+ ```bash
+ cp.env.example.env
+ # Edit.env to add API keys if required by specific data sources
+ ```
 
 ## 2. Data Fetch
 
-This project relies on **real** external data from the HuggingFace dataset repository `materials-science/ceramic-reliability`. The ingestion pipeline is designed to "fail loudly" if this data cannot be fetched; no synthetic fallbacks are permitted.
+The pipeline fetches real ceramic reliability data from the HuggingFace dataset repository `materials-science/ceramic-reliability`.
 
-### 2.1. Verify Data Source
-Before running the full pipeline, you can verify the dataset is accessible:
+**Verification Step**: Before running the full pipeline, verify the dataset is accessible:
 ```bash
-python code/ingestion.py --validate-dataset
+python code/verify_hf_dataset.py
 ```
-This will check connectivity and metadata for `materials-science/ceramic-reliability`.
+*This script checks connectivity and metadata existence for the target dataset.*
 
-### 2.2. Ingest Raw Data
-The main ingestion script fetches data from HuggingFace and saves raw JSON files to `data/raw/`.
-```bash
-python code/ingestion.py --fetch-all
-```
-**Expected Outputs:**
-- `data/raw/materials_project_raw.json`
-- `data/raw/nist_raw.json`
-- `data/raw/arxiv_raw.json` (if arXiv extraction is enabled)
-- `data/raw/curated_literature_raw.json`
+**Primary Data Sources**:
+- **HuggingFace**: `materials-science/ceramic-reliability` (Aggregates MP, NIST, and literature data)
+- **ArXiv**: Supplementary data extracted via `arxiv` search and `pdfplumber`/`tabula-py` extraction.
 
-*If this step fails, check your internet connection and ensure the HuggingFace dataset ID is correct.*
+*Note: The pipeline is configured to FAIL LOUDLY if data cannot be fetched. Do not attempt to run with synthetic fallbacks.*
 
 ## 3. Running the Pipeline
 
-The full analysis pipeline is orchestrated by `run_pipeline_timing.py`. This script executes data cleaning, descriptor computation, modeling, and reporting in sequence.
+Execute the full end-to-end analysis pipeline using the timing wrapper:
 
-### 3.1. Execute Full Pipeline
 ```bash
 python code/run_pipeline_timing.py
 ```
 
-**What this script does:**
-1. **Ingestion & Cleaning**: Loads raw data, filters by sample count (N >= 30), handles range values, and imputes missing descriptors.
-2. **Descriptor Computation**: Calculates features like `mean_atomic_radius`, `electronegativity_std`, `valence_electron_concentration`, and `cation_size_variance`.
-3. **Data Gap Check**: If valid entries < 30, it generates `data/reports/data_availability_report.json` and halts.
-4. **Modeling**: Trains Random Forest and Gradient Boosting models with 5-fold stratified cross-validation.
-5. **Evaluation**: Computes MAE, R², and performs permutation testing for statistical significance.
-6. **Interpretability**: Generates SHAP values, calculates VIF, and ranks feature importance.
-7. **Reporting**: Aggregates all results into final JSON and PNG artifacts.
+**What this command does**:
+1. **Setup Directories**: Ensures `data/raw/`, `data/processed/`, `data/results/`, `data/reports/`, and `data/artifacts/` exist.
+2. **Data Ingestion**: Fetches and cleans data from HuggingFace and ArXiv sources.
+3. **Descriptor Computation**: Calculates physical descriptors (atomic radius, electronegativity, VEC, etc.).
+4. **Modeling**: Trains Random Forest and Gradient Boosting models with stratified cross-validation.
+5. **Evaluation**: Performs baseline comparison, permutation testing, and leakage checks.
+6. **Interpretation**: Generates SHAP values, feature rankings, and stability metrics.
+7. **Reporting**: Compiles final metrics and compliance reports.
 
-### 3.2. Expected Execution Time
-Depending on the dataset size and hardware, this may take several minutes. The pipeline includes a timeout wrapper to prevent indefinite hangs.
+**Expected Duration**: 10-30 minutes depending on dataset size and system resources.
+**Memory Limit**: The pipeline monitors memory usage and will halt if usage exceeds 6GB (configurable via `MEMORY_LIMIT_GB` in `.env`).
 
 ## 4. Verifying Outputs
 
-Upon successful completion (exit code 0), the following artifacts **must** exist in the `data/` directory:
+Upon successful completion (exit code 0), verify the following artifacts exist in the `data/` directory:
 
-### 4.1. Processed Data
-- `data/processed/step_final_cleaned.csv`: The final dataset used for modeling.
+### Core Reports
+- `data/reports/data_availability_report.json`: Confirms data sufficiency (N >= 30).
+- `data/reports/final_report.json`: Comprehensive summary of model performance and findings.
 
-### 4.2. Reports & Metrics
-- `data/reports/data_availability_report.json`: (Generated if data is insufficient, otherwise standard metrics).
-- `data/results/model_metrics.json`: MAE, R², and stratification reports.
+### Model Results
 - `data/results/baseline_metrics.json`: Performance of the global mean baseline.
-- `data/results/leakage_report.json`: Analysis of feature leakage.
-- `data/results/stability_metrics.json`: Cross-validation stability scores.
+- `data/results/model_metrics.json`: MAE, R², and stratification reports for trained models.
+- `data/results/leakage_report.json`: Results of the feature leakage check.
+- `data/results/permutation_test_report.json`: Statistical significance validation.
+- `data/results/cv_split_report.json`: Stratification distribution metrics.
+
+### Interpretability Artifacts
 - `data/results/feature_ranking_table.csv`: Ranked list of feature importances.
-- `data/results/permutation_test_report.json`: Statistical significance results.
+- `data/results/stability_metrics.json`: Cross-validation stability scores (CV of top 5 features).
+- `data/results/fold_importances.json`: Feature importance per CV fold.
+- `data/artifacts/shap_summary.png`: SHAP summary plot visualization.
 
-### 4.3. Models & Artifacts
-- `data/models/best_model.pkl`: The trained model (if statistically significant).
-- `data/artifacts/shap_summary.png`: Visual summary of SHAP values.
-- `data/artifacts/feature_importance_plot.png`: Bar chart of top features.
+### Raw & Processed Data
+- `data/raw/materials_project_raw.json`: Raw fetch from HuggingFace.
+- `data/processed/step_final_cleaned.csv`: Cleaned dataset ready for modeling.
 
-### 4.4. Verification Command
-To programmatically verify that all expected files were created:
-```bash
-python code/verify_citation_log.py # Checks logs
-# Or manually check:
-ls -l data/reports/data_availability_report.json
-ls -l data/results/baseline_metrics.json
-ls -l data/results/feature_ranking_table.csv
-ls -l data/results/leakage_report.json
-ls -l data/results/shap_summary.png
-ls -l data/results/stability_metrics.json
-```
-
-If any of these files are missing, the pipeline did not complete successfully. Review `logs/pipeline.log` for error details.
+If any of these files are missing or the pipeline exits with a non-zero code, check `logs/pipeline.log` for detailed error traces.
 
 ## Troubleshooting
 
-- **ImportError: cannot import name 'Composition' from 'chemparse'**: Ensure `chemparse` is installed correctly. The pipeline uses `parse_formula` from `chemparse`.
-- **HuggingFace Connection Failed**: Check network settings or try `huggingface-cli login` if authentication is required.
-- **Memory Error**: The pipeline monitors memory usage. If it exceeds the limit (default 6GB), it will raise a `MemoryError`. Reduce the dataset sample size or increase system RAM.
-- **Data Gap**: If the dataset contains fewer than 30 valid entries after filtering, the pipeline will halt and generate a data availability report. This is expected behavior per the project's safety constraints.
+- **ImportError: cannot import name 'Composition'**: Ensure `chemparse` is updated to the version specified in `requirements.txt`.
+- **MemoryError**: Reduce `MEMORY_LIMIT_GB` in `.env` or process data in chunks (if supported).
+- **Data Fetch Failed**: Check internet connection and verify the HuggingFace dataset ID `materials-science/ceramic-reliability` is correct.
+- **Insufficient Data**: If the pipeline halts with "Power Limitation: Insufficient data", the `data/reports/data_availability_report.json` will contain the specific count.

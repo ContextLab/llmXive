@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ceramic-reliability-pipeline"
+name = "llmXive-proj-314"
 version = "0.1.0"
 description = "Predicting the impact of composition on the Weibull modulus of ceramics"
 requires-python = ">=3.11"
@@ -19,22 +19,27 @@ dependencies = [
     "huggingface_hub",
     "arxiv",
     "pdfplumber",
-    "ruff",
-    "black",
+    "python-dotenv",
     "pydantic",
     "jsonschema",
-    "python-dotenv",
     "psutil",
     "numpy",
+    "matplotlib",
+    "seaborn",
 ]
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
 [tool.black]
-line-length = 88
-target-version = ['py311']
+line-length = 100
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -47,28 +52,36 @@ exclude = '''
 '''
 
 [tool.ruff]
-line-length = 88
 target-version = "py311"
+line-length = 100
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # pyflakes
+    "F",  # Pyflakes
     "I",  # isort
     "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501",  # line too long (black handles this)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
 ]
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
-
 [tool.ruff.isort]
-known-first-party = ["code", "tests"]
-force-sort-within-sections = true
+known-first-party = ["code"]
+force-single-line = false
+order-by-type = true
 
-[tool.setuptools]
-packages = ["code", "tests"]
+[tool.ruff.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"code/scripts/*" = ["B018"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.coverage.run]
+source = ["code"]
+omit = ["*/tests/*", "*/scripts/*"]

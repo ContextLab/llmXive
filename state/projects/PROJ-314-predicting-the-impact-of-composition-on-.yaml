@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-314-predicting-the-impact-of-composition-on-
-last_run_id: f3dfe05f-7c2e-4a29-81e1-8cf3f7240da2
+last_run_id: b12c9a5a-f132-460c-84ea-d98c4ff31fb3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on
 title: Predicting the Impact of Composition on the Weibull Modulus of Ceramics
-updated_at: '2026-08-13T16:19:26.568577Z'
+updated_at: '2026-08-13T16:21:56.176321Z'

@@ -1,98 +1,98 @@
 # Data Gap Protocol
 
-## Overview
-This document defines the Data Gap Protocol for the "Predicting the Impact of Composition on the Weibull Modulus of Ceramics" project. The protocol ensures statistical validity of the predictive modeling phase by enforcing minimum data requirements before proceeding to model training and evaluation.
+This document defines the protocol for detecting insufficient data volume, generating the required availability report, and halting the pipeline execution to prevent invalid statistical analysis.
 
-## Trigger Conditions
-The Data Gap Protocol is triggered when:
-1. Data ingestion and cleaning (T018f) completes
-2. Sample count filtering (T017a) is applied (N >= 30 per entry)
-3. The total number of valid entries is calculated
+## 1. Trigger Condition
 
-**Threshold**: If the total number of valid entries < 30, the protocol halts the pipeline.
+The Data Gap Protocol is triggered during the **Data Ingestion Phase** (User Story 1) after the initial sample count filtering step.
 
-## Execution Flow
+**Logic:**
+1. The pipeline executes `filter_valid_sample_count()` (Task T017a) to retain only entries where `sample_count` (N) >= 30.
+2. The function `validate_data_gap()` (Task T017b) immediately calculates the total number of rows remaining in the dataset.
+3. **Condition:** If `total_row_count` < 30, the protocol is triggered.
 
-### Step 1: Validation Check
-The `validate_data_gap()` function in `code/ingestion.py` performs the following:
-- Loads the cleaned dataset from `data/processed/step_final_cleaned.csv`
-- Counts total rows after sample count filtering
-- Compares against the minimum threshold (N = 30)
+*Note: The threshold of 30 is based on statistical power requirements for reliable Weibull modulus estimation and cross-validation stability (SC-004).*
 
-### Step 2: Report Generation
-If the threshold is not met, `generate_data_availability_report()` is invoked immediately:
-- Creates `data/reports/data_availability_report.json`
-- Populates the report with schema-defined fields (see below)
-- Logs the report path to `logs/ingestion.log`
+## 2. Protocol Execution Steps
 
-### Step 3: Pipeline Halting
-Upon report generation:
-- A "Power Limitation: Insufficient data (N < 30)" message is printed to **stderr**
-- The script exits with **exit code 1**
-- No further tasks (T026 onwards) are executed
+When triggered, the system must perform the following actions in strict order:
 
-## Schema: `data/reports/data_availability_report.json`
+### Step 2.1: Generate Data Availability Report
+The system calls `generate_data_availability_report()`. This function creates a JSON artifact documenting the state of the dataset.
 
-The report MUST conform to the following JSON schema:
+**Output Path:** `data/reports/data_availability_report.json`
 
+**Schema:**
 ```json
 {
- "report_type": "data_availability",
- "timestamp": "ISO-8601 timestamp",
- "status": "HALTED_INSUFFICIENT_DATA",
- "statistics": {
- "total_raw_entries": <integer>,
- "valid_entries_after_filtering": <integer>,
+ "timestamp": "ISO 8601 timestamp of generation",
+ "status": "INSUFFICIENT_DATA",
+ "total_entries_after_filter": <integer>,
  "minimum_required_entries": 30,
- "deficit": <integer>
- },
- "filter_details": {
- "sample_count_filter_applied": true,
- "sample_count_threshold": 30,
- "entries_removed_by_sample_count": <integer>
- },
- "recommendation": "Collect additional data or relax filtering criteria (if scientifically justified).",
- "next_steps": [
- "Review data sources (HuggingFace, NIST, Literature)",
- "Check for data quality issues in ingestion logs",
- "Consider expanding search parameters for literature data"
- ]
+ "deficit": <integer>,
+ "filter_applied": "sample_count >= 30",
+ "sources_checked": [
+ "materials-science/ceramic-reliability",
+ "nist_data",
+ "arxiv_extraction",
+ "curated_literature"
+ ],
+ "recommendation": "Pipeline halted. Data acquisition required before proceeding to modeling."
 }
 ```
 
-### Field Definitions
-- `report_type`: Fixed string "data_availability".
-- `timestamp`: ISO-8601 formatted string of when the report was generated.
-- `status`: One of "HALTED_INSUFFICIENT_DATA", "PROCEED".
-- `statistics.total_raw_entries`: Count of entries before any filtering.
-- `statistics.valid_entries_after_filtering`: Count of entries meeting all criteria.
-- `statistics.minimum_required_entries`: Hardcoded threshold (30).
-- `statistics.deficit`: Difference between required and actual entries.
-- `filter_details.sample_count_filter_applied`: Boolean indicating if T017a was run.
-- `filter_details.sample_count_threshold`: The integer threshold used.
-- `filter_details.entries_removed_by_sample_count`: Count of entries removed by T017a.
-- `recommendation`: Human-readable guidance.
-- `next_steps`: Array of actionable items for the researcher.
+### Step 2.2: Log the Event
+The system logs the event to the standard pipeline log (configured in `code/__init__.py`).
+- **Level:** `CRITICAL`
+- **Message:** `Data Gap Detected: {total_entries} entries found. Minimum required: 30. Halting pipeline.`
 
-## Halting Logic
-
-The pipeline halts if:
-```python
-if total_valid_entries < 30:
- generate_data_availability_report()
- print("Power Limitation: Insufficient data (N < 30)", file=sys.stderr)
- sys.exit(1)
+### Step 2.3: Output to Standard Error
+The system must print the following exact string to `stderr` to ensure immediate visibility in CI/CD or terminal outputs:
+```text
+Power Limitation: Insufficient data (N < 30)
 ```
 
-## Integration Points
+### Step 2.4: Halt Execution
+The pipeline must terminate immediately.
+- **Exit Code:** `1` (Non-zero failure code)
+- **Action:** No further tasks (Modeling, Interpretability, Reporting) should be executed.
 
-- **T017a (Sample Count Filter)**: Provides the filtered dataset for validation.
-- **T017b (Data Gap Validation)**: The primary implementation of this protocol.
-- **T026 (Model Preparation)**: Blocked until this protocol passes.
-- **T043 (Final Report)**: If the pipeline halts, the final report will include a reference to this data gap report.
+## 3. Artifact Definition: `data/reports/data_availability_report.json`
 
-## Compliance Notes
-- This protocol enforces **SC-004** (Statistical Power Requirement).
-- Failure to halt when N < 30 is a critical compliance violation.
-- The report file must exist on disk before the script exits.
-- No synthetic data fallbacks are permitted; the pipeline must fail loudly.
+This file serves as the audit trail for data insufficiency. It is required for compliance with the research protocol.
+
+| Field | Type | Description |
+|:--- |:--- |:--- |
+| `timestamp` | string | ISO 8601 formatted time of the check. |
+| `status` | string | Literal value `"INSUFFICIENT_DATA"`. |
+| `total_entries_after_filter` | integer | The count of rows remaining after `sample_count >= 30` filter. |
+| `minimum_required_entries` | integer | Constant `30`. |
+| `deficit` | integer | `minimum_required_entries` - `total_entries_after_filter`. |
+| `filter_applied` | string | Description of the filter that led to the low count. |
+| `sources_checked` | list | List of data sources attempted during ingestion. |
+| `recommendation` | string | Human-readable next step. |
+
+## 4. Implementation Details
+
+### 4.1. Code Location
+The logic is implemented in `code/ingestion.py`.
+
+### 4.2. Function Signature
+```python
+def validate_data_gap(df: pd.DataFrame) -> None:
+ """
+ Checks if the dataframe has sufficient rows.
+ If not, generates the report, logs, prints to stderr, and exits.
+ """
+```
+
+### 4.3. Dependency
+This task depends on `T017a` (Sample Count Filtering) being executed first.
+
+## 5. Recovery Procedure
+
+To resume the pipeline after a Data Gap halt:
+1. Investigate the `data/reports/data_availability_report.json` to understand the deficit.
+2. Expand data sources (e.g., add more literature, increase arXiv search radius).
+3. Re-run the ingestion pipeline from the start.
+4. Ensure `total_entries_after_filter` >= 30 before the pipeline proceeds to `T018a`.

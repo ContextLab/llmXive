@@ -1,10 +1,40 @@
 import logging
 import os
 from pathlib import Path
+from dataclasses import dataclass, field
+from typing import List, Dict, Any, Optional
+import hashlib
+import os
 
 # Ensure logs directory exists
-log_dir = Path("logs")
-log_dir.mkdir(parents=True, exist_ok=True)
+LOGS_DIR = Path(__file__).parent.parent / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+# Configure project logger
+def get_logger(name: str = "llmXive") -> logging.Logger:
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        # File handler for persistent logs
+        log_file = LOGS_DIR / "pipeline.log"
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(file_formatter)
+        
+        # Console handler for immediate feedback
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.INFO)
+        console_formatter = logging.Formatter(
+            '%(levelname)s: %(message)s'
+        )
+        console_handler.setFormatter(console_formatter)
+        
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
+        logger.setLevel(logging.DEBUG)
+    return logger
 
 # Configure basic logging
 logging.basicConfig(
@@ -26,24 +56,40 @@ initialize_config()
 
 def load_env():
     """
-    Load environment variables from a .env file in the project root.
-    Returns True if successful, False otherwise.
+    Dataclass representing a single ceramic material entry.
+    Corresponds to the raw or processed row in the dataset.
+    
+    Attributes:
+        composition: Chemical formula string (e.g., "Al2O3").
+        weibull_modulus: The Weibull modulus value (target variable).
+        mean_strength: Mean flexural strength in MPa.
+        standard_deviation: Standard deviation of strength measurements.
+        sintering_temp: Sintering temperature in Celsius.
+        sintering_time: Sintering time in hours.
+        source_id: Identifier for the source publication/dataset.
+        raw_data: Dictionary containing all original fields from the source.
     """
-    from dotenv import load_dotenv
-    from pathlib import Path
-
-    env_path = Path(__file__).parent.parent / ".env"
-    if not env_path.exists():
-        logger.warning(f".env file not found at {env_path}. Using system environment only.")
-        return False
-
-    success = load_dotenv(dotenv_path=env_path)
-    if success:
-        logger.info(f"Environment variables loaded from {env_path}")
-    else:
-        logger.warning("Failed to load environment variables from .env")
-    return True
-
+    composition: str
+    weibull_modulus: Optional[float] = None
+    mean_strength: Optional[float] = None
+    standard_deviation: Optional[float] = None
+    sintering_temp: Optional[float] = None
+    sintering_time: Optional[float] = None
+    source_id: Optional[str] = None
+    raw_data: Dict[str, Any] = field(default_factory=dict)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the CeramicEntry to a dictionary representation."""
+        return {
+            "composition": self.composition,
+            "weibull_modulus": self.weibull_modulus,
+            "mean_strength": self.mean_strength,
+            "standard_deviation": self.standard_deviation,
+            "sintering_temp": self.sintering_temp,
+            "sintering_time": self.sintering_time,
+            "source_id": self.source_id,
+            "raw_data": self.raw_data
+        }
 
 class DescriptorSet:
     """
@@ -68,37 +114,7 @@ class DescriptorSet:
         raw_data (dict): Dictionary containing raw descriptor values before aggregation.
     """
     
-    def __init__(
-        self,
-        composition: str,
-        mean_atomic_radius: float,
-        electronegativity_std: float,
-        valence_electron_concentration: float,
-        cation_size_variance: float = 0.0,
-        range_uncertainty: float = 0.0,
-        primary_anion_cation_group: str = "Unknown",
-        is_range_flag: bool = False,
-        is_imputed: bool = False,
-        sample_count: int = 0,
-        weibull_modulus: float = 0.0,
-        sintering_temp: float = 0.0,
-        raw_data: dict = None
-    ):
-        self.composition = composition
-        self.mean_atomic_radius = mean_atomic_radius
-        self.electronegativity_std = electronegativity_std
-        self.valence_electron_concentration = valence_electron_concentration
-        self.cation_size_variance = cation_size_variance
-        self.range_uncertainty = range_uncertainty
-        self.primary_anion_cation_group = primary_anion_cation_group
-        self.is_range_flag = is_range_flag
-        self.is_imputed = is_imputed
-        self.sample_count = sample_count
-        self.weibull_modulus = weibull_modulus
-        self.sintering_temp = sintering_temp
-        self.raw_data = raw_data or {}
-    
-    def to_dict(self) -> dict:
+    def to_dict(self) -> Dict[str, Any]:
         """Convert the DescriptorSet to a dictionary representation."""
         return {
             "composition": self.composition,
@@ -116,26 +132,11 @@ class DescriptorSet:
             "raw_data": self.raw_data
         }
     
-    def get_feature_vector(self) -> list:
-        """
-        Extract the numeric feature vector for ML models.
-        
-        Returns:
-            list: Ordered list of float features excluding metadata fields.
-        """
-        return [
-            self.mean_atomic_radius,
-            self.electronegativity_std,
-            self.valence_electron_concentration,
-            self.cation_size_variance,
-            self.range_uncertainty,
-            float(self.is_range_flag),
-            float(self.is_imputed)
-        ]
-    
-    def __repr__(self):
-        return (
-            f"DescriptorSet(composition={self.composition}, "
-            f"weibull_modulus={self.weibull_modulus}, "
-            f"group={self.primary_anion_cation_group})"
-        )
+    def __post_init__(self):
+        """Validate that composition is not empty."""
+        if not self.composition or not self.composition.strip():
+            raise ValueError("Composition string cannot be empty.")
+
+def hash_string(s: str) -> str:
+    """Helper to hash strings for versioning."""
+    return hashlib.sha256(s.encode('utf-8')).hexdigest()[:12]

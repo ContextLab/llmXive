@@ -88,7 +88,7 @@ def main():
         handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
         logger.addHandler(handler)
     
-    logger.info("Starting artifact hashing for T044...")
+    logger.info("Starting artifact hashing for T005...")
     
     # Determine project root
     project_root = Path(__file__).parent.parent

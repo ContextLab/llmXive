@@ -1,46 +1,43 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ModelResult
-description: Schema for storing model evaluation results and metrics.
 type: object
+properties:
+  model_type:
+    type: string
+    description: Type of model, e.g., 'RandomForest', 'GradientBoosting'
+  mae:
+    type: number
+    minimum: 0.0
+    description: Mean Absolute Error
+  r_squared:
+    type: number
+    description: R-squared score
+  feature_importance_ranking:
+    type: array
+    items:
+      type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+      required:
+        - feature
+        - importance
+    description: List of dicts with 'feature' and 'importance' keys
+  cv_stability_scores:
+    type: object
+    description: Stability metrics for feature importance across CV folds
+  hyperparameters:
+    type: object
+    description: Final hyperparameters used
+  cross_validation_scores:
+    anyOf:
+      - type: array
+        items:
+          type: number
+      - type: 'null'
+    description: Scores from each CV fold
 required:
   - model_type
   - mae
   - r_squared
   - feature_importance_ranking
-  - cv_stability_scores
-properties:
-  model_type:
-    type: string
-    description: The type of model used (e.g., 'RandomForest', 'GradientBoosting').
-  mae:
-    type: number
-    description: Mean Absolute Error of the model predictions.
-  r_squared:
-    type: number
-    description: R-squared (coefficient of determination) value.
-  feature_importance_ranking:
-    type: array
-    description: List of feature names ranked by importance.
-    items:
-      type: string
-  cv_stability_scores:
-    type: object
-    description: Stability metrics calculated across cross-validation folds.
-    properties:
-      mean_importance:
-        type: array
-        items:
-          type: number
-      std_importance:
-        type: array
-        items:
-          type: number
-      cv_coefficient:
-        type: array
-        items:
-          type: number
-    required:
-      - mean_importance
-      - std_importance
-      - cv_coefficient
-additionalProperties: true
