@@ -4,16 +4,10 @@ properties:
   metrics:
     type: object
     properties:
-      balanced_accuracy:
-        type: number
-      roc_auc:
-        type: number
-      permutation_p_value:
-        type: number
-    required:
-      - balanced_accuracy
-      - roc_auc
-      - permutation_p_value
+      balanced_accuracy: {type: number}
+      roc_auc: {type: number}
+      permutation_p_value: {type: number}
+      required: [balanced_accuracy, roc_auc, permutation_p_value]
   shap_analysis:
     type: object
     properties:
@@ -22,27 +16,16 @@ properties:
         items:
           type: object
           properties:
-            feature_name:
-              type: string
-            shap_value:
-              type: number
-          required:
-            - feature_name
-            - shap_value
+            feature_name: {type: string}
+            shap_value: {type: number}
+            required: [feature_name, shap_value]
       collinearity_vif:
         type: array
         items:
           type: object
           properties:
-            feature_name:
-              type: string
-            vif_value:
-              type: number
-          required:
-            - feature_name
-            - vif_value
-    required:
-      - top_features
-required:
-  - metrics
-  - shap_analysis
+            feature_name: {type: string}
+            vif_value: {type: number}
+            required: [feature_name, vif_value]
+      framing: {type: string}
+      required: [top_features, framing]

@@ -1,46 +1,59 @@
 """
-Project constants and configuration.
+Global constants and configuration paths for the project.
+
+This module centralizes all magic numbers, file paths, and hyperparameter
+grids used across the research pipeline to ensure consistency and reproducibility.
 """
 import os
 from pathlib import Path
 
-# Project root directory
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+# Project Root
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-# Directory paths
+# Directory Paths
 CODE_DIR = PROJECT_ROOT / "code"
-DATA_DIR = PROJECT_ROOT / "data"
-DATA_RAW_DIR = DATA_DIR / "raw"
-DATA_PROCESSED_DIR = DATA_DIR / "processed"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_INTERMEDIATE_DIR = PROJECT_ROOT / "data" / "intermediate"
 TESTS_DIR = PROJECT_ROOT / "tests"
 STATE_DIR = PROJECT_ROOT / "state"
 RESULTS_DIR = PROJECT_ROOT / "results"
+RESULTS_PLOTS_DIR = RESULTS_DIR / "plots"
 CONTRACTS_DIR = PROJECT_ROOT / "contracts"
-SPEC_DIR = PROJECT_ROOT / "specs"
+SPECS_DIR = PROJECT_ROOT / "specs"
 
-# Random seed for reproducibility
-RANDOM_SEED = 42
+# Random Seeds
+RANDOM_STATE = 42
 
-# Model training parameters
+# Hypothesis Thresholds
+# Minimum acceptable balanced accuracy for the model to be considered successful
+BALANCED_ACC_THRESHOLD = 0.75
+
+# Data Splitting
+# Fraction of data to hold out for final independent evaluation
 HOLD_OUT_FRACTION = 0.20
-MAX_FEATURES = 1000
-MIN_SAMPLES_SPLIT = 2
-MIN_SAMPLES_LEAF = 1
 
-# Hypothesis thresholds
-BALANCED_ACCURACY_THRESHOLD = 0.75
-ROC_AUC_THRESHOLD = 0.80
-PERMUTATION_P_VALUE_THRESHOLD = 0.05
-FDR_THRESHOLD = 0.05
-CORRELATION_THRESHOLD = 0.4
-MISSING_THRESHOLD = 0.30
-VIF_THRESHOLD = 5.0
+# Model Hyperparameters Grid
+# Grid of max_depth values to search during Random Forest hyperparameter tuning
+MAX_DEPTH_GRID = [5, 10, 15]
 
-# File paths for artifacts
-ARTIFACT_HASHES_FILE = STATE_DIR / "artifact_hashes.yaml"
-METADATA_SCHEMA_FILE = CONTRACTS_DIR / "metadata.schema.yaml"
-OUTPUT_SCHEMA_FILE = CONTRACTS_DIR / "output.schema.yaml"
+# File Names
+STUDY_MANIFEST_FILE = "study_manifest.json"
+METRICS_FILE = "metrics.json"
+SHAP_ANALYSIS_FILE = "shap_analysis.json"
+PATHWAY_ANALYSIS_FILE = "pathway_analysis.json"
+ARTIFACT_HASHES_FILE = "artifact_hashes.yaml"
+VIF_SCORES_FILE = "vif_scores.json"
+SPLIT_INDICES_FILE = "split_indices.json"
+ALIGNMENT_MISSING_FILE = "alignment_missing.json"
 
-# Logging configuration
-LOG_LEVEL = "INFO"
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+# Ensure directories exist (soft fail for constants module)
+def ensure_dirs():
+    """Create all project directories if they do not exist."""
+    dirs = [
+        DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_INTERMEDIATE_DIR,
+        TESTS_DIR, STATE_DIR, RESULTS_DIR, RESULTS_PLOTS_DIR,
+        CONTRACTS_DIR, SPECS_DIR
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)

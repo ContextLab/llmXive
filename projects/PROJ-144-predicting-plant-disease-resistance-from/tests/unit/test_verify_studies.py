@@ -1,155 +1,152 @@
-"""
-Unit tests for code/research/verify_studies.py
-
-Tests verify the logic of study verification without making actual API calls.
-"""
 import pytest
-import sys
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 import json
+import os
+from unittest.mock import patch, MagicMock
+from pathlib import Path
+import sys
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.research.verify_studies import (
+from research.verify_studies import (
+    search_studies,
+    get_study_metadata,
     check_pre_challenge_profiles,
     check_disease_resistance_metadata,
     verify_studies,
-    search_studies
+    DataUnavailableError
 )
 
-class TestPreChallengeDetection:
-    """Test pre-challenge profile detection logic."""
+class TestVerifyStudies:
     
-    def test_baseline_keyword_in_title(self):
-        """Detect pre-challenge from 'baseline' in title."""
+    def test_check_pre_challenge_profiles_positive(self):
+        """Test detection of pre-challenge profiles."""
         metadata = {
-            "study_title": "Baseline metabolomics in plant disease resistance",
-            "study_abstract": "Study of metabolite changes before infection."
+            "DESIGN": "Baseline samples taken before pathogen inoculation",
+            "STUDY_TITLE": "Plant Disease Resistance",
+            "ABSTRACT": "Analysis of metabolites before infection"
         }
         assert check_pre_challenge_profiles(metadata) is True
-    
-    def test_control_keyword_in_abstract(self):
-        """Detect pre-challenge from 'control' in abstract."""
+
+    def test_check_pre_challenge_profiles_negative(self):
+        """Test rejection of studies without pre-challenge data."""
         metadata = {
-            "study_title": "Plant metabolomics",
-            "study_abstract": "Comparing control and infected samples."
-        }
-        assert check_pre_challenge_profiles(metadata) is True
-    
-    def test_no_pre_challenge_keywords(self):
-        """Return False when no pre-challenge keywords present."""
-        metadata = {
-            "study_title": "General plant metabolomics",
-            "study_abstract": "Analysis of plant metabolites."
+            "DESIGN": "Post-infection analysis only",
+            "STUDY_TITLE": "Recovery Study",
+            "ABSTRACT": "Metabolites after disease onset"
         }
         assert check_pre_challenge_profiles(metadata) is False
-    
-    def test_sample_metadata_baseline(self):
-        """Detect from sample metadata."""
-        metadata = {
-            "study_title": "Plant study",
-            "samples": [
-                {"sample_type": "baseline", "time_point": "0"}
-            ]
-        }
-        assert check_pre_challenge_profiles(metadata) is True
-    
-    def test_sample_metadata_healthy(self):
-        """Detect from healthy sample type."""
-        metadata = {
-            "study_title": "Plant study",
-            "samples": [
-                {"sample_type": "healthy control"}
-            ]
-        }
-        assert check_pre_challenge_profiles(metadata) is True
 
-class TestResistanceMetadataDetection:
-    """Test disease-resistance metadata detection logic."""
-    
-    def test_resistance_in_title(self):
-        """Detect resistance from title."""
+    def test_check_disease_resistance_positive(self):
+        """Test detection of disease resistance metadata."""
         metadata = {
-            "study_title": "Plant disease resistance mechanisms",
-            "study_abstract": "Investigating resistance to pathogens."
+            "DESIGN": "Comparison of resistant and susceptible lines",
+            "STUDY_TITLE": "Fungal Resistance in Wheat",
+            "ORGANISM": "Triticum aestivum"
         }
         assert check_disease_resistance_metadata(metadata) is True
-    
-    def test_pathogen_in_abstract(self):
-        """Detect resistance from pathogen mention."""
+
+    def test_check_disease_resistance_negative(self):
+        """Test rejection of studies without disease metadata."""
         metadata = {
-            "study_title": "Metabolomics study",
-            "study_abstract": "Response to pathogen infection."
-        }
-        assert check_disease_resistance_metadata(metadata) is True
-    
-    def test_no_resistance_keywords(self):
-        """Return False when no resistance keywords present."""
-        metadata = {
-            "study_title": "Plant growth metabolomics",
-            "study_abstract": "Study of growth-related metabolites."
+            "DESIGN": "General metabolite profiling",
+            "STUDY_TITLE": "Plant Growth Study",
+            "ABSTRACT": "Effect of fertilizer on growth"
         }
         assert check_disease_resistance_metadata(metadata) is False
-    
-    def test_phenotype_resistance(self):
-        """Detect from phenotype metadata."""
-        metadata = {
-            "study_title": "Plant study",
-            "phenotypes": [
-                {
-                    "phenotype_name": "Disease Resistance Score",
-                    "phenotype_description": "Measured resistance levels"
-                }
+
+    @patch('research.verify_studies.requests.get')
+    def test_search_studies_success(self, mock_get):
+        """Test successful API search."""
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {
+            "STUDY": [
+                {"STUDY_ID": "C-STUDY-001", "TITLE": "Test"},
+                {"STUDY_ID": "C-STUDY-002", "TITLE": "Test 2"}
             ]
         }
-        assert check_disease_resistance_metadata(metadata) is True
-    
-    def test_susceptible_keyword(self):
-        """Detect from susceptible keyword."""
-        metadata = {
-            "study_title": "Susceptible and resistant plant varieties",
-            "study_abstract": "Comparing plant responses."
+        mock_get.return_value = mock_response
+
+        results = search_studies(["plant", "disease"])
+        assert len(results) == 2
+        assert results[0]["STUDY_ID"] == "C-STUDY-001"
+
+    @patch('research.verify_studies.requests.get')
+    def test_search_studies_no_results(self, mock_get):
+        """Test API search with no results."""
+        mock_response = MagicMock()
+        mock_response.raise_for_status.return_value = None
+        mock_response.json.return_value = {"MESSAGE": "No studies found"}
+        mock_get.return_value = mock_response
+
+        results = search_studies(["plant", "disease"])
+        assert results == []
+
+    @patch('research.verify_studies.requests.get')
+    def test_verify_studies_success(self, mock_get):
+        """Test verification of valid studies."""
+        # Mock search result
+        mock_response_search = MagicMock()
+        mock_response_search.raise_for_status.return_value = None
+        mock_response_search.json.return_value = {
+            "STUDY": [
+                {"STUDY_ID": "C-STUDY-001"},
+                {"STUDY_ID": "C-STUDY-002"}
+            ]
         }
-        assert check_disease_resistance_metadata(metadata) is True
 
-class TestVerifyStudiesIntegration:
-    """Integration tests for the verification workflow."""
-    
-    @patch('code.research.verify_studies.search_studies')
-    @patch('code.research.verify_studies.get_study_metadata')
-    def test_finds_verified_studies(self, mock_get_meta, mock_search):
-        """Test successful verification of studies."""
-        # Mock search results
-        mock_search.return_value = [
-            {"study_id": "ST001234"},
-            {"study_id": "ST005678"}
-        ]
-        
-        # Mock metadata for first study (verified)
-        mock_get_meta.side_effect = [
-            {
-                "study_title": "Plant disease resistance baseline study",
-                "study_abstract": "Pre-challenge metabolomics of resistant plants",
-                "samples": [{"sample_type": "baseline"}],
-                "phenotypes": [{"phenotype_name": "Resistance Score"}]
-            },
-            {
-                "study_title": "General plant study",
-                "study_abstract": "No resistance data",
-                "samples": [],
-                "phenotypes": []
-            }
-        ]
-        
-        verified = verify_studies(["plant", "disease"], min_studies=1)
-        
-        assert len(verified) >= 1
-        assert verified[0]["study_id"] == "ST001234"
-        assert verified[0]["pre_challenge"] is True
-        assert verified[0]["resistance_metadata"] is True
+        # Mock metadata for study 1 (valid)
+        mock_response_meta_1 = MagicMock()
+        mock_response_meta_1.raise_for_status.return_value = None
+        mock_response_meta_1.json.return_value = {
+            "STUDY_ID": "C-STUDY-001",
+            "DESIGN": "Baseline before infection",
+            "STUDY_TITLE": "Disease Resistance",
+            "ABSTRACT": "Plant disease study"
+        }
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        # Mock metadata for study 2 (valid)
+        mock_response_meta_2 = MagicMock()
+        mock_response_meta_2.raise_for_status.return_value = None
+        mock_response_meta_2.json.return_value = {
+            "STUDY_ID": "C-STUDY-002",
+            "DESIGN": "Pre-challenge baseline",
+            "STUDY_TITLE": "Resistance Study",
+            "ABSTRACT": "Pathogen resistance"
+        }
+
+        # Side effect: first call is search, next are metadata
+        mock_get.side_effect = [
+            mock_response_search,
+            mock_response_meta_1,
+            mock_response_meta_2
+        ]
+
+        valid = verify_studies(["C-STUDY-001", "C-STUDY-002"])
+        assert len(valid) == 2
+
+    @patch('research.verify_studies.requests.get')
+    def test_verify_studies_insufficient(self, mock_get):
+        """Test verification when not enough valid studies are found."""
+        mock_response_search = MagicMock()
+        mock_response_search.raise_for_status.return_value = None
+        mock_response_search.json.return_value = {
+            "STUDY": [
+                {"STUDY_ID": "C-STUDY-001"}
+            ]
+        }
+
+        mock_response_meta = MagicMock()
+        mock_response_meta.raise_for_status.return_value = None
+        mock_response_meta.json.return_value = {
+            "STUDY_ID": "C-STUDY-001",
+            "DESIGN": "Post infection only", # Invalid
+            "STUDY_TITLE": "Recovery",
+            "ABSTRACT": "No resistance data"
+        }
+
+        mock_get.side_effect = [mock_response_search, mock_response_meta]
+
+        with pytest.raises(DataUnavailableError):
+            verify_studies(["C-STUDY-001"])

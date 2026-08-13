@@ -1,26 +1,24 @@
 """
 Integration test for the full preprocessing pipeline (US1).
+Tests the sequence: download -> validate_temporal -> preprocess -> harmonize_labels.
 
-This test verifies the end-to-end flow:
-1. Download raw data from Metabolomics Workbench (T012)
-2. Validate temporal consistency (T013)
-3. Preprocess and harmonize data (T014, T015)
-4. Verify output artifacts exist and meet basic quality criteria
+This test verifies:
+1. Real data download from Metabolomics Workbench (via study_manifest.json).
+2. Temporal consistency validation (pre-challenge profiles exist).
+3. Preprocessing pipeline (log-transform, missing value filtering, InChIKey alignment, batch correction).
+4. Label harmonization (z-scoring, binary mapping).
+5. Output artifact generation and schema compliance.
 
 Prerequisites:
-- T032 (Study IDs identified in research.md)
-- T012 (download.py implemented)
-- T013 (validate_temporal.py implemented)
-- T014 (harmonize_labels.py implemented)
-- T015 (preprocess.py implemented)
+- T012 must have run successfully to populate data/raw/study_manifest.json.
+- data/raw/ directory must contain downloaded study files.
 """
 
 import os
 import sys
 import json
-import tempfile
-import shutil
 import pytest
+import pandas as pd
 from pathlib import Path
 
 # Add project root to path for imports
@@ -31,249 +29,222 @@ from code.data.download import download_metabolomics_data
 from code.data.validate_temporal import validate_temporal_consistency
 from code.data.preprocess import preprocess_metabolomics
 from code.data.harmonize_labels import harmonize_labels
-from code.utils.constants import DATA_RAW_DIR, DATA_PROCESSED_DIR, RESEARCH_FILE
+from code.utils.constants import DATA_RAW_DIR, DATA_PROCESSED_DIR
+from code.utils.io import compute_file_hash
 
+# Constants for test paths
+STUDY_MANIFEST_PATH = DATA_RAW_DIR / "study_manifest.json"
+EXPECTED_OUTPUT_MATRIX = DATA_PROCESSED_DIR / "batch_corrected_matrix.csv"
+EXPECTED_OUTPUT_LABELS = DATA_PROCESSED_DIR / "labels.csv"
 
-class TestFullPipeline:
-    """Integration tests for the complete data preprocessing pipeline."""
+class TestFullPipelineIntegration:
+    """Integration tests for the complete data preprocessing workflow."""
     
-    @pytest.fixture(scope="class")
-    def temp_output_dir(self):
-        """Create a temporary directory for test outputs."""
-        temp_dir = tempfile.mkdtemp(prefix="pipeline_test_")
-        yield Path(temp_dir)
-        # Cleanup after tests
-        shutil.rmtree(temp_dir, ignore_errors=True)
-    
-    def test_01_download_data(self, temp_output_dir):
+    @pytest.fixture(autouse=True)
+    def setup_teardown(self):
+        """Ensure directories exist and clean up before/after test."""
+        # Ensure output directory exists
+        DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Clean up previous test outputs if they exist
+        if EXPECTED_OUTPUT_MATRIX.exists():
+            EXPECTED_OUTPUT_MATRIX.unlink()
+        if EXPECTED_OUTPUT_LABELS.exists():
+            EXPECTED_OUTPUT_LABELS.unlink()
+            
+        yield
+        
+        # Cleanup not strictly necessary for CI but good practice
+        
+    def test_01_download_studies(self):
         """
-        Test T012: Download metabolomics data from Metabolomics Workbench.
-        
-        Verifies:
-        - Data is downloaded to the correct location
-        - Files are non-empty
-        - Study IDs from research.md are used
+        Test T012 prerequisite: Download studies based on manifest.
+        Verifies that data/raw/ contains study files after execution.
         """
-        # Read study IDs from research.md
-        research_path = PROJECT_ROOT / RESEARCH_FILE
-        if not research_path.exists():
-            pytest.skip(f"research.md not found at {research_path}. Skipping download test.")
+        assert STUDY_MANIFEST_PATH.exists(), "study_manifest.json must exist from T012"
         
-        # Parse study IDs from research.md (simple regex-like extraction)
-        content = research_path.read_text()
-        study_ids = []
-        for line in content.split('\n'):
-            if 'STUDY-' in line or 'C-STUDY-' in line:
-                # Extract study ID (format: STUDY-XXXX or C-STUDY-XXXX)
-                import re
-                matches = re.findall(r'(C?-STUDY-\d+)', line)
-                study_ids.extend(matches)
+        with open(STUDY_MANIFEST_PATH, 'r') as f:
+            manifest = json.load(f)
         
-        if not study_ids:
-            pytest.skip("No study IDs found in research.md. Skipping download test.")
+        assert isinstance(manifest, list), "Manifest must be a list of studies"
+        assert len(manifest) >= 2, "Manifest must contain at least 2 studies"
         
-        # Take first 2 study IDs
-        test_study_ids = study_ids[:2]
+        # Execute download
+        # Note: download_metabolomics_data expects a list of study IDs or the manifest path
+        # Based on API surface, we assume it takes the manifest path or list
+        try:
+            download_metabolomics_data(manifest)
+        except Exception as e:
+            # If download fails due to network/real data issues, we still check for partial success
+            # but the test logic depends on having data to process.
+            # In a real CI, this would fail loudly if data is missing.
+            pytest.fail(f"Data download failed: {e}")
         
-        # Set up download paths
-        raw_dir = temp_output_dir / "raw"
-        raw_dir.mkdir(parents=True, exist_ok=True)
+        # Verify downloads exist (at least one file per study)
+        raw_files = list(DATA_RAW_DIR.glob("*"))
+        assert len(raw_files) > 0, "No files downloaded to data/raw/"
         
-        # Download data
-        success, downloaded_files = download_metabolomics_data(
-            study_ids=test_study_ids,
-            output_dir=str(raw_dir)
-        )
-        
-        assert success, f"Data download failed for studies: {test_study_ids}"
-        assert len(downloaded_files) > 0, "No files were downloaded"
-        
-        # Verify files are non-empty
-        for file_path in downloaded_files:
-            assert os.path.getsize(file_path) > 0, f"Downloaded file is empty: {file_path}"
-        
-        # Store downloaded files for next test
-        self.downloaded_files = downloaded_files
-        self.raw_dir = raw_dir
-    
     def test_02_validate_temporal(self):
         """
-        Test T013: Validate temporal consistency of downloaded data.
-        
-        Verifies:
-        - Temporal validation runs without errors
-        - Studies without pre-challenge data are flagged/skipped
-        - results/temporal_verification.json is created
+        Test temporal consistency validation.
+        Verifies that studies contain pre-challenge/baseline metadata.
         """
-        if not hasattr(self, 'raw_dir'):
-            pytest.skip("Previous download test was skipped. Cannot run temporal validation.")
+        if not STUDY_MANIFEST_PATH.exists():
+            pytest.skip("Manifest missing, skipping temporal validation")
         
-        # Run temporal validation
-        results_dir = PROJECT_ROOT / "results"
-        results_dir.mkdir(parents=True, exist_ok=True)
+        with open(STUDY_MANIFEST_PATH, 'r') as f:
+            manifest = json.load(f)
         
-        valid_studies, temporal_results = validate_temporal_consistency(
-            raw_data_dir=str(self.raw_dir),
-            output_path=str(results_dir / "temporal_verification.json")
-        )
+        study_ids = [s['study_id'] for s in manifest]
         
-        # Verify output file exists
-        assert (results_dir / "temporal_verification.json").exists(), \
-            "Temporal verification output file not created"
+        # Execute temporal validation
+        try:
+            valid_studies = validate_temporal_consistency(study_ids)
+        except Exception as e:
+            # If validation fails, the pipeline should halt.
+            # We expect this to raise TemporalVerificationError if data is bad.
+            # For the integration test, we check that it either passes or fails correctly.
+            if "TemporalVerificationError" in str(type(e)):
+                pytest.fail(f"Temporal validation failed for study: {e}")
+            else:
+                raise
         
-        # Verify output contains expected structure
-        with open(results_dir / "temporal_verification.json", 'r') as f:
-            verification_data = json.load(f)
+        # If we reach here, validation passed
+        assert len(valid_studies) > 0, "No studies passed temporal validation"
         
-        assert "studies" in verification_data, "Missing 'studies' key in temporal verification"
-        assert "status" in verification_data, "Missing 'status' key in temporal verification"
+    def test_03_preprocess_pipeline(self):
+        """
+        Test the full preprocessing pipeline:
+        - Log transform
+        - Missing value filtering
+        - InChIKey alignment
+        - Batch correction (ComBat)
         
-        # At least one study should be valid (or all skipped if none have temporal info)
-        assert isinstance(valid_studies, list), "valid_studies should be a list"
+        Outputs: data/processed/batch_corrected_matrix.csv
+        """
+        if not STUDY_MANIFEST_PATH.exists():
+            pytest.skip("Manifest missing")
         
-        self.valid_studies = valid_studies
+        with open(STUDY_MANIFEST_PATH, 'r') as f:
+            manifest = json.load(f)
+        
+        study_ids = [s['study_id'] for s in manifest]
+        
+        # Execute preprocessing
+        try:
+            preprocess_metabolomics(
+                study_ids=study_ids,
+                output_dir=DATA_PROCESSED_DIR
+            )
+        except Exception as e:
+            pytest.fail(f"Preprocessing pipeline failed: {e}")
+        
+        # Verify output exists
+        assert EXPECTED_OUTPUT_MATRIX.exists(), "batch_corrected_matrix.csv not generated"
+        assert EXPECTED_OUTPUT_MATRIX.stat().st_size > 0, "batch_corrected_matrix.csv is empty"
+        
+        # Verify content structure
+        df = pd.read_csv(EXPECTED_OUTPUT_MATRIX)
+        assert 'InChIKey' in df.columns or 'metabolite_id' in df.columns, "Missing metabolite identifier"
+        assert 'sample_id' in df.columns, "Missing sample_id column"
+        
+        # Verify no NaN in numeric columns (unless expected)
+        numeric_cols = df.select_dtypes(include=['number']).columns
+        if len(numeric_cols) > 0:
+            assert df[numeric_cols].isnull().sum().sum() == 0, "Preprocessed matrix contains NaN values"
+        
+        # Compute hash for artifact tracking
+        file_hash = compute_file_hash(str(EXPECTED_OUTPUT_MATRIX))
+        assert file_hash is not None, "Failed to compute file hash"
+        
+    def test_04_harmonize_labels(self):
+        """
+        Test label harmonization:
+        - Binary mapping
+        - Z-scoring
+        
+        Outputs: data/processed/labels.csv
+        """
+        if not EXPECTED_OUTPUT_MATRIX.exists():
+            pytest.skip("Preprocessed matrix missing, skipping label harmonization")
+        
+        # Execute label harmonization
+        try:
+            harmonize_labels(
+                input_matrix=EXPECTED_OUTPUT_MATRIX,
+                output_dir=DATA_PROCESSED_DIR
+            )
+        except Exception as e:
+            pytest.fail(f"Label harmonization failed: {e}")
+        
+        # Verify output
+        assert EXPECTED_OUTPUT_LABELS.exists(), "labels.csv not generated"
+        assert EXPECTED_OUTPUT_LABELS.stat().st_size > 0, "labels.csv is empty"
+        
+        # Verify content
+        labels_df = pd.read_csv(EXPECTED_OUTPUT_LABELS)
+        assert 'germplasm_id' in labels_df.columns, "Missing germplasm_id"
+        assert 'binary_label' in labels_df.columns or 'harmonized_score' in labels_df.columns, \
+            "Missing label columns"
+        
+        # Verify binary labels are 0/1 if present
+        if 'binary_label' in labels_df.columns:
+            unique_labels = labels_df['binary_label'].unique()
+            assert set(unique_labels).issubset({0, 1, 0.0, 1.0}), \
+                f"Binary labels must be 0 or 1, found: {unique_labels}"
+        
+        # Compute hash
+        file_hash = compute_file_hash(str(EXPECTED_OUTPUT_LABELS))
+        assert file_hash is not None, "Failed to compute label file hash"
     
-    def test_03_preprocess_and_harmonize(self):
+    def test_05_full_pipeline_e2e(self):
         """
-        Test T014 and T015: Preprocess and harmonize data.
+        End-to-end integration test:
+        Download -> Validate -> Preprocess -> Harmonize
         
-        Verifies:
-        - Preprocessing completes without errors
-        - Batch correction is applied when multiple studies are present
-        - Output files are created in data/processed/
-        - Files contain valid data (non-empty, correct structure)
+        Verifies the entire chain works together.
         """
-        if not hasattr(self, 'raw_dir') or not hasattr(self, 'valid_studies'):
-            pytest.skip("Previous tests were skipped. Cannot run preprocessing.")
+        # This test essentially re-runs the sequence to ensure dependencies are met
+        # and the final artifacts are consistent.
         
-        if not self.valid_studies:
-            pytest.skip("No valid studies after temporal validation. Skipping preprocessing.")
+        if not STUDY_MANIFEST_PATH.exists():
+            pytest.skip("Manifest missing")
         
-        # Create processed directory
-        processed_dir = PROJECT_ROOT / DATA_PROCESSED_DIR
-        processed_dir.mkdir(parents=True, exist_ok=True)
+        # 1. Download (if not already done by previous tests)
+        # 2. Validate
+        # 3. Preprocess
+        # 4. Harmonize
         
-        # Run preprocessing
-        preprocessing_result = preprocess_metabolomics(
-            raw_data_dir=str(self.raw_dir),
-            valid_studies=self.valid_studies,
-            output_dir=str(processed_dir)
-        )
+        # Since tests are independent, we rely on the order or re-execution
+        # In CI, this might run sequentially.
         
-        assert preprocessing_result["success"], "Preprocessing failed"
+        # Re-run the sequence to ensure state is consistent
+        with open(STUDY_MANIFEST_PATH, 'r') as f:
+            manifest = json.load(f)
+        study_ids = [s['study_id'] for s in manifest]
         
-        # Verify output files
-        expected_files = [
-            "batch_corrected_matrix.csv",
-            "labels.csv",
-            "alignment_missing.json"
-        ]
+        # Temporal
+        validate_temporal_consistency(study_ids)
         
-        for file_name in expected_files:
-            file_path = processed_dir / file_name
-            assert file_path.exists(), f"Expected output file missing: {file_path}"
-            assert os.path.getsize(file_path) > 0, f"Output file is empty: {file_path}"
+        # Preprocess
+        preprocess_metabolomics(study_ids=study_ids, output_dir=DATA_PROCESSED_DIR)
         
-        # Verify matrix structure
-        matrix_df = preprocessing_result["matrix"]
-        assert matrix_df is not None, "Matrix dataframe is None"
-        assert len(matrix_df) > 0, "Matrix dataframe is empty"
-        assert "sample_id" in matrix_df.columns or matrix_df.index.name == "sample_id", \
-            "Matrix missing sample_id column/index"
+        # Harmonize
+        harmonize_labels(input_matrix=EXPECTED_OUTPUT_MATRIX, output_dir=DATA_PROCESSED_DIR)
         
-        # Verify labels structure
-        labels_df = preprocessing_result["labels"]
-        assert labels_df is not None, "Labels dataframe is None"
-        assert len(labels_df) > 0, "Labels dataframe is empty"
-        assert "germplasm_id" in labels_df.columns or "sample_id" in labels_df.columns, \
-            "Labels missing expected ID column"
+        # Final assertions
+        assert EXPECTED_OUTPUT_MATRIX.exists()
+        assert EXPECTED_OUTPUT_LABELS.exists()
         
-        # Verify harmonization was applied (check for binary_label or harmonized_score)
-        assert "binary_label" in labels_df.columns or "harmonized_score" in labels_df.columns, \
-            "Labels missing harmonized fields (binary_label or harmonized_score)"
+        # Verify row counts match
+        matrix_df = pd.read_csv(EXPECTED_OUTPUT_MATRIX)
+        labels_df = pd.read_csv(EXPECTED_OUTPUT_LABELS)
         
-        # Store results for next test
-        self.processed_matrix = matrix_df
-        self.processed_labels = labels_df
-    
-    def test_04_harmonize_labels_integration(self):
-        """
-        Test T014 specifically: Verify label harmonization logic.
+        # Ensure sample IDs align
+        matrix_samples = set(matrix_df['sample_id'])
+        label_samples = set(labels_df['germplasm_id']) # Assuming mapping is by sample/germplasm
         
-        This is a focused test on the harmonize_labels module to ensure:
-        - Binary labels are correctly encoded
-        - Z-scoring is applied when appropriate
-        - Output includes both binary and continuous scores
-        """
-        if not hasattr(self, 'processed_labels'):
-            pytest.skip("Previous preprocessing test was skipped.")
-        
-        labels_df = self.processed_labels
-        
-        # Check that harmonization functions were applied
-        # The harmonize_labels function should have added binary_label and/or harmonized_score
-        
-        # Verify binary_label exists and has valid values (0, 1, or NaN)
-        if "binary_label" in labels_df.columns:
-            valid_binary = labels_df["binary_label"].dropna()
-            assert all(valid_binary.isin([0, 1])), \
-                "binary_label contains invalid values (should be 0 or 1)"
-        
-        # Verify harmonized_score exists and is numeric
-        if "harmonized_score" in labels_df.columns:
-            assert pd.api.types.is_numeric_dtype(labels_df["harmonized_score"]), \
-                "harmonized_score should be numeric"
-        
-        # Verify sample count consistency
-        assert len(labels_df) == len(self.processed_matrix), \
-            "Label count does not match matrix sample count"
-    
-    def test_05_pipeline_artifacts_exist(self):
-        """
-        Final integration check: Verify all required artifacts exist.
-        
-        This test ensures the pipeline produced all expected outputs:
-        - data/processed/batch_corrected_matrix.csv
-        - data/processed/labels.csv
-        - results/temporal_verification.json
-        - results/alignment_missing.json
-        """
-        processed_dir = PROJECT_ROOT / DATA_PROCESSED_DIR
-        results_dir = PROJECT_ROOT / "results"
-        
-        required_artifacts = [
-            processed_dir / "batch_corrected_matrix.csv",
-            processed_dir / "labels.csv",
-            results_dir / "temporal_verification.json",
-            results_dir / "alignment_missing.json"
-        ]
-        
-        missing_artifacts = []
-        for artifact in required_artifacts:
-            if not artifact.exists():
-                missing_artifacts.append(str(artifact))
-            elif os.path.getsize(artifact) == 0:
-                missing_artifacts.append(f"{artifact} (empty)")
-        
-        if missing_artifacts:
-            pytest.fail(f"Missing or empty required artifacts: {missing_artifacts}")
-        
-        # Additional validation: check matrix has expected columns
-        matrix_path = processed_dir / "batch_corrected_matrix.csv"
-        if matrix_path.exists():
-            import pandas as pd
-            df = pd.read_csv(matrix_path)
-            assert len(df.columns) > 1, "Matrix has only one column (should have features)"
-            assert len(df) > 0, "Matrix has no rows"
-        
-        # Check temporal verification has valid status
-        temporal_path = results_dir / "temporal_verification.json"
-        if temporal_path.exists():
-            with open(temporal_path, 'r') as f:
-                temporal_data = json.load(f)
-            assert "status" in temporal_data, "Temporal verification missing status"
-            assert temporal_data["status"] in ["VERIFIED", "PARTIAL", "UNVERIFIED"], \
-                f"Invalid temporal verification status: {temporal_data['status']}"
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        # At least some overlap expected
+        overlap = matrix_samples.intersection(label_samples)
+        assert len(overlap) > 0, "No sample ID overlap between matrix and labels"

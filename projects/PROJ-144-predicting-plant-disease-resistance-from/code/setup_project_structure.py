@@ -1,54 +1,51 @@
+"""
+Script to create the project directory structure for the llmXive plant disease resistance pipeline.
+"""
 import os
 import sys
 from pathlib import Path
 
 def create_structure():
     """
-    Creates the project directory structure as defined in the implementation plan.
-    Directories created:
-    - code/
-    - data/raw
-    - data/processed
-    - tests/
-    - state/
-    - results/
-    - contracts/
+    Creates the required directory structure for the project.
+    Returns True if successful, False otherwise.
     """
-    base_dir = Path(".")
+    project_root = Path(__file__).resolve().parent.parent
     
-    # Define the required directories relative to the project root
-    required_dirs = [
+    # Define the directories to create relative to the project root
+    directories = [
         "code",
         "data/raw",
         "data/processed",
+        "data/intermediate",
         "tests",
         "state",
         "results",
+        "results/plots",
         "contracts"
     ]
     
     created_count = 0
-    for dir_name in required_dirs:
-        dir_path = base_dir / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            # Verify the directory exists and is writable
+            if full_path.is_dir():
+                # Try to create a temporary file to test writability
+                test_file = full_path / ".write_test"
+                test_file.touch()
+                test_file.unlink()
+                created_count += 1
+            else:
+                print(f"Error: Could not create directory {full_path}")
+                return False
+        except OSError as e:
+            print(f"Error creating directory {full_path}: {e}")
+            return False
     
-    print(f"\nProject structure verification complete.")
-    print(f"Total directories checked: {len(required_dirs)}")
-    print(f"New directories created: {created_count}")
-    
-    # Verify all exist
-    all_exist = all((base_dir / d).exists() for d in required_dirs)
-    if all_exist:
-        print("SUCCESS: All required directories exist.")
-        return True
-    else:
-        print("FAILURE: Some directories are missing.")
-        return False
+    print(f"Successfully created {created_count} directories.")
+    return True
 
 if __name__ == "__main__":
     success = create_structure()

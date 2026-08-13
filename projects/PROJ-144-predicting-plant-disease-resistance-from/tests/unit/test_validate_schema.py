@@ -1,6 +1,3 @@
-"""
-Unit tests for code/research/validate_schema.py
-"""
 import pytest
 import yaml
 import json
@@ -8,149 +5,143 @@ from pathlib import Path
 import sys
 import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / 'code'))
 
 from research.validate_schema import (
     load_yaml_schema,
     validate_schema_structure,
     validate_with_jsonschema,
-    OUTPUT_SCHEMA_PATH
+    run_yamllint
 )
 
-
 @pytest.fixture
-def valid_schema_dict():
+def sample_valid_schema():
     return {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object",
-        "properties": {
-            "metrics": {
-                "type": "object",
-                "properties": {
-                    "balanced_accuracy": {"type": "number"}
-                },
-                "required": ["balanced_accuracy"]
-            }
-        }
-    }
-
-
-@pytest.fixture
-def invalid_schema_dict():
-    # Missing $schema
-    return {
-        "type": "object",
-        "properties": {}
-    }
-
-
-@pytest.fixture
-def valid_sample_data():
-    return {
-        "metrics": {
-            "balanced_accuracy": 0.85,
-            "roc_auc": 0.92,
-            "permutation_p_value": 0.03
+        '$schema': 'http://json-schema.org/draft-07/schema#',
+        'type': 'object',
+        'properties': {
+            'field1': {'type': 'string'},
+            'field2': {'type': 'number'}
         },
-        "shap_analysis": {
-            "top_features": [
-                {"feature_name": "metabolite_A", "shap_value": 0.5}
-            ],
-            "collinearity_vif": [
-                {"feature_name": "metabolite_A", "vif_value": 1.2}
-            ]
+        'required': ['field1']
+    }
+
+@pytest.fixture
+def sample_invalid_schema():
+    return {
+        'type': 'object',  # Missing $schema
+        'properties': {}
+    }
+
+class TestLoadYamlSchema:
+    def test_load_valid_yaml(self, tmp_path):
+        schema_file = tmp_path / 'test_schema.yaml'
+        schema_content = {
+            'type': 'object',
+            'properties': {'test': {'type': 'string'}}
         }
-    }
-
-
-def test_load_yaml_schema_exists(tmp_path):
-    """Test loading a valid YAML file."""
-    schema_file = tmp_path / "test_schema.yaml"
-    schema_content = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object"
-    }
-    with open(schema_file, 'w') as f:
-        yaml.dump(schema_content, f)
+        with open(schema_file, 'w') as f:
+            yaml.dump(schema_content, f)
+        
+        result = load_yaml_schema(schema_file)
+        assert result == schema_content
     
-    loaded = load_yaml_schema(schema_file)
-    assert loaded == schema_content
-
-
-def test_load_yaml_schema_missing_file(tmp_path):
-    """Test loading a non-existent file raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        load_yaml_schema(tmp_path / "non_existent.yaml")
-
-
-def test_load_yaml_schema_invalid_yaml(tmp_path):
-    """Test loading invalid YAML raises YAMLError."""
-    schema_file = tmp_path / "invalid.yaml"
-    with open(schema_file, 'w') as f:
-        f.write("invalid: yaml: content: [unclosed")
+    def test_load_nonexistent_file(self, tmp_path):
+        with pytest.raises(FileNotFoundError):
+            load_yaml_schema(tmp_path / 'nonexistent.yaml')
     
-    with pytest.raises(yaml.YAMLError):
-        load_yaml_schema(schema_file)
+    def test_load_empty_file(self, tmp_path):
+        schema_file = tmp_path / 'empty.yaml'
+        schema_file.touch()
+        
+        with pytest.raises(ValueError):
+            load_yaml_schema(schema_file)
 
-
-def test_validate_schema_structure_valid(valid_schema_dict):
-    """Test validation of a structurally valid schema."""
-    assert validate_schema_structure(valid_schema_dict) is True
-
-
-def test_validate_schema_structure_missing_key(invalid_schema_dict):
-    """Test validation fails when required keys are missing."""
-    assert validate_schema_structure(invalid_schema_dict) is False
-
-
-def test_validate_schema_structure_wrong_type(tmp_path):
-    """Test validation fails if root type is not object."""
-    schema = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "array"
-    }
-    assert validate_schema_structure(schema) is False
-
-
-def test_validate_with_jsonschema_valid(tmp_path, valid_schema_dict, valid_sample_data):
-    """Test full validation with valid schema and data."""
-    schema_file = tmp_path / "valid_schema.yaml"
-    with open(schema_file, 'w') as f:
-        yaml.dump(valid_schema_dict, f)
+class TestValidateSchemaStructure:
+    def test_valid_schema(self, sample_valid_schema):
+        errors = validate_schema_structure(sample_valid_schema)
+        assert len(errors) == 0
     
-    # This should not raise and return True
-    result = validate_with_jsonschema(schema_file, valid_sample_data)
-    assert result is True
-
-
-def test_validate_with_jsonschema_invalid_data(tmp_path, valid_schema_dict):
-    """Test validation fails with invalid sample data."""
-    schema_file = tmp_path / "valid_schema.yaml"
-    with open(schema_file, 'w') as f:
-        yaml.dump(valid_schema_dict, f)
+    def test_missing_schema_field(self, sample_invalid_schema):
+        errors = validate_schema_structure(sample_invalid_schema)
+        assert any('Missing' in e and '$schema' in e for e in errors)
     
-    invalid_data = {"metrics": {"balanced_accuracy": "not_a_number"}}
-    result = validate_with_jsonschema(schema_file, invalid_data)
-    assert result is False
-
-
-def test_validate_with_jsonschema_invalid_schema(tmp_path, invalid_schema_dict):
-    """Test validation fails if the schema itself is invalid JSON Schema."""
-    schema_file = tmp_path / "invalid_schema.yaml"
-    with open(schema_file, 'w') as f:
-        yaml.dump(invalid_schema_dict, f)
+    def test_missing_type_field(self):
+        schema = {'properties': {}}
+        errors = validate_schema_structure(schema)
+        assert any('Missing' in e and 'type' in e for e in errors)
     
-    result = validate_with_jsonschema(schema_file)
-    assert result is False
+    def test_missing_properties_field(self):
+        schema = {'type': 'object'}
+        errors = validate_schema_structure(schema)
+        assert any('Missing' in e and 'properties' in e for e in errors)
 
+class TestValidateWithJsonschema:
+    def test_valid_schema_syntax(self, sample_valid_schema):
+        errors = validate_with_jsonschema(sample_valid_schema)
+        assert len(errors) == 0
+    
+    def test_invalid_schema_syntax(self):
+        # Invalid JSON Schema: 'type' must be a string, not a list
+        invalid_schema = {
+            '$schema': 'http://json-schema.org/draft-07/schema#',
+            'type': ['object', 'string'],  # Invalid
+            'properties': {}
+        }
+        errors = validate_with_jsonschema(invalid_schema)
+        assert len(errors) > 0
+        assert any('syntax' in e.lower() for e in errors)
+    
+    def test_data_validation_success(self, sample_valid_schema):
+        sample_data = {'field1': 'test'}
+        errors = validate_with_jsonschema(sample_valid_schema, sample_data)
+        assert len(errors) == 0
+    
+    def test_data_validation_failure(self, sample_valid_schema):
+        # Missing required field
+        sample_data = {'field2': 123}
+        errors = validate_with_jsonschema(sample_valid_schema, sample_data)
+        assert len(errors) > 0
+        assert any('required' in e.lower() for e in errors)
 
-def test_output_schema_exists():
-    """Verify the actual output schema file exists in the project."""
-    assert OUTPUT_SCHEMA_PATH.exists(), f"Output schema file not found at {OUTPUT_SCHEMA_PATH}"
+class TestRunYamllint:
+    def test_yamllint_installed(self, tmp_path):
+        # Create a valid YAML file
+        yaml_file = tmp_path / 'test.yaml'
+        yaml_file.write_text('key: value\n')
+        
+        success, msg = run_yamllint(yaml_file)
+        # If yamllint is installed, it should pass
+        # If not installed, it should return False with appropriate message
+        if success:
+            assert 'passed' in msg
+        else:
+            assert 'not installed' in msg or 'issues' in msg
 
-
-def test_output_schema_valid_json_schema():
-    """Verify the actual output schema is valid JSON Schema."""
-    result = validate_with_jsonschema(OUTPUT_SCHEMA_PATH)
-    assert result is True, "The actual output.schema.yaml failed validation."
+class TestIntegration:
+    def test_full_schema_validation(self, tmp_path):
+        # Create a complete valid schema
+        schema = {
+            '$schema': 'http://json-schema.org/draft-07/schema#',
+            'type': 'object',
+            'properties': {
+                'sample_id': {'type': 'string'},
+                'InChIKey': {'type': 'string'},
+                'normalized_intensity': {'type': 'number'},
+                'study_id': {'type': 'string'}
+            },
+            'required': ['sample_id', 'InChIKey', 'normalized_intensity']
+        }
+        
+        schema_file = tmp_path / 'test_schema.yaml'
+        with open(schema_file, 'w') as f:
+            yaml.dump(schema, f)
+        
+        loaded = load_yaml_schema(schema_file)
+        structure_errors = validate_schema_structure(loaded)
+        jsonschema_errors = validate_with_jsonschema(loaded)
+        
+        assert len(structure_errors) == 0
+        assert len(jsonschema_errors) == 0

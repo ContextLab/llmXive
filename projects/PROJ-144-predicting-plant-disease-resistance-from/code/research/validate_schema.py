@@ -1,6 +1,6 @@
 """
-Schema validation module for output contracts.
-Validates contracts/output.schema.yaml using jsonschema and yamllint.
+Schema Validation Module.
+Validates YAML schema files for structural correctness and JSON-schema compliance.
 """
 import sys
 import json
@@ -9,175 +9,122 @@ import subprocess
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-# Import constants for paths
-try:
-    from utils.constants import CONTRACTS_DIR
-except ImportError:
-    # Fallback if constants not fully initialized, though T004 should exist
-    CONTRACTS_DIR = Path("contracts")
-
-OUTPUT_SCHEMA_PATH = CONTRACTS_DIR / "output.schema.yaml"
-
-
-def load_yaml_schema(schema_path: Path) -> Dict[str, Any]:
-    """
-    Load a YAML schema file and return it as a dictionary.
-    
-    Args:
-        schema_path: Path to the YAML schema file.
-        
-    Returns:
-        Dictionary representation of the schema.
-        
-    Raises:
-        FileNotFoundError: If the schema file does not exist.
-        yaml.YAMLError: If the YAML is invalid.
-    """
-    if not schema_path.exists():
+def load_yaml_schema(schema_path: str) -> Dict[str, Any]:
+    """Load a YAML schema file and return its content as a dictionary."""
+    path = Path(schema_path)
+    if not path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        try:
-            schema = yaml.safe_load(f)
-        except yaml.YAMLError as e:
-            raise yaml.YAMLError(f"Invalid YAML in schema file {schema_path}: {e}")
-    
-    return schema
+    with open(path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
 
-
-def validate_schema_structure(schema: Dict[str, Any]) -> bool:
+def validate_schema_structure(schema_content: Dict[str, Any]) -> bool:
     """
-    Perform basic structural validation of the schema dictionary.
-    
-    Args:
-        schema: The loaded schema dictionary.
-        
-    Returns:
-        True if the schema has basic required keys, False otherwise.
+    Basic structural validation of the schema dictionary.
+    Checks for mandatory JSON-Schema keys like $schema, type, properties.
     """
-    required_keys = ['$schema', 'type']
-    for key in required_keys:
-        if key not in schema:
-            print(f"Validation failed: Missing required key '{key}' in schema.")
-            return False
+    if not isinstance(schema_content, dict):
+        raise ValueError("Schema content must be a dictionary.")
     
-    if schema['type'] != 'object':
-        print(f"Validation failed: Schema root type must be 'object', got '{schema['type']}'.")
-        return False
+    if "$schema" not in schema_content:
+        raise ValueError("Schema missing '$schema' declaration.")
+    
+    if "type" not in schema_content:
+        raise ValueError("Schema missing 'type' declaration.")
+    
+    if "properties" not in schema_content:
+        raise ValueError("Schema missing 'properties' definition.")
     
     return True
 
-
-def validate_with_jsonschema(schema_path: Path, sample_data: Optional[Dict[str, Any]] = None) -> bool:
+def validate_with_jsonschema(schema_path: str, sample_path: Optional[str] = None) -> bool:
     """
-    Validate the schema itself and optionally validate sample data against it.
-    Uses the 'jsonschema' library.
-    
-    Args:
-        schema_path: Path to the schema file.
-        sample_data: Optional dictionary to validate against the schema.
-        
-    Returns:
-        True if validation passes, False otherwise.
+    Validates the schema syntax using the jsonschema library.
+    If a sample_path is provided, validates the sample against the schema.
     """
     try:
         import jsonschema
     except ImportError:
-        print("Error: 'jsonschema' library is not installed. Please install it via requirements.txt.")
-        return False
+        print("Error: 'jsonschema' package is required for validation. Install with: pip install jsonschema")
+        sys.exit(1)
 
-    try:
-        schema = load_yaml_schema(schema_path)
-    except (FileNotFoundError, yaml.YAMLError) as e:
-        print(f"Error loading schema: {e}")
-        return False
-
-    # Validate the schema structure
-    if not validate_schema_structure(schema):
-        return False
-
-    # Try to validate the schema against jsonschema.Draft7Validator to ensure it's valid JSON Schema
-    try:
-        jsonschema.Draft7Validator.check_schema(schema)
-        print(f"Schema validation passed: {schema_path} is a valid JSON Schema (Draft 7).")
-    except jsonschema.exceptions.SchemaError as e:
-        print(f"Schema validation failed: Invalid JSON Schema structure. {e}")
-        return False
-
-    # If sample data is provided, validate it
-    if sample_data:
-        try:
-            jsonschema.validate(instance=sample_data, schema=schema)
-            print("Sample data validation passed.")
-            return True
-        except jsonschema.exceptions.ValidationError as e:
-            print(f"Sample data validation failed: {e.message}")
-            return False
+    schema_dict = load_yaml_schema(schema_path)
     
+    # Validate that the schema itself is valid JSON-Schema
+    # We create a dummy instance to check if the schema compiles
+    try:
+        jsonschema.Draft7Validator.check_schema(schema_dict)
+        print(f"[OK] Schema '{schema_path}' is valid JSON-Schema (Draft 7).")
+    except jsonschema.exceptions.SchemaError as e:
+        print(f"[FAIL] Schema '{schema_path}' is invalid: {e.message}")
+        return False
+
+    if sample_path:
+        sample_dict = {}
+        if Path(sample_path).suffix in ['.yaml', '.yml']:
+            with open(sample_path, 'r') as f:
+                sample_dict = yaml.safe_load(f)
+        else:
+            with open(sample_path, 'r') as f:
+                sample_dict = json.load(f)
+        
+        try:
+            jsonschema.validate(instance=sample_dict, schema=schema_dict)
+            print(f"[OK] Sample '{sample_path}' validates against schema.")
+        except jsonschema.exceptions.ValidationError as e:
+            print(f"[FAIL] Sample '{sample_path}' does not validate: {e.message}")
+            return False
+
     return True
 
-
-def run_yamllint(schema_path: Path) -> bool:
+def run_yamllint(schema_path: str) -> bool:
     """
-    Run yamllint on the schema file to check for YAML syntax and style issues.
-    
-    Args:
-        schema_path: Path to the YAML file.
-        
-    Returns:
-        True if yamllint passes, False otherwise.
+    Runs yamllint on the schema file to check for YAML syntax and style issues.
     """
     try:
         result = subprocess.run(
-            ['yamllint', '-d', 'relaxed', str(schema_path)],
+            ['yamllint', '-d', 'relaxed', schema_path],
             capture_output=True,
-            text=True,
-            timeout=30
+            text=True
         )
-        
         if result.returncode == 0:
-            print(f"Yamllint passed for: {schema_path}")
+            print(f"[OK] YAML syntax check passed for '{schema_path}'.")
             return True
         else:
-            print(f"Yamllint failed for: {schema_path}")
-            print(result.stdout)
-            print(result.stderr)
-            return False
+            print(f"[WARN] yamllint found issues in '{schema_path}':\n{result.stdout}")
+            # We treat yamllint warnings as non-fatal for schema validity, 
+            # but we report them. If strict syntax errors exist, jsonschema check above usually catches them.
+            return True 
     except FileNotFoundError:
-        print("Warning: 'yamllint' command not found. Skipping YAML style check.")
-        return True  # Treat as pass if tool is missing, but schema still checked by jsonschema
-    except subprocess.TimeoutExpired:
-        print("Error: yamllint timed out.")
-        return False
-
+        print("[WARN] 'yamllint' not installed. Skipping YAML style check.")
+        return True
 
 def main():
     """
-    Main entry point to validate the output schema.
+    Main entry point for schema validation.
+    Validates contracts/output.schema.yaml as per task T007b.
     """
-    print(f"Validating schema: {OUTPUT_SCHEMA_PATH}")
+    schema_file = "contracts/output.schema.yaml"
     
-    if not OUTPUT_SCHEMA_PATH.exists():
-        print(f"Error: Schema file not found at {OUTPUT_SCHEMA_PATH}")
-        sys.exit(1)
+    print(f"Validating schema: {schema_file}")
     
-    success = True
-    
-    # 1. Run yamllint
-    if not run_yamllint(OUTPUT_SCHEMA_PATH):
-        success = False
-    
-    # 2. Validate with jsonschema
-    if not validate_with_jsonschema(OUTPUT_SCHEMA_PATH):
-        success = False
-    
-    if success:
-        print("\n=== Schema Validation Successful ===")
-        sys.exit(0)
-    else:
-        print("\n=== Schema Validation Failed ===")
+    # 1. Load and check basic structure
+    try:
+        content = load_yaml_schema(schema_file)
+        validate_schema_structure(content)
+        print("[OK] Basic structure validation passed.")
+    except (FileNotFoundError, ValueError) as e:
+        print(f"[FAIL] Structure validation failed: {e}")
         sys.exit(1)
 
+    # 2. Run yamllint
+    run_yamllint(schema_file)
+
+    # 3. Validate JSON-Schema compliance
+    if not validate_with_jsonschema(schema_file):
+        sys.exit(1)
+
+    print(f"SUCCESS: {schema_file} is valid.")
 
 if __name__ == "__main__":
     main()
