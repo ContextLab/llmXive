@@ -9,17 +9,17 @@
 
 ### User Story 1 - Core Power Drift Analysis (Priority: P1)
 
-As a research methodologist, I want to compute post-hoc statistical power estimates for a dataset of replication studies and test for a temporal decline over calendar years, so that I can determine if the replication enterprise is drifting toward underpowered studies.
+As a research methodologist, I want to compute post-hoc statistical power estimates for a dataset of replication studies and test for a temporal decline over calendar years *after adjusting for temporal trends in effect sizes and sample sizes*, so that I can determine if the replication enterprise is drifting toward underpowered studies independent of changes in the underlying data characteristics.
 
-**Why this priority**: This is the primary research question. Without the ability to calculate power from reported effect sizes and sample sizes and model the trend over time, the project cannot answer its core hypothesis.
+**Why this priority**: This is the primary research question. Without the ability to isolate the temporal trend in power from the trends in its constituent inputs (effect size, N), the analysis risks being tautological. This ensures the hypothesis tests for a genuine methodological drift rather than a mathematical artifact.
 
-**Independent Test**: The system can be fully tested by running the power re-estimation and linear mixed-effects modeling scripts on a static subset of the OSF/Replication Project data, verifying that a slope coefficient and p-value are generated for the `year` predictor.
+**Independent Test**: The system can be fully tested by running the power re-estimation and linear mixed-effects modeling scripts on a static subset of the OSF/Replication Project data, verifying that a slope coefficient and p-value are generated for the `year` predictor *in the residual model*.
 
 **Acceptance Scenarios**:
 
-1. **Given** a CSV file containing replication study metadata (year, effect size, sample size), **When** the analysis script is executed, **Then** a post-hoc power estimate is calculated for every row using α=0.05 two-tailed, and a linear mixed-effects model `power_est ~ year + (1|field)` is fitted.
-2. **Given** the fitted model, **When** the fixed effect of `year` is tested via likelihood-ratio test, **Then** the output includes the slope estimate, standard error, p-value, and a clear statement of whether the trend is statistically significant (p < 0.05).
-3. **Given** the analysis results, **When** the user requests a visualization, **Then** a scatter plot of power vs. year with the fitted regression line and 95% confidence intervals is generated.
+1. **Given** a CSV file containing replication study metadata (year, effect size, sample size), **When** the analysis script is executed, **Then** a post-hoc power estimate is calculated for every row using α=0.05 two-tailed, and a linear mixed-effects model `power_est ~ year + effect_size + sample_size + (1|field)` is fitted to isolate the residual drift.
+2. **Given** the fitted model, **When** the fixed effect of `year` is tested via likelihood-ratio test, **Then** the output includes the slope estimate, standard error, p-value, and a clear statement of whether the *residual* trend is statistically significant (p < 0.05).
+3. **Given** the analysis results, **When** the user requests a visualization, **Then** a scatter plot of *residual* power vs. year with the fitted regression line and 95% confidence intervals is generated.
 
 ---
 
@@ -41,38 +41,38 @@ As a skeptical peer reviewer, I want to see the power drift results validated ag
 
 ### User Story 3 - Cross-Field Aggregation & Drift Validation (Priority: P3)
 
-As a domain expert, I want to combine evidence across heterogeneous fields using an adaptively weighted statistic and validate the drift using the rater-drift framework, so that I can generalize findings beyond a single discipline.
+As a domain expert, I want to combine evidence across heterogeneous fields using an adaptively weighted statistic and validate the drift using an input permutation framework, so that I can generalize findings beyond a single discipline.
 
-**Why this priority**: This addresses the "heterogeneous effect-size metrics" and "rater-drift" components of the methodology, adding depth to the primary finding but relying on the core analysis being complete first.
+**Why this priority**: This addresses the "heterogeneous effect-size metrics" and "validation" components of the methodology, adding depth to the primary finding but relying on the core analysis being complete first.
 
-**Independent Test**: The system can be tested by executing the adaptively weighted statistic aggregation and the rater-drift calculation on the full dataset, verifying that a combined drift statistic is produced and compared to the mixed-model slope.
+**Independent Test**: The system can be tested by executing the adaptively weighted statistic aggregation and the input permutation validation on the full dataset, verifying that a combined drift statistic is produced and compared to the mixed-model slope.
 
 **Acceptance Scenarios**:
 
-1. **Given** power estimates stratified by field, **When** the adaptively weighted statistic is applied, **Then** a single aggregated evidence metric is produced that accounts for field heterogeneity.
-2. **Given** the time-series of power estimates, **When** the rater-drift framework is applied, **Then** a drift statistic is computed and compared to the slope from the mixed-effects model to check for convergence.
-3. **Given** the results of both aggregation methods, **When** the final report is generated, **Then** it includes a section comparing the primary mixed-model slope with the drift statistic and the weighted aggregate.
+1. **Given** residual power drift estimates stratified by field, **When** the adaptively weighted statistic (inverse-variance weighting with heterogeneity adjustment) is applied, **Then** a single aggregated evidence metric is produced that accounts for field heterogeneity.
+2. **Given** the time-series of residual power estimates, **When** the input permutation framework is applied (shuffling effect sizes and sample sizes while holding year constant), **Then** a null distribution of drift slopes is generated and the observed slope is compared against it to check for significance.
+3. **Given** the results of both aggregation and permutation methods, **When** the final report is generated, **Then** it includes a section comparing the primary mixed-model slope with the aggregated drift estimate and the permutation-based p-value.
 
 ### Edge Cases
 
 - **Missing Data**: What happens when a replication study lacks the sample size or effect size required for power calculation? (System must skip the row and log a warning, not crash).
 - **Zero Variance**: What happens if a specific field has only one replication study in the dataset? (System must handle the `(1|field)` random effect gracefully, potentially collapsing that field or excluding it from the mixed model).
 - **Extreme Outliers**: How does the system handle effect sizes or sample sizes that are statistical outliers (e.g., infinite or negative variance)? (System must cap or filter extreme values based on domain logic before modeling).
-- **Permutation Convergence**: What if the permutation test fails to converge or runs out of memory on the free-tier runner? (System must implement a fallback to a smaller iteration count, e.g., [deferred], and flag the result as "approximate").
+- **Permutation Convergence**: What if the permutation test fails to converge or runs out of memory on the free-tier runner? (System must implement a fallback to a smaller iteration count of [deferred] and flag the result as "approximate").
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: System MUST calculate post-hoc statistical power for each replication study using reported effect size (Cohen's *d* or odds ratio), sample size, and α = 0.05 two-tailed, as defined by the 1999 power-of-association formulas (See US-1).
-- **FR-002**: System MUST fit a linear mixed-effects model with `power_est` as the outcome, `year` as the fixed effect, and random intercepts for `field` and `original_study` (See US-1).
+- **FR-002**: System MUST fit a linear mixed-effects model with `power_est` as the outcome, `year` as the fixed effect, `effect_size` and `sample_size` as covariates to control for input drift, and random intercepts for `field` and `original_study_id` (See US-1).
 - **FR-003**: System MUST perform a likelihood-ratio test to determine the statistical significance of the `year` fixed effect, reporting the slope, SE, and p-value (See US-1).
-- **FR-004**: System MUST execute a non-parametric permutation test with 10,000 permutations of the `year` variable to generate an empirical p-value for the drift slope (See US-2).
+- **FR-004**: System MUST execute a non-parametric permutation test with 10,000 permutations of the `year` variable to generate an empirical p-value for the drift slope, with a fallback to a minimum of 1,000 permutations if memory or time limits are exceeded (See US-2).
 - **FR-005**: System MUST conduct a sensitivity analysis sweeping the alpha threshold across the set {0.01, 0.05, 0.1} and report the resulting drift significance rates (See US-2).
-- **FR-006**: System MUST apply an adaptively weighted statistic to combine evidence across fields with heterogeneous effect-size metrics (See US-3).
-- **FR-007**: System MUST compute a drift statistic using the rater-drift statistical framework and compare it to the mixed-model slope (See US-3).
+- **FR-006**: System MUST apply an inverse-variance weighting with heterogeneity adjustment (DerSimonian-Laird) to combine residual power drift estimates across fields with heterogeneous effect-size metrics (See US-3).
+- **FR-007**: System MUST compute a null distribution for the drift slope by permuting the input variables (effect size and sample size) [deferred] times while holding year constant, and compare the observed slope against this distribution (See US-3).
 - **FR-008**: System MUST handle missing data (missing sample size or effect size) by excluding the specific record and logging a warning, without terminating the pipeline (See Edge Cases).
-- **FR-009**: System MUST visualize the power vs. year trajectory with the fitted regression line and 95% confidence intervals (See US-1).
+- **FR-009**: System MUST visualize the *residual* power vs. year trajectory with the fitted regression line and 95% confidence intervals (See US-1).
 - **FR-010**: System MUST run entirely on a CPU-only environment (no GPU/CUDA) within a 6-hour runtime limit on a standard CI runner (See Compute Feasibility).
 
 ### Key Entities
@@ -87,11 +87,11 @@ As a domain expert, I want to combine evidence across heterogeneous fields using
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
 
-- **SC-001**: The slope of power estimates over calendar year is measured against the null hypothesis of zero slope (See US-1).
+- **SC-001**: The slope of *residual* power estimates over calendar year (adjusted for effect size and sample size) is measured against the null hypothesis of zero slope (See US-1).
 - **SC-002**: The empirical p-value from the permutation test is measured against the parametric p-value to assess model robustness (See US-2).
 - **SC-003**: The stability of the drift detection is measured against the alpha threshold sweep {0.01, 0.05, 0.1} to ensure the finding is not threshold-dependent (See US-2).
 - **SC-004**: The aggregated evidence across fields is measured against the primary mixed-model slope to validate generalizability (See US-3).
-- **SC-005**: The drift statistic from the rater-drift framework is measured against the mixed-model slope to confirm convergence of methods (See US-3).
+- **SC-005**: The observed drift slope is measured against the null distribution generated by permuting input variables to confirm the drift is not an artifact of input distribution changes (See US-3).
 
 ## Assumptions
 
@@ -99,5 +99,5 @@ As a domain expert, I want to combine evidence across heterogeneous fields using
 - **Compute Constraints**: The total dataset size (after download and filtering) will fit within ~7 GB of RAM, and the permutation test (10,000 iterations) will complete within the 6-hour CI job limit on a 2-core CPU runner.
 - **Statistical Formulas**: The power calculation formulas from the 1999 paper are applicable to the effect size metrics (Cohen's *d*, odds ratio) found in the dataset without requiring complex conversion factors not provided in the source.
 - **Observational Nature**: The study design is purely observational; therefore, the analysis assumes no causal claims can be made about *why* the drift occurs, only that a temporal association exists.
-- **Independence of Random Effects**: The assumption is made that `field` and `original_study` random effects are sufficient to account for clustering, and that no additional hierarchical levels (e.g., specific lab) are required for the model to converge.
+- **Independence of Random Effects**: The assumption is made that `field` and `original_study_id` random effects are sufficient to account for clustering, and that no additional hierarchical levels (e.g., specific lab) are required for the model to converge.
 - **Threshold Justification**: The choice of alpha thresholds {0.01, 0.05, 0.1} for sensitivity analysis is based on standard community practices in statistical reporting; this specific set is sufficient to demonstrate robustness.

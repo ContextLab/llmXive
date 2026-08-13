@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LMM Drift Output Schema"
+description: "Schema for the primary statistical output including LMM results and derived drift metrics."
+type: "object"
+properties:
+  lmm_results:
+    type: "object"
+    description: "Results from the Linear Mixed-Effects Model."
+    properties:
+      slope_year:
+        type: "number"
+        description: "Coefficient for the year predictor."
+      se_year:
+        type: "number"
+        description: "Standard error of the year slope."
+      p_value_lrt:
+        type: "number"
+        description: "P-value from the Likelihood-Ratio Test."
+      model_converged:
+        type: "boolean"
+        description: "Flag indicating if the model converged successfully."
+    required:
+      - slope_year
+      - se_year
+      - p_value_lrt
+      - model_converged
+  permutation_results:
+    type: "object"
+    description: "Results from the permutation test."
+    properties:
+      p_value_permutation:
+        type: "number"
+        description: "Empirical p-value from the permutation test."
+      permutation_count:
+        type: "integer"
+        description: "Number of permutations performed."
+      is_approximate:
+        type: "boolean"
+        description: "True if the count was reduced due to timeout."
+    required:
+      - p_value_permutation
+      - permutation_count
+      - is_approximate
+  sensitivity_analysis:
+    type: "array"
+    description: "Results of the alpha threshold sweep."
+    items:
+      type: "object"
+      properties:
+        alpha_value:
+          type: "number"
+          description: "The alpha threshold tested."
+        drift_significant:
+          type: "boolean"
+          description: "True if p-value < alpha_value."
+      required:
+        - alpha_value
+        - drift_significant
+  metadata:
+    type: "object"
+    description: "Run metadata."
+    properties:
+      timestamp:
+        type: "string"
+        format: "date-time"
+      dataset_checksum:
+        type: "string"
+        description: "Checksum of the input dataset."
+    required:
+      - timestamp
+      - dataset_checksum
+required:
+  - lmm_results
+  - permutation_results
+  - sensitivity_analysis
+  - metadata
+additionalProperties: false
