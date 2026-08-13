@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.11651",
+  "judged_at": "2026-08-13T10:33:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "analyzing the trade‑off between prompt size and code generation quality computer science",
+  "rationale": "The paper focuses on the utility of negative training examples (failed trajectories) for fine-tuning LLM agents, which is a distinct mechanism from the user's question about the trade-off between prompt size (input length) and code generation quality. While both involve LLMs, the candidate paper does not measure prompt size, code generation quality, or the specific trade-off between them, nor does it belong to the canonical alternative-vocabulary cluster for input-length scaling laws.",
+  "relevant": false
+}
