@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-887-llmxive-follow-up-extending-latentskill
-last_run_id: 4604447d-676d-4bf9-b8d7-9e25b20abe4f
+last_run_id: 34cb64be-9b40-40c8-aeff-e9457303818a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill
 title: 'llmXive follow-up: extending "LatentSkill: From In-Context Textual Skills
   to In-Weight Latent Skills"'
-updated_at: '2026-08-13T04:45:07.322954Z'
+updated_at: '2026-08-13T05:49:55.256166Z'

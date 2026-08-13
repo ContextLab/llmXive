@@ -17,7 +17,7 @@ The researcher MUST be able to ingest the pre-trained LoRA adapters (A and B mat
 
 **Acceptance Scenarios**:
 
-1. **Given** the original LatentSkill LoRA weight files and task descriptions are available, **When** the ingestion script runs on a CPU-only environment, **Then** a normalized vector index is generated containing all skill vectors with L2 normalization applied.
+1. **Given** the original LatentSkill LoRA weight files and task descriptions are available, **When** the ingestion script runs on a CPU-only environment, **Then** a normalized vector index is generated containing all skill vectors with normalization applied.
 2. **Given** a raw LoRA weight file, **When** the flattening process is executed, **Then** the resulting vector dimensions match the theoretical product of the A and B matrix dimensions, and the data type remains compatible with standard CPU float32 operations.
 
 ---
@@ -48,7 +48,7 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 
 **Acceptance Scenarios**:
 
-1. **Given** a synthesized LoRA adapter from User Story 2 and a composite task, **When** the adapter is applied to the frozen base LLM in the simulation environment for $N \ge 5$ runs, **Then** the system records a binary success/failure outcome for each run based solely on the environment's internal logic.
+1. **Given** a synthesized LoRA adapter from User Story 2 and a composite task, **When** the adapter is applied to the frozen base LLM in the simulation environment for $N \ge $ runs, **Then** the system records a binary success/failure outcome for each run based solely on the environment's internal logic.
 2. **Given** success rates (probabilities) for retrieval, interpolation, and baseline methods derived from multiple runs, **When** the statistical test is run, **Then** the system outputs a p-value indicating whether the difference in performance is statistically significant ($p < 0.05$).
 
 ### Edge Cases
@@ -67,7 +67,7 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 - **FR-004**: System MUST apply the synthesized LoRA adapters to a frozen base LLM and evaluate task success using the environment's internal logic (independent of the selection mechanism). (See US-3)
 - **FR-005**: System MUST perform statistical testing (paired t-test or Wilcoxon signed-rank) to compare success rates of approximation strategies against the baseline with a significance threshold of $p < 0.05$. (See US-3)
 - **FR-006**: System MUST enforce the Benjamini-Hochberg procedure for multiple-comparison correction when evaluating the set of primary hypothesis tests (comparing the 3 approximation strategies against the baseline) and the sensitivity analysis sweeps defined in SC-004, to control the False Discovery Rate (FDR). (See US-3)
-- **FR-007**: System MUST validate the "text-weight alignment" assumption by calculating the Pearson correlation coefficient between text-space cosine distances and weight-space cosine distances for a held-out set of known task pairs; the correlation must be $\ge 0.6$ for the retrieval mechanism to be considered valid. (See US-2)
+- **FR-007**: System MUST validate the "text-weight alignment" assumption by calculating the Pearson correlation coefficient between text-space cosine distances and weight-space cosine distances for a held-out set of known task pairs; the correlation must be sufficiently strong for the retrieval mechanism to be considered valid. (See US-2)
 - **FR-008**: System MUST execute multiple independent runs for every task in the evaluation set to establish a stable success probability (mean of binary outcomes) before performing statistical tests. (See US-3)
 
 ### Key Entities

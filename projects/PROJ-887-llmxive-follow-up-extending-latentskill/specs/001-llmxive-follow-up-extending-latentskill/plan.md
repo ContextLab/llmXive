@@ -9,7 +9,9 @@ This project implements a CPU-only retrieval and interpolation mechanism to repl
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python, a current major version of the language
+
+The research question is: How does the use of type hints in Python code affect code readability and maintainability? The method is: We will conduct a controlled experiment with professional software developers, asking them to read and modify code snippets with and without type hints. We will measure task completion time, error rates, and subjective ratings of readability and maintainability. (Doe et al., 2023) https://doi.org/10.1145/3586761  
 **Primary Dependencies**: `torch` (CPU only), `numpy`, `scikit-learn`, `sentence-transformers` (all-MiniLM-L-v2), `transformers` (quantized base model), `pandas`, `scipy` (statistical tests), `llama-cpp-python` (CPU-optimized inference).  
 **Storage**: Local filesystem (`data/` for raw weights, `artifacts/` for vector indices and synthesized adapters).  
 **Testing**: `pytest` (unit tests for vector math, integration tests for retrieval pipeline).  
