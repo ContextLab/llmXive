@@ -1,22 +1,26 @@
 """
-Evaluation script for molecular diffusion coefficient prediction.
+Evaluation script for the molecular diffusion coefficient prediction project.
 
-This script extends the existing evaluation logic to:
-1. Perform a paired t‑test on the absolute errors of the GNN and the baseline.
-2. Respect the `data_source_flag.json` artifact – if the source is synthetic,
-   the evaluation JSON is not created.
-3. When the source is real, compute Pearson r, RMSE, p‑value from the t‑test,
-   and a `hypothesis_status` field that reflects the strength of the correlation.
+This module provides functions to:
+- Load the featurized dataset (JSON Lines format) produced by the ingestion pipeline.
+- Compute performance metrics (RMSE and Pearson correlation) for the GNN and
+  Linear Regression baseline.
+- Perform a paired t‑test on the absolute errors of the two models.
+- Determine a hypothesis status based on the Pearson correlation coefficient.
+- Respect the ``data_source_flag.json`` artifact: if the data source is marked as
+  ``synthetic`` the evaluation step is skipped and no JSON report is created.
 
-The script is intended to be run as a module:
-    python -m training.evaluate
-
-It writes its output to:
-    artifacts/reports/evaluation.json
+The public API matches the original specification:
+  - ``load_featurized_dataset``
+  - ``compute_metrics``
+  - ``determine_hypothesis_status``
+  - ``main``
 """
+
 import json
 import logging
 from pathlib import Path
+from typing import List, Dict, Any
 
 import numpy as np
 from scipy.stats import ttest_rel
@@ -24,70 +28,135 @@ from scipy.stats import ttest_rel
 from utils.config import get_project_root
 from utils.logging import get_logger
 
-# ----------------------------------------------------------------------
-# Helper functions (some are re‑implemented here to keep the module self‑contained)
-# ----------------------------------------------------------------------
+logger = get_logger(__name__)
+
+# --------------------------------------------------------------------------- #
+# Helper functions
+# --------------------------------------------------------------------------- #
+
+def _ensure_dir(path: Path) -> None:
+    """Make sure the parent directory of *path* exists."""
+    path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def load_featurized_dataset() -> list[dict]:
+# --------------------------------------------------------------------------- #
+# Public API
+# --------------------------------------------------------------------------- #
+
+def load_featurized_dataset() -> List[Dict[str, Any]]:
     """
-    Load the featurized dataset produced by ``code/ingestion/ingest.py``.
-    The dataset is stored as a JSON‑Lines file where each line is a dict
-    containing at least the keys:
-        - ``target``: true diffusion coefficient (float)
-        - ``gnn_pred``: model prediction from the GNN (float)
-        - ``baseline_pred``: model prediction from the linear baseline (float)
+    Load the featurized dataset produced by ``code/ingestion/featurize.py``.
+
+    The dataset is expected to be a JSON Lines file located at
+    ``data/processed/featurized.jsonl``.  Each line must contain at least the
+    following keys:
+
+    - ``target``: the experimental diffusion coefficient (float)
+    - ``gnn_pred``: the GNN model prediction (float)
+    - ``baseline_pred``: the Linear Regression baseline prediction (float)
 
     Returns
     -------
-    List[dict]
-        List of records, one per molecule‑solvent pair.
+    List[Dict[str, Any]]
+        A list where each element corresponds to a molecule record.
     """
-    data_path = get_project_root() / "data" / "processed" / "featurized.jsonl"
-    records = []
-    with data_path.open("r", encoding="utf-8") as f:
+    dataset_path = (
+        get_project_root() / "data" / "processed" / "featurized.jsonl"
+    )
+    if not dataset_path.is_file():
+        raise FileNotFoundError(
+            f"Featurized dataset not found at expected location: {dataset_path}"
+        )
+
+    records: List[Dict[str, Any]] = []
+    with dataset_path.open("r", encoding="utf-8") as f:
         for line in f:
-            if line.strip():
-                records.append(json.loads(line))
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as exc:
+                logger.error(f"Invalid JSON line in featurized dataset: {exc}")
+                raise
+            # Basic validation – ensure required fields are present
+            for key in ("target", "gnn_pred", "baseline_pred"):
+                if key not in record:
+                    raise KeyError(
+                        f"Record missing required key '{key}': {record}"
+                    )
+            records.append(record)
+    logger.info(f"Loaded {len(records)} featurized records.")
     return records
 
 
-def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
+def compute_metrics(
+    records: List[Dict[str, Any]]
+) -> Dict[str, float]:
     """
-    Compute Pearson correlation coefficient and root‑mean‑square error.
+    Compute performance metrics for the GNN and baseline models.
 
     Parameters
     ----------
-    y_true : np.ndarray
-        Ground‑truth values.
-    y_pred : np.ndarray
-        Predicted values.
+    records : List[Dict[str, Any]]
+        Output of :func:`load_featurized_dataset`.
 
     Returns
     -------
     dict
-        ``{'pearson_r': float, 'rmse': float}``
-    """
-    if y_true.size == 0:
-        raise ValueError("Empty array provided to compute_metrics.")
+        Dictionary containing:
 
-    # Pearson r
-    if y_true.size < 2:
-        # np.corrcoef requires at least two samples; fall back to 0.0
-        pearson_r = 0.0
-    else:
-        pearson_r = np.corrcoef(y_true, y_pred)[0, 1]
+        - ``gnn_rmse`` : RMSE for the GNN predictions.
+        - ``baseline_rmse`` : RMSE for the baseline predictions.
+        - ``gnn_pearson_r`` : Pearson correlation coefficient for GNN.
+        - ``baseline_pearson_r`` : Pearson correlation coefficient for baseline.
+        - ``p_value`` : p‑value from a paired t‑test on absolute errors.
+    """
+    # Extract arrays
+    targets = np.array([rec["target"] for rec in records], dtype=float)
+    gnn_preds = np.array([rec["gnn_pred"] for rec in records], dtype=float)
+    baseline_preds = np.array(
+        [rec["baseline_pred"] for rec in records], dtype=float
+    )
 
     # RMSE
-    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
+    gnn_rmse = float(np.sqrt(np.mean((gnn_preds - targets) ** 2)))
+    baseline_rmse = float(np.sqrt(np.mean((baseline_preds - targets) ** 2)))
 
-    return {"pearson_r": float(pearson_r), "rmse": float(rmse)}
+    # Pearson correlation (handle constant arrays gracefully)
+    def _pearson(x: np.ndarray, y: np.ndarray) -> float:
+        if np.std(x) == 0 or np.std(y) == 0:
+            return 0.0
+        return float(np.corrcoef(x, y)[0, 1])
+
+    gnn_pearson_r = _pearson(gnn_preds, targets)
+    baseline_pearson_r = _pearson(baseline_preds, targets)
+
+    # Paired t‑test on absolute errors
+    gnn_abs_err = np.abs(gnn_preds - targets)
+    baseline_abs_err = np.abs(baseline_preds - targets)
+
+    # If there are fewer than 2 samples, t‑test is not defined; fall back to NaN.
+    if len(gnn_abs_err) < 2:
+        p_value = float("nan")
+    else:
+        t_stat, p_value = ttest_rel(gnn_abs_err, baseline_abs_err)
+        p_value = float(p_value)
+
+    metrics = {
+        "gnn_rmse": gnn_rmse,
+        "baseline_rmse": baseline_rmse,
+        "gnn_pearson_r": gnn_pearson_r,
+        "baseline_pearson_r": baseline_pearson_r,
+        "p_value": p_value,
+    }
+    logger.debug(f"Computed metrics: {metrics}")
+    return metrics
 
 
 def determine_hypothesis_status(pearson_r: float) -> str:
     """
-    Translate a Pearson correlation coefficient into a qualitative hypothesis
-    status as required by SC‑001.
+    Translate a Pearson correlation coefficient into a hypothesis status.
 
     Parameters
     ----------
@@ -97,7 +166,11 @@ def determine_hypothesis_status(pearson_r: float) -> str:
     Returns
     -------
     str
-        One of ``'positive'``, ``'null'``, ``'inconclusive'``.
+        One of ``'positive'``, ``'null'``, or ``'inconclusive'`` according to
+        the specification:
+          - > 0.7   → ``positive``
+          - < 0.3   → ``null``
+          - otherwise → ``inconclusive``
     """
     if pearson_r > 0.7:
         return "positive"
@@ -106,118 +179,86 @@ def determine_hypothesis_status(pearson_r: float) -> str:
     return "inconclusive"
 
 
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
-
-
 def main() -> None:
     """
-    Execute the evaluation pipeline.
+    Entry point for the evaluation step.
 
-    The function respects the data‑source flag:
-    * If the flag indicates a synthetic source, the function logs the decision
-      and exits without writing ``evaluation.json``.
-    * Otherwise, it computes the required metrics, performs the paired t‑test,
-      and writes the JSON report.
+    The function performs the following actions:
+
+    1. Reads ``data/data_source_flag.json`` to determine whether the pipeline
+       is operating on real or synthetic data.
+    2. If the source is synthetic, the function logs the decision and exits
+       without creating an evaluation report.
+    3. If the source is real, the featurized dataset is loaded, metrics are
+       computed, a paired t‑test is performed, and a JSON report is written to
+       ``data/artifacts/reports/evaluation.json``.
     """
-    logger = get_logger(__name__)
-
-    # ------------------------------------------------------------------
-    # 1️⃣  Determine whether we are dealing with synthetic data
-    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------- #
+    # Step 1 – Determine data source
+    # ------------------------------------------------------------------- #
     flag_path = get_project_root() / "data" / "data_source_flag.json"
     if not flag_path.is_file():
-        logger.warning(
-            "Data source flag file not found at %s – assuming real data.",
-            flag_path,
+        logger.error(
+            f"Data source flag file not found at {flag_path}. "
+            "Assuming synthetic data to avoid accidental metric leakage."
         )
-        source_is_synthetic = False
-    else:
-        try:
-            with flag_path.open("r", encoding="utf-8") as f:
-                flag_content = json.load(f)
-            source_is_synthetic = flag_content.get("source", "synthetic") == "synthetic"
-        except Exception as exc:
-            logger.error("Failed to read data source flag: %s", exc)
-            source_is_synthetic = False
-
-    if source_is_synthetic:
-        logger.info(
-            "Synthetic data detected – skipping metric calculation and evaluation report generation."
-        )
-        # Explicitly ensure no stray evaluation file remains from previous runs
-        eval_path = (
-            get_project_root()
-            / "artifacts"
-            / "reports"
-            / "evaluation.json"
-        )
-        if eval_path.is_file():
-            eval_path.unlink()
         return
 
-    # ------------------------------------------------------------------
-    # 2️⃣  Load featurized data
-    # ------------------------------------------------------------------
     try:
-        records = load_featurized_dataset()
-    except Exception as exc:
-        logger.error("Failed to load featurized dataset: %s", exc)
+        with flag_path.open("r", encoding="utf-8") as f:
+            flag = json.load(f)
+    except json.JSONDecodeError as exc:
+        logger.error(f"Unable to parse data source flag JSON: {exc}")
         raise
 
-    # Extract true values and predictions
-    y_true = np.array([rec["target"] for rec in records], dtype=float)
-    y_pred_gnn = np.array([rec["gnn_pred"] for rec in records], dtype=float)
-    y_pred_baseline = np.array([rec["baseline_pred"] for rec in records], dtype=float)
+    source = flag.get("source", "synthetic").lower()
+    logger.info(f"Data source flag indicates: {source}")
 
-    # ------------------------------------------------------------------
-    # 3️⃣  Compute individual model metrics
-    # ------------------------------------------------------------------
-    gnn_metrics = compute_metrics(y_true, y_pred_gnn)
-    baseline_metrics = compute_metrics(y_true, y_pred_baseline)
+    if source != "real":
+        logger.info(
+            "Synthetic data detected – skipping metric calculation and "
+            "evaluation report generation."
+        )
+        return
 
-    # ------------------------------------------------------------------
-    # 4️⃣  Paired t‑test on absolute errors
-    # ------------------------------------------------------------------
-    abs_err_gnn = np.abs(y_true - y_pred_gnn)
-    abs_err_baseline = np.abs(y_true - y_pred_baseline)
+    # ------------------------------------------------------------------- #
+    # Step 2 – Load featurized data
+    # ------------------------------------------------------------------- #
+    records = load_featurized_dataset()
+    if not records:
+        logger.warning("Featurized dataset is empty – no evaluation will be performed.")
+        return
 
-    # scipy's ttest_rel returns (statistic, pvalue)
-    t_stat, p_value = ttest_rel(abs_err_gnn, abs_err_baseline, nan_policy="omit")
-    p_value = float(p_value) if not np.isnan(p_value) else None
+    # ------------------------------------------------------------------- #
+    # Step 3 – Compute metrics and paired t‑test
+    # ------------------------------------------------------------------- #
+    metrics = compute_metrics(records)
 
-    # ------------------------------------------------------------------
-    # 5️⃣  Assemble final report
-    # ------------------------------------------------------------------
+    # ------------------------------------------------------------------- #
+    # Step 4 – Determine hypothesis status (based on GNN Pearson r)
+    # ------------------------------------------------------------------- #
+    hypothesis_status = determine_hypothesis_status(metrics["gnn_pearson_r"])
+
+    # ------------------------------------------------------------------- #
+    # Step 5 – Write evaluation report
+    # ------------------------------------------------------------------- #
     report = {
-        "gnn": gnn_metrics,
-        "baseline": baseline_metrics,
-        "pearson_r": gnn_metrics["pearson_r"],  # primary correlation for hypothesis
-        "rmse": gnn_metrics["rmse"],
-        "p_value": p_value,
-        "hypothesis_status": determine_hypothesis_status(gnn_metrics["pearson_r"]),
+        "pearson_r": metrics["gnn_pearson_r"],
+        "rmse": metrics["gnn_rmse"],
+        "p_value": metrics["p_value"],
+        "hypothesis_status": hypothesis_status,
     }
 
-    # ------------------------------------------------------------------
-    # 6️⃣  Write JSON report
-    # ------------------------------------------------------------------
     report_path = (
-        get_project_root()
-        / "artifacts"
-        / "reports"
-        / "evaluation.json"
+        get_project_root() / "data" / "artifacts" / "reports" / "evaluation.json"
     )
-    report_path.parent.mkdir(parents=True, exist_ok=True)
+    _ensure_dir(report_path)
+    with report_path.open("w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2, sort_keys=True)
 
-    try:
-        with report_path.open("w", encoding="utf-8") as f:
-            json.dump(report, f, indent=2)
-        logger.info("Evaluation report written to %s", report_path)
-    except Exception as exc:
-        logger.error("Failed to write evaluation report: %s", exc)
-        raise
+    logger.info(f"Evaluation report written to {report_path}")
 
 
 if __name__ == "__main__":
+    # When executed as a script, run the evaluation.
     main()

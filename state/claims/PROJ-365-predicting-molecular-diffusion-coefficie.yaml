@@ -179,3 +179,40 @@
   source_type: external
   status: verified
   updated_at: '2026-07-08T01:22:31Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: random structures from Wikidata Q3274587 used for pipeline validation
+  claim_id: c_02dd9df2
+  context: T007b provides random structures strictly for pipeline validation (Phase
+    0).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_structures_from_Wikidata_Q3274587_used_for_pipeline_v
+  kind: entity_fact
+  raw_text: random structures (Wikidata Q3274587) strictly for pipeline validation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T15:45:26Z'
+- artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
+  attempts: 1
+  canonical: experimental diffusion data is available from NIST TRC
+  claim_id: c_6b57f8d9
+  context: Task T007 creates a script that fetches experimental diffusion data from
+    the NIST Thermodynamics Research Center (TRC) using the thermo library.
+  evidence:
+    entailment_evidence: Experimental diffusion data is available from NIST TRC
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Experimental_diffusion_data_is_available_from_NIST_TRC
+  kind: entity_fact
+  raw_text: Implement `code/ingestion/fetch_nist.py` to programmatically retrieve
+    experimental diffusion data from NIST TRC via `thermo`
+  resolved_value: experimental diffusion data is available from NIST TRC
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T15:45:46Z'

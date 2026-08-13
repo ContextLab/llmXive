@@ -43,18 +43,18 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
 - [X] T004 Implement `code/utils/config.py` to manage paths, random seed (fixed), and environment variables
-- [~] T005 [P] Implement `code/utils/logging.py` with specific log tags: `[MISSING_DATA_EXCLUDED]`, `[ERROR_SMILES]`; write to `data/logs/ingestion.log` in plain text with timestamp (FR-007)
-- [~] T005a [P] Add pytest test `tests/unit/test_logging_tags.py` asserting that the tags `[MISSING_DATA_EXCLUDED]` and `[ERROR_SMILES]` appear in `data/logs/ingestion.log` after processing a mixed‑validity CSV (executability)
+- [ ] T005 [P] Implement `code/utils/logging.py` with specific log tags: `[MISSING_DATA_EXCLUDED]`, `[ERROR_SMILES]`; write to `data/logs/ingestion.log` in plain text with timestamp (FR-007)
+- [ ] T005a [P] Add pytest test `tests/unit/test_logging_tags.py` asserting that the tags `[MISSING_DATA_EXCLUDED]` and `[ERROR_SMILES]` appear in `data/logs/ingestion.log` after processing a mixed‑validity CSV (executability)
 - [X] T006 Implement `code/utils/monitor.py` to enforce a fixed runtime limit of **6 hours (21600 s)** and a RAM limit of **7 GB**; raise `ResourceLimitExceeded` if exceeded (FR-003, SC-003, SC-005)
-- [~] T006c [P] Extend `monitor.py` to record total pipeline runtime to `artifacts/reports/runtime_memory.json` under key `"total_seconds"` (SC-003)
+- [ ] T006c [P] Extend `monitor.py` to record total pipeline runtime to `artifacts/reports/runtime_memory.json` under key `"total_seconds"` (SC-003)
 - [X] T006d [P] Add pytest test `tests/unit/test_monitor_runtime.py` that runs a dummy function exceeding the time limit and asserts `ResourceLimitExceeded` is raised (executability)
-- [~] T006e [P] Extend `monitor.py` to capture peak memory usage and store under `"peak_memory_mb"` in the same JSON report (SC-005)
+- [ ] T006e [P] Extend `monitor.py` to capture peak memory usage and store under `"peak_memory_mb"` in the same JSON report (SC-005)
 - [X] T006f [P] Add pytest test `tests/unit/test_monitor_memory.py` that simulates memory over‑use and verifies the limit exception (executability)
 - [X] T006b [P] Implement `code/utils/graph_safety.py` to detect high molecular weight molecules and implement **sampling or truncation logic during featurization** (before memory allocation) to prevent memory crashes (Spec Edge Case, SC-005)
-- [X] T007 [P] Implement `code/ingestion/fetch_nist.py` to programmatically retrieve experimental diffusion data from NIST TRC via `thermo`; on failure, invoke T007b (Phase 0)
-- [~] T007b [P] {{claim:c_916bfffc}} (Wikidata Q3274587, https://www.wikidata.org/wiki/Q3274587) or random structures **strictly for pipeline validation** (Phase 0)
+- [X] T007 [P] {{claim:c_6b57f8d9}}; on failure, invoke T007b (Phase 0)
+- [ ] T007b [P] {{claim:c_916bfffc}} (Wikidata Q3274587, https://www.wikidata.org/wiki/Q3274587) or random structures **strictly for pipeline validation** (Phase 0)
 - [X] T007c [P] Implement `code/ingestion/flag_source.py` to generate a `data_source_flag.json` artifact in `data/` recording `{"source": "real" | "synthetic"}` based on which download/generation task succeeded. This artifact serves as the synchronization point for downstream tasks. (Phase 0)
-- [ ] T008 [P] Implement `code/ingestion/validate.py` to define SMILES validation logic and exclusion logic for missing solvent variables (FR-001, FR-007)
+- [X] T008 [P] Implement `code/ingestion/validate.py` to define SMILES validation logic and exclusion logic for missing solvent variables (FR-001, FR-007)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -68,9 +68,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008b [US1] Implement `code/ingestion/run_validation.py` to execute the validation logic from T008 on fetched/generated data. **Depends on T007c** to ensure data source is resolved. (Depends on T007c, T008)
+- [X] T008b [US1] Implement `code/ingestion/run_validation.py` to execute the validation logic from T008 on fetched/generated data. **Depends on T007c** to ensure data source is resolved. (Depends on T007c, T008)
 - [X] T010 [P] [US1] Implement `code/ingestion/featurize.py`: Convert SMILES to `MoleculeGraph` (RDKit) with atom nodes and bond edges **AND** compute `SolventDescriptor` (viscosity, dielectric constant) from CSV input (US1, FR-002)
-- [~] T012 [US1] Implement `code/ingestion/ingest.py`: Main pipeline to read CSV, validate (T008b), featurize, and write `data/processed/featurized.jsonl` (Depends on T008b, T010)
+- [ ] T012 [US1] Implement `code/ingestion/ingest.py`: Main pipeline to read CSV, validate (T008b), featurize, and write `data/processed/featurized.jsonl` (Depends on T008b, T010)
 - [~] T013 [US1] Implement error handling in `ingest.py` to exclude records with missing data and log with `[MISSING_DATA_EXCLUDED]`
 - [~] T014 [US1] Implement error handling in `ingest.py` to skip invalid SMILES and log with `[ERROR_SMILES]` without crashing
 - [ ] T015 [US1] Add contract test in `tests/contract/test_featurization.py` to validate JSONL schema against `specs/001-predicting-molecular-diffusion-coefficie/contracts/dataset.schema.yaml`
@@ -99,7 +99,7 @@
 - [ ] T021 [US2] Extend evaluation to (a) perform paired t‑test on absolute errors (FR‑005); (b) **Check `data_source_flag.json` (T007c)**: **IF source is synthetic, skip metric calculation and DO NOT create the evaluation JSON file**; (c) **IF source is real**, calculate metrics and generate `artifacts/reports/evaluation.json` containing `pearson_r`, `rmse`, `p_value`, and a **`hypothesis_status`** field with values: `'positive'` (if r > 0.7), `'null'` (if r < 0.3), or `'inconclusive'` (if 0.3 <= r <= 0.7), fully satisfying SC-001 (Depends on T020, T007c)
 - [X] T021a [P] Add contract test `tests/contract/test_evaluation_report.py` verifying the JSON schema includes the `hypothesis_status` field and that the file exists when real data is present
 - [X] T021b [P] Add unit test `tests/unit/test_evaluation_synthetic_skip.py` confirming that when the `data_source_flag.json` indicates 'synthetic' (or CLI arg `--data-source=synthetic` is set), the evaluation JSON is **not created** (executability)
-- [ ] T023 [US2] Add integration test in `tests/integration/test_training_pipeline.py` to verify end‑to‑end training and evaluation flow (including conditional metric suppression)
+- [X] T023 [US2] Add integration test in `tests/integration/test_training_pipeline.py` to verify end‑to‑end training and evaluation flow (including conditional metric suppression)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -124,7 +124,7 @@
 - [ ] T027 [US3] Generate final report `artifacts/reports/sensitivity_summary.md` summarizing stability of Pearson r > 0.7 across variations **and explicitly include a `stability` field (`stable`/`unstable`) based on whether all r values meet the threshold**. **Must depend on T043 AND T025b** to ensure both sweep and ablation results are available. (Depends on T043, T025b)
 - [ ] T027b [P] Add verification test `tests/contract/test_sensitivity_stability.py` that checks the summary report contains a stability statement and that all r values are recorded
 - [X] T028 [US3] Add unit test `tests/unit/test_outlier_analysis.py` confirming the JSON includes both full‑set and trimmed‑set r values
-- [ ] T028a [P] Add test `tests/unit/test_sensitivity_logic.py` verifying the hyperparameter sweep logic correctly iterates over the defined grid
+- [X] T028a [P] Add test `tests/unit/test_sensitivity_logic.py` verifying the hyperparameter sweep logic correctly iterates over the defined grid
 
 **Checkpoint**: All user stories should now be independently functional
 

@@ -43,7 +43,7 @@ The pipeline generates visualizations including a confusion matrix, feature impo
 
 **Why this priority**: This delivers the interpretable output needed for conservation planning decisions. It is independently testable by verifying that all three visualization types are generated for the deterministic set of focal species and that the feature importance report lists the top 3 land cover predictors per foraging guild.
 
-**Independent Test**: Can be fully tested by running the visualization script and verifying that: (1) output files include a confusion matrix image, feature importance chart, and spatial map for the top 2 species by observation count; and (2) the feature importance report lists the top land cover predictors for each of the foraging guilds.
+**Independent Test**: Can be fully tested by running the visualization script and verifying that: (1) output files include a confusion matrix image, feature importance chart, and spatial map for the top species by observation count; and (2) the feature importance report lists the top land cover predictors for each of the foraging guilds.
 
 **Acceptance Scenarios**:
 

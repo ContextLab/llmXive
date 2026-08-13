@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a reproducible machine learning pipeline to predict avian foraging guilds (ground, canopy, aerial) using public eBird Basic Dataset (EBD) occurrence records and NLCD 2019 land cover data. The approach involves extracting the top-ranked species by record count, aggregating land cover proportions to the species level, and training a Random Forest classifier. To validate signal beyond species identity, a **Random Guild Permutation Test** (permuting guild labels across species) is performed. The entire pipeline is designed to run on CPU-only GitHub Actions free-tier runners within 6 hours.
+This project implements a reproducible machine learning pipeline to predict avian foraging guilds (ground, canopy, aerial) using public eBird Basic Dataset (EBD) occurrence records and NLCD land cover data. The approach involves extracting the top-ranked species by record count, aggregating land cover proportions to the species level, and training a Random Forest classifier. To validate signal beyond species identity, a **Random Guild Permutation Test** (permuting guild labels across species) is performed. The entire pipeline is designed to run on CPU-only GitHub Actions free-tier runners within 6 hours.
 
 ## Technical Context
 

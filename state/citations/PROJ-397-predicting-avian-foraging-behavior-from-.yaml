@@ -31,14 +31,3 @@
   verification_status: mismatch
   verified_against_url: https://www.usgs.gov/centers/eros/science/usgs-eros-archive-land-cover-nlcd-2019-land-cover-l48
   verified_at: '2026-07-03T16:04:27.994854Z'
-- artifact_hash: e6490974f28504b818cf8d373d7835cbd06e809b1d998091b06de7279c881eea
-  artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: p-value - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/P-value
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-08-12T21:02:44.147847Z'

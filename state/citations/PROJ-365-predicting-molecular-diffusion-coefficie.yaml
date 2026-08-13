@@ -77,7 +77,7 @@
   verification_status: mismatch
   verified_against_url: https://zenodo.org/records/8224376/files/diffusion_dataset.csv
   verified_at: '2026-07-08T01:01:43.474437Z'
-- artifact_hash: 1659cf49917fb9c7a02971db9f2c99bd1efba92d10f6f0797ddd502e460e6918
+- artifact_hash: 75ca35955f2275c95d9f48d70117fd9fd9d99103a7a8606e1f8499d655486a94
   artifact_path: projects/PROJ-365-predicting-molecular-diffusion-coefficie/specs/001-predicting-molecular-diffusion-coefficie/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -85,6 +85,6 @@
   fetched_title: hydrodynamic radius - Wikidata
   kind: url
   value: https://www.wikidata.org/wiki/Q3274587
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q3274587
-  verified_at: '2026-07-08T01:22:51.575016Z'
+  verified_at: '2026-08-13T15:45:52.045397Z'
