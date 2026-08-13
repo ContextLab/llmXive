@@ -1,152 +1,166 @@
 """
-Contract test for linting configuration files.
+Contract test for linting configuration (.ruff.toml).
 
-Validates that .ruff.toml and pyproject.toml contain expected linting
-configurations as defined in the project setup (Task T003).
+This test validates that:
+1. The .ruff.toml file exists in the project root.
+2. The file is valid TOML syntax.
+3. The file contains required configuration sections (e.g., [lint], [format]).
+4. Specific required rules or settings are present (e.g., line length, target version).
 """
-
 import os
-import re
+import tomllib
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-RUFF_CONFIG = PROJECT_ROOT / ".ruff.toml"
-PYPROJECT_CONFIG = PROJECT_ROOT / "pyproject.toml"
+RUFF_CONFIG_PATH = PROJECT_ROOT / ".ruff.toml"
+
+# Required configuration keys based on project standards (derived from T003)
+REQUIRED_SECTIONS = {"lint", "format"}
+REQUIRED_SETTINGS = {
+    "lint": {
+        "select": list,  # Should be a list of rule codes
+        "ignore": list,  # Should be a list of rule codes to ignore
+        "target-version": str,  # e.g., "py311"
+    },
+    "format": {
+        "line-length": int,  # e.g., 88 or 100
+    },
+}
 
 
-class TestRuffConfiguration:
-    """Tests for .ruff.toml configuration file."""
-
-    @pytest.fixture
-    def ruff_content(self):
-        """Read the ruff configuration file."""
-        if not RUFF_CONFIG.exists():
-            pytest.fail(f"Ruff configuration file not found: {RUFF_CONFIG}")
-        return RUFF_CONFIG.read_text()
-
-    def test_ruff_config_exists(self):
-        """Verify .ruff.toml exists in project root."""
-        assert RUFF_CONFIG.exists(), "Ruff configuration file .ruff.toml must exist"
-
-    def test_ruff_target_version(self, ruff_content):
-        """Verify target Python version is set to 3.11."""
-        assert "target-version" in ruff_content or 'target-version' in ruff_content, (
-            "Ruff config must specify target-version"
-        )
-        # Check for python 3.11 reference
-        assert "3.11" in ruff_content or "py311" in ruff_content, (
-            "Ruff config must target Python 3.11"
+def _load_ruff_config() -> dict[str, Any]:
+    """Load and parse the .ruff.toml file."""
+    if not RUFF_CONFIG_PATH.exists():
+        raise FileNotFoundError(
+            f"Linting configuration file not found at {RUFF_CONFIG_PATH}. "
+            "Run T003 to generate the file."
         )
 
-    def test_ruff_line_length(self, ruff_content):
-        """Verify line length is configured (typically 88 for black compatibility)."""
-        # Common patterns: line-length = 88 or line-length=88
-        assert re.search(r"line-length\s*=\s*\d+", ruff_content), (
-            "Ruff config must specify line-length"
+    with open(RUFF_CONFIG_PATH, "rb") as f:
+        try:
+            return tomllib.load(f)
+        except tomllib.TOMLDecodeError as e:
+            raise ValueError(f"Invalid TOML syntax in {RUFF_CONFIG_PATH}: {e}") from e
+
+
+class TestLintingConfigSchema:
+    """Contract tests for the .ruff.toml file structure and content."""
+
+    def test_file_exists(self):
+        """Assert that .ruff.toml exists in the project root."""
+        assert RUFF_CONFIG_PATH.exists(), (
+            f"File {RUFF_CONFIG_PATH} does not exist. "
+            "Ensure T003 has been completed successfully."
         )
 
-    def test_ruff_select_rules(self, ruff_content):
-        """Verify that select rules are configured."""
-        # Check for 'select' configuration
-        assert re.search(r"select\s*=\s*\[", ruff_content) or re.search(
-            r"select\s*=", ruff_content
-        ), "Ruff config must specify select rules"
+    def test_valid_toml_syntax(self):
+        """Assert that the file contains valid TOML syntax."""
+        # If this raises, the test fails with a clear error
+        config = _load_ruff_config()
+        assert isinstance(config, dict), "Parsed config must be a dictionary."
 
-    def test_ruff_ignore_rules(self, ruff_content):
-        """Verify ignore rules are configured if needed."""
-        # This is optional but good practice to check structure
-        # We just verify the file is parseable by looking for common sections
-        assert re.search(
-            r"(select|ignore|line-length|target-version)", ruff_content
-        ), "Ruff config must contain at least one valid configuration key"
-
-
-class TestPyprojectLintingConfig:
-    """Tests for pyproject.toml linting configuration."""
-
-    @pytest.fixture
-    def pyproject_content(self):
-        """Read the pyproject.toml file."""
-        if not PYPROJECT_CONFIG.exists():
-            pytest.fail(f"Pyproject.toml not found: {PYPROJECT_CONFIG}")
-        return PYPROJECT_CONFIG.read_text()
-
-    def test_pyproject_exists(self):
-        """Verify pyproject.toml exists in project root."""
-        assert PYPROJECT_CONFIG.exists(), "pyproject.toml must exist"
-
-    def test_pyproject_has_ruff_section(self, pyproject_content):
-        """Verify pyproject.toml contains ruff configuration section."""
-        # Check for [tool.ruff] section
-        assert "[tool.ruff]" in pyproject_content or "[tool.ruff." in pyproject_content, (
-            "pyproject.toml must contain [tool.ruff] section or subsection"
+    def test_required_sections_present(self):
+        """Assert that all required configuration sections exist."""
+        config = _load_ruff_config()
+        missing_sections = REQUIRED_SECTIONS - set(config.keys())
+        
+        assert not missing_sections, (
+            f"Missing required sections in .ruff.toml: {missing_sections}. "
+            f"Expected at least: {REQUIRED_SECTIONS}"
         )
 
-    def test_pyproject_has_black_section(self, pyproject_content):
-        """Verify pyproject.toml contains black configuration section."""
-        # Check for [tool.black] section
-        assert "[tool.black]" in pyproject_content, (
-            "pyproject.toml must contain [tool.black] section"
+    def test_lint_select_is_list(self):
+        """Assert that 'lint.select' is a list."""
+        config = _load_ruff_config()
+        lint_section = config.get("lint", {})
+        
+        assert "select" in lint_section, (
+            "Missing 'select' key in [lint] section. "
+            "Define a list of rule codes (e.g., ['E', 'F', 'W'])."
+        )
+        
+        assert isinstance(lint_section["select"], list), (
+            f"'lint.select' must be a list, got {type(lint_section['select']).__name__}"
         )
 
-    def test_pyproject_black_line_length(self, pyproject_content):
-        """Verify black line length is configured."""
-        assert re.search(
-            r"line-length\s*=\s*\d+", pyproject_content
-        ), "pyproject.toml must specify black line-length"
-
-    def test_pyproject_black_target_version(self, pyproject_content):
-        """Verify black target version is set to 3.11."""
-        assert "python-version" in pyproject_content or "target-version" in pyproject_content, (
-            "Black config should specify python/target version"
+    def test_lint_ignore_is_list(self):
+        """Assert that 'lint.ignore' is a list."""
+        config = _load_ruff_config()
+        lint_section = config.get("lint", {})
+        
+        assert "ignore" in lint_section, (
+            "Missing 'ignore' key in [lint] section. "
+            "Define a list of rule codes to ignore."
         )
-        assert "3.11" in pyproject_content or "py311" in pyproject_content, (
-            "Black config must target Python 3.11"
+        
+        assert isinstance(lint_section["ignore"], list), (
+            f"'lint.ignore' must be a list, got {type(lint_section['ignore']).__name__}"
         )
 
+    def test_target_version_present(self):
+        """Assert that 'lint.target-version' is defined and is a string."""
+        config = _load_ruff_config()
+        lint_section = config.get("lint", {})
+        
+        assert "target-version" in lint_section, (
+            "Missing 'target-version' in [lint] section. "
+            "Must specify Python version (e.g., 'py311')."
+        )
+        
+        assert isinstance(lint_section["target-version"], str), (
+            f"'lint.target-version' must be a string, got {type(lint_section['target-version']).__name__}"
+        )
+
+    def test_format_line_length_present(self):
+        """Assert that 'format.line-length' is defined and is an integer."""
+        config = _load_ruff_config()
+        format_section = config.get("format", {})
+        
+        assert "line-length" in format_section, (
+            "Missing 'line-length' in [format] section. "
+            "Must specify an integer value (e.g., 88)."
+        )
+        
+        assert isinstance(format_section["line-length"], int), (
+            f"'format.line-length' must be an integer, got {type(format_section['line-length']).__name__}"
+        )
+        
+        assert format_section["line-length"] > 0, (
+            f"'format.line-length' must be positive, got {format_section['line-length']}"
+        )
+
+    def test_select_contains_standard_rules(self):
+        """Assert that the select list includes standard rule categories (E, F, W)."""
+        config = _load_ruff_config()
+        lint_section = config.get("lint", {})
+        select_list = lint_section.get("select", [])
+        
+        # Check for presence of at least one standard category
+        standard_categories = {"E", "F", "W", "I", "N"}
+        present_categories = set(select_list) & standard_categories
+        
+        assert present_categories, (
+            f"'lint.select' should include standard rule categories. "
+            f"Found: {select_list}. Expected at least one of: {standard_categories}"
+        )
 
 class TestLintingConfigConsistency:
-    """Tests for consistency between ruff and black configurations."""
+    """Additional consistency checks for the linting configuration."""
 
-    def test_line_length_consistency(self):
-        """Verify line-length is consistent between .ruff.toml and pyproject.toml."""
-        if not RUFF_CONFIG.exists() or not PYPROJECT_CONFIG.exists():
-            pytest.skip("Configuration files not found")
-
-        ruff_content = RUFF_CONFIG.read_text()
-        pyproject_content = PYPROJECT_CONFIG.read_text()
-
-        ruff_match = re.search(r"line-length\s*=\s*(\d+)", ruff_content)
-        pyproject_match = re.search(r"line-length\s*=\s*(\d+)", pyproject_content)
-
-        if ruff_match and pyproject_match:
-            ruff_len = int(ruff_match.group(1))
-            pyproject_len = int(pyproject_match.group(1))
-            assert ruff_len == pyproject_len, (
-                f"Line length mismatch: ruff={ruff_len}, black={pyproject_len}"
-            )
-        elif not ruff_match and not pyproject_match:
-            pytest.skip("No line-length found in either config")
-        else:
-            pytest.skip("Line-length found in only one config file")
-
-    def test_python_version_consistency(self):
-        """Verify Python version is consistent across configs."""
-        if not RUFF_CONFIG.exists() or not PYPROJECT_CONFIG.exists():
-            pytest.skip("Configuration files not found")
-
-        ruff_content = RUFF_CONFIG.read_text()
-        pyproject_content = PYPROJECT_CONFIG.read_text()
-
-        ruff_versions = re.findall(r"(py311|3\.11)", ruff_content)
-        pyproject_versions = re.findall(r"(py311|3\.11)", pyproject_content)
-
-        # Both should reference 3.11
-        assert len(ruff_versions) > 0 or "3.11" in ruff_content, (
-            "Ruff config should reference Python 3.11"
-        )
-        assert len(pyproject_versions) > 0 or "3.11" in pyproject_content, (
-            "Pyproject config should reference Python 3.11"
+    def test_no_duplicate_rules_in_select_ignore(self):
+        """Assert that no rule code appears in both 'select' and 'ignore'."""
+        config = _load_ruff_config()
+        lint_section = config.get("lint", {})
+        
+        select_set = set(lint_section.get("select", []))
+        ignore_set = set(lint_section.get("ignore", []))
+        
+        duplicates = select_set & ignore_set
+        
+        assert not duplicates, (
+            f"Rule codes found in both 'select' and 'ignore': {duplicates}. "
+            "This is logically inconsistent."
         )

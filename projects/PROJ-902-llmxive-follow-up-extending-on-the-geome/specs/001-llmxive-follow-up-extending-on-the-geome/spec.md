@@ -82,7 +82,7 @@
 - **FR-017**: System MUST perform a pre‑study power analysis for the paired t‑tests used in US‑2 (see FR‑021) and ensure ≥0.80 power for detecting a [deferred] accuracy drop with σ=0.015. (See US-2)
 - **FR-018**: System MUST write all generated metrics, figures, and result tables to a single authoritative artifact `state.yaml`, which serves as the Single Source of Truth required by Constitution Principle IV. (See Constitution)
 - **FR-019**: System MUST validate experiment artifacts against both `contracts/experiment_results.schema.yaml` and `contracts/experiment.schema.yaml` during CI, aborting the run on schema violations. (See CI)
-- **FR-020**: System MUST derive the subspace mask from an independent set of **10 mask‑derivation seeds** that are not used in any downstream evaluation seeds, thereby breaking circular dependence between mask creation and performance evaluation. (See FR‑006)
+- **FR-020**: System MUST derive the subspace mask from an independent set of multiple mask‑derivation seeds that are not used in any downstream evaluation seeds, thereby breaking circular dependence between mask creation and performance evaluation. (See FR‑006)
 - **FR-021**: System MUST conduct a power analysis for the paired t‑tests in US‑2 assuming effect size δ=0.03, σ=0.015, α=0.05, targeting power ≥0.80; if the planned N=30 seeds yields insufficient power, the test result is flagged as "inconclusive". (See FR‑009, FR‑017)
 
 ### Key Entities

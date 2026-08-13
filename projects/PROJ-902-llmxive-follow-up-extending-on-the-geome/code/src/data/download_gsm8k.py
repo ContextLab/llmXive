@@ -1,26 +1,17 @@
 """
-download_gsm8k.py
------------------
+Download GSM8K dataset splits (train and test) in streaming mode,
+write them as JSONL files, and generate a SHA‑256 checksum file.
 
-This script streams the GSM8K dataset from the HuggingFace Hub and caches each
-split locally as line‑delimited JSON files under ``data/gsm8k/``.  After the
-download it computes a SHA‑256 checksum for every generated file and stores the
-results in ``data/gsm8k/checksums.json``.  The public API mirrors the
-expectations of the task list:
-
-* ``compute_sha256(path: Path) -> str``
-* ``save_checksums(checksums: Dict[str, str], path: Path) -> None``
-* ``load_checksums(path: Path) -> Dict[str, str]``
-* ``main()`` – entry point used by the integration test.
-
-The implementation streams the dataset (``streaming=True``) so memory usage
-stays bounded regardless of dataset size.  Each example is written as a single
-JSON object on its own line (JSON‑Lines format), which is convenient for later
-processing and checksum validation.
+This script is intended to be run directly:
+    python -m src.data.download_gsm8k
+It creates the following files under the project root:
+  data/gsm8k/raw/gsm8k_train.jsonl
+  data/gsm8k/raw/gsm8k_test.jsonl
+  data/gsm8k/checksums.json
 """
 
-import hashlib
 import json
+import hashlib
 from pathlib import Path
 from typing import Dict
 
@@ -29,87 +20,80 @@ from datasets import load_dataset
 
 def compute_sha256(file_path: Path) -> str:
     """
-    Compute the SHA‑256 checksum of ``file_path`` and return the hex digest.
-
-    The function reads the file in 4 MiB chunks to avoid loading the whole file
-    into memory.
+    Compute the SHA‑256 hash of a file and return the hexadecimal digest.
     """
-    hash_sha256 = hashlib.sha256()
+    sha256 = hashlib.sha256()
     with file_path.open("rb") as f:
-        for chunk in iter(lambda: f.read(4 * 1024 * 1024), b""):
-            hash_sha256.update(chunk)
-    return hash_sha256.hexdigest()
+        for chunk in iter(lambda: f.read(8192), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 
-def save_checksums(checksums: Dict[str, str], path: Path) -> None:
+def save_checksums(checksum_path: Path, checksums: Dict[str, str]) -> None:
     """
-    Persist a mapping ``{filename: sha256}`` as JSON.
-
-    The JSON file is written with ``indent=2`` for readability.
+    Write a JSON file mapping filenames to their SHA‑256 checksums.
     """
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as fp:
-        json.dump(checksums, fp, indent=2, sort_keys=True)
+    checksum_path.parent.mkdir(parents=True, exist_ok=True)
+    with checksum_path.open("w", encoding="utf-8") as f:
+        json.dump(checksums, f, indent=2, sort_keys=True)
 
 
-def load_checksums(path: Path) -> Dict[str, str]:
+def load_checksums(checksum_path: Path) -> Dict[str, str]:
     """
-    Load a checksum mapping written by :func:`save_checksums`.
-
-    Raises ``FileNotFoundError`` if the file does not exist.
+    Load a checksum JSON file produced by ``save_checksums``.
     """
-    with path.open("r", encoding="utf-8") as fp:
-        return json.load(fp)
+    with checksum_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
 
-def _stream_and_write(split: str, out_path: Path) -> None:
+def _write_jsonl(dataset, output_path: Path) -> None:
     """
-    Stream the given ``split`` of the GSM8K dataset and write each example as a
-    JSON line to ``out_path``.
+    Write a streaming ``datasets`` split to a JSON‑Lines file.
+    Each example is dumped as a single JSON object per line.
     """
-    dataset = load_dataset("gsm8k", split=split, streaming=True)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write one JSON object per line.
-    with out_path.open("w", encoding="utf-8") as fp:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
         for example in dataset:
-            json.dump(example, fp, ensure_ascii=False)
-            fp.write("\n")
+            # ``json.dumps`` ensures proper escaping; ``ensure_ascii=False`` keeps Unicode.
+            f.write(json.dumps(example, ensure_ascii=False) + "\n")
 
 
 def main() -> None:
     """
-    Download all GSM8K splits, cache them locally, and write checksum metadata.
-
-    The function is deliberately side‑effectful – it creates the directory
-    ``data/gsm8k/`` relative to the repository root (the directory that contains
-    the ``code/`` folder) and writes ``train.jsonl`` and ``test.jsonl`` files.
-    After the files are written, a ``checksums.json`` file containing SHA‑256
-    digests for each cached file is created.
+    Main entry point: download the GSM8K train and test splits,
+    write them to ``data/gsm8k/raw`` as JSONL files, and generate
+    a checksum manifest at ``data/gsm8k/checksums.json``.
     """
-    # Resolve the project root (``.../code`` -> repository root)
-    repo_root = Path(__file__).resolve().parents[2]  # code/src/data -> repo root
-    data_dir = repo_root / "data" / "gsm8k"
-    data_dir.mkdir(parents=True, exist_ok=True)
+    # Resolve the project root (four levels up from this file):
+    #   code/src/data/download_gsm8k.py -> code/src/data -> code/src -> code -> <project_root>
+    project_root = Path(__file__).resolve().parents[3]
 
-    splits = ["train", "test"]
-    for split in splits:
-        out_file = data_dir / f"{split}.jsonl"
-        print(f"Downloading GSM8K '{split}' split → {out_file}")
-        _stream_and_write(split, out_file)
+    data_dir = project_root / "data" / "gsm8k"
+    raw_dir = data_dir / "raw"
+    checksum_file = data_dir / "checksums.json"
 
-    # Compute checksums for all generated files.
-    checksums: Dict[str, str] = {}
-    for jsonl_path in data_dir.glob("*.jsonl"):
-        checksum = compute_sha256(jsonl_path)
-        checksums[jsonl_path.name] = checksum
+    # Load the GSM8K dataset in streaming mode to avoid loading everything into memory.
+    # The Hugging Face hub hosts the dataset under the identifier ``gsm8k``.
+    train_ds = load_dataset("gsm8k", split="train", streaming=True)
+    test_ds = load_dataset("gsm8k", split="test", streaming=True)
 
-    checksum_path = data_dir / "checksums.json"
-    save_checksums(checksums, checksum_path)
-    print(f"Checksums written to {checksum_path}")
+    # Destination file paths
+    train_path = raw_dir / "gsm8k_train.jsonl"
+    test_path = raw_dir / "gsm8k_test.jsonl"
+
+    # Write the splits to disk.
+    _write_jsonl(train_ds, train_path)
+    _write_jsonl(test_ds, test_path)
+
+    # Compute SHA‑256 checksums for the generated files.
+    checksums = {
+        "gsm8k_train.jsonl": compute_sha256(train_path),
+        "gsm8k_test.jsonl": compute_sha256(test_path),
+    }
+
+    # Persist the checksum manifest.
+    save_checksums(checksum_file, checksums)
 
 
 if __name__ == "__main__":
-    # When executed as a script ``python -m src.data.download_gsm8k`` or
-    # ``python code/src/data/download_gsm8k.py`` the ``main`` function is run.
     main()

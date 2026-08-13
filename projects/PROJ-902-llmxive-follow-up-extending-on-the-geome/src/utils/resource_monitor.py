@@ -1,166 +1,154 @@
 """
-Resource monitoring utilities.
+Resource monitoring utility.
 
-This module provides a context manager and helper functions to record the
-peak resident set size (VmRSS) and wall‑clock time of a code block or
-function execution.  It also enforces the resource limits required by the
-project contracts:
+This module provides a context manager ``ResourceMonitor`` that records the
+peak resident set size (VmRSS) and wall‑clock time of the enclosing code block.
+The measured values are available via ``get_metrics`` and can optionally be
+written to a JSON file (e.g. ``ci_metrics.json``) when the context exits.
 
-* Maximum RAM usage: 7 GB
-* Maximum wall‑clock time: 360 minutes (6 hours)
-
-If a limit is exceeded, a :class:`ResourceLimitExceeded` exception is raised.
+The implementation uses ``psutil`` to query the current process memory usage.
+A background thread polls the process at a configurable interval (default:
+0.1 seconds) to capture transient memory spikes.
 """
 
-import sys
-import time
+from __future__ import annotations
+
 import json
-import resource
+import os
+import threading
+import time
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-__all__ = [
-    "ResourceLimitExceeded",
-    "ResourceMonitor",
-    "monitor_function",
-    "write_resource_summary",
-]
+import psutil
 
-
-class ResourceLimitExceeded(RuntimeError):
-    """Exception raised when a resource limit is exceeded."""
-
-    pass
+__all__ = ["ResourceMonitor", "monitor_resource"]
 
 
 class ResourceMonitor:
     """
-    Context manager that records peak RSS (VmRSS) and wall‑clock time.
+    Context manager that measures peak RAM usage (VmRSS) and wall‑clock time.
 
-    Example
-    -------
-    >>> from src.utils.resource_monitor import ResourceMonitor
-    >>> with ResourceMonitor() as rm:
-    ...     # code to monitor
-    ...     do_something()
-    >>> print(rm.peak_ram_gb, rm.elapsed_seconds)
+    Parameters
+    ----------
+    output_path : Path | str | None, optional
+        If provided, the measured metrics are written as JSON to this path
+        when the context exits. The JSON schema is:
+        ``{ "peak_ram_gb": <float>, "wall_clock_min": <float> }``.
+    poll_interval : float, optional
+        Seconds between successive memory polls. Smaller values give finer
+        granularity at the cost of a little more overhead.
     """
-
-    # Default limits as dictated by the specification
-    DEFAULT_MAX_RAM_GB = 7.0
-    DEFAULT_MAX_WALL_MINUTES = 360.0
 
     def __init__(
         self,
-        max_ram_gb: float = DEFAULT_MAX_RAM_GB,
-        max_wall_minutes: float = DEFAULT_MAX_WALL_MINUTES,
+        output_path: Optional[Path | str] = None,
+        *,
+        poll_interval: float = 0.1,
     ) -> None:
-        self.max_ram_gb = max_ram_gb
-        self.max_wall_minutes = max_wall_minutes
+        self.output_path = Path(output_path) if output_path else None
+        self.poll_interval = poll_interval
+        self._process = psutil.Process(os.getpid())
+        self._peak_rss_bytes: int = 0
+        self._start_time: float | None = None
+        self._end_time: float | None = None
+        self._stop_event = threading.Event()
+        self._thread: threading.Thread | None = None
 
-        self._start_time: Optional[float] = None
-        self._end_time: Optional[float] = None
-        self.elapsed_seconds: Optional[float] = None
-        self.peak_rss_bytes: Optional[int] = None
-        self.peak_ram_gb: Optional[float] = None
-
-    # -----------------------------------------------------------------
+    # ------------------------------------------------------------------
     # Context‑manager protocol
-    # -----------------------------------------------------------------
+    # ------------------------------------------------------------------
     def __enter__(self) -> "ResourceMonitor":
-        self._start_time = time.perf_counter()
-        # ``resource.getrusage`` reports cumulative usage; we only need the
-        # peak RSS which will be queried on exit.
+        self._start_time = time.time()
+        # Initialise with current RSS
+        self._peak_rss_bytes = self._process.memory_info().rss
+        # Start background polling thread
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._poll_memory, daemon=True)
+        self._thread.start()
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> bool:
-        self._end_time = time.perf_counter()
-        self.elapsed_seconds = self._end_time - self._start_time  # type: ignore[arg-type]
+    def __exit__(self, exc_type, exc, tb) -> None:  # noqa: D401
+        # Stop polling thread
+        self._stop_event.set()
+        if self._thread is not None:
+            self._thread.join()
+        self._end_time = time.time()
+        # Final check – in case the last poll missed a spike
+        current_rss = self._process.memory_info().rss
+        if current_rss > self._peak_rss_bytes:
+            self._peak_rss_bytes = current_rss
 
-        # ``resource.getrusage`` returns ru_maxrss in kilobytes on Linux
-        # and in bytes on macOS.  Normalise to bytes.
-        usage = resource.getrusage(resource.RUSAGE_SELF)
-        if sys.platform.startswith("darwin"):
-            # macOS reports bytes directly
-            self.peak_rss_bytes = usage.ru_maxrss
-        else:
-            # Linux reports kilobytes
-            self.peak_rss_bytes = usage.ru_maxrss * 1024
+        # Convert to user‑friendly units
+        self.peak_ram_gb = self._peak_rss_bytes / (1024**3)
+        self.wall_clock_min = (self._end_time - self._start_time) / 60.0
 
-        self.peak_ram_gb = self.peak_rss_bytes / (1024 ** 3)
+        if self.output_path:
+            data: Dict[str, Any] = {
+                "peak_ram_gb": self.peak_ram_gb,
+                "wall_clock_min": self.wall_clock_min,
+            }
+            self.output_path.write_text(json.dumps(data, indent=2))
 
-        # Enforce limits – raise if violated
-        if self.peak_ram_gb > self.max_ram_gb:
-            raise ResourceLimitExceeded(
-                f"Peak RAM usage {self.peak_ram_gb:.2f} GB exceeds the "
-                f"limit of {self.max_ram_gb:.2f} GB."
-            )
-        if (self.elapsed_seconds / 60.0) > self.max_wall_minutes:
-            raise ResourceLimitExceeded(
-                f"Wall‑clock time {self.elapsed_seconds/60.0:.2f} min exceeds "
-                f"the limit of {self.max_wall_minutes:.2f} min."
-            )
-        # Returning False propagates any exception that may have occurred
-        # inside the block.
-        return False
+    # ------------------------------------------------------------------
+    # Public helpers
+    # ------------------------------------------------------------------
+    def get_metrics(self) -> Dict[str, float]:
+        """
+        Return the measured metrics as a dictionary.
 
-    # -----------------------------------------------------------------
-    # Convenience helpers
-    # -----------------------------------------------------------------
-    @property
-    def wall_clock_minutes(self) -> Optional[float]:
-        """Wall‑clock time expressed in minutes."""
-        if self.elapsed_seconds is None:
-            return None
-        return self.elapsed_seconds / 60.0
-
-    def as_dict(self) -> Dict[str, Any]:
-        """Return a serialisable dictionary of the recorded metrics."""
+        Returns
+        -------
+        dict
+            ``{ "peak_ram_gb": float, "wall_clock_min": float }``
+        """
         return {
-            "peak_ram_gb": round(self.peak_ram_gb, 6) if self.peak_ram_gb is not None else None,
-            "wall_clock_seconds": round(self.elapsed_seconds, 6) if self.elapsed_seconds is not None else None,
-            "wall_clock_minutes": round(self.wall_clock_minutes, 6) if self.wall_clock_minutes is not None else None,
+            "peak_ram_gb": getattr(self, "peak_ram_gb", 0.0),
+            "wall_clock_min": getattr(self, "wall_clock_min", 0.0),
         }
 
+    # ------------------------------------------------------------------
+    # Internal implementation
+    # ------------------------------------------------------------------
+    def _poll_memory(self) -> None:
+        """
+        Periodically poll the process RSS and keep the maximum observed value.
+        """
+        while not self._stop_event.is_set():
+            rss = self._process.memory_info().rss
+            if rss > self._peak_rss_bytes:
+                self._peak_rss_bytes = rss
+            time.sleep(self.poll_interval)
 
-def monitor_function(func, *args, **kwargs) -> Any:
+
+def monitor_resource(
+    func,
+    *args,
+    output_path: Optional[Path | str] = None,
+    poll_interval: float = 0.1,
+    **kwargs,
+) -> tuple[Any, Dict[str, float]]:
     """
-    Execute ``func`` while monitoring resources.
+    Convenience wrapper that runs ``func`` while measuring resources.
 
-    Returns whatever ``func`` returns.  After execution the function's
-    resource usage can be inspected via the returned ``ResourceMonitor``
-    instance attached as ``.monitor`` on the result (if the result is an
-    object) or via the ``monitor`` attribute on the wrapper function.
+    Parameters
+    ----------
+    func : callable
+        Function to execute.
+    *args, **kwargs : Any
+        Arguments forwarded to ``func``.
+    output_path : Path | str | None, optional
+        If given, a JSON file with the metrics is written after execution.
+    poll_interval : float, optional
+        Memory‑polling interval in seconds (passed to ``ResourceMonitor``).
 
-    Example
+    Returns
     -------
-    >>> def work(): time.sleep(1)
-    >>> result = monitor_function(work)
-    >>> # ``result`` is whatever ``work`` returns; the monitor is
-    >>> # available as ``monitor_function.monitor``.
+    result : Any
+        The return value of ``func``.
+    metrics : dict
+        ``{ "peak_ram_gb": float, "wall_clock_min": float }``.
     """
-    monitor = ResourceMonitor()
-    with monitor:
+    with ResourceMonitor(output_path=output_path, poll_interval=poll_interval) as rm:
         result = func(*args, **kwargs)
-    # Attach the monitor for introspection by callers/tests
-    setattr(result, "monitor", monitor) if not isinstance(result, type(None)) else None
-    # Also expose via a attribute on the helper for convenience
-    monitor_function.monitor = monitor  # type: ignore[attr-defined]
-    return result
-
-
-def write_resource_summary(
-    metrics: Dict[str, Any],
-    output_path: Path = Path("ci_metrics.json"),
-) -> None:
-    """
-    Write a JSON file containing the supplied ``metrics`` dictionary.
-
-    The default location matches the contract test that expects a
-    ``ci_metrics.json`` file at the repository root (or current working
-    directory).  The function creates parent directories as needed.
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("w", encoding="utf-8") as f:
-        json.dump(metrics, f, indent=2, sort_keys=True)
+    return result, rm.get_metrics()

@@ -7,41 +7,56 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
     timeout-minutes: 360
-
+    strategy:
+      matrix:
+        seed: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]  # ≤15 seeds as required
+      fail-fast: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-
-      - name: Cache pip packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+          cache: 'pip'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Cache Hugging Face datasets
+      - name: Cache GSM8K dataset
         uses: actions/cache@v3
         with:
-          path: ~/.cache/huggingface/datasets
-          key: ${{ runner.os }}-datasets-${{ hashFiles('**/*.py') }}
+          path: data/gsm8k
+          key: gsm8k-${{ runner.os }}-${{ hashFiles('src/data/download_gsm8k.py') }}
           restore-keys: |
-            ${{ runner.os }}-datasets-
+            gsm8k-${{ runner.os }}-
 
-      - name: Run tests
+      - name: Download GSM8K dataset (if not cached)
         run: |
-          pip install pytest
-          pytest -q
+          python -m src.data.download_gsm8k
+
+      - name: Run experiment for seed ${{ matrix.seed }}
+        env:
+          SEED: ${{ matrix.seed }}
+        run: |
+          python -m src.pipeline.run_all
+
+      - name: Archive logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs-seed-${{ matrix.seed }}
+          path: logs/*.log
+
+      - name: Upload CI metrics
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ci-metrics
+          path: ci_metrics.json

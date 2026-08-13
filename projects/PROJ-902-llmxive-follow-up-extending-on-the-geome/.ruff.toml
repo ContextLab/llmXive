@@ -1,13 +1,62 @@
-# RUFF LINTER CONFIGURATION
-# This file configures the ruff linter for the project.
-# It enforces a consistent coding style and catches common issues.
-
-[lint]
-# Select error codes to enable. Adjust as needed for the project's standards.
-select = ["E", "F", "W", "C90"]
-# No rules are ignored by default; add any you wish to silence.
-ignore = []
-# Keep line length consistent with Black formatting.
+[tool.ruff]
+# Maximum line length
 line-length = 88
-# Target Python version for linting.
+
+# Target Python version
 target-version = "py311"
+
+# Enable all recommended linting rules
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "C90", # mccabe complexity
+    "I",   # import sorting
+    "N",   # naming conventions
+    "D",   # docstring conventions
+]
+
+# No rules are ignored by default
+ignore = []
+
+# Files and directories to exclude from linting
+exclude = [
+    "__pycache__",
+    "data",
+    "results",
+    "contracts",
+    ".git",
+    "venv",
+]
+
+# Enable automatic fixing where possible
+fix = true
+
+# Enable preview rules (optional, can be removed if not needed)
+preview = true
+
+# Configure formatting (uses Black's defaults)
+[tool.ruff.format]
+quote-style = "double"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+# Configure import sorting
+[tool.ruff.isort]
+known-first-party = ["src"]
+known-third-party = ["datasets", "torch", "numpy", "psutil"]
+combine-as-imports = true
+lines-after-imports = 2
+order-by-type = false
+
+# Configure flake8-bugbear (if needed)
+[tool.ruff.bugbear]
+enable = true
+
+# Configure docstring style (optional)
+[tool.ruff.pydocstyle]
+convention = "google"
+
+# Configure mccabe complexity threshold
+[tool.ruff.mccabe]
+max-complexity = 10

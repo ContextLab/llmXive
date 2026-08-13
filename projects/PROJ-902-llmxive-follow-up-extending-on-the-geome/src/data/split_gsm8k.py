@@ -1,248 +1,268 @@
 """
-GSM8K Data Splitting Module
+Split GSM8K dataset into training, evaluation and held‑out generalisation subsets.
 
-Splits the GSM8K dataset into training, evaluation, and held-out generalization subsets.
-Stratifies splits by difficulty to ensure balanced representation across all sets.
-Persists splits to data/gsm8k/splits/ in Parquet format.
+The script reads the raw GSM8K files that were cached by :pymod:`src.data.download_gsm8k`
+(typically JSON‑Lines files under ``data/gsm8k/``), estimates a simple “difficulty”
+score for each example, and then performs a stratified split that preserves the
+difficulty distribution across the three subsets.
+
+The public API consists of four functions that are referenced by the project’s
+task list:
+
+* ``compute_sha256`` – compute a SHA‑256 checksum for a file (used by the checksum
+  contract tests).
+* ``estimate_difficulty`` – a lightweight heuristic that returns a numeric difficulty
+  for a GSM8K example.
+* ``stratified_split`` – split a list of examples into train/eval/held‑out while
+  preserving the difficulty distribution.
+* ``save_splits`` – write the three splits to ``data/gsm8k/`` as JSON‑Lines files.
+
+Running the module as a script (``python -m src.data.split_gsm8k``) performs the
+whole pipeline and writes the three split files:
+
+* ``data/gsm8k/train_split.jsonl``
+* ``data/gsm8k/eval_split.jsonl``
+* ``data/gsm8k/heldout_split.jsonl``
+
+The implementation avoids any external heavy dependencies – it works with the
+standard library only – and it is fully deterministic (the random seed is fixed
+to ``42``).  If the raw GSM8K cache is missing, the script will raise an informative
+``FileNotFoundError`` so that the CI can surface the problem instead of silently
+falling back to synthetic data.
 """
-import hashlib
+
 import json
-import os
+import hashlib
 import random
-from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import List, Tuple, Dict, Any
 
-import numpy as np
-from datasets import load_dataset
-
-# Constants for split ratios
-TRAIN_RATIO = 0.8
-EVAL_RATIO = 0.1
-GENERALIZATION_RATIO = 0.1
-
-# Output directory
-SPLIT_DIR = Path("data/gsm8k/splits")
-
-
+# --------------------------------------------------------------------------- #
+# Helper utilities
+# --------------------------------------------------------------------------- #
 def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-
-def estimate_difficulty(example: Dict[str, Any]) -> int:
     """
-    Estimate difficulty based on the number of reasoning steps.
-    Heuristic: Count the number of lines in the solution that contain arithmetic operations.
-    Returns an integer difficulty score (0-5).
+    Compute the SHA‑256 checksum of ``file_path`` and return it as a hex string.
+
+    Parameters
+    ----------
+    file_path: Path
+        Path to the file whose checksum should be computed.
+
+    Returns
+    ----------
+    str
+        Hexadecimal SHA‑256 digest.
     """
-    solution = example.get("answer", "")
-    # Extract the reasoning part (everything before "####")
-    if "####" in solution:
-        reasoning = solution.split("####")[0]
-    else:
-        reasoning = solution
-
-    # Count lines with arithmetic operations
-    lines = reasoning.strip().split("\n")
-    difficulty_score = 0
-    for line in lines:
-        # Check for common arithmetic patterns
-        if any(op in line for op in ["+", "-", "*", "/", "="]):
-            difficulty_score += 1
-
-    # Normalize to 0-5 range based on typical GSM8K lengths
-    # GSM8K solutions are typically 10-30 lines
-    if difficulty_score <= 5:
-        return 0
-    elif difficulty_score <= 10:
-        return 1
-    elif difficulty_score <= 15:
-        return 2
-    elif difficulty_score <= 20:
-        return 3
-    elif difficulty_score <= 25:
-        return 4
-    else:
-        return 5
+    hasher = hashlib.sha256()
+    # Read in binary chunks to support large files without loading everything into memory
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
 
+# --------------------------------------------------------------------------- #
+# Difficulty estimation
+# --------------------------------------------------------------------------- #
+def estimate_difficulty(example: Dict[str, Any]) -> float:
+    """
+    Very simple difficulty heuristic for a GSM8K example.
+
+    The GSM8K dataset provides a ``question`` and an ``answer`` field (both strings).
+    We approximate difficulty by the length of the answer in words – longer answers
+    tend to correspond to more involved arithmetic problems.  If the ``answer`` field
+    is missing we fall back to the length of the question.
+
+    Parameters
+    ----------
+    example: dict
+        A single GSM8K example.
+
+    Returns
+    ----------
+    float
+        Difficulty score (higher = more difficult).
+    """
+    answer = example.get("answer")
+    if isinstance(answer, str) and answer.strip():
+        return len(answer.split())
+    # Fallback to question length
+    question = example.get("question", "")
+    return len(question.split())
+
+# --------------------------------------------------------------------------- #
+# Stratified split
+# --------------------------------------------------------------------------- #
 def stratified_split(
-    dataset: List[Dict[str, Any]],
-    train_ratio: float = TRAIN_RATIO,
-    eval_ratio: float = EVAL_RATIO,
-    gen_ratio: float = GENERALIZATION_RATIO,
-    seed: int = 42
-) -> Tuple[List[Dict], List[Dict], List[Dict]]:
+    data: List[Dict[str, Any]],
+    train_frac: float = 0.80,
+    eval_frac: float = 0.10,
+    seed: int = 42,
+    n_bins: int = 10,
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Split dataset into train, eval, and generalization sets with stratification by difficulty.
+    Split ``data`` into training, evaluation and held‑out subsets while preserving
+    the difficulty distribution.
 
-    Args:
-        dataset: List of GSM8K examples.
-        train_ratio: Proportion for training.
-        eval_ratio: Proportion for evaluation.
-        gen_ratio: Proportion for held-out generalization.
-        seed: Random seed for reproducibility.
+    The algorithm:
+    1. Compute a difficulty score for each example.
+    2. Bin examples into ``n_bins`` equal‑frequency bins.
+    3. Within each bin, randomly shuffle (deterministically) and allocate the
+       requested fractions to train/eval/held‑out.
 
-    Returns:
-        Tuple of (train_set, eval_set, generalization_set)
+    Parameters
+    ----------
+    data: list[dict]
+        List of GSM8K examples.
+    train_frac: float, default 0.80
+        Fraction of data to allocate to the training split.
+    eval_frac: float, default 0.10
+        Fraction of data to allocate to the evaluation split.
+    seed: int, default 42
+        Random seed for reproducibility.
+    n_bins: int, default 10
+        Number of difficulty bins for stratification.
+
+    Returns
+    -------
+    tuple(list, list, list)
+        (train_examples, eval_examples, heldout_examples)
     """
+    if not 0 < train_frac < 1 or not 0 <= eval_frac < 1:
+        raise ValueError("train_frac and eval_frac must be between 0 and 1")
+    if train_frac + eval_frac >= 1:
+        raise ValueError("train_frac + eval_frac must be < 1 (reserved for held‑out)")
+
+    # Attach difficulty scores
+    scored = [(example, estimate_difficulty(example)) for example in data]
+
+    # Sort by difficulty to create bins of roughly equal size
+    scored.sort(key=lambda x: x[1])
+
+    bin_size = max(1, len(scored) // n_bins)
+    bins: List[List[Tuple[Dict[str, Any], float]]] = []
+    for i in range(0, len(scored), bin_size):
+        bins.append(scored[i : i + bin_size])
+
+    train, eval_, heldout = [], [], []
+
     random.seed(seed)
-    np.random.seed(seed)
 
-    # Group examples by difficulty
-    difficulty_buckets: Dict[int, List[Dict]] = defaultdict(list)
-    for example in dataset:
-        diff = estimate_difficulty(example)
-        difficulty_buckets[diff].append(example)
+    for bin_ in bins:
+        # Shuffle within the bin
+        random.shuffle(bin_)
+        n = len(bin_)
+        n_train = int(train_frac * n)
+        n_eval = int(eval_frac * n)
+        # Remaining go to held‑out
+        n_held = n - n_train - n_eval
 
-    train_set = []
-    eval_set = []
-    generalization_set = []
+        # Slice and drop the difficulty scores
+        train.extend([ex for ex, _ in bin_[:n_train]])
+        eval_.extend([ex for ex, _ in bin_[n_train : n_train + n_eval]])
+        heldout.extend([ex for ex, _ in bin_[n_train + n_eval :]])
 
-    # Stratified split within each difficulty bucket
-    for diff_level, examples in difficulty_buckets.items():
-        random.shuffle(examples)
-        n = len(examples)
+    return train, eval_, heldout
 
-        n_train = int(n * train_ratio)
-        n_eval = int(n * eval_ratio)
-        # Remaining go to generalization
-        n_gen = n - n_train - n_eval
-
-        train_set.extend(examples[:n_train])
-        eval_set.extend(examples[n_train : n_train + n_eval])
-        generalization_set.extend(examples[n_train + n_eval :])
-
-    # Shuffle final sets for better distribution
-    random.shuffle(train_set)
-    random.shuffle(eval_set)
-    random.shuffle(generalization_set)
-
-    return train_set, eval_set, generalization_set
-
+# --------------------------------------------------------------------------- #
+# Persistence helpers
+# --------------------------------------------------------------------------- #
+def _write_jsonl(path: Path, examples: List[Dict[str, Any]]) -> None:
+    """Write a list of dictionaries to ``path`` as JSON‑Lines."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as f:
+        for ex in examples:
+            json.dump(ex, f, ensure_ascii=False)
+            f.write("\n")
 
 def save_splits(
-    train_set: List[Dict],
-    eval_set: List[Dict],
-    generalization_set: List[Dict],
-    output_dir: Path,
-    seed: int = 42
-) -> Dict[str, str]:
+    train: List[Dict[str, Any]],
+    eval_: List[Dict[str, Any]],
+    heldout: List[Dict[str, Any]],
+    output_dir: Path = Path("data/gsm8k"),
+) -> None:
     """
-    Save splits to Parquet files and compute checksums.
+    Save the three splits as JSON‑Lines files under ``output_dir``.
+    The files are named ``train_split.jsonl``, ``eval_split.jsonl`` and
+    ``heldout_split.jsonl`` respectively.
 
-    Returns:
-        Dictionary mapping split name to file path.
+    Parameters
+    ----------
+    train, eval_, heldout: list[dict]
+        The split datasets.
+    output_dir: Path, default Path("data/gsm8k")
+        Directory where the split files will be stored.
     """
     output_dir.mkdir(parents=True, exist_ok=True)
+    _write_jsonl(output_dir / "train_split.jsonl", train)
+    _write_jsonl(output_dir / "eval_split.jsonl", eval_)
+    _write_jsonl(output_dir / "heldout_split.jsonl", heldout)
 
-    splits = {
-        "train": train_set,
-        "eval": eval_set,
-        "generalization": generalization_set,
-    }
-
-    file_paths = {}
-    checksums = {}
-
-    for split_name, data in splits.items():
-        file_path = output_dir / f"gsm8k_{split_name}_seed{seed}.parquet"
-        # Convert to dataset for Parquet export
-        from datasets import Dataset
-        ds = Dataset.from_list(data)
-        ds.to_parquet(str(file_path))
-
-        file_paths[split_name] = str(file_path)
-        checksums[split_name] = compute_sha256(file_path)
-
-    # Save checksums JSON
-    checksum_file = output_dir / f"splits_checksums_seed{seed}.json"
-    with open(checksum_file, "w") as f:
-        json.dump(checksums, f, indent=2)
-
-    return file_paths
-
-
-def load_gsm8k_streaming() -> List[Dict[str, Any]]:
+# --------------------------------------------------------------------------- #
+# Data loading
+# --------------------------------------------------------------------------- #
+def _load_cached_gsm8k(cache_dir: Path = Path("data/gsm8k")) -> List[Dict[str, Any]]:
     """
-    Load GSM8K dataset using streaming mode.
-    Returns a list of examples.
+    Load all JSON‑Lines files present in ``cache_dir`` (excluding any previously
+    generated split files).  The raw GSM8K download script stores the original
+    dataset splits as ``train.jsonl``, ``validation.jsonl`` and ``test.jsonl``.
+    This function concatenates them into a single list.
+
+    Parameters
+    ----------
+    cache_dir: Path, default Path("data/gsm8k")
+        Directory containing the cached raw GSM8K files.
+
+    Returns
+    -------
+    list[dict]
+        All examples from the raw dataset.
     """
-    # Load the 'main' split of gsm8k
-    ds = load_dataset("gsm8k", "main", split="train", streaming=True)
+    if not cache_dir.is_dir():
+        raise FileNotFoundError(f"GSM8K cache directory not found: {cache_dir}")
 
-    examples = []
-    for item in ds:
-        examples.append(item)
-
+    examples: List[Dict[str, Any]] = []
+    for path in cache_dir.iterdir():
+        if not path.is_file():
+            continue
+        # Skip split files that may already exist from a previous run
+        if path.name in {"train_split.jsonl", "eval_split.jsonl", "heldout_split.jsonl"}:
+            continue
+        if path.suffix != ".jsonl":
+            continue
+        with path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                examples.append(json.loads(line))
+    if not examples:
+        raise FileNotFoundError(f"No GSM8K examples found in cache directory {cache_dir}")
     return examples
 
-
-def main(seed: int = 42) -> Dict[str, Any]:
+# --------------------------------------------------------------------------- #
+# Main orchestration
+# --------------------------------------------------------------------------- #
+def main() -> None:
     """
-    Main entry point for splitting GSM8K.
-
-    Args:
-        seed: Random seed for reproducibility.
-
-    Returns:
-        Dictionary containing split statistics and file paths.
+    Entry‑point used by ``python -m src.data.split_gsm8k``.
+    It loads the cached raw GSM8K data, performs a stratified split, writes the
+    split files and finally prints SHA‑256 checksums for the generated files
+    (useful for downstream contract tests).
     """
-    print(f"Starting GSM8K split with seed={seed}")
+    raw_examples = _load_cached_gsm8k()
+    train, eval_, heldout = stratified_split(raw_examples)
 
-    # Load dataset
-    print("Loading GSM8K dataset (streaming)...")
-    examples = load_gsm8k_streaming()
-    print(f"Loaded {len(examples)} examples")
+    output_dir = Path("data/gsm8k")
+    save_splits(train, eval_, heldout, output_dir=output_dir)
 
-    # Perform stratified split
-    print("Performing stratified split by difficulty...")
-    train_set, eval_set, generalization_set = stratified_split(
-        examples, seed=seed
-    )
-
-    print(f"Train size: {len(train_set)}")
-    print(f"Eval size: {len(eval_set)}")
-    print(f"Generalization size: {len(generalization_set)}")
-
-    # Save splits
-    print(f"Saving splits to {SPLIT_DIR}...")
-    file_paths = save_splits(train_set, eval_set, generalization_set, SPLIT_DIR, seed)
-
-    # Compute statistics
-    stats = {
-        "seed": seed,
-        "total_examples": len(examples),
-        "train_count": len(train_set),
-        "eval_count": len(eval_set),
-        "generalization_count": len(generalization_set),
-        "file_paths": file_paths,
-        "split_ratios": {
-            "train": len(train_set) / len(examples),
-            "eval": len(eval_set) / len(examples),
-            "generalization": len(generalization_set) / len(examples),
-        }
-    }
-
-    # Save stats JSON
-    stats_file = SPLIT_DIR / f"splits_stats_seed{seed}.json"
-    with open(stats_file, "w") as f:
-        json.dump(stats, f, indent=2)
-
-    print(f"Split complete. Stats saved to {stats_file}")
-    return stats
-
+    # Compute and display checksums for the three generated split files
+    for split_name in ["train_split.jsonl", "eval_split.jsonl", "heldout_split.jsonl"]:
+        split_path = output_dir / split_name
+        checksum = compute_sha256(split_path)
+        print(f"{split_name}: {checksum}")
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Split GSM8K dataset")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    args = parser.parse_args()
-
-    main(seed=args.seed)
+    # When executed as a script we simply run the main routine.
+    main()

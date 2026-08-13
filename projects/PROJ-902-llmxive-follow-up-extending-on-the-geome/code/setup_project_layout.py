@@ -1,70 +1,66 @@
 """
-Project layout creation utility.
+setup_project_layout.py
 
-This module provides a simple API to create the standard directory
-structure required by the llmXive Geometry Extension project:
+Utility script to create the standard project directory layout required by the
+llmXive Geometry Extension project.
 
-    - src/
-    - tests/
-    - data/
-    - results/
-    - contracts/
+The layout consists of the following top‑level directories:
+  - src/
+  - tests/
+  - data/
+  - results/
+  - contracts/
 
-The script can be executed directly:
-
-    $ python code/setup_project_layout.py
-
-which will create the directories relative to the current working
-directory (typically the repository root).  The functions are also
-importable for use in test suites or other automation tools.
+The script can be invoked directly (e.g. ``python -m setup_project_layout``) or
+imported and used programmatically via :func:`create_directories`.
 """
 
 import sys
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, List
 
-def create_directories(dirs: Iterable[Path]) -> None:
+def create_directories(dirs: Iterable[Path]) -> List[Path]:
     """
-    Create each directory in ``dirs`` if it does not already exist.
+    Ensure each directory in *dirs* exists.
 
     Parameters
     ----------
     dirs: Iterable[Path]
-        An iterable of :class:`pathlib.Path` objects representing the
-        directories to be created.  Parent directories are created as
-        needed (``parents=True``) and existing directories are ignored
-        (``exist_ok=True``).
+        An iterable of :class:`~pathlib.Path` objects representing directories
+        to create.
 
-    Raises
-    ------
-    OSError
-        Propagates any OS‑level error that occurs while creating a
-        directory (e.g., permission issues).
+    Returns
+    -------
+    List[Path]
+        A list of the directories that now exist (including those that were
+        already present).
     """
+    created: List[Path] = []
     for d in dirs:
-        # Resolve to an absolute path for clarity in logs / debugging.
-        absolute_path = d.expanduser().resolve()
-        absolute_path.mkdir(parents=True, exist_ok=True)
+        # Resolve to an absolute path for consistency
+        d_path = d.expanduser().resolve()
+        d_path.mkdir(parents=True, exist_ok=True)
+        created.append(d_path)
+    return created
 
-def main(argv: list[str] | None = None) -> None:
+def main(argv: List[str] | None = None) -> int:
     """
-    Entry‑point for the command‑line interface.
+    Entry‑point for the script.
 
-    If no arguments are supplied, the function creates the default
-    project layout.  An optional list of directory names can be passed
-    to customise the layout (useful for testing).
+    If command‑line arguments are supplied they are interpreted as additional
+    directories to create (relative to the current working directory).  When
+    called without arguments the standard layout is created.
 
-    Parameters
-    ----------
-    argv: list[str] | None
-        Command‑line arguments excluding the script name.  If ``None``,
-        ``sys.argv[1:]`` is used.
+    Returns
+    -------
+    int
+        Exit status (0 for success, non‑zero for failure).
     """
     if argv is None:
         argv = sys.argv[1:]
 
-    # Default layout as defined in ``plan.md``.
-    default_dirs = [
+    # Base layout directories relative to the repository root (cwd)
+    base_dirs = [
         Path("src"),
         Path("tests"),
         Path("data"),
@@ -72,10 +68,19 @@ def main(argv: list[str] | None = None) -> None:
         Path("contracts"),
     ]
 
-    # Allow callers to specify additional or alternative directories.
-    dirs_to_create = [Path(p) for p in argv] if argv else default_dirs
+    # Append any user‑provided paths
+    extra_dirs = [Path(p) for p in argv]
+    all_dirs = base_dirs + extra_dirs
 
-    create_directories(dirs_to_create)
+    try:
+        created = create_directories(all_dirs)
+        # Simple feedback for manual runs
+        for d in created:
+            print(f"Created or verified directory: {d}")
+        return 0
+    except Exception as exc:
+        print(f"Error while creating directories: {exc}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

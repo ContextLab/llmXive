@@ -1,68 +1,82 @@
 """
-Logging utility that writes JSON‑line (JSONL) records with an ISO‑8601 UTC
-timestamp.  Each call to :meth:`JsonLineLogger.log` appends a single line
-to the underlying file, making the log easy to stream‑process with tools
-such as ``jq`` or ``grep``.
+Logging utility for the llmXive project.
 
-The implementation is deliberately lightweight and has no external
-dependencies beyond the Python standard library.
+Provides a JSON‑line logger that records each log entry as a JSON object
+on a separate line. Each entry includes a UTC ISO‑8601 timestamp,
+the log level, the message, and optional extra fields.
+
+Public API (as declared in the project API surface):
+  - JsonLineLogger
+  - setup_logger
+  - get_logger
 """
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
-from typing import Any, Mapping
+from typing import Any, Mapping, Optional
 
-__all__ = ["JsonLineLogger", "get_logger"]
+# Global registry to reuse logger instances per log file path
+_LOGGER_REGISTRY: dict[Path, "JsonLineLogger"] = {}
+_REGISTRY_LOCK = Lock()
 
 
 class JsonLineLogger:
     """
-    Append‑only logger that writes each record as a JSON object on its own
-    line.  A ``timestamp`` field (ISO‑8601, UTC) is automatically added
-    unless the caller supplies one.
+    Simple thread‑safe JSON‑line logger.
 
     Parameters
     ----------
-    log_file: str | Path
-        Destination file.  Parent directories are created automatically.
+    log_path : Path
+        Destination file for log entries. The file is opened in append mode.
     """
 
-    def __init__(self, log_file: str | Path):
-        self.log_path = Path(log_file)
-        # Ensure the directory hierarchy exists.
+    def __init__(self, log_path: Path):
+        self.log_path = log_path
+        # Ensure parent directory exists
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # A lock makes the logger safe to use from multiple threads.
+        # Open file handle in append mode, text, UTF‑8
+        self._file = open(self.log_path, "a", encoding="utf-8")
         self._lock = Lock()
 
-        # Open the file in append mode with UTF‑8 encoding.
-        # Keeping the handle open avoids the overhead of re‑opening on every write.
-        self._file = self.log_path.open("a", encoding="utf-8")
-
-    def log(self, record: Mapping[str, Any]) -> None:
-        """
-        Write ``record`` as a JSON line.
-
-        The method shallow‑copies ``record`` so that the caller's dictionary
-        is not mutated.  If the ``timestamp`` key is missing, a UTC
-        ISO‑8601 timestamp is inserted.
-        """
-        # Create a shallow copy to avoid mutating the caller's dict.
-        entry = dict(record)
-
-        # Insert timestamp if not provided.
-        entry.setdefault("timestamp", datetime.now(timezone.utc).isoformat())
-
-        # Serialize to JSON. ``ensure_ascii=False`` preserves any Unicode
-        # characters that might appear in messages.
+    def _write(self, entry: Mapping[str, Any]) -> None:
+        """Serialise a mapping as a JSON line and write it atomically."""
         line = json.dumps(entry, ensure_ascii=False)
-
-        # Write atomically under the lock.
         with self._lock:
             self._file.write(line + "\n")
             self._file.flush()
+
+    def _make_entry(self, level: str, message: str, **extra: Any) -> dict[str, Any]:
+        """
+        Build the log entry dictionary.
+
+        The timestamp is produced in UTC and formatted as an ISO‑8601 string
+        with microsecond precision (e.g., ``2023-08-13T12:34:56.123456+00:00``).
+        """
+        timestamp = datetime.now(timezone.utc).isoformat(timespec="microseconds")
+        entry: dict[str, Any] = {
+            "timestamp": timestamp,
+            "level": level,
+            "message": message,
+        }
+        if extra:
+            entry.update(extra)
+        return entry
+
+    # Public logging methods -------------------------------------------------
+    def info(self, message: str, **extra: Any) -> None:
+        self._write(self._make_entry("INFO", message, **extra))
+
+    def warning(self, message: str, **extra: Any) -> None:
+        self._write(self._make_entry("WARNING", message, **extra))
+
+    def error(self, message: str, **extra: Any) -> None:
+        self._write(self._make_entry("ERROR", message, **extra))
+
+    def debug(self, message: str, **extra: Any) -> None:
+        self._write(self._make_entry("DEBUG", message, **extra))
 
     def close(self) -> None:
         """Close the underlying file handle."""
@@ -70,21 +84,52 @@ class JsonLineLogger:
             if not self._file.closed:
                 self._file.close()
 
-    # Context‑manager support makes usage concise:
-    #   with JsonLineLogger("logs/run.jsonl") as logger:
-    #       logger.log({"event": "start"})
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    # Ensure the file is closed when the logger is garbage‑collected
+    def __del__(self):
         self.close()
 
 
-def get_logger(log_path: str | Path) -> JsonLineLogger:
+def setup_logger(log_file: str | os.PathLike) -> JsonLineLogger:
     """
-    Convenience factory that returns a ready‑to‑use :class:`JsonLineLogger`.
+    Initialise (or retrieve) a ``JsonLineLogger`` for the given path.
 
-    This function exists mainly for the contract tests which import
-    ``get_logger`` directly from ``src.utils.logging``.
+    This function is the canonical way for library code to obtain a logger.
+    It guarantees that multiple calls with the same ``log_file`` return the
+    same logger instance, avoiding duplicate file handles.
+
+    Parameters
+    ----------
+    log_file : str | PathLike
+        Destination file for log entries.
+
+    Returns
+    -------
+    JsonLineLogger
+        Configured logger instance.
     """
-    return JsonLineLogger(log_path)
+    path = Path(log_file).expanduser().resolve()
+    with _REGISTRY_LOCK:
+        if path not in _LOGGER_REGISTRY:
+            _LOGGER_REGISTRY[path] = JsonLineLogger(path)
+        return _LOGGER_REGISTRY[path]
+
+
+def get_logger(log_file: str | os.PathLike = "app.log") -> JsonLineLogger:
+    """
+    Convenience wrapper used by the test suite and downstream code.
+
+    It simply forwards to :func:`setup_logger`. The default log file
+    ``app.log`` resides in the current working directory if no explicit
+    path is supplied.
+
+    Parameters
+    ----------
+    log_file : str | PathLike, optional
+        Destination file for log entries, by default "app.log".
+
+    Returns
+    -------
+    JsonLineLogger
+        The logger instance.
+    """
+    return setup_logger(log_file)
