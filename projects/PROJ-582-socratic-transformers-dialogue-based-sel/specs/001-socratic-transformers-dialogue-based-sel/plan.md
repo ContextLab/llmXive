@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a selectionist framework for improving LLM reasoning, replacing "self-teaching" with **negative selection on belief**. The system generates reasoning traces, applies an adversarial critique to identify logical errors (simulating thymic selection), and fine-tunes a base model using LoRA to reject these "failed" belief states. We compare three conditions: **Selection** (adversarial critique), **Ablation** (syntactic distractor matched for complexity), and **Static** (no critique). The implementation strictly adheres to free-tier CPU constraints (4-bit quantization, streaming data) and rigorous statistical analysis (Bonferroni-corrected independent t-tests) to isolate the effect of the selection signal.
+This project implements a selectionist framework for improving LLM reasoning, replacing "self-teaching" with **negative selection on belief**. The system generates reasoning traces, applies an adversarial critique to identify logical errors (simulating thymic selection), and fine-tunes a base model using LoRA to reject these "failed" belief states. We compare three conditions: **Selection** (adversarial critique), **Ablation** (syntactic distractor matched for complexity), and **Static** (no critique). The implementation strictly adheres to free-tier CPU constraints (-bit quantization, streaming data) and rigorous statistical analysis (Bonferroni-corrected independent t-tests) to isolate the effect of the selection signal.
 
 ## Technical Context
 
