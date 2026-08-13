@@ -80,7 +80,7 @@ Unlike parametric tests (t-test, Mann-Whitney U) which assume normality or speci
 ## 5. User Stories
 
 ### US-1: Data Collection
-As a researcher, I want to collect human and LLM code samples from 50 repositories so that I have a balanced dataset for comparison.
+As a researcher, I want to collect human and LLM code samples from multiple repositories so that I have a balanced dataset for comparison.
 **Acceptance Criteria**:
 - `data/raw/human_samples` contains 150 valid samples.
 - `data/raw/llm_samples` contains 150 valid samples.

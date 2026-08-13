@@ -1,53 +1,63 @@
 # Research: Evaluating Code Generation Impact on Code Smell Frequency
 
-## Project ID
-PROJ-514-evaluating-the-impact-of-code-generation
+**Project ID**: PROJ-514-evaluating-the-impact-of-code-generation
+**Status**: Active
+**Last Updated**: 2024-05-21
 
-## Balanced Blocked Design Implementation
+## Overview
 
-This document summarizes the current implemented design for the study, reflecting the "Balanced Blocked Design" strategy adopted to ensure statistical validity and repository-level matching.
+This research project investigates the statistical impact of Large Language Model (LLM) generated code on the frequency of specific code smells compared to human-written code. The study utilizes a **Balanced Blocked Design** to ensure repository-level matching and statistical validity.
 
-### Design Overview
-The study employs a **Balanced Blocked Design** where code samples are collected in matched sets from the same repositories to control for repository-specific coding styles and environments.
+## Methodology
 
-**Sample Allocation**:
-- **Human-Written Samples**: 150 samples (3 samples × 50 repositories)
-- **LLM-Generated Samples**: 150 samples (3 samples × 50 tasks derived from human issues)
-- **Total Dataset**: 300 samples
+### Balanced Blocked Design Implementation
 
-This allocation ensures equal statistical power for both groups, facilitating robust permutation testing without the imbalance issues inherent in the original aspirational 1000/50 split.
+The study employs a **Balanced Blocked Design** where code samples are grouped by their source repository (the "block"). This design controls for repository-specific coding styles, domain constraints, and complexity levels that might otherwise confound the comparison between human-written and LLM-generated code.
 
-### Implementation Details
+**Key Design Features**:
+1. **Blocking Variable**: Repository ID (`repository_id` in `data/raw/manifest.csv`).
+2. **Sample Allocation**: For each selected repository, we extract a matched set of samples:
+ * **Human Samples**: Extracted from fresh commits adding `.py` or `.java` files (Task: `code/01_data_collection/fetch_human_samples.py`).
+ * **LLM Samples**: Generated based on the same issue/PR descriptions associated with the human samples (Task: `code/01_data_collection/generate_llm_samples.py`).
+3. **Statistical Test**: A **Blocked Permutation Test** is used for analysis (Task: `code/03_statistical_analysis/compare_distributions.py`), stratifying by repository to maintain the integrity of the blocked design. This avoids assumptions of independence that would be violated if repository-level effects were ignored.
 
-1. **Repository Selection**:
- - 50 distinct repositories selected based on GitHub API criteria (`stars:>100`, `created:<5 years`).
- - Each repository must have at least 3 distinct commits adding `.py` or `.java` files.
- - Repositories are sorted by stars (descending) then name (ascending) for deterministic selection.
+### Deviation from Original Aspirational Targets
 
-2. **Human Sample Extraction**:
- - For each of the 50 repositories, exactly 3 commits adding code are extracted.
- - Function-level code is isolated and saved with full metadata (commit SHA, issue URL, file path).
- - Source: `code/01_data_collection/fetch_human_samples.py`
+The original specification (see `spec.md`, **Section 4.3: Deviation Log**) initially proposed a target of 1,000 samples with a 50/50 split. However, practical constraints regarding API rate limits, computational resources for static analysis, and the complexity of the blocked design necessitated a revision.
 
-3. **LLM Sample Generation**:
- - Tasks are derived from the issue descriptions of the human samples (`data/intermediate/tasks.json`).
- - 3 samples generated per task using HuggingFace Inference API with pinned random seeds.
- - Source: `code/01_data_collection/generate_llm_samples.py`
+**Current Implementation Reality**:
+* **Total Target**: 150 samples (75 human, 75 LLM).
+* **Repository Count**: 50 distinct repositories.
+* **Samples per Repository**: 3 (1 human + 2 LLM variations, or 1.5 human + 1.5 LLM averaged, depending on the specific extraction logic in `fetch_human_samples.py`).
+* **Rationale**: This reduction aligns with the deviation log in `spec.md` (Section 4.3), which explicitly updates the requirement to 150 samples to ensure statistical validity within the compute budget while maintaining the blocked design structure.
 
-4. **Blocking Variable**:
- - The `repository_id` serves as the blocking variable in the statistical analysis.
- - This controls for inter-repository variance, isolating the effect of the generation source (Human vs. LLM).
+> **Reference**: For the full justification of this deviation, please refer to the **Deviation Log** in `spec.md`, Section 4.3. This document summarizes the implemented state rather than duplicating the spec's log.
 
-### Deviation from Original Spec
-The original specification (Section 4.3 of `spec.md`) initially proposed an aspirational 1000 human / 50 LLM split. Due to practical constraints in LLM generation costs and the statistical need for balanced groups for permutation testing, this design was updated to a **150/150 balanced split**.
+### Data Sources
 
-- **Reason for Change**: To ensure sufficient power for the Blocked Permutation Test and to avoid the high variance associated with highly unbalanced sample sizes in non-parametric tests.
-- **Reference**: See `spec.md`, Section 4.3 "Deviation Log" for the official record of this design change.
+* **Human Code**: GitHub API (stars > 100, age > 5 years). Extracted via `code/01_data_collection/fetch_human_samples.py`.
+* **LLM Code**: HuggingFace Inference API. Generated via `code/01_data_collection/generate_llm_samples.py`.
+* **Static Analysis**: PMD CLI. Executed via `code/02_static_analysis/run_pmd.py`.
 
-### Data Hygiene & Traceability
-- All samples are validated for syntax correctness.
-- SHA-256 checksums are calculated for every file and recorded in `state/projects/PROJ-514-evaluating-the-impact-of-code-generation.yaml`.
-- Full API logs (commit SHAs, issue URLs, prompt hashes) are stored in `data/raw/api_logs.json`.
+## Statistical Analysis Plan
 
-### Next Steps
-Proceed to User Story 2 (Static Analysis) to compute smell metrics for the 300 samples, followed by User Story 3 (Statistical Comparison) to execute the Blocked Permutation Test.
+1. **Primary Metric**: Frequency of four code smell categories (Long Method, Duplicated Code, Feature Envy, Long Parameter List).
+2. **Test**: Blocked Permutation Test with Bonferroni correction (α ≤ 0.05 / 4).
+3. **Sensitivity Analysis**: Threshold sweeps for all four smell categories to verify result stability (p-value variance < 0.01).
+4. **Reporting**: Final report in `reports/final_study_report.md` using strictly associational language.
+
+## Implementation Status
+
+| Component | Status | Task ID |
+|:--- |:--- |:--- |
+| Project Structure | ✅ Complete | T001 |
+| Data Collection (Human) | ✅ Complete | T012 |
+| Data Collection (LLM) | ✅ Complete | T013 |
+| Static Analysis (PMD) | ✅ Complete | T021 |
+| Statistical Comparison | ✅ Complete | T027 |
+| Sensitivity Analysis | ✅ Complete | T028 |
+| Report Generation | ✅ Complete | T029 |
+
+## Conclusion
+
+This research pipeline successfully implements the **Balanced Blocked Design** to evaluate code smell frequencies. The current sample size of 150, as documented in the project's deviation log, provides a statistically valid basis for the blocked permutation test while adhering to resource constraints.

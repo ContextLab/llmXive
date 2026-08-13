@@ -5,13 +5,6 @@ T019:
     repository, so the contract test for the PMD CLI wrapper is missing. The task
     cannot be considered completed until this test file is added with appropriate
     test cases.
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No actual `specs/001-code-smell-comparison/research.md` file content was provided;\
-    \ without seeing the updated documentation we cannot confirm the required artifact\
-    \ exists or matches the specification. The implementer\u2019s claim lacks verifiable\
-    \ evidence."
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -33,3 +26,10 @@ T033:
     \ without seeing the actual test artifacts, we cannot confirm that additional\
     \ unit tests were added as required. The implementer must supply the test files\
     \ (non\u2011empty) in the specified location."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No visualization, data files, code, or report artifacts were supplied; the claim\
+    \ provides only the specification text. The required sensitivity\u2011analysis\
+    \ visualizations (e.g., box plots) and associated statistical outputs are missing,\
+    \ so the task is not genuinely completed."
