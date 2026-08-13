@@ -1,0 +1,694 @@
+{
+  "fetched_at": "2026-08-13T12:37:16Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embodied AI Models on He\"",
+      "target_n": 5
+    },
+    "duration_seconds": 62.244,
+    "ended_at": "2026-08-13T12:37:16Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "portable inference runtimes for edge embodied AI"
+        ],
+        [
+          2,
+          "lightweight LLM deployment on resource-constrained hardware"
+        ],
+        [
+          3,
+          "embedded systems inference optimization for robotics"
+        ],
+        [
+          4,
+          "cross-platform neural network runtime for embodied agents"
+        ],
+        [
+          5,
+          "efficient transformer inference on microcontrollers"
+        ],
+        [
+          6,
+          "on-device large language model execution for robotics"
+        ],
+        [
+          7,
+          "low-latency inference engines for edge embodied AI"
+        ],
+        [
+          8,
+          "hardware-agnostic runtime for embodied AI models"
+        ],
+        [
+          9,
+          "quantization techniques for portable embodied AI inference"
+        ],
+        [
+          10,
+          "real-time LLM serving on embedded robotics platforms"
+        ],
+        [
+          11,
+          "neural network compilation for heterogeneous edge devices"
+        ],
+        [
+          12,
+          "memory-efficient inference strategies for embodied AI"
+        ],
+        [
+          13,
+          "edge computing frameworks for autonomous robotic agents"
+        ],
+        [
+          14,
+          "optimized inference backends for small-form-factor robots"
+        ],
+        [
+          15,
+          "portable deep learning runtimes for IoT and robotics"
+        ],
+        [
+          16,
+          "compiler optimizations for embodied AI on embedded hardware"
+        ],
+        [
+          17,
+          "energy-efficient LLM inference for mobile robotics"
+        ],
+        [
+          18,
+          "distributed inference architectures for swarm embodied AI"
+        ],
+        [
+          19,
+          "runtime systems for real-time decision making in robots"
+        ],
+        [
+          20,
+          "model compression and deployment for edge-based embodied intelligence"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "lightweight LLM deployment on resource-constrained hardware": 5,
+        "llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embodied AI Models on He\" computer science": 0,
+        "portable inference runtimes for edge embodied AI": 3
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "portable edge inference runtime C++",
+      "Embodied.cpp deployment embedded systems",
+      "heterogeneous hardware LLM optimization",
+      "on-device model latency throughput",
+      "model quantization memory footprint edge"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2607.02501"
+      ]
+    },
+    "per_query_hit_count": {
+      "Embodied.cpp deployment embedded systems": 3,
+      "heterogeneous hardware LLM optimization": 3,
+      "llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embodied AI Models on He\" computer science": 3,
+      "model quantization memory footprint edge": 2,
+      "on-device model latency throughput": 3,
+      "portable edge inference runtime C++": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2503.04521",
+          "rationale": "The paper focuses on economic mechanisms (auctions, pricing, revenue maximization) for resource allocation in Edge-AI markets, whereas the user's question concerns the technical implementation of a portable inference runtime (\"Embodied.cpp\") for embodied AI models. While both involve edge inference, the candidate paper does not measure the same mechanism, establish a baseline for runtime portability, or provide foundational methodology for the specific software engineering challenge of creating ",
+          "title": "Dynamic Pricing for On-Demand DNN Inference in the Edge-AI Market"
+        },
+        {
+          "primary_pointer": "2512.20902",
+          "rationale": "The paper focuses on UAV trajectory optimization and task offloading in medical IoT networks, which is a distinct application domain from the user's question about a portable C++ inference runtime for embodied AI models. While both mention \"embodied AI,\" the paper does not address the specific mechanism of runtime portability, the C++ implementation, or the \"Embodied.cpp\" framework, failing to meet the criteria for same-mechanism evidence or foundational methodology for the user's specific engin",
+          "title": "Embodied AI-Enhanced IoMT Edge Computing: UAV Trajectory Optimization and Task Offloading with Mobility Prediction"
+        },
+        {
+          "primary_pointer": "2606.05868",
+          "rationale": "The paper focuses on optimizing LLM inference for high-concurrency financial applications using specific architectural transitions (GQA-to-MLA) on Huawei Ascend hardware, which does not address the user's specific question regarding \"Embodied AI\" models, portable runtimes, or the \"Embodied.cpp\" framework. While both involve LLM deployment efficiency, the domain (financial vs. embodied robotics) and the specific mechanisms (KV cache compression vs. portable runtime architecture) are distinct cons",
+          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition"
+        },
+        {
+          "primary_pointer": "2305.14019",
+          "rationale": "The paper focuses on using LLMs to *generate* hardware designs (Verilog code) from natural language, which is a distinct construct from the user's question about *running* (inference) embodied AI models on hardware. While both involve LLMs and hardware, the paper addresses the \"design automation\" domain rather than the \"portable inference runtime\" domain, failing to satisfy the same-mechanism or variable overlap criteria.",
+          "title": "ChipGPT: How far are we from natural language hardware design"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-13T12:36:14Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"embodied.cpp: a portable inference runtime of embodied ai models on he\" computer science",
+      "raw": "llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embodied AI Models on He\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantum walks on translation invariant regular graphs spread quadratically faster than their classical counterparts. The same coherence that gives them this quantum speedup inhibits, or even stops their spread in the presence of disorder. We ask how to create an efficient transport channel from a fixed source site (A) to fixed target site (B) in a disordered 2-dimensional discrete-time quantum walk by cutting some of the links. We show that the somewhat counterintuitive strategy of cutting links along a single line connecting A to B creates such a channel. The efficient transport along the cut is due to topologically protected chiral edge states, which exist even though the bulk Chern number in this system vanishes. We give a realization of the walk as a periodically driven lattice Hamiltonian, and identify the bulk topological invariant responsible for the edge states as the quasienergy winding of this Hamiltonian.",
+          "claimed_authors": [
+            "Janos K. Asboth",
+            "Jonathan M. Edge"
+          ],
+          "claimed_title": "Edge-state enhanced transport in a 2-dimensional quantum walk",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1411.3958"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Edge-state enhanced transport in a 2-dimensional quantum walk')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The convergence of edge computing and Artificial Intelligence (AI) gives rise to Edge-AI, which enables the deployment of real-time AI applications at the network edge. A key research challenge in Edge-AI is edge inference acceleration, which aims to realize low-latency high-accuracy Deep Neural Network (DNN) inference by offloading partitioned inference tasks from end devices to edge servers. However, existing research has yet to adopt a practical Edge-AI market perspective, which would explore the personalized inference needs of AI users (e.g., inference accuracy, latency, and task complexity), the revenue incentives for AI service providers that offer edge inference services, and multi-stakeholder governance within a market-oriented context. To bridge this gap, we propose an Auction-based Edge Inference Pricing Mechanism (AERIA) for revenue maximization to tackle the multi-dimensional optimization problem of DNN model partition, edge inference pricing, and resource allocation. We develop a multi-exit device-edge synergistic inference scheme for on-demand DNN inference acceleration, and theoretically analyze the auction dynamics amongst the AI service providers, AI users and edge infrastructure provider. Owing to the strategic mechanism design via randomized consensus estimate and cost sharing techniques, the Edge-AI market attains several desirable properties. These include competitiveness in revenue maximization, incentive compatibility, and envy-freeness, which are crucial to maintain the effectiveness, truthfulness, and fairness in auction outcomes. Extensive simulations based on four representative DNN inference workloads demonstrate that AERIA significantly outperforms several state-of-the-art approaches in revenue maximization. This validates the efficacy of AERIA for on-demand DNN inference in the Edge-AI market.",
+          "claimed_authors": [
+            "Songyuan Li",
+            "Jia Hu",
+            "Geyong Min",
+            "Haojun Huang",
+            "Jiwei Huang"
+          ],
+          "claimed_title": "Dynamic Pricing for On-Demand DNN Inference in the Edge-AI Market",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.04521"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Dynamic Pricing for On-Demand DNN Inference in the Edge-AI Market')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embedded Field-Programmable Gate Arrays (eFPGAs) allow for the design of hardware accelerators of edge Machine Learning (ML) applications at a lower power budget compared with traditional FPGA platforms. However, the limited eFPGA logic and memory significantly constrain compute capabilities and model size. As such, ML application deployment on eFPGAs is in direct contrast with the most recent FPGA approaches developing architecture-specific implementations and maximizing throughput over resource frugality. This paper focuses on the opposite side of this trade-off: the proposed eFPGA accelerator focuses on minimizing resource usage and allowing flexibility for on-field recalibration over throughput. This allows for runtime changes in model size, architecture, and input data dimensionality without offline resynthesis. This is made possible through the use of a bitwise compressed inference architecture of the Tsetlin Machine (TM) algorithm. TM compute does not require any multiplication operations, being limited to only bitwise AND, OR, NOT, summations and additions. Additionally, TM model compression allows the entire model to fit within the on-chip block RAM of the eFPGA. The paper uses this accelerator to propose a strategy for runtime model tuning in the field. The proposed approach uses 2.5x fewer Look-up-Tables (LUTs) and 3.38x fewer registers than the current most resource-fugal design and achieves up to 129x energy reduction compared with low-power microcontrollers running the same ML application.",
+          "claimed_authors": [
+            "Tousif Rahman",
+            "Gang Mao",
+            "Bob Pattison",
+            "Sidharth Maheshwari",
+            "Marcos Sartori",
+            "Adrian Wheeldon",
+            "Rishad Shafik",
+            "Alex Yakovlev"
+          ],
+          "claimed_title": "Runtime Tunable Tsetlin Machines for Edge Inference on eFPGAs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.07823"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Runtime Tunable Tsetlin Machines for Edge Inference on eFPGAs')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI governance frameworks increasingly emphasize fairness, transparency, accountability, and lifecycle risk management in high-stakes domains. However, many current approaches remain observational, relying on static metric reporting, post-hoc auditing, and monitoring dashboards without directly governing deployment readiness, remediation progression, escalation states, or assurance-driven deployment control. This paper introduces Operational AI Deployment Assurance (OADA), a governance framework for translating fairness disagreement, subgroup instability, threshold sensitivity, remediation outcomes, and operational uncertainty into deployment-oriented assurance decisions. Building on prior work on the Fairness Disagreement Index (FDI) and FairRisk-FDI, OADA reframes governance uncertainty as an operational concern within AI deployment pipelines rather than a byproduct of metric disagreement. The framework introduces Deployment Assurance Scores, Deployment Readiness Classifications, Threshold Stability Zones, Governance Escalation States, and remediation-aware assurance progression. These constructs support lifecycle-oriented governance decisions across high-stakes settings by connecting evaluation outputs to deployment-state interpretation, reassessment, escalation, and operational control. Through deployment-oriented evaluation across facial recognition systems, with discussion extended to healthcare AI as a representative high-stakes domain, the paper demonstrates how systems may appear acceptable under isolated fairness or performance metrics while still exhibiting instability that affects deployment readiness. The proposed framework positions operational deployment assurance as a governance layer between evaluation and real-world AI deployment.",
+          "claimed_authors": [
+            "Khalid Adnan Alsayed"
+          ],
+          "claimed_title": "Operational AI Deployment Assurance: Governance-State Orchestration Under Threshold-Sensitive Deployment Conditions -- A Governance Framework for High-Stakes AI Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27827"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Operational AI Deployment Assurance: Governance-State Orchestration Under Threshold-Sensitive Deployment Conditions -- A Governance Framework for High-Stakes AI Systems')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The increasing use of Machine Learning (ML) components embedded in autonomous systems -- so-called Learning-Enabled Systems (LESs) -- has resulted in the pressing need to assure their functional safety. As for traditional functional safety, the emerging consensus within both, industry and academia, is to use assurance cases for this purpose. Typically assurance cases support claims of reliability in support of safety, and can be viewed as a structured way of organising arguments and evidence generated from safety analysis and reliability modelling activities. While such assurance activities are traditionally guided by consensus-based standards developed from vast engineering experience, LESs pose new challenges in safety-critical application due to the characteristics and design of ML models. In this article, we first present an overall assurance framework for LESs with an emphasis on quantitative aspects, e.g., breaking down system-level safety targets to component-level requirements and supporting claims stated in reliability metrics. We then introduce a novel model-agnostic Reliability Assessment Model (RAM) for ML classifiers that utilises the operational profile and robustness verification evidence. We discuss the model assumptions and the inherent challenges of assessing ML reliability uncovered by our RAM and propose solutions to practical use. Probabilistic safety argument templates at the lower ML component-level are also developed based on the RAM. Finally, to evaluate and demonstrate our methods, we not only conduct experiments on synthetic/benchmark datasets but also scope our methods with case studies on simulated Autonomous Underwater Vehicles and physical Unmanned Ground Vehicles.",
+          "claimed_authors": [
+            "Yi Dong",
+            "Wei Huang",
+            "Vibhav Bharti",
+            "Victoria Cox",
+            "Alec Banks",
+            "Sen Wang",
+            "Xingyu Zhao",
+            "Sven Schewe",
+            "Xiaowei Huang"
+          ],
+          "claimed_title": "Reliability Assessment and Safety Arguments for Machine Learning Components in System Assurance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.00646"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Reliability Assessment and Safety Arguments for Machine Learning Components in System Assurance')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Time awareness is critical to a broad range of emerging applications -- in Cyber-Physical Systems and Internet of Things -- running on commodity platforms and operating systems. Traditionally, time is synchronized across devices through a best-effort background service whose performance is neither observable nor controllable, thus consuming system resources independently of application needs while not allowing the applications and OS services to adapt to changes in uncertainty in system time. We advocate for rethinking how time is managed in a system stack. In this paper, we propose a new clock model that characterizes various sources of timing uncertainties in true time. We then present a Kalman filter based time synchronization protocol that adapts to the uncertainties exposed by the clock model. Our realization of a uncertainty-aware clock model and synchronization protocol is based on a standard embedded Linux platform.",
+          "claimed_authors": [
+            "Amr Alanwar",
+            "Fatima M. Anwar",
+            "Joao P Hespanha",
+            "Mani Srivastava"
+          ],
+          "claimed_title": "Realizing Uncertainty-Aware Timing Stack in Embedded Operating System",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.00922"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Realizing Uncertainty-Aware Timing Stack in Embedded Operating System')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As large language models (LLMs) like ChatGPT exhibited unprecedented machine intelligence, it also shows great performance in assisting hardware engineers to realize higher-efficiency logic design via natural language interaction. To estimate the potential of the hardware design process assisted by LLMs, this work attempts to demonstrate an automated design environment that explores LLMs to generate hardware logic designs from natural language specifications. To realize a more accessible and efficient chip development flow, we present a scalable four-stage zero-code logic design framework based on LLMs without retraining or finetuning. At first, the demo, ChipGPT, begins by generating prompts for the LLM, which then produces initial Verilog programs. Second, an output manager corrects and optimizes these programs before collecting them into the final design space. Eventually, ChipGPT will search through this space to select the optimal design under the target metrics. The evaluation sheds some light on whether LLMs can generate correct and complete hardware logic designs described by natural language for some specifications. It is shown that ChipGPT improves programmability, and controllability, and shows broader design optimization space compared to prior work and native LLMs alone.",
+          "claimed_authors": [
+            "Kaiyan Chang",
+            "Ying Wang",
+            "Haimeng Ren",
+            "Mengdi Wang",
+            "Shengwen Liang",
+            "Yinhe Han",
+            "Huawei Li",
+            "Xiaowei Li"
+          ],
+          "claimed_title": "ChipGPT: How far are we from natural language hardware design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.14019"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='ChipGPT: How far are we from natural language hardware design')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep learning (DL) compilers rely on cost models and auto-tuning to optimize tensor programs for target hardware. However, existing approaches depend on large offline datasets, incurring high collection costs and offering suboptimal transferability across platforms. In this paper, we introduce TCL, a novel efficient and transferable compiler framework for fast tensor program optimization across diverse hardware platforms to address these challenges. Specifically, TCL is built on three core enablers: (1) the RDU Sampler, a data-efficient active learning strategy that selects only 10% of tensor programs by jointly optimizing Representativeness, Diversity, and Uncertainty, substantially reducing data collection costs while maintaining near-original model accuracy; (2) a new Mamba-based cost model that efficiently captures long-range schedule dependencies while achieving a favorable trade-off between prediction accuracy and computational cost through reduced parameterization and lightweight sequence modeling; and (3) a continuous knowledge distillation framework that effectively and progressively transfers knowledge across multiple hardware platforms while avoiding the parameter explosion and data dependency issues typically caused by traditional multi-task learning. Extensive experiments validate the effectiveness of each individual enabler and the holistic TCL framework. When optimizing a range of mainstream DL models on both CPU and GPU platforms, TCL achieves, on average, 16.8x and 12.48x faster tuning time, and 1.20x and 1.13x lower inference latency, respectively, compared to Tenset-MLP.",
+          "claimed_authors": [
+            "Chaoyao Shen",
+            "Linfeng Jiang",
+            "Yixian Shen",
+            "Tao Xu",
+            "Guoqing Li",
+            "Anuj Pathania",
+            "Andy D. Pimentel",
+            "Meng Zhang"
+          ],
+          "claimed_title": "TCL: Enabling Fast and Efficient Cross-Hardware Tensor Program Optimization via Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.12891"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='TCL: Enabling Fast and Efficient Cross-Hardware Tensor Program Optimization via Continual Learning')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Wireless information-centric networks consider storage as one of the network primitives, and propose to cache data within the network in order to improve latency and reduce bandwidth consumption. We study the throughput capacity and delay in an information-centric network when the data cached in each node has a limited lifetime. The results show that with some fixed request and cache expiration rates, the order of the data access time does not change with network growth, and the maximum throughput order is inversely proportional to the square root and logarithm of the network size $n$ in cases of grid and random networks, respectively. Comparing these values with the corresponding throughput and latency with no cache capability (throughput inversely proportional to the network size, and latency of order $\\sqrt{n}$ and $\\sqrt{\\frac{n}{\\log n}}$ in grid and random networks, respectively), we can actually quantify the asymptotic advantage of caching. Moreover, we compare these scaling laws for different content discovery mechanisms and illustrate that not much gain is lost when a simple path search is used.",
+          "claimed_authors": [
+            "Bita Azimdoost",
+            "Cedric Westphal",
+            "Hamid R. Sadjadpour"
+          ],
+          "claimed_title": "Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.1185"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Scaling Laws of the Throughput Capacity and Latency in Information-Centric Networks')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Federated Learning (FL) allows edge devices to collaboratively learn a shared prediction model while keeping their training data on the device, thereby decoupling the ability to do machine learning from the need to store data in the cloud. Despite the algorithmic advancements in FL, the support for on-device training of FL algorithms on edge devices remains poor. In this paper, we present an exploration of on-device FL on various smartphones and embedded devices using the Flower framework. We also evaluate the system costs of on-device FL and discuss how this quantification could be used to design more efficient FL algorithms.",
+          "claimed_authors": [
+            "Akhil Mathur",
+            "Daniel J. Beutel",
+            "Pedro Porto Buarque de Gusmão",
+            "Javier Fernandez-Marques",
+            "Taner Topal",
+            "Xinchi Qiu",
+            "Titouan Parcollet",
+            "Yan Gao",
+            "Nicholas D. Lane"
+          ],
+          "claimed_title": "On-device Federated Learning with Flower",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.03042"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='On-device Federated Learning with Flower')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A robotic swarm may encounter traffic congestion when many robots simultaneously attempt to reach the same area. For solving that efficiently, robots must execute decentralised traffic control algorithms. In this work, we propose a measure for evaluating the access efficiency of a common target area as the number of robots in the swarm rises: the common target area throughput. We also employ here the target area asymptotic throughput -- that is, the throughput of a target region with a limited area as the time tends to infinity -- because it is always finite as the number of robots grows, opposed to the relation arrival time at the target per number of robots that tends to infinity. Using this measure, we can analytically compare the effectiveness of different algorithms. In particular, we propose and formally evaluate three different theoretical strategies for getting to a circular target area: (i) forming parallel queues towards the target area, (ii) forming a hexagonal packing through a corridor going to the target, and (iii) making multiple curved trajectories towards the boundary of the target area. We calculate the throughput for a fixed time and the asymptotic throughput for these strategies. Additionally, we corroborate these results by simulations, showing that when a strategy has higher throughput, its arrival time per number of robots is lower. Thus, we conclude that using throughput is well suited for comparing congestion algorithms for a common target area in robotic swarms even if we do not have their closed asymptotic equation.",
+          "claimed_authors": [
+            "Yuri Tavares dos Passos",
+            "Xavier Duquesne",
+            "Leandro Soriano Marcolino"
+          ],
+          "claimed_title": "On the throughput of the common target area for robotic swarm strategies -- extended version",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.09335"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='On the throughput of the common target area for robotic swarm strategies -- extended version')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The imperative to deploy Deep Neural Network (DNN) models on resource-constrained edge devices, spurred by privacy concerns, has become increasingly apparent. To facilitate the transition from cloud to edge computing, this paper introduces a technique that effectively reduces the memory footprint of DNNs, accommodating the limitations of resource-constrained edge devices while preserving model accuracy. Our proposed technique, named Post-Training Intra-Layer Multi-Precision Quantization (PTILMPQ), employs a post-training quantization approach, eliminating the need for extensive training data. By estimating the importance of layers and channels within the network, the proposed method enables precise bit allocation throughout the quantization process. Experimental results demonstrate that PTILMPQ offers a promising solution for deploying DNNs on edge devices with restricted memory resources. For instance, in the case of ResNet50, it achieves an accuracy of 74.57\\% with a memory footprint of 9.5 MB, representing a 25.49\\% reduction compared to previous similar methods, with only a minor 1.08\\% decrease in accuracy.",
+          "claimed_authors": [
+            "Behnam Ghavami",
+            "Amin Kamjoo",
+            "Lesley Shannon",
+            "Steve Wilton"
+          ],
+          "claimed_title": "DNN Memory Footprint Reduction via Post-Training Intra-Layer Multi-Precision Quantization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.02947"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='DNN Memory Footprint Reduction via Post-Training Intra-Layer Multi-Precision Quantization')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With unprecedented rapid development, deep neural networks (DNNs) have deeply influenced almost all fields. However, their heavy computation costs and model sizes are usually unacceptable in real-world deployment. Model quantization, an effective weight-lighting technique, has become an indispensable procedure in the whole deployment pipeline. The essence of quantization acceleration is the conversion from continuous floating-point numbers to discrete integer ones, which significantly speeds up the memory I/O and calculation, i.e., addition and multiplication. However, performance degradation also comes with the conversion because of the loss of precision. Therefore, it has become increasingly popular and critical to investigate how to perform the conversion and how to compensate for the information loss. This article surveys the recent five-year progress towards low-bit quantization on DNNs. We discuss and compare the state-of-the-art quantization methods and classify them into 8 main categories and 24 sub-categories according to their core techniques. Furthermore, we shed light on the potential research opportunities in the field of model quantization. A curated list of model quantization is provided at https://github.com/Kai-Liu001/Awesome-Model-Quantization.",
+          "claimed_authors": [
+            "Kai Liu",
+            "Qian Zheng",
+            "Kaiwen Tao",
+            "Zhiteng Li",
+            "Haotong Qin",
+            "Wenbo Li",
+            "Yong Guo",
+            "Xianglong Liu",
+            "Linghe Kong",
+            "Guihai Chen",
+            "Yulun Zhang",
+            "Xiaokang Yang"
+          ],
+          "claimed_title": "Low-bit Model Quantization for Deep Neural Networks: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.05530"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Embodied.cpp: A Portable Inference Runtime of Embo', candidate_title='Low-bit Model Quantization for Deep Neural Networks: A Survey')",
+        "failed_at": "2026-08-13T12:36:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ling Xu",
+            "Borui Li",
+            "Hao Wu",
+            "Chuyu Han",
+            "Xiangyu Li",
+            "Mohan Hua",
+            "Shiqi Jiang",
+            "Ting Cao",
+            "Chuanyou Li",
+            "Sheng Zhong",
+            "Shuai Wang"
+          ],
+          "title": "Embodied.cpp: A Portable Inference Runtime of Embodied AI Models on Heterogeneous Robots",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.02501",
+        "summary": "Embodied AI models now span vision-language-action (VLA) models and world-action models (WAMs), but practical deployment remains fragmented across model-specific Python stacks, backend assumptions, and robot-side glue code, especially on heterogeneous edge devices. Existing inference runtimes are designed mainly for request-response serving and therefore do not satisfy the runtime contract of embodied deployment: multi-rate execution inside closed-loop control, latency-first batch-1 inference on heterogeneous hardware, and extensible embodied interfaces beyond fixed token I/O. We present Embodied$.$cpp, a portable C++ inference runtime for embodied models. Based on an architectural analysis of representative VLA models and WAMs, Embodied$.$cpp captures a shared execution path and organizes it into five layers: input adapters, sequence builders, backbone execution, head plugins, and deployment adapters. The runtime provides modular multi-rate execution, latency-first fused inference, and extensible operator and I/O support, enabling deployment across heterogeneous devices, robots, and simulators through one backend abstraction. We evaluate Embodied$.$cpp on three VLA and two WAM models, using normalized comparisons across Python and C++ quantization configurations. Overall, Embodied$.$cpp achieves 1.05x-2.70x inference speedups and 7\\%-77\\% lower VRAM relative to Python baselines, while maintaining near-baseline success for most configurations. These results show that Embodied$.$cpp improves deployment efficiency while preserving high control quality across diverse embodied model architectures.\n  Project Link: https://github.com/SEU-PAISys/Embodied.cpp",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.02501",
+          "http_status": 200,
+          "pdf_sample_score": 0.286,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T12:36:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Osama Almurshed",
+            "Ashish Kaushal",
+            "Asmail Muftah",
+            "Nitin Auluck",
+            "Omer Rana"
+          ],
+          "title": "Knowledge Grafting: A Mechanism for Optimizing AI Model Deployment in Resource-Constrained Environments",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.19261",
+        "summary": "The increasing adoption of Artificial Intelligence (AI) has led to larger, more complex models with numerous parameters that require substantial computing power -- resources often unavailable in many real-world application scenarios. Our paper addresses this challenge by introducing knowledge grafting, a novel mechanism that optimizes AI models for resource-constrained environments by transferring selected features (the scion) from a large donor model to a smaller rootstock model. The approach achieves an 88.54% reduction in model size (from 64.39 MB to 7.38 MB), while improving generalization capability of the model. Our new rootstock model achieves 89.97% validation accuracy (vs. donor's 87.47%), maintains lower validation loss (0.2976 vs. 0.5068), and performs exceptionally well on unseen test data with 90.45% accuracy. It addresses the typical size vs performance trade-off, and enables deployment of AI frameworks on resource-constrained devices with enhanced performance. We have tested our approach on an agricultural weed detection scenario, however, it can be extended across various edge computing scenarios, potentially accelerating AI adoption in areas with limited hardware/software support -- by mirroring in a similar manner the horticultural grafting enables productive cultivation in challenging agri-based environments.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.19261",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T12:36:57Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hema Hariharan Samson"
+          ],
+          "title": "Lightweight Transformer Architectures for Edge Devices in Real-Time Applications",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.03290",
+        "summary": "The deployment of transformer-based models on resource-constrained edge devices represents a critical challenge in enabling real-time artificial intelligence applications. This comprehensive survey examines lightweight transformer architectures specifically designed for edge deployment, analyzing recent advances in model compression, quantization, pruning, and knowledge distillation techniques. We systematically review prominent lightweight variants including MobileBERT, TinyBERT, DistilBERT, EfficientFormer, EdgeFormer, and MobileViT, providing detailed performance benchmarks on standard datasets such as GLUE, SQuAD, ImageNet-1K, and COCO. Our analysis encompasses current industry adoption patterns across major hardware platforms (NVIDIA Jetson, Qualcomm Snapdragon, Apple Neural Engine, ARM architectures), deployment frameworks (TensorFlow Lite, ONNX Runtime, PyTorch Mobile, CoreML), and optimization strategies. Experimental results demonstrate that modern lightweight transformers can achieve 75-96% of full-model accuracy while reducing model size by 4-10x and inference latency by 3-9x, enabling deployment on devices with as little as 2-5W power consumption. We identify sparse attention mechanisms, mixed-precision quantization (INT8/FP16), and hardware-aware neural architecture search as the most effective optimization strategies. Novel findings include memory-bandwidth bottleneck analysis revealing 15-40M parameter models achieve optimal hardware utilization (60-75% efficiency), quantization sweet spots for different model types, and comprehensive energy efficiency profiling across edge platforms. We establish real-time performance boundaries and provide a practical 6-step deployment pipeline achieving 8-12x size reduction with less than 2% accuracy degradation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.03290",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T12:36:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Luca Collini",
+            "Siddharth Garg",
+            "Ramesh Karri"
+          ],
+          "title": "C2HLSC: Can LLMs Bridge the Software-to-Hardware Design Gap?",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.09233",
+        "summary": "High Level Synthesis (HLS) tools offer rapid hardware design from C code, but their compatibility is limited by code constructs. This paper investigates Large Language Models (LLMs) for refactoring C code into HLS-compatible formats. We present several case studies by using an LLM to rewrite C code for NIST 800-22 randomness tests, a QuickSort algorithm and AES-128 into HLS-synthesizable c. The LLM iteratively transforms the C code guided by user prompts, implementing functions like streaming data and hardware-specific signals. This evaluation demonstrates the LLM's potential to assist hardware design refactoring regular C code into HLS synthesizable C code.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.09233",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T12:36:59Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"embodied.cpp: a portable inference runtime of embodied ai models on he\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

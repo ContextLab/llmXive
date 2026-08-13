@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` by executing `mkdir -p code/data code/analysis code/utils code/tests specs/001-decoding-internal-states/contracts` to establish the exact directory tree defined in the plan.
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` pinning `numpy`, `pandas`, `scikit-learn`, `scipy`, `requests`, `tqdm`, `nwb`, `pytest`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` pinning `numpy`, `pandas`, `scikit-learn`, `scipy`, `requests`, `tqdm`, `nwb`, `pytest`
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
 
 ---
@@ -55,8 +55,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/utils/memory_monitor.py` to enforce a configurable RAM limit and raise `MemoryExceededError`
-- [ ] T005 [P] Implement `code/utils/logger.py` for structured logging of pipeline stages
+- [X] T004 [P] Implement `code/utils/memory_monitor.py` to enforce a configurable RAM limit and raise `MemoryExceededError`
+- [X] T005 [P] Implement `code/utils/logger.py` for structured logging of pipeline stages
 - [ ] T006 Create base data schemas in `specs/001-decoding-internal-states/contracts/` (`dataset.schema.yaml`, `output.schema.yaml`, `alignment_results.schema.yaml`, `correlation_results.schema.yaml`)
 - [X] T007 Implement `code/data/loader.py` with chunked loading strategy to ensure memory safety
 - [X] T008 [P] Implement `code/data/split.py` for time-based train/test splitting with a majority-to-minority ratio. to satisfy FR-008 (held-out dataset split for statistical validation)
@@ -110,8 +110,8 @@
 - [X] T022 [US2] Implement sensitivity sweep logic in `code/analysis/nmf_engine.py` to iterate through specific k values and aggregate results for sensitivity analysis (FR-003)
 - [X] T023 [US2] Implement parallel multi-seed sweep in `code/analysis/nmf_engine.py` to generate NMF components for multiple random seeds
 - [ ] T024 [US2] Implement sequential aggregation of NMF results from T023 to calculate cosine similarity across seeds and verify stability threshold ≥0.95 (SC-004); write stability report to `code/analysis/stability_report.json` with explicit pass/fail status
-- [ ] T025 [US2] Integrate `code/data/loader.py` to feed chunked data into NMF engine without loading full matrix
-- [ ] T026 [US2] Implement alignment of extracted component weights with behavioral metadata timestamps in `code/analysis/alignment.py`
+- [X] T025 [US2] Integrate `code/data/loader.py` to feed chunked data into NMF engine without loading full matrix
+- [X] T026 [US2] Implement alignment of extracted component weights with behavioral metadata timestamps in `code/analysis/alignment.py`
 - [ ] T027 [US2] Calculate alignment error metric and validate against ≤1 frame threshold (SC-005); raise error if threshold exceeded
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -126,16 +126,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Contract test for correlation results schema in `code/tests/test_stats.py`
-- [ ] T029 [P] [US3] Integration test for permutation test significance in `code/tests/test_stats.py` (verify p > 0.05 on shuffled data)
+- [X] T028 [P] [US3] Contract test for correlation results schema in `code/tests/test_stats.py`
+- [X] T029 [P] [US3] Integration test for permutation test significance in `code/tests/test_stats.py` (verify p > 0.05 on shuffled data)
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/analysis/stats.py` Spearman correlation calculation between component weights and behavioral metrics (Note: Removed [P] tag due to dependency on T026)
-- [ ] T031 [US3] Implement `code/analysis/stats.py` permutation test with a sufficient number of iterations to ensure statistical reliability to generate null distribution and p-values (FR-005) with explicit enforcement that Benjamini-Hochberg FDR correction is applied ONLY to the held-out set results after splitting (FR-008, Plan Phase 2 Step 6)
-- [ ] T032 [US3] Implement `code/analysis/null_model.py` to generate "linear mixing of behavior" null model (FR-009) for comparison against NMF results
+- [X] T030 [US3] Implement `code/analysis/stats.py` Spearman correlation calculation between component weights and behavioral metrics (Note: Removed [P] tag due to dependency on T026) <!-- FAILED: unspecified -->
+- [X] T031 [US3] Implement `code/analysis/stats.py` permutation test with a sufficient number of iterations to ensure statistical reliability to generate null distribution and p-values (FR-005) with explicit enforcement that Benjamini-Hochberg FDR correction is applied ONLY to the held-out set results after splitting (FR-008, Plan Phase 2 Step 6)
+- [X] T032 [US3] Implement `code/analysis/null_model.py` to generate "linear mixing of behavior" null model (FR-009) for comparison against NMF results
 - [ ] T033 [US3] Implement validation logic to compare NMF components derived from the training set against the test set: run NMF on training set, apply weights to test set, calculate correlation on test set only, and report to prove non-tautological correlation (FR-008); explicitly reference held-out set generated by T008
-- [ ] T034 [US3] Implement `code/analysis/null_model.py` to generate "linear mixing of behavior" null model (FR-009) for comparison against NMF results
+- [X] T034 [US3] Implement `code/analysis/null_model.py` to generate "linear mixing of behavior" null model (FR-009) for comparison against NMF results
 - [ ] T035 [US3] Perform explicit statistical comparison between NMF-derived correlations and the linear mixing null model: calculate difference in correlation strength and p-values, and generate a comparison report
 - [ ] T036 [US3] Generate final results report to `results/final_report.md` with p-values, significance flags, explicit comparison against the linear mixing null model, and validation results from T033
 - [ ] T037 [US3] Restrict statistical testing to the held-out test set generated by `code/data/split.py` (FR-008)

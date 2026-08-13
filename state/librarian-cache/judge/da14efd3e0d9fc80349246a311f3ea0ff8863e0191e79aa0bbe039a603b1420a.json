@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.09233",
+  "judged_at": "2026-08-13T12:37:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"embodied.cpp: a portable inference runtime of embodied ai models on he\" computer science",
+  "rationale": "This paper satisfies criterion (b) by measuring the capability of LLMs to transform C code for hardware design, which is a core component of the \"Embodied.cpp\" runtime's function of porting embodied AI models to hardware. It also aligns with criterion (a) by investigating the same underlying mechanism of using LLMs to bridge the software-to-hardware gap, even though it focuses on the code refactoring phase rather than the full inference runtime execution.",
+  "relevant": true
+}

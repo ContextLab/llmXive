@@ -1,41 +1,132 @@
+# Correlation Results Schema: Defines the structure of statistical validation outputs
 $schema: http://json-schema.org/draft-07/schema#
-title: Correlation Results Schema
-description: Schema for the statistical correlation results between NMF components and behavior.
 type: object
+required:
+  - metadata
+  - correlations
+  - permutation_tests
+  - fdr_correction
 properties:
-  method:
-    type: string
-    enum: [spearman]
-  permutation_iterations:
-    type: integer
-  fdr_corrected:
-    type: boolean
-  results:
+  metadata:
+    type: object
+    description: Metadata about the statistical analysis
+    required:
+      - analysis_id
+      - dataset_id
+      - split_type
+      - n_permutations
+      - alpha_level
+    properties:
+      analysis_id:
+        type: string
+        description: Unique identifier for this analysis
+      dataset_id:
+        type: string
+        description: ID of the dataset analyzed
+      split_type:
+        type: string
+        enum: [train, test, held_out]
+        description: Which data split was used
+      n_permutations:
+        type: integer
+        minimum: 100
+        description: Number of permutations for null distribution
+      alpha_level:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Significance threshold (alpha)
+      method:
+        type: string
+        enum: [spearman, pearson, kendall]
+        description: Correlation method used
+  correlations:
     type: array
+    description: List of correlation results for each component-feature pair
     items:
       type: object
-      properties:
-        component_id:
-          type: integer
-        behavioral_metric:
-          type: string
-        correlation_coefficient:
-          type: number
-        p_value_raw:
-          type: number
-        p_value_corrected:
-          type: number
-        is_significant:
-          type: boolean
       required:
         - component_id
-        - behavioral_metric
+        - behavior_feature
         - correlation_coefficient
-        - p_value_raw
-        - p_value_corrected
-        - is_significant
-required:
-  - method
-  - permutation_iterations
-  - fdr_corrected
-  - results
+        - p_value
+      properties:
+        component_id:
+          type: string
+          description: ID of the NMF component
+        behavior_feature:
+          type: string
+          description: Name of the behavioral feature
+        correlation_coefficient:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Spearman correlation coefficient
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Raw p-value from the correlation test
+        sample_size:
+          type: integer
+          minimum: 2
+          description: Number of samples used in the calculation
+  permutation_tests:
+    type: array
+    description: Results of permutation tests for significance validation
+    items:
+      type: object
+      required:
+        - component_id
+        - behavior_feature
+        - observed_statistic
+        - null_distribution_mean
+        - null_distribution_std
+        - empirical_p_value
+      properties:
+        component_id:
+          type: string
+          description: ID of the NMF component
+        behavior_feature:
+          type: string
+          description: Name of the behavioral feature
+        observed_statistic:
+          type: number
+          description: Observed correlation statistic
+        null_distribution_mean:
+          type: number
+          description: Mean of the null distribution (shuffled data)
+        null_distribution_std:
+          type: number
+          description: Standard deviation of the null distribution
+        empirical_p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Empirical p-value from permutation test
+  fdr_correction:
+    type: object
+    description: Benjamini-Hochberg FDR correction results
+    required:
+      - corrected_p_values
+      - significant_flags
+      - q_threshold
+    properties:
+      corrected_p_values:
+        type: array
+        items:
+          type: number
+          minimum: 0
+          maximum: 1
+        description: List of FDR-corrected p-values
+      significant_flags:
+        type: array
+        items:
+          type: boolean
+        description: Boolean flags indicating significance after FDR correction
+      q_threshold:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Q-value threshold used for correction
+additionalProperties: false

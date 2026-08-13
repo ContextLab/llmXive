@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.04521",
+  "judged_at": "2026-08-13T12:37:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"embodied.cpp: a portable inference runtime of embodied ai models on he\" computer science",
+  "rationale": "The paper focuses on economic mechanisms (auctions, pricing, revenue maximization) for resource allocation in Edge-AI markets, whereas the user's question concerns the technical implementation of a portable inference runtime (\"Embodied.cpp\") for embodied AI models. While both involve edge inference, the candidate paper does not measure the same mechanism, establish a baseline for runtime portability, or provide foundational methodology for the specific software engineering challenge of creating ",
+  "relevant": false
+}

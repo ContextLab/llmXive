@@ -1,54 +1,131 @@
+# Output Schema: Defines the structure of NMF decomposition results
 $schema: http://json-schema.org/draft-07/schema#
-title: Output Schema
-description: Schema for the results of the NMF decomposition and correlation analysis.
 type: object
-properties:
-  nmf_results:
-    type: object
-    properties:
-      components:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
-      weights:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
-      k:
-        type: integer
-      stability_score:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-    required:
-      - components
-      - weights
-      - k
-  correlation_results:
-    type: array
-    items:
-      type: object
-      properties:
-        component_id:
-          type: integer
-        behavioral_metric:
-          type: string
-        correlation:
-          type: number
-        p_value:
-          type: number
-        significant:
-          type: boolean
-      required:
-        - component_id
-        - behavioral_metric
-        - correlation
-        - p_value
-        - significant
 required:
-  - nmf_results
-  - correlation_results
+  - metadata
+  - components
+  - weights
+  - reconstruction_error
+properties:
+  metadata:
+    type: object
+    description: Metadata about the NMF execution
+    required:
+      - run_id
+      - seed
+      - k_components
+      - algorithm
+      - convergence_status
+      - execution_time_seconds
+    properties:
+      run_id:
+        type: string
+        description: Unique identifier for this NMF run
+      seed:
+        type: integer
+        description: Random seed used for initialization
+      k_components:
+        type: integer
+        minimum: 1
+        description: Number of latent components requested
+      algorithm:
+        type: string
+        enum: [standard_nmf, sparse_nmf, conv_nmf]
+        description: Specific NMF variant used
+      regularization_strength:
+        type: number
+        minimum: 0
+        description: Strength of temporal smoothness regularization
+      convergence_status:
+        type: string
+        enum: [converged, max_iter_reached, failed]
+        description: Status of the optimization solver
+      execution_time_seconds:
+        type: number
+        minimum: 0
+        description: Wall-clock time taken for execution
+      input_shape:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+        description: Shape of the input data matrix [roi_count, time_points]
+  components:
+    type: object
+    description: The W matrix (Spatial components / Basis vectors)
+    required:
+      - component_ids
+      - component_data
+      - shape
+    properties:
+      component_ids:
+        type: array
+        items:
+          type: string
+        description: IDs for the k components (e.g., 'comp_0', 'comp_1')
+      component_data:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: 2D array of shape (roi_count, k) containing spatial weights
+      shape:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+        description: Explicit shape [roi_count, k]
+      non_negative:
+        type: boolean
+        const: true
+        description: Flag indicating all values are non-negative
+  weights:
+    type: object
+    description: The H matrix (Temporal activations / Weights over time)
+    required:
+      - weight_data
+      - shape
+    properties:
+      weight_data:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: 2D array of shape (k, time_points) containing temporal activations
+      shape:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+        description: Explicit shape [k, time_points]
+      non_negative:
+        type: boolean
+        const: true
+        description: Flag indicating all values are non-negative
+  reconstruction_error:
+    type: object
+    description: Metrics regarding the quality of the decomposition
+    required:
+      - frobenius_norm
+      - relative_error
+      - variance_explained
+    properties:
+      frobenius_norm:
+        type: number
+        minimum: 0
+        description: ||V - WH||_F
+      relative_error:
+        type: number
+        minimum: 0
+        description: ||V - WH||_F / ||V||_F
+      variance_explained:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Fraction of variance in V explained by WH
+additionalProperties: false

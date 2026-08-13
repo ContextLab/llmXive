@@ -1,38 +1,134 @@
+# Dataset Schema: Defines the structure of the input calcium imaging and behavioral data
+# Source: Allen Brain Atlas Visual Coding Subset
 $schema: http://json-schema.org/draft-07/schema#
-title: Dataset Schema
-description: Schema for the raw and processed calcium imaging dataset.
 type: object
+required:
+  - metadata
+  - calcium_traces
+  - behavioral_metadata
 properties:
   metadata:
     type: object
+    description: Global dataset metadata
+    required:
+      - dataset_id
+      - acquisition_date
+      - brain_area
+      - session_type
+      - version
     properties:
-      source:
+      dataset_id:
         type: string
+        description: Unique identifier for the dataset (e.g., 'VISp_20230101_001')
       acquisition_date:
         type: string
         format: date-time
-      animal_id:
+        description: ISO 8601 timestamp of data acquisition
+      brain_area:
         type: string
-      session_id:
+        enum: [VISp, VISam, VISrl, VISli, VISal, VISpm, VISpg, VISlo, VISpl, VISm, VISn]
+        description: Visual area abbreviation
+      session_type:
         type: string
-  data:
+        enum: [static_gratings, drifting_gratings, natural_scenes, movie]
+        description: Type of visual stimulus session
+      version:
+        type: string
+        description: Schema version used for this dataset
+      source_url:
+        type: string
+        description: URL where the raw data was downloaded from
+      checksum_md5:
+        type: string
+        description: MD5 checksum of the raw downloaded file
+      total_frames:
+        type: integer
+        minimum: 1
+        description: Total number of imaging frames
+      frame_rate_hz:
+        type: number
+        minimum: 0
+        description: Imaging frame rate in Hz
+      roi_count:
+        type: integer
+        minimum: 1
+        description: Number of Regions of Interest (cells)
+  calcium_traces:
     type: object
+    description: Preprocessed calcium fluorescence traces (dF/F normalized)
+    required:
+      - roi_ids
+      - trace_data
+      - trace_shape
     properties:
-      roi_traces:
+      roi_ids:
+        type: array
+        items:
+          type: string
+        description: List of ROI identifiers corresponding to rows in trace_data
+      trace_data:
         type: array
         items:
           type: array
           items:
             type: number
+        description: 2D array of shape (roi_count, total_frames) containing dF/F values
+      trace_shape:
+        type: array
+        items:
+          type: integer
+        minItems: 2
+        maxItems: 2
+        description: Explicit shape [rows, cols] for validation
+      missing_data_mask:
+        type: array
+        items:
+          type: array
+          items:
+            type: boolean
+        description: Boolean mask where True indicates interpolated/missing data points
+  behavioral_metadata:
+    type: object
+    description: Synchronized behavioral and stimulus metadata
+    required:
+      - timestamps
+      - stimulus_type
+      - pupil_diameter
+      - running_speed
+      - eye_position
+    properties:
       timestamps:
         type: array
         items:
           type: number
-      behavioral_metadata:
-        type: object
-    required:
-      - roi_traces
-      - timestamps
-required:
-  - metadata
-  - data
+        description: Array of timestamps (seconds) corresponding to frames
+      stimulus_type:
+        type: array
+        items:
+          type: string
+        description: Stimulus label for each frame (e.g., 'grating_0', 'grating_45', 'blank')
+      pupil_diameter:
+        type: array
+        items:
+          type: number
+        description: Pupil diameter in pixels for each frame
+      running_speed:
+        type: array
+        items:
+          type: number
+        description: Wheel running speed in cm/s for each frame
+      eye_position:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        minItems: 2
+        maxItems: 2
+        description: 2D eye position [x, y] for each frame
+      contrast_levels:
+        type: array
+        items:
+          type: number
+        description: Contrast level of the stimulus for each frame (0.0 to 1.0)
+additionalProperties: false

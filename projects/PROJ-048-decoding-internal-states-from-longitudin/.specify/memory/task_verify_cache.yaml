@@ -1,0 +1,32 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listings or other evidence were provided showing that the required\
+    \ folders (`code/data`, `code/analysis`, `code/utils`, `code/tests`, `specs/001-decoding-internal-states/contracts`)\
+    \ actually exist. The implementer\u2019s claim cannot be verified without concrete\
+    \ artifacts, so the project structure has not been demonstrated."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a `setup.cfg`/`tox.ini` containing flake8/black sections)\
+    \ are present in the provided evidence, nor any documentation showing they have\
+    \ been added to the `code/` directory. The implementer\u2019s claim lacks the\
+    \ required artifacts."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was provided that computes an alignment error\
+    \ metric, checks it against the \u22641\u2011frame threshold, or raises an error\
+    \ when the threshold is exceeded. The required artifact is missing, so the task\
+    \ is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or result files were presented that implement the\
+    \ required validation logic (run NMF on the training set, apply weights to the\
+    \ test set, compute correlations on the held\u2011out test set, and report non\u2011\
+    tautological correlation referencing the held\u2011out set from T008). Without\
+    \ these artifacts, the task\u2019s requirement cannot be confirmed. The next implementer\
+    \ must provide the actual implementation and a concrete report or output demonstrating\
+    \ the computed correlations."

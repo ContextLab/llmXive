@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.18754",
+  "judged_at": "2026-08-13T12:29:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometry-aware representation denoising for robust multi-view 3d recon\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly investigates the robustness of multiview 3D reconstruction against noise, artifacts, and hallucinations—the core mechanism of \"Geometry-Aware Representation Denoising\" mentioned in the user's question. It provides essential empirical baselines and failure-mode analysis for the specific domain of multiview 3D consistency that any follow-up work on denoising or robustness would need to cite.",
+  "relevant": true
+}

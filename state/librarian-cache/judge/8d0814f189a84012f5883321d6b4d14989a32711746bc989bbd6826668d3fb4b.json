@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.02501",
+  "judged_at": "2026-08-13T12:37:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"embodied.cpp: a portable inference runtime of embodied ai models on he\" computer science",
+  "rationale": "The paper is the foundational methods paper (category d) that directly introduces \"Embodied.cpp,\" the specific system the user's research question (\"llmXive follow-up: extending 'Embodied.cpp...'\") explicitly names and seeks to extend.",
+  "relevant": true
+}

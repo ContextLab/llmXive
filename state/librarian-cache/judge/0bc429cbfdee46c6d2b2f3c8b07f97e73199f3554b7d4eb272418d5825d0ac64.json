@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2110.11599",
+  "judged_at": "2026-08-13T12:29:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometry-aware representation denoising for robust multi-view 3d recon\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the same core domain (multi-view 3D reconstruction) and mechanism (leveraging neural priors and equivariance to handle limited views) as the user's question, serving as a canonical prior work for robustness in sparse-view settings even if it does not explicitly mention \"Geometry-Aware Representation Denoising.\"",
+  "relevant": true
+}

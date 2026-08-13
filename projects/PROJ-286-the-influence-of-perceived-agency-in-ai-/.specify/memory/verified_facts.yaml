@@ -1,9 +1,4 @@
-'|alpha analysi level power pre study use':
-  quote: '0.05'
-  source_id: Power (statistics)
-  url: https://en.wikipedia.org/wiki/Power_(statistics)
-  value: '0.05'
-'|analysi power pre study target':
+'|analysi power target':
   quote: "Indeed, although there are no formal standards for power, many researchers\
     \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
     \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\

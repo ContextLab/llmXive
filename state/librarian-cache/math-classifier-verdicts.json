@@ -1755,6 +1755,10 @@
     "classified_at": "2026-07-10T01:11:42Z",
     "verdict": false
   },
+  "PROJ-960-llmxive-follow-up-extending-geometry-awa::1.6.0": {
+    "classified_at": "2026-08-13T12:28:47Z",
+    "verdict": false
+  },
   "PROJ-961-llmxive-follow-up-extending-videokr-towa::1.6.0": {
     "classified_at": "2026-07-07T16:01:40Z",
     "verdict": false
@@ -1853,6 +1857,10 @@
   },
   "PROJ-997-llmxive-follow-up-extending-the-mirage-o::1.6.0": {
     "classified_at": "2026-07-12T18:37:24Z",
+    "verdict": false
+  },
+  "PROJ-998-llmxive-follow-up-extending-embodied-cpp::1.6.0": {
+    "classified_at": "2026-08-13T12:36:43Z",
     "verdict": false
   },
   "PROJ-999-llmxive-follow-up-extending-vla-correcto::1.6.0": {

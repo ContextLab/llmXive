@@ -1,17 +1,3 @@
-T000c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research/validation_report.json` file or parsing script is present, and there
-    is no evidence that citations were checked for `status="valid"` and `overlap >=
-    0.7` with error handling on failure. The required artifact and its functionality
-    are missing.
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file is present in the provided evidence, and there is no content
-    showing the required table with columns Effect Size, Alpha, Target Power, Required
-    N, and Calculated N. The implementer therefore has not delivered the requested
-    template.
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

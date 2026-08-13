@@ -1477,3 +1477,415 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-31T18:29:17Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Crossref API used to verify citations and retrieve DOIs
+  claim_id: c_3efc58ce
+  context: 'Create the citation validation script code/research/validate_citations.py.
+    Input: List of BibTeX or inline citations. Output: JSON object with validation
+    status.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P436: 51d5ae33-82c1-3d3c-8e25-c88a2cf2c208'
+      source_id: Q5288689
+      url: https://www.wikidata.org/wiki/Q5288689
+      value: 51d5ae33-82c1-3d3c-8e25-c88a2cf2c208
+    filled: true
+  kind: entity_fact
+  raw_text: Use Crossref API (https://api.crossref.org/works?query.title={title})
+    to search by title, retrieve DOIs, and verify existence.
+  resolved_value: 51d5ae33-82c1-3d3c-8e25-c88a2cf2c208
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T12:49:17Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 citation
+  claim_id: c_890443ab
+  context: 'Execute pre-study power analysis calculation using Python statsmodels.
+    Args: --effect_size 0.25 --alpha 0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))
+    --power 0.80 --test_type anova.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lee & See (2004)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:49:44Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Langer 1975 citation
+  claim_id: c_76e58f7c
+  context: 'Execute pre-study power analysis calculation using Python statsmodels.
+    Args: --effect_size 0.25 --alpha 0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))
+    --power 0.80 --test_type anova.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Langer (1975)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:50:04Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power (statistics) Wikipedia article
+  claim_id: c_e1cd3439
+  context: 'Execute pre-study power analysis calculation using Python statsmodels.
+    Args: --effect_size 0.25 --alpha 0.05 (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))
+    --power 0.80 --test_type anova.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q5405444
+        url: https://www.wikidata.org/wiki/Q5405444
+        value: '137'
+      quote: 'P1533: Q5405444'
+      source_id: Q42506454
+      url: https://www.wikidata.org/wiki/Q42506454
+      value: Q5405444
+    filled: true
+  kind: entity_fact
+  raw_text: Power (statistics) Wikipedia article
+  resolved_value: Q5405444
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T12:50:19Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 trust scale contains 12 items
+  claim_id: c_df195e03
+  context: 'Create docs/trust_scale_items.md containing the verbatim 12-item Lee &
+    See (2004) scale. Items: 1) I trust this system, 2) I feel confident in this system,
+    3) I believe this system is reliable, 4) I feel this system is competent, 5) I
+    feel this system is predictable, 6) I feel this system is safe, 7) I feel this
+    system is honest, 8) I feel this system is benevolent, 9) I feel this system is
+    capable, 10) I feel this system is useful, 11) I feel this system is accurate,
+    12) I feel this system is effective.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 12-item Lee & See (2004) scale
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:50:43Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High vs Low contrast coefficients 1 -1 0
+  claim_id: c_728e3b0e
+  context: 'Implement One-Way ANOVA and Planned Directional Contrasts in code/analysis/contrasts.py.
+    Requirement: Explicitly implement orthogonal contrast vectors with coefficients:
+    1) High vs. Low (coefficients: [1, -1, 0]), 2) (High+Low) vs. Control (coefficients:
+    [1, 1, -2]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Orthogonal contrast vector for High vs. Low: coefficients [1, -1, 0]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:51:04Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High plus Low vs Control contrast coefficients 1 1 -2
+  claim_id: c_d136f80e
+  context: 'Implement One-Way ANOVA and Planned Directional Contrasts in code/analysis/contrasts.py.
+    Requirement: Explicitly implement orthogonal contrast vectors with coefficients:
+    1) High vs. Low (coefficients: [1, -1, 0]), 2) (High+Low) vs. Control (coefficients:
+    [1, 1, -2]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Orthogonal contrast vector for (High+Low) vs. Control: coefficients [1,
+    1, -2]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:52:33Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research.md
+  attempts: 1
+  canonical: 159 total participants required for 80% power to detect effect size f=0.25
+    at alpha=0.05
+  claim_id: c_820fbe8a
+  context: The following table summarizes the pre-study power analysis parameters
+    required to detect the hypothesized effect size with the specified confidence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A total sample size of 159 participants (53 per condition) is required\
+    \ to achieve 80% power to detect an effect size of f = 0.25 at \u03B1 = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:53:39Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research.md
+  attempts: 1
+  canonical: Lee and See 2004 focused on trust in automation and defined the theoretical
+    framework for the Trust Scale
+  claim_id: c_8fa313ec
+  context: Key Citations section listing Lee & See (2004) as a validated source for
+    the study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Lee & See (2004): Validated. Focuses on trust in automation, defining
+    the theoretical framework for the Trust Scale used in this study.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:54:04Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research.md
+  attempts: 1
+  canonical: Langer 1975 provided the psychological basis for the illusion of control
+    and perceived agency constructs
+  claim_id: c_98de4a60
+  context: Key Citations section listing Langer (1975) as a validated source for the
+    study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Langer (1975): Validated. Provides the psychological basis for the ''illusion
+    of control'' and perceived agency constructs.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:54:28Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research.md
+  attempts: 1
+  canonical: Medium effect sizes in prior automation trust literature cited by Cohen
+    1988 justified the effect size
+  claim_id: c_af4732ce
+  context: Analysis Details section explaining the justification for the effect size
+    used in power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Justification: Based on medium effect sizes observed in prior
+    automation trust literature (Cohen, 1988).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:54:54Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Lee & See 2004 Trust Scale has 12 items
+  claim_id: c_e7411fca
+  context: T007c Create docs/trust_scale_items.md containing the verbatim 12-item
+    Lee & See (2004) scale.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Lee & See (2004) Trust Scale consists of 12 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:55:41Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis target power 0.80
+  claim_id: c_5a9de1d0
+  context: 'T002 Execute pre-study power analysis calculation using Python statsmodels.
+    Args: --effect_size 0.25 --alpha 0.05 --power 0.80 --test_type anova.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis targets a power of 0.80.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T12:55:49Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis effect size 0.25
+  claim_id: c_6d9a199c
+  context: 'T002 Execute pre-study power analysis calculation using Python statsmodels.
+    Args: --effect_size 0.25 --alpha 0.05 --power 0.80 --test_type anova.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an effect size of 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:56:19Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis alpha level 0.05
+  claim_id: c_e48e7b3b
+  context: 'T002 Execute pre-study power analysis calculation using Python statsmodels.
+    Args: --effect_size 0.25 --alpha 0.05 --power 0.80 --test_type anova.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis uses an alpha level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:56:43Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Power analysis test type ANOVA
+  claim_id: c_77dfc84b
+  context: 'T002 Execute pre-study power analysis calculation using Python statsmodels.
+    Args: --effect_size 0.25 --alpha 0.05 --power 0.80 --test_type anova.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: algorithm for conducting a one-way analysis of variance
+      source_id: '1711.01335'
+      url: https://arxiv.org/abs/1711.01335
+      value: one-way
+    filled: true
+  kind: entity_fact
+  raw_text: The power analysis uses an ANOVA test type.
+  resolved_value: one-way
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-13T12:57:16Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High vs Low contrast coefficients 1 -1 0
+  claim_id: c_474e8d28
+  context: 'T022 Implement One-Way ANOVA and Planned Directional Contrasts. Requirement:
+    Explicitly implement orthogonal contrast vectors with coefficients: 1) High vs.
+    Low (coefficients: [1, -1, 0]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The first planned directional contrast compares High vs. Low agency with
+    coefficients [1, -1, 0].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:57:37Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: High+Low vs Control contrast coefficients 1 1 -2
+  claim_id: c_64666831
+  context: 'T022 Implement One-Way ANOVA and Planned Directional Contrasts. Requirement:
+    Explicitly implement orthogonal contrast vectors with coefficients: 2) (High+Low)
+    vs. Control (coefficients: [1, 1, -2]).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The second planned directional contrast compares (High+Low) vs. Control
+    with coefficients [1, 1, -2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:57:53Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Trust scale Likert range Strongly Disagree to Strongly Agree
+  claim_id: c_6f53af4b
+  context: T007c Create docs/trust_scale_items.md containing the verbatim 12-item
+    Lee & See (2004) scale. Use a Likert scale ranging from Strongly Disagree to Strongly
+    Agree.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trust_scale_Likert_range_Strongly_Disagree_to_Strongly_Agree
+  kind: entity_fact
+  raw_text: The trust scale items use a Likert scale ranging from Strongly Disagree
+    to Strongly Agree.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:58:18Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Project requires Python 3.11
+  claim_id: c_568c787e
+  context: T005 Initialize Python 3.11 project with pinned dependencies in requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:58:39Z'
+- artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
+  attempts: 1
+  canonical: Project dependencies streamlit pandas numpy scipy statsmodels pingouin
+    pytest
+  claim_id: c_44c53bfe
+  context: T005 Initialize Python 3.11 project with pinned dependencies in requirements.txt
+    (streamlit, pandas, numpy, scipy, statsmodels, pingouin, pytest).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_dependencies_streamlit_pandas_numpy_scipy_statsmodel
+  kind: entity_fact
+  raw_text: The project dependencies include streamlit, pandas, numpy, scipy, statsmodels,
+    pingouin, and pytest.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T12:58:59Z'

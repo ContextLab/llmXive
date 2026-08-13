@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.05868",
+  "judged_at": "2026-08-13T12:37:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"embodied.cpp: a portable inference runtime of embodied ai models on he\" computer science",
+  "rationale": "The paper focuses on optimizing LLM inference for high-concurrency financial applications using specific architectural transitions (GQA-to-MLA) on Huawei Ascend hardware, which does not address the user's specific question regarding \"Embodied AI\" models, portable runtimes, or the \"Embodied.cpp\" framework. While both involve LLM deployment efficiency, the domain (financial vs. embodied robotics) and the specific mechanisms (KV cache compression vs. portable runtime architecture) are distinct cons",
+  "relevant": false
+}
