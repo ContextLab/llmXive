@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://dn720201.ca.archive.org/0/items/stackexchange/stackoverflow.com-PostsTags.7z
   verified_at: '2026-07-09T22:47:53.740105Z'
-- artifact_hash: a10566e5e79e5fccd84cf71705d0589aeee68d2a01a12002b107d7693048ba03
+- artifact_hash: 102382993f908a195cf34ec84f999cbc3a32ff47d05e181f8ed16342a9243f2f
   artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: https://huggingface.co/datasets/stack-exchange/stackoverflow-tags`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/stack-exchange/stackoverflow-tags
-  verified_at: '2026-08-12T12:08:32.509337Z'
+  verified_at: '2026-08-14T16:12:14.985965Z'

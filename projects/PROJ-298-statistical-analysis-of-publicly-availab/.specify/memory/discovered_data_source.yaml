@@ -1,12 +1,13 @@
 status: none
-intent: download Stack Exchange Data Dump tags dataset and GitHub Archive stars python
-  package
+intent: Stack Exchange Data Dump tag frequencies 2015-2023 and GitHub Stars dataset
+  download python package dataset
 required_fields:
-- date
 - tag
+- year_month
 - post_count
 - github_repo
+- star_year_month
 - star_count
-cache_key: c843c6f8d5e75f6be5cda6921e68964b8780540734892ac4e89ce7021b1c536f
-searched_at: '2026-08-12T11:47:46.177368+00:00'
+cache_key: 473980c148dc7ef0b1db148a47847ddfe97f5741b019aac9c9201f47087feeb9
+searched_at: '2026-08-14T16:07:49.672671+00:00'
 retry_count: 1

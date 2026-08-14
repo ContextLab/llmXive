@@ -2598,3 +2598,691 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T12:08:32Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow Developer Survey 2023 Tech Stack data source is HuggingFace
+    dataset stack-exchange/stackoverflow-survey
+  claim_id: c_a76cfe2b
+  context: 'Phase 2: Foundational (Blocking Prerequisites), Task T008a: Download the
+    Stack Overflow Developer Survey 2023 Tech Stack data from the verified HuggingFace
+    dataset stack-exchange/stackoverflow-survey (specifically the tech_stack split
+    or JSON file if available).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download the Stack Overflow Developer Survey 2023 Tech Stack data from
+    the verified HuggingFace dataset stack-exchange/stackoverflow-survey.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:09:16Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow Developer Survey 2023 release logs and event dates source
+    is verified URL or HuggingFace dataset stack-exchange/stackoverflow-survey
+  claim_id: c_fc7e1f00
+  context: 'Phase 2: Foundational (Blocking Prerequisites), Task T008b: Download official
+    release logs and event dates from the verified Stack Overflow Developer Survey
+    2023 release notes URL... OR fetch from the verified HuggingFace dataset stack-exchange/stackoverflow-survey.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download official release logs and event dates from the verified Stack
+    Overflow Developer Survey 2023 release notes URL or fetch from the verified HuggingFace
+    dataset stack-exchange/stackoverflow-survey.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:09:31Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MDES calculation uses Monte Carlo method with 1000 iterations
+  claim_id: c_46da9b39
+  context: 'Phase 3: User Story 1, Task T014c: MUST calculate MDES via Monte Carlo
+    (1000 iterations with a fixed random seed) by injecting linear trends of varying
+    slopes into the pre-whitened residuals of the top 50 tags.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate MDES via Monte Carlo with 1000 iterations with a fixed random
+    seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:09:51Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Streaming logic uses chunk_size 10000 and memory trigger threshold 6.0GB
+  claim_id: c_44474b2b
+  context: 'Phase N: Polish & Cross-Cutting Concerns, Task T036: MUST use a chunk_size=10000
+    and a memory trigger threshold of 6.0GB (measured via psutil).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a chunk_size=10000 and a memory trigger threshold of 6.0GB for streaming
+    logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:10:45Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time must be less than or equal to 21600 seconds
+  claim_id: c_9bfba74f
+  context: 'Phase N: Polish & Cross-Cutting Concerns, Task T037b: MUST Assert that
+    execution_time_seconds <= 21600 (6 hours) or fail the task.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_must_be_less_than_or_equal_to_21600
+  kind: magnitude
+  raw_text: Assert that execution time is less than or equal to 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:11:21Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cluster Label Alignment Score fuzzy matching uses Levenshtein distance
+    threshold of 2
+  claim_id: c_f127bfcd
+  context: "Phase 5: User Story 3, Task T030: MUST use Levenshtein distance \u2264\
+    \ 2 for fuzzy matching, as derived from Plan.md complexity tracking for aligning\
+    \ tags to 'Tech Stack' categories."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cluster_Label_Alignment_Score_fuzzy_matching_uses_Levenshtei
+  kind: magnitude
+  raw_text: Use Levenshtein distance less than or equal to 2 for fuzzy matching in
+    Cluster Label Alignment Score.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:11:26Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cluster Label Alignment Score threshold is 0.8
+  claim_id: c_6e57c383
+  context: "Phase 5: User Story 3, Task T030: MUST calculate Cluster Label Alignment\
+    \ Score and verify it is \u2265 0.8. This threshold is derived from Spec US-3\
+    \ acceptance criteria."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cluster_Label_Alignment_Score_threshold_is_0.8
+  kind: magnitude
+  raw_text: Verify Cluster Label Alignment Score is greater than or equal to 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:11:32Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: GitHub/NPM API cache TTL is 24 hours
+  claim_id: c_45908923
+  context: 'Revision Tasks, Task T051: MUST implement a local disk cache (e.g., data/cache/github_api_cache.json)
+    with a TTL of 24 hours to ensure reproducibility and avoid hitting rate limits
+    during re-runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set a local disk cache TTL of 24 hours for GitHub/NPM API caching.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:11:35Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow Developer Survey 2023 Tech Stack data available on HuggingFace
+    stack-exchange/stackoverflow-survey
+  claim_id: c_f985737b
+  context: '1. **Taxonomy Source**: Download the Stack Overflow Developer Survey 2023
+    Tech Stack data from the verified HuggingFace dataset `stack-exchange/stackoverflow-survey`
+    (specifically the `tech_stack` split or JSON file if available).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Stack Overflow Developer Survey 2023 Tech Stack data is available
+    from the verified HuggingFace dataset 'stack-exchange/stackoverflow-survey' (specifically
+    the 'tech_stack' split or JSON file).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:13:58Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow Developer Survey 2023 events data available on HuggingFace
+    stack-exchange/stackoverflow-survey
+  claim_id: c_b49ee8cc
+  context: OR fetch from the verified HuggingFace dataset `stack-exchange/stackoverflow-survey`
+    (specifically the `events` split if available).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Stack Overflow Developer Survey 2023 release notes and event dates
+    are available from the verified HuggingFace dataset 'stack-exchange/stackoverflow-survey'
+    (specifically the 'events' split if available).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:03Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Stack Overflow PostsTags data source is Stack Overflow dump
+  claim_id: c_02c59921
+  context: 'Implement `code/data/download.py` to fetch `PostsTags` from Stack Overflow
+    dump (canonical URL: `) or HuggingFace fallback (`https://huggingface.co/datasets/stack-exchange/stackoverflow-tags`)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stack_Overflow_PostsTags_data_source_is_Stack_Overflow_dump
+  kind: entity_fact
+  raw_text: The primary data source for Stack Overflow PostsTags is the Stack Overflow
+    dump.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:11Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: HuggingFace fallback dataset for Stack Overflow tags at stack-exchange/stackoverflow-tags
+  claim_id: c_bc4b6d90
+  context: 'Implement `code/data/download.py` to fetch `PostsTags` from Stack Overflow
+    dump (canonical URL: `) or HuggingFace fallback (`https://huggingface.co/datasets/stack-exchange/stackoverflow-tags`)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFace_fallback_dataset_for_Stack_Overflow_tags_at_stac
+  kind: entity_fact
+  raw_text: A HuggingFace fallback dataset for Stack Overflow tags exists at 'https://huggingface.co/datasets/stack-exchange/stackoverflow-tags'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:17Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: GitHub Search API base URL used for topic searches
+  claim_id: c_4b5d4ae0
+  context: 'MUST attempt mapping via GitHub Search API (topic, base URL: `) and NPM
+    Search API (keyword, base URL: `) for each of the Top 50 tags to identify candidate
+    repos/packages.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GitHub_Search_API_base_URL_used_for_topic_searches
+  kind: entity_fact
+  raw_text: The GitHub Search API base URL is used for topic searches to identify
+    candidate repositories for technology tags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:25Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: NPM Search API base URL used for keyword searches
+  claim_id: c_e8a028f8
+  context: 'MUST attempt mapping via GitHub Search API (topic, base URL: `) and NPM
+    Search API (keyword, base URL: `) for each of the Top 50 tags to identify candidate
+    repos/packages.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NPM_Search_API_base_URL_used_for_keyword_searches
+  kind: entity_fact
+  raw_text: The NPM Search API base URL is used for keyword searches to identify candidate
+    packages for technology tags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:33Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Analysis targets Top 50 tags by total frequency
+  claim_id: c_2cb245fa
+  context: MUST output the list of 'Top Tags' (by total frequency) to `data/processed/top_50_tags.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis targets the Top 50 tags by total frequency.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:38Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Monte Carlo MDES simulation uses 1000 iterations
+  claim_id: c_5ea8cdf9
+  context: MUST calculate MDES via Monte Carlo (1000 iterations with a fixed random
+    seed) by injecting linear trends of varying slopes into the pre-whitened residuals
+    of the top 50 tags to determine the slope magnitude detectable at 80% power with
+    alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Monte Carlo simulation for Minimum Detectable Effect Size (MDES) uses
+    1000 iterations with a fixed random seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:40Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Power analysis uses alpha 0.05 and 80% power target
+  claim_id: c_8def97bb
+  context: MUST calculate MDES via Monte Carlo (1000 iterations with a fixed random
+    seed) by injecting linear trends of varying slopes into the pre-whitened residuals
+    of the top 50 tags to determine the slope magnitude detectable at 80% power with
+    alpha=0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The post-hoc power analysis uses an alpha level of 0.05 and targets 80%
+    power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:45Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Block bootstrap uses 12 month block length for annual seasonality
+  claim_id: c_520bd168
+  context: MUST cite Plan.md decision for using block length of 12 months to preserve
+    annual seasonality patterns in the time series, as ratified in T016a.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The block bootstrap method uses a block length of 12 months to preserve
+    annual seasonality patterns in the time series.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:51Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Block bootstrap confidence interval uses 1000 iterations
+  claim_id: c_5423b928
+  context: Implement bootstrapping logic to calculate confidence intervals for Theil-Sen
+    trend slopes (1000 iterations) using **block bootstrap** (block length = 12 months)
+    to preserve temporal autocorrelation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The block bootstrap confidence interval calculation uses 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:14:56Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Ljung-Box test uses lag 12
+  claim_id: c_6af358ba
+  context: MUST perform Ljung-Box test on residuals with lag=12; report p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Ljung-Box test for residual independence uses a lag of 12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:15:52Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Permutation test for cluster coherence runs 1000 iterations
+  claim_id: c_55fcc208
+  context: MUST run 1000 iterations for the permutation test and report p < 0.05 significance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test for cluster coherence validation runs 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:16:08Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Cluster Label Alignment Score threshold is 0.8
+  claim_id: c_a0c83150
+  context: "MUST calculate Cluster Label Alignment Score and verify it is \u2265 0.8.\
+    \ This threshold is derived from Spec US-3 acceptance criteria."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Cluster Label Alignment Score threshold for validation is 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:16:45Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Fuzzy matching uses Levenshtein distance threshold 2
+  claim_id: c_aabab969
+  context: "MUST use Levenshtein distance \u2264 2 for fuzzy matching, as derived\
+    \ from Plan.md complexity tracking for aligning tags to 'Tech Stack' categories."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fuzzy matching for cluster label alignment uses a Levenshtein distance
+    threshold of 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:17:14Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Streaming logic uses chunk size 10000
+  claim_id: c_a9db1257
+  context: MUST use a chunk_size=10000 and a memory trigger threshold of 6.0GB (measured
+    via `psutil`).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The streaming logic uses a chunk size of 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:17:19Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Memory trigger threshold for streaming is 6.0 GB
+  claim_id: c_fb52b97f
+  context: MUST use a chunk_size=10000 and a memory trigger threshold of 6.0GB (measured
+    via `psutil`).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory trigger threshold for streaming is 6.0 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:17:24Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: API cache TTL is 24 hours
+  claim_id: c_7dbf8a8a
+  context: MUST implement a local disk cache (e.g., `data/cache/github_api_cache.json`)
+    with a TTL of 24 hours to ensure reproducibility and avoid hitting rate limits
+    during re-runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The API cache for GitHub/NPM data has a TTL of 24 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:17:27Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time must be <= 6 hours
+  claim_id: c_1437c8b0
+  context: MUST record total execution time to verify SC-005 (<=6 hours). MUST Assert
+    that `execution_time_seconds <= 21600` (6 hours) or fail the task.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_time_must_be_%3C=_6_hours
+  kind: magnitude
+  raw_text: The total execution time for the pipeline must be less than or equal to
+    6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:17:33Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Ljung-Box test lag 12 for residual independence
+  claim_id: c_9a41f65a
+  context: Implement residual independence check (Ljung-Box lag=12) and event alignment
+    (Rayleigh test) in `code/analysis/decomposition.py`, reporting results to `data/processed/decomposition_intermediate.json`
+    per FR-009, SC-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Ljung-Box test uses a lag of 12 to check residual independence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:17:38Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Rayleigh test validates seasonal peaks against reference calendar events
+  claim_id: c_031feff6
+  context: MUST perform Rayleigh test on phase angles of seasonal peaks against events
+    in `data/events/reference_calendar.json`; report p-value.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Rayleigh_test_validates_seasonal_peaks_against_reference_cal
+  kind: entity_fact
+  raw_text: The Rayleigh test is used to validate the alignment of seasonal peaks
+    against events in the reference calendar.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:17:44Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Autocorrelation seasonality check uses lag 12 threshold 0.3
+  claim_id: c_252fc137
+  context: 'MUST implement a dual-method check: if the primary spectral analysis fails
+    (e.g., due to insufficient data points), the task MUST fall back to the autocorrelation
+    check (lag=12 > 0.3) as a secondary confirmation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The autocorrelation check for seasonality pre-testing uses a lag of 12
+    with a threshold of 0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:17:48Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction applied to raw p-values for adjusted q-values
+  claim_id: c_97fa02ba
+  context: MUST explicitly verify and log the application of Benjamini-Hochberg correction
+    to raw p-values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_applied_to_raw_p-values_for_ad
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg correction is applied to raw p-values to calculate
+    adjusted q-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:17:55Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Significance threshold 0.05 applied to adjusted q-values not raw p-values
+  claim_id: c_ce1d28ad
+  context: 'CRITICAL: The threshold of 0.05 MUST be applied to the *adjusted* q-values
+    resulting from the Benjamini-Hochberg correction, as ratified in T014a.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The significance threshold of 0.05 is applied to the adjusted q-values
+    resulting from the Benjamini-Hochberg correction, not raw p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:18:00Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Tags with < 24 months data require reduced block size or skipped for
+    bootstrapping
+  claim_id: c_67a65b02
+  context: 'MUST handle short series: If a tag has < 24 months of data, reduce block
+    size to `floor(series_length / 2)` or skip bootstrapping for that tag and report
+    ''Insufficient Data for CI''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Tags_with_%3C_24_months_data_require_reduced_block_size_or_ski
+  kind: magnitude
+  raw_text: Tags with less than 24 months of data require a reduced block size or
+    are skipped for bootstrapping.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:18:05Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Permutation test fails loudly if p-value > 0.1
+  claim_id: c_110e1c57
+  context: MUST NOT implement a fallback to 100 iterations if convergence fails; if
+    the permutation test fails to converge or returns a p-value > 0.1, the task MUST
+    fail loudly with a clear error message.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_fails_loudly_if_p-value_%3E_0.1
+  kind: magnitude
+  raw_text: The permutation test for cluster coherence fails loudly if the p-value
+    is greater than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:18:08Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Correlation magnitude |r| >= 0.7 is Strong
+  claim_id: c_5c22140a
+  context: "MUST interpret the magnitude of the correlation coefficient using FR-007\
+    \ thresholds: |r| \u2265 0.7 -> 'Strong', 0.3 \u2264 |r| < 0.7 -> 'Moderate',\
+    \ |r| < 0.3 -> 'Weak'."
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.7 is Strong'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Correlation_magnitude_r_%3E=_0.7_is_Strong
+    source_value: https://en.wikipedia.org/wiki/Correlation_magnitude_r_>=_0.7_is_Strong
+    subject: Correlation magnitude
+  kind: relational
+  raw_text: "The correlation magnitude interpretation defines |r| \u2265 0.7 as 'Strong'."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:18:43Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Correlation magnitude 0.3 <= |r| < 0.7 is Moderate
+  claim_id: c_4ed172c3
+  context: "MUST interpret the magnitude of the correlation coefficient using FR-007\
+    \ thresholds: |r| \u2265 0.7 -> 'Strong', 0.3 \u2264 |r| < 0.7 -> 'Moderate',\
+    \ |r| < 0.3 -> 'Weak'."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'WFD Ecological status: Moderate status'
+      source_id: Q30092136
+      url: https://www.wikidata.org/wiki/Q30092136
+      value: Moderate status
+    filled: true
+  kind: relational
+  raw_text: "The correlation magnitude interpretation defines 0.3 \u2264 |r| < 0.7\
+    \ as 'Moderate'."
+  resolved_value: Moderate status
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T16:18:50Z'
+- artifact_path: projects/PROJ-298-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Correlation magnitude |r| < 0.3 is Weak
+  claim_id: c_deb79d98
+  context: "MUST interpret the magnitude of the correlation coefficient using FR-007\
+    \ thresholds: |r| \u2265 0.7 -> 'Strong', 0.3 \u2264 |r| < 0.7 -> 'Moderate',\
+    \ |r| < 0.3 -> 'Weak'."
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: < 0.3 is Weak
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Correlation_magnitude_r_%3C_0.3_is_Weak
+    source_value: https://en.wikipedia.org/wiki/Correlation_magnitude_r_<_0.3_is_Weak
+    subject: Correlation magnitude
+  kind: relational
+  raw_text: The correlation magnitude interpretation defines |r| < 0.3 as 'Weak'.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T16:18:58Z'

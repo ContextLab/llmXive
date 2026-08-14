@@ -1,8 +1,8 @@
 """
 Download module for fetching Stack Overflow PostsTags data.
 
-Implements streaming fetch from Stack Overflow dump with HuggingFace fallback.
-Ensures CPU-only operation and strict "Fail Loudly" policy.
+Implements robust fetching with primary Stack Overflow dump and HuggingFace fallback.
+Enforces "Fail Loudly" policy: no synthetic fallbacks.
 """
 import os
 import sys
@@ -10,8 +10,13 @@ import json
 import logging
 import time
 import socket
+import requests
+import gzip
+import shutil
 from pathlib import Path
-from typing import Generator, Dict, Any, Optional, List, Tuple
+from typing import Dict, List, Any, Optional, Generator, Tuple
+from urllib.parse import urljoin
+import hashlib
 
 # Configure logging
 logging.basicConfig(
@@ -19,47 +24,42 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/events/download.log')
+        logging.FileHandler('data/processed/download.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-PRIMARY_URL = "https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z"
-HF_DATASET_ID = "stack-exchange/stackoverflow-tags"
-OUTPUT_DIR = Path("data/raw")
-OUTPUT_FILE = OUTPUT_DIR / "posts_tags_raw.jsonl"
-CHUNK_SIZE = 1000  # Number of records to process per batch
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
-# Check for datasets package availability
-try:
-    from datasets import load_dataset
-    HAS_DATASETS = True
-except ImportError:
-    HAS_DATASETS = False
-    logger.warning("datasets package not found. Will attempt HTTP fallback.")
+# Primary source: Stack Overflow Archive (Internet Archive)
+# Updated to use the correct path structure for the dump
+PRIMARY_URL = "https://archive.org/download/stackexchange/stackoverflow.com-Posts.7z"
 
+# Fallback: HuggingFace dataset
+HF_DATASET_ID = "stack-exchange/stackoverflow"
+HF_SPLIT = "train"  # Using train split as it typically contains the full data
+
+# Output paths
+RAW_OUTPUT_PATH = DATA_RAW_DIR / "stackoverflow_posts.jsonl"
+PROCESSED_OUTPUT_PATH = DATA_PROCESSED_DIR / "posts_tags_processed.json"
+
+# Memory constraints for streaming
+CHUNK_SIZE = 10000
+MEMORY_THRESHOLD_GB = 6.0
 
 def ensure_output_dir():
-    """Ensure the output directory exists."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Output directory ensured: {OUTPUT_DIR}")
-
+    """Ensure output directories exist."""
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured output directories exist: {DATA_RAW_DIR}, {DATA_PROCESSED_DIR}")
 
 def check_url_reachable(url: str, timeout: int = 10) -> bool:
-    """
-    Check if a URL is reachable via a HEAD request.
-    
-    Args:
-        url: The URL to check.
-        timeout: Connection timeout in seconds.
-        
-    Returns:
-        True if reachable, False otherwise.
-    """
+    """Check if a URL is reachable via HEAD request."""
     try:
         logger.info(f"Checking reachability of: {url}")
-        import requests
         response = requests.head(url, timeout=timeout, allow_redirects=True)
         if response.status_code == 200:
             logger.info(f"URL is reachable: {url} (Status: {response.status_code})")
@@ -70,155 +70,210 @@ def check_url_reachable(url: str, timeout: int = 10) -> bool:
     except requests.exceptions.RequestException as e:
         logger.warning(f"URL check failed for {url}: {e}")
         return False
-    except ImportError:
-        # Fallback to socket check if requests not available
-        try:
-            parsed = __import__('urllib.parse').parse.urlparse(url)
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(timeout)
-            result = sock.connect_ex((parsed.hostname, 443))
-            sock.close()
-            return result == 0
-        except Exception as e:
-            logger.warning(f"Socket check failed: {e}")
-            return False
 
+def fetch_from_huggingface() -> Optional[Generator[Dict[str, Any], None, None]]:
+    """
+    Fetch data from HuggingFace dataset as a fallback.
+    Returns a generator yielding records.
+    """
+    try:
+        logger.info(f"Attempting to load HuggingFace dataset: {HF_DATASET_ID}")
+        from datasets import load_dataset
+        
+        # Load dataset in streaming mode to handle large sizes
+        dataset = load_dataset(HF_DATASET_ID, split=HF_SPLIT, streaming=True)
+        
+        # Verify we have data
+        first_item = next(iter(dataset))
+        logger.info(f"HF dataset loaded successfully. Sample keys: {first_item.keys()}")
+        
+        # Filter and transform to expected format
+        def transform_record(record):
+            # Extract relevant fields
+            return {
+                "id": record.get("id", record.get("PostId")),
+                "title": record.get("title", record.get("Title")),
+                "tags": record.get("tags", record.get("Tags", [])),
+                "creation_date": record.get("creation_date", record.get("CreationDate")),
+                "score": record.get("score", record.get("Score")),
+                "view_count": record.get("view_count", record.get("ViewCount")),
+                "answer_count": record.get("answer_count", record.get("AnswerCount")),
+                "body": record.get("body", record.get("Body"))
+            }
+        
+        return (transform_record(item) for item in dataset)
+        
+    except Exception as e:
+        logger.error(f"HF dataset load failed: {e}")
+        return None
+
+def fetch_from_archive() -> Optional[Generator[Dict[str, Any], None, None]]:
+    """
+    Fetch data from Stack Overflow Archive (Internet Archive).
+    Downloads and extracts the .7z file, then streams JSON records.
+    """
+    try:
+        # Check if primary URL is reachable
+        if not check_url_reachable(PRIMARY_URL):
+            logger.warning(f"Primary URL {PRIMARY_URL} is not reachable")
+            return None
+        
+        logger.info("Starting download from Stack Overflow Archive...")
+        
+        # We'll use a direct download approach for the .7z file
+        # Note: For large files, we'd need to handle chunked downloading
+        # Here we assume the file is manageable or use streaming
+        
+        # Since .7z extraction requires external tools, we'll look for a JSON/CSV alternative
+        # or use a different approach. Let's try to find a direct JSONL file.
+        
+        # Alternative: Try to find a JSONL version
+        jsonl_url = "https://archive.org/download/stackexchange/stackoverflow.com-Posts.json.gz"
+        
+        if check_url_reachable(jsonl_url):
+            logger.info(f"Found JSONL version at: {jsonl_url}")
+            
+            # Stream and decompress
+            response = requests.get(jsonl_url, stream=True, timeout=300)
+            response.raise_for_status()
+            
+            with gzip.GzipFile(fileobj=response.raw, mode='rb') as gz_file:
+                for line in gz_file:
+                    try:
+                        record = json.loads(line.decode('utf-8'))
+                        yield {
+                            "id": record.get("Id"),
+                            "title": record.get("Title"),
+                            "tags": record.get("Tags", "").split(';') if record.get("Tags") else [],
+                            "creation_date": record.get("CreationDate"),
+                            "score": record.get("Score"),
+                            "view_count": record.get("ViewCount"),
+                            "answer_count": record.get("AnswerCount"),
+                            "body": record.get("Body")
+                        }
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"Skipping invalid JSON line: {e}")
+                        continue
+        else:
+            logger.warning(f"JSONL version not found at {jsonl_url}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error during archive fetch: {e}")
+        return None
 
 def fetch_posts_tags_streaming() -> Generator[Dict[str, Any], None, None]:
     """
-    Fetch PostsTags data using streaming.
-    
-    Attempts HuggingFace dataset first (preferred for streaming), 
-    then falls back to direct HTTP if datasets package is missing.
-    Raises RuntimeError if both sources fail.
-    
-    Yields:
-        Dict containing tag and post creation date information.
+    Main streaming function that tries primary source then fallback.
+    Implements "Fail Loudly" policy - no synthetic data.
     """
-    logger.info("Starting data fetch process...")
+    # Try primary source first
+    logger.info("Attempting primary Stack Overflow dump...")
+    primary_stream = fetch_from_archive()
     
-    # Strategy 1: HuggingFace Datasets (Preferred for streaming)
-    if HAS_DATASETS:
-        logger.info("Attempting to load dataset from HuggingFace...")
-        try:
-            logger.info(f"Loading dataset: {HF_DATASET_ID} with streaming=True")
-            dataset = load_dataset(HF_DATASET_ID, split="train", streaming=True)
-            
-            # Verify we can iterate
-            sample = next(iter(dataset))
-            logger.info(f"Successfully connected to HF dataset. Sample keys: {sample.keys()}")
-            
-            # Yield records, adapting to expected schema
-            # We expect 'tag' and 'creation_date' or similar fields
-            for item in dataset:
-                # Normalize field names if necessary
-                record = {
-                    'tag': item.get('tag', item.get('Tag', '')),
-                    'creation_date': item.get('creation_date', item.get('CreationDate', '')),
-                    'post_id': item.get('post_id', item.get('PostId', None))
-                }
-                if record['tag']:  # Only yield if tag exists
-                    yield record
-            return  # Success
-            
-        except Exception as e:
-            logger.warning(f"HF dataset load failed: {e}")
-            # Fall through to HTTP fallback
+    if primary_stream is not None:
+        logger.info("Primary source successful, streaming data...")
+        yield from primary_stream
+        return
     
-    # Strategy 2: Direct HTTP Streaming (Fallback)
-    logger.info("Attempting direct HTTP fetch from Stack Overflow archive...")
-    if not check_url_reachable(PRIMARY_URL):
-        raise ConnectionError(
-            f"Primary Stack Overflow dump URL unreachable: {PRIMARY_URL}. "
-            f"HF fallback also failed or unavailable. Cannot proceed."
-        )
+    # Fallback to HuggingFace
+    logger.info("Primary source failed, attempting HuggingFace fallback...")
+    hf_stream = fetch_from_huggingface()
     
-    # Since the archive is 7z and large, we simulate a stream of JSONL for the 
-    # purpose of this specific task implementation if the archive isn't directly JSONL.
-    # However, the spec requires REAL data. 
-    # If the primary URL is a 7z archive, we cannot stream it directly as JSONL 
-    # without downloading and decompressing, which violates "streaming" constraints 
-    # for memory. 
-    # Given the constraints and the "Fail Loudly" policy:
-    # If HF fails and the primary is a binary archive not directly streamable as JSONL,
-    # we must raise an error rather than fake it or download a massive file.
-    # BUT, the task says "HuggingFace fallback". If HF failed, we are in trouble 
-    # unless the primary URL is actually a JSONL stream. 
-    # The canonical URL in tasks.md is for a 7z.
-    # We will attempt to fetch a smaller, streamable subset or the specific JSONL 
-    # if available, otherwise we must fail loudly as we cannot process a 7z streamlessly.
+    if hf_stream is not None:
+        logger.info("HuggingFace fallback successful, streaming data...")
+        yield from hf_stream
+        return
     
-    # Let's try to find a direct JSONL mirror or the specific file if the archive 
-    # contains a streamable file. 
-    # Since we cannot download 7z in memory, we assume the HF fallback is the 
-    # only viable streaming path for "PostsTags" without massive disk I/O.
-    # If HF failed, and the primary is a 7z, we must fail.
-    
-    raise RuntimeError(
-        "Both HuggingFace dataset and direct streaming of the Stack Overflow "
-        "archive failed or are not directly streamable as JSONL. "
-        "The primary archive is a 7z file which requires decompression. "
-        "Please ensure the 'datasets' package is installed and the HF dataset "
-        f"'{HF_DATASET_ID}' is accessible."
+    # Both sources failed - fail loudly
+    error_msg = (
+        "Primary Stack Overflow dump URL unreachable and HuggingFace fallback failed. "
+        "Cannot proceed with data download. "
+        "Please check network connectivity and source availability."
     )
-
+    logger.error(error_msg)
+    raise RuntimeError(error_msg)
 
 def process_and_save_data():
     """
-    Process the streaming data and save to the output file.
-    
-    This function orchestrates the fetching and saving process.
+    Process streaming data and save to disk.
+    Handles memory constraints by writing in chunks.
     """
     ensure_output_dir()
     
-    logger.info(f"Starting data processing. Output file: {OUTPUT_FILE}")
-    count = 0
+    logger.info("Starting data download and processing...")
+    start_time = time.time()
+    
+    records_written = 0
+    memory_usage_gb = 0
     
     try:
-        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+        # Open output file for writing
+        with open(RAW_OUTPUT_PATH, 'w', encoding='utf-8') as outfile:
             for record in fetch_posts_tags_streaming():
-                # Normalize and write
-                json_line = json.dumps(record, ensure_ascii=False)
-                f.write(json_line + '\n')
-                count += 1
+                # Write record as JSON line
+                json_line = json.dumps(record, ensure_ascii=False, default=str)
+                outfile.write(json_line + '\n')
+                records_written += 1
                 
-                if count % 10000 == 0:
-                    logger.info(f"Processed {count} records...")
+                # Log progress every 10000 records
+                if records_written % CHUNK_SIZE == 0:
+                    logger.info(f"Processed {records_written} records...")
                     
-                    # Optional: Memory check if psutil available
+                    # Check memory usage
                     try:
                         import psutil
-                        process = psutil.Process()
-                        mem_info = process.memory_info()
-                        if mem_info.rss > 2 * 1024 * 1024 * 1024:  # 2GB threshold
-                            logger.warning(f"Memory usage high: {mem_info.rss / 1e9:.2f} GB")
+                        process = psutil.Process(os.getpid())
+                        memory_usage_gb = process.memory_info().rss / (1024 ** 3)
+                        
+                        if memory_usage_gb > MEMORY_THRESHOLD_GB:
+                            logger.warning(f"Memory usage high: {memory_usage_gb:.2f} GB. Consider reducing chunk size.")
+                            # In a real implementation, we might pause or reduce chunk size here
                     except ImportError:
-                        pass
+                        logger.warning("psutil not available, skipping memory check")
+                    
+                    # Force garbage collection
+                    import gc
+                    gc.collect()
         
-        logger.info(f"Successfully processed and saved {count} records to {OUTPUT_FILE}")
-        return count
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        logger.info(f"Successfully processed {records_written} records in {duration:.2f} seconds")
+        logger.info(f"Output saved to: {RAW_OUTPUT_PATH}")
+        
+        # Create a summary file
+        summary = {
+            "source": "Stack Overflow Archive / HuggingFace",
+            "total_records": records_written,
+            "output_path": str(RAW_OUTPUT_PATH),
+            "processing_time_seconds": duration,
+            "final_memory_usage_gb": memory_usage_gb
+        }
+        
+        summary_path = DATA_PROCESSED_DIR / "download_summary.json"
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            json.dump(summary, f, indent=2)
+        
+        logger.info(f"Summary saved to: {summary_path}")
         
     except Exception as e:
-        logger.error(f"Error during processing: {e}")
-        # Clean up partial file if it exists and is empty or small
-        if OUTPUT_FILE.exists():
-            if OUTPUT_FILE.stat().st_size == 0:
-                OUTPUT_FILE.unlink()
-                logger.info("Removed empty output file.")
+        logger.error(f"Error during data processing: {e}")
+        # Clean up partial output
+        if RAW_OUTPUT_PATH.exists():
+            RAW_OUTPUT_PATH.unlink()
+            logger.info(f"Removed partial output file: {RAW_OUTPUT_PATH}")
         raise
 
-
 def main():
-    """Main entry point for the download script."""
-    logger.info("=== Starting Download Module (T012) ===")
+    """Main entry point for the download module."""
+    logger.info("=== Starting Stack Overflow Data Download ===")
     try:
-        record_count = process_and_save_data()
-        logger.info(f"=== Download Complete. Total records: {record_count} ===")
-        return 0
+        process_and_save_data()
+        logger.info("=== Download Completed Successfully ===")
     except Exception as e:
         logger.error(f"=== Download Failed: {e} ===")
-        return 1
-
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
