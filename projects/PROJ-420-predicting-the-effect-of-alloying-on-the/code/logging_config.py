@@ -3,10 +3,11 @@ from __future__ import annotations
 
 import functools
 import json
+import logging
+import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
-
 
 @dataclass
 class LogEntry:
@@ -29,6 +30,8 @@ class ReproducibilityLogger:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
+        # Store the raw level argument if passed
+        self.level = kwargs.get("level", "INFO")
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
@@ -73,53 +76,54 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def setup_logging(level: Optional[str] = None, log_level: Optional[str] = None, config: Optional[Any] = None) -> ReproducibilityLogger:
-    """Setup logging with flexible argument handling.
-    
-    Accepts various argument shapes from different call sites:
-    - setup_logging()
-    - setup_logging(level="INFO")
-    - setup_logging(log_level="INFO")
-    - setup_logging(config)
-    
-    Returns a ReproducibilityLogger that never raises.
-    """
-    # Handle different call patterns
-    if level is None and log_level is None:
-        # Check if first arg is config (positional)
-        if config is not None:
-            pass  # Ignore config argument
-        # Use default
-        pass
-    elif level is not None:
-        # Use level parameter
-        pass
-    elif log_level is not None:
-        # Use log_level parameter
-        pass
-    
-    # Return the global logger (tolerant of all call shapes)
-    return get_logger()
-
-
-class JSONFormatter:
-    """JSON formatter for structured logging."""
-    
+class JSONFormatter(logging.Formatter):
     def format(self, record):
-        """Format a log record as JSON."""
-        log_entry = {
-            'timestamp': datetime.utcnow().isoformat(),
-            'level': record.levelname,
-            'message': record.getMessage(),
-            'module': record.module,
-            'function': record.funcName,
-            'line': record.lineno
-        }
-        return json.dumps(log_entry)
+        return json.dumps({
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "timestamp": datetime.utcnow().isoformat()
+        })
 
 
-def log_with_extra(message: str, **kwargs):
+def setup_logging(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Setup logging. Accepts any signature used by callers:
+       - setup_logging()
+       - setup_logging(level="INFO")
+       - setup_logging(config)
+       - setup_logging(log_level="INFO")
+    Returns a ReproducibilityLogger.
+    """
+    global _GLOBAL_LOGGER
+    
+    # Extract level from various possible argument names
+    level = None
+    if 'level' in kwargs:
+        level = kwargs['level']
+    elif 'log_level' in kwargs:
+        level = kwargs['log_level']
+    elif args and isinstance(args[0], str):
+        level = args[0]
+    elif args and hasattr(args[0], 'level'):
+        level = args[0].level
+    
+    if level is None:
+        level = "INFO"
+    
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(level=level)
+    
+    # Configure the standard logging module if needed for file output
+    root_logger = logging.getLogger()
+    if not root_logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(JSONFormatter())
+        root_logger.addHandler(handler)
+        root_logger.setLevel(level)
+    
+    return _GLOBAL_LOGGER
+
+
+def log_with_extra(msg: str, **kwargs: Any) -> None:
     """Log a message with extra context."""
     logger = get_logger()
-    entry = logger.log("log_with_extra", message=message, **kwargs)
-    return entry
+    logger.log(msg, **kwargs)

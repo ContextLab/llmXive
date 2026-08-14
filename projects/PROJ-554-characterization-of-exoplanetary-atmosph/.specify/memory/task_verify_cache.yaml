@@ -1,39 +1,9 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration file, or documentation was presented showing that environment
-    variables for API keys (if needed) and random seeds have been set up or handled.
-    Without any artifact to inspect, we cannot confirm the requirement has been met.
-    The implementer must provide the actual implementation (e.g., a `.env` template,
-    a settings module, or script snippets) that demonstrates the environment variable
-    handling and seed configuration.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration, or log output was provided to demonstrate that download
-    progress logging and API response handling have been added. The required artifact
-    (e.g., updated script/module with logging statements and/or sample log files)
-    is missing, so the task is not satisfied.
 T017:
   c: false
   h: 041e4faa232dd6c5184ab3378ed983b3b5aad816c4fd5956be2172ba4d044dd7
   r: "The required artifact `tests/integration/test_retrieval.py` does not exist in\
     \ the repository, so the integration test for retrieval on a sample spectrum is\
     \ missing. Without this file, the task\u2019s deliverable is not provided."
-T018c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact defining the output schema (e.g., a JSON/YAML/CSV specification\
-    \ listing fields for log10 water mixing ratio, its standard deviation, and an\
-    \ upper\u2011limit flag) was provided. The claim lacks any concrete file or code\
-    \ that maps these values, so the requirement is not satisfied."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was presented that implements detection of\
-    \ low\u2011S/N spectra using SNR/Resolution metadata, nor any logic that produces\
-    \ censored upper\u2011limit values. The required artifact is missing, so the task\
-    \ is not satisfied."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -88,3 +58,44 @@ T031:
     (the file shows other analysis utilities but no such implementation), and the
     required `results/quality_report.md` file is absent. Both the core code change
     and the generated report are missing.
+T035:
+  c: false
+  h: 1a607019b54225f5242aab284a19966875ec30e7336c5e6381d3a535b8810afb
+  r: The repository lacks a `calculate_detection_limit` function in `code/analysis.py`
+    (the shown code contains unrelated analysis utilities) and the required output
+    file `data/processed/detection_limits.csv` does not exist. Both the implementation
+    and the generated CSV are missing, so the task is not satisfied.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No figure named \u201CInstrumental Noise vs. Signal\u201D (or any plot) is present\
+    \ in the `results/plots/` directory, and no code or output showing the SNR distribution\
+    \ and threshold per SC-003 was supplied. The required artifact is missing, so\
+    \ the task is not satisfied."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or quickstart.md files were presented, nor any excerpts showing
+    the claimed documentation changes. Without the actual updated files, we cannot
+    verify that the required documentation updates exist or contain the appropriate
+    content. The task therefore remains incomplete.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation related to \u201Ccode cleanup and refactoring\u201D\
+    \ are present; the only evidence provided concerns data acquisition and analysis\
+    \ for exoplanet spectra, which does not satisfy the T039 cleanup task. The required\
+    \ refactored code artifacts are missing."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No performance logs, benchmark results, or optimized code artifacts were provided\
+    \ to demonstrate that the entire pipeline now completes in under 6\u202Fhours.\
+    \ Without such evidence, the claim that the T040 performance optimization requirement\
+    \ is satisfied cannot be verified."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any files or code under a `tests/unit/` directory was provided;
+    thus the required additional unit tests are missing. The implementer must add
+    concrete test files in `tests/unit/` that exercise the new functionality.

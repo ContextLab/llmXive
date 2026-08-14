@@ -68,9 +68,9 @@
 - [X] T014 [US1] Implement static complexity metric extraction using `radon` (cyclomatic complexity, nesting depth, LOC) in `code/01_data_curation.py`.
 - [X] T015 [US1] Implement 1:1 nearest-neighbor propensity score matching in `code/utils/matching.py`. **Logic**: Join block-level metrics (from T014) with repo-level covariates (stars, age from T011a) using `repo_id` as the key. Match LLM and Human blocks within the same repository. (Depends on T011a, T014)
 - [ ] T016 [US1] Enforce repository inclusion criteria: exclude repos with <5 LLM and <5 Human blocks after tagging.
-- [ ] T017a [US1] Implement ground truth selection: randomly select ≥10 blocks for manual verification, save to `data/ground_truth/manual_labels.csv`.
+- [X] T017a [US1] Implement ground truth selection: randomly select ≥10 blocks for manual verification, save to `data/ground_truth/manual_labels.csv`.
 - [ ] T017b [US1] Calculate classifier precision and recall on the ground truth subset from T017a and save results to `data/ground_truth/classifier_metrics.json` as required by FR-007. (Depends on T017a)
-- [ ] T018 [US1] Add checksum generation for `data/ground_truth/manual_labels.csv` and record in `state/checksums.json`. (Depends on T017a)
+- [X] T018 [US1] Add checksum generation for `data/ground_truth/manual_labels.csv` and record in `state/checksums.json`. (Depends on T017a)
 - [X] T019 [US1] Add checkpoint mechanism in `code/01_data_curation.py`: save progress per repo to resume if interrupted (time limit).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -89,7 +89,7 @@
 - [ ] T021 [US2] Implement bug fix latency calculation: parse commit messages for "Fixes #N" / "Closes #N". **Logic**: Map specific code block changes to issues by matching the file path in the commit diff to the issue description; if multiple issues exist, prioritize the first matching issue.
 - [ ] T022 [US2] Implement code churn calculation: aggregate lines added/deleted for each block in a multi-month window (excluding initial commit).
 - [ ] T023 [US2] Handle edge cases: exclude pairs with null latency from latency analysis (but retain for churn); log exclusion reasons.
-- [~] T024 [US2] Handle repo deletion/private status during window: gracefully exclude from analysis count with 404 handling.
+- [ ] T024 [US2] Handle repo deletion/private status during window: gracefully exclude from analysis count with 404 handling.
 - [ ] T025 [US2] Save processed metrics to `data/processed/metrics_longitudinal.csv` with schema validation.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -105,13 +105,13 @@
 ### Implementation for User Story 3
 
 - [X] T026 [US3] Implement `code/03_analysis.py`: Load `metrics_longitudinal.csv` (requires T025) and `matched_pairs.csv` (requires T015). (Depends on T025, T015)
-- [~] T027 [US3] Implement Wilcoxon Signed-Rank tests using `scipy.stats.wilcoxon` on matched pairs to compare maintainability metrics between LLM and Human groups, as required by FR-005.
+- [ ] T027 [US3] Implement Wilcoxon Signed-Rank tests using `scipy.stats.wilcoxon` on matched pairs to compare maintainability metrics between LLM and Human groups, as required by FR-005.
 - [X] T027a [US3] Document the amendment to Constitution Principle VI in `docs/paper/constitution_amendment.md`: explain why Wilcoxon Signed-Rank is used instead of Mann-Whitney U for paired data.
-- [~] T028 [US3] Implement Benjamini-Hochberg correction for multiple comparisons across churn and latency tests applied to Wilcoxon p-values.
+- [ ] T028 [US3] Implement Benjamini-Hochberg correction for multiple comparisons across churn and latency tests applied to Wilcoxon p-values.
 - [X] T028a [US3] Document Benjamini-Hochberg assumptions and verify logic based on code output in `docs/paper/methodology.md`, ensuring traceability to code/data. (Depends on T028)
-- [~] T029 [US3] Implement Sensitivity Analysis: adjust effect sizes using misclassification rates from `manual_labels.csv` (ground truth).
-- [~] T029b [US3] Read existing classifier precision/recall metrics from `data/ground_truth/classifier_metrics.json` (produced by T017b). Compare against SC-006 threshold (0.85) defined in `code/utils/config.py`. Report pass/fail and document any failure as a limitation in `docs/paper/limitations.md` without re-calculating. (Depends on T017b)
-- [~] T030 [US3] Generate visualizations: box plots and density plots for churn/latency using `matplotlib` (CPU-only); save as PNG <10MB.
+- [ ] T029 [US3] Implement Sensitivity Analysis: adjust effect sizes using misclassification rates from `manual_labels.csv` (ground truth).
+- [ ] T029b [US3] Read existing classifier precision/recall metrics from `data/ground_truth/classifier_metrics.json` (produced by T017b). Compare against SC-006 threshold (0.85) defined in `code/utils/config.py`. Report pass/fail and document any failure as a limitation in `docs/paper/limitations.md` without re-calculating. (Depends on T017b)
+- [ ] T030 [US3] Generate visualizations: box plots and density plots for churn/latency using `matplotlib` (CPU-only); save as PNG <10MB.
 - [~] T031 [US3] Perform post-hoc power analysis on final matched pair count using `scipy.stats.power_analysis` with effect size=0.5, alpha=0.05, targeting ≥0.80 power.
 - [~] T032 [US3] Generate final report summary: p-values, effect sizes (Cohen's d), bias-corrected confidence intervals, and FDR.
 - [ ] T033 [US3] Save all statistical artifacts to `data/processed/statistical_results.json` and `docs/paper/`.

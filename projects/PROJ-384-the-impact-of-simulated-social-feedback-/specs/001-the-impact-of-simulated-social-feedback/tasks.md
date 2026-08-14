@@ -62,12 +62,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `code/01_ingest.py` to download the `pushshift_reddit` dataset (LOST) using `datasets.load_dataset('pushshift_reddit', split='train', streaming=True)` if necessary, parsing raw text fields
+- [X] T014 [US1] Implement `code/01_ingest.py` to download the `pushshift_reddit` dataset (LOST) using `datasets.load_dataset('pushshift_reddit', split='train', streaming=True)` if necessary, parsing raw text fields
 - [ ] T015 [US1] Implement `code/01_ingest.py` to validate raw data against `contracts/interaction_schema.schema.yaml` using `code/utils/data_validation.py` (hard gate: raise if invalid)
-- [ ] T016 [US1] Implement `code/01_ingest.py` to apply the RoBERTa model (via `code/utils/model_loader.py`) to `post_text` and `reply_text`, normalizing scores to [-1.0, 1.0]
-- [ ] T017 [US1] Implement `code/01_ingest.py` to handle missing replies by assigning -999.0 to `calculated_valence` and logging a warning
+- [X] T016 [US1] Implement `code/01_ingest.py` to apply the RoBERTa model (via `code/utils/model_loader.py`) to `post_text` and `reply_text`, normalizing scores to [-1.0, 1.0]
+- [X] T017 [US1] Implement `code/01_ingest.py` to handle missing replies by assigning -999.0 to `calculated_valence` and logging a warning
 - [ ] T018 [US1] Implement `code/01_ingest.py` to group interactions by `user_id` and `timestamp`, sorting chronologically, and output `data/processed/valence_sequence.csv`
-- [ ] T019 [US1] Add error handling in `code/01_ingest.py` to skip rows with malformed timestamps or missing critical fields, logging the count of skipped rows
+- [X] T019 [US1] Add error handling in `code/01_ingest.py` to skip rows with malformed timestamps or missing critical fields, logging the count of skipped rows
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -81,10 +81,10 @@
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T020 [P] [US2] Unit test `tests/test_metrics.py` verifying rolling window std dev calculation for a known sequence (e.g., alternating 1/-1)
-- [ ] T021 [P] [US2] Unit test `tests/test_metrics.py` verifying sign change frequency calculation (count of 1->-1 or -1->1 transitions)
-- [ ] T022 [P] [US2] Unit test `tests/test_metrics.py` verifying that sequences with < 2 interactions return -999.0 and log a warning
-- [ ] T023 [P] [US2] Unit test `tests/test_metrics.py` verifying the Rosenberg lexicon score calculation against a known input string
+- [X] T020 [P] [US2] Unit test `tests/test_metrics.py` verifying rolling window std dev calculation for a known sequence (e.g., alternating 1/-1)
+- [X] T021 [P] [US2] Unit test `tests/test_metrics.py` verifying sign change frequency calculation (count of 1->-1 or -1->1 transitions)
+- [X] T022 [P] [US2] Unit test `tests/test_metrics.py` verifying that sequences with < 2 interactions return -999.0 and log a warning
+- [X] T023 [P] [US2] Unit test `tests/test_metrics.py` verifying the Rosenberg lexicon score calculation against a known input string
 
 ### Implementation for User Story 2
 

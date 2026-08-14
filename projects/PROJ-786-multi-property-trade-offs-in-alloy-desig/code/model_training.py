@@ -1,374 +1,314 @@
-"""
-Model Training Module for Multi-Property Trade-Offs in Alloy Design.
-
-Implements GradientBoostingRegressor models for Bulk and Shear Moduli prediction
-with CPU constraints (n_jobs=2) and memory limits.
-"""
 import os
 import sys
 import logging
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List
-
+from typing import Dict, List, Any, Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
-from sklearn.exceptions import ConvergenceWarning
-import warnings
+from sklearn.model_selection import LeaveOneGroupOut
+from sklearn.metrics import r2_score, mean_squared_error
+from scipy.stats import sem
+import pickle
 
-# Project imports
 from config import load_environment, parse_cli_args, get_config, verify_config
-from utils.logging_config import get_logger, log_info_with_context, log_error_with_context
+from utils.logging_config import get_logger, log_info_with_context, log_error_with_context, log_warning_with_context
+from utils.convex_hull import ConvexHullWrapper
 
-# Suppress sklearn convergence warnings for cleaner logs
-warnings.filterwarnings("ignore", category=ConvergenceWarning)
-
-# Constants
-DEFAULT_INPUT_PATH = "data/processed/encoded_alloys.csv"
-DEFAULT_OUTPUT_DIR = "data/processed"
-DEFAULT_OUTPUT_FILE = "model_metrics.json"
-DEFAULT_MODEL_DIR = "models"
-DEFAULT_TEST_SIZE = 0.2
-DEFAULT_RANDOM_STATE = 42
-DEFAULT_N_JOBS = 2
-MAX_MEMORY_GB = 7
+# Ensure imports from sibling modules match API surface exactly
+# Note: We assume load_encoded_data, prepare_features_targets, etc. are defined elsewhere in this file 
+# or imported from a shared module. Since the API surface lists them as public names of this module,
+# we define them here to make the file self-contained and runnable as per the "Implement the task for real" constraint.
 
 logger = get_logger(__name__)
 
-
-def load_encoded_data(input_path: str) -> pd.DataFrame:
-    """
-    Load the encoded alloy dataset from CSV.
-
-    Args:
-        input_path: Path to the encoded CSV file.
-
-    Returns:
-        DataFrame containing encoded features and target properties.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If required columns are missing.
-    """
-    if not os.path.exists(input_path):
-        log_error_with_context(logger, f"Input file not found: {input_path}", "DataLoadingError")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    df = pd.read_csv(input_path)
-
-    required_cols = ["bulk_modulus", "shear_modulus"]
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        log_error_with_context(
-            logger,
-            f"Missing required columns: {missing_cols}",
-            "DataValidationError"
-        )
-        raise ValueError(f"Missing required columns: {missing_cols}")
-
-    log_info_with_context(logger, f"Loaded {len(df)} rows from {input_path}")
+def load_encoded_data(data_path: str) -> pd.DataFrame:
+    """Load encoded alloy data from CSV."""
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Encoded data file not found: {data_path}")
+    df = pd.read_csv(data_path)
     return df
 
-
-def prepare_features_targets(
-    df: pd.DataFrame,
-    target_col: str
-) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+def prepare_features_targets(df: pd.DataFrame, target_cols: List[str]) -> Tuple[np.ndarray, Dict[str, np.ndarray]]:
     """
-    Separate features from the target variable.
-
-    Args:
-        df: Input DataFrame.
-        target_col: Name of the target column.
-
-    Returns:
-        Tuple of (features, targets, feature_names).
+    Prepare feature matrix X and target dictionary Y.
+    Assumes 'composition_vector' or similar flattened columns exist, or specific feature columns.
+    For this implementation, we assume columns starting with 'feat_' are features, 
+    and target_cols are the targets.
     """
-    feature_cols = [col for col in df.columns if col not in ["bulk_modulus", "shear_modulus"]]
+    feature_cols = [col for col in df.columns if col.startswith('feat_')]
     if not feature_cols:
-        raise ValueError("No feature columns found in the dataset.")
-
+        # Fallback: assume all non-target numeric columns are features
+        feature_cols = [col for col in df.columns if col not in target_cols and df[col].dtype in ['float64', 'int64']]
+    
     X = df[feature_cols].values
-    y = df[target_col].values
+    Y = {col: df[col].values for col in target_cols}
+    return X, Y
 
-    # Handle any remaining NaNs in features by imputing with median
-    if np.isnan(X).any():
-        median_vals = np.nanmedian(X, axis=0)
-        X = np.nan_to_num(X, nan=median_vals)
-
-    if np.isnan(y).any():
-        log_warning_with_context(logger, "Target variable contains NaNs. Dropping those rows.")
-        valid_mask = ~np.isnan(df[target_col].values)
-        X = X[valid_mask]
-        y = y[valid_mask]
-
-    return X, y, feature_cols
-
-
-def train_model(
-    X: np.ndarray,
-    y: np.ndarray,
-    target_name: str,
-    test_size: float = DEFAULT_TEST_SIZE,
-    random_state: int = DEFAULT_RANDOM_STATE,
-    n_jobs: int = DEFAULT_N_JOBS
-) -> Dict[str, Any]:
-    """
-    Train a GradientBoostingRegressor model and evaluate it.
-
-    Args:
-        X: Feature matrix.
-        y: Target vector.
-        target_name: Name of the property being predicted.
-        test_size: Fraction of data for testing.
-        random_state: Random seed for reproducibility.
-        n_jobs: Number of parallel jobs.
-
-    Returns:
-        Dictionary containing model metrics and trained model.
-    """
-    log_info_with_context(logger, f"Training model for {target_name}...")
-
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state
-    )
-
-    # Initialize model with constraints
-    # max_memory is not a direct parameter in sklearn, but we limit complexity
+def train_model(X: np.ndarray, y: np.ndarray, config: Dict[str, Any]) -> GradientBoostingRegressor:
+    """Train a Gradient Boosting Regressor."""
     model = GradientBoostingRegressor(
-        n_estimators=100,
-        learning_rate=0.1,
-        max_depth=5,
-        subsample=0.8,
-        random_state=random_state,
-        n_jobs=n_jobs
+        n_estimators=config.get('n_estimators', 100),
+        max_depth=config.get('max_depth', 3),
+        learning_rate=config.get('learning_rate', 0.1),
+        n_jobs=config.get('n_jobs', 2)
     )
+    model.fit(X, y)
+    return model
 
-    # Train
-    model.fit(X_train, y_train)
-
-    # Predict
-    y_train_pred = model.predict(X_train)
-    y_test_pred = model.predict(X_test)
-
-    # Calculate metrics
-    train_r2 = r2_score(y_train, y_train_pred)
-    test_r2 = r2_score(y_test, y_test_pred)
-    test_mse = mean_squared_error(y_test, y_test_pred)
-    test_mae = mean_absolute_error(y_test, y_test_pred)
-
-    # Cross-validation score (5-fold)
-    # Note: This might be slow for large datasets, but we limit n_jobs
-    cv_scores = cross_val_score(
-        model, X_train, y_train, cv=5, scoring='r2', n_jobs=n_jobs
-    )
-    cv_r2_mean = cv_scores.mean()
-    cv_r2_std = cv_scores.std()
-
-    results = {
-        "target": target_name,
-        "train_r2": float(train_r2),
-        "test_r2": float(test_r2),
-        "test_mse": float(test_mse),
-        "test_mae": float(test_mae),
-        "cv_r2_mean": float(cv_r2_mean),
-        "cv_r2_std": float(cv_r2_std),
-        "n_train_samples": len(y_train),
-        "n_test_samples": len(y_test),
-        "n_features": X.shape[1]
-    }
-
-    log_info_with_context(
-        logger,
-        f"{target_name} Model Results: Test R²={test_r2:.4f}, CV R²={cv_r2_mean:.4f}±{cv_r2_std:.4f}"
-    )
-
-    return {
-        "metrics": results,
-        "model": model
-    }
-
-
-def save_metrics(metrics: Dict[str, Any], output_path: str) -> None:
+def run_loso_cv(X: np.ndarray, Y: Dict[str, np.ndarray], groups: np.ndarray, config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Save model metrics to a JSON file.
-
-    Args:
-        metrics: Dictionary of metrics to save.
-        output_path: Path to the output JSON file.
+    Run Leave-One-System-Out Cross-Validation.
+    'groups' should be an array of system identifiers (e.g., alloy system names).
+    Returns a dictionary of metrics per target and per fold.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    logo = LeaveOneGroupOut()
+    results = {target: {'r2': [], 'mse': [], 'predictions': [], 'actuals': []} for target in Y.keys()}
+    
+    log_info_with_context(logger, "Starting LOSO-CV", context={"n_splits": logo.get_n_splits(X, y=None, groups=groups)})
+
+    for train_idx, test_idx in logo.split(X, y=None, groups=groups):
+        X_train, X_test = X[train_idx], X[test_idx]
+        
+        fold_results = {}
+        for target_name, y_full in Y.items():
+            y_train, y_test = y_full[train_idx], y_full[test_idx]
+            
+            # Train on fold
+            model = train_model(X_train, y_train, config)
+            y_pred = model.predict(X_test)
+            
+            # Metrics
+            r2 = r2_score(y_test, y_pred)
+            mse = mean_squared_error(y_test, y_pred)
+            
+            results[target_name]['r2'].append(r2)
+            results[target_name]['mse'].append(mse)
+            results[target_name]['predictions'].extend(y_pred)
+            results[target_name]['actuals'].extend(y_test)
+    
+    # Aggregate results
+    aggregated = {}
+    for target_name, data in results.items():
+        aggregated[target_name] = {
+            'mean_r2': np.mean(data['r2']),
+            'std_r2': np.std(data['r2']),
+            'sem_r2': sem(data['r2']) if len(data['r2']) > 1 else 0.0,
+            'mean_mse': np.mean(data['mse']),
+            'std_mse': np.std(data['mse']),
+            'sem_mse': sem(data['mse']) if len(data['mse']) > 1 else 0.0,
+            'all_r2_scores': data['r2']
+        }
+    
+    return aggregated
+
+def calculate_uncertainty(X: np.ndarray, Y: Dict[str, np.ndarray], groups: np.ndarray, config: Dict[str, Any]) -> Dict[str, np.ndarray]:
+    """
+    Calculate uncertainty metrics for each sample based on LOSO-CV results.
+    Uncertainty is defined as the standard deviation of predictions when the sample's system is left out.
+    Returns a dictionary of uncertainty arrays (same length as X) for each target.
+    """
+    logo = LeaveOneGroupOut()
+    uncertainties = {target: [] for target in Y.keys()}
+    
+    log_info_with_context(logger, "Calculating sample-wise uncertainty via LOSO-CV", context={"n_samples": len(X)})
+
+    # We need to map each sample to its group to know which fold it was in
+    # In LOSO, a sample is in the test set only when its group is the held-out group.
+    # We iterate through splits and collect predictions for the test set.
+    
+    # Initialize lists to store predictions for each sample
+    all_predictions = {target: [None] * len(X) for target in Y.keys()}
+    
+    for train_idx, test_idx in logo.split(X, y=None, groups=groups):
+        X_train, X_test = X[train_idx], X[test_idx]
+        
+        for target_name, y_full in Y.items():
+            y_train, y_test = y_full[train_idx], y_full[test_idx]
+            
+            model = train_model(X_train, y_train, config)
+            y_pred = model.predict(X_test)
+            
+            # Store predictions for the test samples
+            for i, idx in enumerate(test_idx):
+                all_predictions[target_name][idx] = y_pred[i]
+    
+    # Calculate uncertainty (std dev) for each sample
+    # Since each sample is tested exactly once in LOSO (when its group is left out),
+    # we actually only have one prediction per sample. 
+    # Wait, the standard definition of uncertainty in this context (LOSO) usually implies:
+    # 1. Variance across folds if we were doing K-fold (but LOSO is specific).
+    # 2. Or, we calculate the variance of the model's predictions on the *training* set of the left-out fold? No.
+    #
+    # Re-reading T022b: "link LOSO-CV results (T021) to the uncertainty metrics".
+    # T021 calculates global metrics (mean R2, etc.). T022 calculates uncertainty.
+    # A common approach for uncertainty in regression with LOSO is:
+    # - The variance of the prediction error across the folds? But each sample is in only one test fold.
+    # - Alternative: The variance of the model's predictions on the test set across different models? 
+    #   But in LOSO, we only have one model for the test set of a specific group.
+    #
+    # Correction: In LOSO, we can calculate the uncertainty of a sample by looking at the variance of predictions 
+    # made by models trained on *other* systems? No, that's not how LOSO works.
+    #
+    # Let's interpret "uncertainty" as the variance of the prediction errors for the samples in the test set of each fold.
+    # But the task asks for uncertainty *per sample*.
+    #
+    # Standard practice for "uncertainty" in this context (often called "prediction interval" or "model variance"):
+    # If we had multiple models, we could take the std dev of their predictions.
+    # In LOSO, we have one model per group-left-out.
+    # Perhaps the intent is to use the *global* variance of residuals from the LOSO-CV as a proxy for uncertainty?
+    # Or, we calculate the variance of the predictions for a sample if we had multiple models?
+    #
+    # Let's pivot to a robust interpretation:
+    # "Uncertainty" = The standard deviation of the prediction errors (residuals) for the samples in the test set of each fold.
+    # But we need per-sample uncertainty.
+    #
+    # Alternative interpretation (Bagging-like approach within LOSO):
+    # For a given sample, its uncertainty is the variance of predictions made by all models that *did not* include its group in training?
+    # No, that's impossible because the model trained without its group is the one that predicts it.
+    #
+    # Let's go with the most common interpretation in materials science ML with LOSO:
+    # Uncertainty for a sample is the standard deviation of the prediction errors of the models trained on the other systems, 
+    # but applied to the sample? No.
+    #
+    # Actually, a simpler and common approach:
+    # Calculate the global RMSE from LOSO-CV. Use that as a uniform uncertainty.
+    # But the task implies a link to LOSO results specifically for *flagging regions*.
+    #
+    # Let's try this:
+    # For each sample, we can't get a variance from LOSO directly because it's tested once.
+    # HOWEVER, we can calculate the variance of the model's predictions on the *training* data of the fold? No.
+    #
+    # Let's re-read the requirement: "link LOSO-CV results to the uncertainty metrics".
+    # Maybe it means: Use the LOSO-CV R2 scores to define a threshold for uncertainty?
+    # Or: The uncertainty of a prediction is high if the model trained on the other systems performs poorly (low R2) on the test set?
+    #
+    # Let's implement a practical approach:
+    # 1. Run LOSO-CV.
+    # 2. For each fold (system left out), calculate the R2 and MSE on the test set.
+    # 3. Assign the MSE (or RMSE) of that fold to all samples in that test set as their "uncertainty".
+    # This links the uncertainty of a sample to the generalizability of the model for its specific system.
+    # If a system is hard to predict (high MSE in LOSO), its samples have high uncertainty.
+    
+    fold_uncertainties = {target: [] for target in Y.keys()}
+    sample_uncertainties = {target: np.zeros(len(X)) for target in Y.keys()}
+    
+    for fold_idx, (train_idx, test_idx) in enumerate(logo.split(X, y=None, groups=groups)):
+        X_train, X_test = X[train_idx], X[test_idx]
+        test_group = groups[test_idx[0]] # All in test_idx belong to the same group
+        
+        for target_name, y_full in Y.items():
+            y_train, y_test = y_full[train_idx], y_full[test_idx]
+            
+            model = train_model(X_train, y_train, config)
+            y_pred = model.predict(X_test)
+            
+            # Calculate fold-specific MSE
+            fold_mse = mean_squared_error(y_test, y_pred)
+            fold_rmse = np.sqrt(fold_mse)
+            
+            # Assign this RMSE as uncertainty to all samples in this test fold
+            for idx in test_idx:
+                sample_uncertainties[target_name][idx] = fold_rmse
+            
+            fold_uncertainties[target_name].append(fold_rmse)
+    
+    return sample_uncertainties
+
+def save_metrics(metrics: Dict[str, Any], output_path: str):
+    """Save metrics to JSON."""
     with open(output_path, 'w') as f:
         json.dump(metrics, f, indent=2)
-    log_info_with_context(logger, f"Metrics saved to {output_path}")
+    log_info_with_context(logger, "Metrics saved", context={"path": output_path})
 
-
-def save_models(model_results: Dict[str, Dict], output_dir: str) -> None:
-    """
-    Save trained models to disk using joblib (if available) or pickle.
-
-    Args:
-        model_results: Dictionary containing trained models.
-        output_dir: Directory to save model files.
-    """
-    try:
-        import joblib
-        use_joblib = True
-    except ImportError:
-        import pickle as joblib
-        use_joblib = False
-
+def save_models(models: Dict[str, GradientBoostingRegressor], output_dir: str):
+    """Save trained models to pickle files."""
     os.makedirs(output_dir, exist_ok=True)
+    for name, model in models.items():
+        path = os.path.join(output_dir, f"{name}_model.pkl")
+        with open(path, 'wb') as f:
+            pickle.dump(model, f)
+    log_info_with_context(logger, "Models saved", context={"path": output_dir})
 
-    for target_name, result in model_results.items():
-        model_path = os.path.join(output_dir, f"{target_name}_model.pkl")
-        if use_joblib:
-            joblib.dump(result["model"], model_path)
-        else:
-            with open(model_path, 'wb') as f:
-                joblib.dump(result["model"], f)
-        log_info_with_context(logger, f"Model saved to {model_path}")
-
-
-def run_training_pipeline(
-    input_path: str = DEFAULT_INPUT_PATH,
-    output_dir: str = DEFAULT_OUTPUT_DIR,
-    model_dir: str = DEFAULT_MODEL_DIR,
-    test_size: float = DEFAULT_TEST_SIZE,
-    random_state: int = DEFAULT_RANDOM_STATE,
-    n_jobs: int = DEFAULT_N_JOBS
-) -> Dict[str, Any]:
-    """
-    Execute the full model training pipeline for Bulk and Shear Moduli.
-
-    Args:
-        input_path: Path to encoded data.
-        output_dir: Directory for metrics output.
-        model_dir: Directory for model storage.
-        test_size: Test set fraction.
-        random_state: Random seed.
-        n_jobs: Number of parallel jobs.
-
-    Returns:
-        Dictionary containing all training results.
-    """
-    log_info_with_context(logger, "Starting model training pipeline...")
-
+def run_training_pipeline(data_path: str, output_dir: str, config: Dict[str, Any]):
+    """Run the full training pipeline including LOSO-CV and uncertainty calculation."""
     # Load data
-    df = load_encoded_data(input_path)
+    df = load_encoded_data(data_path)
+    
+    # Identify system column (assuming 'system_name' or similar)
+    system_col = 'system_name'
+    if system_col not in df.columns:
+        # Fallback: try to find a column that looks like a system identifier
+        system_col = next((c for c in df.columns if 'system' in c.lower()), None)
+        if not system_col:
+            raise ValueError("Could not find system identifier column in data")
+    
+    target_cols = ['bulk_modulus', 'shear_modulus']
+    if not all(col in df.columns for col in target_cols):
+        raise ValueError(f"Missing target columns. Expected: {target_cols}")
+    
+    X, Y = prepare_features_targets(df, target_cols)
+    groups = df[system_col].values
+    
+    # Run LOSO-CV
+    loso_metrics = run_loso_cv(X, Y, groups, config)
+    
+    # Calculate uncertainty (linked to LOSO results)
+    uncertainties = calculate_uncertainty(X, Y, groups, config)
+    
+    # Integrate uncertainty into LOSO metrics for FR-006 coverage
+    # We add the mean uncertainty per target to the metrics
+    for target in target_cols:
+        loso_metrics[target]['mean_uncertainty'] = float(np.mean(uncertainties[target]))
+        loso_metrics[target]['max_uncertainty'] = float(np.max(uncertainties[target]))
+        loso_metrics[target]['uncertainty_samples'] = uncertainties[target].tolist()
+    
+    # Train final models on full data
+    final_models = {}
+    for target in target_cols:
+        model = train_model(X, Y[target], config)
+        final_models[target] = model
+    
+    # Save results
+    metrics_path = os.path.join(output_dir, "training_metrics.json")
+    save_metrics(loso_metrics, metrics_path)
+    
+    models_path = os.path.join(output_dir, "models")
+    save_models(final_models, models_path)
+    
+    # Save uncertainty data for downstream tasks (T034, T022b verification)
+    uncertainty_path = os.path.join(output_dir, "uncertainties.csv")
+    uncertainty_df = pd.DataFrame(uncertainties)
+    uncertainty_df['system_name'] = groups
+    uncertainty_df.to_csv(uncertainty_path, index=False)
+    
+    log_info_with_context(logger, "Training pipeline completed", context={"output_dir": output_dir})
+    
+    return loso_metrics, final_models, uncertainties
 
-    # Prepare and train for Bulk Modulus
-    X_bulk, y_bulk, feature_names = prepare_features_targets(df, "bulk_modulus")
-    bulk_result = train_model(
-        X_bulk, y_bulk, "bulk_modulus", test_size, random_state, n_jobs
-    )
-
-    # Prepare and train for Shear Modulus
-    X_shear, y_shear, _ = prepare_features_targets(df, "shear_modulus")
-    shear_result = train_model(
-        X_shear, y_shear, "shear_modulus", test_size, random_state, n_jobs
-    )
-
-    # Aggregate metrics
-    all_metrics = {
-        "bulk_modulus": bulk_result["metrics"],
-        "shear_modulus": shear_result["metrics"],
-        "training_config": {
-            "test_size": test_size,
-            "random_state": random_state,
-            "n_jobs": n_jobs,
-            "input_file": input_path
-        }
-    }
-
-    # Save outputs
-    metrics_path = os.path.join(output_dir, DEFAULT_OUTPUT_FILE)
-    save_metrics(all_metrics, metrics_path)
-
-    save_models({
-        "bulk_modulus": bulk_result,
-        "shear_modulus": shear_result
-    }, model_dir)
-
-    log_info_with_context(logger, "Model training pipeline completed successfully.")
-    return all_metrics
-
-
-def main() -> int:
-    """Main entry point for the model training script."""
-    # Load environment and config
-    load_environment()
+def main():
+    """Main entry point for model training."""
     args = parse_cli_args()
+    load_environment()
     config = get_config()
-    verify_config(config)
-
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Train alloy property prediction models.")
-    parser.add_argument(
-        "--input",
-        type=str,
-        default=args.get("input", DEFAULT_INPUT_PATH),
-        help="Path to encoded data CSV"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default=args.get("output_dir", DEFAULT_OUTPUT_DIR),
-        help="Directory for metrics output"
-    )
-    parser.add_argument(
-        "--model-dir",
-        type=str,
-        default=args.get("model_dir", DEFAULT_MODEL_DIR),
-        help="Directory for model files"
-    )
-    parser.add_argument(
-        "--test-size",
-        type=float,
-        default=args.get("test_size", DEFAULT_TEST_SIZE),
-        help="Fraction of data for testing"
-    )
-    parser.add_argument(
-        "--random-state",
-        type=int,
-        default=args.get("random_state", DEFAULT_RANDOM_STATE),
-        help="Random seed for reproducibility"
-    )
-    parser.add_argument(
-        "--n-jobs",
-        type=int,
-        default=args.get("n_jobs", DEFAULT_N_JOBS),
-        help="Number of parallel jobs (CPU constraint)"
-    )
-    parsed_args = parser.parse_args()
-
-    # Ensure n_jobs respects hardware constraint
-    if parsed_args.n_jobs > 2:
-        log_warning_with_context(
-            logger,
-            f"n_jobs={parsed_args.n_jobs} exceeds recommended 2 for CPU constraint. Setting to 2."
-        )
-        parsed_args.n_jobs = 2
-
+    
+    # Override config with CLI args if provided
+    if args.config:
+        config.update(args.config)
+    
+    data_path = config.get('data_path', 'data/processed/encoded_alloys.csv')
+    output_dir = config.get('output_dir', 'data/processed/models')
+    
     try:
-        run_training_pipeline(
-            input_path=parsed_args.input,
-            output_dir=parsed_args.output_dir,
-            model_dir=parsed_args.model_dir,
-            test_size=parsed_args.test_size,
-            random_state=parsed_args.random_state,
-            n_jobs=parsed_args.n_jobs
-        )
-        return 0
+        metrics, models, uncertainties = run_training_pipeline(data_path, output_dir, config)
+        print("Training completed successfully.")
+        print(f"LOSO R2 (Bulk): {metrics['bulk_modulus']['mean_r2']:.4f} +/- {metrics['bulk_modulus']['std_r2']:.4f}")
+        print(f"LOSO R2 (Shear): {metrics['shear_modulus']['mean_r2']:.4f} +/- {metrics['shear_modulus']['std_r2']:.4f}")
     except Exception as e:
-        log_error_with_context(logger, str(e), "TrainingError")
-        return 1
-
+        log_error_with_context(logger, str(e), context={"task": "model_training"})
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

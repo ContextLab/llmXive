@@ -1,60 +1,37 @@
+"""
+Logger setup utility.
+"""
 import logging
 import os
 from pathlib import Path
-
 from .config import LOGS_DIR, LOG_FILE_NAME
 
-
-def setup_logger(name: str = "pipeline", level: int = logging.INFO) -> logging.Logger:
-    """
-    Set up a logger with both file and console handlers.
-
-    Ensures the logs directory exists and attaches:
-      - A FileHandler writing to `logs/pipeline.log`
-      - A StreamHandler writing to stdout with a concise format
-
-    Args:
-        name: Logger name (usually __name__ of the caller)
-        level: Logging level (default: INFO)
-
-    Returns:
-        Configured logger instance
-    """
+def setup_logger(name: str) -> logging.Logger:
+    """Sets up a logger with file and console handlers."""
     logger = logging.getLogger(name)
-    logger.setLevel(level)
+    logger.setLevel(logging.INFO)
 
-    # Prevent adding handlers multiple times if this function is called repeatedly
     if logger.handlers:
         return logger
 
-    # Ensure logs directory exists
-    logs_path = Path(LOGS_DIR)
-    logs_path.mkdir(parents=True, exist_ok=True)
-
-    log_file_path = logs_path / LOG_FILE_NAME
+    # Ensure log directory exists
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = LOGS_DIR / LOG_FILE_NAME
 
     # File handler
-    file_handler = logging.FileHandler(log_file_path)
-    file_handler.setLevel(level)
-    file_format = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    file_handler.setFormatter(file_format)
+    fh = logging.FileHandler(log_file)
+    fh.setLevel(logging.INFO)
 
     # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_format = logging.Formatter(
-        "%(levelname)s: %(message)s"
-    )
-    console_handler.setFormatter(console_format)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
 
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
+    # Formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+
+    logger.addHandler(fh)
+    logger.addHandler(ch)
 
     return logger
-
-
-# Convenience instance for direct imports if needed
-pipeline_logger = setup_logger("pipeline")

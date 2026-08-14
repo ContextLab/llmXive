@@ -1,9 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`code/`, `code/utils/`, `tests/`, `data/raw/`,\
-    \ `data/processed/`) being present was provided; the claim lacks any artifact\
-    \ listing or file\u2011system snapshot confirming the project structure exists."
 T003:
   c: true
   h: ed10dfe312fb4cb5816e2577a84e023e066e92d05d53ea147362d3069d939b4c
@@ -20,13 +14,30 @@ T008:
     \ to complete the task."
 T015:
   c: false
-  h: 038075d805c80573c0c5e56fa64f8b8782aa9fd032d40ec71771ff4d0bbb0de4
-  r: "The required `code/01_ingest.py` file does not exist, and the referenced schema\
-    \ file `contracts/interaction_schema.schema.yaml` (or `schema.yaml`) is also missing,\
-    \ so no validation logic can be present. The task\u2019s core artifact is absent."
+  h: 30a408dc1e0101684625ef02b53e26e9dc8f7c9d9702f131b6389c212a2e1dad
+  r: "The required schema file `contracts/interaction_schema.schema.yaml` is missing,\
+    \ and the provided `code/01_ingest.py` does not show any call to `validate_dataframe`\
+    \ (or similar) that would raise on invalid data. Consequently the ingestion script\
+    \ does not actually perform the hard\u2011gate validation against the specified\
+    \ schema."
 T016:
   c: false
   h: 44032301468328d20148662deeef678ec0e18d6e71af3215784f2c5158edf9de
   r: "The required file `code/01_ingest.py` is missing from the repository, so no\
     \ implementation applying the RoBERTa model and normalizing scores is present.\
     \ Consequently the task\u2019s core deliverable is absent."
+T018:
+  c: false
+  h: 7a2e34d4074da78ee0ba3247ce61b1391c8c91712183addb5be1c129ed4cfa31
+  r: The repository contains a `code/01_ingest.py` file, but its content is truncated
+    and does not show a complete implementation that groups by `user_id`/`timestamp`,
+    sorts chronologically, and writes the required CSV. Moreover, the expected output
+    file `data/processed/valence_sequence.csv` is absent. Both the functional script
+    and the required output artifact are missing, so the task is not satisfied.
+T024:
+  c: false
+  h: 2abf1973519fcf28fde3d7c70d90587eca604c1740c00322c57da7c444662d06
+  r: The provided `code/02_metrics.py` expects `data/processed/valence_sequence.csv`,
+    but that CSV file is absent from the repository, so the script cannot actually
+    load and group the data as required. The missing input file prevents the task
+    from being fulfilled.

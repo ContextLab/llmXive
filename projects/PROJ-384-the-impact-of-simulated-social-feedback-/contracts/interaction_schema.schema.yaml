@@ -1,27 +1,23 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Interaction Schema
-description: JSON Schema for raw interaction data (post_text, reply_text, timestamp, user_id) with strict type enforcement.
+description: Schema for raw interaction data (post_text, reply_text, timestamp, user_id)
 type: object
 required:
   - post_text
   - reply_text
   - timestamp
   - user_id
+additionalProperties: false
 properties:
   post_text:
     type: string
-    description: The text content of the user's original post.
-    minLength: 0
+    description: The text content of the user's post
   reply_text:
     type: string
-    description: The text content of the reply received. Can be empty for missing replies.
-    minLength: 0
+    description: The text content of the reply to the post
   timestamp:
-    type: string
-    description: ISO 8601 formatted timestamp of the interaction.
-    pattern: '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$'
+    type: integer
+    description: Unix timestamp of the interaction
   user_id:
     type: string
-    description: Unique identifier for the user.
-    minLength: 1
-additionalProperties: false
+    description: Unique identifier for the user

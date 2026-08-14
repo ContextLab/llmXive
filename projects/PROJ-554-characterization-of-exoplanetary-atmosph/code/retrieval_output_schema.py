@@ -1,153 +1,153 @@
 """
-Retrieval Output Schema Definition.
+Schema definition and mapping logic for retrieval output data.
 
-This module defines the schema for the output of the atmospheric retrieval process.
-It maps the results from petitRADTRANS to a standardized format including:
-- log10 water mixing ratio
-- Standard deviation (uncertainty)
-- Upper limit flag (for censored data/low S/N)
-
-This schema is used by `retrieval_output.py` to serialize results to CSV.
+This module defines the strict output schema for atmospheric retrieval results,
+ensuring consistent formatting for downstream statistical analysis (US3).
+It maps raw RetrievalResult objects (from data_models) to a standardized
+dictionary format suitable for CSV serialization and pandas DataFrames.
 """
+
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, asdict
 import logging
 
+from data_models import RetrievalResult, CensorshipStatus
+
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class RetrievalOutputSchema:
     """
-    Schema for a single retrieval result row.
+    Strict schema for the retrieval results output (data/processed/retrieval_results.csv).
 
     Fields:
-        planet_id: Unique identifier for the exoplanet (string).
-        log10_water_mixing_ratio: The derived log10 of the water vapor mixing ratio.
-            If the value is an upper limit, this contains the limit value.
-        std_dev: The 1-sigma standard deviation of the derived parameter.
-            For upper limits, this represents the uncertainty in the limit.
-        is_upper_limit: Boolean flag. True if the retrieval resulted in an upper limit
-            (censored data) due to low S/N or non-convergence, False otherwise.
-        snr: Signal-to-Noise ratio of the input spectrum used for this retrieval.
-        resolution: Spectral resolution (R) of the input spectrum.
-        status: String status code (e.g., "CONVERGED", "UPPER_LIMIT", "FAILED").
+        planet_name: Unique identifier for the exoplanet.
+        equilibrium_temperature: Equilibrium temperature in Kelvin (from metadata).
+        metallicity: Host star metallicity [Fe/H].
+        snr: Signal-to-noise ratio of the spectrum.
+        resolution: Spectral resolution (R).
+        log10_water_mixing_ratio: Base-10 logarithm of the water vapor mixing ratio.
+            For censored data (upper limits), this holds the limit value.
+        water_std_dev: Standard deviation of the retrieved mixing ratio (uncertainty).
+            For censored data, this holds the uncertainty of the limit.
+        is_upper_limit: Boolean flag. True if the value is a censored upper limit
+            (derived from low SNR), False if it is a direct detection.
+        retrieval_status: String status of the retrieval run (e.g., 'converged', 'failed', 'upper_limit_derived').
+        planet_category: Classification (e.g., 'Hot Jupiter', 'Super Earth').
     """
-    planet_id: str
-    log10_water_mixing_ratio: float
-    std_dev: float
-    is_upper_limit: bool
+    planet_name: str
+    equilibrium_temperature: float
+    metallicity: float
     snr: float
     resolution: float
-    status: str
+    log10_water_mixing_ratio: float
+    water_std_dev: float
+    is_upper_limit: bool
+    retrieval_status: str
+    planet_category: str
 
-def map_retrieval_result_to_schema(
-    planet_id: str,
-    water_mixing_ratio: float,
-    std_dev: float,
-    is_upper_limit: bool,
-    snr: float,
-    resolution: float,
-    status: str = "CONVERGED"
-) -> Dict[str, Any]:
+
+def map_retrieval_result_to_schema(result: RetrievalResult) -> Dict[str, Any]:
     """
-    Maps raw retrieval values to the standardized output schema dictionary.
+    Maps a RetrievalResult dataclass instance to the RetrievalOutputSchema dictionary.
+
+    This function ensures that all fields required for the final CSV output are present
+    and correctly typed. It handles the conversion of the CensorshipStatus enum to a
+    boolean flag and ensures numerical fields are floats.
 
     Args:
-        planet_id: Exoplanet identifier.
-        water_mixing_ratio: The log10 water mixing ratio value.
-        std_dev: The standard deviation of the value.
-        is_upper_limit: Boolean indicating if this is a censored upper limit.
-        snr: Signal-to-Noise ratio.
-        resolution: Spectral resolution.
-        status: Status string.
+        result: The raw RetrievalResult object from the retrieval process.
 
     Returns:
-        Dictionary matching the RetrievalOutputSchema structure.
+        A dictionary conforming to RetrievalOutputSchema.
     """
-    if not isinstance(planet_id, str):
-        raise ValueError(f"planet_id must be a string, got {type(planet_id)}")
-    
-    # Ensure numeric types
-    try:
-        log10_val = float(water_mixing_ratio)
-        std_val = float(std_dev)
-        snr_val = float(snr)
-        res_val = float(resolution)
-    except (TypeError, ValueError) as e:
-        logger.error(f"Failed to convert numeric fields for planet {planet_id}: {e}")
-        raise
+    # Determine censorship status
+    is_upper_limit = result.censorship_status == CensorshipStatus.UPPER_LIMIT
 
-    return {
-        "planet_id": planet_id,
-        "log10_water_mixing_ratio": log10_val,
-        "std_dev": std_val,
-        "is_upper_limit": bool(is_upper_limit),
-        "snr": snr_val,
-        "resolution": res_val,
-        "status": str(status)
+    # Map the log10 water mixing ratio.
+    # If the retrieval failed to converge and we derived an upper limit,
+    # result.log10_water_mixing_ratio should already contain the limit value.
+    # If it's a direct detection, it contains the retrieved value.
+    log10_water = float(result.log10_water_mixing_ratio)
+    std_dev = float(result.std_dev)
+
+    # Ensure status string is consistent
+    status = result.status or "unknown"
+
+    schema_row = {
+        "planet_name": result.planet_name,
+        "equilibrium_temperature": float(result.equilibrium_temperature),
+        "metallicity": float(result.metallicity),
+        "snr": float(result.snr),
+        "resolution": float(result.resolution),
+        "log10_water_mixing_ratio": log10_water,
+        "water_std_dev": std_dev,
+        "is_upper_limit": is_upper_limit,
+        "retrieval_status": status,
+        "planet_category": result.planet_category
     }
+
+    # Validation check to ensure no nulls in critical numeric fields
+    for key, value in schema_row.items():
+        if key not in ["is_upper_limit", "retrieval_status"]:
+            if value is None:
+                raise ValueError(f"Schema validation failed: {key} is None for planet {result.planet_name}")
+
+    logger.debug(f"Mapped retrieval result for {result.planet_name} to schema. "
+                 f"Upper Limit: {is_upper_limit}, Status: {status}")
+
+    return schema_row
+
 
 def get_schema_columns() -> List[str]:
     """
-    Returns the list of column names in the order they should appear in the CSV.
+    Returns the ordered list of column names expected in the output CSV.
+
+    This ensures the CSV header is consistent across all runs.
+
+    Returns:
+        List of column names.
     """
     return [
-        "planet_id",
-        "log10_water_mixing_ratio",
-        "std_dev",
-        "is_upper_limit",
+        "planet_name",
+        "equilibrium_temperature",
+        "metallicity",
         "snr",
         "resolution",
-        "status"
+        "log10_water_mixing_ratio",
+        "water_std_dev",
+        "is_upper_limit",
+        "retrieval_status",
+        "planet_category"
     ]
+
 
 def validate_schema_row(row: Dict[str, Any]) -> bool:
     """
-    Validates that a dictionary row conforms to the expected schema types.
+    Validates a dictionary row against the expected schema types.
+
+    Args:
+        row: A dictionary representing a row of data.
+
+    Returns:
+        True if valid, raises ValueError if invalid.
     """
     required_fields = get_schema_columns()
-    for field in required_fields:
-        if field not in row:
-            logger.error(f"Missing required field: {field}")
-            return False
-    
-    if not isinstance(row["planet_id"], str):
-        return False
-    if not isinstance(row["is_upper_limit"], bool):
-        return False
-    # Numeric checks
-    try:
-        float(row["log10_water_mixing_ratio"])
-        float(row["std_dev"])
-        float(row["snr"])
-        float(row["resolution"])
-    except (TypeError, ValueError):
-        return False
-        
-    return True
+    missing = [f for f in required_fields if f not in row]
+    if missing:
+        raise ValueError(f"Schema validation failed: Missing fields {missing}")
 
-# Usage example for documentation
-if __name__ == "__main__":
-    # Example of creating a valid output row
-    sample = map_retrieval_result_to_schema(
-        planet_id="HD_209458_b",
-        water_mixing_ratio=-4.5,
-        std_dev=0.3,
-        is_upper_limit=False,
-        snr=25.0,
-        resolution=100.0,
-        status="CONVERGED"
-    )
-    print("Sample Output Row:", sample)
-    
-    # Example of an upper limit
-    sample_limit = map_retrieval_result_to_schema(
-        planet_id="WASP_12_b",
-        water_mixing_ratio=-6.0,
-        std_dev=0.5,
-        is_upper_limit=True,
-        snr=5.0,
-        resolution=50.0,
-        status="UPPER_LIMIT"
-    )
-    print("Sample Upper Limit Row:", sample_limit)
+    # Type checks
+    if not isinstance(row["is_upper_limit"], bool):
+        raise ValueError("is_upper_limit must be boolean")
+
+    numeric_fields = [
+        "equilibrium_temperature", "metallicity", "snr", "resolution",
+        "log10_water_mixing_ratio", "water_std_dev"
+    ]
+    for field in numeric_fields:
+        if not isinstance(row[field], (int, float)):
+            raise ValueError(f"Field {field} must be numeric, got {type(row[field])}")
+
+    return True

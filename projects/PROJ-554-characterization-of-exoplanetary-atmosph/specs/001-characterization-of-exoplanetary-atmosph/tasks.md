@@ -86,7 +86,7 @@
 - [X] T011a [P] [US1] Create `code/api_config.py` defining `QUERY_PARAMS` dictionary for NASA Exoplanet Archive API (Hot Jupiters and Super-Earths filters)
 - [X] T011b [P] [US1] Implement `code/download.py` fetch logic to retrieve spectrum files and raw metadata using `QUERY_PARAMS`
 - [X] T011c [P] [US1] Implement parsing logic in `code/download.py` to extract equilibrium temperature (K), host star metallicity ([Fe/H]), spectral resolution (R), and signal-to-noise ratio (SNR)
-- [ ] T012 [US1] Save raw spectrum files to `data/raw/` and metadata CSV (including SNR, R) to `data/processed/metadata.csv`
+- [ ] T012 [US1] Save raw spectrum files to `data/raw/` and metadata CSV (including SNR, R) to `data/processed/metadata.csv` <!-- FAILED: unspecified -->
 - [X] T013 [US1] Implement `validate_sample_size` in `code/download.py` to count unique planets. If count < 30 or > 45, log `logging.warning` but proceed (do not raise error) to satisfy FR-001 "download ALL". If count is absent or null, raise `RuntimeError`.
 - [ ] T014 [US1] Add logging for download progress and API response handling
 
@@ -111,7 +111,7 @@
 - [X] T018b [P] [US2] Implement wrapper function in `code/retrieval.py` to run retrieval on a single spectrum file
 - [ ] T018c [P] [US2] Define output schema mapping: log10 water mixing ratio, standard deviation, or upper limit flag
 - [ ] T019 [US2] Implement logic to detect low S/N spectra using SNR/Resolution metadata and derive upper limits (censored values) instead of false precision
-- [ ] T020 [US2] Implement output generation: save results to `data/processed/retrieval_results.csv`
+- [X] T020 [US2] Implement output generation: save results to `data/processed/retrieval_results.csv`
 - [ ] T021 [US2] Add error handling for non-convergent retrievals: log failure, attempt upper limit derivation, proceed without halting
 - [X] T022 [US2] Implement `test_upper_limit_flags_reflect_noise` in `code/validation.py` to verify upper limit flags reflect physical noise floors. **Depends on T019**.
 
@@ -162,8 +162,8 @@ expected alphabetic or numeric character, but found '*'
  **Task**: T033 - Implement `quali...
  ^) -->
 - [X] T034 [US1] **Review Response**: Enhance `code/download.py` to log and store spectral resolution (R) and SNR for every spectrum per FR-001.
-- [~] T035 [US3] **Review Response**: Implement `calculate_detection_limit` in `code/analysis.py` taking SNR and Resolution as inputs, outputting to `data/processed/detection_limits.csv` per FR-002.
-- [~] T036 [US3] **Review Response**: Generate "Instrumental Noise vs. Signal" plot in `results/plots/` visualizing SNR distribution and threshold per SC-003.
+- [ ] T035 [US3] **Review Response**: Implement `calculate_detection_limit` in `code/analysis.py` taking SNR and Resolution as inputs, outputting to `data/processed/detection_limits.csv` per FR-002.
+- [ ] T036 [US3] **Review Response**: Generate "Instrumental Noise vs. Signal" plot in `results/plots/` visualizing SNR distribution and threshold per SC-003.
 - [X] T037 [US3] **Review Response**: Implement `run_loo_correlation_check` in `code/analysis.py` to calculate `max_correlation_drift` metric per SC-004.
 
 **Checkpoint**: All review responses implemented and verified
@@ -174,10 +174,10 @@ expected alphabetic or numeric character, but found '*'
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T038 [P] Documentation updates in `README.md` and `quickstart.md`
-- [~] T039 Code cleanup and refactoring
-- [~] T040 Performance optimization across all stories (ensure pipeline runs < 6 hours) <!-- ATOMIZE: requested -->
-- [~] T041 [P] Additional unit tests (if requested) in `tests/unit/`
+- [ ] T038 [P] Documentation updates in `README.md` and `quickstart.md`
+- [ ] T039 Code cleanup and refactoring
+- [ ] T040 Performance optimization across all stories (ensure pipeline runs < 6 hours) <!-- ATOMIZE: requested -->
+- [ ] T041 [P] Additional unit tests (if requested) in `tests/unit/`
 - [~] T042 Run quickstart.md validation
 
 ---

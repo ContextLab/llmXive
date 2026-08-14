@@ -1,57 +1,61 @@
 """
-Script to create the standard project directory structure for llmXive.
-This ensures all required folders exist with .gitkeep files for version control.
+Directory structure setup utility for the alloy design project.
+Creates the required directory hierarchy and placeholder files.
 """
 import os
 from pathlib import Path
 
-def create_directory_structure():
-    """Create the standard directory structure and .gitkeep files."""
-    # Define the base project root (assumed to be the current working directory)
-    # In the context of the pipeline, this script is run from the project root.
-    base_path = Path.cwd()
 
-    # Define the relative paths to create
+def create_directory_structure(base_path: str = ".") -> None:
+    """
+    Create the required directory structure for the project.
+    
+    Args:
+        base_path: The root directory where structure will be created.
+    """
+    root = Path(base_path)
+    
+    # Define all required directories
     directories = [
-        # Phase 1: Setup
         "code",
         "data",
-        "tests",
-        "docs",
-        
-        # Phase 1: Data subdirectories
         "data/raw",
         "data/processed",
-        
-        # Phase 1: Test subdirectories
+        "tests",
         "tests/contract",
         "tests/integration",
         "tests/unit",
-        
-        # Phase 1: Specs subdirectory (as per T001e context)
-        "specs/001-multi-property-trade-offs"
+        "docs",
+        "figures",
+        "specs",
+        "specs/001-multi-property-trade-offs",
     ]
-
-    created_count = 0
-    for dir_name in directories:
-        full_path = base_path / dir_name
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
-
-        # Create .gitkeep file to ensure directory is tracked by git
+    
+    # Create directories
+    created_dirs = []
+    for dir_path in directories:
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(str(full_path))
+    
+    # Create .gitkeep files in all directories to ensure they are tracked by git
+    gitkeep_files = []
+    for dir_path in directories:
+        full_path = root / dir_path
         gitkeep_path = full_path / ".gitkeep"
         if not gitkeep_path.exists():
             gitkeep_path.touch()
-            print(f"  -> Created .gitkeep in {dir_name}")
-        else:
-            print(f"  -> .gitkeep already exists in {dir_name}")
+            gitkeep_files.append(str(gitkeep_path))
+    
+    # Log results
+    print(f"Created {len(created_dirs)} directories:")
+    for d in created_dirs:
+        print(f"  - {d}")
+    
+    print(f"\nCreated {len(gitkeep_files)} .gitkeep placeholder files:")
+    for f in gitkeep_files:
+        print(f"  - {f}")
 
-    print(f"\nDirectory structure setup complete. {created_count} new directories created.")
-    return True
 
 if __name__ == "__main__":
     create_directory_structure()

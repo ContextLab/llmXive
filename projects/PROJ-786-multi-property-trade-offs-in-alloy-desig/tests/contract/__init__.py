@@ -1,3 +1,5 @@
-# Contract tests for PROJ-786
-# These tests verify that components adhere to specified interfaces and data schemas.
-pass
+"""
+Contract tests for the Multi-Property Trade-Offs in Alloy Design project.
+These tests verify that data and outputs strictly adhere to defined schemas
+and constraints.
+"""

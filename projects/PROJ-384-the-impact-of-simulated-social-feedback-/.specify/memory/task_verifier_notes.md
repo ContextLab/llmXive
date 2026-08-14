@@ -4,6 +4,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 
 - **T001** — No evidence of the required directories (`code/`, `code/utils/`, `tests/`, `data/raw/`, `data/processed/`) being present was provided; the claim lacks any artifact listing or file‑system snapshot confirming the project structure exists.
 - **T006** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T014** — declared artifact(s) missing/empty/invalid: code/01_ingest.py
-- **T015** — The required `code/01_ingest.py` file does not exist, and the referenced schema file `contracts/interaction_schema.schema.yaml` (or `schema.yaml`) is also missing, so no validation logic can be present. The task’s core artifact is absent.
-- **T016** — The required file `code/01_ingest.py` is missing from the repository, so no implementation applying the RoBERTa model and normalizing scores is present. Consequently the task’s core deliverable is absent.
+- **T015** — The required schema file `contracts/interaction_schema.schema.yaml` is missing, and the provided `code/01_ingest.py` does not show any call to `validate_dataframe` (or similar) that would raise on invalid data. Consequently the ingestion script does not actually perform the hard‑gate validation against the specified schema.
+- **T018** — The repository contains a `code/01_ingest.py` file, but its content is truncated and does not show a complete implementation that groups by `user_id`/`timestamp`, sorts chronologically, and writes the required CSV. Moreover, the expected output file `data/processed/valence_sequence.csv` is absent. Both the functional script and the required output artifact are missing, so the task is not satisfied.
+- **T024** — The provided `code/02_metrics.py` expects `data/processed/valence_sequence.csv`, but that CSV file is absent from the repository, so the script cannot actually load and group the data as required. The missing input file prevents the task from being fulfilled.

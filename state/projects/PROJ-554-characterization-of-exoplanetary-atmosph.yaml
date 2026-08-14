@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-13T11:53:55.123333Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: astronomy
 human_escalation_reason: null
 id: PROJ-554-characterization-of-exoplanetary-atmosph
-last_run_id: 2a9acdb6-2237-4dc5-8a94-5c89194937e9
+last_run_id: 1905349f-3627-4423-8138-6756a1ea6f71
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph
 title: Characterization of Exoplanetary Atmospheres through Advanced Spectroscopic
-updated_at: '2026-07-04T20:23:48.987053Z'
+updated_at: '2026-08-14T04:15:07.075526Z'

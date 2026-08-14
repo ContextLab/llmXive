@@ -1,21 +1,3 @@
-T014:
-  c: false
-  h: 8832814dea3540bdabd058134e1fe6a04066a9aabd331c1f030e79ee6a18557b
-  r: "The current `clean.py` does not contain any logic to detect a missing `measurement_method`,\
-    \ attempt inference using source metadata, validate it against `VALID_MEASUREMENT_METHODS`,\
-    \ or exclude the record with a logged reason. The `exclusion_log.txt` file is\
-    \ also absent, indicating the exclusion\u2011logging step is never exercised.\
-    \ Implement the inference/exclusion flow and ensure the log file is written as\
-    \ specified."
-T015:
-  c: false
-  h: 055e8d12011815896bc45e3fef82accbd7e5c1680e2c2b8ea3ab83cad6a1efca
-  r: "The repository lacks the required output files (`data/logs/exclusion_log.txt`\
-    \ and `data/processed/alloys_clean.parquet`). Moreover, the provided `code/data/clean.py`\
-    \ excerpt shows only helper functions and does not contain the orchestration steps\
-    \ (running T010\u2011T014, invoking T016, reading the exclusion log, counting\
-    \ rows, halting on <50, or saving the parquet file). These essential pieces are\
-    \ missing, so the task is not genuinely completed."
 T016:
   c: true
   h: eaafccad8ad32f1cc7b1cefe53c0b134cca9c771fc3100e4e980f7bc34c696ef
@@ -44,6 +26,32 @@ T024:
     \ `models/` directory or calls `joblib.dump` to save a trained model, and the\
     \ expected output file `models/rf_model.pkl` is absent from the repository. Consequently,\
     \ the task\u2019s serialization requirement is not satisfied."
+T025b:
+  c: false
+  h: d6577bdb14cfef5ad26061412536d484212685ab047e94c30a07dac9ca1af1b2
+  r: "The repository lacks the required `data/processed/model_metrics.json` file,\
+    \ and the shown portion of `code/modeling.py` does not contain any logic that\
+    \ writes a JSON file with the schema `{'cv_mae': float, 'test_mae': float, 'std_dev':\
+    \ float, 'mae_flag': bool}`. Consequently, the task\u2019s output artifact and\
+    \ logging behavior are missing."
+T027a:
+  c: false
+  h: f3c94604e8898753205112e51645b2061ad3d15b5dc941c4bb6ffa0e05f95606
+  r: "The repository contains a `run_permutation_importance` function, but it writes\
+    \ results to `results/permutation_importance.json`, not to `results/feature_importance.json`\
+    \ as required, and the expected `results/feature_importance.json` file is missing.\
+    \ Additionally, there is no implementation or documentation of the SHAP\u2011\
+    based back\u2011transformation mentioned in the task. The required artifact (ILR\u2011\
+    space permutation importance saved to `results/feature_importance.json`) is absent."
+T027b:
+  c: false
+  h: a9b037a9e5efb3c1402c381348a67da10e8670358e3fb5accd874eb351dd68fa
+  r: "The provided `code/analysis.py` contains only feature\u2011importance and permutation\u2011\
+    importance utilities; there is no implementation that computes a `sigma` based\
+    \ on the training\u2011set range, performs perturbation\u2011based sensitivity\
+    \ analysis, or writes a `sigma` value to `results/sensitivity_analysis.json`.\
+    \ Moreover, the expected output file `results/sensitivity_analysis.json` does\
+    \ not exist. The required functionality and artifact are missing."
 T032:
   c: false
   h: 858ecbcfceb690a236e315e7b54134448f77c7a95ec387e7241d1497884e96e3
@@ -61,10 +69,3 @@ T045:
     Additionally, `docs/quickstart.md` does not reference this CLI entry point, contradicting
     the requirement that it be callable as documented. The missing `_download_logic.py`
     file and incorrect import prevent the task from being genuinely completed.
-T046:
-  c: false
-  h: 3026bde80b9206a3857b0529e772c7690e353cc9b4adea009a58e0e3cbcd683c
-  r: The `code/cli/clean_cli.py` script is present and correctly defines the required
-    argparse flags, but the expected output artifact `data/processed/alloys_clean.parquet`
-    does not exist, so the CLI does not produce the required Parquet file. The missing
-    output file must be generated for the task to be considered complete.

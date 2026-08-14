@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory is tracked by git.
-# Raw data files will be downloaded here by data_ingestion.py.
+# This directory stores raw, unmodified data files downloaded from external sources.
+# Do not modify files in this directory manually.

@@ -51,7 +51,7 @@
 - [ ] T001f Create `.gitkeep` files in all empty directories
 
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, numpy, scipy, deap, matplotlib, seaborn, requests, pyyaml, pyarrow, pymatgen, mendeleev)
-- [~] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -61,10 +61,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 [P] Setup `data/raw` and `data/processed` directory structure with `.gitkeep`
+- [ ] T004 [P] Setup `data/raw` and `data/processed` directory structure with `.gitkeep`
 - [X] T005 [P] Implement `code/versioning.py` script to compute SHA-256 hashes for data/code artifacts and update state YAML
 - [X] T005b [P] Verify `code/versioning.py` runs successfully on a dummy artifact and updates state YAML correctly
-- [~] T006 [P] Setup environment configuration management (`.env` loading, seed pinning) <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [ ] T006 [P] Setup environment configuration management (`.env` loading, seed pinning) <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 2, column 1:
  **Summary**: Implemented `code/c...
  ^
@@ -72,9 +72,9 @@ expected alphabetic or numeric character, but found '*'
  in "<unicode string>", line 2, column 2:
  **Summary**: Implemented `code/co...
  ^) -->
-- [~] T006b [P] Implement CLI argument and `.env` support for `variance_threshold` parameter (FR-006) and verify it is read correctly by downstream tasks
+- [ ] T006b [P] Implement CLI argument and `.env` support for `variance_threshold` parameter (FR-006) and verify it is read correctly by downstream tasks
 - [X] T007 Create base data models (Pydantic/JSON schema) for `AlloyEntry` in `code/models/alloy_entry.py`
-- [~] T008 Configure error handling and logging infrastructure (structured logs)
+- [ ] T008 Configure error handling and logging infrastructure (structured logs)
 - [X] T009 Implement `code/utils/convex_hull.py` wrapper for `scipy.spatial.ConvexHull` and `Delaunay` point-in-hull testing
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -92,7 +92,7 @@ expected alphabetic or numeric character, but found '*'
 - [X] T012 [US1] Implement `code/data_ingestion.py` to fetch OQMD data via HuggingFace `datasets.load_dataset('OQMD/elastic_properties')`, filter for entries with `bulk_modulus` and `shear_modulus` > 0, and exclude missing data (FR-001). **Note**: This task implements the pivot to DFT proxies as documented in spec.md FR-001/US-1.
 - [X] T013 [P] [US1] Implement `code/feature_encoder.py` to encode compositions using elemental fractions and periodic descriptors (atomic radius, electronegativity) fetched via `pymatgen` or `mendeleev` for all elements present (FR-002)
 - [X] T014 [US1] Add logic in `code/data_ingestion.py` to log "Insufficient data for statistical analysis (N < 500)" and exit with code 0 if valid entries < 500 (US-1 Acceptance 1)
-- [~] T015 [US1] Implement `code/main.py` orchestration step to run ingestion and encoding, saving results to `data/processed/encoded_alloys.csv`
+- [ ] T015 [US1] Implement `code/main.py` orchestration step to run ingestion and encoding, saving results to `data/processed/encoded_alloys.csv`
 - [~] T016 [US1] Add validation to ensure feature vectors include at least two periodic descriptors per element
 - [~] T017 [US1] Add logging for data ingestion counts (total fetched, filtered, encoded)
 
@@ -116,17 +116,17 @@ expected alphabetic or numeric character, but found '*'
 ### Implementation for User Story 2
 
 - [X] T020 [P] [US2] Implement `code/model_training.py` to train separate GradientBoostingRegressor models for Bulk and Shear moduli using `n_jobs=2` and `max_memory=7GB` constraints (FR-003)
-- [ ] T021 [US2] Implement Leave-One-System-Out Cross-Validation (LOSO-CV) in `code/model_training.py` to validate generalizability (FR-008)
-- [ ] T022 [US2] Implement uncertainty calculation (cross-validation variance) in `code/model_training.py` and flag regions exceeding threshold (FR-006)
-- [ ] T022b [US2] Implement logic to explicitly link LOSO-CV results (T021) to the uncertainty metrics (FR-006), ensuring FR-008 coverage is integrated with uncertainty flagging
-- [ ] T023 [US2] Implement NSGA-II logic in `code/pareto_optimization.py` using `deap` with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk, Shear]. **Note**: This task includes generating synthetic points within the convex hull and evaluating them (FR-004).
-- [ ] T025 [US2] Add logic to clamp predictions to physical limits (e.g., moduli > 0) and flag extrapolated points (Edge Case)
-- [ ] T026 [US2] Implement metric calculation: % of test points dominated by frontier and % of frontier dominating empirical set against **Rule of Mixtures for Bulk/Shear** (SC-001)
-- [ ] T027 [US2] Add convergence timeout handling to NSGA-II, logging a warning if incomplete (Edge Case)
+- [X] T021 [US2] Implement Leave-One-System-Out Cross-Validation (LOSO-CV) in `code/model_training.py` to validate generalizability (FR-008)
+- [X] T022 [US2] Implement uncertainty calculation (cross-validation variance) in `code/model_training.py` and flag regions exceeding threshold (FR-006)
+- [~] T022b [US2] Implement logic to explicitly link LOSO-CV results (T021) to the uncertainty metrics (FR-006), ensuring FR-008 coverage is integrated with uncertainty flagging
+- [X] T023 [US2] Implement NSGA-II logic in `code/pareto_optimization.py` using `deap` with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk, Shear]. **Note**: This task includes generating synthetic points within the convex hull and evaluating them (FR-004).
+- [~] T025 [US2] Add logic to clamp predictions to physical limits (e.g., moduli > 0) and flag extrapolated points (Edge Case)
+- [~] T026 [US2] Implement metric calculation: % of test points dominated by frontier and % of frontier dominating empirical set against **Rule of Mixtures for Bulk/Shear** (SC-001)
+- [~] T027 [US2] Add convergence timeout handling to NSGA-II, logging a warning if incomplete (Edge Case)
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`: assert R² > 0.6, assert Pareto points are non-dominated
+- [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`: assert R² > 0.6, assert Pareto points are non-dominated
 - [ ] T019 [P] [US2] Integration test for Pareto generation in `tests/integration/test_pareto_generation.py`: assert synthetic points are within convex hull
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently

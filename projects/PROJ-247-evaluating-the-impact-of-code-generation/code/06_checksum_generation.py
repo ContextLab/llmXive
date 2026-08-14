@@ -1,150 +1,159 @@
+"""
+Checksum Generation Module (Task T018)
+
+Implements checksum generation for data integrity verification.
+Specifically targets data/ground_truth/manual_labels.csv and records
+the result in state/checksums.json.
+"""
 import os
 import sys
 import json
 import hashlib
 from pathlib import Path
 from datetime import datetime
+from typing import Dict, Any, Optional
 
-# Ensure we can import from the project root if run as a script
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Ensure code directory is in path for imports if running as script
+if __name__ == "__main__":
+    code_dir = Path(__file__).parent
+    if str(code_dir) not in sys.path:
+        sys.path.insert(0, str(code_dir))
 
-from utils.logging_config import get_logger
+from utils.logging_config import get_logger, setup_logging
 
 logger = get_logger(__name__)
 
+# Constants based on project structure
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_GROUND_TRUTH_DIR = PROJECT_ROOT / "data" / "ground_truth"
+STATE_DIR = PROJECT_ROOT / "state"
+MANUAL_LABELS_PATH = DATA_GROUND_TRUTH_DIR / "manual_labels.csv"
+CHECKSUMS_PATH = STATE_DIR / "checksums.json"
 
-def setup_output_directories():
-    """Ensure the state directory exists."""
-    state_dir = PROJECT_ROOT / "state"
-    state_dir.mkdir(parents=True, exist_ok=True)
-    return state_dir
+def setup_output_directories() -> None:
+    """Ensure required output directories exist."""
+    DATA_GROUND_TRUTH_DIR.mkdir(parents=True, exist_ok=True)
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Verified directories: {DATA_GROUND_TRUTH_DIR}, {STATE_DIR}")
 
-
-def calculate_file_checksum(file_path: Path) -> str:
+def calculate_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Calculate SHA-256 checksum of a file.
-    
+    Calculate the checksum of a file.
+
     Args:
-        file_path: Path to the file to checksum.
-        
+        file_path: Path to the file to hash.
+        algorithm: Hash algorithm to use (default: sha256).
+
     Returns:
-        Hexadecimal string of the SHA-256 hash.
-        
+        Hex digest string of the file checksum.
+
     Raises:
         FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        ValueError: If the file is empty or unreadable.
     """
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found for checksum: {file_path}")
+        raise FileNotFoundError(f"File not found: {file_path}")
     
-    sha256_hash = hashlib.sha256()
+    hasher = hashlib.new(algorithm)
     try:
-        with open(file_path, "rb") as f:
+        with open(file_path, 'rb') as f:
             # Read in chunks to handle large files
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except IOError as e:
-        raise IOError(f"Failed to read file {file_path}: {e}")
-
-
-def load_existing_checksums(checksum_file: Path) -> dict:
-    """
-    Load existing checksums from a JSON file.
-    
-    Args:
-        checksum_file: Path to the checksums.json file.
-        
-    Returns:
-        Dictionary of checksums, or empty dict if file doesn't exist.
-    """
-    if not checksum_file.exists():
-        logger.info(f"Checksum file {checksum_file} does not exist. Starting fresh.")
-        return {}
-    
-    try:
-        with open(checksum_file, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        logger.warning(f"Failed to load checksums from {checksum_file}: {e}. Starting fresh.")
-        return {}
-
-
-def save_checksums(checksums: dict, checksum_file: Path) -> None:
-    """
-    Save checksums to a JSON file.
-    
-    Args:
-        checksums: Dictionary of checksums to save.
-        checksum_file: Path to the output JSON file.
-    """
-    try:
-        with open(checksum_file, "w", encoding="utf-8") as f:
-            json.dump(checksums, f, indent=2, sort_keys=True)
-        logger.info(f"Checksums saved to {checksum_file}")
-    except IOError as e:
-        logger.error(f"Failed to save checksums to {checksum_file}: {e}")
+            for chunk in iter(lambda: f.read(4096), b""):
+                hasher.update(chunk)
+    except PermissionError:
+        logger.error(f"Permission denied reading file: {file_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Error reading file {file_path}: {e}")
         raise
 
+    return hasher.hexdigest()
 
-def generate_checksum_for_manual_labels(state_dir: Path) -> dict:
+def load_existing_checksums() -> Dict[str, Any]:
     """
-    Generate checksum for data/ground_truth/manual_labels.csv and update state/checksums.json.
+    Load existing checksums from state/checksums.json.
+    Returns an empty dict if the file does not exist.
+    """
+    if CHECKSUMS_PATH.exists():
+        try:
+            with open(CHECKSUMS_PATH, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            logger.warning(f"Corrupt checksum file at {CHECKSUMS_PATH}, starting fresh.")
+            return {}
+    return {}
+
+def save_checksums(checksums: Dict[str, Any]) -> None:
+    """
+    Save checksums to state/checksums.json.
+    """
+    with open(CHECKSUMS_PATH, 'w', encoding='utf-8') as f:
+        json.dump(checksums, f, indent=2)
+    logger.info(f"Checksums saved to {CHECKSUMS_PATH}")
+
+def generate_checksum_for_manual_labels() -> str:
+    """
+    Main logic for T018: Generate checksum for manual_labels.csv and record it.
     
     This function:
-    1. Locates the manual_labels.csv file.
+    1. Verifies the existence of data/ground_truth/manual_labels.csv.
     2. Calculates its SHA-256 checksum.
-    3. Loads existing checksums from state/checksums.json.
-    4. Updates the entry for manual_labels.csv.
-    5. Saves the updated checksums back to state/checksums.json.
+    3. Updates state/checksums.json with the new entry.
     
     Returns:
-        The updated checksums dictionary.
-        
+        The calculated checksum string.
+    
     Raises:
-        FileNotFoundError: If manual_labels.csv does not exist.
+        FileNotFoundError: If manual_labels.csv does not exist (T017a output missing).
     """
-    manual_labels_path = PROJECT_ROOT / "data" / "ground_truth" / "manual_labels.csv"
-    checksum_file = state_dir / "checksums.json"
-    
-    # Calculate the new checksum
-    current_checksum = calculate_file_checksum(manual_labels_path)
-    
-    # Load existing checksums
-    checksums = load_existing_checksums(checksum_file)
-    
-    # Update the entry for manual_labels.csv
-    checksums["manual_labels.csv"] = {
-        "sha256": current_checksum,
-        "updated_at": datetime.utcnow().isoformat() + "Z",
-        "file_path": str(manual_labels_path)
-    }
-    
-    # Save the updated checksums
-    save_checksums(checksums, checksum_file)
-    
-    logger.info(f"Generated checksum for manual_labels.csv: {current_checksum}")
-    return checksums
+    setup_output_directories()
 
+    if not MANUAL_LABELS_PATH.exists():
+        raise FileNotFoundError(
+            f"Required input file missing: {MANUAL_LABELS_PATH}. "
+            "Ensure T017a (Ground Truth Selection) has been completed successfully."
+        )
+
+    logger.info(f"Calculating checksum for: {MANUAL_LABELS_PATH}")
+    checksum_value = calculate_file_checksum(MANUAL_LABELS_PATH)
+    
+    logger.info(f"Calculated checksum: {checksum_value}")
+
+    # Load existing state
+    existing_checksums = load_existing_checksums()
+
+    # Update state with new entry
+    # Key by filename for simplicity, or use relative path
+    entry_key = "manual_labels.csv"
+    
+    existing_checksums[entry_key] = {
+        "file": str(MANUAL_LABELS_PATH.relative_to(PROJECT_ROOT)),
+        "checksum": checksum_value,
+        "algorithm": "sha256",
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "task_id": "T018"
+    }
+
+    # Save updated state
+    save_checksums(existing_checksums)
+
+    logger.info(f"Successfully recorded checksum for {entry_key} in {CHECKSUMS_PATH}")
+    return checksum_value
 
 def main():
-    """Main entry point for the checksum generation script."""
-    logger.info("Starting checksum generation for manual_labels.csv...")
-    
+    """Entry point for the checksum generation script."""
+    setup_logging()
     try:
-        state_dir = setup_output_directories()
-        checksums = generate_checksum_for_manual_labels(state_dir)
-        logger.info("Checksum generation completed successfully.")
-        print(f"Checksums updated in {state_dir / 'checksums.json'}")
-        return 0
+        checksum = generate_checksum_for_manual_labels()
+        print(f"SUCCESS: Checksum generated for manual_labels.csv: {checksum}")
+        sys.exit(0)
     except FileNotFoundError as e:
-        logger.error(f"Required file not found: {e}")
-        return 1
+        print(f"FAILURE: Input file missing - {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during checksum generation: {e}")
-        return 1
-
+        logger.exception("An unexpected error occurred during checksum generation.")
+        print(f"FAILURE: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
