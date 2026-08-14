@@ -1,94 +1,51 @@
 # Data Model: Predicting Rate Constants of SN1 Reactions from Molecular Structure
 
-## Entity Relationship Diagram (Conceptual)
+## Entity Definitions
 
-```mermaid
-erDiagram
-    Molecule ||--o{ ReactionRate : "has"
-    Molecule {
-        string smiles
-        string substrate_class "secondary|tertiary (if available)"
-        float steric_index "calculated, not used for hard filtering"
-        bool is_valid_graph
-    }
-    ReactionRate {
-        float rate_constant
-        float temperature
-        string solvent
-        string source_id
-    }
-    ModelRun ||--o{ HyperparameterConfig : "uses"
-    ModelRun {
-        string run_id
-        float r2_score
-        float mae
-        string best_config_path
-    }
-    HyperparameterConfig {
-        float learning_rate
-        int hidden_dim
-        float dropout
-        int layers
-    }
-```
+### Molecule
+- **SMILES**: string (canonicalized)
+- **Substrate Class**: string (secondary, tertiary) — *must be explicit in source*
+- **Descriptors**: dict (Gasteiger charges, topological indices)
+- **Exclusion Reason**: string (if invalid)
 
-## Data Schemas
+### ReactionRate
+- **Rate Constant**: float (s⁻¹ or M⁻¹s⁻¹, normalized to s⁻¹)
+- **Temperature**: float (K)
+- **Solvent**: string
+- **Source ID**: string (dataset ID)
+- **Exclusion Reason**: string (if invalid)
 
-### Input Schema (Raw)
-- **Source**: HuggingFace JSONL/Parquet
-- **Fields**: `smiles`, `rate` (or `rate_constant`), `temperature`, `solvent`, `substrate_class` (if available).
+### ModelConfiguration
+- **Hyperparameters**: dict (learning_rate, hidden_dim, dropout)
+- **Performance Metrics**: dict (R², MAE)
+- **Seed**: int (42)
 
-### Intermediate Schema (Processed)
-- **File**: `data/processed/cleaned_dataset.csv`
-- **Columns**:
-  - `smiles`: Canonical SMILES string.
-  - `rate_log`: Natural log of rate constant (normalized).
-  - `substrate_class`: Derived or original (secondary/tertiary) if available. **Requirement**: Must be present in source; if missing, dataset is excluded.
-  - `steric_index`: Calculated proxy (LogP + Rotatable Bonds) for logging only (no hard filter).
-  - `gasteiger_charges`: Array of floats (atomic charges).
-  - `topological_indices`: Array of floats (Morgan fingerprints).
-  - `exclusion_reason`: String (if row was filtered).
+### CollinearPair
+- **Descriptor A**: string
+- **Descriptor B**: string
+- **VIF Score**: float
+- **Flag Reason**: string
 
-### Output Schema (Model)
-- **File**: `artifacts/metrics.json`
-- **Structure**:
-  ```json
-  {
-    "run_id": "uuid",
-    "timestamp": "ISO8601",
-    "dataset_size": 8000,
-    "model_type": "MPNN",
-    "hyperparameters": { ... },
-    "metrics": {
-      "train": { "r2": 0.0, "mae": 0.0 },
-      "validation": { "r2": 0.0, "mae": 0.0 },
-      "test": { "r2": 0.0, "mae": 0.0 }
-    },
-    "baselines": {
-      "random": { "r2": 0.0, "mae": 0.0 },
-      "linear": { "r2": 0.0, "mae": 0.0 },
-      "null": { "r2": 0.0, "mae": 0.0 }
-    },
-    "significance": {
-      "mpnn_vs_linear": { "p_value": 0.0, "significant": true, "corrected": true }
-    }
-  }
-  ```
+### Descriptor
+- **Name**: string
+- **Value**: float
+- **Type**: string (topological, electronic)
+- **Source Method**: string (Gasteiger, RDKit)
 
 ## Data Flow
 
-1. **Ingestion**: Raw JSONL/Parquet → `data/raw/`.
-2. **Cleaning**:
-   - Parse SMILES with RDKit.
-   - **Filter**: Remove rows with missing rate or unparseable SMILES.
-   - **Filter**: Remove rows if `substrate_class` is required but missing (if dataset lacks explicit labels, the dataset is excluded).
-   - **Log**: Exclusions to `data/processed/exclusion_report.csv`.
-   - **Note**: No hard filtering based on steric index > 2.0. The steric index is calculated and logged for distribution analysis.
-3. **Featurization**:
-   - Compute Gasteiger charges.
-   - Compute topological indices.
-   - Normalize features (Z-score).
-   - Output: `data/processed/cleaned_dataset.csv`.
-4. **Splitting**: Scaffold split with a majority training portion by Murcko Scaffolds. If `substrate_class` is available, stratify within scaffolds.
-5. **Training**: MPNN → `artifacts/model_weights.pt`.
-6. **Analysis**: SHAP, VIF, Sensitivity → `artifacts/reports/`.
+1. **Ingestion**: Raw JSONL/Parquet → Validate columns → Exclude if missing metadata → Clean (remove NaN, invalid SMILES) → Output `cleaned.csv`.
+2. **Descriptor Computation**: `cleaned.csv` → RDKit → Compute Gasteiger/topological descriptors → Output `descriptors.csv`.
+3. **Splitting**: `descriptors.csv` → Stratified by substrate class → Train/Val/Test (70/15/15) → Output `split_*.csv`.
+4. **Training**: `train.csv` → MPNN (Nested CV) → Output `model.pt`, `metrics.json`.
+5. **Evaluation**: `test.csv` → Predictions → Bootstrap comparison → Output `comparison_report.json`.
+6. **Interpretability**: Model + `test.csv` → SHAP → Sensitivity → Perturbation → VIF → Output `shap_report.md`, `sensitivity_report.md`, `perturbation_report.md`, `vif_report.json`.
+7. **Consistency Check**: Re-run with 5 seeds → Output `shap_consistency_report.md`.
+
+## Constraints
+
+- No in-place modification of raw data.
+- All derived files checksummed.
+- Deterministic seeding enforced.
+- No causal language in outputs.
+- Unit normalization: All rate constants converted to s⁻¹.

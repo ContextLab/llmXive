@@ -2,77 +2,44 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to GitHub Actions (for CI) or local environment with 2+ cores and 8GB RAM.
+- Python 3.10+
+- pip
+- 2 CPU cores, ~7 GB RAM, ~14 GB disk
+- Internet access (for HuggingFace datasets)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-373-predicting-rate-constants-of-sn1-reactio
-   ```
-
-2. **Create Virtual Environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Data Setup
-
-The data is fetched automatically during the first run. No manual download is required.
-- **Source**: `Elzorro99/DTS-SN1-15-01-2024` (HuggingFace).
-- **Cache**: Data is cached in `data/raw/`.
+```bash
+cd projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/code/
+pip install -r requirements.txt
+```
 
 ## Running the Pipeline
 
-### 1. Full Pipeline (Ingest → Train → Analyze)
 ```bash
-python code/main.py --config code/config.py
-```
-This script:
-- Downloads and cleans data.
-- Trains the MPNN with random search over multiple configurations.
-- Evaluates against baselines.
-- Runs SHAP, VIF, and sensitivity analysis.
-- Saves artifacts to `artifacts/`.
-
-### 2. Individual Steps
-
-**Ingest & Featurize**:
-```bash
-python code/ingest.py
-python code/featurize.py
+python main.py
 ```
 
-**Train Model**:
-```bash
-python code/train.py --config code/config.py
-```
+This will:
+1. Download and validate datasets from HuggingFace.
+2. Compute descriptors and clean data.
+3. Train MPNN with Nested CV (scaffold splitting).
+4. Evaluate against baselines.
+5. Generate interpretability reports (SHAP, sensitivity, perturbation, VIF).
+6. Check SC-001 success criteria.
 
-**Evaluate & Analyze**:
-```bash
-python code/evaluate.py
-python code/analyze.py
-```
+## Output Artifacts
 
-## Expected Outputs
-
-- `artifacts/metrics.json`: Performance metrics.
-- `artifacts/model_weights.pt`: Best model weights.
-- `artifacts/reports/shap_summary.png`: Feature importance plot.
-- `artifacts/reports/sensitivity_analysis.csv`: Robustness check results.
-- `data/processed/exclusion_report.csv`: Rows removed and reasons.
+- `data/processed/cleaned.csv`: Cleaned dataset.
+- `data/processed/descriptors.csv`: Molecular descriptors.
+- `data/processed/split_train.csv`, `split_val.csv`, `split_test.csv`: Stratified splits.
+- `artifacts/model.pt`: Trained MPNN weights.
+- `artifacts/metrics.json`: R², MAE, and comparison results.
+- `artifacts/final_report.md`: Comprehensive report with all metrics and limitations.
+- `artifacts/shap_report.md`, `sensitivity_report.md`, `perturbation_report.md`, `vif_report.json`, `shap_consistency_report.md`: Interpretability outputs.
 
 ## Troubleshooting
 
-- **OOM Error**: Reduce `hidden_dim` in `code/config.py` (default: 64).
-- **CUDA Error**: Ensure `torch` is installed with CPU support (`torch==2.2.0+cpu`). The pipeline is designed for CPU only.
-- **Data Download Failed**: Check internet connection. The script uses `streaming=True` to avoid full downloads.
+- **Missing Metadata**: If the dataset lacks temperature, solvent, or substrate class, the script will exit with a fatal error.
+- **SMILES Parsing Errors**: Check `exclusion_log.csv` for rows excluded due to parsing issues.
+- **Memory Issues**: If RAM is exceeded, the script automatically reduces inner CV folds or config count to fit the 6h budget.

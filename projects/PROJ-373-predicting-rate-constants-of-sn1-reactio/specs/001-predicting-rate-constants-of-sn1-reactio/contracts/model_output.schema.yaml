@@ -93,7 +93,12 @@ properties:
           significant: { type: "boolean" }
           corrected: { type: "boolean" }
         required: [p_value, significant, corrected]
-    required: [mpnn_vs_linear]
+  success_criteria:
+    type: "object"
+    properties:
+      sc_001_met: { type: "boolean" }
+      reason: { type: "string" }
+    required: [sc_001_met, reason]
 required:
   - run_id
   - timestamp
@@ -103,3 +108,4 @@ required:
   - metrics
   - baselines
   - significance
+  - success_criteria

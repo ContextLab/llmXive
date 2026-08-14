@@ -1,14 +1,15 @@
 status: none
-intent: SN1 kinetic dataset NIST Chemistry WebBook Reaxys open UCI python package
-  dataset
+intent: SN1 kinetic rate constants dataset HuggingFace validated NIST Chemistry WebBook
+  RDKit python package dataset
 required_fields:
-- smiles
+- SMILES
 - rate_constant
-- substrate_class
 - temperature
 - solvent
+- substrate_class
 - gasteiger_partial_charges
 - topological_indices
-cache_key: 4b5d754798c37467620ab7115ff45a2641a03717224325715996d301382ebc70
-searched_at: '2026-07-31T07:17:38.504963+00:00'
+- molecular_graph
+cache_key: ebda2b2c5370286c211b790bc66888518f0dd0af4f3732ecadcbfcdfde5d0163
+searched_at: '2026-08-14T03:14:56.730330+00:00'
 retry_count: 1

@@ -1,38 +1,42 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed SN1 Dataset Schema"
-description: "Schema for the cleaned and featurized SN1 reaction dataset."
-type: "object"
+title: "SN1 Dataset Schema"
+description: "Schema for the cleaned SN1 reaction dataset"
+type: object
 properties:
   smiles:
-    type: "string"
-    description: "Canonical SMILES string of the molecule."
-  rate_log:
-    type: "number"
-    description: "Natural logarithm of the experimental rate constant."
+    type: string
+    description: "Canonical SMILES string"
+  rate_constant:
+    type: number
+    description: "Experimental rate constant (normalized to s^-1)"
+  temperature:
+    type: number
+    description: "Reaction temperature in Kelvin"
+  solvent:
+    type: string
+    description: "Solvent name"
   substrate_class:
-    type: ["string", "null"]
-    enum: ["secondary", "tertiary", null]
-    description: "Classification of the substrate based on the leaving group carbon. Null if not available in source."
-  steric_index:
-    type: "number"
-    description: "Computed proxy for steric hindrance (LogP + Rotatable Bonds) for logging only."
-  gasteiger_charges:
-    type: "array"
-    items:
-      type: "number"
-    description: "Array of Gasteiger partial charges for each atom."
-  topological_indices:
-    type: "array"
-    items:
-      type: "number"
-    description: "Array of topological descriptors (e.g., Morgan fingerprints)."
-  exclusion_reason:
-    type: ["string", "null"]
-    description: "Reason for exclusion if the row was filtered, otherwise null."
+    type: string
+    enum:
+      - secondary
+      - tertiary
+    description: "Explicit substrate class from source"
+  descriptors:
+    type: object
+    description: "Computed molecular descriptors"
+    properties:
+      gasteiger_charges:
+        type: array
+        items:
+          type: number
+      topological_indices:
+        type: array
+        items:
+          type: number
 required:
   - smiles
-  - rate_log
-  - steric_index
-  - gasteiger_charges
-  - topological_indices
-  - exclusion_reason
+  - rate_constant
+  - temperature
+  - solvent
+  - substrate_class
+  - descriptors

@@ -17,6 +17,7 @@ fields:
       - missing_rate_constant
       - invalid_smiles
       - missing_substrate_class
+      - unit_conversion_error
     required: true
   - name: original_smiles
     type: string

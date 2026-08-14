@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Collinearity Diagnostic Schema"
+description: "Schema for VIF diagnostic output"
+type: object
+properties:
+  descriptor_a:
+    type: string
+    description: "First descriptor in the pair"
+  descriptor_b:
+    type: string
+    description: "Second descriptor in the pair"
+  vif_score:
+    type: number
+    description: "Variance Inflation Factor score"
+  flag_reason:
+    type: string
+    description: "Reason for flagging (e.g., VIF > 5)"
+required:
+  - descriptor_a
+  - descriptor_b
+  - vif_score
+  - flag_reason
