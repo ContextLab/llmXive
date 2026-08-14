@@ -1,0 +1,1207 @@
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Load Mixtral-8x7B-v0.1 model quantized to int8
+  claim_id: c_b2386d8f
+  context: T008 [P] Implement `code/models/moe_student.py` to load the specific MoE
+    student model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading.
+    **Must include pre-load size verification** to confirm model ID, parameter count
+    ~1B, and size < 7GB RAM before loading. (FR-002, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/moe_student.py` to load the specific MoE student
+    model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T04:55:55Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Load mamba-1.3b-hf model with 1.3B parameters
+  claim_id: c_1cd15286
+  context: T009 [P] Implement `code/models/ssm_student.py` to load the specific 1.3B
+    SSM student model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU offloading.
+    **Must include pre-load size verification** to confirm model ID, parameter count
+    1.3B, and size < 7GB RAM before loading. (FR-002, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/ssm_student.py` to load the specific 1.3B SSM student
+    model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU offloading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T04:56:29Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Run MoE experiment for 500 training steps
+  claim_id: c_9f9843c3
+  context: T024 [US1] Run MoE experiment on AIME subset for **500 training steps**
+    with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4** and
+    save results to `data/results/moe_results.json`. (depends on T020, T022, T055)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T04:56:49Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Run SSM experiment for 500 training steps
+  claim_id: c_18877279
+  context: T034 [US2] Run SSM experiment on AIME subset for **500 training steps**
+    with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4** and
+    save results to `data/results/ssm_results.json`. (depends on T030, T033, T055)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T04:57:19Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Set significance classification alpha to 0.05
+  claim_id: c_1df157a3
+  context: T042 [P] [US3] Implement significance classification logic (alpha=0.05)
+    in `code/core/statistical_tests.py` (FR-006)
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Implement significance classification logic with alpha=0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T04:57:45Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mixtral-8x7B-v0.1 parameter count 1B size < 7GB RAM
+  claim_id: c_dad5b6c0
+  context: Implement code/models/moe_student.py to load the specific MoE student model
+    mistralai/Mixtral-8x7B-v0.1 (quantized to int8) with CPU offloading. Must include
+    pre-load size verification to confirm model ID, parameter count ~1B, and size
+    < 7GB RAM before loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specific MoE student model is mistralai/Mixtral-8x7B-v0.1 (quantized
+    to int8) with a parameter count ~1B and size < 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:01:57Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mamba-1.3b-hf parameter count 1.3B size < 7GB RAM
+  claim_id: c_333f1dcb
+  context: Implement code/models/ssm_student.py to load the specific 1.3B SSM student
+    model state-spaces/mamba-1.3b-hf in int8 precision with CPU offloading. Must include
+    pre-load size verification to confirm model ID, parameter count 1.3B, and size
+    < 7GB RAM before loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specific 1.3B SSM student model is state-spaces/mamba-1.3b-hf in int8
+    precision with size < 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:04:49Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch_size 1 seed 42 gradient_accumulation 4
+  claim_id: c_5ea1146c
+  context: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4 and save results to data/results/moe_results.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE experiment on AIME subset uses 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:07:19Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch_size 1 seed 42 gradient_accumulation 4
+  claim_id: c_dfe508e6
+  context: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4 and save results to data/results/ssm_results.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SSM experiment on AIME subset uses 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:09:37Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME dataset ID HuggingFaceH4/aime_2024
+  claim_id: c_60b682f6
+  context: Implement code/data/download_aime.py to fetch the AIME dataset subset from
+    HuggingFace dataset ID HuggingFaceH4/aime_2024 with checksum validation.
+  evidence:
+    entailment_evidence: AIME dataset ID HuggingFaceH4/aime 2024
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/AIME_dataset_ID_HuggingFaceH4/aime_2024
+  kind: entity_fact
+  raw_text: The AIME dataset subset is fetched from HuggingFace dataset ID HuggingFaceH4/aime_2024.
+  resolved_value: AIME dataset ID HuggingFaceH4/aime_2024
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T05:09:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME human labels dataset ID HuggingFaceH4/aime_2024_human_labels
+  claim_id: c_233ab226
+  context: Implement code/data/download_human_labels.py to fetch human-verified correctness
+    labels for AIME subset from HuggingFace dataset ID HuggingFaceH4/aime_2024_human_labels.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AIME_human_labels_dataset_ID_HuggingFaceH4/aime_2024_human_l
+  kind: entity_fact
+  raw_text: Human-verified correctness labels for the AIME subset are fetched from
+    HuggingFace dataset ID HuggingFaceH4/aime_2024_human_labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:10:03Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Hard floor batch size 1
+  claim_id: c_8d8dbc7f
+  context: Implement code/core/hard_floor_enforcer.py to enforce the hard limit of
+    batch_size=1 as a fallback if the monitor fails or if RAM usage stabilizes above
+    the hard limit but below OOM.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We find that small batch sizes (1) train stably, (2) are consistently
+        more robust to
+      source_id: '2507.07101'
+      url: https://arxiv.org/abs/2507.07101
+      value: '1'
+    filled: true
+  kind: numeric
+  raw_text: The hard floor batch size for training is 1.
+  resolved_value: '1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T05:10:30Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Execution time limit 6 hours
+  claim_id: c_cf029025
+  context: Instrument code/main.py with runtime timer and log execution time to data/results/moe_results.json
+    and data/results/ssm_results.json under key execution_time_ms to verify SC-003
+    (6-hour limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The execution time limit for the experiment is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:10:47Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Significance classification alpha 0.05
+  claim_id: c_f58593c9
+  context: 'Implement significance classification logic (alpha=0.05 (Wikipedia: P-value,
+    https://en.wikipedia.org/wiki/P-value)) in code/core/statistical_tests.py.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The p-value is the probability that a test statistic which is at least
+        as extreme as the one obtained would occur under the null hypothesis. At a
+        significance level of 0.05, a fair coin would be expected to (incorrectly)
+        reject the null hypothesis (that it is fair) in 1 out of 20 tests on average.
+        The p-value does not provide the probability that either the null hypothesis
+        or its opposite is correct (a common source of confusion).
+      source_id: Statistical hypothesis test
+      url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance classification logic uses an alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T05:10:58Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_8e2e11d2
+  context: Initialize Python 3.11 project with transformers, accelerate, peft, scikit-learn,
+    scipy, pandas, numpy dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:11:32Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: load mistralai/Mixtral-8x7B-v0.1 quantized to int8
+  claim_id: c_9cc4daba
+  context: Implement `code/models/moe_student.py` to load the specific MoE student
+    model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load the specific MoE student model `mistralai/Mixtral-8x7B-v0.1` (quantized
+    to int8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:12:54Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: confirm MoE model parameter count ~1B and size < 7GB RAM
+  claim_id: c_aa0f7f63
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B, and size < 7GB RAM before loading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/confirm_MoE_model_parameter_count_~1B_and_size_%3C_7GB_RAM
+  kind: entity_fact
+  raw_text: confirm model ID, parameter count ~1B, and size < 7GB RAM before loading
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:13:24Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: load state-spaces/mamba-1.3b-hf 1.3B model in int8 precision
+  claim_id: c_6bdb60fc
+  context: Implement `code/models/ssm_student.py` to load the specific 1.3B SSM student
+    model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load the specific 1.3B SSM student model `state-spaces/mamba-1.3b-hf`
+    in int8 precision
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:13:41Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: confirm SSM model parameter count 1.3B and size < 7GB RAM
+  claim_id: c_87367d38
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count 1.3B, and size < 7GB RAM before loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: confirm model ID, parameter count 1.3B, and size < 7GB RAM before loading
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:14:04Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: fetch AIME dataset from HuggingFaceH4/aime_2024
+  claim_id: c_96341fd3
+  context: Implement `code/data/download_aime.py` to fetch the AIME dataset subset
+    from HuggingFace dataset ID `HuggingFaceH4/aime_2024` with checksum validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_AIME_dataset_from_HuggingFaceH4/aime_2024
+  kind: entity_fact
+  raw_text: fetch the AIME dataset subset from HuggingFace dataset ID `HuggingFaceH4/aime_2024`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:14:29Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: fetch human labels from HuggingFaceH4/aime_2024_human_labels
+  claim_id: c_9a4ae119
+  context: Implement `code/data/download_human_labels.py` to fetch human-verified
+    correctness labels for AIME subset from HuggingFace dataset ID `HuggingFaceH4/aime_2024_human_labels`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_human_labels_from_HuggingFaceH4/aime_2024_human_labels
+  kind: entity_fact
+  raw_text: fetch human-verified correctness labels for AIME subset from HuggingFace
+    dataset ID `HuggingFaceH4/aime_2024_human_labels`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:14:48Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch_size=1 seed=42 gradient_accumulation=4
+  claim_id: c_dcdd8dd6
+  context: Run MoE experiment on AIME subset for **500 training steps** with **batch_size=1**,
+    **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/moe_results.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:14:48Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch_size=1 seed=42 gradient_accumulation=4
+  claim_id: c_0f9be966
+  context: Run SSM experiment on AIME subset for **500 training steps** with **batch_size=1**,
+    **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/ssm_results.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:14:48Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: training runs on CPU-only with <=7GB RAM
+  claim_id: c_c721094f
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use int8 quantization and batch size 1 with gradient accumulation"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/training_runs_on_CPU-only_with_%3C=7GB_RAM
+  kind: entity_fact
+  raw_text: "All training must run on CPU-only runner with \u22647GB RAM"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:15:18Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mixtral-8x7B-v0.1 parameter count approximately 1 billion
+  claim_id: c_ab2a731e
+  context: Task T008 describes loading the Mixtral-8x7B-v0.1 model with specific verification
+    requirements for parameter count and memory usage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/moe_student.py` to load the specific MoE student
+    model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading. **Must
+    include pre-load size verification** to confirm model ID, parameter count ~1B,
+    and size < 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:16:14Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mamba-1.3b-hf parameter count 1.3 billion
+  claim_id: c_df394819
+  context: Task T009 describes loading the mamba-1.3b-hf model with specific verification
+    requirements for parameter count and memory usage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/ssm_student.py` to load the specific 1.3B SSM student
+    model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU offloading. **Must
+    include pre-load size verification** to confirm model ID, parameter count 1.3B,
+    and size < 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:16:27Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: load mistralai/Mixtral-8x7B-v0.1 quantized to int8
+  claim_id: c_4f6752c0
+  context: T008 [P] Implement code/models/moe_student.py to load the specific MoE
+    student model mistralai/Mixtral-8x7B-v0.1 (quantized to int8) with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load the specific MoE student model 'mistralai/Mixtral-8x7B-v0.1' (quantized
+    to int8) with CPU offloading
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:17:36Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: verify model parameters ~1B and size < 7GB RAM
+  claim_id: c_8e48e3f1
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B, and size < 7GB RAM before loading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/verify_model_parameters_~1B_and_size_%3C_7GB_RAM
+  kind: entity_fact
+  raw_text: confirm model ID, parameter count ~1B, and size < 7GB RAM before loading
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:17:37Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: load state-spaces/mamba-1.3b-hf 1.3B model in int8
+  claim_id: c_7c1bf48c
+  context: T009 [P] Implement code/models/ssm_student.py to load the specific 1.3B
+    SSM student model state-spaces/mamba-1.3b-hf in int8 precision with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load the specific 1.3B SSM student model 'state-spaces/mamba-1.3b-hf'
+    in int8 precision with CPU offloading
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:17:56Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: verify SSM model parameters 1.3B and size < 7GB RAM
+  claim_id: c_768d7b8e
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count 1.3B, and size < 7GB RAM before loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: confirm model ID, parameter count 1.3B, and size < 7GB RAM before loading
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:17:56Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: fetch HuggingFaceH4/aime_2024 with checksum validation
+  claim_id: c_71a4840c
+  context: T005 Implement code/data/download_aime.py to fetch the AIME dataset subset
+    from HuggingFace dataset ID HuggingFaceH4/aime_2024 with checksum validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HuggingFaceH4/aime_2024_with_checksum_validation
+  kind: entity_fact
+  raw_text: fetch the AIME dataset subset from HuggingFace dataset ID 'HuggingFaceH4/aime_2024'
+    with checksum validation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:18:15Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: fetch HuggingFaceH4/aime_2024_human_labels
+  claim_id: c_7eeb1a77
+  context: T005.0 Implement code/data/download_human_labels.py to fetch human-verified
+    correctness labels for AIME subset from HuggingFace dataset ID HuggingFaceH4/aime_2024_human_labels.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HuggingFaceH4/aime_2024_human_labels
+  kind: entity_fact
+  raw_text: fetch human-verified correctness labels for AIME subset from HuggingFace
+    dataset ID 'HuggingFaceH4/aime_2024_human_labels'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:18:17Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch_size=1 seed=42 gradient_accumulation=4
+  claim_id: c_933274e9
+  context: T024 [US1] Run MoE experiment on AIME subset for 500 training steps with
+    batch_size=1, seed=42, and gradient_accumulation_steps=4 and save results to data/results/moe_results.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:18:18Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch_size=1 seed=42 gradient_accumulation=4
+  claim_id: c_3faddfb7
+  context: T034 [US2] Run SSM experiment on AIME subset for 500 training steps with
+    batch_size=1, seed=42, and gradient_accumulation_steps=4 and save results to data/results/ssm_results.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:18:18Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: training runs on CPU with <= 7GB RAM
+  claim_id: c_81678899
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use int8 quantization and batch size 1 with gradient accumulation"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/training_runs_on_CPU_with_%3C=_7GB_RAM
+  kind: entity_fact
+  raw_text: "All training must run on CPU-only runner with \u22647GB RAM"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:18:18Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 0
+  canonical: AIME dataset HuggingFace ID HuggingFaceH4/aime_2024
+  claim_id: c_a64221d1
+  context: Implement 'code/data/download_aime.py' to fetch the AIME dataset subset
+    from HuggingFace dataset ID 'HuggingFaceH4/aime_2024' with checksum validation.
+  evidence:
+    entailment_evidence: AIME dataset ID HuggingFaceH4/aime 2024
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/AIME_dataset_ID_HuggingFaceH4/aime_2024
+  kind: entity_fact
+  raw_text: The AIME dataset subset is fetched from HuggingFace dataset ID 'HuggingFaceH4/aime_2024'.
+  resolved_value: AIME dataset ID HuggingFaceH4/aime_2024
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T05:19:30Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 0
+  canonical: Hard floor batch size 1
+  claim_id: c_f262b50b
+  context: Implement 'code/core/hard_floor_enforcer.py' to enforce the hard limit
+    of batch_size=1 as a fallback if the monitor fails or if RAM usage stabilizes
+    above the hard limit but below OOM.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We find that small batch sizes (1) train stably, (2) are consistently
+        more robust to
+      source_id: '2507.07101'
+      url: https://arxiv.org/abs/2507.07101
+      value: '1'
+    filled: true
+  kind: numeric
+  raw_text: The hard floor batch size for training is 1.
+  resolved_value: '1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T05:19:32Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model ID mistralai/Mixtral-8x7B-v0.1
+  claim_id: c_c12cdef1
+  context: Implement 'code/models/moe_student.py' to load the specific MoE student
+    model 'mistralai/Mixtral-8x7B-v0.1' (quantized to int8) with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specific MoE student model is 'mistralai/Mixtral-8x7B-v0.1'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:19:51Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM student model ID state-spaces/mamba-1.3b-hf with 1.3B parameters
+  claim_id: c_4b38cecd
+  context: Implement 'code/models/ssm_student.py' to load the specific 1.3B SSM student
+    model 'state-spaces/mamba-1.3b-hf' in int8 precision with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specific 1.3B SSM student model is 'state-spaces/mamba-1.3b-hf'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:20:06Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME human labels HuggingFace ID HuggingFaceH4/aime_2024_human_labels
+  claim_id: c_9cff6d0a
+  context: Implement 'code/data/download_human_labels.py' to fetch human-verified
+    correctness labels for AIME subset from HuggingFace dataset ID 'HuggingFaceH4/aime_2024_human_labels'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AIME_human_labels_HuggingFace_ID_HuggingFaceH4/aime_2024_hum
+  kind: entity_fact
+  raw_text: Human-verified correctness labels for the AIME subset are fetched from
+    HuggingFace dataset ID 'HuggingFaceH4/aime_2024_human_labels'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:20:08Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch 1 seed 42 accumulation 4
+  claim_id: c_e08c7e33
+  context: Run MoE experiment on AIME subset for '500 training steps' with 'batch_size=1',
+    'seed=42', and 'gradient_accumulation_steps=4' and save results to 'data/results/moe_results.json'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE experiment is run for 500 training steps with batch_size=1, seed=42,
+    and gradient_accumulation_steps=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:20:30Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch 1 seed 42 accumulation 4
+  claim_id: c_614a58b2
+  context: Run SSM experiment on AIME subset for '500 training steps' with 'batch_size=1',
+    'seed=42', and 'gradient_accumulation_steps=4' and save results to 'data/results/ssm_results.json'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SSM experiment is run for 500 training steps with batch_size=1, seed=42,
+    and gradient_accumulation_steps=4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:20:51Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Project Python version 3.11
+  claim_id: c_3a0e70e9
+  context: Initialize Python 3.11 project with 'transformers', 'accelerate', 'peft',
+    'scikit-learn', 'scipy', 'pandas', 'numpy' dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:21:14Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Training constraint CPU only 7GB RAM limit
+  claim_id: c_9ffa0d95
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use int8 quantization and batch size 1 with gradient accumulation."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_constraint_CPU_only_7GB_RAM_limit
+  kind: magnitude
+  raw_text: The training must run on a CPU-only runner with less than or equal to
+    7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:22:05Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Execution time limit 6 hours
+  claim_id: c_0d7c2976
+  context: Instrument 'code/main.py' with runtime timer and log execution time to
+    'data/results/moe_results.json' and 'data/results/ssm_results.json' under key
+    'execution_time_ms' to verify SC-003 (6-hour limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The execution time limit for the experiment is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:22:05Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model parameter count 1 billion
+  claim_id: c_58af4260
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B, and size < 7GB RAM before loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE student model parameter count is approximately 1 billion.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:22:30Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model size limit 7GB
+  claim_id: c_e399ebc0
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B, and size < 7GB RAM before loading.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MoE_student_model_size_limit_7GB
+  kind: magnitude
+  raw_text: The MoE student model size must be less than 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:22:53Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM student model size limit 7GB
+  claim_id: c_072e7957
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count 1.3B, and size < 7GB RAM before loading.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SSM_student_model_size_limit_7GB
+  kind: magnitude
+  raw_text: The SSM student model size must be less than 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:23:23Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Memory monitor trigger RAM usage 90 percent
+  claim_id: c_c3b4ba41
+  context: Must trigger batch size reduction on OOM event or RAM usage > 90%, and
+    enforce hard floor batch_size=1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory monitoring triggers batch size reduction when RAM usage exceeds
+    90%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:23:23Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: mistralai/Mixtral-8x7B-v0.1 model has ~1B parameters and size < 7GB RAM
+  claim_id: c_5487b842
+  context: Task T008 description for loading the MoE student model with specific verification
+    requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/moe_student.py` to load the specific MoE student
+    model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading. **Must
+    include pre-load size verification** to confirm model ID, parameter count ~1B,
+    and size < 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:25:05Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: state-spaces/mamba-1.3b-hf model has 1.3B parameters
+  claim_id: c_98d8c135
+  context: Task T009 description for loading the SSM student model with specific verification
+    requirements.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/ssm_student.py` to load the specific 1.3B SSM student
+    model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU offloading. **Must
+    include pre-load size verification** to confirm model ID, parameter count 1.3B,
+    and size < 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:25:05Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: load Mixtral-8x7B-v0.1 model quantized to int8
+  claim_id: c_9bbdfb76
+  context: Implement `code/models/moe_student.py` to load the specific MoE student
+    model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load the specific MoE student model `mistralai/Mixtral-8x7B-v0.1` (quantized
+    to int8)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:25:42Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE model parameter count ~1B and size < 7GB RAM
+  claim_id: c_5695bba2
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B, and size < 7GB RAM before loading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MoE_model_parameter_count_~1B_and_size_%3C_7GB_RAM
+  kind: entity_fact
+  raw_text: confirm model ID, parameter count ~1B, and size < 7GB RAM before loading
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:25:42Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: load Mamba-1.3b-hf model with 1.3B parameters in int8 precision
+  claim_id: c_2811905a
+  context: Implement `code/models/ssm_student.py` to load the specific 1.3B SSM student
+    model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load the specific 1.3B SSM student model `state-spaces/mamba-1.3b-hf`
+    in int8 precision
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:25:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM model parameter count 1.3B and size < 7GB RAM
+  claim_id: c_eec26497
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count 1.3B, and size < 7GB RAM before loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: confirm model ID, parameter count 1.3B, and size < 7GB RAM before loading
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:25:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch_size 1 seed 42 gradient_accumulation 4
+  claim_id: c_efcbc4fb
+  context: Run MoE experiment on AIME subset for **500 training steps** with **batch_size=1**,
+    **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/moe_results.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:25:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch_size 1 seed 42 gradient_accumulation 4
+  claim_id: c_3ba51a4f
+  context: Run SSM experiment on AIME subset for **500 training steps** with **batch_size=1**,
+    **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/ssm_results.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:25:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: training constraint CPU only 7GB RAM
+  claim_id: c_6a151ada
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use int8 quantization and batch size 1 with gradient accumulation"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_constraint_CPU_only_7GB_RAM
+  kind: entity_fact
+  raw_text: "All training must run on CPU-only runner with \u22647GB RAM"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:25:45Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Load Mistral Mixtral-8x7B-v0.1 MoE student model quantized to int8
+  claim_id: c_34db471e
+  context: T008 [P] Implement `code/models/moe_student.py` to load the specific MoE
+    student model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading.
+    **Must include pre-load size verification** to confirm model ID, parameter count
+    ~1B, and size < 7GB RAM before loading. (FR-002, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/moe_student.py` to load the specific MoE student
+    model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:26:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Load state-spaces/mamba-1.3b-hf SSM student model with 1.3B parameters
+  claim_id: c_20dda945
+  context: T009 [P] Implement `code/models/ssm_student.py` to load the specific 1.3B
+    SSM student model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU offloading.
+    **Must include pre-load size verification** to confirm model ID, parameter count
+    1.3B, and size < 7GB RAM before loading. (FR-002, FR-007)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/ssm_student.py` to load the specific 1.3B SSM student
+    model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU offloading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:26:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Run MoE experiment for 500 training steps with batch size 1 and seed
+    42
+  claim_id: c_df309461
+  context: T024 [US1] Run MoE experiment on AIME subset for **500 training steps**
+    with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4** and
+    save results to `data/results/moe_results.json`. (depends on T020, T022, T055)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:26:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Run SSM experiment for 500 training steps with batch size 1 and seed
+    42
+  claim_id: c_33867aaf
+  context: T034 [US2] Run SSM experiment on AIME subset for **500 training steps**
+    with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4** and
+    save results to `data/results/ssm_results.json`. (depends on T030, T033, T055)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:26:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: mistralai/Mixtral-8x7B-v0.1 model parameter count is approximately 1B
+  claim_id: c_73e3a891
+  context: Task T008 [P] Implement `code/models/moe_student.py` to load the specific
+    MoE student model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/moe_student.py` to load the specific MoE student
+    model `mistralai/Mixtral-8x7B-v0.1` (quantized to int8) with CPU offloading. **Must
+    include pre-load size verification** to confirm model ID, parameter count ~1B,
+    and size < 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:34:14Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: state-spaces/mamba-1.3b-hf model parameter count is 1.3B
+  claim_id: c_e069c262
+  context: Task T009 [P] Implement `code/models/ssm_student.py` to load the specific
+    1.3B SSM student model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU
+    offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/models/ssm_student.py` to load the specific 1.3B SSM student
+    model `state-spaces/mamba-1.3b-hf` in int8 precision with CPU offloading. **Must
+    include pre-load size verification** to confirm model ID, parameter count 1.3B,
+    and size < 7GB RAM before loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:34:14Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment on AIME subset uses 500 training steps
+  claim_id: c_b7f51c17
+  context: Task T024 [US1] Run MoE experiment on AIME subset for **500 training steps**
+    with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for **500 training steps** with **batch_size=1**,
+    **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/moe_results.json`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:34:35Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment on AIME subset uses 500 training steps
+  claim_id: c_894e0920
+  context: Task T034 [US2] Run SSM experiment on AIME subset for **500 training steps**
+    with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for **500 training steps** with **batch_size=1**,
+    **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/ssm_results.json`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:34:57Z'

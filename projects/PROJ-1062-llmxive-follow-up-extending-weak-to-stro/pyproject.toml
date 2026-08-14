@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up"
+version = "0.1.0"
+description = "Extending Weak-to-Strong Generalization via Direct On-Policy Distillation"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "transformers>=4.35.0",
+    "accelerate>=0.24.0",
+    "peft>=0.6.0",
+    "scikit-learn>=1.3.0",
+    "scipy>=1.11.0",
+    "pandas>=2.1.0",
+    "numpy>=1.24.0",
+    "torch>=2.1.0",
+    "datasets>=2.14.0",
+    "psutil>=5.9.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "I", "W"]
+ignore = []
+target-version = "py311"

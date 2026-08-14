@@ -1,0 +1,6 @@
+'|batch floor hard size training':
+  quote: We find that small batch sizes (1) train stably, (2) are consistently more
+    robust to
+  source_id: '2507.07101'
+  url: https://arxiv.org/abs/2507.07101
+  value: '1'

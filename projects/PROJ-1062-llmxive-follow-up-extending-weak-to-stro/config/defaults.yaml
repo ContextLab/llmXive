@@ -1,0 +1,31 @@
+# Project Configuration
+project_name: "llmxive-follow-up"
+seed: 42
+max_steps: 500
+batch_size: 1
+gradient_accumulation_steps: 4
+
+# Memory Constraints
+ram_limit_gb: 7.0
+warning_threshold_gb: 6.5
+
+# Paths
+data_dir: "data"
+raw_data_dir: "data/raw"
+processed_data_dir: "data/processed"
+results_dir: "data/results"
+models_dir: "models"
+
+# Model IDs
+teacher_model_id: "HuggingFaceH4/aime_2024" # Placeholder, actual model loaded via teacher_loader.py
+moe_student_id: "mistralai/Mixtral-8x7B-v0.1"
+ssm_student_id: "state-spaces/mamba-1.3b-hf"
+
+# Training
+learning_rate: 2e-5
+weight_decay: 0.01
+epsilon: 1e-8
+
+# Evaluation
+eval_steps: 50
+save_steps: 100

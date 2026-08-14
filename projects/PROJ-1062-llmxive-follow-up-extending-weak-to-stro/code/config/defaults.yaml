@@ -1,0 +1,80 @@
+# llmXive Follow-up: Weak-to-Strong Generalization via Direct On-Policy Distillation
+# Configuration Defaults
+# Generated for project: PROJ-1062-llmxive-follow-up-extending-weak-to-stro
+
+# --- Paths ---
+paths:
+  project_root: "."
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_results: "data/results"
+  figures: "figures"
+  checkpoints: "checkpoints"
+  logs: "logs"
+  config: "code/config"
+  code: "code"
+
+# --- Data Sources ---
+data:
+  source_aime: "HuggingFaceH4/aime_2024"
+  source_human_labels: "HuggingFaceH4/aime_2024_human_labels"
+  split_seed: 42
+  train_test_ratio: 0.8
+  max_samples: null  # null for full dataset, integer for limit
+
+# --- Model Configuration ---
+models:
+  teacher:
+    type: "transformer"
+    name: "meta-llama/Meta-Llama-3-8B"  # Placeholder, overridden by specific task
+    quantization: "int8"
+    cpu_offload: true
+  student_moe:
+    type: "moe"
+    name: "mistralai/Mixtral-8x7B-v0.1"
+    quantization: "int8"
+    cpu_offload: true
+  student_ssm:
+    type: "ssm"
+    name: "state-spaces/mamba-1.3b-hf"
+    quantization: "int8"
+    cpu_offload: true
+
+# --- Training Hyperparameters ---
+training:
+  batch_size: 1
+  gradient_accumulation_steps: 4
+  max_steps: 500
+  learning_rate: 1.0e-5
+  warmup_steps: 50
+  weight_decay: 0.01
+  seed: 42
+  optimizer: "adamw_torch"
+  lr_scheduler: "linear"
+  epsilon_smoothing: 1.0e-8  # For log-ratio stability in reward computation
+
+# --- Memory Constraints & Safety ---
+memory:
+  max_ram_gb: 7
+  ram_warning_threshold: 0.9  # 90% usage triggers reduction
+  hard_floor_batch_size: 1
+  oom_handler_enabled: true
+
+# --- Evaluation ---
+evaluation:
+  metric: "log_probability_improvement"
+  significance_level: 0.05
+  correction_method: "bonferroni"  # Options: bonferroni, holm, none
+  human_label_validation: true
+
+# --- Logging & Artifacts ---
+logging:
+  level: "INFO"
+  log_file: "logs/experiment.log"
+  save_interval_steps: 100
+  hash_artifacts: true  # Enable SHA-256 hashing per Constitution Principle V
+
+# --- Execution Limits ---
+execution:
+  max_time_hours: 6
+  timeout_seconds: 21600

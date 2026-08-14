@@ -9,3 +9,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/MathArena/aime_2024/resolve/main/data/train-00000-of-00001.parquet
   verified_at: '2026-08-13T14:51:34.006707Z'
+- artifact_hash: 2792d6f09ce161e84e763891bde7fad836ba0aeaffd33b1b86480efc01599210
+  artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Statistical hypothesis test - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+  verified_at: '2026-08-14T05:34:57.718288Z'

@@ -1,0 +1,8 @@
+T005:
+  c: true
+  h: 738be5d91bd14aa0ec1d6f94487b3984ba8d4cd5a29d0d94e3f4c562d5de7802
+  r: "The repository contains a non\u2011empty `code/data/download_aime.py` (\u2248\
+    4\u202FKB) that imports `datasets`, loads the `HuggingFaceH4/aime_2024` train\
+    \ split, writes each record as JSONL to a supplied output path, and validates\
+    \ the file with a SHA\u2011256 checksum. This fulfills the requirement to implement\
+    \ a downloader that outputs to `data/raw/aime_2024.jsonl`."
