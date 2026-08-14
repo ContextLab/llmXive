@@ -1,4 +1,3 @@
-"""
-llmXive Research Pipeline: Gut Microbiome & Sleep Architecture
-"""
-__version__ = "0.1.0"
+# llmXive Project: PROJ-340
+# Core package initialization
+pass

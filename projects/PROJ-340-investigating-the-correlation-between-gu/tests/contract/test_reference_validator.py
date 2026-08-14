@@ -1,116 +1,126 @@
 """
-Contract tests for the Reference Validator Agent (T009b).
-
-These tests verify that the Reference Validator correctly validates
-the pipeline structure and operates in "Logic Only" mode for the
-synthetic data study.
+Contract tests for the Reference Validator Agent.
 """
-import pytest
-import json
 import os
-import tempfile
+import json
+import yaml
+import pytest
 from pathlib import Path
-from code.reference_validator import ReferenceValidator, VerificationStatus
+from unittest.mock import patch, MagicMock
 
-def test_validate_structure_passes_with_valid_files():
-    """Test that validation passes when all required files exist."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        root = Path(tmp_dir)
-        # Create required directories
-        (root / "data" / "config").mkdir(parents=True)
-        (root / "code").mkdir()
-        (root / "data" / "results").mkdir()
-        
-        # Create required files
-        (root / "data" / "config" / "required_variables.yaml").write_text("required_predictors: []\nrequired_outcomes: []\n")
-        (root / "data" / "config" / "verified_data_sources.yaml").write_text("sources: []\n")
-        (root / "code" / "ingest.py").write_text("# mock")
-        (root / "code" / "analysis.py").write_text("# mock")
-        (root / "code" / "diagnostics.py").write_text("# mock")
-        (root / "code" / "report.py").write_text("# mock")
-        (root / "code" / "data_generator.py").write_text("# mock")
-        
-        validator = ReferenceValidator(root)
-        result = validator.validate_structure()
-        
-        assert result.status == VerificationStatus.PASSED
-        assert "missing" not in result.details
+# Add code/ to path
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-def test_validate_structure_fails_with_missing_config():
-    """Test that validation fails if config files are missing."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        root = Path(tmp_dir)
-        (root / "data" / "config").mkdir(parents=True)
-        (root / "code").mkdir()
-        (root / "data" / "results").mkdir()
-        
-        # Missing required_variables.yaml
-        
-        validator = ReferenceValidator(root)
-        result = validator.validate_structure()
-        
+from reference_validator import (
+    ReferenceValidator,
+    VerificationStatus,
+    VerificationResult,
+    CitationSchema
+)
+
+
+class TestCitationSchema:
+    def test_valid_citation(self):
+        data = {
+            "doi": "10.1038/s41591-023-02456-7",
+            "title": "Test Title",
+            "source_type": "journal",
+            "verified_date": "2023-01-01"
+        }
+        citation = CitationSchema(data)
+        assert citation.data["doi"] == "10.1038/s41591-023-02456-7"
+
+    def test_missing_field(self):
+        data = {
+            "doi": "10.1038/s41591-023-02456-7",
+            "title": "Test Title"
+            # missing source_type and verified_date
+        }
+        with pytest.raises(ValueError):
+            CitationSchema(data)
+
+
+class TestReferenceValidatorValidationMode:
+    @pytest.fixture
+    def mock_validation_mode(self, tmp_path):
+        # Create a temporary directory structure mimicking the project
+        metadata_dir = tmp_path / "data" / "metadata"
+        metadata_dir.mkdir(parents=True)
+        flag_file = metadata_dir / "validation_mode_flag.json"
+        flag_file.write_text(json.dumps({"active": True}))
+        return tmp_path
+
+    def test_validation_mode_detected(self, mock_validation_mode):
+        validator = ReferenceValidator()
+        # Override the path for testing
+        validator.VALIDATION_MODE_FLAG_PATH = mock_validation_mode / "data" / "metadata" / "validation_mode_flag.json"
+
+        assert validator.is_validation_mode() is True
+
+    def test_logic_only_status(self, mock_validation_mode):
+        validator = ReferenceValidator()
+        validator.VALIDATION_MODE_FLAG_PATH = mock_validation_mode / "data" / "metadata" / "validation_mode_flag.json"
+        validator.VERIFIED_DOIS_PATH = mock_validation_mode / "data" / "citations" / "verified_dois.yaml" # Does not exist
+
+        # Should pass without checking DOIs because mode is active
+        result = validator.verify_citations()
+        assert result.status == VerificationStatus.LOGIC_ONLY
+        assert "Validation mode active" in result.message
+
+
+class TestReferenceValidatorRealMode:
+    @pytest.fixture
+    def mock_real_mode(self, tmp_path):
+        # Create structure without validation flag
+        data_dir = tmp_path / "data"
+        data_dir.mkdir()
+        return tmp_path
+
+    def test_missing_citation_file_fails(self, mock_real_mode):
+        validator = ReferenceValidator()
+        validator.VALIDATION_MODE_FLAG_PATH = mock_real_mode / "data" / "metadata" / "validation_mode_flag.json"
+        validator.VERIFIED_DOIS_PATH = mock_real_mode / "data" / "citations" / "verified_dois.yaml"
+
+        result = validator.verify_citations()
         assert result.status == VerificationStatus.FAILED
-        assert "required_variables.yaml" in str(result.details.get("missing", []))
+        assert "not found" in result.message.lower()
 
-def test_validate_synthetic_mode_passes_without_real_data():
-    """Test that validation passes (with warning/info) when no real data is registered."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        root = Path(tmp_dir)
-        (root / "data" / "config").mkdir(parents=True)
-        (root / "code").mkdir()
-        (root / "data" / "results").mkdir()
-        
-        # Create required files but empty sources
-        (root / "data" / "config" / "required_variables.yaml").write_text("required_predictors: []\nrequired_outcomes: []\n")
-        (root / "data" / "config" / "verified_data_sources.yaml").write_text("sources: []\n")
-        
-        validator = ReferenceValidator(root)
-        result = validator.validate_synthetic_mode()
-        
-        # Should pass or warn, but not fail
-        assert result.status in [VerificationStatus.PASSED, VerificationStatus.WARNING]
+    def test_empty_citation_registry_fails(self, mock_real_mode):
+        # Create empty DOIs file
+        citations_dir = mock_real_mode / "data" / "citations"
+        citations_dir.mkdir()
+        doi_file = citations_dir / "verified_dois.yaml"
+        doi_file.write_text("dois: []")
 
-def test_validate_code_integrity_fails_with_missing_module():
-    """Test that validation fails if a critical module is missing."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        root = Path(tmp_dir)
-        (root / "data" / "config").mkdir(parents=True)
-        (root / "code").mkdir()
-        (root / "data" / "results").mkdir()
-        
-        (root / "data" / "config" / "required_variables.yaml").write_text("required_predictors: []\nrequired_outcomes: []\n")
-        (root / "data" / "config" / "verified_data_sources.yaml").write_text("sources: []\n")
-        
-        # Only create some modules, missing 'analysis.py'
-        (root / "code" / "ingest.py").write_text("# mock")
-        (root / "code" / "diagnostics.py").write_text("# mock")
-        
-        validator = ReferenceValidator(root)
-        result = validator.validate_code_integrity()
-        
+        validator = ReferenceValidator()
+        validator.VALIDATION_MODE_FLAG_PATH = mock_real_mode / "data" / "metadata" / "validation_mode_flag.json"
+        validator.VERIFIED_DOIS_PATH = doi_file
+
+        result = validator.verify_citations()
         assert result.status == VerificationStatus.FAILED
-        assert "analysis.py" in str(result.details.get("missing", []))
+        assert "No verified DOIs found" in result.message
 
-def test_validate_references_aggregates_results():
-    """Test that the main validate_references method aggregates all checks."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        root = Path(tmp_dir)
-        (root / "data" / "config").mkdir(parents=True)
-        (root / "code").mkdir()
-        (root / "data" / "results").mkdir()
-        
-        (root / "data" / "config" / "required_variables.yaml").write_text("required_predictors: []\nrequired_outcomes: []\n")
-        (root / "data" / "config" / "verified_data_sources.yaml").write_text("sources: []\n")
-        (root / "code" / "ingest.py").write_text("# mock")
-        (root / "code" / "analysis.py").write_text("# mock")
-        (root / "code" / "diagnostics.py").write_text("# mock")
-        (root / "code" / "report.py").write_text("# mock")
-        (root / "code" / "data_generator.py").write_text("# mock")
-        
-        validator = ReferenceValidator(root)
-        result = validator.validate_references()
-        
+    def test_valid_citations_pass(self, mock_real_mode):
+        # Create valid DOIs file
+        citations_dir = mock_real_mode / "data" / "citations"
+        citations_dir.mkdir()
+        doi_file = citations_dir / "verified_dois.yaml"
+        doi_file.write_text(yaml.dump({
+            "dois": [
+                {
+                    "doi": "10.1038/s41591-023-02456-7",
+                    "title": "Test",
+                    "source_type": "journal",
+                    "verified_date": "2023-01-01"
+                }
+            ]
+        }))
+
+        validator = ReferenceValidator()
+        validator.VALIDATION_MODE_FLAG_PATH = mock_real_mode / "data" / "metadata" / "validation_mode_flag.json"
+        validator.VERIFIED_DOIS_PATH = doi_file
+
+        result = validator.verify_citations()
         assert result.status == VerificationStatus.PASSED
-        assert "structure" in result.details
-        assert "mode" in result.details
-        assert "code_integrity" in result.details
+        assert "Verification passed" in result.message

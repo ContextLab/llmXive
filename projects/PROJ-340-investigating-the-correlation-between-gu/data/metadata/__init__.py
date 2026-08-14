@@ -1,2 +1,3 @@
-# Metadata directory
-pass
+"""
+Metadata directory.
+"""

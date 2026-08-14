@@ -56,6 +56,13 @@ ENV/
 env.bak/
 venv.bak/
 
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
@@ -64,35 +71,18 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# IDEs and editors
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.project
-.settings/
 
 # OS generated files
 .DS_Store
 .DS_Store?
-._*
-.Spotlight-V100
-.Trashes
+_Thumbs.db
 ehthumbs.db
-Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
 # Project specific
 data/raw/real_data.csv
-data/processed/*.parquet
 data/results/*.json
-data/metadata/*.json
-data/citations/*.yaml
-code/__init__.py
-tests/__init__.py
+data/processed/*.parquet
+state/
+logs/

@@ -1,132 +1,107 @@
 import os
 import json
+import yaml
 import tempfile
 import shutil
-import yaml
-from pathlib import Path
 import pytest
+from pathlib import Path
 
+# Import the module under test
 from reference_validator import ReferenceValidator, VerificationStatus
 
-@pytest.fixture
-def temp_project_root():
-    """Create a temporary directory structure for testing."""
-    temp_dir = tempfile.mkdtemp()
-    project_root = Path(temp_dir)
-    
-    # Create necessary subdirectories
-    (project_root / "state" / "projects").mkdir(parents=True, exist_ok=True)
-    (project_root / "data").mkdir(parents=True, exist_ok=True)
-    
-    yield project_root
-    
-    # Cleanup
-    shutil.rmtree(temp_dir)
+class TestReferenceValidator:
+    """Unit tests for the Reference Validator Agent."""
 
-def test_calculate_sha256(temp_project_root):
-    """Test SHA256 calculation."""
-    validator = ReferenceValidator(str(temp_project_root))
-    
-    # Create a test file
-    test_file = temp_project_root / "data" / "test.txt"
-    test_content = "Hello, World!"
-    test_file.write_text(test_content)
-    
-    checksum = validator.calculate_sha256(str(test_file))
-    
-    assert checksum.startswith("sha256:")
-    assert len(checksum) == 71  # "sha256:" + 64 hex chars
+    @pytest.fixture
+    def temp_project(self):
+        """Creates a temporary project directory structure for testing."""
+        temp_dir = tempfile.mkdtemp()
+        project_root = Path(temp_dir)
+        
+        # Create necessary directories
+        (project_root / "data" / "metadata").mkdir(parents=True)
+        (project_root / "data" / "citations").mkdir(parents=True)
+        
+        yield project_root
+        
+        # Cleanup
+        shutil.rmtree(temp_dir)
 
-def test_record_artifact_checksum(temp_project_root):
-    """Test recording an artifact checksum."""
-    validator = ReferenceValidator(str(temp_project_root))
-    
-    # Create a test file
-    test_file = temp_project_root / "data" / "test.txt"
-    test_content = "Test content for checksum"
-    test_file.write_text(test_content)
-    
-    # Record checksum
-    checksum = validator.record_artifact_checksum(str(test_file))
-    
-    # Verify checksum was recorded in state
-    state_file = temp_project_root / "state" / "projects" / "PROJ-340-investigating-the-correlation-between-gu.yaml"
-    assert state_file.exists()
-    
-    with open(state_file, 'r') as f:
-        state = yaml.safe_load(f)
-    
-    assert "artifact_hashes" in state
-    assert str(test_file) in state["artifact_hashes"]
-    assert state["artifact_hashes"][str(test_file)] == checksum
+    def test_synthetic_mode_passes_logic_only(self, temp_project):
+        """Test that synthetic mode flag results in LOGIC_ONLY status."""
+        # Create validation_mode_flag.json
+        flag_file = temp_project / "data" / "metadata" / "validation_mode_flag.json"
+        flag_data = {
+            "active": True,
+            "reason": "Pipeline Validation Study",
+            "timestamp": "2023-10-27T10:00:00Z"
+        }
+        with open(flag_file, 'w') as f:
+            json.dump(flag_data, f)
 
-def test_record_nonexistent_file(temp_project_root):
-    """Test recording checksum for a nonexistent file raises error."""
-    validator = ReferenceValidator(str(temp_project_root))
-    
-    with pytest.raises(FileNotFoundError):
-        validator.record_artifact_checksum("/nonexistent/file.txt")
+        validator = ReferenceValidator(project_root=temp_project)
+        result = validator.validate_citations()
 
-def test_verify_artifact_success(temp_project_root):
-    """Test successful artifact verification."""
-    validator = ReferenceValidator(str(temp_project_root))
-    
-    # Create and record a file
-    test_file = temp_project_root / "data" / "test.txt"
-    test_content = "Verification test"
-    test_file.write_text(test_content)
-    
-    checksum = validator.record_artifact_checksum(str(test_file))
-    
-    # Verify
-    result = validator.verify_artifact(str(test_file), checksum)
-    
-    assert result.status == VerificationStatus.SUCCESS
-    assert "Artifact verified" in result.message
+        assert result.status == VerificationStatus.LOGIC_ONLY
+        assert result.score == 1.0
+        assert "Synthetic mode active" in result.message
 
-def test_verify_artifact_failure(temp_project_root):
-    """Test artifact verification failure due to checksum mismatch."""
-    validator = ReferenceValidator(str(temp_project_root))
-    
-    # Create and record a file
-    test_file = temp_project_root / "data" / "test.txt"
-    test_content = "Verification test"
-    test_file.write_text(test_content)
-    
-    checksum = validator.record_artifact_checksum(str(test_file))
-    
-    # Verify with wrong checksum
-    wrong_checksum = checksum.replace("a", "b")
-    result = validator.verify_artifact(str(test_file), wrong_checksum)
-    
-    assert result.status == VerificationStatus.FAILED
-    assert "Checksum mismatch" in result.message
+    def test_real_mode_empty_dois_fails(self, temp_project):
+        """Test that real mode with empty/missing verified_dois.yaml fails."""
+        # Ensure validation mode is OFF (or file missing)
+        flag_file = temp_project / "data" / "metadata" / "validation_mode_flag.json"
+        if flag_file.exists():
+            flag_file.unlink()
 
-def test_validate_pipeline_state(temp_project_root):
-    """Test pipeline state validation."""
-    validator = ReferenceValidator(str(temp_project_root))
-    
-    # Initially, state file might not exist or be empty
-    result = validator.validate_pipeline_state()
-    
-    # Should be WARNING or SUCCESS depending on initial state
-    assert result.status in [VerificationStatus.WARNING, VerificationStatus.SUCCESS]
+        # Ensure verified_dois.yaml is empty or missing
+        dois_file = temp_project / "data" / "citations" / "verified_dois.yaml"
+        if dois_file.exists():
+            dois_file.unlink()
 
-def test_state_file_creation(temp_project_root):
-    """Test that state file is created if it doesn't exist."""
-    validator = ReferenceValidator(str(temp_project_root))
-    
-    state_file = temp_project_root / "state" / "projects" / "PROJ-340-investigating-the-correlation-between-gu.yaml"
-    
-    # Ensure it doesn't exist
-    if state_file.exists():
-        state_file.unlink()
-    
-    # Create a test file and record it
-    test_file = temp_project_root / "data" / "test.txt"
-    test_file.write_text("Test")
-    
-    validator.record_artifact_checksum(str(test_file))
-    
-    # State file should now exist
-    assert state_file.exists()
+        validator = ReferenceValidator(project_root=temp_project)
+        result = validator.validate_citations()
+
+        assert result.status == VerificationStatus.FAILED
+        assert result.score == 0.0
+        assert "Constitution Principle II violation" in result.message
+
+    def test_real_mode_with_dois_passes(self, temp_project):
+        """Test that real mode with valid DOIs passes."""
+        # Ensure validation mode is OFF
+        flag_file = temp_project / "data" / "metadata" / "validation_mode_flag.json"
+        if flag_file.exists():
+            flag_file.unlink()
+
+        # Create verified_dois.yaml with data
+        dois_file = temp_project / "data" / "citations" / "verified_dois.yaml"
+        dois_data = {
+            "dois": [
+                "10.1038/s41586-021-03844-4",
+                "10.1016/j.cell.2020.05.012"
+            ]
+        }
+        with open(dois_file, 'w') as f:
+            yaml.dump(dois_data, f)
+
+        validator = ReferenceValidator(project_root=temp_project)
+        result = validator.validate_citations()
+
+        assert result.status == VerificationStatus.PASSED
+        assert result.score == 1.0
+        assert "Citation verification passed" in result.message
+
+    def test_run_gate_returns_exit_codes(self, temp_project):
+        """Test that run_gate returns correct exit codes."""
+        # Test Failure Case
+        validator_fail = ReferenceValidator(project_root=temp_project)
+        exit_code_fail = validator_fail.run_gate()
+        assert exit_code_fail == 1
+
+        # Test Success Case (Synthetic)
+        flag_file = temp_project / "data" / "metadata" / "validation_mode_flag.json"
+        with open(flag_file, 'w') as f:
+            json.dump({"active": True}, f)
+        
+        validator_pass = ReferenceValidator(project_root=temp_project)
+        exit_code_pass = validator_pass.run_gate()
+        assert exit_code_pass == 0

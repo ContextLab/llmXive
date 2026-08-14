@@ -1,71 +1,73 @@
-name: Analysis Pipeline CI
+name: Analysis Pipeline & Citation Gate
 
 on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
-  run-analysis:
+  reference-validation:
+    name: Reference Validator Agent
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        python-version: [3.9, "3.10"]
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    - name: Cache pip dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Run Reference Validator Gate
+        id: validator
+        run: |
+          python code/reference_validator.py --project-root .
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: false
 
-    - name: Verify directory structure
-      run: |
-        mkdir -p data/raw data/processed data/results data/config data/metadata
-        mkdir -p specs/001-gut-microbiome-sleep-architecture/contracts
+      - name: Check Gate Result
+        if: steps.validator.outputs.exit_code != '0'
+        run: |
+          echo "ERROR: Reference Validator Gate Failed. Citation verification failed or missing."
+          exit 1
 
-    - name: Run Reference Validator Gate
-      run: |
-        python code/reference_validator.py --check-only
-      continue-on-error: false
+  analysis-pipeline:
+    name: Run Analysis Pipeline
+    runs-on: ubuntu-latest
+    needs: reference-validation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Run Ingestion and Validation
-      run: |
-        python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-    - name: Run Full Analysis Pipeline
-      run: |
-        python code/main.py --input data/raw/synthetic_data.csv --output data/results/
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install core dependencies from requirements.txt if it exists
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install pandas scipy numpy scikit-learn pyyaml
+          fi
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v3
-      if: always()
-      with:
-        name: analysis-results-${{ matrix.python-version }}
-        path: |
-          data/results/
-          data/processed/
-          data/metadata/
-          logs/
-        retention-days: 5
+      - name: Run Main Pipeline
+        run: |
+          python code/main.py --project-root .
 
-# Resource limits enforced by GitHub Actions runners (2 cores, 7GB RAM for ubuntu-latest)
-# If specific stricter limits are needed, they would be configured in the runner environment
-# or via self-hosted runners with specific hardware profiles.
+      - name: Verify Outputs
+        run: |
+          if [ ! -f data/results/correlation_matrix.json ]; then
+            echo "ERROR: Expected output data/results/correlation_matrix.json not found."
+            exit 1
+          fi
+          echo "Pipeline completed successfully with required outputs."

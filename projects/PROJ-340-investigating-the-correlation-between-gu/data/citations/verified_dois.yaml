@@ -1,8 +1,4 @@
-# Verified Real Data Sources for Gut Microbiome & Sleep Studies
-# This file contains DOIs for datasets that have been manually verified for this project.
-# T085 will fail if the input data does not contain a DOI present in this list.
-
-verified_dois:
-  - "10.5281/zenodo.1234567"  # Example: Gut Microbiome Sleep Study (Mock DOI for pipeline validation)
-  - "10.1038/s41591-023-02345-x" # Example: Real Nature Medicine Study (Placeholder)
-  - "10.1016/j.chom.2022.05.001" # Example: Cell Host & Microbe Study (Placeholder)
+# Verified Citations Registry
+# This file must be populated by the research phase with real, verified DOIs.
+# If this list is empty and the pipeline is NOT in validation mode, the build will fail.
+dois: []

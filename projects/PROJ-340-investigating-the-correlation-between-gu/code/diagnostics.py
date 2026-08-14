@@ -1,340 +1,388 @@
 """
-Diagnostics Module.
-
-Implements sensitivity analysis, power analysis, and collinearity detection.
+Diagnostics module for the Gut Microbiome - Sleep Architecture analysis.
+Implements VIF calculation, collinearity detection, sensitivity analysis, and power analysis.
 """
 import os
 import json
 import numpy as np
 import pandas as pd
 from scipy import stats
-import json
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from typing import Dict, List, Any, Optional
 
-# Seed management for reproducibility
-DIAGNOSTICS_SEED = 42
-
-def set_diagnostics_seed(seed: int = DIAGNOSTICS_SEED) -> None:
-    """Set the random seed for diagnostics operations."""
-    random.seed(seed)
+def set_diagnostics_seed(seed: int = 42) -> None:
+    """Set random seed for reproducibility."""
     np.random.seed(seed)
+    if 'random' in globals():
+        import random
+        random.seed(seed)
 
-def calculate_vif(data: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
-    """
-    Calculate Variance Inflation Factor (VIF) for a list of predictors.
-    
-    Args:
-        data: DataFrame containing the predictor variables.
-        predictors: List of column names to calculate VIF for.
-        
-    Returns:
-        Dictionary mapping predictor names to their VIF values.
-    """
-    if not predictors:
-        return {}
-        
-    vif_data = {}
-    # Ensure we only use columns that exist
-    valid_predictors = [p for p in predictors if p in data.columns]
-    
-    if len(valid_predictors) < 2:
-        # Cannot calculate VIF with fewer than 2 predictors
-        return {p: 0.0 for p in valid_predictors}
-        
-    X = data[valid_predictors].dropna()
-    if X.empty:
-        return {p: 0.0 for p in valid_predictors}
-        
-    # Add intercept
-    X_with_intercept = sm.add_constant(X)
-    
-    for i, col in enumerate(valid_predictors):
-        if col == 'const':
-            continue
-        # Regress this variable against all others
-        y = X[col]
-        X_other = X_with_intercept.drop(columns=[col])
-        if X_other.empty:
-            vif_data[col] = 1.0
-            continue
-            
-        try:
-            model = sm.OLS(y, X_other).fit()
-            r_squared = model.rsquared
-            vif = 1.0 / (1.0 - r_squared) if (1.0 - r_squared) != 0 else float('inf')
-            vif_data[col] = vif
-        except Exception:
-            vif_data[col] = float('inf')
-            
-    return vif_data
-
-def detect_perfect_multicollinearity(data: pd.DataFrame, predictors: List[str]) -> List[List[str]]:
+def detect_perfect_multicollinearity(predictors_df: pd.DataFrame) -> Dict[str, Any]:
     """
     Detect perfect multicollinearity using matrix rank check.
     
     Args:
-        data: DataFrame containing predictor variables.
-        predictors: List of column names to check.
+        predictors_df: DataFrame containing predictor variables (taxa).
         
     Returns:
-        List of pairs flagged as perfectly collinear.
+        Dictionary with 'is_perfectly_collinear' (bool) and 'rank' (int).
     """
-    valid_predictors = [p for p in predictors if p in data.columns]
-    if len(valid_predictors) < 2:
-        return []
-        
-    X = data[valid_predictors].dropna()
-    if X.empty:
-        return []
-        
-    # Convert to numpy array
-    matrix = X.values
-    
-    # Calculate rank
+    matrix = predictors_df.values
     rank = np.linalg.matrix_rank(matrix)
-    expected_rank = matrix.shape[1]
+    is_perfectly_collinear = rank < predictors_df.shape[1]
     
-    if rank < expected_rank:
-        # Linear dependence detected - identify pairs
-        # Simple approach: check pairwise correlation of 1.0 or -1.0
-        collinear_pairs = []
-        for i in range(len(valid_predictors)):
-            for j in range(i + 1, len(valid_predictors)):
-                col_i = valid_predictors[i]
-                col_j = valid_predictors[j]
-                corr = data[col_i].corr(data[col_j])
-                if abs(corr) == 1.0:
-                    collinear_pairs.append([col_i, col_j])
-        return collinear_pairs
-        
-    return []
+    return {
+        "is_perfectly_collinear": is_perfectly_collinear,
+        "rank": int(rank),
+        "num_columns": predictors_df.shape[1]
+    }
 
-def run_sensitivity_analysis(correlation_results: Dict[str, Any], thresholds: List[float] = [0.01, 0.05, 0.10]) -> Dict[str, Any]:
+def calculate_vif(
+    predictors_df: pd.DataFrame,
+    collinearity_map_path: str = "data/metadata/static_collinearity_map.json"
+) -> Dict[str, Any]:
     """
-    Run sensitivity analysis by re-evaluating significance at different thresholds.
+    Calculate Variance Inflation Factor (VIF) for all predictors.
+    Excludes predictors flagged as 'Perfect Multicollinearity' in the static collinearity map.
     
     Args:
-        correlation_results: Dictionary containing correlation results with p-values.
+        predictors_df: DataFrame containing predictor variables.
+        collinearity_map_path: Path to the JSON file containing flagged collinear pairs.
+        
+    Returns:
+        Dictionary containing VIF values for each predictor and a list of high-VIF flags.
+    """
+    # Load the static collinearity map to exclude flagged variables
+    excluded_vars = set()
+    if os.path.exists(collinearity_map_path):
+        try:
+            with open(collinearity_map_path, 'r') as f:
+                collinearity_data = json.load(f)
+            
+            # The map structure is expected to be: {"flagged_pairs": [[var1, var2], ...], "excluded_vars": [...]}
+            # Or simply a list of flagged variables if the structure varies.
+            # We handle the common case where 'excluded_vars' is explicitly listed.
+            if "excluded_vars" in collinearity_data:
+                excluded_vars = set(collinearity_data["excluded_vars"])
+            elif "flagged_pairs" in collinearity_data:
+                # Flatten pairs into a set of variables
+                for pair in collinearity_data["flagged_pairs"]:
+                    excluded_vars.update(pair)
+        except (json.JSONDecodeError, KeyError) as e:
+            print(f"Warning: Could not load collinearity map at {collinearity_map_path}: {e}")
+    else:
+        print(f"Warning: Collinearity map not found at {collinearity_map_path}. Proceeding with all variables.")
+
+    # Filter predictors
+    available_cols = [col for col in predictors_df.columns if col not in excluded_vars]
+    if not available_cols:
+        return {
+            "vif_values": {},
+            "high_vif_flags": [],
+            "excluded_count": len(excluded_vars),
+            "message": "All predictors were excluded due to perfect multicollinearity."
+        }
+
+    sub_df = predictors_df[available_cols]
+    
+    # Check for constant columns (VIF is undefined for constant columns)
+    constant_cols = [col for col in sub_df.columns if sub_df[col].nunique() == 1]
+    if constant_cols:
+        sub_df = sub_df.drop(columns=constant_cols)
+        print(f"Warning: Dropped constant columns for VIF calculation: {constant_cols}")
+
+    if sub_df.shape[1] == 0:
+        return {
+            "vif_values": {},
+            "high_vif_flags": [],
+            "excluded_count": len(excluded_vars) + len(constant_cols),
+            "message": "No valid predictors remaining after exclusion and constant check."
+        }
+
+    vif_results = {}
+    high_vif_flags = []
+    threshold = 5.0
+
+    # Calculate VIF for each column
+    # VIF requires an intercept term in the regression model.
+    # statsmodels VIF function handles this by adding a constant column if not present,
+    # but we must ensure the matrix is full rank.
+    try:
+        # Add constant for intercept
+        X = sub_df.copy()
+        if not np.all(np.any(X != 0, axis=0)): # Check if all cols are zero
+             X = X.drop(columns=[c for c in X.columns if (X[c] == 0).all()])
+        
+        if X.shape[1] == 0:
+             return {"vif_values": {}, "high_vif_flags": [], "message": "No variance in data."}
+
+        # VIF calculation
+        # We iterate to avoid potential rank issues in the full matrix if some cols are highly correlated
+        # but not perfectly.
+        for i, col in enumerate(X.columns):
+            # Create a matrix with the current column as the dependent variable
+            # and all other columns as independent variables.
+            y = X[col]
+            X_other = X.drop(columns=[col])
+            
+            if X_other.shape[1] == 0:
+                vif_results[col] = 1.0
+                continue
+            
+            # Check rank of X_other to avoid singular matrix errors
+            if np.linalg.matrix_rank(X_other.values) < X_other.shape[1]:
+                vif_results[col] = float('inf')
+                high_vif_flags.append({"variable": col, "vif": float('inf'), "reason": "Singular matrix in auxiliary regression"})
+                continue
+
+            # Fit OLS to get VIF
+            # VIF = 1 / (1 - R^2)
+            # We can use the variance_inflation_factor function from statsmodels
+            # It expects the full design matrix including the constant.
+            X_with_const = sm.add_constant(X_other)
+            vif_val = variance_inflation_factor(X_with_const.values, 1) # 1 is the index of the first non-constant col
+            
+            # Actually, variance_inflation_factor expects the full matrix of predictors (including the one being tested)
+            # and the index of the column to test.
+            # Let's use the standard approach:
+            X_full = sm.add_constant(X)
+            vif_val = variance_inflation_factor(X_full.values, i + 1) # +1 because of constant column at index 0
+            
+            vif_results[col] = float(vif_val)
+            
+            if vif_val > threshold:
+                high_vif_flags.append({
+                    "variable": col,
+                    "vif": float(vif_val),
+                    "threshold": threshold,
+                    "status": "HIGH"
+                })
+    except Exception as e:
+        # Fallback or error handling if statsmodels fails
+        print(f"Error calculating VIF: {e}")
+        return {
+            "vif_values": {},
+            "high_vif_flags": [],
+            "error": str(e)
+        }
+
+    return {
+        "vif_values": vif_results,
+        "high_vif_flags": high_vif_flags,
+        "excluded_count": len(excluded_vars),
+        "threshold": threshold,
+        "total_predictors_processed": len(available_cols)
+    }
+
+def run_sensitivity_analysis(
+    correlation_results_path: str,
+    thresholds: List[float] = [0.01, 0.05, 0.10]
+) -> Dict[str, Any]:
+    """
+    Perform sensitivity analysis by re-evaluating significance at different p-value thresholds.
+    
+    Args:
+        correlation_results_path: Path to the correlation matrix JSON.
         thresholds: List of p-value thresholds to test.
         
     Returns:
-        Dictionary with sensitivity analysis results.
+        Dictionary with stability status and percentage changes.
     """
-    base_threshold = 0.05
-    base_significant = 0
-    results = {}
+    if not os.path.exists(correlation_results_path):
+        raise FileNotFoundError(f"Correlation results not found at {correlation_results_path}")
     
-    # Extract p-values and significance
-    pairs = correlation_results.get('pairs', [])
-    p_values = correlation_results.get('p_values', [])
+    with open(correlation_results_path, 'r') as f:
+        data = json.load(f)
     
-    if not pairs or not p_values:
-        return {"status": "NO_DATA", "results": {}}
-        
-    # Count base significant findings
-    for p in p_values:
-        if p <= base_threshold:
-            base_significant += 1
-            
-    total_tests = len(p_values)
+    # Extract p-values and correlations
+    # Assuming structure: {"correlations": [{"variable1": ..., "variable2": ..., "p_value": ..., "correlation": ...}, ...]}
+    # Or a matrix format. We assume a flat list of results for simplicity.
+    results_list = data.get("correlations", [])
     
-    for threshold in thresholds:
-        significant_count = sum(1 for p in p_values if p <= threshold)
-        if base_significant == 0:
-            pct_change = 0.0 if significant_count == 0 else 100.0
-        else:
-            pct_change = ((significant_count - base_significant) / base_significant) * 100
-            
-        results[f"p_{threshold}"] = {
-            "significant_count": significant_count,
-            "percentage_change": pct_change
-        }
-        
-    # Determine stability
-    max_change = max(abs(r["percentage_change"]) for r in results.values()) if results else 0
-    stability_status = "STABLE" if max_change < 10 else "UNSTABLE"
-    
-    return {
-        "base_threshold": base_threshold,
-        "base_significant": base_significant,
-        "total_tests": total_tests,
-        "results": results,
-        "stability_status": stability_status
-    }
-
-def calculate_power(observed_n: int, target_r: float = 0.3, target_power: float = 0.80, alpha: float = 0.05) -> Dict[str, Any]:
-    """
-    Calculate power analysis metrics for correlation studies.
-    
-    This function calculates the required sample size to detect a correlation
-    of magnitude `target_r` with `target_power` at significance level `alpha`,
-    and compares it to the `observed_n` sample size.
-    
-    Args:
-        observed_n: The actual sample size used in the study.
-        target_r: The target correlation coefficient to detect.
-        target_power: The desired statistical power (default 0.80).
-        alpha: Significance level (default 0.05).
-        
-    Returns:
-        Dictionary containing power analysis results.
-    """
-    # Calculate required sample size for correlation test
-    # Using Fisher's z-transformation approximation
-    # r = correlation coefficient
-    # z = 0.5 * ln((1+r)/(1-r))
-    # SE = 1 / sqrt(n-3)
-    # For power analysis, we use the approximation:
-    # n = ((z_alpha + z_beta) / (0.5 * ln((1+r)/(1-r))))^2 + 3
-    
-    if target_r == 0:
+    if not results_list:
         return {
-            "observed_n": observed_n,
-            "required_n": float('inf'),
-            "observed_power": 0.0,
-            "underpowered": True,
-            "message": "Cannot calculate power for zero correlation."
+            "stability_status": "UNKNOWN",
+            "thresholds_tested": thresholds,
+            "message": "No correlation results found."
         }
+    
+    base_threshold = 0.05
+    base_significant_count = sum(1 for r in results_list if r.get("p_value", 1.0) <= base_threshold)
+    
+    changes = {}
+    for t in thresholds:
+        count = sum(1 for r in results_list if r.get("p_value", 1.0) <= t)
+        if base_significant_count == 0:
+            pct_change = 0.0 if count == 0 else 100.0 # Undefined if base is 0, but we handle it
+        else:
+            pct_change = ((count - base_significant_count) / base_significant_count) * 100
         
-    # Z-scores for alpha and power
-    z_alpha = stats.norm.ppf(1 - alpha / 2)
-    z_beta = stats.norm.ppf(target_power)
+        changes[str(t)] = {
+            "significant_count": count,
+            "percentage_change_from_base": pct_change
+        }
     
-    # Fisher transformation
-    z_r = 0.5 * np.log((1 + target_r) / (1 - target_r))
+    # Determine stability
+    # Stable if percentage change is < 10% for all thresholds
+    max_change = max(abs(c["percentage_change_from_base"]) for c in changes.values())
+    stability_status = "STABLE" if max_change < 10.0 else "UNSTABLE"
     
-    # Calculate required n
-    # n = ((z_alpha + z_beta) / z_r)^2 + 3
-    required_n = int(((z_alpha + z_beta) / z_r) ** 2 + 3)
+    return {
+        "stability_status": stability_status,
+        "thresholds_tested": thresholds,
+        "base_threshold": base_threshold,
+        "base_significant_count": base_significant_count,
+        "changes": changes
+    }
+
+def calculate_power(
+    correlation_results_path: str,
+    target_r: float = 0.3,
+    target_power: float = 0.80,
+    alpha: float = 0.05
+) -> Dict[str, Any]:
+    """
+    Calculate the minimum sample size required to detect a correlation of at least `target_r`
+    with `target_power` at significance level `alpha`.
     
-    # Calculate observed power given observed_n
-    # SE_obs = 1 / sqrt(observed_n - 3)
-    # z_obs = z_r / SE_obs
-    # power = Phi(z_obs - z_alpha)
-    if observed_n <= 3:
-        observed_power = 0.0
+    Args:
+        correlation_results_path: Path to correlation results (to determine actual N).
+        target_r: Target correlation coefficient.
+        target_power: Desired statistical power.
+        alpha: Significance level.
+        
+    Returns:
+        Dictionary with calculated N, underpowered flag, and data source type.
+    """
+    # Determine actual N from the data
+    if not os.path.exists(correlation_results_path):
+        raise FileNotFoundError(f"Correlation results not found at {correlation_results_path}")
+    
+    with open(correlation_results_path, 'r') as f:
+        data = json.load(f)
+    
+    # We need to find the sample size used.
+    # If the file contains metadata about the dataset, use that.
+    # Otherwise, we estimate from the number of observations if available.
+    # For this task, we assume the correlation results were generated from a dataset
+    # and we need to check if that N is sufficient.
+    
+    # Since the correlation results file might not contain N directly,
+    # we might need to read the processed data or metadata.
+    # However, for the purpose of this task, we will calculate the required N
+    # and compare it to a known N if available, or just report the required N.
+    
+    # Let's assume we have access to the processed data path or metadata.
+    # For now, we will calculate the required N and set a flag if we can't determine the actual N.
+    
+    # Calculate required N using the formula for correlation power analysis
+    # N = (Z_alpha/2 + Z_beta)^2 / (0.5 * ln((1+r)/(1-r)))^2 + 3
+    # Or use scipy's power analysis if available.
+    
+    # Using the approximation:
+    # r = correlation
+    # t = r * sqrt((n-2)/(1-r^2))
+    # We need to solve for n given power.
+    
+    # A simpler approach using scipy.stats
+    from scipy.stats import t
+    
+    # Critical t-value for two-tailed test
+    t_crit = t.ppf(1 - alpha/2, df=1) # df will be n-2, so we need to iterate or approximate
+    
+    # We can use the `statsmodels.stats.power` module for a more accurate calculation
+    try:
+        from statsmodels.stats.power import tt_solve_power
+        # tt_solve_power solves for nobs in a t-test.
+        # For correlation, we can use the Fisher transformation approximation or
+        # use the fact that testing r=0 is equivalent to a t-test on the transformed variable.
+        # However, a direct function for correlation power is not in tt_solve_power.
+        # We use the approximation:
+        # effect_size = r
+        # But tt_solve_power expects Cohen's d.
+        # Let's use the formula directly:
+        # n = ( (Z_alpha + Z_beta) / (0.5 * ln((1+r)/(1-r))) )^2 + 3
+        
+        Z_alpha = stats.norm.ppf(1 - alpha/2)
+        Z_beta = stats.norm.ppf(target_power)
+        
+        # Fisher Z transformation of r
+        z_r = 0.5 * np.log((1 + target_r) / (1 - target_r))
+        
+        # Required sample size
+        n_required = ((Z_alpha + Z_beta) / z_r)**2 + 3
+        n_required = int(np.ceil(n_required))
+    except Exception as e:
+        # Fallback to a rough estimate
+        n_required = int(50 / (target_r**2)) # Very rough heuristic
+    
+    # Determine data source type
+    # Check if the path contains "synthetic" or "real"
+    data_source_type = "synthetic" if "synthetic" in correlation_results_path.lower() else "real"
+    
+    # We need the actual N to determine if it's underpowered.
+    # Since we don't have the actual N from the correlation file directly,
+    # we will assume the pipeline has recorded the sample size in the correlation results.
+    # If not, we will report the required N and note that the actual N is unknown.
+    
+    actual_n = data.get("sample_size", None)
+    
+    underpowered = False
+    if actual_n is not None:
+        underpowered = actual_n < n_required
     else:
-        se_obs = 1.0 / np.sqrt(observed_n - 3)
-        z_obs = z_r / se_obs
-        observed_power = stats.norm.cdf(z_obs - z_alpha)
-        
-    underpowered = observed_n < required_n
+        underpowered = "UNKNOWN" # Cannot determine without actual N
     
     return {
-        "observed_n": observed_n,
-        "required_n": required_n,
-        "observed_power": float(observed_power),
-        "target_power": target_power,
-        "target_r": target_r,
-        "alpha": alpha,
+        "required_sample_size": n_required,
+        "actual_sample_size": actual_n,
         "underpowered": underpowered,
-        "message": "Underpowered" if underpowered else "Adequately powered"
-    }
-
-def run_collinearity_diagnostics(data: pd.DataFrame, predictors: List[str], collinearity_map_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Run collinearity diagnostics including VIF and perfect multicollinearity checks.
-    
-    Args:
-        data: DataFrame with predictor variables.
-        predictors: List of predictor column names.
-        collinearity_map_path: Path to existing collinearity map JSON (optional).
-        
-    Returns:
-        Dictionary with collinearity diagnostics results.
-    """
-    # Detect perfect multicollinearity
-    perfect_collinear_pairs = detect_perfect_multicollinearity(data, predictors)
-    
-    # Filter out collinear pairs for VIF calculation
-    cols_to_exclude = set()
-    for pair in perfect_collinear_pairs:
-        cols_to_exclude.update(pair)
-        
-    valid_predictors = [p for p in predictors if p not in cols_to_exclude and p in data.columns]
-    
-    # Calculate VIF
-    vif_results = calculate_vif(data, valid_predictors)
-    
-    # Flag high VIF
-    high_vif = {k: v for k, v in vif_results.items() if v > 5}
-    
-    return {
-        "perfect_multicollinearity_detected": len(perfect_collinear_pairs) > 0,
-        "collinear_pairs": perfect_collinear_pairs,
-        "excluded_columns": list(cols_to_exclude),
-        "vif_values": vif_results,
-        "high_vif_flags": high_vif,
-        "max_vif": max(vif_results.values()) if vif_results else 0
-    }
-
-def generate_diagnostics_report(data: pd.DataFrame, predictors: List[str], 
-                                correlation_results: Dict[str, Any],
-                                collinearity_map_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Generate a comprehensive diagnostics report.
-    
-    Args:
-        data: DataFrame with processed data.
-        predictors: List of predictor variable names.
-        correlation_results: Results from correlation analysis.
-        collinearity_map_path: Path to static collinearity map (optional).
-        
-    Returns:
-        Dictionary containing the full diagnostics report.
-    """
-    # Run collinearity diagnostics
-    collinearity_report = run_collinearity_diagnostics(data, predictors, collinearity_map_path)
-    
-    # Run sensitivity analysis
-    sensitivity_report = run_sensitivity_analysis(correlation_results)
-    
-    # Calculate power analysis
-    observed_n = len(data)
-    power_report = calculate_power(observed_n)
-    
-    return {
-        "collinearity": collinearity_report,
-        "sensitivity": sensitivity_report,
-        "power": power_report,
-        "sample_size": observed_n,
-        "n_predictors": len(predictors)
+        "target_correlation": target_r,
+        "target_power": target_power,
+        "alpha": alpha,
+        "data_source_type": data_source_type
     }
 
 def main():
-    """Main entry point for diagnostics module."""
+    """
+    Main function to run diagnostics.
+    This is a placeholder for CLI execution.
+    """
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Run diagnostics on correlation analysis results.")
-    parser.add_argument("--data", type=str, required=True, help="Path to processed data parquet file")
-    parser.add_argument("--correlation-results", type=str, required=True, help="Path to correlation results JSON")
-    parser.add_argument("--output", type=str, required=True, help="Path to output diagnostics report JSON")
-    parser.add_argument("--collinearity-map", type=str, default=None, help="Path to static collinearity map JSON")
-    
+    parser = argparse.ArgumentParser(description="Run diagnostics for Gut Microbiome - Sleep Analysis")
+    parser.add_argument("--mode", type=str, default="all", help="Mode to run: vif, sensitivity, power, all")
+    parser.add_argument("--data", type=str, help="Path to processed data for VIF")
+    parser.add_argument("--collinearity-map", type=str, default="data/metadata/static_collinearity_map.json", help="Path to collinearity map")
+    parser.add_argument("--correlation-results", type=str, help="Path to correlation results for sensitivity/power")
     args = parser.parse_args()
     
-    # Load data
-    data = pd.read_parquet(args.data)
+    if args.mode in ["vif", "all"]:
+        if args.data:
+            df = pd.read_csv(args.data)
+            # Assume predictors are all columns except 'id' or 'outcome'
+            predictors = df.select_dtypes(include=[np.number]).columns.tolist()
+            if 'id' in predictors: predictors.remove('id')
+            # Filter to only predictor columns (taxa)
+            # This is a simplification; in reality, we need to know which are predictors.
+            # For now, we assume all numeric columns are predictors.
+            result = calculate_vif(df[predictors], args.collinearity_map)
+            print(json.dumps(result, indent=2))
+            
+            # Save result
+            with open("data/results/vif_report.json", 'w') as f:
+                json.dump(result, f, indent=2)
+                print("VIF report saved to data/results/vif_report.json")
     
-    # Load correlation results
-    with open(args.correlation_results, 'r') as f:
-        correlation_results = json.load(f)
-        
-    # Get predictors from data (exclude non-predictor columns if any)
-    # Assuming predictors are numeric columns not in standard metadata
-    predictors = [col for col in data.select_dtypes(include=[np.number]).columns]
+    if args.mode in ["sensitivity", "all"]:
+        if args.correlation_results:
+            result = run_sensitivity_analysis(args.correlation_results)
+            print(json.dumps(result, indent=2))
     
-    # Generate report
-    report = generate_diagnostics_report(data, predictors, correlation_results, args.collinearity_map)
-    
-    # Save report
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, 'w') as f:
-        json.dump(report, f, indent=2)
-        
-    print(f"Diagnostics report saved to {args.output}")
-    print(f"Power Analysis: N={report['power']['observed_n']}, Required N={report['power']['required_n']}, Status={report['power']['message']}")
+    if args.mode in ["power", "all"]:
+        if args.correlation_results:
+            result = calculate_power(args.correlation_results)
+            print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,2 @@
-"""
-Test suite for llmXive Research Pipeline
-"""
+# Test package initialization
+pass

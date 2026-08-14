@@ -1,84 +1,145 @@
-# Quickstart Guide: Gut Microbiome & Sleep Architecture Correlation Pipeline
+# Quickstart Guide: Gut Microbiome and Sleep Architecture Analysis
 
-## ⚠️ CRITICAL: REAL-DATA FIRST WORKFLOW
-
-**This pipeline is strictly "Real-Data Only".**
-- **NO** synthetic data generation is allowed for production runs.
-- **NO** silent fallbacks to mock data will be tolerated.
-- **The pipeline will FAIL immediately** if a verified real dataset is not provided.
-- Fabricating results or using placeholder data is a violation of the project constitution and will cause the build to fail.
+This guide walks you through running the complete analysis pipeline for investigating the correlation between gut microbiome composition and sleep architecture.
 
 ## Prerequisites
 
-1. **Python 3.11+**
-2. **Verified Real Dataset**: You must obtain a real dataset (e.g., from NCBI, Zenodo) that contains the required variables.
- - See `data/config/required_variables.yaml` for the exact list of required predictors (taxa) and outcomes (sleep metrics).
- - The dataset file must be placed at `data/raw/real_data.csv` (or the path specified in your config).
-3. **Dependencies**:
+- Python 3.8+
+- Virtual environment (recommended)
+- Required packages (install via `pip install -r requirements.txt`)
+
+## Setup
+
+1. Create and activate a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Step 1: Prepare Your Data
-
-You **must** provide a real CSV file containing the required variables.
-1. Download a verified dataset (e.g., from a peer-reviewed study with a DOI).
-2. Ensure the CSV columns match the schema in `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml`.
-3. Place the file in the project root:
+3. Verify directory structure exists:
  ```bash
- # Ensure the directory exists
- mkdir -p data/raw
- # Move your verified file here
- cp /path/to/your/verified_dataset.csv data/raw/real_data.csv
+ ls -la code/ data/ tests/
  ```
 
-**If `data/raw/real_data.csv` is missing, the pipeline will abort with:**
-> `RealDataFetchError: Real data not found. Aborting pipeline. Please provide a verified real dataset.`
+## Running the Pipeline
 
-## Step 2: Run the Pipeline
+The pipeline can run in two modes:
+- **Real Data Mode**: Requires a verified real dataset (default behavior)
+- **Validation Mode**: Uses synthetic data for pipeline validation (development only)
+
+### Step 1: Generate Synthetic Data (Validation Mode Only)
+
+If you are running the "Pipeline Validation Study" (no real data available), first generate synthetic data:
+
+```bash
+python code/synthetic_data.py --output data/raw/synthetic_data.csv
+```
+
+This creates a deterministic mock dataset with known ground truths at `data/raw/synthetic_data.csv`.
+
+**Note**: In production, skip this step and ensure `data/raw/real_data.csv` exists.
+
+### Step 2: Run the Main Pipeline
 
 Execute the full analysis pipeline:
+
+```bash
+python code/main.py --input data/raw/synthetic_data.csv --output data/results/
+```
+
+Or for real data:
 
 ```bash
 python code/main.py --input data/raw/real_data.csv --output data/results/
 ```
 
-This command will:
-1. **Validate** the presence of all required variables.
-2. **Verify** the citation/DOI of the dataset (if applicable).
-3. **Process** the data (outlier removal, normalization).
-4. **Run** correlation analysis (ZINB/Spearman/Pearson selection).
-5. **Generate** diagnostics (VIF, Power, Sensitivity).
-6. **Output** the final report and artifacts.
+The pipeline will:
+1. Validate required variables
+2. Detect and filter outliers
+3. Select appropriate correlation method (ZINB/Spearman/Pearson)
+4. Compute correlations with FDR correction
+5. Run sensitivity and power analysis
+6. Generate final report
 
-### Expected Outputs
-After a successful run, the following files will be generated in `data/results/` and `data/processed/`:
-- `data/results/correlation_matrix.json`
-- `data/results/final_report.md`
-- `data/results/power_analysis.json`
-- `data/results/vif_report.json`
-- `data/processed/filtered_data.parquet`
-- `data/results/timing_evidence.json`
+### Step 3: Verify Outputs
+
+Check that all expected artifacts were generated:
+
+```bash
+ls -la data/results/
+```
+
+Expected files:
+- `variable_load_metrics.json`
+- `outlier_report.json`
+- `filtered_data.parquet`
+- `method_selection_log.json`
+- `correlation_matrix.json`
+- `sensitivity_analysis.json`
+- `power_analysis.json`
+- `vif_report.json`
+- `final_report.md`
+- `timing_evidence.json`
+
+## Running Tests
+
+Execute unit and integration tests:
+
+```bash
+pytest tests/ -v
+```
+
+Run specific test suites:
+```bash
+pytest tests/unit/ -v # Unit tests
+pytest tests/contract/ -v # Contract tests
+pytest tests/integration/ -v # Integration tests
+```
+
+## Pipeline Modes
+
+### Real Data Mode (Production)
+- Requires `data/raw/real_data.csv` with all variables from `data/config/required_variables.yaml`
+- Pipeline will **FAIL** if real data is missing
+- Citation verification is enforced
+
+### Validation Mode (Development)
+- Uses synthetic data generated by `code/synthetic_data.py`
+- Citation verification is skipped
+- Set validation mode by ensuring `data/metadata/validation_mode_flag.json` exists with `{"mode": "synthetic"}`
 
 ## Troubleshooting
 
-### Error: "Real data not found"
-Ensure `data/raw/real_data.csv` exists and is not a placeholder. The pipeline does not support synthetic generation for production analysis.
+### Missing Variables Error
+If you see "No required variables loaded", check:
+1. `data/config/required_variables.yaml` contains the correct variable names
+2. Your input CSV has columns matching those variable names
 
-### Error: "Missing required variables"
-Check `data/config/required_variables.yaml` to ensure your dataset contains all required columns.
+### Real Data Not Found
+If pipeline halts with "Real data not found":
+1. Ensure `data/raw/real_data.csv` exists, OR
+2. Run in validation mode by generating synthetic data first
 
-### Error: "Citation Verification Failed"
-Ensure the dataset source includes a valid DOI or citation ID that can be cross-referenced.
+### Circular Import Errors
+If you encounter import errors, ensure:
+1. You are running from the project root
+2. All `__init__.py` files are present in `code/` and `tests/`
 
-## Development Mode (Logic Validation Only)
+## Performance Requirements
 
-*Note: Synthetic data is ONLY for validating the logic of the pipeline code, NOT for generating research results.*
-To test the pipeline logic without real data (for development/debugging only):
-```bash
-# This generates synthetic data for code validation ONLY
-python code/generate_synthetic_data.py --output data/raw/synthetic_data.csv
-# Run pipeline on synthetic data (will skip citation checks)
-python code/main.py --input data/raw/synthetic_data.csv --output data/results/
-```
-**WARNING**: Results from synthetic runs are not scientific findings.
+- Pipeline must complete within 6 hours on CPU-only CI
+- Memory usage should not exceed 14GB RAM
+- Timing evidence is logged to `data/results/timing_evidence.json`
+
+## Next Steps
+
+After successful execution:
+1. Review `data/results/final_report.md` for results
+2. Check `data/results/sensitivity_analysis.json` for result stability
+3. Examine `data/results/power_analysis.json` for sample size adequacy
+4. Verify all checksums in `state/projects/PROJ-340-*.yaml`

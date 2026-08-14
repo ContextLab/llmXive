@@ -1,3 +1,3 @@
 """
-Configuration storage
+Configuration files storage.
 """

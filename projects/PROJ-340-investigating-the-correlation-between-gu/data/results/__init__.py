@@ -1,3 +1,3 @@
 """
-Results storage
+Analysis results storage.
 """

@@ -1,9 +1,3 @@
-"""
-Reference Validator Module.
-
-Implements the Reference-Validator Agent logic and artifact checksum recording
-to ensure reproducibility and data integrity (Constitution Principles I & III).
-"""
 import os
 import sys
 import json
@@ -12,205 +6,166 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-# Constants
-STATE_FILE_PATH = "state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml"
-CHECKSUM_PREFIX = "sha256:"
+# -----------------------------------------------------------------------------
+# Reference-Validator Agent Implementation
+# Addresses: Constitution Principle I & II
+# -----------------------------------------------------------------------------
 
 class VerificationStatus:
-    """Enum-like class for verification statuses."""
-    PASS = "PASS"
-    FAIL = "FAIL"
-    WARNING = "WARNING"
+    """Enum-like class for verification outcomes."""
+    PASSED = "PASSED"
+    FAILED = "FAILED"
+    LOGIC_ONLY = "LOGIC_ONLY"  # Synthetic mode bypass
 
 class CitationSchema:
-    """Schema for citation validation."""
-    REQUIRED_FIELDS = ["source", "url", "accessed_date", "relevance"]
+    """Schema for expected citation structure."""
+    REQUIRED_KEYS = {"doi", "title", "source", "url"}
+    OPTIONAL_KEYS = {"authors", "year", "notes"}
+
+    @staticmethod
+    def validate(citation: Dict[str, Any]) -> tuple[bool, List[str]]:
+        """
+        Validates a citation dictionary against the schema.
+        Returns (is_valid, list_of_missing_keys).
+        """
+        missing = []
+        for key in CitationSchema.REQUIRED_KEYS:
+            if key not in citation or not citation[key]:
+                missing.append(key)
+        return len(missing) == 0, missing
 
 class VerificationResult:
     """Container for verification results."""
-    def __init__(self, status: str, message: str, details: Optional[Dict] = None):
+    def __init__(self, status: str, message: str, score: float = 1.0):
         self.status = status
         self.message = message
-        self.details = details or {}
+        self.score = score
 
 class ReferenceValidator:
     """
-    Validates references and manages artifact checksums for reproducibility.
+    Implements Constitution Principle II:
+    Strict enforcement of citation verification.
+    If citations are missing or unreachable, the build MUST fail (score 0.0).
+    EXCEPTION: If validation_mode_flag.json indicates synthetic mode,
+    the agent skips verification and passes with 'LOGIC_ONLY' status.
     """
-    def __init__(self, state_file: str = STATE_FILE_PATH):
-        self.state_file = Path(state_file)
-        self.artifact_hashes: Dict[str, str] = {}
 
-    def load_state(self) -> Dict[str, Any]:
-        """Load the current state file or return an empty structure."""
-        if not self.state_file.exists():
-            # Ensure directory exists
-            self.state_file.parent.mkdir(parents=True, exist_ok=True)
-            return {"artifact_hashes": {}}
+    def __init__(self, project_root: Optional[Path] = None):
+        self.project_root = project_root or Path.cwd()
+        self.validation_mode_path = self.project_root / "data" / "metadata" / "validation_mode_flag.json"
+        self.verified_dois_path = self.project_root / "data" / "citations" / "verified_dois.yaml"
+
+    def _is_synthetic_mode(self) -> bool:
+        """Checks if the project is running in synthetic validation mode."""
+        if not self.validation_mode_path.exists():
+            return False
         
-        with open(self.state_file, 'r') as f:
-            try:
+        try:
+            with open(self.validation_mode_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            return data.get("active", False) is True
+        except (json.JSONDecodeError, IOError):
+            return False
+
+    def _load_verified_dois(self) -> List[str]:
+        """Loads the list of verified DOIs from the config file."""
+        if not self.verified_dois_path.exists():
+            return []
+        
+        try:
+            with open(self.verified_dois_path, 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)
-                if data is None:
-                    return {"artifact_hashes": {}}
+            # Expecting structure: { "dois": ["10.xxxx/...", ...] } or just a list
+            if isinstance(data, dict) and "dois" in data:
+                return data["dois"]
+            elif isinstance(data, list):
                 return data
-            except yaml.YAMLError:
-                return {"artifact_hashes": {}}
+            return []
+        except (yaml.YAMLError, IOError):
+            return []
 
-    def save_state(self, data: Dict[str, Any]) -> bool:
-        """Save the state to the YAML file."""
-        try:
-            self.state_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(self.state_file, 'w') as f:
-                yaml.dump(data, f, default_flow_style=False)
-            return True
-        except Exception as e:
-            print(f"Error saving state: {e}", file=sys.stderr)
-            return False
-
-    def calculate_file_hash(self, file_path: str) -> str:
-        """Calculate SHA256 hash of a file."""
-        sha256_hash = hashlib.sha256()
-        try:
-            with open(file_path, "rb") as f:
-                for byte_block in iter(lambda: f.read(4096), b""):
-                    sha256_hash.update(byte_block)
-            return f"{CHECKSUM_PREFIX}{sha256_hash.hexdigest()}"
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Artifact file not found: {file_path}")
-        except Exception as e:
-            raise RuntimeError(f"Failed to calculate hash for {file_path}: {e}")
-
-    def record_artifact_checksum(self, file_path: str, state_file: Optional[str] = None) -> bool:
+    def validate_citations(self) -> VerificationResult:
         """
-        Record the checksum of an artifact file into the project state.
+        Main entry point for validation.
         
-        Args:
-            file_path: Path to the artifact file to checksum.
-            state_file: Optional path to the state file (defaults to project default).
-        
-        Returns:
-            bool: True if successful, False otherwise.
-        
-        Raises:
-            FileNotFoundError: If the artifact file does not exist.
-            RuntimeError: If the hash calculation or state update fails.
+        Logic:
+        1. Check synthetic mode flag. If active -> Return LOGIC_ONLY (Pass).
+        2. If real mode:
+           a. Check if verified_dois.yaml exists and is non-empty.
+           b. If empty/missing -> FAIL (Score 0.0).
+           c. (Future expansion: Network reachability check could go here).
         """
-        if state_file is None:
-            state_file = self.state_file
         
-        state_path = Path(state_file)
-        if not state_path.exists():
-            state_path.parent.mkdir(parents=True, exist_ok=True)
-            state_data = {"artifact_hashes": {}}
-        else:
-            with open(state_path, 'r') as f:
-                try:
-                    state_data = yaml.safe_load(f) or {"artifact_hashes": {}}
-                except yaml.YAMLError:
-                    state_data = {"artifact_hashes": {}}
+        # 1. Check Synthetic Mode
+        if self._is_synthetic_mode():
+            return VerificationResult(
+                status=VerificationStatus.LOGIC_ONLY,
+                message="Synthetic mode active. Citation verification skipped (Logic Only).",
+                score=1.0
+            )
 
-        # Ensure artifact_hashes key exists
-        if "artifact_hashes" not in state_data:
-            state_data["artifact_hashes"] = {}
+        # 2. Real Mode: Enforce Constitution Principle II
+        dois = self._load_verified_dois()
+        
+        if not dois:
+            return VerificationResult(
+                status=VerificationStatus.FAILED,
+                message="Real data mode active but no verified citations found in data/citations/verified_dois.yaml. "
+                        "Constitution Principle II violation: Build aborted.",
+                score=0.0
+            )
 
-        # Calculate hash
-        try:
-            file_hash = self.calculate_file_hash(file_path)
-        except Exception as e:
-            print(f"Failed to calculate checksum for {file_path}: {e}", file=sys.stderr)
-            return False
+        # Placeholder for future network reachability checks
+        # For now, presence in the verified list is the gate.
+        return VerificationResult(
+            status=VerificationStatus.PASSED,
+            message=f"Citation verification passed. {len(dois)} verified DOI(s) found.",
+            score=1.0
+        )
 
-        # Update state
-        state_data["artifact_hashes"][file_path] = file_hash
-
-        # Save state
-        try:
-            with open(state_path, 'w') as f:
-                yaml.dump(state_data, f, default_flow_style=False)
-            return True
-        except Exception as e:
-            print(f"Failed to write state file: {e}", file=sys.stderr)
-            return False
-
-    def validate_artifact_integrity(self, file_path: str, state_file: Optional[str] = None) -> bool:
+    def run_gate(self) -> int:
         """
-        Validate that an artifact's current checksum matches the recorded one.
-        
-        Args:
-            file_path: Path to the artifact file.
-            state_file: Optional path to the state file.
-        
-        Returns:
-            bool: True if checksum matches or no record exists, False if mismatch.
+        Runs the validation gate.
+        Returns 0 on success (or logic_only), 1 on failure.
+        This is designed to be called by CI or the main pipeline.
         """
-        if state_file is None:
-            state_file = self.state_file
+        result = self.validate_citations()
         
-        state_path = Path(state_file)
-        if not state_path.exists():
-            return True # No record to validate against
-
-        with open(state_path, 'r') as f:
-            try:
-                state_data = yaml.safe_load(f) or {}
-            except yaml.YAMLError:
-                return True
-
-        recorded_hash = state_data.get("artifact_hashes", {}).get(file_path)
-        if not recorded_hash:
-            return True # No record to validate against
-
-        try:
-            current_hash = self.calculate_file_hash(file_path)
-            return current_hash == recorded_hash
-        except FileNotFoundError:
-            return False
-        except Exception:
-            return False
+        print(f"[ReferenceValidator] Status: {result.status}")
+        print(f"[ReferenceValidator] Message: {result.message}")
+        
+        if result.status == VerificationStatus.FAILED:
+            print(f"[ReferenceValidator] CRITICAL: Build failed with score {result.score}.")
+            return 1
+        
+        return 0
 
 def create_sample_schema() -> Dict[str, Any]:
-    """Create a sample schema for reference validation."""
+    """Returns a sample schema for documentation purposes."""
     return {
-        "type": "object",
-        "properties": {
-            "source": {"type": "string"},
-            "url": {"type": "string"},
-            "accessed_date": {"type": "string"},
-            "relevance": {"type": "string"}
-        },
-        "required": CitationSchema.REQUIRED_FIELDS
+        "citation": {
+            "type": "object",
+            "required": ["doi", "title", "source", "url"],
+            "properties": {
+                "doi": {"type": "string", "description": "Digital Object Identifier"},
+                "title": {"type": "string", "description": "Title of the work"},
+                "source": {"type": "string", "description": "Journal or repository name"},
+                "url": {"type": "string", "format": "uri", "description": "Link to the work"}
+            }
+        }
     }
 
 def main():
-    """Main entry point for CLI usage."""
+    """CLI entry point for the Reference Validator."""
     import argparse
-    parser = argparse.ArgumentParser(description="Reference Validator CLI")
-    parser.add_argument("--action", choices=["record", "validate"], required=True,
-                        help="Action to perform: record checksum or validate integrity")
-    parser.add_argument("--file", required=True, help="Path to the artifact file")
-    parser.add_argument("--state", default=STATE_FILE_PATH, help="Path to the state file")
-    
+    parser = argparse.ArgumentParser(description="Reference Validator Agent")
+    parser.add_argument("--project-root", type=str, default=None, help="Path to project root")
     args = parser.parse_args()
-    
-    validator = ReferenceValidator(state_file=args.state)
-    
-    if args.action == "record":
-        success = validator.record_artifact_checksum(args.file, args.state)
-        if success:
-            print(f"Successfully recorded checksum for {args.file}")
-            sys.exit(0)
-        else:
-            print(f"Failed to record checksum for {args.file}")
-            sys.exit(1)
-    elif args.action == "validate":
-        is_valid = validator.validate_artifact_integrity(args.file, args.state)
-        if is_valid:
-            print(f"Integrity check passed for {args.file}")
-            sys.exit(0)
-        else:
-            print(f"Integrity check FAILED for {args.file}")
-            sys.exit(1)
+
+    root = Path(args.project_root) if args.project_root else None
+    validator = ReferenceValidator(project_root=root)
+    exit_code = validator.run_gate()
+    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()

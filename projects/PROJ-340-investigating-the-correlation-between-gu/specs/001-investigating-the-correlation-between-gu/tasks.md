@@ -54,23 +54,29 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes mode-switching logic to enable synthetic data validation.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes mode-switching logic, synthetic data generation, and variable population to enable the "Pipeline Validation Study".
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004c **IMPLEMENT `data/config/required_variables.yaml`**: Generate this file by manually defining the explicit list of required predictor and outcome variables. **Logic**: Since `spec.md` only provides examples, this task requires manual definition. **Output**: `data/config/required_variables.yaml` with schema: `required_predictors: [string], required_outcomes: [string]`. **Template List**: `required_predictors: ["Bacteroides", "Firmicutes", "Actinobacteria", "Proteobacteria", "Fusobacteria"]`, `required_outcomes: ["REM_duration", "SWS_duration", "Wake_after_sleep_onset", "Total_sleep_time"]`. **This is the Single Source of Truth for variable lists used in T012/T078.**
+- [X] T004c **IMPLEMENT `data/config/required_variables.yaml`**: Define the *schema* (types, constraints) of required predictor and outcome variables in `data/config/required_variables.yaml`. **Constraint**: Do NOT hardcode specific variable names (e.g., Bacteroides, Firmicutes). The file must define the *types* of variables required (e.g., "taxa names", "sleep duration metrics") and the *structure* of the list. Specific variable names must be derived from the research design or dataset schema, not hardcoded in this task. **Output**: `data/config/required_variables.yaml` with schema: `required_predictors: [string], required_outcomes: [string]`. **This is the Single Source of Truth for variable lists used in T012/T078.**
 - [X] T004a Define predictor schema (taxa) in `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml` **referencing `data/config/required_variables.yaml` for the explicit list of required predictor variables.** **DEPENDS ON T004c.**
 - [X] T004b Define outcome schema (sleep metrics) in `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml` **referencing `data/config/required_variables.yaml` for the explicit list of required outcome variables.** **DEPENDS ON T004c.**
+- [X] T004d **POPULATE REQUIRED VARIABLES**: Read the variable list from the synthetic data generator (T090) metadata and write the specific variable names (e.g., "taxon_A", "REM_duration") to `data/config/required_variables.yaml`. **Constraint**: This task MUST run AFTER T090 and BEFORE T012. **Output**: `data/config/required_variables.yaml` populated with concrete variable names. **Addresses FR-001 and resolves the semantic gap between schema definition and validation.**
 - [X] T005a Define output schema (CorrelationResult structure) in `specs/001-gut-microbiome-sleep-architecture/contracts/output.schema.yaml`
 - [X] T006 Implement data loading utilities in `code/ingest.py` (CSV/TSV reader, column validation)
-- [X] T006d **IMPLEMENT CHECKSUM SCHEMA AND RECORDING **(Logic Only): Implement `record_artifact_checksum(file_path, state_file)` in `code/reference_validator.py`. **Schema**: `artifact_hashes: { "<file_path>": "sha256:<hash>" }`. **Constraint**: This step MUST be invoked by T015 (Orchestration) as a blocking step before analysis begins. **IMPORTANT**: For this "Pipeline Validation Study" (synthetic data), this task operates in "Logic Only" mode: it records checksums for generated synthetic files but does NOT enforce a blocking gate for external citation verification (which has no input). **Addresses Constitution Principle I & III.**
+- [X] T006d_schema [P] **DEFINE CHECKSUM SCHEMA**: Define the checksum schema in `state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml` under `artifact_hashes`. **Schema**: `artifact_hashes: { "<file_path>": "sha256:<hash>" }`. **Addresses Constitution Principle I & III.**
+- [X] T006d_impl [P] **IMPLEMENT CHECKSUM RECORDING**: Implement `record_artifact_checksum(file_path, state_file)` in `code/reference_validator.py`. **Constraint**: This step MUST be invoked by T015 (Orchestration) as a blocking step before analysis begins. **IMPORTANT**: For this "Pipeline Validation Study" (synthetic data), this task operates in "Logic Only" mode: it records checksums for generated synthetic files but does NOT enforce a blocking gate for external citation verification (which has no input). **Addresses Constitution Principle I & III.**
+- [ ] T006d_init [P] **INITIALIZE CHECKSUM STATE**: Create `state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml` with an empty `artifact_hashes` map and record checksums for schema files (T004a/b) and the synthetic generator script (T090) once generated. **Constraint**: This task MUST run AFTER T004a/b and T090. **Addresses Constitution Principle I & III.**
 - [X] T007 Configure CI workflow in `.github/workflows/analysis.yml` to run on `ubuntu-latest` with CPU/GB RAM limits
 - [X] T008 Setup environment configuration management (`.env` template, `requirements.txt`)
 - [X] T009a [P] Define Reference-Validator Agent schema in `code/reference_validator.py`
-- [X] T009b [P] **IMPLEMENT REFERENCE-VALIDATOR AGENT **(Logic Only): Implement Reference-Validator Agent logic and integrate gate in CI (`.github/workflows/analysis.yml`). **Constraint**: For this "Pipeline Validation Study" (synthetic data), the gate MUST operate in "Logic Only" mode: it validates the *structure* of the pipeline and synthetic data generation logic, but it MUST NOT fail the build if no real-world citations are found (as per Plan's "Verified Accuracy" strategy). **Addresses Constitution Principle I & II.**
-- [X] T021c [P] Define configuration list of definitionally related taxa pairs in `data/config/definitionally_related_pairs.yaml`. **Format**: YAML list of lists `[[taxon_A, taxon_B],...]`. **Schema**: `pairs: [[string, string],...]`. **Addresses FR-006 by providing an optional seed list for the dynamic detection in T021f_new.**
-- [X] T021f_new [P] **IMPLEMENT DYNAMIC COLLINEARITY DETECTION**: Implement "Perfect Multicollinearity" detection algorithm in `code/diagnostics.py` using **matrix rank check** (e.g., `numpy.linalg.matrix_rank`) on the predictor matrix. **Constraint**: This task MUST dynamically detect linear dependence via matrix rank check as mandated by FR-006, regardless of whether `data/config/definitionally_related_pairs.yaml` exists. **T021c is optional and serves only as an optimization seed; the dynamic check must run independently.** **Logic**: If `data/config/definitionally_related_pairs.yaml` exists, use it as a pre-filter; otherwise, perform full matrix rank check. **Output**: `data/metadata/static_collinearity_map.json` (JSON map of flagged pairs detected via rank check).
+- [ ] T009b [P] **IMPLEMENT REFERENCE-VALIDATOR AGENT**: Implement Reference-Validator Agent logic and integrate gate in CI (`.github/workflows/analysis.yml`). **Constraint**: The agent MUST strictly enforce Constitution Principle II: if citations are missing or unreachable, the build MUST fail with a score of 0.0. **EXCEPTION**: If `data/metadata/validation_mode_flag.json` indicates synthetic mode, the agent MUST skip citation verification and pass the gate with a 'Logic Only' status. **Addresses Constitution Principle I & II.**
+- [X] T021f_algo [P] **IMPLEMENT DYNAMIC COLLINEARITY DETECTION**: Implement "Perfect Multicollinearity" detection algorithm in `code/diagnostics.py` using **matrix rank check** (e.g., `numpy.linalg.matrix_rank`) on the predictor matrix. **Constraint**: This task MUST dynamically detect linear dependence via matrix rank check as mandated by FR-006. **Logic**: Perform full matrix rank check on the predictor matrix. **Output**: `data/metadata/static_collinearity_map.json` (JSON map of flagged pairs detected via rank check).
+- [ ] T021f_io [P] **WRITE COLLINEARITY OUTPUT**: Write the `static_collinearity_map.json` file to disk based on the output of T021f_algo. **DEPENDS ON T021f_algo.**
 - [X] T081a [P] **IMPLEMENT VALIDATION MODE LOGIC**: Implement `set_validation_mode()` in `code/ingest.py` to enable synthetic data generation for the "Pipeline Validation Study". **Constraint**: This task MUST be executed BEFORE T015 (Orchestration) to ensure the pipeline can run on synthetic data if no real data is present. **Output**: `data/metadata/validation_mode_flag.json` indicating if synthetic mode is active. **Addresses Plan's "Critical Scope Note" and resolves conflict with T081/T082.**
+- [ ] T090 [P] **IMPLEMENT SYNTHETIC DATA GENERATOR**: Create `code/synthetic_data.py` to generate a deterministic mock dataset with known ground truths. **Schema**: `columns: [taxon_A, taxon_B,..., REM_duration, SWS_duration,...]`, `types: [float,...]`, `ground_truths: { 'taxon_A vs REM': 0.5 }`. **Constraint**: Must use a fixed random seed (e.g., `np.random.seed()`). **Output**: `data/raw/synthetic_data.csv`. **Addresses Plan.md "Critical Scope Note" for Pipeline Validation.**
+- [X] T091 [P] **IMPLEMENT REAL DATA SOURCE CONFIGURATION**: Create `data/config/real_data_sources.yaml` to store the specific IDs/URLs for verified real datasets (e.g., NCBI BioProject IDs, Zenodo DOIs). **Constraint**: This file must be empty initially and populated only during the research phase when a real source is verified. **Addresses Constitution Principle II.**
+- [X] T092 [P] **UPDATE FETCH LOGIC TO USE CONFIG**: Refactor `code/ingest.py` `fetch_real_data()` to read from `data/config/real_data_sources.yaml`. If the file is empty or contains no valid sources, the function MUST raise `RealDataFetchError` immediately. **Addresses FR-001 and "Fail Loudly" rule.**
 - [X] T085_init [P] **INITIALIZE VERIFIED CITATIONS LIST**: Create `data/citations/verified_dois.yaml` with an empty list structure and a header note indicating it must be populated by the research phase. **Output**: `data/citations/verified_dois.yaml`. **Addresses FR-006 and Constitution Principle II.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -88,78 +94,94 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004a, T004b, T005a). **This task validates the existence and structure of the schema files **(T004a/b)
-- [ ] [P] T011 [US1] Integration test for missing variable error handling in `tests/integration/test_missing_variable.py`
+- [ ] [P] T011 [US1] Integration test for missing variable error handling in `tests/integration/test_missing_variable.py`. **DEPENDS ON T012, T013.**
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] **IMPLEMENT VALIDATION LOGIC AND METRIC PERSISTENCE**: Implement `validate_variables()` in `code/ingest.py` to check for required predictors (taxa) and outcomes (sleep metrics) defined in `data/config/required_variables.yaml`. **CRITICAL**: Calculate the percentage of required variables successfully loaded, include the list of missing variables in the return object, and **ALWAYS WRITE** `data/results/variable_load_metrics.json` with status, percentage, missing variables, and total required, regardless of pass/fail status. **Schema **(File): `{"status": "PASS" | "FAIL", "percentage_loaded": float, "missing_variables": [string], "total_required": int}`. **Addresses FR-001 and SC-001.**
+- [X] T012 [US1] **IMPLEMENT VALIDATION LOGIC AND METRIC PERSISTENCE**: Implement `validate_variables()` in `code/ingest.py` to check for required predictors (taxa) and outcomes (sleep metrics) defined in `data/config/required_variables.yaml`. **CRITICAL**: Calculate the percentage of required variables successfully loaded, include the list of missing variables in the return object, and **ALWAYS WRITE** `data/results/variable_load_metrics.json` with status, percentage, missing variables, and total required, regardless of pass/fail status. **Schema **(File): `{"status": "PASS" | "FAIL", "percentage_loaded": float, "missing_variables": [string], "total_required": int}`. **Denominator **(total_required) **Addresses FR-001 and SC-001.** **DEPENDS ON T004d.**
 - [X] T012b [US1] **IMPLEMENT ARTIFACT PERSISTENCE**: Ensure `validate_variables()` writes `data/results/variable_load_metrics.json` to disk immediately upon completion of validation logic, before any other logic proceeds. **DEPENDS ON T012.**
-- [X] T013 [US1] **IMPLEMENT IMMEDIATE HALT LOGIC**: Implement `load_data()` in `code/ingest.py` to call T012. **CRITICAL**: If T012 returns "FAIL", **HALT EXECUTION** (`sys.exit(1`) immediately with the specific error message (e.g., "Variable 'SWS duration' is missing"). **DO NOT** read from disk. If T012 returns "PASS", proceed to read the artifact from T012b (which is now written). **Addresses FR-001.**
+- [ ] T013 [US1] **IMPLEMENT IMMEDIATE HALT LOGIC**: Implement `load_data()` in `code/ingest.py` to call T012. **CRITICAL**: If T012 returns "FAIL", **WRITE A STRUCTURED FAILURE REPORT** (`data/results/validation_failure_report.json`) containing the error details, missing variables, and timestamp. **THEN** halt execution (`sys.exit(1`) immediately with the specific error message (e.g., "Variable 'SWS duration' is missing"). **DO NOT** read from disk. If T012 returns "PASS", proceed to read the artifact from T012b (which is now written). **Addresses FR-001 and ensures SC-001/SC-002/SC-005 are measurable even on failure.** **DEPENDS ON T012.**
 - [X] T014 Implement outlier detection logic in `code/ingest.py` (IQR method: >1.5x IQR above 75th or < 1.5x IQR below 25th)
 - [X] T014b [US1] **IMPLEMENT OUTLIER FILTERING AND REPORT GENERATION**: Implement data filtering step in `code/ingest.py` to remove flagged outliers and output the filtered dataset to `data/processed/filtered_data.parquet`. **DEPENDS ON T014.** **CRITICAL**: Also generate `data/results/outlier_report.json` containing the count of excluded points and the list of excluded row indices. **Schema**: `{"count": int, "excluded_indices": [int]}`. **Addresses FR-001.**
 - [X] T014c [US1] Register the checksum for `data/processed/filtered_data.parquet` in `state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml` per Constitution Principle III. **DEPENDS ON T014b.** **Note**: Future work may include streaming support for large datasets, but current implementation is scoped to N < 1000 per Assumption-001 and does not support streaming.
-- [X] T015 Implement pipeline orchestration in `code/main.py` to sequence ingestion, validation, and execution. **Constraint**: Must invoke T006d (checksum recording) as a blocking step before proceeding to analysis. **DEPENDS ON T081a.**
-- [X] T016 [US1] **IMPLEMENT EXECUTION TIMING CHECK AND EVIDENCE GENERATION**: Implement execution timing check in `code/main.py` to log start/end times, assert < 6 hours, and **generate timing evidence artifact **(JSON log at `data/results/timing_evidence.json`) to satisfy SC-004. **CRITICAL**: If the time limit is exceeded, the system MUST **HALT** (`sys.exit(1`) with a "TIMEOUT" error. **Output**: `data/results/timing_evidence.json`. **DEPENDS ON T014b, T015, T081a.**
+- [X] T015 Implement pipeline orchestration in `code/main.py` to sequence ingestion, validation, and execution. **Constraint**: Must invoke T006d_impl (checksum recording) as a blocking step before proceeding to analysis. **DEPENDS ON T081a, T090.**
+- [ ] T016 [US1] **IMPLEMENT EXECUTION TIMING CHECK AND EVIDENCE GENERATION**: Implement execution timing check in `code/main.py` to log start/end times, assert < 6 hours, and **generate timing evidence artifact **(JSON log at `data/results/timing_evidence.json`) to satisfy SC-004. **CRITICAL**: If the time limit is exceeded, the system MUST **HALT** (`sys.exit(1`) with a "TIMEOUT" error. **Output**: `data/results/timing_evidence.json`. **DEPENDS ON T014b, T015, T081a.**
 - [X] T017 [US1] Add logging for ingestion and validation steps in `code/ingest.py`
+- [ ] T081 [US1] **IMPLEMENT REAL-DATA FETCHING WITH STRICT FAIL-LOUD BEHAVIOR**: Refactor `code/ingest.py` to remove any "fallback to synthetic" logic from the critical path. Implement `fetch_real_data()` to attempt download from verified sources (NCBI, Zenodo) using specific IDs. **Constraint**: If the fetch fails, the function MUST raise a specific `RealDataFetchError` with a clear message citing the missing source. **EXCEPTION**: If `data/metadata/validation_mode_flag.json` indicates synthetic mode, skip this step and proceed to synthetic generation. **Output**: `data/raw/real_data.csv` (if successful). **Addresses FR-001 and the "Fail Loudly" rule.** <!-- FAILED: unspecified -->
+- [ ] T082 [US1] **IMPLEMENT REAL-DATA GATE IN ORCHESTRATION**: Update `code/main.py` to check for the existence of `data/raw/real_data.csv` before proceeding. **CRITICAL**: If missing, check `data/metadata/validation_mode_flag.json`. If validation mode is active, proceed to synthetic data generation (T090). If not, **HALT** with a clear error message: "Real data not found. Aborting pipeline. Please provide a verified real dataset." **Addresses the "No Silent Fallback" rule.** **Constraint**: If `data/metadata/validation_mode_flag.json` indicates synthetic mode is active, the pipeline may proceed with synthetic data generation instead of halting. **DEPENDS ON T081a, T090.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Robust Associational Correlation Analysis (Priority: P2)
+## Phase 4: User Story 2 - Robust Associational Correlation Analysis (Priority: P2) & User Story 3 - Diagnostics
 
-**Goal**: Compute correlations with automatic method selection (ZINB/Spearman/Pearson) and FDR correction, explicitly framing results as associational.
+**Goal**: Compute correlations with automatic method selection (ZINB/Spearman/Pearson) and FDR correction, explicitly framing results as associational. Perform sensitivity, collinearity, and power analysis.
 
 **Independent Test**: Run analysis on synthetic data with known zero-inflation; verify ZINB selection and correct coefficients. Verify BH-adjusted p-values and associational language in report.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Contract test for correlation output schema in `tests/contract/test_output_schema.py`
-- [X] T019 [P] [US2] Integration test for method selection logic (Zero-inflated vs Non-normal) in `tests/integration/test_method_selection.py`
+- [X] T019 [P] [US2] Integration test for method selection logic (Zero-inflated vs Non-normal) in `tests/integration/test_method_selection.py`. **DEPENDS ON T020, T021.** <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 2
 
 - [X] T020 Implement data distribution checks in `code/analysis.py` (Shapiro-Wilk test, zero proportion calculation) **AND check for zero-inflation **(zeros > 30% OR Shapiro-Wilk p < 0.05). **DEPENDS ON T014b.**
 - [X] T020a Implement compositionality detection in `code/transform.py` and integrate `scikit-bio` libraries if available. **Output: `data/metadata/compositionality_flag.json`.**
 - [X] T022a [P] **IMPLEMENT COMPOSITIONALITY CHECK**: Verify `data/metadata/compositionality_flag.json` exists and is valid. **DEPENDS ON T020a.**
-- [X] T021 **IMPLEMENT CORRELATION METHOD SELECTION**: Implement `select_correlation_method()` in `code/analysis.py` with explicit decision logic **strictly following FR-002**: 1) If zero-inflation (zeros > 30% OR Shapiro-Wilk p < 0.05), use a Zero-Inflated Negative Binomial (ZINB) or Hurdle model; 2) Else if non-normality is detected (Shapiro-Wilk p < 0.05), use Spearman rank correlation; 3) Else use Pearson correlation. **CRITICAL**: Do NOT use library availability as a fallback. If the required library is missing, the pipeline must fail loudly. **MUST read `data/metadata/compositionality_flag.json` and zero proportion from T020**. **CRITICAL**: This task MUST generate `data/metadata/method_selection_log.json` documenting the specific statistical tests performed (Shapiro-Wilk p-value, zero proportion), the decision logic path taken, and the final selected method. **DEPENDS ON T020, T020a, T022a**.
+- [X] T021 **IMPLEMENT CORRELATION METHOD SELECTION**: Implement `select_correlation_method()` in `code/analysis.py` with explicit decision logic **strictly following FR-002**: 1) If zero-inflation (zeros > 30% OR Shapiro-Wilk p < 0.05), use a Zero-Inflated Negative Binomial (ZINB) or Hurdle model; 2) Else if non-normality is detected (Shapiro-Wilk p < 0.05), use Spearman rank correlation; 3) Else use Pearson correlation. **CRITICAL**: Do NOT use library availability as a fallback. If the required library is missing, the pipeline must fail loudly. **MUST read `data/metadata/compositionality_flag.json` and zero proportion from T020**. **CRITICAL**: This task MUST generate `data/metadata/method_selection_log.json` documenting the specific statistical tests performed (Shapiro-Wilk p-value, zero proportion), the decision logic path taken, and the final selected method. **DEPENDS ON T020, T020a, T022a, T021f_io**. **Implementation**: Use `statsmodels.discrete.discrete_model.ZeroInflatedNegativeBinomialP` for ZINB fitting.
 - [X] T022 Implement compositional correction logic in `code/transform.py`. **Clarification**: This task implements **CLR transformation** via `scikit-bio` as the primary method for compositional data. If `scikit-bio` is unavailable, the system MUST fail loudly. **Note**: The spec's "SHOULD use SparCC or SpiecEasi" refers to alternative *correlation methods* for compositional data, not the transformation step. This task handles transformation; correlation method selection is handled in T021. **Output**: `data/processed/processed_data.parquet`. **DEPENDS ON T021, T022a**.
 - [X] T023 Implement ZINB/Hurdle model fitting in `code/analysis.py` using `statsmodels` for zero-inflated cases
 - [X] T024 Implement Spearman and Pearson correlation functions in `code/analysis.py`
 - [X] T025 **IMPLEMENT FDR CORRECTION AND OUTPUT**: Implement Benjamini-Hochberg FDR correction in `code/analysis.py` to adjust p-values (q ≤ 0.05) and write the full correlation matrix to `data/results/correlation_matrix.json`. **DEPENDS ON T022** (if CLR selected) **and T023/T024**.
-- [X] T026 [US2] **EXTEND PIPELINE ORCHESTRATION**: Extend pipeline orchestration in `code/main.py` to import and call US2 modules **after** analysis modules (T022, T025) are complete. **DEPENDS ON T022, T025**. **Note**: T026 no longer depends on T087 (Report Generation) to avoid circular dependency.
-
-**Checkpoint**: At this point, User Story 2 (Correlation Matrix) is functional and testable independently. Final reporting (T087) requires US3 diagnostics.
-
----
-
-## Phase 4.5: Integration & Diagnostics (Cross-Cutting)
-
-**Purpose**: Integrate US1 and US2 artifacts, implement missing diagnostics (Sensitivity, VIF, Power), and enforce associational framing.
-
-- [X] T078 [US3] **IMPLEMENT SENSITIVITY ANALYSIS**: Implement logic to re-run significance tests at p < 0.01, p < 0.05, and p < 0.10 using results from T025. **Output**: `data/results/sensitivity_analysis.json` with percentage change in significant findings for each threshold and a `stability_status` field. **Addresses FR-005 and SC-002.** **Metric**: The `stability_status` must be "STABLE" if the percentage change is < 10% for all thresholds, and "UNSTABLE" otherwise. This <10% threshold is the defined pass/fail criterion for SC-002. **Addresses SC-002 measurability.**
-- [X] T079 [US3] **IMPLEMENT VIF CALCULATION**: Implement Variance Inflation Factor (VIF) calculation in `code/diagnostics.py` for all predictors *excluding* those flagged as "Perfect Multicollinearity" in `data/metadata/static_collinearity_map.json` (output of T021f_new). **Output**: `data/results/vif_report.json` with VIF values and flags for VIF > 5. **Addresses FR-006 and SC-003.** **DEPENDS ON T021f_new.**
-- [X] T080 [US3] **IMPLEMENT POWER ANALYSIS**: Implement power analysis in `code/diagnostics.py` to calculate minimum sample size required to detect r ≥ 0.3 with power ≥ 0.80 at α = 0.05. **Output**: `data/results/power_analysis.json` with calculated N, "Underpowered" flag if N < calculated threshold, and a `data_source_type` field (synthetic/real) to distinguish context. **Addresses FR-006 and SC-005.**
+- [ ] T078 [US3] **IMPLEMENT SENSITIVITY ANALYSIS**: Implement logic to re-run significance tests at p < 0.01, p < 0.05, and p < 0.10 using results from T025. **Output**: `data/results/sensitivity_analysis.json` with percentage change in significant findings for each threshold and a `stability_status` field. **Addresses FR-005 and SC-002.** **Metric**: The `stability_status` must be "STABLE" if the percentage change is < 10% for all thresholds, and "UNSTABLE" otherwise. This <10% threshold is a design decision required for executability, as SC-002 does not specify a value. This value is documented in the output artifact for review. **Addresses SC-002 measurability.** **DEPENDS ON T025.**
+- [ ] T079 [US3] **IMPLEMENT VIF CALCULATION**: Implement Variance Inflation Factor (VIF) calculation in `code/diagnostics.py` for all predictors *excluding* those flagged as "Perfect Multicollinearity" in `data/metadata/static_collinearity_map.json` (output of T021f_io). **Output**: `data/results/vif_report.json` with VIF values and flags for VIF > 5. **Addresses FR-006 and SC-003.** **DEPENDS ON T021f_io.**
+- [X] T080 [US3] **IMPLEMENT POWER ANALYSIS**: Implement power analysis in `code/diagnostics.py` to calculate minimum sample size required to detect r ≥ 0.3 with power ≥ 0.80 at α = 0.05. **Output**: `data/results/power_analysis.json` with calculated N, "Underpowered" flag if N < calculated threshold, and a `data_source_type` field (synthetic/real) to distinguish context. **Addresses FR-006 and SC-005.** **DEPENDS ON T025.**
 - [X] T087 [US2] **IMPLEMENT REPORT GENERATION WITH ASSOCIATIONAL FRAMING**: Implement `generate_report()` in `code/report.py`. **CRITICAL**: This task MUST enforce associational language **during generation** (e.g., via strict template constraints) rather than post-hoc scanning. The report MUST explicitly state "These results represent an associational relationship" and prohibit causal language like "causes" or "leads to". **Output**: `data/results/final_report.md`. **DEPENDS ON T025, T078, T079, T080, T022a, T026**. **Addresses FR-004.**
 
 **Checkpoint**: US1 and US2 are integrated; Diagnostics complete.
 
 ---
 
-## Phase N+8: Real-Data Readiness & Verification (Priority: P8)
+## Phase 5: Real-Data Readiness & Verification (Priority: P8)
 
 **Purpose**: Prepare the pipeline for immediate execution on real data once a verified source is identified, ensuring the "No Real Data" fallback logic is correctly isolated and the real-data path is fully functional.
 
 **Note**: The pipeline is now strictly "Real-Data Only". Synthetic data is used ONLY for logic validation during development, not as a fallback for missing real data in production runs.
 
-- [X] T081 [US1] **IMPLEMENT REAL-DATA FETCHING WITH STRICT FAIL-LOUD BEHAVIOR**: Refactor `code/ingest.py` to remove any "fallback to synthetic" logic from the critical path. Implement `fetch_real_data()` to attempt download from verified sources (NCBI, Zenodo) using specific IDs. **Constraint**: If the fetch fails, the function MUST raise a specific `RealDataFetchError` with a clear message citing the missing source. **DO NOT** catch this error in the main pipeline flow; let it propagate to halt the run. **Output**: `data/raw/real_data.csv` (if successful). **Addresses FR-001 and the "Fail Loudly" rule.**
-- [X] T082 [US1] **IMPLEMENT REAL-DATA GATE IN ORCHESTRATION**: Update `code/main.py` to check for the existence of `data/raw/real_data.csv` before proceeding. If missing, **HALT** with a clear error message: "Real data not found. Aborting pipeline. Please provide a verified real dataset." **DO NOT** proceed to synthetic generation. **Addresses the "No Silent Fallback" rule.**
 - [X] T083 [US1] **IMPLEMENT REAL-DATA VALIDATION**: Extend `code/ingest.py` to validate that real data (if fetched) contains all required variables defined in `data/config/required_variables.yaml` (T004c). **Constraint**: If validation fails, **HALT** with a specific error listing missing variables. **Addresses FR-001.**
-- [X] T085 [US1] **IMPLEMENT REAL-DATA CITATION VERIFICATION**: Create a task that scans `data/raw/real_data.csv` (or the source URL) for a valid DOI or citation ID and validates it against `data/citations/verified_dois.yaml` (output of T085_init). **Constraint**: If the citation is missing or invalid, **HALT** with a "Citation Verification Failed" error. **Addresses Constitution Principle II.** **DEPENDS ON T085_init.**
-- [X] T086 [US1] **UPDATE DOCUMENTATION FOR REAL-DATA EXECUTION**: Update `quickstart.md` and `README.md` to reflect the new "Real-Data First" workflow. **Constraint**: Explicitly state that the pipeline will **FAIL** if no real data is provided, and provide instructions for obtaining a verified dataset. **Addresses the "No Synthetic Fallback" rule.**
-- [X] T089 [US3] **IMPLEMENT REAL-DATA REPRESENTATIVENESS LIMITATION REPORTING**: Update `code/report.py` to detect if a real dataset was processed via streaming or sampling (due to size constraints) and automatically append a "Data Limitation" section to `data/results/final_report.md`. **Constraint**: This section must explicitly state the sampling method (e.g., "First N rows" or "Random sample with seed X") and the resulting power/representativeness limitations. **Addresses the "State the exact streaming/sampling rule" requirement.**
+- [X] T086 [US1] **UPDATE DOCUMENTATION FOR REAL-DATA EXECUTION**: Update `quickstart.md` and `README.md` to reflect the new "Real-Data First" workflow. **Constraint**: Explicitly state that the pipeline will **FAIL** if no real data is provided (unless validation mode is active), and provide instructions for obtaining a verified dataset. **Addresses the "No Synthetic Fallback" rule.**
 
 **Checkpoint**: The pipeline is now strictly "Real-Data Only" with a clear failure path for missing data, ensuring no silent fabrication occurs.
+
+---
+
+## Phase 6: Data Acquisition & Synthetic Data Logic (Priority: P4)
+
+**Goal**: Implement the specific logic for fetching real data (when available) and generating the deterministic synthetic data required for the "Pipeline Validation Study" (Plan.md Critical Scope Note).
+
+**Independent Test**: Verify that synthetic data generation produces identical outputs on repeated runs (deterministic) and that real data fetching halts correctly when a verified source is missing.
+
+*Note: Tasks T090, T091, T092 have been moved to Phase 2 (Foundational) to ensure they exist before orchestration.*
+
+**Checkpoint**: Data acquisition logic is complete for both validation (synthetic) and production (real) modes.
+
+---
+
+## Phase 7: Integration & End-to-End Validation (Priority: P5)
+
+**Goal**: Verify the entire pipeline executes correctly in both synthetic and real-data modes, and that all output artifacts are generated correctly.
+
+**Independent Test**: Run the full pipeline on synthetic data and verify all JSON/Parquet artifacts exist and match schemas.
+
+### Implementation for Integration
+
+- [ ] T093 [P] [US1] **IMPLEMENT END-TO-END TEST FOR SYNTHETIC MODE**: Create `tests/integration/test_pipeline_synthetic.py` to run the full pipeline on `data/raw/synthetic_data.csv` and verify all output artifacts (`correlation_matrix.json`, `final_report.md`, etc.) exist and match schemas. **Addresses SC-001 to SC-005.** **DEPENDS ON T090, T015.** <!-- FAILED: unspecified -->
+- [~] T094 [P] [US1] **IMPLEMENT END-TO-END TEST FOR REAL DATA FAILURE**: Create `tests/integration/test_pipeline_real_data_fail.py` to verify that the pipeline halts with the correct error when `data/raw/real_data.csv` is missing and validation mode is off. **Addresses FR-001.**
+- [X] T095 [P] **VALIDATE ARTIFACT CHECKSUMS**: Create a script `code/verify_artifacts.py` to recalculate checksums for all generated artifacts and compare against `state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml`. **Addresses Constitution Principle III.**
+
+**Checkpoint**: Full pipeline validation complete.
 
 ---
 
@@ -167,18 +189,18 @@
 
 ### Phase Dependencies
 
-- **Setup **(Phase 1) No dependencies - can start immediately
-- **Foundational **(Phase 2) Depends on Setup completion - BLOCKS all user stories
-- **User Stories **(Phase 3+) All depend on Foundational phase completion
+- **Setup **(Phase 1): No dependencies - can start immediately
+- **Foundational **(Phase 2): Depends on Setup completion - BLOCKS all user stories
+- **User Stories **(Phase 3+): All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish **(Final Phase) Depends on all desired user stories being complete
+- **Polish **(Final Phase): Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 **(P1) Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 **(P2) Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 **(P3) Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 1 **(P1): Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 **(P2): Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 **(P3): Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
 ### Within Each User Story
 

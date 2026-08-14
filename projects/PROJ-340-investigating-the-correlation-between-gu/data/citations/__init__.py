@@ -1,2 +1,3 @@
-# Citations directory
-pass
+"""
+Citations directory.
+"""

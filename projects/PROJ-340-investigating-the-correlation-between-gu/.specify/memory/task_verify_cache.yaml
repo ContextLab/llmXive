@@ -1,3 +1,29 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `code/` directory or an `__init__.py` file is present in the\
+    \ provided artifacts; the implementer\u2019s claim is not backed by any tangible\
+    \ files. The required directory and initialization file must be created and shown."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `tests/` directory or its required sub\u2011directories (`contract/`,\
+    \ `unit/`, `integration/`) is provided; the artifact list is empty, so the task\u2019\
+    s core deliverable is missing."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` directory or its required subfolders (`raw/`, `processed/`,
+    `results/`, `config/`) was provided; without a directory listing or files, we
+    cannot confirm the structure exists. The implementer must create and show the
+    directory hierarchy.
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file or virtual environment configuration (e.g., `requirements.txt`,
+    `pyproject.toml`, or `venv/` setup script) was presented. Without these artifacts,
+    the task of creating a `.gitignore` and initializing a virtualenv cannot be confirmed
+    as completed.
 T004a:
   c: false
   h: 0ce1a30fb709057bb330bc4b5b914bd227efbb3d8828db88649c8c231ef6e304
@@ -12,6 +38,14 @@ T004b:
     \ and `data/config/research_design.yaml` are missing from the repository, so no\
     \ schema or runtime metric list is present. Without these artifacts the task\u2019\
     s requirement is not satisfied."
+T009b:
+  c: false
+  h: 9b62cbaad95d331f0627232f99e37330776bd233882813c975b2f3b6e3dab9fb
+  r: "The required CI workflow file `.github/workflows/analysis.yml` is missing, so\
+    \ the Reference-Validator Agent has not been integrated into the CI pipeline as\
+    \ specified. The existing `validation_mode_flag.json` alone does not satisfy the\
+    \ task. The implementer must add the workflow file containing the citation\u2011\
+    validation gate logic."
 T012:
   c: false
   h: 0aa265bb6f42312ffe884fbded9f2a2750d1c3d3582a8613889921249f0c0e28
@@ -23,11 +57,13 @@ T012:
     schema file added.
 T013:
   c: false
-  h: b0d79e79c5acacb7c8a7c73874a88f3bfbcb7f6dd72031609ad446805925a40e
-  r: "The `load_data()` function in `code/ingest.py` is truncated and does not contain\
-    \ logic to read `data/results/variable_load_metrics.json` or exit on a percentage\u202F\
-    <\u202F100\u202F%. Additionally, the required `data/results/variable_load_metrics.json`\
-    \ file is absent. Both the implementation and the dependent artifact are missing."
+  h: 987760b19ce341cfc84f9117684c302b7bcc6726f0835367ebe08cecd3d701ce
+  r: "The repository\u2019s `code/ingest.py` does not contain a `load_data()` function\
+    \ that calls T012, writes `data/results/validation_failure_report.json` on a \u201C\
+    FAIL\u201D result, timestamps it, and exits via `sys.exit(1)`. Moreover, the required\
+    \ `validation_failure_report.json` file is absent, indicating the halt\u2011on\u2011\
+    failure logic was never executed. The task\u2019s core requirements are therefore\
+    \ unmet."
 T014c:
   c: false
   h: f5289838c5bfa7b03b138f87321860c4fad3df670c3caccd092f7207d139a759
@@ -35,13 +71,6 @@ T014c:
     checksum can be computed. Moreover, the YAML file does not contain a checksum
     entry for that parquet file (only a code file entry is present). Both the artifact
     and its recorded checksum are missing.
-T016:
-  c: false
-  h: e77702cd0e9a97dc58ddc7d08be53d65090a00092ce6943410931c49a5eb3f15
-  r: "The repository lacks the required `data/results/timing_evidence.json` file,\
-    \ and the shown portion of `code/main.py` does not contain any execution\u2011\
-    timing logic (recording start/end, asserting <\u202F6\u202Fh, writing the JSON,\
-    \ or exiting on timeout). Both the artifact and the core functionality are missing."
 T021:
   c: false
   h: 4efe343b45daf5599db8dc008d7e2d5e86a7f660bbadafa55896000372b51757
@@ -50,26 +79,37 @@ T021:
     \ the mandatory compositionality flag file. Moreover, `data/metadata/compositionality_flag.json`\
     \ is missing, so the function cannot satisfy the requirement to read it and apply\
     \ the fallback logic when T022a fails. The task therefore remains unfinished."
+T079:
+  c: false
+  h: 45ef2ae0a48ad8dde5640d5b08fc32ec0cd67cbec1fca7a8825b66bdf602cac4
+  r: The repository lacks the required `data/metadata/static_collinearity_map.json`
+    and the resulting `data/results/vif_report.json`. Moreover, the `calculate_vif`
+    implementation in `code/diagnostics.py` is truncated and does not contain logic
+    to compute VIFs, filter excluded variables, or write the JSON report. These essential
+    artifacts are missing, so the task is not genuinely completed.
 T081:
   c: false
-  h: df456417a66e081edf93066b759d9133f8d8fd0fac11ab6155728dff74595b27
-  r: "The provided `code/ingest.py` snippet never defines a `fetch_real_data()` function\
-    \ (the file is truncated before any such implementation) and does not show removal\
-    \ of any synthetic\u2011fallback logic. Moreover, the required output file `data/raw/real_data.csv`\
-    \ does not exist. Both the core function and its expected output are missing,\
-    \ so the task is not satisfied."
+  h: db521f5ac657ee7513079f775dd7b537e618812816c4f7509c97feb4d00b84d8
+  r: "The provided `code/ingest.py` does not contain a `fetch_real_data()` implementation\
+    \ (or any logic that raises `RealDataFetchError` on download failure), and the\
+    \ expected output file `data/raw/real_data.csv` is absent. Consequently the required\
+    \ real\u2011data fetching functionality and its strict fail\u2011loud behavior\
+    \ are not present."
 T082:
   c: false
-  h: 1d4c1349d7eb74e4ed0f36ec240a9944fb8f15ec5f5eeee545a120d106760cf0
-  r: The provided `code/main.py` excerpt shows no logic that checks for `data/raw/real_data.csv`
-    or aborts with the required error message; the file is missing, and there is no
-    evidence the script halts instead of falling back to synthetic generation. The
-    implementer must add an explicit existence check and raise the exact error message
-    before any further processing.
-T085:
+  h: 372fd983764396c9c66c0efff32be0d6e5ccbe7de825a47c73e68c83ba8788fe
+  r: "The provided `code/main.py` is truncated and never shows the required logic\
+    \ that (1) checks for `data/raw/real_data.csv`, (2) reads `validation_mode_flag.json`\
+    \ when the file is missing, (3) either proceeds to synthetic data generation (T090)\
+    \ or aborts with the specified error message. Consequently, the real\u2011data\
+    \ gate described in task T082 is not actually implemented. The next implementer\
+    \ must add this conditional flow to `main.py` and ensure the appropriate actions\
+    \ are taken."
+T090:
   c: false
-  h: e9c287b77e5ea58a63e507aa820469542c105f155faa539c85a5c420feb2fd0d
-  r: "The required `data/raw/real_data.csv` file is absent, so there is nothing to\
-    \ scan for a DOI, and no script or task implementation is provided that performs\
-    \ the citation\u2011verification logic and halts on failure. Both the input data\
-    \ and the verification code are missing, so the task is not fulfilled."
+  h: 95cb825463a05c654ff8da6afe14c80f53f9eaa40b9d093dd1dfd99300144bb5
+  r: The repository contains a partially shown `code/synthetic_data.py`, but the file
+    is truncated and does not demonstrate writing the generated DataFrame to `data/raw/synthetic_data.csv`
+    nor defining the required `ground_truths` mapping. Moreover, the CSV output file
+    is absent from the project tree. Consequently, the core deliverable (a deterministic
+    dataset saved at the specified path) is missing.
