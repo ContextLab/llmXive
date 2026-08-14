@@ -1,3 +1,9 @@
+T000:
+  c: false
+  h: 4df927a25141f42c407ad829f8fa4c2b47274de9ae12033e49efd681576efe99
+  r: "The required file `data/processed/validation_proxy.json` is missing, so no KS\
+    \ test results or documented limitation are present. Without this JSON artifact\
+    \ the task\u2019s output and schema requirements are not satisfied."
 T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

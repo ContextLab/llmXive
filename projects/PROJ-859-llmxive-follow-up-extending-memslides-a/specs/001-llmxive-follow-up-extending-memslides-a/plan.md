@@ -21,7 +21,7 @@ This design ensures that the outcome variable (fidelity loss) is measured on uns
 **Primary Dependencies**: `scikit-learn` (DecisionTreeClassifier), `pandas`, `numpy`, `statsmodels` (for Multiple Linear Regression), `pytest`  
 **Storage**: Local filesystem (`data/`), no external database. Data is streamed or loaded as needed.  
 **Testing**: `pytest` (unit tests for metric extraction, integration tests for pipeline end-to-end), contract validation via YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~ GB RAM).  
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: Complete full pipeline (generation, extraction, training, evaluation, analysis) within 6 hours on CPU.  
 **Constraints**: No GPU usage (CPU-first methodology); memory usage < 7 GB; no external API calls for data generation (synthetic only).  
