@@ -1,36 +1,51 @@
 # Quickstart: The Influence of Simulated Social Status on Risk-Taking Behavior
 
-## I. Prerequisites
+## Prerequisites
 
-*   Python 3.11 installed.
+*   A recent version of Python was installed.
 *   `pip` package manager.
-*   Access to a Linux environment (e.g., GitHub Actions runner).
+*   GitHub Actions runner (free tier).
 
-## II. Installation
+## Installation
 
-1.  Clone the repository: `git clone <repository_url>`
-2.  Navigate to the project directory: `cd <project_directory>`
-3.  Create and activate a virtual environment:
+```bash
+git clone https://github.com/[your_repo]/the-influence-of-simulated-social-status.git
+cd the-influence-of-simulated-social-status
+python3 -m venv .venv
+source .venv/bin/activate  # or .\.venv\Scripts\activate on Windows
+pip install -r code/requirements.txt
+```
+
+## Data Preparation
+
+The data will be automatically generated or downloaded during the analysis process, depending on the chosen approach (simulation vs. meta-analysis). **While automated processes are in place for data acquisition and preprocessing, some manual verification of dataset integrity may be required, especially when using aggregated data from external sources.**
+
+## Running the Analysis
+
+1.  **Configure parameters:** Modify the `code/config.yaml` file to specify simulation parameters or select a list of studies for meta-analysis.
+2.  **Run the analysis script:**
+
     ```bash
-    python3 -m venv .venv
-    source .venv/bin/activate
+    python code/main.py
     ```
-4.  Install dependencies: `pip install -r requirements.txt`
 
-## III. Data Preparation
+3.  **View results:** The results will be saved in the `data/processed` directory, including:
+    *   `cleaned_data.csv`: Cleaned and preprocessed dataset.
+    *   `model_config.json`: Model configuration parameters.
+    *   `model_output.json`: Regression model output (coefficients, p-values).
 
-1. Choose either simulation or meta-analysis (see `research.md`).
-2. If simulating data, run the script to generate the dataset: `python src/data_simulation.py` (or modify if necessary).
-3. If performing a meta-analysis, ensure you have access to the required datasets and adapt the analysis scripts accordingly.
+## Report Generation
 
-## IV. Running the Analysis
+The report will be automatically generated after the analysis is complete:
 
-1. Execute the main analysis script: `python src/analysis.py`
-2. The results will be saved in the `data/processed/` directory.
-3. Generate the report: `python src/report_generation.py`
+```bash
+python code/report_generator.py
+```
 
-## V. Troubleshooting
+This will produce a PDF summary of the results, including effect size plots and model diagnostics.
 
-*   If you encounter errors during installation, ensure that all dependencies are correctly installed and compatible with your Python version.
-*   If the analysis fails, check the error messages for clues about the problem.
-*   Refer to the documentation (`research.md`, `data-model.md`) for more detailed information about the data processing and analysis steps.
+## Troubleshooting
+
+*   **Missing dependencies:** Ensure all required packages are installed using `pip install -r code/requirements.txt`.
+*   **Memory errors:** Reduce the dataset size or switch to asymptotic standard errors during bootstrapping if memory limitations occur.
+*   **Incorrect data format**: Verify that the input data (if provided manually) matches the expected schema defined in `data-model.md`.

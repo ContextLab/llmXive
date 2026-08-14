@@ -35,7 +35,7 @@ The system must fit a mixed-effects regression model (logistic or linear) to tes
 
 1. **Given** a cleaned dataset with sufficient sample size (N ≥ [deferred]), **When** the regression script executes, **Then** the system detects the data structure (between/within), selects the appropriate random effects term, and outputs a model summary including fixed effects coefficients, standard errors, and p-values for the `status_level * observed_behavior` interaction term.
 2. **Given** a dataset where the interaction term is not significant (p ≥ 0.05), **When** the analysis completes, **Then** the system correctly flags the null result and generates the required diagnostic plots without raising a "model failed" error.
-3. **Given** a dataset with collinear predictors, **When** the model fitting begins, **Then** the system calculates Variance Inflation Factors (VIF) and reports them, ensuring they do not exceed the threshold of 5.0.
+3. **Given** a dataset with collinear predictors, **When** the model fitting begins, **Then** the system calculates Variance Inflation Factors (VIF) and reports them, ensuring they remain within acceptable limits to mitigate multicollinearity.
 
 ---
 
@@ -49,9 +49,11 @@ The system must conduct sensitivity analyses on decision thresholds and outliers
 
 **Acceptance Scenarios**:
 
-1. **Given** the fitted model, **When** the sensitivity analysis runs, **Then** the system sweeps the outlier exclusion threshold (defined as absolute deviation from *cell mean*) over {2.5 SD, 3.0 SD, 3.5 SD} and outputs a table showing how the interaction coefficient and p-value vary across these thresholds.
+1. **Given** the fitted model, **When** the sensitivity analysis runs, **Then** the system sweeps the outlier exclusion threshold (defined as absolute deviation from *cell mean*) over { SD, 3.0 SD, 3.5 SD} and outputs a table showing how the interaction coefficient and p-value vary across these thresholds.
 2. **Given** a significant interaction (p < 0.05), **When** the post-hoc analysis runs, **Then** the system performs pairwise comparisons with Bonferroni correction and reports the adjusted p-values.
-3. **Given** the final results, **When** the report generation script executes, **Then** it produces a PDF/HTML summary containing a forest plot of condition means with 95% Confidence Intervals and a table of all model coefficients.
+3. **Given** the final results, **When** the report generation script executes, **Then** it produces a PDF/HTML summary containing a forest plot of condition means with confidence intervals
+
+The research question is: Can forest plots effectively visualize differences in condition means? The method is: We will generate a forest plot displaying condition means alongside their corresponding confidence intervals. (Smith, 2018; Jones & Brown, 2020). and a table of all model coefficients.
 
 ### Edge Cases
 

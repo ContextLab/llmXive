@@ -1,4 +1,4 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: 'http://json-schema.org/draft-07/schema#'
 type: array
 items:
   type: object
@@ -22,4 +22,3 @@ items:
     - status_level
     - observed_behavior
     - risk_taking_score
-additionalProperties: false

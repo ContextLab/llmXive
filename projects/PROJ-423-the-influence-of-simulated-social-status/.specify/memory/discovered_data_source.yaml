@@ -1,14 +1,12 @@
 status: none
-intent: social status risk taking meta analysis dataset download csv site:osf.io python
-  package dataset
+intent: social status risk taking meta analysis dataset OSF PROSPERO python package
+  dataset
 required_fields:
-- participant_id
+- subject_id
 - status_level
-- risk_behavior_score
-- condition_type
-- outcome_measure
-- age
-- gender
-cache_key: 67f15e87f4ccafd6f03d0f1901686b051324f50cffef134f6fbf867b1c7faba1
-searched_at: '2026-08-14T09:33:31.119642+00:00'
+- risk_behavior
+- outcome_score
+- within_subject_flag
+cache_key: cee839da31d32f6b4377346e9bcab43e69d74d1fbf970e2a71a3dee01643db28
+searched_at: '2026-08-14T10:28:18.248126+00:00'
 retry_count: 1

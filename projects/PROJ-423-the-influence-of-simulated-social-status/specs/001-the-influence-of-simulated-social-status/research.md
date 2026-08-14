@@ -1,25 +1,25 @@
 # Research: The Influence of Simulated Social Status on Risk-Taking Behavior
 
-## I. Background & Motivation
+## Dataset Strategy
 
-Existing literature demonstrates a link between social status and risk-taking, but the directionality and underlying mechanisms remain unclear. This project aims to determine whether observing higher-status agents engaging in risky behavior *increases* subsequent individual risk-taking, while observing lower-status agents engaging in such behavior *decreases* it. A key challenge is the lack of readily available datasets with a fully crossed factorial design (status level x observed behavior).
+The primary data source will be either a simulated dataset based on meta-analytic effect sizes or an aggregated dataset from separate randomized trials. Given the lack of publicly available datasets with a fully crossed factorial design (status level × observed behavior), simulation and/or meta-analysis are necessary to establish a rigorous basis for testing the causal hypothesis.
 
-## II. Data Strategy
+## Decision/Rationale: Compute & Data Availability
 
-Given the difficulty of finding pre-existing data, this project will leverage either:
+**CPU-first.** All methods will be implemented to run on the CPU-only GitHub Actions runner with a multi-core configuration and sufficient RAM for execution. This includes data preprocessing, mixed-effects model fitting using `statsmodels`, sensitivity analysis with bootstrapping (`scipy`), and report generation. If simulation is chosen, the dataset size will be limited to a manageable scale given available computational resources., potentially employing chunking or sampling techniques if necessary.
 
-1.  **Data Simulation:** Generate a synthetic dataset based on meta-analytic effect sizes derived from published studies on social status and risk-taking. This approach allows for precise control over experimental conditions and minimizes confounding variables.
-2.  **Meta-Analysis:** Aggregate data from separate randomized trials examining the relationship between social status, observed behavior, and risk-taking.
+**Kaggle auto-offload (not required).** GPU acceleration is not anticipated to be needed for this project, as all analyses can be performed efficiently on the CPU. The computational demands are primarily driven by statistical calculations rather than complex model training/inference. Therefore, we do *not* plan to utilize the Kaggle auto-offload feature.
 
-**Verified Datasets**:
+## Statistical Rigor
 
-*   VIF (parquet): [https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet](https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet)
-*   NOT (jsonl): [https://huggingface.co/datasets/QinyuanWu/ToCall_or_NotToCall/resolve/main/bfcl/bfcl.jsonl](https://huggingface.co/datasets/QinyuanWu/ToCall_or_NotToCall/resolve/main/bfcl/bfcl.jsonl), [https://huggingface.co/datasets/kalyannakka/Answerable-or-Not/resolve/main/answerability_data.csv](https://huggingface.co/datasets/kalyannakka/Answerable-or-Not/resolve/main/answerability_data.csv), [https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter%203/chapter_3_batched_loss.json](https://huggingface.co/datasets/vlmbook/notebooks/resolve/main/Chapter%203/chapter_3_batched_loss.json)
+The analysis will employ a mixed-effects regression model (logistic or linear) with appropriate random effects terms to account for individual differences and potential correlations within subjects. Multiple comparison correction (Bonferroni) will *always* be applied during post-hoc analyses, regardless of whether the initial results are significant. Sample size calculations (deferred until data simulation/meta-analysis parameters are finalized) will be conducted to ensure sufficient statistical power.
 
-## III. Decision/Rationale
+## Edge Case Handling
 
-The choice between simulation and meta-analysis will be guided by data availability and effect size consistency. If reliable meta-analytic parameters are available, simulation is preferred for its control. Otherwise, a rigorous meta-analysis will be conducted using established methods (e.g., random effects models).  All computational work will prioritize CPU execution due to resource constraints of the free tier runner. If GPU acceleration becomes essential (e.g., for complex model fitting), we will utilize Kaggle’s free GPU resources with scaled-down data and a quantized model (`device="cuda"` / `load_in_8bit`).
+*   **No variance in `status_level`**: The system will detect this condition and halt with an error message, as it would invalidate the experimental design.
+*   **Continuous `risk_taking` measure**: The model family will automatically switch from binomial to gaussian (linear mixed model) based on data type detection.
+*   **Memory limitations during bootstrapping**: If memory constraints are encountered during bootstrap resampling for confidence intervals, asymptotic standard errors will be used as a fallback and a warning will be logged.
 
-## IV. Statistical Approach
+## Verified Datasets
 
-A mixed-effects regression model will be employed to assess the interaction between observed agent status and observed behavior on participant risk-taking, accounting for potential individual differences using random effects. Model assumptions (e.g., linearity, normality of residuals) will be verified through diagnostic plots. Family Wise Error correction (Bonferroni) will be applied for post-hoc comparisons.
+The primary data source is either simulated data or aggregated studies; the listed resources serve only as examples of potential datasets to inform schema development and preprocessing techniques.
