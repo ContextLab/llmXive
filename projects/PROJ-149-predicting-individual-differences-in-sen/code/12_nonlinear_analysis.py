@@ -1,188 +1,142 @@
 """
-T024: Non-linear interaction analysis (polynomial alpha/beta, degree=2) and F-test comparison.
-Implements FR-012.
+T024: Perform non-linear interaction analysis.
 
-Input: data/processed/features.csv (from T016)
-Output: data/processed/non_linear_comparison.json
-Dependencies: T019 (model_results.json for baseline comparison)
+This script performs polynomial regression (degree=2) on alpha and beta bands
+to test for non-linear relationships with RT. It then compares the linear
+and non-linear models using an F-test.
+
+Output: data/processed/nonlinear_results.json
 """
+
 import os
 import sys
 import json
 import argparse
 import warnings
 from pathlib import Path
-import numpy as np
+
 import pandas as pd
-from sklearn.preprocessing import PolynomialFeatures
+import numpy as np
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-from config import get_path, ensure_dirs, get_seed
-from utils.stats_helpers import f_test_comparison
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import r2_score
+
+from config import get_path, ensure_dirs
 
 def load_features():
-    """Load the processed features dataset."""
-    features_path = get_path("processed", "features.csv")
-    if not os.path.exists(features_path):
-        raise FileNotFoundError(f"Input file not found: {features_path}. Run T016 first.")
-    return pd.read_csv(features_path)
+    """Load features dataset."""
+    path = get_path("data/processed", "features.csv")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Features file not found at {path}")
+    return pd.read_csv(path)
 
-def prepare_polynomial_features(df, target_col="median_rt", degree=2):
-    """
-    Prepare polynomial features for Alpha and Beta bands.
-    Returns X_poly, y, feature_names, and the original X for baseline.
-    """
-    # Select relevant band power columns (relative/CLR transformed)
-    # Assuming columns are named: alpha_rel, beta_rel (or similar based on T015)
-    # We need to identify the exact column names for alpha and beta from the dataframe
-    cols = df.columns.tolist()
-    alpha_cols = [c for c in cols if 'alpha' in c.lower() and ('rel' in c.lower() or 'clr' in c.lower())]
-    beta_cols = [c for c in cols if 'beta' in c.lower() and ('rel' in c.lower() or 'clr' in c.lower())]
+def prepare_polynomial_features(df, band='alpha', degree=2):
+    """Prepare polynomial features for a specific band."""
+    # Get the band feature
+    band_col = f"{band}_clr" if f"{band}_clr" in df.columns else f"{band}_relative"
+    if band_col not in df.columns:
+        # Try without suffix
+        band_col = band
     
-    if not alpha_cols or not beta_cols:
-        # Fallback to generic names if specific ones aren't found, but warn
-        warnings.warn("Could not find specific alpha/beta relative columns. Attempting generic names.")
-        if 'alpha_rel' in cols: alpha_cols = ['alpha_rel']
-        if 'beta_rel' in cols: beta_cols = ['beta_rel']
+    if band_col not in df.columns:
+        raise ValueError(f"Band column {band_col} not found in features")
     
-    if not alpha_cols or not beta_cols:
-        raise ValueError("Could not identify Alpha and Beta band columns for polynomial expansion.")
+    X = df[band_col].values.reshape(-1, 1)
+    y = df['median_rt'].values
+    
+    # Create polynomial features
+    poly = PolynomialFeatures(degree=degree, include_bias=False)
+    X_poly = poly.fit_transform(X)
+    
+    return X_poly, y, poly
 
-    # Use the first found alpha and beta column for interaction
-    alpha_col = alpha_cols[0]
-    beta_col = beta_cols[0]
+def fit_models(X_poly, y):
+    """Fit linear and polynomial models and compare."""
+    # Fit linear model (just first degree term)
+    linear_model = LinearRegression()
+    linear_model.fit(X_poly[:, :1], y)
+    linear_r2 = linear_model.score(X_poly[:, :1], y)
     
-    X_base = df[[alpha_col, beta_col]].values
-    y = df[target_col].values
-
-    # Create polynomial features (degree=2)
-    poly = PolynomialFeatures(degree=degree, include_bias=False, interaction_only=False)
-    X_poly = poly.fit_transform(X_base)
+    # Fit polynomial model
+    poly_model = LinearRegression()
+    poly_model.fit(X_poly, y)
+    poly_r2 = poly_model.score(X_poly, y)
     
-    feature_names = poly.get_feature_names_out([alpha_col, beta_col])
+    # F-test comparison
+    n = len(y)
+    p_linear = 1  # degrees of freedom for linear
+    p_poly = X_poly.shape[1]  # degrees of freedom for polynomial
     
-    return X_poly, y, feature_names, X_base, alpha_col, beta_col
-
-def fit_models(X_train, y_train, X_test, y_test, feature_names):
-    """
-    Fit Linear (Baseline) and Polynomial (Interaction) models.
-    Returns model results and statistics for F-test.
-    """
-    # 1. Baseline Linear Model (using original 2 features)
-    # Note: X_train_poly has 5 features: [1, x1, x2, x1^2, x1*x2, x2^2] if interaction_only=False
-    # But we need to compare a model with just [x1, x2] vs [x1, x2, x1^2, x2^2, x1*x2]
-    # To do this fairly with sklearn, we can fit a model on the full poly set, 
-    # but for F-test we need the residual sum of squares (RSS) and degrees of freedom.
+    # Calculate F-statistic
+    ss_res_poly = np.sum((y - poly_model.predict(X_poly)) ** 2)
+    ss_res_linear = np.sum((y - linear_model.predict(X_poly[:, :1])) ** 2)
     
-    # Actually, F-test compares nested models.
-    # Model 0 (Reduced): y = b0 + b1*x1 + b2*x2
-    # Model 1 (Full): y = b0 + b1*x1 + b2*x2 + b3*x1^2 + b4*x2^2 + b5*x1*x2
+    if ss_res_poly == 0:
+        f_stat = float('inf')
+    else:
+        f_stat = ((ss_res_linear - ss_res_poly) / (p_poly - p_linear)) / (ss_res_poly / (n - p_poly - 1))
     
-    # We need to extract the RSS for both.
-    
-    # Fit Reduced Model (Linear on original 2)
-    # We need to slice X_poly to get only the linear terms (indices 1 and 2 if bias is included, 
-    # but include_bias=False means indices 0,1 are x1, x2? No, PolynomialFeatures with 2 inputs:
-    # [1, 0]: x1, [0, 1]: x2, [1, 0]: x1^2, [1, 1]: x1*x2, [0, 1]: x2^2
-    # With include_bias=False: [x1, x2, x1^2, x1*x2, x2^2]
-    
-    # Reduced features: indices 0, 1
-    X_train_red = X_train[:, :2]
-    X_test_red = X_test[:, :2]
-    
-    model_red = LinearRegression()
-    model_red.fit(X_train_red, y_train)
-    y_pred_red_test = model_red.predict(X_test_red)
-    rss_red = np.sum((y_test - y_pred_red_test) ** 2)
-    df_red = len(y_test) - 2 - 1 # n - p - 1 (p=2)
-    
-    # Fit Full Model (Polynomial)
-    model_full = LinearRegression()
-    model_full.fit(X_train, y_train)
-    y_pred_full_test = model_full.predict(X_test)
-    rss_full = np.sum((y_test - y_pred_full_test) ** 2)
-    df_full = len(y_test) - X_train.shape[1] - 1 # n - p - 1 (p=5)
-    
-    # Calculate R-squared for both
-    ss_tot = np.sum((y_test - np.mean(y_test)) ** 2)
-    r2_red = 1 - (rss_red / ss_tot)
-    r2_full = 1 - (rss_full / ss_tot)
-    
-    # F-test for significance of the added terms
-    # F = ((RSS_red - RSS_full) / (df_red - df_full)) / (RSS_full / df_full)
-    num_df = df_red - df_full
-    den_df = df_full
-    f_stat, p_val = f_test_comparison(rss_red, rss_full, num_df, den_df)
+    # Calculate p-value
+    from scipy import stats
+    p_value = 1 - stats.f.cdf(f_stat, p_poly - p_linear, n - p_poly - 1)
     
     return {
-        "baseline": {
-            "r2": float(r2_red),
-            "rss": float(rss_red),
-            "df_error": int(df_red),
-            "coefficients": model_red.coef_.tolist(),
-            "intercept": float(model_red.intercept_)
-        },
-        "polynomial": {
-            "r2": float(r2_full),
-            "rss": float(rss_full),
-            "df_error": int(df_full),
-            "coefficients": model_full.coef_.tolist(),
-            "intercept": float(model_full.intercept_)
-        },
-        "f_test": {
-            "f_statistic": float(f_stat),
-            "p_value": float(p_val),
-            "numerator_df": int(num_df),
-            "denominator_df": int(den_df),
-            "significant_at_0.05": bool(p_val < 0.05)
-        },
-        "feature_names": list(feature_names)
+        'linear_r2': linear_r2,
+        'polynomial_r2': poly_r2,
+        'r2_improvement': poly_r2 - linear_r2,
+        'f_statistic': f_stat,
+        'p_value': p_value,
+        'significant': p_value < 0.05,
+        'degrees_of_freedom': {'model': p_poly - p_linear, 'error': n - p_poly - 1}
     }
 
 def save_results(results, output_path):
-    """Save results to JSON."""
+    """Save non-linear analysis results."""
+    ensure_dirs(output_path)
     with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    print(f"Results saved to {output_path}")
+    print(f"Saved non-linear analysis results to {output_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Non-linear interaction analysis (T024)")
-    parser.add_argument("--degree", type=int, default=2, help="Polynomial degree")
-    parser.add_argument("--test-size", type=float, default=0.2, help="Test set size")
+    """Main function for non-linear analysis."""
+    parser = argparse.ArgumentParser(description="Perform non-linear interaction analysis")
+    parser.add_argument("--band", type=str, default="alpha",
+                      help="Band to analyze (default: alpha)")
+    parser.add_argument("--degree", type=int, default=2,
+                      help="Polynomial degree (default: 2)")
+    parser.add_argument("--output", type=str, default=None,
+                      help="Output path for results JSON (default: data/processed/nonlinear_results.json)")
     args = parser.parse_args()
-
-    print("Loading features...")
+    
+    print(f"Loading features...")
     df = load_features()
-
-    print(f"Preparing polynomial features (degree={args.degree})...")
-    X_poly, y, feature_names, X_base, alpha_col, beta_col = prepare_polynomial_features(
-        df, target_col="median_rt", degree=args.degree
-    )
-
-    # Split data (using seed from config)
-    seed = get_seed()
-    X_train, X_test, y_train, y_test = train_test_split(
-        X_poly, y, test_size=args.test_size, random_state=seed
-    )
-
-    print(f"Fitting models (Baseline vs Polynomial on {alpha_col} & {beta_col})...")
-    results = fit_models(X_train, y_train, X_test, y_test, feature_names)
-
-    # Add metadata
-    results["metadata"] = {
-        "task_id": "T024",
-        "alpha_column": alpha_col,
-        "beta_column": beta_col,
-        "polynomial_degree": args.degree,
-        "test_size": args.test_size,
-        "seed": seed
-    }
-
-    output_dir = ensure_dirs("processed")
-    output_path = os.path.join(output_dir, "non_linear_comparison.json")
+    
+    print(f"Preparing polynomial features for {args.band} band (degree={args.degree})...")
+    X_poly, y, poly = prepare_polynomial_features(df, args.band, args.degree)
+    
+    print("Fitting models and comparing...")
+    results = fit_models(X_poly, y)
+    results['band'] = args.band
+    results['degree'] = args.degree
+    results['sample_size'] = len(df)
+    
+    # Determine output path
+    if args.output:
+        output_path = args.output
+    else:
+        output_path = get_path("data/processed", "nonlinear_results.json")
     
     save_results(results, output_path)
-    print("Analysis complete.")
+    
+    # Also save to the expected location for T025
+    expected_output = get_path("data/processed", "non_linear_comparison.json")
+    if output_path != expected_output:
+        ensure_dirs(expected_output)
+        with open(expected_output, 'w') as f:
+            json.dump(results, f, indent=2)
+        print(f"Also saved to {expected_output}")
+    
+    print(f"Non-linear analysis completed. R² improvement: {results['r2_improvement']:.4f}, p-value: {results['p_value']:.4f}")
 
 if __name__ == "__main__":
     main()

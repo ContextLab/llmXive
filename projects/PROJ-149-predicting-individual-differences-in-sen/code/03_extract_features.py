@@ -5,6 +5,8 @@ Output: data/interim/eeg_psd.csv (raw power values)
 
 Window: 4s, Overlap: 2s.
 Bands: delta, theta, alpha, low-beta, high-beta, gamma.
+
+Implements chunked processing for memory efficiency and global mean aggregation.
 """
 import os
 import sys
@@ -12,6 +14,7 @@ import glob
 import json
 import argparse
 import numpy as np
+import pandas as pd
 from typing import Dict, List, Tuple, Optional
 import mne
 from scipy import signal
@@ -28,8 +31,6 @@ def load_preprocessed_eeg(input_dir: str) -> Dict[str, mne.io.Raw]:
     subjects = {}
     for f in files:
         subj_id = os.path.splitext(os.path.basename(f))[0]
-        # Handle potential 'sub-XXX_ses-XXX' naming or just 'sub-XXX'
-        # We assume the filename is the subject ID for simplicity in this mapping
         try:
             raw = mne.io.read_raw_fif(f, preload=True)
             subjects[subj_id] = raw
@@ -37,30 +38,44 @@ def load_preprocessed_eeg(input_dir: str) -> Dict[str, mne.io.Raw]:
             print(f"Warning: Could not load {f}: {e}")
     return subjects
 
-def compute_welch_psd(raw: mne.io.Raw, window_sec: float, overlap_sec: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def compute_welch_psd_chunked(raw: mne.io.Raw, window_sec: float, overlap_sec: float) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute Welch's PSD for the entire recording.
-    Returns: freqs, psds (channels x freqs), mean_power (channels x 1)
+    Compute Welch's PSD for the entire recording with chunked processing.
+    Returns: freqs, psds (channels x freqs)
     """
     data = raw.get_data()
     sfreq = raw.info['sfreq']
+    n_channels, n_times = data.shape
     
     n_fft = int(window_sec * sfreq)
     n_overlap = int(overlap_sec * sfreq)
     
-    # Compute PSD
-    freqs, psds = signal.welch(
-        data, 
-        fs=sfreq, 
-        nperseg=n_fft, 
-        noverlap=n_overlap, 
-        axis=-1
-    )
+    # Initialize storage for PSDs
+    # We will compute PSD for each channel separately to manage memory
+    all_psds = []
+    
+    # Process each channel
+    for ch_idx in range(n_channels):
+        ch_data = data[ch_idx, :]
+        
+        # Compute PSD for this channel
+        freqs, psd = signal.welch(
+            ch_data, 
+            fs=sfreq, 
+            nperseg=n_fft, 
+            noverlap=n_overlap
+        )
+        all_psds.append(psd)
+    
+    # Stack PSDs: shape (n_channels, n_freqs)
+    psds = np.stack(all_psds, axis=0)
+    
     return freqs, psds
 
 def aggregate_band_power(freqs: np.ndarray, psds: np.ndarray, bands: Dict[str, Tuple[float, float]]) -> Dict[str, float]:
     """
     Aggregate PSD into band powers (mean power in band).
+    Uses global mean aggregation across channels as per Constitution Principle VI.
     """
     band_powers = {}
     for name, (low, high) in bands.items():
@@ -75,7 +90,7 @@ def aggregate_band_power(freqs: np.ndarray, psds: np.ndarray, bands: Dict[str, T
 
 def extract_features_for_subject(subj_id: str, raw: mne.io.Raw, bands: Dict[str, Tuple[float, float]], window_sec: float, overlap_sec: float) -> Dict:
     """Extract features for a single subject."""
-    freqs, psds = compute_welch_psd(raw, window_sec, overlap_sec)
+    freqs, psds = compute_welch_psd_chunked(raw, window_sec, overlap_sec)
     band_powers = aggregate_band_power(freqs, psds, bands)
     
     # Add subject ID
@@ -100,6 +115,8 @@ def main():
     
     print(f"Using bands: {bands}")
     print(f"Window: {window_sec}s, Overlap: {overlap_sec}s")
+    print(f"Input directory: {input_dir}")
+    print(f"Output path: {output_path}")
     
     subjects = load_preprocessed_eeg(input_dir)
     all_features = []
@@ -119,7 +136,7 @@ def main():
     df = pd.DataFrame(all_features)
     df.to_csv(output_path, index=False)
     print(f"Saved features to {output_path}")
+    print(f"Processed {len(all_features)} subjects")
 
 if __name__ == "__main__":
-    import pandas as pd
     main()

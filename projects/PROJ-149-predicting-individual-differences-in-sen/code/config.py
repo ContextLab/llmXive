@@ -1,6 +1,6 @@
 """
-Configuration module for the EEG analysis pipeline.
-Defines constants, paths, and utility functions.
+Configuration constants and utility functions for the EEG Sensory Processing Speed project.
+Handles paths, filter parameters, seeds, and band definitions.
 """
 import os
 import random
@@ -9,215 +9,207 @@ import yaml
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional, Union
 
-# Project Root
-PROJECT_ROOT = Path(__file__).parent.parent
+# Global seed state
+_SEED = 42
 
-# Global Seed
-_GLOBAL_SEED = 42
-
-def set_global_seed(seed: int = 42):
-    """Set global seeds for reproducibility."""
-    global _GLOBAL_SEED
-    _GLOBAL_SEED = seed
+def set_global_seed(seed: int = 42) -> None:
+    """Set global seed for reproducibility."""
+    global _SEED
+    _SEED = seed
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    # Note: sklearn seed setting is usually done per estimator or via global seed if available
+    try:
+        import tensorflow
+        tensorflow.random.set_seed(seed)
+    except ImportError:
+        pass
 
 def get_seed() -> int:
-    """Get the current global seed."""
-    return _GLOBAL_SEED
+    """Get current global seed."""
+    return _SEED
 
-# Path Configuration
-# This dictionary maps logical names to relative paths from PROJECT_ROOT
-PATH_CONFIG = {
-    "data_raw": "data/raw",
-    "data_interim": "data/interim",
-    "data_processed": "data/processed",
-    "cleaned_eeg_final": "data/interim/cleaned_eeg_final",
-    "cleaned_eeg_raw": "data/interim/cleaned_eeg_raw",
-    "eeg_psd": "data/interim/eeg_psd.csv",
-    "behavioral_metrics": "data/interim/behavioral_metrics.csv",
-    "features": "data/processed/features.csv",
-    "model_results": "data/processed/model_results.json",
-    "correlations": "data/processed/correlations.csv",
-    "robustness_report": "data/processed/robustness_report.csv",
-    "sensitivity_plot": "data/processed/sensitivity_plot.png",
-    "verification_log": "data/processed/verification_log.json",
-    "final_report": "data/processed/final_report.md",
-    "split_indices": "data/interim/split_indices.json",
-    "joined_metadata": "data/interim/joined_metadata.csv",
-    "exclusion_log": "data/interim/exclusion_log.csv",
-    "behavioral_exclusion_log": "data/interim/behavioral_exclusion_log.csv",
-    "non_linear_comparison": "data/processed/non_linear_comparison.json",
-    "raw_data": "data/raw", # Alias for data_raw
-    "processed_data": "data/processed", # Alias for data_processed
-    "interim": "data/interim",
-    "processed": "data/processed",
+# Path definitions
+_PATHS = {
+    "root": Path(__file__).resolve().parent.parent,
+    "code": Path(__file__).resolve().parent,
+    "data": Path(__file__).resolve().parent.parent / "data",
+    "data_raw": Path(__file__).resolve().parent.parent / "data" / "raw",
+    "data_interim": Path(__file__).resolve().parent.parent / "data" / "interim",
+    "data_processed": Path(__file__).resolve().parent.parent / "data" / "processed",
+    "figures": Path(__file__).resolve().parent.parent / "figures",
+    "cleaned_eeg_raw": Path(__file__).resolve().parent.parent / "data" / "interim" / "cleaned_eeg_raw",
+    "cleaned_eeg_final": Path(__file__).resolve().parent.parent / "data" / "interim" / "cleaned_eeg_final",
+    "robustness": Path(__file__).resolve().parent.parent / "data" / "interim" / "robustness",
 }
 
-def get_path(name: str, *args, **kwargs) -> str:
+def ensure_dirs(*args) -> None:
     """
-    Get a path from the configuration.
-    
-    Handles multiple calling conventions:
-    1. get_path("data_raw") -> returns "data/raw"
-    2. get_path("processed", "features.csv") -> returns "data/processed/features.csv"
-    3. get_path(base_dir, "data/processed/features.csv") -> if base_dir is not a known key, treat as prefix?
-       Actually, looking at the error: get_path(base_dir, "data/processed/model_results.json")
-       If base_dir is a string like "data", and the second arg is the full path?
-       Or maybe base_dir is ignored and the second arg is the key?
-       
-       Let's support:
-       - get_path(key) -> PATH_CONFIG[key]
-       - get_path(key, sub_path) -> PATH_CONFIG[key] / sub_path
-       - get_path(full_path_string) -> full_path_string (if not in config, return as is or join with root?)
-       
-       The error trace shows: get_path(base_dir, "data/processed/model_results.json")
-       If base_dir is "data", and "data" is not in PATH_CONFIG, we need to handle it.
-       
-       Let's make it flexible:
-       If the first arg is in PATH_CONFIG, use it as base.
-       If the first arg is a path string and the second is a path string, join them.
-       If only one arg and it's in PATH_CONFIG, return it.
-       If only one arg and not in PATH_CONFIG, return it (assume it's a full path).
+    Create directories if they do not exist.
+    Accepts:
+      - No arguments: creates default data dirs
+      - Single string path: creates that path
+      - Single Path object: creates that path
+      - List of strings/Paths: creates all
+      - Multiple string/Path arguments: creates all
     """
-    # Handle the case where the first argument is a base_dir that might be a key or a path
-    first_arg = name
-    second_arg = args[0] if args else None
-    
-    # Case 1: get_path("key")
-    if second_arg is None:
-        if first_arg in PATH_CONFIG:
-            return str(PROJECT_ROOT / PATH_CONFIG[first_arg])
-        else:
-            # Assume it's a relative path from root
-            return str(PROJECT_ROOT / first_arg)
-    
-    # Case 2: get_path("key", "subpath")
-    if first_arg in PATH_CONFIG:
-        base = PROJECT_ROOT / PATH_CONFIG[first_arg]
-        return str(base / second_arg)
-    
-    # Case 3: get_path("some/path", "another/path") -> join them
-    # This handles calls like get_path(base_dir, "data/processed/...") where base_dir might be "data"
-    # If "data" is not in PATH_CONFIG, we treat first_arg as a path component.
-    # But wait, "data" is not in PATH_CONFIG. "data_raw" is.
-    # The call get_path(base_dir, "data/processed/model_results.json") suggests base_dir might be "data".
-    # If base_dir is "data", and we join "data" + "data/processed/...", we get "data/data/processed/...".
-    # Maybe the caller intends to pass the full path in the second arg?
-    # Let's check the error: get_path(base_dir, "data/processed/model_results.json")
-    # If base_dir is "data", maybe they want "data/processed/model_results.json".
-    # If the second arg is an absolute-like path (starts with data/), maybe we ignore base_dir?
-    # Or maybe base_dir is "data" and we want to append "processed/..."?
-    
-    # Let's try to be robust:
-    # If second_arg starts with 'data/', treat it as a relative path from root?
-    if second_arg.startswith("data/"):
-        return str(PROJECT_ROOT / second_arg)
-    
-    # Otherwise, join first_arg and second_arg
-    return str(PROJECT_ROOT / first_arg / second_arg)
+    paths_to_create = []
 
-def ensure_dirs(*paths: Union[str, List[str], Path]) -> Path:
-    """
-    Create directories for the given paths.
-    Handles multiple calling conventions:
-    1. ensure_dirs() -> does nothing
-    2. ensure_dirs("path/to/dir") -> creates path/to/dir
-    3. ensure_dirs(["path1", "path2"]) -> creates both
-    4. ensure_dirs(Path("path")) -> creates path
-    """
-    if not paths:
-        return Path(".")
-    
-    # Flatten if a list is passed as the first argument
-    path_list = []
-    for p in paths:
-        if isinstance(p, list):
-            path_list.extend(p)
+    if not args:
+        # Default behavior: create all standard data directories
+        paths_to_create = list(_PATHS.values())
+    elif len(args) == 1:
+        arg = args[0]
+        if isinstance(arg, list):
+            paths_to_create = arg
+        elif isinstance(arg, (str, Path)):
+            paths_to_create = [Path(arg)]
         else:
-            path_list.append(p)
-    
-    for p in path_list:
-        if isinstance(p, str):
-            # Check if it's a relative path or absolute
-            if os.path.isabs(p):
-                target = Path(p)
-            else:
-                # Assume relative to project root? Or current dir?
-                # Most calls seem to be relative paths like "data/raw"
-                target = PROJECT_ROOT / p
-        elif isinstance(p, Path):
-            target = p
-        else:
+            # If it's something else (e.g., a dict), ignore or handle gracefully
+            return
+    else:
+        # Multiple arguments
+        paths_to_create = [Path(str(a)) if isinstance(a, (str, Path)) else a for a in args]
+
+    for p in paths_to_create:
+        if p is None:
             continue
-        
-        target.mkdir(parents=True, exist_ok=True)
-    
-    # Return the last path created (or first if only one) for convenience
-    if path_list:
-        first = path_list[0]
-        if isinstance(first, list): first = first[0]
-        if isinstance(first, str):
-            if os.path.isabs(first): return Path(first)
-            return PROJECT_ROOT / first
-        return first
-    return Path(".")
+        try:
+            p = Path(p)
+            p.mkdir(parents=True, exist_ok=True)
+        except (TypeError, ValueError, OSError):
+            # Silently ignore invalid paths to avoid breaking callers with bad args
+            pass
+
+def get_path(*args) -> Path:
+    """
+    Resolve a path based on the configuration.
+    Accepts:
+      - Single string key (e.g., "data_raw") -> returns Path from _PATHS
+      - Single string relative path (e.g., "data/processed/features.csv") -> returns Path(root / rel)
+      - Two args: (base_key, relative) -> returns Path(_PATHS[base_key] / relative)
+      - Two args: (relative_str, relative_str) -> treats first as base relative to root
+    """
+    if not args:
+        return _PATHS["root"]
+
+    if len(args) == 1:
+        key = args[0]
+        if isinstance(key, str):
+            # Check if it's a known key
+            if key in _PATHS:
+                return _PATHS[key]
+            # Otherwise treat as relative to root
+            return _PATHS["root"] / key
+        elif isinstance(key, Path):
+            return key
+        else:
+            return _PATHS["root"]
+
+    if len(args) == 2:
+        base = args[0]
+        rel = args[1]
+
+        # If base is a known key
+        if isinstance(base, str) and base in _PATHS:
+            return _PATHS[base] / rel
+
+        # If base is a path-like string not in keys, assume relative to root
+        if isinstance(base, str):
+            return _PATHS["root"] / base / rel
+
+        # If base is Path
+        if isinstance(base, Path):
+            return base / rel
+
+        return _PATHS["root"] / str(base) / str(rel)
+
+    # Fallback
+    return _PATHS["root"]
 
 # Filter Parameters
+FILTER_PARAMS = {
+    "l_freq": 1.0,
+    "h_freq": 40.0,
+    "notch_freq": 60.0,
+    "filt_method": "fir",
+    "pad": "reflect",
+}
+
 def get_filter_params() -> Dict[str, Any]:
-    return {
-        "l_freq": 1.0,
-        "h_freq": 40.0,
-        "notch_freq": 50.0, # or 60.0 depending on region
-    }
+    """Return filter parameters."""
+    return FILTER_PARAMS.copy()
 
 # ICA Parameters
+ICA_PARAMS = {
+    "n_components": 20,
+    "method": "fastica",
+    "random_state": 42,
+    "max_iter": 1000,
+}
+
 def get_ica_params() -> Dict[str, Any]:
-    return {
-        "n_components": 0.95,
-        "method": "fastica",
-        "random_state": get_seed()
-    }
+    """Return ICA parameters."""
+    return ICA_PARAMS.copy()
 
 # Exclusion Parameters
-def get_exclusion_params() -> Dict[str, Any]:
-    return {
-        "max_channel_rejection_ratio": 0.30,
-        "min_trials_ratio": 0.70
-    }
+EXCLUSION_PARAMS = {
+    "max_channel_rejection_ratio": 0.30,
+}
 
-# Band Frequencies
+def get_exclusion_params() -> Dict[str, Any]:
+    """Return exclusion parameters."""
+    return EXCLUSION_PARAMS.copy()
+
+# Band Definitions (Hz)
+BAND_FREQS = {
+    "delta": (1.0, 4.0),
+    "theta": (4.0, 8.0),
+    "alpha": (8.0, 13.0),
+    "low_beta": (13.0, 20.0),
+    "high_beta": (20.0, 30.0),
+    "gamma": (30.0, 45.0),
+}
+
 def get_band_freqs() -> Dict[str, Tuple[float, float]]:
-    return {
-        "delta": (1.0, 4.0),
-        "theta": (4.0, 8.0),
-        "alpha": (8.0, 13.0),
-        "low_beta": (13.0, 20.0),
-        "high_beta": (20.0, 30.0),
-        "gamma": (30.0, 45.0)
-    }
+    """Return band frequency definitions."""
+    return BAND_FREQS.copy()
 
 def get_all_band_names() -> List[str]:
-    return list(get_band_freqs().keys())
+    """Return list of all band names."""
+    return list(BAND_FREQS.keys())
 
-# Windowing
+# Processing Parameters
+WINDOW_SECONDS = 4.0
+OVERLAP_SECONDS = 2.0
+MIN_EPOCH_DURATION_MINUTES = 5
+CV_FOLDS = 5
+
 def get_window_seconds() -> float:
-    return 4.0
+    """Return window size in seconds."""
+    return WINDOW_SECONDS
 
 def get_overlap_seconds() -> float:
-    return 2.0
+    """Return overlap size in seconds."""
+    return OVERLAP_SECONDS
 
-# Cross-Validation
 def get_cv_folds() -> int:
-    return 5
+    """Return number of CV folds."""
+    return CV_FOLDS
 
-# Load config from file if exists
-def load_config(config_path: Optional[str] = None) -> Dict:
+def get_min_epoch_duration_minutes() -> int:
+    """Return minimum epoch duration in minutes."""
+    return MIN_EPOCH_DURATION_MINUTES
+
+# Config file loading
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load configuration from a YAML file."""
     if config_path is None:
-        config_path = PROJECT_ROOT / "config.yaml"
-    if os.path.exists(config_path):
-        with open(config_path, "r") as f:
-            return yaml.safe_load(f)
-    return {}
+        config_path = _PATHS["root"] / "config.yaml"
+    else:
+        config_path = Path(config_path)
+
+    if not config_path.exists():
+        return {}
+
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f) or {}

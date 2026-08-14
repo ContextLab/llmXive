@@ -1,11 +1,7 @@
 """
-T035a: Validate schema of data/processed/features.csv.
-
-Validates:
-1. No nulls in any column.
-2. Correct columns (participant_id, median_rt, delta, theta, alpha, low_beta, high_beta, gamma, relative_delta, relative_theta, relative_alpha, relative_low_beta, relative_high_beta, relative_gamma).
-3. Valid RT range: 150ms to 1000ms (explicitly excludes outliers <100ms or >2000ms).
-4. Positive power values.
+T035a: Validate schema of data/processed/features.csv
+Checks: no nulls, correct columns, valid RT range (150ms to 1000ms).
+Explicitly excludes outliers <100ms or >2000ms (as per task description).
 """
 import os
 import sys
@@ -14,125 +10,163 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Import config utilities
-from config import get_path, ensure_dirs
+# Import config utilities to handle path resolution robustly
+# We import the specific symbols we need from config.py
+# Note: config.py defines get_path and ensure_dirs with flexible signatures
+try:
+    from config import get_path, ensure_dirs
+except ImportError:
+    # Fallback for direct execution if config is not in path (unlikely in this structure)
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '.'))
+    from config import get_path, ensure_dirs
 
-def validate_schema(features_path: str) -> bool:
+# Define expected columns based on T015 output (CLR-transformed relative power + RT)
+# T015 produces: participant_id, median_rt, and relative power bands (delta, theta, alpha, low_beta, high_beta, gamma)
+# The task description mentions "valid RT range", implying 'median_rt' or similar column exists.
+EXPECTED_COLUMNS = {
+    'participant_id',
+    'median_rt',
+    'delta',
+    'theta',
+    'alpha',
+    'low_beta',
+    'high_beta',
+    'gamma'
+}
+
+# RT Validation thresholds
+# Task T035a says: "valid RT range 150ms to 1000ms"
+# AND "explicitly exclude outliers <100ms or >2000ms"
+# This implies the validation should check if values fall within the "valid" range (150-1000)
+# and report any that are outside, or specifically check that the data *used* was filtered correctly.
+# Given the instruction "Validate schema... (no nulls, correct columns, valid RT range...)",
+# we will check that all RT values are within [150, 1000].
+# If any are <100 or >2000, that is a critical failure of upstream filtering (T013).
+RT_MIN_VALID = 150.0
+RT_MAX_VALID = 1000.0
+RT_CRITICAL_LOW = 100.0
+RT_CRITICAL_HIGH = 2000.0
+
+def validate_schema(input_path: str) -> bool:
     """
-    Validates the schema and content of the features CSV file.
-    
-    Args:
-        features_path: Path to the features CSV file.
-        
-    Returns:
-        bool: True if validation passes, False otherwise.
+    Validates the schema and content of the features CSV.
+    Returns True if valid, False otherwise.
+    Raises RuntimeError with details if validation fails.
     """
-    print(f"Validating schema for: {features_path}")
-    
-    if not os.path.exists(features_path):
-        print(f"ERROR: File not found: {features_path}")
-        return False
-    
+    path_obj = Path(input_path)
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
     try:
-        df = pd.read_csv(features_path)
+        df = pd.read_csv(input_path)
     except Exception as e:
-        print(f"ERROR: Failed to load CSV: {e}")
-        return False
-    
-    print(f"Loaded {len(df)} rows and {len(df.columns)} columns.")
-    
-    # Define expected columns
-    expected_cols = [
-        'participant_id', 'median_rt',
-        'delta', 'theta', 'alpha', 'low_beta', 'high_beta', 'gamma',
-        'relative_delta', 'relative_theta', 'relative_alpha',
-        'relative_low_beta', 'relative_high_beta', 'relative_gamma'
-    ]
-    
-    # Check 1: Correct columns
-    missing_cols = set(expected_cols) - set(df.columns)
-    extra_cols = set(df.columns) - set(expected_cols)
-    
+        raise RuntimeError(f"Failed to read CSV: {e}")
+
+    if df.empty:
+        raise RuntimeError("Input file is empty.")
+
+    # 1. Check Columns
+    existing_cols = set(df.columns)
+    missing_cols = EXPECTED_COLUMNS - existing_cols
     if missing_cols:
-        print(f"ERROR: Missing expected columns: {missing_cols}")
-        return False
-    if extra_cols:
-        print(f"WARNING: Extra columns found (not strictly an error, but unexpected): {extra_cols}")
-    
-    # Check 2: No nulls
+        raise RuntimeError(f"Missing required columns: {missing_cols}. Found: {list(df.columns)}")
+
+    # 2. Check for Nulls
     null_counts = df.isnull().sum()
     if null_counts.any():
-        print(f"ERROR: Found null values in the following columns:")
-        print(null_counts[null_counts > 0])
-        return False
-    
-    # Check 3: Valid RT range (150ms to 1000ms)
-    # The task explicitly mentions excluding outliers <100ms or >2000ms in previous steps,
-    # but the validation constraint is 150ms to 1000ms.
+        null_cols = null_counts[null_counts > 0].index.tolist()
+        raise RuntimeError(f"Null values found in columns: {null_cols}")
+
+    # 3. Validate RT Range
     rt_col = 'median_rt'
     if rt_col not in df.columns:
-        print(f"ERROR: Column '{rt_col}' not found.")
-        return False
-        
-    rt_min = df[rt_col].min()
-    rt_max = df[rt_col].max()
-    
-    if rt_min < 150:
-        outliers_low = df[df[rt_col] < 150]
-        print(f"ERROR: Found {len(outliers_low)} rows with RT < 150ms (min: {rt_min}).")
-        print("Outliers (first 5):")
-        print(outliers_low.head())
-        return False
-        
-    if rt_max > 1000:
-        outliers_high = df[df[rt_col] > 1000]
-        print(f"ERROR: Found {len(outliers_high)} rows with RT > 1000ms (max: {rt_max}).")
-        print("Outliers (first 5):")
-        print(outliers_high.head())
-        return False
-        
-    print(f"RT range valid: [{rt_min}, {rt_max}]")
-    
-    # Check 4: Power values should be positive (relative power 0-1, absolute power > 0)
-    power_cols = [c for c in df.columns if c in expected_cols and c != 'participant_id' and c != 'median_rt']
+        raise RuntimeError(f"RT column '{rt_col}' not found.")
+
+    rt_series = df[rt_col]
+
+    # Check for critical outliers (<100 or >2000) - this indicates a failure in T013
+    critical_outliers = df[(rt_series < RT_CRITICAL_LOW) | (rt_series > RT_CRITICAL_HIGH)]
+    if not critical_outliers.empty:
+        count = len(critical_outliers)
+        raise RuntimeError(
+            f"CRITICAL: Found {count} participants with RTs outside the allowed range (<{RT_CRITICAL_LOW}ms or >{RT_CRITICAL_HIGH}ms). "
+            f"This indicates T013 (behavioral parsing) failed to filter outliers correctly."
+        )
+
+    # Check for "valid" range (150 to 1000) as per T035a description
+    invalid_range = df[(rt_series < RT_MIN_VALID) | (rt_series > RT_MAX_VALID)]
+    if not invalid_range.empty:
+        count = len(invalid_range)
+        # These are outside the "valid" range for analysis, but not necessarily "critical" errors if T013 allowed them
+        # However, T035a says "valid RT range 150ms to 1000ms", implying we should enforce this.
+        # If the task is to validate that the data *meets* this criteria, we fail if they don't.
+        raise RuntimeError(
+            f"Validation Failed: Found {count} participants with RTs outside the valid analysis range (150ms - 1000ms). "
+            f"Range: [{rt_series.min()}, {rt_series.max()}]. "
+            f"All values must be between {RT_MIN_VALID} and {RT_MAX_VALID}."
+        )
+
+    # 4. Validate Power Values (Sanity Check)
+    # Power values (even CLR transformed) should be numeric and finite
+    power_cols = ['delta', 'theta', 'alpha', 'low_beta', 'high_beta', 'gamma']
     for col in power_cols:
-        if (df[col] <= 0).any():
-            # Relative power can be 0, but absolute power should be > 0.
-            # Let's be strict: all power values must be > 0.
-            if col.startswith('relative_'):
-                if (df[col] < 0).any():
-                     print(f"ERROR: Negative relative power found in {col}.")
-                     return False
-            else:
-                if (df[col] <= 0).any():
-                    print(f"ERROR: Non-positive power found in {col}.")
-                    return False
-    
-    print("Schema validation PASSED.")
+        if not np.isfinite(df[col]).all():
+            raise RuntimeError(f"Non-finite values (inf/nan) found in power column: {col}")
+
+    print(f"Schema validation PASSED for {input_path}")
+    print(f"  - Rows: {len(df)}")
+    print(f"  - Columns: {list(df.columns)}")
+    print(f"  - RT Range: [{rt_series.min():.2f}, {rt_series.max():.2f}]")
     return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate features.csv schema")
-    parser.add_argument("--input", type=str, default=None, help="Path to features.csv. Defaults to config path.")
+    parser = argparse.ArgumentParser(description="Validate features.csv schema and content.")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=None,
+        help="Path to features.csv. If not provided, uses config path."
+    )
+    parser.add_argument(
+        "--output-log",
+        type=str,
+        default=None,
+        help="Path to write validation log (optional)."
+    )
+
     args = parser.parse_args()
-    
+
+    # Resolve input path
     if args.input:
-        features_path = args.input
+        input_path = args.input
     else:
-        # Use config path for processed features
-        features_path = get_path("processed", "features.csv")
-    
-    # Ensure directory exists (though we are reading, not writing, good practice)
-    # ensure_dirs(os.path.dirname(features_path)) 
-    
-    success = validate_schema(features_path)
-    
-    if not success:
-        print("Validation FAILED.")
+        # Try to get path from config. T015 outputs to data/processed/features.csv
+        # Config might have a key for 'features' or we construct it.
+        # Based on T035a description: "data/processed/features.csv"
+        try:
+            # Attempt to use config's get_path if it supports string keys
+            # The config.py signature is flexible, but we try a standard key first
+            input_path = get_path("data/processed/features.csv")
+        except (ValueError, TypeError):
+            # Fallback to hardcoded relative path if config key fails
+            input_path = os.path.join("data", "processed", "features.csv")
+
+    # Ensure output directory exists if logging
+    if args.output_log:
+        ensure_dirs(args.output_log)
+
+    try:
+        is_valid = validate_schema(input_path)
+        if is_valid:
+            print("Validation successful.")
+            sys.exit(0)
+        else:
+            # Should have raised an error if invalid, but just in case
+            print("Validation failed.")
+            sys.exit(1)
+    except Exception as e:
+        print(f"Validation FAILED: {e}")
         sys.exit(1)
-    else:
-        print("Validation SUCCESS.")
-        sys.exit(0)
 
 if __name__ == "__main__":
     main()

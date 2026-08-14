@@ -819,3 +819,21 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T18:58:47Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Dataset is PhysioNet EEG Motor Movement/Imagery
+  claim_id: c_6949debe
+  context: Create code/01_download_data.py to fetch PhysioNet EEG Motor Movement/Imagery
+    data and verify checksums.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_is_PhysioNet_EEG_Motor_Movement/Imagery
+  kind: entity_fact
+  raw_text: The dataset is the PhysioNet EEG Motor Movement/Imagery data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T21:36:09Z'
