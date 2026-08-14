@@ -1,0 +1,721 @@
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialized with specific packages
+  claim_id: c_372956d9
+  context: 'T002 Initialize Python 3.11 project with `requirements.txt` (pinned: pandas,
+    numpy, scikit-learn, statsmodels, geopandas, rasterio, requests, pyyaml)'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with `requirements.txt` (pinned: pandas,
+    numpy, scikit-learn, statsmodels, geopandas, rasterio, requests, pyyaml)'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T22:28:05Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Cloud cover thresholds defined as 0.6, 0.7, and 0.8
+  claim_id: c_2ead4128
+  context: T004 Create `src/config/constants.py` with random seeds, paths, and cloud
+    cover thresholds {0.6, 0.7, 0.8}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create `src/config/constants.py` with random seeds, paths, and cloud cover
+    thresholds {0.6, 0.7, 0.8}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:28:56Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Analysis dataset CSV exists with valid data
+  claim_id: c_476b0873
+  context: 'Independent Test: Verify that `data/processed/analysis_dataset.csv` exists,
+    contains non-null values for CSA Index and Stability Score, and passes `contracts/dataset.schema.yaml`
+    validation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_dataset_CSV_exists_with_valid_data
+  kind: entity_fact
+  raw_text: Verify that `data/processed/analysis_dataset.csv` exists, contains non-null
+    values for CSA Index and Stability Score, and passes `contracts/dataset.schema.yaml`
+    validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:29:31Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction with alpha = 0.0167
+  claim_id: c_883e1415
+  context: 'Implement Bonferroni correction logic in `src/analysis/run_regression.py`:
+    apply alpha=0.0167 threshold, assert adjusted p-values are present in output JSON,
+    and log the adjusted threshold explicitly.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.0167'
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: '0.0167'
+    filled: true
+  kind: numeric
+  raw_text: Apply alpha=0.0167 threshold
+  resolved_value: '0.0167'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T22:29:44Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Regression analysis completes within 60 minutes
+  claim_id: c_d0b39b72
+  context: 'Independent Test: Execution of `src/analysis/run_regression.py` produces
+    a summary file containing regression coefficients, p-values, and VIF scores for
+    both Yield Stability and Food Security models, completing within 60 minutes on
+    CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execution of `src/analysis/run_regression.py` produces a summary file
+    completing within 60 minutes on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:30:08Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Village aggregation used if household count is less than 300
+  claim_id: c_433a2c59
+  context: 'Implement village-level aggregation fallback in `src/data/processing/feature_engineering.py`
+    with explicit conditional logic: Attempt household join -> Count N -> If N < 300,
+    aggregate to village level using ''village_id'' as key and ''mean'' as function
+    for CSA_Index and Stability_Score.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Village_aggregation_used_if_household_count_is_less_than_300
+  kind: magnitude
+  raw_text: Attempt household join -> Count N -> If N < 300, aggregate to village
+    level using 'village_id' as key and 'mean' as function for CSA_Index and Stability_Score.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:31:14Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: final report includes observational framing disclaimer
+  claim_id: c_648fe4e7
+  context: 'Independent Test: Execution of src/analysis/sensitivity_check.py produces
+    a plot and table showing coefficient stability across threshold sweeps, and the
+    final report includes the observational framing disclaimer.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_includes_observational_framing_disclaimer
+  kind: entity_fact
+  raw_text: The final report includes the observational framing disclaimer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:34:07Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: final report explicitly states associational nature
+  claim_id: c_b672bde2
+  context: T033 [US3] Ensure final report explicitly states 'associational' nature,
+    Bonferroni adjustment, and the specific numerical threshold alpha=0.0167.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_explicitly_states_associational_nature
+  kind: entity_fact
+  raw_text: The final report explicitly states 'associational' nature.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:34:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: final report explicitly states Bonferroni adjustment
+  claim_id: c_3a3fa9e7
+  context: T033 [US3] Ensure final report explicitly states 'associational' nature,
+    Bonferroni adjustment, and the specific numerical threshold alpha=0.0167.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_explicitly_states_Bonferroni_adjustment
+  kind: entity_fact
+  raw_text: The Bonferroni adjustment is explicitly stated in the final report.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:35:26Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: final report states numerical threshold alpha=0.0167
+  claim_id: c_ebe1934f
+  context: T033 [US3] Ensure final report explicitly states 'associational' nature,
+    Bonferroni adjustment, and the specific numerical threshold alpha=0.0167.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The specific numerical threshold alpha=0.0167 is stated in the final report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:36:00Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applies alpha=0.0167 threshold based on Holm-Bonferroni
+    method
+  claim_id: c_a1994738
+  context: "T025b [US2] Implement Bonferroni correction logic in src/analysis/run_regression.py:\
+    \ apply alpha=0.0167 (Wikipedia: Holm\u2013Bonferroni method, https://en.wikipedia.org/wiki/Holm\u2013\
+    Bonferroni_method) threshold, assert adjusted p-values are present in output JSON,\
+    \ and log the adjusted threshold explicitly."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "The Bonferroni correction logic applies alpha=0.0167 (Wikipedia: Holm\u2013\
+    Bonferroni method, https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method)\
+    \ threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T22:36:03Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: aggregated dataset effective sample size >= 300
+  claim_id: c_d2e7aeca
+  context: 'T021a [US1] Implement verification step in src/data/processing/feature_engineering.py
+    to confirm that the aggregated dataset meets statistical power requirements: verify
+    effective sample size >= 300 OR variance reduction > 10% compared to household-level
+    noise before proceeding.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset aggregated to village level must have an effective sample
+    size >= 300.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:36:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: variance reduction > 10% compared to household-level noise
+  claim_id: c_bea2f2ff
+  context: 'T021a [US1] Implement verification step in src/data/processing/feature_engineering.py
+    to confirm that the aggregated dataset meets statistical power requirements: verify
+    effective sample size >= 300 OR variance reduction > 10% compared to household-level
+    noise before proceeding.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The variance reduction must be > 10% compared to household-level noise.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:36:45Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: village-level aggregation uses village_id as key and mean as function
+  claim_id: c_ce12a2c6
+  context: 'T021 [US1] Implement village-level aggregation fallback in src/data/processing/feature_engineering.py
+    with explicit conditional logic: Attempt household join -> Count N -> If N < 300,
+    aggregate to village level using ''village_id'' as key and ''mean'' as function
+    for CSA_Index and Stability_Score.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Village-level_aggregation_uses_village_id_as_key_and_mean_as
+  kind: entity_fact
+  raw_text: The aggregated dataset uses 'village_id' as key and 'mean' as function
+    for CSA_Index and Stability_Score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:37:24Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: regression execution completes within 60 minutes on CPU
+  claim_id: c_77ab944c
+  context: 'Independent Test: Execution of src/analysis/run_regression.py produces
+    a summary file containing regression coefficients, p-values, and VIF scores for
+    both Yield Stability and Food Security models, completing within 60 minutes on
+    CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The execution of src/analysis/run_regression.py completes within 60 minutes
+    on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:37:46Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: regression output flags VIF > 5
+  claim_id: c_c1d94bd8
+  context: T025a [US2] Implement VIF calculation and flagging logic within src/analysis/run_regression.py
+    to report VIF > 5 and annotate model summary.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression output includes VIF > 5 flagged.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:37:46Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: LSMS-ISA data fetched for Malawi and Tanzania
+  claim_id: c_d3b92a0c
+  context: T015 [US1] Implement src/data/collectors/survey_collector.py to fetch LSMS-ISA
+    (Malawi/Tanzania) with explicit URL handling and error logging.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LSMS-ISA_data_fetched_for_Malawi_and_Tanzania
+  kind: entity_fact
+  raw_text: LSMS-ISA data is fetched for Malawi and Tanzania.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:38:25Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: survey collector resolves Malawi or Tanzania and generates canonical
+    download URLs
+  claim_id: c_f1d660fc
+  context: T015a [US1] Implement region selection logic in src/data/collectors/survey_collector.py
+    to resolve the specific country (Malawi or Tanzania) and generate the canonical
+    download URL (e.g., World Bank microdata portal pattern) and file format (.dta/.csv).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Survey_collector_resolves_Malawi_or_Tanzania_and_generates_c
+  kind: entity_fact
+  raw_text: The survey collector resolves specific countries Malawi or Tanzania and
+    generates canonical download URLs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:38:58Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: LSMS-ISA file format is .dta or .csv
+  claim_id: c_4c3425e4
+  context: T015a [US1] Implement region selection logic in src/data/collectors/survey_collector.py
+    to resolve the specific country (Malawi or Tanzania) and generate the canonical
+    download URL (e.g., World Bank microdata portal pattern) and file format (.dta/.csv).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LSMS-ISA_file_format_is_.dta_or_.csv
+  kind: entity_fact
+  raw_text: The file format for LSMS-ISA data is .dta or .csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:39:31Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Sentinel-2 L2A imagery fetched from Copernicus Data Space Ecosystem API
+  claim_id: c_4cbc601d
+  context: T016 [US1] Implement src/data/collectors/remote_sensing_collector.py to
+    fetch Sentinel-2 L2A imagery from the Copernicus Data Space Ecosystem API with
+    streaming support and explicit caching (checksum verification).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sentinel-2 L2A imagery is fetched from the Copernicus Data Space Ecosystem
+    API.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:40:04Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Malawi growing season is March-May
+  claim_id: c_a65379f4
+  context: 'T018a [US1] Implement temporal window mapping logic in src/data/processing/feature_engineering.py
+    to map survey_year + country to specific growing season months (e.g., Malawi:
+    March-May; Tanzania: March-May/Nov-Dec) for NDVI aggregation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Malawi_growing_season_is_March-May
+  kind: entity_fact
+  raw_text: The growing season for Malawi is March-May.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:40:49Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Tanzania growing season includes March-May and Nov-Dec
+  claim_id: c_4d6a4713
+  context: 'T018a [US1] Implement temporal window mapping logic in src/data/processing/feature_engineering.py
+    to map survey_year + country to specific growing season months (e.g., Malawi:
+    March-May; Tanzania: March-May/Nov-Dec) for NDVI aggregation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tanzania_growing_season_includes_March-May_and_Nov-Dec
+  kind: entity_fact
+  raw_text: The growing season for Tanzania includes March-May and Nov-Dec.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:41:38Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Stability_Score calculation is 1/CV
+  claim_id: c_1990c426
+  context: T018c [US1] Implement Stability_Score calculation (1/CV) and CSA Index
+    construction (sum of binary indicators + extension frequency) in src/data/processing/feature_engineering.py,
+    including validation of the index against the survey data schema.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Stability_Score calculation is 1/CV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:42:16Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: CSA Index constructed as sum of binary indicators plus extension frequency
+  claim_id: c_0cb92b79
+  context: T018c [US1] Implement Stability_Score calculation (1/CV) and CSA Index
+    construction (sum of binary indicators + extension frequency) in src/data/processing/feature_engineering.py,
+    including validation of the index against the survey data schema.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CSA_Index_constructed_as_sum_of_binary_indicators_plus_exten
+  kind: entity_fact
+  raw_text: The CSA Index is constructed as the sum of binary indicators plus extension
+    frequency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:42:35Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: synthetic generator raises FatalError if real data missing and synthetic
+    flag not set
+  claim_id: c_4bcb5b4c
+  context: T010 [P] Create src/data/generators/synthetic_generator.py for CI validation
+    ONLY; MUST raise FatalError if real data is missing AND --synthetic flag is NOT
+    set, preventing silent fallback to mock data in production.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_raises_FatalError_if_real_data_missing_a
+  kind: entity_fact
+  raw_text: The synthetic generator MUST raise FatalError if real data is missing
+    AND --synthetic flag is NOT set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:43:17Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: cloud cover thresholds are 0.6, 0.7, 0.8
+  claim_id: c_e6475b1b
+  context: T004 Create src/config/constants.py with random seeds, paths, and cloud
+    cover thresholds {0.6, 0.7, 0.8}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The cloud cover thresholds are {0.6, 0.7, 0.8}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:43:49Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: analysis dataset has >300 records
+  claim_id: c_ac4e6e79
+  context: T045a [US1] Verify data/processed/analysis_dataset.csv exists, has >300
+    records, and passes contracts/dataset.schema.yaml validation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis dataset must have >300 records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:43:49Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 0
+  canonical: apply Holm-Bonferroni threshold alpha 0.0167
+  claim_id: c_beb91f9a
+  context: "Implement Bonferroni correction logic in src/analysis/run_regression.py:\
+    \ apply alpha=0.0167 (Wikipedia: Holm\u2013Bonferroni method, https://en.wikipedia.org/wiki/Holm\u2013\
+    Bonferroni_method) threshold, assert adjusted p-values are present in output JSON,\
+    \ and log the adjusted threshold explicitly."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.0167'
+      source_id: "Holm\u2013Bonferroni method"
+      url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+      value: '0.0167'
+    filled: true
+  kind: numeric
+  raw_text: "Apply alpha=0.0167 (Wikipedia: Holm\u2013Bonferroni method, https://en.wikipedia.org/wiki/Holm\u2013\
+    Bonferroni_method) threshold"
+  resolved_value: '0.0167'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T22:46:59Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni method described on Wikipedia
+  claim_id: c_a6e5e682
+  context: "Implement Bonferroni correction logic in src/analysis/run_regression.py:\
+    \ apply alpha=0.0167 (Wikipedia: Holm\u2013Bonferroni method, https://en.wikipedia.org/wiki/Holm\u2013\
+    Bonferroni_method) threshold"
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P800: Q385989'
+      source_id: Q858572
+      url: https://www.wikidata.org/wiki/Q858572
+      value: Q385989
+    filled: true
+  kind: entity_fact
+  raw_text: "The Holm\u2013Bonferroni method is described on Wikipedia."
+  resolved_value: Q385989
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T22:50:55Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Malawi growing season months March to May
+  claim_id: c_776ccbe5
+  context: 'Implement temporal window mapping logic in src/data/processing/feature_engineering.py
+    to map survey_year + country to specific growing season months (e.g., Malawi:
+    March-May; Tanzania: March-May/Nov-Dec) for NDVI aggregation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Malawi_growing_season_months_March_to_May
+  kind: entity_fact
+  raw_text: 'Malawi growing season: March-May'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:52:37Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Tanzania growing season months March to May and November to December
+  claim_id: c_690f618f
+  context: 'Implement temporal window mapping logic in src/data/processing/feature_engineering.py
+    to map survey_year + country to specific growing season months (e.g., Malawi:
+    March-May; Tanzania: March-May/Nov-Dec) for NDVI aggregation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tanzania_growing_season_months_March_to_May_and_November_to
+  kind: entity_fact
+  raw_text: 'Tanzania growing season: March-May and Nov-Dec'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:53:24Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Village-level aggregation fallback triggers if N < 300
+  claim_id: c_6a57e15c
+  context: 'Implement village-level aggregation fallback in src/data/processing/feature_engineering.py
+    with explicit conditional logic: Attempt household join -> Count N -> If N < 300,
+    aggregate to village level using ''village_id'' as key and ''mean'' as function
+    for CSA_Index and Stability_Score.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Village-level_aggregation_fallback_triggers_if_N_%3C_300
+  kind: magnitude
+  raw_text: Village-level aggregation fallback triggers when household sample size
+    N is less than 300
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:56:14Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Statistical power verification requires sample size >= 300 or variance
+    reduction > 10%
+  claim_id: c_d52a0739
+  context: 'Implement verification step in src/data/processing/feature_engineering.py
+    to confirm that the aggregated dataset meets statistical power requirements: verify
+    effective sample size >= 300 OR variance reduction > 10% compared to household-level
+    noise before proceeding.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical power verification requires effective sample size >= 300 OR
+    variance reduction > 10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:56:26Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha threshold 0.0167
+  claim_id: c_143123ac
+  context: "Implement Bonferroni correction logic in src/analysis/run_regression.py:\
+    \ apply alpha=0.0167 (Wikipedia: Holm\u2013Bonferroni method, https://en.wikipedia.org/wiki/Holm\u2013\
+    Bonferroni_method) threshold, assert adjusted p-values are present in output JSON,\
+    \ and log the adjusted threshold explicitly."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction threshold alpha is 0.0167
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:56:41Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: VIF flagging threshold > 5
+  claim_id: c_63ec86aa
+  context: Implement VIF calculation and flagging logic within src/analysis/run_regression.py
+    to report VIF > 5 and annotate model summary.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flagging_threshold_%3E_5
+  kind: magnitude
+  raw_text: VIF flagging threshold is greater than 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:56:48Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Regression pipeline execution time < 60 minutes on CPU
+  claim_id: c_ef5443bb
+  context: 'Independent Test: Execution of src/analysis/run_regression.py produces
+    a summary file containing regression coefficients, p-values, and VIF scores for
+    both Yield Stability and Food Security models, completing within 60 minutes on
+    CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Regression pipeline execution must complete within 60 minutes on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T22:56:53Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Analysis dataset record count > 300
+  claim_id: c_9d7fd8d4
+  context: Verify data/processed/analysis_dataset.csv exists, has >300 records, and
+    passes contracts/dataset.schema.yaml validation.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1250: 334'
+      source_id: Q15751184
+      url: https://www.wikidata.org/wiki/Q15751184
+      value: '334'
+    filled: true
+  kind: magnitude
+  raw_text: Analysis dataset must contain more than 300 records
+  resolved_value: '334'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T22:57:00Z'

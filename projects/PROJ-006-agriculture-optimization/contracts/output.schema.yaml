@@ -1,693 +1,257 @@
-# Pipeline Output Schema for Climate-Smart Agricultural Practices
-# Version: 1.0.0
-# Purpose: Define standardized output formats for all pipeline stages
-# Related: contracts/dataset.schema.yaml (input data schemas)
+%YAML 1.2
+---
+# Contract for Regression Output Structure
+# Task: T008 - Define the schema for statistical analysis results
+# This file defines the expected structure of `data/processed/regression_results.json`
+# produced by `src/analysis/run_regression.py`.
+#
+# Validation is enforced by `src/cli/validate.py` via `validate_json_artifact`.
+# The schema aligns with `src/config/schemas.py` (RegressionOutput, SensitivityResult).
 
-$schema: http://json-schema.org/draft-07/schema#
 type: object
 required:
   - metadata
-  - outputs
+  - models
+  - diagnostics
+  - sensitivity
 
-metadata:
-  type: object
-  required:
-    - pipeline_version
-    - execution_timestamp
-    - config_hash
-    - data_sources
-  properties:
-    pipeline_version:
-      type: string
-      description: Semantic version of the pipeline that produced this output
-      pattern: '^\\d+\\.\\d+\\.\\d+$'
-    execution_timestamp:
-      type: string
-      format: date-time
-      description: ISO 8601 timestamp when pipeline execution completed
-    config_hash:
-      type: string
-      description: SHA-256 hash of the configuration used for reproducibility
-      minLength: 64
-      maxLength: 64
-    data_sources:
-      type: array
-      items:
-        type: object
-        required:
-          - source_id
-          - source_type
-          - timestamp
-        properties:
-          source_id:
-            type: string
-            description: Unique identifier for the data source
-          source_type:
-            type: string
-            enum:
-              - survey
-              - climate
-              - remote_sensing
-              - socioeconomic
-            description: Category of data source
-          timestamp:
-            type: string
-            format: date-time
-            description: When data was collected from this source
-    processing_notes:
-      type: string
-      description: Optional notes about processing decisions or anomalies
-    validation_status:
-      type: string
-      enum:
-        - passed
-        - warnings
-        - failed
-      description: Schema validation status of the output
-
-outputs:
-  type: object
-  description: Aggregated outputs from all pipeline stages
-  properties:
-    data_collection:
-      type: object
-      description: Outputs from User Story 1 - Data Collection & Ingestion
-      properties:
-        survey_data:
-          type: array
-          items:
-            $ref: '#/definitions/survey_record'
-        climate_data:
-          type: array
-          items:
-            $ref: '#/definitions/climate_record'
-        remote_sensing_data:
-          type: array
-          items:
-            $ref: '#/definitions/remote_sensing_record'
-        collection_stats:
-          $ref: '#/definitions/collection_statistics'
-    climate_risk:
-      type: object
-      description: Outputs from User Story 2 - Climate Risk Assessment
-      properties:
-        risk_scores:
-          type: array
-          items:
-            $ref: '#/definitions/risk_score'
-        risk_categories:
-          type: object
-          additionalProperties:
-            type: object
-            properties:
-              count:
-                type: integer
-              severity_distribution:
-                type: object
-                properties:
-                  low:
-                    type: integer
-                  medium:
-                    type: integer
-                  high:
-                    type: integer
-                  critical:
-                    type: integer
-        historical_trends:
-          type: array
-          items:
-            $ref: '#/definitions/trend_analysis'
-        gis_layers:
-          type: array
-          items:
-            $ref: '#/definitions/gis_layer_metadata'
-    recommendations:
-      type: object
-      description: Outputs from User Story 3 - CSA Recommendation Engine
-      properties:
-        recommendations:
-          type: array
-          items:
-            $ref: '#/definitions/recommendation'
-        adoption_projections:
-          type: array
-          items:
-            $ref: '#/definitions/adoption_projection'
-        yield_predictions:
-          type: array
-          items:
-            $ref: '#/definitions/yield_prediction'
-        intervention_strategies:
-          type: array
-          items:
-            $ref: '#/definitions/intervention_strategy'
-      required:
-        - recommendations
-    visualization:
-      type: object
-      description: Outputs from User Story 4 - GIS Visualization & Reporting
-      properties:
-        maps:
-          type: array
-          items:
-            $ref: '#/definitions/map_output'
-        charts:
-          type: array
-          items:
-            $ref: '#/definitions/chart_output'
-        reports:
-          type: array
-          items:
-            $ref: '#/definitions/report_output'
-        generation_stats:
-          $ref: '#/definitions/visualization_statistics'
-  required:
-    - data_collection
-    - climate_risk
-    - recommendations
-
-definitions:
-  survey_record:
+properties:
+  metadata:
     type: object
+    description: "Provenance and execution context"
     required:
-      - record_id
-      - location
       - timestamp
-      - data
+      - pipeline_version
+      - data_source_hash
+      - parameters
     properties:
-      record_id:
-        type: string
-        description: Unique survey record identifier
-      location:
-        type: object
-        required:
-          - latitude
-          - longitude
-        properties:
-          latitude:
-            type: number
-            minimum: -90
-            maximum: 90
-          longitude:
-            type: number
-            minimum: -180
-            maximum: 180
-          region_code:
-            type: string
-            description: Administrative region identifier
       timestamp:
         type: string
         format: date-time
-      data:
-        type: object
-        description: Survey-specific data fields (flexible schema)
-
-  climate_record:
-    type: object
-    required:
-      - station_id
-      - location
-      - timestamp
-      - metrics
-    properties:
-      station_id:
+        description: "ISO 8601 timestamp of execution"
+      pipeline_version:
         type: string
-        description: Weather station or grid cell identifier
-      location:
-        type: object
-        required:
-          - latitude
-          - longitude
-        properties:
-          latitude:
-            type: number
-            minimum: -90
-            maximum: 90
-          longitude:
-            type: number
-            minimum: -180
-            maximum: 180
-      timestamp:
+        description: "Git commit hash or version tag of the pipeline code"
+      data_source_hash:
         type: string
-        format: date-time
-      metrics:
+        description: "SHA-256 checksum of the input `analysis_dataset.csv`"
+      parameters:
         type: object
+        description: "Hyperparameters and flags used during execution"
         properties:
-          temperature:
-            type: object
-            properties:
-              mean:
-                type: number
-              min:
-                type: number
-              max:
-                type: number
-          precipitation:
+          robust_se:
+            type: boolean
+            description: "Whether Huber-White robust standard errors were used"
+          bonferroni_alpha:
             type: number
-          humidity:
-            type: number
-            minimum: 0
-            maximum: 100
-          wind_speed:
-            type: number
-          evapotranspiration:
-            type: number
-
-  remote_sensing_record:
-    type: object
-    required:
-      - scene_id
-      - location
-      - acquisition_date
-      - indices
-    properties:
-      scene_id:
-        type: string
-        description: Satellite scene identifier
-      location:
-        type: object
-        required:
-          - bounding_box
-        properties:
-          bounding_box:
+            format: float
+            description: "Adjusted significance threshold (e.g., 0.0167)"
+          cloud_thresholds:
             type: array
-            minItems: 4
-            maxItems: 4
             items:
               type: number
-            description: [min_lon, min_lat, max_lon, max_lat]
-          resolution:
-            type: number
-            description: Pixel resolution in meters
-      acquisition_date:
-        type: string
-        format: date
-      indices:
+              format: float
+            description: "List of cloud cover thresholds swept in sensitivity"
+
+  models:
+    type: object
+    description: "Results for each regression model fitted"
+    required:
+      - model_1_stability
+      - model_2_food_security
+    properties:
+      model_1_stability:
         type: object
+        description: "Regression: Stability_Score ~ CSA_Index + HFIAS + Controls"
+        required:
+          - formula
+          - fit_stats
+          - coefficients
         properties:
-          ndvi:
+          formula:
+            type: string
+            description: "R-style formula string used"
+          fit_stats:
             type: object
+            required:
+              - rsquared
+              - rsquared_adj
+              - f_statistic
+              - f_pvalue
+              - n_obs
             properties:
-              mean:
+              rsquared:
                 type: number
-              min:
+                format: float
+              rsquared_adj:
                 type: number
-              max:
+                format: float
+              f_statistic:
                 type: number
-          evi:
-            type: number
-          lai:
-            type: number
+                format: float
+              f_pvalue:
+                type: number
+                format: float
+              n_obs:
+                type: integer
+          coefficients:
+            type: array
+            description: "List of variable coefficients and stats"
+            items:
+              type: object
+              required:
+                - term
+                - coef
+                - std_err
+                - pvalue
+                - pvalue_adj
+                - vif
+              properties:
+                term:
+                  type: string
+                  description: "Variable name (e.g., 'CSA_Index', 'HFIAS')"
+                coef:
+                  type: number
+                  format: float
+                  description: "Estimated coefficient"
+                std_err:
+                  type: number
+                  format: float
+                  description: "Robust standard error"
+                pvalue:
+                  type: number
+                  format: float
+                  description: "Raw p-value"
+                pvalue_adj:
+                  type: number
+                  format: float
+                  description: "Bonferroni-adjusted p-value"
+                vif:
+                  type: number
+                  format: float
+                  description: "Variance Inflation Factor"
 
-  collection_statistics:
-    type: object
-    properties:
-      total_records:
-        type: integer
-        minimum: 0
-      records_by_source:
+      model_2_food_security:
         type: object
-        additionalProperties:
-          type: integer
-      date_range:
-        type: object
+        description: "Regression: HFIAS ~ CSA_Index + Controls"
+        required:
+          - formula
+          - fit_stats
+          - coefficients
         properties:
-          earliest:
+          formula:
             type: string
-            format: date
-          latest:
-            type: string
-            format: date
-      coverage_area_km2:
-        type: number
-        minimum: 0
-      data_quality_score:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: Overall quality score (0-1)
+          fit_stats:
+            type: object
+            required:
+              - rsquared
+              - rsquared_adj
+              - f_statistic
+              - f_pvalue
+              - n_obs
+            properties:
+              rsquared:
+                type: number
+                format: float
+              rsquared_adj:
+                type: number
+                format: float
+              f_statistic:
+                type: number
+                format: float
+              f_pvalue:
+                type: number
+                format: float
+              n_obs:
+                type: integer
+          coefficients:
+            type: array
+            items:
+              type: object
+              required:
+                - term
+                - coef
+                - std_err
+                - pvalue
+                - pvalue_adj
+                - vif
+              properties:
+                term:
+                  type: string
+                coef:
+                  type: number
+                  format: float
+                std_err:
+                  type: number
+                  format: float
+                pvalue:
+                  type: number
+                  format: float
+                pvalue_adj:
+                  type: number
+                  format: float
+                vif:
+                  type: number
+                  format: float
 
-  risk_score:
+  diagnostics:
     type: object
+    description: "Collinearity and model health diagnostics"
     required:
-      - location_id
-      - overall_risk
-      - risk_components
+      - max_vif
+      - condition_number
+      - heteroskedasticity_test
     properties:
-      location_id:
-        type: string
-        description: Unique location identifier
-      overall_risk:
-        type: string
-        enum:
-          - low
-          - medium
-          - high
-          - critical
-        description: Aggregated risk classification
-      risk_score_numeric:
+      max_vif:
         type: number
-        minimum: 0
-        maximum: 100
-        description: Numeric risk score (0-100)
-      risk_components:
+        format: float
+        description: "Maximum VIF across all predictors in both models"
+      condition_number:
+        type: number
+        format: float
+        description: "Condition number of the design matrix"
+      heteroskedasticity_test:
         type: object
+        description: "Breusch-Pagan or White test results"
         properties:
-          drought_risk:
+          statistic:
             type: number
-            minimum: 0
-            maximum: 100
-          flood_risk:
+            format: float
+          pvalue:
             type: number
-            minimum: 0
-            maximum: 100
-          temperature_stress:
-            type: number
-            minimum: 0
-            maximum: 100
-          soil_degradation:
-            type: number
-            minimum: 0
-            maximum: 100
-          socioeconomic_vulnerability:
-            type: number
-            minimum: 0
-            maximum: 100
-      confidence_interval:
-        type: object
-        properties:
-          lower:
-            type: number
-          upper:
-            type: number
-      contributing_factors:
-        type: array
-        items:
-          type: string
+            format: float
+          rejected_null:
+            type: boolean
+            description: "True if heteroskedasticity is detected"
 
-  trend_analysis:
-    type: object
-    required:
-      - metric
-      - trend_direction
-      - magnitude
-      - significance
-    properties:
-      metric:
-        type: string
-        description: Climate or agricultural metric being analyzed
-      trend_direction:
-        type: string
-        enum:
-          - increasing
-          - decreasing
-          - stable
-      magnitude:
-        type: number
-        description: Rate of change per time unit
-      significance:
-        type: string
-        enum:
-          - significant
-          - marginally_significant
-          - not_significant
-      p_value:
-        type: number
-        minimum: 0
-        maximum: 1
-      time_period:
-        type: object
-        properties:
-          start:
-            type: string
-            format: date
-          end:
-            type: string
-            format: date
-
-  gis_layer_metadata:
-    type: object
-    required:
-      - layer_id
-      - layer_type
-      - file_path
-    properties:
-      layer_id:
-        type: string
-      layer_type:
-        type: string
-        enum:
-          - risk_heatmap
-          - suitability_map
-          - vulnerability_index
-          - recommendation_overlay
-      file_path:
-        type: string
-        description: Relative path to the GIS layer file
-      projection:
-        type: string
-        description: CRS/projection identifier (e.g., EPSG:4326)
-      resolution:
-        type: number
-      file_size_bytes:
-        type: integer
-
-  recommendation:
-    type: object
-    required:
-      - recommendation_id
-      - practice_type
-      - location_id
-      - justification
-    properties:
-      recommendation_id:
-        type: string
-        description: Unique recommendation identifier
-      practice_type:
-        type: string
-        enum:
-          - crop_diversification
-          - water_management
-          - soil_conservation
-          - integrated_pest_management
-          - agroforestry
-          - climate_resilient_varieties
-          - precision_agriculture
-          - livestock_management
-      practice_name:
-        type: string
-        description: Human-readable practice name
-      location_id:
-        type: string
-      suitability_score:
-        type: number
-        minimum: 0
-        maximum: 1
-      expected_impact:
-        type: object
-        properties:
-          yield_change_percent:
-            type: number
-          cost_reduction_percent:
-            type: number
-          resilience_improvement:
-            type: number
-      implementation_cost:
-        type: object
-        properties:
-          initial_investment:
-            type: number
-          annual_maintenance:
-            type: number
-          payback_period_years:
-            type: number
-      justification:
-        type: string
-        description: Rationale for this recommendation
-      evidence_sources:
-        type: array
-        items:
-          type: string
-      adoption_barriers:
-        type: array
-        items:
-          type: string
-      recommended_timeline:
-        type: string
-        description: Suggested implementation timeline
-
-  adoption_projection:
-    type: object
-    required:
-      - practice_id
-      - projected_adoption_rate
-      - timeline
-    properties:
-      practice_id:
-        type: string
-      projected_adoption_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-      timeline:
-        type: array
-        items:
-          type: object
-          properties:
-            year:
-              type: integer
-            adoption_rate:
-              type: number
-      confidence_level:
-        type: number
-        minimum: 0
-        maximum: 1
-
-  yield_prediction:
-    type: object
-    required:
-      - crop_type
-      - location_id
-      - predicted_yield
-    properties:
-      crop_type:
-        type: string
-      location_id:
-        type: string
-      predicted_yield:
-        type: number
-        description: Predicted yield in tons/hectare
-      confidence_interval:
-        type: object
-        properties:
-          lower:
-            type: number
-          upper:
-            type: number
-      contributing_factors:
-        type: array
-        items:
-          type: string
-      climate_scenario:
-        type: string
-        description: Climate scenario used for prediction
-
-  intervention_strategy:
-    type: object
-    required:
-      - strategy_id
-      - name
-      - target_risk
-    properties:
-      strategy_id:
-        type: string
-      name:
-        type: string
-      description:
-        type: string
-      target_risk:
-        type: string
-      recommended_practices:
-        type: array
-        items:
-          type: string
-      resource_requirements:
-        type: object
-      expected_outcomes:
-        type: array
-        items:
-          type: string
-
-  map_output:
-    type: object
-    required:
-      - map_id
-      - map_type
-      - file_path
-    properties:
-      map_id:
-        type: string
-      map_type:
-        type: string
-      file_path:
-        type: string
-      dimensions:
-        type: object
-        properties:
-          width_px:
-            type: integer
-          height_px:
-            type: integer
-      format:
-        type: string
-        enum:
-          - png
-          - jpg
-          - geojson
-          - geotiff
-      generation_time_seconds:
-        type: number
-
-  chart_output:
-    type: object
-    required:
-      - chart_id
-      - chart_type
-      - file_path
-    properties:
-      chart_id:
-        type: string
-      chart_type:
-        type: string
-        enum:
-          - bar
-          - line
-          - scatter
-          - box
-          - histogram
-          - pie
-      file_path:
-        type: string
-      data_points:
-        type: integer
-      generation_time_seconds:
-        type: number
-
-  report_output:
-    type: object
-    required:
-      - report_id
-      - report_type
-      - file_path
-    properties:
-      report_id:
-        type: string
-      report_type:
-        type: string
-        enum:
-          - executive_summary
-          - technical_report
-          - stakeholder_brief
-          - community_report
-      file_path:
-        type: string
-      page_count:
-        type: integer
-      generation_time_seconds:
-        type: number
-
-  visualization_statistics:
-    type: object
-    properties:
-      total_visualizations:
-        type: integer
-      total_generation_time_seconds:
-        type: number
-      average_generation_time_seconds:
-        type: number
-      max_generation_time_seconds:
-        type: number
-      files_generated:
-        type: integer
-      total_size_mb:
-        type: number
+  sensitivity:
+    type: array
+    description: "Results from sensitivity analysis across cloud cover thresholds"
+    items:
+      type: object
+      required:
+        - cloud_threshold
+        - model_1_csa_coef
+        - model_1_csa_pvalue
+        - model_2_csa_coef
+        - model_2_csa_pvalue
+      properties:
+        cloud_threshold:
+          type: number
+          format: float
+          description: "Cloud cover threshold used (e.g., 0.6, 0.7)"
+        model_1_csa_coef:
+          type: number
+          format: float
+          description: "CSA_Index coefficient in Stability model"
+        model_1_csa_pvalue:
+          type: number
+          format: float
+        model_2_csa_coef:
+          type: number
+          format: float
+          description: "CSA_Index coefficient in Food Security model"
+        model_2_csa_pvalue:
+          type: number
+          format: float
+additionalProperties: false

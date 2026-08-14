@@ -25,11 +25,11 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `contracts/`, `data/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinned: pandas, numpy, scikit-learn, statsmodels, geopandas, rasterio, requests, pyyaml)
+- [ ] T002 {{claim:c_372956d9}} <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T003 [P] Configure linting and formatting tools (black, flake8, isort) and `.gitignore`
-- [ ] T004 Create `src/config/constants.py` with random seeds, paths, and cloud cover thresholds {, 0.7, 0.8}
-- [ ] T005 Create `src/config/schemas.py` for internal contract definitions
-- [ ] T006 [P] Setup logging infrastructure in `src/utils/io_helpers.py`
+- [X] T004 Create `src/config/constants.py` with random seeds, paths, and cloud cover thresholds {0.6, 0.7, 0.8}
+- [X] T005 Create `src/config/schemas.py` for internal contract definitions
+- [X] T006 [P] Setup logging infrastructure in `src/utils/io_helpers.py`
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -39,10 +39,10 @@
 
 - [ ] T007 Create `contracts/dataset.schema.yaml` defining expected columns (household_id, CSA_Index, Stability_Score, HFIAS, etc.)
 - [ ] T008 Create `contracts/output.schema.yaml` defining regression output structure
-- [ ] T009 Implement `src/utils/io_helpers.py` with strict CSV/Parquet I/O and checksum verification
-- [ ] T010 Create `src/data/generators/synthetic_generator.py` for CI validation ONLY; MUST fail loudly (raise fatal error) if real data is missing and synthetic flag is not set, preventing silent fallback to mock data.
+- [X] T009 Implement `src/utils/io_helpers.py` with strict CSV/Parquet I/O and checksum verification
+- [ ] T010 [P] Create `src/data/generators/synthetic_generator.py` for CI validation ONLY; MUST raise `FatalError` if real data is missing AND `--synthetic` flag is NOT set, preventing silent fallback to mock data in production.
 - [ ] T011 Setup `data/raw/`, `data/processed/`, `data/logs/` directory structure
-- [ ] T012 Create `src/cli/validate.py` to enforce schema contracts on ingestion
+- [X] T012 Create `src/cli/validate.py` to enforce schema contracts on ingestion
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -56,27 +56,23 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `src/data/collectors/survey_collector.py` to fetch LSMS-ISA (Malawi/Tanzania) with explicit URL handling and error logging
-- [ ] T015a [US1] Implement region selection logic in `src/data/collectors/survey_collector.py` to resolve the specific country (Malawi or Tanzania) and generate the canonical download URL (e.g., World Bank microdata portal pattern) and file format (.dta/.csv).
-- [ ] T015b [US1] Implement caching mechanism in `src/data/collectors/survey_collector.py` to check local storage, verify checksums against a cache manifest, and only download if missing or checksum mismatch.
-- [ ] T016 [US1] Implement `src/data/collectors/remote_sensing_collector.py` to fetch Sentinel-2 L2A imagery from the Copernicus Data Space Ecosystem API with streaming support and explicit caching (checksum verification).
-- [ ] T017 [US1] Implement `src/data/processing/spatial_join.py` to link household coordinates to satellite pixels using a Buffer intersection algorithm
-
-The research question investigates how spatial proximity influences intersection patterns, employing a buffer-based intersection method to analyze spatial relationships. References: [Citation to be inserted]. (fuzzing logic).
+- [X] T013 [P] [US1] Write contract test skeleton for dataset schema in `tests/contract/test_dataset_schema.py` (TDD: write test first).
+- [X] T014 [P] [US1] Write integration test skeleton for ingestion pipeline in `tests/integration/test_ingestion.py` (validates implementation of T015-T018).
+- [X] T015 [US1] Implement `src/data/collectors/survey_collector.py` to fetch LSMS-ISA (Malawi/Tanzania) with explicit URL handling and error logging. <!-- FAILED: unspecified -->
+- [X] T015a [US1] Implement region selection logic in `src/data/collectors/survey_collector.py` to resolve the specific country (Malawi or Tanzania) and generate the canonical download URL (e.g., World Bank microdata portal pattern) and file format (.dta/.csv).
+- [X] T015b [US1] Implement caching mechanism in `src/data/collectors/survey_collector.py` to check local storage, verify checksums against a cache manifest, and only download if missing or checksum mismatch.
+- [X] T016 [US1] Implement `src/data/collectors/remote_sensing_collector.py` to fetch Sentinel-2 L2A imagery from the Copernicus Data Space Ecosystem API with streaming support and explicit caching (checksum verification). <!-- FAILED: unspecified -->
+- [ ] T017 [US1] Implement `src/data/processing/spatial_join.py` to link household coordinates to satellite pixels using a Buffer intersection algorithm (fuzzing logic).
 - [ ] T018 [US1] Implement `src/data/processing/feature_engineering.py` to construct CSA_Index and Stability_Score.
-- [ ] T018a [US1] Implement NDVI time-series aggregation logic in `src/data/processing/feature_engineering.py` to calculate the Coefficient of Variation (CV) over the specific growing season (months -5) for each household's plot.
-- [ ] T018b [US1] Implement Stability_Score calculation (1/CV) and CSA Index construction (sum of binary indicators + extension frequency) in `src/data/processing/feature_engineering.py`, including validation of the index against the survey data schema.
+- [ ] T018a [US1] Implement temporal window mapping logic in `src/data/processing/feature_engineering.py` to map `survey_year` + `country` to specific growing season months (e.g., Malawi: March-May; Tanzania: March-May/Nov-Dec) for NDVI aggregation.
+- [ ] T018b [US1] Implement NDVI time-series aggregation logic in `src/data/processing/feature_engineering.py` to calculate the Coefficient of Variation (CV) over the specific growing season (mapped in T018a) for each household's plot.
+- [ ] T018c [US1] Implement Stability_Score calculation (1/CV) and CSA Index construction (sum of binary indicators + extension frequency) in `src/data/processing/feature_engineering.py`, including validation of the index against the survey data schema.
 - [ ] T019 [US1] Implement `src/cli/run_pipeline.py` to orchestrate ingestion, joining, and feature engineering, ensuring it is parameterized for sensitivity analysis sweeps.
+- [ ] T010a [US1] Implement integration wiring in `src/cli/run_pipeline.py` to enforce T010's 'fail loudly' behavior: check for `--synthetic` flag before calling collectors; if missing and real data absent, raise `FatalError` immediately.
 - [ ] T020 [US1] Add error handling for missing coordinates and log exclusions to `data/logs/ingestion_errors.log`.
 - [ ] T021 [US1] Implement village-level aggregation fallback in `src/data/processing/feature_engineering.py` with explicit conditional logic: Attempt household join -> Count N -> If N < 300, aggregate to village level using 'village_id' as key and 'mean' as function for CSA_Index and Stability_Score.
+- [ ] T021a [US1] Implement verification step in `src/data/processing/feature_engineering.py` to confirm that the aggregated dataset meets statistical power requirements: verify effective sample size >= 300 OR variance reduction > 10% compared to household-level noise before proceeding.
 - [ ] T022 [US1] Generate `data/processed/analysis_dataset.csv` and validate against schema.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: T014 (Integration Test) requires T019 (Pipeline) to be implemented before execution.
-
-- [ ] T013 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
-- [ ] T014 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_ingestion.py`; requires T019 to be implemented first to execute.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -90,14 +86,12 @@ The research question investigates how spatial proximity influences intersection
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement `src/analysis/run_regression.py` to fit Model 1 (Stability_Score) and Model 2 (HFIAS) using statsmodels with Robust standard errors (Huber-White) for heteroskedasticity, calculate VIF scores, apply Bonferroni correction by adjusting the significance threshold to alpha is set to a small significance threshold consistent with standard statistical practice., and output results to `data/processed/regression_results.json`.
-- [ ] T026 [US2] Implement VIF calculation and flagging logic within `src/analysis/run_regression.py` (if not fully covered in T025) to report VIF > 5 and annotate model summary.
-- [ ] T027 [US2] Generate regression summary tables including coefficients, p-values, and VIF scores in `data/processed/regression_results.json`.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T028 [P] [US2] Contract test for regression output in `tests/contract/test_regression_output.py`
-- [ ] T029 [P] [US2] Integration test for model execution in `tests/integration/test_regression.py`
+- [ ] T023 [P] [US2] Write contract test skeleton for regression output in `tests/contract/test_regression_output.py` (TDD).
+- [ ] T024 [P] [US2] Write integration test skeleton for model execution in `tests/integration/test_regression.py` (validates T025).
+- [ ] T025 [US2] Implement `src/analysis/run_regression.py` to fit Model 1 (Stability_Score) and Model 2 (HFIAS) using statsmodels with Robust standard errors (Huber-White) for heteroskedasticity, and output initial results to `data/processed/regression_results.json`.
+- [ ] T025a [US2] Implement VIF calculation and flagging logic within `src/analysis/run_regression.py` to report VIF > 5 and annotate model summary.
+- [ ] T025b [US2] Implement Bonferroni correction logic in `src/analysis/run_regression.py`: apply alpha=0.0167 (Wikipedia: Holm–Bonferroni method, https://en.wikipedia.org/wiki/Holm–Bonferroni_method) threshold, assert adjusted p-values are present in output JSON, and log the adjusted threshold explicitly.
+- [ ] T026 [US2] Generate regression summary tables including coefficients, p-values, and VIF scores in `data/processed/regression_results.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -111,17 +105,14 @@ The research question investigates how spatial proximity influences intersection
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `src/analysis/sensitivity_check.py` to sweep cloud cover thresholds over the specific set {0.6, 0.7, 0.8}, re-run ingestion parameters, and output results to `data/processed/sensitivity_results.csv` and `reports/sensitivity_plot.png`.
+- [ ] T028 [P] [US3] Write contract test skeleton for sensitivity output in `tests/contract/test_sensitivity.py` (TDD).
+- [ ] T029 [P] [US3] Write integration test skeleton for report generation in `tests/integration/test_report.py` (validates T030-T035).
+- [ ] T030 [US3] Implement `src/analysis/sensitivity_check.py` to sweep cloud cover thresholds over a representative set of values, re-run ingestion parameters, and output results to `data/processed/sensitivity_results.csv` and `reports/sensitivity_plot.png`.
 - [ ] T031 [US3] Generate sensitivity plots showing variation in `CSA_Index` coefficient magnitude.
 - [ ] T032 [US3] Implement report generator in `src/services/report_generator.py` to output to `reports/final_report.pdf` using matplotlib/reportlab.
-- [ ] T033 [US3] Ensure final report explicitly states "associational" nature, Bonferroni adjustment, and the specific numerical threshold alpha is set to a small positive value..
+- [ ] T033 [US3] Ensure final report explicitly states "associational" nature, Bonferroni adjustment, and the specific numerical threshold alpha=0.0167.
 - [ ] T034 [US3] Include limitations section (observational design, spatial fuzzing, sample size).
 - [ ] T035 [US3] Generate final PDF report with all tables, plots, and disclaimers.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T036 [P] [US3] Contract test for sensitivity output in `tests/contract/test_sensitivity.py`
-- [ ] T037 [P] [US3] Integration test for report generation in `tests/integration/test_report.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -131,11 +122,33 @@ The research question investigates how spatial proximity influences intersection
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T039 Code cleanup and refactoring for type hints and modularity
-- [ ] T040 [P] Additional unit tests in `tests/unit/` for helper functions
-- [ ] T041 Security hardening (PII scan on commits, data privacy checks)
-- [ ] T042 Run `quickstart.md` validation and fix any broken links
+- [ ] T036 [P] Documentation updates in `docs/` and `README.md`
+- [ ] T037 Code cleanup and refactoring for type hints and modularity
+- [ ] T038 [P] Additional unit tests in `tests/unit/` for helper functions
+- [ ] T039 Security hardening (PII scan on commits, data privacy checks)
+- [ ] T040 Run `quickstart.md` validation and fix any broken links
+
+---
+
+## Phase N+1: Research & Reproducibility (Addressing Reviewer Concerns)
+
+**Purpose**: Address critical gaps identified in prior research-stage reviews regarding implementation completeness, data artifacts, and reproducibility.
+
+**Goal**: Ensure actual code, data, and results exist to validate the pipeline, resolving the "Implementation Gap" and "No Data Artifacts" findings.
+
+- [ ] T045 [US1] Execute the full data ingestion pipeline (T015-T022) locally to generate `data/processed/analysis_dataset.csv` for validation; DO NOT commit raw data to repository.
+- [ ] T045a [US1] Verify `data/processed/analysis_dataset.csv` exists, has >300 records, and passes `contracts/dataset.schema.yaml` validation.
+- [ ] T046 [US2] Execute the regression pipeline (T025-T027) locally to generate `regression_results.json` with valid coefficients and p-values; DO NOT commit raw results.
+- [ ] T047 [US3] Execute the sensitivity and reporting pipeline (T030-T035) locally to generate `sensitivity_results.csv` and `final_report.pdf`; DO NOT commit raw reports.
+- [ ] T041a [P] Run the Reference-Validator Agent on `research.md` to verify all citations; fail if any citation is unreachable or mismatch.
+- [ ] T041b [P] Handle Reference-Validator failure: update `research.md` or remove invalid citations until verification passes.
+- [ ] T041c [P] Update `quickstart.md` to document the Reference-Validator Agent as an automated gate for citation accuracy.
+- [ ] T042 [P] Create `data-model.md` documenting entity relationships, variable definitions, and provenance sources.
+- [ ] T043 [P] Create `quickstart.md` with executable instructions for reproducing the full pipeline from a clean checkout.
+- [ ] T044 [P] Implement `Dockerfile` and `docker-compose.yml` for environment reproducibility.
+- [ ] T048 [P] Add `README.md` to project root with project summary, installation steps, and link to final report.
+- [ ] T055 [P] Resolve all `_TODO:` markers in `spec.md` (action) and Verify `spec.md` contains no `_TODO:` markers (check).
+- [ ] T050 [P] Verify all test files (`tests/contract/`, `tests/integration/`) are present and pass against the generated artifacts.
 
 ---
 
@@ -146,9 +159,10 @@ The research question investigates how spatial proximity influences intersection
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Research & Reproducibility (Phase N+1)**: Depends on successful execution of US1, US2, US3 pipelines to generate artifacts locally
 
 ### User Story Dependencies
 
@@ -171,6 +185,7 @@ The research question investigates how spatial proximity influences intersection
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Research & Reproducibility tasks (T041-T055) can run in parallel once artifacts are generated locally
 
 ---
 
@@ -209,9 +224,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (Statistical Analysis)
-   - Developer C: User Story 3 (Sensitivity & Reporting)
+ - Developer A: User Story 1 (Data Ingestion)
+ - Developer B: User Story 2 (Statistical Analysis)
+ - Developer C: User Story 3 (Sensitivity & Reporting)
 3. Stories complete and integrate independently
 
 ---
@@ -226,4 +241,6 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: Never use synthetic data unless real data is unavailable AND the script fails loudly (no silent fallbacks).
-- **Compute Feasibility**: All tasks must run on CPU-only free tier (GB RAM, 14GB disk). Use streaming for large datasets.
+- **Compute Feasibility**: All tasks must run on CPU-only free tier with limited RAM and disk resources. Use streaming for large datasets.
+- **Reproducibility**: All artifacts (data, results, reports) must be generated by the pipeline, not hand-crafted.
+- **Research Quality**: Spec must contain a falsifiable hypothesis and specific research gap; no TODOs allowed in final spec.
