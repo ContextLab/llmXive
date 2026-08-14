@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co
   verified_at: '2026-07-29T18:37:51.317855Z'
-- artifact_hash: 8a257aeb08a4726f5c42d021568fa98b9bddb53f7439864964e974b9c3157eaf
+- artifact_hash: 3722d397a1601fd4784e5697ac9f73a58d60b73efdac41da0f24a1e3bcee778a
   artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,8 +20,8 @@
   value: https://arxiv.org/abs/1204.5852
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1204.5852
-  verified_at: '2026-08-02T05:05:13.041693Z'
-- artifact_hash: 8a257aeb08a4726f5c42d021568fa98b9bddb53f7439864964e974b9c3157eaf
+  verified_at: '2026-08-14T14:17:26.853290Z'
+- artifact_hash: 3722d397a1601fd4784e5697ac9f73a58d60b73efdac41da0f24a1e3bcee778a
   artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -32,4 +32,4 @@
   value: https://arxiv.org/abs/2507.07101
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2507.07101
-  verified_at: '2026-08-02T05:05:13.041693Z'
+  verified_at: '2026-08-14T14:17:26.853290Z'

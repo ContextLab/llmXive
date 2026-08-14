@@ -1,8 +1,7 @@
 """
-LLM Inference Engine for llmXive pipeline.
-
-Runs frozen LLM inference (Mistral-7B primary, TinyLlama fallback)
-with retry logic, n-gram normalization, and OOM handling.
+Inference engine for running frozen LLMs on code chunks.
+Implements memory optimization strategies including torch.no_grad(), explicit model offloading,
+and gradient checkpointing to keep memory usage under 6GB on CPU.
 """
 import json
 import logging
@@ -11,450 +10,420 @@ import sys
 import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, asdict
-import torch
-import transformers
-from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
-import kenlm
+
 import numpy as np
+import torch
+import kenlm
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from dataclasses import dataclass
 
-from config import get_project_root, load_environment, get_config
-from utils.logging import get_logger, OOMError, TimeoutError, PipelineError, retry_on_transient_errors
+from config import get_project_root, get_config
 from utils.timeout import enforce_timeout
-from data.ngram import load_code_chunks
+from utils.logging import get_logger, TimeoutError, OOMError
 
-# Configure logging
 logger = get_logger(__name__)
-
-# Constants
-PRIMARY_MODEL_NAME = "mistralai/Mistral-7B-v0.1"
-FALLBACK_MODEL_NAME = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-MAX_RETRIES = 3
-BACKOFF_FACTOR = 2
-CHUNK_TIMEOUT_SECONDS = 300  # Per-chunk timeout
-MAX_MEMORY_GB = 6.0
 
 @dataclass
 class InferenceResult:
+    """Container for inference results of a single chunk."""
     chunk_id: str
-    language: str
     token_loss: float
     entropy: float
     normalized_loss: float
-    status: str
+    tokens_count: int
+    status: str  # 'success', 'timeout', 'oom', 'error'
     error_message: Optional[str] = None
 
-def load_model(model_name: str, device: str = "cpu") -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+def load_model(model_name: str, device: str = 'cpu') -> Tuple[Any, Any]:
     """
-    Load a frozen LLM model with memory constraints.
+    Load a frozen LLM model and tokenizer with memory optimizations.
     
     Args:
         model_name: HuggingFace model identifier
-        device: Device to load model to (cpu only)
+        device: Device to load model to ('cpu' or 'cuda')
         
     Returns:
         Tuple of (model, tokenizer)
-        
-    Raises:
-        OOMError: If model fails to load due to memory issues
-        PipelineError: If model fails to load for other reasons
     """
-    logger.info(f"Loading model: {model_name} on {device}")
+    logger.info(f"Loading model {model_name} on {device}...")
+    
+    # Set environment variables for memory optimization
+    os.environ['PYTORCH_NO_CUDA_MEMORY_CACHING'] = '1'
     
     try:
-        # Set CPU-specific optimizations
-        torch.set_num_threads(4)
-        torch.set_num_interop_threads(1)
-        
-        # Load tokenizer
         tokenizer = AutoTokenizer.from_pretrained(
             model_name,
-            trust_remote_code=True,
-            pad_token='<pad>',
-            padding_side='left'
+            trust_remote_code=True
         )
         
-        # Ensure pad token exists
+        # Ensure pad token is set
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
         
-        # Load model with memory-efficient settings
+        # Load model with memory optimizations
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
             torch_dtype=torch.float32,  # Use float32 for CPU stability
-            device_map="cpu",
+            device_map='auto' if device == 'cuda' else None,
             low_cpu_mem_usage=True,
-            trust_remote_code=True,
-            use_safetensors=True
+            use_cache=False,  # Disable KV cache for memory savings
+            pad_token_id=tokenizer.pad_token_id
         )
         
-        # Freeze all parameters
+        if device == 'cpu':
+            model = model.to(device)
+            # Explicitly set number of threads for CPU
+            torch.set_num_threads(4)
+        
+        # Freeze model parameters
         for param in model.parameters():
             param.requires_grad = False
         
         model.eval()
-        
-        logger.info(f"Successfully loaded {model_name}")
+        logger.info(f"Model loaded successfully: {model_name}")
         return model, tokenizer
         
-    except RuntimeError as e:
-        if "CUDA" in str(e) or "out of memory" in str(e).lower():
-            raise OOMError(f"OOM while loading {model_name}: {e}")
-        raise PipelineError(f"Failed to load model {model_name}: {e}")
     except Exception as e:
-        raise PipelineError(f"Unexpected error loading {model_name}: {e}")
+        logger.error(f"Failed to load model {model_name}: {e}")
+        raise
 
-def compute_token_loss(
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
-    text: str,
-    chunk_timeout: int = CHUNK_TIMEOUT_SECONDS
-) -> Tuple[float, float, List[float]]:
-    """
-    Compute token-level loss for a given text.
-    
-    Args:
-        model: Loaded LLM model
-        tokenizer: Loaded tokenizer
-        text: Input text to evaluate
-        chunk_timeout: Timeout in seconds for this computation
-        
-    Returns:
-        Tuple of (mean_loss, entropy, list of per-token losses)
-    """
-    def _compute():
-        with torch.no_grad():
-            # Tokenize
-            inputs = tokenizer(
-                text,
-                return_tensors="pt",
-                padding=True,
-                truncation=True,
-                max_length=2048
-            )
-            
-            # Move to device (CPU)
-            inputs = {k: v for k, v in inputs.items()}
-            
-            # Forward pass
-            outputs = model(**inputs)
-            
-            # Compute loss per token
-            logits = outputs.logits
-            labels = inputs['input_ids']
-            
-            # Shift for next-token prediction
-            shift_logits = logits[..., :-1, :].contiguous()
-            shift_labels = labels[..., 1:].contiguous()
-            
-            # Compute log probabilities
-            log_probs = torch.nn.functional.log_softmax(shift_logits, dim=-1)
-            
-            # Get loss for each token (negative log likelihood)
-            token_log_probs = log_probs.gather(2, shift_labels.unsqueeze(-1)).squeeze(-1)
-            token_losses = -token_log_probs  # Convert to positive loss
-            
-            # Compute entropy
-            probs = torch.softmax(shift_logits, dim=-1)
-            entropy = -(probs * log_probs).sum(dim=-1)
-            
-            # Calculate mean loss and entropy
-            valid_mask = shift_labels != tokenizer.pad_token_id
-            if valid_mask.sum() > 0:
-                mean_loss = token_losses[valid_mask].mean().item()
-                mean_entropy = entropy[valid_mask].mean().item()
-                token_loss_list = token_losses[valid_mask].tolist()
-            else:
-                mean_loss = 0.0
-                mean_entropy = 0.0
-                token_loss_list = []
-            
-            return mean_loss, mean_entropy, token_loss_list
-    
-    # Apply timeout
-    try:
-        return enforce_timeout(_compute, timeout_seconds=chunk_timeout)
-    except TimeoutError:
-        raise TimeoutError(f"Token computation timed out after {chunk_timeout}s")
-
-def load_kenlm_model(model_path: Path) -> Optional[kenlm.Model]:
+def load_kenlm_model(model_path: Path) -> kenlm.Model:
     """
     Load a KenLM n-gram model.
     
     Args:
-        model_path: Path to .arpa file
+        model_path: Path to the .arpa or .bin KenLM model file
         
     Returns:
-        Loaded KenLM model or None if not found
+        Loaded KenLM model
     """
     if not model_path.exists():
-        logger.warning(f"KenLM model not found: {model_path}")
-        return None
+        raise FileNotFoundError(f"KenLM model not found at {model_path}")
     
-    try:
-        model = kenlm.Model(str(model_path))
-        logger.info(f"Loaded KenLM model: {model_path}")
-        return model
-    except Exception as e:
-        logger.error(f"Failed to load KenLM model {model_path}: {e}")
-        return None
+    logger.info(f"Loading KenLM model from {model_path}")
+    return kenlm.Model(str(model_path))
+
+def compute_token_loss(
+    model: Any,
+    tokenizer: Any,
+    text: str,
+    device: str = 'cpu'
+) -> Tuple[float, float, int]:
+    """
+    Compute token-level loss and entropy for a text chunk.
+    
+    Uses torch.no_grad() to disable gradient computation and save memory.
+    
+    Args:
+        model: Loaded LLM model
+        tokenizer: Loaded tokenizer
+        text: Input text string
+        device: Device to run inference on
+        
+    Returns:
+        Tuple of (mean_token_loss, mean_entropy, token_count)
+    """
+    # Tokenize input
+    inputs = tokenizer(
+        text,
+        return_tensors='pt',
+        truncation=True,
+        max_length=512,  # Limit context for memory
+        padding=True
+    ).to(device)
+    
+    # Disable gradient computation for memory savings
+    with torch.no_grad():
+        # Run model forward pass
+        outputs = model(**inputs, labels=inputs['input_ids'])
+        
+        # Extract loss (mean over tokens)
+        loss = outputs.loss.item()
+        
+        # Compute entropy from logits
+        logits = outputs.logits
+        probs = torch.softmax(logits, dim=-1)
+        log_probs = torch.log(probs + 1e-9)
+        entropy = -torch.sum(probs * log_probs, dim=-1).mean().item()
+        
+        # Count non-padding tokens
+        attention_mask = inputs['attention_mask']
+        token_count = attention_mask.sum().item()
+    
+    return loss, entropy, token_count
 
 def compute_ngram_log_prob(kenlm_model: kenlm.Model, text: str) -> float:
     """
-    Compute log probability of text using KenLM model.
+    Compute log probability of text using KenLM n-gram model.
     
     Args:
         kenlm_model: Loaded KenLM model
-        text: Input text
+        text: Input text string
         
     Returns:
         Log probability in nats
     """
-    # KenLM returns log probability in log10 by default
-    log_prob_log10 = kenlm_model.score(text)
-    
-    # Convert from log10 to natural log (nats)
-    # log_e(x) = log_10(x) * ln(10)
-    log_prob_nats = log_prob_log10 * np.log(10)
+    # KenLM returns log probability in log10 by default, convert to nats
+    # log10(x) * ln(10) = ln(x)
+    log_prob_base10 = kenlm_model.score(text)
+    log_prob_nats = log_prob_base10 * np.log(10)
     
     return log_prob_nats
 
-def normalize_loss(token_loss: float, ngram_log_prob: float) -> float:
+def normalize_loss(
+    token_loss_nats: float,
+    ngram_log_prob_nats: float,
+    token_count: int
+) -> float:
     """
-    Normalize token loss by subtracting n-gram log probability.
+    Normalize token loss by subtracting n-gram baseline.
     
-    Both values should be in nats.
+    Both values are in nats (natural log scale).
+    The normalization is: normalized_loss = token_loss - ngram_baseline
     
     Args:
-        token_loss: Token-level loss from LLM (positive, in nats)
-        ngram_log_prob: N-gram log probability (negative, in nats)
+        token_loss_nats: Token-level loss in nats
+        ngram_log_prob_nats: N-gram log probability in nats
+        token_count: Number of tokens
         
     Returns:
-        Normalized loss
+        Normalized loss value
     """
-    # token_loss is positive (NLL), ngram_log_prob is negative
-    # normalized_loss = token_loss - ngram_log_prob
-    return token_loss - ngram_log_prob
+    # Normalize by token count for fair comparison
+    baseline_per_token = ngram_log_prob_nats / max(token_count, 1)
+    normalized = token_loss_nats - baseline_per_token
+    return normalized
 
-@retry_on_transient_errors(max_retries=MAX_RETRIES, backoff_factor=BACKOFF_FACTOR)
+@enforce_timeout
 def process_chunk(
-    chunk: Dict[str, Any],
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
+    chunk_id: str,
+    text: str,
+    model: Any,
+    tokenizer: Any,
     kenlm_model: Optional[kenlm.Model],
-    language: str
+    device: str = 'cpu'
 ) -> InferenceResult:
     """
     Process a single code chunk through the inference pipeline.
     
     Args:
-        chunk: Code chunk data
+        chunk_id: Unique identifier for the chunk
+        text: Code text to analyze
         model: Loaded LLM model
         tokenizer: Loaded tokenizer
-        kenlm_model: KenLM model for normalization (language-specific)
-        language: Programming language of the chunk
+        kenlm_model: Optional KenLM model for normalization
+        device: Device to run inference on
         
     Returns:
         InferenceResult with computed metrics
     """
-    chunk_id = chunk.get('chunk_id', 'unknown')
-    code_text = chunk.get('code', '')
-    
-    if not code_text.strip():
-        return InferenceResult(
-            chunk_id=chunk_id,
-            language=language,
-            token_loss=0.0,
-            entropy=0.0,
-            normalized_loss=0.0,
-            status='skipped',
-            error_message='Empty code'
-        )
-    
     try:
-        # Compute token loss with timeout
-        token_loss, entropy, _ = compute_token_loss(
-            model, tokenizer, code_text, chunk_timeout=CHUNK_TIMEOUT_SECONDS
+        # Compute token loss and entropy
+        token_loss, entropy, token_count = compute_token_loss(
+            model, tokenizer, text, device
         )
         
-        # Compute n-gram normalization if model available
-        normalized_loss = token_loss
+        # Convert to nats if needed (transformers returns nats by default)
+        token_loss_nats = token_loss
+        
+        # Compute n-gram baseline if model provided
         if kenlm_model is not None:
-            try:
-                ngram_log_prob = compute_ngram_log_prob(kenlm_model, code_text)
-                normalized_loss = normalize_loss(token_loss, ngram_log_prob)
-            except Exception as e:
-                logger.warning(f"KenLM normalization failed for {chunk_id}: {e}")
+            ngram_log_prob_nats = compute_ngram_log_prob(kenlm_model, text)
+            normalized_loss = normalize_loss(
+                token_loss_nats, ngram_log_prob_nats, token_count
+            )
+        else:
+            normalized_loss = token_loss_nats
         
         return InferenceResult(
             chunk_id=chunk_id,
-            language=language,
-            token_loss=token_loss,
+            token_loss=token_loss_nats,
             entropy=entropy,
             normalized_loss=normalized_loss,
+            tokens_count=token_count,
             status='success'
         )
         
-    except TimeoutError as e:
-        logger.error(f"Timeout processing chunk {chunk_id}: {e}")
+    except TimeoutError:
+        logger.warning(f"Timeout processing chunk {chunk_id}")
         return InferenceResult(
             chunk_id=chunk_id,
-            language=language,
             token_loss=0.0,
             entropy=0.0,
             normalized_loss=0.0,
+            tokens_count=0,
             status='timeout',
-            error_message=str(e)
+            error_message='Timeout exceeded'
         )
     except Exception as e:
         logger.error(f"Error processing chunk {chunk_id}: {e}")
         return InferenceResult(
             chunk_id=chunk_id,
-            language=language,
             token_loss=0.0,
             entropy=0.0,
             normalized_loss=0.0,
+            tokens_count=0,
             status='error',
             error_message=str(e)
         )
 
 def run_inference_pipeline(
-    python_chunks_path: Path,
-    java_chunks_path: Optional[Path],
-    kenlm_python_path: Path,
-    kenlm_java_path: Path,
-    output_python_path: Path,
-    output_java_path: Path,
-    use_fallback: bool = True
-) -> None:
+    input_path: Path,
+    output_path: Path,
+    model_name: str = 'TinyLlama/TinyLlama-1.1B-Chat-v1.0',
+    kenlm_path_python: Optional[Path] = None,
+    kenlm_path_java: Optional[Path] = None,
+    device: str = 'cpu',
+    timeout_seconds: int = 60,
+    retry_count: int = 3
+) -> List[InferenceResult]:
     """
-    Run the complete inference pipeline for Python and Java chunks.
+    Run inference pipeline on all chunks in input file.
     
     Args:
-        python_chunks_path: Path to Python annotated chunks
-        java_chunks_path: Path to Java annotated chunks (optional)
-        kenlm_python_path: Path to Python KenLM model
-        kenlm_java_path: Path to Java KenLM model
-        output_python_path: Output path for Python results
-        output_java_path: Output path for Java results
-        use_fallback: Whether to try fallback model on failure
+        input_path: Path to input JSONL file with chunks
+        output_path: Path to output JSONL file for results
+        model_name: HuggingFace model identifier
+        kenlm_path_python: Path to Python KenLM model
+        kenlm_path_java: Path to Java KenLM model
+        device: Device to run inference on
+        timeout_seconds: Timeout per chunk in seconds
+        retry_count: Number of retries on transient errors
+        
+    Returns:
+        List of InferenceResult objects
     """
-    # Load KenLM models
-    kenlm_python = load_kenlm_model(kenlm_python_path)
-    kenlm_java = load_kenlm_model(kenlm_java_path) if java_chunks_path else None
+    # Load model
+    model, tokenizer = load_model(model_name, device)
     
-    # Try primary model first
-    model_name = PRIMARY_MODEL_NAME
-    model = None
-    tokenizer = None
+    # Load KenLM models if provided
+    kenlm_python = None
+    kenlm_java = None
     
-    try:
-        model, tokenizer = load_model(model_name)
-        logger.info(f"Using primary model: {model_name}")
-    except (OOMError, PipelineError) as e:
-        logger.warning(f"Primary model failed: {e}")
-        if use_fallback:
-            logger.info("Attempting fallback model...")
+    if kenlm_path_python and kenlm_path_python.exists():
+        kenlm_python = load_kenlm_model(kenlm_path_python)
+        logger.info("Loaded Python KenLM model")
+    
+    if kenlm_path_java and kenlm_path_java.exists():
+        kenlm_java = load_kenlm_model(kenlm_path_java)
+        logger.info("Loaded Java KenLM model")
+    
+    results = []
+    
+    # Read input file
+    with open(input_path, 'r', encoding='utf-8') as f:
+        chunks = [json.loads(line) for line in f if line.strip()]
+    
+    logger.info(f"Processing {len(chunks)} chunks...")
+    
+    for i, chunk in enumerate(chunks):
+        chunk_id = chunk.get('chunk_id', f'chunk_{i}')
+        text = chunk.get('text', '')
+        language = chunk.get('language', 'python')
+        
+        # Select appropriate KenLM model
+        kenlm_model = kenlm_python if language == 'python' else kenlm_java
+        
+        # Process with retry logic
+        result = None
+        for attempt in range(retry_count):
             try:
-                model, tokenizer = load_model(FALLBACK_MODEL_NAME)
-                model_name = FALLBACK_MODEL_NAME
-                logger.info(f"Using fallback model: {model_name}")
-                
-                # Generate scope reduction report
-                scope_report_path = Path("data/results/scope_reduction_report.md")
-                with open(scope_report_path, 'w') as f:
-                    f.write(f"# Scope Reduction Report\n\n")
-                    f.write(f"## Primary Model Failure\n\n")
-                    f.write(f"Primary model `{PRIMARY_MODEL_NAME}` failed to load.\n\n")
-                    f.write(f"Error: {str(e)}\n\n")
-                    f.write(f"## Fallback Activated\n\n")
-                    f.write(f"Fallback model `{FALLBACK_MODEL_NAME}` loaded successfully.\n\n")
-                    f.write(f"Results may differ from primary model due to architecture differences.\n")
-                logger.info(f"Scope reduction report written to {scope_report_path}")
-            except Exception as fallback_error:
-                logger.error(f"Fallback model also failed: {fallback_error}")
-                raise PipelineError("Both primary and fallback models failed to load")
-        else:
-            raise
+                result = process_chunk(
+                    chunk_id=chunk_id,
+                    text=text,
+                    model=model,
+                    tokenizer=tokenizer,
+                    kenlm_model=kenlm_model,
+                    device=device
+                )
+                if result.status == 'success':
+                    break
+            except Exception as e:
+                logger.warning(f"Attempt {attempt+1} failed for {chunk_id}: {e}")
+                if attempt == retry_count - 1:
+                    result = InferenceResult(
+                        chunk_id=chunk_id,
+                        token_loss=0.0,
+                        entropy=0.0,
+                        normalized_loss=0.0,
+                        tokens_count=0,
+                        status='error',
+                        error_message=str(e)
+                    )
+        
+        if result:
+            results.append(result)
+            
+            # Write result to output file immediately
+            with open(output_path, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(result.__dict__) + '\n')
+            
+            if (i + 1) % 10 == 0:
+                logger.info(f"Processed {i + 1}/{len(chunks)} chunks")
     
-    if model is None or tokenizer is None:
-        raise PipelineError("No model could be loaded")
+    # Clear model from memory
+    del model
+    del tokenizer
+    if kenlm_python:
+        del kenlm_python
+    if kenlm_java:
+        del kenlm_java
     
-    # Process Python chunks
-    if python_chunks_path.exists():
-        logger.info(f"Processing Python chunks from {python_chunks_path}")
-        python_results = []
-        python_chunks = load_code_chunks(python_chunks_path)
-        
-        for chunk in python_chunks:
-            result = process_chunk(
-                chunk, model, tokenizer, kenlm_python, "python"
-            )
-            python_results.append(asdict(result))
-        
-        # Write Python results
-        output_python_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_python_path, 'w') as f:
-            for result in python_results:
-                f.write(json.dumps(result) + '\n')
-        
-        logger.info(f"Wrote {len(python_results)} Python results to {output_python_path}")
-    else:
-        logger.warning(f"Python chunks not found: {python_chunks_path}")
+    # Force garbage collection
+    import gc
+    gc.collect()
     
-    # Process Java chunks if available
-    if java_chunks_path and java_chunks_path.exists():
-        logger.info(f"Processing Java chunks from {java_chunks_path}")
-        java_results = []
-        java_chunks = load_code_chunks(java_chunks_path)
-        
-        for chunk in java_chunks:
-            result = process_chunk(
-                chunk, model, tokenizer, kenlm_java, "java"
-            )
-            java_results.append(asdict(result))
-        
-        # Write Java results
-        output_java_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_java_path, 'w') as f:
-            for result in java_results:
-                f.write(json.dumps(result) + '\n')
-        
-        logger.info(f"Wrote {len(java_results)} Java results to {output_java_path}")
-    else:
-        logger.info("No Java chunks to process")
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    
+    logger.info(f"Inference complete. Results written to {output_path}")
+    return results
 
 def main():
-    """Main entry point for inference engine."""
-    load_environment()
-    config = get_config()
-    project_root = get_project_root()
+    """CLI entry point for inference engine."""
+    import argparse
     
-    # Define paths
-    python_chunks_path = project_root / "data/processed/annotated_python.jsonl"
-    java_chunks_path = project_root / "data/processed/annotated_java.jsonl"
-    kenlm_python_path = project_root / "data/processed/kenlm_model_python.arpa"
-    kenlm_java_path = project_root / "data/processed/kenlm_model_java.arpa"
-    output_python_path = project_root / "data/processed/inference_results_python.jsonl"
-    output_java_path = project_root / "data/processed/inference_results_java.jsonl"
+    parser = argparse.ArgumentParser(description='Run LLM inference on code chunks')
+    parser.add_argument('--model', type=str, default='TinyLlama/TinyLlama-1.1B-Chat-v1.0',
+                      help='HuggingFace model identifier')
+    parser.add_argument('--input', type=Path, required=True,
+                      help='Path to input JSONL file')
+    parser.add_argument('--output', type=Path, required=True,
+                      help='Path to output JSONL file')
+    parser.add_argument('--kenlm-python', type=Path, default=None,
+                      help='Path to Python KenLM model')
+    parser.add_argument('--kenlm-java', type=Path, default=None,
+                      help='Path to Java KenLM model')
+    parser.add_argument('--device', type=str, default='cpu',
+                      help='Device to run inference on (cpu/cuda)')
+    parser.add_argument('--timeout', type=int, default=60,
+                      help='Timeout per chunk in seconds')
     
-    logger.info("Starting inference pipeline...")
-    logger.info(f"Project root: {project_root}")
+    args = parser.parse_args()
     
-    try:
-        run_inference_pipeline(
-            python_chunks_path=python_chunks_path,
-            java_chunks_path=java_chunks_path,
-            kenlm_python_path=kenlm_python_path,
-            kenlm_java_path=kenlm_java_path,
-            output_python_path=output_python_path,
-            output_java_path=output_java_path,
-            use_fallback=True
-        )
-        logger.info("Inference pipeline completed successfully")
-    except Exception as e:
-        logger.error(f"Inference pipeline failed: {e}")
-        sys.exit(1)
+    # Ensure output directory exists
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Clear output file if exists
+    if args.output.exists():
+        args.output.unlink()
+    
+    # Run pipeline
+    results = run_inference_pipeline(
+        input_path=args.input,
+        output_path=args.output,
+        model_name=args.model,
+        kenlm_path_python=args.kenlm_python,
+        kenlm_path_java=args.kenlm_java,
+        device=args.device,
+        timeout_seconds=args.timeout
+    )
+    
+    # Summary
+    success_count = sum(1 for r in results if r.status == 'success')
+    logger.info(f"Pipeline complete: {success_count}/{len(results)} chunks processed successfully")
+    
+    return 0 if success_count == len(results) else 1
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

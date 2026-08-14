@@ -1,4 +1,4 @@
-- artifact_hash: 8a9da56953a7c96f4da9d7211e0f06c7cf802b46b5f0a2f8e717024fbc4fbd3e
+- artifact_hash: 2636257217d39de6b1fee7ea1878efc2559d6f94a4d519474312748238eeabfa
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,37 +8,26 @@
   value: https://example.com
   verification_status: pending
   verified_against_url: https://example.com
-  verified_at: '2026-08-13T16:21:54.039570Z'
-- artifact_hash: 8a9da56953a7c96f4da9d7211e0f06c7cf802b46b5f0a2f8e717024fbc4fbd3e
+  verified_at: '2026-08-14T14:09:00.508091Z'
+- artifact_hash: 2636257217d39de6b1fee7ea1878efc2559d6f94a4d519474312748238eeabfa
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.nist.gov/publications/ceramic-data-repository`
-  verification_status: mismatch
-  verified_against_url: https://www.nist.gov/publications/ceramic-data-repository
-  verified_at: '2026-08-13T16:21:54.039570Z'
-- artifact_hash: 8a9da56953a7c96f4da9d7211e0f06c7cf802b46b5f0a2f8e717024fbc4fbd3e
+  value: https://materialsproject.org/rest`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/rest
+  verified_at: '2026-08-14T14:09:00.508091Z'
+- artifact_hash: 2636257217d39de6b1fee7ea1878efc2559d6f94a4d519474312748238eeabfa
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://next-gen-api.materialsproject.org/v2/materials/`
-  verification_status: unreachable
-  verified_against_url: https://next-gen-api.materialsproject.org/v2/materials/
-  verified_at: '2026-08-13T16:21:54.039570Z'
-- artifact_hash: 8a9da56953a7c96f4da9d7211e0f06c7cf802b46b5f0a2f8e717024fbc4fbd3e
-  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.nist.gov/publications/ceramic-data-repository/data.csv`
+  value: https://www.nist.gov/materials-data/ceramic-data`
   verification_status: mismatch
-  verified_against_url: https://www.nist.gov/publications/ceramic-data-repository/data.csv
-  verified_at: '2026-08-13T16:21:54.039570Z'
+  verified_against_url: https://www.nist.gov/materials-data/ceramic-data
+  verified_at: '2026-08-14T14:09:00.508091Z'

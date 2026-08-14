@@ -122,13 +122,13 @@
 
 - [X] T018a [US1] Implement `code/data/ngram.py` (Python) to build KenLM n‑gram model for the Python training set.
  - **Dependency**: **T016** (Preprocess).
- - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) [UNRESOLVED-CLAIM: c_8f2f7153 — status=verified] ‑gram model from `data/processed/train_python/`.
+ - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) [UNRESOLVED-CLAIM: c_71d9c8ac — status=verified] ‑gram model from `data/processed/train_python/`.
  - **Unit**: Ensure model outputs **log-probability in nats**.
  - **Artifact**: `data/processed/kenlm_model_python.arpa`.
 
 - [X] T018b [US1] Implement `code/data/ngram.py` (Java) to build KenLM n‑gram model for the Java validation set. <!-- FAILED: unspecified -->
  - **Dependency**: **T016** (Preprocess).
- - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) [UNRESOLVED-CLAIM: c_8f2f7153 — status=verified] ‑gram model from `data/processed/val_java/` (if Java data exists).
+ - **Logic**: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852) [UNRESOLVED-CLAIM: c_71d9c8ac — status=verified] ‑gram model from `data/processed/val_java/` (if Java data exists).
  - **Unit**: Ensure model outputs **log-probability in nats**.
  - **Artifact**: `data/processed/kenlm_model_java.arpa`.
 
@@ -169,7 +169,7 @@
 - [X] T021c [US1] Implement `code/main.py` execution loop that reads `code/dag.yaml` and runs tasks in order, respecting parallel groups.
  - **Artifact**: `code/main.py` (Execution section).
 
-- [ ] T022 [US1] Extend `code/analysis/correlation.py` for cross‑language validation.
+- [X] T022 [US1] Extend `code/analysis/correlation.py` for cross‑language validation.
  - **Dependency**: **T019** (Correlation results).
  - **Logic**: Compare Pearson/Spearman coefficients between Python and Java subsets, append comparison stats to `us1_correlation_stats.json`.
  - **Artifact**: Updated `data/results/us1_correlation_stats.json`.
@@ -232,7 +232,7 @@
  1. **Attempt Load**: Try to fetch the complexity benchmark.
  2. **If Available**:
  - Identify the column containing human-labeled complexity scores (e.g., `complexity_score`).
- - Compute Pearson r between benchmark labels and computed complexity metrics [UNRESOLVED-CLAIM: c_fd065218 — status=not_enough_info].
+ - Compute Pearson r between benchmark labels and computed complexity metrics.
  - Write `data/results/us3_validation_result.json` with `status: "validated"` and correlation details.
  3. **If Unavailable**:
  - **Do NOT abort**.
@@ -248,9 +248,9 @@
  - **Artifact**: `README.md` (updated).
 - [X] T032b [P] Create docs/ with API reference: Generate `docs/api.md` with function signatures for `code/` modules.
  - **Artifact**: `docs/api.md`.
-- [ ] T034a [P] Optimize T015 streaming logic: Refactor `code/data/download.py` to use chunked streaming with explicit `chunk_size=100 ` and `max_workers=4 `.
+- [X] T034a [P] Optimize T015 streaming logic: Refactor `code/data/download.py` to use chunked streaming with explicit `chunk_size=100 ` and `max_workers=4 `.
  - **Artifact**: `code/data/download.py` (updated).
-- [ ] T034b [P] Optimize T017 inference memory: Refactor `code/inference/engine.py` to use `torch.no_grad()` and explicit `{{claim:c_e66238fe}} (2507.07101 [UNRESOLVED-CLAIM: c_31d7f2e0 — status=not_enough_info], https://arxiv.org/abs/2507.07101 [UNRESOLVED-CLAIM: c_31d7f2e0 — status=not_enough_info]) ` to keep memory < 6 GB.
+- [X] T034b [P] Optimize T017 inference memory: Refactor `code/inference/engine.py` to use `torch.no_grad()` and explicit `{{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101) ` to keep memory < 6 GB.
  - **Artifact**: `code/inference/engine.py` (updated).
 - [X] T034c [P] Optimize T026 perturbation: Refactor `code/analysis/threshold.py` to use `joblib` for parallel processing of the bootstrap samples.
  - **Artifact**: `code/analysis/threshold.py` (updated).
@@ -289,5 +289,5 @@ All tasks now respect data flow, resource constraints, and the strict requiremen
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
 - [ ] T038 Reconcile run-book vs implementation for `code/analysis/thresholds.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis/thresholds.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T039 Reconcile run-book vs implementation for `code/analysis/significance.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis/significance.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
-- [ ] T040 Reconcile run-book vs implementation for `code/viz/plots.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/viz/plots.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T039 Reconcile run-book vs implementation for `code/analysis/significance.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/analysis/significance.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T040 Reconcile run-book vs implementation for `code/viz/plots.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/viz/plots.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

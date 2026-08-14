@@ -1,9 +1,9 @@
 """
-Narrative Logic Implementation (T015a)
+Narrative Logic Implementation for Thematic Aggregation.
 
-Performs thematic aggregation of qualitative study descriptors.
-Reads extracted studies and methodology config, aggregates by theme,
-and writes the result to data/derived/narrative_themes.json.
+This module performs thematic aggregation of qualitative descriptors from
+extracted studies, implementing keyword frequency counting and sentiment
+  rule mapping as defined in the narrative methodology configuration.
 """
 import json
 import csv
@@ -13,190 +13,235 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-# Import project utilities (matching API surface)
+import sys
+import os
+
+# Add project root to path for imports if running as script
+if 'code' not in sys.path:
+    code_root = Path(__file__).resolve().parent.parent
+    if code_root.name == 'code':
+        sys.path.insert(0, str(code_root))
+
 from utils.logger import get_logger
-from utils.config import get_project_root, ensure_directory
+from utils.config import get_project_root
 
 logger = get_logger(__name__)
 
-# --- Configuration Paths ---
-# These paths are relative to the project root
-PROJECT_ROOT = get_project_root()
-EXTRACTED_STUDIES_PATH = PROJECT_ROOT / "data" / "processed" / "extracted_studies.csv"
-METHODOLOGY_CONFIG_PATH = PROJECT_ROOT / "data" / "config" / "narrative_methodology.yaml"
-OUTPUT_PATH = PROJECT_ROOT / "data" / "derived" / "narrative_themes.json"
-
-# --- Helper Functions ---
-
-def load_methodology_config(config_path: Path) -> Dict[str, Any]:
+def load_methodology_config(config_path: str) -> Dict[str, Any]:
     """
-    Loads the narrative methodology configuration from a YAML file.
-    Expected schema:
-      keywords: [list of strings]
-      sentiment_rules: {positive: [list], negative: [list]}
-      exclusion_criteria: [list of strings]
+    Load the narrative methodology configuration file.
+    
+    Args:
+        config_path: Path to the narrative_methodology.yaml file.
+        
+    Returns:
+        Dictionary containing keywords, sentiment_rules, and exclusion_criteria.
+        
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        json.JSONDecodeError: If the file is not valid YAML/JSON (simplified to JSON for this impl).
     """
+    path = Path(config_path)
+    if not path.exists():
+        logger.error(f"Methodology config not found: {path}")
+        raise FileNotFoundError(f"Methodology config not found: {path}")
+    
+    # Assuming YAML format as per spec, but using standard json for strictness if not yaml installed
+    # The spec implies YAML. We will try to read it as text and parse basic structure if yaml is not available,
+    # but standard practice in this project likely has PyYAML.
     try:
         import yaml
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             config = yaml.safe_load(f)
-        if not config:
-            logger.warning(f"Methodology config at {config_path} is empty.")
-            return {"keywords": [], "sentiment_rules": {"positive": [], "negative": []}, "exclusion_criteria": []}
-        return config
-    except FileNotFoundError:
-        logger.error(f"Methodology config not found at {config_path}")
-        raise
-    except Exception as e:
-        logger.error(f"Failed to load methodology config: {e}")
-        raise
+    except ImportError:
+        # Fallback for environments without yaml, though requirements.txt should have it
+        logger.warning("PyYAML not found, attempting basic parsing or failing.")
+        raise ImportError("PyYAML is required to load methodology config.")
+        
+    return config
 
-def load_extracted_studies(csv_path: Path) -> List[Dict[str, Any]]:
+def load_extracted_studies(csv_path: str) -> List[Dict[str, Any]]:
     """
-    Loads the extracted studies from the CSV file produced by T013.
-    Returns a list of dictionaries.
+    Load the extracted studies CSV file.
+    
+    Args:
+        csv_path: Path to the extracted_studies.csv file.
+        
+    Returns:
+        List of dictionaries representing each study row.
+        
+    Raises:
+        FileNotFoundError: If the CSV file does not exist.
     """
+    path = Path(csv_path)
+    if not path.exists():
+        logger.error(f"Extracted studies file not found: {path}")
+        raise FileNotFoundError(f"Extracted studies file not found: {path}")
+    
     studies = []
-    if not csv_path.exists():
-        logger.error(f"Extracted studies file not found at {csv_path}")
-        raise FileNotFoundError(f"Input file not found: {csv_path}")
-
-    try:
-        with open(csv_path, 'r', encoding='utf-8', newline='') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # Ensure qualitative_desc is treated as a string
-                if 'qualitative_desc' in row and row['qualitative_desc']:
-                    studies.append(row)
-                else:
-                    # If no qualitative_desc, we might still include it if narrative_pool is True?
-                    # Based on T013 spec: "Include in narrative pool" if r/n missing.
-                    # We assume if it's in the CSV, it's a candidate.
-                    studies.append(row)
-    except Exception as e:
-        logger.error(f"Failed to read extracted studies CSV: {e}")
-        raise
-
+    with open(path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            studies.append(row)
+    
+    logger.info(f"Loaded {len(studies)} studies from {csv_path}")
     return studies
 
 def extract_themes(studies: List[Dict[str, Any]], methodology: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Aggregates qualitative descriptions by theme.
+    Extract and aggregate themes from qualitative descriptors based on methodology.
     
-    Logic:
-    1. Iterate through studies.
-    2. If a study has a 'qualitative_desc', check it against 'keywords' in methodology.
-    3. If a keyword matches, assign the study to that theme.
-    4. If no keyword matches, assign to 'uncategorized' (or a generic 'general' theme).
-    5. Count frequencies and collect sample texts.
+    Args:
+        studies: List of study dictionaries containing 'qualitative_desc'.
+        methodology: Configuration dictionary with keywords and sentiment rules.
+        
+    Returns:
+        Dictionary mapping theme names to their counts and associated details.
     """
+    theme_counts = defaultdict(int)
+    theme_details = defaultdict(list)
+    
     keywords = methodology.get('keywords', [])
-    # Compile regex patterns for keywords to handle case-insensitivity and word boundaries
-    patterns = []
-    for kw in keywords:
-        # Escape special regex chars in the keyword
-        escaped_kw = re.escape(kw)
-        # Match whole words or phrases, case-insensitive
-        patterns.append(re.compile(escaped_kw, re.IGNORECASE))
-
-    theme_data = defaultdict(lambda: {"count": 0, "studies": [], "descriptions": []})
-
+    sentiment_rules = methodology.get('sentiment_rules', {})
+    positive_indicators = sentiment_rules.get('positive', [])
+    negative_indicators = sentiment_rules.get('negative', [])
+    
+    # Compile regex for efficiency
+    keyword_patterns = [re.compile(re.escape(kw), re.IGNORECASE) for kw in keywords]
+    positive_patterns = [re.compile(re.escape(ind), re.IGNORECASE) for ind in positive_indicators]
+    negative_patterns = [re.compile(re.escape(ind), re.IGNORECASE) for ind in negative_indicators]
+    
     for study in studies:
         desc = study.get('qualitative_desc', '')
-        if not desc or not isinstance(desc, str):
+        if not desc or desc == 'no_descriptor_found':
             continue
-
-        matched_theme = None
-        for i, pattern in enumerate(patterns):
+        
+        # Determine sentiment
+        sentiment = 'neutral'
+        if any(p.search(desc) for p in positive_patterns):
+            sentiment = 'positive'
+        elif any(p.search(desc) for p in negative_patterns):
+            sentiment = 'negative'
+        
+        # Match keywords to themes
+        matched_keywords = []
+        for kw, pattern in zip(keywords, keyword_patterns):
             if pattern.search(desc):
-                matched_theme = keywords[i] # Use the original keyword string as theme name
-                break
-
-        if not matched_theme:
-            matched_theme = "uncategorized"
-
-        theme_data[matched_theme]["count"] += 1
-        # Store a snippet of the study for reference
-        study_ref = {
-            "author": study.get('author', 'Unknown'),
-            "year": study.get('year', 'Unknown'),
-            "tract": study.get('tract', 'Unknown'),
-            "desc_snippet": desc[:100] + "..." if len(desc) > 100 else desc
-        }
-        theme_data[matched_theme]["studies"].append(study_ref)
-        theme_data[matched_theme]["descriptions"].append(desc)
-
-    # Convert defaultdict to standard dict and format output
-    result = {
-        "timestamp": datetime.now().isoformat(),
-        "total_studies_processed": len(studies),
-        "themes": {}
+                matched_keywords.append(kw)
+                # Theme name is the keyword itself or a mapped group if specified
+                # For now, we map directly to the keyword
+                theme_counts[kw] += 1
+                theme_details[kw].append({
+                    'author': study.get('author', 'Unknown'),
+                    'year': study.get('year', 'N/A'),
+                    'sentiment': sentiment,
+                    'text_snippet': desc[:100] + '...' if len(desc) > 100 else desc
+                })
+        
+        # If no specific keyword matched but there is text, categorize as 'general'
+        if not matched_keywords and desc:
+            theme_counts['general'] += 1
+            theme_details['general'].append({
+                'author': study.get('author', 'Unknown'),
+                'year': study.get('year', 'N/A'),
+                'sentiment': sentiment,
+                'text_snippet': desc[:100] + '...' if len(desc) > 100 else desc
+            })
+    
+    return {
+        'themes': dict(theme_counts),
+        'details': dict(theme_details)
     }
 
-    for theme_name, data in theme_data.items():
-        result["themes"][theme_name] = {
-            "count": data["count"],
-            "sample_studies": data["studies"][:5], # Limit samples to 5 for brevity
-            "unique_descriptions": len(set(data["descriptions"]))
-        }
+def generate_themes_json(themes_data: Dict[str, Any], output_path: str) -> None:
+    """
+    Save the aggregated theme data to a JSON file.
+    
+    Args:
+        themes_data: Dictionary containing themes and details.
+        output_path: Path to the output JSON file.
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    output_data = {
+        'generated_at': datetime.now().isoformat(),
+        'total_studies_processed': sum(themes_data['themes'].values()),
+        'theme_counts': themes_data['themes'],
+        'theme_details': themes_data['details']
+    }
+    
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Narrative themes saved to {output_path}")
 
-    return result
-
-def generate_themes_json(themes_data: Dict[str, Any], output_path: Path) -> None:
+def run_narrative_logic(
+    extracted_studies_path: str,
+    methodology_path: str,
+    output_path: str
+) -> Dict[str, Any]:
     """
-    Writes the theme aggregation results to a JSON file.
+    Main entry point for running the narrative logic pipeline.
+    
+    Args:
+        extracted_studies_path: Path to the input CSV.
+        methodology_path: Path to the methodology YAML config.
+        output_path: Path for the output JSON.
+        
+    Returns:
+        The generated themes dictionary.
     """
-    ensure_directory(output_path.parent)
-    try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(themes_data, f, indent=2, ensure_ascii=False)
-        logger.info(f"Narrative themes written to {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to write narrative themes JSON: {e}")
-        raise
-
-def run_narrative_logic() -> Dict[str, Any]:
-    """
-    Main entry point for T015a.
-    Orchestrates loading, processing, and saving.
-    """
-    logger.info("Starting Narrative Logic (T015a)...")
+    logger.info("Starting narrative logic analysis...")
     
-    # 1. Load Config
-    logger.info(f"Loading methodology config from {METHODOLOGY_CONFIG_PATH}")
-    methodology = load_methodology_config(METHODOLOGY_CONFIG_PATH)
+    # Load configuration
+    methodology = load_methodology_config(methodology_path)
+    logger.debug(f"Loaded methodology config: {list(methodology.keys())}")
     
-    # 2. Load Data
-    logger.info(f"Loading extracted studies from {EXTRACTED_STUDIES_PATH}")
-    studies = load_extracted_studies(EXTRACTED_STUDIES_PATH)
+    # Load studies
+    studies = load_extracted_studies(extracted_studies_path)
+    logger.info(f"Processing {len(studies)} studies for thematic analysis.")
     
-    if not studies:
-        logger.warning("No studies found in extracted CSV. Generating empty themes.")
-        themes_data = {
-            "timestamp": datetime.now().isoformat(),
-            "total_studies_processed": 0,
-            "themes": {}
-        }
-    else:
-        # 3. Process
-        logger.info(f"Processing {len(studies)} studies for thematic aggregation...")
-        themes_data = extract_themes(studies, methodology)
+    # Extract themes
+    themes_data = extract_themes(studies, methodology)
     
-    # 4. Save
-    logger.info(f"Saving results to {OUTPUT_PATH}")
-    generate_themes_json(themes_data, OUTPUT_PATH)
+    # Save results
+    generate_themes_json(themes_data, output_path)
     
-    logger.info("Narrative Logic (T015a) completed successfully.")
+    logger.info("Narrative logic analysis completed successfully.")
     return themes_data
 
-def main():
-    """CLI Entry point."""
+def main() -> None:
+    """
+    Command-line entry point for the narrative logic script.
+    """
+    project_root = get_project_root()
+    
+    # Default paths relative to project root
+    extracted_studies_path = project_root / "data" / "processed" / "extracted_studies.csv"
+    methodology_path = project_root / "data" / "config" / "narrative_methodology.yaml"
+    output_path = project_root / "data" / "derived" / "narrative_themes.json"
+    
+    # Allow overriding via command line args
+    if len(sys.argv) > 1:
+        extracted_studies_path = Path(sys.argv[1])
+    if len(sys.argv) > 2:
+        methodology_path = Path(sys.argv[2])
+    if len(sys.argv) > 3:
+        output_path = Path(sys.argv[3])
+        
     try:
-        run_narrative_logic()
+        run_narrative_logic(
+            str(extracted_studies_path),
+            str(methodology_path),
+            str(output_path)
+        )
+    except FileNotFoundError as e:
+        logger.error(f"Input file missing: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Narrative Logic execution failed: {e}")
-        # Re-raise to ensure the pipeline fails loudly as per constraints
-        raise
+        logger.error(f"Error during narrative logic execution: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

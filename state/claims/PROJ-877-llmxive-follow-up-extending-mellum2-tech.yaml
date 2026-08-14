@@ -3176,3 +3176,272 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-02T05:05:12Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram data set arxiv 1204.5852
+  claim_id: c_beed225c
+  context: "T018a [US1] Implement code/data/ngram.py (Python) to build KenLM n\u2011\
+    gram model for the Python training set."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/train_python/."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:10:28Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram data set arxiv 1204.5852
+  claim_id: c_c4b584d6
+  context: "T018b [US1] Implement code/data/ngram.py (Java) to build KenLM n\u2011\
+    gram model for the Java validation set."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: "Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/val_java/ (if Java data exists)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:10:28Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: arxiv 2507.07101 memory optimization
+  claim_id: c_84f0aa0f
+  context: T034b [P] Optimize T017 inference memory.
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Refactor code/inference/engine.py to use torch.no_grad() and explicit
+    {{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory
+    < 6 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:10:29Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: bootstrap resamples default 1000
+  claim_id: c_cc83fd00
+  context: T026 [US2] Implement sensitivity analysis in code/analysis/threshold.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform bootstrap_count (default 1000) resamples of the chunk\u2011level\
+    \ data (with replacement) and recompute thresholds, recording shift distribution."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:11:20Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram data set arXiv 1204.5852
+  claim_id: c_82e5ecc2
+  context: "Implement `code/data/ngram.py` (Python) to build KenLM n\u2011gram model\
+    \ for the Python training set. Logic: Build Google Web 1T 5-gram data set (1204.5852,\
+    \ https://arxiv.org/abs/1204.5852) \u2011gram model from `data/processed/train_python/`."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:12:00Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram data set arXiv 1204.5852
+  claim_id: c_dad4f68e
+  context: "Implement `code/data/ngram.py` (Java) to build KenLM n\u2011gram model\
+    \ for the Java validation set. Logic: Build Google Web 1T 5-gram data set (1204.5852,\
+    \ https://arxiv.org/abs/1204.5852) \u2011gram model from `data/processed/val_java/`\
+    \ (if Java data exists)."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:12:01Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram dataset arXiv 1204.5852
+  claim_id: c_b179a443
+  context: 'Implement code/data/ngram.py (Python) to build KenLM n-gram model for
+    the Python training set. Logic: Build Google Web 1T 5-gram data set (1204.5852,
+    https://arxiv.org/abs/1204.5852) -gram model from data/processed/train_python/.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:13:03Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram dataset arXiv 1204.5852
+  claim_id: c_ecd9f2fb
+  context: 'Implement code/data/ngram.py (Java) to build KenLM n-gram model for the
+    Java validation set. Logic: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+    -gram model from data/processed/val_java/ (if Java data exists).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:13:04Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: arXiv 2507.07101 memory optimization for inference
+  claim_id: c_0eda2e81
+  context: 'Optimize T017 inference memory: Refactor code/inference/engine.py to use
+    torch.no_grad() and explicit {{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101)
+    to keep memory < 6 GB.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: refactor code/inference/engine.py to use torch.no_grad() and explicit
+    {{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory
+    < 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:13:05Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Memory optimization method arXiv 2507.07101 keeps memory under 6 GB
+  claim_id: c_13dbb28c
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit {{claim:c_e66238fe}}
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Use explicit torch.no_grad() and {{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101)
+    to keep memory < 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:15:00Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram dataset identified by arXiv 1204.5852
+  claim_id: c_447739a4
+  context: "Logic: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from `data/processed/train_python/`."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:16:05Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Method 2507.07101 used to keep memory under 6 GB
+  claim_id: c_310b9e56
+  context: Refactor `code/inference/engine.py` to use `torch.no_grad()` and explicit
+    `{{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101) ` to keep
+    memory < 6 GB.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Use explicit `torch.no_grad()` and explicit `{{claim:c_e66238fe}} (2507.07101,
+    https://arxiv.org/abs/2507.07101)` to keep memory < 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:16:08Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 0
+  canonical: Google Web 1T 5-gram dataset identified by arXiv 1204.5852
+  claim_id: c_71d9c8ac
+  context: "Logic: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)\
+    \ \u2011gram model from data/processed/train_python/."
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: Build Google Web 1T 5-gram data set (1204.5852, https://arxiv.org/abs/1204.5852)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:16:52Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: KenLM model outputs log-probability in nats
+  claim_id: c_a002b787
+  context: 'Unit: Ensure model outputs log-probability in nats. Artifact: data/processed/kenlm_model_python.arpa.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/KenLM_model_outputs_log-probability_in_nats
+  kind: entity_fact
+  raw_text: Ensure model outputs log-probability in nats
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:17:24Z'
+- artifact_path: projects/PROJ-877-llmxive-follow-up-extending-mellum2-tech/specs/001-llmxive-follow-up-extending-mellum2-tech/tasks.md
+  attempts: 1
+  canonical: Specific arXiv 2507.07101 cited for memory optimization under 6 GB
+  claim_id: c_029dac4a
+  context: Refactor code/inference/engine.py to use torch.no_grad() and explicit {{claim:c_e66238fe}}
+    (2507.07101, https://arxiv.org/abs/2507.07101) to keep memory < 6 GB.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Use torch.no_grad() and explicit {{claim:c_e66238fe}} (2507.07101, https://arxiv.org/abs/2507.07101)
+    to keep memory < 6 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:17:26Z'

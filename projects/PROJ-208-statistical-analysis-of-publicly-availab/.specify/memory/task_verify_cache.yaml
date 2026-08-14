@@ -1,20 +1,3 @@
-T009a:
-  c: false
-  h: cae6bf3a27406990958d244297e01ca004b46e48321b9794bc2b8f13e3534785
-  r: "The repository contains a partially shown `loader_hf.py`, but the file is truncated\
-    \ and does not demonstrate completing the streaming load, schema validation, and\
-    \ Parquet write. Moreover, the required output file `data/raw/github_issues_raw_hf.parquet`\
-    \ is absent, and the schema file `contracts/dataset.schema.yaml` is missing. These\
-    \ missing artifacts mean the task\u2019s requirements are not satisfied."
-T009b:
-  c: false
-  h: e121a0e9d762458c5e27aca8622e8be9ca80afebcc21512b5fcfb8fa8310256b
-  r: "The `loader_api.py` contains placeholder implementations that never call the\
-    \ GitHub API, only returns two hard\u2011coded issues per repo, and processes\
-    \ a tiny hard\u2011coded list of three repositories without any logic to stop\
-    \ after 100 unique repos. Moreover, the required output file `data/raw/github_issues_raw_api.parquet`\
-    \ is not present. The artifact therefore does not meet the specified functionality\
-    \ or produce the expected output."
 T009c:
   c: false
   h: e70a6856b4ee87b920f8ba1598f95a3c4eaa96f0d43cad87a3a14c1a11203f3b

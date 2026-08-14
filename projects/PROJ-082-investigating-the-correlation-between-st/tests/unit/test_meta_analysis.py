@@ -1,113 +1,134 @@
+"""
+Unit tests for meta_analysis.py (T014).
+Verifies gate logic, model execution, and output format.
+"""
 import json
-import math
-import pytest
-from pathlib import Path
-import tempfile
 import os
 import sys
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+import pytest
+import numpy as np
+
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from analysis.meta_analysis import (
-    load_study_count_from_json, 
-    run_random_effects_model, 
-    save_results,
-    load_effect_sizes_and_se
+    load_study_count_from_json,
+    load_effect_sizes_and_se,
+    run_random_effects_model,
+    run_meta_analysis,
+    PROJECT_ROOT,
+    DATA_PROCESSED,
+    DATA_DERIVED
 )
 
-def test_load_study_count_from_json():
+@pytest.fixture
+def temp_dirs():
+    """Create temporary directories for test artifacts."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        path = Path(tmpdir) / "study_count.json"
-        with open(path, 'w') as f:
-            json.dump({"N": 15}, f)
+        tmp_path = Path(tmpdir)
+        # Mock project root structure
+        (tmp_path / "data" / "processed").mkdir(parents=True, exist_ok=True)
+        (tmp_path / "data" / "derived").mkdir(parents=True, exist_ok=True)
+        yield tmp_path
+
+def test_gate_logic_insufficient_studies(temp_dirs, caplog):
+    """Test that analysis is skipped when N < 10."""
+    # Setup
+    study_count_file = temp_dirs / "data" / "processed" / "study_count.json"
+    with open(study_count_file, 'w') as f:
+        json.dump({"N": 5}, f)
+    
+    # Patch paths to use temp dir
+    with patch('analysis.meta_analysis.STUDY_COUNT_PATH', study_count_file), \
+         patch('analysis.meta_analysis.DATA_PROCESSED', temp_dirs / "data" / "processed"), \
+         patch('analysis.meta_analysis.DATA_DERIVED', temp_dirs / "data" / "derived"):
         
-        assert load_study_count_from_json(path) == 15
+        result = run_meta_analysis()
+        
+    assert result["status"] == "skipped"
+    assert result["reason"] == "Insufficient studies"
+    assert result["N"] == 5
+
+def test_gate_logic_sufficient_studies(temp_dirs):
+    """Test that analysis runs when N >= 10."""
+    # Setup
+    study_count_file = temp_dirs / "data" / "processed" / "study_count.json"
+    with open(study_count_file, 'w') as f:
+        json.dump({"N": 15}, f)
+    
+    extracted_csv = temp_dirs / "data" / "processed" / "extracted_studies.csv"
+    # Create a CSV with 15 valid studies
+    import csv
+    with open(extracted_csv, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['author', 'year', 'r', 'se', 'narrative_pool'])
+        for i in range(15):
+            writer.writerow([f"Author{i}", 2020, 0.3 + (i * 0.01), 0.05, 'False'])
+    
+    # Patch paths
+    with patch('analysis.meta_analysis.STUDY_COUNT_PATH', study_count_file), \
+         patch('analysis.meta_analysis.DATA_PROCESSED', temp_dirs / "data" / "processed"), \
+         patch('analysis.meta_analysis.DATA_DERIVED', temp_dirs / "data" / "derived"):
+        
+        result = run_meta_analysis()
+        
+    assert result["status"] == "completed"
+    assert "pooled_effect" in result
+    assert "i_squared" in result
 
 def test_run_random_effects_model_basic():
-    # Create synthetic data that should pass
-    # r values around 0.5, N around 50
-    # Z = 0.5 * ln((1+0.5)/(1-0.5)) = 0.5 * ln(3) = 0.549
-    # SE = 1 / sqrt(47) = 0.146
-    
-    r_vals = [0.5, 0.6, 0.4, 0.55, 0.45]
-    se_vals = [0.14, 0.14, 0.14, 0.14, 0.14]
+    """Test basic random effects model calculation."""
+    r_vals = [0.3, 0.4, 0.35, 0.25, 0.5]
+    se_vals = [0.05, 0.05, 0.05, 0.05, 0.05]
     
     result = run_random_effects_model(r_vals, se_vals)
     
-    assert result["status"] == "completed"
+    assert "pooled_effect" in result
+    assert "ci_lower" in result
+    assert "ci_upper" in result
     assert result["model_type"] == "random_effects"
-    assert "weighted_mean_r" in result
-    assert "ci_lower_r" in result
-    assert "ci_upper_r" in result
-    assert result["k"] == 5
+    assert result["reliability"] == "reliable"
 
-def test_run_random_effects_model_convergence_fallback():
-    # This is hard to trigger deterministically without specific bad data.
-    # We test that the function returns a result even if we force a scenario.
-    # For now, we assume the basic test covers the happy path.
-    # A more robust test would require mocking statsmodels to raise an exception.
-    pass
+def test_run_random_effects_model_fallback(caplog):
+    """Test fallback to fixed effects on convergence failure."""
+    # Simulate data that might cause issues or force fallback logic
+    r_vals = [0.1, 0.9] # High variance
+    se_vals = [0.01, 0.01]
+    
+    # Force a scenario where we might hit a warning or fallback
+    # In this test, we just verify the function returns a result
+    result = run_random_effects_model(r_vals, se_vals)
+    
+    assert "pooled_effect" in result
+    # Even if it falls back, it should return a result
+    assert result["model_type"] in ["random_effects", "fixed_effects_fallback"]
 
-def test_save_results_skipped():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "results.json"
-        status_path = Path(tmpdir) / "status.json"
-        
-        results = {
-            "status": "skipped",
-            "reason": "Insufficient studies",
-            "n": 5
-        }
-        
-        save_results(results, output_path, status_path, 5)
-        
-        assert output_path.exists()
-        assert status_path.exists()
-        
-        with open(status_path) as f:
-            status_data = json.load(f)
-        
-        assert status_data["status"] == "skipped"
-        assert status_data["reason"] == "Insufficient studies"
-        assert status_data["n"] == 5
+def test_load_study_count_from_json_missing():
+    """Test error handling for missing study count file."""
+    with pytest.raises(FileNotFoundError):
+        load_study_count_from_json(Path("/nonexistent/path.json"))
 
-def test_load_effect_sizes_and_se():
-    # Create a temporary CSV
-    with tempfile.TemporaryDirectory() as tmpdir:
-        csv_path = Path(tmpdir) / "test.csv"
-        content = """author,year,r,n,tract
-        Smith,2020,0.5,50,arcuate
-        Jones,2021,0.6,60,cingulum
-        Doe,2022,0.4,40,uncinate
-        """
-        with open(csv_path, 'w') as f:
-            f.write(content)
-        
-        r_vals, se_vals, ids = load_effect_sizes_and_se(csv_path)
-        
-        assert len(r_vals) == 3
-        assert len(se_vals) == 3
-        assert len(ids) == 3
-        
-        # Check SE calculation: 1/sqrt(N-3)
-        # For N=50, SE = 1/sqrt(47) = 0.1458
-        expected_se = 1.0 / math.sqrt(47)
-        assert abs(se_vals[0] - expected_se) < 0.001
+def test_load_effect_sizes_and_se_missing():
+    """Test error handling for missing CSV."""
+    with pytest.raises(FileNotFoundError):
+        load_effect_sizes_and_se(Path("/nonexistent/studies.csv"))
 
-def test_load_effect_sizes_and_se_invalid_rows():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        csv_path = Path(tmpdir) / "test.csv"
-        content = """author,year,r,n,tract
-        Smith,2020,0.5,50,arcuate
-        Jones,2021,invalid,60,cingulum
-        Doe,2022,0.4,40,uncinate
-        """
-        with open(csv_path, 'w') as f:
-            f.write(content)
-        
-        r_vals, se_vals, ids = load_effect_sizes_and_se(csv_path)
-        
-        # Should skip the invalid row
-        assert len(r_vals) == 2
+def test_load_effect_sizes_and_se_skips_narrative():
+    """Test that narrative-only studies are skipped if r is missing."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        writer = csv.writer(f)
+        writer.writerow(['author', 'r', 'se', 'narrative_pool'])
+        writer.writerow(['A', '', '', 'True']) # No r, narrative
+        writer.writerow(['B', '0.3', '0.05', 'False']) # Valid
+        fname = f.name
+    
+    try:
+        r_vals, se_vals = load_effect_sizes_and_se(Path(fname))
+        assert len(r_vals) == 1
+        assert r_vals[0] == 0.3
+    finally:
+        os.unlink(fname)

@@ -19,7 +19,7 @@
 
 1. **Given** the USPTO-50k SMILES list, **When** the ingestion script runs, **Then** the system queries NIST/PubChem and retains only samples where *both* reactant and product experimental IR and NMR spectra are successfully retrieved and stored.
 2. **Given** the raw spectra, **When** the preprocessing step runs, **Then** all IR spectra are resampled to a standard range covering the mid-infrared region and NMR to the typical chemical shift range, with uniform point counts appropriate for each modality, with intensities normalized to unit variance.
-3. **Given** the split indices, **When** the template overlap check runs, **Then** the intersection of reaction template IDs between the training set and test set is empty, ensuring no overlap in reaction mechanisms., verified via MD5 hash comparison.
+3. **Given** the split indices, **When** the template overlap check runs, **Then** the intersection of reaction template IDs between the training set and test set is empty, ensuring no overlap in reaction mechanisms, verified via MD5 hash comparison.
 4. **Given** the preprocessed data, **When** the VIF check runs, **Then** the system computes VIF for each wavenumber bin against the fingerprint vector using Ridge Regression (alpha=1.0) and flags bins with VIF > 5.
 
 ---
@@ -60,7 +60,7 @@
 ### Edge Cases
 
 - **Data Scarcity (Real Data)**: If the NIST/PubChem API fails to retrieve experimental spectra for >80% of the USPTO-50k subset, the system MUST halt with a `DATA_INSUFFICIENT` error and generate a `data/validation_status.json` flagging the inability to proceed with real data. *Note: This spec does NOT allow a pivot to simulated data for the primary scientific claim to avoid fabricated results.*
-- **Data Not Found**: If the NIST/PubChem API fails to retrieve experimental spectra for [deferred] of the subset ([deferred] retrieval), the system MUST terminate with a `DATA_NOT_FOUND` error.
+- **Data Not Found**: If the NIST/PubChem API fails to retrieve experimental spectra for the required minimum threshold, the system MUST terminate with a `DATA_NOT_FOUND` error.
 - **Spectral Mismatch**: If a reaction has IR but no NMR data (or vice versa), the system MUST exclude that sample from the dataset to ensure consistent multi-channel input, logging the exclusion count in `ingestion_log.json`. The model strictly requires both modalities.
 - **Out-of-Distribution**: If the test set contains reaction templates chemically distinct from the training set (despite template splitting), the model should flag high prediction uncertainty. The evaluation report must include a `scaffold_generalization_score` comparing performance on novel Bemis-Murcko scaffolds.
 
@@ -70,13 +70,13 @@
 
 - **FR-001**: System MUST preprocess raw spectral data by resampling to a fixed grid (IR: 400–4000 cm⁻¹ at 1 cm⁻¹ steps, NMR: 0–10 ppm at 0.01 ppm steps), normalizing to unit variance, and encoding reaction conditions (solvent, catalyst, temperature) as input vectors (See US-1).
 - **FR-002**: System MUST split the dataset into training, validation, and test sets ensuring zero overlap of reaction templates (substructures at the reaction center) between splits. This constraint applies to the source reaction SMILES and must be verified via MD5 hashing of template IDs (See US-1).
-- **FR-003**: System MUST implement a multi-head self-attention neural network with multiple attention heads. that accepts concatenated spectral tensors and ECFP4 fingerprint vectors (fused along the feature dimension) and reaction condition embeddings as input (See US-2).
-- **FR-004**: System MUST train the model using the Adam optimizer with a learning rate of an appropriate magnitude and batch size of 32. (to fit 7GB RAM), running for a maximum of 15 epochs with early stopping on validation RMSE (patience=3) (See US-2).
+- **FR-003**: System MUST implement a multi-head self-attention neural network with multiple attention heads that accepts concatenated spectral tensors and ECFP4 fingerprint vectors (fused along the feature dimension) and reaction condition embeddings as input (See US-2).
+- **FR-004**: System MUST train the model using the Adam optimizer with a learning rate of 1e-3 and batch size of 32 (to fit 7GB RAM), running for a maximum of 15 epochs with early stopping on validation RMSE (patience=3) (See US-2).
 - **FR-005**: System MUST compute and report RMSE, MAE, and R² metrics for the attention model, a fingerprint-only baseline, a spectrum-only baseline, and a condition-only baseline on the test set (See US-3).
 - **FR-006**: System MUST perform a statistical significance test on the absolute errors of the attention model versus the best baseline using the Wilcoxon signed-rank test (See US-3).
 - **FR-007**: System MUST generate attention weight visualizations mapping the spectral axis to highlight regions with the highest predictive contribution (See US-3).
 - **FR-008**: System MUST execute a permutation test where *yield* labels are shuffled 100 times to verify the model is not learning spurious correlations. The mean R² of the permuted models MUST be < 0.05 (See US-3).
-- **FR-009**: System MUST define the attention visualization threshold as a high percentile of weights by default, and perform a sensitivity analysis over the set of high percentiles to ensure robustness of identified regions (See US-3).
+- **FR-009**: System MUST define the attention visualization threshold as a high percentile of weights by default, and perform a sensitivity analysis over the set of high percentiles {90th, 95th, 99th} to ensure robustness of identified regions (See US-3).
 - **FR-010**: System MUST validate the model's predictive performance against an independent experimental dataset (e.g., a held-out subset from a different literature source). If no such external independent dataset exists, the system MUST document this limitation in the final report but MUST NOT substitute simulated data; the project proceeds with internal template-based split validation (See US-1).
 - **FR-011**: System MUST explicitly encode reaction conditions (solvent, catalyst, temperature) as input features to prevent confounding by reaction environment when splitting by template (See US-1).
 - **FR-012**: System MUST retrieve reference functional group frequencies from the NIST Chemistry WebBook API endpoint `/webbook/v1/compound/` using the compound's InChIKey (derived from SMILES) to validate attention peaks against known literature values (See US-3).
@@ -107,12 +107,12 @@
 
 ## Assumptions
 
-- **Dataset Availability**: It is assumed that a sufficient subset of reactions with paired *real* experimental IR and ¹H-NMR spectra can be retrieved from the NIST Chemistry WebBook and PubChem APIs within the USPTO-50k dataset. If the API retrieval rate is < 50 samples ([deferred] retrieval), the project is considered infeasible for this specific research question and will be terminated with a `DATA_NOT_FOUND` report.
+- **Dataset Availability**: It is assumed that a sufficient subset of reactions with paired *real* experimental IR and ¹H-NMR spectra can be retrieved from the NIST Chemistry WebBook and PubChem APIs within the USPTO-50k dataset. If the API retrieval rate is < 50 samples, the project is considered infeasible for this specific research question and will be terminated with a `DATA_NOT_FOUND` report.
 - **Compute Constraints**: The entire training and evaluation pipeline is assumed to run on a GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM, no GPU). The model architecture and dataset size are scoped to fit within these constraints.
 - **Spectral Normalization**: It is assumed that resampling to a common grid and normalizing to unit variance is sufficient to align spectra from different sources (e.g., different instruments) for model ingestion.
 - **Reaction Yield Definition**: It is assumed that the "yield" values in the USPTO-50k dataset are consistent (0–100) and represent the final isolated yield, not conversion or theoretical yield.
 - **Template Leakage Prevention**: Splitting by reaction template (reaction center substructure), combined with explicit encoding of reaction conditions, reduces but does not guarantee full chemical environment independence. Scaffold splitting (FR-017) is required to address residual leakage risks.
-- **Threshold Justification**: The attention visualization threshold is set to a high percentile of weights by default, with a sensitivity analysis performed over a range of high-percentile thresholds to ensure robustness.
+- **Threshold Justification**: The attention visualization threshold is set to the 95th percentile of weights by default, with a sensitivity analysis performed over the set {90th, 95th, 99th} percentiles to ensure robustness.
 - **Multiplicity Correction**: Since the evaluation involves multiple comparisons (attention model vs. multiple baselines), a Bonferroni correction will be applied to the p-values derived from the Wilcoxon tests to control the family-wise error rate.
 - **No Simulated Data for Primary Claim**: This project assumes that *real* experimental data is required to validate the hypothesis of "independent predictive signal." Simulated data (DFT) is explicitly excluded from the primary scientific claim to avoid fabricated results; if real data is unavailable, the project scope is invalid.
 - **Data Source Validity**: The NIST Chemistry WebBook and PubChem APIs are assumed to be accessible and return valid spectral data for the queried compounds.
