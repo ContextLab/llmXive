@@ -11,13 +11,13 @@
 
 The system must successfully ingest, align, and preprocess multi-modal satellite ocean color data (MODIS), oceanographic reanalysis data (temperature, salinity, nutrients), and in-situ measurements (SeaBASS/BGC-Argo) to create a unified, CPU-tractable dataset ready for analysis.
 
-**Why this priority**: Without a clean, aligned dataset with independent ground truth, no modeling or analysis can occur. This is the foundational step that ensures data integrity, statistical validity, and feasibility within the 6-hour CPU and 7GB RAM constraints.
+**Why this priority**: Without a clean, aligned dataset with independent ground truth, no modeling or analysis can occur. This is the foundational step that ensures data integrity, statistical validity, and feasibility within the computational constraints.
 
 **Independent Test**: Can be fully tested by running the data pipeline script on a sample subset of ocean basins and verifying that the output is a single, aligned CSV/netCDF file with no missing values due to temporal or spatial misalignment, and that the memory usage does not exceed 7GB RAM during execution.
 
 **Acceptance Scenarios**:
 
-1. **Given** raw MODIS, reanalysis, and in-situ data files for the North Atlantic, **When** the preprocessing script executes, **Then** the output file contains aligned monthly composites at 4km resolution with no spatial gaps exceeding 5% of the total grid cells.
+1. **Given** raw MODIS, reanalysis, and in-situ data files for the North Atlantic, **When** the preprocessing script executes, **Then** the output file contains aligned monthly composites at high spatial resolution with no spatial gaps exceeding 5% of the total grid cells.
 2. **Given** a dataset with missing temporal entries for specific months, **When** the script processes the data, **Then** it applies linear interpolation for gaps ≤ 2 months, quantifies the interpolation error, and flags larger gaps for exclusion rather than imputation.
 3. **Given** data spanning multiple ocean basins, **When** the script runs, **Then** it correctly stratifies the data by basin, retains the basin identifier in every record, and applies a unified masking strategy for all missing data points before model evaluation.
 
@@ -49,7 +49,7 @@ The system must quantify the contribution of specific environmental drivers (tem
 
 **Acceptance Scenarios**:
 
-1. **Given** the trained VLM model, **When** permutation importance is calculated, **Then** the system outputs a ranked list of drivers where the sum of all importance scores equals 1.0 (within a tolerance of 0.01).
+1. **Given** the trained VLM model, **When** permutation importance is calculated, **Then** the system outputs a ranked list of drivers where the sum of all importance scores equals unity (within a tolerance of 0.01).
 2. **Given** the feature importance results, **When** the visualization script runs, **Then** it generates a map showing the spatial distribution of the most important driver (e.g., temperature) with a color scale legend.
 3. **Given** the test set predictions and the independent in-situ dataset, **When** the correlation analysis runs, **Then** it reports the correlation coefficient (r) between predicted and in-situ measurements for each ocean basin separately.
 

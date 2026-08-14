@@ -1,3 +1,21 @@
+T009:
+  c: false
+  h: d2f86f8db820bb692dba562a30da092e29fef5188e22ae14e3830a730424f221
+  r: "The provided `tests/contract/test_schemas.py` checks for a `model_performance.schema.yaml`\
+    \ that does not exist, and it does not reference the required `aligned_dataset.schema.yaml`.\
+    \ Moreover, the schema file itself is missing, and the test only asserts `SCHEMA_PATH.exists`\
+    \ (without calling it) and contains no actual validation logic for the aligned\
+    \ dataset schema. The task\u2019s requirement is therefore not met."
+T011b:
+  c: false
+  h: b7900af5f0f4b8a8b32c63260b64dc39a0cfa5e29bd3d7ed61b95a6a656bb0d0
+  r: The required artifact `data/raw/modis.nc` is missing; no file was created or
+    provided, so the task of fetching MODIS data to that location was not fulfilled.
+T011c:
+  c: false
+  h: e98e0724f5968e24bf4b6c8e766ccb627c47f89c3f45710ff0e4b31f5f541b16
+  r: "The required output file `data/raw/seabass.csv` is missing, so no data was fetched\
+    \ or saved as specified. The task\u2019s core requirement is not satisfied."
 T012:
   c: false
   h: d5c60a26b556100b26cf8c20fe8a6895462bf5abd04ed060fa87416538141844
@@ -15,3 +33,26 @@ T013:
     \ file `data/logs/memory_enforcement.log` does not exist, indicating that memory\u2011\
     usage monitoring and enforcement were not implemented. The task therefore remains\
     \ unfinished."
+T013b:
+  c: false
+  h: afcd668ba66fa11f5b222ff12ebb86e6f1101d202854260a40b64b9a48528140
+  r: "The `code/02_preprocessing.py` defines memory\u2011checking functions, but there\
+    \ is no evidence that they are invoked during preprocessing, nor that the logger\
+    \ is configured to write to `data/logs/memory_enforcement.log` (the log file is\
+    \ absent). The required log file does not exist, so the task\u2019s logging requirement\
+    \ is unmet."
+T017a:
+  c: false
+  h: dd79721bdbf6748381a10ff7e9f435a26478644c787ffa426e8d067414ba6f7d
+  r: "The provided `code/02_preprocessing.py` does not contain any implementation\
+    \ that computes the missing\u2011value percentage nor writes a JSON report to\
+    \ `data/logs/missing_value_report.json`. Moreover, the required `data/logs/missing_value_report.json`\
+    \ file is absent. The task therefore remains unfinished."
+T032:
+  c: false
+  h: d2f86f8db820bb692dba562a30da092e29fef5188e22ae14e3830a730424f221
+  r: "The `tests/contract/test_schemas.py` file is present but the referenced `model_performance.schema.yaml`\
+    \ does not exist, causing the test to fail. Moreover, the sole test `test_model_performance_schema_exists`\
+    \ incorrectly uses `SCHEMA_PATH.exists` instead of `SCHEMA_PATH.exists()`, and\
+    \ no test actually validates metrics against the schema. The required contract\
+    \ test is therefore missing or non\u2011functional."
