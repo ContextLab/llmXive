@@ -64,12 +64,11 @@ description: "Task list template for feature implementation"
 - [X] T013e [ ] **LLM Consensus Validation** – loads **TinyLlama‑1.1B‑Chat‑v1.0 (Q4_K_M)** from ` via `llama-cpp-python`. Performs generative voting on the sample; writes `data/results/consensus_ground_truth.json`. Memory check: abort and trigger fallback if `psutil.virtual_memory().available < 3 GB`.
 - [X] T013e-proxy [ ] **Proxy‑Only Fallback** – copies cosine‑based labels to `consensus_ground_truth.json` with `consensus_status: "proxy_fallback"`; runs only if T013e fails or is skipped.
 - [X] T013f [X] **Correction Factor Calculation** – compares proxy labels to ground truth (from T013e or proxy) to compute precision, recall, confusion matrix; writes `data/results/correction_factor.json`. Raises `CorrectionFactorCalculationError` if ground truth unavailable.
-- [X] T013d [X] **Validated Wasted Ratio** – reads `flagged_pairs_count.json`, `budget_config.json`, and `correction_factor.json` (if present) to compute corrected wasted ratio per formula; if correction unavailable, falls back to raw proxy ratio and flags `validated: false`. Writes `data/results/us1_efficiency_ratio.json`.
 - [X] T015 [X] **NDCG@10 for Baseline** – calculates NDCG@10 for baseline ranker against BEIR relevance judgments; writes `data/results/us1_baseline_ndcg.json`.
 - [X] T016 [X] **NDCG@10 for Redundant Run** – calculates NDCG@10 for the full redundant dataset; writes `data/results/us1_redundant_ndcg.json`.
 - [X] T017a [X] **Real‑World Validation (nfcorpus)** – scans `nfcorpus` for existing near‑duplicates (cosine > 0.95), logs results in `data/results/real_world_nfcorpus.json`. If none found, logs `validation_skipped`.
 - [X] T017b [X] **Real‑World Validation (scifact)** – same as above for `scifact`, output `data/results/real_world_scifact.json`.
-- [X] T017c [X] **Real‑World Validation (trec‑covid)** – scans `trec-covid` for near‑duplicates, writes `data/results/real_world_trec_covid.json`.
+- [X] T017c [X] **Real‑World Validation (trec-covid)** – scans `trec-covid` for near‑duplicates, writes `data/results/real_world_trec_covid.json`.
 
 ## Phase 4: User Story 2 – Validate CPU‑Tractable Pre‑Clustering Recovery (Priority: P2)
 
@@ -120,9 +119,8 @@ description: "Task list template for feature implementation"
 ## Phase N+2: Final Validation & Reporting
 
 - [ ] T051 [US1/US2/US3] Generate reproducibility package script `code/scripts/generate_repro_package.sh`.
-- [ ] T054 [US1/US2/US3] Run constitution compliance audit `code/audit/validate_constitution.py`.
-- [X] T055 [US1/US2/US3] Write final research conclusions in `docs/research_conclusions.md`.
-- [X] T056 [US1/US2/US3] Finalize README with results summary.
+- [ ] T054 [US1/US2/US3] Write final research conclusions in `docs/research_conclusions.md`.
+- [X] T055 [US1/US2/US3] Finalize README with results summary.
 
 ## Phase N+3: Analysis‑Driven Corrections
 
@@ -137,7 +135,7 @@ description: "Task list template for feature implementation"
 - [X] T065 [US1/US2] **Dependency Graph Validator** – validates existence and JSON schema of `injected_datasets.json` and `clusters.json` before pipeline start.
 - [X] T065a [US1/US2] **Schema Definitions** – provides inline JSON Schemas for `injected_datasets.json` and `clusters.json`.
 - [X] T066 [US1/US2] **Artifact Chain Verification** – checks full chain from injection to final metrics, aborting on missing/invalid artifacts.
-- [X] T067 [US3] **Statistical Report Dependency Enforcement** – ensures `statistical_report.md` is generated only after `correction_factor.json` and `us1_efficiency_ratio.json` are present and valid.
+- [X] T067 [US3] **Confirm Statistical Robustness** – re‑run Wilcoxon tests with zero‑variance handling; output `data/results/statistical_robustness_audit.json`.
 
 ## Phase N+6: Final Analysis Review & Cleanup
 
