@@ -1,69 +1,63 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: AtomicGraph
-description: |
-  Schema for an atomic graph representing an amorphous silicon structure.
-  Nodes are atoms, edges are bonds defined by a distance cutoff.
+description: Schema for an atomic graph representing amorphous silicon structure.
 type: object
 required:
-  - metadata
+  - graph_id
+  - node_count
+  - edge_count
   - nodes
   - edges
+  - bond_cutoff
+  - metadata
 properties:
-  metadata:
-    type: object
-    description: Metadata about the source file and generation parameters.
-    required:
-      - source_file
-      - bond_cutoff
-      - atom_type
-      - node_count
-      - edge_count
-    properties:
-      source_file:
-        type: string
-        description: Path to the original XYZ file.
-      bond_cutoff:
-        type: number
-        description: Bond cutoff distance in Angstroms.
-      atom_type:
-        type: string
-        description: Element type (e.g., "Si").
-      node_count:
-        type: integer
-        minimum: 1
-      edge_count:
-        type: integer
-        minimum: 0
-      generated_at:
-        type: string
-        format: date-time
+  graph_id:
+    type: string
+    description: Unique identifier for the graph.
+  node_count:
+    type: integer
+    minimum: 1
+    description: Total number of atoms (nodes) in the graph.
+  edge_count:
+    type: integer
+    minimum: 0
+    description: Total number of bonds (edges) in the graph.
+  bond_cutoff:
+    type: number
+    minimum: 0
+    description: Bond cutoff distance in Angstroms used for construction.
   nodes:
     type: array
-    description: List of atom nodes with position and local degree.
+    description: List of atomic nodes.
     items:
       type: object
       required:
-        - index
+        - node_id
+        - element
         - position
         - degree
       properties:
-        index:
+        node_id:
           type: integer
-          description: Unique atom index (0-based).
+          description: Unique index for the atom.
+        element:
+          type: string
+          enum: ["Si"]
+          description: Chemical element symbol.
         position:
           type: array
-          description: Cartesian coordinates [x, y, z] in Angstroms.
-          items:
-            type: number
           minItems: 3
           maxItems: 3
+          items:
+            type: number
+          description: [x, y, z] coordinates in Angstroms.
         degree:
           type: integer
-          description: Number of bonds connected to this atom.
           minimum: 0
+          description: Number of connected bonds (coordination number).
   edges:
     type: array
-    description: List of undirected bonds.
+    description: List of undirected edges.
     items:
       type: object
       required:
@@ -73,11 +67,25 @@ properties:
       properties:
         source:
           type: integer
-          description: Index of the source atom.
+          description: Index of the source node.
         target:
           type: integer
-          description: Index of the target atom.
+          description: Index of the target node.
         distance:
           type: number
-          description: Distance between atoms in Angstroms.
-additionalProperties: false
+          minimum: 0
+          description: Bond length in Angstroms.
+  metadata:
+    type: object
+    description: Additional metadata about the graph construction.
+    properties:
+      source_file:
+        type: string
+        description: Path to the source XYZ file.
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of graph creation.
+      software:
+        type: string
+        description: Software used for construction (e.g., 'ase').

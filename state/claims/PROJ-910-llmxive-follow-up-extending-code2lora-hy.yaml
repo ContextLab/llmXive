@@ -204,3 +204,200 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T01:03:26Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Output scores to data/results/ast_scores.csv
+  claim_id: c_6d9f0d6b
+  context: "T021 [US2] Implement `code/evaluation/runner.py` to load RepoPeftBench\
+    \ data, apply the **AST\u2011based** adapter, and compute exact\u2011match scores."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_scores_to_data/results/ast_scores.csv
+  kind: entity_fact
+  raw_text: Output scores to `data/results/ast_scores.csv`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:51:23Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Output generation latency comparison report to data/results/generation_latency_comparison.json
+  claim_id: c_f57b5de2
+  context: "T040 [P] Implement `code/utils/latency_monitor.py` to **measure adapter\
+    \ generation latency** (during T015 execution) and compare against the original\
+    \ Code2LoRA neural-encoder generation time on the same hardware (SC\u2011001)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_generation_latency_comparison_report_to_data/results/
+  kind: entity_fact
+  raw_text: Output comparison report to `data/results/generation_latency_comparison.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:51:57Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Log memory usage to data/results/memory_log.csv
+  claim_id: c_a14c1f50
+  context: "T041 [P] Implement `code/utils/memory_monitor.py` to measure **peak RSS\
+    \ memory usage** via the `resource` module at each pipeline step and log to `data/results/memory_log.csv`\
+    \ (SC\u2011004)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_memory_usage_to_data/results/memory_log.csv
+  kind: entity_fact
+  raw_text: Log to `data/results/memory_log.csv`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:52:54Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if memory usage exceeds 7 GB
+  claim_id: c_6771ea8c
+  context: "T043 [P] Implement RAM\u2011limit enforcement in `code/utils/memory_monitor.py`\
+    \ to abort gracefully if memory usage exceeds **7 GB** (FR-006, FR-008)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if memory usage exceeds 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:53:39Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Store latency comparison report in data/results/generation_latency_comparison.json
+  claim_id: c_064a3fe0
+  context: 'T049b [US2] **NEW**: Compute the latency reduction ratio (AST generation
+    latency from T040 / baseline generation latency from T049a) and store a comparison
+    report in `data/results/generation_latency_comparison.json`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Store_latency_comparison_report_in_data/results/generation_l
+  kind: entity_fact
+  raw_text: Store a comparison report in `data/results/generation_latency_comparison.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:54:43Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Ensure latency reduction is at least 10 times
+  claim_id: c_a753e43d
+  context: "T049b [US2] **NEW**: Compute the latency reduction ratio (AST generation\
+    \ latency from T040 / baseline generation latency from T049a) and store a comparison\
+    \ report in `data/results/generation_latency_comparison.json`. Ensure the reduction\
+    \ is \u2265 10\xD7 as required by SC\u2011001."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_latency_reduction_is_at_least_10_times
+  kind: magnitude
+  raw_text: "Ensure the reduction is \u2265 10\xD7 as required by SC\u2011001."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:55:38Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Write resource summary to data/results/resource_summary.csv
+  claim_id: c_2617c95f
+  context: T050 [P] Aggregate peak memory usage logs from `data/results/memory_log.csv`,
+    compute total runtime per stage, and write a summary `data/results/resource_summary.csv`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_resource_summary_to_data/results/resource_summary.csv
+  kind: entity_fact
+  raw_text: Write a summary `data/results/resource_summary.csv`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:56:14Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Verify peak RAM stays at or below 7 GB
+  claim_id: c_abedaaae
+  context: "T050 [P] ... Verify that peak RAM stays \u2264 7 GB and total runtime\
+    \ \u2264 6 h."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that peak RAM stays \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:56:14Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Verify total runtime is at most 6 hours
+  claim_id: c_448e98a4
+  context: "T050 [P] ... Verify that peak RAM stays \u2264 7 GB and total runtime\
+    \ \u2264 6 h."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The film's storyline draws loose inspiration from multiple real-life
+        geopolitical events and conflicts in South Asia, including the 1999 IC-814
+        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
+        developments linked to Pakistan's Operation Lyari. Principal photography for
+        Dhurandhar took place from July 2024 to October 2025 across multiple locations
+        in India and abroad, including the states and union territories of Punjab,
+        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
+        The film features music composed by Shashwat Sachdev, cinematography by Vikash
+        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
+        Dhurandhar ranks as one of the longest Indian films ever produced.
+      source_id: Dhurandhar
+      url: https://en.wikipedia.org/wiki/Dhurandhar
+      value: 214 minutes
+    filled: true
+  kind: magnitude
+  raw_text: "Verify total runtime \u2264 6 h."
+  resolved_value: 214 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T00:56:31Z'
+- artifact_path: projects/PROJ-910-llmxive-follow-up-extending-code2lora-hy/specs/001-llmxive-follow-up-extending-code2lora-hy/tasks.md
+  attempts: 1
+  canonical: Fetch RepoPeftBench Python subset from HuggingFace or Zenodo
+  claim_id: c_715f9174
+  context: T054 [P] Implement `code/data/download_repopeftbench.py` to fetch the RepoPeftBench
+    Python subset from the official HuggingFace dataset (`datasets.load_dataset("repo-peft-bench",
+    "python")`) or Zenodo mirror, verifying checksums before writing to `data/raw/`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_RepoPeftBench_Python_subset_from_HuggingFace_or_Zenodo
+  kind: entity_fact
+  raw_text: Fetch the RepoPeftBench Python subset from the official HuggingFace dataset
+    (`datasets.load_dataset("repo-peft-bench", "python")`) or Zenodo mirror.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:56:48Z'

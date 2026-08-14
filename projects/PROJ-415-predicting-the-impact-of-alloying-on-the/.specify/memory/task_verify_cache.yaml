@@ -1,0 +1,34 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `tests/`, `data/`, `models/`,
+    `reports/`) is provided; the artifact list is empty, so the project structure
+    has not been demonstrated.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black/Ruff
+    settings, `.flake8` config, or a `requirements-dev.txt` including these tools)
+    or setup scripts are present in the provided evidence. Consequently, the task
+    of configuring ruff/flake8 and Black has not been demonstrated.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `data/` directory with the required subfolders (`raw/`, `curated/`, `artifacts/`)
+    is present, nor any script or code implementing checksum generation/verification
+    for files in those folders. The implementer provided only narrative text without
+    the actual filesystem changes or checksum logic, so the task is not satisfied.
+T009:
+  c: false
+  h: 4fb8f35cce134371fca5082e519ca364ed3196463f6cfb10384cca2036d2caea
+  r: "The `tests/contract/test_schema.py` file exists, but it validates against a\
+    \ hard\u2011coded field list instead of the required `contracts/diffusion_record.schema.yaml`,\
+    \ and that schema file is missing from the repository. The task explicitly demanded\
+    \ validation against that schema, which is not satisfied."
+T014:
+  c: false
+  h: 46f3499f192403d9d262ce8b84e822c7d1cb9bba5f6ac442ed98ac8f820e045d
+  r: "The provided `code/data/curation.py` only contains partial logic for atomic\u2011\
+    radius validation and does not show any handling of missing solute concentration,\
+    \ nor does it write to `data/logs/exclusions.log` (the file is absent) or to `errors/missing_atomic_data.csv`.\
+    \ Consequently the required logging behavior and count line are not present."

@@ -1,0 +1,2 @@
+# This directory stores trained models
+# Do not commit large model files; add them to .gitignore

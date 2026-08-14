@@ -1,204 +1,187 @@
 """
-Contract test for runner.py scoring logic on a mock assertion task.
+Unit tests for evaluation runner.
 
-This test validates the core scoring mechanism of the evaluation runner
-by mocking the assertion task data and verifying the exact-match calculation.
+Tests the core functionality of code/evaluation/runner.py
 """
 import pytest
-import torch
-from unittest.mock import Mock, patch, MagicMock
+import json
+import tempfile
 from pathlib import Path
-import sys
-import os
+from unittest.mock import Mock, patch, MagicMock
+import torch
 
-# Ensure project root is in path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from evaluation.runner import (
+    load_repopeftbench_data,
+    load_ast_adapter,
+    run_inference,
+    compute_exact_match,
+    run_evaluation,
+    save_results
+)
 
-from evaluation.runner import calculate_exact_match, evaluate_task, EvaluationRunner
-from utils.config import Config
-
-
-class MockTask:
-    """Mock assertion task for testing."""
-    def __init__(self, task_id: str, prompt: str, expected_output: str):
-        self.task_id = task_id
-        self.prompt = prompt
-        self.expected_output = expected_output
-        self.timeout = 30
-        self.category = "syntax"
-
-
-class MockModel:
-    """Mock model that returns deterministic outputs for testing."""
-    def __init__(self):
-        self.device = torch.device("cpu")
+class TestComputeExactMatch:
+    """Tests for exact match computation"""
     
-    def generate(self, input_ids, max_length, **kwargs):
-        # Return a simple tensor of tokens for testing
-        # In a real scenario, this would be the model's output
-        return torch.tensor([[101, 202, 303]])  # Mock token IDs
+    def test_exact_match_identical(self):
+        """Test that identical strings match"""
+        result = compute_exact_match("hello world", "hello world")
+        assert result is True
+    
+    def test_exact_match_different(self):
+        """Test that different strings don't match"""
+        result = compute_exact_match("hello world", "goodbye world")
+        assert result is False
+    
+    def test_exact_match_whitespace_normalization(self):
+        """Test that whitespace differences are normalized"""
+        result = compute_exact_match("hello  world", "hello world")
+        assert result is True
+    
+    def test_exact_match_newlines(self):
+        """Test that newlines are normalized"""
+        result = compute_exact_match("hello\nworld", "hello world")
+        assert result is True
+    
+    def test_exact_match_case_sensitive(self):
+        """Test that matching is case sensitive"""
+        result = compute_exact_match("Hello World", "hello world")
+        assert result is False
 
+class TestRunInference:
+    """Tests for inference execution"""
+    
+    @patch('evaluation.runner.AutoModelForCausalLM')
+    @patch('evaluation.runner.AutoTokenizer')
+    def test_run_inference_mock_model(self, mock_tokenizer, mock_model):
+        """Test inference with mocked model"""
+        # Setup mocks
+        mock_tokenizer_instance = Mock()
+        mock_tokenizer_instance.pad_token = '<pad>'
+        mock_tokenizer.return_value = mock_tokenizer_instance
+        
+        mock_model_instance = Mock()
+        mock_model.return_value = mock_model_instance
+        
+        # Mock generate to return specific output
+        mock_input_ids = torch.tensor([[1, 2, 3]])
+        mock_tokenizer_instance.__call__.return_value = {'input_ids': mock_input_ids}
+        
+        mock_output_ids = torch.tensor([[1, 2, 3, 4, 5]])
+        mock_model_instance.generate.return_value = mock_output_ids
+        
+        mock_tokenizer_instance.decode.return_value = "test output"
+        
+        # Run inference
+        result = run_inference(mock_model_instance, mock_tokenizer_instance, "test prompt")
+        
+        # Verify
+        assert result == "test output"
+        mock_model_instance.generate.assert_called_once()
 
-class MockTokenizer:
-    """Mock tokenizer for testing."""
-    def __init__(self):
-        self.pad_token_id = 0
-        self.eos_token_id = 2
+class TestSaveResults:
+    """Tests for result saving"""
     
-    def __call__(self, text, return_tensors="pt", **kwargs):
-        # Return a mock tensor with token IDs
-        return {
-            "input_ids": torch.tensor([[101, 202, 303]]),
-            "attention_mask": torch.tensor([[1, 1, 1]])
-        }
-    
-    def decode(self, token_ids, skip_special_tokens=True):
-        # Return a mock decoded string
-        if isinstance(token_ids, torch.Tensor):
-            token_ids = token_ids.tolist()
-        # Flatten if needed
-        if isinstance(token_ids[0], list):
-            token_ids = token_ids[0]
-        return "mock generated output"
-
-
-def test_calculate_exact_match():
-    """Test the exact match calculation logic."""
-    # Test case 1: Exact match
-    predicted = "def hello():\n    print('world')"
-    expected = "def hello():\n    print('world')"
-    assert calculate_exact_match(predicted, expected) == 1.0
-    
-    # Test case 2: No match
-    predicted = "def hello():\n    print('universe')"
-    expected = "def hello():\n    print('world')"
-    assert calculate_exact_match(predicted, expected) == 0.0
-    
-    # Test case 3: Partial match (should be 0.0 for exact match)
-    predicted = "def hello():\n    print('world')"
-    expected = "def hello():\n    print('world')\nprint('extra')"
-    assert calculate_exact_match(predicted, expected) == 0.0
-    
-    # Test case 4: Case sensitivity
-    predicted = "Hello"
-    expected = "hello"
-    assert calculate_exact_match(predicted, expected) == 0.0
-
-
-def test_evaluate_task_with_mock():
-    """Test evaluate_task function with mocked model and tokenizer."""
-    task = MockTask(
-        task_id="test_001",
-        prompt="Write a hello world function",
-        expected_output="def hello():\n    print('world')"
-    )
-    
-    mock_model = MockModel()
-    mock_tokenizer = MockTokenizer()
-    
-    # Mock the model's forward pass to return deterministic output
-    with patch.object(mock_model, 'generate', return_value=torch.tensor([[101, 202, 303]])):
-        # Mock tokenizer.decode to return the expected output for exact match test
-        with patch.object(mock_tokenizer, 'decode', return_value="def hello():\n    print('world')"):
-            score, prediction = evaluate_task(task, mock_model, mock_tokenizer)
+    def test_save_results_creates_file(self):
+        """Test that save_results creates the output file"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_results.csv"
             
-            assert score == 1.0, f"Expected exact match score of 1.0, got {score}"
-            assert prediction == "def hello():\n    print('world')"
+            results = [
+                {
+                    'task_id': 'test_1',
+                    'generated': 'hello',
+                    'expected': 'hello',
+                    'exact_match': True,
+                    'error': None
+                }
+            ]
+            
+            save_results(results, str(output_path))
+            
+            assert output_path.exists()
+            
+            # Verify file content
+            with open(output_path, 'r') as f:
+                content = f.read()
+                assert 'task_id' in content
+                assert 'test_1' in content
+                assert 'hello' in content
+                assert 'True' in content
+    
+    def test_save_results_multiple_tasks(self):
+        """Test saving multiple results"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_results.csv"
+            
+            results = [
+                {
+                    'task_id': 'test_1',
+                    'generated': 'hello',
+                    'expected': 'hello',
+                    'exact_match': True,
+                    'error': None
+                },
+                {
+                    'task_id': 'test_2',
+                    'generated': 'world',
+                    'expected': 'universe',
+                    'exact_match': False,
+                    'error': None
+                }
+            ]
+            
+            save_results(results, str(output_path))
+            
+            with open(output_path, 'r') as f:
+                lines = f.readlines()
+                # Header + 2 data rows
+                assert len(lines) == 3
 
-
-def test_evaluation_runner_initialization():
-    """Test EvaluationRunner initialization with mock config."""
-    mock_config = Mock(spec=Config)
-    mock_config.base_model_path = "mock_model"
-    mock_config.adapter_path = "mock_adapter"
-    mock_config.device = "cpu"
+class TestRunEvaluation:
+    """Tests for evaluation pipeline"""
     
-    runner = EvaluationRunner(mock_config)
-    
-    assert runner.config == mock_config
-    assert runner.device == torch.device("cpu")
-
-
-def test_evaluation_runner_run_single_task():
-    """Test EvaluationRunner.run_single_task with mocked dependencies."""
-    mock_config = Mock(spec=Config)
-    mock_config.base_model_path = "mock_model"
-    mock_config.adapter_path = "mock_adapter"
-    mock_config.device = "cpu"
-    
-    runner = EvaluationRunner(mock_config)
-    
-    task = MockTask(
-        task_id="test_001",
-        prompt="Write a hello world function",
-        expected_output="def hello():\n    print('world')"
-    )
-    
-    # Mock the model and tokenizer loading
-    with patch.object(runner, '_load_model', return_value=MockModel()):
-        with patch.object(runner, '_load_tokenizer', return_value=MockTokenizer()):
-            # Mock the evaluate_task function
-            with patch('evaluation.runner.evaluate_task', return_value=(1.0, "def hello():\n    print('world')")):
-                result = runner.run_single_task(task)
-                
-                assert result['task_id'] == "test_001"
-                assert result['score'] == 1.0
-                assert result['prediction'] == "def hello():\n    print('world')"
-                assert result['status'] == "success"
-
-
-def test_evaluation_runner_batch_evaluation():
-    """Test EvaluationRunner.batch_evaluation with multiple mock tasks."""
-    mock_config = Mock(spec=Config)
-    mock_config.base_model_path = "mock_model"
-    mock_config.adapter_path = "mock_adapter"
-    mock_config.device = "cpu"
-    
-    runner = EvaluationRunner(mock_config)
-    
-    tasks = [
-        MockTask("test_001", "prompt1", "output1"),
-        MockTask("test_002", "prompt2", "output2"),
-        MockTask("test_003", "prompt3", "output3"),
-    ]
-    
-    # Mock run_single_task to return deterministic results
-    with patch.object(runner, 'run_single_task', side_effect=[
-        {'task_id': 'test_001', 'score': 1.0, 'prediction': 'output1', 'status': 'success'},
-        {'task_id': 'test_002', 'score': 0.0, 'prediction': 'wrong_output', 'status': 'success'},
-        {'task_id': 'test_003', 'score': 1.0, 'prediction': 'output3', 'status': 'success'},
-    ]):
-        results = runner.batch_evaluation(tasks)
+    @patch('evaluation.runner.run_inference')
+    def test_run_evaluation_success(self, mock_inference):
+        """Test evaluation with successful inference"""
+        mock_inference.return_value = "expected output"
         
-        assert len(results) == 3
-        assert results[0]['score'] == 1.0
-        assert results[1]['score'] == 0.0
-        assert results[2]['score'] == 1.0
+        tasks = [
+            {
+                'task_id': 'task_1',
+                'prompt': 'test prompt',
+                'expected_output': 'expected output'
+            }
+        ]
         
-        # Calculate average score
-        avg_score = sum(r['score'] for r in results) / len(results)
-        assert avg_score == (1.0 + 0.0 + 1.0) / 3.0
-
-
-def test_exact_match_edge_cases():
-    """Test exact match with edge cases."""
-    # Empty strings
-    assert calculate_exact_match("", "") == 1.0
-    assert calculate_exact_match("", "non-empty") == 0.0
-    assert calculate_exact_match("non-empty", "") == 0.0
+        model = Mock()
+        tokenizer = Mock()
+        
+        results = run_evaluation(tasks, model, tokenizer)
+        
+        assert len(results) == 1
+        assert results[0]['task_id'] == 'task_1'
+        assert results[0]['exact_match'] is True
+        assert results[0]['error'] is None
     
-    # Whitespace differences
-    assert calculate_exact_match("hello", "hello ") == 0.0
-    assert calculate_exact_match("hello ", "hello") == 0.0
-    
-    # Newline differences
-    assert calculate_exact_match("hello\n", "hello") == 0.0
-    assert calculate_exact_match("hello", "hello\n") == 0.0
-    
-    # Unicode normalization (should be exact match)
-    assert calculate_exact_match("café", "café") == 1.0
-    
-    # Very long strings
-    long_string = "a" * 10000
-    assert calculate_exact_match(long_string, long_string) == 1.0
-    assert calculate_exact_match(long_string, long_string[:-1]) == 0.0
+    @patch('evaluation.runner.run_inference')
+    def test_run_evaluation_with_error(self, mock_inference):
+        """Test evaluation when inference fails"""
+        mock_inference.side_effect = Exception("Test error")
+        
+        tasks = [
+            {
+                'task_id': 'task_1',
+                'prompt': 'test prompt',
+                'expected_output': 'expected output'
+            }
+        ]
+        
+        model = Mock()
+        tokenizer = Mock()
+        
+        results = run_evaluation(tasks, model, tokenizer)
+        
+        assert len(results) == 1
+        assert results[0]['task_id'] == 'task_1'
+        assert results[0]['exact_match'] is False
+        assert 'Test error' in results[0]['error']

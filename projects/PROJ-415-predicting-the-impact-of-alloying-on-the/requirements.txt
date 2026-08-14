@@ -5,7 +5,5 @@ scipy>=1.11.0
 requests>=2.31.0
 pymatgen>=2023.0.0
 pytest>=7.4.0
-tomli>=2.0.0
-tomli_w>=1.0.0
 ruff>=0.1.0
 black>=23.0.0

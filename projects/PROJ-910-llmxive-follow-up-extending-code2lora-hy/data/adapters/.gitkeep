@@ -1,2 +1,2 @@
 # This directory stores generated LoRA adapters (.safetensors).
-# Output of the hypernetwork adapter generation pipeline.
+# Intentionally left empty to preserve directory structure in git.

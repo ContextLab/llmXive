@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`, `models/`, `reports/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn, scipy, requests, pymatgen, pytest)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn, scipy, requests, pymatgen, pytest)
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -57,11 +57,11 @@
 
 - [X] T004 Implement `code/config.py` with global constants, random seeds, and path definitions
 - [X] T005 Implement `code/utils/constants.py` with versioned periodic table data (Metallic Radii, Electronegativity)
-- [ ] T006 Implement `code/utils/logging.py` for standardized logging and error tracking
-- [~] T007 Setup `data/` directory structure (`raw/`, `curated/`, `artifacts/`) and checksum logic
+- [X] T006 Implement `code/utils/logging.py` for standardized logging and error tracking
+- [ ] T007 Setup `data/` directory structure (`raw/`, `curated/`, `artifacts/`) and checksum logic
 - [ ] T008 [P] Implement `code/data/acquisition.py` to fetch real data from NIST/Materials Project sources using Materials Project API v2 (endpoint: `, params: `elements`, `crystal_system=fcc`, auth via `MP_API_KEY` env var); MUST save output to `data/raw/fetched_diffusion.csv` and MUST log a warning "Data Insufficiency: N < 50" and proceed if N < 50 (resolving conflict with spec Edge Cases) instead of halting; this task replaces the hard halt to satisfy spec Edge Cases and FR-001/FR-002 flow
 - [ ] T009 [P] Implement `tests/contract/test_schema.py` to validate data structure against `contracts/diffusion_record.schema.yaml` for the `DiffusionRecord` entity
-- [ ] T010 Implement `tests/unit/test_constants.py` to verify periodic table data integrity
+- [X] T010 Implement `tests/unit/test_constants.py` to verify periodic table data integrity
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,12 +75,12 @@
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_data.py`
-- [ ] T012 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` (mock data)
+- [X] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_data.py`
+- [X] T012 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` (mock data)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement `code/data/ingestion.py` to load CSVs, filter `crystal_structure == "FCC"` and `diffusion_mode == "self"`, and convert units to eV/atom
+- [X] T013 [P] [US1] Implement `code/data/ingestion.py` to load CSVs, filter `crystal_structure == "FCC"` and `diffusion_mode == "self"`, and convert units to eV/atom
 - [ ] T014 [US1] Implement `code/data/curation.py` to exclude rows with missing solute concentration or missing atomic radii; log exclusions to `data/logs/exclusions.log` (CSV format with `row_id`, `reason_code`) AND explicitly record the **count of excluded rows as the first line** of the log file (e.g., `# EXCLUSION_COUNT: 5`) to satisfy US-1 acceptance scenario 2; log concentration exclusions with reason code 'MISSING_CONCENTRATION' and atomic data errors to `errors/missing_atomic_data.csv`
 - [ ] T015 [US1] Implement edge case handling in `code/data/ingestion.py` for single-host-metal datasets: fallback to random split and log the specific warning: 'Stratification by host metal was not possible due to single-class data.'
 - [ ] T016 [US1] Implement error logging for missing atomic radii in `code/data/curation.py` (output to `errors/missing_atomic_data.csv`)

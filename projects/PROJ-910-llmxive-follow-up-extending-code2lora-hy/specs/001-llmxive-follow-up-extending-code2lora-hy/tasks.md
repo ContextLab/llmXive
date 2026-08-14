@@ -68,7 +68,7 @@
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010 [US1] Contract test for `ast_parser.py` in `tests/unit/test_ast_parser.py`: Implement `test_parse_valid_file` (valid Python file input) and `test_parse_invalid_syntax` (malformed syntax string input). *(Removed `[P]` to avoid running before code exists)*
-- [ ] T011 [US1] Integration test for end‑to‑end adapter generation on `data/raw/sample_repo` in `tests/integration/test_adapter_generation.py`: Assert `data/adapters/sample_adapter.safetensors` exists and loads successfully. *(Removed `[P]`)* <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T011 [US1] Integration test for end‑to‑end adapter generation on `data/raw/sample_repo` in `tests/integration/test_adapter_generation.py`: Assert `data/adapters/sample_adapter.safetensors` exists and loads successfully. *(Removed `[P]`)* <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
@@ -125,7 +125,7 @@
 - [ ] T030 [US3] **BLOCKING PREREQUISITE**: Implement the sensitivity loop in `sensitivity.py` that, for each subset, calls the adapter generator (T015) and evaluator (T021/T022) to obtain scores. **T021 and T022 are BLOCKING PREREQUISITES; Phase 5 cannot begin until Phase 4 evaluation tasks are complete.** <!-- FAILED: unspecified -->
 - [ ] T031a [US3] **NEW**: Implement logic to extract the **baseline accuracy score** from the neural evaluation results (T021/T024) and save it to `data/results/baseline_score.json`. **Must be completed before T032.**
 - [ ] T031 [US3] Within `sensitivity.py`, calculate the drop in exact‑match score when specific features are removed (US‑3 Scenario 3).
-- [~] T032 [US3] **Depends on T031a**: Identify the minimal feature set meeting a threshold **calculated dynamically as >80% of the baseline accuracy score** (derived from T031a).
+- [ ] T032 [US3] **Depends on T031a**: Identify the minimal feature set meeting a threshold **calculated dynamically as >80% of the baseline accuracy score** (derived from T031a).
 - [ ] T033 [US3] Generate a **CSV summary** `data/results/sensitivity_summary.csv` with columns `feature_set, accuracy, meets_threshold`. The research question investigates the sensitivity of model accuracy to different feature sets. The method involves training models across various feature combinations and evaluating performance against a predefined accuracy threshold. References: (Author et al.,).. Verify the file exists and is non‑empty. *(No visual plot is produced, respecting the spec.)*
 
 **Checkpoint**: All user stories should now be independently functional
@@ -140,17 +140,17 @@
 
 - [X] T039 [P] Implement `code/utils/cpu_monitor.py` to enforce a **2-core limit** via `taskset` (CPU affinity) and log CPU usage; verify that the process is restricted to a bounded subset of cores.
 - [X] T040 [P] Implement `code/utils/latency_monitor.py` to **measure adapter generation latency** (during T015 execution) and compare against the original Code2LoRA neural-encoder generation time on the same hardware (SC‑001). Output comparison report to `data/results/generation_latency_comparison.json`.
-- [~] T041 [P] Implement `code/utils/memory_monitor.py` to measure **peak RSS memory usage** via the `resource` module at each pipeline step and log to `data/results/memory_log.csv` (SC‑004).
-- [~] T042 [P] Add a CI job that runs the full pipeline on sample data to verify the **timeouts** and resource limits (replaces previous T036 verification task).
+- [X] T041 [P] Implement `code/utils/memory_monitor.py` to measure **peak RSS memory usage** via the `resource` module at each pipeline step and log to `data/results/memory_log.csv` (SC‑004).
+- [ ] T042 [P] Add a CI job that runs the full pipeline on sample data to verify the **timeouts** and resource limits (replaces previous T036 verification task).
 - [X] T043 [P] Implement RAM‑limit enforcement in `code/utils/memory_monitor.py` to abort gracefully if memory usage exceeds **7 GB** (FR-006, FR-008).
-- [~] T047 [P] Add CI step that executes the pipeline with the timeout mechanism (implemented in T036) and asserts the job finishes within the specified time limit.
+- [ ] T047 [P] Add CI step that executes the pipeline with the timeout mechanism (implemented in T036) and asserts the job finishes within the specified time limit.
 - [X] T048 [P] (Optional) Add a lightweight script in `code/utils/cpu_monitor.py` to verify that the process is limited to **2 CPU cores** at runtime (e.g., using `psutil`), logging the result for audit purposes.
 - [ ] T049a [US2] **NEW**: Measure baseline neural-encoder generation latency (run the baseline loader T024 and measure time) and save to `data/results/baseline_generation_latency.json`. **Must be completed before T049b.**
 - [X] T049b [US2] **NEW**: Compute the latency reduction ratio (AST generation latency from T040 / baseline generation latency from T049a) and store a comparison report in `data/results/generation_latency_comparison.json`. Ensure the reduction is ≥ 10× as required by SC‑001. **Depends on T049a.**
 - [ ] T050 [P] Aggregate peak memory usage logs from `data/results/memory_log.csv`, compute total runtime per stage, and write a summary `data/results/resource_summary.csv`. Verify that peak RAM stays ≤ 7 GB and total runtime ≤ 6 h.
 - [X] T051 [P] Add unit tests for `graph_builder.py` centrality algorithms in `tests/unit/test_graph_builder.py`.
 - [ ] T052 [P] Create `scripts/validate_quickstart.sh` that executes the commands in `quickstart.md` and asserts successful exit codes.
-- [~] T053 [P] Polish documentation updates in `README.md` and `specs/001-ast-based-adapter-generation/quickstart.md`.
+- [ ] T053 [P] Polish documentation updates in `README.md` and `specs/001-ast-based-adapter-generation/quickstart.md`.
 
 ---
 

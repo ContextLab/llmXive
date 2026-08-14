@@ -1,88 +1,83 @@
 """
-Project Setup Script for PROJ-415-predicting-the-impact-of-alloying-on-the
-Creates the required directory structure for the automated science pipeline.
+Project Setup Script for llmXive Automated Science Pipeline.
+
+This script creates the required directory structure and initialization files
+for the project: 'Predicting the Impact of Alloying on the Diffusion Activation Energy in FCC Metals'.
+
+Directories created:
+- code/ (source code)
+- tests/ (test suites)
+- data/ (raw, curated, artifacts)
+- models/ (trained models)
+- reports/ (validation reports, logs)
 """
+
 import os
 import sys
 from pathlib import Path
+from typing import List
 
-def create_directories():
-    """Create the project directory structure as per implementation plan."""
-    # Define the base directory (project root)
-    base_dir = Path.cwd()
-    
-    # Define the required directories
-    directories = [
-        "code",
-        "code/utils",
-        "code/data",
-        "code/models",
-        "code/validation",
-        "tests",
-        "tests/unit",
-        "tests/contract",
-        "tests/integration",
-        "data",
-        "data/raw",
-        "data/curated",
-        "data/artifacts",
-        "data/logs",
-        "models",
-        "reports",
-        "figures"
-    ]
-    
+# Define the root directory (parent of this script's directory)
+# Assuming this script is in code/setup_project.py, root is two levels up
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+# Define required directories relative to root
+REQUIRED_DIRS: List[Path] = [
+    ROOT_DIR / "code",
+    ROOT_DIR / "tests",
+    ROOT_DIR / "data" / "raw",
+    ROOT_DIR / "data" / "curated",
+    ROOT_DIR / "data" / "artifacts",
+    ROOT_DIR / "data" / "logs",
+    ROOT_DIR / "models",
+    ROOT_DIR / "reports",
+    ROOT_DIR / "figures",
+    ROOT_DIR / "specs",
+]
+
+def create_directories() -> None:
+    """Create all required directories if they do not exist."""
     created_count = 0
-    skipped_count = 0
-    
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+    for dir_path in REQUIRED_DIRS:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path.relative_to(ROOT_DIR)}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
-            skipped_count += 1
+            print(f"Directory exists: {dir_path.relative_to(ROOT_DIR)}")
     
-    print(f"\nSetup complete: {created_count} directories created, {skipped_count} already existed.")
-    return True
+    if created_count == 0:
+        print("All required directories already exist.")
+    else:
+        print(f"Successfully created {created_count} new directories.")
 
-def create_init_files():
-    """Create __init__.py files to make directories Python packages."""
-    base_dir = Path.cwd()
-    package_dirs = [
-        "code",
-        "code/utils",
-        "code/data",
-        "code/models",
-        "code/validation",
-        "tests",
-        "tests/unit",
-        "tests/contract",
-        "tests/integration"
+def create_init_files() -> None:
+    """Create __init__.py files in all Python package directories."""
+    python_dirs = [
+        ROOT_DIR / "code",
+        ROOT_DIR / "tests",
+        ROOT_DIR / "code" / "utils",
+        ROOT_DIR / "code" / "data",
+        ROOT_DIR / "code" / "models",
+        ROOT_DIR / "code" / "validation",
     ]
     
-    for dir_path in package_dirs:
-        init_file = base_dir / dir_path / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created __init__.py: {init_file}")
-        else:
-            print(f"__init__.py already exists: {init_file}")
+    # Ensure parent directories exist before creating __init__.py
+    for dir_path in python_dirs:
+        if dir_path.exists():
+            init_file = dir_path / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
+                print(f"Created __init__.py in {dir_path.relative_to(ROOT_DIR)}")
+            else:
+                print(f"__init__.py exists in {dir_path.relative_to(ROOT_DIR)}")
 
-def main():
+def main() -> None:
     """Main entry point for project setup."""
-    print("Starting project setup for PROJ-415...")
-    
-    try:
-        create_directories()
-        create_init_files()
-        print("\nProject structure setup completed successfully.")
-        return 0
-    except Exception as e:
-        print(f"\nError during project setup: {e}")
-        return 1
+    print(f"Setting up project structure at: {ROOT_DIR}")
+    create_directories()
+    create_init_files()
+    print("Project setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

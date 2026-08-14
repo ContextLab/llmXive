@@ -1,2 +1,2 @@
-# This directory stores raw, unprocessed datasets (e.g., RepoPeftBench, sample repos).
-# Do not modify files here directly; use download scripts to fetch data.
+# This directory contains raw, unprocessed datasets.
+# Intentionally left empty to preserve directory structure in git.

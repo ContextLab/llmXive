@@ -1,9 +1,3 @@
-"""
-Node degree statistics generator for aggregated graph analysis.
-
-This module computes global statistics across multiple graphs to
-understand the typical coordination environment in amorphous silicon.
-"""
 import json
 import logging
 import pickle
@@ -11,136 +5,253 @@ from pathlib import Path
 from typing import Dict, Any, List
 from collections import Counter
 
+from config import get_paths, get_config
+
+# Configure logger
 logger = logging.getLogger(__name__)
 
 def load_graphs(graph_dir: Path) -> List[Dict[str, Any]]:
     """
-    Load all graph files from a directory.
+    Load all serialized graph files from the specified directory.
     
     Args:
-        graph_dir: Directory containing graph files
+        graph_dir: Path to the directory containing serialized graphs (.pkl files)
         
     Returns:
-        List of graph dictionaries
+        List of graph dictionaries containing 'nodes' and 'edges'
+        
+    Raises:
+        FileNotFoundError: If no graph files are found
+        ValueError: If a graph file is corrupted or missing required keys
     """
+    if not graph_dir.exists():
+        raise FileNotFoundError(f"Graph directory not found: {graph_dir}")
+        
+    graph_files = list(graph_dir.glob("*.pkl"))
+    if not graph_files:
+        raise FileNotFoundError(f"No .pkl graph files found in {graph_dir}")
+        
     graphs = []
-    
-    # Load JSON files
-    for json_file in graph_dir.glob("*.json"):
-        with open(json_file, 'r') as f:
-            graphs.append(json.load(f))
-    
-    # Load pickle files
-    for pickle_file in graph_dir.glob("*.pkl"):
-        with open(pickle_file, 'rb') as f:
-            graphs.append(pickle.load(f))
-    
-    logger.info(f"Loaded {len(graphs)} graphs from {graph_dir}")
+    for graph_file in graph_files:
+        try:
+            with open(graph_file, 'rb') as f:
+                graph_data = pickle.load(f)
+            
+            # Validate required keys
+            if 'nodes' not in graph_data or 'edges' not in graph_data:
+                raise ValueError(f"Graph file {graph_file} missing 'nodes' or 'edges' keys")
+            
+            graphs.append(graph_data)
+            logger.info(f"Loaded graph from {graph_file}: {len(graph_data['nodes'])} nodes, {len(graph_data['edges'])} edges")
+            
+        except Exception as e:
+            logger.error(f"Failed to load graph {graph_file}: {e}")
+            raise
+            
     return graphs
 
 def calculate_global_degree_distribution(graphs: List[Dict[str, Any]]) -> Dict[int, int]:
     """
-    Calculate the global degree distribution across all graphs.
+    Calculate the global node-degree distribution across all graphs.
     
     Args:
         graphs: List of graph dictionaries
         
     Returns:
-        Dictionary mapping degree to count
+        Dictionary mapping degree values to their counts
     """
-    all_degrees = []
+    degree_counts = Counter()
     
     for graph in graphs:
-        edges = graph.get("edges", [])
-        nodes = graph.get("nodes", [])
-        n_nodes = len(nodes) if nodes else graph.get("metadata", {}).get("n_nodes", 0)
+        nodes = graph['nodes']
+        edges = graph['edges']
         
-        if n_nodes == 0:
-            continue
+        # Calculate degree for each node
+        node_degrees = {node_id: 0 for node_id in nodes}
         
-        # Calculate degrees
-        degrees = [0] * n_nodes
         for edge in edges:
-            i, j = edge[0], edge[1]
-            if i < n_nodes and j < n_nodes:
-                degrees[i] += 1
-                degrees[j] += 1
+            # Handle both [u, v] and {'u': u, 'v': v} formats
+            if isinstance(edge, (list, tuple)):
+                u, v = edge[0], edge[1]
+            elif isinstance(edge, dict):
+                u, v = edge.get('u'), edge.get('v')
+                if u is None or v is None:
+                    raise ValueError(f"Edge {edge} missing 'u' or 'v' keys")
+            else:
+                raise ValueError(f"Unsupported edge format: {type(edge)}")
+            
+            if u in node_degrees:
+                node_degrees[u] += 1
+            if v in node_degrees:
+                node_degrees[v] += 1
         
-        all_degrees.extend(degrees)
-    
-    return dict(Counter(all_degrees))
+        # Count degrees
+        for degree in node_degrees.values():
+            degree_counts[degree] += 1
+            
+    return dict(degree_counts)
 
 def compute_mode_and_stats(degree_distribution: Dict[int, int]) -> Dict[str, Any]:
     """
-    Compute mode and summary statistics from degree distribution.
+    Compute the mode and other statistical properties of the degree distribution.
     
     Args:
-        degree_distribution: Dictionary mapping degree to count
+        degree_distribution: Dictionary mapping degrees to counts
         
     Returns:
-        Dictionary with mode, mean, std, min, max
+        Dictionary containing mode, mean, median, min, max, and total nodes
     """
     if not degree_distribution:
-        return {
-            "mode": 0,
-            "mean": 0.0,
-            "std": 0.0,
-            "min": 0,
-            "max": 0,
-            "total_nodes": 0
-        }
+        raise ValueError("Degree distribution is empty")
+        
+    # Flatten to list for statistical calculations
+    all_degrees = []
+    for degree, count in degree_distribution.items():
+        all_degrees.extend([degree] * count)
+        
+    if not all_degrees:
+        raise ValueError("No degrees found in distribution")
+        
+    # Calculate mode
+    mode_degree = max(degree_distribution, key=degree_distribution.get)
     
-    # Expand distribution to list of degrees
-    degrees = []
-    for deg, count in degree_distribution.items():
-        degrees.extend([deg] * count)
+    # Calculate mean
+    mean_degree = sum(all_degrees) / len(all_degrees)
     
-    total_nodes = len(degrees)
-    mode = Counter(degrees).most_common(1)[0][0]
-    mean = sum(degrees) / total_nodes
-    variance = sum((d - mean) ** 2 for d in degrees) / total_nodes
-    std = variance ** 0.5
+    # Calculate median
+    sorted_degrees = sorted(all_degrees)
+    n = len(sorted_degrees)
+    if n % 2 == 0:
+        median_degree = (sorted_degrees[n//2 - 1] + sorted_degrees[n//2]) / 2
+    else:
+        median_degree = sorted_degrees[n//2]
+        
+    # Calculate min and max
+    min_degree = min(all_degrees)
+    max_degree = max(all_degrees)
+    
+    # Calculate standard deviation
+    variance = sum((d - mean_degree) ** 2 for d in all_degrees) / len(all_degrees)
+    std_dev = variance ** 0.5
     
     return {
-        "mode": mode,
-        "mean": float(mean),
-        "std": float(std),
-        "min": min(degrees),
-        "max": max(degrees),
-        "total_nodes": total_nodes
+        "mode": mode_degree,
+        "mean": round(mean_degree, 4),
+        "median": round(median_degree, 4),
+        "min": min_degree,
+        "max": max_degree,
+        "std_dev": round(std_dev, 4),
+        "total_nodes": len(all_degrees),
+        "distribution": degree_distribution
     }
 
+def validate_mode_for_amorphous_silicon(mode: int, stats: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Validate that the mode falls within the expected range for amorphous silicon.
+    
+    Amorphous silicon typically has a coordination number (degree) distribution
+    centered around 4, with most atoms having 3-5 neighbors.
+    
+    Args:
+        mode: The mode degree value
+        stats: Full statistics dictionary
+        
+    Returns:
+        Validation result dictionary
+    """
+    # Expected range for amorphous silicon: 3-5 (typically 4)
+    # This is based on literature values for tetrahedral amorphous silicon
+    expected_min = 3
+    expected_max = 5
+    
+    is_valid = expected_min <= mode <= expected_max
+    
+    validation_result = {
+        "mode": mode,
+        "expected_range": [expected_min, expected_max],
+        "is_valid": is_valid,
+        "message": f"Mode {mode} is within expected range [{expected_min}, {expected_max}] for amorphous silicon" if is_valid 
+                  else f"Mode {mode} is OUTSIDE expected range [{expected_min}, {expected_max}] for amorphous silicon"
+    }
+    
+    return validation_result
+
 def main():
-    """Main entry point for statistics generation."""
-    import argparse
+    """Main entry point for generating node-degree statistics."""
+    # Get paths from config
+    config = get_config()
+    paths = get_paths()
     
-    parser = argparse.ArgumentParser(description="Generate node degree statistics")
-    parser.add_argument("--input", type=Path, required=True, help="Input directory with graph files")
-    parser.add_argument("--output", type=Path, required=True, help="Output JSON file for statistics")
+    graph_dir = paths.get("graphs_dir", paths["data_dir"] / "processed" / "graphs")
+    output_file = paths.get("node_degree_stats_file", graph_dir / "node_degree_stats.json")
     
-    args = parser.parse_args()
+    logger.info(f"Starting node degree statistics generation")
+    logger.info(f"Graph directory: {graph_dir}")
+    logger.info(f"Output file: {output_file}")
     
-    # Load graphs
-    graphs = load_graphs(args.input)
-    
-    if not graphs:
-        logger.error("No graphs found in input directory")
-        return
-    
-    # Calculate global distribution
-    global_dist = calculate_global_degree_distribution(graphs)
-    
-    # Compute stats
-    stats = compute_mode_and_stats(global_dist)
-    stats["degree_distribution"] = global_dist
-    
-    # Save output
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    with open(args.output, 'w') as f:
-        json.dump(stats, f, indent=2)
-    
-    logger.info(f"Saved statistics to {args.output}")
-    logger.info(f"Mode: {stats['mode']}, Mean: {stats['mean']:.2f}, Std: {stats['std']:.2f}")
+    try:
+        # Load all graphs
+        graphs = load_graphs(graph_dir)
+        logger.info(f"Loaded {len(graphs)} graphs")
+        
+        if not graphs:
+            raise ValueError("No graphs found to process")
+        
+        # Calculate global degree distribution
+        degree_distribution = calculate_global_degree_distribution(graphs)
+        logger.info(f"Calculated degree distribution with {len(degree_distribution)} unique degrees")
+        
+        # Compute mode and statistics
+        stats = compute_mode_and_stats(degree_distribution)
+        logger.info(f"Mode: {stats['mode']}, Mean: {stats['mean']}, Median: {stats['median']}")
+        
+        # Validate mode for amorphous silicon
+        validation = validate_mode_for_amorphous_silicon(stats['mode'], stats)
+        logger.info(validation['message'])
+        
+        # Prepare final output
+        output_data = {
+            "mode": stats['mode'],
+            "mean": stats['mean'],
+            "median": stats['median'],
+            "min": stats['min'],
+            "max": stats['max'],
+            "std_dev": stats['std_dev'],
+            "total_nodes": stats['total_nodes'],
+            "distribution": stats['distribution'],
+            "validation": validation,
+            "metadata": {
+                "num_graphs_processed": len(graphs),
+                "graph_directory": str(graph_dir),
+                "cutoff_distance": config.get("bond_cutoff", 3.0)
+            }
+        }
+        
+        # Ensure output directory exists
+        output_path = Path(output_file)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write output
+        with open(output_path, 'w') as f:
+            json.dump(output_data, f, indent=2)
+        
+        logger.info(f"Successfully wrote node degree statistics to {output_file}")
+        
+        # Print summary to stdout for quick verification
+        print(f"Node Degree Statistics Generated:")
+        print(f"  Mode: {stats['mode']}")
+        print(f"  Mean: {stats['mean']}")
+        print(f"  Median: {stats['median']}")
+        print(f"  Total Nodes: {stats['total_nodes']}")
+        print(f"  Validation: {validation['message']}")
+        
+    except Exception as e:
+        logger.error(f"Failed to generate node degree statistics: {e}")
+        raise
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     main()

@@ -1,131 +1,218 @@
 """
 Statistical Power Check for Thermal Conductivity Analysis.
 
-This module implements T035: Loads sample count N from processed conductivity data
-(after outlier filtering), checks against statistical power requirements, and
-writes a power analysis report.
+This module implements the statistical power check required before proceeding
+with GNN training and correlation analysis. It validates the sample count N
+after outlier filtering and determines if the dataset size is sufficient for
+statistical power.
 
-Logic:
-- If N < 2: Exit with code 1 (insufficient data for any analysis).
-- If 2 <= N < 10: Log WARNING, write "INSUFFICIENT_POWER" status, but proceed.
-- If N >= 10: Log INFO, write "SUFFICIENT_POWER" status.
+Requirements:
+- N >= 10: Sufficient power (per Spec SC-004)
+- 2 <= N < 10: Proceed with warning (per Plan proof-of-concept)
+- N < 2: Exit with error code 1
 """
+
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-# Import config utilities to locate paths and logging setup
 from config import get_config, get_paths
 
-# Setup logging via project config
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def count_valid_samples(conductivity_dir: Path) -> int:
-    """
-    Count the number of valid thermal sample files in the conductivities directory.
-    
-    This mimics the filtering done by T024 (outlier detection) by assuming that
-    any file present in this directory has already passed the exclusion criteria
-    (or that the directory represents the final filtered set).
-    
-    Args:
-        conductivity_dir: Path to data/processed/conductivities/
-        
-    Returns:
-        Integer count of .pkl or .json files representing valid samples.
-    """
-    if not conductivity_dir.exists():
-        logger.error(f"Conductivity directory does not exist: {conductivity_dir}")
-        return 0
-    
-    # Look for serialized thermal samples (typically pickle or json)
-    # Based on T025/T026, these are saved here.
-    files = list(conductivity_dir.glob("*.pkl")) + list(conductivity_dir.glob("*.json"))
-    
-    # Filter out potential metadata files like convergence_report.json if they are mixed in
-    # We expect sample files to be named like sample_*.pkl or similar, but a simple count
-    # of data files is the primary metric here.
-    # To be safe, we count files that are likely samples.
-    # Assuming T025 saves individual sample objects.
-    
-    sample_count = 0
-    for f in files:
-        # Skip the convergence report if it's in the same folder
-        if f.name == "convergence_report.json":
-            continue
-        sample_count += 1
-        
-    return sample_count
 
-def write_power_analysis_report(output_path: Path, n: int, status: str, message: str) -> None:
+def count_valid_samples(conductivities_dir: Path) -> int:
     """
-    Writes the power analysis result to a JSON file.
-    
+    Count the number of valid thermal conductivity samples in the processed directory.
+
+    This function scans the `data/processed/conductivities/` directory and counts
+    all valid thermal sample files (excluding excluded samples if the exclusion
+    file exists).
+
     Args:
-        output_path: Path to write data/processed/model_outputs/power_analysis.json
-        n: Sample count
-        status: "SUFFICIENT_POWER" or "INSUFFICIENT_POWER"
-        message: Human-readable explanation
+        conductivities_dir: Path to the directory containing processed conductivity samples.
+
+    Returns:
+        int: The count of valid samples (N).
+
+    Raises:
+        FileNotFoundError: If the conductivities directory does not exist.
+        ValueError: If no valid samples are found.
     """
+    if not conductivities_dir.exists():
+        logger.error(f"Conductivities directory not found: {conductivities_dir}")
+        raise FileNotFoundError(f"Conductivities directory not found: {conductivities_dir}")
+
+    # Check for excluded samples file
+    excluded_file = conductivities_dir.parent / "graphs" / "excluded_samples.json"
+    excluded_ids: set = set()
+
+    if excluded_file.exists():
+        logger.info(f"Loading excluded samples from: {excluded_file}")
+        try:
+            with open(excluded_file, 'r') as f:
+                excluded_data = json.load(f)
+                excluded_ids = set(excluded_data.get('excluded_ids', []))
+            logger.info(f"Found {len(excluded_ids)} excluded sample IDs")
+        except json.JSONDecodeError as e:
+            logger.warning(f"Failed to parse excluded samples file: {e}. Proceeding without exclusion.")
+    else:
+        logger.info("No excluded samples file found. Proceeding with all samples.")
+
+    # Count valid sample files
+    valid_count = 0
+    sample_files = list(conductivities_dir.glob("*.json"))
+
+    for sample_file in sample_files:
+        try:
+            # Extract sample ID from filename (assuming format: sample_id.json)
+            sample_id = sample_file.stem
+
+            # Skip if excluded
+            if sample_id in excluded_ids:
+                logger.debug(f"Skipping excluded sample: {sample_id}")
+                continue
+
+            # Validate file content
+            with open(sample_file, 'r') as f:
+                sample_data = json.load(f)
+
+            # Basic validation: must have conductivity value
+            if 'conductivity' not in sample_data:
+                logger.warning(f"Sample {sample_id} missing 'conductivity' field. Skipping.")
+                continue
+
+            valid_count += 1
+            logger.debug(f"Valid sample found: {sample_id}")
+
+        except (json.JSONDecodeError, IOError) as e:
+            logger.warning(f"Failed to process sample file {sample_file}: {e}. Skipping.")
+            continue
+
+    if valid_count == 0:
+        logger.error("No valid samples found after filtering.")
+        raise ValueError("No valid samples found after filtering. Cannot proceed with analysis.")
+
+    logger.info(f"Total valid samples (N): {valid_count}")
+    return valid_count
+
+
+def write_power_analysis_report(
+    n_samples: int,
+    output_path: Path,
+    config: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Write the statistical power analysis report to a JSON file.
+
+    Args:
+        n_samples: The number of valid samples (N).
+        output_path: Path where the report will be written.
+        config: Optional configuration dictionary for thresholds.
+
+    Returns:
+        Dict[str, Any]: The power analysis report dictionary.
+    """
+    # Determine status based on sample count
+    if n_samples < 2:
+        status = "INSUFFICIENT_SAMPLES"
+        message = "Critical: Sample count is less than 2. Cannot perform statistical analysis."
+        should_exit = True
+    elif n_samples < 10:
+        status = "INSUFFICIENT_POWER"
+        message = "Warning: Sample count is less than 10 (N < 10). Statistical power is limited. Proceeding with proof-of-concept as per Plan."
+        should_exit = False
+    else:
+        status = "SUFFICIENT_POWER"
+        message = "Sample count meets minimum statistical power requirements (N >= 10)."
+        should_exit = False
+
+    # Build report
     report = {
-        "sample_count": n,
+        "sample_count": n_samples,
         "status": status,
         "message": message,
-        "threshold_min": 10,
-        "threshold_abort": 2
+        "threshold_min": 2,
+        "threshold_target": 10,
+        "proceed": not should_exit
     }
-    
+
+    # Add configuration details if provided
+    if config:
+        report["config"] = {
+            "min_samples": config.get("min_samples", 2),
+            "target_samples": config.get("target_samples", 10)
+        }
+
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write report to file
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-    
-    logger.info(f"Power analysis report written to {output_path}")
+
+    logger.info(f"Power analysis report written to: {output_path}")
+    return report
+
 
 def main() -> int:
     """
-    Main entry point for T035.
-    
+    Main entry point for the statistical power check.
+
+    This function:
+    1. Loads configuration
+    2. Counts valid samples from the conductivities directory
+    3. Writes the power analysis report
+    4. Exits with appropriate code based on sample count
+
     Returns:
-        0 if successful (even if power is insufficient but N >= 2),
-        1 if N < 2 (fatal error).
+        int: Exit code (0 for success, 1 for critical failure)
     """
-    config = get_config()
-    paths = get_paths(config)
-    
-    conductivities_dir = paths.get("conductivities", paths["data_root"] / "processed" / "conductivities")
-    model_outputs_dir = paths.get("model_outputs", paths["data_root"] / "processed" / "model_outputs")
-    
-    logger.info(f"Scanning for samples in: {conductivities_dir}")
-    
-    n = count_valid_samples(conductivities_dir)
-    logger.info(f"Found {n} valid samples in conductivities directory.")
-    
-    output_file = model_outputs_dir / "power_analysis.json"
-    
-    if n < 2:
-        message = f"Fatal: Sample count (N={n}) is less than 2. Cannot proceed with analysis."
-        write_power_analysis_report(output_file, n, "FATAL_INSUFFICIENT_DATA", message)
-        logger.critical(message)
+    try:
+        # Load configuration
+        config = get_config()
+        paths = get_paths()
+
+        logger.info("Starting statistical power check...")
+
+        # Define paths
+        conductivities_dir = paths["data_processed_conductivities"]
+        output_file = paths["data_processed_model_outputs"] / "power_analysis.json"
+
+        # Count valid samples
+        n_samples = count_valid_samples(conductivities_dir)
+
+        # Write report
+        report = write_power_analysis_report(n_samples, output_file, config)
+
+        # Determine exit code
+        if report["status"] == "INSUFFICIENT_SAMPLES":
+            logger.error("CRITICAL: Insufficient samples to proceed. Exiting.")
+            return 1
+        elif report["status"] == "INSUFFICIENT_POWER":
+            logger.warning("WARNING: Insufficient statistical power, but proceeding as per Plan.")
+            return 0
+        else:
+            logger.info("Statistical power check passed.")
+            return 0
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
         return 1
-    
-    elif n < 10:
-        message = f"Warning: Sample count (N={n}) is less than the statistical power target (10). Proceeding with proof-of-concept (N>=2)."
-        write_power_analysis_report(output_file, n, "INSUFFICIENT_POWER", message)
-        logger.warning(message)
-        # Return 0 to allow downstream tasks (T030-T034) to proceed as per Plan/Spec conflict resolution
-        return 0
-    
-    else:
-        message = f"Success: Sample count (N={n}) meets the statistical power target (>=10)."
-        write_power_analysis_report(output_file, n, "SUFFICIENT_POWER", message)
-        logger.info(message)
-        return 0
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        return 1
+    except Exception as e:
+        logger.exception(f"Unexpected error during power check: {e}")
+        return 1
+
 
 if __name__ == "__main__":
     exit_code = main()

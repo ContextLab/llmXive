@@ -1,45 +1,12 @@
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides no evidence of the required `data/raw/`, `data/processed/`,
-    or `data/adapters/` directories, nor any `.gitkeep` files within them. Without
-    visible artifacts confirming these directories exist and contain the placeholder
-    files, the task requirement is not satisfied.
 T011:
-  c: false
-  h: be295d32c7508bfe7345c1456649b306c212c5f2f70ae2cb62c2c1ba9f617319
-  r: "The required integration test file `tests/integration/test_adapter_generation.py`\
-    \ is absent, and the expected adapter file `data/adapters/sample_adapter.safetensors`\
-    \ does not exist, so the task\u2019s stated requirement is not met."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided evidence contains only the task description and project requirements,
-    but lacks the actual `ast_parser.py` file or any code snippet demonstrating the
-    implementation of the control-flow logic. Without seeing the file content, it
-    is impossible to verify if the logic to skip malformed files, the specific logging
-    calls using the T006 handler, and the `continue` statement for FR-007 are genuinely
-    implemented rather than just described.
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `adapter_generator.py` containing a RAM\u2011usage\
-    \ check that aborts when usage exceeds 7\u202FGB and logs the required error (FR\u2011\
-    008) was provided. The artifact is missing, so the task is not verified as completed."
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `adapter_generator.py` containing checkpoint validation\
-    \ logic is provided; the required code artifact is missing, so we cannot confirm\
-    \ that the abort\u2011on\u2011incompatible\u2011base\u2011model behavior was implemented."
-T021:
-  c: false
-  h: abc94c58d862190d55256d41bc3a7c910fd0837572a3d0fb818f6ad694bbef0e
-  r: "The provided `code/evaluation/runner.py` is incomplete (truncated after the\
-    \ adapter\u2011loading stub) and does not contain logic to run the model on the\
-    \ RepoPeftBench tasks, compute exact\u2011match scores, or write `data/results/ast_scores.csv`.\
-    \ Moreover, the required `ast_scores.csv` file is absent. The task therefore remains\
-    \ unfinished."
+  c: true
+  h: 60cc8c616ad0c82bfcfd74e48434f4ff16acf885ed2ce80d0a6d3bb9ee87918c
+  r: The repository contains the full integration test file `tests/integration/test_adapter_generation.py`,
+    which includes setup to ensure the sample repo, invokes the adapter generator,
+    and (as indicated by the imports and fixture logic) asserts that `data/adapters/sample_adapter.safetensors`
+    is created and can be loaded with `safetensors.torch.load_file`. The missing adapter
+    file on disk is expected before the test runs; the test itself fulfills the required
+    assertion.
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,3 +44,38 @@ T031:
     \ we cannot confirm that the required analysis for US\u20113 Scenario\u202F3 was\
     \ implemented. The implementer must add the `sensitivity.py` module with the appropriate\
     \ logic and evidence of its execution."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a report, data file, or code output) was provided that lists\
+    \ a minimal AST feature set, shows the baseline accuracy from T031a, computes\
+    \ the 80\u202F% threshold, and demonstrates that the identified feature subset\
+    \ meets this threshold. The required analysis and concrete results are missing."
+T041:
+  c: true
+  h: ada7064eeb7bdf61d586556df073b2129f1e56a655e2d9c33fae0b1c4ca9ea88
+  r: "The repository contains a fully\u2011implemented `code/utils/memory_monitor.py`\
+    \ that uses `resource.getrusage` to obtain RSS memory (peak) and writes timestamps,\
+    \ step names, current and peak memory (in GB), and optional duration to `data/results/memory_log.csv`,\
+    \ creating the directory and file as needed. No placeholder or missing functionality\
+    \ is evident."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI workflow file (e.g., a GitHub Actions YAML) or any script that runs the\
+    \ full pipeline on sample data is present. The required artifact\u2014a CI job\
+    \ definition that exercises the pipeline and validates timeouts/resource limits\u2014\
+    is missing."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CI configuration or script was provided that adds a step to run the pipeline
+    with the timeout mechanism from T036 and checks that the job completes within
+    the limit. The required artifact (e.g., a GitHub Actions workflow file or similar
+    CI definition) is missing, so the task is not satisfied.
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` or `specs/001-ast-based-adapter-generation/quickstart.md`
+    files were provided; without these artifacts the claim of polishing the documentation
+    cannot be verified. The required documentation updates are missing.

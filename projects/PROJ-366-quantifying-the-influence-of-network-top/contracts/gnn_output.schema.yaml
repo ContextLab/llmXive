@@ -1,78 +1,62 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: GNNOutput
-description: Schema for GNN model training outputs, predictions, and feature importance.
+description: Schema for the output of the GNN training and inference pipeline.
 type: object
 required:
-  - model_id
-  - predictions
-  - feature_importance
-  - metrics
+  model_id
+  architecture
+  hyperparameters
+  training_metrics
+  feature_importance
 properties:
   model_id:
     type: string
     description: Unique identifier for the trained model.
-  predictions:
-    type: array
-    description: List of prediction results per sample.
-    items:
-      type: object
-      required:
-        - sample_id
-        - predicted_value
-        - true_value
-      properties:
-        sample_id:
-          type: string
-        predicted_value:
-          type: number
-        true_value:
-          type: number
-        residual:
-          type: number
-  feature_importance:
+  architecture:
+    type: string
+    enum:
+      - "StaticScatteringPotentialGNN"
+    description: Name of the model architecture used.
+  hyperparameters:
     type: object
     required:
-      - feature_names
-      - importance_scores
-      - method
+      - hidden_dim
+      - num_layers
+      - learning_rate
     properties:
-      feature_names:
-        type: array
-        items:
-          type: string
-      importance_scores:
-        type: array
-        items:
-          type: number
-      method:
-        type: string
-        description: Method used for importance extraction (e.g., "shap", "permutation").
-  metrics:
-    type: object
-    required:
-      - mse
-      - r2
-    properties:
-      mse:
-        type: number
-        description: Mean Squared Error.
-      r2:
-        type: number
-        description: R-squared score.
-      mae:
-        type: number
-        description: Mean Absolute Error.
-  training_config:
-    type: object
-    description: Optional training configuration snapshot.
-    properties:
-      epochs:
+      hidden_dim:
         type: integer
+        minimum: 1
+      num_layers:
+        type: integer
+        minimum: 1
       learning_rate:
         type: number
-      batch_size:
+        minimum: 0.0
+  training_metrics:
+    type: object
+    required:
+      - final_loss
+      - convergence_epoch
+    properties:
+      final_loss:
+        type: number
+        minimum: 0.0
+      convergence_epoch:
         type: integer
-      hidden_dims:
+        minimum: 1
+      history:
         type: array
         items:
-          type: integer
+          type: object
+          properties:
+            epoch:
+              type: integer
+            loss:
+              type: number
+  feature_importance:
+    type: object
+    description: Map of feature names to importance scores.
+    additionalProperties:
+      type: number
+additionalProperties: false

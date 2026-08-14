@@ -1,0 +1,43 @@
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or code were presented that create, serialize, or store graph objects
+    under `data/processed/graphs/` in pickle or parquet format, nor any checksum generation/check
+    verification. The required artifact is missing, so the task is not satisfied.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or JSON example showing the new convergence detection logic\
+    \ or the updated `ThermalSample` metadata with a `converged` field is provided.\
+    \ The required artifact (implementation that checks relative change <\u202F1\u202F\
+    % and writes `converged: false` on failure) is missing."
+T024:
+  c: false
+  h: e766e41112c2d60e984798a87b80524bb09a473451a0a82daa8455fcb4133905
+  r: 'The required output file `data/processed/graphs/excluded_samples.json` does
+    not exist, even though `config.yaml` sets `enforce_exclusion: true`. Without this
+    file the outlier detection and exclusion step is not implemented, so downstream
+    tasks cannot filter against it. The implementer must create the JSON file with
+    the excluded sample IDs (or at least a placeholder) when the flag is true.'
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/processed/conductivities/` directory containing saved
+    `ThermalSample` objects (graph, conductivity, metadata) was provided, nor any
+    indication that checksums are computed and stored. The required artifact is missing,
+    so the task is not satisfied.
+T026:
+  c: false
+  h: d0e02df48c7ef6bc066285ed254367818c2f93f62b2a8ca13fef54adeb310139
+  r: The required output file `data/processed/conductivities/convergence_report.json`
+    does not exist, so there is no way to verify its contents or that a thermal conductivity
+    value falls within the configurable range. The task therefore remains unfinished.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or output files implementing or demonstrating SHAP\
+    \ (or similar) feature\u2011importance extraction from a trained GNN are present.\
+    \ Without such artifacts, we cannot confirm that the required functionality was\
+    \ actually delivered. The implementer must provide the implementation (e.g., a\
+    \ Python module or notebook) and example results showing per\u2011sample importance\
+    \ scores."

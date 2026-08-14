@@ -93,7 +93,7 @@
 ### Implementation for User Story 1
 
 - [X] T014 [P] [US1] Implement `download.py` to fetch crystal structures from OBELiX and Materials Project using static MP-ID list in `code/download.py`
-- [X] T013 [US1] Implement logic to handle missing OBELiX defect data (log specific message and proceed with DFT-computed values) [UNRESOLVED-CLAIM: c_17fb89ed — status=not_enough_info] in `code/validate.py`
+- [X] T013 [US1] Implement logic to handle missing OBELiX defect data (log specific message and proceed with DFT-computed values) in `code/validate.py`
 - [X] T015 [P] [US1] Implement `validate.py` to check for required variables (vacancy, interstitial, antisite, migration barrier, conductivity) in `code/validate.py`
 - [X] T016 [US1] Implement logic to generate `completeness_report.json` listing availability status per composition in `code/validate.py`
 - [X] T017 [US1] Add error handling for failed downloads with retry logic (limited attempts, exponential backoff) in `code/download.py`
@@ -121,7 +121,7 @@
 ### Implementation for User Story 2
 
 - [X] T031 [US2] **IMPLEMENT**: Implement supercell size validation logic to determine the appropriate expansion factor (sufficient for high-fidelity subset) based on convergence requirements. **MUST run BEFORE T024 and T025.** If 2x2x2 fails convergence criteria, fallback to 3x3x3 and log the specific reason. **Input**: `data/processed/convergence_status.json` from T024. **Output**: `data/processed/supercell_config.json` with schema `{"supercell_size": "2x2x2"|"3x3x3", "reason": "string"}`.
-- [X] T024 [US2] **IMPLEMENT**: Implement logic for 2x2x2 supercell expansion (allowing >8 atoms) for high-fidelity subset (first compositions with complete data) in `code/dft_runner.py`. **This task implements the authorized deviation from FR-003 as defined in spec.md Section 3.2. Confirmed by T002. Relies on T031 for the final supercell size decision.** If 2x2x2 fails convergence, fallback to 3x3x3 and log the reason.
+- [X] T024 [US2] **IMPLEMENT**: Implement logic for 2x2x2 supercell expansion (allowing >8 atoms) for high-fidelity subset [UNRESOLVED-CLAIM: c_0aa56708 — status=not_enough_info] (first compositions with complete data) in `code/dft_runner.py`. **This task implements the authorized deviation from FR-003 as defined in spec.md Section 3.2. Confirmed by T002. Relies on T031 for the final supercell size decision.** If 2x2x2 fails convergence, fallback to 3x3x3 and log the reason.
 - [X] T025 [P] [US2] Implement `dft_runner.py` to generate Quantum ESPRESSO input files (`.in`) with explicit parameters (pseudopotentials, k-mesh, cutoff) in `code/dft_runner.py` <!-- FAILED: unspecified -->
 - [X] T023 [US2] Implement semi-empirical defect energy estimation in `code/semi_empirical.py`. **Must validate BVS results against DFT results for the high-fidelity subset (representative compositions).**
 - [X] T027 [US2] Implement the semi-empirical defect energy calculation for the low-fidelity subset in `code/semi_empirical.py`, strictly adhering to the `plan.md` Constraints section (Hybrid Strategy) without introducing external review citations or unverified quantification methods.
@@ -145,7 +145,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T034 [P] [US3] Contract test for R² and p-value outputs in `tests/test_analysis.py`
+- [X] T034 [P] [US3] Contract test for R² and p-value outputs in `tests/test_analysis.py`
 - [ ] T035 [P] [US3] Integration test for multiple-comparison correction (Bonferroni/BH) in `tests/test_analysis.py`
 
 ### Implementation for User Story 3

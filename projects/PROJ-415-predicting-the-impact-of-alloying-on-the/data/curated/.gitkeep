@@ -1,0 +1,2 @@
+# This directory stores curated/cleaned data
+# Do not commit large CSV files; add them to .gitignore

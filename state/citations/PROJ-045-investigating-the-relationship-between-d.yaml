@@ -20,7 +20,7 @@
   verification_status: unreachable
   verified_against_url: https://materialsproject.org`
   verified_at: '2026-06-30T00:03:16.374354Z'
-- artifact_hash: eaa2ad8e550cf4e65acacadf02d9cae79dd6f3374e8e6e2c04527bf0df86c75f
+- artifact_hash: e4835e5c12e079c53c2276e4a91ea90d013ab49a2a1b0820b16184a23f832375
   artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://en.wikipedia.org/wiki/Variance_inflation_factor
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Variance_inflation_factor
-  verified_at: '2026-08-05T06:46:52.920297Z'
+  verified_at: '2026-08-14T00:48:27.971923Z'

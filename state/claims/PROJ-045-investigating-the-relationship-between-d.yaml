@@ -5142,3 +5142,260 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T06:46:51Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: BVS deviation threshold for filtering structures is greater than 10%
+  claim_id: c_0e540aa0
+  context: 'T019 [US1] **IMPLEMENT**: Implement Bond-Valence Sum (BVS) validation
+    in code/validate.py to filter out structures where calculated BVS deviates >10%
+    from ideal oxidation states (as mandated by FR-002 and Section 3.2).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/BVS_deviation_threshold_for_filtering_structures_is_greater
+  kind: magnitude
+  raw_text: Implement Bond-Valence Sum (BVS) validation in code/validate.py to filter
+    out structures where calculated BVS deviates >10% from ideal oxidation states
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:37:30Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: "NEB convergence criteria force threshold is 0.05 eV/\xC5"
+  claim_id: c_0f269617
+  context: "T022 [P] [US2] Integration test for NEB convergence criteria (force \u2264\
+    0.05 eV/\xC5) in tests/test_dft_runner.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NEB convergence criteria requires force convergence checks with force\
+    \ \u22640.05 eV/\xC5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:37:31Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Supercell expansion fallback logic from 2x2x2 to 3x3x3 if convergence
+    fails
+  claim_id: c_17894820
+  context: 'T031 [US2] **IMPLEMENT**: Implement supercell size validation logic to
+    determine the appropriate expansion factor (sufficient for high-fidelity subset)
+    based on convergence requirements. **MUST run BEFORE T024 and T025.** If 2x2x2
+    fails convergence criteria, fallback to 3x3x3 and log the specific reason.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Supercell_expansion_fallback_logic_from_2x2x2_to_3x3x3_if_co
+  kind: entity_fact
+  raw_text: Implement supercell size validation logic to determine the appropriate
+    expansion factor (sufficient for high-fidelity subset) based on convergence requirements
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:38:15Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Defect density methodology documentation requirement for reviewer satisfaction
+  claim_id: c_e401b9b0
+  context: 'T053 [US2] **IMPLEMENT**: Document the defect density quantification methodology
+    in data/processed/methodology_defect_density.md to explicitly satisfy the reviewer''s
+    requirement for a defined technique.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Defect_density_methodology_documentation_requirement_for_rev
+  kind: entity_fact
+  raw_text: Document the defect density quantification methodology in data/processed/methodology_defect_density.md
+    to explicitly satisfy the reviewer's requirement for a defined technique
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:39:25Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Defect density inclusion as primary predictor in regression model
+  claim_id: c_b51ecf63
+  context: 'T045 [US3] **IMPLEMENT**: Integrate defect density (from T033) as a primary
+    predictor variable in the regression model to explicitly link concentration to
+    conductivity (addressing Marie Curie review).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Defect_density_inclusion_as_primary_predictor_in_regression
+  kind: entity_fact
+  raw_text: Integrate defect density as a primary predictor variable in the regression
+    model to explicitly link concentration to conductivity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:40:19Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: PCA performed with 2 components for coupled defect variables
+  claim_id: c_f93bdb5a
+  context: 'T043 [US3] **IMPLEMENT**: Perform PCA for coupled variables to handle
+    thermodynamic coupling between defect types (vacancy, interstitial, antisite)
+    as required by plan.md Complexity Tracking and implied by spec.md Section 3.4.
+    **Input**: data/processed/defect_density_metrics.json. **Components**: 2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform PCA for coupled variables with 2 components to handle thermodynamic
+    coupling between defect types
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:40:55Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: "Sigma_0 sensitivity analysis default range is \xB11 order of magnitude"
+  claim_id: c_062a14b3
+  context: "T041 [US3] **IMPLEMENT**: Implement \u03C3\u2080 sensitivity analysis\
+    \ over a range of pre-pre-factor values. **Mandatory execution per FR-008. If\
+    \ specific literature bounds are not found in T001, use a {{claim:c_84ef70f2}}.\
+    \ Log the specific literature source for the bounds used. If unverified, flag\
+    \ as 'unverified' in data/processed/sigma0_sensitivity.json by setting source_verified:\
+    \ false.** Output results to data/processed/sigma0_sensitivity.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Use a \xB11 order of magnitude range for sigma_0 sensitivity analysis\
+    \ if literature bounds are not found"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:42:01Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Vectorized regression loop runtime reduction threshold is 50% on n=1000
+    synthetic data
+  claim_id: c_0738621a
+  context: 'T049 [P] Performance optimization: Vectorize the regression loop in code/analysis.py
+    using numpy broadcasting. **Pass/Fail**: Replace explicit for loops over compositions
+    with numpy matrix operations; unit test tests/test_analysis_vectorized.py must
+    verify identical results with <50% runtime reduction on n=1000 synthetic data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify reproducibility with <50% runtime reduction on n=1000 synthetic
+    data for vectorized regression loop
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:42:38Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: 2x2x2 supercell expansion allows more than 8 atoms
+  claim_id: c_0aa56708
+  context: 'T024 [US2] IMPLEMENT: Implement logic for 2x2x2 supercell expansion (allowing
+    >8 atoms) for high-fidelity subset (first compositions with complete data) in
+    code/dft_runner.py.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/2x2x2_supercell_expansion_allows_more_than_8_atoms
+  kind: magnitude
+  raw_text: Implement logic for 2x2x2 supercell expansion (allowing >8 atoms) for
+    high-fidelity subset
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:45:28Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Bond-Valence Sum results validated against DFT results for high-fidelity
+    subset
+  claim_id: c_31e77392
+  context: T023 [US2] Implement semi-empirical defect energy estimation in code/semi_empirical.py.
+    Must validate BVS results against DFT results for the high-fidelity subset (representative
+    compositions).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bond-Valence_Sum_results_validated_against_DFT_results_for_h
+  kind: entity_fact
+  raw_text: Implement semi-empirical defect energy estimation. Must validate BVS results
+    against DFT results for the high-fidelity subset (representative compositions).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:46:26Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Defect concentration calculated as 1 divided by supercell volume
+  claim_id: c_fe62a7ad
+  context: 'T033 [US2] IMPLEMENT: Implement defect density quantification method in
+    code/dft_runner.py to explicitly calculate and log defect concentration (defects/supercell_volume
+    = 1 / supercell_volume) for every configuration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement defect density quantification method to explicitly calculate
+    and log defect concentration (defects/supercell_volume = 1 / supercell_volume)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:47:08Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: PCA performed with 2 components for coupled variables
+  claim_id: c_83feca5e
+  context: 'T043 [US3] IMPLEMENT: Perform PCA for coupled variables to handle thermodynamic
+    coupling between defect types (vacancy, interstitial, antisite) as required by
+    plan.md Complexity Tracking and implied by spec.md Section 3.4. ... Components:
+    2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Perform PCA for coupled variables... Components: 2.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:47:51Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Vectorized regression achieves less than 50 percent runtime reduction
+    on 1000 synthetic data points
+  claim_id: c_6d27a7ec
+  context: 'T049 [P] Performance optimization: Vectorize the regression loop in code/analysis.py
+    using numpy broadcasting. ... unit test tests/test_analysis_vectorized.py must
+    verify identical results with <50% runtime reduction on n=1000 synthetic data.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Vectorized_regression_achieves_less_than_50_percent_runtime
+  kind: magnitude
+  raw_text: unit test tests/test_analysis_vectorized.py must verify identical results
+    with <50% runtime reduction on n=1000 synthetic data
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T00:48:26Z'

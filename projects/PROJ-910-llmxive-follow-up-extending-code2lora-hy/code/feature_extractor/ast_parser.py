@@ -1,25 +1,25 @@
 """
-AST-based feature extraction for code repositories.
+AST-based feature extraction for code language models.
 
 Implements FR-007: Skip malformed files, log warnings, and continue processing.
+Uses the warning_handler from code/utils/logging.py (T006).
 """
+
 import ast
 import tokenize
 import io
 import collections
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
-import logging
 
-# Import the warning handler from T006 (utils.logging)
-from utils.logging import get_logger
+from utils.logging import get_logger, warning_handler
 
 # Initialize logger for this module
 logger = get_logger(__name__)
 
 
 class CyclomaticComplexityVisitor(ast.NodeVisitor):
-    """Visitor to calculate cyclomatic complexity of a function."""
+    """Visitor to calculate cyclomatic complexity of an AST."""
 
     def __init__(self):
         self.complexity = 1  # Base complexity
@@ -44,56 +44,44 @@ class CyclomaticComplexityVisitor(ast.NodeVisitor):
         self.complexity += 1
         self.generic_visit(node)
 
+    def visit_comprehension(self, node):
+        self.complexity += 1
+        self.generic_visit(node)
+
     def visit_BoolOp(self, node):
         # Each 'and'/'or' adds to complexity
         self.complexity += len(node.values) - 1
         self.generic_visit(node)
 
-    def visit_comprehension(self, node):
-        self.complexity += 1
-        self.generic_visit(node)
-
 
 def calculate_cyclomatic_complexity(tree: ast.AST) -> int:
-    """Calculate cyclomatic complexity of an AST."""
+    """Calculate cyclomatic complexity for a given AST."""
     visitor = CyclomaticComplexityVisitor()
     visitor.visit(tree)
     return visitor.complexity
 
 
 class InheritanceDepthVisitor(ast.NodeVisitor):
-    """Visitor to calculate maximum inheritance depth."""
+    """Visitor to calculate maximum depth of inheritance."""
 
     def __init__(self):
         self.max_depth = 0
-        self.class_depths = {}
+        self.class_depths: Dict[str, int] = {}
 
     def visit_ClassDef(self, node):
-        # Calculate depth based on bases
-        if node.bases:
-            max_base_depth = 0
-            for base in node.bases:
-                if isinstance(base, ast.Name):
-                    base_name = base.id
-                    # If we've seen this base class before, use its depth
-                    if base_name in self.class_depths:
-                        max_base_depth = max(max_base_depth, self.class_depths[base_name])
-                    # Otherwise, assume depth 1 (direct inheritance from object)
-                elif isinstance(base, ast.Attribute):
-                    # Handle module.ClassName
-                    base_name = base.attr
-                    if base_name in self.class_depths:
-                        max_base_depth = max(max_base_depth, self.class_depths[base_name])
-                elif isinstance(base, ast.Call):
-                    # Handle Class() calls (less common in inheritance)
-                    if isinstance(base.func, ast.Name):
-                        base_name = base.func.id
-                        if base_name in self.class_depths:
-                            max_base_depth = max(max_base_depth, self.class_depths[base_name])
-
-            depth = max_base_depth + 1
-        else:
-            depth = 1  # Direct inheritance from object
+        # Calculate depth for this class
+        depth = 0
+        for base in node.bases:
+            if isinstance(base, ast.Name):
+                # Simple name reference
+                base_name = base.id
+                if base_name in self.class_depths:
+                    depth = max(depth, self.class_depths[base_name] + 1)
+                else:
+                    depth = max(depth, 1)  # Assume at least 1 level if base exists
+            elif isinstance(base, ast.Attribute):
+                # Qualified name (e.g., module.Class)
+                depth = max(depth, 1)
 
         self.class_depths[node.name] = depth
         self.max_depth = max(self.max_depth, depth)
@@ -101,54 +89,90 @@ class InheritanceDepthVisitor(ast.NodeVisitor):
 
 
 def calculate_inheritance_depth(tree: ast.AST) -> int:
-    """Calculate maximum inheritance depth of an AST."""
+    """Calculate maximum inheritance depth for a given AST."""
     visitor = InheritanceDepthVisitor()
     visitor.visit(tree)
     return visitor.max_depth
 
 
-def extract_token_histogram(source_code: str) -> Dict[str, int]:
-    """Extract token histogram from source code."""
+def extract_token_histogram(source_code: str, num_bins: int = 20) -> List[int]:
+    """
+    Extract a histogram of token lengths from the source code.
+
+    Args:
+        source_code: The Python source code as a string.
+        num_bins: Number of bins for the histogram.
+
+    Returns:
+        A list of bin counts.
+    """
     try:
         tokens = list(tokenize.generate_tokens(io.StringIO(source_code).readline))
-        token_counts = collections.Counter()
-        for tok in tokens:
-            if tok.type != tokenize.ENCODING:  # Skip encoding token
-                token_counts[tokenize.tok_name[tok.type]] += 1
-        return dict(token_counts)
-    except (tokenize.TokenError, IndentationError) as e:
-        # This should be caught before calling this function, but handle gracefully
-        logger.warning(f"Tokenization error: {e}")
-        return {}
+        token_lengths = [len(token.string) for token in tokens if token.type != tokenize.ENCODING]
+
+        if not token_lengths:
+            return [0] * num_bins
+
+        min_len = min(token_lengths)
+        max_len = max(token_lengths)
+
+        if min_len == max_len:
+            # All tokens same length
+            histogram = [0] * num_bins
+            histogram[0] = len(token_lengths)
+            return histogram
+
+        bin_width = (max_len - min_len + 1) / num_bins
+        histogram = [0] * num_bins
+
+        for length in token_lengths:
+            bin_index = int((length - min_len) / bin_width)
+            if bin_index >= num_bins:
+                bin_index = num_bins - 1
+            histogram[bin_index] += 1
+
+        return histogram
+    except tokenize.TokenError:
+        # Return empty histogram if tokenization fails
+        return [0] * num_bins
 
 
 def extract_ast_features(file_path: Path) -> Optional[Dict[str, Any]]:
     """
     Extract AST features from a single Python file.
 
-    Implements FR-007: If the file is malformed, log a warning and return None
-    to skip processing this file without stopping the entire pipeline.
+    Implements FR-007: Skips malformed files, logs warnings, and returns None.
 
     Args:
-        file_path: Path to the Python file
+        file_path: Path to the Python file.
 
     Returns:
-        Dictionary of features if successful, None if the file is malformed
+        Dictionary of features if successful, None if the file is malformed.
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             source_code = f.read()
 
-        # Try to parse the AST
+        # Parse the AST
         try:
-            tree = ast.parse(source_code)
+            tree = ast.parse(source_code, filename=str(file_path))
         except SyntaxError as e:
             # FR-007: Log warning and skip malformed file
-            logger.warning(f"Syntax error in {file_path}: {e}. Skipping file.")
+            warning_handler(
+                logger,
+                "syntax_error",
+                f"Syntax error in {file_path}: {e.msg} at line {e.lineno}",
+                exc_info=False
+            )
             return None
         except Exception as e:
-            # FR-007: Log unexpected errors and skip
-            logger.warning(f"Unexpected error parsing {file_path}: {e}. Skipping file.")
+            # FR-007: Log warning for other parsing errors
+            warning_handler(
+                logger,
+                "parse_error",
+                f"Failed to parse {file_path}: {str(e)}",
+                exc_info=True
+            )
             return None
 
         # Extract features
@@ -156,184 +180,125 @@ def extract_ast_features(file_path: Path) -> Optional[Dict[str, Any]]:
             'file_path': str(file_path),
             'cyclomatic_complexity': calculate_cyclomatic_complexity(tree),
             'inheritance_depth': calculate_inheritance_depth(tree),
-            'token_histogram': extract_token_histogram(source_code),
-            'num_functions': sum(1 for node in ast.walk(tree) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))),
-            'num_classes': sum(1 for node in ast.walk(tree) if isinstance(node, ast.ClassDef)),
-            'num_lines': len(source_code.splitlines()),
+            'token_histogram': extract_token_histogram(source_code)
         }
 
         return features
 
     except FileNotFoundError:
-        logger.warning(f"File not found: {file_path}. Skipping.")
+        warning_handler(
+            logger,
+            "file_not_found",
+            f"File not found: {file_path}",
+            exc_info=False
+        )
         return None
     except PermissionError:
-        logger.warning(f"Permission denied: {file_path}. Skipping.")
+        warning_handler(
+            logger,
+            "permission_denied",
+            f"Permission denied: {file_path}",
+            exc_info=False
+        )
         return None
     except Exception as e:
         # FR-007: Log unexpected errors and skip
-        logger.warning(f"Unexpected error processing {file_path}: {e}. Skipping file.")
+        warning_handler(
+            logger,
+            "extraction_error",
+            f"Unexpected error extracting features from {file_path}: {str(e)}",
+            exc_info=True
+        )
         return None
 
 
-def extract_features_from_directory(repo_path: Path) -> List[Dict[str, Any]]:
+def extract_features_from_directory(
+    directory_path: Path,
+    recursive: bool = True
+) -> Tuple[List[Dict[str, Any]], int, int]:
     """
     Extract AST features from all Python files in a directory.
 
-    Implements FR-007: Skip malformed files, log warnings, and continue processing.
+    Implements FR-007: Skips malformed files, logs warnings, and continues processing.
 
     Args:
-        repo_path: Path to the repository directory
+        directory_path: Path to the directory containing Python files.
+        recursive: Whether to search recursively in subdirectories.
 
     Returns:
-        List of feature dictionaries for successfully parsed files
+        Tuple of (list of successful feature dicts, count of processed files, count of skipped files).
     """
-    if not repo_path.exists():
-        logger.error(f"Repository path does not exist: {repo_path}")
-        return []
+    if not directory_path.exists():
+        warning_handler(
+            logger,
+            "directory_not_found",
+            f"Directory not found: {directory_path}",
+            exc_info=False
+        )
+        return [], 0, 0
 
-    if not repo_path.is_dir():
-        logger.error(f"Path is not a directory: {repo_path}")
-        return []
+    features_list = []
+    processed_count = 0
+    skipped_count = 0
 
-    all_features = []
-    python_files = list(repo_path.rglob("*.py"))
+    # Find all Python files
+    pattern = '**/*.py' if recursive else '*.py'
+    python_files = list(directory_path.glob(pattern))
 
-    logger.info(f"Found {len(python_files)} Python files in {repo_path}")
-
-    processed = 0
-    skipped = 0
+    total_files = len(python_files)
+    logger.info(f"Found {total_files} Python files in {directory_path}")
 
     for file_path in python_files:
+        processed_count += 1
+
+        # Extract features (returns None if malformed - FR-007)
         features = extract_ast_features(file_path)
+
         if features is not None:
-            all_features.append(features)
-            processed += 1
+            features_list.append(features)
         else:
             # File was skipped due to FR-007 logic
-            skipped += 1
+            skipped_count += 1
 
-    logger.info(f"Processed {processed} files, skipped {skipped} malformed files")
+    logger.info(
+        f"Processed {processed_count} files: "
+        f"{len(features_list)} successful, {skipped_count} skipped"
+    )
 
-    return all_features
+    return features_list, processed_count, skipped_count
 
 
 def get_feature_vector_size() -> int:
     """
-    Calculate the size of the feature vector for the MLP projection.
-
-    This includes:
-    - cyclomatic_complexity (1)
-    - inheritance_depth (1)
-    - num_functions (1)
-    - num_classes (1)
-    - num_lines (1)
-    - token_histogram (variable, but we'll fix it to a reasonable size)
+    Get the total size of the feature vector.
 
     Returns:
-        Total feature vector size
+        Integer representing the total number of features.
     """
-    # Fixed token types we'll track
-    token_types = [
-        'NAME', 'NUMBER', 'STRING', 'OP', 'NEWLINE', 'NL',
-        'INDENT', 'DEDENT', 'ENDMARKER', 'COMMENT', 'ERRORTOKEN'
-    ]
-    return 5 + len(token_types)  # 5 scalar features + token histogram
+    # Cyclomatic complexity: 1
+    # Inheritance depth: 1
+    # Token histogram: 20 bins
+    return 1 + 1 + 20
 
 
-def extract_token_histogram_fixed(source_code: str, fixed_size: int = 11) -> List[float]:
+def extract_ast_features_fixed(file_path: Path) -> Optional[Dict[str, Any]]:
     """
-    Extract a fixed-size token histogram for consistent feature vector size.
+    Fixed version of extract_ast_features with improved error handling.
 
-    Args:
-        source_code: Source code string
-        fixed_size: Fixed size of the output vector
-
-    Returns:
-        List of token counts (fixed size)
+    This is an alias for extract_ast_features to maintain backward compatibility
+    while ensuring FR-007 compliance.
     """
-    try:
-        tokens = list(tokenize.generate_tokens(io.StringIO(source_code).readline))
-        token_counts = collections.Counter()
-        for tok in tokens:
-            if tok.type != tokenize.ENCODING:
-                token_counts[tokenize.tok_name[tok.type]] += 1
-
-        # Map to fixed-size vector
-        token_types = [
-            'NAME', 'NUMBER', 'STRING', 'OP', 'NEWLINE', 'NL',
-            'INDENT', 'DEDENT', 'ENDMARKER', 'COMMENT', 'ERRORTOKEN'
-        ][:fixed_size]
-
-        return [float(token_counts.get(tt, 0)) for tt in token_types]
-    except Exception:
-        return [0.0] * fixed_size
+    return extract_ast_features(file_path)
 
 
-def extract_ast_features_fixed(file_path: Path) -> Optional[List[float]]:
+def extract_features_from_directory_fixed(
+    directory_path: Path,
+    recursive: bool = True
+) -> Tuple[List[Dict[str, Any]], int, int]:
     """
-    Extract a fixed-size feature vector from a Python file.
+    Fixed version of extract_features_from_directory with improved error handling.
 
-    Implements FR-007: Skip malformed files, log warnings, and continue.
-
-    Args:
-        file_path: Path to the Python file
-
-    Returns:
-        List of features (fixed size) if successful, None if malformed
+    This is an alias for extract_features_from_directory to maintain backward
+    compatibility while ensuring FR-007 compliance.
     """
-    features_dict = extract_ast_features(file_path)
-    if features_dict is None:
-        return None
-
-    # Extract scalar features
-    scalar_features = [
-        float(features_dict['cyclomatic_complexity']),
-        float(features_dict['inheritance_depth']),
-        float(features_dict['num_functions']),
-        float(features_dict['num_classes']),
-        float(features_dict['num_lines']),
-    ]
-
-    # Extract token histogram
-    token_histogram = extract_token_histogram_fixed(features_dict['file_path'].__class__.__module__ or "", fixed_size=11)
-    # Re-extract properly
-    with open(file_path, 'r', encoding='utf-8') as f:
-        source_code = f.read()
-    token_histogram = extract_token_histogram_fixed(source_code, fixed_size=11)
-
-    return scalar_features + token_histogram
-
-
-def extract_features_from_directory_fixed(repo_path: Path) -> Tuple[List[List[float]], int]:
-    """
-    Extract fixed-size feature vectors from all Python files in a directory.
-
-    Implements FR-007: Skip malformed files, log warnings, and continue.
-
-    Args:
-        repo_path: Path to the repository directory
-
-    Returns:
-        Tuple of (list of feature vectors, feature vector size)
-    """
-    features_list = []
-    python_files = list(repo_path.rglob("*.py"))
-
-    logger.info(f"Found {len(python_files)} Python files in {repo_path}")
-
-    processed = 0
-    skipped = 0
-
-    for file_path in python_files:
-        features = extract_ast_features_fixed(file_path)
-        if features is not None:
-            features_list.append(features)
-            processed += 1
-        else:
-            skipped += 1
-
-    logger.info(f"Processed {processed} files, skipped {skipped} malformed files")
-
-    feature_vector_size = get_feature_vector_size()
-    return features_list, feature_vector_size
+    return extract_features_from_directory(directory_path, recursive)
