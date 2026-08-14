@@ -1,3 +1,3 @@
 """
-Test suite for llmXive Solar Irradiance Reconstruction.
+Test suite for the solar irradiance reconstruction project.
 """

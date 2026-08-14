@@ -421,27 +421,6 @@
   status: not_enough_info
   updated_at: '2026-07-14T22:50:25Z'
 - artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
-  attempts: 3
-  canonical: Pipeline produces data for at least 50 subjects with no missing values
-  claim_id: c_9a7c2889
-  context: "Independent Test: The pipeline produces a CSV with subject IDs, behavioral\
-    \ improvement scores, and pre-processed fMRI time-series for \u2265 50 subjects\
-    \ with no missing values."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_data_for_at_least_50_subjects_with_no_miss
-  kind: magnitude
-  raw_text: "The pipeline produces a CSV with subject IDs, behavioral improvement\
-    \ scores, and pre-processed fMRI time-series for \u2265 50 subjects with no missing\
-    \ values."
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-11T12:30:06Z'
-- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
   attempts: 1
   canonical: Validation ensures at least 80% subject retention
   claim_id: c_9b998122
@@ -478,23 +457,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T12:31:25Z'
-- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
-  attempts: 1
-  canonical: Centrality metrics calculated for approximately 90 regions
-  claim_id: c_28c730f9
-  context: T020 [US2] Implement centrality metric calculation (degree, betweenness,
-    eigenvector) using NetworkX for ALL regions (~90 nodes).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement centrality metric calculation (degree, betweenness, eigenvector)
-    using NetworkX for ALL regions (~90 nodes)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-11T12:31:56Z'
 - artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
   attempts: 1
   canonical: Metrics extracted for 10 fixed AAL3 regions
@@ -562,3 +524,128 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T12:33:33Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 4
+  canonical: Pipeline produces data for at least 50 subjects with no missing values
+  claim_id: c_9a7c2889
+  context: "Independent Test: The pipeline produces a CSV with subject IDs, behavioral\
+    \ improvement scores, and pre-processed fMRI time-series for \u2265 50 subjects\
+    \ with no missing values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_produces_data_for_at_least_50_subjects_with_no_miss
+  kind: magnitude
+  raw_text: "The pipeline produces a CSV with subject IDs, behavioral improvement\
+    \ scores, and pre-processed fMRI time-series for \u2265 50 subjects with no missing\
+    \ values."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T07:16:47Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Validation ensures at least 80 percent subject retention
+  claim_id: c_259c237b
+  context: "T015 [US1] Add validation to ensure \u2265 80% subject retention and fail\
+    \ gracefully if behavioral data is missing"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_ensures_at_least_80_percent_subject_retention
+  kind: magnitude
+  raw_text: "Add validation to ensure \u2265 80% subject retention and fail gracefully\
+    \ if behavioral data is missing"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T07:17:11Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Functional connectivity matrix extracted for AAL3 atlas with approximately
+    90 nodes
+  claim_id: c_45f42fb2
+  context: T019 [P] [US2] Implement functional connectivity matrix extraction for
+    FULL AAL3 atlas (~90 nodes) using nilearn.connectome.ConnectivityMeasure
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement functional connectivity matrix extraction for FULL AAL3 atlas
+    (~90 nodes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T07:18:08Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 2
+  canonical: Centrality metrics calculated for approximately 90 regions
+  claim_id: c_28c730f9
+  context: T020 [US2] Implement centrality metric calculation (degree, betweenness,
+    eigenvector) using NetworkX for ALL regions (~90 nodes).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement centrality metric calculation (degree, betweenness, eigenvector)
+    using NetworkX for ALL regions (~90 nodes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T07:18:30Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5 triggers switch to PCA components
+  claim_id: c_9962250c
+  context: T022 [US2] Implement VIF check on degree, betweenness, and eigenvector
+    metrics; if VIF > 5, switch to PCA components
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement VIF check on degree, betweenness, and eigenvector metrics; if
+    VIF > 5, switch to PCA components
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T07:18:30Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Metrics extracted for fixed subset of AAL3 indices 1 to 10
+  claim_id: c_96479a3b
+  context: 'T020.5 [US2] Extract Fixed Subset: From data/processed/centrality/subject_id_metrics.csv,
+    extract metrics for fixed regions (AAL3 indices 1-10).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract metrics for fixed regions (AAL3 indices 1-10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T07:19:21Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Freedman-Lane permutation test uses exactly 1000 shuffles
+  claim_id: c_6d163f5e
+  context: 'T030 [US3] Implement Freedman-Lane permutation test in code/analysis/validation.py.
+    Requirements: Exactly 1000 shuffles of the null residuals with a fixed random
+    seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement Freedman-Lane permutation test with exactly 1000 shuffles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T07:19:39Z'

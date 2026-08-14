@@ -46,7 +46,7 @@
 - [ ] T001a [P] Create project directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `code/models/`, `code/analysis/`
 - [ ] T001b [P] Create `__init__.py` files in all `code/` subdirectories and `tests/`
 - [ ] T001c [P] Create `.gitkeep` files in `data/raw/` and `data/processed/` to ensure directories are tracked
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pin `pandas`, `scikit-learn`, `numpy`, `scipy`, `requests`, `pyyaml`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pin `pandas`, `scikit-learn`, `numpy`, `scipy`, `requests`, `pyyaml`)
 - [ ] T003 [P] Configure linting (`ruff`) and formatting (`black`) tools
 
 ---
@@ -61,7 +61,7 @@
 - [ ] T005 [P] Create `contracts/dataset_schema.schema.yaml` defining `SunspotRecord` and `TSIRecord` entities
 - [ ] T006 [P] Create `contracts/output_schema.schema.yaml` defining reconstruction and validation report schemas
 - [X] T007 Implement `code/data/__init__.py` and base logging infrastructure
-- [~] T008 Configure environment variable management for data paths
+- [ ] T008 Configure environment variable management for data paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -91,7 +91,7 @@
  - Output: `data/processed/preprocessed_data.parquet` (final, atomic write).
 - [X] T015 [US1] Implement `code/models/train.py`:
  - Utilize **Cycle ID** (from official SILSO historical cycle list, mapped as categorical integer) as a feature, per FR-003 and Constitution Principle VI.
- - Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel).
+ - Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel). [UNRESOLVED-CLAIM: c_de3ffa02 — status=not_enough_info]
  - Execute **Leave-One-Cycle-Out (LOCO)** Cross-Validation: Train on all cycles except one, validate on the held-out cycle.
  - Calculate RMSE and R² for each held-out cycle.
  - Save best model artifact to `code/models/artifacts/best_model.joblib`.
@@ -159,7 +159,7 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T024 [P] [US3] Unit test for error reduction calculation in `tests/test_comparison.py`
-- [ ] T025 [P] [US3] Unit test for FDR correction logic in `tests/test_stats.py`
+- [X] T025 [P] [US3] Unit test for FDR correction logic in `tests/test_stats.py`
 
 ### Implementation for User Story 3
 
@@ -167,7 +167,7 @@
  - Load a baseline year and CMIP v3.2 data.
  - Calculate RMSE over the overlapping satellite era (2016–present), per SC-001.
  - Compute percentage error reduction (SC-001).
-- [ ] T027 [US3] Implement `code/analysis/stats.py` (extended):
+- [X] T027 [US3] Implement `code/analysis/stats.py` (extended):
  - Apply multiple-comparison correction (Bonferroni or FDR) for hypothesis tests (FR-007).
  - Ensure all findings are framed as associational in output text (FR-006).
 - [ ] T028 [US3] Generate `data/processed/final_report.md` containing error reduction metrics, variance comparisons, and methodological constraints.

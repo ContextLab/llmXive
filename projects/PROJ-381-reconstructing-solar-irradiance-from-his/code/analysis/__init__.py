@@ -1,3 +1,3 @@
 """
-Analysis and statistics module.
+Analysis module for solar irradiance reconstruction, statistics, and comparison.
 """

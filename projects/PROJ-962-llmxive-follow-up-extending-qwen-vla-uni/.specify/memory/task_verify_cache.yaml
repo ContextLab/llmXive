@@ -27,16 +27,6 @@ T036:
     \ of the \u201Ctrajectory fidelity metric\u201D was provided. Consequently there\
     \ is no evidence that the percentage of kinematic features within the VLA proxy\
     \ error margin was computed or documented. The required output is missing."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no actual `quickstart.md` or `research.md` files, nor any\
-    \ excerpts showing that `research.md` lists the selection rationale for DT vs\
-    \ GMM or the exact command\u2011line flags. Without these documents present and\
-    \ containing the required information, the documentation update task is not satisfied.\
-    \ The next implementer must add the two markdown files (or update the existing\
-    \ ones) and ensure `research.md` explicitly compares DT and GMM performance per\
-    \ T022 and lists the pipeline\u2019s command\u2011line flags."
 T039b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

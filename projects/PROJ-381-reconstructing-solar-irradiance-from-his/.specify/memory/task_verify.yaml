@@ -1,10 +1,12 @@
-? 'T001a [P] Create project directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`,
-  `code/models/`, `code/analysis/`'
-: 2
-T001b [P] Create `__init__.py` files in all `code/` subdirectories and `tests/`: 2
-T001c [P] Create `.gitkeep` files in `data/raw/` and `data/processed/` to ensure directories are tracked: 2
-? T002 Initialize Python 3.11 project with `requirements.txt` (pin `pandas`, `scikit-learn`,
-  `numpy`, `scipy`, `requests`, `pyyaml`)
-: 2
-T003 [P] Configure linting (`ruff`) and formatting (`black`) tools: 2
-T005 [P] Create `contracts/dataset_schema.schema.yaml` defining `SunspotRecord` and `TSIRecord` entities: 1
+T001a: 1
+T001b: 1
+T001c: 1
+T003: 1
+T005: 1
+T006: 1
+T008: 1
+T022: 1
+T023: 1
+T024: 1
+T026: 1
+T029: 1

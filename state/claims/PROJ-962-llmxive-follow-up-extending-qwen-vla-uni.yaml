@@ -884,3 +884,229 @@
   source_type: external
   status: verified
   updated_at: '2026-08-13T03:55:36Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: 60% of clusters served by Decision Trees, 40% by Gaussian Mixture Models
+  claim_id: c_1798ce69
+  context: "Comparison of DT vs. GMM Performance: In our experiments, approximately\
+    \ 60% of clusters were served by DTs, while 40% required GMMs to meet the R\xB2\
+    \ threshold."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "In our experiments, approximately 60% of clusters were served by DTs,\
+    \ while 40% required GMMs to meet the R\xB2 threshold."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:41:59Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: ingest Qwen-VLA/Hy-Embodied dataset from HuggingFace
+  claim_id: c_45641d45
+  context: 'Implement dataset ingestion in code/01_ingest_cluster.py: Download Qwen-VLA/Hy-Embodied
+    from HuggingFace, parse text-action pairs, validate presence, and FAIL LOUDLY
+    (raise error) if download fails or data is missing (no synthetic fallback).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ingest_Qwen-VLA/Hy-Embodied_dataset_from_HuggingFace
+  kind: entity_fact
+  raw_text: The pipeline is designed to ingest the Qwen-VLA/Hy-Embodied dataset from
+    HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:42:51Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: cluster up to 50 groups
+  claim_id: c_630b77a7
+  context: 'Implement K-means clustering in code/01_ingest_cluster.py: Cluster normalized
+    features into up to 50 groups (k=50), assign samples to clusters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The clustering pipeline targets a maximum of 50 clusters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:43:08Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: minimum 100 samples per cluster if k > 1
+  claim_id: c_12e60562
+  context: 'Independent Test: Verify output contains up to 50 clusters, minimum 100
+    samples per cluster (if k>1), and kinematic features are normalized within physical
+    bounds.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/minimum_100_samples_per_cluster_if_k_%3E_1
+  kind: magnitude
+  raw_text: Each cluster must contain a minimum of 100 samples if k is greater than
+    1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:45:14Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: silhouette score greater than 0.25
+  claim_id: c_9842c010
+  context: 'Integration test for clustering pipeline with synthetic data in code/tests/test_cluster.py
+    (Assert: silhouette_score > 0.25, cluster count <= 50).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Silhouette_score_greater_than_0.25
+  kind: magnitude
+  raw_text: The clustering validation requires a silhouette score greater than 0.25.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:46:00Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: clustering coverage ratio at least 98%
+  claim_id: c_542f844c
+  context: "Verify clustering coverage: Calculate the ratio of assigned samples to\
+    \ total ingested samples; save the metric and report to data/results/coverage_report.json.\
+    \ Ensure \u2265 98% coverage."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clustering_coverage_ratio_at_least_98%25
+  kind: magnitude
+  raw_text: The pipeline enforces a clustering coverage ratio of at least 98%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:46:49Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: "pre-training R\xB2 threshold 0.1"
+  claim_id: c_72312d95
+  context: "Implement a pre-training check in code/02_train_models.py that calculates\
+    \ R\xB2 between frozen BERT embeddings and kinematic features using a simple linear\
+    \ regression baseline. If R\xB2 < 0.1: Halt the pipeline..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pre-training_R%C2%B2_threshold_0.1
+  kind: magnitude
+  raw_text: "The pre-training construct validity gate requires an R\xB2 value of at\
+    \ least 0.1."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:47:11Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: "model selection R\xB2 threshold 0.6"
+  claim_id: c_dcd9054e
+  context: "If R\xB2 >= 0.6 AND inference time < 2s/prompt: Select Decision Tree.\
+    \ Stop training for this cluster."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_selection_R%C2%B2_threshold_0.6
+  kind: magnitude
+  raw_text: "The model selection criteria for a cluster requires an R\xB2 value of\
+    \ at least 0.6."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:48:23Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: inference time under 2 seconds per prompt
+  claim_id: c_dd846e89
+  context: "Independent Test: Verify held-out R\xB2 \u2265 0.6 for the selected model,\
+    \ valid trajectory generation within 2s/prompt, and no GPU usage on CPU runner."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference engine must generate valid trajectories within 2 seconds
+    per prompt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:48:48Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: inference memory usage less than 7GB
+  claim_id: c_bf88b2be
+  context: "Create and run code/bench_inference.py to measure memory usage and execution\
+    \ time for a set of prompts; save results to data/results/inference_benchmark.csv.\
+    \ Ensure memory < 7GB and time \u2264 10 minutes."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_memory_usage_less_than_7GB
+  kind: magnitude
+  raw_text: The inference benchmark requires memory usage to be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:49:28Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: inference execution time under 10 minutes
+  claim_id: c_528bea14
+  context: "Create and run code/bench_inference.py to measure memory usage and execution\
+    \ time for a set of prompts; save results to data/results/inference_benchmark.csv.\
+    \ Ensure memory < 7GB and time \u2264 10 minutes."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_execution_time_under_10_minutes
+  kind: magnitude
+  raw_text: The inference benchmark requires execution time to be less than or equal
+    to 10 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:49:59Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/specs/001-llmxive-follow-up-extending-qwen-vla-uni/tasks.md
+  attempts: 1
+  canonical: calculate complexity reduction factor VLA vs non-neural model
+  claim_id: c_209879a8
+  context: 'Calculate the ratio of model parameters (or FLOPs, if easily computable)
+    between the original VLA proxy and the non-neural model (Decision Tree/GMM). Constraint:
+    Must calculate and report the ''complexity reduction factor''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_complexity_reduction_factor_VLA_vs_non-neural_mode
+  kind: entity_fact
+  raw_text: The final evaluation report must include the complexity reduction factor
+    between the original VLA proxy and the non-neural model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:50:24Z'

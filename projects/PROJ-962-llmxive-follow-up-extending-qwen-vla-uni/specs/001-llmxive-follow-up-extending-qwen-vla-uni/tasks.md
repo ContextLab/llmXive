@@ -119,7 +119,7 @@
 
 **Goal**: Fit a lightweight probabilistic model (Decision Tree OR GMM) to each cluster, mapping frozen BERT text embeddings to action distributions, and implement a CPU-only inference engine.
 
-**Independent Test**: Verify held-out R² ≥ 0.6 for the selected model, valid trajectory generation within 2s/prompt [UNRESOLVED-CLAIM: c_36e32f82 — status=not_enough_info], and no GPU usage on CPU runner.
+**Independent Test**: Verify held-out R² ≥ 0.6 for the selected model, valid trajectory generation within 2s/prompt, and no GPU usage on CPU runner.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -136,7 +136,7 @@
  a. Split data into training and testing subsets using a stratified approach based on cluster labels, with the `random_state` parameter sourced from `seeds.py`.
  b. Train a Decision Tree regressor mapping BERT embeddings to actions.
  c. Evaluate the Decision Tree on the held-out set. Calculate R² and inference time.
- d. If R² >= 0.6 AND inference time < 2s/prompt [UNRESOLVED-CLAIM: c_d8a57950 — status=not_enough_info]: Select Decision Tree. **Stop training for this cluster.**
+ d. If R² >= 0.6 AND inference time < 2s/prompt: Select Decision Tree. **Stop training for this cluster.**
  e. Else: Train a Conditional Gaussian Mixture Model (CGMM) for the same cluster.
  f. Evaluate the CGMM. If R² >= 0.6, select CGMM.
  g. If neither meets the threshold, log a "Model Failure" warning for the cluster and select the best available (highest R²).
@@ -145,7 +145,7 @@
 - [X] T023 [US2] Implement cluster selection logic in `code/03_inference.py`: For a new prompt, find nearest cluster based on BERT embedding distance (requires T022).
 - [X] T024 [US2] Implement trajectory sampling in `code/03_inference.py`: Sample from the fitted model (selected in T022) for the selected cluster to generate a complete trajectory array.
 - [X] T025 [US2] Implement OOD handling in `code/03_inference.py`: If prompt is far outside cluster distribution, default to nearest cluster and log "low-confidence" flag.
-- [X] T026 [US2] Validate inference performance: Create and run `code/bench_inference.py` to measure memory usage and execution time for a set of prompts; save results to `data/results/inference_benchmark.csv`. Ensure memory < 7GB [UNRESOLVED-CLAIM: c_5570835d — status=not_enough_info] and time ≤ 10 minutes [UNRESOLVED-CLAIM: c_7ba2ab20 — status=not_enough_info]. **Enforce CPU-only**: Script must fail if GPU is detected. **Verification Gate**: This task serves as the verification step for the US-02 acceptance scenario regarding execution time.
+- [X] T026 [US2] Validate inference performance: Create and run `code/bench_inference.py` to measure memory usage and execution time for a set of prompts; save results to `data/results/inference_benchmark.csv`. Ensure memory < 7GB and time ≤ 10 minutes. **Enforce CPU-only**: Script must fail if GPU is detected. **Verification Gate**: This task serves as the verification step for the US-02 acceptance scenario regarding execution time.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

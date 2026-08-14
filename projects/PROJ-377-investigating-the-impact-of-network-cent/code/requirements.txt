@@ -8,3 +8,6 @@ openneuro-cli
 matplotlib
 seaborn
 psutil
+pytest
+flake8
+black
