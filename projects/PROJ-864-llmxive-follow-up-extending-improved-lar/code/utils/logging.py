@@ -1,6 +1,3 @@
-"""
-Logging utility for the project.
-"""
 import logging
 import os
 import sys
@@ -8,104 +5,94 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-_logger: Optional[logging.Logger] = None
-_logging_setup: bool = False
+_logger_instance = None
+_log_setup = False
 
-def setup_logging(
-    level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    project_root: Optional[Path] = None
-) -> logging.Logger:
+def setup_logging(level: str = "INFO", log_dir: Optional[str] = None) -> logging.Logger:
     """
-    Setup logging configuration.
-
+    Initialize the logging system.
+    
     Args:
-        level: Logging level (e.g., logging.INFO, logging.DEBUG)
-        log_file: Optional path to log file
-        project_root: Optional project root directory
-
+        level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        log_dir: Optional directory to write log files. If None, logs to console only.
+    
     Returns:
-        Configured logger instance
+        The root logger instance.
     """
-    global _logger, _logging_setup
-
-    if _logging_setup:
-        return _logger
-
-    _logger = logging.getLogger("llmxive")
-    _logger.setLevel(level)
-
+    global _logger_instance, _log_setup
+    
+    if _log_setup:
+        return _logger_instance
+    
+    # Create root logger
+    logger = logging.getLogger()
+    logger.setLevel(getattr(logging, level.upper(), logging.INFO))
+    
     # Clear existing handlers
-    _logger.handlers.clear()
-
+    logger.handlers.clear()
+    
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
     console_format = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     console_handler.setFormatter(console_format)
-    _logger.addHandler(console_handler)
-
+    logger.addHandler(console_handler)
+    
     # File handler (optional)
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
+    if log_dir:
+        log_path = Path(log_dir)
+        log_path.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file = log_path / f"llmxive_{timestamp}.log"
+        
         file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
         file_handler.setFormatter(console_format)
-        _logger.addHandler(file_handler)
+        logger.addHandler(file_handler)
+    
+    _logger_instance = logger
+    _log_setup = True
+    
+    return logger
 
-    _logging_setup = True
-    return _logger
-
-def get_logger(name: str = "llmxive") -> logging.Logger:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
     Get a logger instance.
-
+    
     Args:
-        name: Logger name
-
+        name: Logger name (module name). If None, returns root logger.
+    
     Returns:
-        Logger instance
+        Logger instance.
     """
-    if _logger is None:
+    if not _log_setup:
         setup_logging()
-    return logging.getLogger(name) if name != "llmxive" else _logger
+    
+    return logging.getLogger(name) if name else _logger_instance
 
-def reset_logging() -> None:
-    """Reset logging configuration."""
-    global _logger, _logging_setup
-    _logger = None
-    _logging_setup = False
+def reset_logging():
+    """Reset the logging configuration."""
+    global _logger_instance, _log_setup
+    logging.getLogger().handlers.clear()
+    _logger_instance = None
+    _log_setup = False
 
-def debug(msg: str) -> None:
-    """Log debug message."""
-    if _logger:
-        _logger.debug(msg)
+# Convenience functions
+def debug(msg: str):
+    get_logger().debug(msg)
 
-def info(msg: str) -> None:
-    """Log info message."""
-    if _logger:
-        _logger.info(msg)
+def info(msg: str):
+    get_logger().info(msg)
 
-def warning(msg: str) -> None:
-    """Log warning message."""
-    if _logger:
-        _logger.warning(msg)
+def warning(msg: str):
+    get_logger().warning(msg)
 
-def error(msg: str) -> None:
-    """Log error message."""
-    if _logger:
-        _logger.error(msg)
+def error(msg: str):
+    get_logger().error(msg)
 
-def critical(msg: str) -> None:
-    """Log critical message."""
-    if _logger:
-        _logger.critical(msg)
+def critical(msg: str):
+    get_logger().critical(msg)
 
-def exception(msg: str, exc_info: bool = True) -> None:
-    """Log exception with traceback."""
-    if _logger:
-        _logger.exception(msg, exc_info=exc_info)
+def exception(msg: str):
+    get_logger().exception(msg)

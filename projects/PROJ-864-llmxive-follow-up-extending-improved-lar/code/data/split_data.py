@@ -5,34 +5,29 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).parent.parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
-from utils.logging import get_logger, info, error, warning
-
-logger = get_logger(__name__)
+# Add project root to path to allow imports from sibling modules if needed
+# However, this script primarily uses standard library and local file I/O.
+# We ensure the path is set relative to the project root.
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
 def load_jsonl(file_path: Path) -> List[Dict[str, Any]]:
     """
     Load a JSONL file into a list of dictionaries.
-
+    
     Args:
         file_path: Path to the JSONL file.
-
+        
     Returns:
-        List of dictionaries, each representing a line in the JSONL file.
-
+        List of dictionaries representing the lines in the file.
+        
     Raises:
         FileNotFoundError: If the file does not exist.
         json.JSONDecodeError: If a line is not valid JSON.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"Input file not found: {file_path}")
-
-    logger.info(f"Loading JSONL from {file_path}")
+    
     data = []
     with open(file_path, 'r', encoding='utf-8') as f:
         for line_num, line in enumerate(f, 1):
@@ -42,116 +37,148 @@ def load_jsonl(file_path: Path) -> List[Dict[str, Any]]:
             try:
                 data.append(json.loads(line))
             except json.JSONDecodeError as e:
-                error(f"Invalid JSON on line {line_num} in {file_path}: {e}")
-                raise
-    logger.info(f"Loaded {len(data)} records from {file_path}")
+                raise json.JSONDecodeError(
+                    f"Invalid JSON at line {line_num} in {file_path}: {e.msg}",
+                    e.doc, e.pos
+                )
     return data
 
 def save_jsonl(data: List[Dict[str, Any]], file_path: Path) -> None:
     """
     Save a list of dictionaries to a JSONL file.
-
+    
     Args:
         data: List of dictionaries to save.
         file_path: Path to the output JSONL file.
     """
+    # Ensure directory exists
     file_path.parent.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Saving {len(data)} records to {file_path}")
+    
     with open(file_path, 'w', encoding='utf-8') as f:
-        for record in data:
-            f.write(json.dumps(record) + '\n')
-    logger.info(f"Successfully saved to {file_path}")
+        for item in data:
+            f.write(json.dumps(item, ensure_ascii=False) + '\n')
 
 def split_data(
-    data: List[Dict[str, Any]],
-    train_ratio: float = 0.9,
+    input_file: Path, 
+    train_output: Path, 
+    test_output: Path, 
+    test_ratio: float = 0.2, 
     seed: int = 42
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+) -> Tuple[int, int]:
     """
-    Split data into training and test sets.
-
+    Split the input JSONL corpus into training and test sets.
+    
+    This function reads the entire corpus, shuffles it deterministically,
+    splits it according to the test_ratio, and writes the two parts to
+    separate files. It ensures no overlap between the sets.
+    
     Args:
-        data: List of data records.
-        train_ratio: Proportion of data to use for training (default 0.9).
+        input_file: Path to the input JSONL file (e.g., micro_corpus_full.jsonl).
+        train_output: Path for the training set output.
+        test_output: Path for the test set output.
+        test_ratio: Fraction of data to use for testing (default 0.2).
         seed: Random seed for reproducibility.
-
+        
     Returns:
-        Tuple of (train_data, test_data).
-
+        A tuple (train_count, test_count).
+        
     Raises:
-        ValueError: If train_ratio is not between 0 and 1.
+        ValueError: If test_ratio is not between 0 and 1.
+        FileNotFoundError: If input_file does not exist.
     """
-    if not 0.0 < train_ratio < 1.0:
-        raise ValueError(f"train_ratio must be between 0 and 1, got {train_ratio}")
-
+    if not 0.0 <= test_ratio <= 1.0:
+        raise ValueError(f"test_ratio must be between 0 and 1, got {test_ratio}")
+    
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input corpus file not found: {input_file}")
+    
+    # Set random seed for reproducibility
     random.seed(seed)
-    indices = list(range(len(data)))
-    random.shuffle(indices)
-
-    split_idx = int(len(data) * train_ratio)
-    train_indices = indices[:split_idx]
-    test_indices = indices[split_idx:]
-
-    train_data = [data[i] for i in train_indices]
-    test_data = [data[i] for i in test_indices]
-
-    logger.info(f"Split complete: {len(train_data)} training, {len(test_data)} test samples")
-    logger.info(f"Split ratio: {len(train_data) / len(data):.2%} train, {len(test_data) / len(data):.2%} test")
-
-    return train_data, test_data
+    
+    # Load data
+    print(f"Loading data from {input_file}...")
+    data = load_jsonl(input_file)
+    total_count = len(data)
+    
+    if total_count == 0:
+        raise ValueError("Input corpus is empty. Cannot split.")
+    
+    # Shuffle data
+    random.shuffle(data)
+    
+    # Calculate split index
+    test_count = int(total_count * test_ratio)
+    train_count = total_count - test_count
+    
+    if test_count == 0:
+        print("Warning: test_ratio resulted in 0 test samples. Adjust ratio or data size.")
+    
+    train_data = data[:train_count]
+    test_data = data[train_count:]
+    
+    # Ensure no overlap (sanity check)
+    assert len(set(id(x) for x in train_data)) == len(train_data), "Duplicate references in train"
+    assert len(set(id(x) for x in test_data)) == len(test_data), "Duplicate references in test"
+    
+    # Save outputs
+    print(f"Saving {train_count} samples to {train_output}...")
+    save_jsonl(train_data, train_output)
+    
+    print(f"Saving {test_count} samples to {test_output}...")
+    save_jsonl(test_data, test_output)
+    
+    return train_count, test_count
 
 def main():
     """
     Main entry point for splitting the micro-corpus.
-
-    Reads micro_corpus_full.jsonl and splits it into train and test sets.
+    
+    Expects the input file at: data/processed/micro_corpus_full.jsonl
+    Outputs to:
+        data/processed/micro_corpus_train.jsonl
+        data/processed/micro_corpus_test.jsonl
     """
-    # Determine paths relative to project root
-    # Assuming script is at code/data/split_data.py
-    script_dir = Path(__file__).parent
-    project_root = script_dir.parent.parent
-
-    input_file = project_root / "data" / "processed" / "micro_corpus_full.jsonl"
-    train_output = project_root / "data" / "processed" / "micro_corpus_train.jsonl"
-    test_output = project_root / "data" / "processed" / "micro_corpus_test.jsonl"
-
-    # Configuration
-    train_ratio = 0.9  # 90% train, 10% test
-    seed = 42
-
-    info(f"Starting data split for {input_file}")
-    info(f"Train ratio: {train_ratio}, Seed: {seed}")
-
+    input_path = DATA_PROCESSED_DIR / "micro_corpus_full.jsonl"
+    train_path = DATA_PROCESSED_DIR / "micro_corpus_train.jsonl"
+    test_path = DATA_PROCESSED_DIR / "micro_corpus_test.jsonl"
+    
+    # Default split: 80% train, 20% test
+    TEST_RATIO = 0.2
+    SEED = 42
+    
+    print(f"Starting data split for project: {PROJECT_ROOT}")
+    print(f"Input: {input_path}")
+    print(f"Output Train: {train_path}")
+    print(f"Output Test: {test_path}")
+    
     try:
-        # Load the full corpus
-        data = load_jsonl(input_file)
-
-        if len(data) == 0:
-            error("Input file is empty. Cannot split empty data.")
-            sys.exit(1)
-
-        # Split the data
-        train_data, test_data = split_data(data, train_ratio=train_ratio, seed=seed)
-
-        # Validate splits are non-overlapping (by index, already guaranteed by logic)
-        # But we can double-check content hash if needed for strict verification
-        info(f"Train set size: {len(train_data)} records")
-        info(f"Test set size: {len(test_data)} records")
-
-        # Save outputs
-        save_jsonl(train_data, train_output)
-        save_jsonl(test_data, test_output)
-
-        info(f"Successfully split data into:")
-        info(f"  Train: {train_output}")
-        info(f"  Test:  {test_output}")
-
+        train_count, test_count = split_data(
+            input_file=input_path,
+            train_output=train_path,
+            test_output=test_path,
+            test_ratio=TEST_RATIO,
+            seed=SEED
+        )
+        print(f"Split complete.")
+        print(f"  Training samples: {train_count}")
+        print(f"  Test samples: {test_count}")
+        print(f"  Total: {train_count + test_count}")
+        
+        # Verify outputs exist and are non-empty
+        if not train_path.exists() or train_path.stat().st_size == 0:
+            raise RuntimeError("Training file was not created or is empty.")
+        if not test_path.exists() or test_path.stat().st_size == 0:
+            raise RuntimeError("Test file was not created or is empty.")
+            
+        print("Verification passed: Output files exist and are non-empty.")
+        
     except FileNotFoundError as e:
-        error(f"File not found: {e}")
+        print(f"Error: {e}", file=sys.stderr)
+        print("Ensure that T014 (tokenize_and_stream.py) has completed successfully and generated micro_corpus_full.jsonl.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        error(f"Unexpected error during split: {e}")
-        raise
+        print(f"Error during split: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

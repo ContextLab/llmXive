@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up-extending-improved-lar"
+name = "llmxive-follow-up"
 version = "0.1.0"
-description = "Automated science pipeline for LLM diffusion model research"
+description = "llmXive Follow-up: Extending Improved Large Language Diffusion Models"
 requires-python = ">=3.11"
 dependencies = [
     "transformers",
@@ -19,61 +19,80 @@ dependencies = [
     "ruff",
     "black",
     "pytest",
-    "statsmodels",
-    "numpy",
+    "pingouin",
+    "statsmodels"
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
 
 [tool.ruff]
-# Same as Black.
-line-length = 88
-indent-width = 4
+# Target Python 3.11
 target-version = "py311"
+line-length = 100
+indent-width = 4
 
 [tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long, handled by black
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+# Select rules: E (pyflakes), F (pycodestyle), W (warnings), I (isort), N (pep8-naming), UP (pyupgrade)
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+    | venv
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
 filterwarnings = [
     "ignore::DeprecationWarning",
-    "ignore::UserWarning",
+    "ignore::PendingDeprecationWarning"
 ]

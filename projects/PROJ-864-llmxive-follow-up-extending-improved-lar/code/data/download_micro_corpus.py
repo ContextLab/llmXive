@@ -1,263 +1,280 @@
 """
-Download micro corpus from Project Gutenberg and The Stack.
+Download Micro-Corpus from Project Gutenberg and The Stack.
 
-This script fetches data streams from open-source datasets and
-combines them into a single corpus file.
+This script fetches data streams from Hugging Face datasets, tokenizes them
+using the GPT-2 tokenizer, and stops immediately after reaching the 1,000,000
+token threshold. No synthetic fallbacks are used; the script fails loudly
+on download errors.
+
+Plan-Authorized Deviation: Implements scope reduction from Spec FR-001 (10M) to 1M tokens.
 """
+
 import json
 import os
 import sys
 import hashlib
 import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Generator
+from typing import Iterator, List, Dict, Any, Optional, Tuple
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
+from datasets import load_dataset
+from transformers import GPT2Tokenizer
 from utils.logging import get_logger, info, error, warning, setup_logging
-from utils.config import get_project_root, get_raw_dir, get_token_limit
+
+# Constants
+TARGET_TOKEN_COUNT = 1_000_000
+MAX_TOKEN_COUNT = 1_010_000  # Allow slight overshoot for last document
+OUTPUT_DIR = Path("data/raw")
+OUTPUT_FILE = OUTPUT_DIR / "micro_corpus_raw.jsonl"
+GUTENBERG_DATASET = "gutenberg"
+THE_STACK_DATASET = "bigcode/the-stack-smart"
+THE_STACK_SUBSET = "data/python"  # Focus on Python code for relevance
 
 logger = get_logger(__name__)
 
-# Constants
-TARGET_TOKENS = 1_000_000
-MAX_SAMPLES = 50000  # Maximum number of samples to fetch
-BATCH_SIZE = 1000
 
-def setup_logging():
-    """Setup logging for this module."""
+def setup_logging() -> None:
+    """Initialize logging for the data download process."""
     setup_logging()
+    logger.info("Logging initialized for corpus download.")
 
-def fetch_gutenberg_samples(
-    max_samples: int = 10000
-) -> Generator[Dict[str, Any], None, None]:
+
+def fetch_gutenberg_samples(tokenizer: GPT2Tokenizer) -> Iterator[Dict[str, Any]]:
     """
-    Fetch samples from Project Gutenberg via HuggingFace datasets.
+    Fetch samples from Project Gutenberg dataset using streaming.
 
     Args:
-        max_samples: Maximum number of samples to fetch
+        tokenizer: The GPT-2 tokenizer to use for token counting.
 
     Yields:
-        Dictionary containing sample data
+        Dictionaries containing text and metadata.
     """
+    logger.info(f"Fetching from {GUTENBERG_DATASET} dataset (streaming)...")
     try:
-        from datasets import load_dataset
-        
-        logger.info("Loading Project Gutenberg dataset (streaming)...")
-        # Use the 'gutenberg' dataset from HuggingFace
-        dataset = load_dataset("gutenberg", "plain_text", streaming=True)
-        
-        sample_count = 0
-        for split, data in dataset.items():
-            for item in data:
-                if sample_count >= max_samples:
-                    return
-                
-                text = item.get('text', '')
-                if text and len(text.strip()) > 100:  # Filter very short texts
-                    sample_count += 1
-                    yield {
-                        'text': text.strip(),
-                        'source': 'gutenberg',
-                        'id': f"gutenberg_{sample_count}",
-                        'split': split
-                    }
-                    
-    except Exception as e:
-        error(f"Failed to fetch Gutenberg samples: {e}")
-        raise
-
-def fetch_the_stack_samples(
-    max_samples: int = 40000
-) -> Generator[Dict[str, Any], None, None]:
-    """
-    Fetch samples from The Stack via HuggingFace datasets.
-
-    Args:
-        max_samples: Maximum number of samples to fetch
-
-    Yields:
-        Dictionary containing sample data
-    """
-    try:
-        from datasets import load_dataset
-        
-        logger.info("Loading The Stack dataset (streaming)...")
-        # Use a subset of The Stack (code data)
-        # Note: The Stack is large, so we sample from it
-        dataset = load_dataset("bigcode/the-stack", "data", streaming=True, 
-                             split="train")
-        
-        sample_count = 0
+        dataset = load_dataset(GUTENBERG_DATASET, streaming=True, split="train")
+        count = 0
         for item in dataset:
-            if sample_count >= max_samples:
-                return
-            
-            # Get text content
-            text = item.get('content', '')
-            if text and len(text.strip()) > 100:
-                sample_count += 1
-                yield {
-                    'text': text.strip(),
-                    'source': 'the_stack',
-                    'id': f"stack_{sample_count}",
-                    'language': item.get('language', 'unknown')
-                }
-                
-    except Exception as e:
-        error(f"Failed to fetch The Stack samples: {e}")
-        raise
+            # Gutenberg items usually have 'text' and 'title'
+            text = item.get("text", "")
+            if not text or len(text.strip()) == 0:
+                continue
 
-def count_tokens(text: str) -> int:
+            # Tokenize to check length
+            tokens = tokenizer.encode(text, add_special_tokens=False)
+            if len(tokens) == 0:
+                continue
+
+            yield {
+                "source": "gutenberg",
+                "text": text,
+                "title": item.get("title", "unknown"),
+                "token_count": len(tokens)
+            }
+            count += 1
+            if count % 1000 == 0:
+                logger.debug(f"Processed {count} Gutenberg documents so far...")
+    except Exception as e:
+        error(f"Failed to fetch or stream from Gutenberg: {e}")
+        raise RuntimeError(f"Data fetch error (Gutenberg): {e}")
+
+
+def fetch_the_stack_samples(tokenizer: GPT2Tokenizer) -> Iterator[Dict[str, Any]]:
     """
-    Estimate token count for a text.
+    Fetch samples from The Stack dataset using streaming.
 
     Args:
-        text: Input text
+        tokenizer: The GPT-2 tokenizer to use for token counting.
 
-    Returns:
-        Estimated token count
+    Yields:
+        Dictionaries containing text and metadata.
     """
-    # Simple approximation: ~1.3 tokens per word
-    words = len(text.split())
-    return int(words * 1.3)
+    logger.info(f"Fetching from {THE_STACK_DATASET} dataset (streaming, subset={THE_STACK_SUBSET})...")
+    try:
+        # Using streaming to avoid downloading the full dataset
+        dataset = load_dataset(
+            THE_STACK_DATASET,
+            name=THE_STACK_SUBSET,
+            streaming=True,
+            split="train"
+        )
+        count = 0
+        for item in dataset:
+            # The Stack items usually have 'content' and 'language'
+            text = item.get("content", "")
+            if not text or len(text.strip()) == 0:
+                continue
+
+            tokens = tokenizer.encode(text, add_special_tokens=False)
+            if len(tokens) == 0:
+                continue
+
+            yield {
+                "source": "the_stack",
+                "text": text,
+                "language": item.get("language", "unknown"),
+                "token_count": len(tokens)
+            }
+            count += 1
+            if count % 1000 == 0:
+                logger.debug(f"Processed {count} The Stack documents so far...")
+    except Exception as e:
+        error(f"Failed to fetch or stream from The Stack: {e}")
+        raise RuntimeError(f"Data fetch error (The Stack): {e}")
+
+
+def count_tokens(text: str, tokenizer: GPT2Tokenizer) -> int:
+    """Count tokens in a string using the GPT-2 tokenizer."""
+    return len(tokenizer.encode(text, add_special_tokens=False))
+
 
 def count_lines(file_path: Path) -> int:
-    """
-    Count lines in a file.
-
-    Args:
-        file_path: Path to the file
-
-    Returns:
-        Number of lines
-    """
-    with open(file_path, 'r') as f:
+    """Count lines in a file efficiently."""
+    with open(file_path, "r", encoding="utf-8") as f:
         return sum(1 for _ in f)
 
+
 def save_samples_to_jsonl(
-    samples: Generator[Dict[str, Any], None, None],
+    samples: Iterator[Dict[str, Any]],
     output_path: Path,
-    target_tokens: int = TARGET_TOKENS
-) -> Dict[str, Any]:
+    target_tokens: int,
+    tokenizer: GPT2Tokenizer
+) -> Tuple[int, int]:
     """
-    Save samples to a JSONL file until target tokens are reached.
+    Save samples to a JSONL file until the target token count is reached.
 
     Args:
-        samples: Generator yielding sample dictionaries
-        output_path: Path to output file
-        target_tokens: Target token count
+        samples: Iterator of sample dictionaries.
+        output_path: Path to the output JSONL file.
+        target_tokens: The target token count to stop at.
+        tokenizer: The tokenizer to use for counting.
 
     Returns:
-        Statistics about the saved corpus
+        Tuple of (total_tokens, total_documents).
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     total_tokens = 0
-    total_samples = 0
+    total_docs = 0
     start_time = time.time()
-    
-    logger.info(f"Saving samples to {output_path} (target: {target_tokens} tokens)")
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
+
+    with open(output_path, "w", encoding="utf-8") as f:
         for sample in samples:
-            text = sample.get('text', '')
-            token_count = count_tokens(text)
-            
-            if total_tokens + token_count > target_tokens and total_tokens > 0:
-                logger.info(f"Reached target token count: {total_tokens}")
+            text = sample["text"]
+            doc_tokens = sample.get("token_count") or count_tokens(text, tokenizer)
+
+            # Check if adding this document would exceed the target
+            if total_tokens + doc_tokens > target_tokens:
+                # Truncate the last document to hit the target exactly
+                remaining_tokens = target_tokens - total_tokens
+                if remaining_tokens > 0:
+                    encoded = tokenizer.encode(text, add_special_tokens=False)
+                    truncated_text = tokenizer.decode(encoded[:remaining_tokens], skip_special_tokens=True)
+                    final_doc = {
+                        "source": sample["source"],
+                        "text": truncated_text,
+                        "title": sample.get("title", "unknown"),
+                        "token_count": remaining_tokens
+                    }
+                    f.write(json.dumps(final_doc) + "\n")
+                    total_tokens += remaining_tokens
+                    total_docs += 1
+                logger.info(f"Target token count ({target_tokens}) reached. Stopping.")
                 break
-            
-            # Add token count to sample
-            sample['estimated_tokens'] = token_count
-            
-            json_line = json.dumps(sample, ensure_ascii=False)
-            f.write(json_line + '\n')
-            
-            total_tokens += token_count
-            total_samples += 1
-            
-            if total_samples % 1000 == 0:
+            else:
+                # Write the full document
+                f.write(json.dumps(sample) + "\n")
+                total_tokens += doc_tokens
+                total_docs += 1
+
+            # Log progress every 100k tokens
+            if total_tokens % 100_000 == 0 and total_tokens > 0:
                 elapsed = time.time() - start_time
-                rate = total_samples / elapsed if elapsed > 0 else 0
-                info(f"Saved {total_samples} samples ({total_tokens} tokens) - "
-                     f"Rate: {rate:.2f} samples/sec")
-    
-    elapsed = time.time() - start_time
-    stats = {
-        'total_samples': total_samples,
-        'total_tokens': total_tokens,
-        'output_file': str(output_path),
-        'elapsed_time_seconds': elapsed,
-        'samples_per_second': total_samples / elapsed if elapsed > 0 else 0,
-        'target_tokens': target_tokens,
-        'target_met': total_tokens >= target_tokens
-    }
-    
-    info(f"Saved {total_samples} samples with {total_tokens} tokens in {elapsed:.2f} seconds")
-    return stats
+                rate = total_tokens / elapsed if elapsed > 0 else 0
+                info(f"Progress: {total_tokens:,} tokens ({total_docs:,} docs) in {elapsed:.1f}s ({rate:.0f} tok/s)")
 
-def combine_and_save_corpus(
-    output_path: Path,
-    target_tokens: int = TARGET_TOKENS
-) -> Dict[str, Any]:
+    return total_tokens, total_docs
+
+
+def combine_and_save_corpus() -> None:
     """
-    Combine data from multiple sources and save to a single corpus file.
+    Main function to fetch, tokenize, and save the micro-corpus.
 
-    Args:
-        output_path: Path to output file
-        target_tokens: Target token count
-
-    Returns:
-        Statistics about the combined corpus
+    This function orchestrates the download of data from both Gutenberg
+    and The Stack, tokenizing and combining them until the 1M token
+    threshold is reached.
     """
-    # Fetch from both sources
-    gutenberg_samples = fetch_gutenberg_samples(max_samples=10000)
-    stack_samples = fetch_the_stack_samples(max_samples=40000)
-    
-    # Combine generators
-    def combined_generator():
-        for sample in gutenberg_samples:
-            yield sample
-        for sample in stack_samples:
-            yield sample
-    
-    return save_samples_to_jsonl(combined_generator(), output_path, target_tokens)
-
-def main():
-    """Main entry point for the download_micro_corpus script."""
     setup_logging()
-    
-    project_root = get_project_root()
-    raw_dir = get_raw_dir()
-    
-    output_path = raw_dir / "micro_corpus_raw.jsonl"
-    
-    if output_path.exists():
-        warning(f"Output file already exists: {output_path}")
-        response = input("Do you want to overwrite? (y/n): ").strip().lower()
-        if response != 'y':
-            info("Operation cancelled.")
-            sys.exit(0)
-    
+    info("Starting micro-corpus download and tokenization.")
+
+    # Initialize tokenizer
+    logger.info("Loading GPT-2 tokenizer...")
     try:
-        stats = combine_and_save_corpus(output_path)
-        
-        # Save stats
-        stats_path = raw_dir / "download_stats.json"
-        with open(stats_path, 'w') as f:
-            json.dump(stats, f, indent=2)
-        
-        info(f"Download complete. Stats saved to {stats_path}")
-        
-        if not stats['target_met']:
-            warning(f"Target token count not met: {stats['total_tokens']} < {TARGET_TOKENS}")
-            sys.exit(1)
-        
+        tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
     except Exception as e:
-        error(f"Download failed: {e}")
-        raise
+        error(f"Failed to load GPT-2 tokenizer: {e}")
+        raise RuntimeError(f"Tokenizer initialization failed: {e}")
+
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Create a combined iterator
+    def combined_iterator():
+        # Prioritize Gutenberg for natural language, then The Stack for code
+        # We interleave them to get a diverse corpus
+        gutenberg_iter = fetch_gutenberg_samples(tokenizer)
+        stack_iter = fetch_the_stack_samples(tokenizer)
+
+        # Interleave: take one from Gutenberg, one from Stack, repeat
+        while True:
+            try:
+                gutenberg_item = next(gutenberg_iter)
+                yield gutenberg_item
+            except StopIteration:
+                break
+
+            try:
+                stack_item = next(stack_iter)
+                yield stack_item
+            except StopIteration:
+                # If Stack runs out, continue with Gutenberg
+                pass
+
+    # Save the combined corpus
+    info(f"Starting download with target of {TARGET_TOKEN_COUNT:,} tokens...")
+    total_tokens, total_docs = save_samples_to_jsonl(
+        combined_iterator(),
+        OUTPUT_FILE,
+        TARGET_TOKEN_COUNT,
+        tokenizer
+    )
+
+    elapsed_time = time.time() - start_time if 'start_time' in locals() else 0
+    info(f"Download complete. Saved {total_docs:,} documents with {total_tokens:,} tokens to {OUTPUT_FILE}")
+    info(f"Total time: {elapsed_time:.1f} seconds")
+
+    # Verify bounds
+    if total_tokens < TARGET_TOKEN_COUNT:
+        warning(f"Warning: Only {total_tokens:,} tokens collected, below target of {TARGET_TOKEN_COUNT:,}")
+    elif total_tokens > MAX_TOKEN_COUNT:
+        error(f"Error: Collected {total_tokens:,} tokens, exceeding max of {MAX_TOKEN_COUNT:,}")
+        raise RuntimeError(f"Token count {total_tokens} exceeds maximum allowed {MAX_TOKEN_COUNT}")
+    else:
+        info(f"Success: Token count {total_tokens:,} is within bounds [{TARGET_TOKEN_COUNT:,}, {MAX_TOKEN_COUNT:,}]")
+
+
+def main() -> None:
+    """Entry point for the script."""
+    try:
+        combine_and_save_corpus()
+        logger.info("Micro-corpus download completed successfully.")
+    except KeyboardInterrupt:
+        error("Download interrupted by user.")
+        sys.exit(1)
+    except Exception as e:
+        error(f"Fatal error during corpus download: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

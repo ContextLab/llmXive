@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-follow-up"
 version = "0.1.0"
-description = "llmXive Follow-up: Extending Improved Large Language Diffusion Models"
+description = "Follow-up research on Improved Large Language Diffusion Models"
 requires-python = ">=3.11"
 dependencies = [
     "transformers",
@@ -18,88 +18,59 @@ dependencies = [
     "huggingface_hub",
     "ruff",
     "black",
+    "pytest",
+    "pingouin",
+    "statsmodels",
+    "evaluate",
 ]
-
-[tool.ruff]
-# Target Python version
-target-version = "py311"
-# Line length
-line-length = 88
-# Exclude common directories
-exclude = [
-    ".git",
-    ".tox",
-    "__pycache__",
-    ".eggs",
-    "*.egg-info",
-    "build",
-    "dist",
-    "venv",
-    ".venv",
-    "data",
-]
-
-[tool.ruff.lint]
-# Enable specific rule sets
-select = [
-    "E",      # pycodestyle errors
-    "W",      # pycodestyle warnings
-    "F",      # Pyflakes
-    "I",      # isort
-    "B",      # flake8-bugbear
-    "C4",     # flake8-comprehensions
-    "UP",     # pyupgrade
-    "N",      # pep8-naming
-]
-ignore = [
-    "E501",   # Line too long (handled by black)
-    "B008",   # Do not perform function call in argument defaults (common in dataclasses)
-]
-
-[tool.ruff.lint.per-file-ignores]
-# Allow imports in __init__.py
-"__init__.py" = ["F401"]
-# Allow wildcard imports in tests if needed
-"tests/*.py" = ["F403", "F405"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["utils", "models", "data", "training", "analysis", "tests"]
-force-sort-within-sections = true
 
 [tool.black]
-# Line length
 line-length = 88
-# Target version
-target-version = ["py311"]
-# Exclude directories
+target-version = ['py311']
+include = '\.pyi?$'
 exclude = '''
 /(
     \.git
+    | \.hg
+    | \.mypy_cache
     | \.tox
-    | __pycache__
-    | \.eggs
-    | \.egg-info
+    | \.venv
+    | _build
+    | buck-out
     | build
     | dist
-    | venv
-    | \.venv
-    | data
 )/
 '''
-# Include .py files
-include = '\.pyi?$'
-# Force exclude if necessary (black specific)
-force-exclude = ''
-/(
-    \.git
-    | \.tox
-    | __pycache__
-    | \.eggs
-    | \.egg-info
-    | build
-    | dist
-    | venv
-    | \.venv
-    | data
-)/
-''
+
+[tool.ruff]
+# Same as Black
+line-length = 88
+target-version = "py311"
+
+# Assume we are in the project root, so we look for src or code
+src = ["code", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "E501"] # Allow asserts in tests, ignore line length
+"code/utils/monitor.py" = ["S310"] # Allow URL opening in monitor (if needed)
+"code/data/download_micro_corpus.py" = ["S310"] # Allow URL opening for dataset fetch
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+addopts = "-v"

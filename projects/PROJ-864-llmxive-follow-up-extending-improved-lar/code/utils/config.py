@@ -1,5 +1,8 @@
 """
-Configuration management for the project.
+Configuration management for the llmXive project.
+
+This module handles loading configuration from a YAML file and provides
+global access to configuration values.
 """
 import os
 import yaml
@@ -7,191 +10,161 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 class ConfigError(Exception):
-    """Custom exception for configuration errors."""
+    """Exception raised for configuration errors."""
     pass
 
 class Config:
-    """Configuration holder."""
-    def __init__(self, config_dict: Dict[str, Any]):
-        self._config = config_dict
-
+    """Singleton configuration class."""
+    
+    _instance: Optional['Config'] = None
+    _config: Dict[str, Any] = {}
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Config, cls).__new__(cls)
+        return cls._instance
+    
+    def load(self, config_path: Optional[Path] = None):
+        """
+        Load configuration from a YAML file.
+        
+        Args:
+            config_path: Path to the configuration file. If None, uses default location.
+        """
+        if config_path is None:
+            # Default location: project root / config / config.yaml
+            project_root = Path(__file__).resolve().parent.parent.parent
+            config_path = project_root / "config" / "config.yaml"
+        
+        if not config_path.exists():
+            raise ConfigError(f"Configuration file not found: {config_path}")
+        
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                self._config = yaml.safe_load(f) or {}
+        except yaml.YAMLError as e:
+            raise ConfigError(f"Failed to parse configuration file: {e}")
+        except Exception as e:
+            raise ConfigError(f"Failed to load configuration file: {e}")
+    
     def get(self, key: str, default: Any = None) -> Any:
-        """Get configuration value."""
-        return self._config.get(key, default)
+        """
+        Get a configuration value.
+        
+        Args:
+            key: Dot-separated key path (e.g., 'data.token_limit').
+            default: Default value if key not found.
+        
+        Returns:
+            The configuration value or default.
+        """
+        keys = key.split('.')
+        value = self._config
+        for k in keys:
+            if isinstance(value, dict) and k in value:
+                value = value[k]
+            else:
+                return default
+        return value
+    
+    def set(self, key: str, value: Any):
+        """
+        Set a configuration value.
+        
+        Args:
+            key: Dot-separated key path.
+            value: Value to set.
+        """
+        keys = key.split('.')
+        current = self._config
+        for k in keys[:-1]:
+            if k not in current:
+                current[k] = {}
+            current = current[k]
+        current[keys[-1]] = value
 
-_config: Optional[Config] = None
-_project_root: Optional[Path] = None
+# Global config instance
+_config_instance = Config()
 
 def get_config() -> Config:
-    """Get the global configuration instance."""
-    global _config
-    if _config is None:
-        _config = load_config()
-    return _config
+    """Get the global config instance."""
+    return _config_instance
 
-def reset_config() -> None:
-    """Reset the global configuration."""
-    global _config, _project_root
-    _config = None
-    _project_root = None
+def reset_config():
+    """Reset the global config instance."""
+    global _config_instance
+    _config_instance = Config()
 
-def load_config(config_path: Optional[str] = None) -> Config:
-    """
-    Load configuration from YAML file.
+def load_config(config_path: Optional[Path] = None):
+    """Load configuration into the global instance."""
+    _config_instance.load(config_path)
 
-    Args:
-        config_path: Path to config file (optional)
-
-    Returns:
-        Config instance
-    """
-    global _config
-    
-    if config_path is None:
-        # Default config path
-        project_root = get_project_root()
-        config_path = project_root / "config.yaml"
-    else:
-        config_path = Path(config_path)
-
-    if not config_path.exists():
-        # Create default config
-        _config = Config(_get_default_config())
-        return _config
-
-    with open(config_path, 'r') as f:
-        config_dict = yaml.safe_load(f)
-
-    _config = Config(config_dict)
-    return _config
-
-def _get_default_config() -> Dict[str, Any]:
-    """Get default configuration values."""
-    return {
-        "project": {
-            "name": "llmxive-follow-up-extending-improved-lar",
-            "root": str(Path(__file__).parent.parent.parent)
-        },
-        "data": {
-            "raw_dir": "data/raw",
-            "processed_dir": "data/processed",
-            "artifacts_dir": "data/artifacts"
-        },
-        "model": {
-            "embed_dim": 768,
-            "num_heads": 12,
-            "num_layers": 6,
-            "vocab_size": 50257,
-            "max_seq_length": 1024,
-            "learning_rate": 1e-4,
-            "batch_size": 8,
-            "num_epochs": 100,
-            "dropout": 0.1,
-            "weight_decay": 0.01,
-            "warmup_steps": 100
-        },
-        "training": {
-            "max_ram_gb": 7.0,
-            "token_limit": 1000000,
-            "train_split_ratio": 0.8
-        },
-        "device": "cpu"
-    }
-
+# Convenience functions for common config values
 def get_project_root() -> Path:
     """Get the project root directory."""
-    global _project_root
-    if _project_root is None:
-        config = get_config()
-        _project_root = Path(config.get("project", {}).get("root", 
-                    Path(__file__).parent.parent.parent))
-    return _project_root
+    # Assume project root is 3 levels up from this file
+    return Path(__file__).resolve().parent.parent.parent
 
 def get_data_dir() -> Path:
     """Get the data directory."""
-    project_root = get_project_root()
-    return project_root / "data"
+    return get_project_root() / "data"
 
 def get_raw_dir() -> Path:
     """Get the raw data directory."""
-    data_dir = get_data_dir()
-    return data_dir / "raw"
+    return get_data_dir() / "raw"
 
 def get_processed_dir() -> Path:
     """Get the processed data directory."""
-    data_dir = get_data_dir()
-    return data_dir / "processed"
+    return get_data_dir() / "processed"
 
 def get_artifacts_dir() -> Path:
     """Get the artifacts directory."""
-    data_dir = get_data_dir()
-    return data_dir / "artifacts"
+    return get_data_dir() / "artifacts"
 
 def get_token_limit() -> int:
     """Get the token limit for the corpus."""
-    config = get_config()
-    return config.get("training", {}).get("token_limit", 1000000)
+    return _config_instance.get('data.token_limit', 1_000_000)
 
 def get_max_ram_gb() -> float:
-    """Get the maximum RAM constraint in GB."""
-    config = get_config()
-    return config.get("training", {}).get("max_ram_gb", 7.0)
+    """Get the maximum RAM limit in GB."""
+    return _config_instance.get('resources.max_ram_gb', 7.0)
+
+def get_train_split_ratio() -> float:
+    """Get the training set split ratio."""
+    return _config_instance.get('data.train_split_ratio', 0.8)
 
 def get_learning_rate() -> float:
     """Get the learning rate."""
-    config = get_config()
-    return config.get("model", {}).get("learning_rate", 1e-4)
+    return _config_instance.get('training.learning_rate', 1e-4)
 
 def get_batch_size() -> int:
     """Get the batch size."""
-    config = get_config()
-    return config.get("model", {}).get("batch_size", 8)
+    return _config_instance.get('training.batch_size', 32)
 
 def get_num_epochs() -> int:
     """Get the number of training epochs."""
-    config = get_config()
-    return config.get("model", {}).get("num_epochs", 100)
+    return _config_instance.get('training.num_epochs', 100)
 
 def get_max_seq_length() -> int:
     """Get the maximum sequence length."""
-    config = get_config()
-    return config.get("model", {}).get("max_seq_length", 1024)
+    return _config_instance.get('model.max_seq_length', 512)
 
 def get_vocab_size() -> int:
     """Get the vocabulary size."""
-    config = get_config()
-    return config.get("model", {}).get("vocab_size", 50257)
+    return _config_instance.get('model.vocab_size', 50257) # GPT-2 vocab size
 
 def get_embed_dim() -> int:
     """Get the embedding dimension."""
-    config = get_config()
-    return config.get("model", {}).get("embed_dim", 768)
+    return _config_instance.get('model.embed_dim', 512)
 
 def get_num_heads() -> int:
     """Get the number of attention heads."""
-    config = get_config()
-    return config.get("model", {}).get("num_heads", 12)
+    return _config_instance.get('model.num_heads', 8)
 
 def get_device() -> str:
     """Get the device to use for training."""
-    config = get_config()
-    return config.get("device", "cpu")
+    return _config_instance.get('training.device', 'cpu')
 
-def get_train_split_ratio() -> float:
-    """Get the training split ratio."""
-    config = get_config()
-    return config.get("training", {}).get("train_split_ratio", 0.8)
-
-def set_config(key: str, value: Any) -> None:
+def set_config(key: str, value: Any):
     """Set a configuration value."""
-    config = get_config()
-    if '.' in key:
-        parts = key.split('.')
-        current = config._config
-        for part in parts[:-1]:
-            if part not in current:
-                current[part] = {}
-            current = current[part]
-        current[parts[-1]] = value
-    else:
-        config._config[key] = value
+    _config_instance.set(key, value)

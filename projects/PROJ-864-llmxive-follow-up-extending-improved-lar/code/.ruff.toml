@@ -1,30 +1,3 @@
-# Ruff configuration for llmXive project
-# This file extends/overrides pyproject.toml if needed, 
-# but primary config is in pyproject.toml for tool integration.
-
-target-version = "py311"
-line-length = 100
-
-[lint]
-select = [
-    "E",
-    "W", 
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-    "SIM",
-    "RET",
-    "PTH",
-]
-ignore = [
-    "E501",
-    "B008",
-    "C901",
-]
-
-[lint.isort]
-known-first-party = ["utils", "models", "data", "training", "analysis", "tests"]
-force-sort-within-sections = true
-lines-after-imports = 2
+# Local override for code directory if needed, inheriting from root pyproject.toml
+# This file exists to ensure ruff works correctly when run from the code/ directory
+extend = "../pyproject.toml"

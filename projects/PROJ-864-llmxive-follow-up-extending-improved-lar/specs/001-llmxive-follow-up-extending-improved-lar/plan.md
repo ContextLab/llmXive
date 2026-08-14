@@ -8,7 +8,7 @@
 This project implements a comparative study to validate the "overfitting-as-a-feature" hypothesis: that bidirectional masked diffusion models (MDM) exhibit slower generalization gap widening than causal autoregressive (AR) transformers when trained on a constrained data regime. To ensure statistical validity and computational feasibility on the free-tier CI runner (CPU, 6h limit), the design has been revised to:
 1. **Reduce Dataset Size**: Target **1M tokens** ([deferred] - [deferred]) instead of 10M. *Note: The spec's 10M requirement is flagged as a root-cause conflict with the 6-hour CPU budget. This plan implements the feasible 1M regime.*
 2.  **Increase Statistical Power**: Train **5 independent seeds** per architecture (N=5 per group) to enable valid Mixed-Model ANOVA.
-3.  **Validate Generalization**: Include a cross-domain validation step on a held-out dataset (WikiText-2).
+3.  **Validate Generalization**: Include a cross-domain validation step on a held-out dataset (WikiText).
 
 The implementation constructs the strict "Micro-Corpus", trains 10 models (5 AR, 5 MDM) for A sufficient number of epochs. on CPU-optimized loops, and performs statistical analysis on the Generalization Gap trajectories.
 
@@ -134,7 +134,7 @@ No violations found. The single-project structure minimizes overhead and aligns 
 7.  **Deliverable**: `data/processed/micro_corpus_train.jsonl`, `test.jsonl`, and `data/artifacts/corpus_validation.json`.
 
 ### Phase 3: Model Implementation & Training Loop
-**Goal**: Train multiple models (multiple seeds AR, multiple seeds MDM) for 100 epochs.
+**Goal**: Train multiple models (multiple seeds AR, multiple seeds MDM) for a sufficient number of epochs.
 1.  **FR-002**: Implement `autoregressive.py` (Causal LM) and `diffusion.py` (Bidirectional MDM) with identical embedding/attention params.
 2.  **FR-003**: Implement `train_loop.py` using `torch.compile` on CPU.
 3.  **FR-004**: Integrate callbacks to log loss and gap every epoch, including `seed_id`.

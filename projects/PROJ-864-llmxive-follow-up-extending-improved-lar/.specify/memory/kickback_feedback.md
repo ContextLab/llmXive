@@ -4,11 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T002` (rejected 1x): No evidence of a `main.py` file at `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/` was provided; the claim lacks any artifact showing the file’s existence or contents. The required initialization script is therefore missing.
-- `T004` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.ruff.toml`, or similar) were presented for the `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/` directory, so the required artifact is missing. The implementer must add the appropriate ruff and black configuration files (and optionally integrate them into CI or pre‑commit) to satisfy the task.
-- `T005` (rejected 1x): No evidence of the required directories (`data/raw/`, `data/processed/`, `data/artifacts/`) being created or listed is provided; the claim lacks any tangible artifact confirming the directory structure exists.
-- `T013` (rejected 1x): No `download_micro_corpus.py` file (or its contents) was provided in the evidence, and there is no indication that the script was created or contains the required `datasets.load_dataset(..., streaming=True)` logic. The required artifact is missing, so the task is not satisfied.
-- `T014` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/micro_corpus_full.jsonl
+- `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/state/projects/PROJ-864-llmxive-follow-up-extending-improved-lar.yaml
+- `T016` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/micro_corpus_train.jsonl, data/processed/micro_corpus_test.jsonl
+- `T021` (rejected 1x): No `autoregressive.py` file (or any non‑empty implementation) was presented in the evidence, and there is no code content to verify that a causal LM model was implemented. The required artifact is missing, so the task is not satisfied.
+- `T022` (rejected 1x): No `diffusion.py` file (or any code) was presented for the specified path, and there is no evidence that the required bidirectional MDM implementation with large‑scale parameters and matching embedding/heads exists. The task’s core artifact is missing.
+- `T023` (rejected 1x): No `train_loop.py` file (or any code) is presented in the provided evidence, and there is no indication that an implementation using `torch.compile` on CPU exists in the specified directory. The required artifact is missing, so the task is not satisfied.
 
 ## Required change
 

@@ -7,73 +7,72 @@ from typing import Optional, Dict, Any, Generator
 
 def get_ram_usage_gb() -> float:
     """
-    Get the current RAM usage in GB.
+    Get current RAM usage in GB.
     
     Returns:
-        float: RAM usage in GB.
+        RAM usage in GB.
     """
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    # maxru is in KB on Unix, convert to GB
+    # maxrss is in KB on Linux/macOS
     return usage.ru_maxrss / (1024 * 1024)
 
 def get_elapsed_time(start_time: float) -> float:
     """
-    Get the elapsed time since start_time.
+    Get elapsed time since start.
     
     Args:
-        start_time: Start time in seconds (from time.time())
-        
+        start_time: Start time in seconds (time.time()).
+    
     Returns:
-        float: Elapsed time in seconds.
+        Elapsed time in seconds.
     """
     return time.time() - start_time
 
-def check_ram_threshold(threshold_gb: float = 6.5) -> bool:
+def check_ram_threshold(threshold_gb: float) -> bool:
     """
-    Check if current RAM usage is below the threshold.
+    Check if current RAM usage exceeds threshold.
     
     Args:
-        threshold_gb: RAM threshold in GB.
-        
+        threshold_gb: Threshold in GB.
+    
     Returns:
-        bool: True if RAM usage is below threshold, False otherwise.
+        True if usage exceeds threshold.
     """
-    current_ram = get_ram_usage_gb()
-    return current_ram < threshold_gb
-
-def resource_monitor(start_time: float, threshold_gb: float = 6.5) -> Generator[Dict[str, Any], None, None]:
-    """
-    Generator that yields resource snapshots at intervals.
-    
-    Args:
-        start_time: Start time for elapsed time calculation.
-        threshold_gb: RAM threshold for warnings.
-        
-    Yields:
-        Dict with timestamp, elapsed_time, ram_gb, and warning flag.
-    """
-    while True:
-        ram = get_ram_usage_gb()
-        elapsed = get_elapsed_time(start_time)
-        warning = ram > threshold_gb
-        
-        yield {
-            "timestamp": datetime.now().isoformat(),
-            "elapsed_time": elapsed,
-            "ram_gb": ram,
-            "warning": warning
-        }
-        
-        time.sleep(10)  # Sample every 10 seconds
+    return get_ram_usage_gb() > threshold_gb
 
 def get_resource_snapshot() -> Dict[str, Any]:
     """
     Get a snapshot of current resource usage.
     
     Returns:
-        Dict with timestamp, elapsed_time, ram_gb.
+        Dictionary with RAM, CPU, and timestamp.
     """
+    usage = resource.getrusage(resource.RUSAGE_SELF)
     return {
         "timestamp": datetime.now().isoformat(),
-        "ram_gb": get_ram_usage_gb()
+        "ram_usage_gb": usage.ru_maxrss / (1024 * 1024),
+        "user_time": usage.ru_utime,
+        "system_time": usage.ru_stime,
+        "max_rss_kb": usage.ru_maxrss
     }
+
+def resource_monitor(threshold_gb: float = 6.5, interval: float = 1.0) -> Generator[Dict[str, Any], None, None]:
+    """
+    Monitor resource usage periodically.
+    
+    Args:
+        threshold_gb: RAM threshold to watch.
+        interval: Check interval in seconds.
+    
+    Yields:
+        Resource snapshots.
+    """
+    while True:
+        snapshot = get_resource_snapshot()
+        yield snapshot
+        
+        if snapshot["ram_usage_gb"] > threshold_gb:
+            # Log warning but continue
+            pass
+        
+        time.sleep(interval)

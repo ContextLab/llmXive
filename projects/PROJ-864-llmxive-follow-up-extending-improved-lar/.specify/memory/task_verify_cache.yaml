@@ -1,48 +1,39 @@
-T001a:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`\
-    \ is provided; the implementer did not supply a file listing, screenshot, or any\
-    \ confirmation that the folder exists and is non\u2011empty. The task cannot be\
-    \ considered done until the directory is created and its presence is demonstrated."
-T001b:
+  r: "No evidence was provided showing that the required directories (`projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`,\
+    \ `data/`, `tests/`, `state/`) actually exist; the response contains only the\
+    \ task description without any file\u2011system listing or screenshots. The implementer\
+    \ must supply concrete proof (e.g., a directory tree dump or file listings) that\
+    \ these folders have been created and are non\u2011empty."
+T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`,
-    `data/raw/`, `data/processed/`, `data/artifacts/`) was provided; the claim cannot
-    be verified without actual filesystem artifacts.
-T001c:
+  r: "No `main.py` file was presented at the required location (`projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`),\
+    \ nor any content showing it has been initialized. The implementer must add a\
+    \ non\u2011empty `main.py` at that path to satisfy the task."
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/`
-    being present or populated is provided; the claim lacks any artifact confirming
-    the test directory was created.
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or corresponding GitHub Action/workflow
+    files) were presented for the `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/`
+    directory, so the required setup cannot be verified. The implementer must add
+    the actual ruff and black configuration (and optionally integration scripts) in
+    the specified path.
 T011:
   c: false
   h: 7f2bed8697c254cbac58a2ec794a360d26878d58a1b34c19c469b284b7a4b91f
   r: The required test file `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/tests/test_human_eval_exclusion.py`
     does not exist on disk, so the integration test cannot be verified. The task lacks
     the essential artifact.
-T021:
+T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `autoregressive.py` file (or any non\u2011empty implementation) was presented\
-    \ in the evidence, and there is no code content to verify that a causal LM model\
-    \ was implemented. The required artifact is missing, so the task is not satisfied."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `diffusion.py` file (or any code) was presented for the specified path, and\
-    \ there is no evidence that the required bidirectional MDM implementation with\
-    \ large\u2011scale parameters and matching embedding/heads exists. The task\u2019\
-    s core artifact is missing."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `train_loop.py` file (or any code) is presented in the provided evidence,
-    and there is no indication that an implementation using `torch.compile` on CPU
-    exists in the specified directory. The required artifact is missing, so the task
-    is not satisfied.
+  r: "No `download_micro_corpus.py` script is present in the indicated directory,\
+    \ and no code or evidence of the required streaming download, tokenization, token\u2011\
+    count cutoff, or error handling is provided. The task\u2019s core artifact is\
+    \ missing, so the requirement is not satisfied."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
