@@ -1,5 +1,6 @@
 """
-Script to run the inference loop for T013a.
+Script to run the convergence inference pipeline.
+Invokes code/src/inference.py with proper arguments.
 """
 import os
 import sys
@@ -7,24 +8,28 @@ import logging
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from inference import main as run_inference_main
 
 def main():
-    """Run inference loop with default or CLI arguments."""
-    logging.basicConfig(level=logging.INFO)
+    """Main entry point."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     logger = logging.getLogger(__name__)
-    logger.info("Starting inference run script")
+    
+    logger.info("Starting convergence inference pipeline...")
+    
+    try:
+        # Run inference with default arguments
+        # Can be overridden via command line if needed
+        run_inference_main()
+        logger.info("Convergence inference pipeline completed successfully.")
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
-    # Default arguments for T013a
-    os.environ['INPUT_PATH'] = os.environ.get('INPUT_PATH', 'data/processed/filtered_splits.json')
-    os.environ['OUTPUT_PATH'] = os.environ.get('OUTPUT_PATH', 'data/processed/convergence_results.csv')
-    os.environ['TEMP_PATH'] = os.environ.get('TEMP_PATH', 'data/processed/temp_trajectory.json')
-
-    # Run the main inference function
-    run_inference_main()
-    logger.info("Inference run completed")
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
