@@ -1,13 +1,27 @@
-T002a:
+T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing the result of `python --version` is present; the implementer
-    did not provide the command output or any proof that the environment reports a
-    3.11.x version. Without this evidence the requirement is not satisfied.
-T005:
+  r: No evidence was provided that `README.md` and `run_pipeline.sh` actually exist
+    in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`; the response
+    contains only the task description and no file listings or content. The required
+    placeholder files are therefore missing.
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/provenance.py` file or its contents are present in the provided evidence,\
-    \ so the required metadata\u2011logging and hash\u2011generation functionality\
-    \ has not been delivered. The implementer must add a non\u2011empty `utils/provenance.py`\
-    \ module that implements the specified behavior."
+  r: "No `utils/config.py` file or its contents were presented, so there is no evidence\
+    \ that paths, random seeds, and constants have been defined as required. The task\u2019\
+    s artifact is missing, making the implementation incomplete."
+T010:
+  c: false
+  h: c42dfd879aa7099ed349fd4e40230aeb0b8b37ea3b0853a2c7cddd1f0ec304bd
+  r: The test file `test_data_contract.py` only contains a placeholder that deliberately
+    fails and does not load or validate `merged_observations.csv` against any schema.
+    Moreover, the required schema file `contracts/dataset.schema.yaml` is missing
+    entirely. Hence the required validation is not implemented.
+T016:
+  c: false
+  h: de60c6019162df29cf714528dd74f5eaedf24406ec12a4ad8f42cbd4a2dd4f46
+  r: "The required script `data/aggregate.py` does not exist, and the input CSV `data/processed/merged_observations.csv`\
+    \ as well as the output `data/processed/species_profiles.csv` are missing, so\
+    \ no aggregation or logging was performed. The task\u2019s core artifacts are\
+    \ absent."

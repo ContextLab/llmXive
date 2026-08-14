@@ -1,144 +1,123 @@
-"""
-Unit tests for data/aggregate.py
-"""
 import os
 import sys
 import unittest
 import tempfile
 import json
-from pathlib import Path
 import pandas as pd
-import numpy as np
+from pathlib import Path
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add code directory to path for imports
+code_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(code_dir))
 
-from data.aggregate import load_merged_observations, parse_land_cover_proportions, aggregate_species_profiles
+from data.aggregate import (
+    load_merged_observations,
+    parse_land_cover_proportions,
+    aggregate_species_profiles,
+    save_species_profiles
+)
+from utils.config import get_processed_dir, get_raw_data_dir
+
 
 class TestAggregate(unittest.TestCase):
-    """Test cases for the aggregation module."""
+    """Unit tests for T016 aggregate.py"""
 
     def setUp(self):
-        """Set up test fixtures."""
+        """Set up temporary directories and mock data for testing."""
         self.temp_dir = tempfile.TemporaryDirectory()
-        self.test_data_path = Path(self.temp_dir.name) / 'test_merged.csv'
+        self.processed_dir = Path(self.temp_dir.name)
         
-        # Create sample data
-        sample_data = [
-            {
-                'species_id': 'sp001',
-                'foraging_guild': 'ground_forager',
-                'land_cover_proportions': {
-                    'urban': 0.1,
-                    'forest': 0.6,
-                    'water': 0.0,
-                    'agriculture': 0.3
-                }
-            },
-            {
-                'species_id': 'sp001',
-                'foraging_guild': 'ground_forager',
-                'land_cover_proportions': {
-                    'urban': 0.2,
-                    'forest': 0.5,
-                    'water': 0.1,
-                    'agriculture': 0.2
-                }
-            },
-            {
-                'species_id': 'sp002',
-                'foraging_guild': 'aerial_forager',
-                'land_cover_proportions': {
-                    'urban': 0.5,
-                    'forest': 0.2,
-                    'water': 0.1,
-                    'agriculture': 0.2
-                }
-            },
-            {
-                'species_id': 'sp002',
-                'foraging_guild': 'aerial_forager',
-                'land_cover_proportions': {
-                    'urban': 0.6,
-                    'forest': 0.1,
-                    'water': 0.2,
-                    'agriculture': 0.1
-                }
-            },
-            {
-                'species_id': 'sp002',
-                'foraging_guild': 'aerial_forager',
-                'land_cover_proportions': {
-                    'urban': 0.4,
-                    'forest': 0.3,
-                    'water': 0.1,
-                    'agriculture': 0.2
-                }
-            }
-        ]
+        # Mock the config functions to use our temp dir
+        # We will directly pass paths to functions in tests rather than relying on global config
         
-        df = pd.DataFrame(sample_data)
-        df.to_csv(self.test_data_path, index=False)
+        # Create mock merged_observations.csv
+        self.mock_merged_path = self.processed_dir / 'merged_observations.csv'
+        mock_data = {
+            'species_id': ['sp1', 'sp1', 'sp2', 'sp3', 'sp3'],
+            'foraging_guild': ['G1', 'G1', 'G2', 'G1', 'G1'],
+            'land_cover_proportions': [
+                '{"forest": 0.5, "grass": 0.5}',
+                '{"forest": 0.6, "grass": 0.4}',
+                '{"forest": 0.1, "grass": 0.9}',
+                '{"forest": 0.8, "grass": 0.2}',
+                '{"forest": 0.7, "grass": 0.3}'
+            ]
+        }
+        self.mock_df = pd.DataFrame(mock_data)
+        self.mock_df.to_csv(self.mock_merged_path, index=False)
 
     def tearDown(self):
-        """Clean up test fixtures."""
+        """Clean up temporary directory."""
         self.temp_dir.cleanup()
 
-    def test_load_merged_observations(self):
-        """Test loading merged observations."""
-        df = load_merged_observations(self.test_data_path)
-        self.assertEqual(len(df), 5)
-        self.assertIn('species_id', df.columns)
-        self.assertIn('foraging_guild', df.columns)
-        self.assertIn('land_cover_proportions', df.columns)
-
     def test_parse_land_cover_proportions(self):
-        """Test parsing land cover proportions."""
-        df = load_merged_observations(self.test_data_path)
-        lc_df = parse_land_cover_proportions(df['land_cover_proportions'])
+        """Test that stringified JSON land cover proportions are parsed correctly."""
+        df = self.mock_df.copy()
+        parsed_df, lc_cols = parse_land_cover_proportions(df)
         
-        self.assertEqual(len(lc_df), 5)
-        self.assertIn('urban', lc_df.columns)
-        self.assertIn('forest', lc_df.columns)
-        self.assertIn('water', lc_df.columns)
-        self.assertIn('agriculture', lc_df.columns)
-        
-        # Check that values are numeric
-        self.assertTrue(np.issubdtype(lc_df['urban'].dtype, np.number))
+        self.assertIn('lc_forest', lc_cols)
+        self.assertIn('lc_grass', lc_cols)
+        self.assertEqual(len(parsed_df), 5)
+        self.assertTrue('lc_forest' in parsed_df.columns)
+        self.assertAlmostEqual(parsed_df.iloc[0]['lc_forest'], 0.5)
 
     def test_aggregate_species_profiles(self):
-        """Test species profile aggregation."""
-        df = load_merged_observations(self.test_data_path)
-        profiles = aggregate_species_profiles(df)
+        """Test aggregation logic: mean calculation and dropping invalid rows."""
+        df = self.mock_df.copy()
+        parsed_df, lc_cols = parse_land_cover_proportions(df)
         
-        # Should have 2 species
-        self.assertEqual(len(profiles), 2)
+        aggregated_df, log_entry = aggregate_species_profiles(parsed_df, lc_cols)
         
-        # Check that species_id is present
-        self.assertIn('species_id', profiles.columns)
-        self.assertIn('foraging_guild', profiles.columns)
-        self.assertIn('observation_count', profiles.columns)
+        # Check aggregation
+        # sp1 should have 3 rows: (0.5+0.6+0.8)/3 = 0.6333
+        sp1_row = aggregated_df[aggregated_df['species_id'] == 'sp1'].iloc[0]
+        self.assertAlmostEqual(sp1_row['lc_forest'], 0.6333, places=3)
+        self.assertEqual(sp1_row['observation_count'], 3)
         
-        # Check observation counts
-        sp001_count = profiles[profiles['species_id'] == 'sp001']['observation_count'].iloc[0]
-        sp002_count = profiles[profiles['species_id'] == 'sp002']['observation_count'].iloc[0]
-        
-        self.assertEqual(sp001_count, 2)
-        self.assertEqual(sp002_count, 3)
-        
-        # Check that mean land cover proportions are calculated
-        sp001_urban_mean = profiles[profiles['species_id'] == 'sp001']['urban_mean'].iloc[0]
-        expected_urban_mean = (0.1 + 0.2) / 2
-        self.assertAlmostEqual(sp001_urban_mean, expected_urban_mean, places=5)
+        # Check log entry
+        self.assertEqual(log_entry['initial_observations'], 5)
+        self.assertEqual(log_entry['final_species_profiles'], 3) # sp1, sp2, sp3
+        self.assertEqual(log_entry['observations_dropped'], 0)
 
-    def test_aggregation_sorting(self):
-        """Test that profiles are sorted by observation count descending."""
-        df = load_merged_observations(self.test_data_path)
-        profiles = aggregate_species_profiles(df)
+    def test_aggregate_drops_missing_values(self):
+        """Test that rows with NaN in land cover columns are dropped."""
+        df = self.mock_df.copy()
+        # Insert a NaN row
+        df.loc[len(df)] = ['sp4', 'G2', '{"forest": 0.5, "grass": null}']
         
-        counts = profiles['observation_count'].values
-        self.assertTrue(all(counts[i] >= counts[i+1] for i in range(len(counts)-1)))
+        parsed_df, lc_cols = parse_land_cover_proportions(df)
+        aggregated_df, log_entry = aggregate_species_profiles(parsed_df, lc_cols)
+        
+        self.assertEqual(log_entry['observations_dropped'], 1)
+        self.assertTrue('missing land cover data' in log_entry['reasons'][0])
+        self.assertNotIn('sp4', aggregated_df['species_id'].values)
+
+    def test_save_species_profiles(self):
+        """Test that output files are created correctly."""
+        df = self.mock_df.copy()
+        parsed_df, lc_cols = parse_land_cover_proportions(df)
+        aggregated_df, log_entry = aggregate_species_profiles(parsed_df, lc_cols)
+        
+        output_path = save_species_profiles(aggregated_df, log_entry)
+        
+        self.assertTrue(os.path.exists(output_path))
+        self.assertTrue(os.path.exists(self.processed_dir / 'aggregate_dropped_log.json'))
+        
+        # Verify content
+        result_df = pd.read_csv(output_path)
+        self.assertEqual(len(result_df), 3)
+
+    def test_load_merged_observations_missing_file(self):
+        """Test that FileNotFoundError is raised if input file is missing."""
+        # Temporarily rename the file to simulate missing state
+        self.mock_merged_path.rename(self.processed_dir / 'merged_observations.csv.bak')
+        try:
+            with self.assertRaises(FileNotFoundError):
+                load_merged_observations()
+        finally:
+            # Restore
+            (self.processed_dir / 'merged_observations.csv.bak').rename(self.mock_merged_path)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -17,7 +17,7 @@ This project implements a reproducible machine learning pipeline to predict avia
 **Project Type**: data-science-pipeline  
 **Performance Goals**: Complete pipeline execution ≤ 6 hours on 2 CPU cores, ≤ 7 GB RAM  
 **Constraints**: No GPU/CUDA, no large model training, dataset must fit in RAM after filtering to top 25 species with ≥50 observations  
-**Scale/Scope**: ~25 species, variable observation counts (filtered ≥50), Multiple land cover classes (derived from NLCD), multiple foraging guilds. Estimated raw EBD size on the order of hundreds of millions of records; filtered dataset with approximately five million records (estimated < 2GB RAM).
+**Scale/Scope**: A diverse range of species, variable observation counts (filtered ≥50), Multiple land cover classes (derived from NLCD), multiple foraging guilds. Estimated raw EBD size on the order of hundreds of millions of records; filtered dataset with approximately five million records (estimated < 2GB RAM).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -99,7 +99,7 @@ projects/PROJ-397-predicting-avian-foraging-behavior-from-/docs/
 |-----------|------------|-------------------------------------|
 | Species-Level Aggregation | Required because guild labels are static per species. Training on raw observations would conflate species identity with land cover. Aggregation ensures the model learns habitat-guild relationships, not species-habitat preferences. | Training on raw observations would fail to distinguish between 'guild predicts habitat' and 'species predicts habitat', violating the research question. |
 | Random Guild Permutation (Across Species) | Required to test if land cover predicts guild assignment better than chance. Permuting within species is impossible (constant labels). Permuting across species breaks the species-guild link, creating a valid null distribution. | Standard stratified permutation (by species) is mathematically invalid for constant labels. |
-| 100m Buffering | Required by FR-002 to capture local habitat context at the observation scale before aggregation. | Using a single global land cover proportion would obscure local habitat heterogeneity critical to foraging behavior. |
+| m Buffering | Required by FR-002 to capture local habitat context at the observation scale before aggregation. | Using a single global land cover proportion would obscure local habitat heterogeneity critical to foraging behavior. |
 | Top 25 Species Filter | Required by FR-001 to balance statistical power with computational feasibility on free-tier CI. | Using all species would exceed RAM limits and runtime constraints; using fewer than 25 might reduce guild representation. |
 
 ## FR/SC Coverage Matrix
@@ -107,7 +107,9 @@ projects/PROJ-397-predicting-avian-foraging-behavior-from-/docs/
 | ID | Requirement | Plan Element Addressing It |
 |----|-------------|---------------------------|
 | FR-001 | Extract top 25 species | `data/download_ebd.py` (filtering logic) |
-| FR-002 | NLCD 100m buffers | `data/download_nlcd.py`, `data/merge_and_buffer.py` |
+| FR-002 | NLCD buffers of varying scales
+
+The research question remains: How do different spatial buffer sizes around NLCD land cover classes influence the measured ecological metrics? The method involves generating multiple concentric buffers at incremental resolutions around sample sites to assess scale sensitivity. References include the foundational work by Homer et al. on the NLCD dataset and the scale-dependency analysis by Wu (et al.). | `data/download_nlcd.py`, `data/merge_and_buffer.py` |
 | FR-003 | Filter ≥50 obs/species | `data/preprocess.py` (filtering logic) |
 | FR-004 | Random Forest -fold CV | `models/train.py` (aggregated data) |
 | FR-005 | Stratified Permutation Test | `models/evaluate.py` (redefined as Across-Species Permutation) |

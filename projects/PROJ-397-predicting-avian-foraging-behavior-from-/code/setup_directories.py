@@ -5,48 +5,51 @@ from pathlib import Path
 def main():
     """
     Initialize the project directory structure for PROJ-397.
-    Creates the required subdirectories and placeholder files.
-    """
-    # Define the project root based on the task description
-    # The task specifies: projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/
-    # We assume the script is run from the repository root, so we construct the path relative to CWD
-    project_root = Path.cwd() / "projects" / "PROJ-397-predicting-avian-foraging-behavior-from-" / "code"
     
-    # Create the base code directory if it doesn't exist
-    project_root.mkdir(parents=True, exist_ok=True)
+    Creates the following directories under code/:
+    - data
+    - models
+    - viz
+    - notebooks
+    - utils
+    - tests
+    
+    Also creates necessary subdirectories for data processing:
+    - data/raw
+    - data/processed
+    - data/metadata
+    """
+    # Determine the project root relative to this script
+    # The script is expected to be run from the project root or code/
+    script_path = Path(__file__).resolve()
+    code_dir = script_path.parent
     
     # Define subdirectories to create
     subdirs = [
         "data",
+        "data/raw",
+        "data/processed",
         "models",
         "viz",
         "notebooks",
         "utils",
-        "tests"
+        "tests",
+        "docs",
+        "docs/results",
+        "contracts"
     ]
     
-    # Create subdirectories
+    created_count = 0
     for subdir in subdirs:
-        dir_path = project_root / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
-    
-    # Create placeholder files
-    placeholder_files = [
-        "requirements.txt",
-        "run_pipeline.sh",
-        "README.md"
-    ]
-    
-    for filename in placeholder_files:
-        file_path = project_root / filename
-        if not file_path.exists():
-            file_path.touch()
-            print(f"Created placeholder file: {file_path}")
+        dir_path = code_dir / subdir
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
         else:
-            print(f"File already exists: {file_path}")
+            print(f"Directory already exists: {dir_path}")
     
-    print(f"Project structure initialized at: {project_root}")
+    print(f"\nInitialization complete. Created {created_count} new directories.")
     return 0
 
 if __name__ == "__main__":

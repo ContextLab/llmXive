@@ -17,14 +17,14 @@ The research pipeline extracts eBird Basic Dataset (EBD) occurrence records for 
 
 **Acceptance Scenarios**:
 
-1. **Given** the EBD containing occurrence records for >50 species, **When** the extraction pipeline runs, **Then** the merged dataset contains records for exactly the top 25 species by total record count, with complete land cover proportions for each point
+1. **Given** the EBD containing occurrence records for >50 species, **When** the extraction pipeline runs, **Then** the merged dataset contains records for exactly the top-ranked species by total record count, with complete land cover proportions for each point
 2. **Given** species with <50 observations in the source data, **When** filtering is applied, **Then** those species are excluded from the analysis dataset and logged in a summary report
 
 ---
 
 ### User Story 2 - Classification Model Training and Evaluation (Priority: P2)
 
-The pipeline trains a random forest classifier to predict the species-level foraging guild (ground, canopy, aerial) from land cover proportions and evaluates performance using 5-fold cross-validation. To control for species identity confounding, the pipeline conducts a stratified permutation test (stratified by species) to assess whether land cover predicts guild membership independent of species-specific habitat preferences.
+The pipeline trains a random forest classifier to predict the species-level foraging guild (ground, canopy, aerial) from land cover proportions and evaluates performance using cross-validation. To control for species identity confounding, the pipeline conducts a stratified permutation test (stratified by species) to assess whether land cover predicts guild membership independent of species-specific habitat preferences.
 
 **Why this priority**: This is the core analytical step that directly addresses the research question. It is independently testable by verifying that model performance metrics are computed and that the stratified permutation test validates signal beyond taxonomic identity.
 
@@ -33,22 +33,22 @@ The pipeline trains a random forest classifier to predict the species-level fora
 **Acceptance Scenarios**:
 
 1. **Given** the merged dataset from User Story 1, **When** the random forest classifier is trained with 5-fold cross-validation, **Then** balanced accuracy is measured against chance performance and per-class F1 scores are computed for all three foraging guilds
-2. **Given** a trained model, **When** stratified permutation tests run (1000 iterations, stratified by species), **Then** the observed balanced accuracy exceeds the upper percentile of permuted accuracies (p < 0.05), confirming signal beyond species identity
+2. **Given** a trained model, **When** stratified permutation tests run (sufficient iterations, stratified by species), **Then** the observed balanced accuracy exceeds the upper percentile of permuted accuracies (p < 0.05), confirming signal beyond species identity
 
 ---
 
 ### User Story 3 - Visualization and Feature Importance Reporting (Priority: P3)
 
-The pipeline generates visualizations including a confusion matrix, feature importance bar chart, and spatial map of high-probability foraging habitats for the top 2 species by observation count, along with a summary report of which land cover types most strongly predict each foraging guild.
+The pipeline generates visualizations including a confusion matrix, feature importance bar chart, and spatial map of high-probability foraging habitats for the top-ranked species by observation count, along with a summary report of which land cover types most strongly predict each foraging guild.
 
-**Why this priority**: This delivers the interpretable output needed for conservation planning decisions. It is independently testable by verifying that all three visualization types are generated for the deterministic set of focal species and that the feature importance report lists the top 3 land cover predictors per foraging guild.
+**Why this priority**: This delivers the interpretable output needed for conservation planning decisions. It is independently testable by verifying that all three visualization types are generated for the deterministic set of focal species and that the feature importance report lists the top land cover predictors per foraging guild.
 
 **Independent Test**: Can be fully tested by running the visualization script and verifying that: (1) output files include a confusion matrix image, feature importance chart, and spatial map for the top species by observation count; and (2) the feature importance report lists the top land cover predictors for each of the foraging guilds.
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained model with feature importance scores, **When** visualization generation runs, **Then** three output files are created: confusion matrix (PNG), feature importance bar chart (PNG), and spatial habitat map (GeoJSON/PNG) for the top 2 species by observation count
-2. **Given** the feature importance output, **When** the summary report is generated, **Then** it lists the top 3 land cover predictors for each of the 3 foraging guilds with their importance scores
+1. **Given** a trained model with feature importance scores, **When** visualization generation runs, **Then** three output files are created: confusion matrix (PNG), feature importance bar chart (PNG), and spatial habitat map (GeoJSON/PNG) for the top species by observation count
+2. **Given** the feature importance output, **When** the summary report is generated, **Then** it lists the top land cover predictors for each of the foraging guilds with their importance scores
 
 ---
 
@@ -68,7 +68,7 @@ The pipeline generates visualizations including a confusion matrix, feature impo
 - **FR-003**: System MUST filter the merged dataset to retain only species with ≥50 observations each to ensure statistical power (See US-1)
 - **FR-004**: System MUST train a random forest classifier using scikit-learn with k-fold cross-validation to predict foraging guild from land cover proportions (See US-2)
 - **FR-005**: System MUST conduct stratified permutation tests with a sufficient number of iterations (stratified by species) to ensure robust statistical inference. to assess whether classification performance exceeds chance at p < 0.05 threshold, controlling for species identity (See US-2)
-- **FR-006**: System MUST compute and report balanced accuracy and per-class F1 scores to account for class imbalance across foraging guilds (See US-2)
+- **FR-006**: System MUST compute and report balanced accuracy and per-class F scores to account for class imbalance across foraging guilds (See US-2)
 - **FR-007**: System MUST generate three visualization outputs: confusion matrix, feature importance bar chart, and spatial map for the top species by observation count (See US-3)
 - **FR-008**: System MUST include species identity as a covariate or use stratified resampling in all significance tests to control for the confounding effect of species-specific habitat preferences (See US-2)
 

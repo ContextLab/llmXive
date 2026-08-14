@@ -1,42 +1,49 @@
 # Predicting Avian Foraging Behavior from Public eBird Data and Land Cover Maps
 
-**Project ID**: PROJ-397
+## Project Overview
 
-## Overview
-This project implements a pipeline to predict avian foraging guilds using eBird observation data merged with NLCD 2019 land cover data.
+This project aims to predict avian foraging guilds using public eBird occurrence data and NLCD 2019 land cover maps. The pipeline extracts records for top species, merges them with land cover data within 100m buffers, and trains a Random Forest classifier to predict foraging guilds.
 
-## Prerequisites
-- Python 3.11.x
-- pip
+## Directory Structure
 
-## Installation
-1. Clone the repository.
-2. Navigate to the `code/` directory.
-3. Install dependencies:
+```
+code/
+├── data/
+│ ├── raw/ # Raw downloaded data (EBD, NLCD)
+│ ├── processed/ # Processed and merged datasets
+│ └── metadata/ # Metadata and provenance records
+├── models/ # Trained models and evaluation results
+├── viz/ # Visualization scripts and outputs
+├── notebooks/ # Jupyter notebooks for analysis
+├── utils/ # Utility modules (config, provenance)
+├── tests/ # Unit and integration tests
+├── docs/ # Documentation and reports
+└── contracts/ # Data schema contracts
+```
+
+## Quick Start
+
+1. **Initialize Directories**:
  ```bash
- pip install -r requirements.txt
+ python code/setup_directories.py
  ```
 
-## Usage
-Run the full pipeline using the orchestration script:
-```bash
-bash run_pipeline.sh
-```
+2. **Install Dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-Alternatively, run individual steps:
-```bash
-python data/download_ebd.py
-python data/download_nlcd.py
-#... etc
-```
+3. **Run the Pipeline**:
+ ```bash
+ bash code/run_pipeline.sh
+ ```
 
-## Project Structure
-- `data/`: Data download and processing scripts
-- `models/`: Model training and evaluation scripts
-- `viz/`: Visualization scripts
-- `utils/`: Utility functions
-- `tests/`: Unit and integration tests
-- `notebooks/`: Jupyter notebooks for analysis
+## Data Sources
+
+- **eBird Basic Dataset (EBD)**: Downloaded from S3 bucket `s3://ebird-data/ebd_release/`
+- **NLCD 2019 Land Cover**: Downloaded from USGS EarthExplorer
+- **Birds of the World**: Used for foraging guild mapping
 
 ## License
-[Insert License]
+
+This project is for research purposes only. Please refer to the data sources' terms of use.

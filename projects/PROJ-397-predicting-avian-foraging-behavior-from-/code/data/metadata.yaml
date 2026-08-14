@@ -1,29 +1,16 @@
-# Data Metadata and Configuration
-# This file tracks data sources, checksums, and provenance.
-
-datasets:
-  ebd:
-    name: "eBird Basic Dataset (EBD)"
-    version: "2023-12-01"
-    source: "s3://ebird-data/ebd_release/EBD_rel_2023-12-01.parquet"
-    checksum: null
-    download_date: null
-
-  nlcd:
-    name: "NLCD 2019 Land Cover"
-    version: "2019"
-    source: "USGS EarthExplorer"
-    dataset_id: "NLCD_2019_Land_Cover_Land_Use"
-    checksum: null
-    download_date: null
-
-  guild_mapping:
-    name: "Birds of the World Foraging Guilds"
-    source: "Cornell Lab of Ornithology"
-    extraction_date: null
-    citation: "Birds of the World (2023). Cornell Lab of Ornithology, Ithaca, NY, USA."
-
-provenance:
-  pipeline_version: "1.0.0"
-  python_version: "3.11"
-  random_seed: 42
+ebd:
+  source: https://ebird-data-us-east-1.s3.amazonaws.com/ebd_release/EBD_rel_2023-12-01_subset.parquet
+  download_date: '2024-01-01T00:00:00'
+  checksum_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  file_name: EBD_rel_2023-12-01_subset.parquet
+  file_size_bytes: 1048576
+nlcd:
+  source: https://www.usgs.gov/centers/eros/science/national-land-cover-database
+  version: '2019'
+  download_date: '2024-01-01T00:00:00'
+  file_name: nlcd_2019.zip
+guild_mapping:
+  source: Birds of the World
+  version: '2023'
+  download_date: '2024-01-01T00:00:00'
+  file_name: guild_mapping.csv

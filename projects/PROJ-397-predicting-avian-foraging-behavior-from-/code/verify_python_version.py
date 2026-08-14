@@ -1,40 +1,20 @@
-"""
-verify_python_version.py
-
-Verifies that the current Python environment is version 3.11.x.
-Exits with code 0 if the version matches, code 1 otherwise.
-"""
 import sys
 import re
 import logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
 def main():
     """
-    Main entry point to verify Python version.
-    Checks if sys.version matches the pattern 3.11.x.
+    Verify that the running Python version is 3.11.x.
+    Exits with code 1 if the version is not supported.
     """
-    current_version = sys.version_info
-    version_string = f"{current_version.major}.{current_version.minor}.{current_version.micro}"
+    version = sys.version_info
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     
-    logger.info(f"Detected Python version: {version_string}")
-
-    # Target major.minor version is 3.11
-    target_major = 3
-    target_minor = 11
-
-    if current_version.major == target_major and current_version.minor == target_minor:
-        logger.info(f"SUCCESS: Python version {version_string} matches required 3.11.x.")
+    if version.major == 3 and version.minor == 11:
+        logging.info(f"Python version {version.major}.{version.minor}.{version.micro} is supported.")
         return 0
     else:
-        logger.error(f"FAILURE: Python version {version_string} does not match required 3.11.x.")
-        logger.error(f"Expected: 3.11.x, Got: {current_version.major}.{current_version.minor}.{current_version.micro}")
+        logging.error(f"Python version {version.major}.{version.minor}.{version.micro} is not supported. Requires 3.11.x.")
         return 1
 
 if __name__ == "__main__":
