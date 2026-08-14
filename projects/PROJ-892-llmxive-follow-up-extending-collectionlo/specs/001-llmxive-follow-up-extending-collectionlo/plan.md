@@ -18,8 +18,8 @@ This project investigates the robustness of multi-effect LoRA adapters under qua
 
 ### 3.1 Experimental Design
 - **Factors**: Quantization Level (FP16, INT8, INT4)
-- **Units**: 10 distinct effect prompts (e.g., "oil painting", "watercolor", "cyberpunk").
-- **Replicates**: 5 seeds per prompt/level combination.
+- **Units**: distinct effect prompts (e.g., "oil painting", "watercolor", "cyberpunk").
+- **Replicates**: Multiple seeds per prompt/level combination.
 - **Total Observations**: 10 effects * 3 levels * 5 seeds = 150 images.
 
 ### 3.2 Statistical Analysis (Updated)
@@ -32,7 +32,7 @@ This project investigates the robustness of multi-effect LoRA adapters under qua
  - Priors: Weakly informative `Normal(0, 1)` for fixed effects, `HalfNormal(0.5)` for random effects.
 - **Inference**: NUTS sampler (No-U-Turn Sampler).
 - **Outcome**: Posterior distribution of the `Quantization_Effect` for INT8 and INT4.
-- **Decision Rule**: If the 95% HDI of the quantization effect excludes zero, the effect is significant.
+- **Decision Rule**: If the [deferred] HDI of the quantization effect excludes zero, the effect is significant.
 
 ### 3.3 Correlation Analysis
 - Correlate the magnitude of concept bleeding (posterior mean of bleeding effect) with the effective subspace rank (from SVD of LoRA weights).

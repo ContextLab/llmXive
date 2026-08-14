@@ -1,102 +1,111 @@
-# Quickstart Guide: CPU-Only Execution
+# Quickstart Guide: Quantization Robustness of Multi-Effect LoRA Adapters
 
-This guide provides instructions for running the **Quantization Robustness of Multi-Effect LoRA Adapters** pipeline on CPU-only runners (e.g., GitHub Actions `ubuntu-latest`, local machines without GPUs).
+This guide provides instructions for running the `llmXive` Quantization Robustness pipeline on **CPU-only runners**. The pipeline is designed to be robust against memory constraints and can handle quantization tasks on standard hardware.
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- At least 32GB RAM (recommended) and 50GB disk space
-- Internet access for initial model download
+- **Python 3.11+** installed.
+- **Git** for cloning the repository.
+- **CPU-only environment** (no NVIDIA GPU required).
+- **Internet connection** to download models and datasets initially.
 
-## 1. Clone and Setup
+## Installation
+
+1. **Clone the repository**:
+ ```bash
+ git clone <repository-url>
+ cd PROJ-892-llmxive-follow-up-extending-collectionlo
+ ```
+
+2. **Create a virtual environment** (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. **Install dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+ *Note: This will install `torch` with CPU support if no CUDA is detected, along with `diffusers`, `transformers`, `pymc`, and other required libraries.*
+
+## Configuration
+
+The pipeline relies on a configuration file located at `code/config.yaml`. This file contains:
+- A list of effect prompts (e.g., "oil painting", "watercolor").
+- Seed values for deterministic generation.
+- Model paths and quantization settings.
+
+Ensure `code/config.yaml` is populated before running.
+
+## Running the Pipeline
+
+The main entry point is `code/main.py`. It orchestrates the entire workflow:
+1. **Data Loading**: Downloads the `CollectionLoRA` adapter and base model.
+2. **Validation**: Verifies the adapter contains the required distinct effects.
+3. **Baseline Generation**: Generates FP16 reference images.
+4. **Quantization**: Applies INT8 and INT4 quantization.
+5. **Analysis**: Computes metrics (CLIP, LPIPS, CESR) and runs Bayesian analysis.
+
+### Full Pipeline Execution
+
+Run the following command from the project root:
 
 ```bash
-git clone <repository-url>
-cd <project-directory>
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r code/requirements.txt
-```
-
-## 2. Configuration
-
-Ensure `code/config.yaml` contains your desired effect prompts and seed values:
-
-```yaml
-# code/config.yaml
-seeds:
- - 42
- - 123
- - 456
-effects:
- - "oil painting style"
- - "watercolor style"
- - "pencil sketch"
- - "cyberpunk neon"
- - "vintage photograph"
-```
-
-## 3. Running the Pipeline on CPU
-
-The main entry point `code/main.py` automatically detects CPU execution and manages memory constraints.
-
-```bash
-# Run the full pipeline (FP16 Baseline -> Quantization -> Analysis)
 python code/main.py
 ```
 
-### Key CPU-Specific Behaviors
+**CPU-Specific Behavior**:
+- The script automatically detects CPU-only environments.
+- It sets `torch.set_num_threads` to optimize CPU usage.
+- It handles `MemoryError` and SIGKILL (Exit Code 137) gracefully, logging "Quantization Failure" and skipping the affected quantization level to prevent the entire job from crashing (FR-008).
 
-1. **Automatic Device Detection**: The pipeline automatically uses `cpu` for all model loading and inference.
-2. **Memory Management**:
- - OOM handling is built-in (see Task T008). If a quantization level triggers `MemoryError` or Exit Code 137, the pipeline logs "Quantization Failure" and skips that level gracefully.
- - Models are loaded sequentially to minimize peak memory usage.
-3. **Download Logic**:
- - The base model (Stable Diffusion 1.5/2.1) and CollectionLoRA adapter are downloaded automatically on first run via `code/data_loader.py` (Task T007).
- - The adapter is saved as `data/models/adapter_fp16.safetensors` and hashed (Task T007b).
-
-## 4. Expected Output
+### Output Artifacts
 
 Upon successful completion, the following artifacts will be generated:
 
-- `data/results.csv`: Metrics (CLIP similarity, LPIPS, CESR) for all runs.
-- `data/generated/`: Generated images for FP16, INT8, and INT4 adapters.
-- `data/references/`: Baseline reference images.
-- `data/subspace_ranks.json`: SVD-based effective rank analysis.
-- `data/analysis_results.json`: Bayesian Hierarchical Model results.
-- `state/artifacts.yaml`: SHA-256 hashes of all artifacts.
+- **Data**:
+ - `data/models/adapter_fp16.safetensors`: Downloaded LoRA adapter.
+ - `data/quantized/adapter_int8.safetensors`, `adapter_int4.safetensors`: Quantized adapters.
+ - `data/references/fp16_refs/`: Reference images for all effects.
+ - `data/results.csv`: Comprehensive metrics (Cosine Similarity, LPIPS, CESR).
+ - `data/analysis_results.json`: Bayesian statistical analysis results.
+- **State**:
+ - `state/artifacts.yaml`: SHA-256 hashes of all generated artifacts.
+- **Logs**:
+ - Console logs and `logs/pipeline.log` (if configured).
 
-## 5. Troubleshooting CPU Runs
+## Troubleshooting
 
-### Out of Memory (OOM) Errors
-If the runner crashes with Exit Code 137 (SIGKILL), the pipeline has a built-in handler (Task T008) to skip the failing quantization level. Ensure your runner has sufficient RAM (32GB+ recommended for full batch).
+### Memory Errors (OOM)
+If the runner encounters a memory limit:
+- The pipeline is designed to catch `MemoryError` and subprocess exits (SIGKILL).
+- It will log "Quantization Failure" and skip the specific quantization level (e.g., INT4) while continuing with others.
+- Check `state/artifacts.yaml` to see which artifacts were successfully saved.
 
-### Slow Execution
-CPU execution is significantly slower than GPU. The full pipeline may take 4-6 hours on a standard 4-core runner. [UNRESOLVED-CLAIM: c_f32843c7 — status=not_enough_info]
-- To speed up, reduce the number of prompts in `code/config.yaml`.
-- Ensure `torch` is installed with CPU support (not CUDA).
+### Missing Models
+The pipeline requires an initial download of the `CollectionLoRA` adapter from HuggingFace.
+- Ensure you have a stable internet connection.
+- If the download fails, the script will raise a `FileNotFoundError` (no synthetic fallback).
 
-### Model Download Failures
-If HuggingFace downloads fail, ensure your network allows access to `huggingface.co`. The models are cached in `~/.cache/huggingface`.
+### Backend Unavailable
+If `torch.ao.quantization` backend is unavailable on your specific CPU build:
+- The script will log "Backend Unavailable" and skip that quantization level rather than crashing.
 
-## 6. Verification
+## Verification
 
-Run the end-to-end validation script to verify the pipeline integrity:
+To verify the integrity of the downloaded models and generated artifacts:
 
 ```bash
-python code/run_e2e_validation.py
+python code/verify_artifacts.py
 ```
 
-This checks for:
-- Presence of all required data files.
-- Correct SHA-256 hashes in `state/artifacts.yaml`.
-- Validity of `data/results.csv` and `data/analysis_results.json`.
+This script compares the SHA-256 hashes in `state/artifacts.yaml` against the actual files on disk.
 
-## 7. Bayesian Analysis Note
+## CI/CD Integration
 
-The pipeline uses a Bayesian Hierarchical Model (BHM) instead of ANOVA (Constitution Amendment pending, see Task T034) to better handle small sample sizes and hierarchical data structures (images nested within prompts). Results are reported with 95% credible intervals. [UNRESOLVED-CLAIM: c_56ea320b — status=not_enough_info]
+For CI/CD environments (e.g., GitHub Actions), use the `code/run_pipeline_timing.py` script which generates a `data/ci_report.json` containing job duration and status, ensuring the total job duration remains under the 6-hour limit (SC-005).
+
+```bash
+python code/run_pipeline_timing.py
+```

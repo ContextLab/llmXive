@@ -1,40 +1,46 @@
-T010:
+T009a:
   c: false
-  h: 38357acd3fd78fd01447188b35f435cbd1734c507ba60d965df435df80a5947f
-  r: "The repository lacks the required `data/models/adapter_fp16.safetensors` file,\
-    \ and `code/data_loader.py` contains only placeholder stubs (e.g., `download_lora_adapter`,\
-    \ `get_collection_lora_adapter`) without a concrete function that fetches the\
-    \ FP16 adapter if missing and loads it plus the base model into CPU memory. Consequently\
-    \ the task\u2019s core requirement is not satisfied."
-T011:
+  h: 17e3158aa80184ab209d634229d989d23cce691ecf35cd160eb1f59d97fee14c
+  r: The repository lacks the required `data/models/adapter_fp16.safetensors` file,
+    and `code/data_loader.py` does not contain the implemented function that loads
+    this adapter, groups LoRA keys, computes SVD ranks, or stores the rank data. The
+    file is also truncated, missing the needed logic. These essential components are
+    absent, so the task is not satisfied.
+T010b:
   c: false
-  h: d5f0018458b4a61ddf6cd15faed4b0ce2830778723ee8c59574cc42927638c17
-  r: The repository lacks the required `config.yaml` file, so the code cannot retrieve
-    the fixed prompt list. Moreover, the `generate_fp16_baseline_images` function
-    in `code/generator.py` is truncated and its implementation is not present, meaning
-    the core functionality to generate images with the FP16 adapter is missing.
-T011b:
-  c: false
-  h: 44863d491388bdd0ad4715012d3046ba1bc7ad456ce3f8446b819cc3c93c5ff4
-  r: "The repository contains `code/generator.py` with a `generate_reference_image`\
-    \ implementation, but the required `config.yaml` is absent, and the expected output\
-    \ file `data/references/baseline_ref.png` was not generated or present. Without\
-    \ the config and the saved reference image, the task\u2019s requirement is not\
-    \ satisfied."
-T013:
-  c: false
-  h: 8df6da0fc7d5a74f56319b23c3bebf3dfb41546d30a806997c77d8ea15d1580b
-  r: The provided `code/metrics.py` is only partially shown (the `compute_lpips_distance`
-    function is truncated) and thus does not contain a complete, runnable implementation.
-    Moreover, the required reference image `data/references/baseline_ref.png` is missing
-    from the repository, so the LPIPS computation cannot be performed even if the
-    code were complete. Both the functional code artifact and the necessary data file
-    are absent, so the task is not satisfied.
+  h: 17e3158aa80184ab209d634229d989d23cce691ecf35cd160eb1f59d97fee14c
+  r: The `code/data_loader.py` file contains many placeholder functions that raise
+    `NotImplementedError` and is truncated, so it does not provide a working implementation
+    to load the FP16 adapter and base model into CPU memory. Additionally, the required
+    `data/models/adapter_fp16.safetensors` file is missing from the repository. Both
+    the functional code and the necessary data artifact are absent.
 T014:
   c: false
-  h: 1c27c18e5529a468839a12efda4e7923f5acb042db2e9346e13d74934ff5cbac
-  r: The `data/results.csv` file that should contain the baseline metrics is absent,
-    and the provided `code/main.py` is only partially shown (truncated) with no evidence
-    that it actually runs FP16 generation, computes the required metrics, and writes
-    the CSV or saves images to `data/generated/`. Without the results file (and without
-    confirming image output), the task requirements are not met.
+  h: aecc21ce73d43e479eacc3f0011b3f8be0ccce7c55dd1afe63e3f52131adeaba
+  r: "The provided `code/main.py` is truncated (ends abruptly at `write` and lacks\
+    \ full implementations for saving CSV, running generation, and computing metrics).\
+    \ Additionally, the required `data/results.csv` file does not exist, and there\
+    \ is no evidence of generated images in `data/generated/`. These missing and incomplete\
+    \ artifacts mean the task\u2019s requirements are not satisfied."
+T016:
+  c: false
+  h: 629dee52604d0d76b88a009e4037ec7963e39ed62bfb1087135c3c30044ba8a3
+  r: "The provided `code/data_loader.py` is truncated and contains placeholder `NotImplementedError`\
+    \ stubs for downloading and quantization logic, with the `apply_quantization`\
+    \ function cut off. Moreover, the required quantized adapter files `data/quantized/adapter_int8.safetensors`\
+    \ and `adapter_int4.safetensors` are absent. The task\u2019s core functionality\
+    \ and output artifacts are therefore not present."
+T020:
+  c: false
+  h: aecc21ce73d43e479eacc3f0011b3f8be0ccce7c55dd1afe63e3f52131adeaba
+  r: "The provided `code/main.py` is truncated (e.g., `save_results_to_csv` ends with\
+    \ an unfinished `write` line) and lacks the logic to compute deltas and append\
+    \ them to `data/results.csv`. Moreover, the required `data/results.csv` file does\
+    \ not exist. Consequently, the task\u2019s requirements are not met."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `plan.md` file was presented, and there is no evidence that its contents\
+    \ were checked against the active Constitution Amendment or that its status was\
+    \ updated to \u201CRATIFIED.\u201D The required artifact is missing, so the task\
+    \ is not satisfied."

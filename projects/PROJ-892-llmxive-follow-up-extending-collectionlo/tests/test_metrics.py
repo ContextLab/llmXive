@@ -10,6 +10,10 @@ from PIL import Image
 from io import BytesIO
 import pytest
 from pathlib import Path
+import logging
+
+# Configure logging to avoid noise during tests
+logging.basicConfig(level=logging.WARNING)
 
 # Import the functions to test
 from metrics import (

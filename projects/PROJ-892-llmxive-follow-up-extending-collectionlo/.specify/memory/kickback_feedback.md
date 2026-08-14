@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T007b` (rejected 1x): The `data/models/adapter_fp16.safetensors` file is missing (size 0) and `state/artifacts.yaml` records a hash of an empty file. Moreover, `code/data_loader.py` contains only placeholder stubs and does not implement the required copy/rename‑and‑hash logic. The task’s core requirement is therefore not satisfied.
-- `T009` (rejected 1x): The `data/models/adapter_fp16.safetensors` file is absent, and `code/data_loader.py` contains only stub functions (e.g., truncated `quantize_adapter_fp16_to_int8` and no implementation that loads the adapter, extracts per‑effect LoRA matrices, runs SVD, or writes `subspace_ranks.json`). Thus the required functionality is not actually provided.
+- `T011` (rejected 1x): The repository lacks the required `config.yaml` file that should contain the fixed list of seeds and prompts, and the provided `code/generator.py` only defines a single `generate_reference_image` helper (truncated) without any implementation that reads a prompt list from `config.yaml` and generates images for each entry using the FP16 LoRA adapter. Both essential artifacts are missing or incomplete.
+- `T011b` (rejected 1x): The `data/references/baseline_ref.png` file does not exist, and the provided `code/generator.py` is truncated before the image generation completes, so the function cannot actually produce and save the required reference image. The task’s core output is missing.
+- `T013` (rejected 1x): The repository lacks the required `data/references/baseline_ref.png` file, and `code/metrics.py` does not contain a function that iterates over the generated FP16 images and the full set of FP16 reference images to compute LPIPS distances as specified (only a single‑image `compute_lpips_distance` is shown). These missing artifacts prevent the task from being fulfilled.
 
 ## Required change
 

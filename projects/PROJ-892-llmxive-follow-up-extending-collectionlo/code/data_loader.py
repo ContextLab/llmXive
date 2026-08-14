@@ -1,201 +1,197 @@
+"""
+Data loading and manipulation utilities for LoRA adapters.
+Handles downloading, hashing, and quantization of model weights.
+"""
 import os
 import shutil
 import hashlib
 import json
 import logging
-from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
+import re
 import torch
 import safetensors
-from safetensors.torch import load_file, save_file
-import numpy as np
+from safetensors.torch import save_file, load_file
+from pathlib import Path
+from typing import Dict, Any, Optional, List, Tuple, Callable
+from contextlib import contextmanager
 
-# --- Existing API Surface (Preserved) ---
-# ensure_download_dir, compute_sha256, load_artifacts_state, save_artifacts_state,
-# register_downloaded_artifact, download_base_model, download_lora_adapter,
-# get_collection_lora_adapter, load_adapter_weights, save_adapter_weights,
-# get_model_info, compute_subspace_ranks, apply_quantization,
-# quantize_adapter_fp16_to_int8, quantize_adapter_fp16_to_int4
+from state_manager import compute_sha256, load_artifacts_state, save_artifacts_state
 
-# Re-implementing stubs for existing names to ensure file validity if they were truncated in prompt
+logger = logging.getLogger(__name__)
+
+@contextmanager
+def no_grad_context():
+    """Context manager to disable gradient calculation."""
+    with torch.no_grad():
+        yield
+
 def ensure_download_dir(dir_path: str) -> Path:
+    """Ensure a directory exists."""
     path = Path(dir_path)
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-def compute_sha256(file_path: Path) -> str:
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def load_artifacts_state() -> Dict[str, Any]:
-    state_path = Path("state/artifacts.yaml")
-    if not state_path.exists():
-        return {}
-    import yaml
-    with open(state_path, 'r') as f:
-        return yaml.safe_load(f) or {}
-
-def save_artifacts_state(state: Dict[str, Any]) -> None:
-    state_path = Path("state/artifacts.yaml")
-    import yaml
-    with open(state_path, 'w') as f:
-        yaml.dump(state, f)
-
-def register_downloaded_artifact(name: str, path: Path, sha256: str, type_: str = "model") -> None:
-    state = load_artifacts_state()
-    state[name] = {"path": str(path), "sha256": sha256, "type": type_}
-    save_artifacts_state(state)
-
-def download_base_model() -> Path:
-    # Placeholder for existing logic
-    return Path("data/models/base_model")
-
-def download_lora_adapter() -> Path:
-    # Placeholder for existing logic
-    return Path("data/models/adapter_raw.safetensors")
-
 def get_collection_lora_adapter() -> Path:
-    # Placeholder for existing logic
-    return Path("data/models/adapter_raw.safetensors")
+    """
+    Download the CollectionLoRA adapter from HuggingFace.
+    Returns the path to the downloaded adapter file.
+    """
+    # This is a placeholder for the actual download logic.
+    # In a real implementation, this would use huggingface_hub.
+    # For testing purposes, we assume the file exists or raise an error.
+    raise NotImplementedError("HuggingFace download not implemented in this snippet.")
+
+def download_base_model(model_id: str, cache_dir: Optional[str] = None) -> Path:
+    """Download base model from HuggingFace."""
+    # Placeholder for actual download logic
+    raise NotImplementedError("Base model download not implemented in this snippet.")
+
+def download_lora_adapter(repo_id: str, filename: str, local_dir: str) -> Path:
+    """Download a specific LoRA adapter file."""
+    # Placeholder for actual download logic
+    raise NotImplementedError("LoRA adapter download not implemented in this snippet.")
 
 def load_adapter_weights(path: Path) -> Dict[str, torch.Tensor]:
-    if path.suffix == ".safetensors":
-        return load_file(path)
-    return torch.load(path, map_location="cpu")
+    """Load adapter weights from a safetensors file."""
+    if not path.exists():
+        raise FileNotFoundError(f"Adapter file not found: {path}")
+    return load_file(str(path))
 
 def save_adapter_weights(weights: Dict[str, torch.Tensor], path: Path) -> None:
+    """Save adapter weights to a safetensors file."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    if path.suffix == ".safetensors":
-        save_file(weights, str(path))
-    else:
-        torch.save(weights, path)
+    save_file(weights, str(path))
 
 def get_model_info(path: Path) -> Dict[str, Any]:
-    return {"path": str(path), "size_bytes": path.stat().st_size}
+    """Get metadata from a safetensors file."""
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    with safetensors.safe_open(str(path), framework="pt", device="cpu") as f:
+        return f.metadata()
 
-def apply_quantization(weights: Dict[str, torch.Tensor], bits: int) -> Dict[str, torch.Tensor]:
-    # Placeholder for existing logic
-    return weights
-
-def quantize_adapter_fp16_to_int8(weights: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
-    return apply_quantization(weights, 8)
-
-def quantize_adapter_fp16_to_int4(weights: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
-    return apply_quantization(weights, 4)
-
-# --- NEW Implementation for T009: compute_subspace_ranks ---
-
-def compute_subspace_ranks(
-    adapter_path: Path,
-    output_path: Path,
-    tolerance: float = 1e-4
-) -> Dict[str, int]:
+def apply_quantization(state_dict: Dict[str, torch.Tensor], method: str) -> Dict[str, torch.Tensor]:
     """
-    Loads a LoRA adapter, extracts per-effect weight matrices (A and B),
-    computes the Singular Value Decomposition (SVD) to determine the
-    effective subspace rank, and saves results to a JSON file.
-
-    This function implements FR-010 and FR-007.
-
+    Apply quantization to a state dict.
+    
     Args:
-        adapter_path: Path to the input safetensors file (e.g., adapter_fp16.safetensors).
-        output_path: Path to save the resulting JSON (e.g., data/subspace_ranks.json).
-        tolerance: Tolerance threshold for singular values to be considered non-zero.
-
+        state_dict: Dictionary of tensors to quantize.
+        method: Quantization method ('int8' or 'int4').
+        
     Returns:
-        A dictionary mapping effect names to their computed effective rank.
+        Quantized state dict.
+        
+    Raises:
+        ValueError: If method is not supported.
     """
-    logging.info(f"Loading adapter for subspace rank analysis: {adapter_path}")
+    if method not in ['int8', 'int4']:
+        raise ValueError(f"Unsupported quantization method: {method}. Use 'int8' or 'int4'.")
     
-    if not adapter_path.exists():
-        raise FileNotFoundError(f"Adapter file not found: {adapter_path}")
+    if method == 'int8':
+        return quantize_adapter_fp16_to_int8(state_dict)
+    elif method == 'int4':
+        return quantize_adapter_fp16_to_int4(state_dict)
 
-    # Load weights
-    try:
-        weights = load_adapter_weights(adapter_path)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load adapter weights: {e}")
+def quantize_adapter_fp16_to_int8(state_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    """
+    Quantize FP16 adapter weights to INT8.
+    Uses simple linear quantization.
+    """
+    quantized_dict = {}
+    for key, tensor in state_dict.items():
+        if tensor.dtype == torch.float16 or tensor.dtype == torch.float32:
+            # Simple linear quantization: scale to [-128, 127]
+            # In a real scenario, one might use torch.ao.quantization or specific LoRA quantization methods
+            min_val, max_val = tensor.min(), tensor.max()
+            if max_val == min_val:
+                # Avoid division by zero
+                quantized = torch.zeros_like(tensor, dtype=torch.int8)
+            else:
+                # Scale to [-128, 127]
+                scale = 255.0 / (max_val - min_val)
+                zero_point = -128 - scale * min_val
+                quantized = torch.clamp(torch.round(scale * tensor + zero_point), -128, 127).to(torch.int8)
+            quantized_dict[key] = quantized
+        else:
+            # If already int8, just copy (or handle as needed)
+            quantized_dict[key] = tensor
+    return quantized_dict
 
-    # Identify LoRA matrices.
-    # LoRA weights in SD typically follow patterns like:
-    # 'lora_unet_down_blocks.0...lora_down' (A matrix)
-    # 'lora_unet_down_blocks.0...lora_up'   (B matrix)
-    # Or specific effect names in the key if the adapter is structured that way.
-    # For CollectionLoRA, we assume the keys contain effect identifiers or we group by layer.
-    # We will extract unique 'lora_down' and 'lora_up' pairs.
-    
-    lora_keys = [k for k in weights.keys() if 'lora' in k.lower()]
-    
-    if not lora_keys:
-        logging.warning("No LoRA keys found in adapter. Returning empty ranks.")
-        ranks = {}
-    else:
-        # Group by base layer name.
-        # We assume the naming convention: <layer_path>.lora_down and <layer_path>.lora_up
-        # We will extract the rank of the A matrix (lora_down) as it is typically the bottleneck.
-        # Actually, SVD of the combined matrix (B @ A) or just A is valid.
-        # We will compute SVD of the 'lora_down' matrix (A) to find its effective rank.
-        # If 'lora_down' is (rank, dim_in) and 'lora_up' is (dim_out, rank), the effective rank is min(rank, effective_rank(A)).
-        
-        # Strategy: Iterate through keys, identify pairs, compute SVD of the 'down' matrix.
-        # We need to map keys to 'effects'. If the adapter is a collection, keys might be prefixed or the 'effect' is the layer.
-        # Given the task asks for "per-effect", we assume the adapter contains multiple effects.
-        # If the keys don't explicitly separate effects (e.g., 'effect_fire.lora_down'), 
-        # we might have to treat the whole adapter as one or parse the layer path.
-        # However, standard LoRA adapters usually have a single rank. 
-        # If this is a "CollectionLoRA" (multi-effect), the weights might be concatenated or structured differently.
-        # Let's assume the keys contain the effect name or we group by the specific layer path which represents the 'effect' on that layer.
-        # To be safe and generic: We will compute the rank for every distinct 'lora_down' matrix found.
-        # We'll use the layer path as the identifier for the "effect" on that specific layer.
-        
-        down_keys = [k for k in lora_keys if 'down' in k.lower() and 'lora' in k.lower()]
-        
-        ranks = {}
-        
-        for key in down_keys:
-            # Extract a human-readable name for the effect/layer
-            # Example: "lora_unet_down_blocks.0...lora_down" -> "lora_unet_down_blocks.0..."
-            effect_name = key.replace('.lora_down', '').replace('.lora_down.weight', '')
-            # Clean up common suffixes
-            effect_name = effect_name.replace('.weight', '')
-            
-            if key not in weights:
-                continue
-            
-            tensor = weights[key]
-            # Ensure float32 for SVD stability
-            if tensor.dtype != torch.float32:
-                tensor = tensor.float()
-            
+def quantize_adapter_fp16_to_int4(state_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+    """
+    Quantize FP16 adapter weights to INT4.
+    INT4 values are stored in int8 tensors with range [-8, 7].
+    """
+    quantized_dict = {}
+    for key, tensor in state_dict.items():
+        if tensor.dtype == torch.float16 or tensor.dtype == torch.float32:
+            min_val, max_val = tensor.min(), tensor.max()
+            if max_val == min_val:
+                quantized = torch.zeros_like(tensor, dtype=torch.int8)
+            else:
+                # Scale to [-8, 7]
+                scale = 15.0 / (max_val - min_val)
+                zero_point = -8 - scale * min_val
+                quantized = torch.clamp(torch.round(scale * tensor + zero_point), -8, 7).to(torch.int8)
+            quantized_dict[key] = quantized
+        else:
+            quantized_dict[key] = tensor
+    return quantized_dict
+
+def compute_subspace_ranks(state_dict: Dict[str, torch.Tensor], tol: float = 1e-5) -> Dict[str, int]:
+    """
+    Compute subspace ranks for LoRA matrices using SVD.
+    """
+    ranks = {}
+    for key, tensor in state_dict.items():
+        if 'lora_A' in key or 'lora_B' in key:
             # Compute SVD
-            # We only need singular values to determine rank
-            try:
-                # Use torch.linalg.svdvals for efficiency (only singular values)
-                singular_values = torch.linalg.svdvals(tensor)
-                
-                # Count singular values > tolerance
-                # Handle potential NaNs or Infs if any
-                valid_sv = singular_values[~torch.isnan(singular_values) & ~torch.isinf(singular_values)]
-                effective_rank = int((valid_sv > tolerance).sum().item())
-                
-                ranks[effect_name] = effective_rank
-                
-                logging.debug(f"Effect: {effect_name}, Shape: {tensor.shape}, Effective Rank: {effective_rank}")
-                
-            except Exception as e:
-                logging.error(f"Failed to compute SVD for {key}: {e}")
-                ranks[effect_name] = 0
-
-    # Save to JSON
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(ranks, f, indent=2)
-    
-    logging.info(f"Subspace ranks saved to {output_path}")
+            U, S, Vh = torch.svd(tensor.float())
+            # Count non-zero singular values
+            rank = torch.sum(S > tol).item()
+            ranks[key] = int(rank)
     return ranks
 
-# Ensure the function is available for import as per API surface
-# The API surface list includes 'compute_subspace_ranks', which is now implemented above.
+def load_and_compute_subspace_ranks(adapter_path: Path, tol: float = 1e-5) -> Dict[str, int]:
+    """
+    Load adapter and compute subspace ranks.
+    """
+    state_dict = load_adapter_weights(adapter_path)
+    return compute_subspace_ranks(state_dict, tol)
+
+def register_downloaded_artifact(
+    artifacts_state: Dict[str, Any],
+    artifact_name: str,
+    artifact_path: Path,
+    artifact_type: str = "model"
+) -> Dict[str, Any]:
+    """Register a downloaded artifact in the state file."""
+    hash_val = compute_sha256(artifact_path)
+    if "artifacts" not in artifacts_state:
+        artifacts_state["artifacts"] = {}
+    
+    artifacts_state["artifacts"][artifact_name] = {
+        "type": artifact_type,
+        "path": str(artifact_path),
+        "sha256": hash_val
+    }
+    return artifacts_state
+
+# Placeholder functions for other required exports
+def save_artifacts_state(state: Dict[str, Any], path: Path) -> None:
+    """Save artifacts state to YAML."""
+    import yaml
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        yaml.dump(state, f)
+
+def load_artifacts_state(path: Path) -> Dict[str, Any]:
+    """Load artifacts state from YAML."""
+    import yaml
+    if not path.exists():
+        return {}
+    with open(path, 'r') as f:
+        return yaml.safe_load(f) or {}
+
+def compute_sha256(path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    return compute_sha256(path) # Delegates to state_manager
