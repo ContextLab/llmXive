@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AtomicSnapshot"
+description: "Represents a single MD configuration with atomic positions, species, and thermal conductivity."
+type: "object"
+properties:
+  atomic_indices:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Unique identifiers for atoms in the snapshot."
+  coordinates:
+    type: "array"
+    items:
+      type: "array"
+      minItems: 3
+      maxItems: 3
+      items:
+        type: "number"
+    description: "List of (x, y, z) positions for each atom."
+  species:
+    type: "array"
+    items:
+      type: "string"
+      pattern: "^[A-Z][a-z]?$"
+    description: "Element symbols (e.g., 'Cu', 'Ni', 'Au', 'Ag')."
+  thermal_conductivity:
+    type: "number"
+    minimum: 0
+    description: "Pre-calculated thermal conductivity in W/m·K or synthetic proxy."
+  source_file:
+    type: "string"
+    description: "Path to the original data file or 'synthetic'."
+  mode:
+    type: "string"
+    enum:
+      - "real"
+      - "synthetic"
+    description: "Indicates whether the data is real or synthetically generated."
+required:
+  - atomic_indices
+  - coordinates
+  - species
+  - thermal_conductivity
+  - source_file
+  - mode

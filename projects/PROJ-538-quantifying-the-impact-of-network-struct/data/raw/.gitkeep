@@ -1,0 +1,3 @@
+# Raw data directory
+# Downloaded MD snapshots and external datasets will be stored here.
+# Do not commit large binary files to git.
