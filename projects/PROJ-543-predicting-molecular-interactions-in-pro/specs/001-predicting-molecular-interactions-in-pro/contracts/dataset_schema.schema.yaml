@@ -1,0 +1,74 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MolecularGraphSchema
+description: Schema for the processed molecular graph data structure.
+type: object
+properties:
+  complex_id:
+    type: string
+    description: Unique identifier for the protein-ligand complex.
+  resolution:
+    type: number
+    description: Resolution of the crystal structure in Angstroms.
+  pKd:
+    type: number
+    description: Experimental binding affinity (pKd).
+  water_flag:
+    type: boolean
+    description: True if water-mediated interaction detected (FR-009).
+  nodes:
+    type: array
+    description: List of atoms in the complex.
+    items:
+      type: object
+      properties:
+        atom_type:
+          type: string
+          description: Element symbol (e.g., C, N, O) or 'unknown'.
+        charge:
+          type: number
+          description: Partial charge of the atom.
+        coordinates:
+          type: array
+          description: "3D coordinates [x, y, z] in Angstroms."
+          items:
+            type: number
+          minItems: 3
+          maxItems: 3
+        hydrophobicity:
+          type: number
+          description: Hydrophobicity score.
+      required:
+        - atom_type
+        - charge
+        - coordinates
+        - hydrophobicity
+  edges:
+    type: array
+    description: List of interactions between atoms.
+    items:
+      type: object
+      properties:
+        source:
+          type: integer
+          description: Index of the source atom.
+        target:
+          type: integer
+          description: Index of the target atom.
+        bond_type:
+          type: string
+          description: Type of interaction (covalent or non-covalent).
+        distance:
+          type: number
+          description: Distance between atoms in Angstroms.
+      required:
+        - source
+        - target
+        - bond_type
+        - distance
+required:
+  - complex_id
+  - resolution
+  - pKd
+  - water_flag
+  - nodes
+  - edges

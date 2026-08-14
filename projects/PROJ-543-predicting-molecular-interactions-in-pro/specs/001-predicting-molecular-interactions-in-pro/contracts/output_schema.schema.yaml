@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SubstructureClusterSchema
+description: Schema for the identified interaction motifs and their validation results.
+type: object
+properties:
+  cluster_id:
+    type: integer
+    description: Unique identifier for the cluster.
+  centroid_coordinates:
+    type: array
+    description: "Centroid coordinates [x, y, z] of the cluster."
+    items:
+      type: number
+    minItems: 3
+    maxItems: 3
+  member_count:
+    type: integer
+    description: Number of substructures in the cluster.
+  pharmacophore_id:
+    type: ["string", "null"]
+    description: ID of the matched pharmacophore, or null if no match.
+  rmsd:
+    type: number
+    description: Root Mean Square Deviation to the matched pharmacophore.
+  p_value_ttest:
+    type: number
+    description: Raw p-value from the two-sample t-test (Constitution Principle VII).
+  p_value_perm:
+    type: number
+    description: Raw p-value from the permutation test.
+  is_significant:
+    type: boolean
+    description: Whether the cluster is significant after FDR correction.
+  matched_pharmacophore_name:
+    type: ["string", "null"]
+    description: Human-readable name of the matched pharmacophore.
+  alignment_method:
+    type: string
+    description: Method used for alignment (e.g., "Procrustes").
+required:
+  - cluster_id
+  - centroid_coordinates
+  - member_count
+  - rmsd
+  - p_value_ttest
+  - p_value_perm
+  - is_significant
+  - alignment_method
