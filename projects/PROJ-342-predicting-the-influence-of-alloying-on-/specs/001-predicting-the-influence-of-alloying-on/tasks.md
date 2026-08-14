@@ -251,7 +251,6 @@ With multiple developers:
 - **Critical**: Ensure no tasks require GPU (CUDA) or 8-bit/4-bit quantization libraries. All models must run on CPU.
 - **Note on Plan Discrepancy (FDR vs Bonferroni)**: Spec FR-008 mandates FDR; Plan's 'Complexity Tracking' mentions Bonferroni; this is a Plan error that must be amended. Tasks follow Spec.
 - **Note on Plan Discrepancy (VIF)**: Spec FR-007 mandates 'flag only'. Plan's 'Complexity Tracking' mentions iterative dropping; this is a Plan error that must be amended. Tasks follow Spec.
-- **Note on Visualization**: T039 covers the general 'visualize non-linear relationships' requirement, using partial dependence as the primary method but allowing others if validated.
 
 - [ ] T048 [US2] Implement iterative VIF remediation logic in `code/train.py`. If a predictor has a VIF > 5, remove it and retrain the model with the remaining predictors. Repeat until all predictors have a VIF <= 5 (Aligning Plan to Spec FR-007).
 - [ ] T049 [US3] Add unit tests for FDR correction implementation in `code/analyze.py` to verify correct application of Benjamini-Hochberg procedure and α ≤ 0.05 threshold.
