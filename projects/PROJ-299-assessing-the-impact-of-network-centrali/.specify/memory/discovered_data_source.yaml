@@ -1,14 +1,13 @@
 status: none
-intent: ADNI rs-fMRI AAL atlas download connectivity python package dataset
+intent: ADNI resting-state fMRI dataset AAL atlas Yeo 7-network python package dataset
 required_fields:
 - participant_id
 - session_id
 - roi_label
-- roi_index
 - degree_centrality
 - betweenness_centrality
 - closeness_centrality
-- network_category
-cache_key: 1de908a39bf9e86f463a0424bade69d4256fa845e173339fd613e02e81013ea8
-searched_at: '2026-08-12T09:10:40.524126+00:00'
+- network
+cache_key: bfcb88af85dae934ebae4b769ec7c5a5ca4c5704fbc27f145bed1e6ac6da335b
+searched_at: '2026-08-14T18:40:46.683527+00:00'
 retry_count: 1

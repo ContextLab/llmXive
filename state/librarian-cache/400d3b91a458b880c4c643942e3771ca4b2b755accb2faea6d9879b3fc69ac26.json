@@ -1,0 +1,570 @@
+{
+  "fetched_at": "2026-08-14T18:53:55Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Trust Region On-Policy Distillation\"",
+      "target_n": 5
+    },
+    "duration_seconds": 101.567,
+    "ended_at": "2026-08-14T18:53:55Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "on-policy knowledge distillation for large language models"
+        ],
+        [
+          2,
+          "trust region optimization in policy distillation"
+        ],
+        [
+          3,
+          "proximal policy optimization for model distillation"
+        ],
+        [
+          4,
+          "constrained policy optimization for LLM distillation"
+        ],
+        [
+          5,
+          "iterative on-policy distillation methods"
+        ],
+        [
+          6,
+          "KL-divergence constrained distillation"
+        ],
+        [
+          7,
+          "policy distillation with trust region constraints"
+        ],
+        [
+          8,
+          "stable on-policy learning for teacher-student models"
+        ],
+        [
+          9,
+          "reinforcement learning based model distillation"
+        ],
+        [
+          10,
+          "on-policy fine-tuning of large language models"
+        ],
+        [
+          11,
+          "policy regularization in knowledge distillation"
+        ],
+        [
+          12,
+          "iterative distillation with constraint satisfaction"
+        ],
+        [
+          13,
+          "trust region policy optimization applied to LLMs"
+        ],
+        [
+          14,
+          "efficient on-policy distillation algorithms"
+        ],
+        [
+          15,
+          "teacher-student distillation with policy constraints"
+        ],
+        [
+          16,
+          "proximal distillation for large language models"
+        ],
+        [
+          17,
+          "conservative policy distillation techniques"
+        ],
+        [
+          18,
+          "on-policy alignment via distillation"
+        ],
+        [
+          19,
+          "constrained gradient updates for model distillation"
+        ],
+        [
+          20,
+          "iterative refinement in on-policy distillation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer science": 0,
+        "on-policy knowledge distillation for large language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "trust region policy optimization distillation",
+      "PPO KL divergence reward shaping",
+      "on-policy imitation learning teacher-student",
+      "policy collapse KL penalty stability",
+      "maximum likelihood estimation fine-tuning alignment"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2505.17714"
+      ]
+    },
+    "per_query_hit_count": {
+      "PPO KL divergence reward shaping": 3,
+      "llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer science": 3,
+      "maximum likelihood estimation fine-tuning alignment": 3,
+      "on-policy imitation learning teacher-student": 3,
+      "policy collapse KL penalty stability": 3,
+      "trust region policy optimization distillation": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2504.19565",
+          "rationale": "The paper focuses on \"corpus distillation\" (data selection and generation) for biomedical LLMs using multi-agent systems, which is a distinct construct from the user's specific interest in \"Trust Region On-Policy Distillation\" (a specific reinforcement learning algorithm for policy optimization). While both involve \"distillation,\" they address different stages of the LLM lifecycle (data preparation vs. model training/alignment) and do not share the same mechanism, variables, or foundational meth",
+          "title": "Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training"
+        },
+        {
+          "primary_pointer": "2502.03034",
+          "rationale": "The paper applies knowledge distillation to a completely different domain (household energy modeling) and does not address the specific \"Trust Region On-Policy Distillation\" algorithm or the theoretical extensions of the \"llmXive\" framework requested by the user. While it mentions \"knowledge distillation,\" this falls under the \"Distinct construct sharing only homonym keywords\" rejection rule, as the mechanism (on-policy trust region optimization) and the research context (computer science algori",
+          "title": "Knowledge Distillation from Large Language Models for Household Energy Modeling"
+        },
+        {
+          "primary_pointer": "2312.05434",
+          "rationale": "The paper focuses on applying knowledge distillation to improve multimodal harmful meme detection, which is a specific downstream application, whereas the user's question targets the \"Trust Region On-Policy Distillation\" algorithmic mechanism itself. While both involve \"distillation,\" the candidate paper does not measure the same algorithmic property, establish a baseline for the specific method, or serve as a foundational reference for the \"Trust Region On-Policy\" framework, thus failing criter",
+          "title": "Beneath the Surface: Unveiling Harmful Memes with Multimodal Reasoning Distilled from Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-14T18:52:14Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"trust region on-policy distillation\" computer science",
+      "raw": "llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-14T18:52:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-14T18:52:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Q-shaping is an extension of Q-value initialization and serves as an alternative to reward shaping for incorporating domain knowledge to accelerate agent training, thereby improving sample efficiency by directly shaping Q-values. This approach is both general and robust across diverse tasks, allowing for immediate impact assessment while guaranteeing optimality. We evaluated Q-shaping across 20 different environments using a large language model (LLM) as the heuristic provider. The results demonstrate that Q-shaping significantly enhances sample efficiency, achieving a \\textbf{16.87\\%} improvement over the best baseline in each environment and a \\textbf{253.80\\%} improvement compared to LLM-based reward shaping methods. These findings establish Q-shaping as a superior and unbiased alternative to conventional reward shaping in reinforcement learning.",
+          "claimed_authors": [
+            "Xiefeng Wu"
+          ],
+          "claimed_title": "From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.01458"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='From Reward Shaping to Q-Shaping: Achieving Unbiased Learning with LLM-Guided Knowledge')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Kullback-Leibler (KL) divergence is a fundamental concept in information theory that quantifies the discrepancy between two probability distributions. In the context of Variational Autoencoders (VAEs), it serves as a central regularization term, imposing structure on the latent space and thereby enabling the model to exhibit generative capabilities. In this work, we present a detailed derivation of the closed-form expression for the KL divergence between Gaussian distributions, a case of particular importance in practical VAE implementations. Starting from the general definition for continuous random variables, we derive the expression for the univariate case and extend it to the multivariate setting under the assumption of diagonal covariance. Finally, we discuss the interpretation of each term in the resulting expression and its impact on the training dynamics of the model.",
+          "claimed_authors": [
+            "Andrés Muñoz",
+            "Rodrigo Ramele"
+          ],
+          "claimed_title": "KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.11744"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='KL Divergence Between Gaussians: A Step-by-Step Derivation for the Variational Autoencoder Objective')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Model-free and reinforcement learning-based adaptive filtering methods are gaining traction for denoising in dynamic, non-stationary environments such as wireless signal channels, biomedical monitoring, and sensor networks. Traditional filters such as LMS, RLS, Wiener, and Kalman are often limited by assumptions of stationarity, the need for exact noise statistics, or fragile parameter tuning. This paper proposes an adaptive filtering framework using Proximal Policy Optimization (PPO), guided by a composite reward that balances SNR improvement, MSE reduction, and residual smoothness. We frame adaptive filtering as a Markov decision process and train a PPO agent to adjust filter coefficients directly in response to changing noise. Experiments on synthetic nonstationary signals with diverse noise types show that the PPO agent generalizes beyond its training distribution. Moreover, real-world analysis is made and evaluated on ECG recordings from the MIT-BIH Noise Stress Test Database corrupted by baseline wander, electrode motion, and muscle artifacts. The learned PPO policy achieves real-time inference and slightly outperforms strong classical baselines on ECG denoising. These results demonstrate the viability of policy-gradient reinforcement learning as a computationally efficient and flexible tool for adaptive filtering in nonlinear, time-varying dynamical systems.",
+          "claimed_authors": [
+            "Abdullah Burkan Bereketoglu"
+          ],
+          "claimed_title": "Composite Reward Design in PPO-Driven Adaptive Filtering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.06323"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Composite Reward Design in PPO-Driven Adaptive Filtering')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Existing on-policy imitation learning algorithms, such as DAgger, assume access to a fixed supervisor. However, there are many settings where the supervisor may evolve during policy learning, such as a human performing a novel task or an improving algorithmic controller. We formalize imitation learning from a \"converging supervisor\" and provide sublinear static and dynamic regret guarantees against the best policy in hindsight with labels from the converged supervisor, even when labels during learning are only from intermediate supervisors. We then show that this framework is closely connected to a class of reinforcement learning (RL) algorithms known as dual policy iteration (DPI), which alternate between training a reactive learner with imitation learning and a model-based supervisor with data from the learner. Experiments suggest that when this framework is applied with the state-of-the-art deep model-based RL algorithm PETS as an improving supervisor, it outperforms deep RL baselines on continuous control tasks and provides up to an 80-fold speedup in policy evaluation.",
+          "claimed_authors": [
+            "Ashwin Balakrishna",
+            "Brijen Thananjeyan",
+            "Jonathan Lee",
+            "Felix Li",
+            "Arsh Zahed",
+            "Joseph E. Gonzalez",
+            "Ken Goldberg"
+          ],
+          "claimed_title": "On-Policy Robot Imitation Learning from a Converging Supervisor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.03423"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='On-Policy Robot Imitation Learning from a Converging Supervisor')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate and reliable prediction of hospital admission location is important due to resource-constraints and space availability in a clinical setting, particularly when dealing with patients who come from the emergency department. In this work we propose a student-teacher network via reinforcement learning to deal with this specific problem. A representation of the weights of the student network is treated as the state and is fed as an input to the teacher network. The teacher network's action is to select the most appropriate batch of data to train the student network on from a training set sorted according to entropy. By validating on three datasets, not only do we show that our approach outperforms state-of-the-art methods on tabular data and performs competitively on image recognition, but also that novel curricula are learned by the teacher network. We demonstrate experimentally that the teacher network can actively learn about the student network and guide it to achieve better performance than if trained alone.",
+          "claimed_authors": [
+            "Rasheed el-Bouri",
+            "David Eyre",
+            "Peter Watkinson",
+            "Tingting Zhu",
+            "David Clifton"
+          ],
+          "claimed_title": "Student-Teacher Curriculum Learning via Reinforcement Learning: Predicting Hospital Inpatient Admission Location",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.01135"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Student-Teacher Curriculum Learning via Reinforcement Learning: Predicting Hospital Inpatient Admission Location')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Imitation learning (IL) from a state-based reinforcement learning (RL) policy is a common approach to overcome the curse of dimensionality in complex and high-dimensional observation spaces prevalent in robotics. This paper addresses the irreducible imitation gap that emerges when teacher and student are learned in isolation, and the teacher policy has the liberty to rely on privileged state information that the student cannot infer from its observations. Instead of improving poor student performance with RL finetuning after IL, which often requires a whole new training setup, we propose a novel algorithm which learns a shared embedding space that hides agent-specific observations and thus trains imitable teacher policies by construction. We train the shared embedding space with self-supervised contrastive learning in parallel to the teacher policy and prevent it from extracting private information by limiting its gradients from updating the encoder networks. We perform evaluations on several example domains and compare to state-of-the-art baselines showing that our algorithm enables higher student performance with substantially reduced imitation gap.",
+          "claimed_authors": [
+            "Meraj Mammadov",
+            "Pedro Zuidberg Dos Martires",
+            "Johannes Andreas Stork"
+          ],
+          "claimed_title": "Teacher-Student Representational Alignment for Reinforcement Learning-Driven Imitation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.28372"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Teacher-Student Representational Alignment for Reinforcement Learning-Driven Imitation Learning')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This study investigates the complex Landau equation, a reaction diffusion system with applications in nonlinear optics and fluid dynamics. The equation's nonlinear imaginary component introduces rich dynamics and significant computational challenges. We address these challenges using Discontinuous Galerkin (DG) finite element methods. A rigorous stability analysis and a comparative study are performed on three distinct DG schemes : Symmetric Interior Penalty Galerkin (SIPG), Nonsymmetric Interior Penalty Galerkin (NIPG), and Incomplete Interior Penalty Galerkin (IIPG). These methods are compared in terms of their stability and computational efficiency. Our numerical analysis and computational results demonstrate that all three discontinuous Galerkin (DG) schemes are stable. However, the Symmetric Interior Penalty Galerkin (SIPG) scheme proves to be the most robust, as its norm remains bounded even in the presence of nonlinear terms a property not shared by the others. A comparison between the Incomplete Interior Penalty Galerkin (IIPG) and Nonsymmetric Interior Penalty Galerkin (NIPG) schemes shows that IIPG has superior stability properties. For high values of the penalty parameter, all methods exhibit similar stability behavior. Our results highlight the suitability of DG methods for simulating complex nonlinear reaction-diffusion systems and provide a practical framework for selecting the most efficient scheme for a given problem.",
+          "claimed_authors": [
+            "Dimitrios Kostas"
+          ],
+          "claimed_title": "Stability estimates for Interior Penalty D.G. Methods for the Nonlinear Dynamics of the complex Ginzburg Landau equation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.06158"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Stability estimates for Interior Penalty D.G. Methods for the Nonlinear Dynamics of the complex Ginzburg Landau equation')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
+          "claimed_authors": [
+            "Kasun Amarasinghe",
+            "Kit Rodolfa",
+            "Hemank Lamba",
+            "Rayid Ghani"
+          ],
+          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.14374"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Direct Preference Optimization (DPO) demonstrates the advantage of aligning a large language model with human preference using only an offline dataset. However, DPO has the limitation that the KL penalty, which prevents excessive deviation from the reference model, is static throughout the training process. Several methods claim to change this static KL penalty of DPO into a dynamic one, but no approach can adaptively assign different KL penalties for each preference pair. In this paper, we propose $\\varepsilon$-Direct Preference Optimization ($\\varepsilon$-DPO), which allows adaptive control of the KL penalty strength $β$ for each preference pair. Specifically, $\\varepsilon$-DPO adaptively controls $β$ for each preference pair based on the monotonicity of logits as a preference model under the perturbation of $β$ during training. This is equivalent to adjusting the KL penalty by checking whether the change in training-time temperature can lead to better preference confidence as preference models by simply reusing the logit of the current policy and the reference policy. Experimental results show that the simple criterion of $\\varepsilon$-DPO for KL penalty relaxation significantly improves DPO compared to most existing direct alignment algorithms on general chatbot benchmarks and reveal that this KL penalty control criterion can reflect confusion as a preference model and provide an efficient KL trade-off, highlighting the significance of instance-level adaptive KL penalty control in DPO.",
+          "claimed_authors": [
+            "Sangkyu Lee",
+            "Janghoon Han",
+            "Hosung Song",
+            "Stanley Jungkyu Choi",
+            "Honglak Lee",
+            "Youngjae Yu"
+          ],
+          "claimed_title": "KL Penalty Control via Perturbation for Direct Preference Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.13177"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='KL Penalty Control via Perturbation for Direct Preference Optimization')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Filtering and parameter estimation under partial information for multiscale problems is studied in this paper. After proving mean square convergence of the nonlinear filter to a filter of reduced dimension, we establish that the conditional (on the observations) log-likelihood process has a correction term given by a type of central limit theorem. To achieve this we assume that the operator of the (hidden) fast process has a discrete spectrum and an orthonormal basis of eigenfunctions. Based on these results, we then propose to estimate the unknown parameters of the model based on the limiting log-likelihood, which is an easier function to optimize because it of reduced dimension. We also establish consistency and asymptotic normality of the maximum likelihood estimator based on the reduced log-likelihood. Simulation results illustrate our theoretical findings.",
+          "claimed_authors": [
+            "Andrew Papanicolaou",
+            "Konstantinos Spiliopoulos"
+          ],
+          "claimed_title": "Filtering the Maximum Likelihood for Multiscale Problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.1918"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Filtering the Maximum Likelihood for Multiscale Problems')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Estimating the matrix of connections probabilities is one of the key questions when studying sparse networks. In this work, we consider networks generated under the sparse graphon model and the in-homogeneous random graph model with missing observations. Using the Stochastic Block Model as a parametric proxy, we bound the risk of the maximum likelihood estimator of network connections probabilities , and show that it is minimax optimal. When risk is measured in Frobenius norm, no estimator running in polynomial time has been shown to attain the minimax optimal rate of convergence for this problem. Thus, maximum likelihood estimation is of particular interest as computationally efficient approximations to it have been proposed in the literature and are often used in practice.",
+          "claimed_authors": [
+            "Solenne Gaucher",
+            "Olga Klopp"
+          ],
+          "claimed_title": "Maximum Likelihood Estimation of Sparse Networks with Missing Observations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1902.10605"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Maximum Likelihood Estimation of Sparse Networks with Missing Observations')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A fundamental problem with nonlinear models is that maximum likelihood estimates are not guaranteed to exist. Though nonexistence is a well known problem in the binary response model literature, it presents significant challenges for other models and is not as well understood in more general settings. These challenges are only magnified for models that feature many fixed effects and other high-dimensional parameters. We address the current ambiguity surrounding this topic by studying the conditions that govern the existence of estimates for (pseudo-)maximum likelihood estimators used to estimate a wide class of generalized linear models (GLMs). We show that some, but not all, of these GLM estimators can still deliver consistent estimates of at least some of the linear parameters when these conditions fail to hold. We also demonstrate how to verify these conditions in models with high-dimensional parameters, such as panel data models with multiple levels of fixed effects. Applying our methods to a gravity model with heterogeneous free trade agreement effects, we show that failing to detect nonexistence can produce misleading numerical estimates.",
+          "claimed_authors": [
+            "Sergio Correia",
+            "Paulo Guimarães",
+            "Thomas Zylkin"
+          ],
+          "claimed_title": "Verifying the existence of maximum likelihood estimates for generalized linear models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1903.01633"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Trust Region On-Policy Distillation\" computer scie', candidate_title='Verifying the existence of maximum likelihood estimates for generalized linear models')",
+        "failed_at": "2026-08-14T18:52:51Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xingrun Xing",
+            "Haoqing Wang",
+            "Boyan Gao",
+            "Ziheng Li",
+            "Yehui Tang"
+          ],
+          "title": "Trust Region On-Policy Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.01249",
+        "summary": "On-Policy Distillation (OPD) is a fundamental technique for efficient post-training of large language models (LLMs), with broad applications in agent learning, multi-task enhancement, and model compression. However, OPD training becomes unstable when the teacher and student distributions differ substantially, as teacher supervision on student-generated tokens may yield unreliable policy gradients and even cause optimization failure. This work addresses reliable on-policy token-level supervision through credit assignment strategies, and proposes Trust Region On-Policy Distillation, TrOPD. It features the following characteristics: 1) Trust-Region On-Policy Learning: TrOPD performs OPD only in regions where the teacher provides reliable supervision, mitigating the optimization difficulty of the K1 reverse-KL estimator under distribution mismatch. 2) Outlier Estimation: For outlier regions, we explore gradient clipping, masking, and forward-KL estimation to reduce the adverse effects of unreliable supervision. 3) Off-Policy Guidance: The student continues generation from teacher prefixes and uses forward KL to imitate off-policy guidance, encouraging on-policy exploration toward reliable regions. Experiments show that TrOPD consistently outperforms SoTA OPD baselines, including OPD, EOPD, and REOPOLD, across mathematical reasoning, code generation, and general-domain benchmarks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.01249",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-14T18:52:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ying Wen",
+            "Hui Chen",
+            "Yaodong Yang",
+            "Zheng Tian",
+            "Minne Li",
+            "Xu Chen",
+            "Jun Wang"
+          ],
+          "title": "A Game-Theoretic Approach to Multi-Agent Trust Region Optimization",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2106.06828",
+        "summary": "Trust region methods are widely applied in single-agent reinforcement learning problems due to their monotonic performance-improvement guarantee at every iteration. Nonetheless, when applied in multi-agent settings, the guarantee of trust region methods no longer holds because an agent's payoff is also affected by other agents' adaptive behaviors. To tackle this problem, we conduct a game-theoretical analysis in the policy space, and propose a multi-agent trust region learning method (MATRL), which enables trust region optimization for multi-agent learning. Specifically, MATRL finds a stable improvement direction that is guided by the solution concept of Nash equilibrium at the meta-game level. We derive the monotonic improvement guarantee in multi-agent settings and empirically show the local convergence of MATRL to stable fixed points in the two-player rotational differential game. To test our method, we evaluate MATRL in both discrete and continuous multiplayer general-sum games including checker and switch grid worlds, multi-agent MuJoCo, and Atari games. Results suggest that MATRL significantly outperforms strong multi-agent reinforcement learning baselines.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2106.06828",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-14T18:52:48Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ben Rahman"
+          ],
+          "title": "PPO-BR: Dual-Signal Entropy-Reward Adaptation for Trust Region Policy Optimization",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.17714",
+        "summary": "Despite Proximal Policy Optimization (PPO) dominating policy gradient methods -- from robotic control to game AI -- its static trust region forces a brittle trade-off: aggressive clipping stifles early exploration, while late-stage updates destabilize convergence. PPO-BR establishes a new paradigm in adaptive RL by fusing exploration and convergence signals into a single bounded trust region -- a theoretically grounded innovation that outperforms five SOTA baselines with less than 2% overhead. This work bridges a critical gap in phase-aware learning, enabling real-world deployment in safety-critical systems like robotic surgery within a single adaptive mechanism. PPO-BR achieves 29.1% faster convergence by combining: (1) entropy-driven expansion (epsilon up) for exploration in high-uncertainty states, and (2) reward-guided contraction (epsilon down) for convergence stability. On six diverse benchmarks (MuJoCo, Atari, sparse-reward), PPO-BR achieves 29.1% faster convergence (p < 0.001), 2.3x lower reward variance than PPO, and less than 1.8% runtime overhead with only five lines of code change. PPO-BR's simplicity and theoretical guarantees make it ready-to-deploy in safety-critical domains -- from surgical robotics to autonomous drones. In contrast to recent methods such as Group Relative Policy Optimization (GRPO), PPO-BR offers a unified entropy-reward mechanism applicable to both language models and general reinforcement learning environments.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.17714",
+          "http_status": 200,
+          "pdf_sample_score": 0.2939,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-14T18:52:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Songyuan Li",
+            "Jia Hu",
+            "Ahmed M. Abdelmoniem",
+            "Geyong Min",
+            "Haojun Huang",
+            "Jiwei Huang"
+          ],
+          "title": "DeepFusion: Accelerating MoE Training via Federated Knowledge Distillation from Heterogeneous Edge Devices",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.14301",
+        "summary": "Recent Mixture-of-Experts (MoE)-based large language models (LLMs) such as Qwen-MoE and DeepSeek-MoE are transforming generative AI in natural language processing. However, these models require vast and diverse training data. Federated learning (FL) addresses this challenge by leveraging private data from heterogeneous edge devices for privacy-preserving MoE training. Nonetheless, traditional FL approaches require devices to host local MoE models, which is impractical for resource-constrained devices due to large model sizes. To address this, we propose DeepFusion, the first scalable federated MoE training framework that enables the fusion of heterogeneous on-device LLM knowledge via federated knowledge distillation, yielding a knowledge-abundant global MoE model. Specifically, DeepFusion features each device to independently configure and train an on-device LLM tailored to its own needs and hardware limitations. Furthermore, we propose a novel View-Aligned Attention (VAA) module that integrates multi-stage feature representations from the global MoE model to construct a predictive perspective aligned with on-device LLMs, thereby enabling effective cross-architecture knowledge distillation. By explicitly aligning predictive perspectives, VAA resolves the view-mismatch problem in traditional federated knowledge distillation, which arises from heterogeneity in model architectures and prediction behaviors between on-device LLMs and the global MoE model. Experiments with industry-level MoE models (Qwen-MoE and DeepSeek-MoE) and real-world datasets (medical and finance) demonstrate that DeepFusion achieves performance close to centralized MoE training. Compared with key federated MoE baselines, DeepFusion reduces communication costs by up to 71% and improves token perplexity by up to 5.28%.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.14301",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-14T18:53:13Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.13567",
+        "summary": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.13567",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-14T18:53:14Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"trust region on-policy distillation\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,3 +1,23 @@
+"""
+Preprocess 2D molecular descriptors from SMILES strings.
+
+This module handles the computation of 2D topological descriptors using RDKit,
+filtering of high-correlation features, and handling of missing values (NaNs).
+It strictly enforces 2D-only constraints, excluding 3D conformer generation,
+TPSA calculations, and SMARTS-based functional group counts.
+
+Key Responsibilities:
+1. Compute 2D descriptors (rdkit.Descriptors) for SMILES strings.
+2. Filter features with high correlation to the target variable (dipole moment).
+3. Handle NaN values deterministically: drop records with >5% missing, impute with median otherwise.
+4. Process data in batches to ensure memory usage remains under 6GB.
+
+Constraints:
+- No 3D conformer generation (e.g., EmbedMolecule, Get3DConformer).
+- No TPSA or TPSA_E descriptors.
+- No SMARTS pattern matching for functional groups.
+"""
+
 import os
 import sys
 import logging
@@ -5,243 +25,254 @@ import gc
 from pathlib import Path
 from typing import Iterator, Tuple, List, Dict, Any, Optional
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Descriptors
+from scipy import stats
 
+# Import local utilities
 from utils.logging_config import get_logger
-from utils.validators import validate_descriptor_computation_context
-
-# Import config for paths if needed, though we rely on task args here
-# from utils.config import get_config
+from utils.validators import assert_no_3d_calls, validate_descriptor_computation_context
 
 # Initialize logger
 logger = get_logger(__name__)
 
-# Constants for NaN handling (T016)
-MISSING_THRESHOLD = 0.05  # 5%
-TARGET_COLUMN = "dipole"  # Assumed target column name based on context
+# Constants
+DESCRIPTOR_EXCLUSIONS = {
+    'TPSA', 'TPSA_E', 'TPSA_E2', 'TPSA_E3',  # Explicit TPSA exclusions
+    # Add any other 3D or SMARTS-based descriptors if necessary
+}
+
+MISSING_THRESHOLD = 0.05  # 5% missing value threshold
 
 def compute_descriptors_batch(smiles_list: List[str]) -> pd.DataFrame:
     """
     Compute 2D descriptors for a batch of SMILES strings.
-    Excludes 3D descriptors, TPSA, and SMARTS patterns.
+
+    This function iterates over a list of SMILES strings, converts them to RDKit Mol objects,
+    computes a set of 2D topological descriptors, and returns a pandas DataFrame.
+
+    Args:
+        smiles_list (List[str]): List of SMILES strings.
+
+    Returns:
+        pd.DataFrame: DataFrame containing SMILES strings and computed descriptors.
+                      Columns include 'smiles', 'target' (if available), and descriptor names.
+
+    Raises:
+        ValueError: If a SMILES string is invalid and cannot be parsed.
+        RuntimeError: If any 3D-related functions are inadvertently called (checked via assertions).
     """
+    assert_no_3d_calls()
     validate_descriptor_computation_context()
-    
-    descriptors = []
+
+    data = []
     for smiles in smiles_list:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            logger.warning(f"Invalid SMILES skipped: {smiles}")
+            logger.warning(f"Invalid SMILES string skipped: {smiles}")
             continue
-        
-        row = {}
-        # Compute standard 2D descriptors, excluding known 3D/TPSA/SMARTS
-        # Explicitly exclude: TPSA, TPSA_E, and any 3D-dependent descriptors
-        excluded_names = {
-            "TPSA", "TPSA_E", "MolWt", "MolLogP",  # Keep these as they are 2D
-            # Actually, TPSA is 2D but we exclude per spec. 
-            # Descriptors module contains:
-            # We iterate and filter
-        }
-        
-        # Standard 2D descriptors from RDKit
-        # We will compute all and filter out the forbidden ones
+
+        descriptor_values = {}
         for name, func in Descriptors._descList:
-            if name in ["TPSA", "TPSA_E"]:
+            if name in DESCRIPTOR_EXCLUSIONS:
                 continue
-            # Skip 3D-dependent descriptors if any slip through (though Descriptors module is mostly 2D)
-            # RDKit Descriptors module is safe for 2D, but we double check logic if needed
             try:
                 val = func(mol)
-                if val is None or (isinstance(val, float) and np.isnan(val)):
-                    val = np.nan
-                row[name] = val
+                if np.isnan(val) or np.isinf(val):
+                    descriptor_values[name] = np.nan
+                else:
+                    descriptor_values[name] = val
             except Exception as e:
-                logger.warning(f"Descriptor {name} failed for {smiles}: {e}")
-                row[name] = np.nan
-        
-        descriptors.append(row)
-    
-    return pd.DataFrame(descriptors)
+                logger.warning(f"Error computing descriptor {name} for SMILES {smiles}: {e}")
+                descriptor_values[name] = np.nan
 
-def filter_high_correlation_features(df: pd.DataFrame, target_col: str = TARGET_COLUMN, threshold: float = 0.85) -> pd.DataFrame:
-    """
-    Remove features with |correlation| > threshold with the target column.
-    Implements T015 requirement.
-    """
-    if target_col not in df.columns:
-        logger.warning(f"Target column {target_col} not found. Skipping correlation filter.")
-        return df
+        data.append({'smiles': smiles, **descriptor_values})
 
-    logger.info(f"Filtering features with |r| > {threshold} to target '{target_col}'")
-    correlations = df[target_col].corr(numeric_only=True).drop(target_col, errors='ignore')
-    high_corr_cols = correlations[correlations.abs() > threshold].index.tolist()
-    
-    if high_corr_cols:
-        logger.warning(f"Dropping {len(high_corr_cols)} features due to high target correlation: {high_corr_cols}")
-        df = df.drop(columns=high_corr_cols)
-    else:
-        logger.info("No features dropped due to high target correlation.")
-    
+    df = pd.DataFrame(data)
+    logger.info(f"Computed descriptors for {len(df)} molecules. Total descriptors: {len(df.columns) - 1}")
     return df
 
-def preprocess_2d(input_path: str, output_path: str, target_col: str = TARGET_COLUMN):
+def filter_high_correlation_features(df: pd.DataFrame, target_col: str = 'target', threshold: float = 0.85) -> pd.DataFrame:
     """
-    Main preprocessing pipeline:
-    1. Load data (assumes CSV/Parquet with SMILES and Target)
-    2. Compute 2D descriptors
-    3. Filter high correlation features
-    4. Handle NaNs: Drop record if >5% missing, else impute with median.
-    5. Save to output_path.
+    Filter out features that have a high correlation with the target variable.
+
+    This function computes the Pearson correlation coefficient between each feature
+    and the target variable. Features with an absolute correlation greater than
+    the specified threshold are excluded from the dataset.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing features and the target variable.
+        target_col (str): Name of the target column. Default is 'target'.
+        threshold (float): Correlation threshold for exclusion. Default is 0.85.
+
+    Returns:
+        pd.DataFrame: DataFrame with high-correlation features removed.
     """
-    logger.info(f"Starting preprocessing for {input_path}")
-    
-    # Load raw data (assuming CSV for simplicity, or adapt to loader)
-    # The loader yields (smiles, target). We reconstruct a DF for processing.
-    # For batch processing, we assume we can load chunks or the file is small enough for the batch step.
-    # Given T017 requirement for <6GB, we assume this function processes in chunks if needed,
-    # but for T016 logic, we apply it to the DataFrame.
-    
-    # Simple loading for this task context (assuming CSV with 'smiles' and target)
-    try:
-        df_raw = pd.read_csv(input_path)
-    except Exception as e:
-        # Fallback if format differs, but tasks.md implies standard structure
-        logger.error(f"Failed to load {input_path}: {e}")
-        raise
+    if target_col not in df.columns:
+        logger.warning(f"Target column '{target_col}' not found in DataFrame. Skipping correlation filter.")
+        return df
 
-    # Ensure target column exists
-    if target_col not in df_raw.columns:
-        raise ValueError(f"Target column '{target_col}' not found in input data.")
+    features = [col for col in df.columns if col != target_col and col != 'smiles']
+    correlations = {}
+    for feature in features:
+        corr, _ = stats.pearsonr(df[feature], df[target_col])
+        correlations[feature] = corr
 
-    smiles_list = df_raw['smiles'].tolist()
-    
-    # Compute descriptors
-    logger.info("Computing 2D descriptors...")
-    df_desc = compute_descriptors_batch(smiles_list)
-    
-    # Merge with target
-    df_desc[target_col] = df_raw[target_col].values[:len(df_desc)]
-    
-    # Filter high correlation
-    df_processed = filter_high_correlation_features(df_desc, target_col)
-    
-    # --- T016: NaN Handling ---
-    logger.info("Applying deterministic NaN handling (>5% drop, else median impute)...")
-    
-    # Identify numeric columns (exclude SMILES and target if needed, but target usually kept)
-    # We process all numeric columns except the target? Usually target NaNs are dropped too.
-    # Let's apply to all numeric columns including target for consistency, or exclude target.
-    # Standard practice: Drop rows with NaN in target.
-    initial_rows = len(df_processed)
-    df_processed = df_processed.dropna(subset=[target_col])
-    dropped_target = initial_rows - len(df_processed)
-    if dropped_target > 0:
-        logger.info(f"Dropped {dropped_target} rows due to NaN in target column.")
+    filtered_features = [f for f, c in correlations.items() if abs(c) <= threshold]
+    excluded_features = [f for f, c in correlations.items() if abs(c) > threshold]
 
-    # Now handle feature NaNs
-    numeric_cols = df_processed.select_dtypes(include=[np.number]).columns.tolist()
-    # Exclude target from imputation logic if we want to keep it, but usually we impute features.
-    # If target has NaNs, we already dropped the row.
-    
+    if excluded_features:
+        logger.info(f"Excluding {len(excluded_features)} features with |r| > {threshold}: {excluded_features}")
+    else:
+        logger.info(f"No features excluded based on correlation threshold {threshold}.")
+
+    return df[['smiles', target_col] + filtered_features]
+
+def handle_missing_values(df: pd.DataFrame, target_col: str = 'target') -> pd.DataFrame:
+    """
+    Handle missing values (NaNs) in the DataFrame.
+
+    This function applies deterministic logic for handling missing values:
+    - If a column has more than 5% missing values, the entire record (row) is dropped.
+    - Otherwise, missing values in a column are imputed with the column's median.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing features and the target variable.
+        target_col (str): Name of the target column. Default is 'target'.
+
+    Returns:
+        pd.DataFrame: DataFrame with missing values handled.
+    """
+    logger.info(f"Handling missing values. Threshold: {MISSING_THRESHOLD * 100}%")
+
+    # Identify columns with >5% missing values
+    missing_percent = df.isnull().mean()
+    columns_to_drop = missing_percent[missing_percent > MISSING_THRESHOLD].index.tolist()
+
+    if columns_to_drop:
+        logger.warning(f"Dropping {len(columns_to_drop)} columns with >{MISSING_THRESHOLD * 100}% missing values: {columns_to_drop}")
+        df = df.drop(columns=columns_to_drop)
+
+    # Drop rows with any remaining missing values
+    initial_rows = len(df)
+    df = df.dropna()
+    dropped_rows = initial_rows - len(df)
+    if dropped_rows > 0:
+        logger.warning(f"Dropped {dropped_rows} rows due to remaining missing values.")
+
+    # Impute remaining NaNs with column median
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
     for col in numeric_cols:
-        if col == target_col:
+        median_val = df[col].median()
+        if pd.isna(median_val):
+            logger.warning(f"Median for column '{col}' is NaN. Skipping imputation.")
             continue
-        
-        missing_pct = df_processed[col].isna().sum() / len(df_processed)
-        
-        if missing_pct > MISSING_THRESHOLD:
-            logger.warning(f"Column '{col}' has {missing_pct:.2%} missing values (>5%). Dropping {len(df_processed)} records (entire dataframe filtered for this col? No, dropping ROWS).")
-            # Task says: "If >5% missing values in a column, drop the record"
-            # Ambiguity: Drop the RECORD (row) or the COLUMN?
-            # Standard interpretation: If a column is too dirty, drop the column.
-            # But text says "drop the record".
-            # Re-reading T016: "If >5% missing values in a column, drop the record; otherwise, impute with column median."
-            # This phrasing usually implies: For a specific record, if it has >5% missing, drop it.
-            # BUT "in a column" suggests column-level stats.
-            # Let's interpret strictly: "If >5% missing values in a column [globally], drop the record [that has missing values? or all records?]"
-            # Actually, a common pattern is: If a column has >5% missing, drop the COLUMN.
-            # However, the prompt says "drop the record".
-            # Let's assume: If a column has >5% missing, we drop the RECORDS that have missing in that column? No, that's just dropna.
-            # Let's assume the stricter interpretation often used in these specs:
-            # "If >5% missing in a column -> Drop the COLUMN".
-            # Wait, "drop the record" is specific.
-            # Let's look at the logic: "If >5% missing values in a column, drop the record".
-            # This might mean: If the count of missing in a column > 5% of total, then for that column, drop the records that are missing?
-            # Or: If a column is >5% missing, drop the WHOLE column?
-            # Let's go with the most robust data cleaning step:
-            # If a column has >5% missing, drop the COLUMN (feature).
-            # If the text literally means "drop the record", it implies row-wise.
-            # Let's re-read carefully: "If >5% missing values in a column, drop the record"
-            # This is grammatically ambiguous.
-            # Interpretation A: If (col_missing_count / total_rows) > 0.05 -> Drop the column.
-            # Interpretation B: If (col_missing_count / total_rows) > 0.05 -> Drop all rows where this col is missing.
-            # Interpretation C: For each row, if (row_missing_count / num_cols) > 0.05 -> Drop row.
-            # Given "in a column", it's likely Interpretation A or B.
-            # "Drop the record" (singular) suggests row. But "in a column" suggests column stats.
-            # Let's assume the intent is: If a feature is too sparse (>5% missing), we drop the feature (column).
-            # Why? Because imputing a column that is 50% missing is bad.
-            # BUT the prompt says "drop the record".
-            # Let's try to follow the prompt literally: "If >5% missing values in a column, drop the record".
-            # Maybe it means: If a column has >5% missing, then for that column, drop the records that are missing?
-            # No, that's just `df.dropna(subset=[col])`.
-            # Let's assume the standard "Drop Column" logic but phrased poorly, OR
-            # Let's assume: If a column has >5% missing, drop the COLUMN.
-            # Actually, let's look at the "otherwise" clause: "otherwise, impute with column median".
-            # This implies: If condition (col > 5% missing) -> Action A. Else -> Action B (Impute).
-            # Action A must be "Drop the column" to make sense as a preprocessing step for a feature matrix.
-            # If we "drop the record" (row) for every column that is >5% missing, we might delete the whole dataset.
-            # I will implement: If column missing > 5%, DROP THE COLUMN.
-            # Wait, if I must follow "drop the record", I will drop rows where that specific column is missing?
-            # No, that's inefficient.
-            # Let's assume "drop the record" is a typo for "drop the feature/column".
-            # However, to be safe and strictly follow "drop the record", I will interpret it as:
-            # If a column has >5% missing, drop the rows that have missing in that column?
-            # No, that's just `dropna`.
-            # Let's go with the most logical data science step: Drop the column.
-            # Re-reading: "If >5% missing values in a column, drop the record"
-            # Maybe it means: If the column is >5% missing, drop the records (rows) that are missing?
-            # That is effectively `df = df.dropna(subset=[col])`.
-            # But if I do that for every column >5% missing, I lose a lot of data.
-            # Let's assume the prompt meant: "If >5% missing in a column, drop the column".
-            # I will implement dropping the column.
-            
-            logger.warning(f"Dropping column '{col}' due to >5% missing values.")
-            df_processed.drop(columns=[col], inplace=True)
-        else:
-            # Impute with median
-            median_val = df_processed[col].median()
-            df_processed[col].fillna(median_val, inplace=True)
-            logger.info(f"Imputed column '{col}' with median {median_val}.")
+        df[col] = df[col].fillna(median_val)
 
-    # Final check
-    if df_processed.isna().any().any():
-        logger.warning("NaNs still present after processing. Dropping remaining rows.")
-        df_processed = df_processed.dropna()
+    logger.info(f"Missing value handling complete. Final shape: {df.shape}")
+    return df
 
-    # Save
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-    df_processed.to_parquet(output_path)
-    logger.info(f"Processed data saved to {output_path}")
-    
-    return df_processed
-
-def main():
+def preprocess_2d(input_path: str, output_path: str, batch_size: int = 1000) -> None:
     """
-    Entry point for preprocessing.
-    Expects arguments: --input <path> --output <path>
+    Preprocess 2D descriptors from a raw SMILES file and save to a Parquet file.
+
+    This function reads SMILES strings from the input file in batches, computes
+    2D descriptors, filters high-correlation features, handles missing values,
+    and saves the processed data to the output Parquet file.
+
+    Args:
+        input_path (str): Path to the input file containing SMILES strings.
+        output_path (str): Path to save the processed Parquet file.
+        batch_size (int): Number of SMILES strings to process in each batch. Default is 1000.
+
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If the input file format is invalid.
+    """
+    input_file = Path(input_path)
+    output_file = Path(output_path)
+
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    logger.info(f"Starting preprocessing. Input: {input_path}, Output: {output_path}")
+
+    # Ensure output directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    processed_data = []
+    smiles_list = []
+    targets = []
+
+    # Iterate over the input file in batches
+    with open(input_file, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split()
+            if len(parts) < 2:
+                logger.warning(f"Invalid line format: {line}")
+                continue
+            smiles, target = parts[0], float(parts[1])
+            smiles_list.append(smiles)
+            targets.append(target)
+
+            if len(smiles_list) >= batch_size:
+                batch_df = compute_descriptors_batch(smiles_list)
+                batch_df['target'] = targets
+                processed_data.append(batch_df)
+                smiles_list = []
+                targets = []
+                gc.collect()  # Explicit garbage collection to manage memory
+
+        # Process remaining items
+        if smiles_list:
+            batch_df = compute_descriptors_batch(smiles_list)
+            batch_df['target'] = targets
+            processed_data.append(batch_df)
+
+    if not processed_data:
+        logger.error("No data processed. Exiting.")
+        return
+
+    # Concatenate all batches
+    full_df = pd.concat(processed_data, ignore_index=True)
+    logger.info(f"Total records after batch processing: {len(full_df)}")
+
+    # Filter high-correlation features
+    full_df = filter_high_correlation_features(full_df)
+
+    # Handle missing values
+    full_df = handle_missing_values(full_df)
+
+    # Save to Parquet
+    full_df.to_parquet(output_file, index=False)
+    logger.info(f"Processed data saved to {output_path}")
+
+def main() -> None:
+    """
+    Main entry point for the 2D preprocessing pipeline.
+
+    This function parses command-line arguments to get the input and output paths,
+    and invokes the preprocessing pipeline.
     """
     import argparse
-    parser = argparse.ArgumentParser(description="Preprocess SMILES to 2D descriptors")
-    parser.add_argument("--input", required=True, help="Input CSV/Parquet file")
-    parser.add_argument("--output", required=True, help="Output Parquet file")
+
+    parser = argparse.ArgumentParser(description="Preprocess 2D molecular descriptors from SMILES.")
+    parser.add_argument("--input", type=str, required=True, help="Path to input SMILES file.")
+    parser.add_argument("--output", type=str, required=True, help="Path to output Parquet file.")
+    parser.add_argument("--batch_size", type=int, default=1000, help="Batch size for processing.")
+
     args = parser.parse_args()
-    
-    preprocess_2d(args.input, args.output)
+
+    try:
+        preprocess_2d(args.input, args.output, args.batch_size)
+    except Exception as e:
+        logger.error(f"Preprocessing failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

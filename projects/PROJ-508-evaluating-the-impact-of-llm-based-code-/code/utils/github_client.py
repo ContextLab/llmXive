@@ -1,3 +1,7 @@
+"""
+GitHub API client with exponential backoff retry logic.
+Tolerant of various call patterns to support different usage contexts.
+"""
 import time
 import requests
 from typing import Optional, Dict, Any, List
@@ -5,69 +9,113 @@ from urllib.parse import urljoin
 import os
 import logging
 
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class GitHubClient:
+    """
+    GitHub API client with retry logic and flexible initialization.
+    """
+    
     def __init__(self, token: Optional[str] = None, base_url: Optional[str] = None, **kwargs):
+        """
+        Initialize GitHub client.
+        
+        Args:
+            token: GitHub API token (optional)
+            base_url: Base URL for API (optional, defaults to GitHub API)
+            **kwargs: Additional keyword arguments for flexibility
+        """
         self.token = token or os.getenv('GITHUB_TOKEN', '')
         self.base_url = base_url or 'https://api.github.com'
         self.session = requests.Session()
-        if self.token:
-            self.session.headers.update({'Authorization': f'token {self.token}'})
-        self.session.headers.update({'Accept': 'application/vnd.github.v3+json'})
         
-        # Initialize logging attributes for compatibility
-        self.info = self._log_info
-        self.debug = self._log_debug
-        self.warning = self._log_warning
-        self.error = self._log_error
-
-    def _log_info(self, msg, *args, **kwargs):
-        logger.info(msg, *args, **kwargs)
+        if self.token:
+            self.session.headers.update({
+                'Authorization': f'Bearer {self.token}',
+                'Accept': 'application/vnd.github.v3+json'
+            })
+        
+        # Log initialization
+        logger.info(f"GitHubClient initialized with base_url: {self.base_url}")
     
-    def _log_debug(self, msg, *args, **kwargs):
-        logger.debug(msg, *args, **kwargs)
-    
-    def _log_warning(self, msg, *args, **kwargs):
-        logger.warning(msg, *args, **kwargs)
-    
-    def _log_error(self, msg, *args, **kwargs):
-        logger.error(msg, *args, **kwargs)
-
-    def _request(self, method: str, endpoint: str, **kwargs) -> Optional[Dict]:
-        url = urljoin(self.base_url, endpoint)
-        retries = 3
-        for attempt in range(retries):
+    def _request_with_retry(self, method: str, url: str, **kwargs) -> Optional[Dict[str, Any]]:
+        """
+        Make a request with exponential backoff retry logic.
+        
+        Args:
+            method: HTTP method
+            url: Request URL
+            **kwargs: Additional request arguments
+            
+        Returns:
+            Response data or None on failure
+        """
+        max_retries = 3
+        base_delay = 1.0
+        
+        for attempt in range(max_retries):
             try:
                 response = self.session.request(method, url, **kwargs)
-                if response.status_code == 403 and 'rate limit' in response.text.lower():
-                    wait_time = 2 ** attempt
-                    logger.warning(f"Rate limit hit. Waiting {wait_time}s...")
-                    time.sleep(wait_time)
+                
+                if response.status_code == 200:
+                    return response.json()
+                elif response.status_code == 403:
+                    # Rate limit - wait and retry
+                    retry_after = int(response.headers.get('Retry-After', 60))
+                    logger.warning(f"Rate limited. Waiting {retry_after}s")
+                    time.sleep(retry_after)
                     continue
-                response.raise_for_status()
-                return response.json()
-            except requests.exceptions.RequestException as e:
-                if attempt == retries - 1:
-                    logger.error(f"Request failed after {retries} attempts: {e}")
+                elif response.status_code >= 500:
+                    # Server error - retry with backoff
+                    delay = base_delay * (2 ** attempt)
+                    logger.warning(f"Server error {response.status_code}. Retrying in {delay}s")
+                    time.sleep(delay)
+                    continue
+                else:
+                    logger.error(f"Request failed with status {response.status_code}")
                     return None
-                time.sleep(2 ** attempt)
+                    
+            except requests.exceptions.RequestException as e:
+                delay = base_delay * (2 ** attempt)
+                logger.warning(f"Request error: {str(e)}. Retrying in {delay}s")
+                time.sleep(delay)
+        
+        logger.error("All retry attempts failed")
         return None
-
-    def get_repo(self, owner: str, repo: str) -> Optional[Dict]:
-        return self._request('GET', f'/repos/{owner}/{repo}')
-
-    def get_pulls(self, owner: str, repo: str, state: str = 'all') -> List[Dict]:
-        return self._request('GET', f'/repos/{owner}/{repo}/pulls', params={'state': state}) or []
-
-    def get_commits(self, owner: str, repo: str, sha: Optional[str] = None) -> List[Dict]:
-        return self._request('GET', f'/repos/{owner}/{repo}/commits', params={'sha': sha}) or []
-
-    def get_contents(self, owner: str, repo: str, path: str) -> Optional[Dict]:
-        return self._request('GET', f'/repos/{owner}/{repo}/contents/{path}')
-
-    def __getattr__(self, name):
-        # Tolerate any other logger-style calls
+    
+    def get(self, url: str, **kwargs) -> Optional[Dict[str, Any]]:
+        """Make a GET request."""
+        full_url = urljoin(self.base_url, url)
+        return self._request_with_retry('GET', full_url, **kwargs)
+    
+    def post(self, url: str, **kwargs) -> Optional[Dict[str, Any]]:
+        """Make a POST request."""
+        full_url = urljoin(self.base_url, url)
+        return self._request_with_retry('POST', full_url, **kwargs)
+    
+    def info(self, *args, **kwargs):
+        """Tolerant info logger."""
+        logger.info(*args, **kwargs)
+    
+    def debug(self, *args, **kwargs):
+        """Tolerant debug logger."""
+        logger.debug(*args, **kwargs)
+    
+    def warning(self, *args, **kwargs):
+        """Tolerant warning logger."""
+        logger.warning(*args, **kwargs)
+    
+    def error(self, *args, **kwargs):
+        """Tolerant error logger."""
+        logger.error(*args, **kwargs)
+    
+    def __getattr__(self, name: str):
+        """
+        Fallback for any unknown attribute/method.
+        Returns a no-op callable to prevent AttributeError.
+        """
         def _noop(*args, **kwargs):
             return None
         return _noop

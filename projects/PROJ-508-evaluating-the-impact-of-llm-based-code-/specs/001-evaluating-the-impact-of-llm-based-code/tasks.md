@@ -194,12 +194,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T042 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_report.py`
-- [ ] T043 [P] [US3] Unit test for report text generation (associational framing) in `tests/test_report.py`
+- [X] T042 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_report.py`
+- [X] T043 [P] [US3] Unit test for report text generation (associational framing) in `tests/test_report.py`
 
 ### Implementation for User Story 3
 
-- [ ] T044 [US3] Implement `code/report.py` to load analysis results
+- [X] T044 [US3] Implement `code/report.py` to load analysis results
 - [X] T045 [US3] Generate Forest Plot of effect sizes with confidence intervals for all proxies
 - [X] T046 [US3] Generate Sensitivity Analysis plot/table showing effect variation across thresholds
 - [X] T047 [US3] Implement text generation for the report:
@@ -207,7 +207,7 @@
  - Reference observational study design
  - State null hypothesis rejection status per corrected p‑value
  - **Include "Data Gap" section stating NASA-TLX unavailability.**
-- [ ] T047b [US3] **Theoretical Grounding**: Update `code/report.py` to include a dedicated section "Theoretical Grounding: Distributed Cognition and Adaptive Systems".
+- [X] T047b [US3] **Theoretical Grounding**: Update `code/report.py` to include a dedicated section "Theoretical Grounding: Distributed Cognition and Adaptive Systems". <!-- FAILED: unspecified -->
  - **Content**: Explicitly cite "Holland et al. (1998) " regarding distributed cognition.
  - **Content**: Discuss how LLM tools may reconfigure collective problem-solving dynamics rather than merely offloading individual effort.
  - **Citation Requirement**: Must include the exact string: "Holland, J. H. (1998). Hidden Order: How Adaptation Builds Complexity. Addison-Wesley."
@@ -229,7 +229,7 @@
 
 ### Implementation for Signal Separation (Reporting)
 
-- [ ] T052 [US3] **Reporting Update**: Update `code/report.py` to include a dedicated subsection "Signal Separation: Distinguishing Tool Utility from AI Noise" that discusses the stratified results from `data/derived/stratified_results.json`.
+- [ ] T052 [US3] **Reporting Update**: Update `code/report.py` to include a dedicated subsection "Signal Separation: Distinguishing Tool Utility from AI Noise" that discusses the stratified results from `data/derived/stratified_results.json`. <!-- FAILED: unspecified -->
  - **Action**: Summarize the difference in effect sizes between High/Low AI-Noise groups.
  - **Rationale**: Satisfies the reporting requirement of SC-008.
 
@@ -261,7 +261,7 @@
 
 ### Implementation for Theoretical Grounding
 
-- [ ] T059 [US3] **Literature Integration**: Update `code/report.py` to include a dedicated subsection "Distributed Cognition in Adaptive Systems".
+- [X] T059 [US3] **Literature Integration**: Update `code/report.py` to include a dedicated subsection "Distributed Cognition in Adaptive Systems".
  - **Action**: Insert a paragraph discussing how LLM tools act as external cognitive resources that reconfigure the "collective problem-solving dynamics" of a team, rather than merely offloading individual effort.
  - **Citation**: Explicitly cite "Holland, J. H. (1998). Hidden Order: How Adaptation Builds Complexity. Addison-Wesley." as the theoretical anchor.
  - **Rationale**: Directly addresses Krakauer's critique that the study must "ground the interpretation of cognitive load proxies" in the history of complexity science and distributed cognition.

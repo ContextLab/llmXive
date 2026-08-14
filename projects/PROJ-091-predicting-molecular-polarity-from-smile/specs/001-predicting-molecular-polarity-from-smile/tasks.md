@@ -112,7 +112,7 @@
 - [X] T023 [US2] Implement `code/models/train_lightgbm.py` with LightGBM Regressor.
 - [X] T024 [US2] Implement k-fold cross-validation loop in `code/models/train_lightgbm.py` for hyperparameter tuning.
 - [X] T025 [US2] Implement logging of optimal parameters (`num_leaves`, `learning_rate`) to `code/config.yaml`.
-- [ ] T026 [US2] Train final model on full training set and save to `data/processed/model.pkl`.
+- [X] T026 [US2] Train final model on full training set and save to `data/processed/model.pkl`.
 - [X] T027 [US2] Implement `code/models/evaluate.py` to compute R², RMSE, and compare against null model (R²=0).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -140,7 +140,7 @@
 - [ ] T034a [US3] Calculate Jaccard similarity of top feature clusters across multiple bootstrap resamples (from T033a/T033b).
 - [ ] T034b [US3] Calculate Jaccard similarity of top individual SHAP features across multiple bootstrap resamples to satisfy spec SC-003. **Conflict Note**: This task implements spec SC-003 which contradicts the plan.md "cluster" metric.
 - [ ] T035 [US3] Generate stability report verifying Jaccard ≥ 0.7 (log failure if < 0.7 for both cluster and individual metrics).
-- [ ] T036 [US3] Generate SHAP summary plot and feature importance report distinguishing collinear clusters.
+- [ ] T036 [US3] Generate SHAP summary plot and feature importance report distinguishing collinear clusters. <!-- FAILED: unspecified -->
 - [ ] T037 [US3] Save all analysis artifacts (plots, reports, SHAP values) to `data/processed/analysis/`.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -152,9 +152,9 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [ ] T038a Update `README.md` with usage examples and installation instructions
-- [ ] T038b Add comprehensive docstrings to `code/data/preprocess_2d.py`
-- [ ] T038c Add comprehensive docstrings to `code/models/train_lightgbm.py`
-- [ ] T039a Refactor `code/utils/config.py` to use Python dataclasses and update all imports in `code/` to use the new dataclass; verify with `pytest`.
+- [X] T038b Add comprehensive docstrings to `code/data/preprocess_2d.py`
+- [X] T038c Add comprehensive docstrings to `code/models/train_lightgbm.py`
+- [X] T039a Refactor `code/utils/config.py` to use Python dataclasses and update all imports in `code/` to use the new dataclass; verify with `pytest`.
 - [ ] T039b Remove all unused imports from `code/` scripts
 - [ ] T039c Standardize logging format across all modules
 - [ ] T040a [P] Optimize `code/data/preprocess_2d.py` for memory by implementing explicit batch iteration and garbage collection to ensure <6GB RAM.

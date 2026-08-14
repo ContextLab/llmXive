@@ -93,3 +93,11 @@ T039:
   r: No code, notebook, script, or output file showing a sweep of the `iteration_count`
     threshold and the resulting effect estimates is present. The required artifact
     that demonstrates the sensitivity analysis is missing.
+T052:
+  c: false
+  h: 6887d288c72f4e67c2fb62aa71466eec5497b40ed1aed9f69b5a3b62cb235fdb
+  r: "The repository lacks the required `data/derived/stratified_results.json` file,\
+    \ and the shown portion of `code/report.py` does not contain any code that adds\
+    \ a \u201CSignal Separation: Distinguishing Tool Utility from AI Noise\u201D subsection\
+    \ to the report. Both the data source and the report content are missing, so the\
+    \ task is not satisfied."

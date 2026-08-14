@@ -50,6 +50,7 @@ def validate_descriptors_file():
     """
     Validate that the processed descriptors file exists and contains valid data.
     Checks for existence, non-empty content, and basic schema integrity.
+    This function satisfies T019's requirement to verify the output before downstream tasks.
     """
     output_path = PROJECT_ROOT / "data" / "processed" / "descriptors.parquet"
     logger.info(f"Validating descriptors file: {output_path}")
