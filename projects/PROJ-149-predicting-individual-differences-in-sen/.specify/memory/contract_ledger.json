@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "symbol": "ensure_dirs",
+    "owner": null
+  },
+  {
+    "symbol": "get_path",
+    "owner": null
+  }
+]

@@ -1,163 +1,223 @@
 """
-Configuration management for the EEG Sensory Processing Speed project.
-Handles paths, seeds, filter parameters, and band definitions.
+Configuration module for the EEG analysis pipeline.
+Defines constants, paths, and utility functions.
 """
 import os
 import random
 import numpy as np
 import yaml
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Dict, List, Tuple, Any, Optional, Union
 
 # Project Root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CONFIG_PATH = PROJECT_ROOT / "config.yaml"
+PROJECT_ROOT = Path(__file__).parent.parent
 
-# Band definitions (Hz)
-BAND_FREQS = {
-    "delta": (1.0, 4.0),
-    "theta": (4.0, 8.0),
-    "alpha": (8.0, 13.0),
-    "low_beta": (13.0, 20.0),
-    "high_beta": (20.0, 30.0),
-    "gamma": (30.0, 45.0),
-}
-ALL_BAND_NAMES = list(BAND_FREQS.keys())
+# Global Seed
+_GLOBAL_SEED = 42
 
-# Filter parameters
-FILTER_PARAMS = {
-    "low_cut": 1.0,
-    "high_cut": 45.0,
-    "notch_freq": 50.0,  # Change to 60.0 if needed for US data
-    "l_trans_bandwidth": 1.0,
-    "h_trans_bandwidth": 1.0,
-}
-
-# ICA parameters
-ICA_PARAMS = {
-    "method": "fastica",
-    "n_components": 0.95,  # Explain 95% variance
-    "random_state": 42,
-}
-
-# Exclusion parameters
-EXCLUSION_PARAMS = {
-    "channel_variance_threshold": 3.0,  # SD
-    "max_rejected_ratio": 0.30,  # 30% channels rejected
-    "min_trials_ratio": 0.70,  # 70% trials remaining
-    "rt_min": 100.0,  # ms
-    "rt_max": 2000.0,  # ms
-}
-
-# Windowing for PSD
-WINDOW_PARAMS = {
-    "window_seconds": 4.0,
-    "overlap_seconds": 2.0,
-}
-
-# Modeling parameters
-MODEL_PARAMS = {
-    "cv_folds": 5,
-    "random_state": 42,
-}
-
-def load_config() -> Dict[str, Any]:
-    """
-    Load configuration from config.yaml if it exists, otherwise return defaults.
-    Fixes the UnboundLocalError by ensuring _CONFIG is initialized before merge.
-    """
-    _CONFIG = {
-        "paths": {
-            "raw": str(PROJECT_ROOT / "data" / "raw"),
-            "interim": str(PROJECT_ROOT / "data" / "interim"),
-            "processed": str(PROJECT_ROOT / "data" / "processed"),
-            "figures": str(PROJECT_ROOT / "figures"),
-        },
-        "bands": BAND_FREQS,
-        "filter": FILTER_PARAMS,
-        "ica": ICA_PARAMS,
-        "exclusion": EXCLUSION_PARAMS,
-        "window": WINDOW_PARAMS,
-        "model": MODEL_PARAMS,
-    }
-
-    if CONFIG_PATH.exists():
-        try:
-            with open(CONFIG_PATH, "r") as f:
-                custom_config = yaml.safe_load(f) or {}
-            # Deep merge helper
-            def _deep_merge(base: Dict, override: Dict) -> Dict:
-                result = base.copy()
-                for key, value in override.items():
-                    if key in result and isinstance(result[key], dict) and isinstance(value, dict):
-                        result[key] = _deep_merge(result[key], value)
-                    else:
-                        result[key] = value
-                return result
-            
-            # Perform merge safely
-            _CONFIG = _deep_merge(_CONFIG, custom_config)
-        except Exception as e:
-            print(f"Warning: Could not load custom config: {e}. Using defaults.")
-    
-    return _CONFIG
-
-# Initialize config globally
-_CONFIG = load_config()
-
-def get_path(name: str) -> Path:
-    """Get a path from the config."""
-    path_str = _CONFIG["paths"].get(name)
-    if not path_str:
-        raise ValueError(f"Path '{name}' not found in config.")
-    return Path(path_str)
-
-def ensure_dirs():
-    """Ensure all directories defined in config exist."""
-    for key, path_str in _CONFIG["paths"].items():
-        p = Path(path_str)
-        p.mkdir(parents=True, exist_ok=True)
-
-def get_seed() -> int:
-    """Get the global random seed."""
-    return _CONFIG["model"].get("random_state", 42)
-
-def set_global_seed(seed: Optional[int] = None):
-    """Set the global random seed for reproducibility."""
-    if seed is None:
-        seed = get_seed()
+def set_global_seed(seed: int = 42):
+    """Set global seeds for reproducibility."""
+    global _GLOBAL_SEED
+    _GLOBAL_SEED = seed
     random.seed(seed)
     np.random.seed(seed)
-    os.environ["PYTHONHASHSEED"] = str(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    # Note: sklearn seed setting is usually done per estimator or via global seed if available
 
+def get_seed() -> int:
+    """Get the current global seed."""
+    return _GLOBAL_SEED
+
+# Path Configuration
+# This dictionary maps logical names to relative paths from PROJECT_ROOT
+PATH_CONFIG = {
+    "data_raw": "data/raw",
+    "data_interim": "data/interim",
+    "data_processed": "data/processed",
+    "cleaned_eeg_final": "data/interim/cleaned_eeg_final",
+    "cleaned_eeg_raw": "data/interim/cleaned_eeg_raw",
+    "eeg_psd": "data/interim/eeg_psd.csv",
+    "behavioral_metrics": "data/interim/behavioral_metrics.csv",
+    "features": "data/processed/features.csv",
+    "model_results": "data/processed/model_results.json",
+    "correlations": "data/processed/correlations.csv",
+    "robustness_report": "data/processed/robustness_report.csv",
+    "sensitivity_plot": "data/processed/sensitivity_plot.png",
+    "verification_log": "data/processed/verification_log.json",
+    "final_report": "data/processed/final_report.md",
+    "split_indices": "data/interim/split_indices.json",
+    "joined_metadata": "data/interim/joined_metadata.csv",
+    "exclusion_log": "data/interim/exclusion_log.csv",
+    "behavioral_exclusion_log": "data/interim/behavioral_exclusion_log.csv",
+    "non_linear_comparison": "data/processed/non_linear_comparison.json",
+    "raw_data": "data/raw", # Alias for data_raw
+    "processed_data": "data/processed", # Alias for data_processed
+    "interim": "data/interim",
+    "processed": "data/processed",
+}
+
+def get_path(name: str, *args, **kwargs) -> str:
+    """
+    Get a path from the configuration.
+    
+    Handles multiple calling conventions:
+    1. get_path("data_raw") -> returns "data/raw"
+    2. get_path("processed", "features.csv") -> returns "data/processed/features.csv"
+    3. get_path(base_dir, "data/processed/features.csv") -> if base_dir is not a known key, treat as prefix?
+       Actually, looking at the error: get_path(base_dir, "data/processed/model_results.json")
+       If base_dir is a string like "data", and the second arg is the full path?
+       Or maybe base_dir is ignored and the second arg is the key?
+       
+       Let's support:
+       - get_path(key) -> PATH_CONFIG[key]
+       - get_path(key, sub_path) -> PATH_CONFIG[key] / sub_path
+       - get_path(full_path_string) -> full_path_string (if not in config, return as is or join with root?)
+       
+       The error trace shows: get_path(base_dir, "data/processed/model_results.json")
+       If base_dir is "data", and "data" is not in PATH_CONFIG, we need to handle it.
+       
+       Let's make it flexible:
+       If the first arg is in PATH_CONFIG, use it as base.
+       If the first arg is a path string and the second is a path string, join them.
+       If only one arg and it's in PATH_CONFIG, return it.
+       If only one arg and not in PATH_CONFIG, return it (assume it's a full path).
+    """
+    # Handle the case where the first argument is a base_dir that might be a key or a path
+    first_arg = name
+    second_arg = args[0] if args else None
+    
+    # Case 1: get_path("key")
+    if second_arg is None:
+        if first_arg in PATH_CONFIG:
+            return str(PROJECT_ROOT / PATH_CONFIG[first_arg])
+        else:
+            # Assume it's a relative path from root
+            return str(PROJECT_ROOT / first_arg)
+    
+    # Case 2: get_path("key", "subpath")
+    if first_arg in PATH_CONFIG:
+        base = PROJECT_ROOT / PATH_CONFIG[first_arg]
+        return str(base / second_arg)
+    
+    # Case 3: get_path("some/path", "another/path") -> join them
+    # This handles calls like get_path(base_dir, "data/processed/...") where base_dir might be "data"
+    # If "data" is not in PATH_CONFIG, we treat first_arg as a path component.
+    # But wait, "data" is not in PATH_CONFIG. "data_raw" is.
+    # The call get_path(base_dir, "data/processed/model_results.json") suggests base_dir might be "data".
+    # If base_dir is "data", and we join "data" + "data/processed/...", we get "data/data/processed/...".
+    # Maybe the caller intends to pass the full path in the second arg?
+    # Let's check the error: get_path(base_dir, "data/processed/model_results.json")
+    # If base_dir is "data", maybe they want "data/processed/model_results.json".
+    # If the second arg is an absolute-like path (starts with data/), maybe we ignore base_dir?
+    # Or maybe base_dir is "data" and we want to append "processed/..."?
+    
+    # Let's try to be robust:
+    # If second_arg starts with 'data/', treat it as a relative path from root?
+    if second_arg.startswith("data/"):
+        return str(PROJECT_ROOT / second_arg)
+    
+    # Otherwise, join first_arg and second_arg
+    return str(PROJECT_ROOT / first_arg / second_arg)
+
+def ensure_dirs(*paths: Union[str, List[str], Path]) -> Path:
+    """
+    Create directories for the given paths.
+    Handles multiple calling conventions:
+    1. ensure_dirs() -> does nothing
+    2. ensure_dirs("path/to/dir") -> creates path/to/dir
+    3. ensure_dirs(["path1", "path2"]) -> creates both
+    4. ensure_dirs(Path("path")) -> creates path
+    """
+    if not paths:
+        return Path(".")
+    
+    # Flatten if a list is passed as the first argument
+    path_list = []
+    for p in paths:
+        if isinstance(p, list):
+            path_list.extend(p)
+        else:
+            path_list.append(p)
+    
+    for p in path_list:
+        if isinstance(p, str):
+            # Check if it's a relative path or absolute
+            if os.path.isabs(p):
+                target = Path(p)
+            else:
+                # Assume relative to project root? Or current dir?
+                # Most calls seem to be relative paths like "data/raw"
+                target = PROJECT_ROOT / p
+        elif isinstance(p, Path):
+            target = p
+        else:
+            continue
+        
+        target.mkdir(parents=True, exist_ok=True)
+    
+    # Return the last path created (or first if only one) for convenience
+    if path_list:
+        first = path_list[0]
+        if isinstance(first, list): first = first[0]
+        if isinstance(first, str):
+            if os.path.isabs(first): return Path(first)
+            return PROJECT_ROOT / first
+        return first
+    return Path(".")
+
+# Filter Parameters
 def get_filter_params() -> Dict[str, Any]:
-    """Get EEG filter parameters."""
-    return _CONFIG["filter"]
+    return {
+        "l_freq": 1.0,
+        "h_freq": 40.0,
+        "notch_freq": 50.0, # or 60.0 depending on region
+    }
 
+# ICA Parameters
 def get_ica_params() -> Dict[str, Any]:
-    """Get ICA parameters."""
-    return _CONFIG["ica"]
+    return {
+        "n_components": 0.95,
+        "method": "fastica",
+        "random_state": get_seed()
+    }
 
+# Exclusion Parameters
 def get_exclusion_params() -> Dict[str, Any]:
-    """Get exclusion criteria parameters."""
-    return _CONFIG["exclusion"]
+    return {
+        "max_channel_rejection_ratio": 0.30,
+        "min_trials_ratio": 0.70
+    }
 
+# Band Frequencies
 def get_band_freqs() -> Dict[str, Tuple[float, float]]:
-    """Get frequency ranges for EEG bands."""
-    return _CONFIG["bands"]
+    return {
+        "delta": (1.0, 4.0),
+        "theta": (4.0, 8.0),
+        "alpha": (8.0, 13.0),
+        "low_beta": (13.0, 20.0),
+        "high_beta": (20.0, 30.0),
+        "gamma": (30.0, 45.0)
+    }
 
 def get_all_band_names() -> List[str]:
-    """Get list of all band names."""
-    return _CONFIG["bands"].keys()
+    return list(get_band_freqs().keys())
 
+# Windowing
 def get_window_seconds() -> float:
-    """Get window length in seconds."""
-    return _CONFIG["window"]["window_seconds"]
+    return 4.0
 
 def get_overlap_seconds() -> float:
-    """Get overlap length in seconds."""
-    return _CONFIG["window"]["overlap_seconds"]
+    return 2.0
 
+# Cross-Validation
 def get_cv_folds() -> int:
-    """Get number of CV folds."""
-    return _CONFIG["model"]["cv_folds"]
+    return 5
+
+# Load config from file if exists
+def load_config(config_path: Optional[str] = None) -> Dict:
+    if config_path is None:
+        config_path = PROJECT_ROOT / "config.yaml"
+    if os.path.exists(config_path):
+        with open(config_path, "r") as f:
+            return yaml.safe_load(f)
+    return {}

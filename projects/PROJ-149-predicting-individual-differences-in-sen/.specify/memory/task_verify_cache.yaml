@@ -6,23 +6,13 @@ T008a:
     writing steps are missing). Moreover, the required output artifacts\u2014`data/interim/joined_metadata.csv`\
     \ on success and `data/processed/feasibility_report.md` on failure\u2014are absent\
     \ from the repository. The task therefore remains unfinished."
-T010:
+T010b:
   c: false
-  h: 932fe7df46189dad66e468c779e483a0bc9d46203a4de630072f8e63ff2bd7bb
-  r: "The repository contains `code/02_preprocess_eeg.py`, but the file is truncated\
-    \ and does not show the full implementation of channel\u2011rejection, ICA cleaning,\
-    \ exclusion logic, or writing the cleaned data to `data/interim/cleaned_eeg`.\
-    \ Moreover, the required output `data/processed/features.csv` is missing entirely,\
-    \ so the primary execution path that must use ICA is not demonstrated. The next\
-    \ implementer must provide the complete script and generate the expected `features.csv`."
-T012:
-  c: false
-  h: 7d11927b3cc9666c52c2f80f9e4f76da7c9df4af640bfbe36e97dc0399cf5d7f
-  r: "The script `code/03_extract_features.py` is truncated and does not contain the\
-    \ full Welch\u2011PSD computation, band\u2011power aggregation, or CSV writing\
-    \ logic required by the task. Moreover, the expected output file `data/interim/eeg_psd.csv`\
-    \ is absent. The implementation must be completed and the CSV generated for the\
-    \ task to be satisfied."
+  h: 1897f8f3ca2fcd1c8e0b5be1694a0827a90840e1641a8487e76351a99e8b9f55
+  r: "The provided `code/02_preprocess_eeg.py` is incomplete (truncated) and does\
+    \ not show any logic that writes retained `.fif` files or creates `data/interim/exclusion_log.csv`.\
+    \ Moreover, the required `exclusion_log.csv` file is absent from the repository.\
+    \ The task\u2019s output artifacts are therefore missing."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -88,3 +78,8 @@ T032:
     \ there is no evidence that the pipeline was run, resource usage was logged, or\
     \ the failure conditions were checked. Without this file the task\u2019s verification\
     \ requirements are not satisfied."
+T035a:
+  c: false
+  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
+  r: "The required artifact `data/processed/features.csv` is missing, so no schema\
+    \ validation could be performed; thus the task\u2019s requirements are not met."
