@@ -1,15 +1,15 @@
 status: none
-intent: download huggingface datasets package containing bAbI LAMBADA and Story Cloze
-  python package dataset
+intent: download Facebook bAbI LAMBADA Story Cloze Test python package dataset
 required_fields:
 - story
 - question
 - answer
+- supporting_facts
 - text
-- target
-- ending0
+- target_word
 - ending1
+- ending2
 - label
-cache_key: e0c00bd70e8e3e37b3e17a3460bab8b2270e33bca158d132c85efa1ee2beea89
-searched_at: '2026-08-12T19:59:54.600908+00:00'
+cache_key: 4c00eb7f4fc1115a7f7c499434b8be78a3559d4763fd8a057fe990931147261d
+searched_at: '2026-08-14T00:35:49.378872+00:00'
 retry_count: 1

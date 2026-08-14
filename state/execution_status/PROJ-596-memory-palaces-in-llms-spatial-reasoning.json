@@ -6,11 +6,11 @@
   "failures": [
     "python src/trainer.py --seed 0 --dataset babi_task3 --variant spatial -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/src/trainer.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-08-12T19:58:55Z"
+  "updated_at": "2026-08-14T00:34:49Z"
 }

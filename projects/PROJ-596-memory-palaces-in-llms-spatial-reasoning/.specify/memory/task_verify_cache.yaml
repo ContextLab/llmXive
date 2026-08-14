@@ -1,11 +1,11 @@
-T016:
+T016c:
   c: false
-  h: 1ce33d1dbfc1369f4cc978e3bdb9fac54e36494431d18777a52ea16fcc46dcd5
-  r: "The repository contains a `code/main.py` file, but it is truncated and does\
-    \ not show logic that iterates over multiple seeds, runs training/evaluation,\
-    \ and writes a `run_summary.json` with the required keys. Moreover, the expected\
-    \ output file `artifacts/results/run_summary.json` is missing entirely. The task\u2019\
-    s core output is therefore not present."
+  h: 53ad8b518913e817a2afd89e59f59c2f701d3c888d55ad460d67f778a7ab4a18
+  r: "The repository lacks the required output files `artifacts/results/run_summary.json`\
+    \ and `artifacts/results/runtime_report.json`. Moreover, the shown portion of\
+    \ `code/main.py` does not contain any logic for runtime verification, hyperparameter\
+    \ logging, RAM\u2011threshold handling, or the generation of the specified JSON\
+    \ reports. Consequently the task\u2019s functional requirements are not met."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,6 +20,14 @@ T024:
     \ file, and the shown portion of `code/evaluation/metrics.py` contains no implementation\
     \ of an interference\u2011distance metric or any code that writes such results.\
     \ Without the metric implementation and the output file, the task is not satisfied."
+T027:
+  c: false
+  h: 382b7e19b060495785cc5b1d55f2804e7d6cacfdcb019a0cf520c4b9cfc8a0c2
+  r: "The required output file `artifacts/results/interference_metrics.json` does\
+    \ not exist, and the provided `code/main.py` (truncated) shows no implementation\
+    \ that runs interference\u2011injection experiments, calls T024, or writes the\
+    \ specified fields (`spatial_recall`, `baseline_recall`, `delta`, `p_value`).\
+    \ The task\u2019s core requirements are therefore unmet."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
