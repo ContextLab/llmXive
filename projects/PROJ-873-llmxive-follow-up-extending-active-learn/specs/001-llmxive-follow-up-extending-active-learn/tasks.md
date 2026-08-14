@@ -85,7 +85,7 @@ description: "Task list template for feature implementation"
 - [X] T025b [X] **Threshold Sweep Execution** – runs pipeline for each sweep value across a high-precision range; aggregates results into `data/results/threshold_sweep.json`.
 - [X] T025c [X] **Sweep Result Aggregation** – computes mean and std for NDCG and wasted ratio per threshold; updates `threshold_sweep.json`.
 - [X] T025d [X] **Optimal Threshold Selection** – identifies best threshold based on NDCG recovery and wasted‑ratio reduction; records in `threshold_sweep.json`.
-- [X] T025b‑ext [P] **Optional Fine‑Grained Sweep** – if sensitivity peak is near a boundary, runs additional thresholds (e.g., 0.955) and merges results.
+- [X] T025b-ext [P] **Optional Fine‑Grained Sweep** – if sensitivity peak is near a boundary, runs additional thresholds (e.g., 0.955) and merges results.
 
 ## Phase 5: User Story 3 – Statistical Significance of Efficiency Gains (Priority: P3)
 
@@ -97,7 +97,7 @@ description: "Task list template for feature implementation"
 - [X] T030 [X] **Bonferroni Correction** – applies correction to aggregated p‑values; writes `data/results/bonferroni_corrected.json`.
 - [X] T031 [X] **Statistical Report Generation** – creates `data/results/statistical_report.md` including Bonferroni‑corrected p‑values, corrected wasted ratio, and a disclaimer if `validated: false` in `us1_efficiency_ratio.json`.
 
-## Phase N: Polish & Cross‑Cutting Concerns
+## Phase N: Polish & Cross-Cutting Concerns
 
 - [X] T032 [P] Documentation updates: README, quickstart, data‑model.
 - [X] T033 [P] Code cleanup with ruff.
@@ -107,7 +107,7 @@ description: "Task list template for feature implementation"
 - [X] T035 [P] Additional unit tests for edge cases.
 - [X] T036 [X] Run quickstart validation.
 
-## Phase N+1: Review‑Driven Robustness (Addressing Analysis Findings)
+## Phase N+1: Review-Driven Robustness (Addressing Analysis Findings)
 
 - [X] T042 [P] Synthetic Data Fallback Blocker (already in Phase 2).
 - [X] T043 [US1] Semantic Similarity Threshold Validator (already in Phase 3).
@@ -122,7 +122,7 @@ description: "Task list template for feature implementation"
 - [ ] T054 [US1/US2/US3] Write final research conclusions in `docs/research_conclusions.md`.
 - [X] T055 [US1/US2/US3] Finalize README with results summary.
 
-## Phase N+3: Analysis‑Driven Corrections
+## Phase N+3: Analysis-Driven Corrections
 
 - [ ] T057 [US1/US2] **Data Flow Correction** – enforce strict ordering: `injected_datasets.json` → `clusters.json` → `unique_subset.json` → `comparison_log.jsonl` → downstream. Raise `PipelineDependencyError` on violation.
 - [X] T058 [US1] **Parameter Adaptation Fallback** – already used by T012/T043 for injection retries.
@@ -130,16 +130,25 @@ description: "Task list template for feature implementation"
 - [X] T060 [US3] **Statistical Degeneracy Handling** – added to Wilcoxon implementation to log warning and set p‑value to 1.0 when variance is zero.
 - [X] T061 [US1/US2] **Graceful Degradation** – enhanced `code/utils.py` to allow partial run completion when runtime limit is approached.
 
-## Phase N+5: Final Data Flow & Execution Order Verification
+## Phase N+4: Final Data Flow & Execution Order Verification
 
 - [X] T065 [US1/US2] **Dependency Graph Validator** – validates existence and JSON schema of `injected_datasets.json` and `clusters.json` before pipeline start.
 - [X] T065a [US1/US2] **Schema Definitions** – provides inline JSON Schemas for `injected_datasets.json` and `clusters.json`.
 - [X] T066 [US1/US2] **Artifact Chain Verification** – checks full chain from injection to final metrics, aborting on missing/invalid artifacts.
 - [X] T067 [US3] **Confirm Statistical Robustness** – re‑run Wilcoxon tests with zero‑variance handling; output `data/results/statistical_robustness_audit.json`.
 
-## Phase N+6: Final Analysis Review & Cleanup
+## Phase N+5: Final Analysis Review & Cleanup
 
 - [X] T068 [Foundational] **Remove Deprecated Logic** – audit `run_pipeline.py` and `metrics.py` to ensure no residual correction‑factor code outside T013f/T013d.
 - [X] T069 [US1/US2] **Verify Proxy Validation Chain** – re‑run full proxy chain and output `data/validation_chain_audit.json` with checksums and pass/fail status.
 - [X] T070 [US2] **Validate Threshold Sweep Completeness** – assert `threshold_sweep.json` contains entries for all four planned thresholds (0.85, 0.90, 0.95, 0.98).
 - [X] T071 [US3] **Confirm Statistical Robustness** – re‑run Wilcoxon tests with zero‑variance handling; output `data/results/statistical_robustness_audit.json`.
+
+## Phase N+6: New Task Additions (Review Feedback)
+
+- [ ] T072 [P][US1] Create a unit test to verify the correct behavior of the "wasted call" counter when the comparison log file is empty, ensuring it handles edge cases gracefully and does not raise an error.
+- [ ] T073 [P][US2] Implement a mechanism to automatically adjust the MinHash LSH threshold based on dataset characteristics (e.g., average document length), aiming to optimize clustering performance and minimize false positives.
+- [ ] T074 [US1/US2] Add detailed logging statements within the data loading and preprocessing steps to track the size of intermediate datasets at each stage, helping identify potential memory bottlenecks or inefficiencies.
+- [ ] T075 [P][US3] Implement a visualization tool to display the distribution of p-values from the statistical tests, enabling easier interpretation of results and identification of statistically significant differences.
+- [ ] T076 [US1/US2] Add a mechanism to cache intermediate processing steps (e.g., embeddings) to reduce redundant computations and improve overall pipeline execution time, especially when dealing with large datasets.
+- [ ] T077 [P][US3] Implement a more robust error handling strategy for the Wilcoxon signed-rank test, including checks for data validity and appropriate logging of any encountered issues or warnings.
