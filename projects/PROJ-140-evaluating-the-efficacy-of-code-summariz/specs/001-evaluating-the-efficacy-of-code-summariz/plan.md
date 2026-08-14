@@ -15,8 +15,8 @@ This project implements a human-subject study and statistical analysis pipeline 
 **Target Platform**: Linux (GitHub Actions free-tier runner), CPU-only  
 **Project Type**: Research pipeline / CLI tool  
 **Performance Goals**: Analysis pipeline completes in ≤6h; Timestamp precision ≤100ms; LLM inference timeout ≤30s (with fallback)  
-**Constraints**: No GPU in CI; ≤7GB RAM; ≤14GB disk; Anonymized data only in VCS; Defects4J v2.0 pinned  
-**Scale/Scope**: ~60 buggy methods (stratified sample); 12 participants (simulated for CI); 360 task observations  
+**Constraints**: No GPU in CI; ≤7GB RAM; ≤14GB disk; Anonymized data only in VCS; DefectsJ v2.0 pinned  
+**Scale/Scope**: A stratified sample of buggy methods; participants (simulated for CI); A substantial number of task observations  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -104,21 +104,21 @@ tests/
 ### Phase 1: Data Acquisition & Preparation
 
 - [ ] **T-001**: Download Defects4J v2.0 dataset from verified HuggingFace source.
-- [ ] **T-002**: Extract stratified sample of ~60 buggy methods across Chart, Time, Math projects.
+- [ ] **T-002**: Extract stratified sample of buggy methods across Chart, Time, Math projects.
 - [ ] **T-003**: Generate rule-based summaries using srcML.
 - [ ] **T-010**: Implement local loopback latency test (FR-003) to verify ≤100ms timestamp precision.
 - [ ] **T-014**: Implement LLM summary generation with fallback logic (FR-002). Logs errors and falls back to rule-based if timeout/empty.
 
 ### Phase 2: Study Execution (Simulation for CI)
 
-- [ ] **T-020**: Generate Latin-square design for 12 participants × 30 tasks.
+- [ ] **T-020**: Generate Latin-square design for a cohort of participants × 30 tasks.
 - [ ] **T-021**: Simulate participant interactions (clicks, timestamps) with noise.
 - [ ] **T-022**: Anonymize participant IDs and log to `data/interaction_logs/anonymized_logs.csv`.
 
 ### Phase 3: Statistical Analysis
 
-- [ ] **T-025**: Implement Holm-Bonferroni correction for 4 primary tests (FR-006).
-- [ ] **T-026**: Implement cluster bootstrap (resampling participants) for CIs with 10,000 resamples and fixed seed (FR-005).
+- [ ] **T-025**: Implement Holm-Bonferroni correction for primary tests (FR-006).
+- [ ] **T-026**: Implement cluster bootstrap (resampling participants) for CIs with resamples and fixed seed (FR-005).
 - [ ] **T-027**: Create `.github/workflows/test_reproducibility.yml` to verify CI results match local runs within tolerance (SC-004).
 - [ ] **T-031b**: Implement `code/utils/verify_pii_removal.py` to scan `data/interaction_logs/` for PII and verify `data/consent/` is excluded from VCS.
 - [ ] **T-035**: Implement compute feasibility verification (runtime, RAM, disk) to ensure ≤6h, ≤7GB RAM (SC-005).
