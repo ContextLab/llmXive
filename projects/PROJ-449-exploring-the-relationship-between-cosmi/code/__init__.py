@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline: Cosmic Ray Composition and Solar Activity Analysis
+Cosmic Ray Solar Activity Analysis Package
 """

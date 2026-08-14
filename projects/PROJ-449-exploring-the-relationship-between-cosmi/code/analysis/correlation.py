@@ -5,201 +5,254 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
 import pandas as pd
 import numpy as np
-from scipy import stats
+from scipy.stats import pearsonr, spearmanr
 
-# Import logging utility from the project's existing API
-from code.utils.logging import setup_logger
-
-logger = setup_logger(__name__)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def calculate_lagged_correlations(
-    data: pd.DataFrame,
-    target_col: str,
-    reference_col: str = 'sunspot_number',
-    min_lag_months: int = -12,
+    time_series: pd.Series,
+    target_series: pd.Series,
     max_lag_months: int = 12,
     method: str = 'pearson'
-) -> pd.DataFrame:
+) -> Dict[int, Tuple[float, float]]:
     """
-    Calculate lagged correlations between a target time series and a reference series.
-    
-    This function shifts the reference series by a range of months (lags) and computes
-    the correlation coefficient (Pearson or Spearman) and p-value for each lag.
-    
+    Calculate correlation coefficients between two time series at various lags.
+
     Args:
-        data: DataFrame containing the time series data with a 'date' column.
-            Must be sorted by date.
-        target_col: Column name of the target variable (e.g., 'He/p_ratio', 'proton_flux').
-        reference_col: Column name of the reference variable (default: 'sunspot_number').
-        min_lag_months: Minimum lag in months (negative means reference leads target).
-        max_lag_months: Maximum lag in months (positive means reference lags target).
+        time_series: The primary time series (e.g., cosmic ray flux).
+        target_series: The target time series (e.g., sunspot number).
+        max_lag_months: Maximum lag in months to consider (both positive and negative).
         method: Correlation method ('pearson' or 'spearman').
-    
+
     Returns:
-        DataFrame with columns: lag_months, correlation, p_value, n_samples.
-        Rows with insufficient data (n < 2) will have NaN values.
+        A dictionary mapping lag (in months) to (correlation coefficient, p-value).
     """
-    if method not in ['pearson', 'spearman']:
-        raise ValueError(f"Unsupported correlation method: {method}. Use 'pearson' or 'spearman'.")
-    
-    if target_col not in data.columns or reference_col not in data.columns:
-        raise ValueError(f"Columns {target_col} or {reference_col} not found in data.")
-    
-    # Ensure data is sorted by date
-    if 'date' not in data.columns:
-        raise ValueError("DataFrame must contain a 'date' column.")
-    
-    data_sorted = data.sort_values('date').reset_index(drop=True)
-    
-    target_series = data_sorted[target_col]
-    reference_series = data_sorted[reference_col]
-    
-    results = []
-    
-    for lag in range(min_lag_months, max_lag_months + 1):
-        # Shift reference series: positive lag means reference is shifted forward (lags behind target)
-        # Negative lag means reference is shifted backward (leads target)
-        shifted_reference = reference_series.shift(lag)
-        
-        # Drop pairs where either value is NaN
-        valid_mask = ~target_series.isna() & ~shifted_reference.isna()
-        
-        if valid_mask.sum() < 2:
-            # Not enough data points for correlation
-            corr_val = np.nan
-            p_val = np.nan
-            n_samples = int(valid_mask.sum())
+    results = {}
+    align_func = pearsonr if method == 'pearson' else spearmanr
+
+    # Ensure indices are datetime-like and sorted
+    if not isinstance(time_series.index, pd.DatetimeIndex):
+        time_series = time_series.copy()
+        time_series.index = pd.to_datetime(time_series.index)
+    if not isinstance(target_series.index, pd.DatetimeIndex):
+        target_series = target_series.copy()
+        target_series.index = pd.to_datetime(target_series.index)
+
+    # Create a common index for alignment
+    common_index = time_series.index.intersection(target_series.index)
+    ts_aligned = time_series.reindex(common_index)
+    target_aligned = target_series.reindex(common_index)
+
+    # Drop NaNs from both
+    mask = ts_aligned.notna() & target_aligned.notna()
+    ts_clean = ts_aligned[mask]
+    target_clean = target_aligned[mask]
+
+    if len(ts_clean) < 2:
+        logger.warning("Insufficient data points for correlation calculation.")
+        return {lag: (np.nan, np.nan) for lag in range(-max_lag_months, max_lag_months + 1)}
+
+    for lag in range(-max_lag_months, max_lag_months + 1):
+        # Shift target series by lag months
+        # Positive lag: target leads time_series (target is older)
+        # Negative lag: target lags time_series (target is newer)
+        if lag == 0:
+            t1 = ts_clean
+            t2 = target_clean
         else:
-            valid_target = target_series[valid_mask]
-            valid_reference = shifted_reference[valid_mask]
-            
-            if method == 'pearson':
-                corr_val, p_val = stats.pearsonr(valid_target, valid_reference)
-            else:  # spearman
-                corr_val, p_val = stats.spearmanr(valid_target, valid_reference)
-            
-            n_samples = int(valid_mask.sum())
-        
-        results.append({
-            'lag_months': lag,
-            'correlation': corr_val,
-            'p_value': p_val,
-            'n_samples': n_samples
-        })
-    
-    return pd.DataFrame(results)
+            # Shift target by lag months
+            # Using date offset for month shifting
+            shifted_index = target_clean.index + pd.DateOffset(months=lag)
+            t1 = ts_clean.reindex(shifted_index)
+            t2 = target_clean
+
+        # Align again after shift
+        valid_mask = t1.notna() & t2.notna()
+        t1_valid = t1[valid_mask]
+        t2_valid = t2[valid_mask]
+
+        if len(t1_valid) < 2:
+            results[lag] = (np.nan, np.nan)
+            continue
+
+        try:
+            corr, p_val = align_func(t1_valid, t2_valid)
+            results[lag] = (corr, p_val)
+        except Exception as e:
+            logger.warning(f"Correlation failed at lag {lag}: {e}")
+            results[lag] = (np.nan, np.nan)
+
+    return results
 
 def calculate_rigidity_bin_correlations(
-    data: pd.DataFrame,
-    rigidity_col: str = 'rigidity',
-    species_cols: List[str] = None,
-    reference_col: str = 'sunspot_number',
-    min_lag_months: int = -12,
+    unified_data: pd.DataFrame,
+    sunspot_column: str = 'sunspot_number',
+    species_columns: Dict[str, List[str]] = None,
+    rigidity_column: str = 'rigidity_bin',
     max_lag_months: int = 12,
     method: str = 'pearson'
-) -> Dict[str, pd.DataFrame]:
+) -> Dict[str, Dict[int, Dict[str, Any]]]:
     """
-    Calculate lagged correlations for each rigidity bin and for each specified species column.
-    
+    Calculate correlations for each rigidity bin and species (ratio or absolute flux).
+
     Args:
-        data: DataFrame with columns including 'date', rigidity_col, and species columns.
-        rigidity_col: Column name for rigidity values.
-        species_cols: List of column names to analyze (e.g., ['He/p', 'Fe/p', 'proton_flux']).
-        reference_col: Column name for the reference series (default: 'sunspot_number').
-        min_lag_months: Minimum lag in months.
+        unified_data: DataFrame containing date, rigidity_bin, flux/ratio columns, and sunspot_number.
+        sunspot_column: Name of the sunspot number column.
+        species_columns: Dictionary mapping species name (e.g., 'He/p', 'Fe/p', 'p_flux') to column names.
+        rigidity_column: Name of the rigidity bin column.
         max_lag_months: Maximum lag in months.
-        method: Correlation method ('pearson' or 'spearman').
-    
+        method: Correlation method.
+
     Returns:
-        Dictionary mapping (rigidity_bin, species_col) to a DataFrame of correlation results.
+        Nested dictionary: {species: {rigidity_bin: {lag: {'corr': val, 'pval': val}}}}
     """
-    if species_cols is None:
-        species_cols = []
-    
-    unique_rigidities = data[rigidity_col].dropna().unique()
-    results_dict = {}
-    
-    logger.info(f"Starting correlation analysis for {len(unique_rigidities)} rigidity bins "
-               f"and {len(species_cols)} species columns.")
-    
-    for rigidity in sorted(unique_rigidities):
-        bin_data = data[data[rigidity_col] == rigidity].copy()
-        
-        if len(bin_data) < 10:
-            logger.warning(f"Skipping rigidity bin {rigidity}: only {len(bin_data)} data points.")
-            continue
-        
-        for species in species_cols:
-            if species not in bin_data.columns:
-                logger.warning(f"Skipping species {species} for rigidity {rigidity}: column not found.")
+    if species_columns is None:
+        # Default to ratios and absolute fluxes if not provided
+        species_columns = {
+            'He/p': ['He/p'],
+            'Fe/p': ['Fe/p'],
+            'p_flux': ['proton_flux'],
+            'He_flux': ['helium_flux'],
+            'Fe_flux': ['iron_flux']
+        }
+
+    results = {}
+
+    # Ensure date column is datetime
+    if 'date' in unified_data.columns:
+        unified_data = unified_data.copy()
+        unified_data['date'] = pd.to_datetime(unified_data['date'])
+        unified_data = unified_data.set_index('date')
+
+    rigidity_bins = unified_data[rigidity_column].unique()
+
+    for species, cols in species_columns.items():
+        results[species] = {}
+        for col in cols:
+            if col not in unified_data.columns:
+                logger.warning(f"Column {col} not found in data. Skipping.")
                 continue
-            
-            try:
-                corr_df = calculate_lagged_correlations(
-                    bin_data,
-                    target_col=species,
-                    reference_col=reference_col,
-                    min_lag_months=min_lag_months,
+
+            for r_bin in rigidity_bins:
+                bin_data = unified_data[unified_data[rigidity_column] == r_bin]
+                if col not in bin_data.columns or sunspot_column not in bin_data.columns:
+                    continue
+
+                ts_series = bin_data[col]
+                sun_series = bin_data[sunspot_column]
+
+                lag_results = calculate_lagged_correlations(
+                    ts_series, sun_series,
                     max_lag_months=max_lag_months,
                     method=method
                 )
-                
-                key = (float(rigidity), species)
-                results_dict[key] = corr_df
-                
-            except Exception as e:
-                logger.error(f"Error calculating correlations for rigidity {rigidity}, species {species}: {e}")
-    
-    logger.info(f"Correlation analysis complete. Generated {len(results_dict)} result sets.")
-    return results_dict
+
+                # Store results for this rigidity bin and column
+                if r_bin not in results[species]:
+                    results[species][r_bin] = {}
+                results[species][r_bin][col] = lag_results
+
+    return results
 
 def main():
     """
-    Main entry point to demonstrate the correlation analysis.
-    Loads the unified timeseries, calculates correlations per rigidity bin,
-    and prints a summary.
+    Main entry point for correlation analysis.
+    Loads unified timeseries, calculates correlations, and saves results.
     """
-    # Paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    data_path = project_root / "data" / "processed" / "unified_timeseries.csv"
-    
-    if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}. Please run the data pipeline first.")
+    # Define paths
+    base_dir = Path(__file__).resolve().parent.parent.parent
+    data_dir = base_dir / 'data' / 'processed'
+    output_json = data_dir / 'correlation_results.json'
+    output_csv = data_dir / 'correlation_summary.csv'
+
+    # Ensure data directory exists
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load unified timeseries
+    input_file = data_dir / 'unified_timeseries.csv'
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
         sys.exit(1)
-    
-    # Load data
-    logger.info(f"Loading data from {data_path}")
-    df = pd.read_csv(data_path)
-    df['date'] = pd.to_datetime(df['date'])
-    
-    # Identify species columns (He/p, Fe/p, and absolute fluxes if present)
-    species_cols = [col for col in df.columns if col in ['He/p', 'Fe/p', 'proton_flux', 'helium_flux', 'heavy_flux']]
-    
-    if not species_cols:
-        logger.error("No valid species columns found in the dataset.")
+
+    logger.info(f"Loading data from {input_file}")
+    df = pd.read_csv(input_file)
+
+    # Ensure date column exists and is datetime
+    if 'date' not in df.columns:
+        logger.error("Input file must contain a 'date' column.")
         sys.exit(1)
-    
-    logger.info(f"Analyzing species: {species_cols}")
-    
-    # Calculate correlations
+
+    # Define species columns (ratios and absolute fluxes)
+    species_columns = {
+        'He/p_ratio': ['He/p'],
+        'Fe/p_ratio': ['Fe/p'],
+        'p_flux': ['proton_flux'],
+        'He_flux': ['helium_flux'],
+        'Fe_flux': ['iron_flux']
+    }
+
+    # Filter out rows with NaN in key columns for correlation
+    # We'll handle NaNs inside the correlation function, but let's be cautious
+    # about rigidity bins with too few data points
+
+    logger.info("Calculating lagged correlations...")
     results = calculate_rigidity_bin_correlations(
-        data=df,
-        rigidity_col='rigidity',
-        species_cols=species_cols,
-        min_lag_months=-12,
+        df,
+        sunspot_column='sunspot_number',
+        species_columns=species_columns,
+        rigidity_column='rigidity_bin',
         max_lag_months=12,
-        method='pearson'  # Default method
+        method='pearson'
     )
-    
-    # Print summary
-    logger.info("Correlation Analysis Summary:")
-    for (rig, species), corr_df in results.items():
-        max_corr_row = corr_df.loc[corr_df['correlation'].abs().idxmax()]
-        logger.info(f"Rigidity={rig:.2f} GV, Species={species}: "
-                   f"Max |r| = {max_corr_row['correlation']:.3f} at lag {max_corr_row['lag_months']} months "
-                   f"(p={max_corr_row['p_value']:.3e})")
-    
+
+    # Save JSON results
+    logger.info(f"Saving detailed results to {output_json}")
+    import json
+    # Convert numpy types to Python types for JSON serialization
+    def convert_numpy(obj):
+        if isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, dict):
+            return {k: convert_numpy(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_numpy(i) for i in obj]
+        return obj
+
+    json_results = convert_numpy(results)
+    with open(output_json, 'w') as f:
+        json.dump(json_results, f, indent=2)
+
+    # Create a summary CSV
+    # Structure: species, rigidity_bin, column, lag, corr, pval
+    summary_rows = []
+    for species, rigidity_data in results.items():
+        for r_bin, col_data in rigidity_data.items():
+            for col, lag_data in col_data.items():
+                for lag, (corr, pval) in lag_data.items():
+                    summary_rows.append({
+                        'species': species,
+                        'rigidity_bin': r_bin,
+                        'column': col,
+                        'lag_months': lag,
+                        'correlation': corr,
+                        'p_value': pval
+                    })
+
+    summary_df = pd.DataFrame(summary_rows)
+    logger.info(f"Saving summary to {output_csv}")
+    summary_df.to_csv(output_csv, index=False)
+
+    logger.info("Correlation analysis complete.")
     return results
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

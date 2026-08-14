@@ -4309,3 +4309,64 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T21:15:15Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 0
+  canonical: HumanEval dataset size 164 tasks
+  claim_id: c_f73141e1
+  context: Implement `code/analysis/stats.py` Kruskal-Wallis H-test using `scipy`
+    to compare diversity distributions across three style groups (FR-006, US-3) on
+    the **full HumanEval dataset (N=164 (2410.12381, https://arxiv.org/abs/2410.12381)
+    tasks)**.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: manEval (Chen et al., 2021) with 164 tasks,
+      source_id: '2410.12381'
+      url: https://arxiv.org/abs/2410.12381
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The full HumanEval dataset contains 164 tasks.
+  resolved_value: '164'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T13:12:50Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: Standard medium effect size 0.25
+  claim_id: c_53d67dc1
+  context: Implement a script in `code/analysis/power.py` that calculates the required
+    sample size for Kruskal-Wallis (Power analysis uses alpha=0.05, power=0.8, **effect_size=0.25**
+    [Standard Medium Effect]) using `statsmodels.stats.power`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The standard medium effect size is 0.25.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:13:31Z'
+- artifact_path: projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/specs/001-evaluating-the-impact-of-code-style-on-l/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset identifier openai/human-eval
+  claim_id: c_5fd868ac
+  context: Implement `code/generation/loader.py` to download `openai/human-eval` via
+    `datasets` library and cache to `data/raw/humaneval/`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_identifier_openai/human-eval
+  kind: entity_fact
+  raw_text: The HumanEval dataset is available as 'openai/human-eval' on the datasets
+    library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:13:54Z'

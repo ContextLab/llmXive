@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or other proof was provided showing that the exact `mkdir\
+    \ -p \u2026` command was executed and the required folder hierarchy exists; without\
+    \ such evidence the task cannot be confirmed as completed."
+T009:
+  c: true
+  h: b7058e7d475f41ad12907873495d405451a159f27c102bb18c0fb9e67c5152a6
+  r: "The `code/utils/logging_config.py` file exists, is fully implemented (\u2248\
+    3\u202FKB), configures a logger that writes to `results/pipeline.log`, defines\
+    \ a formatter, and provides helper functions (`log_exclusion`, `log_imputation_rate`,\
+    \ `log_transformation_intervention`) that log the required events with the specified\
+    \ information. No placeholder or missing functionality is evident."
+T012a:
+  c: true
+  h: bb253b7df505af45bd78dc3e324293c1e19fd4ae9a53d277a093ff0d2d6665a0
+  r: "The repository contains a non\u2011empty `tests/integration/test_pipeline.py`\
+    \ with a `test_full_download_filter_pipeline` function that runs the download\
+    \ and filter scripts and checks for the existence and row count of `data/datasets.csv`.\
+    \ The missing `datasets.csv` is expected until the test is executed; the required\
+    \ test implementation is present."

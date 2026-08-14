@@ -45,7 +45,7 @@
 
 - [ ] T001 Create project structure using exact command: `mkdir -p code/utils data/raw data/processed results/type1_error results/power results/aggregated results/checkpoints tests/unit tests/integration` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
-- [ ] T002 Initialize Python 3.11 project with dependencies (`scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`) in `requirements.txt`
+- [ ] T002 Initialize Python 3.11 project with dependencies (`scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`) in `requirements.txt` [UNRESOLVED-CLAIM: c_41e1c411 — status=not_enough_info]
 
 - [ ] T003 Configure linting (flake8) and formatting (black) tools
 
@@ -59,15 +59,15 @@
 
 - [ ] T004 Implement `utils/checkpointing.py` to handle state saving/loading for resumption (Constitution Principle V)
 
-- [ ] T005 Implement `utils/statistical_tests.py` with t-test, ANOVA, Shapiro-Wilk, and Friedman test wrappers
+- [ ] T005 Implement `utils/statistical_tests.py` with t-test, ANOVA, Shapiro-Wilk, and Friedman test wrappers [UNRESOLVED-CLAIM: c_5af3ab69 — status=not_enough_info]
 
-- [ ] T006 Implement `utils/transformations.py` with Box-Cox, Yeo-Johnson, and rank-based inverse normal functions (handling positive-value constraints)
+- [ ] T006 {{claim:c_c481db98}}
 
-- [ ] T007 Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size, continuous_vars, group_labels, excluded_reason]` (Note: Only retained datasets are included; `shapiro_p_value` is logged but not stored in the final CSV per US-1 filtering logic) and `data/checksums.csv` with headers `[dataset_id, sha256_hash]` <!-- ATOMIZE: requested -->
+- [ ] T3147a81a-bee9-48db-86ca-03f81b08df78 Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size, continuous_vars, group_labels, excluded_reason]` [UNRESOLVED-CLAIM: c_ec5848df — status=not_enough_info] (Note: Only retained datasets are included; `shapiro_p_value` is logged but not stored in the final CSV per US-1 filtering logic) and `data/checksums.csv` with headers `[dataset_id, sha256_hash]` <!-- ATOMIZE: requested -->
 
 - [ ] T008 Create `results/simulation_seeds.txt` to log seeds per run ID (format: `RUN_ID=<id> SEED=42`) ensuring the file is located in `results/` alongside specific simulation outputs to satisfy Constitution VII "alongside results" requirement
 
-- [~] T009 Create `code/utils/logging_config.py` that configures a logger writing to `results/pipeline.log` with specific format to record exclusions, imputation rates, and transformation interventions
+- [X] T009 Create `code/utils/logging_config.py` that configures a logger writing to `results/pipeline.log` with specific format to record exclusions, imputation rates, and transformation interventions
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,7 +75,7 @@
 
 ## Phase 3: User Story 1 - Download and Filter Real-World Datasets (Priority: P1) 🎯 MVP
 
-**Goal**: Download at least 50 public datasets from UCI/OpenML, filter for non-normality (Shapiro-Wilk p < 0.05) and sample size (N ≥ 30), and preserve metadata.
+**Goal**: Download at least 50 public datasets from UCI/OpenML, filter for non-normality (Shapiro-Wilk p < 0.05) and sample size (N ≥ 30) [UNRESOLVED-CLAIM: c_359bb504 — status=not_enough_info], and preserve metadata.
 
 **Independent Test**: Execute `code/download_datasets.py` and `code/filter_datasets.py` and verify `data/datasets.csv` contains ≥50 valid entries with SHA-256 checksums in `data/checksums.csv`.
 
@@ -91,7 +91,7 @@
 
 - [X] T011b [US1] Unit test for Shapiro-Wilk filtering logic (p < 0.05): Implement `tests/unit/test_filter.py::test_filter_keeps_non_normal` asserting a dataset with p=0.01 is kept and p=0.10 is excluded
 
-- [~] T012a [US1] Integration test for full download-and-filter pipeline: Implement `tests/integration/test_pipeline.py::test_full_download_filter_pipeline` asserting that running both scripts produces a valid `data/datasets.csv` with ≥1 entry
+- [X] T012a [US1] Integration test for full download-and-filter pipeline: Implement `tests/integration/test_pipeline.py::test_full_download_filter_pipeline` asserting that running both scripts produces a valid `data/datasets.csv` with ≥1 entry
 
 ### Implementation for User Story 1
 

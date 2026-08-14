@@ -1,39 +1,28 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Virtual Environments
-.venv/
+# Distribution / packaging
+.eggs/
+*.egg-info/
+dist/
+build/
+bdist.*/
+
+# Virtual environments
 venv/
-ENV/
+.venv/
 env/
+.env/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
-# Data (Raw and Processed)
+# Data artifacts (Raw and Processed)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
@@ -44,12 +33,11 @@ data/checksums.txt
 *.log
 logs/
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-pytest-debug.log
-
 # OS
 .DS_Store
 Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+pytest.ini

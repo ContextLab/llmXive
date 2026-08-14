@@ -20,3 +20,16 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6584f957b476868782d1a52f/e126003e5fec37cc865b920b0a481fc1c78ac451c42f511a4b9e6c41d396a296?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27alignment-00000-of-00001-911d6b30d63b88ae.parquet%3B+filename%3D%22alignment-00000-of-00001-911d6b30d63b88ae.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783559043&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU4NGY5NTdiNDc2ODY4NzgyZDFhNTJmL2UxMjYwMDNlNWZlYzM3Y2M4NjViOTIwYjBhNDgxZmMxYzc4YWM0NTFjNDJmNTExYTRiOWU2YzQxZDM5NmEyOTZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWxpZ25tZW50LTAwMDAwLW9mLTAwMDAxLTkxMWQ2YjMwZDYzYjg4YWUucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmFsaWdubWVudC0wMDAwMC1vZi0wMDAwMS05MTFkNmIzMGQ2M2I4OGFlLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzU1OTA0M319fV19&Signature=MEUCIFiO1nzfjaz6gPNKfZwYh2K4VcnZH26xga2BVvAeFnSMAiEA8dT19ZT%7E73A9ZcM4HOeO9ZsvacwonDIh3vgYH2ITCUQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-09T00:04:02.702201Z'
+- artifact_hash: 2ab86fcb88f17694edc1c97b86d217cde307af301ffc3e63a3142130551f44ed
+  artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
+    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
+    Analysis'
+  kind: url
+  value: https://arxiv.org/abs/2604.10702
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2604.10702
+  verified_at: '2026-08-14T13:12:24.431339Z'

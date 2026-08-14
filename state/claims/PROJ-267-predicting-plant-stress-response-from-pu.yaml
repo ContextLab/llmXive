@@ -1,0 +1,155 @@
+- artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
+  attempts: 1
+  canonical: package versions
+  claim_id: c_57ec3add
+  context: 'Create `code/requirements.txt` containing pinned versions for: pandas==2.0.3,
+    scikit-learn==1.3.0, matplotlib==3.7.2, seaborn==0.12.2, rpy2==3.5.13, requests==2.31.0,
+    psutil==5.9.5, imp3==1.2.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.0.3, scikit-learn==1.3.0, matplotlib==3.7.2, seaborn==0.12.2,
+    rpy2==3.5.13, requests==2.31.0, psutil==5.9.5, imp3==1.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T11:46:07Z'
+- artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
+  attempts: 1
+  canonical: reference validator threshold
+  claim_id: c_3a56fd1e
+  context: Setup `code/utils/config.py` for random seeds, paths, species/stress constants,
+    and Reference-Validator threshold (default 0.7, configurable).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reference-Validator threshold (default 0.7, configurable).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T12:02:29Z'
+- artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
+  attempts: 1
+  canonical: cross validation strategy
+  claim_id: c_ffa05fdc
+  context: Create `docs/deviation_log.md` documenting the decision logic for LOOCV
+    vs 5-fold CV (based on sample size n < 50). This document must exist before T019
+    runs.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: the PI-CAI dataset (n= 1500) with cross-cohort validation on Prostate158
+      source_id: '2604.10702'
+      url: https://arxiv.org/abs/2604.10702
+      value: '1500'
+    filled: true
+  kind: numeric
+  raw_text: LOOCV vs 5-fold CV (based on sample size n < 50)
+  resolved_value: '1500'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T12:17:37Z'
+- artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
+  attempts: 1
+  canonical: minimum samples per stress condition
+  claim_id: c_85ce6dc0
+  context: Implement `code/data_ingestion/sample_check.py` to ensure at least 5 samples
+    exist per stress condition for Arabidopsis, Rice, or Wheat. If n < 5 for all species,
+    trigger the "Data Unavailable" halt path and exit cleanly.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_samples_per_stress_condition
+  kind: magnitude
+  raw_text: at least 5 samples exist per stress condition for Arabidopsis, Rice, or
+    Wheat.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T12:33:11Z'
+- artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
+  attempts: 1
+  canonical: biomart version
+  claim_id: c_b276b762
+  context: "Implement `code/data_ingestion/merge.py` to map UniProt \u2192 Ensembl\
+    \ IDs. Primary Method: biomaRt R package (version 2023-10) via rpy2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: biomaRt R package (version 2023-10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T12:49:55Z'
+- artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
+  attempts: 1
+  canonical: data completeness formula
+  claim_id: c_7f1950d5
+  context: "Implement `code/data_ingestion/completeness.py` to calculate `Data Completeness\
+    \ %` = (Retained Datasets / Initial Query Results) \xD7 100 and write to `results/data_completeness.json`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Retained Datasets / Initial Query Results \xD7 100"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:05:32Z'
+- artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
+  attempts: 1
+  canonical: model hyperparameters
+  claim_id: c_0f4dc1b8
+  context: "Logic:\n * Read sample size from `results/data_completeness.json` or runtime\
+    \ check.\n * If n \u2265 50 \u2192 perform 5\u2011fold CV; else \u2192 perform\
+    \ LOOCV (per `docs/deviation_log.md` T023).\n * All preprocessing (normalization,\
+    \ imputation, feature selection) must occur inside each CV fold (SC\u2011005).\n\
+    \ * Hyperparameters: n_estimators=100, max_depth=10 (RF); kernel='rbf', C=1.0\
+    \ (SVR)."
+  evidence:
+    asserted: '100.0'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: n_estimators=100, max_depth=10 (RF); kernel='rbf', C=1.0 (SVR).
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T13:05:32Z'
+- artifact_path: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu/tasks.md
+  attempts: 1
+  canonical: permutation test iterations
+  claim_id: c_9b3af783
+  context: "Implement **Stress-Label Permutation Control Test**. Logic:\n * Shuffle\
+    \ `StressCondition` labels relative to predictors.\n * Retrain models with same\
+    \ CV strategy.\n * Perform Permutation Test (1000 iterations) to calculate p-value\
+    \ comparing real R\xB2 vs shuffled R\xB2. Output: results/shuffle_control.json\
+    \ (p-value)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Test (1000 iterations)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:12:24Z'

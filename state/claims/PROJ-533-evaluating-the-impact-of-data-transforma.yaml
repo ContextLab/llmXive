@@ -766,3 +766,123 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T19:19:49Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: python dependencies for project
+  claim_id: c_41e1c411
+  context: Initialize Python 3.11 project with dependencies (`scikit-learn`, `scipy`,
+    `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`)
+    in `requirements.txt`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with dependencies (`scikit-learn`, `scipy`,
+    `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`)
+    in `requirements.txt`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T10:13:31Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: format of datasets.csv
+  claim_id: c_ec5848df
+  context: 'Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size,
+    continuous_vars, group_labels, excluded_reason]` (Note: Only retained datasets
+    are included; `shapiro_p_value` is logged but not stored in the final CSV per
+    US-1 filtering logic) and `data/checksums.csv` with headers `[dataset_id, sha256_hash]`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Format_of_datasets.csv
+  kind: entity_fact
+  raw_text: Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size,
+    continuous_vars, group_labels, excluded_reason]`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T10:29:53Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: format of checksums.csv
+  claim_id: c_644ba26f
+  context: 'Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size,
+    continuous_vars, group_labels, excluded_reason]` (Note: Only retained datasets
+    are included; `shapiro_p_value` is logged but not stored in the final CSV per
+    US-1 filtering logic) and `data/checksums.csv` with headers `[dataset_id, sha256_hash]`'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P434: 3147a81a-bee9-48db-86ca-03f81b08df78'
+      source_id: Q4953270
+      url: https://www.wikidata.org/wiki/Q4953270
+      value: 3147a81a-bee9-48db-86ca-03f81b08df78
+    filled: true
+  kind: entity_fact
+  raw_text: Create `data/checksums.csv` with headers `[dataset_id, sha256_hash]`
+  resolved_value: 3147a81a-bee9-48db-86ca-03f81b08df78
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T10:44:37Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: minimum sample size
+  claim_id: c_359bb504
+  context: "Goal: Download at least 50 public datasets from UCI/OpenML, filter for\
+    \ non-normality (Shapiro-Wilk p < 0.05) and sample size (N \u2265 30), and preserve\
+    \ metadata."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sample size (N \u2265 30)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T10:44:37Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: list of statistical tests implemented
+  claim_id: c_5af3ab69
+  context: Implement `utils/statistical_tests.py` with t-test, ANOVA, Shapiro-Wilk,
+    and Friedman test wrappers
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/List_of_statistical_tests_implemented
+  kind: entity_fact
+  raw_text: Implement `utils/statistical_tests.py` with t-test, ANOVA, Shapiro-Wilk,
+    and Friedman test wrappers
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T11:01:00Z'
+- artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/tasks.md
+  attempts: 1
+  canonical: list of transformations implemented
+  claim_id: c_c481db98
+  context: Implement `utils/transformations.py` with Box-Cox, Yeo-Johnson, and rank-based
+    inverse normal functions (handling positive-value constraints)
+  evidence:
+    entailment_evidence: Add topic
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/List_of_transformations_implemented
+  kind: entity_fact
+  raw_text: Implement `utils/transformations.py` with Box-Cox, Yeo-Johnson, and rank-based
+    inverse normal functions (handling positive-value constraints)
+  resolved_value: list of transformations implemented
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T11:01:02Z'

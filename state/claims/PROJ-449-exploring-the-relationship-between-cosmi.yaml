@@ -1,0 +1,124 @@
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: AMS-02 repository contains daily rigidity-binned fluxes 2011-2024
+  claim_id: c_517e7c33
+  context: Implement `code/data/fetch_ams02.py` to download daily averaged, rigidity-binned
+    differential fluxes for protons, helium, and CNO/Fe from the public AMS-02 repository
+    (2011-2024).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The public AMS-02 repository contains daily averaged, rigidity-binned
+    differential fluxes for protons, helium, and CNO/Fe from 2011 to 2024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:22:53Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: NOAA/SWPC provides daily sunspot numbers
+  claim_id: c_04aa1ef0
+  context: Implement `code/data/fetch_noaa.py` to download daily sunspot numbers from
+    NOAA/SWPC.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NOAA/SWPC_provides_daily_sunspot_numbers
+  kind: entity_fact
+  raw_text: NOAA/SWPC provides daily sunspot numbers.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:23:15Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_329928d8
+  context: 'Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scikit-learn`,
+    `scipy`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`, `pytest`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:23:30Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses 1000 iterations
+  claim_id: c_73eb8e04
+  context: Implement `code/analysis/bootstrap.py` function `run_bootstrap_resampling`
+    with n=1000 iterations to estimate confidence intervals for max correlation coefficients.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling will be performed with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:23:54Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Correlation lag window is plus or minus 12 months
+  claim_id: c_2989d536
+  context: "Compute composition ratios and perform time-lagged Pearson/Spearman correlation\
+    \ analyses against sunspot numbers (\xB112 months lag) per rigidity bin."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Time-lagged correlation analyses will use a lag window of \xB112 months."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:24:11Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Data gaps over 30 days are flagged and excluded
+  claim_id: c_c6905b19
+  context: Implement `code/data/align_data.py` to merge flux and solar data, handling
+    time zones and date formats; must flag gaps > 30 days as 'Data Gap' and exclude
+    from correlation later.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_gaps_over_30_days_are_flagged_and_excluded
+  kind: magnitude
+  raw_text: Data gaps greater than 30 days must be flagged as 'Data Gap' and excluded
+    from correlation analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:24:47Z'
+- artifact_path: projects/PROJ-449-exploring-the-relationship-between-cosmi/specs/001-exploring-the-relationship-between-cosmi/tasks.md
+  attempts: 1
+  canonical: Diffusion model parameterization is Amplitude equals A divided by Rigidity
+    plus B
+  claim_id: c_cb7c8c7f
+  context: The model must be a simplified physics-based parameterization (e.g., `Amplitude
+    = A / (Rigidity + B)`) to ensure convergence without GPU acceleration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Diffusion_model_parameterization_is_Amplitude_equals_A_divid
+  kind: entity_fact
+  raw_text: The diffusion model parameterization uses the form Amplitude = A / (Rigidity
+    + B).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:25:16Z'

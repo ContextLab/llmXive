@@ -5,73 +5,63 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict, Optional, List
 
-# Constants
-CHECKPOINT_DIR = Path("results/checkpoints")
-STATE_DIR = Path("state/projects")
+def ensure_checkpoint_dir(checkpoint_dir: str) -> None:
+    """Ensures the checkpoint directory exists."""
+    Path(checkpoint_dir).mkdir(parents=True, exist_ok=True)
 
-def ensure_checkpoint_dir() -> Path:
-    """Ensure the checkpoint directory exists."""
-    CHECKPOINT_DIR.mkdir(parents=True, exist_ok=True)
-    return CHECKPOINT_DIR
+def compute_file_hash(filepath: str) -> str:
+    """Computes the SHA256 hash of a file."""
+    hasher = hashlib.sha256()
+    with open(filepath, 'rb') as f:
+        while True:
+            chunk = f.read(4096)
+            if not chunk:
+                break
+            hasher.update(chunk)
+    return hasher.hexdigest()
 
-def compute_file_hash(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+def get_checkpoint_path(checkpoint_dir: str, filename: str) -> Path:
+    """Returns the full path to a checkpoint file."""
+    return Path(checkpoint_dir) / filename
 
-def get_checkpoint_path(run_id: str, step_name: str, suffix: str = ".json") -> Path:
-    """Generate the full path for a checkpoint file."""
-    ensure_checkpoint_dir()
-    safe_run_id = run_id.replace("/", "_").replace("\\", "_")
-    safe_step = step_name.replace("/", "_").replace("\\", "_")
-    return CHECKPOINT_DIR / f"{safe_run_id}_{safe_step}{suffix}"
+def save_checkpoint(data: Any, checkpoint_dir: str, filename: str) -> None:
+    """Saves data to a checkpoint file as JSON."""
+    filepath = get_checkpoint_path(checkpoint_dir, filename)
+    with open(filepath, 'w') as f:
+        json.dump(data, f)
 
-def save_checkpoint(run_id: str, step_name: str, data: Dict[str, Any]) -> Path:
-    """Save state data to a checkpoint file."""
-    path = get_checkpoint_path(run_id, step_name)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-    return path
-
-def load_checkpoint(run_id: str, step_name: str) -> Optional[Dict[str, Any]]:
-    """Load state data from a checkpoint file if it exists."""
-    path = get_checkpoint_path(run_id, step_name)
-    if not path.exists():
-        return None
-    with open(path, "r", encoding="utf-8") as f:
+def load_checkpoint(checkpoint_dir: str, filename: str) -> Any:
+    """Loads data from a checkpoint file."""
+    filepath = get_checkpoint_path(checkpoint_dir, filename)
+    with open(filepath, 'r') as f:
         return json.load(f)
 
-def has_checkpoint(run_id: str, step_name: str) -> bool:
-    """Check if a checkpoint exists for the given run and step."""
-    return get_checkpoint_path(run_id, step_name).exists()
+def has_checkpoint(checkpoint_dir: str, filename: str) -> bool:
+    """Checks if a checkpoint file exists."""
+    filepath = get_checkpoint_path(checkpoint_dir, filename)
+    return filepath.exists()
 
-def delete_checkpoint(run_id: str, step_name: str) -> bool:
-    """Delete a checkpoint file if it exists."""
-    path = get_checkpoint_path(run_id, step_name)
-    if path.exists():
-        path.unlink()
-        return True
-    return False
+def delete_checkpoint(checkpoint_dir: str, filename: str) -> None:
+    """Deletes a checkpoint file."""
+    filepath = get_checkpoint_path(checkpoint_dir, filename)
+    if filepath.exists():
+        filepath.unlink()
 
-def list_checkpoints(run_id: Optional[str] = None) -> List[Path]:
-    """List all checkpoint files, optionally filtered by run_id."""
-    ensure_checkpoint_dir()
-    if run_id:
-        safe_run_id = run_id.replace("/", "_").replace("\\", "_")
-        return list(CHECKPOINT_DIR.glob(f"{safe_run_id}_*.json"))
-    return list(CHECKPOINT_DIR.glob("*.json"))
+def list_checkpoints(checkpoint_dir: str) -> List[str]:
+    """Lists all checkpoint files in a directory."""
+    checkpoint_dir = Path(checkpoint_dir)
+    return [f.name for f in checkpoint_dir.glob("*.json") if f.is_file()]
 
-def save_state_snapshot(run_id: str, snapshot: Dict[str, Any]) -> Path:
-    """Save a full state snapshot for a project run."""
-    ensure_checkpoint_dir()
-    path = get_checkpoint_path(run_id, "full_snapshot")
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(snapshot, f, indent=2)
-    return path
+def save_state_snapshot(data: Dict, checkpoint_dir: str):
+  """Saves a snapshot of the current state."""
+  filepath = Path(checkpoint_dir) / "state.json"
+  with open(filepath, 'w') as f:
+    json.dump(data, f)
 
-def get_resume_info(run_id: str, step_name: str) -> Optional[Dict[str, Any]]:
-    """Retrieve resume information (last known state) for a specific step."""
-    return load_checkpoint(run_id, step_name)
+def get_resume_info(checkpoint_dir: str) -> Optional[Dict]:
+  """Loads resume information from a checkpoint file."""
+  filepath = Path(checkpoint_dir) / "state.json"
+  if filepath.exists():
+    with open(filepath, 'r') as f:
+      return json.load(f)
+  return None

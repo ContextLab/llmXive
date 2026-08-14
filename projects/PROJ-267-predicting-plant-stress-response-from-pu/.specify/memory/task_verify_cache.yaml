@@ -42,3 +42,11 @@ T012:
     \ entirely, so the required version pin for `imp3` is not present. The `docs/deviation_log.md`\
     \ documents a different deviation (cross\u2011validation) and does not note any\
     \ fallback for an unavailable `imp3` library."
+T018:
+  c: false
+  h: 1fede6c0126cba44057690a1cf824839dad4b534b4dca31288c2382bb4a52043
+  r: "The `code/data_ingestion/completeness.py` file is present but its content is\
+    \ truncated and does not show the logic that writes `results/data_completeness.json`.\
+    \ Moreover, the required output file `results/data_completeness.json` is missing\
+    \ from the repository. The task\u2019s core deliverable \u2013 a JSON file with\
+    \ the calculated completeness metric \u2013 has not been produced."

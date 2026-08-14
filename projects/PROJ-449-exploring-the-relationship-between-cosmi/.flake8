@@ -1,7 +1,17 @@
 [flake8]
 max-line-length = 88
 extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist,.eggs
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    build,
+    dist,
+    *.egg-info
 per-file-ignores =
-    # Allow unused imports in __init__.py
-    */__init__.py:F401
+    # Allow unused imports in __init__.py for public API exposure
+    */__init__.py: F401
+    # Allow unused arguments in test functions and callback definitions
+    tests/*.py: F841
+    code/analysis/correlation.py: F841
+max-complexity = 15

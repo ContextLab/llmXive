@@ -1,0 +1,47 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `tests/`, `data/`) or any files
+    within them was provided; without a visible project structure we cannot confirm
+    the task was fulfilled. The implementer must supply a directory listing or the
+    actual folders containing the expected scaffold.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No project initialization files (e.g., `pyproject.toml`, `requirements.txt`,
+    `setup.cfg`, or a virtual environment) containing the listed dependencies are
+    present. The evidence provided only describes feature specifications, not the
+    required Python 3.11 project setup. The implementer must supply a concrete project
+    configuration that lists all nine dependencies.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting configuration files (e.g., `.flake8`, `pyproject.toml` with Black
+    settings, or a Makefile/CI script invoking flake8/black) were provided, nor any
+    evidence that these tools have been set up and run. The required artifacts to
+    satisfy task T003 are missing.
+T015:
+  c: false
+  h: 95697a527da2692ea89413b2d31a760587b394b734d62617ababf7984226870c
+  r: "The `code/main.py` file exists and appears to orchestrate the pipeline, but\
+    \ the required output file `data/processed/unified_timeseries.csv` is missing\
+    \ from the repository. Without this CSV, the task\u2019s core requirement is not\
+    \ satisfied. The next implementer must ensure the pipeline actually generates\
+    \ and saves the unified timeseries CSV at the specified location."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, logs, or data files were presented showing that coverage validation\
+    \ was added, that fallback bins are identified and logged, or that a critical\
+    \ error is raised when coverage is <\u202F50\u202F%. The claim consists only of\
+    \ a textual description without any concrete artifact to verify."
+T020:
+  c: false
+  h: 70ff4a7742b9ace959a430fe778f73901cd8f1fab41dd4d06f3a0b95061a5dc2
+  r: "The required result files `data/processed/correlation_results.json` and `data/processed/correlation_summary.csv`\
+    \ are absent, and the provided `correlation.py` snippet only defines a generic\
+    \ lagged\u2011correlation helper; it does not demonstrate iterating over all rigidity\
+    \ bins, computing He/p and Fe/p ratios, performing the absolute\u2011flux control\
+    \ analysis, deriving a rigidity\u2011dependent modulation trend, or writing the\
+    \ results to the specified JSON/CSV files. These core pieces are missing, so the\
+    \ task is not genuinely completed."

@@ -1,1 +1,3 @@
-"""Utilities package."""
+"""
+Utility modules for configuration, logging, and verification.
+"""
