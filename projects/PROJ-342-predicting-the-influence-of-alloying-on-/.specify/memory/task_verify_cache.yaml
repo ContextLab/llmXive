@@ -1,3 +1,10 @@
+T012:
+  c: false
+  h: 9451b1a7426d1af77635a15195926e65b2404189abd3308188a5f9ef4c71f8d4
+  r: The required file `data/raw/zenodo_10043838.csv` does not exist, so the verification
+    step fails. Moreover, `code/ingest.py` only defines helper functions and never
+    invokes them with the specified DOIs nor writes the fetched data to the expected
+    path, leaving the task unfulfilled.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -25,3 +32,33 @@ T025:
     \ resource\u2011monitoring checks for runtime\u202F<\u202F6\u202Fh and RAM\u202F\
     <\u202F7\u202FGB. The required artifact (e.g., a monitoring script, CI guard,\
     \ or runtime/RAM validation step) is missing, so the task is not satisfied."
+T026:
+  c: false
+  h: 7e63b063d641e93f317dea81fb4b8ae72b1a129fc4ac110c024915be8e144904
+  r: The repository contains `code/descriptors.py`, but the shown source is truncated
+    and does not include any logic that writes a CSV file to `data/processed/descriptors.csv`.
+    Moreover, the required output file `data/processed/descriptors.csv` is absent
+    from the project. Both the saving functionality and the expected artifact are
+    missing, so the task is not satisfied.
+T033:
+  c: false
+  h: 4392b8136336ef298b19185882224e96f2b559b8096e817dc20d1c106b11e7b2
+  r: "The repository contains a partially\u2011written `code/analyze.py` (truncated\
+    \ and lacking Spearman calculation, saving of the matrix, and full implementation),\
+    \ the required input `data/processed/descriptors.csv` is absent, and the expected\
+    \ output `data/processed/correlation_matrix.csv` was never created. Consequently\
+    \ the task\u2019s specifications are not met."
+T035:
+  c: false
+  h: c012c70fac12141d8b0557026a34456d5c76795cc74e60604619d549f0369237
+  r: The provided `code/analyze.py` contains functions for correlation and FDR correction
+    but no VIF calculation or flagging logic, and it never writes a `vif_diagnostic_log.json`.
+    Moreover, the required input file `data/processed/descriptors.csv` and the expected
+    output log file are absent. The task requirements are therefore not met.
+T036:
+  c: false
+  h: 17d1901aeb1fd4da3518187619e9392634afac81a97989f1dfa48c89b321c904
+  r: "The provided `code/analyze.py` does not implement bootstrapping of feature importance,\
+    \ never loads `artifacts/models/best_model.pkl`, and never writes a `stability_metrics.json`\
+    \ file. Moreover, the required model file is absent from the repository. The task\u2019\
+    s core functionality and output artifact are therefore missing."

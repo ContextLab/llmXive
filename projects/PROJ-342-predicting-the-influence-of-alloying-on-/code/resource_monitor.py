@@ -1,217 +1,204 @@
 """
-Resource monitoring wrapper to enforce FR-005 (6h CPU time, 7GB RAM limits).
+Resource monitoring wrapper for enforcing CPU time and RAM limits.
 
-This module provides context managers and decorators to monitor and enforce
-resource limits during pipeline execution.
+This module provides a context manager and decorator to monitor resource usage
+during execution and raise exceptions when limits are exceeded.
+
+Requirements:
+- FR-005: Enforce 6h CPU time and 7GB RAM limits
 """
-
 import os
 import sys
 import time
 import resource
 import logging
+import threading
 from contextlib import contextmanager
-from typing import Generator, Callable, Any, Optional
-from dataclasses import dataclass
+from typing import Optional, Callable, Any
+from functools import wraps
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Configure logger
 logger = logging.getLogger(__name__)
-
-# Resource limits (FR-005)
-MAX_CPU_TIME_SECONDS = 6 * 60 * 60  # 6 hours
-MAX_RAM_MB = 7 * 1024  # 7 GB
-
 
 class ResourceLimitExceeded(Exception):
     """Exception raised when a resource limit is exceeded."""
-    
-    def __init__(self, resource_type: str, limit: float, current: float, unit: str):
-        self.resource_type = resource_type
-        self.limit = limit
-        self.current = current
-        self.unit = unit
-        message = (
-            f"Resource limit exceeded: {resource_type} limit is {limit:.2f} {unit}, "
-            f"but current usage is {current:.2f} {unit}."
-        )
-        super().__init__(message)
+    pass
+
 
 def get_current_ram_mb() -> float:
     """
     Get the current RAM usage of the process in MB.
     
     Returns:
-        Current RAM usage in MB.
+        float: Current RAM usage in MB
     """
-    # Get memory usage in bytes (RUSAGE_SELF for current process)
+    # Get memory info from resource module (works on Unix)
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    # maxrss is in KB on Linux/macOS
-    return usage.ru_maxrss / 1024.0
+    # ru_maxrss is in KB on Linux, MB on macOS
+    if sys.platform == 'darwin':
+        return usage.ru_maxrss
+    else:
+        return usage.ru_maxrss / 1024.0
+
 
 def get_current_cpu_time() -> float:
     """
     Get the cumulative CPU time used by the process in seconds.
     
     Returns:
-        Cumulative CPU time in seconds.
+        float: CPU time in seconds
     """
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    # ru_utime and ru_stime are in seconds
     return usage.ru_utime + usage.ru_stime
+
 
 @contextmanager
 def resource_monitor(
-    max_cpu_seconds: float = MAX_CPU_TIME_SECONDS,
-    max_ram_mb: float = MAX_RAM_MB,
-    check_interval: float = 1.0
-) -> Generator[dict, None, None]:
+    cpu_limit: float = 6 * 3600,  # 6 hours in seconds
+    ram_limit: float = 7 * 1024,  # 7 GB in MB
+    check_interval: float = 60.0  # Check every 60 seconds
+):
     """
     Context manager to monitor CPU time and RAM usage.
     
     Args:
-        max_cpu_seconds: Maximum allowed CPU time in seconds.
-        max_ram_mb: Maximum allowed RAM usage in MB.
-        check_interval: Interval in seconds between checks.
-    
+        cpu_limit: Maximum allowed CPU time in seconds (default: 6 hours)
+        ram_limit: Maximum allowed RAM in MB (default: 7 GB)
+        check_interval: Interval between resource checks in seconds (default: 60s)
+        
     Yields:
-        Dictionary with 'start_time', 'start_cpu', 'start_ram' and 'check_interval'.
-    
+        None
+        
     Raises:
-        ResourceLimitExceeded: If limits are exceeded during execution.
+        ResourceLimitExceeded: If CPU time or RAM limit is exceeded
     """
     start_time = time.time()
-    start_cpu = get_current_cpu_time()
-    start_ram = get_current_ram_mb()
+    last_check_time = start_time
     
-    logger.info(
-        f"Resource monitoring started: CPU limit={max_cpu_seconds}s, "
-        f"RAM limit={max_ram_mb}MB"
+    # Start monitoring thread
+    stop_event = threading.Event()
+    monitor_thread = threading.Thread(
+        target=_monitor_resources,
+        args=(cpu_limit, ram_limit, check_interval, stop_event),
+        daemon=True
     )
-    
-    stats = {
-        'start_time': start_time,
-        'start_cpu': start_cpu,
-        'start_ram': start_ram,
-        'check_interval': check_interval,
-        'max_cpu_seconds': max_cpu_seconds,
-        'max_ram_mb': max_ram_mb
-    }
+    monitor_thread.start()
     
     try:
-        yield stats
+        yield
+    except Exception as e:
+        raise e
     finally:
-        elapsed_time = time.time() - start_time
-        elapsed_cpu = get_current_cpu_time() - start_cpu
+        stop_event.set()
+        monitor_thread.join(timeout=1.0)
+        
+        # Final check
+        current_cpu = get_current_cpu_time()
+        current_ram = get_current_ram_mb()
+        
+        if current_cpu > cpu_limit:
+            raise ResourceLimitExceeded(
+                f"CPU time limit exceeded: {current_cpu:.2f}s > {cpu_limit:.2f}s"
+            )
+        if current_ram > ram_limit:
+            raise ResourceLimitExceeded(
+                f"RAM limit exceeded: {current_ram:.2f}MB > {ram_limit:.2f}MB"
+            )
+
+
+def _monitor_resources(
+    cpu_limit: float,
+    ram_limit: float,
+    check_interval: float,
+    stop_event: threading.Event
+):
+    """
+    Background thread function to monitor resources.
+    
+    Args:
+        cpu_limit: Maximum allowed CPU time in seconds
+        ram_limit: Maximum allowed RAM in MB
+        check_interval: Interval between checks in seconds
+        stop_event: Event to signal thread to stop
+    """
+    while not stop_event.is_set():
+        if stop_event.wait(timeout=check_interval):
+            break
+            
+        current_cpu = get_current_cpu_time()
         current_ram = get_current_ram_mb()
         
         logger.info(
-            f"Resource monitoring completed: "
-            f"Elapsed time={elapsed_time:.2f}s, "
-            f"CPU time={elapsed_cpu:.2f}s, "
-            f"Peak RAM={current_ram:.2f}MB"
+            f"Resource check - CPU: {current_cpu:.2f}s / {cpu_limit:.2f}s, "
+            f"RAM: {current_ram:.2f}MB / {ram_limit:.2f}MB"
         )
         
-        # Check limits
-        if elapsed_cpu > max_cpu_seconds:
-            raise ResourceLimitExceeded(
-                "CPU time", max_cpu_seconds, elapsed_cpu, "seconds"
+        if current_cpu > cpu_limit:
+            logger.error(
+                f"CPU time limit exceeded: {current_cpu:.2f}s > {cpu_limit:.2f}s"
             )
-        
-        if current_ram > max_ram_mb:
             raise ResourceLimitExceeded(
-                "RAM", max_ram_mb, current_ram, "MB"
+                f"CPU time limit exceeded: {current_cpu:.2f}s > {cpu_limit:.2f}s"
+            )
+            
+        if current_ram > ram_limit:
+            logger.error(
+                f"RAM limit exceeded: {current_ram:.2f}MB > {ram_limit:.2f}MB"
+            )
+            raise ResourceLimitExceeded(
+                f"RAM limit exceeded: {current_ram:.2f}MB > {ram_limit:.2f}MB"
             )
 
+
 def enforce_resource_limits(
-    func: Callable,
-    max_cpu_seconds: float = MAX_CPU_TIME_SECONDS,
-    max_ram_mb: float = MAX_RAM_MB,
-    check_interval: float = 1.0
-) -> Callable:
+    cpu_limit: float = 6 * 3600,  # 6 hours in seconds
+    ram_limit: float = 7 * 1024,  # 7 GB in MB
+    check_interval: float = 60.0  # Check every 60 seconds
+):
     """
     Decorator to enforce resource limits on a function.
     
     Args:
-        func: The function to wrap.
-        max_cpu_seconds: Maximum allowed CPU time in seconds.
-        max_ram_mb: Maximum allowed RAM usage in MB.
-        check_interval: Interval in seconds between checks.
-    
+        cpu_limit: Maximum allowed CPU time in seconds (default: 6 hours)
+        ram_limit: Maximum allowed RAM in MB (default: 7 GB)
+        check_interval: Interval between resource checks in seconds (default: 60s)
+        
     Returns:
-        Wrapped function with resource monitoring.
-    
-    Raises:
-        ResourceLimitExceeded: If limits are exceeded during execution.
+        Callable: Wrapped function with resource monitoring
     """
-    from functools import wraps
-    
-    @wraps(func)
-    def wrapper(*args, **kwargs) -> Any:
-        with resource_monitor(
-            max_cpu_seconds=max_cpu_seconds,
-            max_ram_mb=max_ram_mb,
-            check_interval=check_interval
-        ):
-            return func(*args, **kwargs)
-    
-    return wrapper
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -> Any:
+            with resource_monitor(
+                cpu_limit=cpu_limit,
+                ram_limit=ram_limit,
+                check_interval=check_interval
+            ):
+                return func(*args, **kwargs)
+        return wrapper
+    return decorator
 
-def main() -> None:
+
+def main():
     """
-    Main entry point for testing the resource monitor.
-    
-    This function demonstrates the usage of the resource monitoring
-    context manager and decorator.
+    Demo function to test resource monitoring.
     """
-    logger.info("Testing resource monitor...")
-    
-    # Test 1: Context manager with normal execution
-    logger.info("Test 1: Context manager with normal execution")
-    try:
-        with resource_monitor(max_cpu_seconds=300, max_ram_mb=1024) as stats:
-            time.sleep(1)  # Simulate work
-            logger.info(f"Stats: {stats}")
-        logger.info("Test 1 passed: Normal execution completed")
-    except ResourceLimitExceeded as e:
-        logger.error(f"Test 1 failed: {e}")
-    
-    # Test 2: Decorator with normal execution
-    logger.info("Test 2: Decorator with normal execution")
-    
-    @enforce_resource_limits(max_cpu_seconds=300, max_ram_mb=1024)
+    @enforce_resource_limits(cpu_limit=10, ram_limit=1024)
     def test_function():
-        time.sleep(1)
+        print("Running test function...")
+        time.sleep(2)
         return "Success"
     
     try:
         result = test_function()
-        logger.info(f"Test 2 passed: {result}")
+        print(f"Result: {result}")
     except ResourceLimitExceeded as e:
-        logger.error(f"Test 2 failed: {e}")
-    
-    # Test 3: Context manager with CPU limit exceeded (simulated)
-    logger.info("Test 3: Testing CPU limit enforcement (simulated)")
-    try:
-        with resource_monitor(max_cpu_seconds=0.001, max_ram_mb=1024):
-            time.sleep(0.1)  # This will exceed the very small CPU limit
-        logger.error("Test 3 failed: Should have raised ResourceLimitExceeded")
-    except ResourceLimitExceeded as e:
-        logger.info(f"Test 3 passed: Correctly raised exception - {e}")
-    
-    # Test 4: Context manager with RAM limit exceeded (simulated)
-    logger.info("Test 4: Testing RAM limit enforcement (simulated)")
-    try:
-        with resource_monitor(max_cpu_seconds=300, max_ram_mb=0.001):
-            time.sleep(0.01)  # Even minimal usage will exceed 0.001 MB
-        logger.error("Test 4 failed: Should have raised ResourceLimitExceeded")
-    except ResourceLimitExceeded as e:
-        logger.info(f"Test 4 passed: Correctly raised exception - {e}")
-    
-    logger.info("All resource monitor tests completed")
+        print(f"Resource limit exceeded: {e}")
+
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     main()
