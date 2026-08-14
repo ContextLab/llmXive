@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-274-evaluating-the-impact-of-llm-generated-c",
+  "ok": false,
+  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python code/experiment/experiment.py --mode mock --participants 3; python code/generation/doc_pipeline.py  --repo  --commit abc123def456  --output data/processed/docs/repo_docs.md; python code/analysis/stats_runner.py  --input data/processed/task_logs_anon.json  --output data/processed/analysis_results.json; 6 declared deliverable(s) absent: data/processed/cleaned_dataset.csv; data/processed/validation_report.json; data/raw/participant_logs.json",
+  "artifacts": [],
+  "failures": [
+    "python code/experiment/experiment.py --mode mock --participants 3 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/experiment/experiment.py': [Errno 2] No such file or directory",
+    "python code/generation/doc_pipeline.py  --repo  --commit abc123def456  --output data/processed/docs/repo_docs.md -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/generation/doc_pipeline.py': [Errno 2] No such file or directory",
+    "python code/analysis/stats_runner.py  --input data/processed/task_logs_anon.json  --output data/processed/analysis_results.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/analysis/stats_runner.py': [Errno 2] No such file or directory",
+    "python code/utils/logging.py --track  --command \"python code/analysis/stats_runner.py...\" -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/code/utils/logging.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-14T20:37:29Z"
+}

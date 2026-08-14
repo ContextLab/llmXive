@@ -1,3 +1,7 @@
+"""
+Script to generate repo_covariates.json from repo_metrics.json and repo_matching_report.json.
+This prepares the covariate data for ANCOVA analysis.
+"""
 import json
 import os
 import sys
@@ -5,36 +9,40 @@ from validation import generate_covariates_json
 
 def main():
     """
-    Main entry point for running covariate collection.
-    Reads candidate repos from data/raw/repo_selection_rubric.json
-    and outputs covariates to data/raw/repo_covariates.json.
+    Main entry point to generate covariates.
+    Reads:
+      - data/raw/repo_metrics.json (from T021c)
+      - data/raw/repo_matching_report.json (from T021d)
+    Writes:
+      - data/raw/repo_covariates.json
     """
-    # Load candidate repos from rubric output
-    rubric_path = "data/raw/repo_selection_rubric.json"
-    
-    if not os.path.exists(rubric_path):
-        print(f"Error: {rubric_path} not found. Run T021b first.")
+    # Define paths relative to project root
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    metrics_path = os.path.join(project_root, "data", "raw", "repo_metrics.json")
+    matching_path = os.path.join(project_root, "data", "raw", "repo_matching_report.json")
+    output_path = os.path.join(project_root, "data", "raw", "repo_covariates.json")
+
+    # Check input files exist
+    if not os.path.exists(metrics_path):
+        print(f"Error: Input file not found: {metrics_path}", file=sys.stderr)
+        print("Please ensure T021c has been executed successfully.", file=sys.stderr)
         sys.exit(1)
-    
-    with open(rubric_path, 'r') as f:
-        rubric_data = json.load(f)
-    
-    # Extract passed repos
-    candidate_repos = [
-        item["repo_path"] for item in rubric_data.get("results", [])
-        if item.get("passed", False)
-    ]
-    
-    if not candidate_repos:
-        print("No passed repositories found. Cannot generate covariates.")
+
+    if not os.path.exists(matching_path):
+        print(f"Error: Input file not found: {matching_path}", file=sys.stderr)
+        print("Please ensure T021d has been executed successfully.", file=sys.stderr)
         sys.exit(1)
-    
-    print(f"Generating covariates for {len(candidate_repos)} repositories...")
-    
-    output_path = "data/raw/repo_covariates.json"
-    generate_covariates_json(candidate_repos, output_path)
-    
-    print(f"Covariates generated successfully: {output_path}")
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # Generate covariates
+    try:
+        generate_covariates_json(metrics_path, matching_path, output_path)
+        print(f"Successfully generated covariates: {output_path}")
+    except Exception as e:
+        print(f"Error generating covariates: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

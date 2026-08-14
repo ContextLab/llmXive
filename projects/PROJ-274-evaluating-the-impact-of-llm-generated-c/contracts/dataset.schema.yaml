@@ -1,117 +1,102 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Participant Logs Schema
-description: Schema for validating raw participant logs from the onboarding experiment.
+# Dataset Schema for LLM-Generated Code Documentation Impact Study
+# Generated based on data-model.md and participant_logs.json structure
+# Task: T030a
 type: object
 required:
-  - metadata
-  - participants
+  - participant_id
+  - session_id
+  - condition
+  - repo_id
+  - start_time
+  - end_time
+  - task_duration_seconds
+  - help_request_count
+  - helpfulness_score
+  - intervention_flag
+  - status
 properties:
-  metadata:
-    type: object
-    required:
-      - version
-      - generated_at
-      - experiment_id
-    properties:
-      version:
-        type: string
-        pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'
-      generated_at:
-        type: string
-        format: date-time
-      experiment_id:
-        type: string
-      total_participants:
-        type: integer
-        minimum: 0
-  participants:
+  participant_id:
+    type: string
+    description: Unique anonymous identifier for the participant
+    pattern: "^[A-Z0-9]{8}$"
+  session_id:
+    type: string
+    description: Unique identifier for the specific study session
+    pattern: "^[A-Z0-9]{12}$"
+  condition:
+    type: string
+    description: Documentation condition assigned to the participant
+    enum:
+      - LLM
+      - Human
+      - None
+  repo_id:
+    type: string
+    description: Identifier for the codebase repository used
+    type: string
+  start_time:
+    type: string
+    description: ISO 8601 timestamp when the session started
+    format: date-time
+  end_time:
+    type: string
+    description: ISO 8601 timestamp when the session ended
+    format: date-time
+  task_duration_seconds:
+    type: number
+    description: Total duration of the onboarding task in seconds
+    minimum: 0
+  help_request_count:
+    type: integer
+    description: Number of clarification questions asked during the session
+    minimum: 0
+  helpfulness_requests:
     type: array
-    minItems: 0
+    description: Detailed log of help requests (timestamp, content)
     items:
       type: object
       required:
-        - participant_id
-        - condition
-        - session_start
-        - session_end
-        - tasks
+        - timestamp
+        - content
       properties:
-        participant_id:
-          type: string
-          pattern: '^[A-Z]{2}[0-9]{3}$'
-        condition:
-          type: string
-          enum:
-            - llm_docs
-            - human_docs
-            - no_docs
-        session_start:
+        timestamp:
           type: string
           format: date-time
-        session_end:
+        content:
           type: string
-          format: date-time
-        repo_id:
-          type: string
-        tasks:
-          type: array
-          items:
-            type: object
-            required:
-              - task_id
-              - start_time
-              - end_time
-              - completed
-            properties:
-              task_id:
-                type: string
-              start_time:
-                type: string
-                format: date-time
-              end_time:
-                type: string
-                format: date-time
-              completed:
-                type: boolean
-              time_taken_seconds:
-                type: number
-        help_requests:
-          type: array
-          items:
-            type: object
-            required:
-              - timestamp
-              - content
-              - type
-            properties:
-              timestamp:
-                type: string
-                format: date-time
-              content:
-                type: string
-              type:
-                type: string
-                enum:
-                  - keyword
-                  - moderator_tag
-        cognitive_load_proxy:
-          type: number
-          minimum: 0
-        subjective_helpfulness:
-          type: integer
-          minimum: 1
-          maximum: 5
-        intervention_flag:
-          type: boolean
-        time_capped:
-          type: boolean
-        final_time:
-          type: number
-          minimum: 0
-        status:
-          type: string
-          enum:
-            - complete
-            - incomplete
-            - abandoned
-            - stopped_loss
+  helpfulness_score:
+    type: integer
+    description: Subjective helpfulness rating from post-task survey (1-5)
+    minimum: 1
+    maximum: 5
+  intervention_flag:
+    type: boolean
+    description: True if stop-loss intervention was triggered
+  time_capped:
+    type: boolean
+    description: True if the recorded time was capped due to intervention
+  final_time:
+    type: number
+    description: Final recorded time (may be capped) in seconds
+  status:
+    type: string
+    description: Outcome status of the session
+    enum:
+      - completed
+      - abandoned
+      - failed
+  dropout_reason:
+    type: string
+    description: Reason for dropout if status is abandoned or failed
+    nullable: true
+  metadata:
+    type: object
+    description: Additional metadata (optional)
+    properties:
+      platform:
+        type: string
+      browser:
+        type: string
+      notes:
+        type: string
+additionalProperties: false

@@ -1,206 +1,201 @@
-"""
-Repository Utilities for llmXive Project PROJ-274.
-
-Implements codebase fetching (limiting to 500 files) and commit pinning logic.
-Depends on T021c (covariate collection) and T047 (validation consolidation).
-"""
 import os
 import subprocess
 import hashlib
 import json
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Generator, Iterable
 from pathlib import Path
+import logging
 
-# Constants
-MAX_FILES = 500
-DATA_RAW_DIR = "data/raw"
-CHECKSUM_FILE = "data/checksums.txt"
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
+def ensure_dirs(base_dir: str = "data/raw") -> None:
+    """Ensure the base directory and subdirectories exist."""
+    os.makedirs(base_dir, exist_ok=True)
+    os.makedirs(os.path.join(base_dir, "repos"), exist_ok=True)
+    os.makedirs(os.path.join(base_dir, "llm_docs"), exist_ok=True)
 
-def ensure_dirs() -> None:
-    """Ensure required directories exist."""
-    os.makedirs(DATA_RAW_DIR, exist_ok=True)
-    os.makedirs(os.path.join(DATA_RAW_DIR, "pinned_repos"), exist_ok=True)
-
-
-def clone_or_fetch_repo(repo_url: str, target_dir: str, commit_hash: Optional[str] = None) -> Tuple[str, str]:
+def clone_or_fetch_repo(repo_url: str, commit_hash: str, target_dir: str) -> str:
     """
-    Clone a repository or fetch updates if it already exists.
-    Optionally checkout a specific commit for pinning.
-
-    Args:
-        repo_url: URL of the git repository.
-        target_dir: Local directory path for the repository.
-        commit_hash: Optional specific commit hash to pin to.
-
-    Returns:
-        Tuple of (local_path, actual_commit_hash).
+    Clone a repository or fetch a specific commit if already cloned.
+    Returns the path to the repository.
     """
-    ensure_dirs()
-
-    if not os.path.exists(target_dir):
-        # Clone the repository
-        subprocess.run(["git", "clone", repo_url, target_dir], check=True, capture_output=True)
+    repo_path = os.path.join(target_dir, os.path.basename(repo_url).replace('.git', ''))
+    
+    if not os.path.exists(repo_path):
+        logger.info(f"Cloning repository: {repo_url} to {repo_path}")
+        subprocess.run(["git", "clone", repo_url, repo_path], check=True)
     else:
-        # Fetch updates to ensure we have the latest commit info
-        subprocess.run(["git", "-C", target_dir, "fetch", "origin"], check=True, capture_output=True)
+        logger.info(f"Repository already exists at {repo_path}, fetching specific commit.")
+    
+    subprocess.run(["git", "-C", repo_path, "fetch", "origin"], check=True)
+    subprocess.run(["git", "-C", repo_path, "checkout", commit_hash], check=True)
+    
+    return repo_path
 
-    # Determine the commit hash
-    if commit_hash:
-        # Checkout specific commit for pinning
-        subprocess.run(["git", "-C", target_dir, "checkout", commit_hash], check=True, capture_output=True)
-        actual_hash = commit_hash
-    else:
-        # Get the current HEAD commit hash
-        result = subprocess.run(
-            ["git", "-C", target_dir, "rev-parse", "HEAD"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        actual_hash = result.stdout.strip()
-
-    return target_dir, actual_hash
-
-
-def get_repo_files(target_dir: str, max_files: int = MAX_FILES) -> List[str]:
+def get_repo_files(repo_path: str, max_files: int = 500) -> List[Dict[str, Any]]:
     """
-    Retrieve a list of files in the repository, limiting to max_files.
-    Filters out common non-source files (e.g., .git, .md, .txt in root).
-
-    Args:
-        target_dir: Path to the repository.
-        max_files: Maximum number of files to return.
-
-    Returns:
-        List of relative file paths.
+    Get a list of files in the repository, limited to max_files.
+    Returns a list of dicts with 'path', 'size', 'content' (truncated if too large).
     """
     files = []
-    for root, _, filenames in os.walk(target_dir):
-        # Skip .git and other hidden directories
-        dirs_to_skip = {'.git', '__pycache__', 'node_modules', 'venv', '.venv', 'dist', 'build'}
-        dirs_to_skip.update({d for d in os.listdir(root) if d.startswith('.') and d != '.'})
-
-        # Filter directories in-place to skip them in future iterations
-        dirs = [d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d)) and d not in dirs_to_skip]
-        # This doesn't work with os.walk directly, so we filter the filenames list instead
-
+    for root, _, filenames in os.walk(repo_path):
+        # Skip hidden directories and common non-code directories
+        if any(part.startswith('.') for part in root.split(os.sep)):
+            continue
+        if any(part in ['node_modules', '__pycache__', '.git', 'venv'] for part in root.split(os.sep)):
+            continue
+        
         for filename in filenames:
             if len(files) >= max_files:
+                logger.warning(f"Reached max_files limit ({max_files}). Stopping scan.")
                 return files
-
-            full_path = os.path.join(root, filename)
-            rel_path = os.path.relpath(full_path, target_dir)
-
-            # Skip common non-source files
-            if any(ext in filename.lower() for ext in ['.md', '.txt', '.rst', '.json', '.yaml', '.yml', '.toml']):
-                if filename.startswith('.') or filename == 'LICENSE' or filename == 'README.md':
-                    continue
-
-            # Skip binary files
+            
+            file_path = os.path.join(root, filename)
             try:
-                with open(full_path, 'rb') as f:
-                    chunk = f.read(8192)
-                    if b'\0' in chunk:
-                        continue
-            except (IOError, OSError):
-                continue
+                size = os.path.getsize(file_path)
+                # Skip binary files or very large files immediately
+                if size > 1_000_000:  # 1MB limit per file for raw inclusion
+                    continue
+                
+                files.append({
+                    'path': os.path.relpath(file_path, repo_path),
+                    'size': size,
+                    'content': None  # Content will be streamed later
+                })
+            except Exception as e:
+                logger.warning(f"Could not process file {file_path}: {e}")
+    
+    return files
 
-            files.append(rel_path)
+def generate_checksum(data: str) -> str:
+    """Generate a SHA256 checksum of the input string."""
+    return hashlib.sha256(data.encode('utf-8')).hexdigest()
 
-    return files[:max_files]
-
-
-def generate_checksum(target_dir: str, file_list: List[str]) -> str:
-    """
-    Generate a SHA-256 checksum for the set of files in the repository.
-
-    Args:
-        target_dir: Path to the repository.
-        file_list: List of relative file paths to include in checksum.
-
-    Returns:
-        Hexadecimal checksum string.
-    """
-    hasher = hashlib.sha256()
-    for rel_path in sorted(file_list):
-        full_path = os.path.join(target_dir, rel_path)
-        try:
-            with open(full_path, 'rb') as f:
-                while chunk := f.read(8192):
-                    hasher.update(chunk)
-        except (IOError, OSError):
-            continue
-    return hasher.hexdigest()
-
-
-def log_pinned_repo(repo_url: str, commit_hash: str, file_count: int, checksum: str, output_file: str) -> None:
-    """
-    Log the pinned repository details to a JSON file.
-
-    Args:
-        repo_url: Original repository URL.
-        commit_hash: Pinned commit hash.
-        file_count: Number of files fetched.
-        checksum: SHA-256 checksum of the file set.
-        output_file: Path to the output JSON file.
-    """
-    record = {
+def log_pinned_repo(repo_url: str, commit_hash: str, target_dir: str) -> None:
+    """Log the pinned repository information to a JSON file."""
+    log_file = os.path.join(target_dir, "pinned_repo.json")
+    data = {
         "repo_url": repo_url,
         "commit_hash": commit_hash,
-        "file_count": file_count,
-        "checksum": checksum,
-        "timestamp": subprocess.run(["date", "-u", "+%Y-%m-%dT%H:%M:%SZ"], capture_output=True, text=True).stdout.strip()
+        "pinned_at": subprocess.check_output(["date", "-u"]).decode('utf-8').strip()
     }
+    with open(log_file, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Pinned repo logged to {log_file}")
 
-    # Load existing records if any
-    records = []
-    if os.path.exists(output_file):
-        with open(output_file, 'r') as f:
-            try:
-                records = json.load(f)
-            except json.JSONDecodeError:
-                records = []
-
-    records.append(record)
-
-    with open(output_file, 'w') as f:
-        json.dump(records, f, indent=2)
-
-
-def main() -> None:
+def stream_repo_content(repo_path: str, file_list: List[Dict[str, Any]], 
+                        chunk_size: int = 8192) -> Generator[Dict[str, Any], None, None]:
     """
-    Main entry point for testing the repo fetching and pinning logic.
-    Demonstrates the workflow with a sample repository.
+    Stream file contents from the repository one by one to minimize memory usage.
+    Yields dicts containing 'path', 'size', 'content' (as a string).
+    
+    This generator pattern ensures that only one file is loaded into memory at a time,
+    keeping peak RAM usage under the 7GB constraint specified in FR-007.
     """
-    # Example usage (can be replaced with actual repo selection from T021b/T021c)
-    # Using a small, public repo for demonstration
-    test_repo_url = "https://github.com/pallets/click.git"
-    target_dir = os.path.join(DATA_RAW_DIR, "pinned_repos", "click_test")
-    pinned_output = os.path.join(DATA_RAW_DIR, "pinned_repos", "pinned_repos.json")
+    for file_info in file_list:
+        file_path = os.path.join(repo_path, file_info['path'])
+        try:
+            # Check if file is readable and not empty
+            if os.path.getsize(file_path) == 0:
+                continue
+            
+            content_parts = []
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                # Stream the file in chunks to avoid loading huge files entirely into memory
+                while True:
+                    chunk = f.read(chunk_size)
+                    if not chunk:
+                        break
+                    content_parts.append(chunk)
+            
+            content = "".join(content_parts)
+            
+            # Yield the file info with content
+            yield {
+                'path': file_info['path'],
+                'size': len(content),
+                'content': content
+            }
+            
+        except Exception as e:
+            logger.warning(f"Failed to stream content for {file_info['path']}: {e}")
+            # Skip this file and continue with the next
+            continue
 
-    print(f"Fetching and pinning repository: {test_repo_url}")
+def construct_llm_prompt_stream(repo_path: str, file_list: List[Dict[str, Any]]) -> Iterable[str]:
+    """
+    Construct a prompt for the LLM by streaming file contents.
+    This function yields prompt segments that can be fed directly to an LLM API
+    or a local model without loading the entire codebase into memory.
+    
+    Args:
+        repo_path: Path to the cloned repository.
+        file_list: List of file metadata dicts from get_repo_files.
+    
+    Yields:
+        Strings representing parts of the prompt.
+    """
+    yield "=== Repository Documentation Request ===\n"
+    yield f"Please analyze the following codebase structure and content to generate comprehensive documentation.\n\n"
+    
+    for file_info in file_list:
+        file_path = os.path.join(repo_path, file_info['path'])
+        try:
+            if os.path.getsize(file_path) == 0:
+                continue
+            
+            # Stream content in chunks for very large files if needed
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+            
+            # Truncate extremely long files to prevent context window overflow
+            max_content_len = 100000  # ~100k chars
+            if len(content) > max_content_len:
+                content = content[:max_content_len] + "\n... [Content truncated due to size] ..."
+            
+            yield f"--- File: {file_info['path']} (Size: {file_info['size']} bytes) ---\n"
+            yield content
+            yield "\n\n"
+            
+        except Exception as e:
+            logger.warning(f"Could not read file {file_info['path']}: {e}")
+            continue
 
-    # Clone/fetch and pin (using latest HEAD as commit_hash=None)
-    local_path, actual_hash = clone_or_fetch_repo(test_repo_url, target_dir)
+def main():
+    """
+    Main function to demonstrate streaming data loading for a repository.
+    This is a utility script to verify the streaming functionality works correctly.
+    """
+    import argparse
+    parser = argparse.ArgumentParser(description="Stream repository content for LLM prompt construction")
+    parser.add_argument("--repo-url", type=str, required=True, help="URL of the repository to clone")
+    parser.add_argument("--commit", type=str, required=True, help="Commit hash to pin")
+    parser.add_argument("--max-files", type=int, default=500, help="Maximum number of files to process")
+    parser.add_argument("--output", type=str, default="data/raw/streamed_content.jsonl", help="Output file for streamed content")
+    args = parser.parse_args()
 
-    # Get files (limited to 500)
-    files = get_repo_files(local_path, MAX_FILES)
-    print(f"Fetched {len(files)} files (max {MAX_FILES})")
-
-    # Generate checksum
-    checksum = generate_checksum(local_path, files)
-    print(f"Generated checksum: {checksum[:16]}...")
-
-    # Log the pinned repo
-    log_pinned_repo(test_repo_url, actual_hash, len(files), checksum, pinned_output)
-    print(f"Logged pinned repo details to {pinned_output}")
-
-    # Also update the global checksums file
-    with open(CHECKSUM_FILE, 'a') as f:
-        f.write(f"{checksum}  {os.path.basename(target_dir)}\n")
-    print(f"Updated global checksums file: {CHECKSUM_FILE}")
-
+    ensure_dirs("data/raw")
+    target_dir = "data/raw/repos"
+    
+    # Clone or fetch the repository
+    repo_path = clone_or_fetch_repo(args.repo_url, args.commit, target_dir)
+    log_pinned_repo(args.repo_url, args.commit, target_dir)
+    
+    # Get list of files
+    file_list = get_repo_files(repo_path, max_files=args.max_files)
+    logger.info(f"Found {len(file_list)} files to process.")
+    
+    # Stream content and write to output file (JSONL format)
+    output_path = args.output
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, 'w') as f_out:
+        for file_data in stream_repo_content(repo_path, file_list):
+            f_out.write(json.dumps(file_data) + "\n")
+    
+    logger.info(f"Streamed content written to {output_path}")
 
 if __name__ == "__main__":
     main()

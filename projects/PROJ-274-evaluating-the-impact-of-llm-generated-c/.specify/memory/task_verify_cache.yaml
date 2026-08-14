@@ -1,8 +1,28 @@
-T033:
+T016:
   c: false
-  h: 289f313beb78be44f1e21fd5a2544d332fe2cdba2e0e199e8bb53b39e281a0e4
-  r: "The required input file `data/raw/participant_logs.json` does not exist, the\
-    \ schema file `contracts/dataset.schema.yaml` (or `schema.yaml`) is missing, and\
-    \ `code/validation.py` contains unrelated metrics code rather than schema\u2011\
-    validation logic that would produce `data/processed/validation_report.json`, which\
-    \ is also absent. The task\u2019s essential artifacts and behavior are not present."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or JSON output files were provided that implement the\
+    \ required clarification\u2011question logging, filter by the specified keywords,\
+    \ or expose `help_request_count` and the list of `{timestamp, content}` objects.\
+    \ Consequently the task\u2019s deliverable is missing."
+T020:
+  c: true
+  h: 46f56fe0588eed034caa90ec4bb352cefaaaddebb25e0a0857577a8b12b7e0cd
+  r: "The file `code/data_collection.py` defines `save_logs` which writes JSON to\
+    \ `data/raw/participant_logs.json` and generates a SHA\u2011256 checksum recorded\
+    \ in `checksums.txt`. The constants point to the required path, satisfying the\
+    \ export and checksum requirements. (The output file itself need not exist until\
+    \ the function is invoked.)"
+T021b:
+  c: false
+  h: 6b5a0786d33cca0601b6a9b6cf0ffef09d7566c89d2b380273a4afad1ed0bf8d
+  r: "The required files `data/raw/repo_selection_rubric.json` and `data/raw/repo_metrics.json`\
+    \ are missing, and the checksum entry in `data/checksums.txt` does not reference\
+    \ the rubric JSON (it references `data/llm_config.yaml`). Therefore the task\u2019\
+    s output artifacts are not present or correct."
+T021c:
+  c: false
+  h: 73cf77b351b50e3d667fc7ceac877c96bd3d0d4b8319109852a0e688b5e29d6d
+  r: "The repository lacks the required `data/raw/repo_metrics.json` file, and `code/validation.py`\
+    \ does not use `radon` or `cloc` nor write the collected metrics to that JSON\
+    \ file. The implementation therefore does not meet the task\u2019s specifications."
