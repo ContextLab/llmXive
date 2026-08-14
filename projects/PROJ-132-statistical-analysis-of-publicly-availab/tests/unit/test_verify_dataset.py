@@ -1,93 +1,68 @@
 """
-Unit tests for the data availability verification script.
+Unit tests for src/data/verify_dataset.py
 """
-
 import json
-import pytest
+import os
+import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Ensure project root is in path
+import pytest
+
+# Ensure src is importable
 import sys
 from pathlib import Path
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from src.data.verify_dataset import verify_dataset_existence
 
 
-@patch('src.data.verify_dataset.load_dataset')
-@patch('src.data.verify_dataset.setup_logging')
-def test_verify_both_datasets_available(mock_setup_logging, mock_load_dataset):
-    """Test when both eBird and Daymet datasets are available."""
-    mock_logger = MagicMock()
-    mock_setup_logging.return_value = mock_logger
+class TestVerifyDataset:
+    @patch("src.data.verify_dataset.load_dataset")
+    @patch("src.data.verify_dataset.LOGGER")
+    def test_both_datasets_available(self, mock_logger, mock_load):
+        """Test successful verification when both datasets are available."""
+        # Mock eBird stream
+        mock_ebird = MagicMock()
+        mock_ebird.__iter__ = MagicMock(return_value=iter([{"species": "test"}]))
+        mock_load.side_effect = [mock_ebird, mock_ebird] # Mock Daymet too
 
-    # Mock eBird dataset
-    mock_ebird_ds = MagicMock()
-    mock_ebird_ds.__iter__ = MagicMock(return_value=iter([{"species": "TestBird"}]))
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Temporarily change the output path logic if needed, but here we rely on side effects
+            # Since the function writes to a fixed path relative to CWD, we might need to mock open
+            # or change CWD. For this test, we mock the file write.
+            with patch("builtins.open"):
+                result = verify_dataset_existence()
 
-    # Mock Daymet dataset
-    mock_daymet_ds = MagicMock()
-    mock_daymet_ds.__iter__ = MagicMock(return_value=iter([{"temp": 20.0}]))
+            assert result["ebird_available"] is True
+            assert result["daymet_available"] is True
+            mock_logger.info.assert_called()
 
-    # Configure load_dataset to return different mocks based on name
-    def load_side_effect(name, **kwargs):
-        if name == "vvud/eb-data":
-            return mock_ebird_ds
-        elif name == "daymet/annual":
-            return mock_daymet_ds
-        raise ValueError(f"Unexpected dataset name: {name}")
+    @patch("src.data.verify_dataset.load_dataset")
+    @patch("src.data.verify_dataset.LOGGER")
+    def test_ebird_missing_raises_error(self, mock_logger, mock_load):
+        """Test that missing eBird dataset raises RuntimeError."""
+        # Mock eBird to fail
+        mock_load.side_effect = Exception("Dataset not found")
 
-    mock_load_dataset.side_effect = load_side_effect
+        with patch("builtins.open"):
+            with pytest.raises(RuntimeError, match="eBird dataset.*missing"):
+                verify_dataset_existence()
 
-    result = verify_dataset_existence()
+    @patch("src.data.verify_dataset.load_dataset")
+    @patch("src.data.verify_dataset.LOGGER")
+    def test_daymet_missing_does_not_raise(self, mock_logger, mock_load):
+        """Test that missing Daymet does not raise, only logs warning."""
+        # Mock eBird success
+        mock_ebird = MagicMock()
+        mock_ebird.__iter__ = MagicMock(return_value=iter([{"species": "test"}]))
+        
+        # First call (eBird) succeeds, second (Daymet) fails
+        mock_load.side_effect = [mock_ebird, Exception("Daymet not found")]
 
-    assert result["ebird_available"] is True
-    assert result["daymet_available"] is True
+        with patch("builtins.open"):
+            result = verify_dataset_existence()
 
-    # Check that the report file was written
-    # Note: In a real unit test, we might mock the file write as well
-    # or use a temporary directory. Here we assume the side effect works.
-
-
-@patch('src.data.verify_dataset.load_dataset')
-@patch('src.data.verify_dataset.setup_logging')
-def test_verify_ebird_missing_raises_error(mock_setup_logging, mock_load_dataset):
-    """Test that RuntimeError is raised if eBird is missing."""
-    mock_logger = MagicMock()
-    mock_setup_logging.return_value = mock_logger
-
-    # Mock eBird dataset to fail
-    mock_load_dataset.side_effect = Exception("Dataset not found")
-
-    with pytest.raises(RuntimeError, match="eBird dataset"):
-        verify_dataset_existence()
-
-
-@patch('src.data.verify_dataset.load_dataset')
-@patch('src.data.verify_dataset.setup_logging')
-def test_verify_daymet_missing_does_not_raise(mock_setup_logging, mock_load_dataset):
-    """Test that Daymet missing does not raise an error (only eBird is critical)."""
-    mock_logger = MagicMock()
-    mock_setup_logging.return_value = mock_logger
-
-    # Mock eBird dataset to succeed
-    mock_ebird_ds = MagicMock()
-    mock_ebird_ds.__iter__ = MagicMock(return_value=iter([{"species": "TestBird"}]))
-
-    # Mock Daymet dataset to fail
-    def load_side_effect(name, **kwargs):
-        if name == "vvud/eb-data":
-            return mock_ebird_ds
-        elif name == "daymet/annual":
-            raise Exception("Daymet not found")
-        raise ValueError(f"Unexpected dataset name: {name}")
-
-    mock_load_dataset.side_effect = load_side_effect
-
-    result = verify_dataset_existence()
-
-    assert result["ebird_available"] is True
-    assert result["daymet_available"] is False
+        assert result["ebird_available"] is True
+        assert result["daymet_available"] is False
+        mock_logger.warning.assert_called()

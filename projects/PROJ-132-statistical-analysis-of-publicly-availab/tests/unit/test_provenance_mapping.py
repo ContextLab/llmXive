@@ -1,66 +1,92 @@
 import pytest
 import json
+import hashlib
 from pathlib import Path
 import polars as pl
+import tempfile
+import shutil
+
 from src.data.preprocess import generate_provenance
 
-@pytest.fixture
-def sample_df():
-    """Create a sample Polars DataFrame for testing."""
-    data = {
-        "species": ["Species_A", "Species_B"],
-        "week": ["2020-10", "2020-11"],
-        "grid_cell": ["1_2", "3_4"],
-        "total_count": [100, 200],
-        "first_checklist_id": ["CL_001", "CL_002"]
-    }
-    return pl.DataFrame(data)
 
 @pytest.fixture
-def temp_output_path(tmp_path):
-    """Create a temporary path for the output JSON file."""
-    return str(tmp_path / "row_mapping.json")
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    tmpdir = tempfile.mkdtemp()
+    yield tmpdir
+    shutil.rmtree(tmpdir)
 
-def test_generate_provenance_creates_file(sample_df, temp_output_path):
-    """Test that generate_provenance creates the output file."""
-    generate_provenance(sample_df, temp_output_path)
-    assert Path(temp_output_path).exists()
 
-def test_generate_provenance_schema(sample_df, temp_output_path):
-    """Test that the generated JSON has the correct schema."""
-    generate_provenance(sample_df, temp_output_path)
-    
-    with open(temp_output_path, "r", encoding="utf-8") as f:
-        mapping = json.load(f)
-    
-    assert isinstance(mapping, list)
-    assert len(mapping) == len(sample_df)
-    
-    for record in mapping:
-        assert "processed_row_id" in record
-        assert "original_checklist_id" in record
-        assert "species" in record
-        assert "grid_cell" in record
-        assert isinstance(record["processed_row_id"], str)
-        assert isinstance(record["original_checklist_id"], str)
-        assert isinstance(record["species"], str)
-        assert isinstance(record["grid_cell"], str)
+def test_generate_provenance_creates_correct_schema(temp_data_dir):
+    """Test that generate_provenance creates a JSON file with the correct schema."""
+    # Create sample DataFrame
+    df = pl.DataFrame(
+        {
+            "checklist_id": ["CHK001", "CHK002", "CHK003"],
+            "species": ["SpeciesA", "SpeciesB", "SpeciesA"],
+            "grid_cell": ["lat_0.0_lon_0.0", "lat_0.5_lon_0.5", "lat_0.0_lon_0.5"],
+        }
+    )
 
-def test_generate_provenance_content(sample_df, temp_output_path):
-    """Test that the content of the mapping is correct."""
-    generate_provenance(sample_df, temp_output_path)
-    
-    with open(temp_output_path, "r", encoding="utf-8") as f:
-        mapping = json.load(f)
-    
-    # Check first record
-    assert mapping[0]["original_checklist_id"] == "CL_001"
-    assert mapping[0]["species"] == "Species_A"
-    assert mapping[0]["grid_cell"] == "1_2"
-    assert mapping[0]["processed_row_id"] == "0"
-    
-    # Check second record
-    assert mapping[1]["original_checklist_id"] == "CL_002"
-    assert mapping[1]["species"] == "Species_B"
-    assert mapping[1]["grid_cell"] == "3_4"
-    assert mapping[1]["processed_row_id"] == "1"
+    output_path = Path(temp_data_dir) / "row_mapping.json"
+    generate_provenance(df, str(output_path))
+
+    # Verify file exists
+    assert output_path.exists(), "Provenance mapping file was not created"
+
+    # Load and validate JSON
+    with open(output_path, "r", encoding="utf-8") as f:
+        provenance = json.load(f)
+
+    assert isinstance(provenance, list), "Provenance mapping should be a list"
+    assert len(provenance) == 3, f"Expected 3 rows, got {len(provenance)}"
+
+    # Check schema
+    required_keys = {"processed_row_id", "original_checklist_id", "species", "grid_cell"}
+    for record in provenance:
+        assert set(record.keys()) == required_keys, f"Record missing keys: {record.keys()}"
+
+    # Verify processed_row_id is a SHA256 hash of checklist_id + index
+    for idx, record in enumerate(provenance):
+        expected_hash_input = f"{record['original_checklist_id']}{idx}".encode("utf-8")
+        expected_hash = hashlib.sha256(expected_hash_input).hexdigest()
+        assert record["processed_row_id"] == expected_hash, f"Hash mismatch for row {idx}"
+
+
+def test_generate_provenance_empty_dataframe(temp_data_dir):
+    """Test that generate_provenance handles empty DataFrame."""
+    df = pl.DataFrame(
+        {
+            "checklist_id": [],
+            "species": [],
+            "grid_cell": [],
+        }
+    )
+
+    output_path = Path(temp_data_dir) / "row_mapping.json"
+    generate_provenance(df, str(output_path))
+
+    with open(output_path, "r", encoding="utf-8") as f:
+        provenance = json.load(f)
+
+    assert provenance == [], "Empty DataFrame should produce empty provenance list"
+
+
+def test_generate_provenance_unique_hashes(temp_data_dir):
+    """Test that each processed_row_id is unique."""
+    df = pl.DataFrame(
+        {
+            "checklist_id": ["CHK001", "CHK002", "CHK003", "CHK001"],
+            "species": ["SpeciesA", "SpeciesB", "SpeciesA", "SpeciesC"],
+            "grid_cell": ["lat_0.0_lon_0.0", "lat_0.5_lon_0.5", "lat_0.0_lon_0.5", "lat_1.0_lon_1.0"],
+        }
+    )
+
+    output_path = Path(temp_data_dir) / "row_mapping.json"
+    generate_provenance(df, str(output_path))
+
+    with open(output_path, "r", encoding="utf-8") as f:
+        provenance = json.load(f)
+
+    hashes = [record["processed_row_id"] for record in provenance]
+    assert len(hashes) == len(set(hashes)), "All processed_row_ids should be unique"

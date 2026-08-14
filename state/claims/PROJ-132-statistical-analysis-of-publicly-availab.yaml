@@ -1339,3 +1339,1339 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T02:13:50Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: verify plan and spec files exist and are non-empty
+  claim_id: c_841617e3
+  context: 'T050b [S] [Plan] Implement Plan & Spec Verification Script: Action: Write
+    a Python script src/utils/verify_alignment.py that loads specs/001-bird-migration-climate-correlation/spec.md
+    and plan.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_plan_and_spec_files_exist_and_are_non-empty
+  kind: entity_fact
+  raw_text: The script MUST first verify that both files exist and are non-empty.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:57:50Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: load deviation whitelist to treat contradictions as whitelisted
+  claim_id: c_6155fa89
+  context: 'T050b [S] [Plan] Implement Plan & Spec Verification Script: CRITICAL:
+    Before failing, the script MUST load data/provenance/spec_plan_deviation.json
+    (if it exists) and treat any contradiction listed there as a ''whitelisted deviation''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_deviation_whitelist_to_treat_contradictions_as_whitelis
+  kind: entity_fact
+  raw_text: The script MUST load data/provenance/spec_plan_deviation.json (if it exists)
+    and treat any contradiction listed there as a 'whitelisted deviation'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:58:11Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: fail with RuntimeError only if contradictions not in deviation whitelist
+  claim_id: c_f2860de8
+  context: 'T050b [S] [Plan] Implement Plan & Spec Verification Script: Requirement:
+    Fail loudly with RuntimeError ONLY if contradictions exist that are NOT in the
+    deviation whitelist.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fail_with_RuntimeError_only_if_contradictions_not_in_deviati
+  kind: entity_fact
+  raw_text: The script MUST fail loudly with RuntimeError ONLY if contradictions exist
+    that are NOT in the deviation whitelist.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:59:15Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: raise FileNotFoundError if files are missing
+  claim_id: c_29bebdda
+  context: 'T050b [S] [Plan] Implement Plan & Spec Verification Script: Requirement:
+    If files are missing, raise FileNotFoundError.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_FileNotFoundError_if_files_are_missing
+  kind: entity_fact
+  raw_text: If files are missing, the script MUST raise FileNotFoundError.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:59:30Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: ratify substitution of NOAA/PRISM with Daymet and full eBird archive
+    with vvud/eb-data sample
+  claim_id: c_b5e7ceee
+  context: 'T005c4 [S] [Spec] Generate Spec Deviation Amendment: Action: Write a formal
+    amendment document specs/001-bird-migration-climate-correlation/amendments/FR-001-data-substitution.md
+    that ratifies the substitution of NOAA/PRISM with Daymet and the full eBird archive
+    with the verified vvud/eb-data sample.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ratify_substitution_of_NOAA/PRISM_with_Daymet_and_full_eBird
+  kind: entity_fact
+  raw_text: The amendment document must ratify the substitution of NOAA/PRISM with
+    Daymet and the full eBird archive with the verified vvud/eb-data sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T05:59:51Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: timestamp generated using datetime.utcnow().isoformat
+  claim_id: c_2e0a1b33
+  context: 'T005c4 [S] [Spec] Generate Spec Deviation Amendment: Content: Ratification
+    timestamp (use datetime.utcnow().isoformat()).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timestamp_generated_using_datetime.utcnow().isoformat
+  kind: entity_fact
+  raw_text: The timestamp in the amendment document must be generated using datetime.utcnow().isoformat().
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:00:01Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: spec must reflect actual implemented data source to maintain Single Source
+    of Truth
+  claim_id: c_91d10c94
+  context: 'T005c4b [S] [Spec] Update Spec Text to Reflect Deviation: Requirement:
+    The Spec MUST reflect the actual implemented data source to maintain Single Source
+    of Truth (Constitution Principle IV).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spec_must_reflect_actual_implemented_data_source_to_maintain
+  kind: entity_fact
+  raw_text: The Spec MUST reflect the actual implemented data source to maintain Single
+    Source of Truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:01:15Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: timestamp in spec_plan_deviation.json generated using datetime.utcnow().isoformat
+  claim_id: c_22d8ab42
+  context: 'T005c3 [S] Document Data Source Deviation: Requirement: timestamp must
+    be generated using datetime.utcnow().isoformat().'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timestamp_in_spec_plan_deviation.json_generated_using_dateti
+  kind: entity_fact
+  raw_text: The timestamp in data/provenance/spec_plan_deviation.json must be generated
+    using datetime.utcnow().isoformat().
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:04:14Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: load eBird sample using datasets.load_dataset vvud/eb-data split train
+    streaming
+  claim_id: c_11853fb6
+  context: 'T005a [S] Verify Data Availability: Action: Write script src/data/verify_dataset.py
+    that attempts to load the verified eBird sample (vvud/eb-data) using datasets.load_dataset(''vvud/eb-data'',
+    split=''train'', streaming=True).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_eBird_sample_using_datasets.load_dataset_vvud/eb-data_s
+  kind: entity_fact
+  raw_text: The script src/data/verify_dataset.py must attempt to load the verified
+    eBird sample (vvud/eb-data) using datasets.load_dataset('vvud/eb-data', split='train',
+    streaming=True).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:06:45Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: check for Daymet availability
+  claim_id: c_e0c0f18c
+  context: 'T005a [S] Verify Data Availability: Action: Write script src/data/verify_dataset.py
+    that ... and checks for Daymet availability.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Check_for_Daymet_availability
+  kind: entity_fact
+  raw_text: The script src/data/verify_dataset.py must check for Daymet availability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:07:52Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: write data_availability_report.json with ebird_available and daymet_available
+    keys
+  claim_id: c_d1cc6dcf
+  context: 'T005a [S] Verify Data Availability: Output: Write data/provenance/data_availability_report.json
+    with keys { ''ebird_available'': bool, ''daymet_available'': bool }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_data_availability_report.json_with_ebird_available_and
+  kind: entity_fact
+  raw_text: 'The script src/data/verify_dataset.py must write data/provenance/data_availability_report.json
+    with keys { ''ebird_available'': bool, ''daymet_available'': bool }.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:07:56Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: raise RuntimeError if eBird is missing
+  claim_id: c_e6740b21
+  context: 'T005a [S] Verify Data Availability: Output: Raise RuntimeError with clear
+    message if eBird is missing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_RuntimeError_if_eBird_is_missing
+  kind: entity_fact
+  raw_text: The script src/data/verify_dataset.py must raise RuntimeError with a clear
+    message if eBird is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:08:10Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: stream eBird sample to data/raw/ebird_sample preserving original file
+    names
+  claim_id: c_d0fef643
+  context: 'T005b [S] Download Verified eBird Sample: Action: Stream the verified
+    eBird sample (vvud/eb-data) via datasets.load_dataset(..., streaming=True), write
+    raw files to data/raw/ebird_sample/ preserving original file names.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stream_eBird_sample_to_data/raw/ebird_sample_preserving_orig
+  kind: entity_fact
+  raw_text: The verified eBird sample (vvud/eb-data) must be streamed via datasets.load_dataset(...,
+    streaming=True) and written to data/raw/ebird_sample/ preserving original file
+    names.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:08:43Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: compute SHA-256 checksums for eBird shards and store in checksums.sha256
+  claim_id: c_d80c6be8
+  context: 'T005b [S] Download Verified eBird Sample: Compute SHA- checksums for each
+    downloaded shard and store in data/raw/ebird_sample/checksums.sha256.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SHA-256 checksums must be computed for each downloaded shard of the eBird
+    sample and stored in data/raw/ebird_sample/checksums.sha256.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:09:09Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: abort on download error with no synthetic fallback for eBird
+  claim_id: c_045b5b47
+  context: 'T005b [S] Download Verified eBird Sample: Requirement: No synthetic fallback;
+    abort on any download error.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Abort_on_download_error_with_no_synthetic_fallback_for_eBird
+  kind: entity_fact
+  raw_text: The eBird download process must abort on any download error and must not
+    use a synthetic fallback.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:09:41Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: verify Daymet dataset exists via datasets.get_dataset_names
+  claim_id: c_63b2dbd4
+  context: 'T005c1 [S] Download Daymet Climate Data: Action: First verify the dataset
+    exists via datasets.get_dataset_names().'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_Daymet_dataset_exists_via_datasets.get_dataset_names
+  kind: entity_fact
+  raw_text: The script must first verify the Daymet dataset exists via datasets.get_dataset_names().
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:09:56Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: raise FileNotFoundError with message Daymet not available; aborting pipeline
+    and exit code 1
+  claim_id: c_3e2afa8d
+  context: 'T005c1 [S] Download Daymet Climate Data: If it does not exist, raise FileNotFoundError
+    with message ''Daymet not available; aborting pipeline'' and exit with code 1.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If the Daymet dataset does not exist, the script must raise FileNotFoundError
+    with the message 'Daymet not available; aborting pipeline' and exit with code
+    1.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T06:09:57Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: write Daymet data to data/raw/daymet as daymet_*.parquet files
+  claim_id: c_35c534f6
+  context: 'T005c1 [S] Download Daymet Climate Data: Write to data/raw/daymet/ as
+    Parquet files (daymet_*.parquet).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_Daymet_data_to_data/raw/daymet_as_daymet_*.parquet_fil
+  kind: entity_fact
+  raw_text: Daymet climate data must be written to data/raw/daymet/ as Parquet files
+    named daymet_*.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:10:17Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: compute SHA-256 checksums for Daymet files
+  claim_id: c_9b2aa063
+  context: 'T005c1 [S] Download Daymet Climate Data: Compute SHA- checksums.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SHA-256 checksums must be computed for the downloaded Daymet files.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:10:27Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: abort pipeline if Daymet data is missing
+  claim_id: c_c2cb65b5
+  context: 'T005c1 [S] Download Daymet Climate Data: Requirement: Abort if missing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_Daymet_data_is_missing
+  kind: entity_fact
+  raw_text: The pipeline must abort if Daymet data is missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:10:45Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: eBird DataFrame must contain species, lat, lon, date, count, checklist_id
+    columns with correct dtypes
+  claim_id: c_41fd3150
+  context: 'T006 [P] Schema test for eBird Columns: tests/contract/test_schemas.py::test_ebird_schema_columns
+    asserts that the eBird DataFrame contains columns [species, lat, lon, date, count,
+    checklist_id] with correct dtypes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EBird_DataFrame_must_contain_species,_lat,_lon,_date,_count,
+  kind: entity_fact
+  raw_text: The eBird DataFrame must contain columns [species, lat, lon, date, count,
+    checklist_id] with correct dtypes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:11:05Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: impute_spatial_missing uses neighbors within radius degrees and inverse
+    distance weighted average
+  claim_id: c_217daef3
+  context: 'T007 [S] Implement Spatial Imputation Utility: Logic: For each missing
+    value in column, find neighbors within radius degrees, compute weighted average
+    (inverse distance), and fill.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The function impute_spatial_missing(df, column, radius=1.0) must find
+    neighbors within radius degrees and compute a weighted average (inverse distance)
+    to fill missing values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:11:20Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: impute_spatial_missing returns DataFrame with is_imputed boolean column
+  claim_id: c_5f7aeade
+  context: 'T007 [S] Implement Spatial Imputation Utility: Return a DataFrame with
+    an is_imputed boolean column.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Impute_spatial_missing_returns_DataFrame_with_is_imputed_boo
+  kind: entity_fact
+  raw_text: The function impute_spatial_missing must return a DataFrame with an is_imputed
+    boolean column.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:11:40Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MigrationRecord Pydantic model defines species, lat, lon, date, count,
+    checklist_id
+  claim_id: c_b33f1ac6
+  context: 'T009 [S] Create Base Data Entities: Write src/data/entities.py defining
+    Pydantic models: MigrationRecord (species, lat, lon, date, count, checklist_id)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MigrationRecord_Pydantic_model_defines_species,_lat,_lon,_da
+  kind: entity_fact
+  raw_text: 'The Pydantic model MigrationRecord must define fields: species, lat,
+    lon, date, count, checklist_id.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:12:12Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: PhenologyMetric Pydantic model defines species, grid_cell, week, first_arrival_date,
+    median_arrival_date, stopover_duration
+  claim_id: c_0f4f9fc4
+  context: 'T009 [S] Create Base Data Entities: ...PhenologyMetric (species, grid_cell,
+    week, first_arrival_date, median_arrival_date, stopover_duration)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PhenologyMetric_Pydantic_model_defines_species,_grid_cell,_w
+  kind: entity_fact
+  raw_text: 'The Pydantic model PhenologyMetric must define fields: species, grid_cell,
+    week, first_arrival_date, median_arrival_date, stopover_duration.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:12:43Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: ClimateVariable Pydantic model defines grid_cell, week, mean_temperature,
+    total_precipitation, extreme_weather_index
+  claim_id: c_15c53c57
+  context: 'T009 [S] Create Base Data Entities: ...ClimateVariable (grid_cell, week,
+    mean_temperature, total_precipitation, extreme_weather_index)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ClimateVariable_Pydantic_model_defines_grid_cell,_week,_mean
+  kind: entity_fact
+  raw_text: 'The Pydantic model ClimateVariable must define fields: grid_cell, week,
+    mean_temperature, total_precipitation, extreme_weather_index.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:12:49Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: Trajectory Pydantic model defines species, year, weekly_centroids, shift_vector
+  claim_id: c_2813a991
+  context: 'T009 [S] Create Base Data Entities: ...Trajectory (species, year, weekly_centroids,
+    shift_vector).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trajectory_Pydantic_model_defines_species,_year,_weekly_cent
+  kind: entity_fact
+  raw_text: 'The Pydantic model Trajectory must define fields: species, year, weekly_centroids,
+    shift_vector.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:12:54Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: GRID_RES constant defined as 0.5
+  claim_id: c_0503b709
+  context: 'T010a [S] Define Constants: Write src/config.py defining GRID_RES=0.5...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The constant GRID_RES must be defined as 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:12:58Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: MIN_OBSERVATIONS constant defined as 10
+  claim_id: c_93fdc998
+  context: 'T010a [S] Define Constants: Write src/config.py defining ...MIN_OBSERVATIONS=10...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The constant MIN_OBSERVATIONS must be defined as 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:13:02Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: RANDOM_SEED constant defined as 42
+  claim_id: c_df28e3f2
+  context: 'T010a [S] Define Constants: Write src/config.py defining ...RANDOM_SEED=42...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The constant RANDOM_SEED must be defined as 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:13:06Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: PERMUTATIONS constant defined as 10000
+  claim_id: c_7f516d8d
+  context: 'T010a [S] Define Constants: Write src/config.py defining ...PERMUTATIONS=10000...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The constant PERMUTATIONS must be defined as 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:13:12Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: CI_WIDTH_TARGET constant defined as 7
+  claim_id: c_7eeafca8
+  context: 'T010a [S] Define Constants: Write src/config.py defining ...CI_WIDTH_TARGET=7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The constant CI_WIDTH_TARGET must be defined as 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:13:17Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: logger writes to logs/pipeline.log with JSON formatting
+  claim_id: c_ab967a6f
+  context: 'T010b [S] Implement Logging: Write src/utils/logging.py exposing get_logger(name)
+    which returns a logging.Logger configured to write to logs/pipeline.log with JSON
+    formatting.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logger_writes_to_logs/pipeline.log_with_JSON_formatting
+  kind: entity_fact
+  raw_text: The logger configured by get_logger(name) must write to logs/pipeline.log
+    with JSON formatting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:13:22Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: get_logger test info writes valid JSON line to logs/pipeline.log
+  claim_id: c_8d5d0ecc
+  context: 'T010c [S] Test Logging Format: Write tests/unit/test_logging.py asserting
+    that get_logger(''test'').info(...) writes a valid JSON line to logs/pipeline.log.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Get_logger_test_info_writes_valid_JSON_line_to_logs/pipeline
+  kind: entity_fact
+  raw_text: The function get_logger('test').info(...) must write a valid JSON line
+    to logs/pipeline.log.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:13:28Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: streaming utility yields records in chunks of 100000 rows
+  claim_id: c_92c00be0
+  context: 'T051 [P] Stream Verified Full eBird Data: Implement src/data/stream_utils.py
+    that uses datasets.load_dataset(..., streaming=True) to yield records in chunks
+    of 100 000 rows...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The streaming utility must yield records in chunks of 100,000 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:13:33Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: streaming utility ensures memory usage less than 6 GB
+  claim_id: c_56069a4f
+  context: 'T051 [P] Stream Verified Full eBird Data: ...ensuring memory usage < 6
+    GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Streaming_utility_ensures_memory_usage_less_than_6_GB
+  kind: magnitude
+  raw_text: The streaming utility must ensure memory usage is less than 6 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:13:38Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: output column name for stopover duration must be stopover_duration
+  claim_id: c_da156de0
+  context: 'T015b [S] Implement Preprocessing Pipeline: Logic: ...compute phenology
+    metrics. **Output column name must be ''stopover_duration''**.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_column_name_for_stopover_duration_must_be_stopover_du
+  kind: entity_fact
+  raw_text: The output column name for stopover duration must be 'stopover_duration'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:13:42Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: compute_phenology calculates first_arrival_date, median_arrival_date,
+    and stopover_duration
+  claim_id: c_50b65903
+  context: 'T017a [S] Compute Phenology Metrics: Write src/data/preprocess.py::compute_phenology
+    that takes the aggregated grid data and calculates first_arrival_date, median_arrival_date,
+    and stopover_duration...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_phenology_calculates_first_arrival_date,_median_arri
+  kind: entity_fact
+  raw_text: The function compute_phenology must calculate first_arrival_date, median_arrival_date,
+    and stopover_duration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:13Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: calculate_climate_averages joins climate data, computes Mar-May seasonal
+    averages, and imputes missing values
+  claim_id: c_bf9a7f89
+  context: 'T017b [S] Calculate Seasonal Climate Averages & Impute Missing Values:
+    Write src/data/preprocess.py::calculate_climate_averages to join with climate
+    data, compute seasonal averages (Mar-May), and use src/data/impute.py (T007) to
+    fill missing values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_climate_averages_joins_climate_data,_computes_Mar-
+  kind: entity_fact
+  raw_text: The function calculate_climate_averages must join with climate data, compute
+    seasonal averages (Mar-May), and use src/data/impute.py to fill missing values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:17Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: calculate_climate_averages flags imputed rows
+  claim_id: c_5444b57e
+  context: 'T017b [S] Calculate Seasonal Climate Averages & Impute Missing Values:
+    ...and use src/data/impute.py (T007) to fill missing values. Flag imputed rows.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_climate_averages_flags_imputed_rows
+  kind: entity_fact
+  raw_text: The function calculate_climate_averages must flag imputed rows.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:23Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: calculate_climate_averages acquires pipeline_lock before writing to preprocessed_data.parquet
+  claim_id: c_eeedea2a
+  context: 'T017b [S] Calculate Seasonal Climate Averages & Impute Missing Values:
+    Requirement: Must acquire pipeline_lock before writing to data/processed/preprocessed_data.parquet
+    to avoid race conditions with T017a.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_climate_averages_acquires_pipeline_lock_before_wri
+  kind: entity_fact
+  raw_text: The function calculate_climate_averages must acquire pipeline_lock before
+    writing to data/processed/preprocessed_data.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:26Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: grid cells with fewer than MIN_OBSERVATIONS marked as data_quality insufficient
+    and excluded
+  claim_id: c_e7b46ee8
+  context: 'T018 [S] Mark Insufficient Data Cells: Write src/data/preprocess.py::flag_insufficient_data
+    to mark grid cells with fewer than MIN_OBSERVATIONS as data_quality=''insufficient''
+    and exclude them from downstream modeling.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Grid_cells_with_fewer_than_MIN_OBSERVATIONS_marked_as_data_q
+  kind: magnitude
+  raw_text: Grid cells with fewer than MIN_OBSERVATIONS (10) must be marked as data_quality='insufficient'
+    and excluded from downstream modeling.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:32Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: processed_row_id is unique cryptographic hash of checklist_id and row
+    index
+  claim_id: c_ec2ea47f
+  context: 'T016 [S] Generate Provenance Mapping: Requirement: ...The processed_row_id
+    MUST be a unique cryptographic hash of the concatenation of the original checklist_id
+    and the row index within the chunk.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Processed_row_id_is_unique_cryptographic_hash_of_checklist_i
+  kind: entity_fact
+  raw_text: The processed_row_id in data/provenance/row_mapping.json must be a unique
+    cryptographic hash of the concatenation of the original checklist_id and the row
+    index within the chunk.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:35Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: GAMM formula is phenology_metric ~ s(temp) + s(precip) + s(extreme_weather_index)
+    + (1 + temp | species) + gp(spatial)
+  claim_id: c_47529939
+  context: 'T023a [S] Fit GAMM with Mandatory GP Random Effect: Formula: phenology_metric
+    ~ s(temp) + s(precip) + s(extreme_weather_index) + (1 + temp | species) + gp(spatial).'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: species) + gp(spatial)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/GAMM_formula_is_phenology_metric_~_s(temp)_+_s(precip)_+_s(e
+    source_value: https://en.wikipedia.org/wiki/GAMM_formula_is_phenology_metric_~_s(temp)_+_s(precip)_+_s(e
+    subject: GAMM formula is phenology_metric ~ s(temp) + s(precip) + s(extreme_weather_index)
+      + (1 + temp
+  kind: relational
+  raw_text: 'The GAMM formula must be: phenology_metric ~ s(temp) + s(precip) + s(extreme_weather_index)
+    + (1 + temp | species) + gp(spatial).'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:40Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: "GAMM fit includes Gaussian Process random effect with Mat\xE9rn kernel\
+    \ a priori"
+  claim_id: c_e884ded4
+  context: "T023a [S] Fit GAMM with Mandatory GP Random Effect: Logic: Fit GAMM with\
+    \ Gaussian Process (GP) random effect (Mat\xE9rn kernel) a priori for all fits."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GAMM_fit_includes_Gaussian_Process_random_effect_with_Mat%C3%A9rn
+  kind: entity_fact
+  raw_text: "The GAMM fit must include a Gaussian Process (GP) random effect with\
+    \ a Mat\xE9rn kernel a priori for all fits."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:46Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: GAMM fitting acquires data/interim/pipeline.lock before writing results
+  claim_id: c_a2ef80fd
+  context: 'T023a [S] Fit GAMM with Mandatory GP Random Effect: Logic: Acquire data/interim/pipeline.lock
+    (via filelock.FileLock) before writing model results.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GAMM_fitting_acquires_data/interim/pipeline.lock_before_writ
+  kind: entity_fact
+  raw_text: The GAMM fitting process must acquire data/interim/pipeline.lock before
+    writing model results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:51Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: compute_morans_i computes Moran's I for spatial autocorrelation of residuals
+  claim_id: c_10e3a520
+  context: 'T023d [S] Compute Moran''s I Diagnostic (Non-Blocking): Action: Write
+    src/models/gamm.py::compute_morans_i that takes the preprocessed data and the
+    results from T023a to compute Moran''s I for spatial autocorrelation of residuals.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_morans_i_computes_Moran%27s_I_for_spatial_autocorrelat
+  kind: entity_fact
+  raw_text: The function compute_morans_i must compute Moran's I for spatial autocorrelation
+    of residuals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:14:59Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: morans_i_result.json contains schema with value float
+  claim_id: c_467afdb6
+  context: 'T023d [S] Compute Moran''s I Diagnostic (Non-Blocking): Output: data/interim/morans_i_result.json
+    with schema { ''value'': float }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Morans_i_result.json_contains_schema_with_value_float
+  kind: entity_fact
+  raw_text: 'The output file data/interim/morans_i_result.json must contain the schema
+    { ''value'': float }.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:15:05Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: permutation test uses config.RANDOM_SEED for all shuffles
+  claim_id: c_09996851
+  context: 'T025b [S] Permutation Test Loop: ...Use config.RANDOM_SEED for all shuffles.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_uses_config.RANDOM_SEED_for_all_shuffles
+  kind: entity_fact
+  raw_text: The permutation test must use config.RANDOM_SEED for all shuffles.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:15:12Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: permutation test performed in chunks of 1000 using run_permutation_chunked
+  claim_id: c_4257ef79
+  context: 'T025b [S] Permutation Test Loop: Execute exactly 10,000 permutation shuffles
+    ... in chunks of 1 000 using src/models/utils.run_permutation_chunked.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test must be performed in chunks of 1,000 using src/models/utils.run_permutation_chunked.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:15:42Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: permutation test acquires data/interim/pipeline.lock before writing results
+  claim_id: c_85ce46b2
+  context: 'T025b [S] Permutation Test Loop: Acquire data/interim/pipeline.lock before
+    writing results.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_acquires_data/interim/pipeline.lock_before
+  kind: entity_fact
+  raw_text: The permutation test must acquire data/interim/pipeline.lock before writing
+    results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:15:47Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: permutation_results.json contains schema with species, shuffle_id, p_value,
+    raw_stat
+  claim_id: c_c4a78a2a
+  context: 'T025b [S] Permutation Test Loop: Output: data/processed/permutation_results.json.
+    Schema: { ''species'': str, ''shuffle_id'': int, ''p_value'': float, ''raw_stat'':
+    float }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_results.json_contains_schema_with_species,_shuff
+  kind: entity_fact
+  raw_text: 'The output file data/processed/permutation_results.json must contain
+    the schema { ''species'': str, ''shuffle_id'': int, ''p_value'': float, ''raw_stat'':
+    float }.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:15:51Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: apply_fdr_correction aggregates species-climate p-values and applies
+    Benjamini-Hochberg
+  claim_id: c_ae2062c6
+  context: 'T025c [S] Apply FDR Correction: Implement src/models/utils.py::apply_fdr_correction
+    that takes the permutation test output ... aggregates all species-climate coefficient
+    p-values, applies Benjamini-Hochberg...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_fdr_correction_aggregates_species-climate_p-values_and
+  kind: entity_fact
+  raw_text: The function apply_fdr_correction must aggregate all species-climate coefficient
+    p-values and apply Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:15:58Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: apply_fdr_correction adds q_value column and writes model_results_fdr.parquet
+  claim_id: c_404b09fe
+  context: 'T025c [S] Apply FDR Correction: ...adds a q_value column, and writes data/processed/model_results_fdr.parquet.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_fdr_correction_adds_q_value_column_and_writes_model_re
+  kind: entity_fact
+  raw_text: The function apply_fdr_correction must add a q_value column and write
+    data/processed/model_results_fdr.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:16:01Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: on convergence failure log message and skip species
+  claim_id: c_f99e0bf8
+  context: 'T027 [S] Implement Convergence Error Handling: Wrap GAMM fitting in try/except.
+    On convergence failure, log ''Convergence failed for species {species}: {error}''
+    to logs/modeling.log and skip that species.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/On_convergence_failure_log_message_and_skip_species
+  kind: entity_fact
+  raw_text: 'On GAMM convergence failure, the system must log ''Convergence failed
+    for species {species}: {error}'' to logs/modeling.log and skip that species.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:16:07Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: compute_weekly_centroids uses geomstats.geometry.sphere.Sphere dim 2
+    metric intrinsic
+  claim_id: c_cb4624e9
+  context: "T030 [S] Compute Weekly Migration Centroids (Fr\xE9chet Mean): Library:\
+    \ MANDATORY import geomstats. ... Algorithm: Use geomstats.geometry.sphere.Sphere(dim=2,\
+    \ metric='intrinsic')."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The function compute_weekly_centroids must use geomstats.geometry.sphere.Sphere(dim=2,
+    metric='intrinsic').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:16:10Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: "compute_weekly_centroids computes Fr\xE9chet mean using iterative optimization"
+  claim_id: c_b08517bc
+  context: "T030 [S] Compute Weekly Migration Centroids (Fr\xE9chet Mean): Compute\
+    \ the Fr\xE9chet mean (geodesic mean) for each week's coordinates using iterative\
+    \ optimization (e.g., sphere.mean()) rather than simple arithmetic mean."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_weekly_centroids_computes_Fr%C3%A9chet_mean_using_iterati
+  kind: entity_fact
+  raw_text: "The function compute_weekly_centroids must compute the Fr\xE9chet mean\
+    \ (geodesic mean) for each week's coordinates using iterative optimization."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:16:13Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: compute_weekly_centroids generates data/interim/weekly_centroids.parquet
+  claim_id: c_223d489c
+  context: "T030 [S] Compute Weekly Migration Centroids (Fr\xE9chet Mean): Output:\
+    \ data/interim/weekly_centroids.parquet."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_weekly_centroids_generates_data/interim/weekly_centr
+  kind: entity_fact
+  raw_text: The output file data/interim/weekly_centroids.parquet must be generated
+    by compute_weekly_centroids.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:16:17Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: "compute_manifold_statistics computes Fr\xE9chet variance for each species-year\
+    \ trajectory"
+  claim_id: c_82100b95
+  context: "T031a [S] Compute Manifold-Based Trajectory Statistics: Logic: 1. Compute\
+    \ Fr\xE9chet variance for each species-year trajectory using the centroids from\
+    \ T030."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_manifold_statistics_computes_Fr%C3%A9chet_variance_for_ea
+  kind: entity_fact
+  raw_text: "The function compute_manifold_statistics must compute Fr\xE9chet variance\
+    \ for each species-year trajectory."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:16:22Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: compute_manifold_statistics performs geodesic regression to model trajectory
+    evolution
+  claim_id: c_dc2ae8a1
+  context: 'T031a [S] Compute Manifold-Based Trajectory Statistics: Logic: 2. Perform
+    geodesic regression to model trajectory evolution over time.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_manifold_statistics_performs_geodesic_regression_to
+  kind: entity_fact
+  raw_text: The function compute_manifold_statistics must perform geodesic regression
+    to model trajectory evolution over time.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:16:27Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: compute_manifold_statistics calculates parallel transport of velocity
+    vectors to detect non-linear shifts
+  claim_id: c_644d75af
+  context: 'T031a [S] Compute Manifold-Based Trajectory Statistics: Logic: 3. Calculate
+    parallel transport of velocity vectors between years to detect non-linear shifts.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_manifold_statistics_calculates_parallel_transport_of
+  kind: entity_fact
+  raw_text: The function compute_manifold_statistics must calculate parallel transport
+    of velocity vectors between years to detect non-linear shifts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:16:35Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: "trajectory_statistics.json contains fr\xE9chet_variance, geodesic_regression_coefficients,\
+    \ parallel_transport_vectors"
+  claim_id: c_e382f714
+  context: "T031a [S] Compute Manifold-Based Trajectory Statistics: Output: data/interim/trajectory_statistics.json\
+    \ containing fr\xE9chet_variance, geodesic_regression_coefficients, parallel_transport_vectors."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trajectory_statistics.json_contains_fr%C3%A9chet_variance,_geodes
+  kind: entity_fact
+  raw_text: "The output file data/interim/trajectory_statistics.json must contain\
+    \ fr\xE9chet_variance, geodesic_regression_coefficients, and parallel_transport_vectors."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:16:39Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: detect_spatial_route_shifts compares trajectories using geodesic regression
+    and parallel transport
+  claim_id: c_91fbbab8
+  context: 'T031b [S] Detect Spatial Route Shifts Using Manifold Statistics: Logic:
+    1. Compare trajectories across years using the geodesic regression coefficients
+    and parallel transport vectors from T031a.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Detect_spatial_route_shifts_compares_trajectories_using_geod
+  kind: entity_fact
+  raw_text: The function detect_spatial_route_shifts must compare trajectories across
+    years using geodesic regression coefficients and parallel transport vectors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:17:10Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: detect_spatial_route_shifts calculates shift vector based on difference
+    in geodesic regression parameters
+  claim_id: c_92dc5c2c
+  context: 'T031b [S] Detect Spatial Route Shifts Using Manifold Statistics: Logic:
+    2. Calculate the shift vector (magnitude and direction) based on the difference
+    in geodesic regression parameters.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Detect_spatial_route_shifts_calculates_shift_vector_based_on
+  kind: entity_fact
+  raw_text: The function detect_spatial_route_shifts must calculate the shift vector
+    (magnitude and direction) based on the difference in geodesic regression parameters.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:17:15Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: shift_candidates.json contains species, year, shift_vector, magnitude,
+    direction
+  claim_id: c_3f7a673c
+  context: 'T031b [S] Detect Spatial Route Shifts Using Manifold Statistics: Output:
+    data/interim/shift_candidates.json containing species, year, shift_vector, magnitude,
+    direction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shift_candidates.json_contains_species,_year,_shift_vector,
+  kind: entity_fact
+  raw_text: The output file data/interim/shift_candidates.json must contain species,
+    year, shift_vector, magnitude, and direction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:17:21Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: trajectory analysis uses geomstats.learning.frechet_mean and geomstats.stats
+  claim_id: c_8e037f5e
+  context: 'T031c [S] Riemannian Manifold Trajectory Analysis & Permutation: Test:
+    Use geomstats.learning.frechet_mean for trajectory comparison and geomstats.stats
+    for permutation testing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trajectory_analysis_uses_geomstats.learning.frechet_mean_and
+  kind: entity_fact
+  raw_text: The trajectory analysis must use geomstats.learning.frechet_mean for trajectory
+    comparison and geomstats.stats for permutation testing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:17:25Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: trajectory_results.json contains shift_vector, magnitude, direction,
+    and p_value
+  claim_id: c_d0c65970
+  context: 'T031c [S] Riemannian Manifold Trajectory Analysis & Permutation: Output:
+    data/processed/trajectory_results.json containing shift_vector, magnitude, direction,
+    and p_value.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Trajectory_results.json_contains_shift_vector,_magnitude,_di
+  kind: entity_fact
+  raw_text: The output file data/processed/trajectory_results.json must contain shift_vector,
+    magnitude, direction, and p_value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:17:29Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: success criteria targets are sc002_target 0.95, sc003_target 0.90, and
+    sc004_target 7 days
+  claim_id: c_d38951f1
+  context: 'T043a [S] Define Success Criteria Targets: ...write data/processed/target_definitions.json
+    with concrete thresholds for sc002_target (0.95), sc003_target (0.90), and sc004_target
+    (7 days).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The success criteria targets must be: sc002_target (0.95), sc003_target
+    (0.90), and sc004_target (7 days).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:17:31Z'
+- artifact_path: projects/PROJ-132-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime less than 6 hours
+  claim_id: c_1a252003
+  context: "T043 [S] Calculate and Report All Success Criteria: 5. SC\u2011005 (Runtime)\
+    \ \u2013 Run src/analysis/runtime_validation.py to ensure total pipeline runtime\
+    \ < 6 h..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The total pipeline runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:17:37Z'

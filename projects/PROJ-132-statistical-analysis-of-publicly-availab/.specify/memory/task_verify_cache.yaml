@@ -6,6 +6,20 @@ T002a:
     `data/processed`, `data/interim`, `tests/contract`, `tests/unit`, `tests/integration`,
     `docs`) actually exist on disk. Without such evidence the claim that the project
     structure was created cannot be verified.
+T005a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No preprocessing scripts, dataset files, or output CSVs were supplied; the claim
+    provides only a textual description without any tangible artifact to verify that
+    raw eBird/NOAA data were ingested, filtered, and aggregated as required. Consequently,
+    the required evidence of data availability is missing.
+T005b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., downloaded eBird sample file, checksum verification, or script)\
+    \ is present; the only provided material is a high\u2011level specification unrelated\
+    \ to the actual download task. The required eBird dataset download and verification\
+    \ are missing."
 T010c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,6 +27,23 @@ T010c:
     \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
     \ task. Consequently the required log entry and its format\u2011compliance verification\
     \ are missing."
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or output data files were supplied; the claim provides only\
+    \ a textual description of the required preprocessing pipeline without any concrete\
+    \ artifacts (e.g., ingestion scripts, aggregation code, or a generated CSV with\
+    \ the specified columns). Consequently, the task\u2019s core deliverable\u2014\
+    a functional, testable preprocessing pipeline and its resulting dataset\u2014\
+    is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No provenance mapping artifact (e.g., a mapping document, JSON/YAML file, or\
+    \ code that records data lineage) was supplied; the only content present describes\
+    \ user stories for data preprocessing, modeling, and route\u2011shift analysis,\
+    \ not the required provenance mapping output. Consequently the task\u2019s deliverable\
+    \ is missing."
 T017d:
   c: true
   h: 51dd9381e1eb53865c4eebf3987f448a27e3924a34c5584d65da38025d026fcb
@@ -27,13 +58,14 @@ T018:
     \ the required logic to flag grid cells with fewer than 5 observations per Plan\
     \ Phase\u202F2 and to exclude them from downstream modeling. Consequently, the\
     \ artifact demanded by T018 is missing."
-T023b:
+T023a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or output file that computes Moran\u2019s I on model\
-    \ residuals was provided. The claim lacks any tangible artifact (e.g., Python/R\
-    \ script, function, or result table/figure) demonstrating the diagnostic, so the\
-    \ requirement is not met."
+  r: No preprocessing scripts, GAMM fitting code, or resulting data/model outputs
+    were provided; the claim lacks any tangible artifact (e.g., CSV files, Python/R
+    scripts, model summary reports) that would demonstrate the required data pipeline
+    and GAMM with a mandatory GP random effect has been implemented. The next implementer
+    must supply the actual code and generated outputs meeting the specifications.
 T025c:
   c: false
   h: 93fa3d6863026d3c79377ab94b8855a246a852e60e00c07fc4bc1c4517831132
@@ -48,12 +80,39 @@ T028:
     \ missing, violating the task\u2019s requirement."
 T030:
   c: false
-  h: 7706e0857c8847a5e273c05dab804fbf1e1935219b654cde4e68a29624d4331f
-  r: "The provided `compute_weekly_centroids` function is incomplete (truncated code)\
-    \ and computes a simple weighted arithmetic mean rather than a geodesic (great\u2011\
-    circle) mean, and it never writes the resulting DataFrame to `data/interim/weekly_centroids.parquet`\
-    \ (the file is missing). Consequently the required artifact and correct behavior\
-    \ are not present."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or results were supplied; there is no evidence of weekly\
+    \ migration centroids (Fr\xE9chet means) being computed, nor any figures, tables,\
+    \ or scripts that perform the manifold\u2011based trajectory analysis required\
+    \ by the task. The implementer must provide the actual implementation and its\
+    \ output (e.g., a script/notebook that calculates the centroids and a resulting\
+    \ dataset or visualization)."
+T031a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts (e.g., preprocessing scripts, GAMM\
+    \ modeling results, trajectory\u2011analysis figures or notebooks) were provided;\
+    \ therefore the required manifold\u2011based trajectory statistics and associated\
+    \ uncertainty quantification cannot be verified as completed. The implementer\
+    \ must supply the actual implementation and its outputs."
+T031b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No preprocessing scripts, GAMM modeling code, or manifold trajectory analysis\
+    \ outputs were provided; the claim lacks any tangible artifacts (e.g., CSV files,\
+    \ Python/R scripts, model result tables, figures) to demonstrate that the required\
+    \ data pipeline, statistical modeling, and route\u2011shift detection were actually\
+    \ implemented. The implementer must supply the concrete code, generated datasets,\
+    \ and analysis results that meet the specified user stories."
+T031c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual artifacts (scripts, datasets, model outputs, figures, or any files)\
+    \ were provided; the claim consists only of a textual description of the required\
+    \ features. Consequently, there is no evidence that the data\u2011ingestion pipeline,\
+    \ GAMM modeling, or Riemannian\u2011manifold trajectory analysis has been implemented\
+    \ or produces the specified outputs. The missing deliverables must be supplied\
+    \ for the task to be considered complete."
 T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -85,17 +144,3 @@ T045c:
     contention test. The required test file (e.g., a unit\u2011 or integration\u2011\
     test that creates competing threads/processes to provoke lock contention and asserts\
     \ expected behavior) is missing."
-T050a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a feature specification for bird\u2011migration\
-    \ data processing; no schema definition, file, or code for a \u201CDeviation Whitelist\
-    \ Schema\u201D was presented. Consequently the required artifact is missing, so\
-    \ the task is not satisfied."
-T050b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No preprocessing, modeling, or verification scripts, datasets, or result files
-    were provided; the claim lacks any tangible artifact to confirm that the plan
-    and spec verification steps were implemented. The required code and output artifacts
-    are missing.

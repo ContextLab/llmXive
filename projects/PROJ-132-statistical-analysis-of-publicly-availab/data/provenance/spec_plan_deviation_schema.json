@@ -1,29 +1,25 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/spec_plan_deviation_schema.json",
-  "title": "Spec-Plan Deviation Whitelist Entry",
-  "description": "Schema for a single whitelisted deviation between the project specification and the implementation plan. Used to explicitly allow known contradictions (e.g., data source substitutions) so verification scripts do not fail on them.",
+  "title": "Spec Plan Deviation Whitelist Schema",
+  "description": "Defines the structure for whitelisted deviations between project specifications and implemented sources.",
   "type": "object",
   "properties": {
     "spec_requirement": {
       "type": "string",
-      "description": "The specific requirement ID or text from the spec (e.g., 'FR-001' or 'NOAA/PRISM') that is being deviated from.",
-      "minLength": 1
+      "description": "The original requirement text from the specification or plan."
     },
     "implemented_source": {
       "type": "string",
-      "description": "The actual source, library, or method used in the implementation instead of the spec requirement.",
-      "minLength": 1
+      "description": "The actual source, library, or method used in implementation."
     },
     "reason": {
       "type": "string",
-      "description": "Justification for the deviation (e.g., 'Data unavailable', 'Plan explicitly substitutes...').",
-      "minLength": 1
+      "description": "Justification for the deviation, including references to availability or constraints."
     },
     "timestamp": {
       "type": "string",
-      "description": "ISO 8601 formatted timestamp indicating when the deviation was approved/recorded.",
-      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the deviation was recorded."
     }
   },
   "required": [
