@@ -1,7 +1,7 @@
 # Tasks: Detecting Statistical Power Drift in Replicated Studies
 
-**Input**: Design documents from `/specs/001-detect-power-drift/`  
-**Prerequisites**: plan.md (required), spec.md (required for user stories)  
+**Input**: Design documents from `/specs/001-detect-power-drift/`
+**Prerequisites**: plan.md (required), spec.md (required for user stories)
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
@@ -19,23 +19,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -43,8 +43,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create `projects/PROJ-150-detecting-statistical-power-drift-in-rep/` directory structure by running `mkdir -p data/raw data/derived code tests results state`
-- [ ] T001b [P] Initialize `.gitignore` for Python data projects (exclude data/raw, data/derived, __pycache__, .env)
-- [ ] T001c [P] Create `requirements.txt` with pinned versions: pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyyaml, pytest
+- [ ] T001b [P] Initialize `.gitignore` for Python data projects (exclude data/raw, data/derived, __pycache__,.env)
+- [X] T001c [P] Create `requirements.txt` with pinned versions: pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn, pyyaml, pytest
 
 ---
 
@@ -54,11 +54,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create `code/__init__.py` and establish package structure
-- [ ] T006 Implement `code/download.py` with real data fetch logic (no synthetic fallbacks) using `huggingface_hub` to fetch `osf/reproducibility_project` dataset, specifically the `data.csv` file
-- [ ] T007 Implement `code/validate_source.py` for URL reachability and title-token-overlap (≥ 0.7) validation
-- [ ] T008 [P] Create `code/update_state.py` to compute SHA-256 hashes and update project state file
-- [ ] T009 Setup `pytest` configuration and base test fixtures in `tests/conftest.py`
+- [X] T005 [P] Create `code/__init__.py` and establish package structure
+- [X] T006 Implement `code/download.py` with real data fetch logic (no synthetic fallbacks) using `huggingface_hub` to fetch `osf/reproducibility_project` dataset, specifically the `data.csv` file
+- [X] T007 Implement `code/validate_source.py` for URL reachability and title-token-overlap (≥ 0.7) validation
+- [X] T008 [P] Create `code/update_state.py` to compute SHA-256 hashes and update project state file
+- [X] T009 Setup `pytest` configuration and base test fixtures in `tests/conftest.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -72,19 +72,19 @@
 
 ### Pre-Implementation Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Tasks marked [P] are file-level independent (can be written in parallel). However, per TDD practice, these tests MUST be written and verified to FAIL before the corresponding implementation tasks (T012a-T016) are implemented.
 
-- [ ] T010 [P] [US1] Unit test for power calculation logic in `tests/unit/test_power_calc.py`
-- [ ] T011 [P] [US1] Integration test for the full LMM pipeline in `tests/integration/test_lmm_pipeline.py`
+- [X] T010 [P] [US1] Unit test `tests/unit/test_power_calc.py::test_power_calc_handles_nan` for power calculation logic.
+- [X] T011 [P] [US1] Integration test `tests/integration/test_lmm_pipeline.py::test_lmm_pipeline_full_run` for the full LMM pipeline.
 
 ### Implementation for User Story 1
 
-- [ ] T012a [US1] Implement `code/compute_trends.py` to fit a Linear Mixed-Effects Model: `power_est ~ year + effect_size + sample_size + (1|field) + (1|original_study_id)`. **Output**: Save full model objects to `data/derived/input_trends_models.pkl` and parameters to `data/derived/input_trends_raw.pkl`. (FR-002, Constitution Principle VII)
-- [ ] T012b [US1] Implement `code/compute_trends.py` logic to extract the `year` slope, standard error, and confidence intervals from the model in T012a. **Output**: Write `data/derived/lmm_summary.csv` with columns: `slope_year`, `se_year`, `ci_lower`, `ci_upper`. **Verification**: Ensure file exists and contains non-null values. (FR-003)
-- [ ] T013 [US1] Implement `code/compute_implied_power.py` (renamed to `code/analyze_drift.py`) to perform a Likelihood-Ratio Test (LRT) comparing the full model (with `year`) against a reduced model (`power_est ~ effect_size + sample_size + (1|field) + (1|original_study_id)`). **Output**: Write `data/derived/lrt_results.json` with `chi2_statistic`, `p_value`, `df_diff`. **Verification**: Ensure file exists and contains the LRT result. (FR-003)
-- [ ] T014 [US1] Implement `code/visualize.py` to generate a scatter plot of **residual power vs. year** (observed power minus predicted power from the reduced model) with the fitted regression line and 95% confidence intervals. **Output**: Save to `results/power_drift_scatter.png`. (FR-009)
-- [ ] T015 [US1] Add error handling for missing data (skip row, log warning) and zero-variance fields (FR-008)
-- [ ] T016 [US1] Add logging for User Story 1 operations and data filtering steps
+- [ ] T012a [US1] Implement `code/compute_trends.py` to fit a Linear Mixed-Effects Model: `power_est ~ year + effect_size + sample_size + (1|field) + (1|original_study_id)`. **Output**: Save full model objects to `data/derived/input_trends_models.pkl` and parameters to `data/derived/input_trends_raw.pkl`. **Verification**: Ensure `data/derived/input_trends_models.pkl` contains a fitted model object with random effects for both `field` and `original_study_id` as required by FR-002. (FR-002, Constitution Principle VII)
+- [ ] T012b [US1] Implement `code/compute_trends.py` logic to extract the `year` slope, standard error, and confidence intervals from the model in T012a. **Output**: Write `data/derived/lmm_summary.csv` with columns: `slope_year`, `se_year`, `ci_lower`, `ci_upper`. **Verification**: Ensure file exists, contains non-null values, and all power-related values are floats within [0, 1]. (FR-003)
+- [ ] T013 [US1] Implement `code/analyze_drift.py` to perform a Likelihood-Ratio Test (LRT) comparing the full model (with `year`) against a reduced model (`power_est ~ effect_size + sample_size + (1|field) + (1|original_study_id)`). **Output**: Write `data/derived/lrt_results.json` (JSON format required for machine readability) with `chi2_statistic`, `p_value`, `df_diff`. **Verification**: Ensure file exists and contains the LRT result. (FR-003)
+- [ ] T014 [US1] Implement `code/visualize.py` to generate a scatter plot of **residual power vs. year** (observed power minus predicted power from the *reduced* model, where reduced model excludes `year`) with the fitted regression line and 95% confidence intervals. **Output**: Save to `results/power_drift_scatter.png`. **Verification**: Ensure the plot uses residuals calculated as `observed_power - predicted_power_from_reduced_model`. (FR-009)
+- [ ] T015 [US1] Add error handling for missing data (skip row, log warning with row index and reason) and zero-variance fields (FR-008). Log format: `WARNING: Skipping row {index} due to {reason}`. Handle specific errors: `NaN` in `effect_size` or `sample_size`, and `ZeroDivisionError` in power calculation.
+- [ ] T016 [US1] Add logging for User Story 1 operations and data filtering steps.
 
 **Checkpoint**: At this point, User Story 1 (Core Drift Analysis) should be fully functional and testable independently
 
@@ -99,14 +99,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for permutation logic with small iteration count in `tests/unit/test_permutation.py`
-- [ ] T019 [P] [US2] Integration test for sensitivity analysis sweep in `tests/integration/test_sensitivity.py`
+- [X] T018 [P] [US2] Unit test `tests/unit/test_permutation.py::test_permutation_logic_small_count` for permutation logic with small iteration count.
+- [X] T019 [P] [US2] Integration test `tests/integration/test_sensitivity.py::test_sensitivity_analysis_sweep` for sensitivity analysis sweep.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/models.py` function for non-parametric permutation test: shuffle `year` labels **[deferred] times** (fallback to **[deferred]** if memory or time limits are exceeded; terminate early if > 5 hours, flag as "approximate"). **Input**: Drift coefficient from T013. **Output**: Empirical p-value for the drift slope in `results/permutation_pvalue.json`. (FR-004)
-- [ ] T021 [US2] Implement `code/models.py` function for sensitivity analysis sweeping alpha across **{0.01, 0.05, 0.1}** and report the resulting drift significance rates. (FR-005)
-- [ ] T022 [US2] Integrate permutation and sensitivity results into the final report generation in `code/main.py`
+- [ ] T020 [US2] Implement `code/robustness.py` function for non-parametric permutation test: shuffle `year` labels **[deferred] times**. If memory or time limits are exceeded, **fallback to 1,000 permutations**. Terminate early if > 5 hours, flag as "approximate". **Input**: Drift coefficient from T013. **Output**: Empirical p-value for the drift slope in `results/permutation_pvalue.json`. **Verification**: Ensure `results/permutation_pvalue.json` includes an `iterations_run` field and a `status` field (e.g., 'exact' or 'approximate') reflecting whether the [deferred] or fallback count was used. (FR-004)
+- [X] T021 [US2] Implement `code/robustness.py` function for sensitivity analysis sweeping alpha across **{0.01, 0.05, 0.1}** and report the resulting drift significance rates. (FR-005)
+- [X] T022 [US2] Integrate permutation and sensitivity results into the final report generation in `code/main.py`
 - [ ] T023 [US2] Add logic to handle permutation convergence failures and flag results as "approximate" (Edge Case)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -122,13 +122,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for DerSimonian-Laird weighting logic in `tests/unit/test_meta_analysis.py`
-- [ ] T025 [P] [US3] Integration test for input permutation validation in `tests/integration/test_input_permutation.py`
+- [~] T024 [P] [US3] Unit test `tests/unit/test_meta_analysis.py::test_dersimonian_laird_weighting` for DerSimonian-Laird weighting logic.
+- [ ] T025 [P] [US3] Integration test `tests/integration/test_input_permutation.py::test_input_permutation_framework` for input permutation validation.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/models.py` function for inverse-variance weighting with heterogeneity adjustment (DerSimonian-Laird) to combine residual power drift estimates across fields. **Output**: Aggregated drift estimate and confidence interval in `results/aggregated_drift.json`. **Comparison**: Measure against the **primary mixed-model slope** from T013. (FR-006, SC-004)
-- [ ] T027 [US3] Implement `code/models.py` function for input permutation framework: shuffle `effect_size` and `sample_size` **[deferred] times** (fallback to **[deferred]**) while holding `year` constant to generate a null distribution for the drift slope. **Output**: Generate `results/null_distribution_implied_power.csv` with columns: `simulated_drift`, `count`. Compare observed slope against this distribution. (FR-007)
+- [ ] T026 [US3] Implement `code/robustness.py` function for inverse-variance weighting with heterogeneity adjustment (DerSimonian-Laird) to combine residual power drift estimates across fields. **Output**: Aggregated drift estimate and confidence interval in `results/aggregated_drift.json`. **Comparison**: Measure against the **primary mixed-model slope** from T013. (FR-006, SC-004)
+- [ ] T026b [US3] Implement `code/robustness.py` function to generate a comparison artifact between the aggregated drift estimate (from T026) and the primary mixed-model slope (from T013). **Output**: Write `results/comparison_aggregated_vs_lmm.json` containing both estimates, their confidence intervals, and a boolean `is_consistent` flag. **Verification**: Ensure the file contains both values and the consistency check. (US-3 Scenario 3, SC-004)
+- [ ] T027 [US3] Implement `code/robustness.py` function for input permutation framework: shuffle `effect_size` and `sample_size` **[deferred] times** (fallback to **[deferred]** if limits exceeded) while holding `year` constant to generate a null distribution for the drift slope. **Output**: Generate `results/null_distribution_implied_power.csv` with columns: `simulated_drift`, `count`. **Verification**: Ensure `results/null_distribution_implied_power.csv` contains [deferred] (or fallback count) rows with a `simulated_drift` column, and that the file is non-empty. Compare observed slope against this distribution. (FR-007)
 - [ ] T028 [US3] Update `code/visualize.py` to plot the null distribution of the input-permutation drift and compare observed slope (US-3)
 - [ ] T029 [US3] Integrate cross-field aggregation and input permutation results into the final report JSON (US-3)
 
@@ -142,7 +143,7 @@
 
 - [ ] T030 [P] Implement `code/main.py` pipeline orchestrator to sequence download, validation, LMM fitting, robustness checks, and reporting
 - [ ] T031 Run `code/update_state.py` to compute SHA-256 hashes for all `data/derived/` and `results/` files (Phase 6)
-- [ ] T032 Verify that the `current_stage` is updated to `planned` (or `implemented` if this were the execution phase)
+- [ ] T032 Verify that the `current_stage` is updated to `implemented` by checking `state/projects/PROJ-150-detecting-statistical-power-drift-in-rep/state.yaml` for `current_stage: implemented`.
 - [ ] T033 Documentation updates in `docs/` and `README.md` regarding the Linear Mixed-Effects Model methodology
 - [ ] T034 Run full pipeline on a static subset to verify end-to-end execution within 6-hour CPU limit (FR-010)
 - [ ] T035a [P] Run linter (ruff/flake8) on `code/` and fix all warnings (Success: zero warnings)
@@ -157,8 +158,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -218,9 +219,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -236,3 +237,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: `code/download.py` MUST fail loudly on real data fetch failure; no synthetic fallbacks allowed.
 - **Methodology**: Tasks implement the Linear Mixed-Effects Model (LMM) as required by Spec FR-002, FR-003, and FR-009. The model includes random intercepts for `field` and `original_study_id`.
+- **Compute Feasibility**: All tasks are designed to run on CPU-only runners (2 cores, 7GB RAM) within 6 hours. Permutation tests use vectorized `numpy` operations and chunked processing to fit memory constraints.

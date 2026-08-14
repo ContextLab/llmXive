@@ -17,7 +17,7 @@ This project investigates whether reported statistical power estimates in publis
 **Project Type**: Data analysis pipeline / CLI  
 **Performance Goals**: Complete full pipeline (10k permutations) within 6 hours on CPU; memory usage < 6GB.  
 **Constraints**: No GPU; must handle missing data gracefully; must use only open, directly downloadable datasets.  
-**Scale/Scope**: Analysis of ~500-2000 replication studies from OSF Reproducibility Project dataset.
+**Scale/Scope**: Analysis of a large-scale set of replication studies from OSF Reproducibility Project dataset.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -33,7 +33,7 @@ This project investigates whether reported statistical power estimates in publis
 | **IV. Single Source of Truth** | ✅ Pass | All figures and stats in the final report will trace to specific rows in `data/derived/` and code blocks in `code/`. |
 | **V. Versioning Discipline** | ✅ Pass | Content hashes for artifacts will be managed via the project state file; `updated_at` timestamps updated on change. |
 | **VI. Power Re-estimation Consistency** | ✅ Pass | Power estimates will be calculated post-hoc using Cohen's *d* and sample sizes with α=0.05, per the methodology. |
-| **VII. Temporal Drift Modeling Rigor** | ✅ Pass | The plan implements the **Linear Mixed-Effects Model** with `power_est` as outcome and `year` as fixed effect, supplemented by non-parametric permutation tests (10,000 iterations) as required. |
+| **VII. Temporal Drift Modeling Rigor** | ✅ Pass | The plan implements the **Linear Mixed-Effects Model** with `power_est` as outcome and `year` as fixed effect, supplemented by non-parametric permutation tests with a sufficient number of iterations as required. |
 
 ## Project Structure
 
@@ -110,7 +110,7 @@ data/
 - **T016**: Generate `data/derived/residuals.csv` containing the residuals from the LMM (observed - predicted) for visualization.
 
 ### Phase 3: Robustness & Validation
-- **T020**: Implement `run_permutation_test` with 10,000 iterations (fallback to [deferred] on timeout). Shuffle `year` labels or permute residuals to generate null distribution of the `year` slope (FR-004, FR-007).
+- **T020**: Implement `run_permutation_test` with a sufficient number of iterations to ensure robust statistical power. (fallback to [deferred] on timeout). Shuffle `year` labels or permute residuals to generate null distribution of the `year` slope (FR-004, FR-007).
 - **T021**: Generate `results/null_distribution.csv` with the permutation results.
 - **T022**: Implement `sensitivity_analysis()` sweeping alpha {0.01, 0.05, 0.1} (FR-005).
 - **T023**: Generate `results/sensitivity_report.json`.

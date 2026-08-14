@@ -1,0 +1,44 @@
+T011:
+  c: false
+  h: b8e93d066fbae223db472f45caba8f6de148ac7ace7d148b52e7489130d4cfb1
+  r: The required integration test file `tests/integration/test_lmm_pipeline.py` does
+    not exist, so the specified test `test_lmm_pipeline_full_run` is missing. Without
+    this artifact, the task is not satisfied.
+T014:
+  c: false
+  h: 338500a337c1ffcfe95f9d727e95974f2d9b1187c52045c4f418fea6c59091d2
+  r: "The provided `code/visualize.py` is truncated and never reaches any plotting\
+    \ logic; it only defines loading and a partial reduced\u2011model fitting routine.\
+    \ Moreover, the required output file `results/power_drift_scatter.png` does not\
+    \ exist. Consequently the residual\u2011power\u2011vs\u2011year scatter plot with\
+    \ regression line and confidence intervals has not been generated."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and project specifications;\
+    \ there is no code, script, log file, or any other artifact demonstrating that\
+    \ missing\u2011data rows are skipped, warnings are logged in the required format,\
+    \ or zero\u2011variance fields are handled. Consequently, the required error\u2011\
+    handling implementation and logging behavior are not evidenced."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log output files were provided showing that logging\
+    \ was added to the User Story\u202F1 analysis pipeline or to the data\u2011filtering\
+    \ steps. The required artifact\u2014a set of logging statements (e.g., using Python\u2019\
+    s logging module) and/or a log file demonstrating recorded operation details\u2014\
+    is missing, so the task is not satisfied."
+T020:
+  c: false
+  h: 61a15b21531b994aea5c1c01870ec14233a53833eb20082f5c3d23949155c32e
+  r: "The repository lacks the required `results/permutation_pvalue.json` file, and\
+    \ the provided `code/robustness.py` is incomplete (truncated) with no implementation\
+    \ of the non\u2011parametric permutation test, fallback logic, or status flagging.\
+    \ Consequently the task\u2019s output and verification criteria are not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, documentation, or test output was provided showing added logic to detect\
+    \ permutation convergence failures or to flag results as \u201Capproximate.\u201D\
+    \ Without any artifact demonstrating this edge\u2011case handling, the task requirement\
+    \ is unmet."

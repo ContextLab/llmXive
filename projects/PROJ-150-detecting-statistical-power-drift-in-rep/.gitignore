@@ -1,0 +1,57 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+$PYCACHE
+*.pyo
+*.pyd
+.Python
+
+# Environment and virtual environments
+.env
+venv/
+ENV/
+env/
+.venv/
+
+# Data directories (raw and derived)
+data/raw/
+data/derived/
+!data/.gitkeep
+
+# Results and figures
+results/
+figures/
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+.cache/
+
+# State files (unless committed explicitly)
+state/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Coverage and testing
+.coverage
+htmlcov/
+pytest_cache/
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/

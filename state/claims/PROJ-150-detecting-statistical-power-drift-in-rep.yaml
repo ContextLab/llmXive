@@ -1,0 +1,290 @@
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: fetch osf/reproducibility_project data.csv from huggingface_hub
+  claim_id: c_9c604149
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_osf/reproducibility_project_data.csv_from_huggingface
+  kind: entity_fact
+  raw_text: Implement code/download.py with real data fetch logic using huggingface_hub
+    to fetch osf/reproducibility_project dataset, specifically the data.csv file
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:46:09Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: validate title-token-overlap threshold of 0.7
+  claim_id: c_01867708
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/validate_source.py for URL reachability and title-token-overlap\
+    \ (\u2265 0.7) validation"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:46:09Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: compute SHA-256 hashes for project state
+  claim_id: c_c20189cb
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T008'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/update_state.py to compute SHA-256 hashes and update project
+    state file
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:46:20Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: fit LMM with power_est outcome, year fixed effect, and random intercepts
+    for field and original_study_id
+  claim_id: c_ea2395c9
+  context: 'Phase 3: User Story 1 - T012a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/compute_trends.py to fit a Linear Mixed-Effects Model:
+    power_est ~ year + effect_size + sample_size + (1|field) + (1|original_study_id)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:47:25Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: write LMM summary CSV with slope_year, se_year, ci_lower, ci_upper columns
+  claim_id: c_899f2003
+  context: 'Phase 3: User Story 1 - T012b'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_LMM_summary_CSV_with_slope_year,_se_year,_ci_lower,_ci
+  kind: entity_fact
+  raw_text: 'Write data/derived/lmm_summary.csv with columns: slope_year, se_year,
+    ci_lower, ci_upper'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:47:44Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: power values must be floats within range 0 to 1
+  claim_id: c_4ace3064
+  context: 'Phase 3: User Story 1 - T012b Verification'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure all power-related values are floats within [0, 1]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:48:26Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: perform LRT comparing full LMM model vs reduced model without year
+  claim_id: c_3b66baa6
+  context: 'Phase 3: User Story 1 - T013'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a Likelihood-Ratio Test (LRT) comparing the full model (with year)
+    against a reduced model (power_est ~ effect_size + sample_size + (1|field) + (1|original_study_id))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:48:47Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: write LRT results JSON with chi2_statistic, p_value, df_diff
+  claim_id: c_2c3db83f
+  context: 'Phase 3: User Story 1 - T013'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_LRT_results_JSON_with_chi2_statistic,_p_value,_df_diff
+  kind: entity_fact
+  raw_text: Write data/derived/lrt_results.json with chi2_statistic, p_value, df_diff
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:49:05Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: generate residual power vs year scatter plot with 95% confidence intervals
+  claim_id: c_79c59208
+  context: 'Phase 3: User Story 1 - T014'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a scatter plot of residual power vs. year with the fitted regression
+    line and 95% confidence intervals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:49:05Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: perform non-parametric permutation test by shuffling year labels
+  claim_id: c_1c077183
+  context: 'Phase 4: User Story 2 - T020'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_non-parametric_permutation_test_by_shuffling_year_la
+  kind: entity_fact
+  raw_text: 'Implement code/robustness.py function for non-parametric permutation
+    test: shuffle year labels [deferred] times'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:49:39Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: fallback to 1000 permutations if limits exceeded
+  claim_id: c_ed5cd5e3
+  context: 'Phase 4: User Story 2 - T020'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory or time limits are exceeded, fallback to 1,000 permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:49:55Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: terminate permutation test after 5 hours and flag as approximate
+  claim_id: c_256add2e
+  context: 'Phase 4: User Story 2 - T020'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Terminate early if > 5 hours, flag as 'approximate'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:49:55Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: sweep alpha values 0.01, 0.05, 0.1 for sensitivity analysis
+  claim_id: c_2e664afb
+  context: 'Phase 4: User Story 2 - T021'
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement code/robustness.py function for sensitivity analysis sweeping
+    alpha across {0.01, 0.05, 0.1}
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T17:49:55Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: combine residual power drift estimates using DerSimonian-Laird inverse-variance
+    weighting
+  claim_id: c_ce751089
+  context: 'Phase 5: User Story 3 - T026'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Combine_residual_power_drift_estimates_using_DerSimonian-Lai
+  kind: entity_fact
+  raw_text: Implement code/robustness.py function for inverse-variance weighting with
+    heterogeneity adjustment (DerSimonian-Laird) to combine residual power drift estimates
+    across fields
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:50:34Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: shuffle effect_size and sample_size while holding year constant for input
+    permutation
+  claim_id: c_57260fbb
+  context: 'Phase 5: User Story 3 - T027'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shuffle_effect_size_and_sample_size_while_holding_year_const
+  kind: entity_fact
+  raw_text: 'Implement code/robustness.py function for input permutation framework:
+    shuffle effect_size and sample_size [deferred] times while holding year constant'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:51:04Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: verify end-to-end execution within 6-hour CPU limit
+  claim_id: c_e2127363
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T034'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on a static subset to verify end-to-end execution within
+    6-hour CPU limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:51:21Z'
+- artifact_path: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep/tasks.md
+  attempts: 1
+  canonical: tasks designed to run on 2 cores 7GB RAM within 6 hours
+  claim_id: c_80897707
+  context: Notes - Compute Feasibility
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks are designed to run on CPU-only runners (2 cores, 7GB RAM) within
+    6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T17:51:37Z'
