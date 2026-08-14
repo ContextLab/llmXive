@@ -95,9 +95,9 @@ As a researcher, I need to perform paired t-tests across multiple random seeds a
 
 ## Assumptions
 
-- The HuggingFace datasets (MMLU, GSMK, Self-Consistency) are accessible via public API without authentication tokens that expire during the 6-hour CI window.
+- The HuggingFace datasets (MMLU, GSMK, Self-Consistency) are accessible via public API without authentication tokens that expire during the CI window.
 - The TinyLlama model (or a smaller variant) fits within the memory constraints of the GitHub Actions free-tier runner when using standard floating point precision and batch sizes adjusted for gradient accumulation.
 - The "confidence-prediction loss" is optimized using a proxy correctness signal derived from self-consistency (majority vote) on the training split, not ground-truth labels, to avoid tautological validation.
-- The recursive self-attention mechanism does not introduce a computational complexity that exceeds the -hour training budget on a 2-CPU runner.
+- The recursive self-attention mechanism does not introduce a computational complexity that exceeds the -hour training budget on a multi-CPU runner.
 - The philosophical distinctions raised by reviewers (e.g., "knowing the good" vs. "knowing the shape of the shadow") are operationalized strictly as the measurable metrics defined in the methodology (self-consistency, calibration, error detection), as the project scope is limited to architectural influence on these specific behaviors.
 - The hypothesis that the recursive model will show a ≥5% improvement in self-consistency over the baseline is a research prediction, not a system requirement; the system's success is defined by its ability to measure this difference accurately.
