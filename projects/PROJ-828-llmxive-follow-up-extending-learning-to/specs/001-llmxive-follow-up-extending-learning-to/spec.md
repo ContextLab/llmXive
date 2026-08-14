@@ -52,7 +52,7 @@ The researcher must be able to compare the sample efficiency (steps to [deferred
 
 ### Edge Cases
 
-- **What happens when** the SVD of the OPD trajectory yields a flat spectrum (no clear low-rank structure)? The system must default to a fixed $k$ (e.g., a representative number of top components) or a variance threshold (e.g., 90% explained variance) to prevent the projection matrix from being ill-defined.
+- **What happens when** the SVD of the OPD trajectory yields a flat spectrum (no clear low-rank structure)? The system must default to a fixed $k$ (e.g., a representative number of top components) or a variance threshold (e.g., a high proportion of explained variance) to prevent the projection matrix from being ill-defined.
 - **How does the system handle** memory exhaustion during SVD on a 300M model? The system must perform SVD on a subset of layers (e.g., only attention projections) or use randomized SVD to ensure the operation fits within the available memory constraint.
 - **What happens when** the Low-Rank RL variant fails to converge due to over-constraining the update space? The system must log the stagnation and allow for a sensitivity analysis on the rank $k$ (e.g., testing a range of low to high values) to find a feasible operating point.
 
