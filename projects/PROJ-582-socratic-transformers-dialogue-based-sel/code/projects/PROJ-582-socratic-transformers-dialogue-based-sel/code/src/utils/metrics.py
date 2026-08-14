@@ -1,9 +1,9 @@
 """
 Metric utility for standard accuracy and loss calculations.
 
-This module provides tools to compute evaluation metrics for the Socratic
-Transformers pipeline, including accuracy, loss, and specialized proxy metrics
-for dialogue-based selection analysis.
+This module provides functions to compute evaluation metrics for the
+Socratic Transformers pipeline, including accuracy, loss, and proxy
+metrics for prediction error and calibration.
 """
 
 import math
@@ -12,266 +12,192 @@ from typing import List, Optional, Tuple, Union
 import torch
 from transformers import PreTrainedModel, PreTrainedTokenizer
 
-
 class MetricCalculator:
     """
-    A utility class for computing various metrics relevant to the Socratic
-    Transformers evaluation pipeline.
+    A utility class for calculating various evaluation metrics.
 
-    This class handles standard metrics (accuracy, loss) as well as specialized
-    metrics for analyzing dialogue-based selection and critique quality.
+    Attributes:
+        device (torch.device): The device to perform calculations on.
     """
 
-    def __init__(self, model: Optional[PreTrainedModel] = None,
-                 tokenizer: Optional[PreTrainedTokenizer] = None):
+    def __init__(self, device: Optional[torch.device] = None):
         """
         Initialize the MetricCalculator.
 
         Args:
-            model: Optional PreTrainedModel for generating predictions.
-            tokenizer: Optional PreTrainedTokenizer for tokenizing inputs.
+            device: The device to use for calculations. Defaults to CUDA if available, else CPU.
         """
-        self.model = model
-        self.tokenizer = tokenizer
+        if device is None:
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        else:
+            self.device = device
 
-    def compute_accuracy(self, predictions: Union[List[int], torch.Tensor],
-                         labels: Union[List[int], torch.Tensor]) -> float:
+    def compute_accuracy(
+        self,
+        predictions: Union[List[int], torch.Tensor],
+        labels: Union[List[int], torch.Tensor]
+    ) -> float:
         """
-        Compute accuracy between predictions and labels.
+        Computes the accuracy between predictions and labels.
 
         Args:
-            predictions: Model predictions (logits or token IDs).
-            labels: Ground truth labels.
+            predictions: The predicted token IDs or logits.
+            labels: The ground truth token IDs.
 
         Returns:
-            Accuracy as a float between 0.0 and 1.0.
+            float: The accuracy score (0.0 to 1.0).
         """
         if isinstance(predictions, torch.Tensor):
-            if predictions.dim() > 1:
-                # If logits, take argmax
-                predictions = torch.argmax(predictions, dim=-1)
-            predictions = predictions.cpu().tolist()
+            preds = predictions.argmax(dim=-1) if predictions.dim() > 1 else predictions
+        else:
+            preds = torch.tensor(predictions)
 
         if isinstance(labels, torch.Tensor):
-            labels = labels.cpu().tolist()
+            true_labels = labels
+        else:
+            true_labels = torch.tensor(labels)
 
-        if len(predictions) != len(labels):
-            raise ValueError("Predictions and labels must have the same length")
+        # Ensure tensors are on the same device
+        preds = preds.to(self.device)
+        true_labels = true_labels.to(self.device)
 
-        correct = sum(1 for p, l in zip(predictions, labels) if p == l)
-        total = len(labels)
+        # Handle padding if necessary (assuming -100 is the ignore index)
+        mask = true_labels != -100
+        if not mask.any():
+            return 0.0
+
+        correct = (preds[mask] == true_labels[mask]).sum().item()
+        total = mask.sum().item()
 
         return correct / total if total > 0 else 0.0
 
-    def compute_loss(self, model: PreTrainedModel,
-                     input_ids: torch.Tensor,
-                     labels: torch.Tensor,
-                     attention_mask: Optional[torch.Tensor] = None) -> float:
+    def compute_loss(
+        self,
+        model: PreTrainedModel,
+        input_ids: torch.Tensor,
+        labels: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None
+    ) -> float:
         """
-        Compute the loss for a given input batch.
+        Computes the loss for a given model and input batch.
 
         Args:
-            model: The model to use for loss computation.
-            input_ids: Input token IDs.
-            labels: Target labels for loss computation.
+            model: The HuggingFace model instance.
+            input_ids: The input token IDs.
+            labels: The ground truth labels.
             attention_mask: Optional attention mask.
 
         Returns:
-            The computed loss as a float.
+            float: The computed loss value.
         """
-        model.eval()
+        model.to(self.device)
+        input_ids = input_ids.to(self.device)
+        labels = labels.to(self.device)
+        if attention_mask is not None:
+            attention_mask = attention_mask.to(self.device)
+
         with torch.no_grad():
             outputs = model(
                 input_ids=input_ids,
-                labels=labels,
-                attention_mask=attention_mask
+                attention_mask=attention_mask,
+                labels=labels
             )
             loss = outputs.loss
 
-        if isinstance(loss, torch.Tensor):
-            return loss.item()
-        return float(loss)
-
-    def compute_prediction_error_proxy(self, generated_text: str,
-                                       target_text: str) -> float:
-        """
-        Compute a proxy for prediction error based on text similarity.
-
-        This is a heuristic metric for evaluating how close the generated
-        text is to the target, useful when exact token matching isn't
-        sufficient.
-
-        Args:
-            generated_text: The model's generated output.
-            target_text: The expected target output.
-
-        Returns:
-            A float representing the error (lower is better).
-            Returns 0.0 if texts match exactly, increases with difference.
-        """
-        if generated_text.strip() == target_text.strip():
-            return 0.0
-
-        # Normalize texts
-        gen_tokens = generated_text.lower().split()
-        target_tokens = target_text.lower().split()
-
-        if not gen_tokens or not target_tokens:
-            return 1.0
-
-        # Simple token-level error rate
-        gen_set = set(gen_tokens)
-        target_set = set(target_tokens)
-
-        # Jaccard distance as a proxy
-        intersection = len(gen_set & target_set)
-        union = len(gen_set | target_set)
-
-        if union == 0:
-            return 1.0
-
-        jaccard_similarity = intersection / union
-        return 1.0 - jaccard_similarity
-
-    def compute_calibration_error(self, predictions: List[float],
-                                  outcomes: List[bool],
-                                  bins: int = 10) -> float:
-        """
-        Compute the Expected Calibration Error (ECE).
-
-        This measures how well the predicted probabilities match the
-        actual outcomes, which is crucial for evaluating the model's
-        self-assessment capabilities in the Socratic framework.
-
-        Args:
-            predictions: List of predicted probabilities (0.0 to 1.0).
-            outcomes: List of binary outcomes (True/False).
-            bins: Number of bins for calibration curve.
-
-        Returns:
-            The Expected Calibration Error as a float.
-        """
-        if len(predictions) != len(outcomes):
-            raise ValueError("Predictions and outcomes must have the same length")
-
-        if len(predictions) == 0:
-            return 0.0
-
-        # Create bins
-        bin_boundaries = [i / bins for i in range(bins + 1)]
-        ece = 0.0
-        total_samples = len(predictions)
-
-        for i in range(bins):
-            bin_lower = bin_boundaries[i]
-            bin_upper = bin_boundaries[i + 1]
-
-            # Find samples in this bin
-            bin_indices = [
-                j for j, p in enumerate(predictions)
-                if bin_lower <= p < bin_upper
-            ]
-
-            if i == bins - 1:  # Include upper bound for last bin
-                bin_indices = [
-                    j for j, p in enumerate(predictions)
-                    if bin_lower <= p <= bin_upper
-                ]
-
-            if not bin_indices:
-                continue
-
-            # Calculate average confidence and accuracy in bin
-            avg_confidence = sum(predictions[j] for j in bin_indices) / len(bin_indices)
-            avg_accuracy = sum(1 for j in bin_indices if outcomes[j]) / len(bin_indices)
-
-            # Add weighted error to ECE
-            bin_weight = len(bin_indices) / total_samples
-            ece += bin_weight * abs(avg_confidence - avg_accuracy)
-
-        return ece
-
-    def compute_ngram_overlap(self, text1: str, text2: str, n: int = 2) -> float:
-        """
-        Compute the n-gram overlap between two texts.
-
-        This metric is useful for comparing the similarity of generated
-        dialogues or critiques, particularly in ablation studies where
-        token count is preserved but semantic content varies.
-
-        Args:
-            text1: First text to compare.
-            text2: Second text to compare.
-            n: Size of n-grams (default 2 for bigrams).
-
-        Returns:
-            The Jaccard similarity of n-gram sets (0.0 to 1.0).
-        """
-        def get_ngrams(text: str, n: int) -> set:
-            tokens = text.lower().split()
-            if len(tokens) < n:
-                return set()
-            return set(' '.join(tokens[i:i+n]) for i in range(len(tokens) - n + 1))
-
-        ngrams1 = get_ngrams(text1, n)
-        ngrams2 = get_ngrams(text2, n)
-
-        if not ngrams1 and not ngrams2:
-            return 1.0 if not ngrams1 and not ngrams2 else 0.0
-
-        if not ngrams1 or not ngrams2:
-            return 0.0
-
-        intersection = len(ngrams1 & ngrams2)
-        union = len(ngrams1 | ngrams2)
-
-        return intersection / union if union > 0 else 0.0
+        return loss.item()
 
 
-def compute_prediction_error_proxy(generated_text: str, target_text: str) -> float:
+def compute_prediction_error_proxy(
+    predictions: List[float],
+    targets: List[float]
+) -> float:
     """
-    Standalone function to compute prediction error proxy.
+    Computes a proxy for prediction error, such as Mean Squared Error (MSE).
+
+    This is useful for continuous outputs or confidence scores.
 
     Args:
-        generated_text: The model's generated output.
-        target_text: The expected target output.
+        predictions: A list of predicted values.
+        targets: A list of target values.
 
     Returns:
-        A float representing the error (lower is better).
+        float: The mean squared error.
+
+    Raises:
+        ValueError: If input lists have different lengths or are empty.
     """
-    calculator = MetricCalculator()
-    return calculator.compute_prediction_error_proxy(generated_text, target_text)
+    if len(predictions) != len(targets):
+        raise ValueError("Predictions and targets must have the same length.")
+    if not predictions:
+        raise ValueError("Input lists cannot be empty.")
+
+    mse = sum((p - t) ** 2 for p, t in zip(predictions, targets)) / len(predictions)
+    return mse
 
 
-def compute_calibration_error(predictions: List[float],
-                              outcomes: List[bool],
-                              bins: int = 10) -> float:
+def compute_calibration_error(
+    predicted_confidences: List[float],
+    correct_flags: List[bool]
+) -> float:
     """
-    Standalone function to compute calibration error.
+    Computes the Expected Calibration Error (ECE) proxy.
+
+    This measures the difference between predicted confidence and actual accuracy.
 
     Args:
-        predictions: List of predicted probabilities.
-        outcomes: List of binary outcomes.
-        bins: Number of bins for calibration curve.
+        predicted_confidences: List of confidence scores (0.0 to 1.0).
+        correct_flags: List of booleans indicating if the prediction was correct.
 
     Returns:
-        The Expected Calibration Error.
+        float: The average absolute difference between confidence and correctness.
+
+    Raises:
+        ValueError: If input lists have different lengths or are empty.
     """
-    calculator = MetricCalculator()
-    return calculator.compute_calibration_error(predictions, outcomes, bins)
+    if len(predicted_confidences) != len(correct_flags):
+        raise ValueError("Confidences and correct flags must have the same length.")
+    if not predicted_confidences:
+        raise ValueError("Input lists cannot be empty.")
+
+    total_error = 0.0
+    for conf, is_correct in zip(predicted_confidences, correct_flags):
+        actual_accuracy = 1.0 if is_correct else 0.0
+        total_error += abs(conf - actual_accuracy)
+
+    return total_error / len(predicted_confidences)
 
 
-def compute_ngram_overlap(text1: str, text2: str, n: int = 2) -> float:
+def compute_ngram_overlap(
+    text1: str,
+    text2: str,
+    n: int = 2
+) -> float:
     """
-    Standalone function to compute n-gram overlap.
+    Computes the n-gram overlap (Jaccard similarity) between two texts.
 
     Args:
-        text1: First text.
-        text2: Second text.
-        n: N-gram size.
+        text1: The first text string.
+        text2: The second text string.
+        n: The size of the n-grams (default is 2 for bigrams).
 
     Returns:
-        Jaccard similarity of n-gram sets.
+        float: The Jaccard similarity coefficient (0.0 to 1.0).
     """
-    calculator = MetricCalculator()
-    return calculator.compute_ngram_overlap(text1, text2, n)
+    def get_ngrams(text: str, n: int) -> set:
+        words = text.lower().split()
+        if len(words) < n:
+            return set()
+        return set(tuple(words[i:i+n]) for i in range(len(words) - n + 1))
+
+    ngrams1 = get_ngrams(text1, n)
+    ngrams2 = get_ngrams(text2, n)
+
+    if not ngrams1 and not ngrams2:
+        return 1.0
+    if not ngrams1 or not ngrams2:
+        return 0.0
+
+    intersection = ngrams1.intersection(ngrams2)
+    union = ngrams1.union(ngrams2)
+
+    return len(intersection) / len(union)

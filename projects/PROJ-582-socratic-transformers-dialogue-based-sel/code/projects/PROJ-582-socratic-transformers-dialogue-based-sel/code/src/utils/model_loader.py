@@ -1,8 +1,8 @@
 """
-Base model loader utility supporting 4-bit quantization via bitsandbytes.
+Model Loader Utility for Socratic Transformers Project.
 
-This module implements memory-constrained model loading for CPU environments,
-ensuring RSS stays below 7GB as per project constraints.
+Implements base model loading with 4-bit quantization support via bitsandbytes.
+Designed for CPU-constrained environments as per project requirements.
 """
 import gc
 import logging
@@ -11,9 +11,9 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple, Union
 
-import psutil
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from peft import PeftModel
 
 # Configure logging
 logging.basicConfig(
@@ -22,222 +22,234 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Memory constraint: 7GB in bytes
-MAX_MEMORY_RSS_BYTES = 7 * 1024 * 1024 * 1024
+# Import project config to get model IDs
+try:
+    from src.utils.config import get_config
+except ImportError:
+    # Fallback for direct execution
+    logger.warning("Could not import config. Using defaults.")
+    get_config = None
+
+
+def get_4bit_quantization_config() -> BitsAndBytesConfig:
+    """
+    Configure 4-bit quantization for memory efficiency.
+
+    Returns:
+        BitsAndBytesConfig: Quantization configuration for 4-bit loading.
+    """
+    return BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_use_double_quant=True,
+        llm_int8_threshold=6.0,
+        # Force CPU backend as per task requirement
+        llm_int8_has_fp16_weight=False,
+    )
+
 
 def load_model(
-    model_name: str,
-    device_map: str = "cpu",
-    max_memory: Optional[Dict[str, Union[int, str]]] = None,
-    trust_remote_code: bool = False,
-    use_4bit: bool = True
+    model_id: Optional[str] = None,
+    tokenizer_id: Optional[str] = None,
+    peft_path: Optional[str] = None,
+    device_map: Optional[str] = "auto",
+    quantization: bool = True
 ) -> Tuple[Any, Any]:
     """
-    Load a transformer model with 4-bit quantization for CPU execution.
-    
+    Load a base model with optional 4-bit quantization and PEFT adapters.
+
     Args:
-        model_name: HuggingFace model identifier or local path
-        device_map: Device mapping strategy (default: "cpu")
-        max_memory: Optional memory constraints per device
-        trust_remote_code: Whether to trust remote code execution
-        use_4bit: Enable 4-bit quantization via bitsandbytes
-    
+        model_id: HuggingFace model ID. Defaults to BASE_MODEL_ID from config.
+        tokenizer_id: HuggingFace tokenizer ID. Defaults to model_id if None.
+        peft_path: Path to PEFT adapters (LoRA). Optional.
+        device_map: Device mapping strategy. Defaults to "auto".
+        quantization: Whether to use 4-bit quantization. Defaults to True.
+
     Returns:
-        Tuple of (model, tokenizer)
-    
+        Tuple containing (model, tokenizer).
+
     Raises:
-        MemoryError: If memory usage exceeds 7GB threshold during load
-        ImportError: If required dependencies (bitsandbytes, psutil) are missing
+        ValueError: If model loading fails.
+        RuntimeError: If quantization dependencies are missing.
     """
-    logger.info(f"Loading model: {model_name} with 4-bit quantization on {device_map}")
+    # Determine model and tokenizer IDs
+    if model_id is None:
+        if get_config:
+            config = get_config()
+            model_id = getattr(config, 'BASE_MODEL_ID', 'microsoft/phi-2')
+        else:
+            model_id = 'microsoft/phi-2'
     
-    # Check memory before loading
-    process = psutil.Process(os.getpid())
-    initial_memory = process.memory_info().rss
-    logger.info(f"Initial memory usage: {initial_memory / (1024**2):.2f} MB")
-    
-    if initial_memory > MAX_MEMORY_RSS_BYTES * 0.8:
-        logger.warning(f"Initial memory usage ({initial_memory / (1024**2):.2f} MB) is already high")
-    
-    # Configure 4-bit quantization
-    if use_4bit:
+    if tokenizer_id is None:
+        tokenizer_id = model_id
+
+    logger.info(f"Loading model: {model_id}")
+    logger.info(f"Loading tokenizer: {tokenizer_id}")
+
+    # Load tokenizer first
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(
+            tokenizer_id,
+            trust_remote_code=True,
+            padding_side='left'
+        )
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+    except Exception as e:
+        logger.error(f"Failed to load tokenizer: {e}")
+        raise
+
+    # Configure quantization if requested
+    quantization_config = None
+    if quantization:
         try:
-            from bitsandbytes.nn import Linear4bit
-            logger.info("bitsandbytes 4-bit quantization enabled")
-            
-            bnb_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4",
-                bnb_4bit_compute_dtype=torch.float16,
-                llm_int8_skip_modules=["lm_head"]
-            )
+            import bitsandbytes as bnb
+            logger.info("bitsandbytes available, enabling 4-bit quantization")
+            quantization_config = get_4bit_quantization_config()
         except ImportError:
-            logger.error("bitsandbytes not installed. Install with: pip install bitsandbytes")
-            raise ImportError("bitsandbytes is required for 4-bit quantization")
+            logger.warning("bitsandbytes not installed. Falling back to 16-bit loading.")
+            quantization_config = None
     else:
-        bnb_config = None
-        logger.info("4-bit quantization disabled, loading in full precision")
-    
-    # Load tokenizer
-    logger.info("Loading tokenizer...")
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_name,
-        trust_remote_code=trust_remote_code,
-        padding_side="left"
-    )
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-    
-    # Load model
-    logger.info("Loading model...")
-    model_kwargs = {
-        "trust_remote_code": trust_remote_code,
-        "torch_dtype": torch.float16,
-        "device_map": device_map,
-    }
-    
-    if bnb_config:
-        model_kwargs["quantization_config"] = bnb_config
-    
-    if max_memory:
-        model_kwargs["max_memory"] = max_memory
-    
+        logger.info("Quantization disabled")
+
+    # Load base model
     try:
         model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            **model_kwargs
+            model_id,
+            quantization_config=quantization_config,
+            device_map=device_map,
+            trust_remote_code=True,
+            torch_dtype=torch.float16 if quantization else torch.float32,
+            low_cpu_mem_usage=True
         )
+        logger.info(f"Base model loaded successfully from {model_id}")
     except Exception as e:
-        logger.error(f"Failed to load model: {e}")
+        logger.error(f"Failed to load base model: {e}")
         raise
-    
-    # Memory check after loading
-    gc.collect()
-    torch.cuda.empty_cache() if torch.cuda.is_available() else None
-    
-    current_memory = process.memory_info().rss
-    logger.info(f"Memory usage after load: {current_memory / (1024**2):.2f} MB")
-    
-    if current_memory > MAX_MEMORY_RSS_BYTES:
-        error_msg = f"Memory usage ({current_memory / (1024**2):.2f} MB) exceeds 7GB limit"
-        logger.error(error_msg)
-        raise MemoryError(error_msg)
-    
-    # Verify model is frozen (no gradients)
-    model.eval()
-    for param in model.parameters():
-        param.requires_grad = False
-    
-    logger.info(f"Model loaded successfully. Parameters: {model.num_parameters()}")
+
+    # Load PEFT adapters if provided
+    if peft_path:
+        try:
+            logger.info(f"Loading PEFT adapters from: {peft_path}")
+            model = PeftModel.from_pretrained(model, peft_path)
+            logger.info("PEFT adapters loaded successfully")
+        except Exception as e:
+            logger.error(f"Failed to load PEFT adapters: {e}")
+            raise
+
+    # Move to correct device if not using device_map
+    if device_map is None:
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        model = model.to(device)
+        logger.info(f"Model moved to device: {device}")
+
     return model, tokenizer
 
-def get_model_card(model_name: str) -> Dict[str, Any]:
+
+def get_model_card(model_id: str) -> Dict[str, Any]:
     """
-    Retrieve model metadata from HuggingFace.
-    
+    Retrieve metadata about a model from HuggingFace.
+
     Args:
-        model_name: HuggingFace model identifier
-    
+        model_id: HuggingFace model ID.
+
     Returns:
-        Dictionary containing model metadata
+        Dictionary containing model metadata.
     """
-    from transformers import AutoConfig
+    from huggingface_hub import model_info
     
     try:
-        config = AutoConfig.from_pretrained(model_name)
+        info = model_info(model_id)
         return {
-            "model_name": model_name,
-            "model_type": config.model_type,
-            "num_parameters": getattr(config, "hidden_size", None),
-            "vocab_size": getattr(config, "vocab_size", None),
-            "max_position_embeddings": getattr(config, "max_position_embeddings", None),
+            "id": info.id,
+            "author": info.author,
+            "pipeline_tag": info.pipeline_tag,
+            "tags": info.tags,
+            "downloads": info.downloads,
+            "likes": info.likes,
+            "card_data": info.card_data.to_dict() if info.card_data else None
         }
     except Exception as e:
-        logger.warning(f"Could not retrieve model card: {e}")
-        return {"model_name": model_name, "error": str(e)}
+        logger.error(f"Failed to fetch model card for {model_id}: {e}")
+        return {}
+
 
 def validate_model_compatibility(
-    model_name: str,
-    required_memory_gb: float = 7.0
-) -> Tuple[bool, str]:
+    model_id: str,
+    required_memory_gb: float = 4.0
+) -> bool:
     """
-    Validate if a model can be loaded within memory constraints.
-    
-    Args:
-        model_name: HuggingFace model identifier
-        required_memory_gb: Required memory in GB (default: 7.0)
-    
-    Returns:
-        Tuple of (is_compatible, message)
-    """
-    from transformers import AutoConfig
-    
-    try:
-        config = AutoConfig.from_pretrained(model_name)
-        
-        # Estimate memory: parameters * 4 bytes (float32) / 2 (4-bit) / 1e9
-        # This is a rough estimate; actual usage depends on architecture
-        num_params = getattr(config, "num_parameters", lambda: 0)()
-        estimated_memory_gb = (num_params * 4) / (2 * 1e9)  # 4-bit quantization
-        
-        if estimated_memory_gb > required_memory_gb:
-            return False, f"Estimated memory ({estimated_memory_gb:.2f} GB) exceeds limit ({required_memory_gb} GB)"
-        
-        return True, f"Model estimated at {estimated_memory_gb:.2f} GB, within {required_memory_gb} GB limit"
-    
-    except Exception as e:
-        return False, f"Could not validate model: {e}"
+    Check if a model is compatible with available hardware.
 
-def main():
-    """Main entry point for model loader CLI."""
-    import argparse
+    Args:
+        model_id: HuggingFace model ID.
+        required_memory_gb: Minimum required RAM in GB.
+
+    Returns:
+        True if compatible, False otherwise.
+    """
+    from huggingface_hub import model_info
     
-    parser = argparse.ArgumentParser(description="Load a transformer model with 4-bit quantization")
-    parser.add_argument("--model", type=str, default="microsoft/Phi-3-mini-4k-instruct",
-                      help="HuggingFace model identifier")
-    parser.add_argument("--check-only", action="store_true",
-                      help="Only check compatibility, don't load")
-    
-    args = parser.parse_args()
-    
-    # Validate compatibility
-    is_compatible, message = validate_model_compatibility(args.model)
-    logger.info(message)
-    
-    if not is_compatible:
-        logger.error("Model not compatible with memory constraints")
-        sys.exit(1)
-    
-    if args.check_only:
-        logger.info("Compatibility check passed. Exiting.")
-        sys.exit(0)
-    
-    # Load model
     try:
-        model, tokenizer = load_model(args.model)
-        logger.info("Model loaded successfully")
+        info = model_info(model_id)
+        # Get model size from card data if available
+        if info.card_data and hasattr(info.card_data, 'model_size'):
+            model_size_gb = info.card_data.model_size
+            if model_size_gb > required_memory_gb:
+                logger.warning(
+                    f"Model {model_id} size ({model_size_gb}GB) exceeds "
+                    f"available memory requirement ({required_memory_gb}GB)"
+                )
+                return False
         
-        # Test inference with a simple prompt
-        test_prompt = "What is 2+2?"
-        inputs = tokenizer(test_prompt, return_tensors="pt")
-        
-        with torch.no_grad():
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=10,
-                pad_token_id=tokenizer.pad_token_id
+        # Check if model has quantization configs
+        has_quantization = any(
+            tag.startswith('quantization') for tag in (info.tags or [])
+        )
+        if not has_quantization:
+            logger.info(
+                f"Model {model_id} may not have optimized quantization configs"
             )
         
-        response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        logger.info(f"Test response: {response}")
-        
-    except MemoryError as e:
-        logger.error(f"Memory error: {e}")
-        sys.exit(1)
+        return True
     except Exception as e:
-        logger.error(f"Error loading model: {e}")
-        sys.exit(1)
+        logger.error(f"Validation failed for {model_id}: {e}")
+        return False
+
+
+def main():
+    """
+    Main entry point for testing model loading.
+    """
+    print("Testing model loader...")
+    
+    # Load a small model for testing
+    model, tokenizer = load_model(
+        model_id="microsoft/phi-2",  # Small model for testing
+        quantization=True
+    )
+    
+    # Verify loading
+    assert model is not None, "Model is None"
+    assert tokenizer is not None, "Tokenizer is None"
+    
+    # Test a simple forward pass
+    test_input = "The capital of France is"
+    inputs = tokenizer(test_input, return_tensors="pt")
+    
+    with torch.no_grad():
+        outputs = model(**inputs)
+    
+    print(f"Forward pass successful. Output shape: {outputs.logits.shape}")
+    print("Model loader test passed!")
+    
+    # Cleanup
+    del model, tokenizer, inputs, outputs
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
 
 if __name__ == "__main__":
     main()

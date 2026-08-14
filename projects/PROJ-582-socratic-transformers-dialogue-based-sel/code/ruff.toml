@@ -1,32 +1,37 @@
-# Ruff configuration for PROJ-582
-# This file is redundant with pyproject.toml but explicitly requested by T003
-# to ensure legacy tooling compatibility.
-
-line-length = 100
-target-version = "py310"
+# Ruff configuration for Socratic Transformers project
+# Enforces strict linting and formatting rules consistent with project standards
 
 [lint]
+# Enable specific rule sets
 select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-    "UP",
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "RUF", # Ruff-specific rules
 ]
 ignore = [
-    "E501",
-    "B008",
-    "C901",
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in ML configs)
+    "C901", # Too complex (temporary relaxation for complex ML logic)
 ]
 
 [lint.isort]
 known-first-party = ["src", "tests"]
-force-sort-within-sections = true
+force-to-top = ["src"]
+lines-after-imports = 2
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/**/*.py" = ["S101", "E501"]
-"src/utils/model_loader.py" = ["B028"]
-"src/train/train_loop.py" = ["S105", "S106"]
+# Allow specific exceptions for test files and scripts
+"tests/**/*.py" = ["S101", "S311"] # Skip assert and random usage warnings in tests
+"src/data/*.py" = ["B028"] # Skip stacklevel warnings in data loading scripts
+
+[format]
+# Consistent with Black formatting
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

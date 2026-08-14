@@ -112,7 +112,7 @@ projects/PROJ-582-socratic-transformers-dialogue-based-sel/
 |-----------|------------|-------------------------------------|
 | **Three-Condition Design** | Required by FR-006 and FR-007 to isolate the effect of *content* vs. *token count*. | A two-condition design (Selection vs. Static) would fail to distinguish between "adversarial signal" and "mere presence of extra tokens," violating the ablation requirement. |
 | **4-bit Quantization + LoRA** | Required by FR-003 to fit on 7GB RAM CPU. | Full fine-tuning or 16-bit quantization would exceed RAM limits on free-tier runners, causing OOM failures. |
-| **Streaming Data** | Required to handle large datasets (MATH) without exceeding 14GB disk/RAM. | Loading full datasets into memory is infeasible; streaming ensures we can process the real data or sample it cleanly. |
+| **Streaming Data** | Required to handle large datasets (MATH) without exceeding available disk/RAM constraints. | Loading full datasets into memory is infeasible; streaming ensures we can process the real data or sample it cleanly. |
 | **Independent T-Test** | Required by statistical rigor (samples are independent across conditions). | Paired t-tests are invalid as the models and training sets are distinct. |
 
 ## Phase Plan

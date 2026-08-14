@@ -1,24 +1,12 @@
-T001a:
+T001c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The response contains only the task description and no actual `ls -R` output
-    or any other proof that the specified directories were created; therefore we cannot
-    verify that the required directory tree exists. The implementer must provide concrete
-    evidence (e.g., a recursive directory listing) showing all listed folders are
-    present.
-T001b:
+  r: No directory listings or evidence of the `data/raw/`, `data/processed/`, and
+    `data/results/` folders were provided; the implementer did not include the required
+    `ls -R data` output to confirm their existence.
+T002:
   c: false
-  h: e07d1399c6da2ac8b742d6f7b9aed80b36692b93d5e4532abdb8a6fca0027f35
-  r: The evidence shows that `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
-    does not exist, even though the task explicitly requires this file (and its sibling
-    `src/__init__.py` and `tests/__init__.py`) at that path. The missing `requirements.txt`
-    means the verification step fails. The implementer must create the required file
-    (and ensure the other two files are also present at the specified location).
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the `data/raw/`, `data/processed/`, and
-    `data/results/` directories (or the required `.gitkeep` placeholder files) actually
-    exist in the repository. Without these artifacts, the task requirement is not
-    satisfied. The implementer must add the three directories and place a `.gitkeep`
-    file in each (or otherwise demonstrate their presence).
+  h: 13d3972d21abece3364ab0b4636b00ceca8c80c8849b26f9e3e72eae82eec641
+  r: The required `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
+    file does not exist, so the specified dependencies are not initialized at the
+    correct location. The existing `code/requirements.txt` is irrelevant to the task.

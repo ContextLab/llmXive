@@ -893,3 +893,341 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T15:53:50Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: GSM8K dataset location openai/gsm8k
+  claim_id: c_cc5f8da5
+  context: 'Implement verify_datasets.py in src/data/verify_datasets.py: Record checksums
+    for GSM8K (openai/gsm8k) and MATH (hendrycks/math) in state/ manifest'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: https://github.com/openai/grade-school-math'
+      source_id: Q121360456
+      url: https://www.wikidata.org/wiki/Q121360456
+      value: https://github.com/openai/grade-school-math
+    filled: true
+  kind: entity_fact
+  raw_text: GSM8K is available at openai/gsm8k
+  resolved_value: https://github.com/openai/grade-school-math
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T06:44:30Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: MATH dataset location hendrycks/math
+  claim_id: c_f512d987
+  context: 'Implement verify_datasets.py in src/data/verify_datasets.py: Record checksums
+    for GSM8K (openai/gsm8k) and MATH (hendrycks/math) in state/ manifest'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MATH_dataset_location_hendrycks/math
+  kind: entity_fact
+  raw_text: MATH is available at hendrycks/math
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:44:56Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Critic model size limit 7GB RAM with 4-bit quantization
+  claim_id: c_c7637451
+  context: 'Download/Load Frozen Critic Model in src/data/critic_loader.py: acquire
+    a frozen, pre-trained small model that fits in 7GB RAM with 4-bit quantization'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model must fit in 7GB RAM with 4-bit quantization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:45:20Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Model generation temperature 0.7
+  claim_id: c_48986ebf
+  context: 'Generate Revised Answer: Generates a revised_answer by prompting the model
+    with the template: Critique: {critique}. Revised Answer: with Temperature=0.7
+    and Max Retries=3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model generation uses a Temperature of 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:45:42Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Model generation max retries 3
+  claim_id: c_121547f6
+  context: 'Generate Revised Answer: Generates a revised_answer by prompting the model
+    with the template: Critique: {critique}. Revised Answer: with Temperature=0.7
+    and Max Retries=3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model generation uses a maximum of 3 retries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:46:10Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Quality gate discards dialogues with critique length less than 20 tokens
+  claim_id: c_a8a3feed
+  context: 'Quality Gate: Applies a quality gate: Discard dialogues where critique
+    length < 20 tokens or lacks logical keywords'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quality_gate_discards_dialogues_with_critique_length_less_th
+  kind: magnitude
+  raw_text: Dialogues are discarded if critique length is less than 20 tokens
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:46:39Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: LoRA batch size less than or equal to 2
+  claim_id: c_0dc5a116
+  context: "Implement LoRA configuration in src/train/lora_config.py with batch_size\
+    \ \u2264 2, gradient_accumulation_steps = 4, and 4-bit quantization (FR-003)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LoRA_batch_size_less_than_or_equal_to_2
+  kind: magnitude
+  raw_text: The LoRA configuration uses a batch size less than or equal to 2
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:47:53Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: LoRA gradient accumulation steps 4
+  claim_id: c_af98756a
+  context: "Implement LoRA configuration in src/train/lora_config.py with batch_size\
+    \ \u2264 2, gradient_accumulation_steps = 4, and 4-bit quantization (FR-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The LoRA configuration uses 4 gradient accumulation steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:48:26Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Training loop hard timeout 5 hours
+  claim_id: c_3d994ae1
+  context: Implement CPU-safe training loop in src/train/train_loop.py with a hard
+    timeout of 5 hours using signal.signal(signal.SIGALRM, timeout_handler)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop has a hard timeout of 5 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:48:54Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Memory monitoring samples RSS every 5 seconds
+  claim_id: c_cfea24d9
+  context: Implement memory monitoring using psutil to sample the training process
+    RSS every 5 seconds; log warnings if RSS > 6.5GB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory monitoring samples the training process RSS every 5 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:49:27Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Memory warning threshold 6.5GB
+  claim_id: c_86c79e36
+  context: Implement memory monitoring using psutil to sample the training process
+    RSS every 5 seconds; log warnings if RSS > 6.5GB
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A warning is logged if memory RSS exceeds 6.5GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:49:38Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha 0.025
+  claim_id: c_96843844
+  context: "Perform Independent t-tests (Selection vs. Ablation, Selection vs. Static)\
+    \ with Bonferron correction (\u03B1 = 0.025)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Independent t-tests use a Bonferroni corrected alpha of 0.025
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:49:54Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: AQL Engine addresses Ada Lovelace Reviews 2026-05-17 to 2026-05-31
+  claim_id: c_ba962d2b
+  context: 'Addresses Ada Lovelace Reviews: 2026-05-17, 2026-05-18, 2026-05-19, 2026-05-30,
+    2026-05-31'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The AQL Engine implementation addresses Ada Lovelace Reviews from 2026-05-17,
+    2026-05-18, 2026-05-19, 2026-05-30, and 2026-05-31
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:50:10Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Knowledge Gap Verification addresses Alan Turing Review 2026-05-17
+  claim_id: c_acfbc7c9
+  context: 'Addresses Alan Turing Review: 2026-05-17'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Knowledge Gap Verification implementation addresses Alan Turing Review
+    from 2026-05-17
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:50:34Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Instruction vs. Memorization Filter addresses Alan Turing Review 2026-05-19
+  claim_id: c_cfd8a1c4
+  context: 'Addresses Alan Turing Review: 2026-05-19'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Instruction vs. Memorization Filter implementation addresses Alan
+    Turing Review from 2026-05-19
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:50:50Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Worked Dialogue Example Generator addresses Alan Turing Review 2026-05-30
+  claim_id: c_f2e1f7cf
+  context: 'Addresses Alan Turing Review: 2026-05-30'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Worked Dialogue Example Generator implementation addresses Alan Turing
+    Review from 2026-05-30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:51:31Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Productive Ignorance Metric addresses Dan Rockmore Review 2026-05-31
+  claim_id: c_35006f5a
+  context: 'Addresses Dan Rockmore Review: 2026-05-31'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Productive Ignorance Metric implementation addresses Dan Rockmore
+    Review from 2026-05-31
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:51:55Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: System 2 Calibration Checkpoint addresses Daniel Kahneman Reviews 2026-05-17
+    and 2026-05-19
+  claim_id: c_8768e133
+  context: 'Addresses Daniel Kahneman Review: 2026-05-17, 2026-05-19'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The System 2 Calibration Checkpoint implementation addresses Daniel Kahneman
+    Reviews from 2026-05-17 and 2026-05-19
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:52:07Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Heuristic Randomization addresses Daniel Kahneman Review 2026-05-19
+  claim_id: c_577c8c46
+  context: 'Addresses Daniel Kahneman Review: 2026-05-19'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Heuristic Randomization implementation addresses Daniel Kahneman Review
+    from 2026-05-19
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:52:32Z'
+- artifact_path: projects/PROJ-582-socratic-transformers-dialogue-based-sel/specs/001-socratic-transformers-dialogue-based-sel/tasks.md
+  attempts: 1
+  canonical: Problem Statement & Terminology refactor addresses David Krakauer Review
+    2026-06-29
+  claim_id: c_342d6ab4
+  context: 'Addresses David Krakauer Review: 2026-06-29'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Problem Statement & Terminology refactor addresses David Krakauer
+    Review from 2026-06-29
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T06:52:52Z'

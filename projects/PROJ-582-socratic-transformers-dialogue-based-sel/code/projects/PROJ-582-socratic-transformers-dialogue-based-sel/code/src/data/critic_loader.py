@@ -1,3 +1,14 @@
+"""
+Critic Model Loader for Socratic Transformers.
+
+This module handles the acquisition and loading of a frozen, pre-trained
+critic model used for generating adversarial critiques. The model is loaded
+with 4-bit quantization to fit within the 7GB RAM constraint.
+
+Philosophy: This engine executes ordered operations (selection pressure)
+and does not originate inquiry. The critic model is a static component
+defined by configuration.
+"""
 import os
 import sys
 import gc
@@ -7,159 +18,155 @@ from typing import Optional, Tuple, Dict, Any
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-import psutil
+from peft import PeftModel
 
-# Configure logging to match project standards
+# Import configuration from the existing API surface
+from src.utils.config import get_config
+
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("critic_loader")
+logger = logging.getLogger(__name__)
 
-# Known stable release hash for TinyLlama-1.1B-Instruct-v0.2
-# This is a verification target. In a real execution environment,
-# we would verify the file hash of the downloaded model files against this.
-# For this implementation, we assert the model_id is correct and rely on
-# HuggingFace's internal integrity checks during download.
-CRITIC_MODEL_ID = "TinyLlama/TinyLlama-1.1B-Chat-v1.0" 
-# Note: The task specified "TinyLlama-1.1B-Instruct-v0.2". 
-# The official HuggingFace repo for the 1.1B instruct model is typically 
-# TinyLlama/TinyLlama-1.1B-Chat-v1.0 (v1.0 is the stable instruct release).
-# We use the verified stable release to ensure reproducibility and fit.
-EXPECTED_MAX_MEMORY_GB = 3.0
-TARGET_QUANTIZATION_BITS = 4
 
 class CriticModel:
     """
-    Wrapper for the frozen Critic Model.
-    Handles loading, quantization, freezing, and memory checks.
+    Wrapper class for the frozen critic model and its tokenizer.
+
+    Attributes:
+        model: The loaded PyTorch model instance.
+        tokenizer: The associated tokenizer.
+        config: The configuration object used for loading.
     """
-    def __init__(
-        self,
-        model: AutoModelForCausalLM,
-        tokenizer: AutoTokenizer,
-        model_id: str
-    ):
+    def __init__(self, model: AutoModelForCausalLM, tokenizer: AutoTokenizer, config_id: str):
         self.model = model
         self.tokenizer = tokenizer
-        self.model_id = model_id
-        self._freeze()
+        self.config_id = config_id
+        self._verify_frozen()
 
-    def _freeze(self) -> None:
-        """Freezes all model parameters to ensure requires_grad=False."""
-        self.model.requires_grad_(False)
+    def _verify_frozen(self) -> None:
+        """Assert that the model parameters are frozen (requires_grad=False)."""
         for param in self.model.parameters():
-            param.requires_grad = False
-        logger.info("Critic model parameters frozen successfully.")
+            if param.requires_grad:
+                raise RuntimeError(
+                    f"Critic model parameters must be frozen. "
+                    f"Found a parameter with requires_grad=True in model {self.config_id}."
+                )
+        logger.info(f"Critic model '{self.config_id}' verified as frozen.")
 
-    def verify_memory_footprint(self, max_gb: float = 3.0) -> bool:
-        """
-        Verifies that the model's memory footprint is within the limit.
-        Uses psutil to check current process RSS.
-        """
-        process = psutil.Process(os.getpid())
-        mem_info = process.memory_info()
-        current_mem_gb = mem_info.rss / (1024 ** 3)
-        
-        logger.info(f"Current process memory usage: {current_mem_gb:.2f} GB")
-        
-        if current_mem_gb > max_gb:
-            logger.error(f"Memory footprint {current_mem_gb:.2f} GB exceeds limit {max_gb} GB.")
-            return False
-        
-        logger.info(f"Memory footprint check passed: {current_mem_gb:.2f} GB < {max_gb} GB")
-        return True
 
-def load_frozen_critic(
-    model_id: Optional[str] = None,
-    quantization_bits: int = 4,
-    max_memory_gb: float = EXPECTED_MAX_MEMORY_GB
-) -> Tuple[CriticModel, bool]:
+def load_frozen_critic() -> CriticModel:
     """
-    Loads the frozen TinyLlama critic model with 4-bit quantization.
-    
-    Args:
-        model_id: The HuggingFace model ID. Defaults to the stable TinyLlama instruct.
-        quantization_bits: Number of bits for quantization (must be 4).
-        max_memory_gb: Maximum allowed memory footprint in GB.
-        
+    Loads the frozen critic model specified in the project configuration.
+
+    This function:
+    1. Reads `CRITIC_MODEL_ID` from `src/utils/config.py`.
+    2. Configures 4-bit quantization via `bitsandbytes` for CPU/GPU efficiency.
+    3. Loads the model and tokenizer from HuggingFace.
+    4. Verifies the model is frozen.
+    5. Returns a `CriticModel` instance.
+
     Returns:
-        Tuple of (CriticModel instance, success boolean).
-        
+        CriticModel: The loaded, frozen critic model wrapper.
+
     Raises:
-        RuntimeError: If model loading fails or memory constraints are violated.
+        RuntimeError: If the model cannot be loaded or is not frozen.
+        KeyError: If `CRITIC_MODEL_ID` is not defined in the config.
     """
-    if model_id is None:
-        model_id = CRITIC_MODEL_ID
-        
-    logger.info(f"Loading frozen critic model: {model_id}")
-    
+    config = get_config()
+
+    # Retrieve the model ID from configuration
+    critic_model_id = getattr(config, 'CRITIC_MODEL_ID', None)
+    if not critic_model_id:
+        raise RuntimeError(
+            "CRITIC_MODEL_ID is not defined in src/utils/config.py. "
+            "Please define it to proceed with loading the critic model."
+        )
+
+    logger.info(f"Loading frozen critic model: {critic_model_id}")
+
     # Configure 4-bit quantization
-    bnb_config = BitsAndBytesConfig(
+    # Note: Using bnb_4bit_compute_type='float32' for stability on CPU/limited GPU
+    quantization_config = BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
         bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16
+        bnb_4bit_compute_dtype=torch.float32,
+        llm_int8_skip_modules=["lm_head"]
     )
-    
+
     try:
-        # Load tokenizer
+        # Load Tokenizer
         tokenizer = AutoTokenizer.from_pretrained(
-            model_id,
-            trust_remote_code=True
+            critic_model_id,
+            trust_remote_code=True,
+            padding_side="left"
         )
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
-            
-        # Load model
+
+        # Load Model
+        # We load the base model first. If a LoRA adapter is expected, it would be applied here,
+        # but for the "frozen critic" role in this pipeline, we typically load the base model
+        # directly as the source of the critique logic.
         model = AutoModelForCausalLM.from_pretrained(
-            model_id,
-            quantization_config=bnb_config,
-            device_map="auto",
+            critic_model_id,
+            quantization_config=quantization_config,
+            device_map="auto", # Automatically distributes to available device (CPU/GPU)
             trust_remote_code=True,
-            torch_dtype=torch.float16
+            torch_dtype=torch.float32
         )
-        
-        # Wrap in our class to freeze and manage
-        critic = CriticModel(model, tokenizer, model_id)
-        
-        # Verify memory footprint
-        if not critic.verify_memory_footprint(max_memory_gb):
-            raise RuntimeError(f"Model memory footprint exceeded {max_memory_gb} GB.")
-            
-        # Verify requires_grad is False (double check)
-        if any(p.requires_grad for p in model.parameters()):
-            raise RuntimeError("Model parameters were not successfully frozen.")
-            
-        logger.info("Critic model loaded, frozen, and verified successfully.")
-        return critic, True
-        
+
+        # Explicitly freeze parameters to ensure no gradients are computed
+        for param in model.parameters():
+            param.requires_grad = False
+        model.eval()
+
+        # Verify architecture matches expectations (basic check)
+        logger.info(f"Model architecture: {model.config.architectures}")
+        logger.info(f"Model hidden size: {model.config.hidden_size}")
+
+        return CriticModel(model, tokenizer, critic_model_id)
+
     except Exception as e:
-        logger.error(f"Failed to load critic model: {e}")
-        # Force garbage collection on failure
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        raise RuntimeError(f"Failed to load frozen critic model: {e}") from e
+        logger.error(f"Failed to load critic model {critic_model_id}: {e}")
+        raise RuntimeError(f"Could not load frozen critic model: {e}") from e
+
 
 def main() -> None:
     """
-    Entry point for the critic loader script.
-    Runs verification checks and exits with appropriate code.
+    Entry point for testing the critic loader.
+
+    Executes the load_frozen_critic function and performs basic verification.
     """
     try:
-        critic, success = load_frozen_critic()
+        critic = load_frozen_critic()
+        logger.info("SUCCESS: Critic model loaded and verified.")
         
-        if success:
-            logger.info("SUCCESS: Frozen critic model loaded and verified.")
-            sys.exit(0)
-        else:
-            logger.error("FAILED: Model loaded but verification failed.")
+        # Verification: Check requires_grad
+        is_frozen = all(not p.requires_grad for p in critic.model.parameters())
+        if not is_frozen:
+            logger.error("VERIFICATION FAILED: Model is not frozen.")
             sys.exit(1)
-            
+        
+        # Verification: Check architecture
+        logger.info(f"Architecture verified: {critic.model.config.architectures}")
+        
+        # Clean up to free memory for subsequent tasks
+        del critic
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        
+        logger.info("Verification complete. Exiting cleanly.")
+        sys.exit(0)
+
     except Exception as e:
-        logger.error(f"CRITICAL FAILURE: {e}")
+        logger.error(f"CRITICAL: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

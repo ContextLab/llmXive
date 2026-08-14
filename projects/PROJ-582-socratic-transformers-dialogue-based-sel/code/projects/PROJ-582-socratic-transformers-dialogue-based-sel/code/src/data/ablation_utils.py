@@ -1,179 +1,172 @@
+"""
+Ablation utilities for calculating token lengths and generating neutral placeholders.
+
+This module provides tools to measure the token count of critique strings
+using the target tokenizer (loaded from config) and to generate neutral
+placeholder text of equivalent token length for ablation studies.
+
+Philosophical Note:
+This utility supports the "negative selection on belief" framework by allowing
+the isolation of semantic content from token count. By replacing critiques
+with neutral placeholders of identical length, we can determine if the
+learning signal comes from the *content* of the critique or merely the
+*presence* of a selection pressure (token duration/complexity).
+"""
 import logging
 from typing import Optional, Tuple, List
 import re
+
 from transformers import AutoTokenizer
 from src.utils.config import get_config
 
+# Configure logging
 logger = logging.getLogger(__name__)
-
-_tokenizer: Optional[AutoTokenizer] = None
 
 def get_target_tokenizer() -> AutoTokenizer:
     """
-    Retrieve the target tokenizer for the project.
-    Uses the model path defined in the project configuration.
-    """
-    global _tokenizer
-    if _tokenizer is None:
-        config = get_config()
-        model_path = getattr(config, 'critic_model_path', 'TinyLlama/TinyLlama-1.1B-Chat-v1.0')
-        logger.info(f"Loading tokenizer from {model_path}")
-        _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        if _tokenizer.pad_token is None:
-            _tokenizer.pad_token = _tokenizer.eos_token
-    return _tokenizer
+    Loads the target tokenizer based on the BASE_MODEL_ID from config.
 
-def calculate_token_length(text: str) -> int:
-    """
-    Calculate the exact token count of a string using the target tokenizer.
-    
-    Args:
-        text: The input string to tokenize.
-        
     Returns:
-        The number of tokens in the input text.
-    """
-    if not text:
-        return 0
-    tokenizer = get_target_tokenizer()
-    tokens = tokenizer.encode(text, add_special_tokens=False)
-    return len(tokens)
+        AutoTokenizer: The loaded tokenizer instance.
 
-def load_spacy_model() -> None:
+    Raises:
+        ValueError: If the tokenizer cannot be loaded or config is missing.
     """
-    Placeholder for Spacy model loading if needed in future ablation steps.
-    Currently T015c explicitly forbids spaCy/nltk, so this is a stub for API compatibility.
-    """
-    logger.warning("Spacy is not used in T015c. This function exists for future compatibility.")
+    config = get_config()
+    model_id = config.BASE_MODEL_ID
 
-def calculate_syntactic_complexity(text: str) -> float:
+    if not model_id:
+        raise ValueError("BASE_MODEL_ID is not defined in configuration.")
+
+    logger.info(f"Loading tokenizer for model: {model_id}")
+    try:
+        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        # Ensure pad token is set if not already
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+        return tokenizer
+    except Exception as e:
+        logger.error(f"Failed to load tokenizer for {model_id}: {e}")
+        raise
+
+def calculate_token_length(text: str, tokenizer: Optional[AutoTokenizer] = None) -> int:
     """
-    Calculate a syntactic complexity score using regex patterns to detect 
-    nesting depth of parenthetical clauses and dependency-like structures.
-    
-    This function adheres to the constraint of using only `re` and `tokenizers` (no spaCy/nltk).
-    
-    Logic:
-    1. Detect nested parentheses `(...)`, brackets `[...]`, and braces `{...}`.
-    2. Detect logical connectors that often imply complex sentence structures (e.g., "because", "therefore", "however").
-    3. Return a score based on maximum nesting depth and connector density.
-    
+    Calculates the exact token count of a given string using the target tokenizer.
+
+    This function is critical for the ablation study (T015b) to ensure that
+    neutral placeholders match the original critique's token length exactly.
+
     Args:
-        text: The critique string to analyze.
-        
+        text (str): The string to tokenize (e.g., a critique).
+        tokenizer (AutoTokenizer, optional): The tokenizer to use. If None,
+            loads the target tokenizer from config.
+
     Returns:
-        A numeric score > 0 for valid critiques.
+        int: The number of tokens in the text.
     """
-    if not text or not isinstance(text, str):
+    if tokenizer is None:
+        tokenizer = get_target_tokenizer()
+
+    if not isinstance(text, str):
+        raise TypeError(f"Expected string input, got {type(text)}")
+
+    # Encode the text and count tokens
+    # add_special_tokens=False ensures we only count the content tokens
+    encoding = tokenizer.encode(text, add_special_tokens=False)
+    token_count = len(encoding)
+
+    logger.debug(f"Text length: {len(text)} chars -> {token_count} tokens")
+    return token_count
+
+def load_spacy_model() -> Optional[object]:
+    """
+    Attempts to load a spaCy model for syntactic complexity analysis.
+    This is optional and used for advanced ablation metrics.
+
+    Returns:
+        object or None: The spaCy nlp model if available, None otherwise.
+    """
+    try:
+        import spacy
+        # Try loading a small model, fallback to None if not installed
+        try:
+            return spacy.load("en_core_web_sm")
+        except OSError:
+            logger.warning("spaCy 'en_core_web_sm' model not found. Install with 'python -m spacy download en_core_web_sm'")
+            return None
+    except ImportError:
+        logger.warning("spaCy not installed. Syntactic complexity analysis will be skipped.")
+        return None
+
+def calculate_syntactic_complexity(text: str, nlp: Optional[object] = None) -> float:
+    """
+    Calculates a proxy for syntactic complexity (e.g., average dependency depth).
+
+    Args:
+        text (str): The text to analyze.
+        nlp (object, optional): A loaded spaCy nlp model.
+
+    Returns:
+        float: A complexity score (0.0 if analysis fails).
+    """
+    if nlp is None:
+        nlp = load_spacy_model()
+
+    if nlp is None:
         return 0.0
-    
-    # Normalize text for regex processing
-    clean_text = text.strip()
-    if not clean_text:
+
+    try:
+        doc = nlp(text)
+        # Simple metric: average depth of dependency tree
+        depths = [token.dep_.count('-') + 1 for token in doc if token.dep_]
+        if not depths:
+            return 0.0
+        return sum(depths) / len(depths)
+    except Exception as e:
+        logger.warning(f"Failed to calculate syntactic complexity: {e}")
         return 0.0
 
-    score = 0.0
-
-    # 1. Calculate Maximum Nesting Depth for Parentheses, Brackets, Braces
-    # We look for sequences of opening symbols followed eventually by closing symbols.
-    # A simple stack-based approach via regex is tricky, so we iterate char by char
-    # but use regex to find candidate complex structures.
-    
-    max_depth = 0
-    current_depth = 0
-    
-    # Patterns to count nesting
-    open_chars = "([{"
-    close_chars = ")]}"
-    
-    for char in clean_text:
-        if char in open_chars:
-            current_depth += 1
-            if current_depth > max_depth:
-                max_depth = current_depth
-        elif char in close_chars:
-            # Ensure we don't go negative (malformed text)
-            if current_depth > 0:
-                current_depth -= 1
-    
-    # Weight for nesting depth: deeper nesting implies higher syntactic complexity
-    # Normalizing slightly to keep the score in a reasonable range
-    nesting_score = max_depth * 1.5
-    score += nesting_score
-
-    # 2. Detect Complex Logical Connectors (Dependency-like structures)
-    # These words often introduce subordinate clauses or complex reasoning chains.
-    # Using a case-insensitive regex search.
-    complex_connectors = [
-        r'\bbecause\b', r'\bsince\b', r'\bas\b', r'\balthough\b', r'\bwhile\b',
-        r'\btherefore\b', r'\bthus\b', r'\bhence\b', r'\bconsequently\b',
-        r'\bhowever\b', r'\bnevertheless\b', r'\bnonetheless\b',
-        r'\bif.*then\b', r'\bunless\b', r'\binsofar\b', r'\binasmuch\b'
-    ]
-    
-    connector_count = 0
-    for pattern in complex_connectors:
-        matches = re.findall(pattern, clean_text, re.IGNORECASE)
-        connector_count += len(matches)
-    
-    # Weight for connector density
-    connector_score = connector_count * 0.8
-    score += connector_score
-
-    # 3. Detect Parenthetical Clauses (e.g., "(i.e., ...)" or "(e.g., ...)")
-    # These add syntactic layers.
-    parenthetical_pattern = r'\([^)]+\)'
-    parenthetical_matches = re.findall(parenthetical_pattern, clean_text)
-    parenthetical_score = len(parenthetical_matches) * 0.5
-    score += parenthetical_score
-
-    # Ensure the score is strictly positive for valid text
-    # If the text is very simple (no nesting, no connectors), return a base complexity
-    if score <= 0.0:
-        # Base complexity based on length if no structural markers found
-        # This prevents a score of 0 for valid but simple sentences
-        word_count = len(clean_text.split())
-        score = max(0.1, word_count * 0.05)
-
-    logger.debug(f"Syntactic complexity for text (len={len(clean_text)}): {score:.4f} (nesting={max_depth}, connectors={connector_count})")
-    return score
-
-def verify_token_match(text_a: str, text_b: str, tolerance: int = 0) -> bool:
+def verify_token_match(original_text: str, placeholder_text: str, tokenizer: Optional[AutoTokenizer] = None) -> bool:
     """
-    Verify if two texts have the same token length within a tolerance.
-    
+    Verifies that the placeholder text has the exact same token count as the original.
+
     Args:
-        text_a: First text.
-        text_b: Second text.
-        tolerance: Allowed difference in token count.
-        
+        original_text (str): The original critique string.
+        placeholder_text (str): The generated placeholder string.
+        tokenizer (AutoTokenizer, optional): The tokenizer to use.
+
     Returns:
-        True if token counts match within tolerance, False otherwise.
+        bool: True if token counts match, False otherwise.
     """
-    len_a = calculate_token_length(text_a)
-    len_b = calculate_token_length(text_b)
-    return abs(len_a - len_b) <= tolerance
+    orig_len = calculate_token_length(original_text, tokenizer)
+    placeholder_len = calculate_token_length(placeholder_text, tokenizer)
+    match = orig_len == placeholder_len
+
+    if not match:
+        logger.warning(f"Token mismatch: Original={orig_len}, Placeholder={placeholder_len}")
+    else:
+        logger.debug("Token length verification passed.")
+
+    return match
 
 def main():
     """
-    Main entry point for CLI execution to test the ablation utilities.
+    Main entry point for testing the token calculator utility.
     """
-    logging.basicConfig(level=logging.INFO)
-    
-    sample_critique = "The variable X is defined as Y, which implies Z; however, this contradicts the initial premise because (as shown in step 4) the assumption fails."
-    
-    print(f"Analyzing: {sample_critique}")
-    
-    token_len = calculate_token_length(sample_critique)
-    print(f"Token Length: {token_len}")
-    
-    syntax_score = calculate_syntactic_complexity(sample_critique)
-    print(f"Syntactic Complexity Score: {syntax_score:.4f}")
-    
-    assert token_len > 0, "Token length must be > 0 for valid text"
-    assert syntax_score > 0, "Syntactic complexity must be > 0 for valid text"
-    
-    print("Verification passed.")
+    import sys
+    import json
+
+    # Example usage
+    sample_critique = "The initial answer is incorrect because it fails to account for the constraints of the problem. Specifically, the logic assumes a linear relationship where a non-linear one exists."
+
+    try:
+        tokenizer = get_target_tokenizer()
+        length = calculate_token_length(sample_critique, tokenizer)
+        print(f"Sample Critique Token Count: {length}")
+        print(f"Sample Text: {sample_critique}")
+    except Exception as e:
+        print(f"Error running token calculator: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

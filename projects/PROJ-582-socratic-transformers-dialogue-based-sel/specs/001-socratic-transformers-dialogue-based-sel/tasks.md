@@ -24,10 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project code structure: Create directories `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/data/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/train/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/eval/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/utils/`. **Verification**: Run `ls -R projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src` and assert all directories exist.
-- [ ] T001b [P] Create project test structure: Create directories `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/contract/`, `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests/integration/`. **Verification**: Run `ls -R projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/tests` and assert all directories exist.
-- [ ] T001c [P] Create project data structure: Create directories `data/raw/`, `data/processed/`, `data/results/` at project root. **Verification**: Run `ls -R data` and assert all directories exist.
-- [ ] T002 [P] Initialize Python project with dependencies (`transformers`, `peft`, `bitsandbytes`, `datasets`, `scikit-learn`, `pandas`, `pytest`, `tokenizers`) in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
+- [ ] T001a [P] Create project code root: Create directory `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`. **Verification**: Run `python -c "import os; assert os.path.isdir('projects/PROJ-582-socratic-transformers-dialogue-based-sel/code')"` and assert exit code 0.
+- [ ] T001b [P] Create `src` directory: Create directory `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/`. **Verification**: Run `python -c "import os; assert os.path.isdir('projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src')"` and assert exit code 0.
+- [ ] T001c [P] Create data directories and `.gitkeep`: Create directories `data/raw/`, `data/processed/`, `data/results/` at project root and create `.gitkeep` files in each. **Verification**: Run `python -c "import os; assert os.path.isdir('data/raw') and os.path.isfile('data/raw/.gitkeep')"` and assert exit code 0 for all directories.
+- [ ] T002 [P] Initialize Python project with dependencies (`transformers`, `peft`, `bitsandbytes`, `datasets`, `scikit-learn`, `pandas`, `pytest`, `tokenizers`, `nltk`, `spaCy`) in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
 - [ ] T003 [P] Configure linting and formatting tools: Create `pyproject.toml` and `ruff.toml` in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`. **Verification**: Run `ruff check .` and verify exit code 0.
 
 ---
@@ -38,13 +38,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`, `data/results/`) and `.gitkeep` files (Note: T001c creates dirs, this task adds files).
 - [ ] T005 [P] Implement structured logging utility in `src/utils/logging.py` to handle degenerate dialogue events as JSON lines. **Schema**: Events must follow `{"event_type": str, "timestamp": str, "details": dict}`.
 - [ ] T006 [P] Setup environment configuration management for random seeds and model paths in `src/utils/config.py`. **Requirement**: Define `CRITIC_MODEL_ID` and `BASE_MODEL_ID` here.
 - [ ] T007 [P] Implement base model loader utility in `src/utils/model_loader.py` supporting 4-bit quantization via `bitsandbytes` (CPU backend). **Verification**: Run `python -c "from src.utils.model_loader import load_model; load_model()"` and assert exit code 0.
 - [ ] T008 [P] Implement metric utility in `src/utils/metrics.py` for standard accuracy and loss calculations.
 - [ ] T010 [P] Implement `verify_datasets.py` in `src/data/verify_datasets.py`: Record checksums for GSM8K (`openai/gsm8k`) and MATH (`hendrycks/math`) in `state/` manifest, validate raw data integrity against the manifest before processing. **Verification**: Run script and assert exit code 0 only if checksums match the recorded manifest.
-- [ ] T045 [P] Implement dialogue tuple schema validation in `tests/contract/test_schemas.py`: implement `test_validate_dialogue_schema` to assert JSONL records contain `question`, `initial_answer`, `critique`, and `revised_answer` fields, matching the spec's tuple structure.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,24 +56,31 @@
 
 ### Implementation for User Story 1
 
-- [ ] T046 [P] Download/Load Frozen Critic Model in `src/data/critic_loader.py`: acquire a frozen, pre-trained small model that fits in 7GB RAM with 4-bit quantization. **Logic**: The specific model ID must be read from `src/utils/config.py` (key `CRITIC_MODEL_ID`) to allow for reproducibility and updates. **Verification**: Assert `model.requires_grad = False`, verify the model loads successfully from HuggingFace (cached) using the config ID, and confirm the model architecture matches the config.
+- [ ] T015a [FR-007] Implement complexity calculator in `src/data/ablation_utils.py`: Calculate the **syntactic complexity** of a critique string for natural language text. **Logic**: Implement a function `calculate_complexity(text)` that returns a dict with `token_count` and `ngram_entropy`. `token_count` is the number of tokens using the target tokenizer. `ngram_entropy` is calculated by computing the Shannon entropy of the 2-gram distribution of the text. This replaces the invalid 'AST depth' requirement with a metric valid for natural language. **Dependency**: Requires `nltk` or `spaCy` (from T002).
+- [ ] T046 [P] Download/Load Frozen Critic Model in `src/data/critic_loader.py`: acquire a frozen, pre-trained small model that fits in available memory with 4-bit quantization. **Logic**: The specific model ID must be read from `src/utils/config.py` (key `CRITIC_MODEL_ID`) to allow for reproducibility and updates. **Verification**: Assert `model.requires_grad = False`, verify the model loads successfully from HuggingFace (cached) using the config ID, and confirm the model architecture matches the config.
 - [ ] T012 [P] Implement dataset downloader in `src/data/download.py` fetching GSM8K/MATH via HuggingFace `datasets.load_dataset` (real data requirement). **Verification**: Verify checksums match `state/` manifest.
-- [ ] T015a Implement token length calculator in `src/data/ablation_utils.py`: Calculate the exact token count of a critique string using the target tokenizer from T046. **Dependency**: Requires tokenizer from T046.
 - [ ] T013 [P] Implement static QA extractor in `src/data/static_extractor.py` to generate the baseline dataset (question, answer) from downloaded sources for comparative study (FR-001). **Output**: `data/processed/static_tuples.jsonl`.
 - [ ] T014 [P] Implement self-critique generator in `src/data/generate_dialogue.py` that:
- 1. **Prerequisites**: Depends on T012 (data), T046 (model), T045 (schema), and T015a (token calc).
+ 1. **Prerequisites**: Depends on T012 (data), T046 (model), and T015a (complexity calc).
  2. **Load Model**: Loads the **frozen Critic Model** instance produced by T046 via `load_frozen_critic()`.
- 3. **Generate Critique**: Generates a critique by filling deterministic templates with model-derived evidence.
- 4. **Generate Revised Answer**: Generates a `revised_answer` by prompting the model with the template: "Critique: {critique}. Revised Answer:" with Temperature=0.7 and Max Retries=3.
+ 3. **Generate Critique**: Generates a critique by filling deterministic templates with model-derived evidence. **Prompt Template**: "Identify logical contradictions, unsupported assumptions, or high-probability errors in the following answer: [ANSWER]. Output only the critique."
+ 4. **Generate Revised Answer (Negative Selection)**: Generates a `revised_answer` by:
+    - Generating N=5 candidate answers using Temperature=0.0 (deterministic) to ensure reproducibility.
+    - Scoring each candidate against the generated critique using the Critic Model's likelihood (log-probability).
+    - **Rejecting** any candidate that fails the critique check (i.e., if the critique identifies a specific error, the candidate must not contain that error).
+    - **Selecting** the first candidate that passes the critique check.
+    - If no candidate passes within N attempts, default to a safe fallback answer or mark as `null` (logged).
+    - **Note**: This is a rejection-based selection process (negative selection), not a reinforcement of the initial belief.
  5. **Quality Gate**: Applies a quality gate: Discard dialogues where critique length < 20 tokens or lacks logical keywords. **Regex**: `r'(contradiction|error|incorrect|invalid|fallacy|unsubstantiated|contradicts)'`.
  6. **Integration**: Combines the core generation logic and quality gate into a single execution flow, ensuring the output matches the schema defined in T045.
  7. **Output**: `data/processed/dialogue_tuples.jsonl`.
  **Note**: This task explicitly integrates the model loading (T046) and quality gating logic into a single coherent script as defined in plan.md T014.
-- [ ] T015b [FR-007] Implement ablation data generator in `src/data/ablation.py` replacing critique text with neutral placeholder text of equivalent token length (FR-007). **Logic**:
- - **Placeholder Generation**: Generate a neutral, semantically void placeholder string of exactly N tokens using the tokenizer's pad token or a fixed syntactic pattern repeated to match N tokens.
+- [ ] T015b [FR-007] Implement ablation data generator in `src/data/ablation.py` replacing critique text with neutral placeholder text of equivalent **syntactic complexity** (token count and n-gram entropy) (FR-007). **Logic**:
+ - **Placeholder Generation**: Generate a neutral, semantically void placeholder string that matches the **token count** and **n-gram entropy** of the original critique (calculated by T015a).
  - **Replacement**: Replace the semantic content of the original critique with the generated placeholder.
  - **Output**: `data/processed/ablation_tuples.jsonl`.
  **Note**: This task depends on T014 and T015a completion.
+- [ ] T045 [P] Implement dialogue tuple schema validation in `tests/contract/test_schemas.py`: implement `test_validate_dialogue_schema` to assert JSONL records contain `question`, `initial_answer`, `critique`, and `revised_answer` fields, matching the spec's tuple structure. **Schema Definition**: Records must contain exactly these keys: `question` (str), `initial_answer` (str), `critique` (str), `revised_answer` (str). **Verification**: Run `pytest tests/contract/test_schemas.py` and assert exit code 0. **Dependency**: Requires T014 to have generated sample data for validation.
 
 **Checkpoint**: At this point, User Story 1 is fully functional for Static, Dialogue, and Ablation tuples. **Note**: User Story 2 (Training) requires T015b (Ablation) to be complete as well.
 
@@ -90,8 +95,7 @@
 ### Implementation for User Story 2
 
 - [ ] T020 [P] Implement LoRA configuration in `src/train/lora_config.py` with `batch_size ≤ 2`, `gradient_accumulation_steps = 4`, and 4-bit quantization (FR-003).
-- [ ] T021 Implement CPU-safe training loop in `src/train/train_loop.py` with a hard timeout of **5 hours** using `signal.signal(signal.SIGALRM, timeout_handler)`. **Verification**: Implement memory monitoring using `psutil` to sample the training process RSS every 5 seconds; log warnings if RSS > 6.5GB. Rely on T022 (OOM fallback) if limit is exceeded. Note: Validation data loading for Early Stopping is [deferred] per plan.md, so this check applies to the training batch processing only.
-- [ ] T022 [P] Implement GPU Escape Hatch in `src/train/gpu_offload.py`: Detect OOM errors on CPU, set `CUDA_VISIBLE_DEVICES=0`, Reduce batch size to a minimal value., and re-run training on Kaggle GPU. **Verification**: Simulate OOM and verify script redirects to GPU path with reduced batch size.
+- [ ] T021 Implement CPU-safe training loop in `src/train/train_loop.py` with a hard timeout of **5 hours** using `signal.signal(signal.SIGALRM, timeout_handler)`. **Verification**: Implement memory monitoring using `psutil` to sample the training process RSS at regular intervals; log warnings if RSS > 6.5GB. Rely on execution stage error handling if limit is exceeded. Note: Validation data loading for Early Stopping is [deferred] per plan.md, so this check applies to the training batch processing only.
 - [ ] T047a [P] Implement Condition A (Selection) training run in `src/train/run_selection_train.py`: Fine-tune model on `data/processed/dialogue_tuples.jsonl`. **Output**: `data/results/checkpoint_selection.pt`.
 - [ ] T047b [P] Implement Condition B (Ablation) training run in `src/train/run_ablation_train.py`: Fine-tune model on `data/processed/ablation_tuples.jsonl` (from T015b). **Output**: `data/results/checkpoint_ablation.pt`.
 - [ ] T047c [P] Implement Condition C (Static) training run in `src/train/run_static_train.py`: Fine-tune model on `data/processed/static_tuples.jsonl` (from T013). **Output**: `data/results/checkpoint_static.pt`.
@@ -122,46 +126,12 @@
 
 ---
 
-## Phase 6: Philosophical Alignment & Operational Clarity (Priority: P2 - Review Resolution)
-
-**Goal**: Address Ada Lovelace and Alan Turing concerns regarding "origination" and "learning signals" by explicitly defining the engine as an executor of ordered operations, not an originator of inquiry.
-
-**Independent Test**: Verify that the `research.md` and code comments explicitly distinguish between "engine executing ordered operations" and "origination", and that the critique generation is framed as a deterministic selection pressure rather than spontaneous questioning.
-
-### Implementation for Phase 6
-
-- [ ] T050 [FR-001/Review] Update `src/data/generate_dialogue.py` and `research.md` to explicitly frame the "Socratic" process as **negative selection on belief** (thymic analogy) rather than "self-teaching". **Logic**: Replace all instances of "self-teaching" or "self-generated inquiry" with "ordered execution of adversarial critique templates" and "selection pressure". Add a module-level docstring comment at the top of `src/data/generate_dialogue.py` stating the selectionist philosophy. **Verification**: Check that the docstring exists and uses the correct terminology.
-
-**Checkpoint**: Philosophical alignment achieved; engine clearly defined as executing ordered operations, not originating inquiry.
-
----
-
-## Phase 8: Revision Resolutions - Addressing Prior Research Reviews (Priority: P1)
-
-**Goal**: Address specific concerns raised by Ada Lovelace, Alan Turing, Dan Rockmore, Daniel Kahneman, and David Krakauer regarding origination, knowledge gaps, and operational definitions.
-
-### Implementation for Revision Resolutions
-
-- [ ] T056 [FR-001] Implement **Admissible Question Language (AQL) Engine** in `src/data/aql_engine.py`: Define a formal, deterministic grammar for question generation that prevents the model from "originating" questions. The engine must map internal states to pre-ordained question templates (punch-cards) rather than allowing free-form generation. **Verification**: Assert that all generated questions in the dialogue tuples match a regex pattern derived from the AQL grammar, ensuring no "spontaneous" inquiry occurs. (Addresses Ada Lovelace Reviews: 2026-05-17, 2026-05-18, 2026-05-19, 2026-05-30, 2026-05-31).
-- [ ] T057 [FR-002] Implement **Knowledge Gap Verification** in `src/data/gap_validator.py`: Introduce a consistency check that validates a generated question exposes a genuine uncertainty or logical contradiction before it is accepted into the dialogue tuple. **Verification**: Implement a "truth-against-known" check where the model's answer to a generated question is compared against a ground-truth oracle; if the model answers correctly without hesitation, the question is discarded as trivial. (Addresses Alan Turing Review: 2026-05-17).
-- [ ] T058 [FR-002] Implement **Instruction vs. Memorization Filter** in `src/data/memorization_filter.py`: Add a mechanism to distinguish between learning a principle and merely retrieving a pattern. **Verification**: Implement a threshold-based check on prediction error; the instruction table (model weights) is only updated (via LoRA) if the error exceeds a specific threshold, ensuring the machine is "learning" rather than "recalling". (Addresses Alan Turing Review: 2026-05-19).
-- [ ] T059 [FR-002] Implement **Worked Dialogue Example Generator** in `src/eval/example_generator.py`: Create a script that outputs a detailed, step-by-step trace of a single Socratic dialogue, including the model's internal state changes and attention weights before and after the critique. **Verification**: Generate a markdown report `data/results/worked_example_trace.md` showing the evolution of attention patterns across the dialogue rounds. (Addresses Alan Turing Review: 2026-05-30).
-- [ ] T060 [FR-003] Implement **Productive Ignorance Metric** in `src/utils/ignorance_metrics.py`: Define and calculate a metric for "productive ignorance" where the model explicitly flags the limits of its own context or confidence. **Verification**: The metric must output a score based on the frequency and quality of "I don't know" or uncertainty flags generated by the model during the dialogue, preventing confident errors. (Addresses Dan Rockmore Review: 2026-05-31).
-- [ ] T061 [FR-003] Implement **System 2 Calibration Checkpoint** in `src/data/calibration_checkpoint.py`: Insert a step where the model must produce a confidence rating and compare it to an objective baseline (e.g., Monte-Carlo estimate) before finalizing an answer. **Verification**: Log the discrepancy between the model's confidence and the objective baseline to `data/results/calibration_log.json`. (Addresses Daniel Kahneman Review: 2026-05-17, 2026-05-19).
-- [ ] T062 [FR-003] Implement **Heuristic Randomization** in `src/data/heuristic_randomizer.py`: Randomize the framing of questions or insert "System 2 checkpoints" to mitigate availability heuristics and bias in self-generated questions. **Verification**: Verify that the generated question set exhibits statistical variance in framing that prevents the model from over-emphasizing recent or specific patterns. (Addresses Daniel Kahneman Review: 2026-05-19).
-- [ ] T063 [FR-006] Refactor **Problem Statement & Terminology** in `src/utils/docs/update_spec.py`: Update the documentation to explicitly frame the process as "evolutionary pressure" and "negative selection on belief" rather than "self-teaching" or "instruction". **Verification**: Generate a diff report showing the replacement of "teaching" terminology with "selection" terminology in `spec.md` and `research.md`. (Addresses David Krakauer Review: 2026-06-29).
-
-**Checkpoint**: All reviewer concerns regarding origination, operational definitions, and bias mitigation are now addressed.
-
----
-
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories and address philosophical/operational clarity from reviews.
 
 - [ ] T042 [P] Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
 - [ ] T049 [P] Run `bash projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/quickstart.sh` (or equivalent command) and verify exit code 0 to confirm all quickstart steps execute without error.
-- [ ] T064 [P] Update `research.md` to explicitly distinguish between "engine executing ordered operations" and "origination", noting that AQL and Gap Validation are now implemented features (revising previous deprecation).
 
 ---
 
@@ -174,9 +144,6 @@
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Revision Resolutions (Phase 8)**: Depends on Foundational phase completion; implements specific reviewer feedback.
-- **Philosophical Alignment (Phase 6)**: [DEPRECATED] - No dependencies.
-- **Calibration (Phase 7)**: [DEPRECATED] - No dependencies.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -184,9 +151,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-- **Revision Resolutions (Phase 8)**: Can start after Foundational (Phase 2); tasks may depend on US1 components (e.g., T056 depends on T012/T046).
-- **Philosophical Alignment (Phase 6)**: [DEPRECATED]
-- **Calibration (Phase 7)**: [DEPRECATED]
+- **Polish (Final Phase)**: Can start after Foundational (Phase 2)
 
 ### Within Each User Story
 
@@ -204,8 +169,6 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **Phase 8 (Revision Resolutions)** tasks can run in parallel with User Stories 2 and 3, provided Foundational tasks are complete.
-- **Phase 6 and 7** are deprecated and do not run in parallel.
 
 ---
 
@@ -239,8 +202,7 @@ Task: "Create [Entity2] model in src/models/[entity2].py"
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add Revision Resolutions (Phase 8) → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
+5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -251,7 +213,6 @@ With multiple developers:
  - Developer A: User Story 1
  - Developer B: User Story 2
  - Developer C: User Story 3
- - Developer D: Revision Resolutions (Phase 8)
 3. Stories complete and integrate independently
 
 ---
@@ -265,4 +226,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Scope Decision**: Phase 6 (Philosophical Alignment) and Phase 7 (Calibration) are DEPRECATED for the current MVP. The features (AQL, Gap Validator, Attention Shift, Productive Ignorance, Calibration) are now implemented in **Phase 8** to address specific reviewer concerns regarding operational definitions and bias mitigation.
+- **Scope Decision**: Phase 6 (Philosophical Alignment) and associated tasks (T050-T055) have been REMOVED as they constitute unapproved scope creep not defined in spec.md FR-001 through FR-008.

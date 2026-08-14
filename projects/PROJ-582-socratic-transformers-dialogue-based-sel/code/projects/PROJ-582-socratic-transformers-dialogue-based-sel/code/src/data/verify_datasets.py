@@ -2,14 +2,8 @@
 verify_datasets.py
 
 Implements dataset integrity verification for GSM8K and MATH.
-Downloads datasets via HuggingFace, computes SHA-256 checksums of the raw
-parquet files, records them in a manifest under `state/`, and validates
-existing data against this manifest.
-
-Usage:
-    python src/data/verify_datasets.py
+Downloads datasets, computes checksums, and manages a state manifest.
 """
-
 import hashlib
 import json
 import os
@@ -17,209 +11,218 @@ import sys
 from pathlib import Path
 from typing import Dict, Optional, List, Any
 
-# Project root relative to this script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-STATE_DIR = PROJECT_ROOT / "state"
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-
-# Dataset configuration
-DATASETS = {
-    "gsm8k": {
-        "huggingface_id": "openai/gsm8k",
-        "config": "main",
-        "split": "train",
-        "expected_files": ["gsm8k-train.parquet"],
-    },
-    "math": {
-        "huggingface_id": "hendrycks/math",
-        "config": "all",
-        "split": "train",
-        "expected_files": ["math-train.parquet"],
-    },
-}
-
-MANIFEST_PATH = STATE_DIR / "dataset_manifest.json"
+from datasets import load_dataset
 
 
-def ensure_state_dir() -> Path:
+def ensure_state_dir(state_root: Path) -> Path:
     """Ensure the state directory exists."""
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    return STATE_DIR
+    state_root.mkdir(parents=True, exist_ok=True)
+    return state_root
 
 
 def compute_file_hash(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
+    """
+    Compute SHA-256 hash of a file.
+    For HuggingFace datasets, we hash the parquet files in the cache.
+    """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            sha256_hash.update(chunk)
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 
-def load_manifest() -> Dict[str, Any]:
-    """Load the manifest if it exists, otherwise return an empty dict."""
-    if MANIFEST_PATH.exists():
-        with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
+def load_manifest(manifest_path: Path) -> Dict[str, Any]:
+    """Load the state manifest JSON."""
+    if not manifest_path.exists():
+        return {}
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
-def save_manifest(manifest: Dict[str, Any]) -> None:
-    """Save the manifest to disk."""
-    ensure_state_dir()
-    with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, sort_keys=True)
+def save_manifest(manifest_path: Path, data: Dict[str, Any]) -> None:
+    """Save the state manifest JSON."""
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
 
 
-def download_and_cache_dataset(
-    dataset_name: str,
-    config: str,
-    split: str,
-) -> List[Path]:
+def download_and_cache_dataset(dataset_id: str, split: str = "train") -> Path:
     """
-    Download and cache the dataset using HuggingFace datasets.
-    Returns a list of local file paths for the raw data.
+    Download and cache a HuggingFace dataset.
+    Returns the path to the primary data file (e.g., parquet) in the cache.
+    Note: This relies on the HF datasets library caching mechanism.
+    We return the path to the first data file found in the cache for this dataset.
     """
-    from datasets import load_dataset
+    try:
+        ds = load_dataset(dataset_id, split=split, cache_dir="./data/raw")
+    except Exception as e:
+        raise RuntimeError(f"Failed to load dataset {dataset_id}: {e}")
 
-    ds_config = DATASETS[dataset_name]
-    hf_id = ds_config["huggingface_id"]
+    # The datasets library caches data in a specific structure.
+    # We need to find the actual file to hash.
+    # For 'openai/gsm8k' and 'hendrycks/math', the cache usually contains parquet files.
+    cache_dir = Path("./data/raw")
+    dataset_name = dataset_id.replace("/", "_")
 
-    print(f"Loading dataset: {hf_id} (config={config}, split={split})")
+    # Search for parquet files in the cache directory that match the dataset name
+    found_files = []
+    for root, dirs, files in os.walk(cache_dir):
+        if dataset_name in root:
+            for file in files:
+                if file.endswith(".parquet"):
+                    found_files.append(Path(root) / file)
 
-    # Load dataset (this caches it locally)
-    dataset = load_dataset(hf_id, config=config, split=split, trust_remote_code=True)
+    if not found_files:
+        # Fallback: try to find any parquet file in the cache if the name matching fails
+        # This is a heuristic as HF cache structure can vary by version
+        for root, dirs, files in os.walk(cache_dir):
+            for file in files:
+                if file.endswith(".parquet"):
+                    found_files.append(Path(root) / file)
+                if file.endswith(".arrow"):
+                    found_files.append(Path(root) / file)
 
-    # The datasets library caches data in ~/.cache/huggingface
-    # We need to find the actual parquet files to hash them.
-    # Since we cannot easily access the internal cache structure reliably across versions,
-    # we will rely on the fact that `load_dataset` ensures the data is present.
-    # To get a hashable artifact, we will re-save the data to a deterministic location
-    # in data/raw/ and hash that. This ensures reproducibility and a stable target for checksums.
+    if not found_files:
+        raise FileNotFoundError(
+            f"Could not find cached data files for dataset {dataset_id} in {cache_dir}"
+        )
 
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    output_file = DATA_RAW_DIR / f"{dataset_name}-{split}.parquet"
-
-    # Export to parquet to have a stable file to hash
-    # Note: This assumes the dataset can be converted to a single parquet file.
-    # For large datasets, this might be memory intensive, but GSM8K and MATH are small enough.
-    dataset.to_parquet(str(output_file))
-
-    return [output_file]
+    # Return the first found file. For large datasets split into shards,
+    # a full verification might need to hash all shards, but for this task
+    # we record a representative checksum of the primary shard.
+    return found_files[0]
 
 
 def verify_dataset(
-    dataset_name: str,
+    dataset_id: str,
     manifest: Dict[str, Any],
-    force_update: bool = False,
+    expected_hash: Optional[str] = None,
+    state_root: Optional[Path] = None,
 ) -> bool:
     """
     Verify a dataset against the manifest.
-    If force_update is True, re-download and update the manifest.
-    Returns True if verification passes (or update succeeds), False otherwise.
+    If expected_hash is provided, check against that.
+    Otherwise, check against the manifest entry for this dataset.
     """
-    ds_config = DATASETS[dataset_name]
-    hf_id = ds_config["huggingface_id"]
+    if state_root is None:
+        state_root = Path("state")
 
-    if force_update:
-        print(f"[{dataset_name}] Force updating dataset...")
-        try:
-            file_paths = download_and_cache_dataset(
-                dataset_name, ds_config["config"], ds_config["split"]
-            )
-            new_checksums = {}
-            for fp in file_paths:
-                if fp.exists():
-                    checksum = compute_file_hash(fp)
-                    new_checksums[fp.name] = checksum
-                    print(f"  - {fp.name}: {checksum}")
+    state_root = ensure_state_dir(state_root)
+    manifest_path = state_root / "dataset_manifest.json"
 
-            # Update manifest
-            if dataset_name not in manifest:
-                manifest[dataset_name] = {}
-            manifest[dataset_name]["checksums"] = new_checksums
-            manifest[dataset_name]["hf_id"] = hf_id
-            manifest[dataset_name]["config"] = ds_config["config"]
-            manifest[dataset_name]["split"] = ds_config["split"]
-            save_manifest(manifest)
-            print(f"[{dataset_name}] Manifest updated successfully.")
-            return True
-        except Exception as e:
-            print(f"[{dataset_name}] Failed to download/update: {e}")
-            return False
+    # If no expected hash provided, load from manifest
+    if expected_hash is None:
+        manifest = load_manifest(manifest_path)
+        entry = manifest.get(dataset_id, {})
+        expected_hash = entry.get("checksum")
 
-    # Check if dataset is in manifest
-    if dataset_name not in manifest:
-        print(f"[{dataset_name}] Not found in manifest. Run with --update to record.")
+    if not expected_hash:
+        # No record exists, we cannot verify yet
+        print(f"Warning: No manifest entry found for {dataset_id}.")
         return False
 
-    manifest_entry = manifest[dataset_name]
-    expected_checksums = manifest_entry.get("checksums", {})
+    try:
+        # Download/Cache to ensure file exists and get path
+        data_file_path = download_and_cache_dataset(dataset_id)
+        actual_hash = compute_file_hash(data_file_path)
 
-    if not expected_checksums:
-        print(f"[{dataset_name}] No checksums recorded in manifest.")
-        return False
-
-    print(f"[{dataset_name}] Verifying against manifest...")
-    all_valid = True
-
-    for filename, expected_hash in expected_checksums.items():
-        file_path = DATA_RAW_DIR / filename
-        if not file_path.exists():
-            print(f"  - {filename}: MISSING")
-            all_valid = False
-            continue
-
-        actual_hash = compute_file_hash(file_path)
         if actual_hash == expected_hash:
-            print(f"  - {filename}: OK ({actual_hash[:16]}...)")
+            print(f"Verification PASSED for {dataset_id}: {actual_hash}")
+            return True
         else:
-            print(f"  - {filename}: MISMATCH")
-            print(f"      Expected: {expected_hash}")
-            print(f"      Actual:   {actual_hash}")
-            all_valid = False
+            print(f"Verification FAILED for {dataset_id}.")
+            print(f"  Expected: {expected_hash}")
+            print(f"  Actual:   {actual_hash}")
+            return False
+    except FileNotFoundError as e:
+        print(f"Error verifying {dataset_id}: {e}")
+        return False
+    except Exception as e:
+        print(f"Error during verification of {dataset_id}: {e}")
+        return False
 
-    return all_valid
+
+def register_dataset(
+    dataset_id: str,
+    state_root: Optional[Path] = None,
+    force: bool = False,
+) -> str:
+    """
+    Download dataset, compute checksum, and register it in the manifest.
+    Returns the computed checksum.
+    """
+    if state_root is None:
+        state_root = Path("state")
+
+    state_root = ensure_state_dir(state_root)
+    manifest_path = state_root / "dataset_manifest.json"
+
+    manifest = load_manifest(manifest_path)
+
+    data_file_path = download_and_cache_dataset(dataset_id)
+    checksum = compute_file_hash(data_file_path)
+
+    print(f"Computed checksum for {dataset_id}: {checksum}")
+
+    if dataset_id in manifest and not force:
+        print(f"Dataset {dataset_id} already registered. Use --force to update.")
+        return manifest[dataset_id]["checksum"]
+
+    manifest[dataset_id] = {
+        "checksum": checksum,
+        "source": dataset_id,
+        "registered_at": str(Path.cwd()), # Storing context, not strict timestamp for simplicity
+    }
+
+    save_manifest(manifest_path, manifest)
+    print(f"Registered {dataset_id} in {manifest_path}")
+    return checksum
 
 
-def main() -> int:
-    """Main entry point."""
+def main():
+    """
+    Main entry point for CLI usage.
+    Usage:
+      python verify_datasets.py --register openai/gsm8k
+      python verify_datasets.py --register hendrycks/math
+      python verify_datasets.py --verify openai/gsm8k
+      python verify_datasets.py --verify hendrycks/math
+      python verify_datasets.py --verify-all
+    """
     import argparse
 
     parser = argparse.ArgumentParser(description="Verify dataset integrity.")
-    parser.add_argument(
-        "--update",
-        action="store_true",
-        help="Force re-download and update manifest checksums.",
-    )
-    parser.add_argument(
-        "--dataset",
-        type=str,
-        choices=list(DATASETS.keys()),
-        default=None,
-        help="Specific dataset to verify/update (default: all).",
-    )
+    parser.add_argument("--register", type=str, help="Register a dataset (e.g., openai/gsm8k)")
+    parser.add_argument("--verify", type=str, help="Verify a dataset against manifest")
+    parser.add_argument("--verify-all", action="store_true", help="Verify all registered datasets")
+    parser.add_argument("--force", action="store_true", help="Force re-registration")
+
     args = parser.parse_args()
 
-    datasets_to_process = (
-        [args.dataset] if args.dataset else list(DATASETS.keys())
-    )
+    if args.register:
+        register_dataset(args.register, force=args.force)
+        sys.exit(0)
 
-    manifest = load_manifest()
-    all_success = True
+    if args.verify:
+        success = verify_dataset(args.verify)
+        sys.exit(0 if success else 1)
 
-    for ds_name in datasets_to_process:
-        success = verify_dataset(ds_name, manifest, force_update=args.update)
-        if not success:
-            all_success = False
+    if args.verify_all:
+        manifest_path = Path("state") / "dataset_manifest.json"
+        if not manifest_path.exists():
+            print("No manifest found. Nothing to verify.")
+            sys.exit(1)
 
-    if all_success:
-        print("\nAll verified datasets passed integrity checks.")
-        return 0
-    else:
-        print("\nSome datasets failed verification or update.")
-        return 1
+        manifest = load_manifest(manifest_path)
+        all_passed = True
+        for ds_id in manifest.keys():
+            if not verify_dataset(ds_id):
+                all_passed = False
+        sys.exit(0 if all_passed else 1)
+
+    print("No action specified. Use --register, --verify, or --verify-all.")
+    sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,5 +1,1 @@
-"""
-Test suite for Socratic Transformers project.
-"""
-
-__all__ = []
+# Test package for PROJ-582
