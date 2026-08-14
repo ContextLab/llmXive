@@ -1,29 +1,28 @@
 """
-Script to create the data directory for the molecular toxicity project.
-This script ensures the directory structure exists for storing datasets.
+Script to create the data directory for the project.
+This script ensures the existence of the data directory at the specified path.
 """
 import os
 from pathlib import Path
 
 def main():
-    # Define the project root relative to the script location or standard project structure
-    # Based on tasks.md, the data directory should be at:
-    # projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/
-    
-    # We assume the script is run from the project root or the code directory.
-    # To be safe, we construct the path relative to the 'code' directory.
-    script_path = Path(__file__).resolve()
-    code_dir = script_path.parent
-    
-    # The data directory is a sibling to 'scripts', 'src', 'tests', etc.
+    """
+    Creates the data directory if it does not exist.
+    """
+    # Define the project root relative to this script's location
+    # Script is at code/scripts/, project root is code/
+    script_dir = Path(__file__).resolve().parent
+    code_dir = script_dir.parent
     data_dir = code_dir / "data"
-    
-    if not data_dir.exists():
-        data_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Created data directory: {data_dir}")
-    else:
-        print(f"Data directory already exists: {data_dir}")
 
+    # Create the directory if it doesn't exist
+    data_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create a .gitkeep file to ensure the directory is tracked by git
+    gitkeep_file = data_dir / ".gitkeep"
+    gitkeep_file.write_text("# Data directory for molecular toxicity project\n")
+
+    print(f"Data directory created at: {data_dir}")
     return 0
 
 if __name__ == "__main__":

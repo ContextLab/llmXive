@@ -1,8 +1,19 @@
 """
 Models package for molecular toxicity prediction.
 
-This package contains model implementations for:
+This package contains implementations of predictive models:
 - Rule-based scoring using structural alerts
-- Logistic Regression with global molecular descriptors
+- Logistic regression using molecular descriptors
 """
-pass
+
+from .config import ModelConfig
+from .logistic import LogisticModel, load_logistic_model
+from .rule_based import RuleBasedModel, load_rule_based_model
+
+__all__ = [
+    "ModelConfig",
+    "LogisticModel",
+    "load_logistic_model",
+    "RuleBasedModel",
+    "load_rule_based_model",
+]

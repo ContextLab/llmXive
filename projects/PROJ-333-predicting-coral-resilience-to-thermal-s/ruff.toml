@@ -1,0 +1,33 @@
+target-version = "py39"
+line-length = 88
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+    "UP",
+    "N",
+    "PT",
+    "RUF",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+    "N803",
+    "N806",
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "data",
+    "build",
+    "dist",
+]
+
+[per-file-ignores]
+"tests/*" = ["PT001", "PT004", "PT006"]

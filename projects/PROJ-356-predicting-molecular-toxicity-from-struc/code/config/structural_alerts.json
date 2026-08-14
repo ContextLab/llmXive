@@ -1,76 +1,69 @@
 {
-  "version": "1.0.0",
-  "description": "Curated set of SMARTS patterns and weights for structural alert-based toxicity prediction",
-  "alerts": [
+  "alert_definitions": [
     {
-      "id": "nitro_aromatic",
-      "name": "NitroAromatic",
+      "id": "NitroAromatic",
       "smarts": "[*;a]([N+](=O)[O-])",
       "weight": 1.5,
       "description": "Nitro group attached to an aromatic ring"
     },
     {
-      "id": "epoxide",
-      "name": "Epoxide",
+      "id": "Epoxide",
       "smarts": "[C;D3]1[O;D1][C;D3]1",
       "weight": 2.0,
       "description": "Three-membered cyclic ether"
     },
     {
-      "id": "primary_aromatic_amine",
-      "name": "PrimaryAromaticAmine",
+      "id": "PrimaryAromaticAmine",
       "smarts": "[N;D1;H2][c]",
       "weight": 1.2,
-      "description": "Primary amine attached to an aromatic ring"
+      "description": "Primary amine attached to an aromatic carbon"
     },
     {
-      "id": "secondary_aromatic_amine",
-      "name": "SecondaryAromaticAmine",
+      "id": "SecondaryAromaticAmine",
       "smarts": "[N;D2;H1][c]",
       "weight": 1.0,
-      "description": "Secondary amine attached to an aromatic ring"
+      "description": "Secondary amine attached to an aromatic carbon"
     },
     {
-      "id": "azide",
-      "name": "Azide",
+      "id": "Azide",
       "smarts": "[N;D1]=[N;D1]=[N;D1]",
       "weight": 2.5,
       "description": "Azide functional group"
     },
     {
-      "id": "isocyanate",
-      "name": "Isocyanate",
+      "id": "Isocyanate",
       "smarts": "[N;D1]=[C;D2]=[O;D1]",
       "weight": 2.0,
       "description": "Isocyanate functional group"
     },
     {
-      "id": "aldehyde",
-      "name": "Aldehyde",
+      "id": "Aldehyde",
       "smarts": "[C;D2](=[O;D1])[H;D1]",
       "weight": 0.8,
       "description": "Aldehyde functional group"
     },
     {
-      "id": "halogenated_aliphatic",
-      "name": "HalogenatedAliphatic",
+      "id": "HalogenatedAliphatic",
       "smarts": "[C;D4][Cl,Br,I,F]",
       "weight": 0.5,
       "description": "Aliphatic carbon bonded to a halogen"
     },
     {
-      "id": "azo",
-      "name": "Azo",
+      "id": "Azo",
       "smarts": "[N;D1]=[N;D1]",
       "weight": 1.8,
-      "description": "Azo group (N=N)"
+      "description": "Azo functional group"
     },
     {
-      "id": "hydrazine",
-      "name": "Hydrazine",
+      "id": "Hydrazine",
       "smarts": "[N;D1][N;D1]",
       "weight": 1.5,
-      "description": "Hydrazine group (N-N)"
+      "description": "Hydrazine functional group"
     }
-  ]
+  ],
+  "metadata": {
+    "version": "1.0.0",
+    "source": "Curated from structural alert literature",
+    "total_alerts": 10
+  }
 }

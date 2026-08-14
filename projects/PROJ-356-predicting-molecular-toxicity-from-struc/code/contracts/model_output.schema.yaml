@@ -1,122 +1,188 @@
 %YAML 1.2
 ---
-# Schema for model evaluation metrics and Out-of-Fold (OOF) predictions
-# Used by: src/evaluation/metrics.py, src/pipeline/run.py
+# Schema for model output and evaluation metrics
+# Defines the structure of prediction results and performance metrics
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: |
+  Schema for model predictions, evaluation metrics, and statistical analysis results.
 type: object
 required:
   - metadata
-  - rule_based
-  - logistic
-  - statistical_significance
+  - metrics
+  - predictions
 properties:
   metadata:
     type: object
+    description: Metadata about the model run
     required:
-      - pipeline_version
-      - cv_folds
-      - cv_repeats
-      - dataset_source
+      - model_type
+      - run_id
+      - timestamp
+      - config_hash
     properties:
-      pipeline_version:
+      model_type:
         type: string
-      cv_folds:
-        type: integer
-        default: 5
-      cv_repeats:
-        type: integer
-        default: 3
-      dataset_source:
+        description: Type of model (e.g., "RuleBased", "LogisticRegression")
+        enum: [RuleBased, LogisticRegression]
+      run_id:
         type: string
-  rule_based:
+        description: Unique identifier for this run
+        pattern: "^[a-f0-9]{32}$"
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of run completion
+      config_hash:
+        type: string
+        pattern: "^[a-f0-9]{64}$"
+        description: SHA-256 hash of the configuration used
+      cv_settings:
+        type: object
+        description: Cross-validation settings
+        properties:
+          n_folds:
+            type: integer
+            minimum: 2
+          n_repeats:
+            type: integer
+            minimum: 1
+          stratified:
+            type: boolean
+          random_seed:
+            type: integer
+  metrics:
     type: object
+    description: Performance metrics
     required:
       - roc_auc
       - f1_score
       - recall
+      - precision
+      - accuracy
     properties:
       roc_auc:
         type: number
         minimum: 0.0
         maximum: 1.0
+        description: Area Under the Receiver Operating Characteristic Curve
       f1_score:
         type: number
         minimum: 0.0
         maximum: 1.0
+        description: F1 Score (harmonic mean of precision and recall)
       recall:
         type: number
         minimum: 0.0
         maximum: 1.0
-  logistic:
+        description: True Positive Rate
+      precision:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Positive Predictive Value
+      accuracy:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Overall accuracy
+      confusion_matrix:
+        type: object
+        properties:
+          tp:
+            type: integer
+            minimum: 0
+          tn:
+            type: integer
+            minimum: 0
+          fp:
+            type: integer
+            minimum: 0
+          fn:
+            type: integer
+            minimum: 0
+  predictions:
     type: object
+    description: Prediction vectors
     required:
-      - roc_auc
-      - f1_score
-      - recall
+      - oof_probabilities
+      - oof_labels
+      - instance_ids
     properties:
-      roc_auc:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      f1_score:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      recall:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-  comparison:
+      oof_probabilities:
+        type: array
+        description: Out-of-Fold predicted probabilities (one per instance)
+        items:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+      oof_labels:
+        type: array
+        description: True labels corresponding to OOF predictions
+        items:
+          type: integer
+          enum: [0, 1]
+      instance_ids:
+        type: array
+        description: Unique identifiers for each instance
+        items:
+          type: string
+  statistical_analysis:
     type: object
-    required:
-      - recall_diff
-      - threshold
+    description: Statistical significance testing results (for comparative analysis)
     properties:
-      recall_diff:
-        type: number
-        description: "Recall (Logistic) - Recall (Rule-Based)"
-      threshold:
-        type: number
-        default: 0.05
-        description: "Threshold for marginal gain (SC-002)"
-  statistical_significance:
-    type: object
-    required:
-      - delong_p_value
-      - ci_95_lower
-      - ci_95_upper
-      - is_significant
-    properties:
-      delong_p_value:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-      ci_95_lower:
-        type: number
-      ci_95_upper:
-        type: number
-      is_significant:
-        type: boolean
-        description: "True if p-value < 0.05"
-  out_of_fold_predictions:
-    type: object
-    description: "Path to the JSON file containing OOF prediction vectors"
-    properties:
-      rule_based_path:
-        type: string
-      logistic_path:
-        type: string
+      delong_test:
+        type: object
+        description: DeLong's test results for AUC comparison
+        properties:
+          p_value:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          auc_difference:
+            type: number
+          confidence_interval:
+            type: object
+            properties:
+              lower:
+                type: number
+              upper:
+                type: number
+              confidence_level:
+                type: number
+                enum: [0.95]
+          significant_at_005:
+            type: boolean
+            description: Whether p < 0.05
   error_analysis:
     type: object
-    description: "Optional error analysis results (US3)"
+    description: Error analysis results (for false negative investigation)
     properties:
-      false_negative_scaffolds:
+      false_negatives:
         type: array
+        description: List of false negative cases
         items:
           type: object
           properties:
-            scaffold_smiles:
+            compound_id:
+              type: string
+            smiles:
+              type: string
+            murcko_scaffold:
+              type: string
+              description: Systematic scaffold representation
+      scaffold_frequency:
+        type: array
+        description: Top scaffolds in false negatives
+        items:
+          type: object
+          properties:
+            scaffold:
               type: string
             count:
               type: integer
-            frequency:
+            percentage:
               type: number
+              minimum: 0.0
+              maximum: 100.0
+additionalProperties: false

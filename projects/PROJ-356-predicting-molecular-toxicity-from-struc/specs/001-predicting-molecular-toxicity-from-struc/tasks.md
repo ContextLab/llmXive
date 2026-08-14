@@ -49,8 +49,8 @@
 - [ ] T004 [P] Create data directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/`
 - [ ] T005 [P] Create results directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/`
 - [ ] T006 [P] Create models directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/models/`
-- [~] T007 [P] Create config directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/`
-- [~] T008 [P] Create docs directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/docs/`
+- [ ] T007 [P] Create config directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/`
+- [ ] T008 [P] Create docs directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/docs/`
 
 ---
 

@@ -56,7 +56,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Implement `code/download_data.py`: Fetch a set of verified UCI datasets (Breast Cancer, Ionosphere, Heart Disease) via direct URLs. [UNRESOLVED-CLAIM: c_70c4c2aa — status=not_enough_info] Save to `data/raw/` and compute SHA256 checksums. **Logic**: If the fetched count is not 3, log a warning indicating the deviation from the original FR-001 intent of 5 datasets. Do not attempt to fetch unverified datasets.
-- [X] T005 [P] Implement `code/subsample.py`: Create stratified subsampling function for N=15, 25, 40. [UNRESOLVED-CLAIM: c_d943ed21 — status=not_enough_info] **Target Column Detection**: Look for 'target', then 'class', then 'label', then default to the last column. **Edge Cases**: If class count < 5 for a configuration, skip it, log a warning, and append the skipped configuration details to `data/derived/skipped_configurations.log`. [UNRESOLVED-CLAIM: c_28ed7393 — status=not_enough_info]
+- [X] T005 [P] Implement `code/subsample.py`: Create stratified subsampling function for N=15, 25, 40. [UNRESOLVED-CLAIM: c_87ba2edf — status=not_enough_info] **Target Column Detection**: Look for 'target', then 'class', then 'label', then default to the last column. **Edge Cases**: If class count < 5 for a configuration, skip it, log a warning, and append the skipped configuration details to `data/derived/skipped_configurations.log`. [UNRESOLVED-CLAIM: c_d0c0d717 — status=not_enough_info]
 - [X] T006 [P] Implement `code/augment.py`: Create functions for Gaussian noise injection, SMOTE, and Random Oversampling using `imbalanced-learn`; ensure no CUDA/GPU dependencies; handle zero-variance samples.
 - [ ] T008a [P] Define JSON schema for simulation output: Create `contracts/simulation_schema.json` defining the structure for p-value distributions, error rates, and metadata. **Must be valid JSON and exist before T007 runs.**
 - [X] T007 [P] Implement `code/simulation.py`: Full implementation of Monte Carlo loop with random seed pinning, configuration management, and a sufficient number of iterations per config to ensure statistical convergence. **Pre-check**: Validate that `contracts/simulation_schema.json` exists and is valid JSON before proceeding. **Logic**: Implement internal helper functions for label permutation (Type I) and mean shift (Type II) within this module; do not rely on external tasks for these functions. **Dependency**: Requires T008a.
@@ -102,8 +102,8 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [P] [US2] Implement Gaussian noise injection in `code/augment.py` with configurable standard deviation (default 0.1). [UNRESOLVED-CLAIM: c_d4284862 — status=not_enough_info]
-- [X] T019 [P] [US2] Implement SMOTE augmentation in `code/augment.py` with edge case handling for N < 5 or extreme imbalance. [UNRESOLVED-CLAIM: c_6a0211af — status=not_enough_info]
+- [X] T018 [P] [US2] Implement Gaussian noise injection in `code/augment.py` with configurable standard deviation (default 0.1). [UNRESOLVED-CLAIM: c_c684c4db — status=not_enough_info]
+- [X] T019 [P] [US2] Implement SMOTE augmentation in `code/augment.py` with edge case handling for N < 5 or extreme imbalance. [UNRESOLVED-CLAIM: c_696c338e — status=not_enough_info]
 - [X] T020 [P] [US2] Implement Random Oversampling in `code/augment.py`.
 - [X] T021 [US2] Integrate augmentation functions into `code/simulation.py` Monte Carlo loop (separate branches for Null and Alt conditions). **Requires T013 (baseline loop) and T018-T020 completion.**
 - [ ] T022 [US2] Implement logic to detect and exclude zero-variance synthetic samples before hypothesis testing to prevent division-by-zero.

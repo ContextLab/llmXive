@@ -1,78 +1,67 @@
 """
-Configuration module for the molecular toxicity prediction pipeline.
+Configuration module for the molecular toxicity pipeline.
 
-This module provides environment variable management and path resolution
-for the project's data, models, and results directories.
+Provides environment variable management and path resolution.
 """
-
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Any, Optional
 
-# Project root relative to this file (code/src/config -> project root)
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_CODE_DIR = _PROJECT_ROOT / "code"
+# Project root is the parent of the code directory
+_code_dir = Path(__file__).resolve().parent.parent.parent
+_project_root = _code_dir.parent
 
-# Core directories
-DATA_DIR = _CODE_DIR / "data"
-RESULTS_DIR = _CODE_DIR / "results"
-MODELS_DIR = _CODE_DIR / "models"
-CONFIG_DIR = _CODE_DIR / "config"
-SRC_DIR = _CODE_DIR / "src"
-TESTS_DIR = _CODE_DIR / "tests"
-
-# Default paths for key artifacts
-DEFAULT_ALERTS_CONFIG = CONFIG_DIR / "structural_alerts.json"
-DEFAULT_DATA_FILE = DATA_DIR / "toxcast_raw.csv"
-DEFAULT_PREPROCESSED_FILE = DATA_DIR / "toxcast_processed.csv"
-DEFAULT_RULE_MODEL_PATH = MODELS_DIR / "rule_based_model.json"
-DEFAULT_LOGISTIC_MODEL_PATH = MODELS_DIR / "logistic_model.joblib"
-DEFAULT_METRICS_FILE = RESULTS_DIR / "metrics_baseline.json"
-DEFAULT_OOF_FILE = RESULTS_DIR / "oof_predictions_final.json"
-
-def get_env_path(key: str, default: Optional[Path] = None) -> Path:
+def get_project_paths() -> Dict[str, Path]:
     """
-    Resolve a path from an environment variable or return the default.
-    
-    Args:
-        key: Environment variable name (e.g., 'PROJECT_DATA_DIR')
-        default: Fallback Path if env var is not set
+    Get standard project directory paths.
     
     Returns:
-        Resolved Path object
-    
-    Raises:
-        ValueError: If env var is set but not a valid path
+        Dictionary mapping logical names to Path objects
     """
-    val = os.getenv(key)
-    if val:
-        path = Path(val).resolve()
+    return {
+        "root": _project_root,
+        "code": _code_dir,
+        "src": _code_dir / "src",
+        "data": _code_dir / "data",
+        "results": _code_dir / "results",
+        "models": _code_dir / "models",
+        "config": _code_dir / "config",
+        "tests": _code_dir / "tests"
+    }
+
+def get_env_var(name: str, default: Optional[str] = None) -> str:
+    """
+    Get an environment variable with a default fallback.
+    
+    Args:
+        name: Environment variable name
+        default: Default value if not set
+    
+    Returns:
+        Environment variable value or default
+    """
+    return os.environ.get(name, default or "")
+
+def validate_paths(paths: Dict[str, Path]) -> bool:
+    """
+    Validate that required paths exist.
+    
+    Args:
+        paths: Dictionary of paths to validate
+    
+    Returns:
+        True if all paths exist, False otherwise
+    """
+    all_valid = True
+    for name, path in paths.items():
         if not path.exists():
-            raise ValueError(f"Environment path {key}={path} does not exist")
-        return path
-    if default:
-        return default.resolve()
-    raise ValueError(f"Environment variable {key} is not set and no default provided")
+            # Create missing directories
+            try:
+                path.mkdir(parents=True, exist_ok=True)
+                print(f"Created missing directory: {path}")
+            except Exception as e:
+                print(f"Error creating directory {path}: {e}")
+                all_valid = False
+    return all_valid
 
-def ensure_dirs() -> None:
-    """Create all core directories if they do not exist."""
-    for dir_path in [DATA_DIR, RESULTS_DIR, MODELS_DIR, CONFIG_DIR]:
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-__all__ = [
-    "DATA_DIR",
-    "RESULTS_DIR",
-    "MODELS_DIR",
-    "CONFIG_DIR",
-    "SRC_DIR",
-    "TESTS_DIR",
-    "DEFAULT_ALERTS_CONFIG",
-    "DEFAULT_DATA_FILE",
-    "DEFAULT_PREPROCESSED_FILE",
-    "DEFAULT_RULE_MODEL_PATH",
-    "DEFAULT_LOGISTIC_MODEL_PATH",
-    "DEFAULT_METRICS_FILE",
-    "DEFAULT_OOF_FILE",
-    "get_env_path",
-    "ensure_dirs",
-]
+__all__ = ["get_project_paths", "get_env_var", "validate_paths"]

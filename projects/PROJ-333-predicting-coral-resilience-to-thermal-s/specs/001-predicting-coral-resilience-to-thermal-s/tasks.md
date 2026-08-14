@@ -80,7 +80,7 @@
 
 ## Phase 3: User Story 1 - RNA-seq Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download raw FASTQ reads from NCBI BioProject PRJNA321023 [UNRESOLVED-CLAIM: c_fd7d2a33 — status=not_enough_info], map to reference transcriptome, and quantify gene expression while ensuring peak memory < 7 GB.
+**Goal**: Download raw FASTQ reads from NCBI BioProject PRJNA321023, map to reference transcriptome, and quantify gene expression while ensuring peak memory < 7 GB.
 
 **Independent Test**: Can be fully tested by running the download and quantification script on a local machine or CI runner and verifying that peak memory usage (RSS) remains < 7 GB and that the output expression matrix contains only samples with valid treatment metadata.
 
@@ -88,9 +88,9 @@
 
 > **NOTE**: These tasks MUST be completed and the tests must FAIL before T015-T021 implementation begins (TDD workflow).
 
-- [ ] T012 [P] [US1] Unit test: Add `tests/unit/test_ingest.py::test_sha256_verification_passes_on_valid_file` and `test_sha256_verification_fails_on_corrupted_file` [DEPENDS: T004]
-- [ ] T013 [P] [US1] Unit test: Add `tests/unit/test_ingest.py::test_metadata_parsing_excludes_missing_treatment` and verifies warning log [DEPENDS: T004]
-- [ ] T014 [P] [US1] Integration test: Add `tests/integration/test_memory.py::test_quantification_memory_stays_under_7GB` on a small sample subset
+- [X] T012 [P] [US1] Unit test: Add `tests/unit/test_ingest.py::test_sha256_verification_passes_on_valid_file` and `test_sha256_verification_fails_on_corrupted_file` [DEPENDS: T004]
+- [X] T013 [P] [US1] Unit test: Add `tests/unit/test_ingest.py::test_metadata_parsing_excludes_missing_treatment` and verifies warning log [DEPENDS: T004]
+- [X] T014 [P] [US1] Integration test: Add `tests/integration/test_memory.py::test_quantification_memory_stays_under_7GB` on a small sample subset
 
 ### Implementation for User Story 1
 
