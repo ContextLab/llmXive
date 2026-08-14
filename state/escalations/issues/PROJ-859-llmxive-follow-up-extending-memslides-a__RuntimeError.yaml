@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-14T17:39:21.157638+00:00'
+issue_number: 1308
+project_id: PROJ-859-llmxive-follow-up-extending-memslides-a

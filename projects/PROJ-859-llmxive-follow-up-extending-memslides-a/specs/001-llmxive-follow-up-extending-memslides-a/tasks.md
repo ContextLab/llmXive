@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -232,3 +232,170 @@
 - [X] T065 [US3] Implement `code/evaluation/final_report_generator.py` to compile `statistical_analysis.json`, `sensitivity_sweep.csv`, `imputation_summary.md`, and `data_lineage.json` into a single `data/processed/final_report.md`. **Logic**: The report must include a "Data Provenance" section listing the exact seed, the count of imputed traces (from T060), and the SHA256 hashes of all input artifacts. **Merging Logic**: Concatenate the sections with headers: `# Final Report`, `## Statistical Analysis`, `## Sensitivity Analysis`, `## Data Imputation Summary`, `## Data Lineage`. **Verification**: After generation, verify the file exists and is non-empty using `os.path.getsize()`. **Dependency**: Requires T035, T037, T060, T063 completion.
 - [X] T066 [US3] Add a "Fail-Loud" pre-flight check in `code/main.py` that verifies the existence of `data/training/` and `data/held_out/` and asserts that `data/processed/feature_matrix.csv` is present and non-empty before executing the full pipeline. **Logic**: If any required artifact is missing, the script must exit with a clear error message listing the missing files, preventing any partial or synthetic execution. **Dependency**: Requires T012, T012b, T020b completion.
 - [X] T067 [US2] Refactor `code/metrics/extract.py` to ensure that `sentence-transformers` is loaded ONLY when processing semantic variance, and unloaded immediately after to prevent memory leaks during the per-trace loop. **Logic**: Wrap the model loading in a context manager that explicitly calls `del model` and `gc.collect()`. **Conditional GPU Cleanup**: Only call `torch.cuda.empty_cache()` if `torch.cuda.is_available()` is true; otherwise, rely on standard garbage collection. **Dependency**: Requires T020a completion.
+
+---
+
+## Phase 10: Statistical Robustness & Validation (New Revision Concerns)
+
+**Goal**: Address reviewer concerns regarding the robustness of the Beta Regression model, handling of boundary conditions in the delta calculation, and the explicit validation of the "Held-Out" structural diversity strategy.
+
+**Dependency**: Must be completed before final execution to ensure statistical validity.
+
+- [ ] T068 [US3] Implement a "Structural Diversity Validator" in `code/analysis/validate_split.py` to explicitly verify that the **Held-Out Set** (T012b) exhibits significantly different structural properties compared to the **Training Set**. **Logic**:
+ 1. Load `feature_matrix.csv` and split it according to the `train/test` flags generated in T012b.
+ 2. Perform a Kolmogorov-Smirnov (KS) test on `sequence_entropy`, `tool_repetition_freq`, and `arg_semantic_variance` between the two sets.
+ 3. **Requirement**: The KS test p-value must be < 0.05 for at least one metric to confirm distributional shift. If p >= 0.05 for all metrics, raise a `StructuralShiftError` with a detailed report of the overlap.
+ 4. **Deliverable**: Save `data/processed/split_validation.json` containing the KS statistics, p-values, and a boolean `is_valid_shift`. **Dependency**: Requires T012b and T020b completion.
+
+- [ ] T069 [US3] Enhance `code/evaluation/calculate_deltas.py` to handle **boundary conditions** in `delta_acc` calculation robustly. **Logic**:
+ 1. Ensure `delta_acc` is clamped to the range `[-1.0, 1.0]` to prevent logit transformation failures.
+ 2. Implement a "epsilon shift" strategy: if `delta_acc` is exactly -1.0, 0.0, or 1.0, apply a small shift (e.g., `delta_acc * (1 - 1e-4)`) to move it strictly inside the open interval `(-1, 1)` required for Beta Regression.
+ 3. Log any shifted values to `data/processed/delta_shifts.log` with the original and shifted values.
+ 4. **Deliverable**: Update `data/processed/accuracy_deltas.csv` with the corrected `delta_acc` values and append the shift log. **Dependency**: Requires T035b completion.
+
+- [ ] T070 [US3] Implement a **Resampling-Based Confidence Interval** for the Beta Regression coefficients in `code/evaluation/stats.py`. **Logic**:
+ 1. After the primary Beta Regression (T035), perform 1000 bootstrap resamples of the `accuracy_deltas.csv` dataset.
+ 2. Re-run the regression on each resample to generate a distribution of coefficients.
+ 3. Calculate the 95% Confidence Interval (2.5th and 97.5th percentiles) for each coefficient.
+ 4. **Deliverable**: Append `confidence_intervals` (dict of `metric -> [lower, upper]`) to `data/processed/statistical_analysis.json`. **Dependency**: Requires T035 completion.
+
+- [ ] T071 [US3] Add a **Model Assumption Check** in `code/evaluation/stats.py` to validate the fit of the Beta Regression model before reporting results. **Logic**:
+ 1. Plot (or compute statistics for) residuals vs. fitted values to check for heteroscedasticity.
+ 2. Perform a Shapiro-Wilk test on the residuals to check for normality (if applicable to the specific Beta regression implementation).
+ 3. **Action**: If assumptions are severely violated (e.g., p-value < 0.01 for normality), flag the result in the output JSON with `assumption_violation: true` and suggest the Spearman fallback (which is already implemented as a fallback).
+ 4. **Deliverable**: Add `model_assumptions` section to `data/processed/statistical_analysis.json` containing test statistics and pass/fail status. **Dependency**: Requires T035 completion.
+
+- [ ] T072 [US3] Implement a **Sensitivity Analysis for the Epsilon Shift** in `code/evaluation/stats.py`. **Logic**:
+ 1. Re-run the Beta Regression with varying epsilon values (e.g., 1e-4, 1e-3, 1e-2) used in T069.
+ 2. Compare the resulting coefficients to ensure the conclusion (significance of metrics) is stable across epsilon choices.
+ 3. **Deliverable**: Append `epsilon_sensitivity` (list of results for each epsilon) to `data/processed/statistical_analysis.json`. **Dependency**: Requires T069 and T035 completion.
+
+---
+
+## Phase 11: Final Integration & Execution Readiness (New Revision Concerns)
+
+**Goal**: Ensure the entire pipeline is integrated, tested end-to-end, and ready for the final execution gate with all new validation tasks included.
+
+**Dependency**: Must be the final phase before execution.
+
+- [ ] T073 [P] [US3] Update `code/main.py` to include the new validation steps (T068, T069, T070, T071, T072) in the execution order. **Logic**:
+ 1. Insert T068 (Diversity Check) immediately after T012b.
+ 2. Insert T069 (Delta Correction) immediately after T035b.
+ 3. Insert T070, T071, T072 (Statistical Robustness) immediately after T035.
+ 4. Ensure all new tasks are marked as **blocking** (pipeline halts on failure).
+ 5. **Deliverable**: Updated `code/main.py` with the new orchestration logic. **Dependency**: Requires T068, T069, T070, T071, T072 completion.
+
+- [ ] T074 [P] [US3] Create a comprehensive **End-to-End Integration Test** in `tests/integration/test_full_pipeline.py`. **Logic**:
+ 1. Mock the data generation (T012) with a small, deterministic dataset.
+ 2. Run the full pipeline from T012b to T073.
+ 3. Assert that all output files (`feature_matrix.csv`, `global_rules_baseline.json`, `statistical_analysis.json`, `final_report.md`) exist and are valid.
+ 4. **Specific Assertion**: Verify that `statistical_analysis.json` contains the new fields (`confidence_intervals`, `model_assumptions`, `epsilon_sensitivity`).
+ 5. **Deliverable**: A passing integration test that validates the entire research pipeline. **Dependency**: Requires T073 completion.
+
+- [ ] T075 [P] [US3] Update `docs/quickstart.md` to document the new validation steps and their purpose. **Logic**:
+ 1. Add a section "Validation Steps" explaining T068 (Diversity), T069 (Boundary Handling), and T070-T072 (Statistical Robustness).
+ 2. Update the execution order diagram to include these steps.
+ 3. **Deliverable**: Updated `quickstart.md` with clear instructions on the new validation phases. **Dependency**: Requires T073 completion.
+
+- [ ] T076 [P] [US3] Run a **Dry-Run** of the full pipeline on the local machine to verify all new tasks execute without errors and produce the expected outputs. **Logic**:
+ 1. Execute `python code/main.py --dry-run`.
+ 2. Verify that all new artifacts are generated and logged.
+ 3. **Deliverable**: A log file `data/processed/dry_run_log.txt` confirming success. **Dependency**: Requires T073, T075 completion.
+
+- [ ] T077 [P] [US3] Final **Code Review** and **Documentation Audit** to ensure all new tasks (T068-T076) are fully implemented, tested, and documented. **Logic**:
+ 1. Review code for T068-T076 for adherence to "No Synthetic Fallback" and "Fail-Loud" principles.
+ 2. Verify that all new output files are included in the `data/processed/` directory structure.
+ 3. **Deliverable**: A checklist in `docs/review_checklist.md` confirming all items are complete. **Dependency**: Requires T073, T074, T075, T076 completion.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+
+# Launch all models for User Story 1 together:
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: User Story 1
+   - Developer B: User Story 2
+   - Developer C: User Story 3
+3. Stories complete and integrate independently
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
