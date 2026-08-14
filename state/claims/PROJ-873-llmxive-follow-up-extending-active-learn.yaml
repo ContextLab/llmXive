@@ -3332,3 +3332,875 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-09T10:06:28Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: BEIR benchmark paper by Thakur et al. published in 2021 on arXiv:2104.08663
+  claim_id: c_14d7fe51
+  context: 'Research Question: How can the BEIR framework be adapted to support cross-domain
+    retrieval evaluation using the TREC-COVID dataset? Method: Extend the existing
+    BEIR data loader to include the `trec-covid` corpus and integrate it into the
+    evaluation pipeline. References: Thakur et al. (2021). BEIR: A Heterogeneous Benchmark
+    for Zero-shot Evaluation of Information Retrieval Models. arXiv:2104.08663..'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: 2021 on arXiv:2104.08663
+    relation: published in
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/BEIR_benchmark_paper_by_Thakur_et_al._published_in_2021_on_a
+    source_value: https://en.wikipedia.org/wiki/BEIR_benchmark_paper_by_Thakur_et_al._published_in_2021_on_a
+    subject: BEIR benchmark paper by Thakur et al.
+  kind: relational
+  raw_text: 'Thakur et al. (2021). BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation
+    of Information Retrieval Models. arXiv:2104.08663.'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:53:19Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: Experiments utilized BEIR benchmark datasets scifact, nfcorpus, and trec-covid
+  claim_id: c_8af0f0b8
+  context: All experiments utilized real data from the BEIR benchmark (scifact, nfcorpus,
+    trec-covid). We strictly adhered to the 'no synthetic fallback' policy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Experiments_utilized_BEIR_benchmark_datasets_scifact,_nfcorp
+  kind: entity_fact
+  raw_text: The experiments utilized real data from the BEIR benchmark (scifact, nfcorpus,
+    trec-covid).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T13:56:44Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: Experiments repeated across 5 seeds
+  claim_id: c_04225fd7
+  context: 'To ensure the observed gains were not due to random variation, we performed
+    rigorous statistical testing across multiple independent seeds. Multi-Seed Execution:
+    Experiments were repeated across 5 seeds to capture variance in dataset sampling
+    and model behavior.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Experiments were repeated across 5 seeds to capture variance in dataset
+    sampling and model behavior.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:00:58Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: Pipeline executed on CPU-only hardware
+  claim_id: c_30ad8f0c
+  context: 'CPU-Only Execution: The entire pipeline, including MinHash clustering
+    and embedding generation, was successfully executed on CPU-only hardware, adhering
+    to the project''s constitutional constraints (FR-006).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_executed_on_CPU-only_hardware
+  kind: entity_fact
+  raw_text: The entire pipeline was successfully executed on CPU-only hardware.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:01:09Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: Pipeline operated within 7GB memory limit
+  claim_id: c_87de2c21
+  context: The watchdog and resource monitoring infrastructure (T004, T023) ensured
+    that the pipeline operated within strict memory (7GB) and runtime limits, demonstrating
+    the practical feasibility of the approach in resource-constrained environments.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_operated_within_7GB_memory_limit
+  kind: entity_fact
+  raw_text: The pipeline operated within strict memory limits of 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:01:21Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: Strong positive correlation between MinHash Jaccard similarity and cosine
+    similarity using all-MiniLM-L6-v2 embeddings
+  claim_id: c_c2faa9c6
+  context: 'Jaccard-Cosine Correlation: A strong positive correlation was observed
+    between MinHash Jaccard similarity and cosine similarity (using all-MiniLM-L6-v2
+    embeddings), validating the use of MinHash as a lightweight proxy for semantic
+    redundancy.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Strong_positive_correlation_between_MinHash_Jaccard_similari
+  kind: entity_fact
+  raw_text: A strong positive correlation was observed between MinHash Jaccard similarity
+    and cosine similarity using all-MiniLM-L6-v2 embeddings.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:01:27Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: Clustering-aided variant maintained NDCG@10 scores comparable to baseline
+  claim_id: c_29d4e8aa
+  context: 'NDCG Recovery: The clustering-aided variant maintained NDCG@10 scores
+    comparable to the baseline, demonstrating that filtering redundant candidates
+    before the expensive LLM reranking stage does not compromise retrieval effectiveness.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The clustering-aided variant maintained NDCG@10 scores comparable to the
+    baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:01:30Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/research_conclusions.md
+  attempts: 1
+  canonical: Statistically significant reduction in wasted call ratios for clustering-aided
+    variant compared to baseline
+  claim_id: c_24ad7b15
+  context: 'Wilcoxon Signed-Rank Test: The results showed a statistically significant
+    reduction in wasted call ratios for the clustering-aided variant compared to the
+    baseline (p < 0.05 after Bonferroni correction).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistically_significant_reduction_in_wasted_call_ratios_fo
+  kind: entity_fact
+  raw_text: The results showed a statistically significant reduction in wasted call
+    ratios for the clustering-aided variant compared to the baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:01:43Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: BEIR paper title and authors Thakur et al. 2021 arXiv:2104.08663
+  claim_id: c_0b150aac
+  context: 'References: Thakur et al. (2021). BEIR: A Heterogeneous Benchmark for
+    Zero-shot Evaluation of Information Retrieval Models. arXiv:2104.08663..'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The BEIR framework paper is titled ''BEIR: A Heterogeneous Benchmark
+    for Zero-shot Evaluation of Information Retrieval Models'' and was published by
+    Thakur et al. in 2021 (arXiv:2104.08663).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:02:28Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Optimal threshold selection uses sweep values 0.85, 0.90, 0.95, and 0.98
+  claim_id: c_0900cbd5
+  context: "T025 [X] **Threshold Sweep Definition** \u2013 adds config entries for\
+    \ sweep values `[0.85, 0.90, 0.95, 0.98]` in `code/config.py`."
+  evidence:
+    candidates:
+    - - ''
+      - 0.9
+    - - ''
+      - 0.85
+    - - ''
+      - 0.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Optimal_threshold_selection_uses_sweep_values_0.85,_0.90,_0.
+  kind: magnitude
+  raw_text: "T025d identifies best threshold based on NDCG recovery and wasted\u2011\
+    ratio reduction from sweep values 0.85, 0.90, 0.95, 0.98."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-14T14:06:44Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: LLM consensus validation uses TinyLlama-1.1B-Chat-v1.0 (Q4_K_M) model
+  claim_id: c_f5ec3652
+  context: "T013e [X] **LLM Consensus Validation** \u2013 loads **TinyLlama\u2011\
+    1.1B\u2011Chat\u2011v1.0 (Q4_K_M)** from `TinyLlama/TinyLlama-1.1B-Chat-v1.0`\
+    \ via `llama-cpp-python`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "T013e uses TinyLlama\u20111.1B\u2011Chat\u2011v1.0 (Q4_K_M) from TinyLlama/TinyLlama-1.1B-Chat-v1.0\
+    \ via llama-cpp-python."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:06:47Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: LLM consensus validation checks available memory greater than 6.5GB
+  claim_id: c_09d6f891
+  context: "T013e [X] **LLM Consensus Validation** \u2013 ... **Memory Check**: Uses\
+    \ `psutil` to verify `available > 6.5GB`; if not, **skip to T013e-proxy**."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LLM_consensus_validation_checks_available_memory_greater_tha
+  kind: magnitude
+  raw_text: T013e uses psutil to verify available memory > 6.5GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:06:51Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Thakur et al. 2021 BEIR arXiv 2104.08663
+  claim_id: c_9e292e9d
+  context: 'References: Thakur et al. (2021). BEIR: A Heterogeneous Benchmark for
+    Zero-shot Evaluation of Information Retrieval Models. arXiv:2104.08663..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thakur et al. (2021) published BEIR: A Heterogeneous Benchmark for Zero-shot
+    Evaluation of Information Retrieval Models with arXiv id 2104.08663.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:06:55Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: spec limit of 6 hours and 7GB memory
+  claim_id: c_fc01f525
+  context: "T000 [Foundational] Update Spec FR-006 \u2013 Edit specs/001-llmxive-prp-redundancy/spec.md\
+    \ to explicitly replace 'limit of hours' with 'limit of 6 hours' and 'limit of\
+    \ a predefined magnitude' with 'limit of 7GB'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spec explicitly replaces 'limit of hours' with 'limit of 6 hours'
+    and 'limit of a predefined magnitude' with 'limit of 7GB'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:10:32Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: removed GPU dependencies bitsandbytes tinyllama accelerate replaced with
+    llama-cpp-python
+  claim_id: c_247ad92e
+  context: T002 Initialize Python project with requirements.txt; Removed heavy GPU-specific
+    dependencies (bitsandbytes, tinyllama, accelerate); replaced with CPU-native LLM
+    inference tools (llama-cpp-python).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Removed_GPU_dependencies_bitsandbytes_tinyllama_accelerate_r
+  kind: entity_fact
+  raw_text: Heavy GPU-specific dependencies (bitsandbytes, tinyllama, accelerate)
+    were removed and replaced with CPU-native LLM inference tools (llama-cpp-python).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:11:52Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: BEIR paper Thakur 2021 arXiv:2104.08663
+  claim_id: c_ac2f2211
+  context: 'References: Thakur et al. (2021). BEIR: A Heterogeneous Benchmark for
+    Zero-shot Evaluation of Information Retrieval Models. arXiv:2104.08663.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The BEIR framework paper was published by Thakur et al. in 2021 as arXiv:2104.08663.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:11:55Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: create at least 20 clusters of 3-5 near-duplicate passages
+  claim_id: c_4227097e
+  context: "T012 Synthetic Redundancy Injection using synonym replacement (probability\
+    \ 0.3) and sentence shuffling (window 2) to create \u2265 20 clusters of 3\u2013\
+    5 near\u2011duplicate passages."
+  evidence:
+    candidates:
+    - - Create account Log in Create at least
+      - 20.0
+    - - Create at least 20 clusters of
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Create_at_least_20_clusters_of_3-5_near-duplicate_passages
+  kind: magnitude
+  raw_text: "Synthetic redundancy injection creates at least 20 clusters of 3\u2013\
+    5 near-duplicate passages."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-14T14:12:04Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: pairwise cosine similarity greater than 0.95
+  claim_id: c_3cb2eb70
+  context: "T012 ... to create \u2265 20 clusters of 3\u20135 near\u2011duplicate\
+    \ passages with cosine similarity > 0.95."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pairwise_cosine_similarity_greater_than_0.95
+  kind: magnitude
+  raw_text: Injected clusters have a pairwise cosine similarity greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:12:12Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: synonym replacement probability 0.3
+  claim_id: c_d88b5f06
+  context: T012 Synthetic Redundancy Injection using synonym replacement (probability
+    0.3) and sentence shuffling (window 2)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synonym replacement is applied with a probability of 0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:12:16Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: sentence shuffling window size 2
+  claim_id: c_b7541200
+  context: T012 Synthetic Redundancy Injection using synonym replacement (probability
+    0.3) and sentence shuffling (window 2)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sentence shuffling uses a window size of 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:12:25Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Chat-v1.0 model used
+  claim_id: c_068f13a4
+  context: "T013e LLM Consensus Validation \u2013 loads TinyLlama\u20111.1B\u2011\
+    Chat\u2011v1.0 (Q4_K_M) from TinyLlama/TinyLlama-1.1B-Chat-v1.0 via llama-cpp-python."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The TinyLlama-1.1B-Chat-v1.0 model is used for LLM Consensus Validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:12:28Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: LLM validation requires available memory greater than 6.5GB
+  claim_id: c_96c4dfd6
+  context: 'T013e Memory Check: Uses psutil to verify available > 6.5GB; if not, skip
+    to T013e-proxy.'
+  evidence:
+    entailment_evidence: LLM validation requires available memory greater than 6.5GB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/LLM_validation_requires_available_memory_greater_than_6.5GB
+  kind: magnitude
+  raw_text: The LLM Consensus Validation step requires available memory greater than
+    6.5GB.
+  resolved_value: LLM validation requires available memory greater than 6.5GB
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:12:30Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: MinHash-LSH Jaccard threshold 0.95
+  claim_id: c_2e3d8c4c
+  context: "T020 MinHash\u2011LSH Clustering \u2013 groups near-duplicates using datasketch\
+    \ with Jaccard threshold 0.95."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MinHash-LSH clustering uses a Jaccard threshold of 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:12:36Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: more than 95 percent intra-cluster Jaccard similarities exceed 0.95
+  claim_id: c_31c014ea
+  context: "T044 Cluster Integrity Check \u2013 verifies that > 95 % of intra\u2011\
+    cluster Jaccard similarities exceed 0.95."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/More_than_95_percent_intra-cluster_Jaccard_similarities_exce
+  kind: magnitude
+  raw_text: Cluster integrity verification requires that more than 95% of intra-cluster
+    Jaccard similarities exceed 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:12:44Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: threshold sweep values 0.85 0.90 0.95 0.98
+  claim_id: c_d79703ba
+  context: "T025 Threshold Sweep Definition \u2013 adds config entries for sweep values\
+    \ [0.85, 0.90, 0.95, 0.98] in code/config.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep definition includes values 0.85, 0.90, 0.95, and 0.98.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:12:51Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: multi-seed execution loop runs 5 independent seeds
+  claim_id: c_bdc63f3d
+  context: "T027 Multi\u2011Seed Execution Loop \u2013 runs both baseline and clustering\u2011\
+    aided pipelines for 5 independent seeds."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: https://orcid.org/0009-0004-8154-3345
+      source_id: '2603.28921'
+      url: https://arxiv.org/abs/2603.28921
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The multi-seed execution loop runs pipelines for 5 independent seeds.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:15:16Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Threshold Sensitivity Fallback triggers if more than 10% false-positive
+    merges
+  claim_id: c_30ffbc5a
+  context: "T059 Threshold Sensitivity Fallback \u2013 if > 10 % false\u2011positive\
+    \ merges, automatically relax Jaccard threshold and log adjustment."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_Sensitivity_Fallback_triggers_if_more_than_10%25_fal
+  kind: magnitude
+  raw_text: The Threshold Sensitivity Fallback triggers if more than 10% false-positive
+    merges occur.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:15:48Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Wilcoxon p-value set to 1.0 when variance is zero
+  claim_id: c_004f400b
+  context: "T060 Statistical Degeneracy Handling \u2013 added to Wilcoxon implementation\
+    \ to log warning and set p\u2011value to 1.0 when variance is zero."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Wilcoxon implementation logs a warning and sets p-value to 1.0 when
+    variance is zero.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:16:18Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: threshold sweep completeness check asserts four planned thresholds
+  claim_id: c_3f796258
+  context: "T070 Validate Threshold Sweep Completeness \u2013 assert threshold_sweep.json\
+    \ contains entries for all four planned thresholds (0.85, 0.90, 0.95, 0.98)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_sweep_completeness_check_asserts_four_planned_thre
+  kind: entity_fact
+  raw_text: The threshold sweep completeness check asserts entries for four planned
+    thresholds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:16:39Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 0
+  canonical: Multi-Seed Execution Loop runs pipelines for 5 independent seeds
+  claim_id: c_21b16aef
+  context: "Multi\u2011Seed Execution Loop \u2013 runs both baseline and clustering\u2011\
+    aided pipelines for 5 (2603.28921, https://arxiv.org/abs/2603.28921) independent\
+    \ seeds..."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: https://orcid.org/0009-0004-8154-3345
+      source_id: '2603.28921'
+      url: https://arxiv.org/abs/2603.28921
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The Multi-Seed Execution Loop runs pipelines for 5 independent seeds.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-14T14:18:52Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: examples include test tasks
+  claim_id: c_0ffdfd80
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:19:12Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: removed GPU dependencies bitsandbytes tinyllama accelerate replaced with
+    llama-cpp-python
+  claim_id: c_681cf788
+  context: Initialize Python project with requirements.txt... Removed heavy GPU-specific
+    dependencies (bitsandbytes, tinyllama, accelerate); replaced with CPU-native LLM
+    inference tools (llama-cpp-python) and verified absence of GPU libraries.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Removed_GPU_dependencies_bitsandbytes_tinyllama_accelerate_r
+  kind: entity_fact
+  raw_text: Removed heavy GPU-specific dependencies (bitsandbytes, tinyllama, accelerate);
+    replaced with CPU-native LLM inference tools (llama-cpp-python) and verified absence
+    of GPU libraries.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:19:35Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Thakur et al 2021 BEIR A Heterogeneous Benchmark for Zero-shot Evaluation
+    of Information Retrieval Models
+  claim_id: c_ad0bbcc1
+  context: 'References: Thakur et al. (2021). BEIR: A Heterogeneous Benchmark for
+    Zero-shot Evaluation of Information Retrieval Models. arXiv:2104.08663..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thakur et al. (2021) published ''BEIR: A Heterogeneous Benchmark for
+    Zero-shot Evaluation of Information Retrieval Models''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:19:54Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: log format is JSONL
+  claim_id: c_5b8d68d3
+  context: The log format is JSONL (data/processed/comparison_log.jsonl).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_format_is_JSONL
+  kind: entity_fact
+  raw_text: The log format is JSONL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:20:17Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: injected clusters pairwise cosine similarity greater than 0.95
+  claim_id: c_a780cebf
+  context: "Unit test for synthetic redundancy injection logic... asserts injected\
+    \ clusters have pairwise cosine similarity > 0.95 (FR\u2011002)."
+  evidence:
+    entailment_evidence: Injected clusters pairwise cosine similarity greater than
+      0.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Injected_clusters_pairwise_cosine_similarity_greater_than_0.
+  kind: magnitude
+  raw_text: Injected clusters have pairwise cosine similarity greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-14T14:20:20Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: synthetic redundancy injection creates at least 20 clusters of 3 to 5
+    near-duplicate passages
+  claim_id: c_4de2f2dc
+  context: "Synthetic Redundancy Injection... to create \u2265 20 clusters of 3\u2013\
+    5 near\u2011duplicate passages with cosine similarity > 0.95."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_redundancy_injection_creates_at_least_20_clusters
+  kind: magnitude
+  raw_text: "Synthetic redundancy injection creates at least 20 clusters of 3\u2013\
+    5 near-duplicate passages."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:20:22Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: synthetic redundancy injection uses synonym replacement probability 0.3
+  claim_id: c_f239e5fc
+  context: Synthetic Redundancy Injection... using synonym replacement (probability
+    0.3) and sentence shuffling (window 2)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic redundancy injection uses synonym replacement with probability
+    0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:20:43Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: synthetic redundancy injection uses sentence shuffling window size 2
+  claim_id: c_aec6a619
+  context: "...using synonym replacement (probability 0.3) and sentence shuffling\
+    \ (window 2) to create \u2265 20 clusters..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic redundancy injection uses sentence shuffling with window
+    size 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:21:03Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: semantic similarity threshold validator verifies average injected similarity
+    greater than 0.95
+  claim_id: c_0f139dc6
+  context: "Semantic Similarity Threshold Validator \u2013 reads injected_datasets.json,\
+    \ verifies average injected similarity > 0.95 and that at least 20 clusters exist..."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semantic_similarity_threshold_validator_verifies_average_inj
+  kind: magnitude
+  raw_text: The semantic similarity threshold validator verifies average injected
+    similarity is greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:21:24Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: sample size is max 10 flagged_count
+  claim_id: c_91d5de46
+  context: "Sample Size Calculator \u2013 determines sample size = max(10, flagged_count)\
+    \ and writes data/results/sample_config.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size is determined as max(10, flagged_count).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:21:54Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: TinyLlama-1.1B-Chat-v1.0 used for LLM Consensus Validation
+  claim_id: c_7d8b1e17
+  context: "LLM Consensus Validation \u2013 loads TinyLlama\u20111.1B\u2011Chat\u2011\
+    v1.0 (Q4_K_M) from TinyLlama/TinyLlama-1.1B-Chat-v1.0 via llama-cpp-python."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TinyLlama-1.1B-Chat-v1.0 is used for LLM Consensus Validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:22:16Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: LLM Consensus Validation checks available memory greater than 6.5GB
+  claim_id: c_3ced5f48
+  context: 'Memory Check: Uses psutil to verify available > 6.5GB; if not, skip to
+    T013e-proxy.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/LLM_Consensus_Validation_checks_available_memory_greater_tha
+  kind: magnitude
+  raw_text: The LLM Consensus Validation checks for available memory greater than
+    6.5GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:22:36Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: MinHash-LSH clustering uses Jaccard threshold 0.95
+  claim_id: c_d4e9a1d4
+  context: "MinHash\u2011LSH Clustering \u2013 groups near-duplicates using datasketch\
+    \ with Jaccard threshold 0.95..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MinHash-LSH clustering uses a Jaccard threshold of 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:22:37Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Cluster Integrity Check verifies greater than 95 percent intra-cluster
+    Jaccard similarities exceed 0.95
+  claim_id: c_028f9770
+  context: "Cluster Integrity Check \u2013 verifies that > 95 % of intra\u2011cluster\
+    \ Jaccard similarities exceed 0.95..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cluster_Integrity_Check_verifies_greater_than_95_percent_int
+  kind: magnitude
+  raw_text: The Cluster Integrity Check verifies that greater than 95% of intra-cluster
+    Jaccard similarities exceed 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:23:00Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: threshold sweep includes values 0.85 0.90 0.95 0.98
+  claim_id: c_bf25c979
+  context: "Threshold Sweep Definition \u2013 adds config entries for sweep values\
+    \ [0.85, 0.90, 0.95, 0.98] in code/config.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep includes values 0.85, 0.90, 0.95, and 0.98.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:23:19Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Threshold Sensitivity Fallback raises ClusteringFailureError if false-positive
+    merges greater than 10 percent after relaxation
+  claim_id: c_2293386d
+  context: "Threshold Sensitivity Fallback \u2013 if > 10 % false\u2011positive merges,\
+    \ automatically relax Jaccard threshold and log adjustment; raise ClusteringFailureError\
+    \ if still > 10 %."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_Sensitivity_Fallback_raises_ClusteringFailureError
+  kind: magnitude
+  raw_text: The Threshold Sensitivity Fallback raises ClusteringFailureError if false-positive
+    merges remain greater than 10% after relaxation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T14:23:56Z'

@@ -4,123 +4,324 @@ import hashlib
 import time
 from typing import List, Dict, Any, Tuple, Optional, Set
 from dataclasses import dataclass, asdict
-from pathlib import Path
-
 import logging
+
+from datasketch import MinHash, MinHashLSH
+from sentence_transformers import SentenceTransformer
+
+from config import get_config
+from models import RedundancyCluster
+from metrics import calculate_cosine_similarity_proxy
+
 logger = logging.getLogger(__name__)
 
 @dataclass
 class MinHashCluster:
     cluster_id: int
-    members: List[str]
-    centroid: str
-    threshold: float
+    member_ids: List[str]
+    representative_id: str
+    jaccard_similarities: Dict[str, float]
 
-def create_minhash(documents: List[str], num_perm: int = 128) -> List[Dict]:
+def create_minhash(text: str, num_perm: int = 128) -> MinHash:
+    """Create a MinHash signature for a given text."""
+    m = MinHash(num_perm=num_perm)
+    # Simple tokenization: lowercase and split
+    tokens = text.lower().split()
+    for token in tokens:
+        m.update(token.encode('utf8'))
+    return m
+
+def estimate_jaccard(m1: MinHash, m2: MinHash) -> float:
+    """Estimate Jaccard similarity between two MinHash signatures."""
+    return m1.jaccard(m2)
+
+def cluster_documents(documents: List[Dict[str, Any]], threshold: float = 0.95) -> List[MinHashCluster]:
     """
-    Creates MinHash signatures for a list of documents.
-    Simplified implementation for the pipeline.
+    Cluster documents using MinHash LSH.
+    
+    Args:
+        documents: List of document dicts with 'id' and 'text' keys.
+        threshold: Jaccard similarity threshold for clustering.
+        
+    Returns:
+        List of MinHashCluster objects.
     """
-    signatures = []
+    logger.info(f"Starting MinHash clustering with threshold {threshold}")
+    
+    # Create MinHash signatures for all documents
+    signatures = {}
     for doc in documents:
-        # Simple hash-based signature simulation
-        sig = [hash(doc + str(i)) % (2**32) for i in range(num_perm)]
-        signatures.append({"doc": doc, "signature": sig})
-    return signatures
-
-def estimate_jaccard(sig1: List[int], sig2: List[int]) -> float:
-    """Estimates Jaccard similarity from signatures."""
-    if not sig1 or not sig2:
-        return 0.0
-    matches = sum(1 for a, b in zip(sig1, sig2) if a == b)
-    return matches / len(sig1)
-
-def cluster_documents(documents: List[Dict], threshold: float = 0.95) -> List[Dict]:
-    """
-    Clusters documents based on Jaccard similarity (simulated).
-    """
-    clusters = []
-    current_cluster = []
+        doc_id = doc['id']
+        text = doc['text']
+        signatures[doc_id] = create_minhash(text)
     
-    # Simple clustering: group documents with high similarity
-    # In a real implementation, this would use LSH.
-    # Here we simulate the output structure required by T020 and T065.
+    # Create LSH index
+    lsh = MinHashLSH(threshold=threshold, num_perm=128)
     
-    if not documents:
-        return []
+    # Add signatures to LSH
+    for doc_id, sig in signatures.items():
+        lsh.insert(doc_id, sig)
+    
+    # Query each document to find its cluster
+    clusters_map = {}  # doc_id -> cluster_id
+    clusters_data = {} # cluster_id -> set of doc_ids
+    cluster_counter = 0
+    
+    for doc_id, sig in signatures.items():
+        if doc_id in clusters_map:
+            continue
+        
+        # Find similar documents
+        similar_ids = lsh.query(sig)
+        similar_ids = [sid for sid in similar_ids if sid != doc_id]
+        
+        # Create a new cluster
+        cluster_id = cluster_counter
+        clusters_data[cluster_id] = {doc_id}
+        clusters_map[doc_id] = cluster_id
+        
+        for sid in similar_ids:
+            if sid not in clusters_map:
+                clusters_map[sid] = cluster_id
+                clusters_data[cluster_id].add(sid)
+            else:
+                # Merge clusters if they are connected
+                existing_cluster = clusters_map[sid]
+                if existing_cluster != cluster_id:
+                    # Merge existing_cluster into cluster_id
+                    for other_id in clusters_data[existing_cluster]:
+                        clusters_map[other_id] = cluster_id
+                        clusters_data[cluster_id].add(other_id)
+                    del clusters_data[existing_cluster]
+        
+        cluster_counter += 1
+    
+    # Convert to MinHashCluster objects
+    result_clusters = []
+    for cluster_id, member_ids in clusters_data.items():
+        member_ids_list = list(member_ids)
+        # Calculate pairwise Jaccard similarities within cluster
+        jaccard_sims = {}
+        for mid in member_ids_list:
+            sims = []
+            for other_id in member_ids_list:
+                if mid != other_id:
+                    sim = estimate_jaccard(signatures[mid], signatures[other_id])
+                    sims.append(sim)
+            if sims:
+                jaccard_sims[mid] = sum(sims) / len(sims)
+        
+        # Select representative (highest average similarity to others)
+        rep_id = max(member_ids_list, key=lambda x: jaccard_sims.get(x, 0))
+        
+        result_clusters.append(MinHashCluster(
+            cluster_id=cluster_id,
+            member_ids=member_ids_list,
+            representative_id=rep_id,
+            jaccard_similarities=jaccard_sims
+        ))
+    
+    logger.info(f"Clustering complete: {len(result_clusters)} clusters found")
+    return result_clusters
 
-    for i, doc in enumerate(documents):
-        if i == 0:
-            current_cluster = [doc.get("id", str(i))]
+def filter_candidates_by_clustering(
+    candidates: List[Dict[str, Any]], 
+    clusters: List[MinHashCluster],
+    threshold: float = 0.95
+) -> Tuple[List[Dict[str, Any]], int]:
+    """
+    Filter candidates by keeping only representatives from each cluster.
+    
+    Args:
+        candidates: List of candidate dicts.
+        clusters: List of MinHashCluster objects.
+        threshold: Jaccard similarity threshold used for clustering.
+        
+    Returns:
+        Tuple of (filtered candidates, number of removed candidates).
+    """
+    logger.info(f"Filtering candidates using {len(clusters)} clusters")
+    
+    # Build a map of document_id -> cluster_id
+    doc_to_cluster = {}
+    for cluster in clusters:
+        for mid in cluster.member_ids:
+            doc_to_cluster[mid] = cluster.cluster_id
+    
+    # Keep only representatives
+    kept_ids = {cluster.representative_id for cluster in clusters}
+    
+    filtered_candidates = []
+    removed_count = 0
+    
+    for candidate in candidates:
+        doc_id = candidate['id']
+        if doc_id in kept_ids:
+            filtered_candidates.append(candidate)
         else:
-            # Simulate similarity check
-            # For the sake of T065 validation, we create a valid cluster structure
-            current_cluster.append(doc.get("id", str(i)))
-        
-        # Force a cluster every N items to ensure output
-        if len(current_cluster) >= 2:
-            clusters.append({
-                "cluster_id": len(clusters),
-                "members": current_cluster,
-                "similarity": 0.98
-            })
-            current_cluster = []
+            removed_count += 1
     
-    if current_cluster:
-        clusters.append({
-            "cluster_id": len(clusters),
-            "members": current_cluster,
-            "similarity": 0.95
-        })
+    logger.info(f"Filtered candidates: {len(candidates)} -> {len(filtered_candidates)} (removed {removed_count})")
+    return filtered_candidates, removed_count
+
+def run_clustering_pipeline(
+    input_path: str,
+    output_path: str,
+    threshold: float = 0.95,
+    fallback_thresholds: List[float] = None
+) -> Dict[str, Any]:
+    """
+    Run the full clustering pipeline with threshold sensitivity fallback.
+    
+    Implements T059: If > 10% false-positive merges, automatically relax Jaccard 
+    threshold and log adjustment; raise ClusteringFailureError if still > 10%.
+    
+    Args:
+        input_path: Path to injected_datasets.json.
+        output_path: Path to write clusters.json.
+        threshold: Initial Jaccard similarity threshold.
+        fallback_thresholds: List of thresholds to try if initial fails.
         
-    return clusters
-
-def filter_candidates_by_clustering(candidates: List[Dict], clusters: List[Dict]) -> List[Dict]:
-    """Filters candidates based on clustering results."""
-    # Logic to reduce candidate pool
-    return candidates[:len(candidates)//2] if clusters else candidates
-
-def run_clustering_pipeline(input_path: str = "data/processed/injected_datasets.json", 
-                            output_path: str = "data/processed/clusters.json",
-                            threshold: float = 0.95) -> str:
+    Returns:
+        Dictionary with clustering results and status.
     """
-    T020: Main clustering pipeline execution.
-    Reads injected datasets, performs clustering, and writes clusters.json.
-    """
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file missing: {input_path}")
-
+    logger.info(f"Running clustering pipeline with initial threshold {threshold}")
+    
+    # Load input data
     with open(input_path, 'r') as f:
         data = json.load(f)
-
-    all_clusters = []
-    for ds_name, ds_data in data.get("datasets", {}).items():
-        clusters = ds_data.get("clusters", [])
-        # Enrich with metadata
-        for c in clusters:
-            c["dataset"] = ds_name
-        all_clusters.extend(clusters)
-
-    result = {
-        "clusters": all_clusters,
-        "threshold": threshold,
-        "algorithm": "MinHash-LSH-Simulated",
-        "total_clusters": len(all_clusters)
-    }
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2)
     
-    logger.info(f"Clustering pipeline completed. Output: {output_path}")
-    return output_path
+    documents = data.get('documents', [])
+    if not documents:
+        raise ValueError("No documents found in input file")
+    
+    # Prepare fallback thresholds if not provided
+    if fallback_thresholds is None:
+        # Default fallback: relax threshold if initial fails
+        fallback_thresholds = [0.90, 0.85, 0.80]
+    
+    current_threshold = threshold
+    max_false_positive_rate = 0.10  # 10%
+    
+    for attempt_idx, current_threshold in enumerate([threshold] + fallback_thresholds):
+        logger.info(f"Clustering attempt {attempt_idx + 1} with threshold {current_threshold}")
+        
+        try:
+            clusters = cluster_documents(documents, threshold=current_threshold)
+            
+            # Validate cluster quality
+            false_positive_count = 0
+            total_pairs = 0
+            
+            for cluster in clusters:
+                if len(cluster.member_ids) < 2:
+                    continue
+                
+                # Calculate actual cosine similarity for intra-cluster pairs
+                # Using embedding model for ground truth validation
+                embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+                texts = []
+                ids = []
+                
+                for doc in documents:
+                    if doc['id'] in cluster.member_ids:
+                        texts.append(doc['text'])
+                        ids.append(doc['id'])
+                
+                if len(texts) < 2:
+                    continue
+                
+                embeddings = embedding_model.encode(texts)
+                
+                # Check pairwise similarities
+                for i in range(len(ids)):
+                    for j in range(i + 1, len(ids)):
+                        total_pairs += 1
+                        # Calculate cosine similarity
+                        from metrics import calculate_cosine_similarity_proxy
+                        sim = calculate_cosine_similarity_proxy(embeddings[i], embeddings[j])
+                        
+                        # If similarity < 0.95 but they are in same cluster (Jaccard > threshold),
+                        # it's a potential false positive
+                        if sim < 0.95:
+                            false_positive_count += 1
+            
+            false_positive_rate = false_positive_count / total_pairs if total_pairs > 0 else 0.0
+            
+            logger.info(f"Attempt {attempt_idx + 1}: False positive rate = {false_positive_rate:.4f}")
+            
+            if false_positive_rate <= max_false_positive_rate:
+                # Success: write results
+                clusters_dict = [asdict(c) for c in clusters]
+                
+                # Write to output file
+                os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                with open(output_path, 'w') as f:
+                    json.dump({
+                        'clusters': clusters_dict,
+                        'threshold_used': current_threshold,
+                        'false_positive_rate': false_positive_rate,
+                        'total_clusters': len(clusters),
+                        'total_documents': len(documents),
+                        'attempt': attempt_idx + 1
+                    }, f, indent=2)
+                
+                logger.info(f"Clustering successful with threshold {current_threshold}")
+                return {
+                    'status': 'success',
+                    'threshold_used': current_threshold,
+                    'false_positive_rate': false_positive_rate,
+                    'num_clusters': len(clusters),
+                    'num_documents': len(documents)
+                }
+            else:
+                logger.warning(f"Attempt {attempt_idx + 1}: False positive rate {false_positive_rate:.4f} > {max_false_positive_rate}")
+                if attempt_idx == len(fallback_thresholds):
+                    # Last attempt failed
+                    raise ClusteringFailureError(
+                        f"Clustering failed: false positive rate {false_positive_rate:.4f} exceeds "
+                        f"threshold {max_false_positive_rate} even after relaxing to {current_threshold}"
+                    )
+                else:
+                    logger.info(f"Relaxing threshold to {fallback_thresholds[attempt_idx]} for next attempt")
+                    
+        except Exception as e:
+            logger.error(f"Clustering attempt {attempt_idx + 1} failed: {str(e)}")
+            if attempt_idx == len(fallback_thresholds):
+                raise ClusteringFailureError(
+                    f"Clustering failed after all attempts: {str(e)}"
+                )
+    
+    raise ClusteringFailureError("Clustering failed: all threshold attempts exceeded false positive limit")
 
 def main():
-    parser = argparse.ArgumentParser(description="Clustering Pipeline")
-    parser.add_argument("--threshold", type=float, default=0.95)
+    """Main entry point for clustering pipeline."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Run MinHash clustering pipeline')
+    parser.add_argument('--input', type=str, required=True, help='Input file path')
+    parser.add_argument('--output', type=str, required=True, help='Output file path')
+    parser.add_argument('--threshold', type=float, default=0.95, help='Jaccard similarity threshold')
+    parser.add_argument('--log-level', type=str, default='INFO', help='Logging level')
+    
     args = parser.parse_args()
-    run_clustering_pipeline(threshold=args.threshold)
+    
+    logging.basicConfig(level=getattr(logging, args.log_level.upper()))
+    
+    try:
+        result = run_clustering_pipeline(
+            input_path=args.input,
+            output_path=args.output,
+            threshold=args.threshold
+        )
+        print(json.dumps(result, indent=2))
+    except ClusteringFailureError as e:
+        logger.error(f"Clustering failed: {str(e)}")
+        raise
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}")
+        raise
 
-if __name__ == "__main__":
-    main()
+class ClusteringFailureError(Exception):
+    """Raised when clustering fails due to excessive false positives."""
+    pass

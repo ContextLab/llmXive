@@ -1,148 +1,97 @@
 #!/bin/bash
-# T051: Generate Reproducibility Package
-# Bundles all raw data, processed artifacts, configuration files, and final results
-# into a single tarball with a manifest checksum.
-# Serves Constitution Principle I (Reproducibility) and V (Documentation).
+# T051: Generate reproducibility package script
+# This script creates a self-contained tarball for reproducing the llmXive results.
+# It includes the code, configuration, generated data artifacts, and a run-book.
 
-set -euo pipefail
+set -e
 
-# Configuration
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-PACKAGE_NAME="repro_package_${TIMESTAMP}"
-OUTPUT_DIR="${PROJECT_ROOT}/data/repro_packages"
-MANIFEST_FILE="${OUTPUT_DIR}/${PACKAGE_NAME}_manifest.txt"
-CHECKSUM_FILE="${OUTPUT_DIR}/${PACKAGE_NAME}_checksums.txt"
-TAR_FILE="${OUTPUT_DIR}/${PACKAGE_NAME}.tar.gz"
+PACKAGE_NAME="llmXive_repro_PROJ-873_$(date +%Y%m%d%H%M%S).tar.gz"
+TEMP_DIR=$(mktemp -d)
 
-# Ensure output directory exists
-mkdir -p "${OUTPUT_DIR}"
+echo "📦 Creating reproducibility package: ${PACKAGE_NAME}"
+echo "📂 Working directory: ${PROJECT_ROOT}"
+echo "📁 Temp staging: ${TEMP_DIR}"
 
-echo "=== Generating Reproducibility Package ==="
-echo "Timestamp: ${TIMESTAMP}"
-echo "Output Directory: ${OUTPUT_DIR}"
+# 1. Create directory structure in temp
+mkdir -p "${TEMP_DIR}/llmXive_repro"
+mkdir -p "${TEMP_DIR}/llmXive_repro/code"
+mkdir -p "${TEMP_DIR}/llmXive_repro/data"
+mkdir -p "${TEMP_DIR}/llmXive_repro/tests"
+mkdir -p "${TEMP_DIR}/llmXive_repro/docs"
 
-# Define directories and files to include
-# Raw Data (BEIR downloads if present, otherwise just the structure)
-RAW_DATA_DIRS=(
-  "beir_data"
-)
+# 2. Copy essential code files (excluding heavy dependencies/models)
+# We copy the scripts and modules defined in the API surface
+cp -r "${PROJECT_ROOT}/code"/*.py "${TEMP_DIR}/llmXive_repro/code/" 2>/dev/null || true
+cp -r "${PROJECT_ROOT}/code/scripts"/*.py "${TEMP_DIR}/llmXive_repro/code/scripts/" 2>/dev/null || true
+cp -r "${PROJECT_ROOT}/code/audit"/*.py "${TEMP_DIR}/llmXive_repro/code/audit/" 2>/dev/null || true
 
-# Processed Artifacts
-PROCESSED_DIRS=(
-  "data/processed"
-)
+# Copy configuration and requirements
+cp "${PROJECT_ROOT}/requirements.txt" "${TEMP_DIR}/llmXive_repro/" 2>/dev/null || echo "⚠ requirements.txt not found"
+cp "${PROJECT_ROOT}/README.md" "${TEMP_DIR}/llmXive_repro/" 2>/dev/null || echo "⚠ README.md not found"
 
-# Results
-RESULTS_DIRS=(
-  "data/results"
-)
+# Copy generated data artifacts (the results of the run)
+# These are the declared deliverables from the execution log
+if [ -d "${PROJECT_ROOT}/data/processed" ]; then
+    cp -r "${PROJECT_ROOT}/data/processed"/* "${TEMP_DIR}/llmXive_repro/data/processed/" 2>/dev/null || true
+fi
+if [ -d "${PROJECT_ROOT}/data/results" ]; then
+    cp -r "${PROJECT_ROOT}/data/results"/* "${TEMP_DIR}/llmXive_repro/data/results/" 2>/dev/null || true
+fi
+if [ -d "${PROJECT_ROOT}/data/raw" ]; then
+    cp -r "${PROJECT_ROOT}/data/raw" "${TEMP_DIR}/llmXive_repro/data/" 2>/dev/null || true
+fi
 
-# Configuration and Code Artifacts
-CONFIG_FILES=(
-  "code/config.py"
-  "code/requirements.txt"
-)
+# 3. Generate a dynamic README for the package explaining how to reproduce
+cat > "${TEMP_DIR}/llmXive_repro/REPRO_INSTRUCTIONS.md" << 'EOF'
+# Reproduction Instructions for llmXive (PROJ-873)
 
-# Documentation
-DOCS_FILES=(
-  "README.md"
-  "docs/quickstart.md"
-  "docs/data-model.md"
-)
+This package contains the code and data artifacts for the "Active Learners as Efficient PRP Rerankers" study.
 
-# State and Logs
-STATE_DIRS=(
-  "state/projects"
-)
-LOG_FILES=(
-  "data/processed/comparison_log.json"
-  "data/processed/resource_log.jsonl"
-)
+## Prerequisites
+- Python 3.8+
+- `pip install -r requirements.txt`
+- (Optional) BEIR datasets will be re-downloaded if not present in `data/raw/`.
 
-# Create a temporary staging directory
-STAGING_DIR=$(mktemp -d)
-trap "rm -rf ${STAGING_DIR}" EXIT
+## Steps to Reproduce
 
-echo "Staging directory: ${STAGING_DIR}"
+1. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# 1. Copy Raw Data
-echo "Staging raw data..."
-for dir in "${RAW_DATA_DIRS[@]}"; do
-  if [ -d "${PROJECT_ROOT}/${dir}" ]; then
-    cp -r "${PROJECT_ROOT}/${dir}" "${STAGING_DIR}/"
-  else
-    echo "Warning: Raw data directory '${dir}' not found, skipping."
-  fi
-done
+2. **Verify Artifacts**:
+   The `data/` directory contains the processed results from the original run.
+   - `data/processed/injected_datasets.json`: Synthetic redundancy injection.
+   - `data/processed/clusters.json`: MinHash-LSH clustering results.
+   - `data/processed/comparison_log.jsonl`: Pairwise comparison logs.
+   - `data/results/*.json`: Final metrics (NDCG, Wilcoxon tests, etc.).
 
-# 2. Copy Processed Artifacts
-echo "Staging processed artifacts..."
-for dir in "${PROCESSED_DIRS[@]}"; do
-  if [ -d "${PROJECT_ROOT}/${dir}" ]; then
-    cp -r "${PROJECT_ROOT}/${dir}" "${STAGING_DIR}/"
-  fi
-done
+3. **Re-run Validation** (Optional):
+   To verify the pipeline against the existing data:
+   ```bash
+   python code/quickstart_validator.py
+   ```
 
-# 3. Copy Results
-echo "Staging results..."
-for dir in "${RESULTS_DIRS[@]}"; do
-  if [ -d "${PROJECT_ROOT}/${dir}" ]; then
-    cp -r "${PROJECT_ROOT}/${dir}" "${STAGING_DIR}/"
-  fi
-done
+4. **Generate Charts** (Optional):
+   If you have matplotlib installed:
+   ```bash
+   python code/scripts/generate_charts.py
+   ```
 
-# 4. Copy Configuration and Code Artifacts
-echo "Staging configuration and code artifacts..."
-mkdir -p "${STAGING_DIR}/code"
-for file in "${CONFIG_FILES[@]}"; do
-  if [ -f "${PROJECT_ROOT}/${file}" ]; then
-    cp "${PROJECT_ROOT}/${file}" "${STAGING_DIR}/code/"
-  fi
-done
+## Notes
+- This package does **not** include large model weights (e.g., TinyLlama, all-MiniLM-L6-v2).
+- If you need to re-run the full pipeline from scratch, ensure you have sufficient CPU/RAM resources (see `specs/001-llmxive-prp-redundancy/spec.md`).
+- The `data/raw/` folder may contain downloaded BEIR datasets (scifact, nfcorpus, trec-covid). If missing, the pipeline will attempt to re-download them.
+EOF
 
-# 5. Copy Documentation
-echo "Staging documentation..."
-mkdir -p "${STAGING_DIR}/docs"
-for file in "${DOCS_FILES[@]}"; do
-  if [ -f "${PROJECT_ROOT}/${file}" ]; then
-    cp "${PROJECT_ROOT}/${file}" "${STAGING_DIR}/docs/"
-  fi
-done
+# 4. Create the tarball
+cd "${TEMP_DIR}"
+tar -czf "${PROJECT_ROOT}/${PACKAGE_NAME}" llmXive_repro
 
-# 6. Copy State and Logs
-echo "Staging state and logs..."
-for dir in "${STATE_DIRS[@]}"; do
-  if [ -d "${PROJECT_ROOT}/${dir}" ]; then
-    cp -r "${PROJECT_ROOT}/${dir}" "${STAGING_DIR}/"
-  fi
-done
+# 5. Cleanup
+rm -rf "${TEMP_DIR}"
 
-for file in "${LOG_FILES[@]}"; do
-  if [ -f "${PROJECT_ROOT}/${file}" ]; then
-    cp "${PROJECT_ROOT}/${file}" "${STAGING_DIR}/"
-  fi
-done
-
-# 7. Generate Manifest
-echo "Generating manifest..."
-cd "${STAGING_DIR}"
-find . -type f -print | sort > "${MANIFEST_FILE}"
-
-# 8. Create Tarball
-echo "Creating tarball..."
-cd "${STAGING_DIR}"
-tar -czf "${TAR_FILE}" .
-
-# 9. Generate Checksums
-echo "Generating checksums..."
-sha256sum "${TAR_FILE}" > "${CHECKSUM_FILE}"
-
-# 10. Cleanup and Finalize
-echo "=== Reproducibility Package Generated Successfully ==="
-echo "Package: ${TAR_FILE}"
-echo "Manifest: ${MANIFEST_FILE}"
-echo "Checksums: ${CHECKSUM_FILE}"
-echo ""
-echo "Checksum:"
-cat "${CHECKSUM_FILE}"
+echo "✅ Package created successfully: ${PROJECT_ROOT}/${PACKAGE_NAME}"
+echo "📊 Size: $(du -h "${PROJECT_ROOT}/${PACKAGE_NAME}" | cut -f1)"
+echo "📝 To verify, run: tar -tzf ${PACKAGE_NAME} | head -20"

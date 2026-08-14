@@ -1,5 +1,5 @@
-2|all calculation embedding l6 minilm model system use v2:
-  quote: embedding (i.e., all-MiniLM-L6-v2) in an
-  source_id: '2607.07974'
-  url: https://arxiv.org/abs/2607.07974
-  value: all-MiniLM-L6-v2
+'|execution independent loop multi pipeline run seed':
+  quote: https://orcid.org/0009-0004-8154-3345
+  source_id: '2603.28921'
+  url: https://arxiv.org/abs/2603.28921
+  value: '5'

@@ -80,3 +80,19 @@ T043:
     \ of the \u201CSemantic Similarity Threshold Validator\u201D, nor any code that\
     \ writes `data/processed/validation_status.json`. The required JSON file is absent,\
     \ so the task\u2019s execution and output requirements are not satisfied."
+T058:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation for the \u201CParameter Adaptation\
+    \ Fallback\u201D mechanism was provided; the only material present is the specification\
+    \ excerpt, which does not contain the required implementation artifact. Consequently,\
+    \ there is no evidence that the fallback behavior (used by T012/T043 for injection\
+    \ retries) exists or functions as required."
+T059:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or test artifact demonstrating the required fallback\
+    \ behavior is present. The implementer did not provide any implementation that\
+    \ checks the false\u2011positive merge rate, relaxes the Jaccard threshold, logs\
+    \ the adjustment, or raises `ClusteringFailureError` when the rate remains >\u202F\
+    10\u202F%. These are essential to satisfy task T059."
