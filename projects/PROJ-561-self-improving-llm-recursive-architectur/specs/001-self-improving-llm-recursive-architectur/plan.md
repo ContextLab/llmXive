@@ -112,7 +112,7 @@ results/
 3.  **Step 3.2: Distinctness Validation** (FR-020, FR-002): Compare proposal against history. Ensure Hamming distance >= 1 or >5% parameter change. Reject if not distinct.
 4.  **Step 3.3: External Oracle Check** (FR-021): Validate proposal against fixed heuristics (e.g., parameter efficiency).
 5. **Step 3.4: Training** (FR-004): Train for 1 epoch. **Fallback**: If estimated time > 2h, reduce training subset to [deferred] samples.
-6.  **Step 3.5: FLOPs Calculation** (FR-008): Use `torch.profiler` to record FLOPs (2 decimal precision).
+6.  **Step 3.5: FLOPs Calculation** (FR-008): Use `torch.profiler` to record FLOPs with appropriate precision.
 7.  **Step 3.6: Evaluation** (FR-005): Evaluate on GSMK, ARC, and BoolQ
 
 The research question remains: To what extent can the proposed method improve reasoning performance across diverse benchmark tasks?
