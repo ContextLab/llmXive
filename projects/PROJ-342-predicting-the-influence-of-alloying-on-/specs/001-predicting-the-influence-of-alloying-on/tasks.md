@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Predicting the Influence of Alloying on the Glass Transition Temperature of Metallic Glasses
 
 **Input**: Design documents from `/specs/001-predict-tg-metallic-glasses/`
@@ -45,7 +49,7 @@
 
 - [X] T001 Create project structure per implementation plan: create `code/`, `data/raw/`, `data/processed/`, `artifacts/models/`, `artifacts/metrics/`, `tests/`, and `specs/001-predict-tg-metallic-glasses/contracts/` directories.
 - [X] T002 {{claim:c_9f48eaca}} <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting tools
 
 ---
 
@@ -131,7 +135,7 @@
 
 - [ ] T033 [US3] Implement `code/analyze.py` for Pearson/Spearman correlation calculation between predictors (FR-009). **Input**: `data/processed/descriptors.csv`
 - [ ] T034 [US3] Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on correlations (α ≤ 0.05) (FR-008). **Input**: Results from T033. **Note**: Spec FR-008 mandates FDR; Plan's 'Complexity Tracking' mentions Bonferroni but must be amended to align with Spec.
-- [ ] T035 [US3] Implement `code/analyze.py` for VIF calculation. If VIF > 5, **flag** for diagnostic review (do NOT drop). Save diagnostic log to `data/processed/vif_diagnostic_log.json` (FR-007, Spec). **Note**: Plan's 'Complexity Tracking' mentions iterative dropping, but Spec FR-007 is the authority; Plan must be amended. **Input**: `data/processed/descriptors.csv`.
+- [ ] T035 [US3] Implement `code/analyze.py` for VIF calculation. If VIF > 5, **flag** for diagnostic review (do NOT drop). Save diagnostic log to `data/processed/vif_diagnostic_log.json` (FR-007, Spec). **Note**: Plan's 'Complexity Tracking' mentions iterative dropping, but Spec FR-007 is the authority; Plan must be amended.
 - [ ] T036 [US3] Implement sensitivity analysis in `code/analyze.py`: sweep `max_depth` ∈ {a range of values} on the best model from T022, report R² variance (FR-006). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024.
 - [ ] T037 [US3] Implement `code/analyze.py` for bootstrapping with a sufficient number of resamples to calculate 95% CI for feature importance (SC-002). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024.
 - [ ] T038 [US3] Save stability metrics (95% CI for feature importance) to `artifacts/metrics/stability_metrics.json` (SC-002)
@@ -152,7 +156,7 @@
 - [ ] T044 Code cleanup and refactoring (remove unused imports, ensure type hints)
 - [ ] T045 Performance optimization (ensure vectorized operations in descriptors to stay within 7GB RAM)
 - [ ] T046 [P] Run quickstart.md validation to ensure end-to-end reproducibility
-- [ ] T047 Verify all tasks execute on CPU-only CI (a minimal core configuration with constrained RAM) without GPU dependencies
+- [ ] T047 Verify all tasks execute on CPU-only CI (a minimal core configuration with constrained RAM)
 
 ---
 
@@ -245,6 +249,6 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: Ensure no tasks require GPU (CUDA) or 8-bit/4-bit quantization libraries. All models must run on CPU.
-- **Note on Plan Discrepancy (FDR vs Bonferroni)**: Spec FR-008 mandates FDR. Plan's 'Complexity Tracking' mentions Bonferroni; this is a Plan error that must be amended. Tasks follow Spec.
+- **Note on Plan Discrepancy (FDR vs Bonferroni)**: Spec FR-008 mandates FDR; Plan's 'Complexity Tracking' mentions Bonferroni; this is a Plan error that must be amended. Tasks follow Spec.
 - **Note on Plan Discrepancy (VIF)**: Spec FR-007 mandates 'flag only'. Plan's 'Complexity Tracking' mentions iterative dropping; this is a Plan error that must be amended. Tasks follow Spec.
 - **Note on Visualization**: T039 covers the general 'visualize non-linear relationships' requirement, using partial dependence as the primary method but allowing others if validated.
