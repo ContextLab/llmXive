@@ -4,12 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No directory structure is presented in the provided evidence; there are no listed files or folder listings showing `src/`, `tests/`, `data/raw`, `data/processed`, `output`, and the subfolders under `src/`. The required folders must be created and visible in the repository for the task to be considered complete.
-- `T002` (rejected 1x): declared artifact(s) missing/empty/invalid: src/utils/config.py
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.flake8`, or `black` settings) or documentation of their integration into the project are present. Consequently, the required artifact to demonstrate that ruff/flake8 and black have been configured is missing.
-- `T008` (rejected 1x): The required file `src/models/species_aggregate.py` does not exist, so the class `SpeciesAggregate` with the specified fields is missing entirely. The task’s core artifact is absent, making the implementation incomplete.
-- `T010` (rejected 1x): The implementer only asserted that the required directories were created, but no file‑system listing, screenshots, or other concrete evidence of the `data/raw`, `data/processed`, `output`, `src/data`, `src/analysis`, and `src/viz` folders is provided. Without actual artifacts confirming the directory structure exists, the task requirement is not satisfied.
-- `T020` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/merge.py
+- `T019` (rejected 1x): The `src/data/merge.py` file exists and includes an `align_genomic_phenotypic` function that merges and logs missing rows, but the module is truncated (e.g., an unfinished `detect_aggregation_need` definition) and the required output file `data/processed/merged_raw.parquet` is not present. The pipeline therefore does not produce the specified merged Parquet file.
+- `T021` (rejected 1x): The repository contains a `src/data/merge.py` file, but it is truncated and does not show any code that writes the merged DataFrame to `data/processed/merged_dataset.parquet` or generates the required summary report. Moreover, the expected output file `data/processed/merged_dataset.parquet` is absent from the project. These missing pieces mean the task’s core requirements are not satisfied.
 
 ## Required change
 

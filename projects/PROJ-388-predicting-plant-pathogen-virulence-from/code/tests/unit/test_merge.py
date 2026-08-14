@@ -5,16 +5,18 @@ import shutil
 from pathlib import Path
 import pytest
 import pandas as pd
+import numpy as np
 import pyarrow.parquet as pq
 
 from src.data.merge import (
     load_genomic_features,
     load_phenotypic_scores,
-    align_and_merge,
+    align_genomic_phenotypic,
+    detect_aggregation_need,
+    aggregate_by_species,
     write_merged_dataset,
-    MergeResult
+    write_species_aggregates
 )
-from src.models.genomic_feature import GenomicFeature
 
 @pytest.fixture
 def temp_dir():
@@ -24,95 +26,159 @@ def temp_dir():
 
 @pytest.fixture
 def genomic_csv(temp_dir):
-    path = temp_dir / "genomic_features.csv"
-    with open(path, 'w', newline='') as f:
+    path = temp_dir / "genomic.csv"
+    data = [
+        ["isolate_id", "species_name", "feature_A", "feature_B"],
+        ["iso1", "Fusarium", 1, 0],
+        ["iso2", "Fusarium", 0, 1],
+        ["iso3", "Pseudomonas", 1, 1],
+        ["iso4", "Xanthomonas", 0, 0]
+    ]
+    with open(path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(['isolate_id', 'feature_id', 'type', 'presence_binary', 'pwm_count', 'source'])
-        writer.writerow(['strain_001', 'virA', 'gene', 1, 10, 'PHI-base'])
-        writer.writerow(['strain_001', 'virB', 'gene', 0, 5, 'PHI-base'])
-        writer.writerow(['strain_002', 'virA', 'gene', 1, 12, 'PHI-base'])
-        writer.writerow(['strain_003', 'virA', 'gene', 1, 8, 'PHI-base'])
+        writer.writerows(data)
     return path
 
 @pytest.fixture
 def phenotypic_csv(temp_dir):
-    path = temp_dir / "phenotypic_scores.csv"
-    with open(path, 'w', newline='') as f:
+    path = temp_dir / "phenotypic.csv"
+    data = [
+        ["isolate_id", "species_name", "phenotype_score"],
+        ["iso1", "Fusarium", 0.8],
+        ["iso2", "Fusarium", 0.6],
+        ["iso3", "Pseudomonas", 0.9],
+        # iso4 missing
+    ]
+    with open(path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(['isolate_id', 'score'])
-        writer.writerow(['strain_001', 0.85])
-        writer.writerow(['strain_002', 0.92])
-        writer.writerow(['strain_004', 0.50]) # Missing in genomic
+        writer.writerows(data)
     return path
 
 @pytest.fixture
 def low_linkage_phenotypic_csv(temp_dir):
-    path = temp_dir / "phenotypic_low_linkage.csv"
-    with open(path, 'w', newline='') as f:
+    path = temp_dir / "low_linkage_phenotypic.csv"
+    data = [
+        ["isolate_id", "species_name", "phenotype_score"],
+        ["iso1", "Fusarium", 0.8],
+        # iso2, iso3, iso4 missing
+    ]
+    with open(path, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(['isolate_id', 'score'])
-        # Only one match with genomic_csv
-        writer.writerow(['strain_001', 0.85])
-        writer.writerow(['strain_005', 0.60])
-        writer.writerow(['strain_006', 0.70])
-        writer.writerow(['strain_007', 0.75])
-        writer.writerow(['strain_008', 0.80])
+        writer.writerows(data)
     return path
 
-def test_load_genomic_features(genomic_csv):
-    features = load_genomic_features(genomic_csv)
-    assert len(features) == 4
-    assert features[0].feature_id == 'virA'
-    assert features[0].presence_binary == 1
-
-def test_load_phenotypic_scores(phenotypic_csv):
-    scores = load_phenotypic_scores(phenotypic_csv)
-    assert len(scores) == 3
-    assert scores['strain_001'] == 0.85
-    assert 'strain_004' in scores
-
-def test_align_and_merge_isolate_level(genomic_csv, phenotypic_csv):
-    df, result = align_and_merge(genomic_csv, phenotypic_csv)
-    assert len(df) == 2 # strain_001 and strain_002 match. strain_003 has no score.
-    assert result.processed_count == 2
-    assert result.missing_count == 1 # strain_003
-    assert not result.is_aggregated
-
-def test_align_and_merge_aggregate_level(genomic_csv, low_linkage_phenotypic_csv):
-    # Only 1 match out of 3 genomic isolates -> 33% linkage < 50%
-    # Should aggregate by species (if map provided) or handle gracefully.
-    # For this test, we assume no map, so it might fail or just drop.
-    # But the logic in align_and_merge checks linkage and aggregates if map is provided.
-    # Without map, it just drops. Let's test the drop behavior first.
+def test_load_genomic_features(temp_dir, genomic_csv):
+    # Create a parquet file for testing
+    df = pd.DataFrame({
+        "isolate_id": ["iso1", "iso2"],
+        "species_name": ["Fusarium", "Fusarium"],
+        "feature_A": [1, 0]
+    })
+    path = temp_dir / "test_genomic.parquet"
+    df.to_parquet(path)
     
-    # To test aggregation, we need a map.
-    isolate_to_species_map = {
-        'strain_001': 'SpeciesA',
-        'strain_005': 'SpeciesB',
-        'strain_006': 'SpeciesB',
-        'strain_007': 'SpeciesC',
-        'strain_008': 'SpeciesC'
-    }
-    
-    df, result = align_and_merge(genomic_csv, low_linkage_phenotypic_csv, isolate_to_species_map)
-    # Linkage is 1/3 = 33%. Should aggregate.
-    assert result.is_aggregated
-    # The resulting dataframe should have species-level rows.
-    # We expect at least 'SpeciesA' to be present.
-    assert 'species' in df.columns or 'species_name' in df.columns
+    result = load_genomic_features(str(path))
+    assert isinstance(result, pd.DataFrame)
+    assert len(result) == 2
+    assert "feature_A" in result.columns
 
-def test_write_merged_dataset(temp_dir, genomic_csv, phenotypic_csv):
-    df, result = align_and_merge(genomic_csv, phenotypic_csv)
-    output_path = temp_dir / "merged.parquet"
-    write_merged_dataset(df, output_path, result)
+def test_load_phenotypic_scores(temp_dir, phenotypic_csv):
+    # Create a parquet file for testing
+    df = pd.DataFrame({
+        "isolate_id": ["iso1", "iso2"],
+        "phenotype_score": [0.8, 0.6]
+    })
+    path = temp_dir / "test_phenotypic.parquet"
+    df.to_parquet(path)
     
-    assert output_path.exists()
-    table = pq.read_table(output_path)
-    assert table.num_rows == len(df)
+    result = load_phenotypic_scores(str(path))
+    assert isinstance(result, pd.DataFrame)
+    assert len(result) == 2
+    assert "phenotype_score" in result.columns
 
-def test_missing_phenotype_handling(genomic_csv, phenotypic_csv):
-    # strain_003 in genomic has no score in phenotypic
-    df, result = align_and_merge(genomic_csv, phenotypic_csv)
-    # strain_003 should be dropped
-    assert 'strain_003' not in df['isolate_id'].values
-    assert result.missing_count == 1
+def test_align_and_merge_isolate_level(temp_dir, genomic_csv, phenotypic_csv):
+    # Convert CSVs to Parquet for the function
+    gen_df = pd.read_csv(str(genomic_csv))
+    phen_df = pd.read_csv(str(phenotypic_csv))
+    
+    gen_path = temp_dir / "gen.parquet"
+    phen_path = temp_dir / "phen.parquet"
+    gen_df.to_parquet(gen_path)
+    phen_df.to_parquet(phen_path)
+    
+    loaded_gen = load_genomic_features(str(gen_path))
+    loaded_phen = load_phenotypic_scores(str(phen_path))
+    
+    merged = align_genomic_phenotypic(loaded_gen, loaded_phen)
+    
+    assert len(merged) == 3  # iso4 should be dropped
+    assert "phenotype_score" in merged.columns
+    assert merged["phenotype_score"].isna().sum() == 0
+
+def test_detect_aggregation_need_high_linkage(temp_dir):
+    # Create a dataframe with 10 rows, 9 have phenotypes
+    df = pd.DataFrame({
+        "species_name": ["Fusarium"] * 10,
+        "phenotype_score": [0.5] * 9 + [np.nan]
+    })
+    needs_agg, linked, total = detect_aggregation_need(df)
+    assert needs_agg is False
+    assert linked == 9
+    assert total == 10
+
+def test_detect_aggregation_need_low_linkage(temp_dir):
+    # Create a dataframe with 10 rows, 4 have phenotypes
+    df = pd.DataFrame({
+        "species_name": ["Fusarium"] * 10,
+        "phenotype_score": [0.5] * 4 + [np.nan] * 6
+    })
+    needs_agg, linked, total = detect_aggregation_need(df)
+    assert needs_agg is True
+    assert linked == 4
+    assert total == 10
+
+def test_aggregate_by_species(temp_dir):
+    df = pd.DataFrame({
+        "species_name": ["Fusarium", "Fusarium", "Pseudomonas"],
+        "phenotype_score": [0.8, 0.6, 0.9],
+        "feature_A": [1, 0, 1],
+        "isolate_id": ["iso1", "iso2", "iso3"]
+    })
+    
+    result = aggregate_by_species(df)
+    
+    assert len(result) == 2
+    assert "species_name" in result.columns
+    assert "avg_phenotype" in result.columns
+    assert "isolate_count" in result.columns
+    
+    # Check Fusarium average
+    fusarium_row = result[result["species_name"] == "Fusarium"]
+    assert abs(fusarium_row["avg_phenotype"].values[0] - 0.7) < 1e-6
+    assert fusarium_row["isolate_count"].values[0] == 2
+
+def test_write_merged_dataset(temp_dir):
+    df = pd.DataFrame({
+        "isolate_id": ["iso1"],
+        "phenotype_score": [0.8]
+    })
+    path = temp_dir / "merged.parquet"
+    write_merged_dataset(df, str(path))
+    
+    assert path.exists()
+    loaded = pq.read_table(str(path)).to_pandas()
+    assert len(loaded) == 1
+
+def test_write_species_aggregates(temp_dir):
+    df = pd.DataFrame({
+        "species_name": ["Fusarium"],
+        "avg_phenotype": [0.7],
+        "isolate_count": [2]
+    })
+    path = temp_dir / "aggregates.parquet"
+    write_species_aggregates(df, str(path))
+    
+    assert path.exists()
+    loaded = pq.read_table(str(path)).to_pandas()
+    assert len(loaded) == 1
+    assert "species_name" in loaded.columns

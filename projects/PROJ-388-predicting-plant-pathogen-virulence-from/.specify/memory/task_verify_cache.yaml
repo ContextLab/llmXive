@@ -9,10 +9,19 @@ T007:
   r: The required file `src/models/genomic_feature.py` does not exist, so the class
     definition with the specified fields is missing. The implementer must create this
     file and implement the `GenomicFeature` class accordingly.
-T019:
+T020b:
   c: false
-  h: 17dd23007b091644baee32e8217c43a1b8c437941dc3194612f5004a656f7cab
-  r: "The required artifact `src/data/merge.py` does not exist in the repository,\
-    \ so the implementation cannot be verified and the task\u2019s functional requirements\
-    \ are unmet. The missing file must be added with the described merging logic and\
-    \ logging."
+  h: 0203babf894251ce176c93d5d75c9ba6689ef1eb40e3273c96ad201baa3564e8
+  r: "The provided `src/data/merge.py` is truncated (the `detect_aggregation_need`\
+    \ function is incomplete and no aggregation\u2011or\u2011write logic is visible),\
+    \ and the required output file `data/processed/species_aggregates.parquet` does\
+    \ not exist. Both the implementation and the generated artifact are missing."
+T020c:
+  c: false
+  h: 962289963c5523c92ec302a34caf9fe1be64b1423aba112954bb51495ca9cd37
+  r: "The `src/data/merge.py` file is truncated (e.g., an incomplete `detect_aggregation_need`\
+    \ definition) and does not contain logic that checks `needs_aggregation`, calls\
+    \ the analysis module on `data/processed/species_aggregates.parquet`, or writes\
+    \ `aggregated_results.csv`. Moreover, the required data files `data/processed/species_aggregates.parquet`\
+    \ and `data/processed/aggregated_results.csv` are missing. The task\u2019s core\
+    \ functionality is therefore not implemented."
