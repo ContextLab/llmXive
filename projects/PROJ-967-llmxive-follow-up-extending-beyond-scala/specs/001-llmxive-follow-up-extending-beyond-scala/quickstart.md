@@ -3,50 +3,62 @@
 ## Prerequisites
 
 - Python 3.11+
-- Git
-- Access to the Z-Reward dataset (MUST be present in `data/raw/z_reward.parquet`)
+- `git`
+- Access to the `z_reward_eval.parquet` file (placed in `data/raw/`).
 
-## Setup
+## Installation
 
-1. **Clone and Install**
+1. **Clone and Setup**:
    ```bash
-   git checkout 001-llmxive-entanglement-analysis
+   git clone <repo-url>
    cd projects/PROJ-967-llmxive-follow-up-extending-beyond-scala
+   ```
+
+2. **Create Virtual Environment**:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+
+3. **Install Dependencies**:
+   ```bash
    pip install -r requirements.txt
    ```
 
-2. **Prepare Data (MANDATORY)**
-   The Z-Reward dataset MUST be placed in `data/raw/z_reward.parquet`.
-   If the file is missing, the pipeline will fail with a clear error message.
-   ```bash
-   cp /path/to/z_reward.parquet data/raw/
-   ```
+## Data Preparation
 
-3. **Run the Pipeline**
-   Execute the full pipeline from ingestion to model training:
+**CRITICAL**: The Z-Reward dataset must be manually downloaded and placed in `data/raw/`.
+- **Expected File**: `data/raw/z_reward_eval.parquet`
+- **Note**: If this file is missing, the pipeline will exit with a "Data Not Found" error. **Do not fabricate data.**
+
+## Running the Pipeline
+
+1. **Ingestion & Feature Engineering**:
    ```bash
-   python code/ingest.py
+   python code/ingestion.py
    python code/features.py
-   python code/train.py
    ```
+   - Outputs: `data/processed/features.json`, `data/processed/batch_stats.json`.
 
-4. **View Results**
-   Check `results/results.json` for R², MAE, p-values.
-   Check `results/covariance_matrix.json` for the global covariance matrix.
-   Check `results/exclusion_log.csv` for excluded samples.
-   Check `results/lineage_report.csv` for per-sample target source verification.
+2. **Model Training & Evaluation**:
    ```bash
-   cat results/results.json
+   python code/modeling.py
+   ```
+   - Outputs: `results/model.pkl`, `results/results.json`.
+
+3. **Run Tests**:
+   ```bash
+   pytest tests/ -v
    ```
 
-## Running Tests
+## Expected Outputs
 
-```bash
-pytest tests/
-```
+- `results/results.json`: Contains `r2_score`, `mae`, `p_value_permutation`, `null_baseline_mae`, `p_value_baseline`.
+- `data/processed/features.json`: JSON array of per-sample features.
+- `data/processed/batch_stats.json`: Covariance matrix and dominant eigenvalue.
 
 ## Troubleshooting
 
-- **Missing Data**: If `data/raw/z_reward.parquet` is missing, the script will fail with "Required dataset Z-Reward not found".
-- **Memory Error**: If the dataset is too large, the script will automatically sample the first [deferred] rows (configurable in `code/utils.py`).
-- **Missing Annotations**: Samples with missing human annotations are excluded and logged in `results/exclusion_log.csv`.
+- **Error: "Data Not Found"**: Ensure `data/raw/z_reward_eval.parquet` exists.
+- **Error: "Missing Human Annotations"**: The script logs excluded samples. This is expected behavior (FR-006).
+- **Memory Error**: If the dataset is too large, modify `code/ingestion.py` to use `chunksize` parameter in `pd.read_parquet`.

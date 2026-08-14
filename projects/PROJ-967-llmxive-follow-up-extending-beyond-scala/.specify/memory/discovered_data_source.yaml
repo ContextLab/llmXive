@@ -1,18 +1,16 @@
 status: none
-intent: Z-Reward evaluation dataset download HuggingFace datasets library python package
+intent: Z-Reward evaluation dataset download huggingface python package dataset
 required_fields:
 - sample_id
-- prompt
-- teacher_score_alignment
-- teacher_score_realism
-- teacher_score_aesthetics
-- teacher_score_plausibility
+- prompt_text
+- generated_image_path_or_url
+- teacher_score_distribution_logits
 - student_scalar_output
 - human_annotation_alignment
 - human_annotation_realism
 - human_annotation_aesthetics
 - human_annotation_plausibility
-- primary_quality_attribute
-cache_key: 6d2f6a6379ac1a6ded38c834f8603b4e84ba68c0e269e0c15d80a13cd1add9f7
-searched_at: '2026-08-07T09:27:28.767055+00:00'
+- primary_quality_dimension_metadata
+cache_key: abdc5b65759afda173b4a91fc869b964a4fd8b6271d0c74f4b11f5ef2313e993
+searched_at: '2026-08-14T14:33:50.733796+00:00'
 retry_count: 1

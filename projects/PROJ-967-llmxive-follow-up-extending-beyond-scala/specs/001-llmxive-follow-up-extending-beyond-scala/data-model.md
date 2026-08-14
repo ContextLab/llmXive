@@ -1,46 +1,42 @@
 # Data Model: llmXive Follow-up: Teacher Entanglement vs. Scalar Distillation Loss
 
-## Entities & Relationships
-
-### 1. Sample (Core Entity)
-Represents a single evaluation instance.
-- **Attributes**:
-  - `sample_id` (string): Unique identifier.
-  - `prompt` (string): The text prompt used for generation.
-  - `teacher_scores` (array[4]): Scores for [Alignment, Realism, Aesthetics, Plausibility].
-  - `student_score` (float): Scalar output from the student model.
-  - `human_annotations` (dict): Mapping of dimension names to human scores.
-  - `metadata` (dict): Includes `primary_quality_dimension` (string).
-  - `is_valid` (boolean): True if all required fields are present.
-
-### 2. FeatureRecord
-Derived statistical features for a sample.
-- **Attributes**:
-  - `sample_id` (string): FK to Sample.
-  - `variance` (float): Variance of teacher scores.
-  - `entropy` (float): Shannon entropy of L1-normalized (shifted) teacher scores.
-  - `skewness` (float): Skewness of teacher scores.
-  - `kurtosis` (float): Kurtosis of teacher scores.
-  - `difficulty_proxy` (float): Mean of teacher scores.
-  - `fidelity_loss` (float): MAE between student and human (primary dim).
-  - `target_variable_source` (string): The metadata field used to select the primary dimension.
-
-### 3. BatchStats
-Global statistics computed over the entire dataset.
-- **Attributes**:
-  - `batch_id` (string): "global".
-  - `covariance_matrix` (array[4][4]): 4x4 matrix.
-  - `dominant_eigenvalue` (float).
-  - `sample_count` (integer).
-
 ## Data Flow
 
-1. **Raw Data** (Parquet or Synthetic) -> **Ingest Script** -> **Cleaned DataFrame** (filtered, aligned) + **Exclusion Log** + **Lineage Report**.
-2. **Cleaned DataFrame** -> **Feature Script** -> **Feature DataFrame** (with entanglement scores) + **Covariance Matrix File**.
-3. **Feature DataFrame** -> **Train Script** -> **Model (Pickle)** + **Results (JSON)**.
+1. **Raw Input**: `data/raw/z_reward_eval.parquet` (Source: Z-Reward Dataset - *See Research.md for availability status*)
+2. **Ingestion**: `code/ingestion.py` validates schema, filters missing annotations, calculates `fidelity_loss`.
+3. **Feature Store**: `data/processed/features.json` (Per-sample features + batch metadata).
+4. **Model Artifact**: `results/model.pkl` (Trained Random Forest).
+5. **Results**: `results/results.json` (Aggregated metrics).
 
-## Storage Strategy
+## Entity Definitions
 
-- **Raw**: `data/raw/z_reward.parquet` (Immutable, checksummed) or Synthetic Data.
-- **Processed**: `data/processed/features.parquet` (Derived features).
-- **Results**: `results/model.pkl`, `results/results.json`, `results/covariance_matrix.json`, `results/exclusion_log.csv`, `results/lineage_report.csv`.
+### Sample
+- **ID**: Unique identifier (row index or UUID).
+- **Prompt**: Text string.
+- **Teacher Scores**: Dictionary or 4-column vector (Alignment, Realism, Aesthetics, Plausibility).
+- **Student Score**: Float (scalar).
+- **Human Annotations**: Dictionary or 4-column vector (Alignment, Realism, Aesthetics, Plausibility).
+- **Primary Quality Dimension**: String (e.g., "Alignment") derived from metadata.
+- **Fidelity Loss**: Float (MAE between Student Score and Human Annotation for Primary Dimension).
+
+### Entanglement Features (Per Sample)
+- **Variance**: Float (Variance of the 4 teacher scores).
+- **Entropy**: Float (Shannon entropy of the 4 teacher scores).
+- **Skewness**: Float.
+- **Kurtosis**: Float.
+
+### Batch Metadata
+- **Covariance Matrix**: 4x4 Float matrix.
+- **Dominant Eigenvalue**: Float.
+
+## Storage Format
+
+- **Raw**: Parquet (immutable).
+- **Processed**: JSON (features) and Pickle (model).
+- **Results**: JSON (metrics).
+
+## Constraints
+
+- **Missing Data**: Rows with null `human_annotations` for the target dimension are dropped.
+- **Zero Variance**: Handled by setting entropy/variance to 0.
+- **Data Integrity**: All transformations are logged; no in-place modification of raw data.

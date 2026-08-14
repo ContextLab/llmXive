@@ -38,7 +38,7 @@ properties:
     description: Timestamp of the run.
   data_source:
     type: string
-    description: "real" (if real data was used).
+    description: "real" or "synthetic" (if synthetic data was used).
   power_status:
     type: string
     description: "ok" or "low" (if N < 100).
@@ -54,6 +54,15 @@ properties:
   target_variable_source:
     type: string
     description: The metadata field used for target selection (aggregated).
+  global_hypothesis_correlation:
+    type: number
+    description: Correlation coefficient for the global hypothesis test (eigenvalue vs mean loss).
+  global_hypothesis_p_value:
+    type: number
+    description: P-value for the global hypothesis test.
+  partial_corr_entanglement:
+    type: number
+    description: Partial correlation between entanglement features and fidelity loss, controlling for student_score and teacher_mean.
 required:
   - r_squared
   - mae
@@ -67,4 +76,7 @@ required:
   - exclusion_log_path
   - lineage_report_path
   - target_variable_source
+  - global_hypothesis_correlation
+  - global_hypothesis_p_value
+  - partial_corr_entanglement
 additionalProperties: false

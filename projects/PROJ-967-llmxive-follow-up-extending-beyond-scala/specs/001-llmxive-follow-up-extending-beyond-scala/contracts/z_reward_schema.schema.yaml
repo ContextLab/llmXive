@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Z-Reward Evaluation Dataset Schema"
+description: "Schema for the Z-Reward evaluation dataset used in the entanglement analysis."
+type: "object"
+required:
+  - "prompt"
+  - "teacher_scores"
+  - "student_score"
+  - "human_annotations"
+  - "primary_quality_dimension"
+properties:
+  prompt:
+    type: "string"
+    description: "The text prompt used to generate the image."
+  teacher_scores:
+    type: "object"
+    description: "Teacher model scores for the four rubric dimensions."
+    required:
+      - "Alignment"
+      - "Realism"
+      - "Aesthetics"
+      - "Plausibility"
+    properties:
+      Alignment:
+        type: "number"
+        description: "Teacher score for Alignment."
+      Realism:
+        type: "number"
+        description: "Teacher score for Realism."
+      Aesthetics:
+        type: "number"
+        description: "Teacher score for Aesthetics."
+      Plausibility:
+        type: "number"
+        description: "Teacher score for Plausibility."
+  student_score:
+    type: "number"
+    description: "Scalar output from the student model."
+  human_annotations:
+    type: "object"
+    description: "Human annotations for the four rubric dimensions."
+    required:
+      - "Alignment"
+      - "Realism"
+      - "Aesthetics"
+      - "Plausibility"
+    properties:
+      Alignment:
+        type: "number"
+        description: "Human annotation for Alignment."
+      Realism:
+        type: "number"
+        description: "Human annotation for Realism."
+      Aesthetics:
+        type: "number"
+        description: "Human annotation for Aesthetics."
+      Plausibility:
+        type: "number"
+        description: "Human annotation for Plausibility."
+  primary_quality_dimension:
+    type: "string"
+    description: "The dimension to use for fidelity loss calculation. Must be one of the four dimensions."
+    enum:
+      - "Alignment"
+      - "Realism"
+      - "Aesthetics"
+      - "Plausibility"
+  fidelity_loss:
+    type: "number"
+    description: "Calculated MAE between student_score and human_annotations[primary_quality_dimension]. This is a derived field."
+    minimum: 0
+additionalProperties: false
