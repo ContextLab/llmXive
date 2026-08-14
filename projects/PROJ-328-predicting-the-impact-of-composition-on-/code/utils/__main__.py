@@ -1,14 +1,9 @@
 """
-Main entry point for testing and running utility modules.
-
-This script allows running utility tests or demonstrations from the command line.
+Main entry point for testing utility module functionality.
 """
 import sys
 import logging
 from pathlib import Path
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.logging_config import setup_logging, get_logger
 from utils.error_handlers import (
@@ -17,80 +12,71 @@ from utils.error_handlers import (
     DataValidationError,
     IngestionError,
     ModelTrainingError,
-    DataInsufficientError
+    DataInsufficientError,
+    CompositionSumError
 )
 from utils.fr007_warnings import main as run_warning_tests
 
-logger = get_logger(__name__)
-
-
-def test_error_handling() -> None:
-    """Test the custom error handling infrastructure."""
-    logger.info("Testing error handling infrastructure...")
-
+def test_error_handling():
+    """Test that all custom exceptions work correctly."""
+    logger = get_logger(__name__)
+    logger.info("Testing error handling...")
+    
+    # Test base exception
     try:
-        # Test ConfigurationError
-        raise ConfigurationError(
-            "Missing required configuration key",
-            config_file="data/config/sources.yaml",
-            key="materials_project_api_key"
-        )
+        raise SolderPipelineError("Base error test")
+    except SolderPipelineError as e:
+        logger.info(f"Caught SolderPipelineError: {e.message}")
+    
+    # Test ConfigurationError
+    try:
+        raise ConfigurationError("Missing config", config_key="data_path")
     except ConfigurationError as e:
-        logger.error(f"Caught expected ConfigurationError: {e.message}")
-
+        logger.info(f"Caught ConfigurationError: {e.message}")
+    
+    # Test DataValidationError
     try:
-        # Test DataValidationError
-        raise DataValidationError(
-            "Elemental composition sum out of range",
-            record_id="rec_001",
-            field="composition_sum"
-        )
+        raise DataValidationError("Invalid value", record_id="123", field="hardness")
     except DataValidationError as e:
-        logger.error(f"Caught expected DataValidationError: {e.message}")
-
+        logger.info(f"Caught DataValidationError: {e.message}")
+    
+    # Test IngestionError
     try:
-        # Test IngestionError
-        raise IngestionError(
-            "Failed to fetch data from source",
-            source="Materials Project API",
-            error_code=403
-        )
+        raise IngestionError("API failed", source="materials_project")
     except IngestionError as e:
-        logger.error(f"Caught expected IngestionError: {e.message}")
-
+        logger.info(f"Caught IngestionError: {e.message}")
+    
+    # Test ModelTrainingError
     try:
-        # Test ModelTrainingError
-        raise ModelTrainingError(
-            "Model training failed due to convergence issues",
-            model_type="XGBoost",
-            stage="fit"
-        )
+        raise ModelTrainingError("Convergence failed", model_type="xgboost")
     except ModelTrainingError as e:
-        logger.error(f"Caught expected ModelTrainingError: {e.message}")
-
+        logger.info(f"Caught ModelTrainingError: {e.message}")
+    
+    # Test DataInsufficientError
     try:
-        # Test DataInsufficientError
-        raise DataInsufficientError(
-            "Dataset size below minimum threshold",
-            current_count=30,
-            minimum_required=50
-        )
+        raise DataInsufficientError("Too few samples", current_n=30, required_n=50)
     except DataInsufficientError as e:
-        logger.error(f"Caught expected DataInsufficientError: {e.message}")
+        logger.info(f"Caught DataInsufficientError: {e.message}")
+    
+    # Test CompositionSumError
+    try:
+        raise CompositionSumError("Sum below threshold", record_id="456", actual_sum=92.5, threshold=95.0)
+    except CompositionSumError as e:
+        logger.info(f"Caught CompositionSumError: {e.message}")
+    
+    logger.info("Error handling tests completed successfully!")
 
-    logger.info("Error handling tests completed successfully.")
-
-
-def main() -> None:
-    """Main entry point for the utility module."""
+def main():
+    """Main entry point for utility testing."""
     setup_logging()
-    logger.info("Starting utility module tests...")
-
+    logger = get_logger(__name__)
+    
+    logger.info("Running utility module tests...")
+    
     test_error_handling()
     run_warning_tests()
-
-    logger.info("All utility tests passed.")
-
+    
+    logger.info("All utility tests passed!")
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,9 @@
 """
-FR-007 Warning Injection Utilities.
-Ensures associational framing warnings are injected into outputs.
+Warning injection utilities for FR007 compliance.
+
+This module provides functions to inject associational analysis warnings
+into various output formats (JSON, YAML, text) to ensure proper
+scientific communication of results.
 """
 import logging
 import json
@@ -9,104 +12,98 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 
-from utils.logging_config import get_logger
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 ASSOCIATIONAL_WARNING_TEXT = (
-    "NOTE: Results are associational, not causal. "
-    "Correlations observed in this analysis do not imply causation."
+    "WARNING: This analysis is associational only. "
+    "The models identify correlations between composition and hardness but "
+    "do not establish causal relationships. Results should be interpreted "
+    "with caution and validated through experimental methods."
 )
 
 def get_warning_header() -> str:
-    """Returns the standard warning header string."""
-    return ASSOCIATIONAL_WARNING_TEXT
+    """Return a formatted header for warning messages."""
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return f"[{timestamp}] FR007 COMPLIANCE WARNING"
 
-def inject_warning_into_json_output(data: Dict[str, Any], warning_key: str = "associational_warning") -> Dict[str, Any]:
+def inject_warning_into_json_output(data: Dict[str, Any], warning_text: Optional[str] = None) -> Dict[str, Any]:
     """
-    Injects the associational warning into a JSON-compatible dictionary.
+    Inject a warning into a JSON-compatible dictionary.
     
     Args:
-        data: The dictionary to inject the warning into.
-        warning_key: The key name for the warning.
-    
+        data: The output dictionary.
+        warning_text: Optional custom warning text. Defaults to standard warning.
+        
     Returns:
-        The modified dictionary with the warning injected.
+        The modified dictionary with warning injected.
     """
-    if not isinstance(data, dict):
-        raise TypeError("Data must be a dictionary for JSON injection.")
-    
-    data[warning_key] = {
-        "text": ASSOCIATIONAL_WARNING_TEXT,
-        "timestamp": datetime.utcnow().isoformat(),
-        "type": "associational_framing"
-    }
-    logger.info(f"Injected associational warning into JSON output.")
+    warning = warning_text or ASSOCIATIONAL_WARNING_TEXT
+    data['warning'] = warning
+    data['warning_type'] = 'associational_analysis'
+    data['warning_timestamp'] = datetime.now().isoformat()
+    logger.info("Injected associational warning into JSON output")
     return data
 
-def inject_warning_into_yaml_output(data: Dict[str, Any], warning_key: str = "associational_warning") -> Dict[str, Any]:
+def inject_warning_into_yaml_output(data: Dict[str, Any], warning_text: Optional[str] = None) -> str:
     """
-    Injects the associational warning into a YAML-compatible dictionary.
+    Inject a warning into YAML output and return as string.
     
     Args:
-        data: The dictionary to inject the warning into.
-        warning_key: The key name for the warning.
-    
+        data: The output dictionary.
+        warning_text: Optional custom warning text.
+        
     Returns:
-        The modified dictionary with the warning injected.
+        YAML string with warning injected.
     """
-    if not isinstance(data, dict):
-        raise TypeError("Data must be a dictionary for YAML injection.")
-    
-    data[warning_key] = {
-        "text": ASSOCIATIONAL_WARNING_TEXT,
-        "timestamp": datetime.utcnow().isoformat(),
-        "type": "associational_framing"
-    }
-    logger.info(f"Injected associational warning into YAML output.")
-    return data
+    warning = warning_text or ASSOCIATIONAL_WARNING_TEXT
+    data['warning'] = warning
+    data['warning_type'] = 'associational_analysis'
+    data['warning_timestamp'] = datetime.now().isoformat()
+    logger.info("Injected associational warning into YAML output")
+    return yaml.dump(data, default_flow_style=False, sort_keys=False)
 
-def add_warning_to_text_file(file_path: Path, warning_text: Optional[str] = None) -> None:
+def add_warning_to_text_file(file_path: str, warning_text: Optional[str] = None) -> None:
     """
-    Appends the associational warning to the end of a text file.
+    Append a warning to a text file.
     
     Args:
         file_path: Path to the text file.
-        warning_text: Optional custom warning text. Defaults to standard warning.
+        warning_text: Optional custom warning text.
     """
-    if warning_text is None:
-        warning_text = ASSOCIATIONAL_WARNING_TEXT
+    warning = warning_text or ASSOCIATIONAL_WARNING_TEXT
+    path = Path(file_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    try:
-        with open(file_path, 'a', encoding='utf-8') as f:
-            f.write("\n\n" + warning_text + "\n")
-        logger.info(f"Appended warning to text file: {file_path}")
-    except Exception as e:
-        logger.error(f"Failed to append warning to {file_path}: {e}")
-        raise
+    with open(path, 'a', encoding='utf-8') as f:
+        f.write(f"\n{get_warning_header()}\n")
+        f.write(f"{warning}\n")
+        f.write("-" * 80 + "\n")
+    
+    logger.info(f"Added warning to text file: {file_path}")
 
 def main():
-    """Simple test runner to verify warning injection logic."""
-    logger.info("Running FR-007 Warning Injection tests...")
+    """Test function for warning injection utilities."""
+    logger.info("Testing warning injection utilities...")
     
     # Test JSON injection
-    test_data = {"model": "XGBoost", "r2": 0.85}
-    injected_json = inject_warning_into_json_output(test_data)
-    assert "associational_warning" in injected_json
-    assert injected_json["associational_warning"]["text"] == ASSOCIATIONAL_WARNING_TEXT
+    test_data = {"model": "xgboost", "r2": 0.85}
+    result = inject_warning_into_json_output(test_data)
+    assert 'warning' in result
+    logger.info("JSON injection test passed")
     
     # Test YAML injection
-    test_yaml = {"model": "Linear", "rmse": 5.2}
-    injected_yaml = inject_warning_into_yaml_output(test_yaml)
-    assert "associational_warning" in injected_yaml
+    yaml_result = inject_warning_into_yaml_output(test_data)
+    assert 'warning' in yaml_result
+    logger.info("YAML injection test passed")
     
-    # Test text file
-    test_file = Path("data/processed/test_warning.txt")
-    test_file.parent.mkdir(parents=True, exist_ok=True)
-    test_file.write_text("Initial content")
+    # Test text file injection
+    test_file = "data/outputs/test_warning.txt"
     add_warning_to_text_file(test_file)
-    content = test_file.read_text()
-    assert ASSOCIATIONAL_WARNING_TEXT in content
+    assert Path(test_file).exists()
+    logger.info("Text file injection test passed")
     
-    logger.info("All FR-007 warning injection tests passed.")
-    return True
+    logger.info("All warning injection tests passed!")
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    main()

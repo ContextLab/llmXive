@@ -1,3 +1,3 @@
 """
-Tests package for unit, integration, and contract tests.
+Test suite for the solder hardness prediction pipeline.
 """

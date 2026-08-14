@@ -1,5 +1,10 @@
 """
-Aggregator module for fetching and combining solder hardness data from multiple sources.
+Literature Aggregator for Solder Hardness Data.
+
+Fetches data from verified sources including:
+1. Materials Project API
+2. NIST/UCI repositories  
+3. PDFs from research_verified.md
 """
 
 import os
@@ -9,240 +14,335 @@ import logging
 import yaml
 import json
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-import pandas as pd
+from typing import List, Dict, Any, Optional, Tuple
+from datetime import datetime
 
 from utils.logging_config import get_logger
-from utils.error_handlers import IngestionError, ConfigurationError
-from config import get_config, get_data_raw_dir, get_data_processed_dir
+from utils.error_handlers import ConfigurationError, IngestionError
+from ingestion.citation_tracker import CitationTracker
 
 logger = get_logger(__name__)
 
 
 class LiteratureAggregator:
-    """
-    Aggregates solder hardness data from verified sources:
-    1. Materials Project API
-    2. NIST/UCI repositories
-    3. Direct URLs from sources.yaml
-    4. Published Literature via PDF scraping (pdfplumber)
-    """
-
-    def __init__(self, config_path: Optional[Path] = None):
+    """Aggregates solder hardness data from multiple sources."""
+    
+    def __init__(self, config_path: Optional[str] = None):
         """
-        Initialize the aggregator with configuration.
-
+        Initialize the aggregator.
+        
         Args:
             config_path: Path to sources.yaml configuration file.
+                        If None, uses default path from project structure.
         """
-        self.config_path = config_path or Path("data/config/sources.yaml")
-        self.config = self._load_config()
-        self.raw_dir = get_data_raw_dir()
-        self.processed_dir = get_data_processed_dir()
-        self.ingestion_log = self.processed_dir / "ingestion_log.txt"
-
-    def _load_config(self) -> Dict[str, Any]:
-        """Load sources configuration from YAML file."""
+        self.logger = get_logger(__name__)
+        self.citation_tracker = CitationTracker()
+        
+        # Default config path
+        if config_path is None:
+            project_root = Path(__file__).parent.parent.parent
+            self.config_path = project_root / "data" / "config" / "sources.yaml"
+        else:
+            self.config_path = Path(config_path)
+        
+        self.sources = {}
+        self.raw_data: List[Dict[str, Any]] = []
+        
+    def load_sources_config(self) -> Dict[str, Any]:
+        """
+        Load verified sources from sources.yaml.
+        
+        Returns:
+            Dictionary of source configurations.
+            
+        Raises:
+            ConfigurationError: If sources.yaml is missing or invalid.
+        """
         if not self.config_path.exists():
             raise ConfigurationError(
-                f"Sources configuration file not found: {self.config_path}. "
-                "Please run T009b to populate sources.yaml."
+                f"Sources configuration not found at {self.config_path}. "
+                "Ensure T009c has populated data/config/sources.yaml."
             )
-
-        with open(self.config_path, 'r') as f:
-            config = yaml.safe_load(f)
-
-        if not config or not config.get('sources'):
-            raise ConfigurationError(
-                f"Sources configuration file is empty or missing 'sources' key: {self.config_path}"
-            )
-
-        return config
-
-    def _log_status(self, source: str, status: str, message: str = ""):
-        """Log connectivity and aggregation status to ingestion_log.txt."""
-        timestamp = pd.Timestamp.now().isoformat()
-        log_entry = f"[{timestamp}] [{source}] {status}: {message}\n"
-
-        self.raw_dir.mkdir(parents=True, exist_ok=True)
-        self.processed_dir.mkdir(parents=True, exist_ok=True)
-
-        with open(self.ingestion_log, 'a') as f:
-            f.write(log_entry)
-
-        logger.info(log_entry.strip())
-
-    def fetch_materials_project(self) -> List[Dict[str, Any]]:
-        """
-        Fetch data from Materials Project API.
-        Requires MP_API_KEY in environment variables.
-        """
-        api_key = os.getenv("MP_API_KEY")
-        if not api_key:
-            self._log_status("Materials Project", "SKIPPED", "API key not found in environment")
-            return []
-
+        
         try:
-            # Placeholder for actual API call logic
-            # This would typically query the Materials Project API for solder alloys
-            self._log_status("Materials Project", "CONNECTED", "API key found, attempting fetch")
-            # Simulating a fetch structure - actual implementation would use requests
-            # data = requests.get(...).json()
-            self._log_status("Materials Project", "PARTIAL", "Fetch logic requires live API integration")
+            with open(self.config_path, 'r') as f:
+                self.sources = yaml.safe_load(f)
+            self.logger.info(f"Loaded {len(self.sources)} sources from config")
+            return self.sources
+        except yaml.YAMLError as e:
+            raise ConfigurationError(f"Invalid YAML in sources config: {e}")
+    
+    def fetch_from_materials_project(self) -> List[Dict[str, Any]]:
+        """
+        Fetch solder data from Materials Project API.
+        
+        Returns:
+            List of data records with composition and hardness.
+        """
+        api_key = os.getenv("MATERIALS_PROJECT_API_KEY")
+        if not api_key:
+            self.logger.warning("MATERIALS_PROJECT_API_KEY not set, skipping Materials Project")
             return []
-        except Exception as e:
-            self._log_status("Materials Project", "FAILED", str(e))
-            return []
-
-    def fetch_nist_uci(self) -> List[Dict[str, Any]]:
+        
+        # Materials Project API endpoint for materials with specific elements
+        # Note: This is a placeholder implementation - actual API calls would need
+        # to be tailored to the specific data structure in Materials Project
+        base_url = "https://api.materialsproject.org/v2/materials"
+        
+        records = []
+        try:
+            # Example: Query for Sn-Pb-Sb alloys
+            params = {"elements": "Sn,Pb,Sb", "api_key": api_key}
+            response = requests.get(base_url, params=params, timeout=30)
+            response.raise_for_status()
+            
+            data = response.json()
+            for material in data.get("results", []):
+                record = {
+                    "source": "materials_project",
+                    "material_id": material.get("material_id"),
+                    "composition": material.get("composition", {}),
+                    "properties": material.get("properties", {}),
+                    "citation": f"Materials Project: {material.get('material_id')}"
+                }
+                records.append(record)
+                self.citation_tracker.track(material.get('citation', 'Materials Project'))
+            
+        except requests.RequestException as e:
+            self.logger.error(f"Failed to fetch from Materials Project: {e}")
+        
+        return records
+    
+    def fetch_from_nist_uci(self) -> List[Dict[str, Any]]:
         """
         Fetch data from NIST/UCI repositories.
+        
+        Returns:
+            List of data records.
         """
-        sources = self.config.get('sources', {})
-        nist_urls = sources.get('nist_uci', [])
-
-        if not nist_urls:
-            self._log_status("NIST/UCI", "SKIPPED", "No URLs configured in sources.yaml")
-            return []
-
-        aggregated_data = []
+        records = []
+        nist_urls = self.sources.get("nist_uci", {}).get("urls", [])
+        
         for url in nist_urls:
             try:
-                self._log_status("NIST/UCI", "CONNECTED", f"Fetching from {url}")
-                # Placeholder for actual fetch logic
-                # response = requests.get(url)
-                # data = parse_csv_or_json(response)
-                self._log_status("NIST/UCI", "PARTIAL", f"Fetch logic for {url} requires live data")
-            except Exception as e:
-                self._log_status("NIST/UCI", "FAILED", f"Error fetching {url}: {str(e)}")
-
-        return aggregated_data
-
-    def fetch_direct_urls(self) -> List[Dict[str, Any]]:
-        """
-        Fetch data from direct URLs specified in sources.yaml.
-        """
-        sources = self.config.get('sources', {})
-        direct_urls = sources.get('direct_urls', [])
-
-        if not direct_urls:
-            self._log_status("Direct URLs", "SKIPPED", "No URLs configured in sources.yaml")
-            return []
-
-        aggregated_data = []
-        for url_info in direct_urls:
-            url = url_info.get('url')
-            source_name = url_info.get('name', 'Unknown')
-
-            if not url:
-                continue
-
-            try:
-                self._log_status(source_name, "CONNECTED", f"Fetching from {url}")
+                self.logger.info(f"Fetching from NIST/UCI: {url}")
                 response = requests.get(url, timeout=30)
                 response.raise_for_status()
-
-                # Attempt to parse based on content type
-                if 'application/json' in response.headers.get('Content-Type', ''):
-                    data = response.json()
-                elif 'text/csv' in response.headers.get('Content-Type', ''):
-                    # Read as CSV string
-                    data = pd.read_csv(pd.io.common.StringIO(response.text)).to_dict('records')
+                
+                # Parse based on content type
+                if url.endswith('.csv'):
+                    # Parse CSV
+                    reader = csv.DictReader(response.text.splitlines())
+                    for row in reader:
+                        record = {
+                            "source": "nist_uci",
+                            "url": url,
+                            "data": row,
+                            "citation": f"NIST/UCI: {url}"
+                        }
+                        records.append(record)
                 else:
-                    self._log_status(source_name, "WARNING", f"Unknown content type for {url}")
-                    continue
-
-                aggregated_data.extend(data)
-                self._log_status(source_name, "SUCCESS", f"Retrieved {len(data)} records")
-
-            except requests.exceptions.RequestException as e:
-                self._log_status(source_name, "FAILED", f"Connection error: {str(e)}")
-            except Exception as e:
-                self._log_status(source_name, "FAILED", f"Parse error: {str(e)}")
-
-        return aggregated_data
-
-    def scrape_literature_pdfs(self) -> List[Dict[str, Any]]:
+                    self.logger.warning(f"Unsupported format from NIST/UCI: {url}")
+                
+            except requests.RequestException as e:
+                self.logger.error(f"Failed to fetch from {url}: {e}")
+        
+        return records
+    
+    def fetch_from_verified_urls(self) -> List[Dict[str, Any]]:
         """
-        Scrape data from PDF literature using pdfplumber.
-        Requires PDF files to be available locally or downloadable.
+        Fetch data from direct URLs specified in sources.yaml.
+        
+        Returns:
+            List of data records.
         """
-        sources = self.config.get('sources', {})
-        pdf_sources = sources.get('literature_pdfs', [])
-
-        if not pdf_sources:
-            self._log_status("Literature PDFs", "SKIPPED", "No PDF sources configured")
+        records = []
+        direct_urls = self.sources.get("direct_urls", [])
+        
+        for source_config in direct_urls:
+            url = source_config.get("url")
+            source_name = source_config.get("name", "unknown")
+            
+            if not url:
+                continue
+            
+            try:
+                self.logger.info(f"Fetching from {source_name}: {url}")
+                response = requests.get(url, timeout=30)
+                response.raise_for_status()
+                
+                # Parse based on format
+                if url.endswith('.json'):
+                    data = response.json()
+                    for item in data if isinstance(data, list) else [data]:
+                        record = {
+                            "source": source_name,
+                            "data": item,
+                            "citation": source_config.get("citation", url)
+                        }
+                        records.append(record)
+                elif url.endswith('.csv'):
+                    reader = csv.DictReader(response.text.splitlines())
+                    for row in reader:
+                        record = {
+                            "source": source_name,
+                            "data": row,
+                            "citation": source_config.get("citation", url)
+                        }
+                        records.append(record)
+                
+            except requests.RequestException as e:
+                self.logger.error(f"Failed to fetch from {source_name} ({url}): {e}")
+        
+        return records
+    
+    def scrape_pdfs(self, pdf_paths: List[str]) -> List[Dict[str, Any]]:
+        """
+        Scrape data from PDF files using pdfplumber.
+        
+        Args:
+            pdf_paths: List of paths to PDF files.
+        
+        Returns:
+            List of extracted data records.
+        """
+        try:
+            import pdfplumber
+        except ImportError:
+            self.logger.error("pdfplumber not installed. Install with: pip install pdfplumber")
             return []
-
-        aggregated_data = []
-        # Note: pdfplumber implementation would go here
-        # This is a placeholder for the scaffolding task
-
-        self._log_status("Literature PDFs", "INFO", "PDF scraping logic requires pdfplumber implementation")
-        return aggregated_data
-
-    def aggregate(self) -> pd.DataFrame:
+        
+        records = []
+        
+        for pdf_path in pdf_paths:
+            pdf_path = Path(pdf_path)
+            if not pdf_path.exists():
+                self.logger.warning(f"PDF not found: {pdf_path}")
+                continue
+            
+            try:
+                self.logger.info(f"Scraping PDF: {pdf_path}")
+                with pdfplumber.open(pdf_path) as pdf:
+                    for page_num, page in enumerate(pdf.pages):
+                        tables = page.extract_tables()
+                        for table in tables:
+                            # Parse table rows
+                            if len(table) < 2:
+                                continue
+                            
+                            headers = table[0]
+                            for row in table[1:]:
+                                if len(row) != len(headers):
+                                    continue
+                                
+                                record = {
+                                    "source": "pdf",
+                                    "file": str(pdf_path),
+                                    "page": page_num + 1,
+                                    "data": dict(zip(headers, row)),
+                                    "citation": f"PDF: {pdf_path.name}, page {page_num + 1}"
+                                }
+                                records.append(record)
+                
+                self.citation_tracker.track(f"PDF: {pdf_path.name}")
+                
+            except Exception as e:
+                self.logger.error(f"Failed to scrape {pdf_path}: {e}")
+        
+        return records
+    
+    def aggregate_all(self) -> List[Dict[str, Any]]:
         """
         Aggregate data from all configured sources.
-        Returns a combined DataFrame.
+        
+        Returns:
+            Combined list of all data records.
         """
-        all_data = []
-
-        # Fetch from all sources
-        mp_data = self.fetch_materials_project()
-        all_data.extend(mp_data)
-
-        nist_data = self.fetch_nist_uci()
-        all_data.extend(nist_data)
-
-        direct_data = self.fetch_direct_urls()
-        all_data.extend(direct_data)
-
-        pdf_data = self.scrape_literature_pdfs()
-        all_data.extend(pdf_data)
-
-        if not all_data:
-            self._log_status("Aggregation", "WARNING", "No data retrieved from any source")
-            # Return empty DataFrame with expected schema
-            return pd.DataFrame(columns=[
-                'alloy_id', 'composition', 'hardness_hv', 'measurement_temp_c',
-                'elemental_breakdown'
-            ])
-
-        df = pd.DataFrame(all_data)
-        self._log_status("Aggregation", "SUCCESS", f"Total records aggregated: {len(df)}")
-
-        return df
-
-    def save_raw_data(self, df: pd.DataFrame, filename: str = "solder_hardness_raw.csv"):
-        """Save aggregated raw data to CSV."""
-        output_path = self.raw_dir / filename
-        df.to_csv(output_path, index=False)
-        self._log_status("Save", "SUCCESS", f"Raw data saved to {output_path}")
-        return output_path
-
+        self.load_sources_config()
+        all_records = []
+        
+        # Fetch from APIs
+        mp_records = self.fetch_from_materials_project()
+        all_records.extend(mp_records)
+        self.logger.info(f"Collected {len(mp_records)} records from Materials Project")
+        
+        nist_records = self.fetch_from_nist_uci()
+        all_records.extend(nist_records)
+        self.logger.info(f"Collected {len(nist_records)} records from NIST/UCI")
+        
+        direct_records = self.fetch_from_verified_urls()
+        all_records.extend(direct_records)
+        self.logger.info(f"Collected {len(direct_records)} records from direct URLs")
+        
+        # Scrape PDFs
+        pdf_paths = self.sources.get("pdfs", [])
+        if pdf_paths:
+            pdf_records = self.scrape_pdfs(pdf_paths)
+            all_records.extend(pdf_records)
+            self.logger.info(f"Collected {len(pdf_records)} records from PDFs")
+        
+        self.raw_data = all_records
+        self.logger.info(f"Total aggregated records: {len(all_records)}")
+        
+        return all_records
+    
+    def save_raw_data(self, output_path: Optional[str] = None) -> str:
+        """
+        Save aggregated raw data to CSV.
+        
+        Args:
+            output_path: Path to save the CSV file.
+        
+        Returns:
+            Path to the saved file.
+        """
+        if not self.raw_data:
+            raise IngestionError("No raw data to save. Run aggregate_all() first.")
+        
+        if output_path is None:
+            project_root = Path(__file__).parent.parent.parent
+            output_path = project_root / "data" / "raw" / "solder_hardness_raw.csv"
+        
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Flatten data for CSV
+        flattened_data = []
+        for record in self.raw_data:
+            flat_record = {
+                "source": record.get("source"),
+                "citation": record.get("citation"),
+                **record.get("data", {}),
+                **record.get("properties", {}),
+                "composition": json.dumps(record.get("composition", {}))
+            }
+            flattened_data.append(flat_record)
+        
+        if flattened_data:
+            fieldnames = flattened_data[0].keys()
+            with open(output_path, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(flattened_data)
+        
+        self.logger.info(f"Saved raw data to {output_path}")
+        return str(output_path)
 
 def main():
     """Main entry point for the aggregator."""
-    logger.info("Starting LiteratureAggregator")
-
-    try:
-        aggregator = LiteratureAggregator()
-        df = aggregator.aggregate()
-
-        if len(df) > 0:
-            output_path = aggregator.save_raw_data(df)
-            logger.info(f"Aggregation complete. Output: {output_path}")
-        else:
-            logger.warning("No data aggregated. Check sources.yaml and connectivity.")
-
-    except ConfigurationError as e:
-        logger.error(f"Configuration error: {e}")
-        raise
-    except Exception as e:
-        logger.error(f"Aggregation failed: {e}")
-        raise
-
+    logger = get_logger(__name__)
+    logger.info("Starting Literature Aggregator")
+    
+    aggregator = LiteratureAggregator()
+    records = aggregator.aggregate_all()
+    
+    if records:
+        output_path = aggregator.save_raw_data()
+        logger.info(f"Aggregation complete. Saved {len(records)} records to {output_path}")
+    else:
+        logger.warning("No records were aggregated.")
+    
+    return records
 
 if __name__ == "__main__":
     main()

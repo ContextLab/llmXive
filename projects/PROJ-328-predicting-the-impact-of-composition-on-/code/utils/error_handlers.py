@@ -1,68 +1,64 @@
 """
-Custom exception classes for the Solder Hardness Prediction Pipeline.
-
-These exceptions provide specific error types for different failure modes,
-allowing for precise error handling and logging throughout the system.
+Custom exception classes and error handling utilities for the Solder Hardness Prediction Pipeline.
 """
 from typing import Optional, Dict, Any
 import logging
+from utils.logging_config import get_logger
 
-logger = logging.getLogger(__name__)
-
+# Initialize module logger
+_logger = get_logger("utils.error_handlers")
 
 class SolderPipelineError(Exception):
-    """Base exception for all pipeline-related errors."""
-
+    """Base exception for all pipeline errors."""
     def __init__(self, message: str, context: Optional[Dict[str, Any]] = None):
         super().__init__(message)
         self.message = message
         self.context = context or {}
-        logger.error(f"SolderPipelineError: {message}", extra={"context": self.context})
-
+        _logger.error(f"SolderPipelineError: {message}", extra={"context": self.context})
 
 class ConfigurationError(SolderPipelineError):
-    """Raised when there is an issue with configuration files or settings."""
-
-    def __init__(self, message: str, config_file: Optional[str] = None, key: Optional[str] = None):
-        context = {"config_file": config_file, "key": key}
-        super().__init__(message, context)
-
+    """Raised when a configuration issue is detected (e.g., missing files, invalid settings)."""
+    pass
 
 class DataValidationError(SolderPipelineError):
-    """Raised when data fails validation checks (schema, thresholds, completeness)."""
-
-    def __init__(self, message: str, record_id: Optional[str] = None, field: Optional[str] = None):
-        context = {"record_id": record_id, "field": field}
-        super().__init__(message, context)
-
+    """Raised when data validation fails (e.g., missing columns, invalid values)."""
+    pass
 
 class IngestionError(SolderPipelineError):
-    """Raised when data ingestion from a source fails."""
-
-    def __init__(self, message: str, source: Optional[str] = None, error_code: Optional[int] = None):
-        context = {"source": source, "error_code": error_code}
-        super().__init__(message, context)
-
+    """Raised when data ingestion (fetching/scraping) fails."""
+    pass
 
 class ModelTrainingError(SolderPipelineError):
     """Raised when model training or evaluation fails."""
-
-    def __init__(self, message: str, model_type: Optional[str] = None, stage: Optional[str] = None):
-        context = {"model_type": model_type, "stage": stage}
-        super().__init__(message, context)
-
+    pass
 
 class DataInsufficientError(SolderPipelineError):
-    """Raised when the dataset size is below the minimum required threshold."""
+    """Raised when the dataset is too small to proceed with analysis."""
+    pass
 
-    def __init__(self, message: str, current_count: int, minimum_required: int):
-        context = {"current_count": current_count, "minimum_required": minimum_required}
-        super().__init__(message, context)
+class CompositionSumError(SolderPipelineError):
+    """Raised when elemental composition sums do not meet the required threshold."""
+    pass
 
-
-class CompositionSumError(DataValidationError):
-    """Raised when elemental composition sums do not meet the threshold."""
-
-    def __init__(self, message: str, actual_sum: float, threshold: float, record_id: Optional[str] = None):
-        context = {"actual_sum": actual_sum, "threshold": threshold, "record_id": record_id}
-        super().__init__(message, context)
+def log_error(
+    error: Exception,
+    level: int = logging.ERROR,
+    extra_context: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Log an error with standardized formatting and context.
+    
+    Args:
+        error: The exception instance to log.
+        level: The logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+        extra_context: Additional context dictionary to include in the log.
+    """
+    context = extra_context or {}
+    context["exception_type"] = type(error).__name__
+    context["exception_message"] = str(error)
+    
+    logger = get_logger("utils.error_handlers")
+    logger.log(level, f"Error occurred: {error}", extra={"context": context})
+    
+    if hasattr(error, 'context') and error.context:
+        logger.log(level, f"Error context: {error.context}", extra={"context": context})

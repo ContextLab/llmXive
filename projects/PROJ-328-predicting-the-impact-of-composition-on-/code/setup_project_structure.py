@@ -4,77 +4,119 @@ import logging
 from pathlib import Path
 from utils.logging_config import get_logger
 
-def setup_directories(base_path: Path) -> None:
+def setup_directories():
     """
-    Create the project directory structure as defined in T001.
-    
-    Creates the following directories relative to base_path:
-    - data/raw
-    - data/processed
-    - data/outputs
-    - code/ingestion
-    - code/features
-    - code/models
-    - code/evaluation
-    - code/visualization
-    - tests/
-    - models/
-    
-    Also ensures the root 'code' directory exists if not already present.
+    Initialize the project directory structure as defined in T001.
+    Creates data/, code/, and tests/ with their respective subdirectories.
     """
     logger = get_logger(__name__)
-    
-    # Define the relative paths to create
-    relative_paths = [
+    project_root = Path(__file__).resolve().parent.parent
+
+    # Define directory structures
+    directories = [
+        # Data directories
         "data/raw",
         "data/processed",
         "data/outputs",
+        "data/config",
+        "data/checksums",
+        
+        # Code directories
         "code/ingestion",
         "code/features",
         "code/models",
         "code/evaluation",
         "code/visualization",
-        "tests",
-        "models"
+        "code/utils",
+        
+        # Tests directories
+        "tests/contract",
+        "tests/integration",
+        "tests/unit",
     ]
-    
+
     created_count = 0
-    for rel_path in relative_paths:
-        full_path = base_path / rel_path
+    for dir_path in directories:
+        full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             logger.info(f"Created directory: {full_path}")
             created_count += 1
         else:
             logger.debug(f"Directory already exists: {full_path}")
-    
-    # Ensure the main 'code' directory exists (it might be created by the sub-paths above, 
-    # but we explicitly check/ensure it)
-    code_root = base_path / "code"
-    if not code_root.exists():
-        code_root.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created directory: {code_root}")
-        created_count += 1
-        
+
     logger.info(f"Directory setup complete. Created {created_count} new directories.")
+    return True
+
+def verify_directory_structure():
+    """
+    Verify that all required directories exist.
+    Returns a dictionary with verification results.
+    """
+    logger = get_logger(__name__)
+    project_root = Path(__file__).resolve().parent.parent
+
+    required_dirs = {
+        "data": ["raw", "processed", "outputs", "config", "checksums"],
+        "code": ["ingestion", "features", "models", "evaluation", "visualization", "utils"],
+        "tests": ["contract", "integration", "unit"],
+    }
+
+    verification_results = {
+        "success": True,
+        "missing": [],
+        "existing": [],
+    }
+
+    for base_dir, sub_dirs in required_dirs.items():
+        base_path = project_root / base_dir
+        
+        # Check base directory
+        if not base_path.exists():
+            verification_results["success"] = False
+            verification_results["missing"].append(str(base_path))
+            logger.error(f"Missing base directory: {base_path}")
+            continue
+        
+        verification_results["existing"].append(str(base_path))
+        
+        # Check subdirectories
+        for sub_dir in sub_dirs:
+            sub_path = base_path / sub_dir
+            if not sub_path.exists():
+                verification_results["success"] = False
+                verification_results["missing"].append(str(sub_path))
+                logger.error(f"Missing subdirectory: {sub_path}")
+            else:
+                verification_results["existing"].append(str(sub_path))
+
+    return verification_results
 
 def main():
     """
-    Main entry point for the setup script.
-    Expects to be run from the project root or accepts a path argument.
+    Main entry point for directory structure setup and verification.
     """
-    # Determine base path: use current working directory
-    base_path = Path.cwd()
+    logger = get_logger(__name__)
+    logger.info("Starting project directory structure setup...")
+
+    # Setup directories
+    setup_success = setup_directories()
+    if not setup_success:
+        logger.error("Failed to setup directory structure")
+        return 1
+
+    # Verify structure
+    verification = verify_directory_structure()
     
-    # Check if we are inside the specific project folder or if we need to navigate
-    # The task specifies: projects/PROJ-328-predicting-the-impact-of-composition-on-/
-    # If the script is run from the repo root, we might need to target that specific subfolder.
-    # However, standard practice for these scripts is to run from the project root.
-    # We will assume the script is run from the root of the project tree where these dirs should exist.
-    
-    print(f"Setting up directory structure in: {base_path}")
-    setup_directories(base_path)
-    print("Done.")
+    if verification["success"]:
+        logger.info("All required directories verified successfully.")
+        logger.info(f"Existing directories: {len(verification['existing'])}")
+        return 0
+    else:
+        logger.error(f"Verification failed. Missing directories: {len(verification['missing'])}")
+        for missing in verification["missing"]:
+            logger.error(f"  - {missing}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

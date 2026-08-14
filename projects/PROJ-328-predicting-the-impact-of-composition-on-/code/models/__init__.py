@@ -1,9 +1,3 @@
 """
-Data models and entities for the solder hardness prediction pipeline.
+Model training and evaluation modules.
 """
-from .entities import SolderComposition, CompositionalDescriptor
-
-__all__ = [
-    "SolderComposition",
-    "CompositionalDescriptor"
-]

@@ -1,40 +1,23 @@
 T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided, so we cannot confirm
-    that the required paths (`projects/PROJ-328-predicting-the-impact-of-composition-on-/data/raw`,
-    `data/processed`, `data/outputs`, `code/`, `code/ingestion`, `code/features`,
-    `code/models`, `code/evaluation`, `code/visualization`, `tests/`, `models/`) actually
-    exist. The implementer must supply a concrete view (e.g., `tree` output or screenshots)
-    showing these exact directories created.
-T003:
+  r: No directory tree or `ls -R` output is provided, so the required `data/`, `code/`,
+    and `tests/` subdirectories (with their specified subfolders) cannot be confirmed
+    to exist. The implementer must supply the actual filesystem layout or command
+    output showing the created directories.
+T003b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
-    \ with Black settings, or a pre\u2011commit hook) are present, nor any CI step\
-    \ that runs flake8/black after T001. Without these artifacts the requirement to\
-    \ configure and enforce linting/formatting is not satisfied."
-T005:
+  r: No artifact showing a `flake8` run on a sample file is present; there is no output,
+    log, or report confirming that the linting configuration was verified, nor any
+    sample file referenced. The required evidence to prove the task is therefore missing.
+T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `code/ingestion/` directory or the required files (`__init__.py`,
-    `aggregator.py`, `cleaner.py`, `validator.py`) was presented; without seeing these
-    artifacts, we cannot confirm they exist or contain any content. The task remains
-    unverified.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing the `code/features/` directory (or its contents) was provided;\
-    \ without concrete evidence of the directory\u2019s existence, the requirement\
-    \ cannot be confirmed. The implementer must supply a file\u2011tree listing or\
-    \ screenshots proving the directory structure is present."
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `code/models/` directory or files named `SolderComposition.py`
-    / `CompositionalDescriptor.py` (or similar) was provided, nor any content showing
-    these entities defined. The required model files are missing, so the task is not
-    satisfied.
+  r: The response contains only the task description and project specifications; there
+    is no evidence that a `code/ingestion/` directory exists nor that the required
+    files (`__init__.py`, `aggregator.py`, `cleaner.py`, `validator.py`) are present.
+    The implementer must provide the actual directory and file artifacts.
 T008a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -42,31 +25,27 @@ T008a:
     and for any listed URLs or citations to Materials Project, NIST, OpenAlloy, and
     the literature PDFs. No such markdown file or source listings were provided, so
     the critical prerequisite for data ingestion is missing.
-T008b:
+T009a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any files or code under `code/utils/` configuring error handling\
-    \ or logging was provided; the only artifacts mentioned relate to data aggregation\
-    \ and modeling for solder hardness, which do not satisfy the required infrastructure\
-    \ task. The implementer must add the appropriate logging setup (e.g., Python `logging`\
-    \ configuration) and error\u2011handling utilities in the `code/utils/` directory."
-T009b:
+  r: "No evidence was provided showing that a `code/utils/` directory exists nor that\
+    \ it contains the required `__init__.py` and `logger.py` files; without these\
+    \ artifacts the task\u2019s requirement is not satisfied."
+T009c:
   c: false
   h: 6a2922d41fe084a93e61d8ca912a3371568066ce3ce8583746ea94f2fc4f54b7
-  r: The provided `data/config/sources.yaml` contains placeholder URLs (e.g., `https://example.com/...`)
-    and notes that they must be replaced with actual verified URLs from `research.md`.
-    Because the file does not contain the specific, verified URLs and API endpoints
-    required by the task, the artifact does not satisfy the requirement. The task
-    needs a fully populated `sources.yaml` with real, verified source links.
-T012:
+  r: "The provided `data/config/sources.yaml` contains placeholder URLs and entries\
+    \ marked \u201Cpending\u201D rather than the specific, verified URLs/API endpoints\
+    \ required, and a note even claims the file is missing. Consequently the task\u2019\
+    s requirement to populate the file with verified sources is not satisfied."
+T012a:
   c: false
-  h: 841e24fccfdbec5975e33815fa86c9f95150553f06a1d426ee539188cd5a5937
-  r: "The provided `aggregator.py` loads `sources.yaml` and logs to `ingestion_log.txt`,\
-    \ but it never checks for the existence or verification status of `research.md`,\
-    \ does not implement the total\u2011record count logic (N\u202F<\u202F100\u202F\
-    \u2265\u202F50 warning, N\u202F<\u202F50 critical flag), and lacks any PDF\u2011\
-    scraping code with `pdfplumber`. These core requirements are missing, so the task\
-    \ is not fully satisfied."
+  h: 57300a9b9c8bb1e78fc77a7a1534acfe69d58e39d88c20ed740c8d5c813429df
+  r: "The `aggregator.py` only contains a stub for the Materials Project fetch and\
+    \ lacks any logic for NIST/UCI repositories or for downloading the direct URLs\
+    \ listed in `data/config/sources.yaml`. It also never checks for the existence\
+    \ of `research_verified.md` as required. Consequently the module does not fulfill\
+    \ the task\u2019s specifications."
 T014:
   c: false
   h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a
@@ -77,13 +56,22 @@ T014:
     \ to `data/processed/.ingestion_status.json`. Moreover, the required `.ingestion_status.json`\
     \ file is absent. The implementer must add the missing validation logic and ensure\
     \ the status JSON is created with the exact fields."
-T029:
+T016b:
   c: false
-  h: 81679e6964426da75467d7ee2722b513d0bc72b5a142c2eaf41187489fe1708c
-  r: "The required output file `data/processed/sensitivity_analysis.yaml` does not\
-    \ exist, and the provided `code/evaluation/sensitivity.py` contains only imports\
-    \ and placeholder comments without the actual logic to sweep the R\xB2 thresholds\
-    \ and write the results. The task\u2019s core functionality is therefore not implemented."
+  h: 9146e8090ea8407a0b38cac2a2ee7b77cefc8bd2f3214a8b2a6c511c913b7636
+  r: The provided `generate_validation_report.py` is truncated, contains undefined
+    variables (e.g., `warning`), and never writes `validation_report.yaml`. Moreover,
+    the required input file `data/processed/.ingestion_status.json` and the expected
+    output `validation_report.yaml` are absent, so the script cannot be executed to
+    produce the report.
+T016c:
+  c: false
+  h: 26f81da17c855fa75b827ca9e9625630731b6edd3f9fe59feaecd76e4bdae274
+  r: The repository contains the `generate_validation_report.py` script but the required
+    mock `data/processed/.ingestion_status.json` file is absent, and the script itself
+    is truncated (e.g., references an undefined `warning` variable and lacks closing
+    braces). No execution output or `validation_report.yaml` is provided, so the task
+    of verifying successful run and valid YAML generation is not satisfied.
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

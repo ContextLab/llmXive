@@ -1,6 +1,3 @@
 """
-Unit Tests Package.
-
-Contains tests for individual components and functions.
+Unit tests for individual functions and classes.
 """
-pass

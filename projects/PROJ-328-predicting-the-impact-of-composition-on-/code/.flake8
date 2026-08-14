@@ -1,24 +1,16 @@
 [flake8]
-max-line-length = 120
-ignore = E203, E266, W503, E731, F401, F403, F405
+max-line-length = 100
+ignore = E203, E266, W503, E731
 per-file-ignores =
-    code/ingestion/__init__.py:F401
-    code/features/__init__.py:F401
-    code/models/__init__.py:F401
-    code/evaluation/__init__.py:F401
-    code/visualization/__init__.py:F401
-    code/utils/__init__.py:F401
+    **/__init__.py:F401
+    **/tests/*:S101
 exclude =
     .git,
     __pycache__,
-    .eggs,
-    *.egg-info,
-    data/,
-    models/,
-    .pytest_cache,
     build,
     dist,
+    .eggs,
+    *.egg-info
 count = True
 statistics = True
 show-source = True
-max-complexity = 15

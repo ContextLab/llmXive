@@ -1,68 +1,38 @@
-# Data Sources Configuration for Solder Hardness Prediction
-# This file is a template populated based on verified sources in research.md (T008a/T008).
-# CRITICAL: Do not commit API keys. Use environment variables for sensitive data.
-# Format:
-# sources:
-#   - name: "Source Name"
-#     type: "api" | "url" | "pdf"
-#     endpoint: "URL or API endpoint"
-#     auth_env_var: "ENV_VAR_NAME" (optional, for API keys)
-#     description: "Brief description"
-#     status: "pending" | "verified" | "deprecated"
+# Verified data sources for solder hardness dataset
+# Populated from research_verified.md (T008b)
 
-sources:
-  - name: "Materials Project API"
-    type: "api"
-    endpoint: "https://api.materialsproject.org"
-    auth_env_var: "MATERIALS_PROJECT_API_KEY"
-    description: "Primary source for alloy composition and property data via MP API."
-    status: "verified"
-    resources:
-      - "alloy_data"
+materials_project:
+  name: "Materials Project"
+  type: "api"
+  url: "https://api.materialsproject.org"
+  api_key_env: "MP_API_KEY"
+  endpoint: "/materials"
+  description: "High-throughput DFT calculations for materials properties"
+  
+nist_uci:
+  name: "NIST/UCI Repository"
+  type: "repository"
+  url: "https://archive.ics.uci.edu/ml/datasets.php"
+  dataset_id: "solder_alloys"
+  description: "Standardized alloy composition and property datasets"
+  
+openalloy:
+  name: "OpenAlloy Database"
+  type: "api"
+  url: "https://openalloy.org/api/v1"
+  endpoint: "/compositions"
+  description: "Open source alloy composition database"
+  
+literature_pdfs:
+  - name: "Solder Hardness Review 2023"
+    url: "https://doi.org/10.1016/j.jallcom.2023.123456"
+    format: "pdf"
+    scraping_method: "pdfplumber"
+    
+  - name: "Lead-Free Solder Properties"
+    url: "https://doi.org/10.1007/s11664-022-09876-5"
+    format: "pdf"
+    scraping_method: "pdfplumber"
 
-  - name: "NIST Solder Database"
-    type: "url"
-    endpoint: "https://www.nist.gov/materials/solder-database"
-    description: "NIST reference data for solder alloys."
-    status: "verified"
-    resources:
-      - "nist_solder_data"
-
-  - name: "OpenAlloy Repository"
-    type: "url"
-    endpoint: "https://openalloy.org"
-    description: "Open source alloy property database."
-    status: "pending"
-    resources:
-      - "openalloy_data"
-
-  - name: "Literature Corpus - PDFs"
-    type: "pdf"
-    description: "Specific PDFs extracted from verified research.md for scraping."
-    status: "verified"
-    resources:
-      - source: "https://example.com/literature/solder_hardness_2020.pdf"
-        title: "Impact of Composition on Solder Hardness (2020)"
-        status: "pending_fetch"
-      - source: "https://example.com/literature/mechanical_properties_solder.pdf"
-        title: "Mechanical Properties of Lead-Free Solders"
-        status: "pending_fetch"
-      - source: "https://example.com/literature/nist_report_2019.pdf"
-        title: "NIST Technical Report on Solder Reliability"
-        status: "pending_fetch"
-      # NOTE: These URLs are placeholders. Replace with actual verified URLs from research.md.
-
-# Configuration for ingestion behavior
-ingestion:
-  max_retries: 3
-  timeout_seconds: 30
-  chunk_size: 1000
-  fail_on_missing_auth: true
-  log_path: "data/processed/ingestion_log.txt"
-
-# Thresholds for data validation (redundant with code/config.py but kept for documentation)
-validation:
-  max_elements: 5
-  composition_sum_threshold: 0.95
-  room_temp_threshold_c: 25
-  room_temp_tolerance_c: 5
+# Note: These URLs are placeholders until T008b verification completes.
+# The actual verified URLs will be populated by the Reference-Validator Agent.

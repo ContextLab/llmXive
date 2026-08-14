@@ -1,5 +1,12 @@
 """
-Cleaner module for data cleaning and filtering operations.
+Data Cleaner for Solder Hardness Dataset.
+
+Implements cleaning and filtering logic:
+- Exclude alloys with >5 elements
+- Standardize hardness to HV units
+- Filter for room-temperature measurements
+- Validate elemental composition sums
+- Flag records for manual review
 """
 
 import pandas as pd
@@ -10,242 +17,375 @@ import os
 import hashlib
 import json
 
-from seed import init_reproducibility
 from utils.logging_config import get_logger
+from utils.error_handlers import DataValidationError
 from config import (
-    get_config,
     get_max_elements,
     get_composition_sum_threshold,
-    get_data_processed_dir,
-    get_data_raw_dir
+    get_config
 )
 
 logger = get_logger(__name__)
 
+# Conversion factors
+GPA_TO_HV = 10.197
+KGF_MM2_TO_HV = 9.807
 
 class DataCleaner:
-    """
-    Performs data cleaning and filtering operations:
-    - Exclude alloys with >5 elements
-    - Standardize hardness to HV units
-    - Filter for room-temperature measurements
-    - Flag records for manual review
-    - Validate elemental composition sums
-    """
-
-    def __init__(self):
-        self.config = get_config()
-        self.max_elements = get_max_elements()
-        self.composition_sum_threshold = get_composition_sum_threshold()
-        self.room_temp_threshold = self.config.get('ROOM_TEMP_THRESHOLD_C', 25)
-        self.room_temp_tolerance = self.config.get('ROOM_TEMP_TOLERANCE_C', 5)
-        self.processed_dir = get_data_processed_dir()
-        self.raw_dir = get_data_raw_dir()
-
-        # Ensure directories exist
-        self.processed_dir.mkdir(parents=True, exist_ok=True)
-        (self.processed_dir / "validation_logs").mkdir(parents=True, exist_ok=True)
-
-    def _calculate_checksum(self, df: pd.DataFrame) -> str:
-        """Calculate SHA256 checksum of a DataFrame."""
-        # Convert to string and hash
-        csv_string = df.to_csv(index=False)
-        return hashlib.sha256(csv_string.encode('utf-8')).hexdigest()
-
-    def filter_by_element_count(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Cleans and validates solder hardness data."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """
+        Initialize the cleaner.
+        
+        Args:
+            config: Configuration dictionary. If None, uses defaults from config.py.
+        """
+        self.config = config or get_config()
+        self.max_elements = self.config.get("MAX_ELEMENTS", get_max_elements())
+        self.composition_threshold = self.config.get(
+            "COMPOSITION_SUM_THRESHOLD", 
+            get_composition_sum_threshold()
+        )
+        self.room_temp_target = self.config.get("ROOM_TEMP_THRESHOLD_C", 25.0)
+        self.room_temp_tolerance = self.config.get("ROOM_TEMP_TOLERANCE_C", 5.0)
+        
+        self.clean_data: Optional[pd.DataFrame] = None
+        self.filtered_records: List[Dict[str, Any]] = []
+        self.manual_review_records: List[Dict[str, Any]] = []
+    
+    def load_raw_data(self, input_path: str) -> pd.DataFrame:
+        """
+        Load raw data from CSV.
+        
+        Args:
+            input_path: Path to the raw data CSV file.
+        
+        Returns:
+            Loaded DataFrame.
+        """
+        if not os.path.exists(input_path):
+            raise FileNotFoundError(f"Raw data file not found: {input_path}")
+        
+        df = pd.read_csv(input_path)
+        logger.info(f"Loaded {len(df)} records from {input_path}")
+        return df
+    
+    def filter_by_element_count(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict]]:
         """
         Filter out alloys with more than MAX_ELEMENTS.
-        Returns (kept_df, filtered_df).
+        
+        Args:
+            df: Input DataFrame.
+        
+        Returns:
+            Tuple of (filtered DataFrame, list of filtered records).
         """
-        # Assuming 'composition' or 'elemental_breakdown' contains the element info
-        # This logic depends on the actual data structure
-        # Placeholder logic: assuming a column 'num_elements' exists or can be derived
-
-        if 'num_elements' not in df.columns:
-            # Try to derive from composition string or dict
-            # This is a simplified placeholder
-            logger.warning("num_elements column not found. Skipping element count filter.")
-            return df, pd.DataFrame()
-
-        kept = df[df['num_elements'] <= self.max_elements].copy()
-        filtered = df[df['num_elements'] > self.max_elements].copy()
-
-        logger.info(f"Filtered {len(filtered)} records with >{self.max_elements} elements")
-        return kept, filtered
-
+        filtered = []
+        kept = []
+        
+        for idx, row in df.iterrows():
+            # Parse composition column if it exists
+            composition_str = row.get('composition', '{}')
+            try:
+                composition = json.loads(composition_str) if isinstance(composition_str, str) else composition_str
+                element_count = len([k for k, v in composition.items() if v and v > 0])
+            except (json.JSONDecodeError, TypeError):
+                # Try to count non-null columns that look like elements
+                element_count = sum(1 for col in df.columns if col.upper() in ['SN', 'PB', 'SB', 'AG', 'CU', 'ZN', 'IN'] and pd.notna(row.get(col)))
+            
+            if element_count > self.max_elements:
+                filtered.append({
+                    'index': idx,
+                    'reason': f"Too many elements ({element_count} > {self.max_elements})",
+                    'data': row.to_dict()
+                })
+            else:
+                kept.append(idx)
+        
+        result_df = df.loc[kept].reset_index(drop=True)
+        logger.info(f"Filtered {len(filtered)} records with too many elements. Kept {len(result_df)}")
+        return result_df, filtered
+    
     def standardize_hardness(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Standardize hardness values to HV (Vickers) units.
-        Assumes input data has 'hardness_hv' or similar column.
+        Standardize all hardness values to HV units.
+        
+        Args:
+            df: Input DataFrame.
+        
+        Returns:
+            DataFrame with standardized hardness in HV.
         """
-        # Placeholder for unit conversion logic
-        # If data comes in other units (e.g., HB, HRC), convert to HV here
-        if 'hardness_hv' not in df.columns:
-            logger.warning("hardness_hv column not found. Skipping standardization.")
+        df = df.copy()
+        
+        # Identify hardness columns
+        hardness_cols = [col for col in df.columns if 'hardness' in col.lower() or 'hv' in col.lower()]
+        
+        if not hardness_cols:
+            logger.warning("No hardness column found in data")
             return df
-
-        # Ensure numeric type
-        df['hardness_hv'] = pd.to_numeric(df['hardness_hv'], errors='coerce')
+        
+        hardness_col = hardness_cols[0]
+        unit_col = None
+        
+        # Find unit column
+        for col in df.columns:
+            if 'unit' in col.lower() and 'hardness' in col.lower():
+                unit_col = col
+                break
+        
+        # If no unit column, assume all are already in HV
+        if unit_col is None:
+            logger.info("No unit column found, assuming all hardness values are in HV")
+            return df
+        
+        # Convert units
+        def convert_hardness(row):
+            value = row[hardness_col]
+            if pd.isna(value):
+                return value
+            
+            unit = str(row[unit_col]).lower() if unit_col else 'hv'
+            
+            if 'gpa' in unit:
+                return value * GPA_TO_HV
+            elif 'kgf/mm' in unit or 'kgf/mm2' in unit:
+                return value * KGF_MM2_TO_HV
+            elif 'hv' in unit or 'vickers' in unit:
+                return value
+            else:
+                logger.warning(f"Unknown hardness unit: {unit} for value {value}")
+                return value
+        
+        df[hardness_col] = df.apply(convert_hardness, axis=1)
+        df[unit_col] = 'HV'  # Standardize unit column
+        
+        logger.info(f"Standardized hardness values to HV")
         return df
-
-    def filter_by_temperature(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    
+    def filter_room_temperature(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict]]:
         """
-        Filter for room-temperature measurements.
-        Returns (kept_df, manual_review_df, out_of_range_df).
+        Filter for room-temperature measurements and flag borderline cases.
+        
+        Args:
+            df: Input DataFrame.
+        
+        Returns:
+            Tuple of (filtered DataFrame, list of manual review records).
         """
-        if 'measurement_temp_c' not in df.columns:
-            logger.warning("measurement_temp_c column not found. Skipping temperature filter.")
-            return df, pd.DataFrame(), pd.DataFrame()
-
-        # Calculate deviation from room temp
-        df['temp_deviation'] = (df['measurement_temp_c'] - self.room_temp_threshold).abs()
-
-        # Keep: within tolerance
-        kept = df[df['temp_deviation'] <= self.room_temp_tolerance].copy()
-
-        # Manual Review: within 2x tolerance but outside tolerance
-        manual_review_mask = (df['temp_deviation'] > self.room_temp_tolerance) & \
-                             (df['temp_deviation'] <= 2 * self.room_temp_tolerance)
-        manual_review = df[manual_review_mask].copy()
-
-        # Out of range: outside 2x tolerance
-        out_of_range = df[df['temp_deviation'] > 2 * self.room_temp_tolerance].copy()
-
-        logger.info(f"Temperature filter: {len(kept)} kept, {len(manual_review)} manual review, {len(out_of_range)} out of range")
-
-        return kept, manual_review, out_of_range
-
-    def validate_composition_sum(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Validate that elemental compositions sum to >= COMPOSITION_SUM_THRESHOLD.
-        Returns (kept_df, filtered_df).
-        """
-        # Assuming 'elemental_breakdown' is a JSON string or dict column
-        # This logic needs to adapt to the actual data format
-
-        if 'elemental_breakdown' not in df.columns and 'composition' not in df.columns:
-            logger.warning("Composition column not found. Skipping composition sum validation.")
-            return df, pd.DataFrame()
-
-        valid_records = []
-        invalid_records = []
-
+        df = df.copy()
+        filtered = []
+        manual_review = []
+        
+        # Find temperature column
+        temp_cols = [col for col in df.columns if 'temp' in col.lower() and 'c' in col.lower()]
+        if not temp_cols:
+            logger.warning("No temperature column found, keeping all records")
+            return df, []
+        
+        temp_col = temp_cols[0]
+        
         for idx, row in df.iterrows():
-            # Parse composition
-            if isinstance(row.get('elemental_breakdown'), str):
-                try:
-                    comp = json.loads(row['elemental_breakdown'])
-                except json.JSONDecodeError:
-                    invalid_records.append(row.to_dict())
-                    continue
-            elif isinstance(row.get('elemental_breakdown'), dict):
-                comp = row['elemental_breakdown']
-            elif isinstance(row.get('composition'), str):
-                # Attempt to parse string format "Au:50,Cu:50"
-                try:
-                    comp = {}
-                    for part in row['composition'].split(','):
-                        elem, val = part.split(':')
-                        comp[elem.strip()] = float(val.strip())
-                except Exception:
-                    invalid_records.append(row.to_dict())
-                    continue
-            else:
-                invalid_records.append(row.to_dict())
+            temp = row.get(temp_col)
+            
+            if pd.isna(temp):
+                # No temperature info - keep but flag
+                manual_review.append({
+                    'index': idx,
+                    'reason': 'Missing temperature data',
+                    'data': row.to_dict()
+                })
                 continue
-
-            total = sum(comp.values())
-            if total >= self.composition_sum_threshold:
-                valid_records.append(row.to_dict())
+            
+            temp_diff = abs(temp - self.room_temp_target)
+            
+            if temp_diff <= self.room_temp_tolerance:
+                # Within tolerance - keep
+                continue
+            elif temp_diff <= 2 * self.room_temp_tolerance:
+                # Borderline - flag for manual review but keep
+                manual_review.append({
+                    'index': idx,
+                    'reason': f'Temperature {temp}°C is borderline (diff: {temp_diff:.1f}°C)',
+                    'data': row.to_dict()
+                })
+                continue
             else:
-                invalid_records.append(row.to_dict())
-
-        kept = pd.DataFrame(valid_records)
-        filtered = pd.DataFrame(invalid_records)
-
-        logger.info(f"Composition sum validation: {len(kept)} valid, {len(filtered)} invalid")
-
-        return kept, filtered
-
-    def save_filtered_records(self, df: pd.DataFrame, reason: str):
-        """Save filtered records to validation_logs/filtered_records.csv with checksum."""
-        if df.empty:
-            return
-
-        output_path = self.processed_dir / "validation_logs" / "filtered_records.csv"
-        df.to_csv(output_path, index=False)
-
-        checksum = self._calculate_checksum(df)
-        checksum_path = self.processed_dir.parent / "checksums.txt"
-
-        with open(checksum_path, 'a') as f:
-            f.write(f"{checksum}  {output_path.name} (Reason: {reason})\n")
-
-        logger.info(f"Saved {len(df)} filtered records to {output_path} (Checksum: {checksum})")
-
-    def save_manual_review_queue(self, df: pd.DataFrame):
-        """Save records flagged for manual review."""
-        if df.empty:
-            return
-
-        output_path = self.processed_dir / "manual_review_queue.csv"
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved {len(df)} records to manual review queue: {output_path}")
-
-    def clean(self, df: pd.DataFrame) -> pd.DataFrame:
+                # Outside tolerance - filter out
+                filtered.append({
+                    'index': idx,
+                    'reason': f'Temperature {temp}°C outside tolerance (diff: {temp_diff:.1f}°C)',
+                    'data': row.to_dict()
+                })
+        
+        # Keep records that weren't filtered out
+        filtered_indices = [f['index'] for f in filtered]
+        result_df = df.drop(index=filtered_indices).reset_index(drop=True)
+        
+        self.manual_review_records = manual_review
+        logger.info(f"Filtered {len(filtered)} non-room-temp records. Flagged {len(manual_review)} for review")
+        return result_df, manual_review
+    
+    def validate_composition_sum(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict]]:
         """
-        Run all cleaning steps and return the cleaned DataFrame.
+        Validate that elemental compositions sum to >= threshold.
+        
+        Args:
+            df: Input DataFrame.
+        
+        Returns:
+            Tuple of (filtered DataFrame, list of invalid records).
+        """
+        filtered = []
+        kept = []
+        
+        # Identify composition columns (likely element columns)
+        element_cols = [col for col in df.columns if col.upper() in ['SN', 'PB', 'SB', 'AG', 'CU', 'ZN', 'IN', 'BI', 'NI', 'MN']]
+        
+        if not element_cols:
+            # Try to parse from composition JSON column
+            if 'composition' in df.columns:
+                for idx, row in df.iterrows():
+                    try:
+                        comp = json.loads(row['composition']) if isinstance(row['composition'], str) else row['composition']
+                        total = sum(comp.values()) if comp else 0
+                        if total < self.composition_threshold:
+                            filtered.append({
+                                'index': idx,
+                                'reason': f'Composition sum {total:.2f}% < {self.composition_threshold}%',
+                                'data': row.to_dict()
+                            })
+                        else:
+                            kept.append(idx)
+                    except (json.JSONDecodeError, TypeError, AttributeError):
+                        filtered.append({
+                            'index': idx,
+                            'reason': 'Invalid composition format',
+                            'data': row.to_dict()
+                        })
+            else:
+                logger.warning("No composition columns found, keeping all records")
+                kept = list(df.index)
+        else:
+            # Sum element columns
+            for idx, row in df.iterrows():
+                total = sum(row[col] for col in element_cols if pd.notna(row[col]))
+                if total < self.composition_threshold:
+                    filtered.append({
+                        'index': idx,
+                        'reason': f'Composition sum {total:.2f}% < {self.composition_threshold}%',
+                        'data': row.to_dict()
+                    })
+                else:
+                    kept.append(idx)
+        
+        result_df = df.loc[kept].reset_index(drop=True)
+        logger.info(f"Filtered {len(filtered)} records with invalid composition sums. Kept {len(result_df)}")
+        return result_df, filtered
+    
+    def clean(self, input_path: str, output_path: Optional[str] = None) -> pd.DataFrame:
+        """
+        Run full cleaning pipeline.
+        
+        Args:
+            input_path: Path to raw data.
+            output_path: Path to save cleaned data.
+        
+        Returns:
+            Cleaned DataFrame.
         """
         logger.info("Starting data cleaning pipeline")
-
-        # 1. Filter by element count
-        df, filtered_elem = self.filter_by_element_count(df)
-        if not filtered_elem.empty:
-            self.save_filtered_records(filtered_elem, "EXCEEDS_MAX_ELEMENTS")
-
-        # 2. Standardize hardness
+        
+        # Load data
+        df = self.load_raw_data(input_path)
+        
+        # Step 1: Filter by element count
+        df, filtered_elements = self.filter_by_element_count(df)
+        self.filtered_records.extend(filtered_elements)
+        
+        # Step 2: Standardize hardness
         df = self.standardize_hardness(df)
-
-        # 3. Filter by temperature
-        df, manual_review, out_of_range = self.filter_by_temperature(df)
-        if not manual_review.empty:
-            self.save_manual_review_queue(manual_review)
-        if not out_of_range.empty:
-            self.save_filtered_records(out_of_range, "TEMP_OUT_OF_RANGE")
-
-        # 4. Validate composition sum
-        df, filtered_comp = self.validate_composition_sum(df)
-        if not filtered_comp.empty:
-            self.save_filtered_records(filtered_comp, "COMPOSITION_SUM_LOW")
-
-        logger.info(f"Cleaning complete. Final record count: {len(df)}")
+        
+        # Step 3: Filter room temperature
+        df, manual_review = self.filter_room_temperature(df)
+        
+        # Step 4: Validate composition sum
+        df, filtered_composition = self.validate_composition_sum(df)
+        self.filtered_records.extend(filtered_composition)
+        
+        # Save filtered records
+        self._save_filtered_records()
+        self._save_manual_review_queue()
+        
+        # Save cleaned data
+        if output_path is None:
+            project_root = Path(__file__).parent.parent.parent
+            output_path = project_root / "data" / "processed" / "solder_hardness_cleaned.csv"
+        
+        output_path = Path(output_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved cleaned data to {output_path} ({len(df)} records)")
+        
+        self.clean_data = df
         return df
-
+    
+    def _save_filtered_records(self):
+        """Save filtered records to validation logs."""
+        project_root = Path(__file__).parent.parent.parent
+        log_dir = project_root / "data" / "processed" / "validation_logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        
+        filtered_path = log_dir / "filtered_records.csv"
+        
+        if self.filtered_records:
+            df_filtered = pd.DataFrame(self.filtered_records)
+            df_filtered.to_csv(filtered_path, index=False)
+            
+            # Generate checksum
+            with open(filtered_path, 'rb') as f:
+                checksum = hashlib.sha256(f.read()).hexdigest()
+            
+            checksum_path = project_root / "data" / "checksums.txt"
+            with open(checksum_path, 'a') as f:
+                f.write(f"filtered_records.csv: {checksum}\n")
+            
+            logger.info(f"Saved {len(self.filtered_records)} filtered records with checksum")
+    
+    def _save_manual_review_queue(self):
+        """Save manual review queue."""
+        project_root = Path(__file__).parent.parent.parent
+        review_path = project_root / "data" / "processed" / "manual_review_queue.csv"
+        
+        if self.manual_review_records:
+            df_review = pd.DataFrame(self.manual_review_records)
+            df_review.to_csv(review_path, index=False)
+            logger.info(f"Saved {len(self.manual_review_records)} records to manual review queue")
 
 def main():
     """Main entry point for the cleaner."""
-    logger.info("Starting DataCleaner")
-
-    try:
-        raw_dir = get_data_raw_dir()
-        raw_file = raw_dir / "solder_hardness_raw.csv"
-
-        if not raw_file.exists():
-            logger.error(f"Raw data file not found: {raw_file}")
-            return
-
-        df = pd.read_csv(raw_file)
-        cleaner = DataCleaner()
-        cleaned_df = cleaner.clean(df)
-
-        output_path = get_data_processed_dir() / "solder_hardness_cleaned.csv"
-        cleaned_df.to_csv(output_path, index=False)
-        logger.info(f"Cleaned data saved to {output_path}")
-
-    except Exception as e:
-        logger.error(f"Cleaning failed: {e}")
-        raise
-
+    logger = get_logger(__name__)
+    logger.info("Starting Data Cleaner")
+    
+    project_root = Path(__file__).parent.parent.parent
+    input_path = project_root / "data" / "raw" / "solder_hardness_raw.csv"
+    output_path = project_root / "data" / "processed" / "solder_hardness_cleaned.csv"
+    
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        return None
+    
+    cleaner = DataCleaner()
+    cleaned_df = cleaner.clean(str(input_path), str(output_path))
+    
+    if cleaned_df is not None:
+        logger.info(f"Cleaning complete. Output: {output_path}")
+        return cleaned_df
+    else:
+        logger.error("Cleaning failed")
+        return None
 
 if __name__ == "__main__":
     main()

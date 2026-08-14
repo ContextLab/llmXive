@@ -43,11 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `data/` directory structure: `data/raw`, `data/processed`, `data/outputs`. **CRITICAL**: Verify existence of all three directories using `ls -R data/`.
-- [ ] T001b [P] Create `code/` directory structure: `code/`, `code/ingestion`, `code/features`, `code/models`, `code/evaluation`, `code/visualization`, `code/utils`. **CRITICAL**: Verify existence of all directories using `ls -R code/`.
-- [ ] T001c [P] Create `tests/` directory structure: `tests/`, `tests/contract`, `tests/integration`. **CRITICAL**: Verify existence of all directories using `ls -R tests/`.
-- [ ] T002 Create `requirements.txt` at `projects/PROJ-328-predicting-the-impact-of-composition-on-/code/` with dependencies (PIN EXACT VERSIONS): `pandas`, `scikit-learn`, `xgboost`, `shap`, `numpy`, `matplotlib`, `pyyaml`, `requests`, `compositional==0.2.0`, `pdfplumber`, `pytest`, `flake8`, `black`, `mendeleev`.
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools. **CRITICAL**: Must run after T001a, T001b, T001c. **Depends on T001a, T001b, T001c**.
+- [ ] T001 [P] **Initialize Project Directory Structure**: Create `data/` (`raw`, `processed`, `outputs`), `code/` (`ingestion`, `features`, `models`, `evaluation`, `visualization`, `utils`), and `tests/` (`contract`, `integration`) directories. **CRITICAL**: Verify existence of all directories using `ls -R data/`, `ls -R code/`, `ls -R tests/`.
+- [X] T002 Create `requirements.txt` at `projects/PROJ-328-predicting-the-impact-of-composition-on-/code/` with dependencies (PIN EXACT VERSIONS): `pandas`, `scikit-learn`, `xgboost`, `shap`, `numpy`, `matplotlib`, `pyyaml`, `requests`, `compositional==0.2.0`, `pdfplumber`, `pytest`, `flake8`, `black`, `mendeleev`.
+- [X] T003a [P] Create `.flake8` and `pyproject.toml` at repository root with specific linting rules (e.g., `max-line-length = 88`, `ignore = E203, W503`). **CRITICAL**: Verify file creation and content.
+- [ ] T003b [P] Verify linting configuration by running `flake8` on a sample file. **CRITICAL**: Must run after T003a. **Depends on T003a**.
 
 ---
 
@@ -58,12 +57,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T005a [P] Create scaffolding for `code/ingestion/` directory structure. **CRITICAL**: This task establishes the folder structure and placeholder files: `__init__.py`, `aggregator.py`, `cleaner.py`, `validator.py`. **Verify existence of all files.**
-- [ ] T005b [P] Create scaffolding for `code/features/` directory structure. **CRITICAL**: Verify existence of `code/features/__init__.py`, `code/features/transformer.py`, `code/features/descriptor_engine.py`, `code/features/collinearity.py`.
-- [ ] T007 [P] Create base data models/entities (`SolderComposition`, `CompositionalDescriptor`) in `code/models/`. **CRITICAL**: Verify file creation. **Depends on T005a**.
-- [ ] T008a [P] **Search and Identify Sources**: Conduct initial search for candidate URLs for Materials Project, NIST, OpenAlloy, and specific PDFs for literature scraping. Output a raw list of candidate URLs to a temporary file `data/config/candidate_sources.txt`. **CRITICAL**: This task does NOT generate the final `research.md` yet. **Depends on T001a, T001b, T001c**.
+- [X] T005b [P] Create scaffolding for `code/features/` directory structure. **CRITICAL**: Verify existence of `code/features/__init__.py`, `code/features/transformer.py`, `code/features/descriptor_engine.py`, `code/features/collinearity.py`.
+- [ ] T006 [P] Create `code/config.py` with configuration constants: `MAX_ELEMENTS`, `ROOM_TEMP_THRESHOLD_C`, `ROOM_TEMP_TOLERANCE_C`, `COMPOSITION_SUM_THRESHOLD`, `MIN_N_FOR_POWER`, `TARGET_N`. **CRITICAL**: Verify file creation and content.
+- [ ] T007 [P] Create base data models/entities in `code/models/entities.py`. **CRITICAL**: Define `SolderComposition` class with attributes: `elemental_breakdown` (dict), `hardness_hv` (float), `alloy_family` (str), `source_citation` (str). Define `CompositionalDescriptor` class with attributes: `weighted_mean_atomic_mass`, `electronegativity_variance`, `atomic_radius_variance`, `weighted_avg_melting_point`, `valence_electron_concentration`. **Verify file creation.** **Depends on T005a**.
+- [ ] T008a [P] **Draft Research Sources**: Generate the initial draft `research.md` by manually listing candidate URLs for Materials Project, NIST, OpenAlloy, and specific PDFs for literature scraping based on the spec's source list. Output a raw list of candidate URLs to `data/config/candidate_sources.txt`. **CRITICAL**: This task DOES NOT depend on any existing `research_verified.md`. It creates the initial draft from the spec. **Depends on T006**.
 - [ ] T008b [P] **Verify Research Sources**: Run the Reference-Validator Agent on the draft content from T008a. Generate `specs/001-predict-solder-hardness/research_verified.md` containing only verified citations and URLs. **CRITICAL**: This task MUST run after T008a. If verification fails, the pipeline halts. **Depends on T008a**.
-- [ ] T009a [P] Create scaffolding for `code/utils/` directory structure. **CRITICAL**: Verify existence of all files: `__init__.py`, `logger.py`.
-- [ ] T009b [P] Configure error handling and logging infrastructure in `code/utils/`. **CRITICAL**: This step depends on T009a.
+- [ ] T009a [P] Create scaffolding for `code/utils/` directory structure. **CRITICAL**: Verify existence of all files: `__init__.py`.
+- [ ] T009b [P] Create `code/utils/logger.py` with a `get_logger()` function that writes to `logs/pipeline.log` in JSON format. **CRITICAL**: This step depends on T009a. **Depends on T009a**.
 - [ ] T009c [P] **Populate `sources.yaml`**: Read the **verified** `research_verified.md` from T008b and populate `data/config/sources.yaml` with the specific, verified URLs and API endpoints. **CRITICAL**: This task MUST run after T008b. **Depends on T008b**.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -79,27 +79,31 @@
 ### Implementation for User Story 1
 
 - [ ] T012a [US1] **Fetch Data from APIs**: Implement `code/ingestion/aggregator.py` to fetch data from verified sources: 1) Materials Project API, 2) NIST/UCI repositories, 3) Direct URLs from `data/config/sources.yaml` (populated by T009c). **CRITICAL**: Pre-check: Verify `research_verified.md` exists and `sources.yaml` is populated. If missing, raise `ConfigError`. **Depends on T009c**.
-- [ ] T012b [US1] **Scrape Literature PDFs**: Implement PDF scraping in `code/ingestion/aggregator.py` using `pdfplumber` based on `research_verified.md`. **CRITICAL**: Logic: 1) Extract tables from specified PDFs. 2) Parse elemental composition and hardness. 3) Handle N<50: If total N < 50 after scraping, log a severe warning and proceed with a reduced N flag (do NOT halt). 4) Handle partial data: Log failures to `ingestion_log.txt` but proceed if N >= 50. **Depends on T012a**.
+- [ ] T012b [US1] **Scrape Literature PDFs**: Implement PDF scraping in `code/ingestion/aggregator.py` using `pdfplumber` based on `research_verified.md`. **CRITICAL**: Logic: 1) Extract tables from specified PDFs. 2) Parse elemental composition and hardness. 3) Handle N<50: If total N < 50 after scraping, log a severe warning and proceed with a reduced N flag (do NOT halt). 4) Handle partial data: Log failures to `ingestion_log.txt` but proceed if N >= 50. **CRITICAL**: **Depends on T008b, T009c**.
+- [ ] T012c [US1] **Fetch Data from OpenAlloy**: Implement `code/ingestion/aggregator.py` to fetch data specifically from the OpenAlloy source (or its verified mirror) as mandated by FR-001. **CRITICAL**: Must use the verified URL from `sources.yaml`. **Depends on T009c**.
+- [ ] T012d [US1] **Define Systematic Literature Review Protocol**: Create `code/ingestion/slit_review_protocol.md` defining the PRISMA flow, search strings, and screening criteria for the "systematic literature review" component of FR-001. **CRITICAL**: This document serves as the protocol for T012b. **Depends on T008a**.
+- [ ] T012e [US1] **Write Raw Data to Immutable Store**: Implement logic in `code/ingestion/aggregator.py` to write ALL fetched/scraped data (from T012a, T012b, T012c) to `data/raw/` as immutable files (e.g., `raw_mp.json`, `raw_lit.csv`, `raw_openalloy.json`) BEFORE any cleaning. **CRITICAL**: Generate SHA256 checksums for all raw files and append to `data/checksums.txt`. **Depends on T012a, T012b, T012c**.
 - [ ] T013 [US1] Implement data cleaning and filtering logic in `code/ingestion/cleaner.py` to:
  - Exclude alloys with >5 elements (read threshold from `code/config.py` `MAX_ELEMENTS`)
  - Standardize hardness to HV units: **CRITICAL**: Use explicit conversion factors: 1 GPa = 10.197 HV, 1 kgf/mm² = 9.807 HV.
  - Filter for room-temperature measurements only: verify column `measurement_temp_c` exists; filter where `abs(measurement_temp_c - config.ROOM_TEMP_THRESHOLD_C) <= config.ROOM_TEMP_TOLERANCE_C`.
  - **Manual Review Flagging**: Identify records where `abs(measurement_temp_c - config.ROOM_TEMP_THRESHOLD_C) > config.ROOM_TEMP_TOLERANCE_C` but `<= 2 * config.ROOM_TEMP_TOLERANCE_C` and write them to `data/processed/manual_review_queue.csv`.
- - Validate elemental composition sums to ≥95% of total alloy composition (read threshold from `code/config.py`).
+ - **Validate Elemental Composition**: Iterate every record, sum elemental composition values. If sum < 95.0, mark record as invalid and log to `data/processed/validation_logs/filtered_records.csv` with reason code `COMPOSITION_SUM_LOW`.
  - **Record Validation**: Log the specific records that failed the composition sum check to `data/processed/validation_logs/filtered_records.csv` with reason codes. **CRITICAL**: Generate a SHA256 checksum for `filtered_records.csv` and append the hash to `data/checksums.txt`.
  - **Output**: Save cleaned data to `data/processed/solder_hardness_cleaned.csv`. **CRITICAL**: This file is the ONLY input for T014.
- - **Handle N < 50**: If total N < 50 after cleaning, log a severe warning and proceed with a reduced N flag (do NOT halt). **Depends on T012a, T012b**.
-- [ ] T014 [US1] Implement validation logic in `code/ingestion/validator.py` to check for non-null hardness and complete composition. **CRITICAL**:
- 1. **Input**: Read ONLY `data/processed/solder_hardness_cleaned.csv` (output of T013).
- 2. **Calculate Composition Sums**: Explicitly calculate the sum of elemental compositions for every record.
- 3. **Enforce Threshold**: If a record's composition sum is <95%, mark it as invalid.
- 4. **Threshold Check**: If total N < 50, log a severe warning and proceed with a reduced N flag (do NOT halt). If 50 <= N < 100, proceed but flag for power limitation.
- 5. **Write Status**: Explicitly write `threshold_status` ('N>=100', '50<=N<100', 'N<50'), `exact_N`, and `warning_text` to `data/processed/.ingestion_status.json`. **This file is the single source of truth for SC-004 metrics.**
+ - **Handle N < 50**: If total N < 50 after cleaning, log a severe warning and proceed with a reduced N flag (do NOT halt). **CRITICAL**: Write `power_limitation_warning: 'N < 50'` to `data/processed/.ingestion_status.json`. **Depends on T012e**.
+- [ ] T014 [US1] Implement validation reporting logic in `code/ingestion/validator.py` to check for non-null hardness and complete composition. **CRITICAL**:
+ 1. **Input**: Read `data/processed/.ingestion_status.json` (output of T013).
+ 2. **Calculate Composition Sums**: Explicitly calculate the sum of elemental columns for every record in the cleaned file to confirm no invalid records remain.
+ 3. **Enforce Threshold**: Confirm no records in `cleaned.csv` have composition sum <95%.
+ 4. **Count Non-Null Hardness**: Count records where `hardness_hv` is not null in `cleaned.csv`.
+ 5. **Threshold Check**: If total N < 50, log a severe warning and proceed with a reduced N flag (do NOT halt). If 50 <= N < 100, proceed but flag for power limitation.
+ 6. **Write Status**: Explicitly write `threshold_status` ('N>=100', '50<=N<100', 'N<50'), `exact_N`, and `power_limitation_warning` (if applicable) to `data/processed/.ingestion_status.json`. **This file is the single source of truth for SC-004 metrics.** **CRITICAL**: If N < 50, ensure `power_limitation_warning` is set to 'N < 50'. **Depends on T013**.
 - [ ] T016b [US1] **Generate Validation Report Script**: Write a Python script `code/ingestion/generate_validation_report.py` that reads `data/processed/.ingestion_status.json` and generates `data/processed/validation_report.yaml`. **CRITICAL**:
- - **Input Schema**: `threshold_status` (str), `exact_N` (int), `warning_text` (str).
+ - **Input Schema**: `threshold_status` (str), `exact_N` (int), `power_limitation_warning` (str).
  - **Output Schema**: `status` (str), `count` (int), `power_limitation_warning` (str).
  - **Logic**: Read JSON, map to YAML, write file.
- - **CRITICAL**: Ensure no undefined variables.
+ - **CRITICAL**: Ensure no undefined variables. **Depends on T014**.
 - [ ] T016c [US1] **Verify Validation Report Generation**: Run `code/ingestion/generate_validation_report.py` with a mock `data/processed/.ingestion_status.json` to ensure it executes without errors and produces valid YAML. **CRITICAL**: If script fails, halt. **Depends on T016b**.
 - [ ] T019 [US1] **Execute Validation Report Generation**: Run the script from T016b (verified by T016c) to produce `data/processed/validation_report.yaml`. **Depends on T016c**.
 
@@ -113,29 +117,31 @@
 ### Test-First: User Story 2 (OPTIONAL - only if tests requested) ⚠️
 *Note: These tasks define contracts for T020-T021 and must be written before implementation code exists.*
 
-- [ ] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [ ] T021 [P] [US2] Integration test for model training pipeline in `tests/integration/test_model_training.py`
+- [X] T020 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
+- [X] T021 [P] [US2] Integration test for model training pipeline in `tests/integration/test_model_training.py`
 
 ### Implementation for User Story 2
 
 - [ ] T023a [US2] Implement CLR transform utility in `code/features/transformer.py` using `compositional` library to handle closure problem. **Output**: A function to apply CLR to a vector of values.
 - [ ] T023b [US2] Implement descriptor computation in `code/features/descriptor_engine.py` to calculate weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration. **Method**:
- 1. **Use RAW Percentages**: Use the raw elemental composition percentages as weights for calculating weighted means of physical properties (e.g., atomic mass).
- 2. **Compute Physical Descriptors**: Calculate physical descriptors using standard elemental property tables from the `mendeleev` library and the raw percentages.
- 3. **Feature Matrix**: The final feature matrix consists of the CLR-transformed composition values and the computed physical descriptors.
- 4. Ensure the output is a clean, tabular feature matrix ready for T024 and T025.
+ 1. **Apply CLR Transform**: Apply the CLR transform (from T023a) to the raw elemental composition percentages to address the closure problem.
+ 2. **Compute Physical Descriptors**: Calculate physical descriptors using standard elemental property tables from the `mendeleev` library and the **CLR-transformed composition values** (or the CLR basis) as weights/features. **CRITICAL**: Do NOT use raw percentages for the final feature matrix to avoid spurious correlations.
+ 3. **Feature Matrix**: The final feature matrix consists of the CLR-transformed composition values and the computed physical descriptors derived from them.
+ 4. Ensure the output is a clean, tabular feature matrix ready for T024 and T025. **Depends on T023a**.
 - [ ] T024 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5 (requires output from T023b).
 - [ ] T024b [US2] **Configure CPU-Only Execution**: Create `code/models/config_cpu.py` to explicitly set all XGBoost and Linear Regression parameters to enforce CPU-only execution (e.g., `n_jobs=1`, `device='cpu'`, disable GPU acceleration flags).
-- [ ] T025 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`. **CRITICAL**: This script MUST import and use the configuration from `code/models/config_cpu.py` to enforce CPU-only execution.
-- [ ] T026 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`. **CRITICAL**: This script MUST import and use the configuration from `code/models/config_cpu.py` to enforce CPU-only execution.
+- [ ] T024c [US2] **Verify CPU Execution**: Implement `code/models/verify_cpu.py` to run a small dummy training loop and assert that no GPU/CUDA devices are detected or used (e.g., check `torch.cuda.is_available()` or XGBoost device logs). **CRITICAL**: This task ensures FR-010 is verifiable. **Depends on T024b**.
+- [ ] T025 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`. **CRITICAL**: This script MUST import and use the configuration from `code/models/config_cpu.py` to enforce CPU-only execution. **Depends on T024c**.
+- [ ] T026 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`. **CRITICAL**: This script MUST import and use the configuration from `code/models/config_cpu.py` to enforce CPU-only execution. **Depends on T024c**.
 - [ ] T027 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py` (requires T025/T026)
 - [ ] T028 [US2] Implement bootstrap resampling for confidence intervals on held-out test set in `code/evaluation/bootstrap.py`
-- [ ] T029a [US2] **Define Sensitivity Thresholds**: Create `code/evaluation/thresholds.py` to define the specific set of R² thresholds for the sensitivity analysis (e.g., {low: 0.4, medium: 0.6, high: 0.7} or a configurable range). Output to `data/config/sensitivity_thresholds.yaml`. **CRITICAL**: This task defines the input for the sweep. **Depends on T028**.
+- [ ] T029a [US2] **Define Sensitivity Thresholds**: Create `code/evaluation/thresholds.py` to define the specific set of R² thresholds for the sensitivity analysis. **CRITICAL**: Instead of hardcoded values, generate a dynamic range (e.g., `np.linspace(min_r2, max_r2, num=20)`) based on the observed R² distribution to perform a true "sweep". Output to `data/config/sensitivity_thresholds.yaml`. **Depends on T025, T026**.
 - [ ] T029b [US2] **Compute Bootstrap Model Comparison**: Implement Bootstrap Model Comparison in `code/evaluation/bootstrap.py` to compare XGBoost vs Linear Regression using a resampling approach. Output metrics to `data/processed/bootstrap_comparison.yaml`. **CRITICAL**: This task is independent of the threshold sweep. **Depends on T028**.
-- [ ] T029c [US2] **Compute Sensitivity Metrics**: Implement Sensitivity Analysis in `code/evaluation/sensitivity.py`. Generate output to `data/processed/sensitivity_analysis.yaml` and `data/outputs/sensitivity_plot.png`. **CRITICAL**: Use thresholds defined in T029a. **Depends on T029a, T028**.
-- [ ] T030 [US2] Implement SHAP value calculation and top-3 feature ranking in `code/evaluation/shap_analysis.py`
+- [ ] T029c [US2] **Compute Sensitivity Metrics**: Implement Sensitivity Analysis in `code/evaluation/sensitivity.py`. **CRITICAL**: For each threshold T in `data/config/sensitivity_thresholds.yaml`, calculate `fraction = (count of bootstrap R² > T) / total_bootstrap_samples`. Generate output to `data/processed/sensitivity_analysis.yaml` and `data/outputs/sensitivity_plot.png`. **Depends on T029a, T028**.
+- [ ] T030 [US2] Implement SHAP value calculation and top-k feature ranking in `code/evaluation/shap_analysis.py`. **CRITICAL**: Save ranked features to `data/processed/shap_ranking.yaml` with keys: `feature_name`, `mean_abs_shap_value`, `rank`. **Depends on T025, T026**.
 - [ ] T031 [US2] Save model artifacts, metrics, and diagnostics to `models/` and `data/processed/`
 - [ ] T031b [US2] **Generate Predictions**: Implement inference script in `code/evaluation/predict.py` to run the trained models (from T025/T026) on the test set and save results to `data/processed/predictions.csv`. **CRITICAL**: This task produces the `predictions.csv` artifact required by T032. **Depends on T025, T026**.
+- [ ] T031c [US2] **Generate Report YAML**: Create `code/evaluation/generate_report.py` to produce `data/processed/report.yaml` containing summary metrics and associational framing. **CRITICAL**: This task produces `report.yaml` required by T032. **Depends on T025, T026, T030**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -145,8 +151,8 @@
 
 **Goal**: Generate scatter plot of predicted vs. measured hardness with error bars and partial dependence plots for top features.
 
-- [ ] T032 [US3] **Embed Associational Warning**: Update `data/processed/predictions.csv` (produced by T031b) and `data/processed/report.yaml` to include an explicit "Associational Analysis Only" warning in metadata. **CRITICAL**: **Depends on T031b**.
-- [ ] T035 [US3] **Generate Paper Draft**: Create `docs/paper_draft.md` containing the methodology, results, and discussion sections.
+- [ ] T032 [US3] **Embed Associational Warning**: Update `data/processed/predictions.csv` (produced by T031b) and `data/processed/report.yaml` (produced by T031c) to include an explicit "Associational Analysis Only" warning in metadata. **CRITICAL**: **Depends on T031b, T031c**.
+- [ ] T035 [US3] **Generate Paper Draft**: Create `docs/paper_draft.md` containing the methodology, results, and discussion sections. **CRITICAL**: **Depends on T031b, T036, T037, T038, T029c, T054**. (Added dependencies on Sensitivity and VIF).
 - [ ] T036 [US3] Implement scatter plot generation in `code/visualization/scatter.py` with % CI error bars (requires T031b predictions).
 - [ ] T037 [US3] Implement partial dependence plot generation in `code/visualization/pdp.py` for top-ranked SHAP features (requires T030 output).
 - [ ] T038 [US3] Save all plots to `data/outputs/` with correct labels and units.
@@ -164,3 +170,26 @@
 - [ ] T042 Performance optimization to ensure <6h runtime on free-tier
 - [ ] T043 [P] Additional unit tests in `tests/unit/`
 - [ ] T044 Run quickstart.md validation
+
+---
+
+## Revision Tasks (Addressing Analysis Findings)
+
+**Purpose**: New tasks added to resolve specific issues identified in the analysis phase.
+
+### Revision: Data Ingestion Robustness
+
+- [ ] T050 [US1] **Implement Strict Data Fetching**: Modify `code/ingestion/aggregator.py` to remove ALL `try/except` blocks that fall back to synthetic data generation. **CRITICAL**: If a real data fetch fails (network error, 404, API limit), the script MUST raise a `DataFetchError` and halt execution. **Rationale**: Prevents silent fabrication of data which triggers the fabrication gate rejection. **Depends on T012a**.
+- [ ] T051 [US1] **Add Streaming Support for Large Datasets**: Update `code/ingestion/aggregator.py` to support `streaming=True` when loading datasets from HuggingFace or large CSV sources. **CRITICAL**: If a dataset exceeds available RAM capacity, the loader must iterate in chunks. using `datasets.load_dataset(..., streaming=True)` and accumulate statistics online, never loading the full dataset into memory. **Rationale**: Ensures real data can be processed within CI constraints without resorting to toy datasets. **Depends on T012a**.
+- [ ] T052 [US1] **Verify Real Data Source Adoption**: If the execution stage provides a "VERIFIED REAL DATA SOURCE" block, update `code/ingestion/aggregator.py` to exclusively use the provided package/recipe and remove any hand-rolled URL fetchers or guessed IDs. **CRITICAL**: This task ensures alignment with the execution stage's verified sources. **Depends on T012a**.
+
+### Revision: Model Training & Diagnostics
+
+- [ ] T053 [US2] **Explicitly Document CLR vs. Physical Descriptors**: Update `code/features/descriptor_engine.py` to add inline comments clarifying that CLR transforms are applied to raw percentages to address closure, while physical descriptors (atomic mass, etc.) are computed using the CLR-transformed data as weights/features. **CRITICAL**: Prevents confusion about the dual usage of composition data. **Depends on T023a, T023b**.
+- [ ] T054 [US2] **Enhance VIF Reporting**: Extend `code/features/collinearity.py` to output a detailed report `data/processed/vif_report.yaml` listing all predictors, their VIF scores, and a boolean `is_collinear` flag for VIF ≥ 5. **CRITICAL**: Ensures compliance with FR-013 and SC-006 by providing explicit collinearity diagnostics. **Depends on T024**.
+- [ ] T055 [US2] **Add Sensitivity Analysis Visualization**: Update `code/evaluation/sensitivity.py` to ensure `data/outputs/sensitivity_plot.png` clearly labels the x-axis as "R² Threshold" and y-axis as "Fraction of Bootstrap Samples Exceeding Threshold". **CRITICAL**: Ensures the visualization meets SC-005 requirements for interpretability. **Depends on T029c**.
+
+### Revision: Documentation & Reporting
+
+- [ ] T056 [US3] **Standardize Associational Framing**: Update `docs/paper_draft.md` and all generated reports (`data/processed/report.yaml`) to include a prominent "Limitations" section explicitly stating that findings are associational, not causal, due to the observational nature of the data. **CRITICAL**: Ensures compliance with FR-007 and prevents causal over-interpretation. **Depends on T032, T035**.
+- [ ] T057 [US3] **Add Power Limitation Warning to Final Report**: If `data/processed/.ingestion_status.json` indicates N < 100, update `docs/paper_draft.md` and `data/processed/report.yaml` to include a specific "Statistical Power Limitation" warning referencing the exact N value. **CRITICAL**: Ensures compliance with FR-001 and SC-004 by transparently reporting reduced statistical power. **Depends on T014, T035**.

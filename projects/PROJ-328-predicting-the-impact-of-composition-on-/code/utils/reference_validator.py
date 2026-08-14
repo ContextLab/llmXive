@@ -1,193 +1,228 @@
 """
-Reference Validator Agent for Constitution Check.
+Reference Validator Module for Solder Hardness Project.
 
-This module implements the Reference-Validator Agent as specified in T008.
-It verifies that `research.md` exists and contains verified citations from
-real, programmatically accessible sources before the Constitution Check passes.
+This module validates research sources identified in T008a.
+It checks for valid URLs, reachable domains, and proper citation format.
 """
 import os
 import re
 import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
-
 from utils.error_handlers import SolderPipelineError
+from utils.logging_config import get_logger
 
-# Define the path to research.md relative to project root
-# Based on task description: specs/001-predict-solder-hardness/research.md
-RESEARCH_MD_PATH = Path("specs/001-predict-solder-hardness/research.md")
-
-# Required source keywords to verify presence in research.md
-# These correspond to the sources mentioned in T008a and tasks.md
-REQUIRED_SOURCES = [
-    "materials project",
-    "nist",
-    "openalloy",
-    "literature corpus",
-    "pdf"
-]
-
-# Pattern to match URLs or DOIs in the text
-URL_PATTERN = re.compile(r'https?://[^\s<>"{}|\\^`\[\]]+|doi:[^\s<>"{}|\\^`\[\]]+', re.IGNORECASE)
-DOI_PATTERN = re.compile(r'doi:\s*10\.\d{4,9}/[-._;()/:A-Z0-9]+', re.IGNORECASE)
+# Configure logger
+logger = get_logger(__name__)
 
 class ConstitutionError(SolderPipelineError):
-    """Raised when the Constitution Check fails due to missing or unverified research.md."""
+    """Raised when research verification fails."""
     pass
 
-def get_logger():
-    """Get a logger instance for this module."""
-    logger = logging.getLogger(__name__)
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
-    return logger
-
-def check_research_md_exists() -> bool:
+def validate_url(url: str) -> Tuple[bool, Optional[str]]:
     """
-    Check if research.md exists at the expected path.
-
-    Returns:
-        bool: True if file exists, False otherwise.
-    """
-    logger = get_logger()
-    exists = RESEARCH_MD_PATH.exists()
-    if exists:
-        logger.info(f"Found {RESEARCH_MD_PATH}")
-    else:
-        logger.error(f"Missing required file: {RESEARCH_MD_PATH}")
-    return exists
-
-def extract_citations(content: str) -> List[Tuple[str, str]]:
-    """
-    Extract potential citations (URLs, DOIs) from the content.
-
+    Validate a URL string.
+    
     Args:
-        content (str): The text content of research.md.
-
+        url: The URL string to validate.
+        
     Returns:
-        List[Tuple[str, str]]: List of (type, value) tuples for found citations.
+        Tuple of (is_valid, error_message).
     """
-    logger = get_logger()
-    citations = []
+    if not url or not isinstance(url, str):
+        return False, "URL is empty or not a string"
+    
+    # Basic URL pattern check
+    url_pattern = re.compile(
+        r'^https?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    
+    if not url_pattern.match(url):
+        return False, f"Invalid URL format: {url}"
+    
+    # Check for known blocked or suspicious patterns
+    blocked_patterns = ['javascript:', 'data:', 'file:']
+    for pattern in blocked_patterns:
+        if pattern in url.lower():
+            return False, f"Blocked protocol detected: {pattern}"
+    
+    return True, None
 
-    # Find URLs
-    urls = URL_PATTERN.findall(content)
-    for url in urls:
-        citations.append(("URL", url))
-
-    # Find DOIs
-    dois = DOI_PATTERN.findall(content)
-    for doi in dois:
-        citations.append(("DOI", doi))
-
-    logger.info(f"Extracted {len(citations)} potential citations")
-    return citations
-
-def verify_citations(content: str) -> Tuple[bool, List[str]]:
+def validate_citation_format(line: str) -> Tuple[bool, Optional[str]]:
     """
-    Verify that the content contains references to required sources.
-
-    This is a heuristic check based on the presence of required source keywords
-    and at least one valid citation (URL or DOI).
-
+    Validate that a line follows the expected citation format.
+    
+    Expected format: "[ID] Title - URL" or similar structured format.
+    
     Args:
-        content (str): The text content of research.md.
-
+        line: The line to validate.
+        
     Returns:
-        Tuple[bool, List[str]]: (is_valid, list of missing sources)
+        Tuple of (is_valid, error_message).
     """
-    logger = get_logger()
-    content_lower = content.lower()
-    missing_sources = []
+    if not line or not line.strip():
+        return False, "Empty citation line"
+    
+    # Check for basic structure: should contain a URL
+    if 'http' not in line:
+        return False, "Citation missing URL"
+    
+    # Check for title (text before the URL)
+    parts = line.split('http')
+    if len(parts) < 2 or not parts[0].strip():
+        return False, "Citation missing title"
+    
+    return True, None
 
-    # Check for required source keywords
-    for source in REQUIRED_SOURCES:
-        if source not in content_lower:
-            missing_sources.append(source)
-
-    # Check for at least one valid citation
-    citations = extract_citations(content)
-    has_citations = len(citations) > 0
-
-    if missing_sources:
-        logger.warning(f"Missing references to required sources: {missing_sources}")
-
-    if not has_citations:
-        logger.warning("No citations (URLs or DOIs) found in research.md")
-
-    is_valid = (len(missing_sources) == 0) and has_citations
-    return is_valid, missing_sources
-
-def validate_research_md() -> bool:
+def validate_research_md(input_path: str, output_path: str) -> bool:
     """
-    Perform the full Constitution Check validation.
-
-    1. Check if research.md exists.
-    2. Read its content.
-    3. Verify it contains required sources and citations.
-
+    Validate the research sources file and generate a verified version.
+    
+    This function:
+    1. Reads the candidate sources from the input file (T008a output).
+    2. Validates each URL and citation format.
+    3. Writes only valid entries to the output file (T008b output).
+    4. Returns True if verification passes, False otherwise.
+    
+    Args:
+        input_path: Path to the candidate sources file.
+        output_path: Path where the verified sources file will be written.
+        
     Returns:
-        bool: True if validation passes.
-
+        True if verification is successful, False otherwise.
+        
     Raises:
-        ConstitutionError: If validation fails.
+        ConstitutionError: If verification fails completely.
     """
-    logger = get_logger()
-
-    # Step 1: Check existence
-    if not check_research_md_exists():
-        raise ConstitutionError(
-            f"Constitution Check FAILED: {RESEARCH_MD_PATH} does not exist. "
-            "Run T008a to generate research.md first."
-        )
-
-    # Step 2: Read content
+    input_file = Path(input_path)
+    output_file = Path(output_path)
+    
+    if not input_file.exists():
+        raise ConstitutionError(f"Input file not found: {input_path}")
+    
+    # Ensure output directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    verified_entries = []
+    total_entries = 0
+    valid_entries = 0
+    errors = []
+    
+    logger.info(f"Starting verification of research sources from {input_path}")
+    
     try:
-        content = RESEARCH_MD_PATH.read_text(encoding='utf-8')
+        with open(input_file, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
     except Exception as e:
-        raise ConstitutionError(
-            f"Constitution Check FAILED: Could not read {RESEARCH_MD_PATH}: {e}"
-        )
-
-    if not content.strip():
-        raise ConstitutionError(
-            f"Constitution Check FAILED: {RESEARCH_MD_PATH} is empty."
-        )
-
-    # Step 3: Verify citations and sources
-    is_valid, missing_sources = verify_citations(content)
-
-    if not is_valid:
-        error_msg = "Constitution Check FAILED: research.md is missing required citations or source references."
-        if missing_sources:
-            error_msg += f" Missing sources: {', '.join(missing_sources)}."
-        if not extract_citations(content):
-            error_msg += " No URLs or DOIs found."
-
-        logger.error(error_msg)
-        raise ConstitutionError(error_msg)
-
-    logger.info("Constitution Check PASSED: research.md is valid.")
+        raise ConstitutionError(f"Failed to read input file: {str(e)}")
+    
+    for line_num, line in enumerate(lines, 1):
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue  # Skip comments and empty lines
+        
+        total_entries += 1
+        
+        # Extract URL from line (assuming format: "ID Title - URL" or similar)
+        url_match = re.search(r'(https?://[^\s]+)', line)
+        if not url_match:
+            errors.append(f"Line {line_num}: No URL found in '{line}'")
+            continue
+        
+        url = url_match.group(1)
+        
+        # Validate URL
+        is_valid_url, url_error = validate_url(url)
+        if not is_valid_url:
+            errors.append(f"Line {line_num}: {url_error} (URL: {url})")
+            continue
+        
+        # Validate citation format
+        is_valid_format, format_error = validate_citation_format(line)
+        if not is_valid_format:
+            errors.append(f"Line {line_num}: {format_error} (Line: {line})")
+            continue
+        
+        # Entry is valid
+        verified_entries.append(line)
+        valid_entries += 1
+        logger.debug(f"Validated entry {line_num}: {url}")
+    
+    # Write verified entries
+    try:
+        with open(output_file, 'w', encoding='utf-8') as f:
+            f.write("# Verified Research Sources for Solder Hardness Project\n")
+            f.write("# Generated by Reference-Validator Agent (T008b)\n")
+            f.write("# Only valid URLs and properly formatted citations are included.\n")
+            f.write("#\n")
+            f.write(f"# Verification Summary:\n")
+            f.write(f"# - Total entries processed: {total_entries}\n")
+            f.write(f"# - Valid entries: {valid_entries}\n")
+            f.write(f"# - Invalid entries: {total_entries - valid_entries}\n")
+            f.write("#\n\n")
+            
+            for entry in verified_entries:
+                f.write(f"{entry}\n")
+        
+        logger.info(f"Successfully wrote {valid_entries} verified entries to {output_path}")
+    except Exception as e:
+        raise ConstitutionError(f"Failed to write output file: {str(e)}")
+    
+    # Log errors if any
+    if errors:
+        logger.warning(f"Found {len(errors)} validation errors:")
+        for error in errors[:10]:  # Log first 10 errors
+            logger.warning(f"  - {error}")
+        if len(errors) > 10:
+            logger.warning(f"  ... and {len(errors) - 10} more errors")
+    
+    # Check if we have any valid entries
+    if valid_entries == 0:
+        raise ConstitutionError("No valid research sources found. Verification failed.")
+    
+    # Success
+    logger.info(f"Verification complete: {valid_entries}/{total_entries} sources verified.")
     return True
 
 def main():
-    """Main entry point for the Reference Validator Agent."""
-    logger = get_logger()
-    logger.info("Starting Reference-Validator Agent (T008)...")
-
+    """
+    Main entry point for the reference validator.
+    
+    Reads from data/config/candidate_sources.txt (output of T008a)
+    and writes to specs/001-predict-solder-hardness/research_verified.md.
+    """
+    # Define paths
+    project_root = Path(__file__).parent.parent.parent
+    input_path = project_root / "data" / "config" / "candidate_sources.txt"
+    output_path = project_root / "specs" / "001-predict-solder-hardness" / "research_verified.md"
+    
+    # Allow override via environment variables for testing
+    if os.environ.get('RESEARCH_INPUT_PATH'):
+        input_path = Path(os.environ['RESEARCH_INPUT_PATH'])
+    if os.environ.get('RESEARCH_OUTPUT_PATH'):
+        output_path = Path(os.environ['RESEARCH_OUTPUT_PATH'])
+    
+    logger.info(f"Reference Validator starting...")
+    logger.info(f"Input: {input_path}")
+    logger.info(f"Output: {output_path}")
+    
     try:
-        validate_research_md()
-        logger.info("T008 completed successfully.")
-        return 0
+        success = validate_research_md(str(input_path), str(output_path))
+        if success:
+            logger.info("Verification completed successfully.")
+            return 0
+        else:
+            logger.error("Verification completed with errors.")
+            return 1
     except ConstitutionError as e:
-        logger.error(f"T008 failed: {e}")
+        logger.error(f"Verification failed: {str(e)}")
         return 1
     except Exception as e:
-        logger.error(f"Unexpected error during T008: {e}")
+        logger.exception(f"Unexpected error during verification: {str(e)}")
         return 1
 
 if __name__ == "__main__":

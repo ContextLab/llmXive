@@ -1,3 +1,3 @@
 """
-Root package for the code modules.
+Root package for the Solder Hardness Prediction Pipeline code.
 """

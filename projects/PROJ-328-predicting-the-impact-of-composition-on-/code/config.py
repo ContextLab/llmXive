@@ -1,76 +1,85 @@
+"""
+Project configuration management.
+"""
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 import logging
+
 from utils.error_handlers import ConfigurationError
 
-# Default configuration values
-DEFAULT_MAX_ELEMENTS = 5
-DEFAULT_R2_THRESHOLDS = {0.3, 0.5, 0.6, 0.7}
-DEFAULT_ROOM_TEMP_THRESHOLD_C = 25
-DEFAULT_ROOM_TEMP_TOLERANCE_C = 5
-DEFAULT_COMPOSITION_SUM_THRESHOLD = 0.95
-DEFAULT_LOG_LEVEL = "INFO"
-DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DEFAULT_MIN_SAMPLES_WARNING = 50
-DEFAULT_MIN_SAMPLES_TARGET = 100
-DEFAULT_CV_FOLDS = 5
-DEFAULT_BOOTSTRAP_ITERATIONS = 100
-DEFAULT_VIF_THRESHOLD = 5
+# Project root is parent of code/ directory
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 class Config:
-    """Configuration class for the project."""
+    """Central configuration container."""
+    
     def __init__(self):
-        self.max_elements = int(os.getenv("MAX_ELEMENTS", DEFAULT_MAX_ELEMENTS))
-        self.r2_thresholds = self._parse_r2_thresholds()
-        self.room_temp_threshold_c = float(os.getenv("ROOM_TEMP_THRESHOLD_C", DEFAULT_ROOM_TEMP_THRESHOLD_C))
-        self.room_temp_tolerance_c = float(os.getenv("ROOM_TEMP_TOLERANCE_C", DEFAULT_ROOM_TEMP_TOLERANCE_C))
-        self.composition_sum_threshold = float(os.getenv("COMPOSITION_SUM_THRESHOLD", DEFAULT_COMPOSITION_SUM_THRESHOLD))
-        self.log_level = os.getenv("LOG_LEVEL", DEFAULT_LOG_LEVEL)
-        self.log_format = os.getenv("LOG_FORMAT", DEFAULT_LOG_FORMAT)
-        self.min_samples_warning = int(os.getenv("MIN_SAMPLES_WARNING", DEFAULT_MIN_SAMPLES_WARNING))
-        self.min_samples_target = int(os.getenv("MIN_SAMPLES_TARGET", DEFAULT_MIN_SAMPLES_TARGET))
-        self.cv_folds = int(os.getenv("CV_FOLDS", DEFAULT_CV_FOLDS))
-        self.bootstrap_iterations = int(os.getenv("BOOTSTRAP_ITERATIONS", DEFAULT_BOOTSTRAP_ITERATIONS))
-        self.vif_threshold = float(os.getenv("VIF_THRESHOLD", DEFAULT_VIF_THRESHOLD))
+        # Directories
+        self.data_raw_dir = _PROJECT_ROOT / "data" / "raw"
+        self.data_processed_dir = _PROJECT_ROOT / "data" / "processed"
+        self.data_outputs_dir = _PROJECT_ROOT / "data" / "outputs"
+        self.models_dir = _PROJECT_ROOT / "models"
+        self.code_dir = _PROJECT_ROOT / "code"
+        
+        # Ingestion thresholds
+        self.composition_sum_threshold = 0.95
+        self.max_elements = 5
+        
+        # Validation thresholds
+        self.vif_threshold = 5.0
+        
+        # Model training
+        self.r2_sensitivity_thresholds = {"low": 0.4, "medium": 0.6, "high": 0.7}
+        self.min_samples_warning = 50
+        self.min_samples_target = 100
+        self.cv_folds = 5
+        self.bootstrap_iterations = 100
+        
+        # Logging
+        self.log_level = os.getenv("LOG_LEVEL", "INFO")
+        self.log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        
+        # Physical constants for conversion
+        self.GPA_TO_HV = 10.197
+        self.KGF_MM2_TO_HV = 9.807
+        self.ROOM_TEMP_THRESHOLD_C = 25.0
+        self.ROOM_TEMP_TOLERANCE_C = 5.0
 
-    def _parse_r2_thresholds(self) -> List[float]:
-        """Parse R2 thresholds from environment variable or use default."""
-        env_val = os.getenv("R2_THRESHOLDS")
-        if env_val:
-            try:
-                # Expecting comma-separated floats, e.g., "0.3,0.5,0.6,0.7"
-                return [float(x.strip()) for x in env_val.split(",")]
-            except ValueError:
-                raise ConfigurationError(f"Invalid R2_THRESHOLDS format: {env_val}")
-        return list(DEFAULT_R2_THRESHOLDS)
+    def validate(self):
+        """Ensure critical paths exist."""
+        critical_dirs = [
+            self.data_raw_dir,
+            self.data_processed_dir,
+            self.data_outputs_dir,
+            self.models_dir
+        ]
+        for d in critical_dirs:
+            if not d.exists():
+                # Don't raise here, allow setup scripts to create them
+                pass
 
-# Singleton instance
 _config_instance: Optional[Config] = None
 
 def get_config() -> Config:
+    """Retrieve the singleton config instance."""
     global _config_instance
     if _config_instance is None:
         _config_instance = Config()
     return _config_instance
 
-# Helper functions for directory paths (assuming project root is where this file is or parent)
-def _get_project_root() -> Path:
-    current_file = Path(__file__).resolve()
-    # Assume structure: code/config.py -> project_root
-    return current_file.parent.parent
-
+# Convenience getters
 def get_data_raw_dir() -> Path:
-    return _get_project_root() / "data" / "raw"
+    return get_config().data_raw_dir
 
 def get_data_processed_dir() -> Path:
-    return _get_project_root() / "data" / "processed"
+    return get_config().data_processed_dir
 
 def get_data_outputs_dir() -> Path:
-    return _get_project_root() / "data" / "outputs"
+    return get_config().data_outputs_dir
 
 def get_models_dir() -> Path:
-    return _get_project_root() / "models"
+    return get_config().models_dir
 
 def get_composition_sum_threshold() -> float:
     return get_config().composition_sum_threshold
@@ -81,8 +90,8 @@ def get_max_elements() -> int:
 def get_vif_threshold() -> float:
     return get_config().vif_threshold
 
-def get_r2_sensitivity_thresholds() -> List[float]:
-    return get_config().r2_thresholds
+def get_r2_sensitivity_thresholds() -> Dict[str, float]:
+    return get_config().r2_sensitivity_thresholds
 
 def get_min_samples_warning() -> int:
     return get_config().min_samples_warning

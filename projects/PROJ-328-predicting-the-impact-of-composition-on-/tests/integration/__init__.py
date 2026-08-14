@@ -1,6 +1,3 @@
 """
-Integration Tests Package.
-
-Contains tests that verify integration between components.
+Integration tests for pipeline components.
 """
-pass

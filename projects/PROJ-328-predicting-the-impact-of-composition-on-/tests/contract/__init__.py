@@ -1,6 +1,3 @@
 """
-Contract Tests Package.
-
-Contains tests that verify API contracts and data schemas.
+Contract tests for API and data schema validation.
 """
-pass
