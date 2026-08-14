@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AudioClip Metadata Schema"
+type: object
+properties:
+  clip_id:
+    type: string
+    description: "Unique identifier for the audio clip."
+  source_url:
+    type: string
+    description: "URL of the original audio file."
+  transcript:
+    type: string
+    description: "Ground truth transcript."
+  speaker_id:
+    type: string
+    description: "Identifier for the speaker."
+  duration_seconds:
+    type: number
+    description: "Audio duration in seconds."
+required:
+  - clip_id
+  - source_url
+  - transcript
+  - speaker_id
+  - duration_seconds

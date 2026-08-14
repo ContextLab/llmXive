@@ -1,46 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Regression Input Schema"
-description: "Schema for the flattened dataset used to train the collapse prediction model. Target is the Semantic Decay Slope (SSD) or Area Under Stress Curve (AUSC)."
+description: "Schema for the flattened dataset used to train the collapse prediction model. Target variables are curve parameters (Slope, AUSC, Normalized Inflection Coordinate) derived from Functional Data Analysis. Grouping variables (clip_id, model_name) are used for hierarchical regression but are not features."
 type: "object"
 properties:
-  audio_clip_id:
+  clip_id:
     type: "string"
-    description: "Unique identifier for the audio clip."
+    description: "Grouping variable: Unique identifier for the audio clip (used for random intercepts)."
   model_name:
     type: "string"
-    description: "Name of the ASR model."
+    description: "Grouping variable: Name of the ASR model (used for random slopes/intercepts)."
   snr:
     type: "number"
-    description: "SNR value (feature)."
+    description: "Feature: SNR value (mean-centered)."
   rt60:
     type: "number"
-    description: "RT60 value (feature)."
+    description: "Feature: RT60 value (mean-centered)."
   snr_sq:
     type: "number"
-    description: "SNR squared (feature)."
+    description: "Feature: SNR squared."
   rt60_sq:
     type: "number"
-    description: "RT60 squared (feature)."
+    description: "Feature: RT60 squared."
   snr_rt60:
     type: "number"
-    description: "Interaction term (SNR * RT60)."
-  target_ssd:
+    description: "Feature: Interaction term (SNR * RT60)."
+  normalized_inflection_coord:
     type: "number"
-    description: "Target variable: Semantic Decay Slope (slope of sigmoid at inflection point)."
-  target_ausc:
+    description: "Target: The position of the inflection point within the normalized SNR/RT60 space."
+  sigmoid_slope:
     type: "number"
-    description: "Target variable: Area Under Stress Curve."
+    description: "Target: Slope of the fitted sigmoid curve at the inflection point."
+  ausc:
+    type: "number"
+    description: "Target: Area Under Stress Curve (AUSC)."
   p_value_adjusted:
     type: "number"
     description: "Adjusted p-value for the interaction term (FDR corrected)."
 required:
-  - audio_clip_id
+  - clip_id
   - model_name
   - snr
   - rt60
   - snr_sq
   - rt60_sq
   - snr_rt60
-  - target_ssd
+  - normalized_inflection_coord
+  - sigmoid_slope
+  - ausc
   - p_value_adjusted
 additionalProperties: false

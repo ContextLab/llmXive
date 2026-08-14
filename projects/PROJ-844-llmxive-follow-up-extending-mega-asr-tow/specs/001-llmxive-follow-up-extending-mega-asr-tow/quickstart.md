@@ -1,66 +1,90 @@
 # Quickstart: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
 ## Prerequisites
-
-*   Python 3.11+
-*   Git
-*   Access to Hugging Face (for dataset download).
+- Python 3.11+
+- Sufficient Disk Space (for derived data)
+- Sufficient RAM (or use streaming mode)
+- Montreal Forced Aligner (MFA) binaries and English dictionaries (for FR-022 fallback)
 
 ## Installation
 
-1.  **Clone & Setup**:
+1.  **Clone and Setup**:
     ```bash
-    git clone <repo-url>
+    git checkout 001-semantic-collapse-threshold
     cd projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r code/requirements.txt
+    python -m venv .venv
+    source .venv/bin/activate
+    pip install -r requirements.txt
     ```
 
-2.  **Verify Dependencies**:
+2.  **Install MFA** (for FR-022 fallback):
     ```bash
-    python -c "import pyroomacoustics; import transformers; import shap; print('All dependencies OK')"
+    pip install montreal-forced-aligner==2.2.0
+    # Download English dictionaries
+    mfa model download dictionary english
+    mfa model download acoustic english_mfa
+    ```
+
+3.  **Verify Dependencies**:
+    Ensure `pyroomacoustics` and `transformers` are installed:
+    ```bash
+    python -c "import pyroomacoustics; import transformers; print('OK')"
     ```
 
 ## Running the Pipeline
 
-The pipeline is orchestrated via `code/main.py`.
-
-### 1. Download & Stratify (CPU)
+### Step 1: Data Download & Stratification
+Download and prepare the stratified subset of clips.
 ```bash
-python code/main.py --action download --dataset hf-audio/open-asr-leaderboard --sample-size 80
+python -m src.data.download --target-rows [SUFFICIENT_SAMPLE_SIZE] --output data/raw/stratified_subset.parquet
 ```
-*Output*: `data/raw/stratified_sample.parquet`
 
-### 2. Generate Stress Curves
+### Step 2: Validation Gate (FR-011, FR-018)
+Run the validation checks before generating stress curves.
 ```bash
-python code/main.py --action distort --snr-range -10,30 --rt60-range 0.1,0.6 --models whisper-tiny
+python -m src.data.validate --check-svs --check-realism
 ```
-*Output*: `data/derived/stress_curves.parquet`
+*If this fails, the pipeline halts.*
 
-### 3. Identify Collapse Points
+### Step 3: Stress Curve Generation
+Generate a comprehensive set of distortion scenarios and compute metrics.
 ```bash
-python code/main.py --action collapse --threshold-sss 0.5 --threshold-wer-multiplier 2
+python -m src.simulation.stress_generator \
+    --input data/raw/stratified_subset.parquet \
+    --output data/derived/stress_curves.parquet \
+    --models whisper-tiny,distil-whisper \
+    --scenarios multiple
 ```
-*Output*: `data/derived/collapse_points.parquet`
 
-### 4. Regression & Analysis
+### Step 4: Collapse Detection
+Identify the collapse points.
 ```bash
-python code/main.py --action regress --method hierarchical --interaction-check shap
+python -m src.analysis.collapse_detector \
+    --input data/derived/stress_curves.parquet \
+    --output data/derived/collapse_points.parquet
 ```
-*Output*: `data/derived/regression_results.json`, `figures/critical_vector.png`
+
+### Step 5: Regression & Analysis
+Fit the hierarchical model and generate SHAP plots.
+```bash
+python -m src.analysis.regression \
+    --input data/derived/collapse_points.parquet \
+    --output data/derived/regression_results.json
+```
 
 ## Testing
 
-Run the full test suite:
+Run the unit tests to verify logic (T008):
 ```bash
-pytest tests/ -v
+pytest tests/unit/ -v
 ```
-*   **Unit Tests**: Verify distortion logic, SSS calculation, collapse algorithm.
-*   **Contract Tests**: Verify `stress_curves.parquet` schema matches `contracts/stress_curve.schema.yaml`.
 
-## Troubleshooting
+Run integration tests:
+```bash
+pytest tests/integration/ -v
+```
 
-*   **Memory Error**: Reduce `--sample-size` or enable `--streaming` in download.
-*   **CPU Timeout**: A default sample size sufficient to complete the study within 6 hours is selected. If using GPU, increase sample size.
-*   **Dataset Missing**: Ensure you are using the verified HF URLs in `research.md`.
+## Output Artifacts
+- `data/derived/stress_curves.parquet`: The full stress curve dataset.
+- `data/derived/collapse_points.parquet`: The identified collapse thresholds.
+- `data/derived/regression_results.json`: Model coefficients and SHAP values.

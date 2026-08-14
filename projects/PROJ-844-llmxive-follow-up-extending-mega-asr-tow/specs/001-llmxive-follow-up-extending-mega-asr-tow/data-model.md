@@ -1,61 +1,71 @@
 # Data Model: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
-## 1. Entities & Relationships
+## Overview
+This document defines the data structures for the stress-testing pipeline, including the input audio metadata, the generated stress curves, the derived collapse points, and the regression results.
+
+## Entities
 
 ### AudioClip
-*   **ID**: Unique identifier (UUID or hash).
-*   **Source**: Dataset name (e.g., "ami", "commonvoice").
-*   **Path**: Local file path to raw audio.
-*   **Speaker_ID**: Identifier for speaker stratification.
-*   **Duration**: Length in seconds.
-*   **Transcript**: Ground truth text.
+Represents a single audio file from the source dataset.
+- `clip_id`: Unique identifier (string).
+- `source_url`: URL of the original audio file.
+- `transcript`: Ground truth transcript (string).
+- `speaker_id`: Identifier for the speaker (string).
+- `duration_seconds`: Audio duration (float).
 
 ### DistortionVector
-*   **ID**: Composite key (AudioClip_ID + SNR + RT60).
-*   **SNR**: Signal-to-Noise Ratio in dB (float).
-*   **RT60**: Reverberation time in seconds (float).
-*   **Scenario_Index**: Integer (1-54).
+Represents a specific combination of acoustic parameters.
+- `snr_db`: Signal-to-Noise Ratio in decibels (float).
+- `rt60_sec`: Reverberation time in seconds (float).
+- `distortion_type`: Label (e.g., "Reverb+Noise").
+- `scenario_id`: Unique ID for the 54-scenario grid (integer).
 
-### StressCurve
-*   **AudioClip_ID**: FK to AudioClip.
-*   **DistortionVector_ID**: FK to DistortionVector.
-*   **Model_Name**: ASR model used (e.g., "whisper-tiny").
-*   **SSS**: Semantic Similarity Score (float, 0.0-1.0).
-*   **WER**: Word Error Rate (float, 0.0-1.0+).
-*   **Composite_Score**: Weighted average of SSS and Phoneme Edit Distance.
-*   **Hypothesis**: ASR output text.
-*   **Reference**: Ground truth text.
-*   **Curve_Type**: String ("sigmoid", "linear").
-*   **Max_Derivative**: Float (maximum negative derivative of SSS).
+### StressCurveRecord
+A single data point on a stress curve for a specific clip and distortion.
+- `clip_id`: FK to AudioClip.
+- `scenario_id`: FK to DistortionVector.
+- `model_name`: ASR model used (string).
+- `wer`: Word Error Rate (float).
+- `sss`: Semantic Similarity Score (float, 0.0–1.0).
+- `hypothesis`: ASR output text (string).
 
 ### CollapseIntensity
-*   **AudioClip_ID**: FK.
-*   **Model_Name**: ASR model.
-*   **Collapse_Step**: The index of the distortion vector where collapse occurred.
-*   **Collapse_Intensity**: The interpolated intensity value (float).
-*   **Reason**: "Inflection", "Threshold", "None".
-*   **Sensitivity_Flag**: Boolean (true if sensitivity analysis varied this point).
-*   **Curve_Type**: String ("sigmoid", "linear").
+The derived collapse point for a specific clip/model/scenario.
+- `clip_id`: FK to AudioClip.
+- `model_name`: FK to ASR model.
+- `normalized_inflection_coord`: The position of the inflection point within the normalized SNR/RT60 space (float).
+- `collapse_type`: "Inflection", "Threshold", or "None".
+- `sss_at_collapse`: SSS value at the collapse point.
+- `wer_at_collapse`: WER value at the collapse point.
+- `fallback_metric`: (Optional) Phoneme-level edit distance if SSS failed (FR-022).
+- `sigmoid_slope`: Slope of the fitted sigmoid curve at the inflection point.
+- `ausc`: Area Under Stress Curve.
 
-### CriticalInteractionVector
-*   **Model_Name**: ASR model.
-*   **Coefficients**: JSON blob of regression coefficients (SNR, RT60, Interaction).
-*   **R2**: Model fit score.
-*   **SHAP_Importance**: JSON blob of feature importances.
-*   **FDR_Corrected**: Boolean.
+### RegressionInput
+The input data for the predictive model, including curve parameters and target variables.
+- **Grouping Variables** (Used for Hierarchical Regression, NOT as features):
+    - `clip_id`: Unique identifier for the audio clip.
+    - `model_name`: Name of the ASR model.
+- **Features**:
+    - `snr`: SNR value (mean-centered).
+    - `rt60`: RT60 value (mean-centered).
+    - `snr_sq`: SNR squared.
+    - `rt60_sq`: RT60 squared.
+    - `snr_rt60`: Interaction term (SNR * RT60).
+- **Targets**:
+    - `normalized_inflection_coord`: The position of the inflection point in normalized space.
+    - `sigmoid_slope`: Slope of the fitted sigmoid curve.
+    - `ausc`: Area Under Stress Curve.
+    - `p_value_adjusted`: Adjusted p-value for the interaction term (FDR corrected).
 
-## 2. Data Flow
+### RegressionResult
+The output of the predictive model.
+- `feature`: Name of the predictor (e.g., "SNR", "RT60", "SNR:RT60").
+- `coefficient`: Learned weight (float).
+- `p_value`: Statistical significance (float).
+- `shap_value_mean`: Mean absolute SHAP value (float).
 
-1.  **Raw**: `data/raw/` (Downloaded Parquet files from HF).
-2.  **Interim**: `data/interim/` (Stratified sample, generated distorted audio files `.wav`).
-3.  **Derived**: `data/derived/` (Aggregated stress curves, collapse points, regression results).
-    *   `stress_curves.parquet`
-    *   `collapse_points.parquet` (Generated in Phase 2, T022)
-    *   `regression_results.json`
-
-## 3. Constraints
-
-*   **Parquet**: All derived data must be stored in Parquet for efficient columnar access.
-*   **Immutability**: Raw files are never modified.
-*   **Checksums**: All files in `data/raw` and `data/derived` must have a `.sha256` sidecar file.
-*   **Versioning**: `code/utils/versioning.py` must update `state/` YAML files with hashes of all derived files.
+## File Format
+- **Raw Data**: Parquet (streamed from Hugging Face).
+- **Derived Data**: Parquet (for efficient columnar access).
+- **Config/Results**: JSON.

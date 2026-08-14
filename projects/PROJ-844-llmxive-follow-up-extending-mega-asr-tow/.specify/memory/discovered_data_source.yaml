@@ -1,12 +1,16 @@
 status: none
-intent: download Voices-in-the-Wild-2M audio dataset for ASR research python package
-  dataset
+intent: Voices-in-the-Wild-2M dataset download python package including Common Voice
+  reference python package dataset
 required_fields:
-- audio_file_path
-- transcription
+- clip_id
 - speaker_id
-- snr
-- rt60
-cache_key: b88064cb74d1086654b48d48a92e66c993849a20e072f5665226ca36f456ac2b
-searched_at: '2026-08-11T17:49:01.399665+00:00'
+- original_audio_path
+- snr_db
+- rt60_s
+- asr_hypothesis
+- semantic_similarity_score
+- distortion_scenario_id
+- model_name
+cache_key: 013840b37c3e7a98418be51aef4bfe3539a42ff7f58243fcc250ccc63955903e
+searched_at: '2026-08-14T00:06:18.883465+00:00'
 retry_count: 1

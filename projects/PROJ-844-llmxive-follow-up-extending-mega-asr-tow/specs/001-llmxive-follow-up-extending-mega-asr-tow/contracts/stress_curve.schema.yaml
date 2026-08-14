@@ -1,56 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Stress Curve Record"
-description: "Schema for a single stress curve record linking audio, distortion, and ASR metrics."
+title: "Stress Curve Record Schema"
 type: object
 properties:
-  audio_clip_id:
+  clip_id:
     type: string
-    description: "Unique identifier for the source audio clip."
-  distortion_vector_id:
-    type: string
-    description: "Composite ID for SNR and RT60 combination."
+    description: "Foreign key to AudioClip."
+  scenario_id:
+    type: integer
+    description: "ID of the distortion scenario (1-54)."
   snr_db:
     type: number
-    description: "Signal-to-Noise Ratio in decibels."
+    description: "Signal-to-Noise Ratio in dB."
   rt60_sec:
     type: number
     description: "Reverberation time in seconds."
   model_name:
     type: string
     description: "Name of the ASR model used."
+  wer:
+    type: number
+    description: "Word Error Rate."
   sss:
     type: number
     description: "Semantic Similarity Score (0.0 to 1.0)."
-  wer:
-    type: number
-    description: "Word Error Rate (0.0 to 1.0+)."
-  composite_score:
-    type: number
-    description: "Composite semantic integrity score (SSS + Phoneme Edit Distance)."
   hypothesis:
     type: string
     description: "ASR output text."
-  reference:
-    type: string
-    description: "Ground truth transcript."
-  curve_type:
-    type: string
-    enum: ["sigmoid", "linear"]
-    description: "Morphology of the degradation curve."
-  max_derivative:
-    type: number
-    description: "Maximum negative derivative of the SSS curve."
 required:
-  - audio_clip_id
-  - distortion_vector_id
+  - clip_id
+  - scenario_id
   - snr_db
   - rt60_sec
   - model_name
-  - sss
   - wer
-  - composite_score
+  - sss
   - hypothesis
-  - reference
-  - curve_type
-  - max_derivative
-additionalProperties: false

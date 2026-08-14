@@ -1,45 +1,36 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Collapse Point Record"
-description: "Schema for the identified semantic collapse intensity for a specific audio/model combination."
+title: "Collapse Intensity Schema"
 type: object
 properties:
-  audio_clip_id:
+  clip_id:
     type: string
-    description: "Unique identifier for the source audio clip."
+    description: "Foreign key to AudioClip."
   model_name:
     type: string
-    description: "Name of the ASR model used."
+    description: "Name of the ASR model."
   collapse_intensity:
     type: number
-    description: "The interpolated distortion intensity where collapse occurred."
-  collapse_step_index:
-    type: integer
-    description: "The index of the distortion vector (0-53) where collapse was detected."
-  reason:
+    description: "The distortion intensity value at collapse."
+  collapse_type:
     type: string
-    enum: ["Inflection", "Threshold", "None"]
-    description: "Method used to identify the collapse point."
+    enum:
+      - "Inflection"
+      - "Threshold"
+      - "None"
+    description: "Type of collapse detection."
   sss_at_collapse:
     type: number
-    description: "SSS value at the identified collapse point."
+    description: "SSS value at the collapse point."
   wer_at_collapse:
     type: number
-    description: "WER value at the identified collapse point."
-  curve_type:
-    type: string
-    enum: ["sigmoid", "linear"]
-    description: "Morphology of the degradation curve."
-  max_derivative:
-    type: number
-    description: "Maximum negative derivative of the SSS curve."
+    description: "WER value at the collapse point."
+  fallback_metric:
+    type: ["string", "null"]
+    description: "Phoneme-level edit distance if SSS failed (FR-022)."
 required:
-  - audio_clip_id
+  - clip_id
   - model_name
   - collapse_intensity
-  - collapse_step_index
-  - reason
+  - collapse_type
   - sss_at_collapse
   - wer_at_collapse
-  - curve_type
-  - max_derivative
-additionalProperties: false
