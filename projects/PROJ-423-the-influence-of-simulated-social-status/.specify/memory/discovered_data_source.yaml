@@ -1,14 +1,14 @@
 status: none
-intent: "ICPSR Add Health social status and risk\u2011taking dataset download python\
-  \ package dataset"
+intent: social status risk taking meta analysis dataset download csv site:osf.io python
+  package dataset
 required_fields:
 - participant_id
-- social_status
-- risk_behavior
-- outcome
-- study_phase
+- status_level
+- risk_behavior_score
+- condition_type
+- outcome_measure
 - age
 - gender
-cache_key: 3df11e523bdf00f0999e51c92faf3f16edf825c222da7516dedc17e5a76ecb9e
-searched_at: '2026-08-04T12:41:55.477143+00:00'
+cache_key: 67f15e87f4ccafd6f03d0f1901686b051324f50cffef134f6fbf867b1c7faba1
+searched_at: '2026-08-14T09:33:31.119642+00:00'
 retry_count: 1

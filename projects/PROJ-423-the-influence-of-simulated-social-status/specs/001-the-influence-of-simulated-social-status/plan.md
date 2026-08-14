@@ -1,45 +1,28 @@
 # Implementation Plan: The Influence of Simulated Social Status on Risk-Taking Behavior
 
-**Branch**: `001-simulated-status-risk` | **Date**: 2026-07-13 | **Spec**: `specs/001-simulated-status-risk/spec.md`
-**Input**: Feature specification from `specs/001-simulated-status-risk/spec.md`
+**Branch**: `001-simulated-status-risk` | **Date**: 2024-02-29 | **Spec**: [link to spec]
+**Input**: Feature specification from `/specs/001-simulated-status-risk/spec.md`
 
 ## Summary
 
-This project implements a rigorous statistical analysis pipeline to test the hypothesis that observing higher-status agents engaging in risky behavior increases an individual's subsequent risk-taking, and observing lower-status agents decreases it. Due to the infeasibility of finding a single public dataset with a fully crossed factorial design (Status × Behavior), the project adheres to **FR-001** by generating a synthetic dataset based on a simulated *observational learning process* (Option A) or aggregating separate trials (Option B).
-
-**Critical Methodological Clarification**: The synthetic data generation is framed as a **"Recovery Test"** and **"Mechanism Validation"** rather than a discovery of new real-world effects. The simulation models the *process* of observation (agents observing status cues and updating risk parameters via a probabilistic learning rule), ensuring the causal mechanism is explicit. The analysis tests whether the statistical pipeline can correctly recover the known interaction effect embedded in the simulation (Power/Recovery) and can correctly identify a null effect in a "Null Simulation" mode (Type I error control). This distinguishes the work from a tautological "mean-shifting" simulation.
-
-The pipeline includes:
-1.  **Data Generation**: Simulates an observational learning process (BART-based) with orthogonal assignment of status and behavior.
-2.  **Preprocessing**: Cleans data, detects outcome type (continuous/binary), and detects design type (within/between-subjects).
-3.  **Adaptive Analysis**: Fits mixed-effects models (with or without random effects) based on detected design, calculates VIF, and performs sensitivity sweeps.
-4.  **Reporting**: Generates forest plots, CI widths, Bonferroni-corrected p-values, and stability metrics.
+This project investigates the influence of observed social status on individual risk-taking behavior. The core technical approach involves either simulating a dataset based on meta-analytic effect sizes or aggregating data from separate randomized trials to create a robust foundation for analysis, followed by adaptive mixed-effects regression modeling and sensitivity analyses.
 
 ## Technical Context
 
-**Language/Version**: Python
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`) for CSV/JSON artifacts.
-**Testing**: `pytest` with `contract` tests validating schema compliance.
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7GB RAM).
-**Project Type**: Computational Research / Data Analysis Pipeline / Power Analysis.
-**Performance Goals**: Complete power analysis, data simulation, cleaning, modeling, and reporting within 6 hours. Memory usage < 6GB.
-**Constraints**: No GPU available; must use CPU-optimized statistical methods. No access to gated clinical data.
-**Scale/Scope**: Simulated dataset of [N calculated via Power Analysis] participants.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: pandas, statsmodels, scikit-learn, numpy
+**Storage**: CSV files (for data input and output)
+**Testing**: pytest
+**Target Platform**: Linux server (GitHub Actions runner)
+**Project Type**: library/cli
+**Performance Goals**: Analysis completed within 6 hours on a GitHub Actions free-tier runner.
+**Constraints**: ≤7 GB RAM, ≤14 GB disk space.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Status | Reference / Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`; `requirements.txt` at `code/`; data fetched/generated programmatically. |
-| **II. Verified Accuracy** | **PASS** | All citations validated by **Reference-Validator Agent**; `CITATION_TITLE_OVERLAP_THRESHOLD` = 0.7 enforced. |
-| **III. Data Hygiene** | **PASS** | Raw data (simulated) checksummed; derivations written to new files; no PII in synthetic data. |
-| **IV. Single Source of Truth** | **PASS** | All statistics in reports trace to `data/processed/` and `code/`; no hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | **Action**: `code/hash_update.py` computes content hashes for all artifacts and updates `state/projects/PROJ-423-...yaml` on every run. |
-| **VI. Experimental Condition Integrity** | **PASS** | Simulation enforces orthogonal assignment via explicit observation process; no leakage. |
-| **VII. Standardized Risk Metric** | **PASS** | Simulation uses **Balloon Analog Risk Task (BART)** parameters; `data/processed/simulation_parameters.json` records instrument source. |
+[Constitution check details will be filled in after the constitution is reviewed and each numbered principle addressed.]
 
 ## Project Structure
 
@@ -47,63 +30,31 @@ The pipeline includes:
 
 ```text
 specs/001-simulated-status-risk/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (Generated in subsequent 'Tasking' stage, NOT here)
+├── plan.md              # This file (/speckit-plan command output)
+├── research.md          # Phase 0 output (/speckit-plan command)
+├── data-model.md        # Phase 1 output (/speckit-plan command)
+├── quickstart.md        # Phase 1 output (/speckit-plan command)
+├── contracts/           # Phase 1 output (/speckit-plan command)
+└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-code/
-├── __init__.py
-├── config.py            # Paths, seeds, hyperparameters
-├── generate_data.py     # Synthetic data generation (FR-001, BART-based observation process)
-├── preprocess.py        # Cleaning, binning, outcome/design detection (FR-002, FR-003)
-├── analysis.py          # Mixed-effects model, VIF, sensitivity sweep (FR-003, FR-004, FR-005)
-├── reporting.py         # Forest plots, PDF/HTML generation (FR-007)
-├── hash_update.py       # Computes hashes and updates state file (Constitution Principle V)
-└── tests/
-    ├── test_data_gen.py
-    ├── test_preprocess.py
-    └── test_analysis.py
+src/
+├── models/
+├── services/
+├── cli/
+└── lib/
 
-data/
-├── raw/                 # (Empty or meta-analysis registry if used)
-└── processed/
-    ├── cleaned_data.csv
-    ├── outcome_type.json
-    ├── design_type.json
-    ├── simulation_parameters.json  # Records BART params, effect sizes, seed (SC-004)
-    ├── model_config.json
-    ├── model_results.json          # Includes ci_width, vif_scores, adjusted_p_values
-    ├── sensitivity_results.json
-    └── stability_metric.json       # Validates SC-002
+tests/
+├── contract/
+├── integration/
+└── unit/
 ```
 
-**Structure Decision**: Single-project structure selected for a linear research pipeline. Data flows from `generate_data` -> `preprocess` -> `analysis` -> `reporting`. All artifacts are stored in `data/processed/` with explicit JSON schemas defined in `contracts/`.
-
-## Implementation Phases (High-Level Flow)
-
-1.  **Phase 0: Data Generation & Preprocessing**
-    *   Generate synthetic data via `generate_data.py` (BART-based observation process).
-    *   Run `preprocess.py` to clean data, detect `outcome_type` (continuous/binary), and detect `design_type` (within/between).
-    *   Write `cleaned_data.csv`, `outcome_type.json`, `design_type.json`, `simulation_parameters.json`.
-2.  **Phase 1: Model Configuration & Fitting**
-    *   Run `analysis.py` to read config, detect design, and fit adaptive model (Mixed-Effects if within-subjects, OLS/GLM if between).
-    *   Calculate VIFs.
-    *   Write `model_config.json`, `model_results.json` (including `ci_width`, `vif_scores`).
-3.  **Phase 2: Sensitivity & Validation**
-    *   Run sensitivity sweep (varying SD values).
-    *   Calculate Bonferroni-adjusted p-values for post-hoc comparisons.
-    *   Validate stability (SC-002) and write `stability_metric.json`.
-4.  **Phase 3: Reporting**
-    *   Generate forest plot and final report.
-    *   Run `hash_update.py` to update state file.
+**Structure Decision**: A standard single project structure is chosen. All code will reside within the `src/` directory, organized into modules for models, services, CLI interface, and utility libraries. Tests are located in the `tests/` directory, separated by contract, integration, and unit tests.
 
 ## Complexity Tracking
 
-No violations detected. The synthetic data approach is explicitly framed as a "Recovery Test" for mechanism validation, avoiding tautology by including "Null Simulation" modes and distinguishing between simulation validation and real-world discovery.
+[This section will be filled if constitutional violations require justification.]

@@ -1,72 +1,36 @@
 # Quickstart: The Influence of Simulated Social Status on Risk-Taking Behavior
 
-## 1. Prerequisites
+## I. Prerequisites
 
-- Python 3.11+
-- `pip` or `conda`
-- Access to a terminal (local or GitHub Actions)
+*   Python 3.11 installed.
+*   `pip` package manager.
+*   Access to a Linux environment (e.g., GitHub Actions runner).
 
-## 2. Installation
+## II. Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-423-the-influence-of-simulated-social-status
-   ```
+1.  Clone the repository: `git clone <repository_url>`
+2.  Navigate to the project directory: `cd <project_directory>`
+3.  Create and activate a virtual environment:
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
+4.  Install dependencies: `pip install -r requirements.txt`
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## III. Data Preparation
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+1. Choose either simulation or meta-analysis (see `research.md`).
+2. If simulating data, run the script to generate the dataset: `python src/data_simulation.py` (or modify if necessary).
+3. If performing a meta-analysis, ensure you have access to the required datasets and adapt the analysis scripts accordingly.
 
-## 3. Running the Pipeline
+## IV. Running the Analysis
 
-### Step 1: Generate Synthetic Data
-```bash
-python code/generate_data.py --seed 42 --mode recovery --output data/raw/simulated_data.csv
-```
-*Output*: `data/raw/simulated_data.csv` (or directly to processed if configured).
+1. Execute the main analysis script: `python src/analysis.py`
+2. The results will be saved in the `data/processed/` directory.
+3. Generate the report: `python src/report_generation.py`
 
-### Step 2: Preprocess and Detect Types
-```bash
-python code/preprocess.py --input data/raw/simulated_data.csv --output data/processed/cleaned_data.csv
-```
-*Output*: `data/processed/cleaned_data.csv`, `data/processed/outcome_type.json`, `data/processed/design_type.json`, `data/processed/simulation_parameters.json`.
+## V. Troubleshooting
 
-### Step 3: Fit Adaptive Model & Sensitivity Analysis
-```bash
-python code/analysis.py --data data/processed/cleaned_data.csv --config data/processed/model_config.json
-```
-*Output*: `data/processed/model_results.json`, `data/processed/sensitivity_results.json`, `data/processed/vif_scores.json`, `data/processed/stability_metric.json`.
-
-### Step 4: Generate Report
-```bash
-python code/reporting.py --results data/processed/model_results.json --sensitivity data/processed/sensitivity_results.json --output report/final_report.pdf
-```
-*Output*: `report/final_report.pdf`, `report/forest_plot.png`.
-
-### Step 5: Update State Hashes
-```bash
-python code/hash_update.py
-```
-*Output*: Updates `state/projects/PROJ-423-...yaml` with content hashes.
-
-## 4. Verification
-
-- Check `data/processed/cleaned_data.csv` for expected columns.
-- Verify `data/processed/model_results.json` contains the interaction term p-value and `ci_width`.
-- Confirm `data/processed/stability_metric.json` indicates stability.
-- Confirm `report/final_report.pdf` includes the forest plot.
-
-## 5. Troubleshooting
-
-- **Missing dependencies**: Ensure `requirements.txt` is installed in the active venv.
-- **Memory errors**: Reduce `--n_subjects` in `generate_data.py`.
-- **Model convergence**: Check `data/processed/vif_scores.json` for collinearity (>5.0).
-- **Bootstrap failure**: If bootstrap fails, the system logs a warning and uses asymptotic errors (flagged in report).
+*   If you encounter errors during installation, ensure that all dependencies are correctly installed and compatible with your Python version.
+*   If the analysis fails, check the error messages for clues about the problem.
+*   Refer to the documentation (`research.md`, `data-model.md`) for more detailed information about the data processing and analysis steps.

@@ -1,0 +1,20 @@
+[
+  {
+    "repaired_at": "2026-08-14T09:50:31.042366+00:00",
+    "project": "PROJ-423-the-influence-of-simulated-social-status",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet**",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/tranthaihoa/vifactcheck/resolve/main/data/dev-00000-of-00001.parquet",
+        "intent": "tranthaihoa vifactcheck dev 00000 of 00001.parquet** This project prioritizes utilizing open, directly downloadable datasets. The primary dataset source will be VIF parquet : provides"
+      },
+      {
+        "dead_url": "https://huggingface.co/datasets/QinyuanWu/ToCall_or_NotToCall/resolve/main/bfcl/bfcl.jsonl**",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/QinyuanWu/ToCall_or_NotToCall/resolve/main/bfcl/bfcl.jsonl",
+        "intent": "QinyuanWu ToCall or NotToCall bfcl bfcl.jsonl** This project prioritizes utilizing open, directly downloadable datasets. The primary dataset source will be VIF parquet : provides"
+      }
+    ]
+  }
+]
