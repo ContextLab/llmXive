@@ -136,12 +136,12 @@ description: "Task list template for feature implementation"
 - [ ] T033 [US3] Implement `code/analyze.py` for Pearson/Spearman correlation calculation between predictors (FR-009). **Input**: `data/processed/descriptors.csv`
 - [ ] T034 [US3] Implement `code/analyze.py` for Benjamini-Hochberg FDR correction on correlations (α ≤ 0.05) (FR-008). **Input**: Results from T033. **Note**: Spec FR-008 mandates FDR; Plan's 'Complexity Tracking' mentions Bonferroni but must be amended to align with Spec.
 - [ ] T035 [US3] Implement `code/analyze.py` for VIF calculation. If VIF > 5, **flag** for diagnostic review (do NOT drop). Save diagnostic log to `data/processed/vif_diagnostic_log.json` (FR-007, Spec). **Note**: Plan's 'Complexity Tracking' mentions iterative dropping, but Spec FR-007 is the authority; Plan must be amended.
-- [ ] T036 [US3] Implement sensitivity analysis in `code/analyze.py`: sweep `max_depth` ∈ {a range of values} on the best model from T022, report R² variance (FR-006). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024.
-- [ ] T037 [US3] Implement `code/analyze.py` for bootstrapping with a sufficient number of resamples to calculate 95% CI for feature importance (SC-002). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024.
+- [ ] T036 [US3] Implement `code/analyze.py` for bootstrapping with a sufficient number of resamples to calculate 95% CI for feature importance (SC-002). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024.
+- [ ] T037 [US3] Implement sensitivity analysis in `code/analyze.py`: sweep `max_depth` ∈ {3, 5, 7} and report variance of R² scores (FR-006). **Input**: `artifacts/models/best_model.pkl`. **Depends on**: T024.
 - [ ] T038 [US3] Save stability metrics (95% CI for feature importance) to `artifacts/metrics/stability_metrics.json` (SC-002)
-- [ ] T039 [US3] Implement `code/report.py` to generate visualizations (partial dependence plots, correlation matrices) to **visualize non-linear relationships** (US-3, FR-003) AND include numerical stability metrics (SC-002). **Input**: `artifacts/metrics/stability_metrics.json`, `artifacts/models/best_model.pkl`. **Depends on**: T038.
+- [ ] T039 [US3] Implement `code/report.py` to generate visualizations (partial dependence plots, correlation matrices) and include numerical stability metrics (SC-002). **Input**: `artifacts/metrics/stability_metrics.json`, `artifacts/models/best_model.pkl`. **Depends on**: T038.
 - [ ] T040 [US3] Implement `code/report.py` to enforce associational language (FR-004) and insert "These findings are associational only"
-- [ ] T041 [US3] Generate final report artifact `artifacts/reports/final_report.md` including sensitivity analysis results and VIF diagnostics. **Input**: T039, T040. **Depends on**: T039.
+- [ ] T041 [US3] Generate final report artifact `artifacts/reports/final_report.md`. **Input**: T039, T040. **Depends on**: T039.
 - [ ] T042 [US3] Validate report against `artifact.schema.yaml` (Single Source of Truth)
 
 **Checkpoint**: All user stories should now be independently functional
@@ -252,3 +252,6 @@ With multiple developers:
 - **Note on Plan Discrepancy (FDR vs Bonferroni)**: Spec FR-008 mandates FDR; Plan's 'Complexity Tracking' mentions Bonferroni; this is a Plan error that must be amended. Tasks follow Spec.
 - **Note on Plan Discrepancy (VIF)**: Spec FR-007 mandates 'flag only'. Plan's 'Complexity Tracking' mentions iterative dropping; this is a Plan error that must be amended. Tasks follow Spec.
 - **Note on Visualization**: T039 covers the general 'visualize non-linear relationships' requirement, using partial dependence as the primary method but allowing others if validated.
+
+- [ ] T048 [US2] Implement iterative VIF remediation logic in `code/train.py`. If a predictor has a VIF > 5, remove it and retrain the model with the remaining predictors. Repeat until all predictors have a VIF <= 5 (Aligning Plan to Spec FR-007).
+- [ ] T049 [US3] Add unit tests for FDR correction implementation in `code/analyze.py` to verify correct application of Benjamini-Hochberg procedure and α ≤ 0.05 threshold.
