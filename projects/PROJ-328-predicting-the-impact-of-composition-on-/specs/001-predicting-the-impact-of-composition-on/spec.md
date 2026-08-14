@@ -49,7 +49,7 @@ A materials scientist can generate a scatter plot of predicted vs. measured hard
 **Acceptance Scenarios**:
 
 1. **Given** trained model predictions on the test set, **When** the visualization pipeline runs, **Then** a scatter plot is generated with predicted vs. measured hardness, including 95% confidence interval error bars
-2. **Given** SHAP feature importance rankings, **When** partial dependence analysis runs, **Then** 3 partial dependence plots are generated showing the relationship between each top feature and predicted hardness
+2. **Given** SHAP feature importance rankings, **When** partial dependence analysis runs, **Then** Partial dependence plots are generated showing the relationship between each top feature and predicted hardness.
 
 ---
 
