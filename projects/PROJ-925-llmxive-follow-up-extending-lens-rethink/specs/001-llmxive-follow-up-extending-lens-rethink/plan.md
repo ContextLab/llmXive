@@ -1,128 +1,114 @@
 # Implementation Plan: llmXive follow-up: extending "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo"
 
 **Branch**: `001-llmxive-lens-extension` | **Date**: 2026-07-16 | **Spec**: `specs/001-llmxive-follow-up-extending-lens-rethink/spec.md`
+**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-lens-rethink/spec.md`
 
 ## Summary
-This feature implements a CPU-tractable research pipeline to investigate the "alignment gap" between CLIP scores and human preferences. The system extracts linguistic features (uncertainty proxy, syntactic complexity, visual token density) from captions, calculates an alignment deviation score using a dataset with pre-computed CLIP scores (or a small-scale on-the-fly subset), and trains a Gradient Boosted Trees model (XGBoost) to predict this deviation. The plan strictly adheres to the "CPU-Tractability" and "Linguistic Feature Isolation" constitution principles, ensuring all operations run on standard CPU hardware without GPU dependencies.
+
+This feature implements a CPU-tractable pipeline to investigate the "alignment gap" between CLIP scores and human preference ratings using the 'pick-a-pic' dataset. The approach involves a distinct preprocessing phase (Phase 0) to generate missing scores, extracting linguistic features (uncertainty, complexity) from captions, calculating a deviation target, and training a Gradient Boosted Trees model (XGBoost) to predict this deviation. The plan strictly adheres to CPU-only constraints, avoids image processing in feature extraction, and implements rigorous statistical validation (permutation tests, FDR correction, Ridge regression for collinearity) as required by the specification.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `transformers` (for BERT perplexity), `spacy` (for syntactic parsing), `xgboost` (for CPU training), `pandas`, `numpy`, `scikit-learn` (for metrics/permutation), `datasets` (Hugging Face), `tracemalloc` (built-in for memory profiling), `time` (built-in for timing).
-**Storage**: Local file system (`data/raw`, `data/processed`, `results`).
-**Testing**: `pytest` with contract validation against YAML schemas.
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM).
-**Project Type**: Research Data Pipeline / Machine Learning.
-**Performance Goals**: Feature extraction < 5s/caption; Training < 6h total; Memory < 7 GB.
-**Constraints**: No GPU imports; No synthetic data substitution; Strict separation of text-only feature extraction from image/metadata processing.
-**Scale/Scope**: 
-- **Primary**: Dataset with pre-computed CLIP scores (e.g., LAION-CLIP-Subset) or verified pick-a-pic subset.
-- **Fallback**: If no verified dataset is available, the pipeline halts with `DataSchemaError`. No synthetic data or alternative datasets are used.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `xgboost`, `scikit-learn`, `spacy`, `transformers`, `pandas`, `datasets`, `numpy`, `pyyaml`, `entropy`, `pytest`, `ruff`, `black`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `results`) with CSV/JSONL formats.  
+**Testing**: `pytest` with `pytest-cov` and custom static analysis for constitution enforcement (validating imports against `contracts/` schemas).  
+**Target Platform**: Linux (GitHub Actions Free Tier: vCPU, 7GB RAM).  
+**Project Type**: Data Science Research Pipeline / CLI.  
+**Performance Goals**: End-to-end pipeline < 6 hours on CPU; Feature extraction < 5s/caption.  
+**Constraints**: No GPU usage; No image data in `features.py`; Strict error handling for missing data (no synthetic fallbacks).  
+**Scale/Scope**: Full 'pick-a-pic' dataset (streamed) or a stratified sample (N=10,000 minimum) to ensure statistical power.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Status | Enforcement Mechanism |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Seeds pinned in `config.yaml`; `requirements.txt` pins versions; CI runs isolated; N=1000 permutation count pinned in `config.yaml`. |
-| **II. Verified Accuracy** | PASS | Citations validated against primary sources; no hallucinated URLs; data source fallback is explicit (halt on error). |
-| **III. Data Hygiene** | PASS | Checksums recorded; raw data immutable; derived data in new files. |
-| **IV. Single Source of Truth** | PASS | All results trace to `data/processed` via `code/` scripts. |
-| **V. Versioning Discipline** | PASS | `main.py` includes a post-run hook that computes SHA-256 of `data/processed` and updates `state/projects/...yaml` `updated_at` timestamp. |
-| **VI. Linguistic Feature Isolation** | PASS | `features.py` explicitly blocks image/CLIP imports; inputs are text-only. 'Image Complexity' is replaced by 'visual_token_density' (text-derived). |
-| **VII. CPU-Tractability** | PASS | `train.py` sets `torch.set_num_threads(1)`; XGBoost used (CPU-native); no CUDA; on-the-fly CLIP limited to N=1000. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+- **Principle I (Reproducibility)**: PASS. Plan includes pinned seeds, explicit dataset loading via `datasets` library, and `requirements.txt` generation.
+- **Principle II (Verified Accuracy)**: PASS. All dataset references will be validated against the "# Verified datasets" block before use.
+- **Principle III (Data Hygiene)**: PASS. Plan mandates checksumming of downloaded data and separation of raw/processed files.
+- **Principle IV (Single Source of Truth)**: PASS. Every result in `results/` will be traced to a specific `caption_id` in `data/processed/`. A `state.yaml` file will record content hashes of all input and output artifacts to ensure versioning discipline. Every figure, statistic, or interpretation in the paper MUST trace back to exactly one row in this project's `data/` and one block in this project's `code/`.
+- **Principle V (Versioning Discipline)**: PASS. Every artifact change updates the `state.yaml` timestamp. Content hashes are recorded in `state.yaml` to invalidate stale review records. Every artifact under this project carries a content hash.
+- **Principle VI (Linguistic Feature Isolation)**: PASS. `features.py` design explicitly forbids image imports; `test_constitution.py` will enforce this via static analysis and schema validation against `contracts/feature_vector.schema.yaml`.
+- **Principle VII (CPU-Tractability)**: PASS. Plan specifies `torch.set_num_threads(1)` and XGBoost CPU-only configuration; no CUDA dependencies planned.
 
 ## Project Structure
 
-### Directory Tree
+### Documentation (this feature)
+
+```text
+specs/001-llmxive-follow-up-extending-lens-rethink/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml          # Exercised by US-2, Phase 0 (Raw Input)
+│   ├── feature_vector.schema.yaml   # Exercised by US-1, Phase 1 (Features)
+│   ├── deviation_target.schema.yaml # Exercised by US-2, Phase 2 (Target)
+│   └── significance_results.schema.yaml # Exercised by US-3, Phase 4 (Results)
+└── tasks.md             # Phase 2 output
+```
+
+### Source Code (repository root)
+
 ```text
 projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/
 ├── code/
+│   ├── __init__.py
+│   ├── config.py              # Configuration & seeds
 │   ├── data/
 │   │   ├── __init__.py
-│   │   ├── loader.py          # Fetches dataset (with pre-computed scores or small subset)
-│   │   ├── features.py        # Extracts linguistic vectors (Text only)
-│   │   └── preprocess.py      # Calculates deviation, handles missing data
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── train.py           # XGBoost CPU training & permutation test
+│   │   ├── loader.py          # Data fetching (streaming)
+│   │   ├── features.py        # Linguistic feature extraction
+│   │   ├── preprocess.py      # Target calculation & validation
+│   │   ├── scores.py          # CLIP score generation (Phase 0)
+│   │   └── train.py           # Model training & evaluation
 │   ├── utils/
-│   │   ├── config.py          # Seeding, paths, constants (N=1000 pinned)
-│   │   └── validation.py      # Schema validation helpers
-│   └── main.py                # Orchestration, profiling, versioning hook
+│   │   ├── __init__.py
+│   │   └── stats.py           # Permutation tests, FDR, Ridge
+│   └── tests/
+│       ├── __init__.py
+│       ├── test_constitution.py # Static analysis for imports & schemas (validates against contracts/)
+│       ├── contract/
+│       │   └── test_schemas.py  # Schema validation tests
+│       └── unit/
+│           ├── test_features.py
+│           └── test_preprocess.py
 ├── data/
-│   ├── raw/                   # Downloaded datasets (immutable)
-│   └── processed/             # features.csv, deviation.csv, results/
-├── tests/
-│   ├── contract/              # Tests for schema validation (pytest)
-│   ├── integration/           # End-to-end pipeline tests
-│   └── unit/                  # Feature extraction logic tests
-├── docs/
+│   ├── raw/                   # Downloaded datasets (checksummed)
+│   └── processed/             # Features, targets, deviations
 ├── results/                   # Model outputs, logs, stability metrics
-├── requirements.txt
-├── .ruff.toml
-├── pyproject.toml
-└── README.md
+├── docs/
+└── requirements.txt
 ```
 
-**Structure Decision**: Standard research pipeline structure. `code/data` handles ingestion and transformation, `code/models` handles training. Strict separation ensures Principle VI compliance. `main.py` handles profiling and versioning. Note: `specs/.../contracts/` contains the YAML schema definitions, while `tests/contract/` contains the Python pytest fixtures that validate data against these schemas.
-
-### Linting & Formatting
-- **Tooling**: `ruff` for linting, `black` for formatting.
-- **Config**: `pyproject.toml` contains Black settings; `.ruff.toml` contains linting rules.
-- **Enforcement**: CI runs `ruff check` and `black --check` before tests.
+**Structure Decision**: The single-project structure is selected to maintain tight coupling between data loading, feature engineering, and model training, which is essential for the research pipeline's reproducibility. The separation of `data/`, `code/`, and `results/` adheres to standard data science hygiene principles (Principle III).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Permutation Test (N=1000)** | Required by FR-006 for significance. Pinned in `config.yaml` for reproducibility (Principle I). | Random sampling of features is insufficient; null distribution requires rigorous resampling to control FDR. |
-| **BERT Perplexity** | Required by FR-001 for uncertainty proxy. | Simple token counts (e.g., entropy) do not capture semantic uncertainty; BERT provides necessary depth. |
-| **Streaming Data** | Dataset may exceed available RAM. | Loading full dataset into memory risks OOM; streaming allows processing of full scale within limits. |
-| **Visual Token Density** | Required by FR-007 to control for image complexity. | Direct image processing violates Principle VI; text-derived proxy is the only compliant alternative. |
-| **Strict Data Fallback** | Required to satisfy Principle II. | Using synthetic data or unverified datasets would invalidate the research question and violate data hygiene. |
+|-----------|------------|-------------------------------------|
+| None | The plan adheres to a linear, single-pipeline flow. | N/A |
 
-## Implementation Phases
+## Phase Mapping to Contracts
 
-### Phase 1: Data Ingestion & Validation
-- **Action**: `loader.py` fetches the dataset.
-- **Constraint**: If 'pick-a-pic' is used, limit to N=1000 samples for on-the-fly CLIP inference. If pre-computed dataset available, load full.
-- **Validation**: Check for `clip_score` and `human_rating` columns. Raise `DataSchemaError` if missing. **If the dataset source is unreachable or missing required columns, the pipeline halts immediately with a loud error.** No synthetic fallbacks are permitted.
+- **Phase 0 (Data Preprocessing & Score Generation)**: Validates `dataset.schema.yaml` (raw input) and generates `deviation_target.schema.yaml` (intermediate scores). **Exercises US-2**.
+- **Phase 1 (Feature Extraction)**: Validates `feature_vector.schema.yaml` (text-only features). **Exercises US-1**.
+- **Phase 2 (Target Calculation)**: Validates `deviation_target.schema.yaml` (final target). **Exercises US-2**.
+- **Phase 3 (Model Training)**: Validates `deviation_target.schema.yaml` (input) and `significance_results.schema.yaml` (output). **Exercises US-3**.
+- **Phase 4 (Statistical Rigor)**: Validates `significance_results.schema.yaml` (permutation/FDR results). **Exercises US-3**.
 
-### Phase 2: Feature Extraction (Text-Only)
-- **Action**: `features.py` extracts:
-  - `linguistic_uncertainty_proxy` (ln(perplexity))
-  - `syntactic_depth` (max dependency depth)
-  - `noun_phrase_density`
-  - `visual_token_density` (ratio of noun phrases to total tokens, proxy for image complexity per FR-007)
-  - `caption_length`
-- **Constraint**: No image imports. `torch.set_num_threads(1)` enforced.
-- **Logic**: Stream dataset in batches. Validate output against `feature_vector.schema.yaml`. Handle short captions by assigning default minimum depth or excluding with logging.
+## Directory Structure Verification (T001)
 
-### Phase 3: Target Calculation & Profiling
-- **Action**: `preprocess.py` calculates `deviation_score` = |normalized(clip) - normalized(human)|.
-- **Validation**: Check for zero variance in target; raise `ValueError("Target not learnable")` if found.
-- **Profiling**:
-  - **Memory**: `tracemalloc` in `main.py` logs peak RSS to `results/memory_profile.json` (SC-002).
-  - **Time**: `time` module in `main.py` logs wall-clock duration to `results/timing_profile.json` (SC-003).
-
-### Phase 4: Modeling & Significance
-- **Action**: `train.py` trains XGBoost.
-- **Significance**:
-  - **Feature Permutation**: For each feature $X_j$, shuffle values $N=1000$ times (keeping $Y$ fixed) to generate null distribution for importance. Calculate p-values and apply Benjamini-Hochberg correction.
-  - **Stability Analysis**: Iterate over multiple random seeds (e.g., a small set of seeds). For each seed, train model and record feature importance ranks. Compute mean rank and standard deviation. Output `results/stability_metrics.json`.
-  - **Sensitivity (FR-008)**: Inject Gaussian noise (sigma=0.01, 0.05, 0.1) into human ratings. Re-train model for each noise level. Aggregate: Compute Spearman rank correlation of feature importance vectors across noise levels.
-- **Output**: `results/significance_results.json`, `results/stability_metrics.json`.
-
-### Phase 5: Versioning & Output
-- **Action**: `main.py` post-run hook.
-- **Mechanism**: Compute SHA-256 of `data/processed` files. Update `state/projects/...yaml` `updated_at` and `artifact_hashes`.
-- **Output**: Final results files.
-
-## Risk Mitigation
-
-| Risk | Mitigation |
-| :--- | :--- |
-| **Data Unavailability** | **HALT**: If verified dataset is missing, raise `DataSchemaError` and exit. No fallback to synthetic data. |
-| **Circularity** | Reframe as 'text-driven metric instability'; use Text Permutation Null Model. |
-| **OOM/Time Out** | Streaming data; strict N=1000 limit for on-the-fly CLIP; `tracemalloc` monitoring. |
-| **Confounds** | Use `visual_token_density` (text-derived) to satisfy FR-007 without violating Principle VI. |
+The following directories and files MUST exist in the repository root:
+- `projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/`
+- `projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/data/`
+- `projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/tests/`
+- `projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/code/utils/`
+- `projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/data/raw/`
+- `projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/data/processed/`
+- `projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/docs/`
+- `projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/requirements.txt`
+- `projects/PROJ-925-llmxive-follow-up-extending-lens-rethink/.ruff.toml` (or `pyproject.toml` with Black settings)

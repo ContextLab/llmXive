@@ -13,7 +13,7 @@ As a data researcher, I want to compute a standardized vector of linguistic feat
 
 **Why this priority**: This is the foundational data engineering step. Without extracting these specific predictors, the subsequent analysis of the "alignment gap" is impossible. It is the primary input to the entire research pipeline.
 
-**Independent Test**: Can be fully tested by running the feature extraction script on a small, static JSONL file of 10 captions and verifying the output CSV contains the expected numeric columns with no nulls and reasonable ranges.
+**Independent Test**: Can be fully tested by running the feature extraction script on a small, static JSONL file of representative captions and verifying the output CSV contains the expected numeric columns with no nulls and reasonable ranges.
 
 **Acceptance Scenarios**:
 
@@ -81,7 +81,7 @@ As a researcher, I want to train a Gradient Boosted Trees model (XGBoost) on a s
 ### Constitution Enforcement
 
 To ensure compliance with Constitution Principle VI (Linguistic Feature Isolation) and Principle VII (CPU-Tractability), the system MUST enforce the following code-level constraints:
-- **CPU-Only Enforcement**: The `train.py` script MUST explicitly set `torch.set_num_threads(1)` and `torch.set_num_interop_threads(1)` at startup. Any import of `torch.cuda` or `tensorflow` with GPU devices MUST raise an `ImportError` if detected.
+- **CPU-Only Enforcement**: The `train.py` script MUST explicitly set `torch.set_num_threads` and `torch.set_num_interop_threads` to a fixed value at startup. Any import of `torch.cuda` or `tensorflow` with GPU devices MUST raise an `ImportError` if detected.
 - **Feature Isolation Enforcement**: The `features.py` script MUST NOT import any image processing libraries (e.g., `PIL`, `opencv`) or CLIP models. It MUST only import text-processing libraries (e.g., `spaCy`, `transformers`). Note: Covariates defined in FR-007 (textual description complexity) MUST be derived using text-only methods.
 - **Verification**: These enforcement rules MUST be verified via automated static analysis tests in `code/tests/test_constitution.py`, which assert that no forbidden imports exist in the specified modules.
 

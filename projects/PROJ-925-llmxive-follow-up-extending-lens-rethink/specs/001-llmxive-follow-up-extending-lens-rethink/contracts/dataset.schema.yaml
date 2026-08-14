@@ -1,30 +1,23 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Raw Dataset Schema"
-description: "Schema for the raw input data from pick-a-pic or similar sources."
+$schema: http://json-schema.org/draft-07/schema#
+title: Pick-a-Pic Dataset Schema
+description: Schema for the raw input dataset from pick-a-pic (including generated scores).
 type: object
 properties:
   caption_id:
     type: string
-    description: "Unique identifier for the caption."
-  caption_text:
+    description: "Unique identifier for the caption record."
+  caption:
     type: string
-    description: "The raw text of the caption."
+    description: "The raw text caption."
   clip_score:
     type: number
-    description: "Raw CLIP similarity score."
-    minimum: 0
-    maximum: 1
+    description: "Pre-computed CLIP similarity score (generated in Phase 0 if missing)."
   human_rating:
-    type:
-      - number
-      - "null"
-    description: "Human preference rating. Can be null."
-  image_url:
-    type: string
-    format: uri
-    description: "URL to the generated image."
+    type: number
+    description: "Human preference rating (derived from binary preference in Phase 0 if missing). Must be present for training."
 required:
   - caption_id
-  - caption_text
+  - caption
   - clip_score
+  - human_rating
 additionalProperties: false

@@ -1,34 +1,19 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Deviation Target Schema"
-description: "Schema for the calculated alignment deviation score."
+$schema: http://json-schema.org/draft-07/schema#
+title: Deviation Target Schema
+description: Schema for the calculated alignment deviation score.
 type: object
 properties:
   caption_id:
     type: string
-    description: "Foreign key to the raw caption."
-  normalized_clip_score:
-    type: number
-    description: "CLIP score normalized to [0, 1]."
-    minimum: 0
-    maximum: 1
-  normalized_human_rating:
-    type: number
-    description: "Human rating normalized to [0, 1]."
-    minimum: 0
-    maximum: 1
+    description: "Reference to the original caption ID."
   deviation_score:
     type: number
-    description: "Absolute difference between normalized scores."
-    minimum: 0
-    maximum: 1
-  exclusion_reason:
-    type:
-      - string
-      - "null"
-    description: "Reason for exclusion if the sample was dropped (e.g., 'missing_human_rating')."
+    description: "Absolute difference between Z-scored CLIP and Human Rating. May be discrete if human_rating is binary. Distribution is bounded and non-Gaussian."
+  is_learnable:
+    type: boolean
+    description: "Flag indicating if the target has non-zero variance."
 required:
   - caption_id
-  - normalized_clip_score
-  - normalized_human_rating
   - deviation_score
+  - is_learnable
 additionalProperties: false

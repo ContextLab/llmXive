@@ -1,72 +1,118 @@
 # Research: llmXive follow-up: extending "Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo"
 
 ## Research Question
-Can linguistic features (uncertainty, syntactic complexity, visual token density) extracted from text captions predict the "alignment deviation" (discrepancy between CLIP scores and human preferences) in text-to-image generation?
 
-## Methodological Rigor & Statistical Plan
+Which linguistic features (uncertainty, complexity, density) predict the deviation between CLIP scores and human preference ratings in text-to-image generation, and can this relationship be modeled efficiently on CPU resources?
 
-### 1. Dataset Strategy
-**Target Dataset**: The specification requires the 'pick-a-pic' dataset, which contains paired CLIP scores and human preference ratings.
-**Constraint Check**: The provided "Verified datasets" block for this project contains URLs for CLIP (jsonl), COCO, and BERT tokenized data, but **NO verified source for 'pick-a-pic'**.
-**Resolution**:
-- **Primary Plan**: Attempt to load a dataset with **pre-computed CLIP scores** (e.g., a derived subset of LAION or similar HuggingFace dataset) to avoid the infeasibility of downloading and processing 100k+ images on a 2-CPU runner.
-- **Strict Fallback Policy**: If no verified dataset containing both `clip_score` and `human_rating` is available, the pipeline **MUST halt immediately** with a `DataSchemaError`. 
-- **NO Synthetic Data**: The proposal to use 'COCO captions with synthetic human ratings' is **REJECTED**. Synthetic ratings cannot validate the 'alignment gap' between CLIP and *actual* human preference, rendering the research question unanswerable. This violates Principle II (Verified Accuracy) and Principle III (Data Hygiene).
-- **Data Processing**:
-  - **Streaming**: Use `datasets.load_dataset(..., streaming=True)` to process the dataset in chunks.
-  - **Filtering**: Exclude samples where `human_rating` is missing (NaN) as per FR-003.
-  - **Normalization**: Normalize `clip_score` and `human_rating` to [0, 1] before calculating deviation.
+## Dataset Strategy
 
-### 2. Feature Extraction (Predictors)
-- **Linguistic Uncertainty Proxy**: Calculated as `ln(perplexity)` using a pre-trained BERT model (e.g., `bert-base-uncased`).
-  - *Constraint*: Must complete within 5s/caption on CPU. If a batch takes longer, the batch size is reduced.
-  - **Construct Validity**: We acknowledge that BERT perplexity measures token prediction probability, not direct semantic entropy. However, in the context of LLM-generated captions, higher perplexity is operationally defined as a proxy for "linguistic uncertainty" or "ambiguity" that correlates with model instability. This is a computable indicator, not a direct measure of the theoretical construct, but is sufficient for the correlational study design.
-- **Syntactic Complexity**: Maximum depth of the dependency parse tree using `spaCy`.
-- **Noun-Phrase Density**: Ratio of noun phrases to total tokens.
-- **Visual Token Density (FR-007 Proxy)**: Ratio of noun phrases to total tokens. This serves as a text-derived proxy for "image complexity" (more complex descriptions often imply more complex images) without violating Principle VI (Text-Only).
-- **Controls**: Caption length (token count).
+The primary dataset is **pick-a-pic**. The specification (FR-003) explicitly requires this dataset and forbids synthetic fallbacks.
 
-### 3. Target Variable (Outcome)
-- **Deviation Score**: $| \text{Normalized}(\text{CLIP\_Score}) - \text{Normalized}(\text{Human\_Rating}) |$.
-- **Handling Missing Data**: Samples with missing `human_rating` are dropped, not imputed (FR-003).
-- **Zero Variance Check**: If the target column has zero variance, the pipeline halts with `ValueError("Target not learnable")`.
-- **Circularity Resolution**: The target variable is a function of the text (via CLIP). The study reframes the hypothesis: we are not predicting "error" in an absolute sense, but "text-driven metric instability". The analysis identifies which linguistic properties cause the CLIP metric to deviate from human consensus. A **Text Permutation Null Model** is included to validate that the observed importance is due to specific text content, not just length/structure.
+**Verified Source Status**:
+The provided "# Verified datasets" block **does not** contain a verified URL for 'pick-a-pic'.
+- **Action**: The implementation **MUST** attempt to load the dataset via the Hugging Face `datasets` library using the canonical name `pick-a-pic`.
+- **Fallback**: If `datasets.load_dataset("pick-a-pic")` fails (e.g., 404, private, or removed), the system **MUST** raise a `DataSchemaError` with the message "Missing required dataset or column: pick-a-pic" and halt execution. **No alternative URL will be fabricated.**
+- **Rationale**: The spec (FR-003) states: "If the 'pick-a-pic' dataset is unavailable... the system MUST raise a DataSchemaError... No synthetic or fallback data sources are permitted."
 
-### 4. Modeling & Statistical Tests
-- **Model**: XGBoost Regressor (CPU-only).
-- **Hypothesis**: Linguistic complexity positively correlates with alignment deviation.
-- **Significance Testing (FR-006)**:
-  - **Feature Permutation Importance**: To assess the significance of specific features, we perform a **permutation test on the feature columns (X)**, not the target (Y). For each feature $X_j$, we shuffle its values $N=1000$ times while keeping the target $Y$ fixed. We calculate the drop in model performance (e.g., MSE) for each shuffle to generate a null distribution for that feature's importance. This directly tests if $X_j$ contributes to prediction, satisfying FR-006.
-  - **Target Permutation (Global Model Check)**: Permuting the target $Y$ is performed separately to verify that the model is not predicting random noise (global significance), but this is distinct from feature-level testing.
-  - **Text Permutation Null**: Permute text captions relative to image/human rating pairs to break the text-image dependency.
-  - **FDR Control**: Benjamini-Hochberg procedure applied to p-values at $\alpha = 0.05$.
-  - **Reproducibility**: Random seed pinned (e.g., 42) and logged.
-- **Sensitivity Analysis (FR-008)**:
-  - **Noise Injection**: Inject Gaussian noise ($\sigma \in \{0.01, 0.05, 0.1\}$) into human ratings.
-  - **Re-training**: Re-fit the XGBoost model for each noise level.
-  - **Aggregation**: Compute the **Spearman rank correlation** of the feature importance vectors across the noise levels to assess stability.
-- **Multiple Comparison Correction**: Applied via Benjamini-Hochberg as part of the feature permutation test.
+**Dataset Variables & Fit**:
+- **Required Variables**: `caption` (text), `clip_score` (float), `human_rating` (float).
+- **Fit Check**: The raw `pick-a-pic` dataset typically contains image-text pairs and binary preferences (chosen/rejected), NOT pre-computed `clip_score` or scalar `human_rating`.
+- **Mitigation**: A distinct **Phase 0 (Data Preprocessing & Score Generation)** will be executed to:
+  1. Generate `clip_score` by running a pre-trained CLIP model (batched, CPU) on the image-text pairs.
+  2. Derive `human_rating` from the binary preference (chosen=1.0, rejected=0.0) or use the `score` column if the specific HF subset includes it.
+  3. If neither scalar rating nor preference pairs are available, the system halts with `DataSchemaError`.
 
-### 5. Compute Feasibility & Profiling
-- **CPU-First**: All tasks run on CPU.
-  - `transformers` (BERT): Use `device="cpu"`, `torch.set_num_threads(1)`.
-  - `xgboost`: Native CPU support.
-- **Memory Management**:
-  - Stream dataset to avoid loading full 100k+ rows into RAM.
-  - Process features in batches (e.g., 500 captions/batch).
-- **Profiling Tools (SC-002, SC-003)**:
-  - **Memory**: Use Python's `tracemalloc` module in `main.py` to log peak RSS to `results/memory_profile.json`.
-  - **Time**: Use Python's `time` module in `main.py` to log wall-clock duration to `results/timing_profile.json`.
-- **GPU Escape Hatch**: Not applicable. The methodology is fully CPU-tractable.
+**Data Volume & Sampling Strategy**:
+- **Risk**: The full dataset may exceed memory or the predefined CPU budget.
+- **Mitigation**: A **Stratified Sampling** strategy is mandated to ensure statistical power for detecting small effect sizes (r >= 0.1).
+  - **Strata**: Caption length (quartiles) and syntactic depth (quartiles).
+  - **Minimum Sample Size**: N=10,000 rows, ensuring at least 250 samples per stratum.
+  - **Logic**: If the full dataset can be processed within 6 hours, use the full dataset. Otherwise, perform stratified sampling to preserve the distribution of the 'alignment gap'.
+  - **Power**: This sample size is sufficient to detect r=0.1 with >80% power at α=0.05.
+  - **Rationale**: Random sampling risks under-representing the 'alignment gap' if it correlates with complexity; stratification ensures the distribution of the target variable is preserved.
 
-### 6. Limitations & Assumptions
-- **Observational Nature**: Claims are associational, not causal.
-- **Measurement Validity**: BERT perplexity is used as a proxy for semantic uncertainty, acknowledging it differs from strict semantic entropy.
-- **Target Noise**: Human ratings are treated as ground truth despite known noise; robustness is assessed via sensitivity analysis.
-- **Data Constraints**: If pre-computed dataset is unavailable, the study **halts** rather than using unverified data.
+**Data Access Plan**:
+1. Attempt `datasets.load_dataset("pick-a-pic", streaming=True)`.
+2. If successful, execute **Phase 0** to generate missing scores.
+3. If the dataset is inaccessible, raise `DataSchemaError` immediately.
+4. No other datasets (COCO, CLIP, BERT) are used for the *primary* target variable calculation, though BERT models are used for feature extraction.
 
-## Decision/Rationale
-- **Why XGBoost?**: It is the most efficient tree-based model for tabular data on CPU, offering high performance with low memory overhead compared to deep learning models for this specific regression task.
-- **Why Streaming?**: The dataset may exceed the RAM limit of the CI runner. Streaming ensures the full dataset can be processed or a representative sample drawn without OOM errors.
-- **Why Feature Permutation?**: Standard p-values from XGBoost are not directly available; permuting features (X) provides a robust, non-parametric method to assess feature significance and control for false discoveries, distinguishing it from target permutation (Y) which tests global model significance.
-- **Why Visual Token Density?**: It satisfies FR-007 (control for image complexity) using only text-derived features, maintaining compliance with Principle VI (Linguistic Feature Isolation).
+## Methodology
+
+### Phase 0: Data Preprocessing & Score Generation (New)
+- **Objective**: Generate `clip_score` and `human_rating` if missing.
+- **CLIP Score**: Run `clip-score` model (batched, CPU) on image-text pairs.
+- **Human Rating**: Derive from binary preference (chosen=1.0, rejected=0.0) or use existing `score` column. If the dataset only provides rankings, map to a scalar (e.g., 0.0 to 1.0) based on the proportion of times an image was chosen. If no scalar mapping is possible, halt with `DataSchemaError`.
+- **Validation**: Ensure `human_rating` is a scalar float. If binary, proceed with caution (see Phase 2).
+
+### Phase 1: Linguistic Feature Extraction (US-1, FR-001, FR-002, FR-007)
+- **Uncertainty Proxy**: Compute perplexity using a pre-trained BERT model (e.g., `bert-base-uncased`). Proxy = `ln(perplexity)`.
+  - *Constraint*: Must complete < 5s/caption on CPU.
+  - **Validation (FR-009)**: Compute correlation with a **Semantic Entropy Baseline**.
+    - **Baseline Definition**: The Shannon entropy of the BERT next-token prediction distribution (computed via `transformers` logits) over the same caption. This provides a text-only, computable baseline for "semantic uncertainty".
+    - **Threshold**: If correlation < 0.3, **HALT** execution with `CODE_INVALID_PROXY`. Do not proceed with a known invalid proxy.
+  - **Contingency**: If the baseline cannot be computed, the study halts.
+- **Syntactic Complexity**: Max depth of dependency parse tree using `spaCy`.
+- **Noun-Phrase Density**: Count of distinct noun phrases / total tokens.
+- **Covariates**: Token count, distinct noun phrase count (text-only).
+- **Confounding Control**: Compute correlation between each linguistic feature and `Z_clip`. If correlation > 0.7, flag the feature as potentially trivially predicting the CLIP component.
+- **Handling Edge Cases**:
+  - Short captions (depth < 2): Exclude, log ID (FR-011).
+  - Perplexity failure: Catch exception, log ID, exclude row (FR-012).
+
+### Phase 2: Target Variable Calculation (US-2, FR-003, FR-010)
+- **Standardization**: Z-score normalize `clip_score` and `human_rating` **strictly within the training fold** (fit on train, transform on test) to prevent data leakage.
+- **Deviation**: $| \text{Z\_clip} - \text{Z\_human} |$.
+- **Binary Target Acknowledgement**: If `human_rating` is binary (0/1), the target will be discrete. The plan acknowledges this and prioritizes **Spearman's rho** for evaluation.
+- **Zero Variance Check**: Before training, check variance of deviation. If 0, halt with "Target not learnable" (FR-010).
+- **Missing Data**: Exclude samples with missing `human_rating` (FR-003).
+- **Statistical Handling**: The target variable is non-negative, bounded, and likely skewed. The analysis will **not** rely on Gaussian assumptions.
+
+### Phase 3: Model Training & Evaluation (US-3, FR-004, FR-005)
+- **Model**: XGBoost (CPU-only).
+- **Configuration**: `tree_method='hist'` or default CPU. `torch.set_num_threads(1)` enforced.
+- **Multicollinearity Handling**:
+  - **VIF Check**: Calculate Variance Inflation Factor (VIF) for all predictors.
+  - **Fallback**: If VIF > 5 for any feature, switch to **Ridge Regression** (L2 regularization) to stabilize coefficients while retaining both features as required by FR-007. Interpretation will be limited to 'joint contribution'.
+- **Validation**: 5-fold cross-validation.
+- **Metrics**:
+  - **Pearson's r** (linear association).
+  - **Spearman's rho** (monotonic association, robust to discrete targets).
+  - **R²** (non-linear fit).
+  - **Success Criteria**: If Spearman's rho > Pearson's r, prioritize R² as the primary success metric. Target: R² > 0.01 (explaining small but non-trivial variance).
+  - **Distribution Awareness**: Use non-parametric bootstrapping for confidence intervals on metrics to account for the bounded, skewed nature of the target.
+
+### Phase 4: Statistical Rigor (FR-006, FR-008, SC-004, SC-005)
+- **Permutation Test**: **Conditional Permutation** (Block Permutation).
+  - **Method**: Shuffle features within strata defined by token count bins or syntactic complexity quartiles to preserve the correlation structure among collinear features.
+  - **N_permutations**: 1,000.
+- **FDR Correction**: Apply Benjamini-Hochberg to p-values (FDR $\le$ 0.05).
+- **Sensitivity Analysis**:
+  - **Threshold Sweep**: Iterate over significance thresholds.
+  - **Noise Injection**: Inject Gaussian noise into `human_rating` with σ = {0.01, 0.05, 0.1, 0.2} times the standard deviation of the human ratings in the training set (FR-008).
+  - **Aggregation**: For each sweep, record the rank of each feature. Compute **mean rank** and **std dev of rank** across iterations.
+  - **Output**: `stability_metrics.json` with fields `mean_rank` and `std_dev_rank` as defined in `significance_results.schema.yaml`.
+
+## Statistical Rigor & Assumptions
+
+- **Multiple Comparisons**: Addressed via Benjamini-Hochberg procedure (FR-006).
+- **Sample Size/Power**: N=10,000 (stratified) ensures power > 80% for r=0.1.
+- **Causal Inference**: Observational study. Claims are strictly **associational**. No randomization.
+- **Measurement Validity**: BERT perplexity is an *operational proxy* for uncertainty. Validity is checked (FR-009) against the BERT next-token entropy baseline. If invalid, study halts.
+- **Collinearity**: Addressed via VIF check and Ridge Regression. Independent effects are not claimed for definitionally related features; joint contribution is reported.
+- **Target Distribution**: The target is bounded and non-Gaussian. Non-parametric metrics (Spearman's rho, bootstrapping) are used to ensure validity.
+
+## Compute Feasibility
+
+- **CPU-First**: All steps designed for vCPU, sufficient RAM.
+  - Feature extraction: Streaming BERT inference (batch size tuned for memory).
+  - Training: XGBoost on CPU (efficient for tabular data).
+  - CLIP Inference (Phase 0): Batched on CPU (may take time, but feasible for N=10k).
+- **GPU Escape Hatch**: Not required. The methodology (XGBoost, BERT inference) is CPU-tractable.
+
+## Data Availability & Risks
+
+- **Risk**: 'pick-a-pic' dataset unavailability (404).
+- **Mitigation**: The code will fail loudly with `DataSchemaError` as per FR-003. No synthetic data will be generated.
+- **Risk**: Dataset size > 7GB.
+- **Mitigation**: Use `streaming=True` and stratified sampling (N=10,000) to ensure power and fit within budget.

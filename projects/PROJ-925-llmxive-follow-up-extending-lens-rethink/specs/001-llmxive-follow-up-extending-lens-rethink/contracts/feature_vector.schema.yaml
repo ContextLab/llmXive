@@ -1,44 +1,35 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Linguistic Feature Vector Schema"
-description: "Schema for extracted linguistic features from caption text."
+$schema: http://json-schema.org/draft-07/schema#
+title: Linguistic Feature Vector Schema
+description: Schema for the extracted linguistic features (text-only).
 type: object
 properties:
   caption_id:
     type: string
-    description: "Foreign key to the raw caption."
-  linguistic_uncertainty_proxy:
+    description: "Reference to the original caption ID."
+  uncertainty_proxy:
     type: number
     description: "Natural log of perplexity (ln(perplexity))."
-    minimum: 0
   syntactic_depth:
     type: integer
     description: "Maximum depth of the dependency parse tree."
-    minimum: 0
   noun_phrase_density:
     type: number
-    description: "Ratio of noun phrases to total tokens."
-    minimum: 0
-    maximum: 1
+    description: "Ratio of distinct noun phrases to total tokens."
+  token_count:
+    type: integer
+    description: "Total number of tokens in the caption."
+  distinct_np_count:
+    type: integer
+    description: "Count of distinct noun phrases or named entities."
   token_diversity:
     type: number
-    description: "Unique tokens divided by total tokens."
-    minimum: 0
-    maximum: 1
-  caption_length:
-    type: integer
-    description: "Number of tokens in the caption."
-    minimum: 1
-  visual_token_density:
-    type: number
-    description: "Ratio of noun phrases to total tokens (proxy for image complexity)."
-    minimum: 0
-    maximum: 1
+    description: "Type-token ratio (vocabulary diversity)."
 required:
   - caption_id
-  - linguistic_uncertainty_proxy
+  - uncertainty_proxy
   - syntactic_depth
   - noun_phrase_density
+  - token_count
+  - distinct_np_count
   - token_diversity
-  - caption_length
-  - visual_token_density
 additionalProperties: false
