@@ -1,13 +1,13 @@
 status: none
-intent: Stack Exchange Data Dump tag frequencies 2015-2023 and GitHub Stars dataset
-  download python package dataset
+intent: HuggingFace datasets stackexchange Stack Overflow tag frequencies and GitHub
+  stars python package dataset
 required_fields:
 - tag
 - year_month
 - post_count
 - github_repo
-- star_year_month
+- star_month
 - star_count
-cache_key: 473980c148dc7ef0b1db148a47847ddfe97f5741b019aac9c9201f47087feeb9
-searched_at: '2026-08-14T16:07:49.672671+00:00'
+cache_key: ec3c33361d8a9779913ecc90d17da1798db623feb75fc53282413e2447b9dad6
+searched_at: '2026-08-14T16:56:55.202917+00:00'
 retry_count: 1

@@ -8,13 +8,12 @@ T007:
     \ are therefore unmet."
 T015:
   c: false
-  h: 74bd8500fe83f390c483037dbd38c81ac4651f55e22ffd4430330a4ebc95aff5
-  r: "The `code/analysis/mapping.py` file exists, but the two required input files\
-    \ (`data/processed/external_metrics.json` and `data/processed/top_50_tags.json`)\
-    \ are missing, so the mapping logic cannot actually run. Additionally, the provided\
-    \ snippet of `mapping.py` is truncated, leaving doubt that the full implementation\
-    \ (including writing `tag_mappings.json`) is present. The task\u2019s core requirement\
-    \ is therefore not satisfied."
+  h: 22ae5f197972a71bfa0d976431b2d34327fd66e299f6bb0be6ebd3b383fd6a5b
+  r: "The required input file `data/processed/external_metrics.json` is missing, so\
+    \ the mapping module cannot actually read the raw data it is supposed to use.\
+    \ Moreover, the provided excerpt of `code/analysis/mapping.py` stops at validation\
+    \ and does not show any concrete tag\u2011to\u2011repo/NPM mapping implementation.\
+    \ Both the essential data and the core mapping logic are absent."
 T030:
   c: false
   h: 2f56a0ce1aee02017613f437a30ed604b7e986766986fe679a2fbe4c12bf423a

@@ -29,13 +29,13 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/data/download.py -> rc=1
     flow-tags/resolve/main/README.md "HTTP/1.1 401 Unauthorized"
-2026-08-14 16:06:54,377 - __main__ - WARNING - HF dataset load failed: Dataset 'stack-exchange/stackoverflow-tags' doesn't exist on the Hub or cannot be accessed.
-2026-08-14 16:06:54,377 - __main__ - INFO - Attempting direct HTTP fetch from Stack Overflow archive...
-2026-08-14 16:06:54,377 - __main__ - INFO - Checking reachability of: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z
-2026-08-14 16:06:55,755 - __main__ - WARNING - URL returned non-200 status: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z (Status: 404)
-2026-08-14 16:06:55,756 - __main__ - ERROR - Error during processing: Primary Stack Overflow dump URL unreachable: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z. HF fallback also failed or unavailable. Cannot proceed.
-2026-08-14 16:06:55,757 - __main__ - INFO - Removed empty output file.
-2026-08-14 16:06:55,757 - __main__ - ERROR - === Download Failed: Primary Stack Overflow dump URL unreachable: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z. HF fallback also failed or unavailable. Cannot proceed. ===
+2026-08-14 16:56:29,172 - __main__ - WARNING - HF dataset load failed: Dataset 'stack-exchange/stackoverflow-tags' doesn't exist on the Hub or cannot be accessed.
+2026-08-14 16:56:29,172 - __main__ - INFO - Attempting direct HTTP fetch from Stack Overflow archive...
+2026-08-14 16:56:29,172 - __main__ - INFO - Checking reachability of: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z
+2026-08-14 16:56:31,539 - __main__ - WARNING - URL returned non-200 status: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z (Status: 404)
+2026-08-14 16:56:31,540 - __main__ - ERROR - Error during processing: Primary Stack Overflow dump URL unreachable: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z. HF fallback also failed or unavailable. Cannot proceed.
+2026-08-14 16:56:31,541 - __main__ - INFO - Removed empty output file.
+2026-08-14 16:56:31,541 - __main__ - ERROR - === Download Failed: Primary Stack Overflow dump URL unreachable: https://archive.org/download/stackexchange/stackoverflow.com-PostsTags.7z. HF fallback also failed or unavailable. Cannot proceed. ===
 - python code/main.py -> rc=2 [script missing]
     /home/runner/work/llmXive/llmXive/projects/PROJ-298-statistical-analysis-of-publicly-availab/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-298-statistical-analysis-of-publicly-availab/code/main.py': [Errno 2] No such file or directory
 

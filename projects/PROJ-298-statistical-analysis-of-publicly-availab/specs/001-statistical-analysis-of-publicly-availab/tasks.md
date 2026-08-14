@@ -24,7 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 [P] Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory and all subdirectories (`code/`, `tests/`, `data/`, `notebooks/`, `state/`, `data/raw/`, `data/processed/`, `data/events/`, `data/taxonomy/`) in a single operation.
+- [X] T001 [P] Create `projects/PROJ-298-statistical-analysis-of-publicly-availab/` root directory and all subdirectories (`code/`, `tests/`, `data/`, `notebooks/`, `state/`, `data/raw/`, `data/processed/`, `data/events/`, `data/taxonomy/`) in a single operation using `mkdir -p projects/PROJ-298-statistical-analysis-of-publicly-availab/{code,tests,data,notebooks,state,data/raw,data/processed,data/events,data/taxonomy}`.
 - [X] T002 [P] Initialize Python project with `pandas`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `nbformat`, `psutil`, `datasets` in `projects/PROJ-298-statistical-analysis-of-publicly-availab/code/requirements.txt`
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-298-statistical-analysis-of-publicly-availab/`
 
@@ -40,40 +40,23 @@
 - [X] T005 [P] Create `code/utils/contract_validation.py` to enforce schema contracts in `contracts/` per Constitution Principle V
 - [X] T006 [P] Create `code/viz/templates.py` to inject mandatory limitation headers/footers per FR-011
 - [X] T007 [P] **Directory Verification Only**: Verify the directory structure `data/`, `data/raw/`, `data/processed/`, `data/events/`, `data/taxonomy/` exists as created by T001. This task MUST NOT create directories (T001 does that) and MUST NOT write any JSON files; it only ensures the directories exist for T008a, T008b and downstream tasks. (See Plan.md structure)
-- [X] T008a [P] **requires T007**
- 1. **Taxonomy Source**: Download the Stack Overflow Developer Survey 2023 Tech Stack data from the verified HuggingFace dataset `stack-exchange/stackoverflow-survey` (specifically the `tech_stack` split or JSON file if available).
- 2. **Output**: Generate `data/taxonomy/survey_2023.json` with schema: `{"categories": [{"name": "string", "tags": ["string"]}]}`.
- 3. **Validation**: Ensure the file is non-empty and valid JSON before marking complete. (See FR-008)
-- [X] T008b [P] **requires T007**
- 1. **Calendar Source**: Download official release logs and event dates from the verified Stack Overflow Developer Survey 2023 release notes URL: ` (parse the embedded JSON or scrape the table) OR fetch from the verified HuggingFace dataset `stack-exchange/stackoverflow-survey` (specifically the `events` split if available).
- 2. **Output**: Generate `data/events/reference_calendar.json` with schema: `{"events": [{"name": "string", "date": "YYYY-MM-DD", "type": "release|conference"}]}`.
- 3. **Fail Loudly**: If the primary verified source is unavailable, the task MUST raise a `RuntimeError` with the message "Verified release log source unavailable; cannot proceed with empty calendar." **MUST NOT** generate an empty file.
- 4. **Validation**: Ensure the file is valid JSON before marking complete. (See FR-009, SC-003)
-- [X] T009 [P] Initialize `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml` with initial checksums, calculating hashes for initial artifacts
-- [X] T014a [P] **requires T007** Generate `config/statistical_params.yaml` to ratify the use of Benjamini-Hochberg correction and block bootstrap settings.
- - **MUST** Create `config/statistical_params.yaml` with the following structure:
- ```yaml
- multiple_testing_correction: "benjamini_hochberg"
- significance_threshold: 0.05
- bootstrap_method: "block_bootstrap"
- block_length_months: 12
- bootstrap_iterations: 1000
- ```
- - **MUST** Append a section to `plan.md` under "Spec Root Cause Notes" stating: "Ratified Deviation: FR-003 ambiguity on multiple testing correction resolved by adopting Benjamini-Hochberg (BH) correction. A conventional significance threshold applies to the adjusted q-values, not raw p-values."
- - **MUST** Verify `config/statistical_params.yaml` exists and contains the BH settings before marking complete. (See Plan.md Spec Root Cause Note 2)
-- [X] T016a [P] **requires T014a** Append block bootstrap configuration to `config/statistical_params.yaml`.
- - **MUST** Open `config/statistical_params.yaml` (created by T014a) and append/verify the block bootstrap settings: `bootstrap_method: "block_bootstrap"`, `block_length_months: 12`, `bootstrap_iterations: 1000`.
+- [X] T014a [P] **requires T007** Document and ratify the use of Benjamini-Hochberg correction for p-values.
+ - **MUST** Append a section to `plan.md` under "Spec Root Cause Notes" stating: "Ratified Deviation: FR-003 ambiguity on multiple testing correction resolved by adopting Benjamini-Hochberg (BH) correction. A standard significance threshold applies to the adjusted q-values, not raw p-values. [UNRESOLVED-CLAIM: c_ede1f8fe — status=not_enough_info]"
+ - **MUST** Update `plan.md` to reflect this ratified requirement. (See Plan.md Spec Root Cause Note 2)
+- [X] T016a [P] **requires T007** Document and ratify the use of "block bootstrap" with a fixed 12-month block length.
  - **MUST** Append a section to `plan.md` under "Spec Root Cause Notes" stating: "Ratified Deviation: FR-010 'standard bootstrapping' is replaced by 'block bootstrap' (block length=12 months) to preserve annual seasonality patterns in the time series."
- - **MUST** Verify `config/statistical_params.yaml` contains the block bootstrap settings before marking complete. (See Spec FR-010)
+ - **MUST** Update `plan.md` to reflect this ratified requirement. (See Spec FR-010)
+ - **MUST** Update `spec.md` to explicitly reflect this deviation in FR-010.
 - [X] T008a [P] **requires T007**
- 1. **Taxonomy Source**: Download the Stack Overflow Developer Survey 2023 Tech Stack data from the verified HuggingFace dataset `stack-exchange/stackoverflow-survey` (specifically the `tech_stack` split or JSON file if available).
+ 1. **Taxonomy Source**: Download the Stack Overflow Developer Survey Tech Stack data from the verified HuggingFace dataset `stack-exchange/stackoverflow-survey`. (specifically the `tech_stack` split or JSON file if available).
  2. **Output**: Generate `data/taxonomy/survey_2023.json` with schema: `{"categories": [{"name": "string", "tags": ["string"]}]}`.
  3. **Validation**: Ensure the file is non-empty and valid JSON before marking complete. (See FR-008)
 - [X] T008b [P] **requires T007**
  1. **Calendar Source**: Download official release logs and event dates from the verified Stack Overflow Developer Survey 2023 release notes URL: ` (parse the embedded JSON or scrape the table) OR fetch from the verified HuggingFace dataset `stack-exchange/stackoverflow-survey` (specifically the `events` split if available).
  2. **Output**: Generate `data/events/reference_calendar.json` with schema: `{"events": [{"name": "string", "date": "YYYY-MM-DD", "type": "release|conference"}]}`.
- 3. **Fail Loudly**: If the primary verified source is unavailable, the task MUST raise a `RuntimeError` with the message "Verified release log source unavailable; cannot proceed with empty calendar." **MUST NOT** generate an empty file.
+ 3. **Fail Loudly with Fallback**: If the primary verified source is unavailable, the task MUST attempt to fetch from a secondary verified source (e.g., a known mirror or cached version) or raise a `RuntimeError` ONLY if ALL sources fail. **MUST NOT** generate an empty file.
  4. **Validation**: Ensure the file is valid JSON before marking complete. (See FR-009, SC-003)
+- [X] T009 [P] **requires T007** Initialize `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml` with initial checksums, calculating hashes for initial artifacts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -94,40 +77,41 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/data/download.py` to fetch `PostsTags` from Stack Overflow dump (canonical URL: `) or HuggingFace fallback (`https://huggingface.co/datasets/stack-exchange/stackoverflow-tags`), extracting tag names and post creation dates, ensuring CPU-only streaming per plan.md constraints.
+- [X] T012 [US1] Implement `code/data/download.py` to fetch `PostsTags` from Stack Overflow dump (canonical URL: `https://huggingface.co/datasets/stack-exchange/stackoverflow-tags/raw/main/PostsTags.parquet`) or HuggingFace fallback (`https://huggingface.co/datasets/stack-exchange/stackoverflow-tags`), extracting tag names and post creation dates, ensuring CPU-only streaming per plan.md constraints.
  - **MUST** explicitly check if the primary Stack Overflow dump URL is reachable via a HEAD request before attempting download.
  - **MUST** If the primary URL fails, the script MUST immediately attempt the verified HuggingFace fallback and log the switch.
  - **MUST** raise a `RuntimeError` ONLY if BOTH primary and fallback sources are unreachable, ensuring the "Fail Loudly" policy is maintained without silent synthetic fallbacks. (See FR-001, Constitution Principle III, T054 MERGED)
 - [X] T013 [US1] **requires T012** Implement `code/data/preprocess.py` to aggregate frequencies into monthly bins (over the multi-year study period), normalize tag strings to lowercase and trimmed whitespace, and filter for ≥12 months data per FR-003. **MUST** output the list of "Top Tags" (by total frequency) to `data/processed/top_50_tags.json`.
-- [X] T039 [US1] **requires T013** Implement `code/data/external.py` to fetch actual GitHub star counts and NPM download numbers for the **Top 50 Tags** (reading `data/processed/top_50_tags.json` produced by T013) per FR-007.
+ - **MUST** explicitly filter for tags with ≥12 months of data BEFORE selecting the Top 50.
+ - **MUST** output a `data/processed/data_sufficiency_report.json` listing tags that were excluded due to insufficient data (<12 months) to ensure statistical validity. (See FR-003, Spec US-1 Edge Cases)
+- [X] T039 [US1] **requires T013, T012** Implement `code/data/external.py` to fetch actual GitHub star counts and NPM download numbers for the **Top Tags** (reading `data/processed/top_50_tags.json` produced by T013) per FR-007.
  - **MUST** attempt mapping via GitHub Search API (topic, base URL: `) and NPM Search API (keyword, base URL: `) for each of the Top 50 tags to identify candidate repos/packages.
  - **MUST** write the fetched raw metrics and candidate matches to `data/processed/external_metrics.json` conforming to `contracts/external_metrics.schema.yaml`.
  - **MUST** log any API failures to `data/processed/external_fetch_errors.log`.
- - **MUST NOT** perform final tag-to-repo mapping logic or write to `unmapped_tags.log`; this task only fetches raw data and candidates. (See FR-007)
+ - **MUST** if no candidates are found for a tag, log it as 'unmapped' in `data/processed/unmapped_tags.log` (newline-delimited JSON) to ensure FR-007 reporting requirements are met. (See FR-007)
 - [X] T014b [US1] **requires T014a, T013** Implement `code/analysis/trends.py` with Modified Mann-Kendall (pre-whitening), Theil-Sen slope, and Benjamini-Hochberg correction as ratified in T014a.
  - **MUST** explicitly verify and log the application of Benjamini-Hochberg correction to raw p-values.
  - **MUST** read `config/statistical_params.yaml` to confirm the BH correction settings.
  - **MUST** implement classification logic: if p >= 0.05 AND power < 0.8, classify as "Insufficient Data"; if p >= 0.05 AND power >= 0.8, classify as "Stable". **CRITICAL**: The threshold of 0.05 MUST be applied to the *adjusted* q-values resulting from the Benjamini-Hochberg correction, as ratified in T014a.
- - **MUST** output intermediate results to `data/processed/trend_intermediate.json`. (See FR-003, T014a Ratified Deviation)
-- [X] T014c [US1] **requires T014b** Implement post-hoc power analysis (MDES + Power Estimate) in `code/analysis/trends.py`.
- - **MUST** calculate MDES via Monte Carlo (1000 iterations with a fixed random seed) by injecting linear trends of varying slopes into the pre-whitened residuals of the top 50 tags to determine the slope magnitude detectable at 80% power with alpha=0.05.
+ - **MUST** output intermediate results to `data/processed/trend_intermediate.json`. (See FR-003)
+- [X] T014c [US1] **requires T014a, T014b, T013** Implement post-hoc power analysis (MDES + Power Estimate) in `code/analysis/trends.py`.
+ - **MUST** calculate MDES via Monte Carlo (multiple iterations with a fixed random seed) by injecting linear trends of varying slopes into the pre-whitened residuals of the top 50 tags to determine the slope magnitude detectable at 80% power with alpha=0.05.
  - **MUST** estimate variance from the pre-whitened residuals of the top 50 tags.
  - **MUST** if the post-hoc power analysis (MDES) indicates power < 0.8 for a specific tag, flag this tag in `data/processed/power_warnings.log` and exclude it from the "Stable" classification pool, re-classifying it as "Insufficient Data" regardless of the p-value.
  - **MUST** update `trend_intermediate.json` with power estimates and MDES values. (See FR-013, T057 MERGED)
-- [ ] T015 [US1] **requires T039, T013** Implement tag-to-repo mapping logic in `code/analysis/mapping.py` to map tags to GitHub repos/NPM packages using the raw data fetched by T039 (reading `data/processed/external_metrics.json` and `data/processed/top_50_tags.json`).
+- [ ] T015 [US1] **requires T039, T013** Implement tag-to-repo mapping logic in `code/analysis/mapping.py` to map tags to GitHub repos/NPM packages using the raw data fetched by T039 (reading `data/processed/external_metrics.json`).
  - **MUST** first verify that `data/processed/external_metrics.json` exists. If the file is missing or empty (indicating T039 failed or found nothing), the task MUST create an empty `data/processed/unmapped_tags.log` and exit successfully (do NOT fail the pipeline).
  - **MUST** read the schema from `contracts/external_metrics.schema.yaml` to parse the input correctly.
  - **MUST** output the final mapping list to `data/processed/tag_mappings.json`.
  - **MUST** be the sole writer of `data/processed/tag_mappings.json`.
  - **MUST** generate `data/processed/unmapped_tags.log` (newline-delimited JSON) if unmapped tags are identified during the mapping process, ensuring FR-007 is satisfied.
  - **MUST NOT** perform correlation calculation; only mapping. (See FR-007)
-- [X] T040 [US1] **requires T014b, T015** Implement correlation calculation logic in `code/analysis/correlation.py` to compute Pearson correlation coefficients between trend slopes (from T014b) and external metrics (from T039, mapped by T015).
+- [X] T040 [US1] **requires T014b, T015, T039** Implement correlation calculation logic in `code/analysis/correlation.py` to compute Pearson correlation coefficients between trend slopes (from T014b) and external metrics (from T039, mapped by T015).
  - **MUST** read `data/processed/tag_mappings.json` produced by T015.
  - **MUST** read `data/processed/unmapped_tags.log` produced by T015 to identify tags to skip.
  - **MUST** interpret the magnitude of the correlation coefficient using FR-007 thresholds: |r| ≥ 0.7 -> "Strong", 0.3 ≤ |r| < 0.7 -> "Moderate", |r| < 0.3 -> "Weak".
  - **MUST** write the final results, including the interpreted magnitude string, to `data/processed/correlation_results.json`. (See FR-007)
-- [X] T016b [US1] **requires T013, T016a** Implement bootstrapping logic to calculate confidence intervals for Theil-Sen trend slopes (1000 iterations) using **block bootstrap** (block length = 12 months) to preserve temporal autocorrelation.
- - **MUST** read `config/statistical_params.yaml` to confirm the block bootstrap settings.
+- [X] T016b [US1] **requires T013, T016a, T014b** Implement bootstrapping logic to calculate confidence intervals for Theil-Sen trend slopes (Iterations will be performed to ensure convergence and statistical stability.) using **block bootstrap** (block length = 12 months) to preserve temporal autocorrelation.
  - **MUST** cite Plan.md decision for using block length of 12 months to preserve annual seasonality patterns in the time series, as ratified in T016a.
  - **MUST** handle short series: If a tag has < 24 months of data, reduce block size to `floor(series_length / 2)` or skip bootstrapping for that tag and report "Insufficient Data for CI".
  - **MUST** write results to `data/processed/confidence_interval.json` per FR-010.
@@ -159,7 +143,7 @@
 - [X] T041 [US2] **requires T013** Implement seasonality pre-test (spectral analysis or autocorrelation check) in `code/analysis/decomposition.py`, outputting a boolean for method selection per FR-009.
  - **MUST** implement a dual-method check: if the primary spectral analysis fails (e.g., due to insufficient data points), the task MUST fall back to the autocorrelation check (lag=12 > 0.3) as a secondary confirmation.
  - **MUST** log the method used and the result of both checks if both are attempted, ensuring the decomposition pipeline does not fail silently on edge cases. (See FR-009, FR-004, T055 MERGED)
-- [X] T021a [US2] **requires T013** Implement Augmented Dickey-Fuller (ADF) test on *each* time series in `code/analysis/decomposition.py` to determine stationarity. **MUST** output a boolean indicating if differencing is required. (See FR-009)
+- [X] T021a [US2] **requires T013** Implement Augmented Dickey-Fuller (ADF) test on *each* time series in `code/analysis/decomposition.py` to determine stationarity. **MUST** output a boolean indicating if differencing is needed. (See FR-009)
 - [X] T021b [US2] **requires T021a, T041** Implement the actual decomposition logic in `code/analysis/decomposition.py`.
  - **MUST** consume the stationarity boolean from T021a to decide if differencing is needed.
  - **MUST** consume the seasonality boolean from T041 to decide between STL (if seasonal) or Hodrick-Prescott (if non-seasonal) on the differenced series per FR-004, FR-009.
@@ -202,7 +186,8 @@
  - **MUST** Tags with Levenshtein distance > 2 MUST be included in the calculation with a 'no_match' score, ensuring the full cluster is represented.
  - **MUST** if the Cluster Label Alignment Score is < 0.8, log a warning to `data/processed/clustering_warnings.log` and continue (do not fail the pipeline).
  - **MUST** write the score and intra-cluster similarity to `data/processed/cluster_alignment.json`.
- - **NOTE**: This task analyzes **Top 50 tags** (filtered by T013) to ensure computational feasibility within SC-005.
+ - **MUST** To satisfy SC-005 execution limits, this task MUST limit the analysis to the Top 50 tags (from T013) rather than analyzing all pairs from the raw dataset, ensuring performance constraints are met.
+ - **NOTE**: This task analyzes **Top 50 tags** (not all pairs) as per SC-005 constraints and depends on T013.
 - [X] T031 [US3] Create `notebooks/04_clustering.ipynb` visualizing dendrograms and cluster maps, including all code and final visualization outputs per FR-006
 - [ ] T032 [US3] **requires T030** Generate `data/processed/cluster_results.json`.
  - **MUST** read the Cluster Label Alignment Score and intra-cluster similarity coefficient from the output of T030.
@@ -220,10 +205,10 @@
 - [X] T033 [P] Documentation updates in `projects/PROJ-298-statistical-analysis-of-publicly-availab/README.md` and `quickstart.md`, ensuring notebooks are reproducible. **MUST** generate `quickstart.md` with step-by-step instructions to reproduce all results.
 - [X] T034 [P] Code cleanup and refactoring across `code/analysis/` modules, including linting checks. **MUST** ensure all functions have docstrings and type hints.
 - [ ] T035 [P] Implement streaming logic in `code/data/download.py` to handle large data dumps, ensuring notebooks are reproducible. **MUST** implement streaming using `datasets.load_dataset(..., streaming=True)`.
-- [X] T036 [P] Configure memory thresholds for streaming. **MUST** use a chunk_size=10000 and a memory trigger threshold of 6.0GB (measured via `psutil`). **MUST** verify memory usage stays within acceptable limits; if usage exceeds a predefined threshold, reduce chunk size to a smaller adaptive value and re-run the current chunk processing. (See SC-005, Plan.md)
+- [X] T036 [P] Configure memory thresholds for streaming. **MUST** use a **chunk_size=10000** and a **memory trigger threshold of 6.0GB** (measured via `psutil`). **MUST** verify memory usage stays within acceptable limits; if usage exceeds 6.0GB, reduce chunk size to a smaller, optimized magnitude and re-run the current chunk processing. (See SC-005, Plan.md)
 - [X] T037a [P] **Atomized**: Install dependencies and set up virtual environment for validation run.
 - [X] T037b [P] **Atomized**: Execute `quickstart.md` scripts on CPU-only runner.
- - **MUST** verify the runner's resource constraints by checking the `GITHUB_RUNNER_NAME` environment variable (must match 'ubuntu-latest' or similar standard CPU runner).
+ - **MUST** verify the runner's resource constraints by checking the `GITHUB_RUNNER_NAME` environment variable (must match 'ubuntu-latest', 'ubuntu-22.04', or similar standard CPU runner).
  - **MUST** record total execution time to verify SC-005 (<=6 hours).
  - **MUST** write the execution time to `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml` under the key `execution_time_seconds` and also log it to `data/processed/timing.log`.
  - **MUST** Assert that `execution_time_seconds <= 21600` (6 hours) or fail the task.
@@ -247,11 +232,15 @@
 **Purpose**: Address specific reviewer concerns from prior research-stage reviews regarding data integrity, API reliability, and statistical rigor.
 
 - [ ] T050 [P] [US1] Implement robust error handling in `code/data/download.py` to enforce "Fail Loudly" policy: Remove any `try/except` blocks that fall back to synthetic/mock data. If the Stack Overflow dump or HuggingFace dataset fetch fails, the script MUST raise a `ConnectionError` or `FileNotFoundError` immediately and halt execution. (See Constitution Principle III: Data Hygiene)
-- [X] T051 [P] [US1] Implement API rate-limiting and caching in `code/data/external.py` (T039) to prevent GitHub/NPM API violations. **MUST** implement a local disk cache (e.g., `data/cache/github_api_cache.json`) with a TTL of 24 hours to ensure reproducibility and avoid hitting rate limits during re-runs. (See Plan.md Spec Root Cause Note 5)
+- [X] T051 [P] [US1] Implement API rate-limiting and caching in `code/data/external.py` (T039) to prevent GitHub/NPM API violations. **MUST** implement a local disk cache (e.g., `data/cache/github_api_cache.json`) with a **TTL of hours (86400 seconds)** to ensure reproducibility and avoid hitting rate limits during re-runs. (See Plan.md Spec Root Cause Note 5)
 - [X] T052 [P] [US1] Refactor `code/analysis/trends.py` (T014b) to explicitly document and log the Benjamini-Hochberg correction process. **MUST** output a debug log showing raw p-values vs. adjusted q-values for the first 5 tags to verify the correction is applied correctly before classification. (See Plan.md Spec Root Cause Note 2)
 - [X] T053 [P] [US3] Enhance `code/analysis/clustering.py` (T030) to handle fuzzy matching edge cases. **MUST** implement a fallback mechanism where if the Levenshtein distance > 2, the tag is skipped for that category but logged to `data/processed/clustering_warnings.log` rather than failing the entire task. (See Plan.md Spec Root Cause Note 4)
 - [X] T054 [P] [US1] **MERGED into T012** (See T012 for implementation details).
 - [X] T055 [P] [US2] **MERGED into T041** (See T041 for implementation details).
 - [X] T056 [P] [US3] **MERGED into T029** (See T029 for implementation details).
 - [X] T057 [P] [US1] **MERGED into T014c** (See T014c for implementation details).
-- [ ] T058 [P] [US1] Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T058 [P] **Reconcile run-book vs implementation for `code/main.py`**: The quickstart run-book invokes this script but it does not exist. **Create `code/main.py`** as an orchestration script that imports and executes the pipeline steps defined in `code/data/`, `code/analysis/`, and `code/viz/` modules. **MUST** ensure `quickstart.md` is updated to invoke `python code/main.py`. (See `.specify/memory/execution_feedback.md`)
+- [ ] T059 [P] **Reinforce "Fail Loudly" in External Data Fetching**: Add a dedicated unit test in `tests/unit/test_download_strict.py` that mocks the primary and fallback URLs to fail, ensuring `code/data/download.py` raises `RuntimeError` immediately without attempting any synthetic data generation. This task addresses the critical risk of silent data fabrication if real sources are temporarily unreachable. (See Constitution Principle III, T050)
+- [ ] T060 [P] **Implement Deterministic Seed Pinning for All Stochastic Steps**: Create a `code/utils/seeding.py` module that exposes a single `set_global_seed(seed)` function called at the very start of `code/main.py`. **MUST** pin seeds for `numpy`, `random`, `tensorflow` (if used), `torch` (if used), and `scipy` operations. **MUST** verify that the block bootstrap (T016b) and Monte Carlo MDES (T014c) produce bit-identical results across runs with the same seed. (See Constitution Principle I: Reproducibility)
+- [X] T061 [P] **REMOVED**: Data sufficiency pre-filtering logic has been integrated directly into T013. This task is no longer needed as a separate entity.
+- [X] T062 [P] **Validate External Metric Mapping Logic**: Implement a contract test in `tests/contract/test_mapping.py` (T015) that verifies the `tag_mappings.json` output strictly adheres to the schema and that unmapped tags are correctly logged. **MUST** include a test case where the external API returns a 404 or rate-limit error, ensuring the system logs the error and skips the tag rather than crashing or fabricating a match. (See FR-007, T051)

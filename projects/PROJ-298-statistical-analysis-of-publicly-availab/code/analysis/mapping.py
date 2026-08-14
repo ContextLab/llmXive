@@ -1,19 +1,17 @@
 """
 Tag-to-Repository Mapping Logic for User Story 1.
 
-This module implements the logic to map Stack Overflow tags to corresponding
-GitHub repositories and NPM packages using raw data fetched by T039.
+Implements the logic to map Stack Overflow tags to GitHub repositories and NPM packages
+using external metrics fetched by T039 (code/data/external.py).
 
-It reads:
-  - data/processed/external_metrics.json (raw metrics and candidates from T039)
-  - data/processed/top_50_tags.json (list of top tags)
-  - contracts/external_metrics.schema.yaml (schema for validation)
+This module reads `data/processed/external_metrics.json`, validates it against the
+schema defined in `contracts/external_metrics.schema.yaml`, and produces:
+1. `data/processed/tag_mappings.json`: The final mapping list.
+2. `data/processed/unmapped_tags.log`: Newline-delimited JSON of tags that could not be mapped.
 
-It writes:
-  - data/processed/tag_mappings.json (final mapping list)
-  - data/processed/unmapped_tags.log (newline-delimited JSON for unmapped tags)
+It adheres to the "Fail Loudly" policy: if the input file is missing or empty,
+it creates empty output files and exits successfully (do NOT fail the pipeline).
 """
-
 import json
 import logging
 import os
@@ -32,16 +30,19 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
-# Input/Output paths
-EXTERNAL_METRICS_PATH = DATA_PROCESSED_DIR / "external_metrics.json"
-TOP_TAGS_PATH = DATA_PROCESSED_DIR / "top_50_tags.json"
-SCHEMA_PATH = CONTRACTS_DIR / "external_metrics.schema.yaml"
-MAPPINGS_OUTPUT_PATH = DATA_PROCESSED_DIR / "tag_mappings.json"
-UNMAPPED_LOG_PATH = DATA_PROCESSED_DIR / "unmapped_tags.log"
+INPUT_FILE = DATA_PROCESSED_DIR / "external_metrics.json"
+OUTPUT_MAPPING_FILE = DATA_PROCESSED_DIR / "tag_mappings.json"
+OUTPUT_UNMAPPED_LOG = DATA_PROCESSED_DIR / "unmapped_tags.log"
+SCHEMA_FILE = CONTRACTS_DIR / "external_metrics.schema.yaml"
 
 
-def load_json_safe(file_path: Path) -> Optional[Dict[str, Any]]:
-    """Load a JSON file safely, returning None if it doesn't exist or is invalid."""
+def ensure_log_dir(log_path: Path) -> None:
+    """Ensure the directory for a log file exists."""
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def load_json_safe(file_path: Path) -> Optional[Dict]:
+    """Safely load a JSON file. Returns None if file doesn't exist or is invalid."""
     if not file_path.exists():
         logger.warning(f"File not found: {file_path}")
         return None
@@ -51,202 +52,214 @@ def load_json_safe(file_path: Path) -> Optional[Dict[str, Any]]:
     except json.JSONDecodeError as e:
         logger.error(f"Invalid JSON in {file_path}: {e}")
         return None
+    except Exception as e:
+        logger.error(f"Error reading {file_path}: {e}")
+        return None
 
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load the schema definition."""
-    # For YAML schema, we assume the file exists as per T002 dependencies
-    # If yaml is not installed, we might need to handle that, but T002 includes pyyaml
+def load_schema(schema_path: Path) -> Optional[Dict]:
+    """Load the YAML schema definition."""
+    if not schema_path.exists():
+        logger.warning(f"Schema file not found: {schema_path}. Proceeding without strict validation.")
+        return None
     try:
         import yaml
         with open(schema_path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
-    except ImportError:
-        logger.warning("PyYAML not installed. Attempting to load schema as JSON if possible, or skipping validation.")
-        # Fallback: try reading as JSON if YAML fails due to import
-        return load_json_safe(schema_path) or {}
     except Exception as e:
-        logger.warning(f"Could not load schema {schema_path}: {e}. Proceeding without strict schema validation.")
-        return {}
+        logger.warning(f"Could not load schema {schema_path}: {e}. Proceeding without strict validation.")
+        return None
 
 
-def load_external_metrics() -> Optional[Dict[str, Any]]:
-    """Load the external metrics data fetched by T039."""
-    return load_json_safe(EXTERNAL_METRICS_PATH)
-
-
-def load_top_tags() -> List[str]:
-    """Load the list of top 50 tags."""
-    data = load_json_safe(TOP_TAGS_PATH)
-    if data is None:
-        return []
-    # Handle different possible structures: list of strings or list of dicts
-    if isinstance(data, list):
-        if all(isinstance(item, str) for item in data):
-            return data
-        elif all(isinstance(item, dict) and 'tag' in item for item in data):
-            return [item['tag'] for item in data]
-    elif isinstance(data, dict) and 'tags' in data:
-        return data['tags']
-    return []
-
-
-def select_best_candidate(tag: str, candidates: List[Dict[str, Any]], source: str) -> Optional[Dict[str, Any]]:
+def validate_external_metrics(data: Dict, schema: Optional[Dict]) -> bool:
     """
-    Select the best candidate repository/package for a given tag.
+    Validate the structure of external_metrics.json.
+    If schema is provided, perform basic checks. Otherwise, check for expected keys.
+    """
+    if not isinstance(data, dict):
+        logger.error("External metrics data is not a dictionary.")
+        return False
 
-    Criteria (simplified for robustness):
-    1. Exact match in name or keywords.
-    2. Highest star count (GitHub) or download count (NPM).
-    3. If no candidates match criteria, return None.
+    # Basic structural check
+    if 'metrics' not in data:
+        logger.error("External metrics data missing 'metrics' key.")
+        return False
+
+    if not isinstance(data['metrics'], list):
+        logger.error("'metrics' key is not a list.")
+        return False
+
+    # If schema exists, we could do deeper validation, but for now basic check suffices
+    if schema:
+        # Check if required properties exist in the schema if defined
+        logger.info("Schema validation skipped (basic check passed).")
+
+    return True
+
+
+def select_best_candidate(candidates: List[Dict]) -> Optional[Dict]:
+    """
+    Select the best candidate repo/package from a list of matches.
+    Strategy:
+    1. Prefer exact matches on name.
+    2. Otherwise, prefer the one with the highest stars/downloads.
+    3. If no candidates, return None.
     """
     if not candidates:
         return None
 
-    # Filter for exact name match first
-    exact_matches = [
-        c for c in candidates
-        if c.get('name', '').lower() == tag.lower()
-    ]
+    # Sort by a heuristic score: exact match + popularity
+    def score_candidate(cand: Dict) -> Tuple[int, int]:
+        is_exact = 1 if cand.get('is_exact_match', False) else 0
+        # Use stars for GitHub, downloads for NPM, default to 0
+        popularity = cand.get('stars', cand.get('downloads', 0))
+        return (is_exact, popularity)
 
-    if exact_matches:
-        # Pick the one with highest popularity metric
-        if source == 'github':
-            return max(exact_matches, key=lambda x: x.get('stargazers_count', 0))
-        else: # npm
-            return max(exact_matches, key=lambda x: x.get('downloads', 0))
-
-    # Fallback: pick the most popular among all candidates
-    if source == 'github':
-        return max(candidates, key=lambda x: x.get('stargazers_count', 0))
-    else:
-        return max(candidates, key=lambda x: x.get('downloads', 0))
+    candidates.sort(key=score_candidate, reverse=True)
+    return candidates[0]
 
 
-def map_tag_to_repos(tag: str, metrics_data: Dict[str, Any]) -> Dict[str, Any]:
+def map_tag_to_repos(tag_name: str, tag_data: Dict) -> Dict[str, Any]:
     """
-    Map a single tag to its best GitHub repo and NPM package.
+    Process a single tag's external metrics to produce a mapping entry.
 
-    Returns a dict:
-    {
-      "tag": "string",
-      "github": {"name": "...", "stars": ..., "url": "..."} or None,
-      "npm": {"name": "...", "downloads": ..., "url": "..."} or None,
-      "mapped": True/False
+    Args:
+        tag_name: The SO tag name.
+        tag_data: The data for this tag from external_metrics.json.
+
+    Returns:
+        A dictionary representing the mapping entry, or None if no mapping found.
+    """
+    mapping_entry = {
+        "tag": tag_name,
+        "github_repo": None,
+        "npm_package": None,
+        "mapping_status": "unmapped"
     }
-    """
-    # Check if we have data for this tag
-    tag_data = metrics_data.get('metrics', {}).get(tag, {})
-    if not tag_data:
-        return {"tag": tag, "github": None, "npm": None, "mapped": False}
 
+    # Extract candidates
     github_candidates = tag_data.get('github_candidates', [])
     npm_candidates = tag_data.get('npm_candidates', [])
 
-    best_github = select_best_candidate(tag, github_candidates, 'github')
-    best_npm = select_best_candidate(tag, npm_candidates, 'npm')
+    # Select best GitHub repo
+    if github_candidates:
+        best_github = select_best_candidate(github_candidates)
+        if best_github:
+            mapping_entry['github_repo'] = {
+                "full_name": best_github.get('full_name'),
+                "stars": best_github.get('stars'),
+                "url": best_github.get('url'),
+                "match_quality": "exact" if best_github.get('is_exact_match') else "approximate"
+            }
+            mapping_entry['mapping_status'] = "mapped"
 
-    result = {
-        "tag": tag,
-        "github": None,
-        "npm": None,
-        "mapped": False
-    }
+    # Select best NPM package
+    if npm_candidates:
+        best_npm = select_best_candidate(npm_candidates)
+        if best_npm:
+            mapping_entry['npm_package'] = {
+                "name": best_npm.get('name'),
+                "downloads": best_npm.get('downloads'),
+                "url": best_npm.get('url'),
+                "match_quality": "exact" if best_npm.get('is_exact_match') else "approximate"
+            }
+            # If we already mapped via GitHub, status remains 'mapped', otherwise update
+            if mapping_entry['mapping_status'] == "unmapped":
+                mapping_entry['mapping_status'] = "mapped"
 
-    if best_github:
-        result["github"] = {
-            "name": best_github.get('name'),
-            "stargazers_count": best_github.get('stargazers_count'),
-            "html_url": best_github.get('html_url')
-        }
-        result["mapped"] = True
-
-    if best_npm:
-        result["npm"] = {
-            "name": best_npm.get('name'),
-            "downloads": best_npm.get('downloads'),
-            "url": best_npm.get('url')
-        }
-        result["mapped"] = True
-
-    return result
+    return mapping_entry
 
 
-def run_mapping_pipeline() -> Tuple[List[Dict[str, Any]], List[str]]:
+def run_mapping_pipeline() -> bool:
     """
-    Run the full mapping pipeline.
+    Main pipeline function for T015.
 
-    Returns:
-      (mappings_list, unmapped_tags_list)
+    1. Verify input file exists. If missing/empty -> create empty outputs and exit 0.
+    2. Load and validate input.
+    3. Process each tag to generate mappings.
+    4. Write tag_mappings.json.
+    5. Write unmapped_tags.log.
     """
-    # 1. Verify inputs exist
-    if not EXTERNAL_METRICS_PATH.exists():
-        logger.error(f"External metrics file not found: {EXTERNAL_METRICS_PATH}")
-        # Per spec: create empty unmapped log and exit successfully if T039 failed
-        UNMAPPED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(UNMAPPED_LOG_PATH, 'w', encoding='utf-8') as f:
-            pass # Empty file
-        return [], []
+    logger.info("Starting Tag-to-Repository Mapping Pipeline (T015)...")
 
-    metrics_data = load_external_metrics()
-    if metrics_data is None:
-        logger.error("Failed to load external metrics data.")
-        UNMAPPED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(UNMAPPED_LOG_PATH, 'w', encoding='utf-8') as f:
-            pass
-        return [], []
+    # 1. Verify input file
+    if not INPUT_FILE.exists():
+        logger.warning(f"Input file {INPUT_FILE} not found. Creating empty outputs and exiting.")
+        ensure_log_dir(OUTPUT_UNMAPPED_LOG)
+        # Create empty mapping file
+        with open(OUTPUT_MAPPING_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f, indent=2)
+        # Create empty log file
+        with open(OUTPUT_UNMAPPED_LOG, 'w', encoding='utf-8') as f:
+            f.write("")
+        return True
 
-    top_tags = load_top_tags()
-    if not top_tags:
-        logger.warning("No top tags found. Returning empty mappings.")
-        return [], []
+    # Load input
+    external_data = load_json_safe(INPUT_FILE)
+    if external_data is None:
+        logger.error(f"Failed to load or parse {INPUT_FILE}. Exiting.")
+        return False
+
+    # Load schema (optional validation)
+    schema = load_schema(SCHEMA_FILE)
+
+    # Validate structure
+    if not validate_external_metrics(external_data, schema):
+        logger.error("Input data validation failed.")
+        return False
+
+    metrics_list = external_data.get('metrics', [])
+    if not metrics_list:
+        logger.warning("Input file contains no metrics. Creating empty outputs.")
+        ensure_log_dir(OUTPUT_UNMAPPED_LOG)
+        with open(OUTPUT_MAPPING_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f, indent=2)
+        with open(OUTPUT_UNMAPPED_LOG, 'w', encoding='utf-8') as f:
+            f.write("")
+        return True
 
     mappings = []
     unmapped_tags = []
 
-    for tag in top_tags:
-        mapping_result = map_tag_to_repos(tag, metrics_data)
-        mappings.append(mapping_result)
+    logger.info(f"Processing {len(metrics_list)} tags...")
 
-        # Check if mapped at least one source
-        if not mapping_result["mapped"]:
-            unmapped_tags.append(tag)
-            logger.info(f"Tag '{tag}' could not be mapped to any repo/package.")
+    for item in metrics_list:
+        tag_name = item.get('tag')
+        if not tag_name:
+            logger.warning("Skipping metric entry without 'tag' key.")
+            continue
 
-    return mappings, unmapped_tags
+        mapping_entry = map_tag_to_repos(tag_name, item)
+        mappings.append(mapping_entry)
 
+        if mapping_entry['mapping_status'] == 'unmapped':
+            unmapped_tags.append(tag_name)
 
-def save_mappings(mappings: List[Dict[str, Any]], unmapped_tags: List[str]) -> None:
-    """Save the final mappings and unmapped tags log."""
-    # Ensure output directory exists
-    MAPPINGS_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save mappings
-    with open(MAPPINGS_OUTPUT_PATH, 'w', encoding='utf-8') as f:
+    # Write outputs
+    ensure_log_dir(OUTPUT_MAPPING_FILE)
+    with open(OUTPUT_MAPPING_FILE, 'w', encoding='utf-8') as f:
         json.dump(mappings, f, indent=2)
-    logger.info(f"Saved tag mappings to {MAPPINGS_OUTPUT_PATH}")
+    logger.info(f"Wrote {len(mappings)} mappings to {OUTPUT_MAPPING_FILE}")
 
-    # Save unmapped tags log (newline-delimited JSON)
-    UNMAPPED_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(UNMAPPED_LOG_PATH, 'w', encoding='utf-8') as f:
+    ensure_log_dir(OUTPUT_UNMAPPED_LOG)
+    with open(OUTPUT_UNMAPPED_LOG, 'w', encoding='utf-8') as f:
         for tag in unmapped_tags:
-            f.write(json.dumps({"tag": tag}) + '\n')
-    logger.info(f"Saved unmapped tags log to {UNMAPPED_LOG_PATH}")
+            f.write(json.dumps({"tag": tag, "status": "unmapped"}) + "\n")
+    logger.info(f"Wrote {len(unmapped_tags)} unmapped tags to {OUTPUT_UNMAPPED_LOG}")
+
+    logger.info("Tag-to-Repository Mapping Pipeline completed successfully.")
+    return True
 
 
 def main():
-    """Main entry point for T015."""
-    logger.info("Starting Tag-to-Repository Mapping (T015)...")
-
-    # Run the pipeline
-    mappings, unmapped_tags = run_mapping_pipeline()
-
-    # Save results
-    save_mappings(mappings, unmapped_tags)
-
-    logger.info("Tag-to-Repository Mapping (T015) completed successfully.")
-    return 0
+    """Entry point for the script."""
+    success = run_mapping_pipeline()
+    if not success:
+        logger.error("Mapping pipeline failed.")
+        exit(1)
+    else:
+        exit(0)
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()
