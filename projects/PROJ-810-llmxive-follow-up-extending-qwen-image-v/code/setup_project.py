@@ -1,57 +1,80 @@
 """
-Script to initialize the project directory structure for llmXive follow-up.
-Creates the required folders: src/, tests/, specs/, data/, data/results/, data/manual/.
+Setup script to create the complete project directory structure.
+This script ensures all required directories for the llmXive project exist.
 """
 import os
 from pathlib import Path
 
+
 def create_directory_structure():
-    """Create the standard project directory structure."""
-    base_dir = Path(__file__).parent.parent  # Assumes script is in code/
-    
-    # Define required directories relative to project root
-    required_dirs = [
-        "src",
-        "src/analysis",
-        "src/data",
-        "src/data/cache",
-        "src/models",
-        "src/utils",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "specs",
-        "data",
-        "data/raw",
-        "data/interim",
-        "data/results",
-        "data/manual",
-        "figures",
-        "code"
+    """Create all required directories for the project."""
+    root = Path("projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v")
+
+    # Core project directories
+    dirs = [
+        # Code structure
+        root / "code",
+        root / "code" / "analysis",
+        root / "code" / "data",
+        root / "code" / "data" / "cache",
+        root / "code" / "models",
+        root / "code" / "utils",
+        root / "code" / "src" / "analysis",
+        root / "code" / "src" / "data",
+        root / "code" / "src" / "models",
+        root / "code" / "src" / "utils",
+        
+        # Test structure
+        root / "tests",
+        root / "tests" / "unit",
+        root / "tests" / "integration",
+        
+        # Data structure
+        root / "data",
+        root / "data" / "raw",
+        root / "data" / "interim",
+        root / "data" / "results",
+        root / "data" / "manual",
+        
+        # Specs structure
+        root / "specs",
+        root / "specs" / "001-llmxive-vae-geometric-analysis",
+        
+        # Contracts structure
+        root / "contracts",
     ]
 
-    created = []
-    for dir_path in required_dirs:
-        full_path = base_dir / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        created.append(str(full_path.relative_to(base_dir)))
-        # Create __init__.py files for Python packages
-        if dir_path.startswith("src/") or dir_path.startswith("tests/"):
-            init_file = full_path / "__init__.py"
-            if not init_file.exists():
-                init_file.write_text("# Auto-generated init file\n")
-                created.append(str(init_file.relative_to(base_dir)))
+    created_count = 0
+    for dir_path in dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created: {dir_path}")
+        else:
+            print(f"Exists: {dir_path}")
 
-    return created
+    print(f"\nTotal directories created: {created_count}")
+    print(f"Project root: {root.absolute()}")
+    return created_count
+
 
 def main():
-    """Entry point to run the setup."""
-    print("Initializing project directory structure...")
+    """Entry point for the setup script."""
+    print("=" * 60)
+    print("llmXive Project Directory Structure Setup")
+    print("Project: PROJ-810-llmxive-follow-up-extending-qwen-image-v")
+    print("=" * 60)
+    
     created = create_directory_structure()
-    print(f"Successfully created {len(created)} directories/files:")
-    for path in created:
-        print(f"  - {path}")
-    print("Project structure ready.")
+    
+    if created >= 0:
+        print("\n✅ Directory structure setup complete.")
+    else:
+        print("\n❌ Directory structure setup failed.")
+        return 1
+    
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

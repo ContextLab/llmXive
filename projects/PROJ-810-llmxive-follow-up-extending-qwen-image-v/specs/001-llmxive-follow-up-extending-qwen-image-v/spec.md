@@ -92,7 +92,7 @@ As a reviewer, I want to see a sensitivity analysis of the disentanglement thres
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The linear separability accuracy is measured against the baseline random chance and the target threshold of 90% defined in the research hypothesis; if the power analysis indicates insufficient power (power < 0.8), the result is reported as "inconclusive". (See US-01)
+- **SC-001**: The linear separability accuracy is measured against the baseline random chance and a high target threshold defined in the research hypothesis.; if the power analysis indicates insufficient power (power < 0.8), the result is reported as "inconclusive". (See US-01)
 - **SC-002**: The reconstruction fidelity (Masked SSIM ≥ 0.85) and layout preservation (Keypoint Matching Score ≥ 0.80) of edited images are measured against the baseline reconstruction (original image encoded/decoded without arithmetic) to isolate editing success from disentanglement failure. (See US-02)
 - **SC-003**: The statistical significance of the disentanglement and editing results is measured against a Bonferroni-corrected p-value threshold (α ≤ 0.05 / N_tests) for the family of dependent hypotheses. (See US-03)
 - **SC-004**: The computational feasibility is measured against the constraint of ≤ 6 hours total runtime on a 2 vCPU, 7 GB RAM runner with the full OmniDoc-TokenBench subset (N images). (See Assumptions)
