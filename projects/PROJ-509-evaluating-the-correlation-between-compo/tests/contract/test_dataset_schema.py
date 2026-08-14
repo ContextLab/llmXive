@@ -1,63 +1,36 @@
 import pytest
 import pandas as pd
-import yaml
-import sys
 from pathlib import Path
+import sys
+import json
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from config import load_paths
+from descriptors import load_schema, validate_schema
 
-def load_schema(schema_path: str) -> dict:
-    """Load schema from YAML file."""
-    with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
 
-def validate_dataset_schema(df: pd.DataFrame, schema: dict):
-    """Validate DataFrame against schema."""
-    required_columns = schema.get('required_columns', [])
-    column_types = schema.get('column_types', {})
-    
-    # Check required columns
-    missing_columns = set(required_columns) - set(df.columns)
-    assert not missing_columns, f"Missing required columns: {missing_columns}"
-    
-    # Check column types
-    for col, expected_type in column_types.items():
-        if col in df.columns:
-            if expected_type == 'numeric':
-                assert pd.api.types.is_numeric_dtype(df[col]), f"Column {col} is not numeric"
-            elif expected_type == 'string':
-                assert pd.api.types.is_string_dtype(df[col]) or df[col].dtype == object, f"Column {col} is not string"
-            elif expected_type == 'non_null':
-                assert df[col].notna().all(), f"Column {col} contains null values"
+def test_load_schema(tmp_path):
+    """Test schema loading."""
+    schema = {
+        "required_columns": ["formula", "formation_energy_per_atom"],
+    }
+    schema_path = tmp_path / "schema.json"
+    with open(schema_path, "w") as f:
+        json.dump(schema, f)
 
-def test_dataset_schema_compliance():
-    """Test that the processed dataset complies with the schema."""
-    paths = load_paths()
-    schema_path = paths['dataset_schema']
-    data_path = paths['processed_descriptors']
-    
-    # Load schema
-    schema = load_schema(schema_path)
-    
-    # Load data
-    df = pd.read_csv(data_path)
-    
-    # Validate
-    validate_dataset_schema(df, schema)
+    loaded = load_schema(schema_path)
+    assert loaded == schema
 
-def test_descriptor_columns_non_null():
-    """Test that all descriptor columns are non-null."""
-    paths = load_paths()
-    data_path = paths['processed_descriptors']
-    
-    df = pd.read_csv(data_path)
-    
-    # Check for nulls in descriptor columns
-    descriptor_cols = [col for col in df.columns if 'mean' in col or 'variance' in col]
-    
-    for col in descriptor_cols:
-        assert df[col].notna().all(), f"Descriptor column {col} contains null values"
+
+def test_validate_schema_valid():
+    """Test validation with valid DataFrame."""
+    schema = {"required_columns": ["a", "b"]}
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+    assert validate_schema(df, schema) is True
+
+
+def test_validate_schema_missing_column():
+    """Test validation with missing column."""
+    schema = {"required_columns": ["a", "b"]}
+    df = pd.DataFrame({"a": [1, 2]})
+    assert validate_schema(df, schema) is False

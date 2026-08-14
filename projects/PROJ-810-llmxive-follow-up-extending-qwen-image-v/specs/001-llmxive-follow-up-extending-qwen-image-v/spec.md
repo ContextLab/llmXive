@@ -68,7 +68,7 @@ As a reviewer, I want to see a sensitivity analysis of the disentanglement thres
 ### Functional Requirements
 
 - **FR-001**: System MUST download and parse the OmniDoc-TokenBench dataset (or the specific subset referenced in the Qwen-Image-VAE-2.0 report) containing document images with ground-truth bounding boxes for text and image regions. (See US-01)
-- **FR-002**: System MUST load the pre-trained Qwen-Image-VAE-2.0 encoder and decoder in CPU-only mode on a 2 vCPU, 7 GB RAM environment, ensuring no CUDA or GPU dependencies are invoked. (See US-01, US-02)
+- **FR-002**: System MUST load the pre-trained Qwen-Image-VAE encoder and decoder in CPU-only mode on a 2 vCPU, 7 GB RAM environment, ensuring no CUDA or GPU dependencies are invoked. (See US-01, US-02)
 - **FR-003**: System MUST extract latent vectors corresponding strictly to "text-only" and "image-only" regions using the provided bounding box annotations, ensuring the classifier is trained on *unlabeled* crops and labels are used only for evaluation. (See US-01)
 - **FR-004**: System MUST train a lightweight Linear SVM or Logistic Regression classifier on CPU to predict the modality (text vs. image) of the latent vectors and output accuracy/F1 metrics. (See US-01)
 - **FR-005**: System MUST compute centroid vectors for text and image clusters and perform vector arithmetic ($z_{new} = z_{doc} - \mu_{text\_old} + \mu_{text\_new}$) to generate edited latent representations. (See US-02)

@@ -1,174 +1,59 @@
-"""
-Setup script to create the project directory structure for PROJ-532.
-This script creates all necessary directories and placeholder files
-as defined in the implementation plan.
-"""
 import os
 from pathlib import Path
 
 def ensure_dir(path: Path) -> None:
-    """Create directory if it doesn't exist."""
-    path.mkdir(parents=True, exist_ok=True)
+    """Create directory if it does not exist."""
+    if not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
 
-def create_placeholder_file(path: Path, content: str = "") -> None:
-    """Create a file with optional content."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(content)
+def create_placeholder_file(path: Path, content: str = "# Placeholder\n") -> None:
+    """Create a placeholder file if it does not exist."""
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(content)
 
-def main():
-    project_root = Path(__file__).parent.parent
-    proj_id = "PROJ-532-predicting-material-degradation-pathways"
-    proj_path = project_root / proj_id
+def main() -> None:
+    """
+    Create the full project structure for PROJ-532.
+    This script is idempotent and safe to run multiple times.
+    """
+    base = Path("projects/PROJ-532-predicting-material-degradation-pathways")
 
-    # Create main project directory
-    ensure_dir(proj_path)
-
-    # Create standard directories
+    # Core directories
     dirs = [
-        proj_path / "code",
-        proj_path / "data" / "raw",
-        proj_path / "data" / "processed",
-        proj_path / "data" / "contracts",
-        proj_path / "results" / "metrics",
-        proj_path / "results" / "plots",
-        proj_path / "results" / "artifacts",
-        proj_path / "tests" / "unit",
-        proj_path / "tests" / "integration",
-        proj_path / "specs",
-        proj_path / "docs",
+        base / "code",
+        base / "data",
+        base / "data" / "raw",
+        base / "data" / "processed",
+        base / "data" / "contracts",
+        base / "results",
+        base / "results" / "metrics",
+        base / "results" / "plots",
+        base / "results" / "artifacts",
+        base / "tests",
+        base / "tests" / "unit",
+        base / "tests" / "integration",
+        base / "specs",
+        base / "docs",
     ]
 
     for d in dirs:
         ensure_dir(d)
 
-    # Create README.md
-    readme_content = f"""# {proj_id}
+    # Create essential files
+    (base / "README.md").touch()
+    (base / "requirements.txt").touch()
+    (base / "code" / "__init__.py").touch()
+    (base / "tests" / "__init__.py").touch()
 
-## Project Structure
-
-This project implements the automated science pipeline for predicting material degradation pathways.
-
-### Directories
-- `code/`: Python source code
-- `data/`: Data storage
-  - `raw/`: Raw ingested data
-  - `processed/`: Cleaned and preprocessed data
-  - `contracts/`: Contract files (e.g., literature vectors)
-- `results/`: Output artifacts
-  - `metrics/`: Evaluation metrics
-  - `plots/`: Generated visualizations
-  - `artifacts/`: Trained models and artifacts
-- `tests/`: Test suite
-  - `unit/`: Unit tests
-  - `integration/`: Integration tests
-- `specs/`: Feature specifications
-- `docs/`: Documentation
-
-## Setup
-
-1. Install dependencies: `pip install -r code/requirements.txt`
-2. Run ingestion pipeline: `python code/ingestion.py`
-3. Run preprocessing: `python code/preprocessing.py`
-4. Run training: `python code/training.py`
-5. Run evaluation: `python code/evaluation.py`
-"""
-    create_placeholder_file(proj_path / "README.md", readme_content)
-
-    # Create .gitignore
-    gitignore_content = """
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-venv/
-ENV/
-env/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Data (raw data is large, keep processed in git if small)
-data/raw/*
-!data/raw/.gitkeep
-
-# Results
-results/*
-!results/.gitkeep
-
-# Environment
-.env
-*.env
-
-# OS
-.DS_Store
-Thumbs.db
-"""
-    create_placeholder_file(proj_path / ".gitignore", gitignore_content)
-
-    # Create data README
-    data_readme = """# Data Directory
-
-This directory stores all data related to the material degradation prediction project.
-
-## Structure
-- `raw/`: Raw datasets downloaded from external sources (Zenodo, etc.)
-- `processed/`: Cleaned, filtered, and preprocessed data ready for modeling
-- `contracts/`: Contract files such as reference importance vectors
-
-## Provenance
-All data files should include metadata about their source and processing steps.
-"""
-    create_placeholder_file(proj_path / "data" / "README.md", data_readme)
-
-    # Create results README
-    results_readme = """# Results Directory
-
-This directory stores all output artifacts from the pipeline.
-
-## Structure
-- `metrics/`: Evaluation metrics (JSON format)
-- `plots/`: Generated visualizations (PNG format)
-- `artifacts/`: Trained models and intermediate artifacts
-
-## Usage
-Results are generated by running the pipeline scripts in order:
-1. Ingestion -> `data/processed/`
-2. Preprocessing -> `data/processed/` (train/test splits)
-3. Training -> `results/artifacts/model.pkl`
-4. Evaluation -> `results/metrics/training_report.json`
-5. Explainability -> `results/plots/` and `results/metrics/explainability_report.json`
-"""
-    create_placeholder_file(proj_path / "results" / "README.md", results_readme)
-
-    # Create .gitkeep files for empty directories
+    # Create .gitkeep in empty directories to ensure they are tracked
     for d in dirs:
-        if not any(d.iterdir()):
-            create_placeholder_file(d / ".gitkeep", "# Keep directory in git\n")
+        gitkeep = d / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.write_text("# Keep directory\n", encoding='utf-8')
 
-    print(f"Project structure created successfully at: {proj_path}")
-    print(f"Created {len(dirs)} directories and placeholder files.")
+    print(f"Project structure created at: {base}")
 
 if __name__ == "__main__":
     main()

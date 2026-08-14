@@ -1,42 +1,120 @@
 from typing import Optional
 
+
 def assign_chemical_family(element: str) -> str:
     """
-    Assigns a chemical family to an element based on its symbol.
+    Assign a chemical family to an element.
+
+    Args:
+        element: Element symbol (e.g., 'Na', 'Fe', 'O')
+
+    Returns:
+        Chemical family string (e.g., 'Alkali', 'Transition', 'Oxide')
     """
-    if not element:
-        return "Unknown"
-    
-    element = element.strip()
-    
-    # Simple mapping for demonstration
-    alkali = ['Li', 'Na', 'K', 'Rb', 'Cs', 'Fr']
-    alkaline_earth = ['Be', 'Mg', 'Ca', 'Sr', 'Ba', 'Ra']
-    transition = ['Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
-                  'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd',
-                  'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg']
-    lanthanide = ['La', 'Ce', 'Pr', 'Nd', 'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy',
-                  'Ho', 'Er', 'Tm', 'Yb', 'Lu']
-    actinide = ['Ac', 'Th', 'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf',
-                'Es', 'Fm', 'Md', 'No', 'Lr']
-    halogen = ['F', 'Cl', 'Br', 'I', 'At']
-    noble_gas = ['He', 'Ne', 'Ar', 'Kr', 'Xe', 'Rn']
-    
-    if element in alkali:
+    element = element.strip().capitalize()
+
+    # Alkali metals
+    if element in ["Li", "Na", "K", "Rb", "Cs", "Fr"]:
         return "Alkali"
-    elif element in alkaline_earth:
-        return "Alkaline Earth"
-    elif element in transition:
+
+    # Alkaline earth
+    if element in ["Be", "Mg", "Ca", "Sr", "Ba", "Ra"]:
+        return "Alkaline_Earth"
+
+    # Transition metals
+    transition = [
+        "Sc",
+        "Ti",
+        "V",
+        "Cr",
+        "Mn",
+        "Fe",
+        "Co",
+        "Ni",
+        "Cu",
+        "Zn",
+        "Y",
+        "Zr",
+        "Nb",
+        "Mo",
+        "Tc",
+        "Ru",
+        "Rh",
+        "Pd",
+        "Ag",
+        "Cd",
+        "Hf",
+        "Ta",
+        "W",
+        "Re",
+        "Os",
+        "Ir",
+        "Pt",
+        "Au",
+        "Hg",
+    ]
+    if element in transition:
         return "Transition"
-    elif element in lanthanide:
+
+    # Lanthanides/Actinides
+    if element in [
+        "La",
+        "Ce",
+        "Pr",
+        "Nd",
+        "Pm",
+        "Sm",
+        "Eu",
+        "Gd",
+        "Tb",
+        "Dy",
+        "Ho",
+        "Er",
+        "Tm",
+        "Yb",
+        "Lu",
+    ]:
         return "Lanthanide"
-    elif element in actinide:
+
+    if element in [
+        "Ac",
+        "Th",
+        "Pa",
+        "U",
+        "Np",
+        "Pu",
+        "Am",
+        "Cm",
+        "Bk",
+        "Cf",
+        "Es",
+        "Fm",
+        "Md",
+        "No",
+        "Lr",
+    ]:
         return "Actinide"
-    elif element in halogen:
-        return "Halogen"
-    elif element in noble_gas:
-        return "Noble Gas"
-    elif 'O' in element or element == 'O':
-        return "Oxide"
-    else:
-        return "Other"
+
+    # Non-metals and metalloids
+    if element in ["H", "He", "C", "N", "O", "F", "Ne", "P", "S", "Cl", "Ar"]:
+        return "Non_Metal"
+
+    if element in ["B", "Si", "Ge", "As", "Se", "Br", "Kr", "Sb", "Te", "I", "Xe"]:
+        return "Metalloid"
+
+    # Post-transition
+    if element in [
+        "Al",
+        "Ga",
+        "In",
+        "Sn",
+        "Tl",
+        "Pb",
+        "Bi",
+        "Po",
+        "At",
+        "Rn",
+    ]:
+        return "Post_Transition"
+
+    return "Unknown"

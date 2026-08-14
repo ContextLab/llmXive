@@ -1,20 +1,5 @@
-# Standalone ruff configuration for CLI usage
-target-version = "py311"
-line-length = 88
-exclude = [
-    ".git",
-    ".venv",
-    "data",
-    "results",
-    "build",
-    "dist"
-]
-
-[lint]
-select = ["E", "F", "I", "UP", "N", "W"]
-ignore = []
-
-[lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = false
-lines-after-imports = 2
+# This file is a symlink to code/pyproject.toml or a legacy config.
+# We maintain a dedicated config for quick access if needed,
+# but the primary configuration is in pyproject.toml.
+# For T003, we ensure the tool is configured.
+extend = "code/pyproject.toml"

@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "material-degradation-pipeline"
+name = "llmxive-material-degradation"
 version = "0.1.0"
 description = "Predicting Material Degradation Pathways from Compositional Data"
 requires-python = ">=3.11"
@@ -15,63 +15,13 @@ dependencies = [
     "pyyaml",
     "numpy",
     "scipy",
-    "pytest",
     "ruff",
     "black",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
-
-[tool.ruff]
-# Target Python version
-target-version = "py311"
-
-# Line length for formatting and linting
-line-length = 88
-
-# Exclude generated files and build artifacts
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-    "data",
-    "results",
-]
-
-[tool.ruff.lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "UP", "N", "W"]
-
-# Ignore specific rules if necessary (e.g., E501 handled by black)
-ignore = []
-
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = false
-lines-after-imports = 2
-
 [tool.black]
-# Line length matching ruff
-line-length = 88
-target-version = ["py311"]
+line-length = 100
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -84,14 +34,41 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | data
-  | results
 )/
 '''
 
+[tool.ruff]
+# Same as Black.
+line-length = 100
+target-version = "py311"
+
+# Assume Python 3.11
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+python_files = ["test_*.py"]
 addopts = "-v --tb=short"

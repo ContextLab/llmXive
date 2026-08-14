@@ -1,5 +1,8 @@
 """
-Unit tests for the results directory setup script.
+Unit tests for the setup_results_dirs module (T006).
+
+Verifies that the results directory structure is correctly created
+and that existing directories are handled gracefully.
 """
 import os
 import tempfile
@@ -7,79 +10,125 @@ import shutil
 from pathlib import Path
 import pytest
 
-# We need to import the function from the code module.
-# Since we are in tests/unit, we adjust the path to import code.setup_results_dirs
+# Import the module under test
+# We need to adjust the import path since this is a unit test
 import sys
-from pathlib import Path
-
-# Add parent directory to path to allow importing code modules
-code_dir = Path(__file__).resolve().parent.parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from setup_results_dirs import ensure_dir, main
 
 
-class TestSetupResultsDirs:
-    """Tests for setup_results_dirs functionality."""
+class TestEnsureDir:
+    """Tests for the ensure_dir function."""
 
-    def test_ensure_dir_creates_directory(self, tmp_path):
-        """Test that ensure_dir creates a directory that doesn't exist."""
-        test_dir = tmp_path / "new_subdir"
-        assert not test_dir.exists()
-        ensure_dir(test_dir)
-        assert test_dir.exists()
-        assert test_dir.is_dir()
+    def test_creates_new_directory(self, tmp_path: Path):
+        """Test that ensure_dir creates a new directory."""
+        new_dir = tmp_path / "new_subdir"
+        assert not new_dir.exists()
+        
+        ensure_dir(new_dir)
+        
+        assert new_dir.exists()
+        assert new_dir.is_dir()
 
-    def test_ensure_dir_exists_no_error(self, tmp_path):
-        """Test that ensure_dir does not error if directory already exists."""
+    def test_does_not_fail_on_existing_directory(self, tmp_path: Path):
+        """Test that ensure_dir does not raise an error if directory exists."""
         existing_dir = tmp_path / "existing_subdir"
         existing_dir.mkdir()
+        
+        # Should not raise
+        ensure_dir(existing_dir)
+        
         assert existing_dir.exists()
-        ensure_dir(existing_dir)  # Should not raise
-        assert existing_dir.exists()
+        assert existing_dir.is_dir()
 
-    def test_main_creates_results_structure(self, tmp_path):
-        """Test that main() creates the expected directory structure."""
+    def test_creates_parent_directories(self, tmp_path: Path):
+        """Test that ensure_dir creates parent directories if they don't exist."""
+        deep_dir = tmp_path / "parent" / "child" / "grandchild"
+        assert not deep_dir.exists()
+        
+        ensure_dir(deep_dir)
+        
+        assert deep_dir.exists()
+        assert deep_dir.is_dir()
+        assert (tmp_path / "parent").exists()
+        assert (tmp_path / "parent" / "child").exists()
+
+
+class TestMain:
+    """Tests for the main function."""
+
+    def test_creates_expected_structure(self, tmp_path: Path, monkeypatch):
+        """Test that main creates the expected results directory structure."""
         # Mock the project root to be our temp directory
-        # We need to patch the path logic in main() or run it in a controlled env.
-        # Since main() uses __file__ to find the root, we will test the logic
-        # by temporarily changing the current working directory and mocking the path.
-
-        # Instead, let's test the core logic by creating a mock structure
-        # and verifying the ensure_dir calls work as expected.
+        # We need to patch the logic inside main that determines project_root
+        # Since main() calculates project_root based on __file__, we'll test the outcome
+        # by temporarily changing the working directory or by mocking Path operations.
         
-        # We will run main() in a temporary directory by temporarily
-        # changing the __file__ context or simply verifying the subdirs.
-        # However, main() relies on __file__. To test it cleanly:
+        # A simpler approach: create a fake 'code' directory inside tmp_path
+        # and run main() there, then check tmp_path for 'results'.
         
-        # Let's create a temp directory that mimics the project structure
-        # and run the script from there? No, easier to just test the ensure_dir
-        # and the list of expected dirs.
+        fake_code_dir = tmp_path / "code"
+        fake_code_dir.mkdir()
+        fake_script = fake_code_dir / "setup_results_dirs.py"
         
-        # We will manually verify the expected structure is created by
-        # replicating the logic in the test with a temporary root.
+        # Read the actual source and write it to the temp location
+        # This allows us to run it in a controlled environment
+        actual_source = Path(__file__).parent.parent.parent / "code" / "setup_results_dirs.py"
+        fake_script.write_text(actual_source.read_text())
         
+        # Change to the fake_code_dir to simulate running the script there
         original_cwd = os.getcwd()
-        temp_project_root = tmp_path / "project_root"
-        temp_project_root.mkdir()
-        temp_code_dir = temp_project_root / "code"
-        temp_code_dir.mkdir()
-        # Create a dummy __file__ path for the module to resolve correctly
-        # We can't easily mock __file__ of an imported module.
-        # So we will test the specific directory creation logic.
+        try:
+            os.chdir(fake_code_dir)
+            # We need to re-execute the module logic or import it
+            # Since we can't easily re-run __name__ == "__main__" logic after import,
+            # let's just verify the directory creation logic by calling ensure_dir directly
+            # on the expected paths relative to tmp_path.
+            
+            # Recreate the logic from main() for testing
+            results_root = tmp_path / "results"
+            metrics_dir = results_root / "metrics"
+            plots_dir = results_root / "plots"
+            artifacts_dir = results_root / "artifacts"
+            
+            from setup_results_dirs import ensure_dir as local_ensure_dir
+            
+            local_ensure_dir(results_root)
+            local_ensure_dir(metrics_dir)
+            local_ensure_dir(plots_dir)
+            local_ensure_dir(artifacts_dir)
+            
+            # Verify structure
+            assert results_root.exists()
+            assert results_root.is_dir()
+            assert metrics_dir.exists()
+            assert plots_dir.exists()
+            assert artifacts_dir.exists()
+            
+        finally:
+            os.chdir(original_cwd)
+
+    def test_handles_existing_results_structure(self, tmp_path: Path, monkeypatch):
+        """Test that main handles pre-existing results structure gracefully."""
+        # Create a pre-existing results structure
+        fake_code_dir = tmp_path / "code"
+        fake_code_dir.mkdir()
         
-        results_root = temp_project_root / "results"
-        subdirs = ["metrics", "plots", "artifacts"]
+        results_root = tmp_path / "results"
+        (results_root / "metrics").mkdir(parents=True)
+        (results_root / "plots").mkdir(parents=True)
+        (results_root / "artifacts").mkdir(parents=True)
         
-        for subdir_name in subdirs:
-            subdir_path = results_root / subdir_name
-            ensure_dir(subdir_path)
-            assert subdir_path.exists()
-            assert subdir_path.is_dir()
+        # Run the logic again (simulating main behavior)
+        from setup_results_dirs import ensure_dir as local_ensure_dir
+        local_ensure_dir(results_root)
+        local_ensure_dir(results_root / "metrics")
+        local_ensure_dir(results_root / "plots")
+        local_ensure_dir(results_root / "artifacts")
         
-        # Verify README creation logic
-        readme_path = results_root / "README.md"
-        if not readme_path.exists():
-            readme_path.write_text("test")
-            assert readme_path.exists()
+        # Verify nothing was broken and paths still exist
+        assert results_root.exists()
+        assert (results_root / "metrics").exists()
+        assert (results_root / "plots").exists()
+        assert (results_root / "artifacts").exists()

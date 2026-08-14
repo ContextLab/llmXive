@@ -7,149 +7,121 @@ from typing import Dict, Any, Tuple, Optional
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.model_selection import train_test_split
 import pickle
 
 from config import load_paths
-from utils.logging import get_logger
 from utils.chemical_families import assign_chemical_family
 from utils.io import load_dataframe_safely
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
+
 
 def load_data(input_path: Path) -> pd.DataFrame:
-    """Loads the dataset from a CSV file."""
-    return load_dataframe_safely(input_path)
+    """Load the processed dataset."""
+    return pd.read_csv(input_path)
+
 
 def perform_stratified_split(
     df: pd.DataFrame,
     target_col: str,
-    feature_cols: List[str],
     test_size: float = 0.2,
-    random_state: int = 42
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Performs a stratified split by chemical family.
-    """
-    # Assign chemical family to each row
+    random_state: int = 42,
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    """Perform stratified split by chemical family."""
     df = df.copy()
-    df['chemical_family'] = df['dominant_element'].apply(assign_chemical_family)
-    
-    X = df[feature_cols]
+    df["chem_family"] = df["dominant_element"].apply(assign_chemical_family)
+
+    X = df.drop(columns=[target_col, "chem_family", "dominant_element"])
     y = df[target_col]
-    families = df['chemical_family']
-    
-    X_train, X_val, y_train, y_val, families_train, families_val = train_test_split(
-        X, y, families,
-        test_size=test_size,
-        random_state=random_state,
-        stratify=families
+    family = df["chem_family"]
+
+    X_train, X_val, y_train, y_val = train_test_split(
+        X, y, test_size=test_size, stratify=family, random_state=random_state
     )
-    
+
     return X_train, X_val, y_train, y_val
 
-def load_models(models_dir: Path) -> Dict[str, Any]:
-    """
-    Loads pre-trained models from a directory.
-    """
-    models = {}
-    for model_file in models_dir.glob("*.pkl"):
-        with open(model_file, 'rb') as f:
-            model = pickle.load(f)
-            models[model_file.stem] = model
-    return models
+
+def load_models(
+    rf_path: Path, gb_path: Path
+) -> Tuple[RandomForestRegressor, GradientBoostingRegressor]:
+    """Load trained models from disk."""
+    with open(rf_path, "rb") as f:
+        rf = pickle.load(f)
+    with open(gb_path, "rb") as f:
+        gb = pickle.load(f)
+    return rf, gb
+
 
 def train_models(
     X_train: pd.DataFrame,
     y_train: pd.Series,
-    X_val: pd.DataFrame,
-    y_val: pd.Series
-) -> Dict[str, Any]:
-    """
-    Trains Random Forest and Gradient Boosting models.
-    """
-    models = {}
-    
-    # Random Forest
-    logger.info("Training Random Forest...")
+) -> Tuple[RandomForestRegressor, GradientBoostingRegressor]:
+    """Train Random Forest and Gradient Boosting models."""
     rf = RandomForestRegressor(n_estimators=200, max_depth=20, random_state=42)
-    rf.fit(X_train, y_train)
-    models['rf'] = rf
-    
-    # Gradient Boosting
-    logger.info("Training Gradient Boosting...")
     gb = GradientBoostingRegressor(n_estimators=100, random_state=42)
+
+    rf.fit(X_train, y_train)
     gb.fit(X_train, y_train)
-    models['gb'] = gb
-    
-    return models
+
+    return rf, gb
+
 
 def save_artifacts(
-    models: Dict[str, Any],
+    rf: RandomForestRegressor,
+    gb: GradientBoostingRegressor,
     metrics: Dict[str, Any],
-    output_dir: Path
+    output_dir: Path,
 ) -> None:
-    """
-    Saves models and metrics to the output directory.
-    """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    for name, model in models.items():
-        model_path = output_dir / f"model_{name}.pkl"
-        with open(model_path, 'wb') as f:
-            pickle.dump(model, f)
-        logger.info(f"Saved model {name} to {model_path}")
-    
+    """Save model artifacts and metrics."""
+    rf_path = output_dir / "model_rf.pkl"
+    gb_path = output_dir / "model_gb.pkl"
     metrics_path = output_dir / "model_metrics.json"
-    with open(metrics_path, 'w') as f:
+
+    with open(rf_path, "wb") as f:
+        pickle.dump(rf, f)
+    with open(gb_path, "wb") as f:
+        pickle.dump(gb, f)
+    with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=2)
-    logger.info(f"Saved metrics to {metrics_path}")
+
+    logger.info(f"Saved models and metrics to {output_dir}")
+
 
 def main() -> None:
-    """
-    Main entry point for the training script.
-    """
+    """Main entry point for training."""
+    logging.basicConfig(level=logging.INFO)
     paths = load_paths()
-    input_path = paths['computed_descriptors']
-    output_dir = paths['evaluation']
-    
+
     # Load data
+    input_path = paths["data_processed"] / "computed_descriptors.csv"
     df = load_data(input_path)
-    if df is None:
-        logger.error("Failed to load data.")
-        sys.exit(1)
-    
-    # Define features and target
-    feature_cols = [
-        "mean_electronegativity", "variance_electronegativity",
-        "mean_radius", "variance_radius",
-        "mean_valence", "variance_valence",
-        "mean_melting_point", "variance_melting_point",
-        "mean_ionization_energy", "variance_ionization_energy"
-    ]
-    target_col = "formation_energy"
-    
-    # Split data
+
+    # Split
     X_train, X_val, y_train, y_val = perform_stratified_split(
-        df, target_col, feature_cols
+        df, target_col="formation_energy_per_atom"
     )
-    
-    # Train models
-    models = train_models(X_train, y_train, X_val, y_val)
-    
-    # Dummy metrics for now (real metrics computed in evaluate.py)
+
+    # Train
+    rf, gb = train_models(X_train, y_train)
+
+    # Evaluate (simplified for training script)
+    from sklearn.metrics import r2_score
+
+    train_r2_rf = r2_score(y_train, rf.predict(X_train))
+    val_r2_rf = r2_score(y_val, rf.predict(X_val))
+
     metrics = {
-        "rf_train_r2": 0.0,
-        "rf_val_r2": 0.0,
-        "gb_train_r2": 0.0,
-        "gb_val_r2": 0.0
+        "train_r2_rf": train_r2_rf,
+        "val_r2_rf": val_r2_rf,
     }
-    
-    # Save artifacts
-    save_artifacts(models, metrics, output_dir)
+
+    # Save
+    save_artifacts(rf, gb, metrics, paths["data_evaluation"])
+    logger.info("Training complete")
+
 
 if __name__ == "__main__":
-    from utils.logging import setup_logging
-    setup_logging()
     main()

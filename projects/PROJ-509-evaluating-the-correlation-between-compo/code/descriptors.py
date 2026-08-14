@@ -7,173 +7,203 @@ import json
 import logging
 
 from config import load_paths
-from utils.logging import get_logger
 from utils.io import load_dataframe_safely
+from utils.chemical_families import assign_chemical_family
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
+
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Loads a JSON schema from a file."""
-    with open(schema_path, 'r') as f:
+    """Load a JSON schema from a file."""
+    with open(schema_path, "r") as f:
         return json.load(f)
 
+
 def validate_schema(df: pd.DataFrame, schema: Dict[str, Any]) -> bool:
-    """
-    Validates dataframe against a schema.
-    Simplified validation for this context.
-    """
-    required_columns = schema.get('required_columns', [])
-    for col in required_columns:
+    """Validate a DataFrame against a schema."""
+    required_cols = schema.get("required_columns", [])
+    for col in required_cols:
         if col not in df.columns:
             logger.error(f"Missing required column: {col}")
             return False
     return True
 
+
 def get_elemental_properties_df() -> pd.DataFrame:
-    """
-    Loads elemental properties. In a real scenario, this would load from
-    a file or use pymatgen/matminer. Here we simulate loading from a file.
-    """
+    """Load elemental properties from the data directory."""
     paths = load_paths()
-    props_path = paths['elemental_properties'] / "properties.csv"
-    
-    if not props_path.exists():
-        logger.warning(f"Elemental properties file not found at {props_path}. "
-                       "Returning empty DataFrame.")
-        return pd.DataFrame()
-    
-    return pd.read_csv(props_path)
+    file_path = paths["data_elemental"] / "elemental_properties.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(f"Elemental properties file not found: {file_path}")
+    return pd.read_csv(file_path)
+
 
 def calculate_weighted_mean_variance(
-    df: pd.DataFrame,
-    element_col: str,
-    value_col: str,
-    weight_col: str
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Calculates weighted mean and variance for a given value column,
-    grouped by elements in a formula.
-    """
-    # This is a simplified placeholder. Real implementation would parse formulas
-    # and aggregate properties.
-    means = df.groupby(element_col)[value_col].mean()
-    variances = df.groupby(element_col)[value_col].var()
-    return means, variances
+    formula: str,
+    properties_df: pd.DataFrame,
+    property_name: str,
+) -> Tuple[float, float]:
+    """Calculate weighted mean and variance for a property given a formula."""
+    from pymatgen.core import Composition
 
-def compute_descriptors_row(row: pd.Series, properties_df: pd.DataFrame) -> Dict[str, float]:
-    """
-    Computes descriptors for a single row.
-    """
-    # Placeholder logic
-    return {
-        "mean_electronegativity": 0.0,
-        "variance_electronegativity": 0.0,
-        "mean_radius": 0.0,
-        "variance_radius": 0.0,
-        "mean_valence": 0.0,
-        "variance_valence": 0.0,
-        "mean_melting_point": 0.0,
-        "variance_melting_point": 0.0,
-        "mean_ionization_energy": 0.0,
-        "variance_ionization_energy": 0.0
-    }
+    try:
+        comp = Composition(formula)
+    except Exception as e:
+        logger.warning(f"Could not parse formula {formula}: {e}")
+        return np.nan, np.nan
+
+    elements = comp.elements
+    if not elements:
+        return np.nan, np.nan
+
+    weights = []
+    values = []
+    for el in elements:
+        if el.symbol in properties_df["element"].values:
+            row = properties_df[properties_df["element"] == el.symbol].iloc[0]
+            val = row.get(property_name)
+            if pd.isna(val):
+                continue
+            weights.append(comp[el])
+            values.append(val)
+        else:
+            logger.warning(f"Element {el.symbol} not found in properties DB")
+
+    if not weights:
+        return np.nan, np.nan
+
+    w = np.array(weights)
+    v = np.array(values)
+    w_sum = w.sum()
+    mean = np.sum(w * v) / w_sum
+    variance = np.sum(w * (v - mean) ** 2) / w_sum
+    return mean, variance
+
+
+def compute_descriptors_row(row: pd.Series, properties_df: pd.DataFrame) -> pd.Series:
+    """Compute descriptors for a single row."""
+    formula = row.get("formula_pretty") or row.get("formula")
+    if pd.isna(formula):
+        return row
+
+    props = [
+        "electronegativity",
+        "atomic_radius",
+        "valence_electrons",
+        "melting_point",
+        "ionization_energy",
+    ]
+    for prop in props:
+        mean, var = calculate_weighted_mean_variance(formula, properties_df, prop)
+        row[f"{prop}_mean"] = mean
+        row[f"{prop}_var"] = var
+    return row
+
 
 def compute_descriptors_chunked(
     input_path: Path,
     output_path: Path,
-    properties_df: pd.DataFrame
+    properties_df: pd.DataFrame,
+    chunk_size: int = 10000,
 ) -> None:
-    """
-    Computes descriptors in chunks to handle large datasets.
-    """
-    logger.info(f"Computing descriptors for {input_path}")
-    
-    chunk_size = 10000
+    """Compute descriptors in chunks to save memory."""
+    logger.info(f"Starting chunked descriptor computation from {input_path}")
     first_chunk = True
-    
+    total_rows = 0
+
     for chunk in pd.read_csv(input_path, chunksize=chunk_size):
-        # Apply descriptor computation
-        # This is a simplified version; real logic would iterate rows
-        processed_chunk = chunk.copy()
-        # Placeholder: assign dummy values
-        for col in [
-            "mean_electronegativity", "variance_electronegativity",
-            "mean_radius", "variance_radius",
-            "mean_valence", "variance_valence",
-            "mean_melting_point", "variance_melting_point",
-            "mean_ionization_energy", "variance_ionization_energy"
-        ]:
-            processed_chunk[col] = np.random.rand(len(chunk))
-        
+        processed = chunk.apply(
+            lambda r: compute_descriptors_row(r, properties_df), axis=1
+        )
         if first_chunk:
-            processed_chunk.to_csv(output_path, index=False)
+            processed.to_csv(output_path, index=False)
             first_chunk = False
         else:
-            processed_chunk.to_csv(output_path, mode='a', header=False, index=False)
-    
-    logger.info(f"Descriptors saved to {output_path}")
+            processed.to_csv(output_path, mode="a", header=False, index=False)
+        total_rows += len(chunk)
+        logger.info(f"Processed {total_rows} rows")
+
+    logger.info(f"Finished computing descriptors for {total_rows} rows")
+
 
 def detect_and_cap_outliers(
     df: pd.DataFrame,
-    column: str,
+    target_col: str,
     lower_percentile: float = 1.0,
-    upper_percentile: float = 99.0
+    upper_percentile: float = 99.0,
 ) -> Tuple[pd.DataFrame, int]:
-    """
-    Detects and caps outliers based on percentiles.
-    Returns the capped dataframe and the count of capped rows.
-    """
-    if column not in df.columns:
-        return df, 0
-    
-    lower_bound = df[column].quantile(lower_percentile / 100.0)
-    upper_bound = df[column].quantile(upper_percentile / 100.0)
-    
-    mask = (df[column] < lower_bound) | (df[column] > upper_bound)
-    count = mask.sum()
-    
-    if count > 0:
-        df.loc[df[column] < lower_bound, column] = lower_bound
-        df.loc[df[column] > upper_bound, column] = upper_bound
-    
-    return df, count
+    """Detect and cap outliers based on percentiles."""
+    if lower_percentile >= upper_percentile:
+        raise ValueError("lower_percentile must be less than upper_percentile")
 
-def validate_final_dataset(df: pd.DataFrame, schema_path: Path) -> bool:
-    """
-    Validates the final dataset against the schema.
-    """
-    schema = load_schema(schema_path)
-    return validate_schema(df, schema)
+    lower_bound = np.percentile(df[target_col], lower_percentile)
+    upper_bound = np.percentile(df[target_col], upper_percentile)
+
+    initial_count = len(df)
+    df[target_col] = df[target_col].clip(lower=lower_bound, upper=upper_bound)
+    capped_count = initial_count - len(df[df[target_col] == df[target_col]])
+
+    # Count rows that were actually capped
+    capped_rows = (
+        (df[target_col] == lower_bound) | (df[target_col] == upper_bound)
+    ).sum()
+
+    return df, int(capped_rows)
+
+
+def validate_final_dataset(df: pd.DataFrame, schema: Dict[str, Any]) -> bool:
+    """Validate the final dataset against the schema."""
+    required_cols = schema.get("required_columns", [])
+    for col in required_cols:
+        if col not in df.columns:
+            logger.error(f"Missing required column: {col}")
+            return False
+        if df[col].isna().any():
+            logger.error(f"Column {col} contains null values")
+            return False
+    return True
+
 
 def main() -> None:
-    """
-    Main entry point for the descriptors script.
-    """
+    """Main entry point for descriptor computation."""
+    logging.basicConfig(level=logging.INFO)
     paths = load_paths()
-    input_path = paths['filtered_data']
-    output_path = paths['computed_descriptors']
-    schema_path = paths['dataset_schema']
-    
-    # Load properties
+
+    # Determine input file based on sampling
+    raw_input = paths["data_processed"] / "sampled_raw_data.csv"
+    if not raw_input.exists():
+        raw_input = paths["data_raw"] / "mp-2020.12.1_filtered.csv"
+
+    if not raw_input.exists():
+        raise FileNotFoundError(f"Input file not found: {raw_input}")
+
     properties_df = get_elemental_properties_df()
-    
-    # Load input data
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-    
+    schema = load_schema(paths["base"] / "contracts" / "dataset.schema.yaml")
+
+    output_path = paths["data_processed"] / "computed_descriptors.csv"
+
     # Compute descriptors
-    compute_descriptors_chunked(input_path, output_path, properties_df)
-    
-    # Load and validate
-    df = load_dataframe_safely(output_path)
-    if df is not None:
-        if validate_final_dataset(df, schema_path):
-            logger.info("Final dataset validated successfully.")
-        else:
-            logger.error("Final dataset validation failed.")
+    compute_descriptors_chunked(raw_input, output_path, properties_df)
+
+    # Load and cap outliers
+    df = pd.read_csv(output_path)
+    if CAP_OUTLIERS:
+        df, capped_count = detect_and_cap_outliers(df, "formation_energy_per_atom")
+        logger.info(f"Capped {capped_count} outlier values")
+        with open(paths["data_logs"] / "outliers.log", "w") as f:
+            f.write(f"Capped {capped_count} outlier values\n")
+        df.to_csv(output_path, index=False)
+    else:
+        logger.info("Outlier capping disabled")
+        with open(paths["data_logs"] / "outliers.log", "w") as f:
+            f.write("Outlier capping disabled\n")
+
+    # Validate
+    if not validate_final_dataset(df, schema):
+        raise ValueError("Final dataset validation failed")
+
+    logger.info("Descriptor computation complete")
+
 
 if __name__ == "__main__":
-    from utils.logging import setup_logging
-    setup_logging()
     main()

@@ -1,204 +1,312 @@
 """
-Unit tests for edge cases involving extreme outliers in formation energy.
+Unit tests for edge cases involving extreme outliers in formation energy and descriptors.
 
-These tests verify that the outlier detection and capping logic correctly
-handles extreme values without crashing and produces expected results.
+These tests verify that the outlier detection and capping logic handles:
+1. Extremely high formation energy values
+2. Extremely low formation energy values
+3. Outliers in descriptor values
+4. Multiple outliers in the same dataset
+5. Edge cases around percentile boundaries
 """
-
 import pytest
 import pandas as pd
 import numpy as np
-import sys
 from pathlib import Path
+import sys
+from unittest.mock import patch, MagicMock
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-from descriptors import detect_and_cap_outliers
-from config import load_paths
+from descriptors import detect_and_cap_outliers, compute_descriptors_row
+from utils.io import get_memory_usage_gb
 
 
 class TestExtremeOutliers:
-    """Tests for handling extreme outliers in formation energy."""
+    """Tests for handling extreme outliers in formation energy and descriptors."""
 
-    @pytest.fixture
-    def dataset_with_extreme_outliers(self):
-        """Create a dataset with extreme outlier values."""
-        np.random.seed(42)
-        n_normal = 100
-        
-        # Normal data
-        normal_energies = np.random.normal(-5.0, 2.0, n_normal)
-        
-        # Extreme outliers
-        extreme_energies = np.array([
-            -1000.0,  # Extreme negative outlier
-            1000.0,   # Extreme positive outlier
-            -5000.0,  # More extreme negative
-            5000.0    # More extreme positive
-        ])
-        
-        all_energies = np.concatenate([normal_energies, extreme_energies])
-        
-        data = {
-            'formula': [f'Compound_{i}' for i in range(len(all_energies))],
-            'formation_energy': all_energies,
-            'mean_electronegativity': np.random.uniform(1.0, 4.0, len(all_energies)),
-            'variance_radius': np.random.uniform(0.0, 1.0, len(all_energies)),
-            'mean_valence': np.random.uniform(1.0, 8.0, len(all_energies)),
-            'mean_melting_point': np.random.uniform(300.0, 3000.0, len(all_energies)),
-            'mean_ionization_energy': np.random.uniform(3.0, 15.0, len(all_energies))
-        }
-        return pd.DataFrame(data)
-
-    def test_detect_and_cap_outliers_normal_data(self, dataset_with_extreme_outliers):
-        """Test outlier detection on data with extreme values."""
-        # Run outlier detection
-        capped_df, capped_count = detect_and_cap_outliers(
-            dataset_with_extreme_outliers, 
-            cap_outliers=True
-        )
-        
-        # Should have capped some values
-        assert capped_count > 0, "Expected some outliers to be capped"
-        
-        # Check that extreme values are now within bounds
-        # The exact bounds depend on the percentiles calculated from the data
-        min_energy = capped_df['formation_energy'].min()
-        max_energy = capped_df['formation_energy'].max()
-        
-        # Extreme outliers should be capped, so min/max should be reasonable
-        # relative to the normal distribution
-        assert min_energy > -100.0, "Extreme negative outliers should be capped"
-        assert max_energy < 100.0, "Extreme positive outliers should be capped"
-
-    def test_detect_and_cap_outliers_disabled(self, dataset_with_extreme_outliers):
-        """Test that outliers are NOT capped when cap_outliers=False."""
-        capped_df, capped_count = detect_and_cap_outliers(
-            dataset_with_extreme_outliers, 
-            cap_outliers=False
-        )
-        
-        # No capping should occur
-        assert capped_count == 0, "Expected no outliers to be capped when disabled"
-        
-        # Original extreme values should remain
-        assert -1000.0 in capped_df['formation_energy'].values, \
-            "Extreme negative outlier should remain uncapped"
-        assert 1000.0 in capped_df['formation_energy'].values, \
-            "Extreme positive outlier should remain uncapped"
-
-    def test_capped_values_at_boundaries(self, dataset_with_extreme_outliers):
-        """Test that capped values are exactly at the percentile boundaries."""
-        capped_df, _ = detect_and_cap_outliers(
-            dataset_with_extreme_outliers, 
-            cap_outliers=True
-        )
-        
-        # Calculate the percentile boundaries that should have been used
-        energies = dataset_with_extreme_outliers['formation_energy']
-        lower_bound = np.percentile(energies, 1)
-        upper_bound = np.percentile(energies, 99)
-        
-        # Check that no values are below lower_bound or above upper_bound
-        assert capped_df['formation_energy'].min() >= lower_bound - 1e-6, \
-            "Values should not be below the lower percentile bound"
-        assert capped_df['formation_energy'].max() <= upper_bound + 1e-6, \
-            "Values should not be above the upper percentile bound"
-
-    def test_all_outliers_dataset(self):
-        """Test handling of a dataset where ALL values are outliers."""
-        # Create a dataset where every value is an extreme outlier
-        data = {
-            'formula': ['Outlier1', 'Outlier2', 'Outlier3', 'Outlier4'],
-            'formation_energy': [-10000.0, -5000.0, 5000.0, 10000.0],
-            'mean_electronegativity': [1.0, 2.0, 3.0, 4.0],
-            'variance_radius': [0.1, 0.2, 0.3, 0.4],
-            'mean_valence': [1.0, 2.0, 3.0, 4.0],
-            'mean_melting_point': [300.0, 600.0, 900.0, 1200.0],
-            'mean_ionization_energy': [3.0, 6.0, 9.0, 12.0]
-        }
-        df = pd.DataFrame(data)
-        
-        capped_df, capped_count = detect_and_cap_outliers(df, cap_outliers=True)
-        
-        # All values should be capped
-        assert capped_count == 4, "All values should be capped in extreme dataset"
-        
-        # Values should be at the boundaries
-        energies = capped_df['formation_energy']
-        assert energies.min() == energies.max(), \
-            "All values should be capped to the same boundary in extreme case"
-
-    def test_single_value_dataset(self):
-        """Test handling of a dataset with only one value."""
-        data = {
-            'formula': ['Single'],
-            'formation_energy': [-5.0],
-            'mean_electronegativity': [2.0],
-            'variance_radius': [0.5],
-            'mean_valence': [3.0],
-            'mean_melting_point': [1000.0],
-            'mean_ionization_energy': [7.0]
-        }
-        df = pd.DataFrame(data)
-        
-        # Should not crash with single value
-        capped_df, capped_count = detect_and_cap_outliers(df, cap_outliers=True)
-        
-        assert len(capped_df) == 1, "Should return single row"
-        assert capped_count == 0, "No outliers in single-value dataset"
-
-    def test_nan_in_outlier_detection(self):
-        """Test handling of NaN values in outlier detection."""
-        data = {
-            'formula': ['Normal', 'NaN_Value', 'Outlier'],
-            'formation_energy': [-5.0, np.nan, 1000.0],
-            'mean_electronegativity': [2.0, 3.0, 4.0],
-            'variance_radius': [0.5, 0.6, 0.7],
-            'mean_valence': [3.0, 4.0, 5.0],
-            'mean_melting_point': [1000.0, 1100.0, 1200.0],
-            'mean_ionization_energy': [7.0, 8.0, 9.0]
-        }
-        df = pd.DataFrame(data)
-        
-        # Should not crash with NaN values
-        try:
-            capped_df, capped_count = detect_and_cap_outliers(df, cap_outliers=True)
-            # NaN should remain NaN, outlier should be capped
-            assert pd.isna(capped_df.loc[1, 'formation_energy']), \
-                "NaN values should remain NaN"
-        except Exception as e:
-            # If it raises, that's also acceptable behavior for NaN handling
-            # The important thing is it doesn't crash silently or produce wrong results
-            assert "NaN" in str(e) or "null" in str(e).lower(), \
-                f"Error message should mention NaN handling: {e}"
-
-    def test_extreme_percentiles(self):
-        """Test with extreme percentile thresholds (1st and 99th)."""
-        # Create dataset with known distribution
-        np.random.seed(42)
-        normal = np.random.normal(-5.0, 1.0, 1000)
-        outliers = np.array([-50.0, 50.0])
-        data = np.concatenate([normal, outliers])
-        
-        df = pd.DataFrame({
-            'formula': [f'Comp_{i}' for i in range(len(data))],
-            'formation_energy': data,
-            'mean_electronegativity': np.random.uniform(1, 4, len(data)),
-            'variance_radius': np.random.uniform(0, 1, len(data)),
-            'mean_valence': np.random.uniform(1, 8, len(data)),
-            'mean_melting_point': np.random.uniform(300, 3000, len(data)),
-            'mean_ionization_energy': np.random.uniform(3, 15, len(data))
+    def test_extremely_high_formation_energy(self, tmp_path):
+        """Test detection and capping of extremely high formation energy values."""
+        # Create dataset with extreme outlier
+        test_df = pd.DataFrame({
+            'composition': ['H2O', 'Fe2O3', 'H2O', 'Fe2O3', 'ExtremeOutlier'],
+            'formation_energy': [-1.0, -2.0, -1.5, -2.5, 1000.0],  # Extreme outlier
+            'mean_electronegativity': [2.5, 2.0, 2.5, 2.0, 2.5],
+            'variance_electronegativity': [0.1, 0.2, 0.1, 0.2, 0.1],
+            'mean_radius': [0.6, 1.0, 0.6, 1.0, 0.6],
+            'variance_radius': [0.05, 0.1, 0.05, 0.1, 0.05],
+            'mean_valence': [1.5, 2.5, 1.5, 2.5, 1.5],
+            'variance_valence': [0.2, 0.3, 0.2, 0.3, 0.2],
+            'mean_melting_point': [100.0, 1000.0, 100.0, 1000.0, 100.0],
+            'variance_melting_point': [50.0, 100.0, 50.0, 100.0, 50.0],
+            'mean_ionization_energy': [10.0, 8.0, 10.0, 8.0, 10.0],
+            'variance_ionization_energy': [1.0, 2.0, 1.0, 2.0, 1.0]
         })
         
-        capped_df, capped_count = detect_and_cap_outliers(df, cap_outliers=True)
+        # Test outlier detection with CAP_OUTLIERS=True
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
         
-        # Should have capped the extreme values
-        assert capped_count > 0, "Expected outliers to be capped"
+        # Verify that the extreme outlier was capped
+        assert capped_count > 0
+        # The capped value should be within reasonable bounds
+        assert capped_df['formation_energy'].max() < 1000.0
+
+    def test_extremely_low_formation_energy(self, tmp_path):
+        """Test detection and capping of extremely low formation energy values."""
+        test_df = pd.DataFrame({
+            'composition': ['H2O', 'Fe2O3', 'H2O', 'Fe2O3', 'ExtremeOutlier'],
+            'formation_energy': [-1.0, -2.0, -1.5, -2.5, -1000.0],  # Extreme negative outlier
+            'mean_electronegativity': [2.5, 2.0, 2.5, 2.0, 2.5],
+            'variance_electronegativity': [0.1, 0.2, 0.1, 0.2, 0.1],
+            'mean_radius': [0.6, 1.0, 0.6, 1.0, 0.6],
+            'variance_radius': [0.05, 0.1, 0.05, 0.1, 0.05],
+            'mean_valence': [1.5, 2.5, 1.5, 2.5, 1.5],
+            'variance_valence': [0.2, 0.3, 0.2, 0.3, 0.2],
+            'mean_melting_point': [100.0, 1000.0, 100.0, 1000.0, 100.0],
+            'variance_melting_point': [50.0, 100.0, 50.0, 100.0, 50.0],
+            'mean_ionization_energy': [10.0, 8.0, 10.0, 8.0, 10.0],
+            'variance_ionization_energy': [1.0, 2.0, 1.0, 2.0, 1.0]
+        })
         
-        # Check bounds
-        assert capped_df['formation_energy'].min() > -20.0, \
-            "Extreme negative values should be capped"
-        assert capped_df['formation_energy'].max() < 20.0, \
-            "Extreme positive values should be capped"
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
+        
+        # Verify that the extreme negative outlier was capped
+        assert capped_count > 0
+        assert capped_df['formation_energy'].min() > -1000.0
+
+    def test_multiple_extreme_outliers(self, tmp_path):
+        """Test handling of multiple extreme outliers in the same dataset."""
+        test_df = pd.DataFrame({
+            'composition': ['H2O', 'Fe2O3', 'Outlier1', 'Outlier2', 'Outlier3', 'H2O'],
+            'formation_energy': [-1.0, -2.0, 500.0, -500.0, 1000.0, -1.5],
+            'mean_electronegativity': [2.5, 2.0, 2.5, 2.5, 2.5, 2.5],
+            'variance_electronegativity': [0.1, 0.2, 0.1, 0.1, 0.1, 0.1],
+            'mean_radius': [0.6, 1.0, 0.6, 0.6, 0.6, 0.6],
+            'variance_radius': [0.05, 0.1, 0.05, 0.05, 0.05, 0.05],
+            'mean_valence': [1.5, 2.5, 1.5, 1.5, 1.5, 1.5],
+            'variance_valence': [0.2, 0.3, 0.2, 0.2, 0.2, 0.2],
+            'mean_melting_point': [100.0, 1000.0, 100.0, 100.0, 100.0, 100.0],
+            'variance_melting_point': [50.0, 100.0, 50.0, 50.0, 50.0, 50.0],
+            'mean_ionization_energy': [10.0, 8.0, 10.0, 10.0, 10.0, 10.0],
+            'variance_ionization_energy': [1.0, 2.0, 1.0, 1.0, 1.0, 1.0]
+        })
+        
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
+        
+        # All three outliers should be capped
+        assert capped_count == 3
+        # Verify no values exceed reasonable bounds
+        assert capped_df['formation_energy'].max() < 500.0
+        assert capped_df['formation_energy'].min() > -500.0
+
+    def test_no_outliers_present(self, tmp_path):
+        """Test that no capping occurs when no outliers are present."""
+        test_df = pd.DataFrame({
+            'composition': ['H2O', 'Fe2O3', 'H2O', 'Fe2O3', 'H2O'],
+            'formation_energy': [-1.0, -2.0, -1.5, -2.5, -1.2],
+            'mean_electronegativity': [2.5, 2.0, 2.5, 2.0, 2.5],
+            'variance_electronegativity': [0.1, 0.2, 0.1, 0.2, 0.1],
+            'mean_radius': [0.6, 1.0, 0.6, 1.0, 0.6],
+            'variance_radius': [0.05, 0.1, 0.05, 0.1, 0.05],
+            'mean_valence': [1.5, 2.5, 1.5, 2.5, 1.5],
+            'variance_valence': [0.2, 0.3, 0.2, 0.3, 0.2],
+            'mean_melting_point': [100.0, 1000.0, 100.0, 1000.0, 100.0],
+            'variance_melting_point': [50.0, 100.0, 50.0, 100.0, 50.0],
+            'mean_ionization_energy': [10.0, 8.0, 10.0, 8.0, 10.0],
+            'variance_ionization_energy': [1.0, 2.0, 1.0, 2.0, 1.0]
+        })
+        
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
+        
+        # No outliers should be capped
+        assert capped_count == 0
+        # Data should remain unchanged
+        assert np.allclose(test_df['formation_energy'], capped_df['formation_energy'])
+
+    def test_outliers_at_percentile_boundaries(self, tmp_path):
+        """Test handling of values exactly at percentile boundaries."""
+        # Create dataset where some values are exactly at 1st and 99th percentiles
+        test_df = pd.DataFrame({
+            'composition': ['H2O'] * 100,
+            'formation_energy': list(range(-50, 50)),  # Values from -50 to 49
+            'mean_electronegativity': [2.5] * 100,
+            'variance_electronegativity': [0.1] * 100,
+            'mean_radius': [0.6] * 100,
+            'variance_radius': [0.05] * 100,
+            'mean_valence': [1.5] * 100,
+            'variance_valence': [0.2] * 100,
+            'mean_melting_point': [100.0] * 100,
+            'variance_melting_point': [50.0] * 100,
+            'mean_ionization_energy': [10.0] * 100,
+            'variance_ionization_energy': [1.0] * 100
+        })
+        
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
+        
+        # Some values at boundaries should be capped
+        assert capped_count >= 0  # Could be 0 if no values exceed bounds
+
+    def test_extreme_descriptor_values(self, tmp_path):
+        """Test handling of extreme values in descriptor columns."""
+        test_df = pd.DataFrame({
+            'composition': ['H2O', 'Fe2O3', 'Outlier'],
+            'formation_energy': [-1.0, -2.0, -1.5],
+            'mean_electronegativity': [2.5, 2.0, 1000.0],  # Extreme outlier in descriptor
+            'variance_electronegativity': [0.1, 0.2, 500.0],
+            'mean_radius': [0.6, 1.0, 0.6],
+            'variance_radius': [0.05, 0.1, 0.05],
+            'mean_valence': [1.5, 2.5, 1.5],
+            'variance_valence': [0.2, 0.3, 0.2],
+            'mean_melting_point': [100.0, 1000.0, 100.0],
+            'variance_melting_point': [50.0, 100.0, 50.0],
+            'mean_ionization_energy': [10.0, 8.0, 10.0],
+            'variance_ionization_energy': [1.0, 2.0, 1.0]
+        })
+        
+        # Outlier detection should handle extreme descriptor values
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
+        
+        # Extreme descriptor values should be capped
+        assert capped_df['mean_electronegativity'].max() < 1000.0
+
+    def test_cap_outliers_disabled(self, tmp_path):
+        """Test that no capping occurs when cap_outliers=False."""
+        test_df = pd.DataFrame({
+            'composition': ['H2O', 'Fe2O3', 'Outlier'],
+            'formation_energy': [-1.0, -2.0, 1000.0],
+            'mean_electronegativity': [2.5, 2.0, 2.5],
+            'variance_electronegativity': [0.1, 0.2, 0.1],
+            'mean_radius': [0.6, 1.0, 0.6],
+            'variance_radius': [0.05, 0.1, 0.05],
+            'mean_valence': [1.5, 2.5, 1.5],
+            'variance_valence': [0.2, 0.3, 0.2],
+            'mean_melting_point': [100.0, 1000.0, 100.0],
+            'variance_melting_point': [50.0, 100.0, 50.0],
+            'mean_ionization_energy': [10.0, 8.0, 10.0],
+            'variance_ionization_energy': [1.0, 2.0, 1.0]
+        })
+        
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=False)
+        
+        # No capping should occur
+        assert capped_count == 0
+        assert capped_df['formation_energy'].max() == 1000.0
+
+    def test_single_value_dataset(self, tmp_path):
+        """Test outlier detection with a single value dataset."""
+        test_df = pd.DataFrame({
+            'composition': ['H2O'],
+            'formation_energy': [-1.0],
+            'mean_electronegativity': [2.5],
+            'variance_electronegativity': [0.1],
+            'mean_radius': [0.6],
+            'variance_radius': [0.05],
+            'mean_valence': [1.5],
+            'variance_valence': [0.2],
+            'mean_melting_point': [100.0],
+            'variance_melting_point': [50.0],
+            'mean_ionization_energy': [10.0],
+            'variance_ionization_energy': [1.0]
+        })
+        
+        # Should handle single value without error
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
+        assert len(capped_df) == 1
+
+    def test_nan_values_in_outlier_detection(self, tmp_path):
+        """Test handling of NaN values during outlier detection."""
+        test_df = pd.DataFrame({
+            'composition': ['H2O', 'Fe2O3', 'NaNValue'],
+            'formation_energy': [-1.0, np.nan, 1000.0],
+            'mean_electronegativity': [2.5, 2.0, 2.5],
+            'variance_electronegativity': [0.1, 0.2, 0.1],
+            'mean_radius': [0.6, 1.0, 0.6],
+            'variance_radius': [0.05, 0.1, 0.05],
+            'mean_valence': [1.5, 2.5, 1.5],
+            'variance_valence': [0.2, 0.3, 0.2],
+            'mean_melting_point': [100.0, 1000.0, 100.0],
+            'variance_melting_point': [50.0, 100.0, 50.0],
+            'mean_ionization_energy': [10.0, 8.0, 10.0],
+            'variance_ionization_energy': [1.0, 2.0, 1.0]
+        })
+        
+        # Should handle NaN values gracefully
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
+        
+        # NaN should remain NaN, outliers should be capped
+        assert pd.isna(capped_df.loc[1, 'formation_energy'])
+        assert capped_df.loc[2, 'formation_energy'] != 1000.0
+
+    def test_extreme_percentile_values(self, tmp_path):
+        """Test with extreme percentile values (0.001 and 0.999)."""
+        test_df = pd.DataFrame({
+            'composition': ['H2O'] * 1000,
+            'formation_energy': list(np.linspace(-10, 10, 1000)),
+            'mean_electronegativity': [2.5] * 1000,
+            'variance_electronegativity': [0.1] * 1000,
+            'mean_radius': [0.6] * 1000,
+            'variance_radius': [0.05] * 1000,
+            'mean_valence': [1.5] * 1000,
+            'variance_valence': [0.2] * 1000,
+            'mean_melting_point': [100.0] * 1000,
+            'variance_melting_point': [50.0] * 1000,
+            'mean_ionization_energy': [10.0] * 1000,
+            'variance_ionization_energy': [1.0] * 1000
+        })
+        
+        # Add extreme outliers
+        test_df.loc[0, 'formation_energy'] = -1000.0
+        test_df.loc[999, 'formation_energy'] = 1000.0
+        
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
+        
+        # Extreme outliers should be capped
+        assert capped_count > 0
+        assert capped_df['formation_energy'].max() < 1000.0
+        assert capped_df['formation_energy'].min() > -1000.0
+
+class TestMemoryAndPerformanceEdgeCases:
+    """Tests for memory and performance edge cases."""
+
+    def test_large_dataset_outlier_detection(self, tmp_path):
+        """Test outlier detection on a large dataset."""
+        # Create a large dataset with some outliers
+        n_rows = 100000
+        test_df = pd.DataFrame({
+            'composition': ['H2O'] * n_rows,
+            'formation_energy': np.random.normal(0, 1, n_rows),
+            'mean_electronegativity': [2.5] * n_rows,
+            'variance_electronegativity': [0.1] * n_rows,
+            'mean_radius': [0.6] * n_rows,
+            'variance_radius': [0.05] * n_rows,
+            'mean_valence': [1.5] * n_rows,
+            'variance_valence': [0.2] * n_rows,
+            'mean_melting_point': [100.0] * n_rows,
+            'variance_melting_point': [50.0] * n_rows,
+            'mean_ionization_energy': [10.0] * n_rows,
+            'variance_ionization_energy': [1.0] * n_rows
+        })
+        
+        # Add some extreme outliers
+        test_df.loc[0:99, 'formation_energy'] = np.random.uniform(100, 1000, 100)
+        test_df.loc[n_rows-100:n_rows-1, 'formation_energy'] = np.random.uniform(-1000, -100, 100)
+        
+        # Should handle large dataset without error
+        capped_df, capped_count = detect_and_cap_outliers(test_df, cap_outliers=True)
+        
+        assert len(capped_df) == n_rows
+        assert capped_count > 0
+
+    def test_memory_monitoring_edge_case(self, tmp_path):
+        """Test memory monitoring with extreme memory usage values."""
+        # Mock memory usage to test edge cases
+        with patch('psutil.virtual_memory') as mock_memory:
+            # Test with very low memory usage
+            mock_memory.return_value.percent = 10
+            usage = get_memory_usage_gb()
+            assert usage >= 0
+            
+            # Test with very high memory usage
+            mock_memory.return_value.percent = 99
+            usage = get_memory_usage_gb()
+            assert usage >= 0

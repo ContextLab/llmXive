@@ -7,42 +7,49 @@ from .chemical_families import assign_chemical_family
 
 logger = get_logger(__name__)
 
+
 def get_chemical_family(element: str) -> str:
-    """
-    Gets the chemical family for an element.
-    """
+    """Get the chemical family for an element."""
     return assign_chemical_family(element)
+
 
 def sample_by_chemical_family(
     df: pd.DataFrame,
     target_rows: int,
-    random_state: int = 42
+    random_state: int = 42,
 ) -> pd.DataFrame:
     """
-    Performs stratified sampling by chemical family.
+    Perform stratified sampling by chemical family.
+
+    Args:
+        df: Input DataFrame with a 'dominant_element' column
+        target_rows: Target number of rows in the sample
+        random_state: Random seed for reproducibility
+
+    Returns:
+        Sampled DataFrame
     """
-    logger.info(f"Sampling to {target_rows} rows by chemical family.")
-    
     df = df.copy()
-    df['chemical_family'] = df['dominant_element'].apply(assign_chemical_family)
-    
-    # Calculate sample size per family
-    family_counts = df['chemical_family'].value_counts()
+    df["chem_family"] = df["dominant_element"].apply(assign_chemical_family)
+
+    # Calculate sampling fractions
     total = len(df)
-    sample_sizes = (family_counts / total * target_rows).astype(int)
-    
-    # Ensure we don't exceed target
-    current_total = sample_sizes.sum()
-    if current_total < target_rows:
-        # Distribute remaining
-        diff = target_rows - current_total
-        sample_sizes.iloc[:diff] += 1
-    
+    if total <= target_rows:
+        return df
+
+    fractions = {
+        family: count / total
+        for family, count in df["chem_family"].value_counts().items()
+    }
+
     # Sample
-    sampled_df = df.groupby('chemical_family', group_keys=False).apply(
-        lambda x: x.sample(n=min(sample_sizes.get(x.name, 0), len(x)), random_state=random_state)
+    sampled = df.groupby("chem_family", group_keys=False).apply(
+        lambda x: x.sample(
+            n=max(1, int(len(x) * target_rows / total)), random_state=random_state
+        )
     )
-    
-    sampled_df = sampled_df.drop(columns=['chemical_family'])
-    logger.info(f"Sampled {len(sampled_df)} rows.")
-    return sampled_df
+
+    logger.info(
+        f"Sampled {len(sampled)} rows from {total} by chemical family"
+    )
+    return sampled.reset_index(drop=True)

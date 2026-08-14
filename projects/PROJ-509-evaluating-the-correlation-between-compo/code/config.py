@@ -2,36 +2,33 @@ import os
 from pathlib import Path
 from typing import Dict, Any
 
-def load_paths() -> Dict[str, Any]:
-    """
-    Returns a dictionary of data and code paths.
-    """
-    base_dir = Path(__file__).parent.parent
-    data_dir = base_dir / "data"
-    code_dir = base_dir / "code"
-    
+
+def load_paths() -> Dict[str, Path]:
+    """Load and return all project paths as a dictionary."""
+    base = Path(__file__).parent.parent
     return {
-        "raw_data": data_dir / "raw",
-        "elemental_properties": data_dir / "elemental_properties",
-        "processed": data_dir / "processed",
-        "evaluation": data_dir / "evaluation",
-        "logs_dir": data_dir / "logs",
-        "figures": data_dir / "figures",
-        "filtered_data": data_dir / "raw" / "mp-2020.12.1_filtered.csv",
-        "computed_descriptors": data_dir / "processed" / "computed_descriptors.csv",
-        "metrics_json": data_dir / "evaluation" / "model_metrics.json",
-        "dataset_schema": data_dir / "contracts" / "dataset.schema.yaml",
-        "model_schema": data_dir / "contracts" / "model_output.schema.yaml",
-        "verification_json": data_dir / "evaluation" / "dataset_verification.json",
-        "feature_ranking": data_dir / "evaluation" / "feature_ranking.json",
-        "figures": data_dir / "figures"
+        "base": base,
+        "data": base / "data",
+        "code": base / "code",
+        "tests": base / "tests",
+        "data_raw": base / "data" / "raw",
+        "data_processed": base / "data" / "processed",
+        "data_evaluation": base / "data" / "evaluation",
+        "data_logs": base / "data" / "logs",
+        "data_elemental": base / "data" / "elemental_properties",
     }
 
-def load_env() -> None:
-    """
-    Loads environment variables from a .env file if present.
-    """
-    import dotenv
-    env_path = Path(__file__).parent.parent / ".env"
-    if env_path.exists():
-        dotenv.load_dotenv(env_path)
+
+def load_env() -> Dict[str, str]:
+    """Load environment variables into a dictionary."""
+    return {
+        "MPDS_API_KEY": os.getenv("MPDS_API_KEY", ""),
+        "RANDOM_SEED": os.getenv("RANDOM_SEED", "42"),
+        "ROW_THRESHOLD": os.getenv("ROW_THRESHOLD", "100000"),
+        "CAP_OUTLIERS": os.getenv("CAP_OUTLIERS", "True"),
+    }
+
+
+ROW_THRESHOLD = int(load_env().get("ROW_THRESHOLD", "100000"))
+RANDOM_SEED = int(load_env().get("RANDOM_SEED", "42"))
+CAP_OUTLIERS = load_env().get("CAP_OUTLIERS", "True").lower() == "true"

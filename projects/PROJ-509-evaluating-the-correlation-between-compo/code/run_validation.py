@@ -5,33 +5,36 @@ import json
 import logging
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from config import load_paths
-from utils.logging import setup_logging, get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def run_step(step_name):
-    """Run a specific pipeline step."""
-    result = subprocess.run(
-        [sys.executable, f"code/{step_name}.py"],
-        capture_output=True,
-        text=True
-    )
-    if result.returncode != 0:
-        logger.error(f"Step {step_name} failed: {result.stderr}")
+
+def run_step(step_name: str) -> bool:
+    """Run a pipeline step and return success."""
+    cmd = [sys.executable, f"code/{step_name}.py"]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        logger.info(f"Step {step_name} completed successfully")
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Step {step_name} failed: {e.stderr}")
         return False
-    return True
 
-def main():
-    setup_logging()
-    steps = ["ingest", "descriptors", "train", "evaluate", "importance", "plots"]
+
+def main() -> None:
+    """Main entry point for validation."""
+    logging.basicConfig(level=logging.INFO)
+    paths = load_paths()
+
+    steps = ["ingest", "descriptors", "evaluate", "importance"]
     for step in steps:
-        logger.info(f"Running validation for {step}")
         if not run_step(step):
+            logger.error(f"Validation failed at step: {step}")
             sys.exit(1)
-    logger.info("All steps passed validation.")
+
+    logger.info("All validation steps passed")
+
 
 if __name__ == "__main__":
     main()

@@ -60,7 +60,7 @@
 - [ ] T006 [P] Create `results/` directory structure (`metrics/`, `plots/`, `artifacts/`)
 - [X] T007 Implement `code/__init__.py` and set `PYTHONPATH` configuration for `code/` module
 - [X] T008 Configure environment variable handling for dataset URLs and random seeds in `code/utils.py`
-- [ ] T009 [P] [US3] **Construct Reference Importance Vector**: Implement `code/literature_review.py` to load the fixed set of 5 review papers listed in Spec Assumptions (or their most recent equivalents), perform a systematic review to extract ranked feature importance lists for degradation pathways, normalize rankings to 0-1, aggregate via citation-weighted average, and save the result to `data/contracts/literature_vector.json` for use in SC-003 validation. This task is independent of data ingestion (T013) and must complete before US3 begins. **Note: This task is moved to Phase 2 to ensure the artifact exists before T038 (Validation) runs.**
+- [X] T009 [P] [US3] **Construct Reference Importance Vector**: Implement `code/literature_review.py` to load the fixed set of 5 review papers listed in Spec Assumptions (or their most recent equivalents), perform a systematic review to extract ranked feature importance lists for degradation pathways, normalize rankings to 0-1, aggregate via citation-weighted average, and save the result to `data/contracts/literature_vector.json` for use in SC-003 validation. This task is independent of data ingestion (T013) and must complete before US3 begins. **Note: This task is moved to Phase 2 to ensure the artifact exists before T038 (Validation) runs.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -114,7 +114,7 @@
 - [X] T026 [US2] Implement `code/evaluation.py` to perform permutation test (n=1,000, shuffle the joint label vector per sample) to validate p < 0.05
 - [X] T027 [US2] Implement `code/evaluation.py` to calculate macro-F1 score and compare against baseline (Target: margin ≥ 0.05)
 - [X] T028 [US2] Implement `code/evaluation.py` to generate confusion matrix identifying error modes (e.g., pitting vs. SCC)
-- [ ] T029 [US2] Save trained `ModelArtifact` (model + metrics) to `results/artifacts/model.pkl` and `results/metrics/training_report.json`
+- [X] T029 [US2] Save trained `ModelArtifact` (model + metrics) to `results/artifacts/model.pkl` and `results/metrics/training_report.json`
 - [ ] T030 [US2] Verify execution time of full training/eval cycle is ≤ 6 hours on CPU runner
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -130,13 +130,13 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T031 [P] [US3] Unit test for SHAP value calculation in `tests/unit/test_explainability.py`
-- [ ] T032 [P] [US3] Unit test for threshold sensitivity sweep logic in `tests/unit/test_explainability.py`
-- [ ] T033 [P] [US3] Unit test for Spearman rank correlation calculation in `tests/unit/test_explainability.py`
+- [X] T032 [P] [US3] Unit test for threshold sensitivity sweep logic in `tests/unit/test_explainability.py`
+- [X] T033 [P] [US3] Unit test for Spearman rank correlation calculation in `tests/unit/test_explainability.py`
 
 ### Implementation for User Story 3
 
-- [ ] T034 [P] [US3] Implement `code/explainability.py` to compute SHAP values for the trained Random Forest model
-- [ ] T035 [US3] Implement `code/explainability.py` to generate ranked feature importance lists for each degradation pathway
+- [X] T034 [P] [US3] Implement `code/explainability.py` to compute SHAP values for the trained Random Forest model
+- [X] T035 [US3] Implement `code/explainability.py` to generate ranked feature importance lists for each degradation pathway
 - [ ] T036 [US3] Implement `code/explainability.py` to perform threshold sensitivity sweep (baseline level, deltas Δ ∈ {0.01, 0.05, 0.1})
 - [ ] T037 [US3] Implement `code/explainability.py` to report FP/FN rate variations and stability check (within 5% variance)
 - [ ] T038 [US3] Implement `code/explainability.py` to load the `data/contracts/literature_vector.json` (constructed in T009) and calculate Spearman rank correlation (ρ) between SHAP results and Reference Vector (Target: ρ ≥ 0.6)

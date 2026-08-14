@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T003a` (rejected 1x): No evidence of the required directories (`src/`, `tests/`, `specs/`, `data/`, `data/results/`, `data/manual/`) is provided; the submission contains only the task description and specifications, with no file‑system artifacts to verify that the project structure was actually created.
+- `T033` (rejected 1x): The provided `update_bkt_params.py` is truncated (ends mid‑function) and does not show the logic that writes the adjusted parameters back to `code/simulate/bkt_params.yaml`. The existing `bkt_params.yaml` contains only static default values, with no indication it was updated based on calibration metrics. A complete implementation and a demonstrably updated YAML file are required.
 
 ## Required change
 

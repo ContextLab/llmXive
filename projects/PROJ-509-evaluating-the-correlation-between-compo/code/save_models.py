@@ -5,25 +5,39 @@ import pickle
 import logging
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from config import load_paths
-from utils.logging import setup_logging, get_logger
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def save_artifacts(rf_model, gb_model, metrics):
-    paths = load_paths()
-    with open(paths["evaluation"] / "model_rf.pkl", "wb") as f:
-        pickle.dump(rf_model, f)
-    with open(paths["evaluation"] / "model_gb.pkl", "wb") as f:
-        pickle.dump(gb_model, f)
-    with open(paths["evaluation"] / "model_metrics.json", "w") as f:
+
+def save_artifacts(
+    models: dict, metrics: dict, output_dir: Path
+) -> None:
+    """Save model artifacts and metrics."""
+    for name, model in models.items():
+        path = output_dir / f"model_{name}.pkl"
+        with open(path, "wb") as f:
+            pickle.dump(model, f)
+        logger.info(f"Saved model: {path}")
+
+    metrics_path = output_dir / "model_metrics.json"
+    with open(metrics_path, "w") as f:
         json.dump(metrics, f, indent=2)
+    logger.info(f"Saved metrics: {metrics_path}")
 
-def main():
-    setup_logging()
-    logger.info("Model saving module ready.")
+
+def main() -> None:
+    """Main entry point for saving models."""
+    logging.basicConfig(level=logging.INFO)
+    paths = load_paths()
+
+    # Placeholder: In reality, models would be loaded from training
+    models = {}
+    metrics = {}
+
+    save_artifacts(models, metrics, paths["data_evaluation"])
+    logger.info("Model saving complete")
+
 
 if __name__ == "__main__":
     main()

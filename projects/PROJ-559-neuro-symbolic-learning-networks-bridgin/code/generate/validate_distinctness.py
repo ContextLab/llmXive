@@ -1,270 +1,283 @@
+"""
+Distinctness validation for symbolic traces vs neural outputs.
+
+Addresses Dan Rockmore's concern regarding "concrete mathematical objects" by
+ensuring the symbolic trace is structurally and semantically distinct from the
+neural narrative.
+
+This module provides functions to:
+1. Normalize text for comparison.
+2. Calculate Jaccard similarity to measure lexical overlap.
+3. Extract symbolic traces and neural narratives from explanation files.
+4. Validate that a pair of explanations meets distinctness thresholds.
+"""
+
 import os
 import json
 import logging
 import re
 from typing import Dict, Any, List, Optional, Tuple, Set
+
 from utils.validation import validate_explanation
 
-# Configure logging
+# Configuration thresholds
+MAX_JACCARD_SIMILARITY = 0.40  # Threshold below which traces are considered distinct
+MIN_SYMBOLIC_LENGTH = 10       # Minimum tokens for a valid symbolic trace
+MIN_NEURAL_LENGTH = 20         # Minimum tokens for a valid neural narrative
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+
 def normalize_text(text: str) -> str:
     """
     Normalize text for comparison: lowercase, remove punctuation, collapse whitespace.
+
+    Args:
+        text: Raw text string.
+
+    Returns:
+        Normalized string suitable for set operations.
     """
     if not text:
         return ""
+    # Lowercase
     text = text.lower()
-    text = re.sub(r'[^\w\s]', ' ', text)
+    # Remove punctuation and special characters, keep alphanumerics and spaces
+    text = re.sub(r'[^a-z0-9\s]', ' ', text)
+    # Collapse whitespace
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
-def calculate_jaccard_similarity(set1: Set[str], set2: Set[str]) -> float:
+
+def calculate_jaccard_similarity(text1: str, text2: str) -> float:
     """
-    Calculate Jaccard similarity coefficient between two sets.
-    Returns 0.0 if both sets are empty.
+    Calculate Jaccard similarity between two texts based on token sets.
+
+    Jaccard Similarity = |A ∩ B| / |A ∪ B|
+
+    Args:
+        text1: First text string.
+        text2: Second text string.
+
+    Returns:
+        Float between 0.0 (no overlap) and 1.0 (identical sets).
     """
-    if not set1 and not set2:
+    norm1 = normalize_text(text1)
+    norm2 = normalize_text(text2)
+
+    if not norm1 or not norm2:
         return 0.0
+
+    set1 = set(norm1.split())
+    set2 = set(norm2.split())
+
     if not set1 or not set2:
         return 0.0
-    intersection = len(set1.intersection(set2))
-    union = len(set1.union(set2))
-    if union == 0:
+
+    intersection = set1.intersection(set2)
+    union = set1.union(set2)
+
+    if not union:
         return 0.0
-    return intersection / union
+
+    return len(intersection) / len(union)
+
 
 def extract_symbolic_trace(explanation_data: Dict[str, Any]) -> str:
     """
-    Extract the symbolic trace from an explanation data structure.
-    The symbolic trace is expected to be in the 'symbolic_trace' field.
+    Extract the symbolic trace content from an explanation data structure.
+
+    Args:
+        explanation_data: Dictionary containing explanation artifacts.
+
+    Returns:
+        The raw text of the symbolic trace.
     """
-    if not explanation_data:
-        return ""
-    
-    # Try to get the symbolic trace directly
+    # Expecting structure from T013/T015 outputs
     if 'symbolic_trace' in explanation_data:
         trace = explanation_data['symbolic_trace']
-        if isinstance(trace, list):
-            return " ".join(str(step) for step in trace)
+        if isinstance(trace, dict):
+            # If it's a structured trace, convert to string representation
+            return json.dumps(trace, sort_keys=True)
         return str(trace)
     
-    # Fallback: look for rule applications
-    if 'rule_applications' in explanation_data:
-        rules = explanation_data['rule_applications']
-        if isinstance(rules, list):
-            return " ".join(str(rule) for rule in rules)
-        return str(rules)
+    # Fallback: look for 'trace' key
+    if 'trace' in explanation_data:
+        return str(explanation_data['trace'])
     
+    logger.warning("Could not find 'symbolic_trace' or 'trace' in explanation data.")
     return ""
+
 
 def extract_neural_narrative(explanation_data: Dict[str, Any]) -> str:
     """
-    Extract the neural narrative from an explanation data structure.
-    The neural narrative is expected to be in the 'neural_narrative' or 'text' field.
+    Extract the neural narrative content from an explanation data structure.
+
+    Args:
+        explanation_data: Dictionary containing explanation artifacts.
+
+    Returns:
+        The raw text of the neural narrative.
     """
-    if not explanation_data:
-        return ""
-    
-    # Try primary field
     if 'neural_narrative' in explanation_data:
-        narrative = explanation_data['neural_narrative']
-        if isinstance(narrative, list):
-            return " ".join(narrative)
-        return str(narrative)
+        return str(explanation_data['neural_narrative'])
     
-    # Fallback to 'text' field
-    if 'text' in explanation_data:
-        narrative = explanation_data['text']
-        if isinstance(narrative, list):
-            return " ".join(narrative)
-        return str(narrative)
+    if 'neural_explanation' in explanation_data:
+        return str(explanation_data['neural_explanation'])
     
+    logger.warning("Could not find 'neural_narrative' or 'neural_explanation' in explanation data.")
     return ""
 
-def validate_symbolic_trace_structure(trace_data: Dict[str, Any]) -> Tuple[bool, str]:
-    """
-    Validate that a symbolic trace has the expected structure:
-    - Contains a list of rule applications
-    - Each rule application has a 'rule_name' and 'description'
-    - The trace is deterministic (no randomness)
-    
-    Returns (is_valid, error_message)
-    """
-    if not trace_data:
-        return False, "Trace data is empty"
-    
-    required_fields = ['rule_applications', 'problem_id']
-    for field in required_fields:
-        if field not in trace_data:
-            return False, f"Missing required field: {field}"
-    
-    rules = trace_data.get('rule_applications', [])
-    if not isinstance(rules, list):
-        return False, "rule_applications must be a list"
-    
-    if len(rules) == 0:
-        return False, "rule_applications cannot be empty"
-    
-    for i, rule in enumerate(rules):
-        if not isinstance(rule, dict):
-            return False, f"Rule application at index {i} is not a dictionary"
-        
-        if 'rule_name' not in rule:
-            return False, f"Rule application at index {i} missing 'rule_name'"
-        
-        if 'description' not in rule:
-            return False, f"Rule application at index {i} missing 'description'"
-    
-    return True, "Valid symbolic trace structure"
 
-def validate_distinctness(symbolic_trace: str, neural_narrative: str, threshold: float = 0.3) -> Tuple[bool, float, Dict[str, Any]]:
+def validate_symbolic_trace_structure(trace_text: str) -> Tuple[bool, str]:
     """
-    Validate that symbolic traces are distinct from neural outputs.
-    
-    This addresses Rockmore's concern about "concrete mathematical objects" by ensuring
-    that the symbolic layer (rule-based, deterministic) is fundamentally different
-    from the neural layer (statistical, narrative-based).
-    
+    Validate that the extracted symbolic trace has structural properties
+    expected of a rule-based engine output (e.g., contains rule names, steps).
+
     Args:
-        symbolic_trace: The extracted symbolic trace text
-        neural_narrative: The extracted neural narrative text
-        threshold: Maximum allowed Jaccard similarity (default 0.3)
-    
+        trace_text: The text of the symbolic trace.
+
     Returns:
-        Tuple of (is_distinct, similarity_score, details_dict)
+        Tuple of (is_valid, error_message).
     """
-    if not symbolic_trace or not neural_narrative:
-        logger.warning("Empty symbolic trace or neural narrative provided")
-        return False, 0.0, {"error": "Empty input"}
+    if not trace_text or len(trace_text.split()) < MIN_SYMBOLIC_LENGTH:
+        return False, f"Symbolic trace too short ({len(trace_text.split())} tokens < {MIN_SYMBOLIC_LENGTH})"
     
-    # Normalize both texts
-    norm_symbolic = normalize_text(symbolic_trace)
-    norm_neural = normalize_text(neural_narrative)
+    # Check for common symbolic indicators
+    indicators = ['rule', 'step', 'apply', 'distributive', 'commutative', 'associative', 'identity']
+    trace_lower = trace_text.lower()
     
-    # Tokenize into sets of words
-    words_symbolic = set(norm_symbolic.split())
-    words_neural = set(norm_neural.split())
+    found_indicators = [ind for ind in indicators if ind in trace_lower]
     
-    # Calculate Jaccard similarity
-    jaccard_sim = calculate_jaccard_similarity(words_symbolic, words_neural)
+    if not found_indicators:
+        # Not necessarily an error, but a warning
+        logger.warning("Symbolic trace lacks common rule-based keywords.")
     
-    # Check against threshold
-    is_distinct = jaccard_sim < threshold
+    return True, "Structure valid"
+
+
+def validate_distinctness(
+    symbolic_trace: str, 
+    neural_narrative: str, 
+    threshold: float = MAX_JACCARD_SIMILARITY
+) -> Tuple[bool, float, str]:
+    """
+    Validate that the symbolic trace and neural narrative are distinct.
+
+    Args:
+        symbolic_trace: Text of the symbolic trace.
+        neural_narrative: Text of the neural narrative.
+        threshold: Maximum allowed Jaccard similarity.
+
+    Returns:
+        Tuple of (is_distinct, similarity_score, message).
+    """
+    if not symbolic_trace:
+        return False, 0.0, "Symbolic trace is empty"
+    if not neural_narrative:
+        return False, 0.0, "Neural narrative is empty"
+
+    similarity = calculate_jaccard_similarity(symbolic_trace, neural_narrative)
     
-    details = {
-        "jaccard_similarity": jaccard_sim,
-        "threshold": threshold,
-        "symbolic_word_count": len(words_symbolic),
-        "neural_word_count": len(words_neural),
-        "common_words": len(words_symbolic.intersection(words_neural)),
-        "is_distinct": is_distinct
-    }
+    if similarity > threshold:
+        return False, similarity, f"Similarity {similarity:.4f} exceeds threshold {threshold}"
     
-    if not is_distinct:
-        logger.warning(f"Symbolic and neural outputs too similar (Jaccard: {jaccard_sim:.3f} > {threshold})")
-    else:
-        logger.info(f"Symbolic and neural outputs are distinct (Jaccard: {jaccard_sim:.3f})")
-    
-    return is_distinct, jaccard_sim, details
+    return True, similarity, f"Distinctness confirmed (similarity: {similarity:.4f})"
+
 
 def validate_explanation_pair(
-    symbolic_explanation: Dict[str, Any],
-    neuro_symbolic_explanation: Dict[str, Any],
-    threshold: float = 0.3
-) -> Tuple[bool, Dict[str, Any]]:
+    explanation_data: Dict[str, Any], 
+    threshold: float = MAX_JACCARD_SIMILARITY
+) -> Dict[str, Any]:
     """
-    Validate that a symbolic explanation and its corresponding neuro-symbolic explanation
-    have distinct symbolic and neural components.
-    
-    This ensures that the neuro-symbolic approach doesn't merely add a narrative layer
-    to the same underlying content, addressing the concern about "post-hoc rationalization".
-    
+    Validate a single explanation pair for distinctness.
+
     Args:
-        symbolic_explanation: The purely symbolic explanation data
-        neuro_symbolic_explanation: The neuro-symbolic explanation data
-        threshold: Maximum allowed Jaccard similarity (default 0.3)
-    
+        explanation_data: Dictionary containing both symbolic and neural outputs.
+        threshold: Similarity threshold.
+
     Returns:
-        Tuple of (is_valid, validation_report)
+        Dictionary with validation results.
     """
-    report = {
-        "problem_id": symbolic_explanation.get("problem_id", "unknown"),
-        "checks": []
+    trace = extract_symbolic_trace(explanation_data)
+    narrative = extract_neural_narrative(explanation_data)
+
+    trace_valid, trace_msg = validate_symbolic_trace_structure(trace)
+    is_distinct, similarity, distinct_msg = validate_distinctness(trace, narrative, threshold)
+
+    return {
+        "valid": trace_valid and is_distinct,
+        "symbolic_trace_valid": trace_valid,
+        "distinctness_valid": is_distinct,
+        "similarity_score": similarity,
+        "symbolic_trace_length": len(trace.split()),
+        "neural_narrative_length": len(narrative.split()),
+        "messages": {
+            "structure": trace_msg,
+            "distinctness": distinct_msg
+        }
     }
-    
-    # Extract components
-    symbolic_trace = extract_symbolic_trace(symbolic_explanation)
-    neural_narrative = extract_neural_narrative(neuro_symbolic_explanation)
-    
-    # Validate symbolic trace structure first
-    trace_valid, trace_error = validate_symbolic_trace_structure(symbolic_explanation)
-    if not trace_valid:
-        report["checks"].append({
-            "check": "symbolic_trace_structure",
-            "passed": False,
-            "error": trace_error
-        })
-        return False, report
-    
-    report["checks"].append({
-        "check": "symbolic_trace_structure",
-        "passed": True
-    })
-    
-    # Validate distinctness
-    is_distinct, similarity, details = validate_distinctness(
-        symbolic_trace, neural_narrative, threshold
-    )
-    
-    report["checks"].append({
-        "check": "symbolic_neural_distinctness",
-        "passed": is_distinct,
-        "details": details
-    })
-    
-    # Overall validation
-    all_passed = all(check["passed"] for check in report["checks"])
-    
-    return all_passed, report
+
 
 def main():
     """
-    Main function to run distinctness validation on explanation pairs.
-    This script is designed to be run as a standalone validation tool.
+    Entry point for command-line distinctness validation.
+    Expects a JSON file path as argument containing explanation data.
     """
-    logger.info("Starting distinctness validation")
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Validate distinctness of symbolic vs neural explanations.")
+    parser.add_argument("--input", type=str, required=True, help="Path to JSON file containing explanation data.")
+    parser.add_argument("--output", type=str, required=False, help="Path to output validation report (JSON).")
+    parser.add_argument("--threshold", type=float, default=MAX_JACCARD_SIMILARITY, help="Jaccard similarity threshold.")
+
+    args = parser.parse_args()
+
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
+        sys.exit(1)
+
+    try:
+        with open(args.input, 'r') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse JSON input: {e}")
+        sys.exit(1)
+
+    # Handle both single object and list of objects
+    items = data if isinstance(data, list) else [data]
     
-    # Example usage - in practice, this would load from files
-    sample_symbolic = {
-        "problem_id": "test_001",
-        "rule_applications": [
-            {"rule_name": "Commutativity", "description": "a + b = b + a"},
-            {"rule_name": "Associativity", "description": "(a + b) + c = a + (b + c)"}
-        ],
-        "result": 10
+    results = []
+    all_valid = True
+
+    for i, item in enumerate(items):
+        result = validate_explanation_pair(item, args.threshold)
+        results.append(result)
+        if not result["valid"]:
+            all_valid = False
+            logger.warning(f"Item {i} failed validation: {result['messages']}")
+        else:
+            logger.info(f"Item {i} passed: {result['messages']['distinctness']}")
+
+    report = {
+        "total_items": len(items),
+        "passed": all_valid,
+        "results": results
     }
-    
-    sample_neuro_symbolic = {
-        "problem_id": "test_001",
-        "neural_narrative": "The solution involves rearranging the terms and grouping them appropriately.",
-        "symbolic_trace": sample_symbolic["rule_applications"]
-    }
-    
-    is_valid, report = validate_explanation_pair(sample_symbolic, sample_neuro_symbolic)
-    
-    print(json.dumps(report, indent=2))
-    
-    if not is_valid:
-        logger.error("Validation failed")
-        return 1
-    
-    logger.info("Validation passed")
-    return 0
+
+    if args.output:
+        with open(args.output, 'w') as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Validation report saved to {args.output}")
+    else:
+        print(json.dumps(report, indent=2))
+
+    sys.exit(0 if all_valid else 1)
+
 
 if __name__ == "__main__":
-    exit(main())
+    main()

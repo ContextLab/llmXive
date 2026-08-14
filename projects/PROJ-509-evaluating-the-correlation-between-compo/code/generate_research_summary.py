@@ -5,252 +5,221 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-# Add project root to path if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Import from project utils if needed, though standard lib suffices for this task
+# from utils.logging import get_logger
 
-from utils.logging import setup_logging, get_logger
-from config import load_paths
-
-logger = get_logger(__name__)
-
-def load_json_safe(path: Path, default: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def load_json_safe(file_path: Path) -> Optional[Dict[str, Any]]:
     """
-    Load a JSON file safely. If the file does not exist or is invalid, return the default.
+    Safely load a JSON file. Returns None if file doesn't exist or is invalid.
     """
-    if not path.exists():
-        logger.warning(f"File not found: {path}. Returning default.")
-        return default if default is not None else {}
+    if not file_path.exists():
+        logging.warning(f"File not found: {file_path}")
+        return None
     try:
-        with open(path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r') as f:
             return json.load(f)
     except json.JSONDecodeError as e:
-        logger.error(f"Error decoding JSON from {path}: {e}")
-        return default if default is not None else {}
+        logging.error(f"Invalid JSON in {file_path}: {e}")
+        return None
 
 def format_float(value: Any, precision: int = 4) -> str:
     """
-    Format a float value to a specific precision, handling non-numeric types.
+    Format a float value to a specified precision, handling None/NaN gracefully.
     """
     if value is None:
         return "N/A"
-    if isinstance(value, float):
-        return f"{value:.{precision}f}"
-    return str(value)
+    try:
+        f_val = float(value)
+        if f_val != f_val:  # NaN check
+            return "NaN"
+        return f"{f_val:.{precision}f}"
+    except (ValueError, TypeError):
+        return str(value)
 
 def generate_research_md(
     metrics: Dict[str, Any],
-    vif_scores: Dict[str, Any],
-    ale_metrics: Dict[str, Any],
+    vif_scores: Dict[str, float],
     feature_ranking: List[Dict[str, Any]],
-    statistical_tests: Dict[str, Any]
-) -> str:
+    ale_metrics: Dict[str, Any],
+    output_path: Path
+) -> None:
     """
-    Generate the final research.md content based on the collected metrics.
+    Generates the final research.md summary file containing:
+    1. Model Performance Metrics (R2, MAE, RMSE)
+    2. VIF Analysis for Multicollinearity
+    3. Feature Importance Ranking
+    4. ALE Plot Interpretations
     """
     lines = []
-    lines.append("# Research Summary: Compositional Features and Formation Energy")
+    lines.append("# Research Summary: Compositional Features vs Formation Energy")
     lines.append("")
     lines.append("## Executive Summary")
     lines.append("")
-    lines.append("This study evaluates the correlation between compositional features (mean and variance of elemental properties) and predicted formation energy in inorganic materials using data from the MP-2020.12.1 dataset. We trained Random Forest and Gradient Boosting models, analyzed feature importance, and assessed model stability and non-linearity.")
+    lines.append("This report summarizes the evaluation of the correlation between compositional features")
+    lines.append("and predicted formation energy in inorganic materials, based on the MP-2020.12.1 dataset.")
+    lines.append("The pipeline utilized Random Forest and Gradient Boosting models, followed by SHAP-based")
+    lines.append("feature importance and Accumulated Local Effects (ALE) analysis.")
     lines.append("")
 
-    # Model Performance Section
-    lines.append("## Model Performance")
+    # 1. Model Metrics
+    lines.append("## 1. Model Performance Metrics")
     lines.append("")
-    lines.append("### Metrics Overview")
-    lines.append("")
-    lines.append("| Model | R² | MAE | RMSE | Predictive Power |")
-    lines.append("|---|---|---|---|---|")
-
-    rf_metrics = metrics.get('rf', {})
-    gb_metrics = metrics.get('gb', {})
-
-    rf_r2 = rf_metrics.get('r2')
-    gb_r2 = gb_metrics.get('r2')
-    rf_mae = rf_metrics.get('mae')
-    gb_mae = gb_metrics.get('mae')
-    rf_rmse = rf_metrics.get('rmse')
-    gb_rmse = gb_metrics.get('rmse')
-    predictive_power = metrics.get('predictive_power', False)
-
-    lines.append(f"| Random Forest | {format_float(rf_r2)} | {format_float(rf_mae)} | {format_float(rf_rmse)} | {predictive_power} |")
-    lines.append(f"| Gradient Boosting | {format_float(gb_r2)} | {format_float(gb_mae)} | {format_float(gb_rmse)} | {predictive_power} |")
-    lines.append("")
-
-    # Overfitting Analysis
-    overfitting_ratio = metrics.get('overfitting_ratio')
-    lines.append("### Overfitting Analysis")
-    lines.append("")
-    if overfitting_ratio is not None:
-        lines.append(f"- **Overfitting Ratio (Train R² - Val R²):** {format_float(overfitting_ratio)}")
-        if overfitting_ratio > 0.1:
-            lines.append("- **Observation:** Significant gap between training and validation performance suggests potential overfitting.")
-        else:
-            lines.append("- **Observation:** Training and validation performance are consistent.")
+    if metrics:
+        lines.append("The following metrics were calculated on the validation set:")
+        lines.append("")
+        lines.append("| Metric | Random Forest | Gradient Boosting |")
+        lines.append("| :--- | :--- | :--- |")
+        
+        rf_r2 = format_float(metrics.get('rf', {}).get('r2'))
+        rf_mae = format_float(metrics.get('rf', {}).get('mae'))
+        rf_rmse = format_float(metrics.get('rf', {}).get('rmse'))
+        
+        gb_r2 = format_float(metrics.get('gb', {}).get('r2'))
+        gb_mae = format_float(metrics.get('gb', {}).get('mae'))
+        gb_rmse = format_float(metrics.get('gb', {}).get('rmse'))
+        
+        lines.append(f"| R² | {rf_r2} | {gb_r2} |")
+        lines.append(f"| MAE | {rf_mae} | {gb_mae} |")
+        lines.append(f"| RMSE | {rf_rmse} | {gb_rmse} |")
+        
+        # Overfitting check
+        overfit_ratio = metrics.get('overfitting_ratio')
+        if overfit_ratio is not None:
+            lines.append("")
+            lines.append(f"**Overfitting Ratio (Train R² - Val R²):** {format_float(overfit_ratio)}")
+            if overfit_ratio > 0.1:
+                lines.append("*Warning: Significant gap between training and validation performance suggests potential overfitting.*")
+            else:
+                lines.append("*The model shows consistent performance between training and validation sets.*")
+        
+        lines.append("")
+        lines.append(f"**Predictive Power Status:** {'PASS' if metrics.get('predictive_power') else 'FAIL'} (Baseline R² > 0.0)")
     else:
-        lines.append("- **Observation:** Validation R² was non-positive; overfitting ratio could not be calculated.")
+        lines.append("*Model metrics file not found or empty. Skipping performance section.*")
     lines.append("")
 
-    # Statistical Comparison
-    lines.append("### Statistical Comparison (RF vs GB)")
+    # 2. VIF Analysis
+    lines.append("## 2. Multicollinearity Analysis (VIF)")
     lines.append("")
-    t_test_results = statistical_tests.get('t_test', {})
-    p_value = t_test_results.get('p_value')
-    is_significant = t_test_results.get('is_significant', False)
-    lines.append(f"- **Paired T-Test P-value:** {format_float(p_value) if p_value is not None else 'N/A'}")
-    lines.append(f"- **Significant Difference (α=0.05):** {is_significant}")
-    lines.append("")
-
-    # Feature Importance Section
-    lines.append("## Feature Importance Analysis")
-    lines.append("")
-    lines.append("### Top Ranked Descriptors")
-    lines.append("")
-    lines.append("| Rank | Feature | Importance (RF) | Permutation Importance |")
-    lines.append("|---|---|---|---|")
-
-    for i, feature in enumerate(feature_ranking[:10], 1):
-        name = feature.get('feature', 'Unknown')
-        imp = feature.get('importance', 0)
-        perm_imp = feature.get('permutation_importance', 0)
-        lines.append(f"| {i} | {name} | {format_float(imp)} | {format_float(perm_imp)} |")
-    lines.append("")
-
-    # Correlation Check
-    perm_data = metrics.get('permutation_importance', {})
-    corr_r = perm_data.get('r')
-    corr_pass = perm_data.get('importance_correlation_pass')
-    lines.append("### Importance Correlation Validation")
-    lines.append("")
-    lines.append(f"- **Pearson Correlation (r):** {format_float(corr_r) if corr_r is not None else 'N/A'}")
-    lines.append(f"- **Threshold (r ≥ 0.8):** {corr_pass}")
-    lines.append("")
-
-    # VIF Section
-    lines.append("## Multi-Collinearity Analysis (VIF)")
-    lines.append("")
-    lines.append("Variance Inflation Factor (VIF) scores indicate the degree of multicollinearity among features. A VIF > 10 suggests high multicollinearity.")
-    lines.append("")
-    lines.append("| Feature | VIF Score | Status |")
-    lines.append("|---|---|---|")
-
-    vif_data = vif_scores.get('vif_scores', {})
-    high_vif_count = 0
-    for feature, score in vif_data.items():
-        status = "High" if score > 10 else "OK"
-        if score > 10:
-            high_vif_count += 1
-        lines.append(f"| {feature} | {format_float(score)} | {status} |")
-    lines.append("")
-    if high_vif_count > 0:
-        lines.append(f"**Warning:** {high_vif_count} feature(s) exhibit high multicollinearity (VIF > 10).")
-    else:
-        lines.append("**Observation:** No features exhibit high multicollinearity (VIF ≤ 10).")
-    lines.append("")
-
-    # ALE Interpretations
-    lines.append("## Accumulated Local Effects (ALE) Interpretations")
-    lines.append("")
-    lines.append("ALE plots reveal the marginal effect of features on the predicted formation energy, capturing non-linear relationships.")
+    lines.append("Variance Inflation Factor (VIF) scores were calculated to diagnose multicollinearity")
+    lines.append("among the computed descriptors. A VIF > 10 indicates severe multicollinearity.")
     lines.append("")
     
-    ale_metrics_list = ale_metrics.get('ale_metrics', [])
-    if not ale_metrics_list and ale_metrics:
-        # Handle case where metrics might be flat dict or list
-        ale_metrics_list = [ale_metrics]
+    if vif_scores:
+        lines.append("| Feature | VIF Score | Status |")
+        lines.append("| :--- | :--- | :--- |")
+        for feature, score in vif_scores.items():
+            status = "⚠️ High" if score > 10 else "✅ Low"
+            lines.append(f"| {feature} | {format_float(score)} | {status} |")
+    else:
+        lines.append("*VIF scores file not found or empty.*")
+    lines.append("")
 
-    non_linear_features = []
-    for entry in ale_metrics_list:
-        feature_name = entry.get('feature', 'Unknown')
-        non_lin_score = entry.get('non_linearity_score')
-        verified = entry.get('non_linearity_verified', False)
+    # 3. Feature Ranking
+    lines.append("## 3. Feature Importance Ranking")
+    lines.append("")
+    lines.append("Features were ranked based on mean decrease in impurity from the Random Forest model,")
+    lines.append("validated against permutation importance (Correlation r ≥ 0.8 required).")
+    lines.append("")
+    
+    if feature_ranking:
+        lines.append("| Rank | Feature | Importance Score |")
+        lines.append("| :--- | :--- | :--- |")
+        for i, item in enumerate(feature_ranking, 1):
+            name = item.get('feature', 'Unknown')
+            score = item.get('importance', 0.0)
+            lines.append(f"| {i} | {name} | {format_float(score)} |")
         
-        lines.append(f"### {feature_name}")
-        lines.append("")
-        lines.append(f"- **Non-linearity Score:** {format_float(non_lin_score)}")
-        lines.append(f"- **Non-linearity Verified (> 0.5):** {verified}")
-        lines.append("")
+        # Correlation check
+        if 'importance_correlation' in metrics:
+            lines.append("")
+            corr = metrics['importance_correlation']
+            pass_status = "✅ PASS" if corr >= 0.8 else "❌ FAIL"
+            lines.append(f"**Permutation Correlation (r):** {format_float(corr)} ({pass_status})")
+    else:
+        lines.append("*Feature ranking file not found or empty.*")
+    lines.append("")
+
+    # 4. ALE Interpretations
+    lines.append("## 4. Accumulated Local Effects (ALE) Interpretations")
+    lines.append("")
+    lines.append("ALE plots were generated for the top-ranked features to visualize non-linear relationships.")
+    lines.append("Non-linearity was verified if the quadratic fit explained significantly more variance than a linear fit.")
+    lines.append("")
+    
+    if ale_metrics:
+        lines.append("| Feature | Non-Linearity Score | Verified? |")
+        lines.append("| :--- | :--- | :--- |")
+        for feature, data in ale_metrics.items():
+            score = data.get('non_linearity_score', 0.0)
+            verified = data.get('non_linearity_verified', False)
+            status = "✅ Yes" if verified else "❌ No"
+            lines.append(f"| {feature} | {format_float(score)} | {status} |")
         
-        if verified:
-            non_linear_features.append(feature_name)
-            lines.append(f"**Interpretation:** The relationship between `{feature_name}` and formation energy is significantly non-linear. Linear models would fail to capture this complexity.")
+        lines.append("")
+        lines.append("**Interpretation:**")
+        if any(d.get('non_linearity_verified') for d in ale_metrics.values()):
+            lines.append("- Several features exhibit significant non-linear effects on formation energy.")
+            lines.append("- This suggests that linear models may be insufficient for capturing the full complexity of the data.")
         else:
-            lines.append(f"**Interpretation:** The relationship appears largely linear or weakly non-linear.")
-        lines.append("")
-
-    if non_linear_features:
-        lines.append("### Summary of Non-Linear Features")
-        lines.append("")
-        lines.append(f"The following features demonstrated significant non-linearity: {', '.join(non_linear_features)}.")
-        lines.append("")
-
-    # Conclusion
-    lines.append("## Conclusion")
+            lines.append("- Most top features show predominantly linear relationships with formation energy.")
+            lines.append("- The complexity of the system may be captured well by simpler models for these specific descriptors.")
+    else:
+        lines.append("*ALE metrics file not found or empty.*")
     lines.append("")
-    lines.append("The compositional descriptors derived from elemental properties show predictive power for formation energy, with the Random Forest model achieving an R² of " + format_float(rf_r2) + ". Feature importance analysis identified key descriptors, validated by permutation importance. Multi-collinearity checks (VIF) confirmed the stability of the feature set, and ALE plots revealed significant non-linear dependencies for specific features, justifying the use of non-linear models.")
-    lines.append("")
+
+    # Footer
     lines.append("---")
-    lines.append("*Generated by llmXive Research Pipeline*")
+    lines.append("*Generated automatically by the llmXive research pipeline.*")
 
-    return "\n".join(lines)
+    # Write to file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(lines))
+
+    logging.info(f"Research summary generated at: {output_path}")
 
 def main():
     """
-    Main entry point to generate the research.md summary.
+    Main entry point for generating the research summary.
+    Loads artifacts from data/evaluation and writes research.md to project root.
     """
-    paths = load_paths()
-    data_dir = paths.get('data', Path('data'))
-    eval_dir = data_dir / 'evaluation'
-    output_path = eval_dir.parent / 'research.md'
-
     # Setup logging
-    setup_logging()
-
-    logger.info("Starting research summary generation (T053)...")
-
-    # Load required artifacts
-    # 1. Model Metrics (from model_metrics.json)
-    metrics_path = eval_dir / 'model_metrics.json'
-    metrics = load_json_safe(metrics_path)
-
-    # 2. VIF Scores
-    vif_path = eval_dir / 'vif_scores.json'
-    vif_scores = load_json_safe(vif_path)
-
-    # 3. ALE Metrics
-    ale_path = eval_dir / 'ale_metrics.json'
-    ale_metrics = load_json_safe(ale_path)
-
-    # 4. Feature Ranking
-    ranking_path = eval_dir / 'feature_ranking.json'
-    ranking_data = load_json_safe(ranking_path)
-    # Ensure it's a list
-    feature_ranking = ranking_data.get('ranking', []) if isinstance(ranking_data, dict) else ranking_data
-
-    # 5. Statistical Tests
-    stats_path = eval_dir / 'statistical_tests.json'
-    statistical_tests = load_json_safe(stats_path)
-
-    # Generate Content
-    md_content = generate_research_md(
-        metrics=metrics,
-        vif_scores=vif_scores,
-        ale_metrics=ale_metrics,
-        feature_ranking=feature_ranking,
-        statistical_tests=statistical_tests
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
     )
 
-    # Write Output
-    try:
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(md_content)
-        logger.info(f"Research summary successfully written to: {output_path}")
-    except Exception as e:
-        logger.error(f"Failed to write research.md: {e}")
-        sys.exit(1)
+    # Define paths
+    # Assuming project root is one level up from code/
+    project_root = Path(__file__).resolve().parent.parent
+    data_eval_dir = project_root / 'data' / 'evaluation'
+    
+    metrics_path = data_eval_dir / 'model_metrics.json'
+    vif_path = data_eval_dir / 'vif_scores.json'
+    ranking_path = data_eval_dir / 'feature_ranking.json'
+    ale_path = data_eval_dir / 'ale_metrics.json'
+    
+    output_path = project_root / 'research.md'
+
+    logging.info(f"Loading artifacts from {data_eval_dir}...")
+
+    # Load artifacts
+    metrics = load_json_safe(metrics_path) or {}
+    vif_scores = load_json_safe(vif_path) or {}
+    feature_ranking = load_json_safe(ranking_path) or []
+    ale_metrics = load_json_safe(ale_path) or {}
+
+    # Generate report
+    generate_research_md(
+        metrics=metrics,
+        vif_scores=vif_scores,
+        feature_ranking=feature_ranking,
+        ale_metrics=ale_metrics,
+        output_path=output_path
+    )
+
+    logging.info("Research summary generation complete.")
 
 if __name__ == "__main__":
     main()
