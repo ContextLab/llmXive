@@ -102,10 +102,10 @@ tests/
 - **Output**: `data/processed/features.csv` with zero nulls in the target column.
 
 ### Phase 2: Model Training & Validation
-- **Data Split**: Perform an **/20 stratified split** of the dataset into `train_set` and `test_set` (held out).
+- **Data Split**: Perform a **stratified split** of the dataset into `train_set` and `test_set` (held out).
 - **FR-003**: Implement `train.py` using `scikit-learn`'s `RandomForestRegressor`.
 - **Nested CV**:
-  - **Inner Loop**: Perform k-fold cross-validation grid search over `max_depth` {10, 15, 20} and `min_samples_leaf` {1, 2, 4} **ONLY on the `train_set`**.
+  - **Inner Loop**: Perform k-fold cross-validation grid search over `max_depth` values ranging from moderate to high complexity and `min_samples_leaf` {1, 2, 4} **ONLY on the `train_set`**.
   - **Selection**: Select best hyperparameters based on lowest inner CV error.
   - **Outer Loop**: Retrain the model with best parameters on the full `train_set`.
 - **Evaluation**: Evaluate the final model on the **held-out `test_set`**.

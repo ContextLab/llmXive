@@ -1,7 +1,5 @@
 """
-code/utils/api_client.py
-
-Provides a rate-limited HTTP client with exponential backoff for API calls.
+API Client with rate limiting and retry logic.
 """
 import time
 import logging
@@ -13,56 +11,43 @@ import os
 
 logger = logging.getLogger(__name__)
 
-
 def get_api_key() -> Optional[str]:
-    """Retrieves the API key from environment variables."""
-    return os.getenv("MP_API_KEY")
-
+    """Retrieve API key from environment variable."""
+    return os.getenv("MATERIALS_PROJECT_API_KEY") or os.getenv("OQMD_API_KEY")
 
 class RateLimitedSession(requests.Session):
-    """
-    A requests Session with built-in retry logic and exponential backoff.
-    Specifically handles 429 (Too Many Requests) and 5xx errors.
-    """
+    """Session with automatic retry and exponential backoff."""
+    
     def __init__(self):
         super().__init__()
-        retry_strategy = Retry(
+        retry = Retry(
             total=5,
             backoff_factor=1,
             status_forcelist=[429, 500, 502, 503, 504],
-            allowed_methods=["HEAD", "GET", "OPTIONS"]
+            allowed_methods=["GET", "POST"]
         )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        self.mount("https://", adapter)
+        adapter = HTTPAdapter(max_retries=retry)
         self.mount("http://", adapter)
+        self.mount("https://", adapter)
 
-
-def fetch_with_backoff(url: str, params: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None) -> requests.Response:
+def fetch_with_backoff(session: RateLimitedSession, url: str, params: Dict[str, Any] = None, headers: Dict[str, str] = None) -> requests.Response:
     """
-    Fetches a URL using a rate-limited session with exponential backoff.
-
-    Args:
-        url: The URL to fetch.
-        params: Query parameters.
-        headers: Request headers.
-
-    Returns:
-        The response object.
-
-    Raises:
-        requests.exceptions.RequestException: If the request fails after all retries.
+    Fetch data with exponential backoff for 429 errors.
     """
-    session = RateLimitedSession()
-    if headers:
-        session.headers.update(headers)
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            response = session.get(url, params=params, headers=headers)
+            if response.status_code == 429:
+                wait_time = (2 ** attempt)
+                logger.warning(f"Rate limit hit. Waiting {wait_time}s before retry...")
+                time.sleep(wait_time)
+                continue
+            return response
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Request failed: {e}")
+            if attempt == max_retries - 1:
+                raise
+            time.sleep(2 ** attempt)
     
-    logger.info(f"Fetching {url} with params: {params}")
-    
-    response = session.get(url, params=params)
-    
-    # If we get a 429, the retry logic in the adapter should have handled it.
-    # If we still get a 429 here, it means retries exhausted or it wasn't retried.
-    if response.status_code == 429:
-        logger.warning("Received 429 after retries. Rate limit may be strict.")
-    
-    return response
+    raise RuntimeError("Max retries exceeded")

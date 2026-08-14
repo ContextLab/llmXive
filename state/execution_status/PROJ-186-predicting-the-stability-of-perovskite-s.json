@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-186-predicting-the-stability-of-perovskite-s",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python main.py; 4 command(s) failed: python code/data/download.py (rc=1); python code/data/descriptors.py (rc=1); python code/models/train.py (rc=1); 2 declared deliverable(s) absent: data/processed/features.csv; data/processed/hypothetical_library.csv",
+  "artifacts": [],
+  "failures": [
+    "python main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/main.py': [Errno 2] No such file or directory",
+    "python code/data/download.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/data/download.py\", line 14, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/data/descriptors.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/data/descriptors.py\", line 4, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/models/train.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/models/train.py\", line 9, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/models/predict.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-186-predicting-the-stability-of-perovskite-s/code/models/predict.py\", line 7, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-14T20:00:23Z"
+}

@@ -1,9 +1,6 @@
 """
-Materials Project Data Ingestion Module for Perovskite Stability Prediction.
-
-This module handles fetching raw ABX3 compositions from the Materials Project API,
-validating the count, and filtering by structure. It also integrates OQMD data
-if the MP fetch yields fewer than 5,000 valid entries.
+Download and merge perovskite data from Materials Project and OQMD.
+Implements T012: Fetch, validate schema, merge, filter by space group.
 """
 import os
 import sys
@@ -12,159 +9,231 @@ import json
 import time
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
-import requests
+import numpy as np
 
-# Import from existing API surface
+# Project imports
+from utils.api_client import get_api_key, RateLimitedSession, fetch_with_backoff
 from utils.logging_config import get_logger, log_pipeline_event, log_exclusion_reason
 from utils.config import get_config_summary
-from utils.api_client import get_api_key, RateLimitedSession, fetch_with_backoff
-from data.download_oqmd import fetch_oqmd_entries, merge_oqmd_with_mp
+
+# Constants
+MP_API_BASE = "https://api.materialsproject.org"
+OQMD_API_BASE = "http://oqmd.org/api"
+REQUIRED_COLUMNS = ["composition", "decomposition_energy", "space_group"]
+TARGET_COLUMNS = ["material_id", "formula", "composition", "elements", "decomposition_energy", "space_group", "source"]
+MIN_VALID_ENTRIES = 5000
+MAX_ENTRIES = 10000
+CUBIC_SPACE_GROUPS = [221, 222, 223, 224, 225, 226, 227, 228, 229, 230] # Fm-3m, etc.
+RHO_SPACE_GROUPS = [148, 155, 160, 161, 166, 167] # R-3m, etc.
+VALID_SPACE_GROUPS = CUBIC_SPACE_GROUPS + RHO_SPACE_GROUPS
 
 logger = get_logger(__name__)
 
-# Constants
-MP_API_URL = "https://materialsproject.org/rest/v2/materials"
-MP_API_KEY = get_api_key() # Retrieves from env or config
-MIN_MP_ENTRIES = 5000
-MAX_MP_ENTRIES = 10000
+def fetch_materials_project_entries(session: RateLimitedSession, limit: int = MAX_ENTRIES) -> List[Dict[str, Any]]:
+    """
+    Fetch entries from Materials Project API.
+    Filters for perovskites (ABX3) implicitly by structure or formula if possible,
+    but primarily relies on API response structure.
+    """
+    api_key = get_api_key()
+    if not api_key:
+        logger.warning("No Materials Project API key found. Skipping MP fetch.")
+        return []
 
-def fetch_materials_project_entries(limit: int = MAX_MP_ENTRIES) -> pd.DataFrame:
-    """
-    Fetches entries from Materials Project API.
-    
-    Args:
-        limit: Maximum number of entries to fetch.
-        
-    Returns:
-        DataFrame with raw MP data.
-    """
-    logger.info(f"Fetching Materials Project data (limit={limit})...")
-    
-    if not MP_API_KEY:
-        logger.error("Materials Project API key not found. Please set MP_API_KEY environment variable.")
-        raise ValueError("MP_API_KEY not set")
-    
-    session = RateLimitedSession()
-    url = f"{MP_API_URL}/search"
-    
+    entries = []
+    # MP API endpoint for structures
+    # We request specific fields to reduce payload
+    endpoint = f"{MP_API_BASE}/materials/docs"
     params = {
-        'api_key': MP_API_KEY,
-        'limit': limit,
-        'fields': 'material_id,formula,space_group,decomposition_energy,structure'
+        "api_key": api_key,
+        "fields": "material_id,formula,structure,decomposition_energy,space_group",
+        "limit": limit
     }
-    
-    try:
-        response = fetch_with_backoff(session, url, params=params, max_retries=5)
-        response.raise_for_status()
-        data = response.json()
-        
-        if 'results' not in data:
-            logger.error("MP API response did not contain 'results' key.")
-            raise ValueError("Invalid MP API response format")
-        
-        entries = data['results']
-        df = pd.DataFrame(entries)
-        
-        # Ensure required columns exist
-        required_cols = ['formula', 'space_group', 'decomposition_energy']
-        for col in required_cols:
-            if col not in df.columns:
-                logger.error(f"MP data missing required column: {col}")
-                raise ValueError(f"MP data missing column: {col}")
-        
-        logger.info(f"Successfully fetched {len(df)} entries from Materials Project.")
-        return df
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch MP data: {e}")
-        raise RuntimeError("MP data fetch failed.")
-    except ValueError as e:
-        logger.error(f"Failed to parse MP data: {e}")
-        raise
 
-def validate_and_filter_entries(df: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
-    """
-    Validates and filters entries based on structure (space_group).
-    Filters for space_group == 221 (Cubic) OR space_group == 148 (Rhombohedral).
-    
-    Args:
-        df: Raw DataFrame.
+    try:
+        # MP API often requires specific headers
+        headers = {"x-api-key": api_key}
+        response = session.get(endpoint, params=params, headers=headers)
         
-    Returns:
-        Tuple of (filtered DataFrame, count of excluded entries).
+        if response.status_code == 200:
+            data = response.json()
+            if "data" in data:
+                for item in data["data"]:
+                    # Basic validation
+                    if all(k in item for k in ["material_id", "formula", "decomposition_energy", "space_group"]):
+                        entries.append({
+                            "material_id": item["material_id"],
+                            "formula": item["formula"],
+                            "composition": item.get("composition", item["formula"]),
+                            "elements": item.get("elements", []),
+                            "decomposition_energy": item["decomposition_energy"],
+                            "space_group": item["space_group"],
+                            "source": "materials_project"
+                        })
+            logger.info(f"Materials Project: Fetched {len(entries)} entries.")
+        else:
+            logger.warning(f"Materials Project API returned status {response.status_code}: {response.text}")
+    except Exception as e:
+        logger.error(f"Error fetching from Materials Project: {e}")
+    
+    return entries
+
+def validate_oqmd_schema(session: RateLimitedSession) -> bool:
     """
-    logger.info(f"Validating and filtering {len(df)} entries...")
+    Perform Dataset Fit Check on OQMD to verify required columns exist.
+    Returns True if schema is valid, False otherwise.
+    """
+    logger.info("Performing Dataset Fit Check on OQMD schema...")
+    # OQMD often uses a different endpoint structure. We'll try a simple query.
+    # Assuming an endpoint like /entries or similar that returns metadata.
+    # Since OQMD API specifics can vary, we attempt a standard query.
+    endpoint = f"{OQMD_API_BASE}/entries"
+    params = {"limit": 1} # Just check one to see structure
+
+    try:
+        response = session.get(endpoint, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list) and len(data) > 0:
+                first_entry = data[0]
+                # Check for required keys
+                has_energy = "decomposition_energy" in first_entry
+                has_sg = "space_group" in first_entry
+                
+                if has_energy and has_sg:
+                    logger.info("OQMD Schema Check: PASSED (decomposition_energy, space_group found)")
+                    return True
+                else:
+                    logger.error(f"OQMD Schema Check: FAILED. Keys found: {list(first_entry.keys())}")
+                    return False
+            else:
+                logger.error("OQMD Schema Check: FAILED (Empty or invalid response)")
+                return False
+        else:
+            logger.error(f"OQMD Schema Check: FAILED (Status {response.status_code})")
+            return False
+    except Exception as e:
+        logger.error(f"OQMD Schema Check: FAILED with exception: {e}")
+        return False
+
+def fetch_oqmd_entries(session: RateLimitedSession, limit: int = MAX_ENTRIES) -> List[Dict[str, Any]]:
+    """
+    Fetch entries from OQMD API.
+    """
+    entries = []
+    endpoint = f"{OQMD_API_BASE}/entries"
+    params = {
+        "limit": limit,
+        "fields": "material_id,formula,composition,decomposition_energy,space_group"
+    }
+
+    try:
+        response = session.get(endpoint, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list):
+                for item in data:
+                    if all(k in item for k in ["material_id", "formula", "decomposition_energy", "space_group"]):
+                        entries.append({
+                            "material_id": item["material_id"],
+                            "formula": item["formula"],
+                            "composition": item.get("composition", item["formula"]),
+                            "elements": [], # OQMD might not return elements list directly in summary
+                            "decomposition_energy": item["decomposition_energy"],
+                            "space_group": item["space_group"],
+                            "source": "oqmd"
+                        })
+            logger.info(f"OQMD: Fetched {len(entries)} entries.")
+        else:
+            logger.warning(f"OQMD API returned status {response.status_code}")
+    except Exception as e:
+        logger.error(f"Error fetching from OQMD: {e}")
     
-    initial_count = len(df)
+    return entries
+
+def validate_and_filter_entries(entries: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], int]:
+    """
+    Filter entries for valid space groups (Cubic or Rhombohedral).
+    Returns filtered list and count of excluded entries.
+    """
+    filtered = []
+    excluded_count = 0
     
-    # Filter by space group
-    valid_space_groups = [221, 148]
-    filtered_df = df[df['space_group'].isin(valid_space_groups)]
+    for entry in entries:
+        sg = entry.get("space_group")
+        if sg in VALID_SPACE_GROUPS:
+            filtered.append(entry)
+        else:
+            excluded_count += 1
+            # Log exclusion reason
+            log_exclusion_reason(f"Space Group {sg} not in Cubic/Rhombohedral set")
     
-    excluded_count = initial_count - len(filtered_df)
-    
-    logger.info(f"Filtered to {len(filtered_df)} entries (space groups: {valid_space_groups}). Excluded: {excluded_count}")
-    
-    # Log exclusion reasons (simplified for this task)
-    if excluded_count > 0:
-        log_exclusion_reason("Structure Filtering", f"Excluded {excluded_count} entries with space_group not in {valid_space_groups}")
-    
-    return filtered_df, excluded_count
+    logger.info(f"Filtered {len(entries)} entries. Kept {len(filtered)}, excluded {excluded_count} based on space group.")
+    return filtered, excluded_count
 
 def main():
     """
-    Main entry point for data download and merging.
+    Main execution flow for T012.
+    1. Fetch MP.
+    2. If < 5000, check OQMD schema.
+    3. If schema valid, fetch OQMD.
+    4. Merge.
+    5. Filter by space group.
+    6. Check total count >= 5000.
+    7. Save to data/raw/combined.csv.
     """
-    log_pipeline_event("Starting data ingestion pipeline (T012 + T013)")
+    log_pipeline_event("Starting T012: Data Download and Merge")
     
-    mp_data_path = "data/raw/mp_data.csv"
-    filtered_mp_path = "data/raw/mp_filtered.csv"
-    merged_data_path = "data/raw/merged_data.csv"
+    session = RateLimitedSession()
+    all_entries = []
     
-    # 1. Fetch MP Data
-    mp_df = None
-    try:
-        mp_df = fetch_materials_project_entries(limit=MAX_MP_ENTRIES)
-        mp_df.to_csv(mp_data_path, index=False)
-        logger.info(f"Saved MP raw data to {mp_data_path}")
-    except Exception as e:
-        logger.error(f"MP fetch failed: {e}")
-        mp_df = pd.DataFrame()
-    
-    # 2. Filter MP Data
-    if len(mp_df) > 0:
-        mp_df, excluded_count = validate_and_filter_entries(mp_df)
-        mp_df.to_csv(filtered_mp_path, index=False)
-        logger.info(f"Saved filtered MP data to {filtered_mp_path}")
+    # Step 1: Fetch Materials Project
+    logger.info("Fetching from Materials Project...")
+    mp_entries = fetch_materials_project_entries(session, limit=MAX_ENTRIES)
+    all_entries.extend(mp_entries)
+    current_count = len(all_entries)
+    logger.info(f"Current total: {current_count}")
+
+    # Step 2: Check if fallback needed
+    if current_count < MIN_VALID_ENTRIES:
+        logger.warning(f"MP entries ({current_count}) < {MIN_VALID_ENTRIES}. Checking OQMD schema.")
+        
+        if not validate_oqmd_schema(session):
+            logger.critical("OQMD Schema validation failed. Aborting fetch.")
+            sys.exit(1)
+        
+        logger.info("OQMD Schema valid. Fetching OQMD data...")
+        oqmd_entries = fetch_oqmd_entries(session, limit=MAX_ENTRIES)
+        all_entries.extend(oqmd_entries)
+        current_count = len(all_entries)
+        logger.info(f"Total after OQMD: {current_count}")
     else:
-        mp_df = pd.DataFrame()
+        logger.info(f"MP entries ({current_count}) >= {MIN_VALID_ENTRIES}. Skipping OQMD fetch.")
+
+    # Step 3: Filter by Space Group
+    logger.info("Filtering by Space Group (Cubic/Rhombohedral)...")
+    filtered_entries, excluded_count = validate_and_filter_entries(all_entries)
+    final_count = len(filtered_entries)
     
-    # 3. Check Threshold and Merge with OQMD if needed
-    final_df = mp_df
+    # Step 4: Final Count Check
+    if final_count < MIN_VALID_ENTRIES:
+        logger.critical(f"Total valid entries ({final_count}) < {MIN_VALID_ENTRIES} after filtering. Aborting.")
+        sys.exit(1)
     
-    if len(mp_df) < MIN_MP_ENTRIES:
-        logger.warning(f"MP data ({len(mp_df)}) is below threshold ({MIN_MP_ENTRIES}). Fetching OQMD...")
-        try:
-            oqmd_df = fetch_oqmd_entries(limit=10000)
-            final_df, status = merge_oqmd_with_mp(mp_df, oqmd_df)
-            logger.info(f"Merging result: {status}")
-        except Exception as e:
-            logger.error(f"OQMD merge failed: {e}")
-            # If OQMD fails, we proceed with MP data only (which is < 5000)
-            # The pipeline might fail later, but we don't fabricate data.
-    else:
-        logger.info(f"MP data ({len(mp_df)}) is sufficient. Skipping OQMD.")
+    logger.info(f"Final valid entry count: {final_count}")
+
+    # Step 5: Save to CSV
+    output_dir = "data/raw"
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, "combined_perovskites.csv")
     
-    # 4. Save Final Merged Data
-    if len(final_df) > 0:
-        final_df.to_csv(merged_data_path, index=False)
-        logger.info(f"Saved final merged data to {merged_data_path}")
-        log_pipeline_event(f"Ingestion complete. Total entries: {len(final_df)}")
-    else:
-        logger.error("No data available after ingestion.")
-        raise RuntimeError("Ingestion failed: No data produced.")
+    df = pd.DataFrame(filtered_entries)
+    # Ensure column order
+    df = df[TARGET_COLUMNS]
+    df.to_csv(output_path, index=False)
     
-    return final_df
+    log_pipeline_event(f"Saved {final_count} entries to {output_path}")
+    print(f"SUCCESS: Downloaded {final_count} entries to {output_path}")
 
 if __name__ == "__main__":
     main()

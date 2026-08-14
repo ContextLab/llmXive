@@ -1,6 +1,6 @@
 """
-Verification script for T019: Ensure data/processed/features.csv has zero nulls
-in the 'decomposition_energy' column.
+Verification script for User Story 1 (T017).
+Checks that data/processed/features.csv has zero nulls in the 'decomposition_energy' column.
 """
 import os
 import sys
@@ -14,54 +14,46 @@ logger = get_logger(__name__)
 
 def main():
     """
-    Load data/processed/features.csv and verify that the 'decomposition_energy'
-    column contains zero null values.
-    Exits with code 1 if nulls are found or file is missing.
+    Load data/processed/features.csv and verify 'decomposition_energy' has no nulls.
+    Exits with code 0 on success, 1 on failure.
     """
     # Define paths relative to project root
     project_root = Path(__file__).resolve().parent.parent.parent
-    features_path = project_root / "data" / "processed" / "features.csv"
+    data_path = project_root / "data" / "processed" / "features.csv"
 
-    log_pipeline_event(f"Verifying nulls in {features_path}")
+    log_pipeline_event("Starting verification of decomposition_energy nulls")
+    logger.info(f"Loading data from: {data_path}")
 
-    # Check if file exists
-    if not features_path.exists():
-        logger.error(f"File not found: {features_path}")
-        print(f"FAIL: {features_path} does not exist.")
+    if not data_path.exists():
+        logger.error(f"File not found: {data_path}")
+        log_pipeline_event("Verification FAILED: File not found")
         sys.exit(1)
 
     try:
-        df = pd.read_csv(features_path)
+        df = pd.read_csv(data_path)
     except Exception as e:
-        logger.error(f"Failed to read CSV: {e}")
-        print(f"FAIL: Could not read {features_path}. Error: {e}")
+        logger.error(f"Failed to load CSV: {e}")
+        log_pipeline_event("Verification FAILED: CSV load error")
         sys.exit(1)
 
-    # Check if target column exists
-    target_column = "decomposition_energy"
-    if target_column not in df.columns:
-        logger.error(f"Column '{target_column}' not found in {features_path}")
-        print(f"FAIL: Column '{target_column}' not found in {features_path}.")
-        print(f"Available columns: {list(df.columns)}")
+    if "decomposition_energy" not in df.columns:
+        logger.error("Column 'decomposition_energy' not found in CSV")
+        log_pipeline_event("Verification FAILED: Missing column")
         sys.exit(1)
 
-    # Count nulls
-    null_count = df[target_column].isnull().sum()
-    total_rows = len(df)
+    null_count = df["decomposition_energy"].isnull().sum()
+    total_count = len(df)
 
-    log_pipeline_event(f"Checked {total_rows} rows. Found {null_count} nulls in '{target_column}'.")
+    logger.info(f"Total rows: {total_count}, Nulls in 'decomposition_energy': {null_count}")
 
-    if null_count > 0:
-        logger.error(f"Verification FAILED: Found {null_count} null values in '{target_column}'.")
-        print(f"FAIL: Found {null_count} null values in '{target_column}' column.")
-        # Optionally show indices of nulls for debugging
-        null_indices = df[df[target_column].isnull()].index.tolist()
-        print(f"Indices with nulls: {null_indices[:10]}... (showing first 10)")
-        sys.exit(1)
-    else:
-        logger.info(f"Verification PASSED: Zero null values in '{target_column}'.")
-        print(f"SUCCESS: '{target_column}' column has zero null values ({total_rows} valid entries).")
+    if null_count == 0:
+        logger.info("SUCCESS: Zero nulls found in 'decomposition_energy' column.")
+        log_pipeline_event("Verification PASSED: Zero nulls in decomposition_energy")
         sys.exit(0)
+    else:
+        logger.error(f"FAILURE: Found {null_count} nulls in 'decomposition_energy' column.")
+        log_pipeline_event("Verification FAILED: Non-zero nulls in decomposition_energy")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

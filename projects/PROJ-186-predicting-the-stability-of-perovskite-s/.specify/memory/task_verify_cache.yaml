@@ -6,6 +6,19 @@ T013:
     \ suggested alternative file `code/data/download_oqmd.py` does not exist at all,\
     \ so the task\u2019s requirement to implement explicit OQMD ingestion and conditional\
     \ merging is not satisfied."
+T016:
+  c: false
+  h: 5030850138a5d8d4acc928d7f142e013261da8e4d8c3d4f885a3216ac2d8fca2
+  r: The repository contains a `code/data/preprocess.py` script, but the required
+    output file `data/processed/features.csv` is absent, so the primary artifact the
+    task demands does not exist. The task is therefore not fully satisfied.
+T017:
+  c: false
+  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
+  r: "The required artifact `data/processed/features.csv` does not exist, so there\
+    \ is no way to verify that the `decomposition_energy` column contains zero nulls.\
+    \ The implementer must provide the CSV file (non\u2011empty) and confirm the null\u2011\
+    value check."
 T018:
   c: false
   h: 4899eedd24961e47ef8d6e41e659cb1a38262077da7f8caa46ab91accbbfc8c2
@@ -21,19 +34,23 @@ T019:
     \ is no way to check for nulls in the `decomposition_energy` column. The implementer\
     \ must provide the CSV file (non\u2011empty) and confirm that the specified column\
     \ contains zero null values."
+T020:
+  c: false
+  h: 402367fbb946bb35a975007038f9335946989877ec9be7bbe3d1bb523ef02424
+  r: "The provided `code/models/train.py` is incomplete \u2013 the shown excerpt stops\
+    \ mid\u2011function and never includes the GridSearchCV hyperparameter search,\
+    \ model re\u2011training, test\u2011set evaluation, RMSE logging, permutation\u2011\
+    importance analysis, or the saving of `model.pkl`, `metrics.json` (with the required\
+    \ `dft_functional: PBE` field), and `feature-importance.png`. Consequently the\
+    \ script does not demonstrably fulfill steps\u202F(3)\u2013(9) of the task. The\
+    \ required input CSV and output files are also absent. The next implementer must\
+    \ finish the script to perform the full training pipeline and ensure the specif"
 T021:
   c: false
   h: a75d5600bbdb7c75f73907b24764be564f02a7b8cf81c8e920d979aba669b653
   r: The required integration test file `tests/integration/test_pipeline.py` is missing,
     so the specified test cannot be run or verified. No artifact exists to satisfy
     the task.
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, notebook, or other artifact implementing the inner\u2011loop\
-    \ cross\u2011validation logic was supplied; the claim cannot be verified against\
-    \ any existing files or output. The required implementation that selects the best\
-    \ hyperparameters based on the lowest CV error is missing."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -50,58 +67,3 @@ T034:
     \ output file `data/processed/hypothetical_library.csv` does not exist. The implementation\
     \ does not actually generate the \u2265200 candidate library or save it, so the\
     \ task is not fulfilled."
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, function, or output file that implements the required ranking
-    logic was provided. The claim cannot be verified because there is no artifact
-    showing candidates being sorted by predicted energy in ascending order, nor any
-    test output demonstrating the correct ordering. The implementer must supply the
-    actual implementation (e.g., a Python function or script) and a sample ranked
-    list to satisfy the task.
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, function, or documentation implementing a \u201Cthreshold flagging\u201D\
-    \ feature for predicted energies is present; the only evidence is the task description\
-    \ and broader project specs, which do not include the required artifact. The implementer\
-    \ must provide the actual implementation (e.g., a function or pipeline step that\
-    \ flags candidates whose predicted energy is below a user\u2011defined thermodynamic\
-    \ threshold) and any associated tests or usage examples."
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No runtime log, `time` command output, or parsed verification result is present;\
-    \ the claim lacks any artifact demonstrating that the full pipeline was executed\
-    \ and its duration confirmed to be \u2264\u202F6\u202Fhours. The required evidence\
-    \ (e.g., a text file with the measured runtime and a pass/fail indication) is\
-    \ missing."
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No memory profiling script, log, or report was supplied; there is no evidence\
-    \ that the pipeline was run with `memory_profiler` nor any assertion that max\
-    \ RSS stayed below 7\u202FGB. The required artifact is missing."
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The provided information contains only the feature specification and user stories;
-    there is no evidence of any files in `results/` or `data/` having added content
-    hash metadata (e.g., hash columns, checksum files, or manifest entries). Without
-    visible artifacts showing hashes, the requirement to add content hashes to all
-    artifacts is not satisfied. The implementer must add and commit hash values for
-    every file in those directories and provide the updated files as proof.
-T045:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No metadata file or excerpt was provided, and the available project description
-    does not contain any explicit statement that the DFT functional (PBE) is recorded
-    in the model metadata. Without a concrete artifact showing this information, the
-    requirement cannot be verified.
-T046:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that `quickstart.md` was executed or validated is present;
-    there are no logs, output files, or reproducibility reports to confirm the quickstart
-    steps run successfully. The implementer only provided a feature specification,
-    not the required validation evidence.
