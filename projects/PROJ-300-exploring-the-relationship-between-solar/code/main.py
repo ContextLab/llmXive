@@ -1,10 +1,3 @@
-"""
-Main entry point for the solar wind - geomagnetic tail reconnection analysis pipeline.
-This module orchestrates data ingestion, cleaning, lag analysis, correlation calculation,
-and visualization.
-
-File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py
-"""
 import json
 import os
 import sys
@@ -14,9 +7,10 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 # Add project root to path for imports
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
+from code.config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP, TAIL_DISTANCE_RE, BOOTSTRAP_ITERATIONS
 from code.data.ingest import fetch_omni_sw, fetch_themis_ey
 from code.data.clean import clean_and_resample, handle_gaps
 from code.data.lag import calculate_physics_lag, apply_lag_shift
@@ -24,250 +18,265 @@ from code.analysis.correlation import calculate_correlation, circular_block_perm
 from code.analysis.lag_search import find_optimal_lag
 from code.analysis.sensitivity import analyze_thresholds
 from code.viz.plots import plot_scatter, plot_timeseries
-from code.config import (
-    LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP,
-    TAIL_DISTANCE_RE, BOOTSTRAP_ITERATIONS, PERMUTATION_ITERATIONS
-)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(project_root / 'data' / 'processed' / 'pipeline.log')
-    ]
-)
-logger = logging.getLogger(__name__)
-
-def ensure_directories():
-    """Create necessary output directories if they don't exist."""
-    directories = [
-        project_root / 'data' / 'raw',
-        project_root / 'data' / 'processed',
-        project_root / 'results'
-    ]
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directories exist: {directories}")
-
-def log_quality_warnings(warnings_list, output_path):
-    """Log data-quality warnings to a JSON file."""
-    timestamp = datetime.now().isoformat()
-    log_entry = {
-        "timestamp": timestamp,
-        "warnings": warnings_list
-    }
+def setup_logging(log_path: Path) -> logging.Logger:
+    """Configure logging to file and console."""
+    # Ensure the directory exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Load existing log if it exists
+    logger = logging.getLogger('pipeline')
+    logger.setLevel(logging.INFO)
+    
+    # Clear existing handlers to avoid duplicates in repeated runs
+    if logger.hasHandlers():
+        logger.handlers.clear()
+    
+    # File handler
+    try:
+        fh = logging.FileHandler(log_path)
+        fh.setLevel(logging.INFO)
+    except FileNotFoundError:
+        # Fallback if directory creation failed for some reason
+        print(f"Warning: Could not create log file at {log_path}")
+        return logger
+    
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+    
+    return logger
+
+def log_quality_warnings(warnings: list, output_path: Path) -> None:
+    """
+    Log data-quality warnings to a JSON file as required by FR-009.
+    
+    Args:
+        warnings: List of warning dictionaries with keys 'timestamp', 'type', 'message'.
+        output_path: Path to the output JSON file.
+    """
+    # Ensure the directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing log if it exists, otherwise start fresh
+    existing_warnings = []
     if output_path.exists():
         try:
             with open(output_path, 'r') as f:
-                existing_log = json.load(f)
-            if "entries" not in existing_log:
-                existing_log["entries"] = []
-            existing_log["entries"].append(log_entry)
-        except (json.JSONDecodeError, KeyError):
-            existing_log = {"entries": [log_entry]}
-    else:
-        existing_log = {"entries": [log_entry]}
+                data = json.load(f)
+                if isinstance(data, list):
+                    existing_warnings = data
+                elif isinstance(data, dict) and 'warnings' in data:
+                    existing_warnings = data['warnings']
+        except (json.JSONDecodeError, IOError):
+            existing_warnings = []
     
+    # Append new warnings
+    all_warnings = existing_warnings + warnings
+    
+    # Write back to file
     with open(output_path, 'w') as f:
-        json.dump(existing_log, f, indent=2)
-    logger.info(f"Quality warnings logged to {output_path}")
+        json.dump(all_warnings, f, indent=2, default=str)
 
-def generate_narrative_note():
-    """Generate the static narrative note for the JSON report as per FR-013."""
+def generate_narrative_note() -> str:
+    """
+    Generate the narrative note for the JSON report as required by FR-013.
+    
+    Returns:
+        The static narrative note string.
+    """
     return "Bonferroni correction is conservative for autocorrelated lag searches and that the permutation test is the primary method for significance testing; future work should consider adaptive FDR control."
 
-def run_data_pipeline(start_date, end_date):
+def run_data_pipeline(start_date: datetime, end_date: datetime, logger: logging.Logger) -> tuple:
     """
     Orchestrate data ingestion and cleaning.
     
     Args:
-        start_date (str): Start date in YYYY-MM-DD format.
-        end_date (str): End date in YYYY-MM-DD format.
+        start_date: Start of the date range.
+        end_date: End of the date range.
+        logger: Logger instance.
         
     Returns:
-        tuple: (df_sw_clean, df_ey_clean) cleaned DataFrames.
+        Tuple of (df_sw, df_ey) cleaned DataFrames.
     """
-    logger.info(f"Fetching solar wind data from {start_date} to {end_date}...")
-    start_dt = datetime.strptime(start_date, "%Y-%m-%d")
-    end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+    logger.info(f"Starting data ingestion for {start_date} to {end_date}")
     
+    # Fetch data
     try:
-        df_sw = fetch_omni_sw((start_dt, end_dt))
-        df_ey = fetch_themis_ey((start_dt, end_dt))
+        df_sw = fetch_omni_sw((start_date, end_date))
+        df_ey = fetch_themis_ey((start_date, end_date))
     except Exception as e:
-        logger.error(f"Failed to fetch real data: {e}")
-        raise RuntimeError("Real OMNIWeb/CDAWeb API fetch is required. Network access to NASA APIs is needed.")
-
-    if df_sw.empty or df_ey.empty:
-        raise ValueError("Fetched data is empty. Check date range and API connectivity.")
-
-    logger.info("Cleaning and resampling data...")
+        logger.error(f"Data ingestion failed: {e}")
+        raise
+    
+    logger.info(f"Fetched {len(df_sw)} solar wind records and {len(df_ey)} THEMIS records")
+    
+    # Clean and resample
     df_sw_clean, df_ey_clean = clean_and_resample(df_sw, df_ey)
     
+    logger.info(f"Cleaned data: {len(df_sw_clean)} solar wind records, {len(df_ey_clean)} THEMIS records")
+    
     # Handle gaps
-    warnings = []
     df_sw_clean = handle_gaps(df_sw_clean)
     df_ey_clean = handle_gaps(df_ey_clean)
     
-    if df_sw_clean.empty or df_ey_clean.empty:
-        raise ValueError("Data became empty after cleaning/gap handling.")
-
     # Save cleaned data
-    output_path = project_root / 'data' / 'processed' / 'cleaned_data.csv'
-    combined_df = pd.concat([df_sw_clean.reset_index(drop=True), df_ey_clean.reset_index(drop=True)], axis=1)
-    combined_df.to_csv(output_path, index=False)
-    logger.info(f"Cleaned data saved to {output_path}")
-
+    cleaned_data_path = project_root / 'data' / 'processed' / 'cleaned_data.csv'
+    cleaned_data_path.parent.mkdir(parents=True, exist_ok=True)
+    combined_df = pd.concat([df_sw_clean, df_ey_clean], axis=1, join='inner')
+    combined_df.to_csv(cleaned_data_path)
+    logger.info(f"Saved cleaned data to {cleaned_data_path}")
+    
     return df_sw_clean, df_ey_clean
 
-def run_analysis_pipeline(df_sw, df_ey):
+def run_analysis_pipeline(df_sw: pd.DataFrame, df_ey: pd.DataFrame, logger: logging.Logger) -> dict:
     """
     Orchestrate the core analysis pipeline.
     
     Args:
-        df_sw (pd.DataFrame): Cleaned solar wind data.
-        df_ey (pd.DataFrame): Cleaned THEMIS data.
+        df_sw: Cleaned solar wind DataFrame.
+        df_ey: Cleaned THEMIS DataFrame.
+        logger: Logger instance.
         
     Returns:
-        dict: Results dictionary containing correlation stats, lags, and sensitivity.
+        Dictionary with analysis results.
     """
-    logger.info("Starting analysis pipeline...")
+    logger.info("Starting analysis pipeline")
     
-    # 1. Calculate physics-based lag
+    # Calculate physics-based lag
     vsw_mean = df_sw['Vsw'].mean()
     l_phys = calculate_physics_lag(vsw_mean)
-    logger.info(f"Physics-based lag L_phys: {l_phys:.2f} minutes")
-
-    # 2. Apply lag shift
-    # Assuming 5-minute cadence from clean_and_resample
-    cadence = 5 
-    lag_periods = int(l_phys / cadence)
-    df_sw_lagged = df_sw.copy()
-    df_sw_lagged['Vsw'] = apply_lag_shift(df_sw['Vsw'], lag_periods)
+    logger.info(f"Calculated physics lag: {l_phys:.2f} minutes")
     
-    # Drop NaNs introduced by shift
-    valid_mask = df_sw_lagged['Vsw'].notna() & df_ey['Ey'].notna()
-    x = df_sw_lagged.loc[valid_mask, 'Vsw']
-    y = df_ey.loc[valid_mask, 'Ey']
-
-    if len(x) < 10:
-        raise ValueError("Insufficient data points after lagging and alignment.")
-
-    # 3. Find optimal lag
-    logger.info(f"Searching optimal lag in window [{LAG_WINDOW_MIN}, {LAG_WINDOW_MAX}] with step {LAG_STEP}...")
-    lag_results = find_optimal_lag(df_sw['Vsw'], df_ey['Ey'], LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP)
-    optimal_lag = lag_results['optimal_lag']
-    max_corr = lag_results['max_correlation']
+    # Apply lag shift
+    df_sw_lagged = apply_lag_shift(df_sw['Vsw'], int(l_phys))
     
-    lag_difference = abs(optimal_lag - l_phys)
-    logger.info(f"Optimal lag L*: {optimal_lag} min, |L* - L_phys| = {lag_difference:.2f} min")
-
-    # 4. Calculate correlations at optimal lag
-    # Re-apply optimal lag for final correlation
-    optimal_periods = int(optimal_lag / cadence)
-    x_opt = apply_lag_shift(df_sw['Vsw'], optimal_periods)
-    valid_mask_opt = x_opt.notna() & df_ey['Ey'].notna()
-    x_final = x_opt[valid_mask_opt]
-    y_final = df_ey['Ey'][valid_mask_opt]
-
-    corr_stats = calculate_correlation(x_final, y_final)
-    logger.info(f"Pearson: {corr_stats['pearson']:.4f}, Spearman: {corr_stats['spearman']:.4f}")
-
-    # 5. Permutation test for p-value
-    logger.info(f"Running circular block permutation test ({PERMUTATION_ITERATIONS} iterations)...")
-    p_val = circular_block_permutation(x_final, y_final, n_iterations=PERMUTATION_ITERATIONS)
+    # Find optimal lag
+    optimal_lag_result = find_optimal_lag(
+        df_sw_lagged, 
+        df_ey['Ey'], 
+        LAG_WINDOW_MIN, 
+        LAG_WINDOW_MAX, 
+        LAG_STEP
+    )
+    optimal_lag = optimal_lag_result['optimal_lag']
+    logger.info(f"Optimal lag found: {optimal_lag} minutes")
+    
+    # Calculate correlations
+    corr_result = calculate_correlation(df_sw_lagged, df_ey['Ey'])
+    pearson = corr_result['pearson']
+    spearman = corr_result['spearman']
+    logger.info(f"Correlations - Pearson: {pearson:.4f}, Spearman: {spearman:.4f}")
+    
+    # Permutation test for significance
+    p_val = circular_block_permutation(df_sw_lagged, df_ey['Ey'])
     logger.info(f"Permutation p-value: {p_val:.4f}")
-
-    # 6. Bootstrap confidence interval
-    logger.info(f"Running moving block bootstrap ({BOOTSTRAP_ITERATIONS} iterations)...")
-    ci_lower, ci_upper = moving_block_bootstrap(x_final, y_final, n_iterations=BOOTSTRAP_ITERATIONS)
-    logger.info(f"95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
-
-    # 7. Sensitivity analysis
-    logger.info("Running sensitivity analysis on thresholds [400, 500, 600] km/s...")
-    sensitivity_results = analyze_thresholds(df_sw['Vsw'], df_ey['Ey'], [400, 500, 600])
-
-    # 8. Narrative note
-    notes = generate_narrative_note()
-
+    
+    # Bootstrap confidence intervals
+    ci_lower, ci_upper = moving_block_bootstrap(df_sw_lagged, df_ey['Ey'])
+    logger.info(f"Bootstrap 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
+    
+    # Sensitivity analysis
+    sensitivity_result = analyze_thresholds(df_sw_lagged, df_ey['Ey'], [400, 500, 600])
+    logger.info(f"Sensitivity analysis completed")
+    
+    # Calculate lag difference
+    lag_difference = abs(optimal_lag - l_phys)
+    
+    # Compile results
     results = {
-        "pearson": corr_stats['pearson'],
-        "spearman": corr_stats['spearman'],
-        "p_val_permutation": p_val,
-        "optimal_lag": optimal_lag,
-        "lag_difference": lag_difference,
-        "ci_bootstrap": {"lower": ci_lower, "upper": ci_upper},
-        "sensitivity_table": sensitivity_results,
-        "notes": notes,
-        "metadata": {
-            "vsw_mean": vsw_mean,
-            "l_phys": l_phys,
-            "data_points": len(x_final)
-        }
+        'pearson': pearson,
+        'spearman': spearman,
+        'p_val_permutation': p_val,
+        'optimal_lag': optimal_lag,
+        'lag_difference': lag_difference,
+        'ci_bootstrap': (ci_lower, ci_upper),
+        'sensitivity_table': sensitivity_result,
+        'notes': generate_narrative_note()
     }
-
+    
     return results
 
-def run_pipeline(start_date, end_date):
+def run_pipeline(start_date: datetime, end_date: datetime) -> None:
     """
-    Full pipeline execution: ingest, clean, analyze, visualize, save.
+    Run the full pipeline from data ingestion to results generation.
+    
+    Args:
+        start_date: Start of the date range.
+        end_date: End of the date range.
     """
-    ensure_directories()
-    warnings_log_path = project_root / 'data' / 'processed' / 'quality_log.json'
-    results_path = project_root / 'results' / 'us1_correlation.json'
-    scatter_path = project_root / 'results' / 'plot_scatter.png'
-    timeseries_path = project_root / 'results' / 'plot_timeseries.png'
-
+    # Setup logging
+    log_path = project_root / 'data' / 'processed' / 'pipeline.log'
+    logger = setup_logging(log_path)
+    
+    # Quality warnings list
+    quality_warnings = []
+    
     try:
-        # Data Pipeline
-        df_sw, df_ey = run_data_pipeline(start_date, end_date)
+        # Run data pipeline
+        df_sw, df_ey = run_data_pipeline(start_date, end_date, logger)
         
-        # Analysis Pipeline
-        results = run_analysis_pipeline(df_sw, df_ey)
-
-        # Save Results
+        # Check for data quality issues
+        if df_sw['Vsw'].isna().sum() > 0:
+            quality_warnings.append({
+                'timestamp': datetime.now().isoformat(),
+                'type': 'missing_data',
+                'message': f"Solar wind data has {df_sw['Vsw'].isna().sum()} NaN values"
+            })
+        
+        if df_ey['Ey'].isna().sum() > 0:
+            quality_warnings.append({
+                'timestamp': datetime.now().isoformat(),
+                'type': 'missing_data',
+                'message': f"THEMIS data has {df_ey['Ey'].isna().sum()} NaN values"
+            })
+        
+        # Run analysis pipeline
+        results = run_analysis_pipeline(df_sw, df_ey, logger)
+        
+        # Log quality warnings
+        quality_log_path = project_root / 'data' / 'processed' / 'quality_log.json'
+        log_quality_warnings(quality_warnings, quality_log_path)
+        logger.info(f"Logged {len(quality_warnings)} quality warnings to {quality_log_path}")
+        
+        # Save results
+        results_path = project_root / 'results' / 'us1_correlation.json'
+        results_path.parent.mkdir(parents=True, exist_ok=True)
         with open(results_path, 'w') as f:
             json.dump(results, f, indent=2)
-        logger.info(f"Results saved to {results_path}")
-
-        # Visualizations
-        # Prepare data for plotting (apply optimal lag)
-        optimal_lag = results['optimal_lag']
-        cadence = 5
-        lag_periods = int(optimal_lag / cadence)
-        df_sw_lagged = df_sw.copy()
-        df_sw_lagged['Vsw'] = apply_lag_shift(df_sw['Vsw'], lag_periods)
+        logger.info(f"Saved results to {results_path}")
         
-        # Merge on index for plotting
-        plot_df = pd.concat([df_sw_lagged['Vsw'], df_ey['Ey']], axis=1).dropna()
+        # Generate plots
+        plot_scatter(df_sw['Vsw'], df_ey['Ey'], results['optimal_lag'], 
+                    str(project_root / 'results' / 'plot_scatter.png'))
+        plot_timeseries(df_sw, df_ey, str(project_root / 'results' / 'plot_timeseries.png'))
+        logger.info("Generated plots")
         
-        plot_scatter(plot_df['Vsw'], plot_df['Ey'], optimal_lag, str(scatter_path))
-        logger.info(f"Scatter plot saved to {scatter_path}")
-
-        plot_timeseries(df_sw, df_ey, str(timeseries_path))
-        logger.info(f"Time series plot saved to {timeseries_path}")
-
-        # Log any quality warnings (empty list if none captured in this run)
-        log_quality_warnings([], warnings_log_path)
-
-        logger.info("Pipeline completed successfully.")
-        return results
-
+        logger.info("Pipeline completed successfully")
+        
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
+        # Log error as quality warning
+        quality_warnings.append({
+            'timestamp': datetime.now().isoformat(),
+            'type': 'error',
+            'message': str(e)
+        })
+        quality_log_path = project_root / 'data' / 'processed' / 'quality_log.json'
+        log_quality_warnings(quality_warnings, quality_log_path)
         raise
 
 def main():
-    parser = argparse.ArgumentParser(description="Solar Wind - Reconnection Analysis Pipeline")
-    parser.add_argument("--start", required=True, help="Start date (YYYY-MM-DD)")
-    parser.add_argument("--end", required=True, help="End date (YYYY-MM-DD)")
+    """Main entry point for the pipeline."""
+    parser = argparse.ArgumentParser(description='Solar wind and geomagnetic tail reconnection analysis')
+    parser.add_argument('--start', type=str, required=True, help='Start date (YYYY-MM-DD)')
+    parser.add_argument('--end', type=str, required=True, help='End date (YYYY-MM-DD)')
+    
     args = parser.parse_args()
+    
+    start_date = datetime.strptime(args.start, '%Y-%m-%d')
+    end_date = datetime.strptime(args.end, '%Y-%m-%d')
+    
+    run_pipeline(start_date, end_date)
 
-    run_pipeline(args.start, args.end)
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

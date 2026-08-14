@@ -11899,3 +11899,209 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T15:37:44Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: physics-based propagation lag formula L_phys equals 6371 divided by vsw_mean
+  claim_id: c_3bca979f
+  context: Task T006a implements the function calculate_l_phys to compute the physics-based
+    propagation lag. The implementation MUST use the simplified formula L_phys = 6371
+    / vsw_mean.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation MUST use the simplified formula L_phys = 6371 / vsw_mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:27:05Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag calculation logs distance of 60 times 6371 km
+  claim_id: c_12da9795
+  context: Task T006a requires the function to log the full derivation constants (Distance
+    = 60 * 6371 km, Vsw_mean, and the resulting L_phys) to the quality_log.json or
+    the final JSON report to ensure the 'Single Source of Truth' (Constitution Principle
+    IV) is verifiable.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The function MUST log the full derivation constants (Distance = 60 * 6371
+    km, Vsw_mean, and the resulting L_phys) to the quality_log.json or the final JSON
+    report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:27:39Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: circular block permutation uses 10000 iterations
+  claim_id: c_ef19ebfc
+  context: Task T008 implements the circular_block_permutation function with n_iterations=10000
+    for empirical p-values (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circular_block_permutation function uses n_iterations=10000 for empirical
+    p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:28:12Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: moving block bootstrap uses 1000 iterations per Kunsch 1989 and Politis
+    and Romano 1994
+  claim_id: c_a058e496
+  context: Task T009 implements the moving_block_bootstrap function with n_iterations=1000
+    (Kunsch 1989, Politis & Romano 1994) for 95% confidence intervals (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The moving_block_bootstrap function uses n_iterations=1000 based on Kunsch
+    1989 and Politis & Romano 1994 for 95% confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:28:39Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds are 400 500 and 600 km per second
+  claim_id: c_71b4d4b4
+  context: "Task T011 implements the analyze_thresholds function to sweep thresholds\
+    \ T across the fixed set T \u2208 {400, 500, 600} km s\u207B\xB9 and recompute\
+    \ correlations (FR-007)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis sweeps thresholds T across the fixed set T \u2208\
+    \ {400, 500, 600} km s\u207B\xB9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:29:41Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: lag search window ranges from 30 to 90 with step 5
+  claim_id: c_b9687b47
+  context: Task T003a defines constants LAG_WINDOW_MIN=30, LAG_WINDOW_MAX=90, LAG_STEP=5.
+    Task T010 implements the find_optimal_lag function to sweep the multi-minute window.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The lag search window sweeps from LAG_WINDOW_MIN=30 to LAG_WINDOW_MAX=90
+    with LAG_STEP=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:30:16Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: synthetic dataset validation reports optimal lag of 45 minutes plus or
+    minus 1 minute
+  claim_id: c_15279363
+  context: "Task T026 requires executing the lag-search on a synthetic dataset (true\
+    \ lag 45 min) and verifying the pipeline reports 45 min (\xB11 min) as the optimal\
+    \ lag."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The optimal lag is reported as 45 min (\xB11 min) for the synthetic dataset\
+    \ validation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:30:32Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: JSON report note states Bonferroni correction is conservative for autocorrelated
+    lag searches
+  claim_id: c_79fdc463
+  context: 'Task T015 requires the main.py to write the narrative note for the ''notes''
+    field of the JSON report as required by FR-013. The note MUST be the static string:
+    ''Bonferroni correction is conservative for autocorrelated lag searches and that
+    the permutation test is the primary method for significance testing; future work
+    should consider adaptive FDR control.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/JSON_report_note_states_Bonferroni_correction_is_conservativ
+  kind: entity_fact
+  raw_text: 'The static note in the JSON report states: ''Bonferroni correction is
+    conservative for autocorrelated lag searches and that the permutation test is
+    the primary method for significance testing; future work should consider adaptive
+    FDR control.'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:31:02Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: gap handling truncates series exceeding 30 minutes
+  claim_id: c_1ff98388
+  context: Task T005b implements the handle_gaps function to flag or truncate series
+    with gaps exceeding max_gap_minutes=30 (FR-003 edge case).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The handle_gaps function flags or truncates series with gaps exceeding
+    max_gap_minutes=30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:31:32Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: physics-based propagation lag formula uses L_phys = 6371 / vsw_mean
+  claim_id: c_22528982
+  context: 'Task T006a implements calculate_l_phys function. The docstring MUST explicitly
+    reference the full derivation from spec FR-012: L_phys = (60 * 6371) / vsw_mean
+    / 60 to ensure traceability to the 60 Re constant.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation MUST use the simplified formula L_phys = 6371 / vsw_mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:33:52Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: 60 Re distance is a heuristic approximation not validated against MHD
+    timescales
+  claim_id: c_ea9e80ff
+  context: "Phase 7, Task T057 requires explicit statement that the 60 Re distance\
+    \ is a heuristic approximation and that the analysis does not validate against\
+    \ MHD timescales (Alfv\xE9n speed) as this is out of scope."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/60_Re_distance_is_a_heuristic_approximation_not_validated_ag
+  kind: entity_fact
+  raw_text: The 60 Re distance is a heuristic approximation and the analysis does
+    not validate against MHD timescales.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-14T23:34:44Z'

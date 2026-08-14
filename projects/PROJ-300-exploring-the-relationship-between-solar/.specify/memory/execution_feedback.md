@@ -23,8 +23,16 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/main.py --start 2023-01-01 --end 2023-01-03 -> rc=1
-    Fetching solar wind data from 2023-01-01 to 2023-01-03...
-Pipeline failed: Real OMNIWeb API fetch is required. Network access to NASA OMNIWeb is needed.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py", line 38, in <module>
+    logging.FileHandler(project_root / 'data' / 'processed' / 'pipeline.log')
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/data/processed/pipeline.log'
 
 ## Declared deliverables still missing
 
@@ -36,6 +44,9 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/processed/quality_log.json` is declared but was NOT written. Scripts referencing it:
     - `code/main.py` — IS a run-book command
+    - `code/verify_artifacts.py` — NOT invoked by the run-book
     - `code/run_e2e_validation.py` — NOT invoked by the run-book
     - `code/run_us3_sample.py` — NOT invoked by the run-book
+    - `code/data/clean.py` — NOT invoked by the run-book
+    - `code/data/lag.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/quality_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

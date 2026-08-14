@@ -1,11 +1,11 @@
 status: none
-intent: "pyspedas heliopy download 1\u2011minute OMNIWeb Vsw Bz and THEMIS EFI Ey\
+intent: "download OMNIWeb 1\u2011minute solar wind Vsw Bz and THEMIS EFI Ey dataset\
   \ python package dataset"
 required_fields:
-- time
-- Vsw_km_s
-- Bz_nT
-- Ey_mV_m
-cache_key: 984b5b78c9308b05486f9bbd93eb1bd6b2523d22492a0056cb821f1dce52e801
-searched_at: '2026-07-24T00:31:09.049204+00:00'
+- timestamp
+- Vsw (km/s)
+- Bz (nT)
+- Ey (mV/m)
+cache_key: 75d2854e9581618b798d8b648212d77211ea2d17dfc23b7cf37819b6763c71e3
+searched_at: '2026-08-14T23:25:14.508510+00:00'
 retry_count: 1

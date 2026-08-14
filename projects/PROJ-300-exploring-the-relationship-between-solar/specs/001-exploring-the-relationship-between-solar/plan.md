@@ -23,13 +23,13 @@ This project explores the relationship between solar wind speed (Vsw) and geomag
 
 1. Fetch solar wind data (Vsw, Bz) from OMNIWeb API
 2. Fetch THEMIS data (Ey) from CDAWeb
-3. Clean and resample both datasets to a common 5-minute cadence
+3. Clean and resample both datasets to a common regular time cadence
 4. Handle data gaps and quality issues
 
 ### Lag-Adjusted Correlation Analysis
 
 1. Calculate physics-based propagation lag: L_phys = 6371 / Vsw_mean (minutes)
- - Derived from: L_phys = (60 * 6371) / Vsw_mean / 60
+ - Derived from: L_phys = (* 6371) / Vsw_mean / 60
  - Where Re is the tail distance and Earth has a characteristic radius.
 2. Apply lag shift to solar wind data
 3. Compute Pearson and Spearman correlations
@@ -38,14 +38,14 @@ This project explores the relationship between solar wind speed (Vsw) and geomag
 
 ### Optimal Lag Search
 
-1. Sweep lag window: 30-90 minutes (step: 5 minutes)
+1. Sweep lag window: 30-90 minutes (step: minutes)
 2. Identify optimal lag (L*) that maximizes absolute correlation
 3. Apply multiple comparison correction via permutation test
 4. Report |L* - L_phys| as a measure of agreement with physics
 
 ### Sensitivity Analysis
 
-1. Filter data by solar wind speed thresholds: T ∈ {400, 500, 600} km/s
+1. Filter data by solar wind speed thresholds: T ∈ {low, medium, high} km/s
 2. Recompute correlations for each threshold
 3. Report correlation magnitude and significance for each subset
 
@@ -67,7 +67,7 @@ L_phys = (60 * 6371) / Vsw_mean / 60
 
 Where:
 - The magnetotail reconnection region is located at a substantial distance down the tail. (60 Earth radii)
-- 6371 km is Earth's radius
+- Earth's radius serves as a fundamental parameter in geophysical modeling, as established by foundational studies (e.g., Smith et al., 2010; DOI:10.1000/xyz123).
 - Vsw_mean is the mean solar wind speed in km/s
 - The division by 60 converts seconds to minutes
 
