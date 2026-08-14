@@ -1,78 +1,140 @@
+"""
+Metric utility for standard accuracy and loss calculations.
+"""
+
+import math
+from typing import List, Optional, Tuple, Union
 import torch
-from typing import List, Dict, Any
+from transformers import PreTrainedModel, PreTrainedTokenizer
 
 class MetricCalculator:
+    """Calculates various metrics for model evaluation."""
+
+    def __init__(self, model: PreTrainedModel, tokenizer: PreTrainedTokenizer):
+        self.model = model
+        self.tokenizer = tokenizer
+        self.model.eval()
+
+    def compute_accuracy(self, predictions: List[int], labels: List[int]) -> float:
+        """
+        Computes accuracy given predicted and true token IDs.
+
+        Args:
+            predictions: List of predicted token IDs.
+            labels: List of true token IDs.
+
+        Returns:
+            Accuracy score.
+        """
+        if len(predictions) != len(labels):
+            raise ValueError("Predictions and labels must be of the same length.")
+        
+        if not predictions:
+            return 0.0
+
+        correct = sum(p == l for p, l in zip(predictions, labels))
+        return correct / len(predictions)
+
+    def compute_loss(self, input_ids: torch.Tensor, labels: torch.Tensor) -> float:
+        """
+        Computes the loss for a given batch.
+
+        Args:
+            input_ids: Input token IDs.
+            labels: Target token IDs.
+
+        Returns:
+            The computed loss.
+        """
+        with torch.no_grad():
+            outputs = self.model(input_ids=input_ids, labels=labels)
+            return outputs.loss.item()
+
+def compute_prediction_error_proxy(
+    model: PreTrainedModel,
+    tokenizer: PreTrainedTokenizer,
+    question: str,
+    answer: str
+) -> float:
     """
-    A utility class for calculating various metrics related to model performance.
+    Computes a proxy for prediction error by evaluating the likelihood of the answer.
+
+    Args:
+        model: The model.
+        tokenizer: The tokenizer.
+        question: The question string.
+        answer: The answer string.
+
+    Returns:
+        A proxy error score (negative log likelihood).
     """
+    prompt = f"Question: {question}\nAnswer: {answer}"
+    inputs = tokenizer(prompt, return_tensors="pt")
+    
+    with torch.no_grad():
+        outputs = model(**inputs, labels=inputs['input_ids'])
+        loss = outputs.loss.item()
+    
+    return loss
 
-    def __init__(self):
-        pass
+def compute_calibration_error(
+    predicted_probs: List[float],
+    actual_outcomes: List[bool]
+) -> float:
+    """
+    Computes the calibration error (Brier score variant).
 
-    @staticmethod
-    def compute_prediction_error_proxy(predictions: torch.Tensor, targets: torch.Tensor) -> float:
-        """
-        Computes a proxy for prediction error (e.g., mean absolute error).
-        Args:
-            predictions (torch.Tensor): The model's predictions.
-            targets (torch.Tensor): The ground truth targets.
+    Args:
+        predicted_probs: List of predicted probabilities.
+        actual_outcomes: List of boolean outcomes.
 
-        Returns:
-            float: The average absolute difference between predictions and targets.
-        """
-        return torch.mean(torch.abs(predictions - targets)).item()  # Convert to Python float
+    Returns:
+        The calibration error.
+    """
+    if len(predicted_probs) != len(actual_outcomes):
+        raise ValueError("Lengths must match.")
+    
+    total_error = 0.0
+    for p, actual in zip(predicted_probs, actual_outcomes):
+        actual_val = 1.0 if actual else 0.0
+        total_error += (p - actual_val) ** 2
+    
+    return total_error / len(predicted_probs)
 
-    @staticmethod
-    def compute_calibration_error(probabilities: List[float], labels: List[int]) -> float:
-        """
-        Computes calibration error (e.g., expected calibration error).
-        Args:
-            probabilities (List[float]): Predicted probabilities for each sample.
-            labels (List[int]): Ground truth labels for each sample.
+def compute_ngram_overlap(
+    text1: str,
+    text2: str,
+    n: int = 2
+) -> float:
+    """
+    Computes the n-gram overlap (Jaccard similarity) between two texts.
 
-        Returns:
-            float: The calibration error score.  (Simple implementation - can be improved)
-        """
-        # Simple implementation: Calculate the average difference between predicted probability and actual label
-        total_error = 0.0
-        for prob, label in zip(probabilities, labels):
-            total_error += abs(prob - label)
-        return total_error / len(probabilities)
+    Args:
+        text1: First text.
+        text2: Second text.
+        n: N-gram size.
 
-    @staticmethod
-    def compute_ngram_overlap(reference: str, candidate: str, n: int = 1) -> float:
-        """
-        Computes the ngram overlap between two strings.
-        Args:
-            reference (str): The reference string.
-            candidate (str): The candidate string.
-            n (int): The ngram size.
+    Returns:
+        Jaccard similarity score.
+    """
+    def get_ngrams(text, n):
+        words = text.lower().split()
+        return set([' '.join(words[i:i+n]) for i in range(len(words) - n + 1)])
 
-        Returns:
-            float: The ngram overlap score.
-        """
-        ref_ngrams = set([reference[i:i+n] for i in range(len(reference) - n + 1)])
-        cand_ngrams = set([candidate[i:i+n] for i in range(len(candidate) - n + 1)])
-        intersection = len(ref_ngrams.intersection(cand_ngrams))
-        union = len(ref_ngrams.union(cand_ngrams))
-        return intersection / union if union > 0 else 0.0
+    ngrams1 = get_ngrams(text1, n)
+    ngrams2 = get_ngrams(text2, n)
 
-    @staticmethod
-    def compute_accuracy(predictions: torch.Tensor, targets: torch.Tensor) -> float:
-      """Computes the accuracy of predictions."""
-      _, predicted = torch.max(predictions, 1)
-      total = targets.size(0)
-      correct = (predicted == targets).sum().item()
-      return correct / total
+    if not ngrams1 or not ngrams2:
+        return 0.0
 
-    @staticmethod
-    def compute_loss(predictions: torch.Tensor, targets: torch.Tensor) -> float:
-        """Computes the loss."""
-        # Example using CrossEntropyLoss
-        criterion = torch.nn.CrossEntropyLoss()
-        loss = criterion(predictions, targets)
-        return loss.item()
+    intersection = ngrams1.intersection(ngrams2)
+    union = ngrams1.union(ngrams2)
 
-    def main(self):
-        """Placeholder for potential future functionality or testing."""
-        pass
+    return len(intersection) / len(union)
+
+def main():
+    """Test the metrics utility."""
+    print("Metrics utility initialized.")
+
+if __name__ == "__main__":
+    main()

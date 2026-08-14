@@ -2,59 +2,70 @@ import os
 import sys
 from pathlib import Path
 
-def setup_data_directories(base_dir: Path) -> None:
+def setup_data_directories(base_path: Path) -> None:
     """
-    Create the required data directory structure:
+    Create the required data directory structure for the project.
+    
+    Directories created:
     - data/raw/
     - data/processed/
     - data/results/
-
+    
     Args:
-        base_dir: The root directory where the 'data' folder will be created.
+        base_path: The project root directory path.
     """
-    data_dir = base_dir / "data"
-    subdirs = ["raw", "processed", "results"]
-
-    for subdir in subdirs:
-        dir_path = data_dir / subdir
+    data_dirs = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+    ]
+    
+    for dir_path in data_dirs:
         dir_path.mkdir(parents=True, exist_ok=True)
         print(f"Created directory: {dir_path}")
 
-def create_gitkeep(base_dir: Path) -> None:
+def create_gitkeep(directory: Path) -> None:
     """
-    Create .gitkeep files in each data subdirectory to ensure they are tracked
-    by git even when empty.
-
+    Create a .gitkeep file in the specified directory to ensure
+    the directory is tracked by git even if empty.
+    
     Args:
-        base_dir: The root directory where the 'data' folder resides.
+        directory: The directory path where .gitkeep should be created.
     """
-    data_dir = base_dir / "data"
-    subdirs = ["raw", "processed", "results"]
-
-    for subdir in subdirs:
-        gitkeep_path = data_dir / subdir / ".gitkeep"
-        gitkeep_path.touch()
-        print(f"Created .gitkeep: {gitkeep_path}")
+    gitkeep_path = directory / ".gitkeep"
+    gitkeep_path.touch()
+    print(f"Created .gitkeep in: {gitkeep_path}")
 
 def main() -> None:
     """
-    Main entry point to setup data directories and .gitkeep files.
-    Assumes the script is run from the project root or code directory.
+    Main entry point to set up data directories and .gitkeep files.
     """
-    # Determine the project root based on the script location
-    # The script is located in: projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/setup_data_dirs.py
-    # We want to create data dirs relative to the project root:
-    # projects/PROJ-582-socratic-transformers-dialogue-based-sel/
+    # Determine project root relative to this script's location
+    # Script is at: code/setup_data_dirs.py
+    # We want to create directories at: <project_root>/data/...
     current_file = Path(__file__).resolve()
     code_dir = current_file.parent
-    project_root = code_dir.parent
-
-    print(f"Project root detected at: {project_root}")
-    print("Setting up data directory structure...")
-
+    project_root = code_dir.parent.parent.parent.parent.parent.parent
+    
+    # Navigate up from code/ to project root
+    # Assuming structure: projects/PROJ-.../code/setup_data_dirs.py
+    # We need to go up 2 levels to reach projects/PROJ-.../
+    project_root = code_dir.parent.parent 
+    
+    data_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "results",
+    ]
+    
+    print(f"Project root: {project_root}")
+    print("Setting up data directories...")
+    
     setup_data_directories(project_root)
-    create_gitkeep(project_root)
-
+    
+    for dir_path in data_dirs:
+        create_gitkeep(dir_path)
+    
     print("Data directory setup complete.")
 
 if __name__ == "__main__":

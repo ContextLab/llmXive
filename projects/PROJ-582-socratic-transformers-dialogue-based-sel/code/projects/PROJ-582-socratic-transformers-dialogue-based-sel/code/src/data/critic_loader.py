@@ -1,14 +1,11 @@
 """
-Critic Model Loader for Socratic Transformers.
+Critic Model Loader for Socratic Transformers Project.
 
 This module handles the acquisition and loading of a frozen, pre-trained
-critic model used for generating adversarial critiques. The model is loaded
-with 4-bit quantization to fit within the 7GB RAM constraint.
-
-Philosophy: This engine executes ordered operations (selection pressure)
-and does not originate inquiry. The critic model is a static component
-defined by configuration.
+small model (Critic) suitable for 4-bit quantization on CPU-constrained
+environments. The model ID is sourced from the project configuration.
 """
+
 import os
 import sys
 import gc
@@ -20,153 +17,236 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel
 
-# Import configuration from the existing API surface
+# Add project root to path if running as script
+if "code" not in sys.path[0]:
+    code_root = Path(__file__).parent.parent.parent
+    if str(code_root) not in sys.path:
+        sys.path.insert(0, str(code_root))
+
 from src.utils.config import get_config
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    ))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 
 class CriticModel:
     """
-    Wrapper class for the frozen critic model and its tokenizer.
-
-    Attributes:
-        model: The loaded PyTorch model instance.
-        tokenizer: The associated tokenizer.
-        config: The configuration object used for loading.
+    Wrapper class for the frozen Critic model and its tokenizer.
+    Ensures the model is loaded with 4-bit quantization and frozen parameters.
     """
-    def __init__(self, model: AutoModelForCausalLM, tokenizer: AutoTokenizer, config_id: str):
-        self.model = model
-        self.tokenizer = tokenizer
-        self.config_id = config_id
-        self._verify_frozen()
 
-    def _verify_frozen(self) -> None:
-        """Assert that the model parameters are frozen (requires_grad=False)."""
+    def __init__(self, model_id: str, device: str = "cpu"):
+        self.model_id = model_id
+        self.device = device
+        self.model: Optional[AutoModelForCausalLM] = None
+        self.tokenizer: Optional[AutoTokenizer] = None
+        self.config: Optional[Dict[str, Any]] = None
+
+    def load(self) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+        """
+        Loads the model and tokenizer from HuggingFace Hub.
+        Applies 4-bit quantization and freezes all parameters.
+
+        Returns:
+            Tuple[AutoModelForCausalLM, AutoTokenizer]: The loaded model and tokenizer.
+
+        Raises:
+            RuntimeError: If the model fails to load or configuration is invalid.
+        """
+        logger.info(f"Loading Critic model: {self.model_id}")
+
+        # Load configuration to get quantization settings if defined there,
+        # otherwise use defaults suitable for CPU/low-memory.
+        try:
+            project_config = get_config()
+            # Use the CRITIC_MODEL_ID from config if not passed explicitly,
+            # but here we trust the constructor argument which should come from config.
+        except Exception as e:
+            logger.warning(f"Could not load project config for model settings: {e}")
+
+        # 4-bit Quantization Configuration
+        # Using bnb_4bit_compute_dtype=torch.float16 for better stability on most hardware
+        # even if running on CPU, though float32 is safer for pure CPU.
+        # Given the constraint "fits in available memory", float16 is preferred for size.
+        bnb_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_compute_dtype=torch.float16
+        )
+
+        # Load Tokenizer
+        try:
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                self.model_id,
+                trust_remote_code=False
+            )
+            # Ensure pad token is set
+            if self.tokenizer.pad_token is None:
+                self.tokenizer.pad_token = self.tokenizer.eos_token
+            logger.info("Tokenizer loaded successfully.")
+        except Exception as e:
+            logger.error(f"Failed to load tokenizer for {self.model_id}: {e}")
+            raise RuntimeError(f"Tokenizer loading failed: {e}") from e
+
+        # Load Model
+        try:
+            self.model = AutoModelForCausalLM.from_pretrained(
+                self.model_id,
+                quantization_config=bnb_config,
+                device_map=self.device if self.device != "cpu" else None,
+                torch_dtype=torch.float16,
+                trust_remote_code=False,
+                low_cpu_mem_usage=True
+            )
+
+            # Explicitly move to device if device_map didn't handle it (e.g. CPU)
+            if self.device == "cpu":
+                self.model = self.model.to(self.device)
+
+            logger.info("Model loaded successfully with 4-bit quantization.")
+
+        except Exception as e:
+            logger.error(f"Failed to load model {self.model_id}: {e}")
+            raise RuntimeError(f"Model loading failed: {e}") from e
+
+        # Freeze all parameters
+        logger.info("Freezing model parameters...")
         for param in self.model.parameters():
-            if param.requires_grad:
-                raise RuntimeError(
-                    f"Critic model parameters must be frozen. "
-                    f"Found a parameter with requires_grad=True in model {self.config_id}."
-                )
-        logger.info(f"Critic model '{self.config_id}' verified as frozen.")
+            param.requires_grad = False
+
+        # Verify freezing
+        if any(p.requires_grad for p in self.model.parameters()):
+            raise RuntimeError("Model parameters were not successfully frozen.")
+
+        logger.info("Model is frozen and ready for inference.")
+        return self.model, self.tokenizer
+
+    def verify_architecture(self) -> Dict[str, Any]:
+        """
+        Verifies that the loaded model matches the expected architecture
+        and returns summary info.
+        """
+        if self.model is None:
+            raise RuntimeError("Model not loaded yet.")
+
+        return {
+            "model_id": self.model_id,
+            "architecture": self.model.config.architectures[0] if hasattr(self.model.config, 'architectures') else "Unknown",
+            "num_parameters": sum(p.numel() for p in self.model.parameters()),
+            "requires_grad": all(not p.requires_grad for p in self.model.parameters()),
+            "device": self.device
+        }
 
 
-def load_frozen_critic() -> CriticModel:
+def load_frozen_critic(model_id: Optional[str] = None) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
-    Loads the frozen critic model specified in the project configuration.
+    Factory function to load the frozen critic model.
 
-    This function:
-    1. Reads `CRITIC_MODEL_ID` from `src/utils/config.py`.
-    2. Configures 4-bit quantization via `bitsandbytes` for CPU/GPU efficiency.
-    3. Loads the model and tokenizer from HuggingFace.
-    4. Verifies the model is frozen.
-    5. Returns a `CriticModel` instance.
+    Args:
+        model_id (Optional[str]): The HuggingFace model ID. If None, reads
+            from `src.utils.config` key `CRITIC_MODEL_ID`.
 
     Returns:
-        CriticModel: The loaded, frozen critic model wrapper.
+        Tuple[AutoModelForCausalLM, AutoTokenizer]: The loaded, frozen model and tokenizer.
 
     Raises:
-        RuntimeError: If the model cannot be loaded or is not frozen.
-        KeyError: If `CRITIC_MODEL_ID` is not defined in the config.
+        RuntimeError: If the model cannot be loaded or verified.
     """
     config = get_config()
 
-    # Retrieve the model ID from configuration
-    critic_model_id = getattr(config, 'CRITIC_MODEL_ID', None)
-    if not critic_model_id:
-        raise RuntimeError(
-            "CRITIC_MODEL_ID is not defined in src/utils/config.py. "
-            "Please define it to proceed with loading the critic model."
-        )
+    if model_id is None:
+        if not hasattr(config, 'CRITIC_MODEL_ID') or config.CRIC_MODEL_ID is None:
+            # Fallback to a known small model if config is missing, but warn
+            # Note: The task requires reading from config. If config is missing,
+            # we should raise an error to satisfy "fail loudly".
+            # However, to make the script runnable for verification, we check the attribute name.
+            # The task says "key CRITIC_MODEL_ID".
+            available_attrs = [a for a in dir(config) if not a.startswith('_')]
+            raise RuntimeError(
+                f"CRITIC_MODEL_ID not found in config. Available attrs: {available_attrs}. "
+                "Please ensure src/utils/config.py defines CRITIC_MODEL_ID."
+            )
+        model_id = config.CRIC_MODEL_ID # Typo in task description? Assuming CRITIC_MODEL_ID
 
-    logger.info(f"Loading frozen critic model: {critic_model_id}")
+        # Correcting potential typo in variable name access based on standard naming
+        # The task explicitly says "key CRITIC_MODEL_ID".
+        if not hasattr(config, 'CRITIC_MODEL_ID'):
+             # Check for common typos or variations if strict key is missing
+             if hasattr(config, 'critic_model_id'):
+                 model_id = config.critic_model_id
+             else:
+                 raise RuntimeError("Config must define 'CRITIC_MODEL_ID' or 'critic_model_id'.")
+        else:
+             model_id = config.CRIC_MODEL_ID # Re-reading: The task says "key CRITIC_MODEL_ID"
+             # Let's assume the config object has this attribute.
 
-    # Configure 4-bit quantization
-    # Note: Using bnb_4bit_compute_type='float32' for stability on CPU/limited GPU
-    quantization_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float32,
-        llm_int8_skip_modules=["lm_head"]
-    )
+    # Re-evaluating: The task says "read from src/utils/config.py (key CRITIC_MODEL_ID)".
+    # I will access it directly. If the attribute doesn't exist, the get_config() wrapper
+    # or the dataclass should handle it.
+    # Let's assume the config object is a dataclass or dict-like.
+    # From the API surface: `from src.utils.config import get_config, SocraticConfig`.
+    # SocraticConfig is a dataclass.
+
+    if model_id is None:
+        try:
+            model_id = config.CRIC_MODEL_ID
+        except AttributeError:
+             # Try standard casing
+             if hasattr(config, 'CRITIC_MODEL_ID'):
+                 model_id = config.CRIC_MODEL_ID
+             else:
+                 raise RuntimeError("CRITIC_MODEL_ID is not defined in src/utils/config.py")
+
+    logger.info(f"Using Critic Model ID: {model_id}")
+
+    critic = CriticModel(model_id=model_id)
+    model, tokenizer = critic.load()
+
+    # Verification
+    arch_info = critic.verify_architecture()
+    assert arch_info["requires_grad"] is True, "Model must be frozen (requires_grad=False)"
+    logger.info(f"Architecture verification passed: {arch_info['architecture']}")
+
+    return model, tokenizer
+
+
+def main():
+    """
+    Main entry point for testing the Critic Loader.
+    Verifies loading, freezing, and architecture.
+    """
+    logging.basicConfig(level=logging.INFO)
 
     try:
-        # Load Tokenizer
-        tokenizer = AutoTokenizer.from_pretrained(
-            critic_model_id,
-            trust_remote_code=True,
-            padding_side="left"
-        )
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
+        model, tokenizer = load_frozen_critic()
 
-        # Load Model
-        # We load the base model first. If a LoRA adapter is expected, it would be applied here,
-        # but for the "frozen critic" role in this pipeline, we typically load the base model
-        # directly as the source of the critique logic.
-        model = AutoModelForCausalLM.from_pretrained(
-            critic_model_id,
-            quantization_config=quantization_config,
-            device_map="auto", # Automatically distributes to available device (CPU/GPU)
-            trust_remote_code=True,
-            torch_dtype=torch.float32
-        )
+        # Run a dummy inference to ensure it works (optional but good for verification)
+        input_text = "Test critique: "
+        inputs = tokenizer(input_text, return_tensors="pt").to(model.device)
 
-        # Explicitly freeze parameters to ensure no gradients are computed
-        for param in model.parameters():
-            param.requires_grad = False
-        model.eval()
+        with torch.no_grad():
+            _ = model.generate(
+                **inputs,
+                max_new_tokens=5,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id
+            )
 
-        # Verify architecture matches expectations (basic check)
-        logger.info(f"Model architecture: {model.config.architectures}")
-        logger.info(f"Model hidden size: {model.config.hidden_size}")
-
-        return CriticModel(model, tokenizer, critic_model_id)
+        logger.info("Critic model loaded and verified successfully.")
+        return 0
 
     except Exception as e:
-        logger.error(f"Failed to load critic model {critic_model_id}: {e}")
-        raise RuntimeError(f"Could not load frozen critic model: {e}") from e
-
-
-def main() -> None:
-    """
-    Entry point for testing the critic loader.
-
-    Executes the load_frozen_critic function and performs basic verification.
-    """
-    try:
-        critic = load_frozen_critic()
-        logger.info("SUCCESS: Critic model loaded and verified.")
-        
-        # Verification: Check requires_grad
-        is_frozen = all(not p.requires_grad for p in critic.model.parameters())
-        if not is_frozen:
-            logger.error("VERIFICATION FAILED: Model is not frozen.")
-            sys.exit(1)
-        
-        # Verification: Check architecture
-        logger.info(f"Architecture verified: {critic.model.config.architectures}")
-        
-        # Clean up to free memory for subsequent tasks
-        del critic
-        gc.collect()
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-        
-        logger.info("Verification complete. Exiting cleanly.")
-        sys.exit(0)
-
-    except Exception as e:
-        logger.error(f"CRITICAL: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to load or verify Critic model: {e}")
+        return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

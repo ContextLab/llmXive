@@ -28,12 +28,10 @@ def validate_dialogue_schema(record: Dict[str, Any]) -> bool:
     """
     Validates a single dialogue tuple record against the required schema.
     
-    Required fields:
+    Required fields (per T045 spec):
     - question (str)
     - initial_answer (str)
-    - critique (dict):
-        - confidence_score (float)
-        - reasoning_snippet (str)
+    - critique (str)
     - revised_answer (str)
     
     Returns True if valid, raises AssertionError if invalid.
@@ -44,28 +42,15 @@ def validate_dialogue_schema(record: Dict[str, Any]) -> bool:
         if field not in record:
             raise AssertionError(f"Missing required field: '{field}'")
     
-    # Validate types
+    # Validate types - all must be strings per spec
     if not isinstance(record['question'], str):
         raise AssertionError(f"Field 'question' must be a string, got {type(record['question'])}")
     if not isinstance(record['initial_answer'], str):
         raise AssertionError(f"Field 'initial_answer' must be a string, got {type(record['initial_answer'])}")
+    if not isinstance(record['critique'], str):
+        raise AssertionError(f"Field 'critique' must be a string, got {type(record['critique'])}")
     if not isinstance(record['revised_answer'], str):
         raise AssertionError(f"Field 'revised_answer' must be a string, got {type(record['revised_answer'])}")
-    
-    # Validate critique structure
-    critique = record['critique']
-    if not isinstance(critique, dict):
-        raise AssertionError(f"Field 'critique' must be a dict, got {type(critique)}")
-    
-    critique_required = ['confidence_score', 'reasoning_snippet']
-    for field in critique_required:
-        if field not in critique:
-            raise AssertionError(f"Missing required field in critique: '{field}'")
-    
-    if not isinstance(critique['confidence_score'], (int, float)):
-        raise AssertionError(f"Field 'critique.confidence_score' must be a number, got {type(critique['confidence_score'])}")
-    if not isinstance(critique['reasoning_snippet'], str):
-        raise AssertionError(f"Field 'critique.reasoning_snippet' must be a string, got {type(critique['reasoning_snippet'])}")
     
     return True
 
@@ -78,10 +63,7 @@ def test_validate_dialogue_schema():
     valid_record = {
         "question": "What is 2 + 2?",
         "initial_answer": "5",
-        "critique": {
-            "confidence_score": 0.45,
-            "reasoning_snippet": "The addition seems incorrect; 2+2 is typically 4."
-        },
+        "critique": "The addition seems incorrect; 2+2 is typically 4.",
         "revised_answer": "4"
     }
     
@@ -91,7 +73,7 @@ def test_validate_dialogue_schema():
     invalid_record_missing = {
         "question": "Test?",
         "initial_answer": "A",
-        "critique": {"confidence_score": 0.5, "reasoning_snippet": "Reason"}
+        "critique": "Reason"
         # Missing revised_answer
     }
     
@@ -99,35 +81,28 @@ def test_validate_dialogue_schema():
         validate_dialogue_schema(invalid_record_missing)
     assert "Missing required field: 'revised_answer'" in str(exc_info.value)
     
-    # Test invalid critique structure
-    invalid_record_critique = {
+    # Test invalid critique type (should be string, not dict)
+    invalid_record_type = {
         "question": "Test?",
         "initial_answer": "A",
-        "critique": {
-            "confidence_score": "high", # Should be number
-            "reasoning_snippet": "Reason"
-        },
+        "critique": {"confidence": 0.5, "text": "Reason"}, # Dict instead of string
         "revised_answer": "B"
     }
     
     with pytest.raises(AssertionError) as exc_info:
-        validate_dialogue_schema(invalid_record_critique)
-    assert "must be a number" in str(exc_info.value)
+        validate_dialogue_schema(invalid_record_type)
+    assert "must be a string" in str(exc_info.value)
     
     # Test missing critique field
     invalid_record_no_critique = {
         "question": "Test?",
         "initial_answer": "A",
-        "critique": {
-            "confidence_score": 0.5
-            # Missing reasoning_snippet
-        },
         "revised_answer": "B"
     }
     
     with pytest.raises(AssertionError) as exc_info:
         validate_dialogue_schema(invalid_record_no_critique)
-    assert "Missing required field in critique: 'reasoning_snippet'" in str(exc_info.value)
+    assert "Missing required field: 'critique'" in str(exc_info.value)
 
 def test_validate_dialogue_schema_file(tmp_path):
     """
@@ -139,13 +114,13 @@ def test_validate_dialogue_schema_file(tmp_path):
         {
             "question": "Q1",
             "initial_answer": "A1",
-            "critique": {"confidence_score": 0.8, "reasoning_snippet": "R1"},
+            "critique": "R1",
             "revised_answer": "A1_rev"
         },
         {
             "question": "Q2",
             "initial_answer": "A2",
-            "critique": {"confidence_score": 0.2, "reasoning_snippet": "R2"},
+            "critique": "R2",
             "revised_answer": "A2_rev"
         }
     ]

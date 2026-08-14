@@ -1,106 +1,81 @@
 """
-T001a: Create project code structure.
+Task T001: Initialize project directory structure.
 
-Creates the required directory tree for the Socratic Transformers project
-under projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/.
-
-Directories created:
-- src/
-- src/data/
-- src/train/
-- src/eval/
-- src/utils/
+Creates the required directory hierarchy for the Socratic Transformers project
+and places .gitkeep files in data directories to ensure they are tracked by git.
 """
 import os
 import sys
 from pathlib import Path
 
-# Define the project root relative to the script location
-# The script is expected to be run from: projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/
-SCRIPT_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR  # This is the 'code' directory
-
-# Define the relative paths to create
-SRC_DIRS = [
-    "src",
-    "src/data",
-    "src/train",
-    "src/eval",
-    "src/utils",
-]
-
 def create_directories():
-    """Create the directory structure if it doesn't exist."""
-    created_count = 0
-    for rel_path in SRC_DIRS:
-        full_path = PROJECT_ROOT / rel_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory exists: {full_path}")
+    """Create the project directory structure."""
+    # Define the root path for this specific project
+    project_root = Path("projects/PROJ-582-socratic-transformers-dialogue-based-sel/code")
     
-    return created_count
+    # Define subdirectories to create
+    subdirs = [
+        "src",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "tests"
+    ]
+    
+    created_paths = []
+    
+    for subdir in subdirs:
+        full_path = project_root / subdir
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(str(full_path))
+        print(f"Created directory: {full_path}")
+        
+        # Create .gitkeep in data directories
+        if subdir.startswith("data"):
+            gitkeep_path = full_path / ".gitkeep"
+            gitkeep_path.touch(exist_ok=True)
+            print(f"  -> Created .gitkeep in {full_path}")
+    
+    return created_paths
 
 def verify_structure():
-    """Verify that all required directories exist and print the tree."""
-    print("\n--- Verifying Directory Structure ---")
-    src_root = PROJECT_ROOT / "src"
+    """Verify that the required directories exist."""
+    project_root = Path("projects/PROJ-582-socratic-transformers-dialogue-based-sel/code")
     
-    if not src_root.exists():
-        print(f"ERROR: Root src directory does not exist: {src_root}")
-        return False
-
-    # Check all required subdirectories
-    required_subdirs = ["data", "train", "eval", "utils"]
+    required_dirs = [
+        project_root / "src",
+        project_root / "data/raw",
+        project_root / "data/processed",
+        project_root / "data/results",
+        project_root / "tests"
+    ]
+    
     all_exist = True
-    
-    for subdir in required_subdirs:
-        path = src_root / subdir
-        if path.exists() and path.is_dir():
-            print(f"OK: {path}")
-        else:
-            print(f"MISSING: {path}")
+    for dir_path in required_dirs:
+        if not dir_path.is_dir():
+            print(f"ERROR: Missing directory {dir_path}")
             all_exist = False
-
-    # Print recursive listing as verification evidence
-    print("\n--- Recursive Listing (ls -R) ---")
-    # Simulating 'ls -R src'
-    def print_tree(directory, prefix=""):
-        print(f"{directory.name}/")
-        try:
-            entries = sorted(directory.iterdir())
-            for i, entry in enumerate(entries):
-                is_last = i == len(entries) - 1
-                connector = "└── " if is_last else "├── "
-                print(f"{prefix}{connector}{entry.name}")
-                if entry.is_dir():
-                    new_prefix = prefix + ("    " if is_last else "│   ")
-                    print_tree(entry, new_prefix)
-        except PermissionError:
-            print(f"{prefix}    [Permission Denied]")
-
-    print_tree(src_root)
+        else:
+            print(f"Verified: {dir_path}")
     
     return all_exist
 
 def main():
-    """Main entry point."""
-    print(f"Running T001a: Creating project code structure in {PROJECT_ROOT}")
+    """Main entry point for the script."""
+    print("Initializing project directory structure for PROJ-582...")
     
+    # Create directories
     created = create_directories()
-    if created > 0:
-        print(f"Successfully created {created} new directories.")
+    print(f"\nSuccessfully created {len(created)} directories.")
     
-    is_valid = verify_structure()
-    
-    if is_valid:
-        print("\n✓ Verification PASSED: All required directories exist.")
-        sys.exit(0)
+    # Verify structure
+    print("\nVerifying structure...")
+    if verify_structure():
+        print("\n✅ All directories verified successfully.")
+        return 0
     else:
-        print("\n✗ Verification FAILED: Some directories are missing.")
-        sys.exit(1)
+        print("\n❌ Verification failed. Some directories are missing.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

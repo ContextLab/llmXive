@@ -1,15 +1,8 @@
 """
 Environment configuration management for the Socratic Transformers project.
 
-This module centralizes configuration for random seeds, model paths, and
-critical hyperparameters. It ensures reproducibility and provides a single
-source of truth for model identifiers used across the pipeline.
-
-Philosophical Note:
-This configuration defines the "ordered operations" of the engine.
-CRITIC_MODEL_ID and BASE_MODEL_ID are fixed parameters (punch-cards)
-that determine the selection pressure and the subject of evolution,
-respectively. They are not learned; they are instantiated.
+This module handles random seeds, model paths, and critical hyperparameters
+required for reproducibility and consistent execution across the pipeline.
 """
 
 import os
@@ -20,160 +13,178 @@ from typing import Optional, Dict, Any, List
 
 import numpy as np
 
-# Default Model Identifiers
-# These are selected to fit within the 7GB RAM constraint with 4-bit quantization
-# as per project constraints.
-DEFAULT_CRITIC_MODEL_ID = "microsoft/phi-2"  # Small, capable, fits in quantized RAM
-DEFAULT_BASE_MODEL_ID = "microsoft/phi-2"    # Using same for consistency in MVP, can be swapped
+# Project Root relative to this file
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-# Default Seeds
-DEFAULT_SEED = 42
 
 @dataclass
 class SocraticConfig:
     """
-    Central configuration container for the Socratic pipeline.
+    Central configuration container for the Socratic Transformers pipeline.
 
     Attributes:
-        critic_model_id: HuggingFace model ID for the frozen critic (adversarial component).
-        base_model_id: HuggingFace model ID for the base model to be fine-tuned.
-        seed: Random seed for reproducibility across numpy, torch, and python.
-        project_root: Path to the project root directory.
-        data_root: Path to the data directory.
-        results_root: Path to the results directory.
-        max_tokens: Maximum sequence length for generation.
-        temperature: Temperature for text generation (default 0.7 for revised answers).
-        log_level: Logging level string.
+        CRITIC_MODEL_ID: HuggingFace model ID for the frozen critic model.
+        BASE_MODEL_ID: HuggingFace model ID for the base model to be fine-tuned.
+        QUESTION_BANK_PATH: Path to the question bank or dataset source.
+        SEED: Random seed for reproducibility.
+        MAX_SEQ_LENGTH: Maximum sequence length for tokenization.
+        OUTPUT_DIR: Root directory for all generated artifacts.
+        DATA_RAW_DIR: Directory for raw downloaded datasets.
+        DATA_PROCESSED_DIR: Directory for processed dataset files.
+        DATA_RESULTS_DIR: Directory for evaluation results and checkpoints.
+        STATE_DIR: Directory for manifests and state tracking.
     """
-    critic_model_id: str = DEFAULT_CRITIC_MODEL_ID
-    base_model_id: str = DEFAULT_BASE_MODEL_ID
-    seed: int = DEFAULT_SEED
-    project_root: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent.parent.parent)
-    data_root: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent.parent.parent / "data")
-    results_root: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent.parent.parent / "data" / "results")
-    max_tokens: int = 512
-    temperature: float = 0.7
-    log_level: str = "INFO"
-    
-    # Additional hyperparameters for training/generation
-    batch_size: int = 1
-    gradient_accumulation_steps: int = 4
-    max_retries: int = 3
-    quality_gate_min_tokens: int = 20
+
+    # Model Identifiers (Required)
+    CRITIC_MODEL_ID: str = "distilbert-base-uncased"
+    BASE_MODEL_ID: str = "distilbert-base-uncased"
+
+    # Data Paths
+    QUESTION_BANK_PATH: str = field(default_factory=lambda: str(_PROJECT_ROOT / "data" / "raw"))
+
+    # Randomness
+    SEED: int = 42
+
+    # Hyperparameters
+    MAX_SEQ_LENGTH: int = 512
+    BATCH_SIZE: int = 2
+    GRADIENT_ACCUMULATION_STEPS: int = 4
+
+    # Directory Structure (Relative to project root)
+    OUTPUT_DIR: str = field(default_factory=lambda: str(_PROJECT_ROOT / "data" / "results"))
+    DATA_RAW_DIR: str = field(default_factory=lambda: str(_PROJECT_ROOT / "data" / "raw"))
+    DATA_PROCESSED_DIR: str = field(default_factory=lambda: str(_PROJECT_ROOT / "data" / "processed"))
+    DATA_RESULTS_DIR: str = field(default_factory=lambda: str(_PROJECT_ROOT / "data" / "results"))
+    STATE_DIR: str = field(default_factory=lambda: str(_PROJECT_ROOT / "state"))
+
+    # Training Constraints
+    CPU_TIMEOUT_HOURS: int = 5
+    MAX_MEMORY_GB: float = 6.5
 
     def __post_init__(self):
-        # Ensure paths are Path objects
-        if isinstance(self.project_root, str):
-            self.project_root = Path(self.project_root)
-        if isinstance(self.data_root, str):
-            self.data_root = Path(self.data_root)
-        if isinstance(self.results_root, str):
-            self.results_root = Path(self.results_root)
+        """Ensure paths are Path objects if strings are provided."""
+        self.QUESTION_BANK_PATH = Path(self.QUESTION_BANK_PATH)
+        self.OUTPUT_DIR = Path(self.OUTPUT_DIR)
+        self.DATA_RAW_DIR = Path(self.DATA_RAW_DIR)
+        self.DATA_PROCESSED_DIR = Path(self.DATA_PROCESSED_DIR)
+        self.DATA_RESULTS_DIR = Path(self.DATA_RESULTS_DIR)
+        self.STATE_DIR = Path(self.STATE_DIR)
 
-        # Validate critical model IDs are not empty
-        if not self.critic_model_id:
-            raise ValueError("CRITIC_MODEL_ID cannot be empty")
-        if not self.base_model_id:
-            raise ValueError("BASE_MODEL_ID cannot be empty")
 
 # Global configuration instance
 _global_config: Optional[SocraticConfig] = None
 
+
 def get_config() -> SocraticConfig:
     """
     Returns the global SocraticConfig instance.
-    Initializes it with defaults if not yet set.
+    If not initialized, creates a default one.
     """
     global _global_config
     if _global_config is None:
-        _global_config = SocraticConfig()
+        _global_config = load_config_from_env()
     return _global_config
+
 
 def set_global_config(config: SocraticConfig) -> None:
     """
-    Sets the global configuration instance.
-    Useful for overwriting defaults in tests or CLI execution.
+    Sets the global configuration instance explicitly.
+    Useful for testing or overriding defaults.
     """
     global _global_config
     _global_config = config
 
+
 def load_config_from_env() -> SocraticConfig:
     """
     Loads configuration from environment variables, falling back to defaults.
-    
+
     Environment Variables:
-        CRITIC_MODEL_ID: Model ID for the critic.
-        BASE_MODEL_ID: Model ID for the base model.
-        SEED: Random seed.
-        MAX_TOKENS: Max sequence length.
-        TEMPERATURE: Generation temperature.
+        CRITIC_MODEL_ID: Overrides the critic model ID.
+        BASE_MODEL_ID: Overrides the base model ID.
+        QUESTION_BANK_PATH: Overrides the question bank path.
+        SEED: Overrides the random seed.
+        MAX_SEQ_LENGTH: Overrides max sequence length.
     """
-    critic_id = os.getenv("CRITIC_MODEL_ID", DEFAULT_CRITIC_MODEL_ID)
-    base_id = os.getenv("BASE_MODEL_ID", DEFAULT_BASE_MODEL_ID)
-    seed = int(os.getenv("SEED", DEFAULT_SEED))
-    max_tok = int(os.getenv("MAX_TOKENS", 512))
-    temp = float(os.getenv("TEMPERATURE", 0.7))
-    
-    config = SocraticConfig(
-        critic_model_id=critic_id,
-        base_model_id=base_id,
-        seed=seed,
-        max_tokens=max_tok,
-        temperature=temp
-    )
-    set_global_config(config)
+    config = SocraticConfig()
+
+    # Override with environment variables if present
+    if os.getenv("CRITIC_MODEL_ID"):
+        config.CRITIC_MODEL_ID = os.getenv("CRITIC_MODEL_ID")
+    if os.getenv("BASE_MODEL_ID"):
+        config.BASE_MODEL_ID = os.getenv("BASE_MODEL_ID")
+    if os.getenv("QUESTION_BANK_PATH"):
+        config.QUESTION_BANK_PATH = Path(os.getenv("QUESTION_BANK_PATH"))
+    if os.getenv("SEED"):
+        try:
+            config.SEED = int(os.getenv("SEED"))
+        except ValueError:
+            pass
+    if os.getenv("MAX_SEQ_LENGTH"):
+        try:
+            config.MAX_SEQ_LENGTH = int(os.getenv("MAX_SEQ_LENGTH"))
+        except ValueError:
+            pass
+
     return config
+
 
 def set_seed(seed: Optional[int] = None) -> None:
     """
-    Sets the random seed for reproducibility across all libraries.
-    
+    Sets the random seed for Python, NumPy, and PyTorch (if available).
+
     Args:
-        seed: The seed value. If None, uses the seed from global config.
+        seed: The seed value. If None, uses the seed from the global config.
     """
     if seed is None:
-        seed = get_config().seed
-    
+        seed = get_config().SEED
+
     random.seed(seed)
     np.random.seed(seed)
-    
-    # Attempt to set torch seed if available
+
     try:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
             torch.cuda.manual_seed_all(seed)
     except ImportError:
-        pass  # Torch not installed, skip
+        pass
 
-def init_project() -> SocraticConfig:
-    """
-    Initializes the project configuration from environment and sets seeds.
-    Also ensures necessary directories exist based on config paths.
-    """
-    config = load_config_from_env()
-    set_seed(config.seed)
-    
-    # Ensure data and results directories exist
-    config.data_root.mkdir(parents=True, exist_ok=True)
-    config.results_root.mkdir(parents=True, exist_ok=True)
-    
-    return config
 
-def main():
+def init_project() -> None:
+    """
+    Initializes the project directory structure based on the configuration.
+    Creates necessary folders for data, results, and state if they don't exist.
+    """
+    config = get_config()
+    directories = [
+        config.DATA_RAW_DIR,
+        config.DATA_PROCESSED_DIR,
+        config.DATA_RESULTS_DIR,
+        config.STATE_DIR,
+        config.OUTPUT_DIR,
+    ]
+
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+
+
+def main() -> None:
     """
     CLI entry point to print current configuration.
     """
-    config = init_project()
-    print(f"Configuration Loaded:")
-    print(f"  Critic Model: {config.critic_model_id}")
-    print(f"  Base Model: {config.base_model_id}")
-    print(f"  Seed: {config.seed}")
-    print(f"  Max Tokens: {config.max_tokens}")
-    print(f"  Temperature: {config.temperature}")
-    print(f"  Data Root: {config.data_root}")
-    print(f"  Results Root: {config.results_root}")
+    config = get_config()
+    print("Socratic Transformers Configuration:")
+    print(f"  Critic Model ID: {config.CRITIC_MODEL_ID}")
+    print(f"  Base Model ID: {config.BASE_MODEL_ID}")
+    print(f"  Question Bank Path: {config.QUESTION_BANK_PATH}")
+    print(f"  Random Seed: {config.SEED}")
+    print(f"  Max Sequence Length: {config.MAX_SEQ_LENGTH}")
+    print(f"  Data Raw Dir: {config.DATA_RAW_DIR}")
+    print(f"  Data Processed Dir: {config.DATA_PROCESSED_DIR}")
+    print(f"  Data Results Dir: {config.DATA_RESULTS_DIR}")
+    print(f"  State Dir: {config.STATE_DIR}")
+
 
 if __name__ == "__main__":
     main()

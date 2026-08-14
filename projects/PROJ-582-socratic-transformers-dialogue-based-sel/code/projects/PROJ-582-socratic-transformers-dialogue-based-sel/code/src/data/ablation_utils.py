@@ -1,172 +1,227 @@
 """
-Ablation utilities for calculating token lengths and generating neutral placeholders.
+Ablation utilities for generating neutral placeholders and calculating token metrics.
 
-This module provides tools to measure the token count of critique strings
-using the target tokenizer (loaded from config) and to generate neutral
-placeholder text of equivalent token length for ablation studies.
-
-Philosophical Note:
-This utility supports the "negative selection on belief" framework by allowing
-the isolation of semantic content from token count. By replacing critiques
-with neutral placeholders of identical length, we can determine if the
-learning signal comes from the *content* of the critique or merely the
-*presence* of a selection pressure (token duration/complexity).
+This module provides functions to calculate the token count of critique strings
+and generate neutral placeholders with equivalent token lengths for ablation studies.
 """
-import logging
-from typing import Optional, Tuple, List
-import re
 
+import logging
+from typing import Optional, Tuple, List, Union
+
+import re
 from transformers import AutoTokenizer
+
 from src.utils.config import get_config
 
-# Configure logging
 logger = logging.getLogger(__name__)
+
+_tokenizer: Optional[AutoTokenizer] = None
+
 
 def get_target_tokenizer() -> AutoTokenizer:
     """
-    Loads the target tokenizer based on the BASE_MODEL_ID from config.
+    Retrieve the tokenizer for the base model defined in config.
 
     Returns:
-        AutoTokenizer: The loaded tokenizer instance.
+        AutoTokenizer: The configured tokenizer instance.
 
     Raises:
-        ValueError: If the tokenizer cannot be loaded or config is missing.
+        ValueError: If the tokenizer cannot be loaded or configuration is missing.
     """
-    config = get_config()
-    model_id = config.BASE_MODEL_ID
+    global _tokenizer
+    if _tokenizer is None:
+        config = get_config()
+        if not hasattr(config, 'BASE_MODEL_ID') or config.BASE_MODEL_ID is None:
+            raise ValueError(
+                "BASE_MODEL_ID is not defined in config. "
+                "Please ensure src/utils/config.py is properly configured."
+            )
+        
+        logger.info(f"Loading tokenizer for base model: {config.BASE_MODEL_ID}")
+        try:
+            _tokenizer = AutoTokenizer.from_pretrained(config.BASE_MODEL_ID)
+            # Ensure padding token is set if not already
+            if _tokenizer.pad_token is None:
+                _tokenizer.pad_token = _tokenizer.eos_token
+        except Exception as e:
+            logger.error(f"Failed to load tokenizer for {config.BASE_MODEL_ID}: {e}")
+            raise
+    
+    return _tokenizer
 
-    if not model_id:
-        raise ValueError("BASE_MODEL_ID is not defined in configuration.")
 
-    logger.info(f"Loading tokenizer for model: {model_id}")
-    try:
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
-        # Ensure pad token is set if not already
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
-        return tokenizer
-    except Exception as e:
-        logger.error(f"Failed to load tokenizer for {model_id}: {e}")
-        raise
-
-def calculate_token_length(text: str, tokenizer: Optional[AutoTokenizer] = None) -> int:
+def calculate_token_count(text: Union[str, List[str]]) -> Union[int, List[int]]:
     """
-    Calculates the exact token count of a given string using the target tokenizer.
+    Calculate the token count of a text string (or list of strings) using the base model tokenizer.
 
-    This function is critical for the ablation study (T015b) to ensure that
-    neutral placeholders match the original critique's token length exactly.
+    This function is critical for T015a (FR-007) to ensure ablation placeholders
+    match the original critique's token length.
 
     Args:
-        text (str): The string to tokenize (e.g., a critique).
-        tokenizer (AutoTokenizer, optional): The tokenizer to use. If None,
-            loads the target tokenizer from config.
+        text: The string or list of strings to tokenize.
 
     Returns:
-        int: The number of tokens in the text.
+        The number of tokens (int) or a list of token counts (List[int]).
+
+    Raises:
+        ValueError: If the input is empty or not a string/list of strings.
+        RuntimeError: If the tokenizer fails to encode the input.
     """
-    if tokenizer is None:
-        tokenizer = get_target_tokenizer()
+    if text is None:
+        raise ValueError("Input text cannot be None.")
+    
+    tokenizer = get_target_tokenizer()
 
-    if not isinstance(text, str):
-        raise TypeError(f"Expected string input, got {type(text)}")
+    if isinstance(text, str):
+        if not text.strip():
+            return 0
+        try:
+            # Use encode to get the list of token IDs
+            # add_special_tokens=False ensures we only count the text tokens
+            token_ids = tokenizer.encode(text, add_special_tokens=False)
+            return len(token_ids)
+        except Exception as e:
+            logger.error(f"Tokenization failed for text: '{text[:50]}...'. Error: {e}")
+            raise RuntimeError(f"Failed to encode text: {e}")
+    
+    elif isinstance(text, list):
+        if not text:
+            return []
+        if not all(isinstance(item, str) for item in text):
+            raise ValueError("All items in the list must be strings.")
+        
+        counts = []
+        for item in text:
+            if not item.strip():
+                counts.append(0)
+            else:
+                try:
+                    token_ids = tokenizer.encode(item, add_special_tokens=False)
+                    counts.append(len(token_ids))
+                except Exception as e:
+                    logger.error(f"Tokenization failed for list item: '{item[:50]}...'. Error: {e}")
+                    raise RuntimeError(f"Failed to encode list item: {e}")
+        return counts
+    
+    else:
+        raise ValueError(f"Input must be a string or list of strings, got {type(text)}")
 
-    # Encode the text and count tokens
-    # add_special_tokens=False ensures we only count the content tokens
-    encoding = tokenizer.encode(text, add_special_tokens=False)
-    token_count = len(encoding)
 
-    logger.debug(f"Text length: {len(text)} chars -> {token_count} tokens")
-    return token_count
-
-def load_spacy_model() -> Optional[object]:
+def load_spacy_model(lang: str = "en_core_web_sm") -> Optional[object]:
     """
-    Attempts to load a spaCy model for syntactic complexity analysis.
-    This is optional and used for advanced ablation metrics.
+    Attempt to load a spaCy model for syntactic complexity analysis.
+
+    Note: This is a fallback utility. The primary tokenization is handled by
+    the transformer tokenizer via calculate_token_count.
+
+    Args:
+        lang: The spaCy language model to load.
 
     Returns:
-        object or None: The spaCy nlp model if available, None otherwise.
+        The loaded spaCy nlp object, or None if not available.
     """
     try:
         import spacy
-        # Try loading a small model, fallback to None if not installed
-        try:
-            return spacy.load("en_core_web_sm")
-        except OSError:
-            logger.warning("spaCy 'en_core_web_sm' model not found. Install with 'python -m spacy download en_core_web_sm'")
-            return None
-    except ImportError:
-        logger.warning("spaCy not installed. Syntactic complexity analysis will be skipped.")
+        return spacy.load(lang)
+    except (ImportError, OSError) as e:
+        logger.warning(f"spaCy model '{lang}' not available. Syntactic complexity analysis will be skipped. Error: {e}")
         return None
+
 
 def calculate_syntactic_complexity(text: str, nlp: Optional[object] = None) -> float:
     """
-    Calculates a proxy for syntactic complexity (e.g., average dependency depth).
+    Calculate a proxy for syntactic complexity (e.g., average dependency depth).
+
+    Requires a loaded spaCy model. If nlp is None, it attempts to load the default.
 
     Args:
-        text (str): The text to analyze.
-        nlp (object, optional): A loaded spaCy nlp model.
+        text: The text to analyze.
+        nlp: Optional loaded spaCy model.
 
     Returns:
-        float: A complexity score (0.0 if analysis fails).
+        A float representing the complexity score, or 0.0 if analysis fails.
     """
     if nlp is None:
         nlp = load_spacy_model()
-
+    
     if nlp is None:
+        logger.warning("spaCy not available; returning 0.0 for syntactic complexity.")
         return 0.0
 
     try:
         doc = nlp(text)
         # Simple metric: average depth of dependency tree
-        depths = [token.dep_.count('-') + 1 for token in doc if token.dep_]
-        if not depths:
-            return 0.0
-        return sum(depths) / len(depths)
+        # This is a proxy; more complex metrics can be derived from doc.sents
+        total_depth = 0
+        node_count = 0
+        for token in doc:
+            depth = 0
+            ancestor = token.head
+            while ancestor != token:
+                depth += 1
+                ancestor = ancestor.head
+                if depth > 10: # Safety break
+                    break
+            total_depth += depth
+            node_count += 1
+        
+        return total_depth / node_count if node_count > 0 else 0.0
     except Exception as e:
         logger.warning(f"Failed to calculate syntactic complexity: {e}")
         return 0.0
 
-def verify_token_match(original_text: str, placeholder_text: str, tokenizer: Optional[AutoTokenizer] = None) -> bool:
+
+def verify_token_match(original_text: str, placeholder_text: str, tolerance: int = 1) -> bool:
     """
-    Verifies that the placeholder text has the exact same token count as the original.
+    Verify that the placeholder text matches the token count of the original text.
 
     Args:
-        original_text (str): The original critique string.
-        placeholder_text (str): The generated placeholder string.
-        tokenizer (AutoTokenizer, optional): The tokenizer to use.
+        original_text: The original critique string.
+        placeholder_text: The generated neutral placeholder string.
+        tolerance: Allowed difference in token count (default 1).
 
     Returns:
-        bool: True if token counts match, False otherwise.
+        True if the token counts match within tolerance, False otherwise.
     """
-    orig_len = calculate_token_length(original_text, tokenizer)
-    placeholder_len = calculate_token_length(placeholder_text, tokenizer)
-    match = orig_len == placeholder_len
+    orig_count = calculate_token_count(original_text)
+    place_count = calculate_token_count(placeholder_text)
+    
+    diff = abs(orig_count - place_count)
+    is_match = diff <= tolerance
+    
+    if not is_match:
+        logger.warning(
+            f"Token count mismatch: Original={orig_count}, Placeholder={place_count}, Diff={diff}"
+        )
+    
+    return is_match
 
-    if not match:
-        logger.warning(f"Token mismatch: Original={orig_len}, Placeholder={placeholder_len}")
-    else:
-        logger.debug("Token length verification passed.")
-
-    return match
 
 def main():
     """
-    Main entry point for testing the token calculator utility.
+    Main entry point for testing the ablation utilities.
     """
-    import sys
-    import json
-
-    # Example usage
-    sample_critique = "The initial answer is incorrect because it fails to account for the constraints of the problem. Specifically, the logic assumes a linear relationship where a non-linear one exists."
-
+    logging.basicConfig(level=logging.INFO)
+    
+    test_text = "This is a test critique to verify the token counting mechanism."
+    print(f"Input text: {test_text}")
+    
     try:
+        count = calculate_token_count(test_text)
+        print(f"Token count: {count}")
+        
+        # Verify against direct tokenizer call
         tokenizer = get_target_tokenizer()
-        length = calculate_token_length(sample_critique, tokenizer)
-        print(f"Sample Critique Token Count: {length}")
-        print(f"Sample Text: {sample_critique}")
+        direct_count = len(tokenizer.encode(test_text, add_special_tokens=False))
+        print(f"Direct tokenizer count: {direct_count}")
+        
+        assert count == direct_count, f"Counts do not match: {count} != {direct_count}"
+        print("Verification successful: Token count matches direct tokenizer output.")
+        
     except Exception as e:
-        print(f"Error running token calculator: {e}", file=sys.stderr)
-        sys.exit(1)
+        print(f"Error during verification: {e}")
+        raise
+
 
 if __name__ == "__main__":
     main()

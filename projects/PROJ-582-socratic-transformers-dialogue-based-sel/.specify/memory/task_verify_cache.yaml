@@ -1,12 +1,13 @@
-T001c:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or evidence of the `data/raw/`, `data/processed/`, and
-    `data/results/` folders were provided; the implementer did not include the required
-    `ls -R data` output to confirm their existence.
+  r: No directory structure or `.gitkeep` files are shown in the provided evidence,
+    and the required verification command cannot be demonstrated to succeed. The implementer
+    must create the specified folders and placeholder files and show that the assertion
+    script runs without error.
 T002:
   c: false
-  h: 13d3972d21abece3364ab0b4636b00ceca8c80c8849b26f9e3e72eae82eec641
-  r: The required `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
-    file does not exist, so the specified dependencies are not initialized at the
-    correct location. The existing `code/requirements.txt` is irrelevant to the task.
+  h: 7a3cade8cf40f49cc10b059f510c244c8faac13976c7d6b35d46f851a099c4d7
+  r: The required file `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
+    does not exist, so the specified dependencies are not initialized at the correct
+    location. The existing `code/requirements.txt` is irrelevant to the task.

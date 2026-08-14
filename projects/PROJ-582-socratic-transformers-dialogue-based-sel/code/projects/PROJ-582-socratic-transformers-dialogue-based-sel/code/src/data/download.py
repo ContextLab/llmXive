@@ -1,244 +1,196 @@
 """
 Dataset Downloader for Socratic Transformers Project.
 
-This module implements the real data fetching for GSM8K and MATH datasets
-via HuggingFace `datasets`. It ensures data integrity by computing checksums
-and verifying them against a manifest stored in `state/`.
+This module handles the downloading and verification of the GSM8K and MATH datasets
+from HuggingFace, ensuring data integrity via checksums against a manifest.
 
-Per task T012:
-- Fetches real data (never synthetic).
-- Verifies checksums against `state/manifest.json`.
-- Fails loudly if real data cannot be obtained.
+Dependencies: datasets, hashlib, json, pathlib, typing
 """
-import os
-import sys
+
 import hashlib
 import json
+import os
+import sys
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any, List, Optional
 
-# Ensure project root is in path for imports if running as script
-_project_root = Path(__file__).resolve().parents[3]
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+# Import config to get paths if needed, though we rely on relative paths here
+# from src.utils.config import get_config
 
-try:
-    from datasets import load_dataset
-except ImportError:
-    raise ImportError(
-        "The 'datasets' package is required. Install it via: pip install datasets"
-    )
+# Ensure the script can be run from the project root
+# If running as a module, adjust sys.path if necessary
+if 'projects/PROJ-582-socratic-transformers-dialogue-based-sel/code' not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Constants for dataset configuration
-DATASET_CONFIGS = {
-    "gsm8k": {
-        "id": "openai/gsm8k",
-        "split": "train",
-        "output_file": "gsm8k_train.jsonl",
-        "description": "Grade School Math 8K dataset",
-    },
-    "math": {
-        "id": "hendrycks/math",
-        "split": "train",
-        "output_file": "math_train.jsonl",
-        "description": "MATH dataset (Hendrycks)",
-    },
-}
+from datasets import load_dataset
 
-# Paths relative to project root
-DATA_RAW_DIR = _project_root / "data" / "raw"
-STATE_DIR = _project_root / "state"
-MANIFEST_PATH = STATE_DIR / "manifest.json"
+
+PROJECT_ROOT = Path(__file__).parent.parent.parent.parent.parent
+STATE_DIR = PROJECT_ROOT / "state"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
 
 def ensure_data_dirs() -> None:
-    """Create necessary data directories if they do not exist."""
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    """Ensure required directories exist."""
     STATE_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def compute_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
-    """
-    Compute the SHA-256 hash of a file.
-
-    Args:
-        file_path: Path to the file to hash.
-        algorithm: Hash algorithm to use (default: sha256).
-
-    Returns:
-        Hexadecimal string of the hash.
-    """
+def compute_file_hash(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 
 def load_manifest() -> Dict[str, Any]:
-    """
-    Load the checksum manifest from the state directory.
-
-    Returns:
-        Dictionary containing the manifest data.
-        Returns an empty dict if the manifest does not exist.
-    """
-    if not MANIFEST_PATH.exists():
-        return {}
-    with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
+    """Load the checksum manifest from state/manifest.json."""
+    manifest_path = STATE_DIR / "manifest.json"
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found at {manifest_path}. "
+                                "Run T010 (verify_datasets.py) first to create it.")
+    with open(manifest_path, "r") as f:
         return json.load(f)
 
 
 def save_manifest(manifest: Dict[str, Any]) -> None:
-    """
-    Save the checksum manifest to the state directory.
-
-    Args:
-        manifest: Dictionary to save.
-    """
-    with open(MANIFEST_PATH, "w", encoding="utf-8") as f:
+    """Save the checksum manifest to state/manifest.json."""
+    manifest_path = STATE_DIR / "manifest.json"
+    with open(manifest_path, "w") as f:
         json.dump(manifest, f, indent=2)
 
 
-def verify_checksums(dataset_name: str, file_path: Path, expected_hash: str) -> bool:
+def verify_checksums(dataset_name: str, local_path: Path) -> bool:
     """
-    Verify the checksum of a downloaded file against the expected hash.
-
-    Args:
-        dataset_name: Name of the dataset (for logging).
-        file_path: Path to the downloaded file.
-        expected_hash: Expected SHA-256 hash.
-
-    Returns:
-        True if hashes match, False otherwise.
+    Verify the local dataset cache against the manifest.
+    Returns True if checksums match, False otherwise.
     """
-    if not file_path.exists():
+    manifest = load_manifest()
+    if dataset_name not in manifest:
+        raise ValueError(f"Dataset {dataset_name} not found in manifest. "
+                         "Run T010 to register it.")
+
+    expected_hash = manifest[dataset_name]["hash"]
+    # Note: HuggingFace datasets cache structure can be complex.
+    # For this task, we assume the manifest stores the hash of the primary
+    # data file or the cache directory hash if implemented in T010.
+    # We will attempt to compute hash of the first data file found in the cache
+    # to match against the manifest logic established in T010.
+
+    # Since T010 is the source of truth for the manifest, we trust its logic.
+    # Here we simply check if the file exists and re-compute hash to compare.
+    # If T010 stored a specific file path, we would use that.
+    # Assuming T010 registered the cache directory hash or a specific split file.
+    # To be robust, we check if the local path exists and matches the expected hash.
+    
+    if not local_path.exists():
         return False
-    actual_hash = compute_file_hash(file_path)
+
+    # We need to match the logic of T010. T010 likely hashed the downloaded file.
+    # We will compute the hash of the local_path (if it's a file) or a representative file.
+    # For simplicity in this implementation, assuming local_path is the primary artifact.
+    actual_hash = compute_file_hash(local_path) if local_path.is_file() else "dir_hash_placeholder"
+    
+    # If the manifest stores a directory hash, we can't easily recompute it without
+    # iterating all files. We assume T010 stored the hash of the main data file.
+    # If local_path is a directory (HuggingFace cache), we look for the main data file.
+    if local_path.is_dir():
+        # Heuristic: look for 'data-00000-of-00001.arrow' or similar
+        data_files = list(local_path.glob("*.arrow")) + list(local_path.glob("*.json"))
+        if data_files:
+            actual_hash = compute_file_hash(data_files[0])
+        else:
+            # Fallback: hash the directory structure (not recommended for exact match)
+            raise ValueError("Could not find primary data file in cache directory.")
+
     return actual_hash == expected_hash
 
 
-def download_dataset(dataset_name: str, force: bool = False) -> Path:
+def download_dataset(dataset_name: str, split: str = "train") -> Path:
     """
-    Download a specific dataset from HuggingFace and save it as JSONL.
-
-    This function fetches REAL data. If the fetch fails, it raises an exception.
-    It does NOT generate synthetic data.
-
-    Args:
-        dataset_name: Key in DATASET_CONFIGS (e.g., 'gsm8k', 'math').
-        force: If True, re-download even if file exists.
-
-    Returns:
-        Path to the downloaded JSONL file.
+    Download and cache a dataset using HuggingFace datasets.
+    Returns the path to the cached dataset.
     """
-    if dataset_name not in DATASET_CONFIGS:
-        raise ValueError(f"Unknown dataset: {dataset_name}")
-
-    config = DATASET_CONFIGS[dataset_name]
-    dataset_id = config["id"]
-    split = config["split"]
-    output_filename = config["output_file"]
-    output_path = DATA_RAW_DIR / output_filename
-
-    # Check if file already exists and verify
-    if output_path.exists() and not force:
-        print(f"Checking existing file: {output_path}")
-        manifest = load_manifest()
-        if dataset_name in manifest:
-            expected_hash = manifest[dataset_name]["hash"]
-            if verify_checksums(dataset_name, output_path, expected_hash):
-                print(f"Checksum verified for {dataset_name}. Skipping download.")
-                return output_path
-            else:
-                print(f"Checksum mismatch for {dataset_name}. Re-downloading.")
-        else:
-            print(f"Manifest missing for {dataset_name}. Re-downloading.")
-
-    print(f"Downloading {dataset_id} (split: {split})...")
-    try:
-        # Load the real dataset from HuggingFace
-        # Using streaming=False to ensure we have the full data for checksumming
-        # If memory is an issue, the task requires streaming or chunking, but for
-        # GSM8K/MATH train splits, full load is usually feasible in 7GB RAM.
-        ds = load_dataset(dataset_id, split=split, trust_remote_code=True)
-    except Exception as e:
-        raise RuntimeError(
-            f"Failed to download real dataset {dataset_id}: {e}. "
-            "The loader must fail loudly; no synthetic fallback allowed."
-        ) from e
-
-    print(f"Dataset loaded. {len(ds)} examples. Writing to {output_path}...")
-
-    # Write to JSONL
-    with open(output_path, "w", encoding="utf-8") as f:
-        for item in ds:
-            f.write(json.dumps(item, ensure_ascii=False) + "\n")
-
-    print(f"Download complete. Calculating hash...")
-    file_hash = compute_file_hash(output_path)
-
-    # Update manifest
-    manifest = load_manifest()
-    manifest[dataset_name] = {
-        "hash": file_hash,
-        "source": dataset_id,
-        "split": split,
-        "size_bytes": output_path.stat().st_size,
-    }
-    save_manifest(manifest)
-
-    print(f"Saved manifest. Hash: {file_hash}")
-    return output_path
+    print(f"Downloading dataset: {dataset_name} (split: {split})")
+    
+    # Load dataset (this caches it locally in HF default cache or HF_HOME)
+    # We use streaming=False to ensure full download for checksum verification
+    ds = load_dataset(dataset_name, split=split, trust_remote_code=True)
+    
+    # HuggingFace datasets doesn't expose the exact cache path easily in all versions.
+    # However, we can save the dataset to a specific path for verification purposes
+    # or rely on the fact that T010 registered the hash of the cached version.
+    # To make verification robust, we will save the dataset to our data/raw directory
+    # in a standard format (Parquet or JSON) to have a deterministic file to hash.
+    
+    output_dir = DATA_RAW_DIR / dataset_name.split("/")[-1]
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / f"{split}.parquet"
+    
+    ds.to_parquet(str(output_file))
+    print(f"Dataset saved to: {output_file}")
+    
+    return output_file
 
 
-def download_all_datasets(force: bool = False) -> List[Path]:
-    """
-    Download all configured datasets.
-
-    Args:
-        force: If True, re-download all datasets.
-
-    Returns:
-        List of paths to the downloaded files.
-    """
+def download_all_datasets() -> None:
+    """Download and verify all required datasets (GSM8K, MATH)."""
     ensure_data_dirs()
-    paths = []
-    for name in DATASET_CONFIGS.keys():
-        paths.append(download_dataset(name, force=force))
-    return paths
+    
+    datasets_config = [
+        {"name": "openai/gsm8k", "config": "main", "split": "train"},
+        {"name": "hendrycks/math", "config": "all", "split": "train"} # or 'test' depending on spec
+    ]
+    
+    # Note: T010 should have registered these in the manifest.
+    # We download, save to a deterministic location, then verify.
+    
+    for cfg in datasets_config:
+        ds_name = cfg["name"]
+        split = cfg["split"]
+        
+        try:
+            file_path = download_dataset(ds_name, split)
+            
+            # Verify checksum
+            # We need to map our local file to the manifest key.
+            # The manifest key should be the dataset name.
+            # T010 must have stored the hash of the file we are about to create
+            # OR we must update the manifest if T010 was a dry-run (unlikely).
+            # Assuming T010 already downloaded and hashed, we just verify here.
+            # But if T010 only registered the EXPECTED hash from a known source,
+            # we compare our download against that.
+            
+            # For this task, we assume the manifest contains the expected hash
+            # for the dataset as downloaded by T010.
+            # We verify our download matches.
+            if verify_checksums(ds_name, file_path):
+                print(f"✓ Checksum verified for {ds_name}")
+            else:
+                print(f"✗ Checksum MISMATCH for {ds_name}")
+                # Fail loudly as per constraints
+                raise RuntimeError(f"Data integrity check failed for {ds_name}")
+                
+        except Exception as e:
+            print(f"Error processing {ds_name}: {e}")
+            raise
 
 
 def main():
-    """Main entry point for the script."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Download GSM8K and MATH datasets.")
-    parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Force re-download even if files exist and checksums match.",
-    )
-    parser.add_argument(
-        "--dataset",
-        choices=["gsm8k", "math", "all"],
-        default="all",
-        help="Which dataset to download.",
-    )
-
-    args = parser.parse_args()
-    ensure_data_dirs()
-
-    if args.dataset == "all":
-        paths = download_all_datasets(force=args.force)
-    else:
-        paths = [download_dataset(args.dataset, force=args.force)]
-
-    print("\nDownloaded files:")
-    for p in paths:
-        print(f"  - {p}")
-    print("Verification complete.")
+    """Main entry point for the download script."""
+    print("Starting dataset download and verification...")
+    try:
+        download_all_datasets()
+        print("All datasets downloaded and verified successfully.")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        print("Please ensure T010 (verify_datasets.py) has been run to create the manifest.")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Fatal error: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

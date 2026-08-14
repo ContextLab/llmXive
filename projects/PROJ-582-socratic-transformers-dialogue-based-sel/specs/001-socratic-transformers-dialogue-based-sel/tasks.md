@@ -24,11 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project code root: Create directory `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`. **Verification**: Run `python -c "import os; assert os.path.isdir('projects/PROJ-582-socratic-transformers-dialogue-based-sel/code')"` and assert exit code 0.
-- [ ] T001b [P] Create `src` directory: Create directory `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src/`. **Verification**: Run `python -c "import os; assert os.path.isdir('projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src')"` and assert exit code 0.
-- [ ] T001c [P] Create data directories and `.gitkeep`: Create directories `data/raw/`, `data/processed/`, `data/results/` at project root and create `.gitkeep` files in each. **Verification**: Run `python -c "import os; assert os.path.isdir('data/raw') and os.path.isfile('data/raw/.gitkeep')"` and assert exit code 0 for all directories.
-- [ ] T002 [P] Initialize Python project with dependencies (`transformers`, `peft`, `bitsandbytes`, `datasets`, `scikit-learn`, `pandas`, `pytest`, `tokenizers`, `nltk`, `spaCy`) in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`
-- [ ] T003 [P] Configure linting and formatting tools: Create `pyproject.toml` and `ruff.toml` in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`. **Verification**: Run `ruff check .` and verify exit code 0.
+- [ ] T001 [P] Initialize project directory structure: Create directory `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/` and subdirectories `src/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`. Create `.gitkeep` files in data directories. **Verification**: Run `python -c "import os; assert all(os.path.isdir(p) for p in ['projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/src', 'projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/data/raw'])"` and assert exit code 0.
+- [ ] T002 [P] Initialize Python project with dependencies (`transformers`, `peft`, `bitsandbytes`, `datasets`, `scikit-learn`, `pandas`, `pytest`, `tokenizers`, `nltk`, `psutil`) in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/requirements.txt`.
+- [ ] T003 [P] Configure linting and formatting tools: Create `pyproject.toml` and `ruff.toml` in `projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/`. **Verification**: Run `ruff check.` and verify exit code 0.
 
 ---
 
@@ -39,10 +37,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T005 [P] Implement structured logging utility in `src/utils/logging.py` to handle degenerate dialogue events as JSON lines. **Schema**: Events must follow `{"event_type": str, "timestamp": str, "details": dict}`.
-- [ ] T006 [P] Setup environment configuration management for random seeds and model paths in `src/utils/config.py`. **Requirement**: Define `CRITIC_MODEL_ID` and `BASE_MODEL_ID` here.
-- [ ] T007 [P] Implement base model loader utility in `src/utils/model_loader.py` supporting 4-bit quantization via `bitsandbytes` (CPU backend). **Verification**: Run `python -c "from src.utils.model_loader import load_model; load_model()"` and assert exit code 0.
+- [ ] T006 [P] Setup environment configuration management for random seeds and model paths in `src/utils/config.py`. **Requirement**: Define `CRITIC_MODEL_ID`, `BASE_MODEL_ID`, and `QUESTION_BANK_PATH` here.
+- [ ] T007 [P] Implement base model loader utility in `src/utils/model_loader.py` supporting -bit quantization via `bitsandbytes` (CPU backend). **Verification**: Run `python -c "from src.utils.model_loader import load_model; load_model()"` and assert exit code 0.
 - [ ] T008 [P] Implement metric utility in `src/utils/metrics.py` for standard accuracy and loss calculations.
-- [ ] T010 [P] Implement `verify_datasets.py` in `src/data/verify_datasets.py`: Record checksums for GSM8K (`openai/gsm8k`) and MATH (`hendrycks/math`) in `state/` manifest, validate raw data integrity against the manifest before processing. **Verification**: Run script and assert exit code 0 only if checksums match the recorded manifest.
+- [ ] T010 [P] Implement `verify_datasets.py` in `src/data/verify_datasets.py`: Record checksums for GSM8K (`openai/gsm8k`) and MATH (`hendrycks/math`) in `state/` manifest, validate raw data integrity against the manifest before processing. **Verification**: Run script and assert exit code 0 only if checksums match the recorded manifest. **Dependency**: This task must complete before T012 (Data Download) to ensure data integrity.
+- [ ] T046 [FR-002] Implement Frozen Critic Model loader in `src/data/critic_loader.py`: acquire a frozen, pre-trained small model that fits in available memory with 4-bit quantization. **Logic**: The specific model ID must be read from `src/utils/config.py` (key `CRITIC_MODEL_ID`) to allow for reproducibility and updates. This model serves as the "external mechanism" for adversarial critique as mandated by FR-002. **Verification**: Assert `model.requires_grad = False`, verify the model loads successfully from HuggingFace (cached) using the config ID, and confirm the model architecture matches the config.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -56,31 +55,33 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015a [FR-007] Implement complexity calculator in `src/data/ablation_utils.py`: Calculate the **syntactic complexity** of a critique string for natural language text. **Logic**: Implement a function `calculate_complexity(text)` that returns a dict with `token_count` and `ngram_entropy`. `token_count` is the number of tokens using the target tokenizer. `ngram_entropy` is calculated by computing the Shannon entropy of the 2-gram distribution of the text. This replaces the invalid 'AST depth' requirement with a metric valid for natural language. **Dependency**: Requires `nltk` or `spaCy` (from T002).
-- [ ] T046 [P] Download/Load Frozen Critic Model in `src/data/critic_loader.py`: acquire a frozen, pre-trained small model that fits in available memory with 4-bit quantization. **Logic**: The specific model ID must be read from `src/utils/config.py` (key `CRITIC_MODEL_ID`) to allow for reproducibility and updates. **Verification**: Assert `model.requires_grad = False`, verify the model loads successfully from HuggingFace (cached) using the config ID, and confirm the model architecture matches the config.
-- [ ] T012 [P] Implement dataset downloader in `src/data/download.py` fetching GSM8K/MATH via HuggingFace `datasets.load_dataset` (real data requirement). **Verification**: Verify checksums match `state/` manifest.
-- [ ] T013 [P] Implement static QA extractor in `src/data/static_extractor.py` to generate the baseline dataset (question, answer) from downloaded sources for comparative study (FR-001). **Output**: `data/processed/static_tuples.jsonl`.
-- [ ] T014 [P] Implement self-critique generator in `src/data/generate_dialogue.py` that:
- 1. **Prerequisites**: Depends on T012 (data), T046 (model), and T015a (complexity calc).
+- [ ] T012 [P] Implement dataset downloader in `src/data/download.py` fetching GSM8K/MATH via HuggingFace `datasets.load_dataset` (real data requirement). **Verification**: Verify checksums match `state/` manifest. **Dependency**: Depends on T010 (Data Verification) completing successfully.
+- [X] T045 [P] Implement dialogue tuple schema validation in `tests/contract/test_schemas.py`: implement `test_validate_dialogue_schema` to assert JSONL records contain `question`, `initial_answer`, `critique`, and `revised_answer` fields, matching the spec's tuple structure. **Schema Definition**: Records must contain exactly these keys: `question` (str), `initial_answer` (str), `critique` (str), `revised_answer` (str). **Verification**: Run `pytest tests/contract/test_schemas.py` and assert exit code 0. **Note**: This test is written BEFORE implementation (T014) to enforce TDD.
+- [ ] T015a [FR-007] Implement token counter in `src/data/ablation_utils.py`: Calculate the **token count** of a critique string. **Logic**: Implement a function `calculate_token_count(text)` that returns an integer representing the number of tokens using the tokenizer from the base model (defined in `config.py` from T006). **Verification**: Assert that the count matches the tokenizer's `encode` length. **Dependency**: Requires `nltk` or `spaCy` (from T002) if needed for tokenization fallback, but primarily uses the transformer tokenizer.
+- [ ] T013 [FR-001] Implement static QA extractor in `src/data/static_extractor.py` to generate the baseline dataset (question, answer) from downloaded sources for comparative study (FR-001). **Output**: `data/processed/static_tuples.jsonl`. **Verification**: Assert output file exists and contains valid JSONL with `question` and `answer` keys.
+- [ ] T014 [FR-001] [FR-002] Implement self-critique generator in `src/data/generate_dialogue.py` that:
+ 1. **Prerequisites**: Depends on T012 (data), T046 (model), T015a (token counter), and T045 (schema validation).
  2. **Load Model**: Loads the **frozen Critic Model** instance produced by T046 via `load_frozen_critic()`.
- 3. **Generate Critique**: Generates a critique by filling deterministic templates with model-derived evidence. **Prompt Template**: "Identify logical contradictions, unsupported assumptions, or high-probability errors in the following answer: [ANSWER]. Output only the critique."
- 4. **Generate Revised Answer (Negative Selection)**: Generates a `revised_answer` by:
-    - Generating N=5 candidate answers using Temperature=0.0 (deterministic) to ensure reproducibility.
-    - Scoring each candidate against the generated critique using the Critic Model's likelihood (log-probability).
-    - **Rejecting** any candidate that fails the critique check (i.e., if the critique identifies a specific error, the candidate must not contain that error).
-    - **Selecting** the first candidate that passes the critique check.
-    - If no candidate passes within N attempts, default to a safe fallback answer or mark as `null` (logged).
-    - **Note**: This is a rejection-based selection process (negative selection), not a reinforcement of the initial belief.
- 5. **Quality Gate**: Applies a quality gate: Discard dialogues where critique length < 20 tokens or lacks logical keywords. **Regex**: `r'(contradiction|error|incorrect|invalid|fallacy|unsubstantiated|contradicts)'`.
- 6. **Integration**: Combines the core generation logic and quality gate into a single execution flow, ensuring the output matches the schema defined in T045.
- 7. **Output**: `data/processed/dialogue_tuples.jsonl`.
+ 3. **Extract Question**: Extracts the question from the source dataset (GSM8K/MATH) as the 'Variation' source (FR-001).
+ 4. **Generate Initial Answer**: Generates an initial answer using the Base Model (Temperature=0.0).
+ 5. **Generate Critique**: Generates a critique by prompting the frozen Critic Model to "Identify logical contradictions, unsupported assumptions, or high-probability errors in the following answer: [ANSWER]. Output only the critique."
+ 6. **Generate Revised Answer (Negative Selection)**: Generates a `revised_answer` by:
+ - Generating K=5 candidate answers using Temperature=0.0 (deterministic).
+ - Scoring each candidate against the generated critique.
+ - **Rejecting** any candidate that contains the specific error phrase identified in the critique.
+ - **Selecting** the first candidate that passes the critique check (does NOT contain the error).
+ - If all candidates contain the error (or no candidate passes), **discard the tuple** (log as rejected). Do NOT select the "least bad" candidate.
+ 7. **Quality Gate**: Applies a quality gate: Discard dialogues where critique length is 0 or lacks logical keywords. **Regex**: `r'(contradiction|error|incorrect|invalid|fallacy|unsubstantiated|contradicts)'`.
+ 8. **Integration**: Combines the core generation logic and quality gate into a single execution flow, ensuring the output matches the schema defined in T045.
+ 9. **Output**: `data/processed/dialogue_tuples.jsonl`.
+ **Verification**: Run a sample batch and assert that `revised_answer` does NOT contain the specific error phrase found in `critique`, and that tuples where all candidates failed the critique are NOT present in the output (or are explicitly logged as rejected).
  **Note**: This task explicitly integrates the model loading (T046) and quality gating logic into a single coherent script as defined in plan.md T014.
-- [ ] T015b [FR-007] Implement ablation data generator in `src/data/ablation.py` replacing critique text with neutral placeholder text of equivalent **syntactic complexity** (token count and n-gram entropy) (FR-007). **Logic**:
- - **Placeholder Generation**: Generate a neutral, semantically void placeholder string that matches the **token count** and **n-gram entropy** of the original critique (calculated by T015a).
+- [ ] T015b [FR-007] Implement ablation data generator in `src/data/ablation.py` replacing critique text with neutral placeholder text of equivalent **token length** (FR-007). **Logic**:
+ - **Placeholder Generation**: Generate a neutral, semantically void placeholder string by repeating the token `[NEUTRAL]` until the token count matches the original critique (calculated by the utility in T015a), then truncate to the exact match.
  - **Replacement**: Replace the semantic content of the original critique with the generated placeholder.
  - **Output**: `data/processed/ablation_tuples.jsonl`.
+ **Verification**: Assert that the token count of the generated placeholder matches the original critique's token count within a tolerance of ±1 token.
  **Note**: This task depends on T014 and T015a completion.
-- [ ] T045 [P] Implement dialogue tuple schema validation in `tests/contract/test_schemas.py`: implement `test_validate_dialogue_schema` to assert JSONL records contain `question`, `initial_answer`, `critique`, and `revised_answer` fields, matching the spec's tuple structure. **Schema Definition**: Records must contain exactly these keys: `question` (str), `initial_answer` (str), `critique` (str), `revised_answer` (str). **Verification**: Run `pytest tests/contract/test_schemas.py` and assert exit code 0. **Dependency**: Requires T014 to have generated sample data for validation.
 
 **Checkpoint**: At this point, User Story 1 is fully functional for Static, Dialogue, and Ablation tuples. **Note**: User Story 2 (Training) requires T015b (Ablation) to be complete as well.
 
@@ -94,13 +95,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] Implement LoRA configuration in `src/train/lora_config.py` with `batch_size ≤ 2`, `gradient_accumulation_steps = 4`, and 4-bit quantization (FR-003).
-- [ ] T021 Implement CPU-safe training loop in `src/train/train_loop.py` with a hard timeout of **5 hours** using `signal.signal(signal.SIGALRM, timeout_handler)`. **Verification**: Implement memory monitoring using `psutil` to sample the training process RSS at regular intervals; log warnings if RSS > 6.5GB. Rely on execution stage error handling if limit is exceeded. Note: Validation data loading for Early Stopping is [deferred] per plan.md, so this check applies to the training batch processing only.
+- [ ] T020 [FR-003] [P] Implement LoRA configuration in `src/train/lora_config.py` with `batch_size ≤ 2`, `gradient_accumulation_steps = 4`, and 4-bit quantization (FR-003).
+- [ ] T021 [FR-008] Implement CPU-safe training loop in `src/train/train_loop.py` with a hard timeout of **5 hours** using `signal.signal(signal.SIGALRM, timeout_handler)`. **Verification**: Implement memory monitoring using `psutil` to sample the training process RSS at regular intervals; log warnings if RSS > 6.5GB. **Timeout Verification**: Run script with a 1-second timeout trigger to verify it exits with code 1, logs "TIMEOUT", and saves the last checkpoint. Rely on execution stage error handling if limit is exceeded. Note: Validation data loading for Early Stopping is [deferred] per plan.md, so this check applies to the training batch processing only.
 - [ ] T047a [P] Implement Condition A (Selection) training run in `src/train/run_selection_train.py`: Fine-tune model on `data/processed/dialogue_tuples.jsonl`. **Output**: `data/results/checkpoint_selection.pt`.
 - [ ] T047b [P] Implement Condition B (Ablation) training run in `src/train/run_ablation_train.py`: Fine-tune model on `data/processed/ablation_tuples.jsonl` (from T015b). **Output**: `data/results/checkpoint_ablation.pt`.
 - [ ] T047c [P] Implement Condition C (Static) training run in `src/train/run_static_train.py`: Fine-tune model on `data/processed/static_tuples.jsonl` (from T013). **Output**: `data/results/checkpoint_static.pt`.
-- [ ] T047e [P] Execute Comparative Training Runs: Orchestrate the execution of T047a, T047b, and T047c scripts sequentially to generate the required checkpoints. **Verification**: Assert that `data/results/checkpoint_selection.pt`, `data/results/checkpoint_ablation.pt`, and `data/results/checkpoint_static.pt` exist and are non-empty after execution. **Note**: This task ensures the data required for T047d is actually produced.
-- [ ] T047d [FR-006] Implement Unified Evaluation in `src/eval/evaluate.py`: **Prerequisites**: T047e must be completed successfully. Load checkpoints from T047e (`checkpoint_selection.pt`, `checkpoint_ablation.pt`, `checkpoint_static.pt`). Run evaluation on GSM8K test split and MMLU STEM subset for each. **Error Handling**: If any checkpoint is missing, log error and exit with non-zero code. **Output**: `data/results/metrics.json` containing accuracy and loss for all three conditions.
+- [ ] T047d [FR-006] Implement Unified Evaluation in `src/eval/evaluate.py`: **Prerequisites**: T047a, T047b, T047c must be completed successfully. Load checkpoints from T047a-c (`checkpoint_selection.pt`, `checkpoint_ablation.pt`, `checkpoint_static.pt`). Run evaluation on GSMK test split and MMLU STEM subset for each. **Error Handling**: If any checkpoint is missing, the script should attempt to run the corresponding training script (T047a-c) if not already run, or exit with non-zero code if manual intervention is required. **Output**: `data/results/metrics.json` containing accuracy and loss for all three conditions. **Verification**: Assert that metrics.json contains accuracy keys for all three conditions and that the GSM8K test split size matches the dataset definition.
+- [ ] T048 [P] Implement Checksum Manifest Generator in `src/utils/checksum_manifest.py`: Generate SHA-256 hashes for all checkpoint files (`checkpoint_*.pt`) and append them to `state/artifact_hashes.yaml`. **Verification**: Run script and verify `state/artifact_hashes.yaml` contains entries for all three checkpoint files with valid hashes.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,10 +115,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T033 [P] Create `src/utils/stats_analysis.py`:
+- [ ] T033 [FR-006] [P] Create `src/utils/stats_analysis.py`:
  - **Input**: Read from `data/results/metrics.json`.
  - **Output**: Write to `data/results/stats_report.md`.
- - Perform **Independent t-tests** (Selection vs. Ablation, Selection vs. Static) with Bonferron correction ($\alpha = 0.025$).
+ - Perform **Independent t-tests** (Selection vs. Ablation, Selection vs. Static) with Bonferroni correction ($\alpha = 0.025$).
  - Calculate MDES and report effect sizes.
  - **Stop-Rule**: If effect size < MDES, report "Inconclusive due to power".
  - **Ablation Logic**: Implement the specific comparison logic to isolate the effect of the selection signal content vs. token count.
@@ -132,6 +133,8 @@
 
 - [ ] T042 [P] Run `ruff check` and `black --check` on all `src/` and `tests/` files; fix any linting/formatting errors to achieve zero violations.
 - [ ] T049 [P] Run `bash projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/quickstart.sh` (or equivalent command) and verify exit code 0 to confirm all quickstart steps execute without error.
+
+**Note**: Tasks T053, T054, T055, T056, and T057 (Philosophical Alignment/Verification) have been REMOVED as they constitute unapproved scope creep not defined in spec.md FR-001 through FR-008, and contained forbidden bracketed attribution markers.
 
 ---
 
@@ -226,4 +229,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Scope Decision**: Phase 6 (Philosophical Alignment) and associated tasks (T050-T055) have been REMOVED as they constitute unapproved scope creep not defined in spec.md FR-001 through FR-008.
+- **Scope Decision**: Phase 6 (Philosophical Alignment) and associated tasks (T050-T057) have been REMOVED as they constitute unapproved scope creep not defined in spec.md FR-001 through FR-008.
+- **Data Integrity**: T010 (Data Verification) must complete before T012 (Data Download) to ensure checksums are validated before processing.
+- **TDD Principle**: T045 (Schema Validation) is written before T014 (Implementation) to enforce test-first development.
+- **Negative Selection**: T014 strictly implements rejection-based selection (discard if error present), not best-of-N selection.

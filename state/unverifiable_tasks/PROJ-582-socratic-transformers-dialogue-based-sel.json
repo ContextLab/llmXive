@@ -1,0 +1,41 @@
+{
+  "project_id": "PROJ-582-socratic-transformers-dialogue-based-sel",
+  "tasks": [
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: pyproject.toml, ruff.toml",
+      "first_seen": "2026-08-14T17:14:14.071898+00:00",
+      "last_seen": "2026-08-14T17:14:14.071898+00:00"
+    },
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/utils/logging.py",
+      "first_seen": "2026-08-14T17:14:14.073239+00:00",
+      "last_seen": "2026-08-14T17:14:14.073239+00:00"
+    },
+    {
+      "task_key": "T006",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/utils/config.py",
+      "first_seen": "2026-08-14T17:14:14.074088+00:00",
+      "last_seen": "2026-08-14T17:14:14.074088+00:00"
+    },
+    {
+      "task_key": "T007",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/utils/model_loader.py",
+      "first_seen": "2026-08-14T17:14:14.074929+00:00",
+      "last_seen": "2026-08-14T17:14:14.074929+00:00"
+    },
+    {
+      "task_key": "T008",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/utils/metrics.py",
+      "first_seen": "2026-08-14T17:14:14.075664+00:00",
+      "last_seen": "2026-08-14T17:14:14.075664+00:00"
+    }
+  ],
+  "updated_at": "2026-08-14T17:14:14.075664+00:00"
+}

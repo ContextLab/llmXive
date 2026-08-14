@@ -1,36 +1,31 @@
 # Ruff configuration for Socratic Transformers project
-# Enforces strict linting and formatting rules consistent with project standards
+target-version = "py39"
+line-length = 100
 
 [lint]
-# Enable specific rule sets
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # pyupgrade
-    "RUF", # Ruff-specific rules
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
 ]
 ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in ML configs)
-    "C901", # Too complex (temporary relaxation for complex ML logic)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
 
 [lint.isort]
 known-first-party = ["src", "tests"]
 force-to-top = ["src"]
-lines-after-imports = 2
 
 [lint.per-file-ignores]
-# Allow specific exceptions for test files and scripts
-"tests/**/*.py" = ["S101", "S311"] # Skip assert and random usage warnings in tests
-"src/data/*.py" = ["B028"] # Skip stacklevel warnings in data loading scripts
+"__init__.py" = ["F401"]
+"tests/*" = ["S101", "ARG"]
 
 [format]
-# Consistent with Black formatting
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
