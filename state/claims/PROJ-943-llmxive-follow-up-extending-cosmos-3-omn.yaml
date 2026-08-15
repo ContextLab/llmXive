@@ -1,0 +1,58 @@
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: DistilBERT proxy model achieves >85% accuracy on symbolic task but drops
+    on continuous control tasks
+  claim_id: c_f8620c8a
+  context: Section 5.3 Model Performance discusses early experiment results regarding
+    the proxy model's performance on different tasks.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Early experiments suggest that the DistilBERT proxy model can achieve
+    >85% accuracy on the symbolic task, but performance drops significantly when evaluated
+    on pure continuous control tasks (physics reward prediction), confirming the existence
+    of a modality gap.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T10:48:22Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: Bridge Data dataset includes actions and text_description fields
+  claim_id: c_07be621c
+  context: Section 2.2 Rationale for Bridge Data Selection lists the dataset features.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bridge_Data_dataset_includes_actions_and_text_description_fi
+  kind: entity_fact
+  raw_text: The dataset includes actions (continuous vectors) and text_description
+    fields, which are essential for the symbolic transformation logic defined in this
+    project.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T10:48:37Z'
+- artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
+  attempts: 1
+  canonical: Bridge Data dataset has ~7GB RAM footprint when streamed
+  claim_id: c_d2cee2cc
+  context: Section 2.2 Rationale for Bridge Data Selection discusses dataset size
+    and feasibility.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bridge_Data_dataset_has_~7GB_RAM_footprint_when_streamed
+  kind: entity_fact
+  raw_text: The dataset size (~7GB RAM footprint when streamed) aligns with the project's
+    memory constraints, allowing for end-to-end processing on standard hardware.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T10:49:00Z'

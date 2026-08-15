@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up"
+version = "0.1.0"
+description = "Extension of Cosmos 3: Omnimodal World Models for Physical AI"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "datasets",
+    "transformers",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "pytest",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "black",
+    "isort",
+    "pytest-cov",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["utils", "config"]
+skip = [".git", "__pycache__", "build", "dist", ".eggs", ".tox", ".venv"]
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.setuptools]
+packages = ["code", "code.utils", "code.tests", "code.scripts"]
+
+[tool.setuptools.package-dir]
+"" = "code"

@@ -9,14 +9,3 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/bridge-to-worlds/bridge-data
   verified_at: '2026-08-13T13:32:01.840533Z'
-- artifact_hash: 271413472a46f7f6a3f1a5b6396defb769c16a6e7117b0a44d5a3ae3b361f69e
-  artifact_path: projects/PROJ-943-llmxive-follow-up-extending-cosmos-3-omn/specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/bridge-to-worlds/bridge-data`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/bridge-to-worlds/bridge-data
-  verified_at: '2026-08-13T13:32:03.219958Z'

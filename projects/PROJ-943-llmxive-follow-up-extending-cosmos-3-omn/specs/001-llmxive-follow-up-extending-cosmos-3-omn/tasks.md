@@ -18,34 +18,38 @@
 - **Single project**: `code/` at repository root (scripts, data, models, tests)
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure: `code/scripts/`, `code/data/raw/`, `code/data/processed/`, `code/data/splits/`, `code/models/`, `code/tests/`
-- [ ] T001b [P] Create `code/requirements.txt` with pinned versions for `datasets`, `transformers`, `scikit-learn`, `pandas`, `numpy`, `pytest`, `pyyaml`
-- [ ] T001c [P] Initialize `.gitignore` to exclude `data/`, `models/`, `__pycache__/`, `*.pyc`
+- [ ] T001a [P] Create directory: `code/scripts/`
+- [ ] T001b [P] Create directory: `code/data/raw/`
+- [ ] T001c [P] Create directory: `code/data/processed/`
+- [ ] T001d [P] Create directory: `code/data/splits/`
+- [ ] T001e [P] Create directory: `code/models/` <!-- FAILED: unspecified -->
+- [ ] T001f [P] Create directory: `code/tests/`
 
-- [ ] T002 [P] Configure linting (flake8/black) and formatting tools in `code/.flake8` and `pyproject.toml`
+- [ ] T002a [P] Create `code/.flake8` with linting configuration
+- [X] T002b [P] Create `code/pyproject.toml` with formatting tools configuration
 
 ---
 
@@ -55,12 +59,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 [P] Implement `code/scripts/download.py` to fetch `google-research/bridge-data` with `config='bridge_v2'` via `datasets.load_dataset` using `streaming=True`
-- [ ] T004 [P] Implement `code/scripts/download.py` logic to filter for instances containing 'actions' field and save to `code/data/raw/bridge_samples.jsonl`; MUST fail loudly if fetch fails (no synthetic fallback)
-- [ ] T005 [P] Define schema adaptation logic in `code/utils/schema_adapter.py` to handle Bridge Data's 'actions' field: explicitly calculate L2 norm of the **first 3 dimensions** of the action vector for FR-002 applicability
-- [ ] T006 [P] Create `code/scripts/transform.py` skeleton with deterministic logical rules for target derivation (no parallel execution with T011)
-- [ ] T007 [P] Setup logging infrastructure in `code/utils/logger.py` to track memory usage and execution time
-- [ ] T008 [P] Configure environment configuration management (seeds, paths) in `code/config.py`
+- [X] T003 [P] Create `code/requirements.txt` with pinned versions for `datasets`, `transformers`, `scikit-learn`, `pandas`, `numpy`, `pytest`, `pyyaml`
+- [ ] T004 [P] Initialize `.gitignore` to exclude `data/`, `models/`, `__pycache__/`, `*.pyc`
+- [X] T005 [P] Define schema adaptation logic in `code/data/schema/action_schema.json`. Output MUST be a valid JSON file with the following exact structure: `{"norm_threshold": 0.5, "text_keywords": ["Safety Constraint"], "composite_operator": "AND", "vector_dimensions": 3}`. This file defines the composite rule to be applied in T011.
+- [X] T006 [P] Setup logging infrastructure in `code/utils/logger.py` to track memory usage and execution time
+- [X] T007 [P] Configure environment configuration management (seeds, paths) in `code/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,17 +79,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for transformation logic in `code/tests/test_transform.py` (verify L2 norm of first 3 dims > 0.5 -> "constraint_violated")
-- [ ] T010 [P] [US1] Integration test for download and transform pipeline in `code/tests/test_pipeline.py`
+- [X] T008 [P] [US1] Unit test for transformation logic in `code/tests/test_transform.py` (verify L2 norm of first 3 dims > 0.5 AND text context check -> "constraint_violated")
+- [X] T009 [P] [US1] Integration test for download and transform pipeline in `code/tests/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/scripts/transform.py` to: 1) Compute L2 norm of the **first 3 dimensions** of the 'actions' vector from `code/data/raw/bridge_samples.jsonl`, 2) Apply >0.5 threshold to this norm for symbolic token ("constraint_satisfied" vs "constraint_violated"), 3) Generate continuous proxy target (normalized magnitude within the standard unit interval), 4) Save unified dataset to `code/data/processed/unified_dataset.jsonl`
-- [ ] T012 [US1] Implement `code/scripts/train.py` to initialize and train TWO distinct DistilBERT models: 1) Hard Proxy (Classification head) for symbolic target, 2) Soft Proxy (Regression head) for continuous target. Save outputs to `code/models/proxy_hard/` and `code/models/proxy_soft/` respectively.
-- [ ] T013 [US1] Implement `code/scripts/train.py` to train the Hard Proxy model on CPU, ensuring memory usage ≤ 7 GB RAM and training time ≤ 6 hours, outputting `code/models/proxy_hard/model.pt`
-- [ ] T014 [US1] Implement `code/scripts/train.py` to train the Soft Proxy model on CPU, ensuring memory usage ≤ 7 GB RAM and training time ≤ 6 hours, outputting `code/models/proxy_soft/model.pt`
-- [ ] T015 [US1] Add validation and error handling in `code/scripts/train.py` to fail loudly if real data fetch fails (no synthetic fallback)
-- [ ] T016 [US1] Add logging for training progress, loss convergence, and resource usage in `code/scripts/train.py`
+- [ ] T010 [US1] Implement `code/scripts/download.py` to fetch `bridge-to-worlds/bridge-data` via `datasets.load_dataset` using `streaming=True`, filter for instances containing 'actions' field, and save to `code/data/raw/bridge_samples.jsonl`; MUST fail loudly if fetch fails (no synthetic fallback).
+- [ ] T011 [US1] Implement `code/scripts/transform.py` to: 1) Load the logical rule definition from `code/data/schema/action_schema.json` (generated by T005), 2) Compute L2 norm of the **first 3 dimensions** of the 'actions' vector, 3) Apply the COMPOSITE rule: `norm > threshold` AND `text_description` contains any keyword from `text_keywords` list, 4) Label as "constraint_violated" if composite is true, else "constraint_satisfied", 5) Save unified dataset to `code/data/processed/unified_dataset.jsonl`.
+- [ ] T012 [US1] Implement `code/scripts/train.py` to initialize and train a single DistilBERT model (Hard Proxy) for symbolic target, ensuring memory usage ≤ 7 GB RAM and training time ≤ 6 hours, outputting `code/models/proxy_hard/model.pt`. Include a memory monitor that logs to `code/logs/memory_profile.log` and fails if >7GB.
+- [X] T013 [US1] Add validation and error handling in `code/scripts/train.py` to fail loudly if real data fetch fails (no synthetic fallback)
+- [X] T014 [US1] Add logging for training progress, loss convergence, and resource usage in `code/scripts/train.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -100,16 +102,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for statistical significance calculation in `code/tests/test_stats.py`
+- [X] T015 [P] [US2] Unit test for statistical significance calculation in `code/tests/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] Create `code/scripts/evaluate.py` to load the trained Hard Proxy (T013) and Soft Proxy (T014) models and split predictions into symbolic and continuous domains
-- [ ] T019 [US2] Implement `code/scripts/evaluate.py` to generate predictions on the symbolic test set (Classification head) and continuous test set (Regression head) using `code/data/processed/unified_dataset.jsonl`
-- [ ] T020 [US2] Implement `code/scripts/evaluate.py` to calculate Brier Scores, Accuracy, F1-score, and AUC-ROC for both domains
-- [ ] T021 [US2] Implement `code/scripts/evaluate.py` to perform a statistically appropriate test: Run Shapiro-Wilk test; if p > 0.05 use paired t-test, else Wilcoxon signed-rank, to determine significance of degradation (p < 0.05)
-- [ ] T022 [US2] Generate the comparative performance report in `code/data/results/comparative_analysis.json` with side-by-side metrics and p-values
-- [ ] T023 [US2] Add logic to explicitly validate the existence of a 'native continuous reward signal' in Bridge Data. If missing, calculate a proxy from 'normalized action magnitude' and document this derivation as the 'physics baseline' to satisfy SC-001 measurability. Explicitly state the magnitude of performance drop.
+- [X] T016 [US2] Create `code/scripts/evaluate.py` to load the trained Hard Proxy model (T012) and split predictions into symbolic and continuous domains
+- [ ] T017 [US2] Implement `code/scripts/evaluate.py` to: 1) Load the unified dataset, 2) Split into symbolic test set (label based on norm > 0.5 + text) and physical test set (label based on `physics_reward > 0.5`), 3) Run inference on both, 4) Calculate Brier Scores, Accuracy, F-score, and AUC-ROC for each domain, 5) **Execute** a statistical test (Shapiro-Wilk for normality -> t-test if normal, else Wilcoxon signed-rank) on the **difference** in metrics (Symbolic vs Physics) to determine significance, 6) Output `code/data/results/comparative_analysis.json` containing side-by-side metrics, **p_value** (float), **is_significant** (boolean), and `physics_baseline_source`. If `physics_reward` is missing, abort with clear error. **MUST ALSO save raw predictions and misclassified samples to `code/data/results/raw_predictions.jsonl` for T019.**
+- [~] T018 [US2] Add logic to explicitly validate the existence of a 'native continuous reward signal' (`physics_reward`) in Bridge Data; if missing, abort with clear error (no proxy fallback).
+- [~] T019 [US2] Implement `code/scripts/extract_errors.py` to load `code/data/results/raw_predictions.jsonl` (output of T017), identify misclassified samples (where `predicted_label != true_label`), and save them to `code/data/processed/misclassified_samples.jsonl`. **DEPENDENCY: T017**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,15 +123,14 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for error categorization logic in `code/tests/test_analyze.py`
+- [X] T020 [P] [US3] Unit test for error categorization logic in `code/tests/test_analyze.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Create `code/scripts/analyze_errors.py` to load misclassified samples from the symbolic reasoning task (output of T018)
-- [ ] T026 [US3] Implement `code/scripts/analyze_errors.py` to categorize errors into three failure modes using available features: "Action Noise" (proxy: high variance in action vectors for same text), "Context Mismatch" (proxy: low success probability in similar contexts), and "Label Ambiguity" (proxy: inconsistent labels for similar inputs) - derived from Bridge Data features. **DEPENDENCY: This task requires T020/T021 to be complete; do NOT mark as [P].**
-- [ ] T027 [US3] Implement `code/scripts/analyze_errors.py` to correlate error types with specific logical constraints or visual conditions (using available metadata)
-- [ ] T028 [US3] Generate the error analysis report in `code/data/results/error_analysis_report.md` with qualitative descriptions and quantitative summaries
-- [ ] T029 [US3] Visualize correlations between input features and failure types in `code/data/results/error_visualizations.png`
+- [~] T021 [US3] Create `code/scripts/analyze_errors.py` to load misclassified samples from `code/data/processed/misclassified_samples.jsonl` (output of T019) and categorize errors into three failure modes: "visual ambiguity", "logical complexity", and "context mismatch". **DEPENDENCY: T019**.
+- [X] T022 [US3] Implement `code/scripts/analyze_errors.py` to correlate error types with specific logical constraints or visual conditions (using available metadata)
+- [ ] T023 [US3] Generate the error analysis report in `code/data/results/error_analysis_report.md` with qualitative descriptions and quantitative summaries
+- [ ] T024 [US3] Visualize correlations between input features and failure types using matplotlib (scatter plot of error rate vs. input feature magnitude) saved as `code/data/results/error_visualizations.png`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,12 +140,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030 [P] Update `specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md` with Bridge Data pivot justification and schema adaptation notes (T005)
-- [ ] T031 [P] Update `specs/001-llmxive-follow-up-extending-cosmos-3-omn/spec.md` Assumptions section to reflect Bridge Data as the source (replacing Cosmos 3)
-- [ ] T032 Code cleanup and refactoring in `code/scripts/`
-- [ ] T033 Performance optimization for data streaming in `code/scripts/download.py`
-- [ ] T034 [P] Additional unit tests in `code/tests/`
-- [ ] T035 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T025 [P] Update `specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md` with Bridge Data pivot justification and schema adaptation notes (T005)
+- [~] T026 [P] Update `specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md` specifically in the "Data Source" and "Methodology" sections to explicitly state the pivot from Cosmos 3 to Bridge Data, including the rationale (availability) and the specific schema adaptation (L2 norm + text context).
+- [X] T027 [P] Implement performance optimization for data streaming in `code/scripts/download.py` and `code/scripts/transform.py`. **Success Criteria**: Peak memory usage must remain < 7GB during processing of the full dataset; Throughput must exceed a practical threshold for chunked reading.. Use `datasets.load_dataset(..., streaming=True)` and process in batches.
+- [~] T028 [P] Additional unit tests in `code/tests/`
+- [~] T029 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [~] T030 [P] Update `specs/001-llmxive-follow-up-extending-cosmos-3-omn/spec.md` Assumptions and Requirements sections to formally replace "Cosmos 3 synthetic dataset" with "Bridge dataset (bridge-to-worlds/bridge-data)" as the primary data source, ensuring consistency with the implementation reality.
 
 ---
 
@@ -157,8 +156,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -224,9 +223,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -240,8 +239,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Data Hygiene**: Ensure `code/scripts/download.py` fails loudly if `google-research/bridge_data` is inaccessible; no synthetic fallbacks allowed.
+- **Data Hygiene**: Ensure `code/scripts/download.py` fails loudly if `bridge-to-worlds/bridge-data` is inaccessible; no synthetic fallbacks allowed.
 - **Memory Constraints**: All data processing must use `streaming=True` to stay within 7 GB RAM limits.
-- **Schema Adaptation**: Task T005 defines the logic to make FR-002's norm rule applicable to Bridge Data (L2 norm of first 3 dims).
-- **Dual Model**: Task T012 implements two distinct models (Hard/Soft) to satisfy Plan.md's comparison requirement.
-- **Baseline Approximation**: Task T023 explicitly documents the derivation of the 'physics baseline' if a native reward signal is missing.
+- **Schema Adaptation**: Task T005 defines the exact JSON schema for the composite rule; T011 must load and apply it.
+- **Single Model**: Task T012 implements a single Hard Proxy model to satisfy FR-003.
+- **Baseline Validation**: Task T017 explicitly validates the existence of `physics_reward` and aborts if missing, satisfying SC-001.
+- **Error Analysis**: Task T019 extracts raw misclassified samples from T017's output; T021 depends on T019.

@@ -106,7 +106,7 @@ tests/
 - **Task T022**: Evaluate Symbolic Model on Symbolic Test Set (AUC-Symbolic).
 - **Task T023**: Evaluate Symbolic Model on Physics Test Set (AUC-Physics-CrossDomain).
 - **Task T024**: Calculate **Generalization Gap**: `AUC_Symbolic - AUC_Physics_CrossDomain`.
-- **Task T025**: Perform **Bootstrap Confidence Interval** (1000 iterations) on the Generalization Gap to determine statistical significance (p < 0.05).
+- **Task T025**: Perform **Bootstrap Confidence Interval** (A sufficient number of iterations to ensure convergence.) on the Generalization Gap to determine statistical significance (p < 0.05).
   - *Dependency*: Must wait for T020/T021 and T022/T023 completion. No parallel execution.
 
 ### Phase 4: Error Analysis
