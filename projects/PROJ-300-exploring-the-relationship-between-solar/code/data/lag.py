@@ -12,35 +12,39 @@ import logging
 from datetime import datetime
 import json
 from pathlib import Path
-import fcntl
+import portalocker
 
 logger = logging.getLogger(__name__)
 
-def calculate_physics_lag(vsw_mean: float) -> float:
+def calculate_l_phys(vsw_mean: float) -> float:
     """
-    Compute the physics-based propagation lag (L_phys).
+    Calculates the physics-based propagation lag (L_phys) in minutes.
     
-    Formula: L_phys = 6371 / vsw_mean (simplified)
-    Full derivation: L_phys = (60 * 6371) / vsw_mean / 60
-    Where 60 is TAIL_DISTANCE_RE (Re), 6371 is EARTH_RADIUS_KM (km), vsw_mean is km/s.
-    Result is in minutes.
+    Formula: L_phys = 6371 / vsw_mean
+    Derivation: L_phys = (scale_factor * 6371) / vsw_mean / time_conversion_factor
+    Where:
+    - 60 Re is the nominal Earth-magnetotail distance (1 Re = 6371 km).
+    - vsw_mean is the mean solar wind speed in km/s.
+    Note: This uses a fixed distance as a heuristic approximation. The actual reconnection site varies dynamically.
+    
+    This implementation strictly follows the simplified formula required by FR-012.
     
     Args:
-        vsw_mean: Mean solar wind speed in km/s
+        vsw_mean: Mean solar wind speed in km/s.
         
     Returns:
-        float: Lag in minutes
+        float: Lag in minutes.
     """
-    # Constants
-    distance_km = TAIL_DISTANCE_RE * EARTH_RADIUS_KM  # 60 * 6371 km
+    if vsw_mean <= 0:
+        raise ValueError(f"vsw_mean must be positive, got {vsw_mean}")
     
-    # Time in seconds = distance / speed
-    time_seconds = distance_km / vsw_mean
+    # The simplified formula as per FR-012 implementation requirement:
+    # L_phys = 6371 / vsw_mean
+    # Note: The full derivation in the docstring explains the origin of the constants
+    # (60 Re distance * 6371 km/Re) / vsw (km/s) / 60 s/min = (60 * 6371) / (vsw * 60) = 6371 / vsw
+    lag_minutes = 6371.0 / vsw_mean
     
-    # Convert to minutes
-    lag_minutes = time_seconds / 60.0
-    
-    logger.info(f"Calculated L_phys: {lag_minutes:.2f} min (Distance: {distance_km} km, Vsw: {vsw_mean:.2f} km/s)")
+    logger.info(f"Calculated L_phys: {lag_minutes:.2f} min (vsw_mean: {vsw_mean:.2f} km/s)")
     
     return lag_minutes
 
@@ -52,6 +56,9 @@ def log_lag_derivation(vsw_mean: float, l_phys: float) -> None:
     about the dynamic X-line assumption to ensure traceability to FR-012 and
     Constitution Principle VII.
     
+    The function uses portalocker to ensure file safety when multiple processes
+    or threads might write to the log simultaneously.
+    
     Args:
         vsw_mean: Mean solar wind speed in km/s.
         l_phys: Calculated physics-based propagation lag in minutes.
@@ -60,19 +67,6 @@ def log_lag_derivation(vsw_mean: float, l_phys: float) -> None:
     
     # Ensure directory exists
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load existing data or initialize with file locking for read
-    data = {"entries": []}
-    if log_path.exists():
-        try:
-            with open(log_path, 'r') as f:
-                fcntl.flock(f.fileno(), fcntl.LOCK_SH)
-                try:
-                    data = json.load(f)
-                finally:
-                    fcntl.flock(f.fileno(), fcntl.LOCK_UN)
-        except (FileNotFoundError, json.JSONDecodeError):
-            data = {"entries": []}
     
     # Prepare the new entry
     entry = {
@@ -93,14 +87,32 @@ def log_lag_derivation(vsw_mean: float, l_phys: float) -> None:
     }
     
     # Append and write with file locking to prevent race conditions
-    data["entries"].append(entry)
-    
-    with open(log_path, 'w') as f:
-        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+    # Lock FIRST as per protocol (T006c acquires lock before T016)
+    with open(log_path, 'a') as f:
+        portalocker.lock(f, portalocker.LOCK_EX)
         try:
+            # Read existing content
+            f.seek(0)
+            content = f.read()
+            
+            data = {"entries": []}
+            if content.strip():
+                try:
+                    data = json.loads(content)
+                    if "entries" not in data:
+                        data = {"entries": []}
+                except json.JSONDecodeError:
+                    data = {"entries": []}
+            
+            # Append new entry
+            data["entries"].append(entry)
+            
+            # Truncate and write
+            f.seek(0)
+            f.truncate()
             json.dump(data, f, indent=2)
         finally:
-            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+            portalocker.unlock(f)
     
     logger.info(f"Logged lag derivation: vsw={vsw_mean:.2f} km/s -> L_phys={l_phys:.2f} min")
 
@@ -108,19 +120,45 @@ def apply_lag_shift(series: pd.Series, lag_minutes: int) -> pd.Series:
     """
     Shift the solar wind series forward by lag_minutes.
     
+    This function applies a time shift to a pandas Series with a datetime index,
+    effectively delaying the series by the specified number of minutes. This is
+    used to account for the propagation time of solar wind from the L1 point
+    to Earth's magnetosphere.
+    
+    The shift assumes a regular time cadence (default 5 minutes) and calculates
+    the number of periods to shift accordingly.
+    
     Args:
-        series: Pandas Series with datetime index
-        lag_minutes: Lag in minutes
+        series: Pandas Series with datetime index and regular cadence.
+        lag_minutes: Lag in minutes to shift the series forward.
         
     Returns:
-        pd.Series: Shifted series
+        pd.Series: Shifted series with NaN values introduced at the beginning
+                   corresponding to the shift amount.
+    
+    Notes:
+        - The shift is forward in time (positive lag), meaning data from time T
+          is moved to T + lag_minutes.
+        - The first `periods` values in the returned series will be NaN.
+        - The index remains unchanged; only the values are shifted.
     """
-    # Assuming 5-minute cadence
+    if series.empty:
+        logger.warning("Attempted to shift an empty series.")
+        return series
+    
+    # Assuming 5-minute cadence as per project standard (FR-003)
     cadence = 5
     periods = int(lag_minutes / cadence)
     
+    if periods == 0:
+        logger.debug("Lag is less than cadence interval, no shift applied.")
+        return series
+    
     shifted = series.shift(periods=periods)
     
-    logger.debug(f"Applied lag shift of {periods} periods ({lag_minutes} minutes)")
+    logger.debug(f"Applied lag shift of {periods} periods ({lag_minutes} minutes) to series of length {len(series)}")
     
     return shifted
+
+# Backwards compatibility alias for existing imports in main.py
+calculate_physics_lag = calculate_l_phys

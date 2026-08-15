@@ -5,3 +5,4 @@ scipy==1.11.4
 matplotlib==3.8.0
 tqdm==4.66.1
 pytest  # auto-added: imported by run-book but missing from venv
+portalocker  # auto-added: imported by run-book but missing from venv

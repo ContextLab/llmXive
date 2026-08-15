@@ -1,3 +1,6 @@
+"""
+Main orchestration module for the Solar Wind - Geomagnetic Tail Reconnection analysis.
+"""
 import json
 import os
 import sys
@@ -5,255 +8,282 @@ import argparse
 import logging
 from datetime import datetime, timedelta
 import pandas as pd
-import numpy as np
+import portalocker
 
-# Import from local modules using relative imports compatible with package execution
-# When run as `python code/main.py`, these imports work because code/ is in sys.path
+# Local imports
 from data.ingest import fetch_omni_sw, fetch_themis_ey
-from data.clean import clean_and_resample, handle_gaps
-from data.lag import calculate_physics_lag, log_lag_derivation, apply_lag_shift
+from data.clean import clean_and_resample
+from data.lag import calculate_l_phys, log_lag_derivation
 from analysis.correlation import calculate_correlation, circular_block_permutation, moving_block_bootstrap
 from analysis.lag_search import find_optimal_lag
 from analysis.sensitivity import analyze_thresholds
 from viz.plots import plot_scatter, plot_timeseries
-from config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP, TAIL_DISTANCE_RE, BOOTSTRAP_ITERATIONS
 
-def setup_logging(log_file: str = "data/processed/pipeline.log") -> logging.Logger:
+# Setup logging
+def setup_logging():
     """Configure logging for the pipeline."""
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    logger = logging.getLogger("solar_wind_pipeline")
-    logger.setLevel(logging.INFO)
-    
-    # File handler
-    fh = logging.FileHandler(log_file)
-    fh.setLevel(logging.INFO)
-    
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    ch.setFormatter(formatter)
-    
-    logger.addHandler(fh)
-    logger.addHandler(ch)
-    
-    return logger
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return logging.getLogger(__name__)
 
-def log_data_quality_warnings(warnings: list, log_file: str = "data/processed/quality_log.json") -> None:
+def log_data_quality_warnings(warnings: list, logger: logging.Logger = None) -> None:
     """
-    Log data-quality warnings to a JSON file.
+    Log data-quality warnings to data/processed/quality_log.json.
+    
+    Uses portalocker to prevent race conditions with log_lag_derivation.
     
     Args:
-        warnings: List of warning dictionaries with keys: timestamp, level, source, message
-        log_file: Path to the quality log JSON file
+        warnings: List of warning dictionaries.
+        logger: Optional logger instance.
     """
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    if logger is None:
+        logger = logging.getLogger(__name__)
     
-    # Load existing warnings if file exists
-    existing_warnings = []
-    if os.path.exists(log_file):
+    log_path = "data/processed/quality_log.json"
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    
+    # Read existing log if it exists
+    existing_logs = []
+    if os.path.exists(log_path):
         try:
-            with open(log_file, 'r') as f:
+            with open(log_path, 'r') as f:
                 content = f.read().strip()
                 if content:
-                    existing_warnings = json.loads(content)
-                else:
-                    existing_warnings = []
-        except (json.JSONDecodeError, IOError):
-            existing_warnings = []
+                    existing_logs = json.loads(content)
+        except json.JSONDecodeError:
+            logger.warning("Existing quality_log.json is not valid JSON, starting fresh.")
+            existing_logs = []
     
-    # Append new warnings
-    all_warnings = existing_warnings + warnings
+    # Add new warnings
+    for warning in warnings:
+        # Ensure required keys are present
+        if not all(key in warning for key in ['timestamp', 'level', 'source', 'message']):
+            warning['timestamp'] = datetime.utcnow().isoformat()
+            warning['level'] = 'WARN'
+            if 'source' not in warning:
+                warning['source'] = 'pipeline'
+            if 'message' not in warning:
+                warning['message'] = 'Unknown warning'
+        existing_logs.append(warning)
     
-    # Write with file locking simulation (append mode with careful handling)
-    with open(log_file, 'w') as f:
-        json.dump(all_warnings, f, indent=2)
+    # Write with file locking
+    with open(log_path, 'w') as f:
+        portalocker.lock(f, portalocker.LOCK_EX)
+        try:
+            json.dump(existing_logs, f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+        finally:
+            portalocker.unlock(f)
+    
+    logger.info(f"Logged {len(warnings)} warnings to {log_path}")
 
-def run_data_pipeline(start_date: str, end_date: str, logger: logging.Logger) -> tuple:
+def run_data_pipeline(start_date: str, end_date: str, logger: logging.Logger = None) -> pd.DataFrame:
     """
     Orchestrate data ingestion and cleaning.
     
+    Fetches solar wind (Vsw, Bz) and THEMIS (Ey) data, cleans and resamples them,
+    and saves the result to data/processed/cleaned_data.csv.
+    
     Args:
-        start_date: Start date string (YYYY-MM-DD)
-        end_date: End date string (YYYY-MM-DD)
-        logger: Logger instance
+        start_date: Start date string (YYYY-MM-DD).
+        end_date: End date string (YYYY-MM-DD).
+        logger: Optional logger instance.
         
     Returns:
-        Tuple of (df_sw, df_ey) cleaned DataFrames
+        Combined cleaned DataFrame with columns: timestamp, Vsw, Bz, Ey.
     """
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    
     logger.info(f"Starting data pipeline for {start_date} to {end_date}")
+    
+    # Parse dates
+    start = datetime.strptime(start_date, "%Y-%m-%d")
+    end = datetime.strptime(end_date, "%Y-%m-%d")
+    date_range = (start, end)
     
     # Fetch data
     logger.info("Fetching OMNI solar wind data...")
-    df_sw = fetch_omni_sw((start_date, end_date))
+    df_sw = fetch_omni_sw(date_range)
     
     logger.info("Fetching THEMIS Ey data...")
-    df_ey = fetch_themis_ey((start_date, end_date))
+    df_ey = fetch_themis_ey(date_range)
     
     # Clean and resample
     logger.info("Cleaning and resampling data...")
     df_sw_clean, df_ey_clean = clean_and_resample(df_sw, df_ey)
     
-    # Save cleaned data
-    os.makedirs("data/processed", exist_ok=True)
-    cleaned_path = "data/processed/cleaned_data.csv"
-    # Combine for saving
-    combined = pd.merge(df_sw_clean, df_ey_clean, on='timestamp', how='inner')
-    combined.to_csv(cleaned_path, index=False)
-    logger.info(f"Saved cleaned data to {cleaned_path}")
+    # Merge on timestamp
+    df_combined = pd.merge(
+        df_sw_clean, 
+        df_ey_clean, 
+        on='timestamp', 
+        how='inner',
+        suffixes=('_sw', '_ey')
+    )
     
-    return df_sw_clean, df_ey_clean
+    # Rename columns for clarity if needed (ensure standard names)
+    # Assuming clean_and_resample returns 'timestamp', 'Vsw', 'Bz' for sw and 'timestamp', 'Ey' for ey
+    # Merge might create duplicate timestamp columns if not careful, but 'on' handles that.
+    # We need to ensure column names are exactly as expected downstream.
+    # Let's enforce: timestamp, Vsw, Bz, Ey
+    if 'Vsw' in df_combined.columns and 'Bz' in df_combined.columns and 'Ey' in df_combined.columns:
+        pass # Good
+    else:
+        # Fallback renaming if the merge produced suffixes unexpectedly
+        if 'Vsw_sw' in df_combined.columns:
+            df_combined.rename(columns={'Vsw_sw': 'Vsw', 'Bz_sw': 'Bz', 'Ey_ey': 'Ey'}, inplace=True)
+    
+    # Save to disk
+    output_path = "data/processed/cleaned_data.csv"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df_combined.to_csv(output_path, index=False)
+    logger.info(f"Saved cleaned data to {output_path}")
+    
+    return df_combined
 
-def run_analysis_pipeline(df_sw: pd.DataFrame, df_ey: pd.DataFrame, logger: logging.Logger) -> dict:
+def run_analysis_pipeline(df: pd.DataFrame, logger: logging.Logger = None) -> dict:
     """
     Orchestrate the core analysis pipeline.
     
     Args:
-        df_sw: Cleaned solar wind DataFrame
-        df_ey: Cleaned THEMIS Ey DataFrame
-        logger: Logger instance
+        df: Cleaned DataFrame with columns timestamp, Vsw, Bz, Ey.
+        logger: Optional logger instance.
         
     Returns:
-        Dictionary containing analysis results
+        Dictionary containing analysis results.
     """
+    if logger is None:
+        logger = logging.getLogger(__name__)
+    
     logger.info("Starting analysis pipeline")
     
+    # Extract series
+    vsw = df['Vsw']
+    ey = df['Ey']
+    timestamps = df['timestamp']
+    
     # Calculate physics-based lag
-    vsw_mean = df_sw['Vsw'].mean()
-    l_phys = calculate_physics_lag(vsw_mean)
-    logger.info(f"Physics-based lag: {l_phys:.2f} minutes")
-    
-    # Log lag derivation
+    vsw_mean = vsw.mean()
+    l_phys = calculate_l_phys(vsw_mean)
     log_lag_derivation(vsw_mean, l_phys)
-    
-    # Apply lag shift to solar wind data
-    # Convert lag to number of periods (assuming 5-minute cadence)
-    cadence_minutes = 5
-    lag_periods = int(round(l_phys / cadence_minutes))
-    df_sw_lagged = df_sw.copy()
-    df_sw_lagged['Vsw'] = apply_lag_shift(df_sw['Vsw'], l_phys)
+    logger.info(f"Calculated physics-based lag: {l_phys:.2f} minutes")
     
     # Find optimal lag
-    logger.info("Searching for optimal lag...")
-    lag_results = find_optimal_lag(
-        df_sw_lagged['Vsw'], 
-        df_ey['Ey'], 
-        LAG_WINDOW_MIN, 
-        LAG_WINDOW_MAX, 
-        LAG_STEP
-    )
+    # Use config values if not passed, but task description implies using defaults
+    # From T003a: LAG_WINDOW_MIN=30, LAG_WINDOW_MAX=90, LAG_STEP=5
+    # We need to import these or use them directly. Assuming they are in config.
+    from config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP
+    
+    lag_results = find_optimal_lag(vsw, ey, LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP)
     optimal_lag = lag_results['optimal_lag']
     max_corr = lag_results['max_correlation']
-    lag_difference = abs(optimal_lag - l_phys)
-    logger.info(f"Optimal lag: {optimal_lag} minutes, Max correlation: {max_corr:.4f}")
+    logger.info(f"Optimal lag found: {optimal_lag} minutes, correlation: {max_corr:.4f}")
     
-    # Calculate correlations at optimal lag
-    df_sw_opt = df_sw_lagged.copy()
-    df_sw_opt['Vsw'] = apply_lag_shift(df_sw['Vsw'], optimal_lag)
+    # Apply lag shift to Vsw
+    vsw_lagged = apply_lag_shift(vsw, optimal_lag)
     
-    corr_stats = calculate_correlation(df_sw_opt['Vsw'], df_ey['Ey'])
+    # Calculate correlation on lagged data
+    corr_stats = calculate_correlation(vsw_lagged, ey)
     pearson = corr_stats['pearson']
     spearman = corr_stats['spearman']
+    logger.info(f"Correlation (Pearson): {pearson:.4f}, (Spearman): {spearman:.4f}")
     
     # Permutation test for p-value
-    logger.info("Running permutation test...")
-    p_val_permutation = circular_block_permutation(df_sw_opt['Vsw'], df_ey['Ey'])
-    logger.info(f"Permutation p-value: {p_val_permutation:.4f}")
+    p_val = circular_block_permutation(vsw_lagged, ey)
+    logger.info(f"Permutation p-value: {p_val:.4f}")
     
-    # Bootstrap confidence intervals
-    logger.info("Running bootstrap for confidence intervals...")
-    ci_lower, ci_upper = moving_block_bootstrap(df_sw_opt['Vsw'], df_ey['Ey'])
-    logger.info(f"95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
+    # Bootstrap for confidence interval
+    ci_lower, ci_upper = moving_block_bootstrap(vsw_lagged, ey)
+    logger.info(f"Bootstrap 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
     
     # Sensitivity analysis
-    logger.info("Running sensitivity analysis...")
     thresholds = [400, 500, 600]
-    sensitivity_results = analyze_thresholds(df_sw_opt['Vsw'], df_ey['Ey'], thresholds)
+    sensitivity_results = analyze_thresholds(vsw, ey, thresholds)
     
-    # Prepare notes with reference frame context
-    notes = [
-        "Analysis performed on cleaned 5-minute cadence data.",
-        f"Physics-based lag (L_phys) calculated as {l_phys:.2f} minutes using vsw_mean={vsw_mean:.2f} km/s.",
-        f"Optimal lag (L*) found at {optimal_lag} minutes, difference |L* - L_phys| = {lag_difference:.2f} minutes.",
-        "Permutation test used circular block permutation with 10000 iterations.",
-        "Bootstrap confidence intervals computed using moving block bootstrap with 1000 iterations."
-    ]
+    # Log any data quality warnings
+    warnings = []
+    if vsw.isna().any() or ey.isna().any():
+        warnings.append({
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": "WARN",
+            "source": "data_cleaning",
+            "message": "NaN values detected in input data after cleaning."
+        })
+    if warnings:
+        log_data_quality_warnings(warnings, logger)
     
-    # Reference Frame Context (Required by T063)
-    # Ey (convection electric field) is measured in the GSM (Geocentric Solar Magnetospheric) frame by THEMIS.
-    # Vsw (solar wind speed) is measured in the solar wind rest frame (effectively Earth frame for OMNI).
-    # No explicit Lorentz transformation was applied; the correlation assumes the convection electric field
-    # (Ey = -Vsw x Bz) naturally couples the solar wind flow to the magnetospheric response.
-    reference_frame_context = (
-        "Reference Frame Context: "
-        "Ey (convection electric field) was measured by THEMIS in the GSM (Geocentric Solar Magnetospheric) frame. "
-        "Vsw (solar wind speed) was measured by OMNI in the Earth/solar wind rest frame. "
-        "The analysis assumes the standard convection relation Ey ≈ -Vsw × Bz holds, "
-        "implicitly linking the solar wind frame measurement to the magnetospheric response in GSM. "
-        "No explicit Lorentz transformation was applied; the correlation captures the coupled dynamics "
-        "as observed from Earth, consistent with the reference frame of the reconnection proxy (Ey)."
-    )
-    
+    # Compile results
     results = {
-        'pearson': float(pearson),
-        'spearman': float(spearman),
-        'p_val_permutation': float(p_val_permutation),
-        'optimal_lag': int(optimal_lag),
-        'lag_difference': float(lag_difference),
-        'ci_bootstrap': {'lower': float(ci_lower), 'upper': float(ci_upper)},
-        'sensitivity_table': sensitivity_results,
-        'notes': notes,
-        'reference_frame_context': reference_frame_context
+        "pearson": float(pearson),
+        "spearman": float(spearman),
+        "p_val_permutation": float(p_val),
+        "optimal_lag": int(optimal_lag),
+        "lag_difference": float(abs(optimal_lag - l_phys)),
+        "ci_bootstrap": [float(ci_lower), float(ci_upper)],
+        "sensitivity_table": sensitivity_results,
+        "notes": [
+            f"Analysis performed on {len(df)} data points.",
+            "Reference frame: GSM for Ey, Solar Wind Rest Frame for Vsw (approximate).",
+            f"Physics-based lag (L_phys) calculated as {l_phys:.2f} minutes."
+        ]
     }
     
     # Save results
-    os.makedirs("results", exist_ok=True)
     results_path = "results/us1_correlation.json"
+    os.makedirs(os.path.dirname(results_path), exist_ok=True)
     with open(results_path, 'w') as f:
         json.dump(results, f, indent=2)
     logger.info(f"Saved results to {results_path}")
     
     return results
 
-def run_pipeline(start_date: str, end_date: str) -> dict:
+def run_pipeline(start_date: str, end_date: str, logger: logging.Logger = None) -> None:
     """
-    Run the full pipeline from data ingestion to analysis.
+    Full pipeline orchestration: ingest, clean, analyze, visualize.
     
     Args:
-        start_date: Start date string (YYYY-MM-DD)
-        end_date: End date string (YYYY-MM-DD)
-        
-    Returns:
-        Analysis results dictionary
+        start_date: Start date string (YYYY-MM-DD).
+        end_date: End date string (YYYY-MM-DD).
+        logger: Optional logger instance.
     """
-    logger = setup_logging()
+    if logger is None:
+        logger = setup_logging()
     
-    # Run data pipeline
-    df_sw, df_ey = run_data_pipeline(start_date, end_date, logger)
+    # 1. Data Pipeline
+    df = run_data_pipeline(start_date, end_date, logger)
     
-    # Run analysis
-    results = run_analysis_pipeline(df_sw, df_ey, logger)
+    # 2. Analysis Pipeline
+    results = run_analysis_pipeline(df, logger)
     
-    return results
+    # 3. Visualization
+    logger.info("Generating plots...")
+    # Plot scatter
+    plot_scatter(df['Vsw'], df['Ey'], results['optimal_lag'], "results/plot_scatter.png")
+    # Plot timeseries
+    plot_timeseries(
+        df[['timestamp', 'Vsw', 'Bz']], 
+        df[['timestamp', 'Ey']], 
+        "results/plot_timeseries.png"
+    )
+    logger.info("Plots generated.")
+    
+    logger.info("Pipeline completed successfully.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Solar Wind - Reconnection Correlation Pipeline")
-    parser.add_argument('--start', required=True, help='Start date (YYYY-MM-DD)')
-    parser.add_argument('--end', required=True, help='End date (YYYY-MM-DD)')
-    
+    parser = argparse.ArgumentParser(description="Solar Wind - Reconnection Analysis Pipeline")
+    parser.add_argument("--start", required=True, help="Start date (YYYY-MM-DD)")
+    parser.add_argument("--end", required=True, help="End date (YYYY-MM-DD)")
     args = parser.parse_args()
     
-    try:
-        results = run_pipeline(args.start, args.end)
-        print(f"Pipeline completed successfully.")
-        print(f"Optimal Lag: {results['optimal_lag']} min")
-        print(f"Pearson Correlation: {results['pearson']:.4f}")
-        print(f"P-value: {results['p_val_permutation']:.4f}")
-    except Exception as e:
-        logging.error(f"Pipeline failed: {str(e)}")
-        raise
+    logger = setup_logging()
+    run_pipeline(args.start, args.end, logger)
 
 if __name__ == "__main__":
     main()

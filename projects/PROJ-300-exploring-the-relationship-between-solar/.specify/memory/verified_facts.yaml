@@ -1,12 +1,5 @@
-'|block bootstrap iteration moving use':
-  quote: "\u03B1 = 0.1. All bootstrap calculations are based on B = 1000 bootstrap\
-    \ replicates and R = 1000 model"
-  source_id: '1711.01070'
-  url: https://arxiv.org/abs/1711.01070
+95|block bootstrap confidence interval iteration moving use:
+  quote: 1000 independent time series of length n = 500 and 1000. Construction of
+  source_id: '0804.4361'
+  url: https://arxiv.org/abs/0804.4361
   value: '1000'
-'|km one re':
-  quote: "A globally-average value is usually considered to be 6,371 kilometres (3,959\
-    \ mi) with a 0.3% variability (\xB110 km) for the following reasons."
-  source_id: Earth radius
-  url: https://en.wikipedia.org/wiki/Earth_radius
-  value: 6,371

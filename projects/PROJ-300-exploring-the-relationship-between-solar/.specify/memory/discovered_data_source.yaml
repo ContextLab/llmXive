@@ -1,11 +1,11 @@
 status: none
-intent: download OMNI 1-minute solar wind Vsw Bz and THEMIS EFI Ey python package
-  dataset
+intent: download NASA OMNI 1-minute solar wind Vsw Bz dataset CDAWeb THEMIS EFI python
+  package dataset
 required_fields:
-- timestamp
-- Vsw (km/s)
-- Bz (nT)
-- Ey (mV/m)
-cache_key: bf89179b8b3bbba757b30ca6ee0b447b635a5952c89f2be99f1c3554abeb2d59
-searched_at: '2026-08-15T11:19:09.877372+00:00'
+- time
+- Vsw
+- Bz
+- Ey
+cache_key: ab27454ce08d0a75f4dca1d1b9a0b6a14f5cffb64586d59051748435db8dcd4a
+searched_at: '2026-08-15T22:28:36.936723+00:00'
 retry_count: 1

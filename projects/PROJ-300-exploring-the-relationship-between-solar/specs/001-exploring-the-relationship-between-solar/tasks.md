@@ -78,7 +78,7 @@ portalocker==2.7.0
 - [X] T002b [P] Verify `requirements.txt` content.
  **Verification**: Run `cat requirements.txt` and confirm it matches the content in T002a.
 
-- [X] T003a [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30 `, `LAG_WINDOW_MAX=90 `, `LAG_STEP=5 `, `TAIL_DISTANCE_RE=60 `, `BOOTSTRAP_ITERATIONS=1000 `.
+- [X] T003a [P] Create `projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py` defining constants: `LAG_WINDOW_MIN=30 `, `LAG_WINDOW_MAX=90 `, `LAG_STEP=5 `, `TAIL_DISTANCE_RE=60 [UNRESOLVED-CLAIM: c_6ad87b7c — status=not_enough_info] `, `BOOTSTRAP_ITERATIONS=1000 [UNRESOLVED-CLAIM: c_13f226cc — status=not_enough_info] `.
  **Note**: `LAG_STEP` is explicitly set to `5` (minutes) as per FR-010.
 
 - [X] T003b [P] Verify constants in `config.py`.
@@ -139,7 +139,7 @@ portalocker==2.7.0
 - [X] T047 [P] Write unit test `test_lag_calculation_formula` in `tests/unit/test_lag.py` verifying the result matches `6371 / vsw_mean` and that the code comment references the `60 Re` constant.
  - **Verification**: Run `pytest tests/unit/test_lag.py::test_lag_calculation_formula`.
 
-- [X] T006c [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` function `log_lag_derivation(vsw_mean, l_phys)` to write the physics derivation to `data/processed/quality_log.json` (FR-012).
+- [ ] T006c [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` function `log_lag_derivation(vsw_mean, l_phys)` to write the physics derivation to `data/processed/quality_log.json` (FR-012).
  - **Signature**: `def log_lag_derivation(vsw_mean: float, l_phys: float) -> None`
  - **Deliverable**: Appends a JSON entry to `data/processed/quality_log.json` containing the constants, result, and a note about the dynamic X-line assumption.
  - **Implementation Detail**: Use the `portalocker` library to ensure file safety. Specifically, open the file in append mode and use `portalocker.lock()` to prevent race conditions with T016.
@@ -235,7 +235,7 @@ portalocker==2.7.0
  - **Verification**: Unit test verifying file creation and schema.
  - **Dependency**: This task is Sequential [S] and depends on the completion of Phase 2 (specifically T016).
 
-- [X] T020b [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` function `run_analysis_pipeline` to orchestrate the core analysis.
+- [ ] T020b [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` function `run_analysis_pipeline` to orchestrate the core analysis.
  - **Logic**: Load cleaned data. Call `calculate_l_phys`, `log_lag_derivation`, `apply_lag_shift`, `find_optimal_lag`, `circular_block_permutation`, `moving_block_bootstrap`, `analyze_thresholds`, `log_data_quality_warnings`. Compile results into a dictionary.
  - **Output Keys**: The resulting dictionary MUST contain: `pearson`, `spearman`, `p_val_permutation`, `optimal_lag`, `lag_difference`, `ci_bootstrap`, `sensitivity_table`, `notes`.
  - **Dependency**: This task is Sequential [S] and depends on the completion of Phase 2 (specifically T016 and T006c).
@@ -336,7 +336,7 @@ portalocker==2.7.0
 - [X] T032 [P] Write unit tests for `data/clean.py` in `tests/unit/test_clean.py` (FR-003).
  - **Test Functions**: `test_clean_removes_nan`, `test_clean_resamples_to_5min`, `test_clean_handles_empty_input`, `test_clean_handles_large_gaps`.
 
-- [X] T033 [P] Write unit tests for `data/lag.py` in `tests/unit/test_lag.py` (FR-012).
+- [X] T033 [P] Write unit tests for `data/lag.py` in `tests/unit/test_lag.py` (FR-012). <!-- FAILED: unspecified -->
  - **Test Functions**: `test_lag_calculation_formula`, `test_lag_shift_applies_correctly`.
 
 - [X] T034 [P] Write integration test for lag-adjusted correlation pipeline in `tests/integration/test_pipeline.py` (US-1 Independent Test).
@@ -396,7 +396,7 @@ portalocker==2.7.0
  - **Command**: `grep -q "ASCII Diagram" docs/physical_mechanism.md`.
  - **Dependency**: T020b
 
-- [X] T063 [S] [Review: Einstein] Update `code/main.py` to include a "Reference Frame Context" section in the final JSON report (`notes` or a new `context` field).
+- [ ] T063 [S] [Review: Einstein] Update `code/main.py` to include a "Reference Frame Context" section in the final JSON report (`notes` or a new `context` field).
  - **Requirement**: The report MUST state the reference frame in which Ey was measured and the transformation (if any) applied to align it with the solar wind speed vector.
  - **Verification**: Inspect the generated `results/us1_correlation.json` to confirm the presence of the reference frame statement.
  - **Dependency**: T020b
