@@ -66,7 +66,7 @@ The system must generate a report that includes power analysis verification, mul
 ### Functional Requirements
 
 - **FR-001**: The system MUST present three distinct experimental conditions (High Agency, Low Agency, Control) with randomized assignment to ensure independent variable manipulation (See US-1).
-- **FR-002**: The system MUST capture behavioral adherence as a percentage (0-100%) and self-reported trust using the validated Lee & See (2004) scale items (See US-1).
+- **FR-002**: The system MUST capture behavioral adherence as a percentage. and self-reported trust using the validated Lee & See (2004) scale items (See US-1).
 - **FR-003**: The system MUST perform planned directional contrasts (High vs. Low, and (High+Low) vs. Control) to test the specific hypotheses regarding agency and AI presence (See US-2).
 - **FR-004**: The system MUST compute and report Cohen's d effect sizes for all pairwise comparisons to quantify the magnitude of observed effects (See US-2).
 - **FR-005**: The system MUST apply a multiple-comparison correction (e.g., Tukey HSD) to all pairwise p-values to control for family-wise error rate (See US-3).
@@ -85,7 +85,7 @@ The system must generate a report that includes power analysis verification, mul
 - **SC-001**: The primary outcome (difference in Trust Scores between High and Low Agency) is measured against the null hypothesis of no difference using planned directional contrasts (α = 0.05) (See US-2).
 - **SC-002**: A pre-study power calculation report is generated confirming ≥ 0.80 power for a medium effect size (f = 0.25) at α = 0.05, determining the required sample size (See US-3).
 - **SC-003**: The robustness of the primary finding is measured against the variation in p-values and effect sizes observed when the exclusion threshold is swept across a user-configurable range (See US-3).
-- **SC-004**: The system MUST capture trust data using the exact item set and Likert scale structure defined in Lee & See (2004), verifiable by comparing the survey export schema against the source instrument (See US-1).
+- **SC-004**: The system MUST capture trust data using the exact item set and Likert scale structure defined in Lee & See (Year), verifiable by comparing the survey export schema against the source instrument (See US-1).
 - **SC-005**: The control of Type I error is measured by the application of a family-wise error correction method (e.g., Tukey) across the pairwise comparisons (See US-3).
 
 ## Assumptions

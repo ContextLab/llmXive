@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T000c` (rejected 1x): No `research/validation_report.json` file or parsing script is present, and there is no evidence that citations were checked for `status="valid"` and `overlap >= 0.7` with error handling on failure. The required artifact and its functionality are missing.
-- `T001a` (rejected 1x): No `research.md` file is present in the provided evidence, and there is no content showing the required table with columns Effect Size, Alpha, Target Power, Required N, and Calculated N. The implementer therefore has not delivered the requested template.
+- `T000c` (rejected 1x): The required deliverable `research/citation_verification_log.md` is not present (or its contents are not shown), so there is no evidence that the JSON was parsed, citations were checked, or a status line was written. The task therefore remains unfinished.
+- `T001b` (rejected 1x): No `research.md` file is present or shown, and there is no evidence that the literature review findings or power analysis targets have been synthesized from `validation_report.json` and `power_report.md`. The required artifact is missing, so the task is not satisfied.
+- `T003` (rejected 1x): No `research.md`, `research/power_calculation.json`, or `plan.md` contents were provided, nor any validation evidence showing they meet Phase 0 requirements. The required artifacts are missing, so the task cannot be considered completed.
 
 ## Required change
 

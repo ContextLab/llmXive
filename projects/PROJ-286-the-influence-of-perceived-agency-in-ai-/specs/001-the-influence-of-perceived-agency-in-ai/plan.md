@@ -124,14 +124,14 @@ The plan enforces the following computational task ordering to ensure data integ
 | SC-002 | Success | `code/analysis/power_analysis.py` generates pre-study report confirming ≥0.80 power for f=0.25 (ANOVA). |
 | SC-003 | Success | `code/analysis/sensitivity.py` measures robustness via threshold sweep (attention/completion) and reports p-value/effect size variation. |
 | SC-004 | Success | Trust scale items in `code/experiment/app.py` match Lee & See (2004) verbatim; validated against `participant.schema.yaml` contract. |
-| SC-005 | Success | Tukey HSD correction in `code/analysis/pairwise.py` controls Type I error across 3 pairwise comparisons. |
+| SC-005 | Success | Tukey HSD correction in `code/analysis/pairwise.py` controls Type I error across multiple pairwise comparisons. |
 
 ## Compute Feasibility
 
 All methods are CPU-tractable and fit within GitHub Actions free-tier constraints:
 
 - **Statistical Analysis**: `scipy`, `statsmodels`, and `pingouin` are pure-Python/C extensions with no GPU requirements.
-- **Data Size**: ~200 participants × ~25 columns = <1MB CSV; well within 7GB RAM and 14GB disk.
+- **Data Size**: ~ participants × A moderate number of columns = <1MB CSV; well within 7GB RAM and 14GB disk.
 - **Runtime**: Power analysis, ANOVA, contrasts, and sensitivity sweeps complete in <10 minutes on CPU cores.
 - **Libraries**: All dependencies have CPU wheels available on PyPI; no CUDA, 8-bit quantization, or mixed-precision training.
 

@@ -1,74 +1,106 @@
-"""
-Tests for T000c: verify_citations.py
-"""
 import json
 import os
-import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import patch
 
-# Add the code/research directory to the path to import the module
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+import pytest
 
-from research.verify_citations import verify_citations, load_json_file
+from code.research.verify_citations import verify_citations, load_json_file
 
+def test_verify_citations_all_valid():
+    """Test that verify_citations returns True and logs 'valid' when all scores >= 0.7."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        input_path = tmpdir_path / "validation_report.json"
+        output_path = tmpdir_path / "verification_log.md"
 
-class TestVerifyCitations:
-    def test_all_valid(self, capsys):
-        """Test that all valid citations pass verification."""
-        data = {
-            "citations": [
-                {"citation": "Lee & See (2004)", "status": "valid", "overlap": 0.85},
-                {"citation": "Langer (1975)", "status": "valid", "overlap": 0.70}
-            ]
-        }
-        # Should not raise
-        verify_citations(data)
-        captured = capsys.readouterr()
-        assert "Success" in captured.out
+        # Create valid mock data
+        mock_data = [
+            {"title": "Test 1", "doi": "10.1234/test1", "overlap_score": 0.8, "status": "valid"},
+            {"title": "Test 2", "doi": "10.1234/test2", "overlap_score": 0.7, "status": "valid"}
+        ]
 
-    def test_invalid_status(self, capsys):
-        """Test that a citation with invalid status fails."""
-        data = {
-            "citations": [
-                {"citation": "Fake Citation", "status": "invalid", "overlap": 0.90}
-            ]
-        }
-        with patch("sys.exit") as mock_exit:
-            verify_citations(data)
-            mock_exit.assert_called_once_with(1)
+        with open(input_path, 'w') as f:
+            json.dump(mock_data, f)
 
-    def test_low_overlap(self, capsys):
-        """Test that a citation with overlap < 0.7 fails."""
-        data = {
-            "citations": [
-                {"citation": "Lee & See (2004)", "status": "valid", "overlap": 0.69}
-            ]
-        }
-        with patch("sys.exit") as mock_exit:
-            verify_citations(data)
-            mock_exit.assert_called_once_with(1)
+        result = verify_citations(input_path, output_path)
 
-    def test_empty_citations(self, capsys):
-        """Test that empty citation list fails."""
-        data = {"citations": []}
-        with patch("sys.exit") as mock_exit:
-            verify_citations(data)
-            mock_exit.assert_called_once_with(1)
-
-    def test_load_json_file_success(self, tmp_path):
-        """Test successful JSON loading."""
-        test_file = tmp_path / "test.json"
-        test_data = {"key": "value"}
-        with open(test_file, "w") as f:
-            json.dump(test_data, f)
+        assert result is True
+        assert output_path.exists()
         
-        result = load_json_file(test_file)
-        assert result == test_data
+        content = output_path.read_text()
+        assert "Status: valid" in content
+        assert "Test 1" in content
+        assert "Test 2" in content
 
-    def test_load_json_file_not_found(self, tmp_path):
-        """Test FileNotFoundError for missing JSON."""
-        non_existent = tmp_path / "missing.json"
+def test_verify_citations_some_invalid():
+    """Test that verify_citations returns False and logs 'invalid' when any score < 0.7."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        input_path = tmpdir_path / "validation_report.json"
+        output_path = tmpdir_path / "verification_log.md"
+
+        # Create mock data with one invalid entry
+        mock_data = [
+            {"title": "Valid Title", "doi": "10.1234/valid", "overlap_score": 0.9, "status": "valid"},
+            {"title": "Invalid Title", "doi": "10.1234/invalid", "overlap_score": 0.5, "status": "invalid"}
+        ]
+
+        with open(input_path, 'w') as f:
+            json.dump(mock_data, f)
+
+        result = verify_citations(input_path, output_path)
+
+        assert result is False
+        assert output_path.exists()
+
+        content = output_path.read_text()
+        assert "Status: invalid" in content
+        assert "FAIL" in content
+        assert "Invalid Title" in content
+        assert "Valid Title" in content
+
+def test_verify_citations_missing_file():
+    """Test that verify_citations raises FileNotFoundError for missing input."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = Path(tmpdir) / "nonexistent.json"
+        output_path = Path(tmpdir) / "log.md"
+
         with pytest.raises(FileNotFoundError):
-            load_json_file(non_existent)
+            verify_citations(input_path, output_path)
+
+def test_verify_citations_edge_case_07():
+    """Test that exactly 0.7 is considered valid."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        input_path = tmpdir_path / "validation_report.json"
+        output_path = tmpdir_path / "verification_log.md"
+
+        mock_data = [
+            {"title": "Edge Case", "doi": "10.1234/edge", "overlap_score": 0.7, "status": "valid"}
+        ]
+
+        with open(input_path, 'w') as f:
+            json.dump(mock_data, f)
+
+        result = verify_citations(input_path, output_path)
+        assert result is True
+        assert "Status: valid" in output_path.read_text()
+
+def test_verify_citations_edge_case_below_07():
+    """Test that 0.69 is considered invalid."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        input_path = tmpdir_path / "validation_report.json"
+        output_path = tmpdir_path / "verification_log.md"
+
+        mock_data = [
+            {"title": "Below Threshold", "doi": "10.1234/below", "overlap_score": 0.69, "status": "invalid"}
+        ]
+
+        with open(input_path, 'w') as f:
+            json.dump(mock_data, f)
+
+        result = verify_citations(input_path, output_path)
+        assert result is False
+        assert "Status: invalid" in output_path.read_text()

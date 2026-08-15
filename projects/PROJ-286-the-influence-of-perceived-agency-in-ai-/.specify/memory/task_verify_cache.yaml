@@ -1,16 +1,11 @@
-T001b:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file is present or shown, and there is no evidence that the
-    literature review findings or power analysis targets have been synthesized from
-    `validation_report.json` and `power_report.md`. The required artifact is missing,
-    so the task is not satisfied.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md`, `research/power_calculation.json`, or `plan.md` contents were\
-    \ provided, nor any validation evidence showing they meet Phase\u202F0 requirements.\
-    \ The required artifacts are missing, so the task cannot be considered completed."
+  r: The implementer did not provide the `specs/001-perceived-agency-trust/research.md`
+    file, nor any excerpt showing a markdown table with the required column headers
+    (`Effect Size`, `Alpha`, `Target Power`, `Required N`, `Calculated N`). Without
+    the actual file content, the task requirement is not satisfied. The missing artifact
+    must be created with the exact table schema.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,3 +14,10 @@ T004:
     actually exist or contain the required `__init__.py` files. The implementer must
     provide a file listing (e.g., `tree` output) or the actual files to prove the
     structure was created.
+T008:
+  c: false
+  h: a0330bc51b5274b5450356879f28f1b22106d27ed7e607fd511a5b33e1aba4d9
+  r: The provided `code/experiment/config.yaml` exists and has the correct keys, but
+    there is no evidence that the `sample_size` value was read from `research/power_calculation.json`
+    (no script or documented manual step is shown), nor any proof that this step ran
+    after T002. The required mechanism and dependency verification are missing.

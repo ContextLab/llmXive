@@ -1,1 +1,1 @@
-"""Experiment module for the Perceived Agency study."""
+"""Experiment module for perceived agency study."""

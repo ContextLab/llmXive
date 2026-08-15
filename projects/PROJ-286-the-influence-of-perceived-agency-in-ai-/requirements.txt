@@ -1,23 +1,8 @@
-# Python 3.11 Project Dependencies
-# Pinned versions for reproducibility in the llmXive pipeline
-
-# Web Interface
-streamlit==1.32.0
-
-# Data Manipulation & Numerical Computing
-pandas==2.2.1
-numpy==1.26.4
-
-# Statistical Analysis
-scipy==1.13.0
-statsmodels==0.14.1
-pingouin==0.5.4
-
-# Testing & Quality Assurance
-pytest==8.1.1
-black==24.3.0
-flake8==7.0.0
-
-# Utilities
-pyyaml==6.0.1
-requests==2.31.0
+streamlit
+pandas
+numpy
+scipy
+statsmodels
+pingouin
+pytest
+pyyaml

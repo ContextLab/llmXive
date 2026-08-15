@@ -1,1 +1,1 @@
-# Research module initialization
+# Research module

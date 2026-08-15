@@ -13,3 +13,8 @@
   source_id: Power (statistics)
   url: https://en.wikipedia.org/wiki/Power_(statistics)
   value: '0.80'
+'|consist item scale trust':
+  quote: arXiv:2203.12318v1 [cs.HC] 23 Mar 2022
+  source_id: '2203.12318'
+  url: https://arxiv.org/abs/2203.12318
+  value: '12'

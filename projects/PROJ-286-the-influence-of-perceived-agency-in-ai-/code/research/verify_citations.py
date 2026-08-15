@@ -1,9 +1,3 @@
-"""
-Task T000c: Verify citation validation results.
-
-Parses research/validation_report.json and verifies all citations are valid
-(status="valid", overlap >= 0.7). Halts with an error if any fail.
-"""
 import argparse
 import json
 import sys
@@ -11,83 +5,100 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 def load_json_file(path: Path) -> Dict[str, Any]:
-    """Load and parse a JSON file."""
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Validation report not found at {path}. Run T000b first.")
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in {path}: {e}")
+    """Load and return JSON content from a file."""
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
-def verify_citations(validation_data: Dict[str, Any]) -> None:
+def verify_citations(validation_report_path: Path, output_log_path: Path) -> bool:
     """
-    Verify that all citations in the validation report are valid.
-
-    Criteria:
-    - status must be "valid"
-    - overlap must be >= 0.7
-
-    Raises SystemExit with an error message if verification fails.
-    """
-    citations = validation_data.get("citations", [])
+    Parse the validation report JSON and verify all citations are valid.
     
-    if not citations:
-        print("No citations found in validation report.")
-        sys.exit(1)
+    Logic: Check that `overlap_score >= 0.7` for all entries.
+    Action: If any fail, log error to the output log.
+    Deliverable: Output log with status="valid" if all pass, otherwise "invalid".
+    
+    Returns:
+        bool: True if all citations are valid, False otherwise.
+    """
+    if not validation_report_path.exists():
+        raise FileNotFoundError(f"Validation report not found at {validation_report_path}")
 
-    failed_citations: List[Dict[str, Any]] = []
+    report_data = load_json_file(validation_report_path)
+    
+    if not isinstance(report_data, list):
+        # Handle case where report might be a dict with a key, or unexpected format
+        # Assuming standard list output from previous task
+        raise ValueError("Expected validation report to be a list of citation objects.")
 
-    for citation in citations:
-        citation_text = citation.get("citation", "Unknown")
-        status = citation.get("status", "")
-        overlap = citation.get("overlap", 0.0)
-
-        is_valid = (status == "valid") and (overlap >= 0.7)
-
+    all_valid = True
+    log_lines = []
+    log_lines.append("# Citation Verification Log")
+    log_lines.append("")
+    log_lines.append("This log verifies citations against the validation report.")
+    log_lines.append("")
+    
+    for entry in report_data:
+        title = entry.get('title', 'Unknown Title')
+        doi = entry.get('doi', 'N/A')
+        overlap_score = entry.get('overlap_score', 0.0)
+        status = entry.get('status', 'unknown')
+        
+        is_valid = overlap_score >= 0.7
+        
         if not is_valid:
-            failed_citations.append({
-                "citation": citation_text,
-                "status": status,
-                "overlap": overlap,
-                "reason": f"status={status}, overlap={overlap} (threshold 0.7)"
-            })
+            all_valid = False
+            log_lines.append(f"- **FAIL**: {title}")
+            log_lines.append(f"  - DOI: {doi}")
+            log_lines.append(f"  - Overlap Score: {overlap_score}")
+            log_lines.append(f"  - Required: >= 0.7")
+            log_lines.append(f"  - Status: {status}")
+            log_lines.append("")
+        else:
+            log_lines.append(f"- **PASS**: {title} (Score: {overlap_score})")
 
-    if failed_citations:
-        error_msg = f"Citation verification FAILED for {len(failed_citations)} citation(s):\n"
-        for fc in failed_citations:
-            error_msg += f"  - {fc['citation']}: {fc['reason']}\n"
-        error_msg += "\nHalt: Cannot proceed to implementation until all citations are valid."
-        print(error_msg, file=sys.stderr)
-        sys.exit(1)
+    log_lines.append("")
+    if all_valid:
+        log_lines.append("## Status: valid")
+        log_lines.append("All citations met the overlap score threshold (>= 0.7).")
+    else:
+        log_lines.append("## Status: invalid")
+        log_lines.append("One or more citations failed the validation check.")
 
-    print(f"Success: All {len(citations)} citation(s) verified as valid (status='valid', overlap >= 0.7).")
+    # Write the log file
+    output_log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_log_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(log_lines))
 
-def main() -> None:
-    """Main entry point for T000c."""
-    parser = argparse.ArgumentParser(
-        description="Verify citation validation results from T000b."
+    return all_valid
+
+def main():
+    parser = argparse.ArgumentParser(description="Verify citations from validation report.")
+    parser.add_argument(
+        '--input', 
+        type=Path, 
+        default=Path('research/validation_report.json'),
+        help='Path to the validation report JSON file.'
     )
     parser.add_argument(
-        "--input",
-        type=str,
-        default="research/validation_report.json",
-        help="Path to the validation report JSON file (default: research/validation_report.json)"
+        '--output', 
+        type=Path, 
+        default=Path('research/citation_verification_log.md'),
+        help='Path to write the verification log markdown file.'
     )
     
     args = parser.parse_args()
-    input_path = Path(args.input)
-
-    if not input_path.exists():
-        print(f"Error: Input file '{input_path}' not found. Ensure T000b has been run.", file=sys.stderr)
-        sys.exit(1)
-
+    
     try:
-        data = load_json_file(input_path)
-        verify_citations(data)
-    except (FileNotFoundError, ValueError) as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
+        is_valid = verify_citations(args.input, args.output)
+        if is_valid:
+            print(f"Verification complete. All citations valid. Log written to {args.output}")
+            sys.exit(0)
+        else:
+            print(f"Verification complete. Some citations failed. Log written to {args.output}")
+            sys.exit(1)
+    except Exception as e:
+        print(f"Error during verification: {e}", file=sys.stderr)
+        sys.exit(2)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

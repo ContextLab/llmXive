@@ -1,1 +1,1 @@
-"""Analysis module for the Perceived Agency study."""
+"""Analysis module for perceived agency study."""

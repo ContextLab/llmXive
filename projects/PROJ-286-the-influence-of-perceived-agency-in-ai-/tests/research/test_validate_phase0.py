@@ -1,141 +1,179 @@
-"""
-Tests for T003: validate_phase0.py
-"""
 import json
-import os
-import tempfile
 import pytest
 from pathlib import Path
-import sys
-
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
-from research.validate_phase0 import (
+from code.research.validate_phase0 import (
     load_json_file,
     read_text_file,
     validate_power_calculation_json,
     validate_citations_json,
-    validate_research_md,
-    main
+    validate_citation_log,
+    validate_research_md
 )
 
-def test_validate_power_calculation_json_valid():
-    data = {
-        'effect_size': 0.25,
-        'alpha': 0.05,
-        'target_power': 0.80,
-        'required_n': 128,
-        'calculated_n': 128,
-        'test_type': 'anova'
-    }
-    # Should not raise
-    validate_power_calculation_json(data)
+@pytest.fixture
+def temp_dir(tmp_path):
+    """Create a temporary directory structure for testing."""
+    research_dir = tmp_path / "research"
+    research_dir.mkdir()
+    return research_dir
 
-def test_validate_power_calculation_json_missing_key():
-    data = {
-        'effect_size': 0.25,
-        'alpha': 0.05,
-        # missing 'target_power'
+def test_load_json_file_success(temp_dir):
+    """Test loading a valid JSON file."""
+    test_file = temp_dir / "test.json"
+    test_data = {"key": "value", "number": 42}
+    with open(test_file, 'w') as f:
+        json.dump(test_data, f)
+    
+    result = load_json_file(test_file)
+    assert result == test_data
+
+def test_load_json_file_not_found():
+    """Test loading a non-existent JSON file raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        load_json_file(Path("nonexistent.json"))
+
+def test_read_text_file_success(temp_dir):
+    """Test reading a valid text file."""
+    test_file = temp_dir / "test.txt"
+    test_content = "Hello, World!\nLine 2"
+    with open(test_file, 'w') as f:
+        f.write(test_content)
+    
+    result = read_text_file(test_file)
+    assert result == test_content
+
+def test_read_text_file_not_found():
+    """Test reading a non-existent text file raises FileNotFoundError."""
+    with pytest.raises(FileNotFoundError):
+        read_text_file(Path("nonexistent.txt"))
+
+def test_validate_power_calculation_json_valid():
+    """Test validation with valid power calculation data."""
+    valid_data = {
+        "effect_size": 0.25,
+        "alpha": 0.05,
+        "target_power": 0.80,
+        "required_n": 128,
+        "calculated_n": 128,
+        "test_type": "anova"
     }
-    with pytest.raises(ValueError, match="missing required keys"):
-        validate_power_calculation_json(data)
+    errors = validate_power_calculation_json(valid_data)
+    assert len(errors) == 0
+
+def test_validate_power_calculation_json_missing_keys():
+    """Test validation with missing required keys."""
+    invalid_data = {
+        "effect_size": 0.25,
+        "alpha": 0.05
+    }
+    errors = validate_power_calculation_json(invalid_data)
+    assert len(errors) > 0
+    assert any("Missing required key" in error for error in errors)
 
 def test_validate_power_calculation_json_invalid_n():
-    data = {
-        'effect_size': 0.25,
-        'alpha': 0.05,
-        'target_power': 0.80,
-        'required_n': -10,
-        'calculated_n': 128,
-        'test_type': 'anova'
+    """Test validation with invalid N values."""
+    invalid_data = {
+        "effect_size": 0.25,
+        "alpha": 0.05,
+        "target_power": 0.80,
+        "required_n": -10,
+        "calculated_n": 0,
+        "test_type": "anova"
     }
-    with pytest.raises(ValueError, match="positive number"):
-        validate_power_calculation_json(data)
+    errors = validate_power_calculation_json(invalid_data)
+    assert len(errors) >= 2  # Both required_n and calculated_n should fail
 
 def test_validate_citations_json_valid():
-    data = {
-        'citations': [
-            {'title': 'Test', 'status': 'valid', 'overlap': 0.8},
-            {'title': 'Test2', 'status': 'valid', 'overlap': 0.7}
-        ]
-    }
-    validate_citations_json(data)
+    """Test validation with valid citation data."""
+    valid_data = [
+        {
+            "title": "Trust in Automation",
+            "doi": "10.1234/example",
+            "overlap_score": 0.85,
+            "status": "valid"
+        }
+    ]
+    errors = validate_citations_json(valid_data)
+    assert len(errors) == 0
 
-def test_validate_citations_json_invalid_status():
-    data = {
-        'citations': [
-            {'title': 'Test', 'status': 'invalid', 'overlap': 0.8}
-        ]
-    }
-    with pytest.raises(ValueError, match="status=invalid"):
-        validate_citations_json(data)
+def test_validate_citations_json_invalid_score():
+    """Test validation with invalid overlap score."""
+    invalid_data = [
+        {
+            "title": "Example",
+            "doi": "10.1234/example",
+            "overlap_score": 1.5,
+            "status": "valid"
+        }
+    ]
+    errors = validate_citations_json(invalid_data)
+    assert len(errors) > 0
+    assert any("overlap_score must be between 0 and 1" in error for error in errors)
 
-def test_validate_citations_json_low_overlap():
-    data = {
-        'citations': [
-            {'title': 'Test', 'status': 'valid', 'overlap': 0.6}
-        ]
-    }
-    with pytest.raises(ValueError, match="overlap too low"):
-        validate_citations_json(data)
-
-def test_validate_research_md_valid(tmp_path):
-    power_json = {
-        'effect_size': 0.25,
-        'alpha': 0.05,
-        'target_power': 0.80,
-        'required_n': 128,
-        'calculated_n': 128,
-        'test_type': 'anova'
-    }
+def test_validate_citation_log_valid():
+    """Test validation with valid citation log content."""
+    valid_content = """
+    ## Citation Verification Results
     
-    content = """
-    # Research Plan
+    | Citation | Status |
+    |----------|--------|
+    | Lee & See (2004) | status=valid |
+    | Langer (1975) | status=valid |
+    """
+    errors = validate_citation_log(valid_content)
+    assert len(errors) == 0
 
+def test_validate_citation_log_empty():
+    """Test validation with empty log content."""
+    errors = validate_citation_log("")
+    assert len(errors) > 0
+    assert any("empty" in error.lower() for error in errors)
+
+def test_validate_research_md_valid(temp_dir):
+    """Test validation with valid research.md content."""
+    valid_content = """
+    # Research Plan
+    
+    ## Power Analysis Results
+    
     | Effect Size | Alpha | Target Power | Required N | Calculated N |
-    | --- | --- | --- | --- | --- |
-    | 0.25 | 0.05 | 0.80 | 128 | 128 |
-    """
-    # Should not raise
-    validate_research_md(content, power_json)
-
-def test_validate_research_md_missing_header():
-    power_json = {
-        'effect_size': 0.25,
-        'alpha': 0.05,
-        'target_power': 0.80,
-        'required_n': 128,
-        'calculated_n': 128,
-        'test_type': 'anova'
-    }
+    |-------------|-------|--------------|------------|--------------|
+    | 0.25        | 0.05  | 0.80         | 128        | 128          |
     
-    content = """
-    # Research Plan
-
-    | Effect Size | Alpha | Target Power | Required N |
-    | --- | --- | --- | --- |
-    | 0.25 | 0.05 | 0.80 | 128 |
-    """
-    with pytest.raises(ValueError, match="missing required column header"):
-        validate_research_md(content, power_json)
-
-def test_validate_research_md_value_mismatch():
-    power_json = {
-        'effect_size': 0.25,
-        'alpha': 0.05,
-        'target_power': 0.80,
-        'required_n': 128,
-        'calculated_n': 128,
-        'test_type': 'anova'
-    }
+    ## Conclusion
     
-    content = """
-    # Research Plan
+    The power analysis indicates that 128 participants are required.
+    """
+    power_data = {
+        "effect_size": 0.25,
+        "alpha": 0.05,
+        "target_power": 0.80,
+        "required_n": 128,
+        "calculated_n": 128,
+        "test_type": "anova"
+    }
+    errors = validate_research_md(valid_content, power_data)
+    assert len(errors) == 0
 
+def test_validate_research_md_missing_table():
+    """Test validation with missing table headers."""
+    invalid_content = """
+    # Research Plan
+    
+    Some text without a table.
+    """
+    errors = validate_research_md(invalid_content, {})
+    assert len(errors) > 0
+    assert any("Missing table header" in error for error in errors)
+
+def test_validate_research_md_no_data_rows():
+    """Test validation with table but no data rows."""
+    invalid_content = """
+    # Research Plan
+    
     | Effect Size | Alpha | Target Power | Required N | Calculated N |
-    | --- | --- | --- | --- | --- |
-    | 0.50 | 0.05 | 0.80 | 128 | 128 |
+    |-------------|-------|--------------|------------|--------------|
     """
-    with pytest.raises(ValueError, match="Effect Size mismatch"):
-        validate_research_md(content, power_json)
+    errors = validate_research_md(invalid_content, {})
+    assert len(errors) > 0
+    assert any("no data rows" in error.lower() for error in errors)

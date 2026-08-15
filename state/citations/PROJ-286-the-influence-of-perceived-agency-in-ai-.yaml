@@ -21,7 +21,30 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1037/h0076648
   verified_at: '2026-07-31T18:22:00.652303Z'
-- artifact_hash: aca17e126f9134d26fa6162809ce1d5d633dcfbbbf27fa0a37e7703cdba5fd94
+- artifact_hash: 85056dfde0ba52498902194f1c8314a253991e0c3fcb192f438c5d9701a395a0
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/citation_verification_log.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.1518/0018720042664631
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1518/0018720042664631
+  verified_at: '2026-08-15T09:34:58.314673Z'
+- artifact_hash: 85056dfde0ba52498902194f1c8314a253991e0c3fcb192f438c5d9701a395a0
+  artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/research/citation_verification_log.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Impact of the introduction of television on crime in the United
+    States: Empirical findings and theoretical implications.'
+  kind: doi
+  value: 10.1037/0022-3514.42.3.461
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1037/0022-3514.42.3.461
+  verified_at: '2026-08-15T09:34:58.314673Z'
+- artifact_hash: ef4798c6fd7614595d783ba86da31eb0b0584d126b5dba1af2bbb2f3acfefdd5
   artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -31,8 +54,8 @@
   value: https://api.crossref.org/works?query.title={title}`
   verification_status: pending
   verified_against_url: https://api.crossref.org/works?query.title={title
-  verified_at: '2026-08-13T12:54:57.364897Z'
-- artifact_hash: aca17e126f9134d26fa6162809ce1d5d633dcfbbbf27fa0a37e7703cdba5fd94
+  verified_at: '2026-08-15T10:04:58.446016Z'
+- artifact_hash: ef4798c6fd7614595d783ba86da31eb0b0584d126b5dba1af2bbb2f3acfefdd5
   artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -42,4 +65,4 @@
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-08-13T12:54:57.364897Z'
+  verified_at: '2026-08-15T10:04:58.446016Z'

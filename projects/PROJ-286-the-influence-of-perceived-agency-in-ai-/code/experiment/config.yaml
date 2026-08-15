@@ -1,0 +1,4 @@
+sample_size: 129
+alpha_level: 0.05
+seed: 42
+data_path: data/raw/

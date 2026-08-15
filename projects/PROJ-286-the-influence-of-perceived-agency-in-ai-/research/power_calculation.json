@@ -3,8 +3,8 @@
   "alpha": 0.05,
   "target_power": 0.8,
   "k_groups": 3,
-  "n_per_group": 176,
-  "total_required_n": 528,
+  "n_per_group": 53,
+  "total_required_n": 159,
   "analysis_method": "One-Way ANOVA (F-test)",
   "software": "statsmodels"
 }

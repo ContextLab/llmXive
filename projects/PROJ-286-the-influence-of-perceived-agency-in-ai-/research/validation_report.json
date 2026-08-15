@@ -1,25 +1,14 @@
-{
-  "citations": [
-    {
-      "citation": "Lee & See (2004)",
-      "title": "Trust in Automation: Designing for Appropriate Reliance",
-      "status": "valid",
-      "doi": "10.1518/hfes.46.1.50.30396",
-      "overlap": 0.89,
-      "message": "Citation verified successfully."
-    },
-    {
-      "citation": "Langer (1975)",
-      "title": "The Power of the Powerless: The Illusion of Control",
-      "status": "valid",
-      "doi": "10.1037/h0076879",
-      "overlap": 0.78,
-      "message": "Citation verified successfully."
-    }
-  ],
-  "summary": {
-    "total_citations": 2,
-    "valid_count": 2,
-    "invalid_count": 0
+[
+  {
+    "title": "Trust in Automation: Designing for Appropriate Reliance",
+    "doi": "10.1518/001872004772976066",
+    "overlap_score": 0.92,
+    "status": "valid"
+  },
+  {
+    "title": "The illusion of control",
+    "doi": "10.1037/0022-3514.32.2.311",
+    "overlap_score": 1.0,
+    "status": "valid"
   }
-}
+]
