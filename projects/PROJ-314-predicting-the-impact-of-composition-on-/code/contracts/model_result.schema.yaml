@@ -1,28 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelResult
+description: Schema for model training and evaluation results.
+type: object
+required:
+  - model_type
+  - mae
+  - r_squared
+  - feature_importance_ranking
+  - cv_stability_scores
 properties:
-  cv_stability_scores:
-    additionalProperties:
-      type: number
-    title: Cv Stability Scores
-    type: object
+  model_type:
+    type: string
+    description: The type of model (e.g., "RandomForest", "GradientBoosting").
+  mae:
+    type: number
+    description: Mean Absolute Error of the model.
+  r_squared:
+    type: number
+    description: R-squared (coefficient of determination) of the model.
   feature_importance_ranking:
+    type: array
     items:
       type: object
-    title: Feature Importance Ranking
-    type: array
-  mae:
-    title: Mae
-    type: number
-  model_type:
-    title: Model Type
-    type: string
-  r_squared:
-    title: R Squared
-    type: number
-required:
-- model_type
-- mae
-- r_squared
-- feature_importance_ranking
-- cv_stability_scores
-title: ModelResult
-type: object
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+    description: Ranked list of features by importance.
+  cv_stability_scores:
+    type: object
+    description: Stability metrics across cross-validation folds (e.g., CV of importance).

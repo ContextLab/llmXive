@@ -4,127 +4,193 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-import joblib
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
+from sklearn.linear_model import LinearRegression
+import joblib
 
-from . import logger
+logger = logging.getLogger(__name__)
 
-module_logger = logging.getLogger(__name__)
-
-def load_processed_data(path: str = "data/processed/step_final_cleaned.csv") -> pd.DataFrame:
+def load_processed_data(filepath: str = 'data/processed/step_final_cleaned.csv') -> pd.DataFrame:
     """Load processed data."""
-    return pd.read_csv(path)
+    if not Path(filepath).exists():
+        raise FileNotFoundError(f"Processed data file not found: {filepath}")
+    return pd.read_csv(filepath)
 
-def load_best_model(path: str = "data/models/best_model.pkl"):
+def load_best_model(filepath: str = 'data/models/best_model.pkl'):
     """Load the best model."""
-    if not Path(path).exists():
-        raise FileNotFoundError(f"Best model not found: {path}")
-    return joblib.load(path)
+    if not Path(filepath).exists():
+        raise FileNotFoundError(f"Best model file not found: {filepath}")
+    return joblib.load(filepath)
 
-def load_model_metrics(path: str = "data/results/model_metrics.json") -> Dict[str, Any]:
+def load_model_metrics(filepath: str = 'data/results/model_metrics.json') -> Dict[str, Any]:
     """Load model metrics."""
-    with open(path, 'r') as f:
+    if not Path(filepath).exists():
+        raise FileNotFoundError(f"Model metrics file not found: {filepath}")
+    with open(filepath, 'r') as f:
         return json.load(f)
 
-def load_baseline_metrics(path: str = "data/results/baseline_metrics.json") -> Dict[str, float]:
+def load_baseline_metrics(filepath: str = 'data/results/baseline_metrics.json') -> Dict[str, Any]:
     """Load baseline metrics."""
-    with open(path, 'r') as f:
+    if not Path(filepath).exists():
+        raise FileNotFoundError(f"Baseline metrics file not found: {filepath}")
+    with open(filepath, 'r') as f:
         return json.load(f)
 
-def train_leakage_check_model(df: pd.DataFrame, target: str = 'weibull_modulus') -> Any:
-    """Train a model excluding 'primary_anion_cation_group' feature."""
-    feature_cols = [c for c in df.columns if c not in [target, 'primary_anion_cation_group']]
-    X = df[feature_cols]
-    y = df[target]
+def train_leakage_check_model(df: pd.DataFrame, feature_cols: List[str], target_col: str = 'weibull_modulus', exclude_feature: str = 'primary_anion_cation_group'):
+    """
+    Train a model excluding the 'primary_anion_cation_group' feature to check for leakage.
+    """
+    logger.info("Training leakage check model...")
     
-    model = RandomForestRegressor(random_state=42, n_jobs=-1)
+    if exclude_feature in feature_cols:
+        feature_cols_leakage = [f for f in feature_cols if f != exclude_feature]
+    else:
+        feature_cols_leakage = feature_cols
+    
+    if not feature_cols_leakage:
+        logger.warning("No features left after excluding leakage feature.")
+        return None
+    
+    X = df[feature_cols_leakage]
+    y = df[target_col]
+    
+    model = RandomForestRegressor(random_state=42)
     model.fit(X, y)
     
-    return model, X, y, feature_cols
-
-def check_leakage(df: pd.DataFrame, target: str = 'weibull_modulus') -> Dict[str, Any]:
-    """Check for data leakage by comparing performance with and without group feature."""
-    # Load full model (with group feature)
-    full_model = load_best_model()
-    full_metrics = load_model_metrics()
-    full_mae = full_metrics.get('rf', {}).get('mae', 0) if 'rf' in full_metrics else full_metrics.get('best_rf_mae', 0)
+    # Evaluate
+    predictions = model.predict(X)
+    mae = mean_absolute_error(y, predictions)
     
-    # Train leakage check model (without group feature)
-    leakage_model, X_leak, y_leak, feature_cols = train_leakage_check_model(df, target)
-    y_pred_leak = leakage_model.predict(X_leak)
-    leak_mae = mean_absolute_error(y_leak, y_pred_leak)
-    
-    # Compare
-    mae_diff = leak_mae - full_mae
-    mae_diff_pct = (mae_diff / full_mae * 100) if full_mae != 0 else 0
-    
-    # Flag if performance drop is small (< 10% increase in MAE)
-    potential_leakage = mae_diff_pct < 10
-    
-    report = {
-        "full_model_mae": float(full_mae),
-        "leakage_check_model_mae": float(leak_mae),
-        "mae_difference": float(mae_diff),
-        "mae_difference_pct": float(mae_diff_pct),
-        "potential_leakage": potential_leakage,
-        "warning": "Potential Leakage detected" if potential_leakage else "No significant leakage detected",
-        "features_used": feature_cols
+    metrics = {
+        "mae": mae,
+        "features_used": feature_cols_leakage,
+        "excluded_feature": exclude_feature
     }
     
-    # Save report
-    output_path = Path("data/results/leakage_check.json")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path = 'data/models/leakage_check_model.pkl'
+    joblib.dump(model, output_path)
+    logger.info(f"Leakage check model saved to {output_path}")
+    
+    return model, metrics
+
+def check_leakage(original_mae: float, leakage_mae: float) -> Dict[str, Any]:
+    """
+    Check for descriptor sufficiency by comparing MAE with and without the proxy feature.
+    """
+    logger.info("Checking descriptor sufficiency...")
+    
+    if original_mae is None or leakage_mae is None:
+        logger.error("Missing MAE values for leakage check.")
+        return {"status": "error", "message": "Missing MAE values"}
+    
+    mae_increase = ((leakage_mae - original_mae) / original_mae) * 100
+    
+    if mae_increase >= 10:
+        status = "POTENTIAL LEAKAGE"
+    else:
+        status = "DESCRIPTORS SUFFICIENT"
+    
+    report = {
+        "original_mae": original_mae,
+        "leakage_mae": leakage_mae,
+        "mae_increase_percent": mae_increase,
+        "status": status
+    }
+    
+    output_path = 'data/results/descriptor_sufficiency.json'
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
+    logger.info(f"Descriptor sufficiency report saved to {output_path}")
     
-    # Also save the leakage check model
-    model_path = Path("data/models/leakage_check_model.pkl")
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(leakage_model, model_path)
-    
-    module_logger.info(f"Leakage check completed: {report['warning']}")
     return report
 
-def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
-    """Compute VIF for all predictors."""
-    from statsmodels.stats.outliers_influence import variance_inflation_factor
-    
+def load_leakage_check_model(filepath: str = 'data/models/leakage_check_model.pkl'):
+    """Load leakage check model."""
+    if not Path(filepath).exists():
+        raise FileNotFoundError(f"Leakage check model file not found: {filepath}")
+    return joblib.load(filepath)
+
+def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> Dict[str, float]:
+    """
+    Calculate Variance Inflation Factor (VIF) for all predictors.
+    """
+    logger.info("Calculating VIF...")
     vif_data = {}
-    X = df[features]
     
-    for i, feature in enumerate(features):
-        try:
-            vif = variance_inflation_factor(X.values, i)
-            vif_data[feature] = float(vif)
-        except Exception:
+    for i, feature in enumerate(feature_cols):
+        X = df[feature_cols[:i] + feature_cols[i+1:]]
+        y = df[feature]
+        
+        if X.shape[1] == 0:
+            vif_data[feature] = 1.0
+            continue
+        
+        model = LinearRegression()
+        model.fit(X, y)
+        r_squared = model.score(X, y)
+        
+        if r_squared >= 1:
             vif_data[feature] = float('inf')
+        else:
+            vif_data[feature] = 1 / (1 - r_squared)
+    
+    output_path = 'data/results/vif_scores.json'
+    with open(output_path, 'w') as f:
+        json.dump(vif_data, f, indent=2)
+    logger.info(f"VIF scores saved to {output_path}")
     
     return vif_data
 
-def group_correlated_features(df: pd.DataFrame, threshold: float = 0.8) -> List[List[str]]:
-    """Cluster highly correlated features."""
-    corr_matrix = df.corr().abs()
-    clusters = []
-    used = set()
+def group_correlated_features(vif_scores: Dict[str, float], threshold: float = 5.0) -> List[List[str]]:
+    """
+    Cluster highly correlated features (VIF > threshold).
+    """
+    logger.info("Grouping correlated features...")
+    high_vif_features = [f for f, v in vif_scores.items() if v > threshold]
     
-    for i, col1 in enumerate(corr_matrix.columns):
-        if col1 in used:
-            continue
-        cluster = [col1]
-        for j, col2 in enumerate(corr_matrix.columns):
-            if i != j and col2 not in used:
-                if corr_matrix.loc[col1, col2] > threshold:
-                    cluster.append(col2)
-                    used.add(col2)
-        clusters.append(cluster)
-        used.add(col1)
-    
-    return clusters
+    # Simple grouping: all high VIF features in one group for now
+    # In a real scenario, we would use clustering algorithms
+    if high_vif_features:
+        return [high_vif_features]
+    return []
 
 def main():
     """Main entry point for diagnostics."""
-    module_logger.info("Diagnostics module loaded")
+    try:
+        # Load data
+        df = load_processed_data()
+        
+        # Define feature columns
+        exclude_cols = ['composition', 'weibull_modulus', 'sample_count', 'is_range_flag', 'range_original', 'primary_anion_cation_group', 'sintering_temp', 'is_imputed']
+        feature_cols = [col for col in df.columns if col not in exclude_cols]
+        
+        # Load model metrics
+        metrics = load_model_metrics()
+        original_mae = metrics.get('mae')
+        
+        # Train leakage check model
+        leakage_model, leakage_metrics = train_leakage_check_model(df, feature_cols)
+        if leakage_model is None:
+            logger.error("Failed to train leakage check model.")
+            sys.exit(1)
+        
+        leakage_mae = leakage_metrics.get('mae')
+        
+        # Check leakage
+        check_leakage(original_mae, leakage_mae)
+        
+        # Calculate VIF
+        vif_scores = calculate_vif(df, feature_cols)
+        
+        # Group correlated features
+        groups = group_correlated_features(vif_scores)
+        
+        logger.info("Diagnostics completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Diagnostics failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,10 @@
 import logging
 import os
+import sys
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 import hashlib
-import os
 
 # Ensure logs directory exists
 LOGS_DIR = Path(__file__).parent.parent / "logs"
@@ -41,7 +41,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(log_dir / "pipeline.log"),
+        logging.FileHandler(LOGS_DIR / "pipeline.log"),
         logging.StreamHandler()
     ]
 )
@@ -54,7 +54,8 @@ from .config import load_environment, initialize_config
 # Initialize config on import
 initialize_config()
 
-def load_env():
+@dataclass
+class CeramicEntry:
     """
     Dataclass representing a single ceramic material entry.
     Corresponds to the raw or processed row in the dataset.
@@ -91,6 +92,7 @@ def load_env():
             "raw_data": self.raw_data
         }
 
+@dataclass
 class DescriptorSet:
     """
     Represents a set of computed elemental descriptors for a ceramic composition.
@@ -113,6 +115,19 @@ class DescriptorSet:
         sintering_temp (float): Sintering temperature in Kelvin.
         raw_data (dict): Dictionary containing raw descriptor values before aggregation.
     """
+    composition: str
+    mean_atomic_radius: Optional[float] = None
+    electronegativity_std: Optional[float] = None
+    valence_electron_concentration: Optional[float] = None
+    cation_size_variance: Optional[float] = None
+    range_uncertainty: Optional[float] = None
+    primary_anion_cation_group: Optional[str] = None
+    is_range_flag: bool = False
+    is_imputed: bool = False
+    sample_count: int = 0
+    weibull_modulus: Optional[float] = None
+    sintering_temp: Optional[float] = None
+    raw_data: Dict[str, Any] = field(default_factory=dict)
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert the DescriptorSet to a dictionary representation."""

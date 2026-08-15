@@ -1,20 +1,23 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with `[tool.ruff]`
+    settings, a `.ruff.toml`, or a `black` configuration) are present in the provided
+    evidence, nor any scripts or documentation showing that `ruff` and `black` have
+    been set up for the project. The required artifacts to demonstrate that linting
+    and formatting are configured are missing.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the `data/raw/`, `data/processed/`, and `data/artifacts/`
+    directories actually exist (e.g., a directory listing, screenshots, or code that
+    creates them). Without such artifacts, we cannot confirm the task was fulfilled.
 T010b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No evidence of a `logs/citation_validation.log` file was provided, nor any output\
     \ showing it was created or contains entries. The required artifact is missing,\
     \ so the task\u2019s verification requirement is not satisfied."
-T016:
-  c: false
-  h: 2de2f6b9683a299acce9bfc55f94f6bd9c2191a84dba301074d433a4dcb7f665
-  r: "The repository contains `code/contracts/schemas.py` with the required Pydantic\
-    \ models, but the two YAML files `ceramic_entry.schema.yaml` and `model_result.schema.yaml`\
-    \ are not present (the only missing file listed is `schema.yaml`). Moreover, the\
-    \ export function only writes those two files; since they were never generated,\
-    \ the task\u2019s requirement to have the schemas exported to YAML in `code/contracts/`\
-    \ is not met. The next implementer should run `export_schemas_to_yaml()` (or add\
-    \ code to generate the files) and ensure the resulting `ceramic_entry.schema.yaml`\
-    \ and `model_result.schema.yaml` ex"
 T017b:
   c: false
   h: c06eddcde21084faec28109a1f5314faf47c805f700895c821b65aa5db552ce0
@@ -52,13 +55,13 @@ T020:
     cannot be verified as satisfied. The next implementer must provide the actual
     validation logic and evidence (e.g., code snippet, test results) showing that
     after imputation no primary predictor contains missing values.
-T025:
+T027b:
   c: false
-  h: ef73281f86077ceefd87ce335adf1a2be9ded5977c7b2a88787ad734690c4dfa
-  r: The repository contains the integration test file, but it is truncated and never
-    reaches the part that would generate and write `data/results/cv_split_report.json`.
-    Moreover, the expected JSON report file is absent from the `data/results` directory.
-    The required artifact is missing, so the task is not fully satisfied.
+  h: a97381a7740ffba1da2e78f4e3a022ab9b44ba008f52e3444b281e886cb3144b
+  r: "The `train_models()` function is truncated and never performs model training,\
+    \ cross\u2011validation loops, or writes any feature\u2011importance data. Moreover,\
+    \ the required `data/results/fold_importances.json` file does not exist. Both\
+    \ the core functionality and the critical output artifact are missing."
 T028:
   c: false
   h: 8cf42a5b444dc57939ae6a8fb3c1dd11b519510f946e0bcfd87404352441ada8
@@ -100,3 +103,17 @@ T053:
   r: No artifact (e.g., script, function, test, or documentation) was provided that
     checks the NIST ceramic data URL for reachability or validates its content before
     download. Without such evidence, the requirement is not satisfied.
+T056:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that `group_correlated_features()`\
+    \ is now invoked before feature ranking in `generate_interpretation()`, nor that\
+    \ VIF >\u202F5 triggers clustering and aggregate importance reporting. The required\
+    \ implementation artifact is missing."
+T062:
+  c: false
+  h: 2ec8fa8d37a3a57dd3e10484d029c9bcf2ab991626333b7427e97cdc3ac0d63e
+  r: The repository lacks a `calculate_dataset_power()` implementation in `code/ingestion.py`
+    (the file ends before such a function appears) and the required `data/reports/data_availability_report.json`
+    file is absent, so the statistical power field cannot have been added. Both the
+    code change and the output artifact are missing.

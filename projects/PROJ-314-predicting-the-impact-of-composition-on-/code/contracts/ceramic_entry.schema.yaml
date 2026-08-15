@@ -1,79 +1,50 @@
-$defs:
-  ConfigDict:
-    properties:
-      arbitrary_types_allowed:
-        default: false
-        title: Arbitrary Types Allowed
-        type: boolean
-    title: ConfigDict
-    type: object
-properties:
-  cation_size_variance:
-    anyOf:
-    - type: number
-    - type: 'null'
-    default: null
-    title: Cation Size Variance
-  composition:
-    title: Composition
-    type: string
-  electronegativity_std:
-    anyOf:
-    - type: number
-    - type: 'null'
-    default: null
-    title: Electronegativity Std
-  is_imputed:
-    default: false
-    title: Is Imputed
-    type: boolean
-  is_range_flag:
-    default: false
-    title: Is Range Flag
-    type: boolean
-  mean_atomic_radius:
-    anyOf:
-    - type: number
-    - type: 'null'
-    default: null
-    title: Mean Atomic Radius
-  primary_anion_cation_group:
-    title: Primary Anion Cation Group
-    type: string
-  range_original:
-    anyOf:
-    - type: string
-    - type: 'null'
-    default: null
-    title: Range Original
-  range_uncertainty:
-    anyOf:
-    - type: number
-    - type: 'null'
-    default: null
-    title: Range Uncertainty
-  sample_count:
-    title: Sample Count
-    type: integer
-  sintering_temp:
-    anyOf:
-    - type: number
-    - type: 'null'
-    default: null
-    title: Sintering Temp
-  valence_electron_concentration:
-    anyOf:
-    - type: number
-    - type: 'null'
-    default: null
-    title: Valence Electron Concentration
-  weibull_modulus:
-    title: Weibull Modulus
-    type: number
-required:
-- composition
-- weibull_modulus
-- sample_count
-- primary_anion_cation_group
+$schema: http://json-schema.org/draft-07/schema#
 title: CeramicEntry
+description: Schema for a single ceramic entry in the dataset.
 type: object
+required:
+  - composition
+  - weibull_modulus
+  - sample_count
+  - is_range_flag
+  - range_original
+  - primary_anion_cation_group
+  - sintering_temp
+  - is_imputed
+  - mean_atomic_radius
+  - electronegativity_std
+  - valence_electron_concentration
+properties:
+  composition:
+    type: string
+    description: The chemical composition of the ceramic (e.g., Al2O3).
+  weibull_modulus:
+    type: number
+    description: The Weibull modulus value.
+  sample_count:
+    type: integer
+    description: The number of samples used to derive the Weibull modulus.
+  is_range_flag:
+    type: boolean
+    description: Flag indicating if the original value was a range.
+  range_original:
+    type: string
+    description: The original string value if it was a range (e.g., "5-10").
+  primary_anion_cation_group:
+    type: string
+    description: The primary anion-cation group (e.g., "O-Al").
+  sintering_temp:
+    type: number
+    description: The sintering temperature in Celsius.
+  is_imputed:
+    type: boolean
+    description: Flag indicating if the sintering_temp was imputed.
+  mean_atomic_radius:
+    type: number
+    description: The mean atomic radius of the constituent elements.
+  electronegativity_std:
+    type: number
+    description: The standard deviation of electronegativity of the constituent elements.
+  valence_electron_concentration:
+    type: number
+    description: The valence electron concentration.

@@ -1,20 +1,23 @@
 [lint]
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # pyflakes
-  "I",  # isort
-  "B",  # flake8-bugbear
-  "C4", # flake8-comprehensions
-  "UP", # pyupgrade
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
 ]
 ignore = [
-  "E501", # line too long (handled by black)
-  "B008", # do not perform function calls in argument defaults (common in fastapi/pandas)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses/Pydantic)
+    "C901", # too complex (will be addressed incrementally)
 ]
 
+[lint.isort]
+known-first-party = ["config", "contracts", "descriptors", "diagnostics", "ingestion", "logger", "memory_monitor", "modeling", "physics_mappings", "report", "run_pipeline_timing", "sample_fallback", "scripts", "setup_directories", "timeout_wrapper", "verify_citation_log"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
 [format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+line-length = 100
+indent-width = 4

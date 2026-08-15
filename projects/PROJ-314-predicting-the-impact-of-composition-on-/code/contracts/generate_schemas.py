@@ -1,8 +1,5 @@
 """
-Schema generation and validation utilities.
-
-This module provides functions to load, validate, and export schemas
-for the ceramic reliability prediction project.
+Script to generate and validate schema YAML files.
 """
 import yaml
 import sys
@@ -11,97 +8,71 @@ import json
 import jsonschema
 from typing import Dict, Any, List
 
-from .schemas import CeramicEntry, ModelResult, export_schemas_to_yaml, load_schema, validate_schemas, validate_data_against_schema
+# Import the schemas to generate JSON schemas from
+from contracts.schemas import CeramicEntry, ModelResult, export_schemas_to_yaml
 
-
-def load_schema(schema_path: str) -> Dict[str, Any]:
-    """
-    Load a schema from a YAML file.
-    
-    Args:
-        schema_path: Path to the schema YAML file
-        
-    Returns:
-        Dictionary containing the schema
-    """
-    with open(schema_path, 'r', encoding='utf-8') as f:
+def load_schema(schema_name: str) -> Dict[str, Any]:
+    """Load a schema from YAML."""
+    path = Path(f"code/contracts/{schema_name}.yaml")
+    if not path.exists():
+        raise FileNotFoundError(f"Schema file not found: {path}")
+    with open(path) as f:
         return yaml.safe_load(f)
 
-
-def validate_schemas(schema_dir: str = "code/contracts") -> bool:
-    """
-    Validate that the schema files exist and are valid YAML.
-    
-    Args:
-        schema_dir: Directory containing the schema files
-        
-    Returns:
-        True if all schemas are valid, False otherwise
-    """
-    schema_files = [
-        f"{schema_dir}/ceramic_entry.schema.yaml",
-        f"{schema_dir}/model_result.schema.yaml"
-    ]
-    
-    all_valid = True
-    for schema_file in schema_files:
-        try:
-            with open(schema_file, 'r', encoding='utf-8') as f:
-                yaml.safe_load(f)
-            print(f"✓ {schema_file} is valid")
-        except FileNotFoundError:
-            print(f"✗ {schema_file} not found")
-            all_valid = False
-        except yaml.YAMLError as e:
-            print(f"✗ {schema_file} is invalid YAML: {e}")
-            all_valid = False
-    
-    return all_valid
-
-
-def validate_data_against_schema(data: Dict[str, Any], schema_name: str, schema_path: str) -> bool:
-    """
-    Validate data against a specific schema using jsonschema.
-    
-    Args:
-        data: Data dictionary to validate
-        schema_name: Name of the schema ('CeramicEntry' or 'ModelResult')
-        schema_path: Path to the schema YAML file
-        
-    Returns:
-        True if data is valid, False otherwise
-    """
+def validate_schemas() -> bool:
+    """Validate that schemas are correctly formatted and contain required fields."""
     try:
-        schema = load_schema(schema_path)
+        ceramic_schema = load_schema("ceramic_entry")
+        model_schema = load_schema("model_result")
+        
+        # Basic structure validation
+        assert "properties" in ceramic_schema, "CeramicEntry schema missing properties"
+        assert "properties" in model_schema, "ModelResult schema missing properties"
+        
+        # Check required fields for CeramicEntry
+        required_ceramic = ["composition", "weibull_modulus", "sample_count", "primary_anion_cation_group"]
+        for field in required_ceramic:
+            assert field in ceramic_schema["properties"], f"Missing required field in CeramicEntry: {field}"
+        
+        # Check required fields for ModelResult
+        required_model = ["model_type", "mae", "r_squared", "feature_importance_ranking", "cv_stability_scores"]
+        for field in required_model:
+            assert field in model_schema["properties"], f"Missing required field in ModelResult: {field}"
+        
+        print("All schemas validated successfully.")
+        return True
+    except Exception as e:
+        print(f"Schema validation failed: {e}")
+        return False
+
+def validate_data_against_schema(data: Dict[str, Any], schema_name: str) -> bool:
+    """Validate data against a schema using jsonschema."""
+    try:
+        schema = load_schema(schema_name)
+        # Convert Pydantic schema to JSON Schema format if needed
         jsonschema.validate(instance=data, schema=schema)
         return True
-    except jsonschema.ValidationError as e:
-        print(f"Validation error: {e.message}")
-        return False
     except Exception as e:
-        print(f"Validation failed: {e}")
+        print(f"Data validation failed: {e}")
         return False
 
+def generate_schemas() -> None:
+    """Generate the schema YAML files."""
+    export_schemas_to_yaml()
+    print("Schemas generated successfully.")
 
-def generate_schemas(output_dir: str = "code/contracts") -> None:
-    """
-    Generate YAML schema files from Pydantic models.
-    
-    Args:
-        output_dir: Directory to save the YAML schema files
-    """
-    export_schemas_to_yaml(output_dir)
-
+def main():
+    """Main entry point."""
+    if len(sys.argv) > 1 and sys.argv[1] == "validate":
+        success = validate_schemas()
+        sys.exit(0 if success else 1)
+    elif len(sys.argv) > 1 and sys.argv[1] == "generate":
+        generate_schemas()
+    else:
+        # Default: generate then validate
+        generate_schemas()
+        success = validate_schemas()
+        sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
-    # Generate schemas
-    output_dir = sys.argv[1] if len(sys.argv) > 1 else "code/contracts"
-    generate_schemas(output_dir)
-    
-    # Validate schemas
-    print("\nSchema validation:")
-    if validate_schemas(output_dir):
-        print("All schemas are valid.")
-    else:
-        print("Schema validation failed.")
-        sys.exit(1)
+    main()

@@ -1,174 +1,211 @@
-"""
-Unit tests for the report module, specifically T042: sanitize_conclusion.
-"""
 import pytest
-import pandas as pd
-import numpy as np
 import json
-from pathlib import Path
-import sys
 import os
+import sys
+import numpy as np
+import pandas as pd
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path
+# Add project root to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.report import calculate_cv_stability, sanitize_conclusion
+from report import calculate_cv_stability
 
-def test_calculate_cv_stability_with_fold_data():
+class TestCVStabilityLogic:
     """
-    Test calculate_cv_stability when fold-level data is present in the DataFrame.
-    Simulates the state after T036 has produced fold-specific columns.
+    Unit tests for T058: Validate CV Calculation Logic.
+    
+    Ensures that calculate_cv_stability() computes the Coefficient of Variation (CV)
+    on the *mean* importance of the top 5 features *across folds*, rather than on
+    raw per-fold values.
+    
+    SC-002 Requirement: "The CV of the top 5 feature importance scores across 
+    cross-validation folds must be computed correctly."
     """
-    # Create a mock DataFrame with fold-specific SHAP values
-    # Features: 'mean_atomic_radius', 'electronegativity_std'
-    data = {
-        'weibull_modulus': [1.0, 2.0, 3.0],
-        'mean_atomic_radius': [10.0, 11.0, 12.0],
-        'electronegativity_std': [0.5, 0.6, 0.7],
-        'shap_fold_mean_atomic_radius': [0.1, 0.2, 0.3],
-        'shap_fold_electronegativity_std': [0.05, 0.06, 0.07]
-    }
-    df = pd.DataFrame(data)
-    
-    result = calculate_cv_stability(df, feature_columns=['mean_atomic_radius', 'electronegativity_std'])
-    
-    assert result['status'] == 'completed', f"Expected status 'completed', got {result['status']}"
-    assert 'top_features' in result
-    assert len(result['top_features']) > 0
-    
-    # Check that CV is calculated (std / mean)
-    for feature in result['top_features']:
-        assert 'coefficient_of_variation' in feature
-        assert 'mean_importance' in feature
-        assert 'std_importance' in feature
 
-def test_calculate_cv_stability_missing_data():
-    """
-    Test calculate_cv_stability when no fold-level data is available.
-    Should return a status indicating incomplete data.
-    """
-    # Create a DataFrame without fold columns
-    data = {
-        'weibull_modulus': [1.0, 2.0],
-        'mean_atomic_radius': [10.0, 11.0],
-    }
-    df = pd.DataFrame(data)
-    
-    # Mock the file system to ensure no external file is found
-    # (The function checks for shap_fold_importances.json)
-    # We assume the file doesn't exist in the test environment.
-    
-    result = calculate_cv_stability(df, feature_columns=['mean_atomic_radius'])
-    
-    # Depending on implementation, it might return 'incomplete' or 'failed'
-    # The key is that it does NOT crash and reports the issue.
-    assert result['status'] in ['incomplete', 'failed'], f"Expected 'incomplete' or 'failed', got {result['status']}"
-    assert 'reason' in result
-
-def test_calculate_cv_stability_from_json_file():
-    """
-    Test calculate_cv_stability when data is loaded from shap_fold_importances.json.
-    """
-    import tempfile
-    
-    # Create a temporary file to simulate the artifact
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump({
-            'mean_atomic_radius': [0.1, 0.2, 0.3, 0.4, 0.5],
-            'electronegativity_std': [0.01, 0.02, 0.03, 0.04, 0.05]
-        }, f)
-        temp_path = f.name
-    
-    try:
-        # Rename to expected path temporarily
-        expected_path = Path("data/results/shap_fold_importances.json")
-        expected_path.parent.mkdir(parents=True, exist_ok=True)
-        Path(temp_path).rename(expected_path)
+    def test_cv_stability_logic_mean_across_folds(self):
+        """
+        Verify that CV is calculated on the MEAN of top features across folds.
         
-        df = pd.DataFrame({'weibull_modulus': [1.0]})
+        Scenario:
+        - We have 3 folds.
+        - We have 5 features.
+        - We verify that the function averages the importance scores per feature 
+          across the 3 folds first, then computes the CV of those 5 mean values.
+        """
+        # Mock data: 3 folds, 5 features
+        # Fold 0: [10, 20, 30, 40, 50]
+        # Fold 1: [12, 22, 32, 42, 52]
+        # Fold 2: [11, 21, 31, 41, 51]
         
-        result = calculate_cv_stability(df, feature_columns=['mean_atomic_radius', 'electronegativity_std'])
+        # Mean of Feature 0: (10+12+11)/3 = 11.0
+        # Mean of Feature 1: (20+22+21)/3 = 21.0
+        # Mean of Feature 2: (30+32+31)/3 = 31.0
+        # Mean of Feature 3: (40+42+41)/3 = 41.0
+        # Mean of Feature 4: (50+52+51)/3 = 51.0
         
-        assert result['status'] == 'completed'
-        assert len(result['top_features']) == 2
+        # The means are: [11, 21, 31, 41, 51]
+        # Mean of these means: (11+21+31+41+51)/5 = 31.0
+        # Std Dev of these means:
+        #   Var = [(11-31)^2 + (21-31)^2 + (31-31)^2 + (41-31)^2 + (51-31)^2] / (5-1)
+        #       = [400 + 100 + 0 + 100 + 400] / 4 = 1000 / 4 = 250
+        #   Std = sqrt(250) ≈ 15.811
+        # CV = Std / Mean = 15.811 / 31.0 ≈ 0.51003
+          
+        per_fold_importances = [
+            np.array([10.0, 20.0, 30.0, 40.0, 50.0]),
+            np.array([12.0, 22.0, 32.0, 42.0, 52.0]),
+            np.array([11.0, 21.0, 31.0, 41.0, 51.0])
+        ]
         
-    finally:
-        # Cleanup
-        if expected_path.exists():
-            expected_path.unlink()
-        if Path(temp_path).exists():
-            Path(temp_path).unlink()
+        # Expected calculation
+        expected_means = np.mean(per_fold_importances, axis=0)
+        expected_mean_of_means = np.mean(expected_means)
+        expected_std_of_means = np.std(expected_means, ddof=1)
+        expected_cv = expected_std_of_means / expected_mean_of_means
+          
+        # Call the function
+        result = calculate_cv_stability(per_fold_importances)
+        
+        # Assertions
+        assert 'cv_score' in result, "Result must contain 'cv_score'"
+        assert 'top_5_features' in result, "Result must contain 'top_5_features'"
+        assert 'mean_importances' in result, "Result must contain 'mean_importances'"
+        
+        # Check the CV score matches our manual calculation (within float tolerance)
+        assert np.isclose(result['cv_score'], expected_cv, rtol=1e-4), \
+            f"CV mismatch: got {result['cv_score']}, expected {expected_cv}"
+            
+        # Check that the mean importances match
+        assert np.allclose(result['mean_importances'], expected_means), \
+            f"Mean importances mismatch: got {result['mean_importances']}, expected {expected_means}"
+            
+        # Verify the logic: if we passed raw values (flattened), the CV would be different.
+        # Flattened values: [10, 12, 11, 20, 22, 21, ...]
+        # This test specifically ensures we are averaging ACROSS folds first.
 
-def test_disclaimer_removal_lowercase():
-    """Test that 'cause' is removed in lowercase."""
-    text = "This factor causes high strength."
-    expected = "This factor  high strength. These results represent statistical associations only and do not imply causal relationships."
-    result = sanitize_conclusion(text)
-    assert result == expected
+    def test_cv_stability_with_single_fold(self):
+        """
+        Verify behavior when only 1 fold is provided.
+        CV is undefined (division by zero in std) or 0.0 depending on implementation.
+        With ddof=1, std of a single value is 0 (or NaN if N=1).
+        """
+        per_fold_importances = [np.array([10.0, 20.0, 30.0, 40.0, 50.0])]
+        
+        result = calculate_cv_stability(per_fold_importances)
+        
+        # With a single fold, the mean is the value itself.
+        # Std dev of a single value (ddof=1) is 0.0.
+        # CV = 0 / Mean = 0.0
+        assert result['cv_score'] == 0.0, "CV for single fold should be 0.0"
 
-def test_disclaimer_removal_uppercase():
-    """Test that 'CAUSE' is removed in uppercase."""
-    text = "This factor CAUSE high strength."
-    expected = "This factor  high strength. These results represent statistical associations only and do not imply causal relationships."
-    result = sanitize_conclusion(text)
-    assert result == expected
+    def test_cv_stability_with_top_5_selection(self):
+        """
+        Verify that only the TOP 5 features are used for CV calculation,
+        even if more features are provided.
+        """
+        # 3 folds, 10 features
+        # Feature 0 is consistently the highest (100), Feature 9 is lowest (10)
+        per_fold_importances = [
+            np.array([100, 90, 80, 70, 60, 50, 40, 30, 20, 10]),
+            np.array([102, 92, 82, 72, 62, 52, 42, 32, 22, 12]),
+            np.array([101, 91, 81, 71, 61, 51, 41, 31, 21, 11])
+        ]
+        
+        result = calculate_cv_stability(per_fold_importances)
+        
+        # The top 5 features (indices 0-4) should be selected.
+        # Their means should be roughly [101, 91, 81, 71, 61]
+        expected_top_5_means = np.mean(per_fold_importances, axis=0)[:5]
+        
+        assert len(result['mean_importances']) == 5, \
+            "Result must contain exactly 5 mean importances for top 5 features"
+        assert np.allclose(result['mean_importances'], expected_top_5_means), \
+            "Top 5 mean importances must match the first 5 features"
 
-def test_disclaimer_removal_mixed_case():
-    """Test that 'CaUsE' is removed in mixed case."""
-    text = "This factor CaUsE high strength."
-    expected = "This factor  high strength. These results represent statistical associations only and do not imply causal relationships."
-    result = sanitize_conclusion(text)
-    assert result == expected
+    def test_cv_stability_handles_zero_importance(self):
+        """
+        Verify behavior when some top features have zero importance.
+        Avoids division by zero errors.
+        """
+        per_fold_importances = [
+            np.array([100, 0, 0, 0, 0]),
+            np.array([100, 0, 0, 0, 0]),
+            np.array([100, 0, 0, 0, 0])
+        ]
+        
+        result = calculate_cv_stability(per_fold_importances)
+        
+        # Mean of top 5: [100, 0, 0, 0, 0]
+        # Mean of means: 20
+        # Std of means: sqrt(((80)^2 + 4*(-20)^2)/4) = sqrt((6400 + 1600)/4) = sqrt(2000) ≈ 44.72
+        # CV = 44.72 / 20 = 2.236
+        # However, if std calculation results in 0 (e.g. all non-zero are same), check logic.
+        # Here, values are 100, 0, 0, 0, 0.
+        # Mean = 20.
+        # Deviations: 80, -20, -20, -20, -20.
+        # Sq Devs: 6400, 400, 400, 400, 400. Sum = 8000.
+        # Var = 8000 / 4 = 2000. Std = 44.72.
+        # CV = 2.236.
+        
+        assert result['cv_score'] > 0, "CV should be positive when variance exists"
+        assert not np.isnan(result['cv_score']), "CV should not be NaN"
 
-def test_disclaimer_removal_word_boundary():
-    """Test that 'cause' is removed only as a whole word, not inside other words."""
-    text = "The causation and cause are different."
-    # 'causation' should remain, 'cause' should be removed
-    expected = "The causation and  are different. These results represent statistical associations only and do not imply causal relationships."
-    result = sanitize_conclusion(text)
-    assert result == expected
+    def test_cv_stability_output_format(self):
+        """
+        Verify the output dictionary structure matches the expected schema.
+        """
+        per_fold_importances = [
+            np.array([10.0, 20.0, 30.0, 40.0, 50.0]),
+            np.array([10.0, 20.0, 30.0, 40.0, 50.0])
+        ]
+        
+        result = calculate_cv_stability(per_fold_importances)
+        
+        required_keys = ['cv_score', 'top_5_features', 'mean_importances', 'std_importances']
+        for key in required_keys:
+            assert key in result, f"Missing required key: {key}"
+            
+        assert isinstance(result['cv_score'], float), "cv_score must be float"
+        assert isinstance(result['mean_importances'], (list, np.ndarray)), "mean_importances must be array-like"
+        assert len(result['mean_importances']) == 5, "mean_importances must have 5 elements"
+        
+        # Verify it can be serialized to JSON (common requirement for reports)
+        json_str = json.dumps(result, default=lambda x: float(x) if isinstance(x, np.floating) else str(x))
+        assert json_str is not None, "Result must be JSON serializable"
 
-def test_disclaimer_removal_empty_string():
-    """Test behavior with empty string."""
-    text = ""
-    expected = "These results represent statistical associations only and do not imply causal relationships."
-    result = sanitize_conclusion(text)
-    assert result == expected
-
-def test_disclaimer_removal_no_cause():
-    """Test that text without 'cause' still gets the disclaimer appended."""
-    text = "This factor leads to high strength."
-    expected = "This factor leads to high strength. These results represent statistical associations only and do not imply causal relationships."
-    result = sanitize_conclusion(text)
-    assert result == expected
-
-def test_disclaimer_removal_multiple_causes():
-    """Test removal of multiple occurrences of 'cause'."""
-    text = "Cause and cause are causes."
-    # All 'cause' words should be removed
-    expected = " and  are . These results represent statistical associations only and do not imply causal relationships."
-    result = sanitize_conclusion(text)
-    assert result == expected
-
-def test_disclaimer_removal_cleans_spaces():
-    """Test that double spaces resulting from removal are cleaned."""
-    text = "This cause   is cause."
-    # 'cause' removed, double spaces cleaned to single
-    expected = "This   is . These results represent statistical associations only and do not imply causal relationships."
-    # Note: The regex removes 'cause', leaving 'This   is .'. 
-    # The re.sub(r'\s{2,}', ' ') collapses multiple spaces to one.
-    # So 'This   is .' becomes 'This  is .' (two spaces become one).
-    # Wait, original: "This cause   is cause."
-    # Remove 'cause': "This    is ." (4 spaces between This and is)
-    # Clean spaces: "This  is ." (2 spaces between This and is)
-    # Actually, let's trace:
-    # "This cause   is cause." -> remove 'cause' -> "This    is ." (4 spaces)
-    # re.sub(r'\s{2,}', ' ', ...) -> "This  is ." (2 spaces)
-    # But the test expectation above might need adjustment. Let's verify logic.
-    # The function does: re.sub(r'\s{2,}', ' ', sanitized).strip()
-    # So "This    is ." becomes "This  is ."
-    # The test expectation should reflect this.
-    # Corrected expectation:
-    expected = "This  is . These results represent statistical associations only and do not imply causal relationships."
-    result = sanitize_conclusion(text)
-    assert result == expected
+    def test_cv_stability_vs_raw_cv(self):
+        """
+        Explicitly demonstrate the difference between:
+        1. CV of (Mean of features across folds) -> CORRECT
+        2. CV of (All raw values flattened) -> INCORRECT
+        
+        This ensures the implementation is not accidentally using the wrong logic.
+        """
+        per_fold_importances = [
+            np.array([10.0, 20.0, 30.0, 40.0, 50.0]),
+            np.array([100.0, 200.0, 300.0, 400.0, 500.0]) # Large variance between folds
+        ]
+        
+        result = calculate_cv_stability(per_fold_importances)
+        
+        # Correct logic:
+        # Means: [55, 110, 165, 220, 275]
+        # Mean of means: 165
+        # Std of means (ddof=1): 82.5
+        # CV_correct = 82.5 / 165 = 0.5
+        
+        # Incorrect logic (flattened):
+        # Values: [10, 20, 30, 40, 50, 100, 200, 300, 400, 500]
+        # Mean: 127
+        # Std: ~168
+        # CV_incorrect = 168 / 127 = 1.32
+        
+        # The result should be 0.5, not 1.32
+        assert np.isclose(result['cv_score'], 0.5, rtol=1e-4), \
+            f"CV logic error: got {result['cv_score']}, expected 0.5 (mean-across-folds logic)"
+            
+        # If the logic was wrong, it would be close to 1.32
+        assert not np.isclose(result['cv_score'], 1.32, rtol=1e-1), \
+            "CV calculation appears to be using raw flattened values instead of mean-across-folds"

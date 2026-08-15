@@ -1,7 +1,3 @@
-"""
-Pipeline execution orchestrator with timing and error handling.
-This script coordinates the full research pipeline: Ingestion -> Modeling -> Interpretation.
-"""
 import os
 import sys
 import time
@@ -10,79 +6,87 @@ import logging
 import traceback
 from pathlib import Path
 
-# Add project root to path to allow relative imports
-project_root = Path(__file__).parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from config import initialize_config, get_config_value
-from ingestion import main as run_ingestion
-from modeling import main as run_modeling
-from generate_shap_plots import main as run_shap
-from logger import logger
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/pipeline_timing.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 def ensure_output_dir():
-    """Ensure all required output directories exist."""
-    dirs = [
-        "data/raw", "data/processed", "data/artifacts",
-        "data/results", "data/models", "data/reports",
-        "logs"
-    ]
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
+    """Ensure output directory exists."""
+    Path('data/results').mkdir(parents=True, exist_ok=True)
 
-def save_runtime_metrics(start_time: float, status: str, error_msg: str = None):
+def save_runtime_metrics(start_time: float, end_time: float, status: str, error: Optional[str] = None):
     """Save runtime metrics to a JSON file."""
-    end_time = time.time()
-    duration = end_time - start_time
-    
     metrics = {
+        "start_time": start_time,
+        "end_time": end_time,
+        "duration_seconds": end_time - start_time,
         "status": status,
-        "duration_seconds": duration,
-        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "error": error_msg
+        "error": error
     }
-    
-    output_path = "data/results/runtime_metrics.json"
-    with open(output_path, "w") as f:
+    output_path = 'data/results/runtime_metrics.json'
+    with open(output_path, 'w') as f:
         json.dump(metrics, f, indent=2)
-    
     logger.info(f"Runtime metrics saved to {output_path}")
 
 def run_full_pipeline():
-    """Execute the full research pipeline."""
-    logger.info("Starting full research pipeline...")
-    start_time = time.time()
+    """Run the full pipeline: ingestion, modeling, diagnostics."""
+    logger.info("Starting full pipeline execution.")
     
     try:
-        # 1. Ingestion
-        logger.info("Phase 1: Data Ingestion...")
+        # Import and run ingestion
+        logger.info("Running ingestion pipeline...")
+        from ingestion import main as run_ingestion
         run_ingestion()
+        logger.info("Ingestion pipeline completed.")
         
-        # 2. Modeling
-        logger.info("Phase 2: Predictive Modeling...")
+        # Import and run modeling
+        logger.info("Running modeling pipeline...")
+        from modeling import main as run_modeling
         run_modeling()
+        logger.info("Modeling pipeline completed.")
         
-        # 3. Interpretation
-        logger.info("Phase 3: Interpretation & Reporting...")
-        run_shap()
+        # Import and run diagnostics/reporting
+        logger.info("Running diagnostics and reporting...")
+        from diagnostics import main as run_diagnostics
+        run_diagnostics()
+        logger.info("Diagnostics completed.")
         
-        logger.info("Pipeline completed successfully.")
-        save_runtime_metrics(start_time, "success")
-        return 0
+        from report import main as run_report
+        run_report()
+        logger.info("Reporting completed.")
+        
+        return True, None
         
     except Exception as e:
-        error_msg = str(e)
-        logger.error(f"Pipeline failed: {error_msg}")
+        logger.error(f"Pipeline execution failed: {e}")
         logger.error(traceback.format_exc())
-        save_runtime_metrics(start_time, "failed", error_msg)
-        return 1
+        return False, str(e)
 
 def main():
-    """Main entry point."""
-    initialize_config()
+    """Main entry point for pipeline timing."""
+    start_time = time.time()
     ensure_output_dir()
-    sys.exit(run_full_pipeline())
+    
+    success, error = run_full_pipeline()
+    
+    end_time = time.time()
+    status = "success" if success else "failure"
+    
+    save_runtime_metrics(start_time, end_time, status, error)
+    
+    if not success:
+        logger.error("Pipeline failed. Check logs for details.")
+        sys.exit(1)
+    else:
+        logger.info("Pipeline completed successfully.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

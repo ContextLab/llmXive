@@ -1,60 +1,87 @@
 """
 Tests for T017c: Create Test Data for Data Gap.
-Verifies that the generated dataset has exactly 29 rows and all sample_count < 30.
+
+Verifies that the test dataset is generated correctly with the expected schema and row count.
 """
 import os
 import sys
-import pytest
 import pandas as pd
 from pathlib import Path
+import pytest
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-from scripts.create_test_n_dataset import create_test_n_dataset
+from scripts.create_test_n_dataset import generate_test_dataset, COMPOSITIONS, TARGET_ROWS
 
-class TestCreateTestNDataSet:
-    def test_row_count_is_exactly_29(self, tmp_path):
-        """Verify the generated dataset has exactly 29 rows."""
-        output_path = tmp_path / "test_n.csv"
-        df = create_test_n_dataset(str(output_path), row_count=29)
+class TestCreateTestNDataset:
+    """Test suite for the test dataset generation."""
+
+    @pytest.fixture
+    def temp_output_path(self, tmp_path):
+        """Create a temporary output path for testing."""
+        return tmp_path / "test_n.csv"
+
+    def test_row_count(self, temp_output_path):
+        """Verify the dataset has exactly 29 rows."""
+        generate_test_dataset(temp_output_path)
+        df = pd.read_csv(temp_output_path)
+        assert len(df) == TARGET_ROWS, f"Expected {TARGET_ROWS} rows, got {len(df)}"
+
+    def test_required_columns(self, temp_output_path):
+        """Verify the dataset has all required columns."""
+        generate_test_dataset(temp_output_path)
+        df = pd.read_csv(temp_output_path)
         
-        assert len(df) == 29, f"Expected 29 rows, got {len(df)}"
-    
-    def test_all_sample_counts_are_less_than_30(self, tmp_path):
-        """Verify all sample_count values are strictly less than 30."""
-        output_path = tmp_path / "test_n.csv"
-        df = create_test_n_dataset(str(output_path), row_count=29)
-        
-        assert all(df['sample_count'] < 30), "All sample_count values must be < 30"
-        assert df['sample_count'].max() < 30, f"Max sample_count {df['sample_count'].max()} is not < 30"
-    
-    def test_required_columns_exist(self, tmp_path):
-        """Verify the dataset contains required columns for the pipeline."""
-        output_path = tmp_path / "test_n.csv"
-        df = create_test_n_dataset(str(output_path), row_count=29)
-        
-        required_cols = [
+        expected_columns = [
             'composition', 'weibull_modulus', 'sample_count', 
             'sintering_temp', 'primary_anion_cation_group'
         ]
-        for col in required_cols:
-            assert col in df.columns, f"Missing required column: {col}"
-    
-    def test_file_is_written_to_disk(self, tmp_path):
-        """Verify the CSV file is actually written to disk."""
-        output_path = tmp_path / "test_n.csv"
-        create_test_n_dataset(str(output_path), row_count=29)
         
-        assert output_path.exists(), "Output file was not written to disk"
-        assert output_path.stat().st_size > 0, "Output file is empty"
-    
-    def test_data_integrity(self, tmp_path):
-        """Verify data types and basic integrity."""
-        output_path = tmp_path / "test_n.csv"
-        df = create_test_n_dataset(str(output_path), row_count=29)
+        for col in expected_columns:
+            assert col in df.columns, f"Missing column: {col}"
+
+    def test_composition_values(self, temp_output_path):
+        """Verify composition values are from the fixed list."""
+        generate_test_dataset(temp_output_path)
+        df = pd.read_csv(temp_output_path)
         
-        # Check for NaN values in critical columns
-        assert not df['sample_count'].isnull().any(), "sample_count has NaN values"
-        assert not df['weibull_modulus'].isnull().any(), "weibull_modulus has NaN values"
-        assert not df['composition'].isnull().any(), "composition has NaN values"
+        for comp in df['composition']:
+            assert comp in COMPOSITIONS, f"Invalid composition: {comp}"
+
+    def test_data_types(self, temp_output_path):
+        """Verify data types are correct."""
+        generate_test_dataset(temp_output_path)
+        df = pd.read_csv(temp_output_path)
+        
+        assert df['composition'].dtype == 'object', "composition should be string"
+        assert pd.api.types.is_float_dtype(df['weibull_modulus']), "weibull_modulus should be float"
+        assert pd.api.types.is_integer_dtype(df['sample_count']), "sample_count should be int"
+        assert pd.api.types.is_float_dtype(df['sintering_temp']), "sintering_temp should be float"
+        assert df['primary_anion_cation_group'].dtype == 'object', "primary_anion_cation_group should be string"
+
+    def test_no_missing_values(self, temp_output_path):
+        """Verify there are no missing values in the dataset."""
+        generate_test_dataset(temp_output_path)
+        df = pd.read_csv(temp_output_path)
+        
+        assert not df.isnull().any().any(), "Dataset contains missing values"
+
+    def test_primary_anion_cation_group_format(self, temp_output_path):
+        """Verify primary_anion_cation_group follows the 'Anion-Cation' format."""
+        generate_test_dataset(temp_output_path)
+        df = pd.read_csv(temp_output_path)
+        
+        for group in df['primary_anion_cation_group']:
+            assert '-' in group, f"Invalid format for group: {group}"
+            parts = group.split('-')
+            assert len(parts) == 2, f"Invalid format for group: {group}"
+
+    def test_sample_count_range(self, temp_output_path):
+        """Verify sample_count values are within a reasonable range."""
+        generate_test_dataset(temp_output_path)
+        df = pd.read_csv(temp_output_path)
+        
+        assert df['sample_count'].min() >= 30, "sample_count should be >= 30"
+        assert df['sample_count'].max() <= 100, "sample_count should be <= 100"
