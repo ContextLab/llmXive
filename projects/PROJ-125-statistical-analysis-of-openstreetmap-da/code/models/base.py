@@ -1,5 +1,5 @@
 """
-Base model class providing common serialization and validation logic.
+Base class for all data models with common serialization and validation logic.
 """
 from typing import Any, Dict, Optional
 import json
@@ -8,50 +8,61 @@ from pathlib import Path
 
 class BaseModel:
     """
-    Abstract base class for all data models in the pipeline.
-    Provides common methods for validation, serialization, and file I/O.
+    Abstract base class for data models.
+    Provides common serialization (to_json, from_json) and validation hooks.
     """
 
-    def validate(self) -> bool:
+    def to_json(self, path: Optional[Path] = None) -> Optional[str]:
         """
-        Validate the integrity of the model data.
-        Subclasses must override this to implement specific checks.
+        Serialize the model instance to a JSON string.
+        Optionally writes to a file if `path` is provided.
         """
-        raise NotImplementedError("Subclasses must implement validate()")
+        data = self.to_dict()
+        json_str = json.dumps(data, indent=2, default=str)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the model instance to a dictionary.
-        """
-        raise NotImplementedError("Subclasses must implement to_dict()")
+        if path:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json_str, encoding="utf-8")
+            return None
 
-    def to_json(self, indent: int = 2) -> str:
-        """
-        Serialize the model to a JSON string.
-        """
-        return json.dumps(self.to_dict(), indent=indent, default=str)
+        return json_str
 
-    def save(self, path: Path) -> None:
+    @classmethod
+    def from_json(cls, json_str: str) -> "BaseModel":
         """
-        Save the model state to a JSON file.
+        Deserialize a JSON string into a model instance.
         """
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(self.to_json())
+        data = json.loads(json_str)
+        return cls.from_dict(data)
 
     @classmethod
     def load(cls, path: Path) -> "BaseModel":
         """
         Load a model instance from a JSON file.
-        Subclasses must override this to handle specific constructors.
         """
-        path = Path(path)
         if not path.exists():
             raise FileNotFoundError(f"Model file not found: {path}")
-        
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        
-        # Default factory logic; subclasses should override for specific types
-        return cls(**data)
+        content = path.read_text(encoding="utf-8")
+        return cls.from_json(content)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the model instance to a dictionary.
+        Override in subclasses to include specific fields.
+        """
+        raise NotImplementedError("Subclasses must implement to_dict()")
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "BaseModel":
+        """
+        Create a model instance from a dictionary.
+        Override in subclasses to handle specific fields.
+        """
+        raise NotImplementedError("Subclasses must implement from_dict()")
+
+    def validate(self) -> bool:
+        """
+        Validate the model's internal state.
+        Returns True if valid, raises ValueError otherwise.
+        """
+        raise NotImplementedError("Subclasses must implement validate()")

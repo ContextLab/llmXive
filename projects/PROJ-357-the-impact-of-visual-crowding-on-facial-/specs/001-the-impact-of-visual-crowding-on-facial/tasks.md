@@ -124,13 +124,13 @@
 
 ### Implementation for User Story 4
 
-- [ ] T025 [US4] Implement `code/analysis/synthetic_data_generator.py` (headless, batch-mode) to generate synthetic recognition responses for the stimuli in `stimuli_manifest.json`. The generator must simulate ≥5 unique participant IDs and produce realistic accuracy distributions (e.g., 60-90% accuracy depending on crowding) for 8-category classification.
+- [X] T025 [US4] Implement `code/analysis/synthetic_data_generator.py` (headless, batch-mode) to generate synthetic recognition responses for the stimuli in `stimuli_manifest.json`. The generator must simulate ≥5 unique participant IDs and produce realistic accuracy distributions (e.g., 60-90% accuracy depending on crowding) for 8-category classification.
 - [X] T026 [US4] Implement `code/analysis/pilot_runner.py` CLI script to orchestrate the synthetic pilot study, load `stimuli_manifest.json`, and manage the generation of raw response data.
 - [X] T028 [US4] Implement `code/analysis/data_loader.py` to load and validate raw synthetic judgment CSVs (Participant ID, Stimulus ID, True Label, Response Label, Timestamp)
 - [ ] T029 [US4] Implement logic to compute `accuracy` (correct/incorrect) and aggregate by stimulus ID, emotion, and flanker count
 - [ ] T027 [US4] **Execute Synthetic Pilot**: Run `pilot_runner.py` (T026) with `synthetic_data_generator.py` (T025) to generate raw synthetic response data for the generated stimuli.
-- [ ] T030 [US4] Generate `data/processed/human_judgments.csv` with required fields: participant_id, stimulus_id, emotion_label, response_label, accuracy, flanker_count, eccentricity
-- [ ] T031 [US4] Create a pilot data generation script `code/analysis/generate_synthetic_data.py` for *unit testing only* (not for research results) to simulate a small cohort of participants for pipeline validation
+- [X] T030 [US4] Generate `data/processed/human_judgments.csv` with required fields: participant_id, stimulus_id, emotion_label, response_label, accuracy, flanker_count, eccentricity
+- [X] T031 [US4] Create a pilot data generation script `code/analysis/generate_synthetic_data.py` for *unit testing only* (not for research results) to simulate a small cohort of participants for pipeline validation
 
 **Checkpoint**: At this point, User Stories 1, 2, and 4 should be functional with data ready for analysis
 
@@ -144,7 +144,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/analysis/glmm_model.py` to fit a binomial GLMM with clutter metrics as fixed effects and participant/stimulus as random effects
+- [X] T033 [US3] Implement `code/analysis/glmm_model.py` to fit a binomial GLMM with clutter metrics as fixed effects and participant/stimulus as random effects
 - [ ] T034 [US3] Implement fallback logic: if GLMM fails to converge, fit a fixed-effects only model and log the warning (Edge Case)
 - [ ] T035 [US3] Implement multiple-comparison correction (Benjamini-Hochberg FDR ≤ 0.05) for hypothesis tests (FR-005)
 - [ ] T036 [US3] Implement `code/analysis/reporting.py` to generate a final report framing findings as associational (FR-006)

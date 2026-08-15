@@ -3,122 +3,161 @@ Unit tests for data models (CityBoundary, RasterCovariate, TemperatureRaster).
 """
 import pytest
 import json
-import tempfile
-import os
 from pathlib import Path
-import numpy as np
+import tempfile
+from shapely.geometry import Polygon
 
-# Import models
-from code.models.base import BaseModel
-from code.models.city import CityBoundary
-from code.models.raster import RasterCovariate, TemperatureRaster
-from shapely.geometry import box, Polygon
+from models.city import CityBoundary
+from models.raster import RasterCovariate, TemperatureRaster
 
 
 class TestCityBoundary:
-    def test_init_valid_polygon(self):
-        poly = box(0, 0, 10, 10)
-        city = CityBoundary(city_name="TestCity", geometry=poly, crs="EPSG:4326")
-        assert city.city_name == "TestCity"
-        assert city.crs == "EPSG:4326"
+    def test_valid_creation(self):
+        """Test creating a valid CityBoundary."""
+        wkt = "POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))"
+        city = CityBoundary(name="TestCity", wkt_geometry=wkt)
+        assert city.name == "TestCity"
+        assert city.crs is not None
+        assert city.geometry.is_valid
+
+    def test_invalid_geometry(self):
+        """Test that invalid WKT raises ValueError."""
+        with pytest.raises(ValueError):
+            CityBoundary(name="BadCity", wkt_geometry="INVALID_WKT")
+
+    def test_to_dict_and_from_dict(self):
+        """Test serialization and deserialization."""
+        wkt = "POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))"
+        city = CityBoundary(name="TestCity", wkt_geometry=wkt)
+        data = city.to_dict()
+
+        assert data["name"] == "TestCity"
+        assert data["geometry_wkt"] == wkt
+
+        restored = CityBoundary.from_dict(data)
+        assert restored.name == city.name
+        assert restored.geometry.wkt == city.geometry.wkt
+
+    def test_validate(self):
+        """Test validation logic."""
+        wkt = "POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))"
+        city = CityBoundary(name="TestCity", wkt_geometry=wkt)
         assert city.validate() is True
 
-    def test_init_from_geojson_string(self):
-        geom_dict = {"type": "Polygon", "coordinates": [[[0, 0], [0, 10], [10, 10], [10, 0], [0, 0]]]}
-        city = CityBoundary(city_name="GeoJSONCity", geometry=geom_dict, crs="EPSG:3857")
-        assert city.city_name == "GeoJSONCity"
-        assert city.validate() is True
+        city.name = ""
+        with pytest.raises(ValueError):
+            city.validate()
 
-    def test_to_dict(self):
-        poly = box(0, 0, 10, 10)
-        city = CityBoundary(city_name="DictCity", geometry=poly, crs="EPSG:4326")
-        d = city.to_dict()
-        assert d["type"] == "Feature"
-        assert d["properties"]["city_name"] == "DictCity"
-        assert "geometry" in d
+    def test_to_geojson(self):
+        """Test GeoJSON conversion."""
+        wkt = "POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))"
+        city = CityBoundary(name="TestCity", wkt_geometry=wkt)
+        geojson = city.to_geojson()
 
-    def test_validate_invalid_geometry(self):
-        # Create an invalid geometry (self-intersecting)
-        invalid_poly = Polygon([(0, 0), (10, 0), (5, 5), (5, 10), (0, 10), (10, 10)])
-        city = CityBoundary(city_name="BadCity", geometry=invalid_poly, crs="EPSG:4326")
-        # Note: Shapely might auto-fix simple issues, but let's test the logic
-        # If geometry is actually invalid, validate should return False
-        if not invalid_poly.is_valid:
-            assert city.validate() is False
-        else:
-            # If shapely fixed it, we check that the method runs without error
-            assert city.validate() is True
-
-    def test_save_and_load(self):
-        poly = box(0, 0, 10, 10)
-        city = CityBoundary(city_name="SaveCity", geometry=poly, crs="EPSG:4326")
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            path = Path(tmpdir) / "city.json"
-            city.save(path)
-            
-            assert path.exists()
-            
-            loaded = CityBoundary.load(path)
-            assert loaded.city_name == "SaveCity"
-            assert loaded.geometry.equals(city.geometry)
+        assert geojson["type"] == "Feature"
+        assert geojson["geometry"]["type"] == "Polygon"
+        assert geojson["properties"]["name"] == "TestCity"
 
 
 class TestRasterCovariate:
-    def test_init(self):
-        with tempfile.NamedTemporaryFile(suffix=".tif", delete=False) as f:
-            fname = f.name
-        try:
-            cov = RasterCovariate(name="test_cov", file_path=fname, variable_type="continuous")
-            assert cov.name == "test_cov"
-            assert cov.validate() is True
-        finally:
-            os.unlink(fname)
+    def test_valid_creation(self, tmp_path):
+        """Test creating a valid RasterCovariate."""
+        fake_file = tmp_path / "covariate.tif"
+        fake_file.touch()
 
-    def test_validate_missing_file(self):
-        cov = RasterCovariate(name="missing", file_path="/nonexistent/path.tif")
-        assert cov.validate() is False
+        cov = RasterCovariate(
+            name="test_cov", path=fake_file, description="Test covariate"
+        )
+        assert cov.name == "test_cov"
+        assert cov.path == fake_file
+        assert cov.resolution == 30.0
 
-    def test_validate_invalid_type(self):
-        with tempfile.NamedTemporaryFile(suffix=".tif", delete=False) as f:
-            fname = f.name
-        try:
-            cov = RasterCovariate(name="bad_type", file_path=fname, variable_type="invalid")
-            assert cov.validate() is False
-        finally:
-            os.unlink(fname)
+    def test_missing_file(self, tmp_path):
+        """Test that missing file raises FileNotFoundError."""
+        missing = tmp_path / "nonexistent.tif"
+        with pytest.raises(FileNotFoundError):
+            RasterCovariate(name="bad", path=missing)
 
-    def test_get_stats_no_file(self):
-        cov = RasterCovariate(name="no_file", file_path="/nonexistent.tif")
-        stats = cov.get_stats()
-        assert np.isnan(stats["min"])
+    def test_to_dict_and_from_dict(self, tmp_path):
+        """Test serialization and deserialization."""
+        fake_file = tmp_path / "covariate.tif"
+        fake_file.touch()
+
+        cov = RasterCovariate(name="test", path=fake_file)
+        data = cov.to_dict()
+
+        assert data["name"] == "test"
+        assert data["path"] == str(fake_file)
+
+        restored = RasterCovariate.from_dict(data)
+        assert restored.name == cov.name
+        assert restored.path == cov.path
+
+    def test_validate(self, tmp_path):
+        """Test validation logic."""
+        fake_file = tmp_path / "covariate.tif"
+        fake_file.touch()
+
+        cov = RasterCovariate(name="test", path=fake_file)
+        assert cov.validate() is True
+
+        cov.name = ""
+        with pytest.raises(ValueError):
+            cov.validate()
 
 
 class TestTemperatureRaster:
-    def test_init(self):
-        with tempfile.NamedTemporaryFile(suffix=".tif", delete=False) as f:
-            fname = f.name
-        try:
-            temp = TemperatureRaster(file_path=fname, unit="C", period="2023_summer")
-            assert temp.unit == "C"
-            assert temp.validate() is True
-        finally:
-            os.unlink(fname)
+    def test_valid_creation(self, tmp_path):
+        """Test creating a valid TemperatureRaster."""
+        fake_file = tmp_path / "temp.tif"
+        fake_file.touch()
 
-    def test_validate_invalid_unit(self):
-        with tempfile.NamedTemporaryFile(suffix=".tif", delete=False) as f:
-            fname = f.name
-        try:
-            temp = TemperatureRaster(file_path=fname, unit="F")
-            assert temp.validate() is False
-        finally:
-            os.unlink(fname)
+        temp = TemperatureRaster(
+            path=fake_file,
+            source_dataset="MODIS",
+            acquisition_date="2023-06-01",
+            cloud_cover=5.0,
+        )
+        assert temp.path == fake_file
+        assert temp.source_dataset == "MODIS"
+        assert temp.cloud_cover == 5.0
 
-    def test_validate_cloud_cover(self):
-        with tempfile.NamedTemporaryFile(suffix=".tif", delete=False) as f:
-            fname = f.name
-        try:
-            temp = TemperatureRaster(file_path=fname, cloud_cover_pct=150.0)
-            assert temp.validate() is False
-        finally:
-            os.unlink(fname)
+    def test_missing_file(self, tmp_path):
+        """Test that missing file raises FileNotFoundError."""
+        missing = tmp_path / "nonexistent.tif"
+        with pytest.raises(FileNotFoundError):
+            TemperatureRaster(path=missing)
+
+    def test_invalid_cloud_cover(self, tmp_path):
+        """Test that invalid cloud cover raises ValueError."""
+        fake_file = tmp_path / "temp.tif"
+        fake_file.touch()
+
+        with pytest.raises(ValueError):
+            TemperatureRaster(path=fake_file, cloud_cover=150.0)
+
+    def test_to_dict_and_from_dict(self, tmp_path):
+        """Test serialization and deserialization."""
+        fake_file = tmp_path / "temp.tif"
+        fake_file.touch()
+
+        temp = TemperatureRaster(path=fake_file)
+        data = temp.to_dict()
+
+        assert data["path"] == str(fake_file)
+        assert "crs" in data
+
+        restored = TemperatureRaster.from_dict(data)
+        assert restored.path == temp.path
+
+    def test_validate(self, tmp_path):
+        """Test validation logic."""
+        fake_file = tmp_path / "temp.tif"
+        fake_file.touch()
+
+        temp = TemperatureRaster(path=fake_file)
+        assert temp.validate() is True
+
+        temp.resolution = -10.0
+        with pytest.raises(ValueError):
+            temp.validate()

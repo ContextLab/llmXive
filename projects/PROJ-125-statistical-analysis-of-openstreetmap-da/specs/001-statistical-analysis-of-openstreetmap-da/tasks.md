@@ -121,7 +121,7 @@
  - Compute Moran's I for the temperature raster.
  - Compute variograms for the target variable.
  - Output statistics to `data/results/spatial_stats.json`.
-- [ ] T021 [US2] Generate EDA summary report in `data/results/eda_report.md`
+- [X] T021 [US2] Generate EDA summary report in `data/results/eda_report.md`
  - Attempt to ingest socioeconomic proxies (WorldPop/OSM height) as described in Plan Phase 2.
  - If ingestion fails or data is missing, flag as a limitation in the report.
  - Include summary of strength and direction of linear relationships.

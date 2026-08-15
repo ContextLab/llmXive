@@ -1,93 +1,55 @@
 # Quickstart: Evaluating Calibration of Probabilistic Weather Forecasts
 
 ## Prerequisites
-- Python 3.11+
-- `git`
-- Access to a GitHub Actions runner (or local environment with 7 GB+ RAM).
-- Network access to download the SubseasonalRodeo dataset.
+- Python 3.11 or higher.
+- `pip` package manager.
+- Access to the SubseasonalRodeo dataset (or a verified fallback).
+- (Optional) Kaggle account for GPU offload if CPU sampling fails.
 
 ## Installation
-
-1. **Clone the repository** (if applicable) or navigate to the project directory.
-   ```bash
-   cd projects/PROJ-763-evaluating-calibration-of-probabilistic-
-   ```
-
-2. **Create a virtual environment**:
+1. Clone the repository and navigate to the project directory.
+2. Create a virtual environment and activate it:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
-
-3. **Install dependencies**:
+3. Install dependencies:
    ```bash
-   pip install -r code/requirements.txt
+   pip install -r requirements.txt
    ```
-   *Note: `requirements.txt` will pin versions for `pandas`, `numpy`, `scikit-learn`, `properscoring`, `pymc`, `arviz`, `matplotlib`, `seaborn`, `tqdm`, `statsmodels`.*
 
-## Data Acquisition
-
-The pipeline requires the `SubseasonalRodeo` dataset.
-
-1. **Run the download script**:
-   ```bash
-   python code/src/download.py
-   ```
-   - This script attempts to download the dataset via `wget` from the canonical source (GitHub Release or Zenodo).
-   - It verifies the checksum.
-   - **If download fails**: The script exits with an error "Dataset acquisition failed". Do not proceed.
-
-2. **Verify data**:
-   Ensure `data/raw/` contains the expected files (e.g., `subseasonal_rodeo.parquet` or similar).
+## Configuration
+1. Edit `code/config.py` to set the dataset URL if the default is incorrect.
+2. Set the random seed for reproducibility (default: 42).
 
 ## Running the Pipeline
-
-Execute the full pipeline (Baseline -> Isotonic -> Bayesian -> Comparison):
-
+Execute the main pipeline script:
 ```bash
 python code/main.py
 ```
+This will:
+1. Download and verify the dataset (halts if unavailable).
+2. Align forecasts and observations.
+3. Compute baseline metrics and generate `reliability_diagram_raw.png`.
+4. Fit isotonic and Bayesian models (ADVI first, then MCMC if needed).
+5. Compare results and generate diagrams.
+6. Output results to the `results` directory.
 
-### Steps Performed:
-1. **Download & Verify**: (Skipped if data exists and checksum matches).
-2. **Align**: Joins forecasts and observations, discards missing data.
-3. **Baseline**: Computes Brier/CRPS and generates `reliability_diagram_raw.png`.
-4. **Isotonic**: Fits isotonic regression, computes metrics, generates `reliability_diagram_isotonic.png`.
-5. **Bayesian**: Runs MCMC (scaled, stratified sample), computes metrics, checks convergence.
-6. **Comparison**: Runs Diebold-Mariano / Wilcoxon tests (per FR-006).
-7. **Output**: Saves all results to `results/`.
-
-## Expected Outputs
-
-After successful completion, the `results/` directory will contain:
-
-- `results_baseline.csv`: Baseline metrics (Brier, CRPS) per lead time.
-- `results_isotonic.csv`: Isotonic recalibration metrics.
-- `results_bayesian.csv`: Bayesian recalibration metrics (includes `convergence_status`).
+## Output Artifacts
+- `results_baseline.csv`: Baseline Brier scores and CRPS.
+- `results_isotonic.csv`: Isotonic recalibration results.
+- `results_bayesian.csv`: Bayesian recalibration results.
 - `reliability_diagram_raw.png`: Baseline reliability diagram.
 - `reliability_diagram_isotonic.png`: Isotonic reliability diagram.
-- `comparison_summary.csv`: Results of statistical tests (DM/Wilcoxon).
+- `reliability_diagram_bayesian.png`: Bayesian reliability diagram.
+- `pit_histogram_raw.png`: Raw forecast PIT histogram.
+- `pit_histogram_bayesian.png`: Bayesian forecast PIT histogram.
+- `pit_histogram.png`: Aggregated PIT histogram.
+- `results_decomposition.csv`: Brier score decomposition (Reliability, Resolution, Uncertainty).
+- `power_analysis_report.json`: Power analysis results.
 
 ## Troubleshooting
-
-- **Dataset Download Failed**:
-  - Check network connectivity.
-  - Verify the canonical URL for SubseasonalRodeo is still active.
-  - If the dataset is gated, the pipeline cannot proceed without manual data provision (which violates the "open data" constraint).
-
-- **Bayesian Convergence Failed**:
-  - Check `results/results_bayesian.csv` for `convergence_status = "Unconverged"`.
-  - This may happen if the sample size is too small or the model is too complex for the data. The pipeline will fall back to Isotonic results.
-
-- **Out of Memory (OOM)**:
-  - If the dataset is too large, the script uses chunked reading. If OOM persists, reduce the `SAMPLE_SIZE` constant in `code/src/recalibrate_bayesian.py` (for the Bayesian step only).
-
-## Validation
-
-Run contract tests to ensure output schemas are valid:
-
-```bash
-pytest tests/contract/
-```
-
-This validates that all CSVs match the schemas defined in `contracts/`.
+- **Dataset Download Failed**: Check the URL in `config.py` or verify network connectivity. If the dataset is unverified, the pipeline halts.
+- **MCMC Convergence Failed**: Check `results_bayesian.csv` for "Unconverged" status. The pipeline will fall back to isotonic results.
+- **Out of Memory**: Reduce the dataset size or use the Kaggle GPU escape hatch.
+- **Underpowered Results**: Check `power_analysis_report.json` for "Underpowered" flag.

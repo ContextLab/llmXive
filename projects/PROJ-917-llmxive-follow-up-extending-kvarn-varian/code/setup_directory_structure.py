@@ -1,21 +1,3 @@
-"""
-Project Directory Structure Setup Script.
-
-This script initializes the root directory structure required for the llmXive
-automated science pipeline. It creates the `code/`, `data/`, `tests/`, and
-`state/` directories along with their standard subdirectories as defined in
-the project plan.
-
-Execution:
-    python code/setup_directory_structure.py
-
-Verification:
-    ls code/
-    ls data/
-    ls tests/
-    ls state/
-"""
-
 import os
 import sys
 from pathlib import Path
@@ -24,115 +6,144 @@ import logging
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Define the root directory (project root)
-# Assuming this script runs from the project root or code/ subdirectory
-# We resolve the project root as the parent of 'code' if we are inside 'code',
-# otherwise the current working directory.
-def get_project_root():
-    current = Path.cwd()
-    if current.name == "code":
-        return current.parent
-    return current
-
-def create_directories():
+def get_project_root() -> Path:
     """
-    Creates the standard project directory structure.
+    Determine the project root directory.
+    Assumes this script is located at code/setup_directory_structure.py
     """
-    root = get_project_root()
-    logger.info(f"Project root detected at: {root}")
+    current_file = Path(__file__).resolve()
+    # Go up two levels: code/setup_directory_structure.py -> code -> root
+    return current_file.parent.parent
 
-    # Define directory structure relative to root
-    # Phase 1: Setup (Shared Infrastructure)
-    code_dirs = [
+def create_directories(project_root: Path) -> bool:
+    """
+    Create the required directory structure for the llmXive project.
+    
+    Structure:
+    code/
+      data_generation/
+      model_training/
+      simulation/
+      analysis/
+    data/
+      raw/
+      processed/
+      models/
+      simulation/
+    tests/
+    
+    Returns:
+        bool: True if all directories were created successfully, False otherwise.
+    """
+    # Define directory paths relative to project root
+    directories = [
+        # Code modules
+        project_root / "code" / "data_generation",
+        project_root / "code" / "model_training",
+        project_root / "code" / "simulation",
+        project_root / "code" / "analysis",
+        
+        # Data storage
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "models",
+        project_root / "data" / "simulation",
+        
+        # Tests
+        project_root / "tests",
+        
+        # Additional required directories based on task dependencies
+        project_root / "data" / "analysis",
+        project_root / "state" / "projects",
+    ]
+    
+    success = True
+    for directory in directories:
+        try:
+            directory.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {directory}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {directory}: {e}")
+            success = False
+    
+    return success
+
+def verify_structure(project_root: Path) -> bool:
+    """
+    Verify that the required directory structure exists.
+    
+    Args:
+        project_root: Path to the project root directory.
+        
+    Returns:
+        bool: True if all required directories exist, False otherwise.
+    """
+    required_dirs = [
+        "code",
         "code/data_generation",
         "code/model_training",
         "code/simulation",
         "code/analysis",
-        "code/utils",
-    ]
-
-    data_dirs = [
+        "data",
         "data/raw",
         "data/processed",
         "data/models",
         "data/simulation",
-        "data/generated", # Added for T017a output
-        "data/metrics",   # Added for T023/T035c output
-        "data/analysis",  # Added for T025/T032 output
-    ]
-
-    tests_dirs = [
-        "tests/test_data_generation",
-        "tests/test_model_training",
-        "tests/test_simulation",
-        "tests/test_analysis",
-    ]
-
-    state_dirs = [
-        "state", # For checksums and run states
-    ]
-
-    all_dirs = code_dirs + data_dirs + tests_dirs + state_dirs
-
-    created_count = 0
-    for dir_path in all_dirs:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            logger.debug(f"Directory already exists: {full_path}")
-
-    logger.info(f"Directory setup complete. Created {created_count} new directories.")
-    return True
-
-def verify_structure():
-    """
-    Verifies that the essential directories exist.
-    """
-    root = get_project_root()
-    essential = [
-        "code",
-        "data",
+        "data/analysis",
         "tests",
-        "state",
+        "state/projects",
     ]
-
-    missing = []
-    for dir_name in essential:
-        if not (root / dir_name).exists():
-            missing.append(dir_name)
-
-    if missing:
-        logger.error(f"Verification failed. Missing directories: {missing}")
-        return False
-
-    logger.info("Verification passed. All essential directories exist.")
-    return True
+    
+    all_exist = True
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        if not full_path.is_dir():
+            logger.error(f"Missing required directory: {full_path}")
+            all_exist = False
+        else:
+            logger.info(f"Verified directory: {full_path}")
+    
+    return all_exist
 
 def main():
     """
-    Entry point for the script.
+    Main entry point for directory structure initialization.
+    
+    This function:
+    1. Determines the project root
+    2. Creates all required directories
+    3. Verifies the structure was created correctly
+    
+    Exit codes:
+        0: Success
+        1: Failure
     """
+    logger.info("Starting directory structure initialization...")
+    
     try:
-        if create_directories():
-            if verify_structure():
-                logger.info("Setup successful.")
-                return 0
-            else:
-                logger.error("Setup created directories but verification failed.")
-                return 1
-        else:
-            logger.error("Directory creation failed.")
-            return 1
+        project_root = get_project_root()
+        logger.info(f"Project root identified: {project_root}")
+        
+        # Create directories
+        if not create_directories(project_root):
+            logger.error("Failed to create some directories")
+            sys.exit(1)
+        
+        # Verify structure
+        if not verify_structure(project_root):
+            logger.error("Directory structure verification failed")
+            sys.exit(1)
+        
+        logger.info("Directory structure initialization completed successfully")
+        sys.exit(0)
+        
     except Exception as e:
-        logger.exception(f"An error occurred during setup: {e}")
-        return 1
+        logger.error(f"Unexpected error during initialization: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

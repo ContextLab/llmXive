@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Recalibrator Model"
+description: "Represents a fitted post-processing function."
+type: "object"
+properties:
+  method_type:
+    type: "string"
+    enum:
+      - "isotonic"
+      - "bayesian"
+    description: "Type of model (e.g., 'isotonic', 'bayesian')."
+  lead_time:
+    type: "integer"
+    description: "Lead time for which the model was fitted."
+  variable:
+    type: "string"
+    enum:
+      - "precipitation"
+      - "temperature"
+    description: "Variable name."
+  parameters:
+    type: "object"
+    description: "Model parameters (e.g., knots for isotonic, coefficients for Bayesian)."
+    additionalProperties: true
+  training_sample_size:
+    type: "integer"
+    description: "Number of samples used for training."
+required:
+  - method_type
+  - lead_time
+  - variable
+  - parameters
+  - training_sample_size
+additionalProperties: false

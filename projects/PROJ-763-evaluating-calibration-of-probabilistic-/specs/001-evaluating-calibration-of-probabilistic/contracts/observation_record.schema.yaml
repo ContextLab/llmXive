@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Observation Record"
+description: "Represents the ground truth event."
+type: "object"
+properties:
+  grid_id:
+    type: "integer"
+    description: "Unique identifier for the grid point (matches Forecast Record)."
+  observation_date:
+    type: "string"
+    format: "date-time"
+    description: "Date and time of the observation (matches forecast_date + lead_time)."
+  event_occurred:
+    type: "boolean"
+    description: "Binary indicator (1 if event occurred, 0 otherwise)."
+  event_value:
+    type: "number"
+    description: "Continuous value for the event (e.g., temperature, precipitation amount)."
+required:
+  - grid_id
+  - observation_date
+  - event_occurred
+additionalProperties: false

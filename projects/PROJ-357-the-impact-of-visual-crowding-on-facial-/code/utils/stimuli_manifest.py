@@ -6,215 +6,232 @@ import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Configure logging
+# Ensure project root is in path if running as script
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from config import ensure_directories
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/interim/manifest_generation.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_error_log(error_log_path: Path) -> Dict[str, str]:
+def load_error_log(error_log_path: Path) -> List[Dict[str, Any]]:
     """
     Load the generation error log to identify excluded items.
-    Returns a dictionary mapping stimulus IDs to exclusion reasons.
+    Returns a list of dictionaries with error details.
     """
-    excluded_items = {}
     if not error_log_path.exists():
-        logger.warning(f"Error log not found at {error_log_path}. No exclusions recorded.")
-        return excluded_items
-
-    with open(error_log_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            # Expected format: "ERROR: <stimulus_id> - <reason>" or similar
-            # We parse based on common log patterns from stimulus_gen.py
-            if "ERROR" in line or "excluded" in line.lower():
-                # Heuristic parsing: extract ID and reason
-                # Assuming format: "ERROR: <id> - <reason>"
-                parts = line.split(" - ", 1)
-                if len(parts) == 2:
-                    # Clean up the first part to get the ID
-                    id_part = parts[0].replace("ERROR:", "").replace("ERROR: ", "").strip()
-                    # If the ID part contains more structure, try to extract the actual ID
-                    # e.g., "ERROR: stimulus_001_anger_3flank_10ecc" -> "stimulus_001_anger_3flank_10ecc"
-                    # For simplicity, we assume the ID is the last word before " - " or the whole first part if it looks like an ID
-                    if id_part.startswith("stimulus_"):
-                        stimulus_id = id_part
+        logger.warning(f"Error log not found at {error_log_path}. No exclusions to record.")
+        return []
+    
+    exclusions = []
+    try:
+        with open(error_log_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    # Assuming log format is JSON or parseable key-value
+                    # If it's a raw log line, we might need regex, but let's assume JSON for structured logging
+                    if line.startswith('{'):
+                        exclusions.append(json.loads(line))
                     else:
-                        # Fallback: try to extract a stimulus_... pattern
-                        match = re.search(r'stimulus_\w+', id_part)
-                        if match:
-                            stimulus_id = match.group(0)
-                        else:
-                            stimulus_id = id_part # Fallback to the whole string
-                    
-                    reason = parts[1].strip()
-                    excluded_items[stimulus_id] = reason
-                    logger.debug(f"Found excluded item: {stimulus_id} -> {reason}")
-    return excluded_items
+                        # Fallback for non-JSON log lines if necessary, though T013 should log JSON
+                        logger.debug(f"Skipping unparseable error log line: {line}")
+                except json.JSONDecodeError:
+                    logger.warning(f"Could not parse error log line as JSON: {line}")
+    except Exception as e:
+        logger.error(f"Failed to read error log {error_log_path}: {e}")
+    
+    return exclusions
 
 def extract_metadata_from_filename(filename: str) -> Optional[Dict[str, Any]]:
     """
-    Extract metadata (emotion, flanker_count, eccentricity) from the stimulus filename.
-    Expected filename pattern: stimulus_{id}_{emotion}_{flankers}flank_{ecc}ecc.png (example)
-    Adjust regex based on actual naming convention from stimulus_gen.py
+    Extract emotion, flanker count, and eccentricity from the stimulus filename.
+    Expected pattern: stimulus_emotion_flankers_{n}_eccentricity_{e}.png (example)
+    Adjust regex based on actual naming convention in T013.
     """
-    # Pattern based on typical generation: stimulus_<id>_<emotion>_<flankers>flank_<ecc>ecc.png
-    # We need to be flexible. Let's assume the filename contains these keywords.
-    # A robust pattern might be:
-    # stimulus_(?P<id>\w+)_(?P<emotion>\w+)_(?P<flankers>\d+)flank_(?P<ecc>\d+)ecc\.png
-    pattern = r'stimulus_(?P<id>[\w-]+)_(?P<emotion>[\w-]+)_(?P<flankers>\d+)flank_(?P<ecc>\d+)ecc\.png'
-    match = re.match(pattern, filename)
+    # Pattern assumption based on T013 requirements:
+    # We need to capture: emotion, flanker_count, eccentricity
+    # Example: stimulus_angry_5flankers_10deg.png -> emotion=angry, flankers=5, eccentricity=10
+    # Let's make it robust to variations like 'flankers' or 'f', 'deg' or 'ecc'
     
+    # Generic pattern to capture numbers and text before/after known keywords
+    # Assuming format: ..._emotion_{val}_flankers_{n}_eccentricity_{e}...
+    pattern = r".*_(?P<emotion>[a-z]+).*flanker[s]?\s*[=:]\s*(?P<flankers>\d+).*eccentricity[=:]\s*(?P<eccentricity>[\d.]+).*"
+    # Simpler pattern if filename is strict: stimulus_{emotion}_flankers_{n}_eccentricity_{e}.png
+    strict_pattern = r"stimulus_(?P<emotion>[a-z_]+)_flankers_(?P<flankers>\d+)_eccentricity_(?P<eccentricity>[\d.]+)\.png"
+    
+    match = re.match(strict_pattern, filename)
     if match:
         return {
-            'filename': filename,
-            'id': match.group('id'),
-            'emotion': match.group('emotion'),
-            'flanker_count': int(match.group('flankers')),
-            'eccentricity': int(match.group('ecc')),
-            'status': 'generated' # Default status
+            "emotion": match.group('emotion'),
+            "flanker_count": int(match.group('flankers')),
+            "eccentricity": float(match.group('eccentricity'))
         }
     
-    # Fallback pattern if naming is different (e.g., just numbers)
-    pattern_fallback = r'stimulus_(?P<id>[\w-]+)_(?P<emotion>[\w-]+)_(?P<flankers>\d+)_(?P<ecc>\d+)\.png'
-    match_fallback = re.match(pattern_fallback, filename)
-    if match_fallback:
+    # Fallback to looser pattern if strict fails
+    match = re.search(pattern, filename)
+    if match:
         return {
-            'filename': filename,
-            'id': match_fallback.group('id'),
-            'emotion': match_fallback.group('emotion'),
-            'flanker_count': int(match_fallback.group('flankers')),
-            'eccentricity': int(match_fallback.group('ecc')),
-            'status': 'generated'
+            "emotion": match.group('emotion'),
+            "flanker_count": int(match.group('flankers')),
+            "eccentricity": float(match.group('eccentricity'))
         }
-
-    logger.warning(f"Could not parse metadata from filename: {filename}")
+    
     return None
 
 def get_stimuli_files(stimuli_dir: Path) -> List[Path]:
     """
-    Get all image files from the stimuli directory.
+    Scan the stimuli directory for generated image files.
     """
     if not stimuli_dir.exists():
-        raise FileNotFoundError(f"Stimuli directory not found: {stimuli_dir}")
+        logger.error(f"Stimuli directory not found: {stimuli_dir}")
+        return []
     
-    image_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.tiff'}
-    files = []
-    for ext in image_extensions:
-        files.extend(stimuli_dir.glob(f"*{ext}"))
-        files.extend(stimuli_dir.glob(f"*{ext.upper()}"))
-    
+    image_extensions = {'.png', '.jpg', '.jpeg', '.bmp'}
+    files = [
+        f for f in stimuli_dir.iterdir()
+        if f.is_file() and f.suffix.lower() in image_extensions
+    ]
+    logger.info(f"Found {len(files)} stimulus images in {stimuli_dir}")
     return sorted(files)
 
-def generate_manifest(stimuli_dir: Path, error_log_path: Path, output_path: Path) -> Dict[str, Any]:
+def generate_manifest(
+    stimuli_dir: Path,
+    error_log_path: Path,
+    output_path: Path
+) -> Dict[str, Any]:
     """
-    Generate the stimuli manifest JSON file.
-    1. Read error log to get excluded items.
-    2. Scan stimuli directory for generated images.
-    3. Extract metadata from filenames.
-    4. Validate that every image has an entry.
-    5. Update status for excluded items if they somehow appear (or log if missing).
-    6. Write the manifest.
+    Generate the stimuli_manifest.json.
+    
+    1. Reads error log to identify excluded items (if any were tracked by filename).
+    2. Scans stimuli_dir for images.
+    3. Extracts metadata from filenames.
+    4. Validates that every image has a corresponding entry with exact parameters.
+    5. Writes the manifest to output_path.
     """
-    logger.info(f"Generating manifest for stimuli in {stimuli_dir}")
-    logger.info(f"Reading error log from {error_log_path}")
-
-    # Load excluded items
-    excluded_items = load_error_log(error_log_path)
-    logger.info(f"Found {len(excluded_items)} excluded items in error log.")
-
-    # Get all stimulus files
-    stimuli_files = get_stimuli_files(stimuli_dir)
-    logger.info(f"Found {len(stimuli_files)} stimulus images.")
-
+    # Load exclusions from error log
+    exclusions = load_error_log(error_log_path)
+    excluded_filenames = {exc.get('filename', '') for exc in exclusions if 'filename' in exc}
+    
+    # Get all image files
+    image_files = get_stimuli_files(stimuli_dir)
+    
     manifest_entries = []
-    missing_entries = []
-
-    for file_path in stimuli_files:
-        filename = file_path.name
+    missing_metadata = []
+    
+    for img_path in image_files:
+        filename = img_path.name
         metadata = extract_metadata_from_filename(filename)
         
-        if not metadata:
-            missing_entries.append(filename)
-            logger.warning(f"Skipping {filename}: Could not extract metadata.")
+        if metadata is None:
+            logger.warning(f"Could not extract metadata from filename: {filename}")
+            missing_metadata.append(filename)
             continue
-
-        # Check if this item was excluded (shouldn't happen if generation is correct, but for robustness)
-        if metadata['id'] in excluded_items:
+        
+        # Check if this file was logged as excluded (shouldn't happen if T013 works correctly)
+        if filename in excluded_filenames:
+            logger.warning(f"File {filename} found in stimuli dir but marked as excluded in error log.")
+            # We still include it in the manifest but mark status as 'excluded' or 'error'
             metadata['status'] = 'excluded'
-            metadata['exclusion_reason'] = excluded_items[metadata['id']]
-            logger.warning(f"Found image for excluded item {metadata['id']}. Marking as excluded.")
+            metadata['exclusion_reason'] = next(
+                (exc.get('reason', 'Unknown') for exc in exclusions if exc.get('filename') == filename),
+                'Unknown'
+            )
         else:
             metadata['status'] = 'generated'
-
-        # Ensure relative path for the manifest
-        metadata['file_path'] = str(file_path.relative_to(stimuli_dir.parent))
         
-        manifest_entries.append(metadata)
-
-    # Log any missing metadata
-    if missing_entries:
-        logger.error(f"Failed to parse metadata for {len(missing_entries)} files: {missing_entries}")
-
-    # Validate completeness: Every image should have an entry
-    parsed_ids = {entry['id'] for entry in manifest_entries if entry['status'] == 'generated'}
-    # Note: We don't expect excluded items to be in the directory, but if they are, they are handled.
+        # Construct relative path for manifest
+        rel_path = str(img_path.relative_to(stimuli_dir.parent)) # e.g., interim/stimuli/filename.png
+        
+        entry = {
+            "file_path": rel_path,
+            "filename": filename,
+            "emotion": metadata['emotion'],
+            "flanker_count": metadata['flanker_count'],
+            "eccentricity": metadata['eccentricity'],
+            "status": metadata['status'],
+            "metadata_source": "filename"
+        }
+        
+        if 'exclusion_reason' in metadata:
+            entry['exclusion_reason'] = metadata['exclusion_reason']
+        
+        manifest_entries.append(entry)
     
-    logger.info(f"Manifest generated with {len(manifest_entries)} entries.")
-    logger.info(f"  - Generated: {len([e for e in manifest_entries if e['status'] == 'generated'])}")
-    logger.info(f"  - Excluded: {len([e for e in manifest_entries if e['status'] == 'excluded'])}")
-
-    # Create the final manifest structure
+    if missing_metadata:
+        logger.error(f"Found {len(missing_metadata)} files with unparseable filenames: {missing_metadata[:5]}...")
+    
     manifest = {
         "version": "1.0",
-        "generated_at": str(Path(output_path).parent), # Or a timestamp
-        "total_items": len(manifest_entries),
-        "stimuli": manifest_entries
+        "generated_at": str(Path(__file__).resolve()), # Or timestamp
+        "stimuli_dir": str(stimuli_dir),
+        "total_stimuli": len(manifest_entries),
+        "total_excluded": len([e for e in manifest_entries if e['status'] == 'excluded']),
+        "entries": manifest_entries
     }
-
+    
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    ensure_directories([output_path.parent])
+    
+    # Write manifest
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(manifest, f, indent=2)
-
-    logger.info(f"Manifest written to {output_path}")
+    
+    logger.info(f"Manifest generated with {len(manifest_entries)} entries at {output_path}")
     return manifest
 
 def main():
     """
-    Entry point for generating the stimuli manifest.
+    CLI entry point for generating the stimuli manifest.
     """
-    # Define paths relative to project root
-    # Assuming the script is run from the project root or code/
-    project_root = Path(__file__).resolve().parent.parent.parent
+    import argparse
     
-    stimuli_dir = project_root / "data" / "interim" / "stimuli"
-    error_log_path = project_root / "data" / "interim" / "generation_errors.log"
-    output_path = project_root / "data" / "interim" / "stimuli_manifest.json"
-
-    # Check prerequisites
+    parser = argparse.ArgumentParser(description="Generate stimuli manifest from generated images and error logs.")
+    parser.add_argument(
+        "--stimuli-dir",
+        type=str,
+        default="data/interim/stimuli",
+        help="Path to the directory containing generated stimulus images."
+    )
+    parser.add_argument(
+        "--error-log",
+        type=str,
+        default="data/interim/generation_errors.log",
+        help="Path to the generation error log file."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/interim/stimuli_manifest.json",
+        help="Path for the output manifest JSON file."
+    )
+    
+    args = parser.parse_args()
+    
+    stimuli_dir = Path(args.stimuli_dir)
+    error_log_path = Path(args.error_log)
+    output_path = Path(args.output)
+    
     if not stimuli_dir.exists():
-        logger.error(f"Stimuli directory does not exist: {stimuli_dir}")
-        logger.error("Please ensure T013 (stimulus_gen.py) has been run successfully.")
+        logger.critical(f"Stimuli directory does not exist: {stimuli_dir}. Run T013 first.")
         sys.exit(1)
-
-    if not error_log_path.exists():
-        logger.warning(f"Error log does not exist: {error_log_path}. Proceeding with empty exclusion list.")
-
-    try:
-        generate_manifest(stimuli_dir, error_log_path, output_path)
-        logger.info("T014 completed successfully.")
-    except Exception as e:
-        logger.error(f"Failed to generate manifest: {e}")
-        sys.exit(1)
+    
+    manifest = generate_manifest(stimuli_dir, error_log_path, output_path)
+    
+    # Basic validation log
+    total = manifest['total_stimuli']
+    excluded = manifest['total_excluded']
+    logger.info(f"Summary: {total} total entries, {excluded} excluded.")
+    
+    if total == 0:
+        logger.warning("Manifest is empty. Check if stimuli were generated correctly.")
 
 if __name__ == "__main__":
     main()

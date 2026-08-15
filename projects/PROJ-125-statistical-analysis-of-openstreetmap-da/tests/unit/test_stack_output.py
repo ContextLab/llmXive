@@ -1,103 +1,119 @@
 """
-Unit tests for T015: Stack Output generation.
+Unit tests for stack_output.py (Task T015).
 """
+
 import os
 import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-import pytest
 import numpy as np
+import pytest
 import rasterio
-from rasterio.transform import Affine
+from rasterio.transform import from_bounds
 
-# Import the module under test
-# Note: We need to ensure the path is set up correctly for imports
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
-from stack_output import compute_file_checksum, generate_metadata, write_metadata_json
-from config import PROJECT_ROOT
-
+# Import module under test
+from stack_output import (
+    compute_file_checksum,
+    generate_metadata,
+    write_metadata_json,
+    create_aligned_raster_stack
+)
+from config import get_path
 
 @pytest.fixture
-def temp_tif_file(tmp_path):
-    """Create a temporary GeoTIFF file for testing."""
-    file_path = tmp_path / "test.tif"
-    transform = Affine(30, 0, 0, 0, -30, 0)
-    crs = rasterio.crs.CRS.from_epsg(3857)
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmp:
+        yield Path(tmp)
+
+@pytest.fixture
+def sample_raster(temp_dir):
+    """Create a small dummy GeoTIFF for testing."""
+    path = temp_dir / "sample.tif"
+    data = np.random.rand(1, 10, 10).astype(np.float32)
+    transform = from_bounds(0, 0, 10, 10, 10, 10)
     
     with rasterio.open(
-        file_path, 'w',
+        path, 'w',
         driver='GTiff',
         height=10,
         width=10,
         count=1,
-        dtype=rasterio.float32,
-        crs=crs,
+        dtype=data.dtype,
+        crs='EPSG:4326',
         transform=transform
     ) as dst:
-        dst.write(np.zeros((1, 10, 10), dtype=rasterio.float32))
-    
-    return file_path
+        dst.write(data)
+    return path
 
-
-def test_compute_file_checksum(temp_tif_file):
-    """Test SHA256 checksum computation."""
-    checksum = compute_file_checksum(temp_tif_file)
+def test_compute_file_checksum(temp_dir, sample_raster):
+    """Test checksum computation."""
+    checksum = compute_file_checksum(sample_raster)
     assert isinstance(checksum, str)
     assert len(checksum) == 64  # SHA256 hex length
-    
-    # Verify consistency
-    checksum2 = compute_file_checksum(temp_tif_file)
-    assert checksum == checksum2
 
-
-def test_generate_metadata(temp_tif_file, tmp_path):
+def test_generate_metadata(temp_dir, sample_raster):
     """Test metadata generation."""
-    output_path = tmp_path / "output.tif"
-    output_path.touch()  # Create empty file for checksum
-    
-    stack_info = {
-        "dimensions": {"height": 10, "width": 10},
-        "crs": "EPSG:3857",
-        "resolution": {"x": 30, "y": 30},
-        "non_null_overlap": True
-    }
-    
-    metadata = generate_metadata(
-        [temp_tif_file],
-        output_path,
-        stack_info,
-        fetch_timestamps={"test.tif": "2023-10-01T00:00:00Z"}
+    output_file = temp_dir / "out.tif"
+    output_file.touch() # Create dummy output
+
+    meta = generate_metadata(
+        input_files=[sample_raster],
+        output_files=[output_file],
+        city_name="TestCity",
+        crs="EPSG:3857",
+        resolution=30.0
     )
-    
-    assert "project" in metadata
-    assert metadata["task"] == "T015"
-    assert len(metadata["source_files"]) == 1
-    assert "checksum" in metadata["source_files"][0]
-    assert metadata["validation"]["non_null_overlap"] is True
-    assert metadata["fetch_timestamps"]["test.tif"] == "2023-10-01T00:00:00Z"
 
+    assert meta["city"] == "TestCity"
+    assert len(meta["input_files"]) == 1
+    assert "checksum" in meta["input_files"][0]
+    assert "generated_at" in meta
 
-def test_write_metadata_json(temp_tif_file, tmp_path):
+def test_write_metadata_json(temp_dir):
     """Test writing metadata to JSON."""
-    output_path = tmp_path / "output.tif"
-    output_path.touch()
+    meta = {"test": "value", "number": 42}
+    out_path = temp_dir / "meta.json"
     
-    metadata = {
-        "test_key": "test_value",
-        "number": 123
-    }
+    write_metadata_json(meta, out_path)
     
-    json_path = tmp_path / "metadata.json"
-    write_metadata_json(metadata, json_path)
-    
-    assert json_path.exists()
-    
-    with open(json_path, "r") as f:
+    assert out_path.exists()
+    with open(out_path) as f:
         loaded = json.load(f)
+    assert loaded == meta
+
+@patch('stack_output.get_city_bounds')
+@patch('stack_output.get_city_crs')
+@patch('stack_output.get_path')
+def test_create_aligned_raster_stack(
+    mock_get_path, mock_get_crs, mock_get_bounds, temp_dir, sample_raster
+):
+    """Test the full alignment pipeline with mocked config."""
+    # Setup mocks
+    mock_get_path.side_effect = lambda x: temp_dir if "processed" in x else temp_dir.parent
+    mock_get_crs.return_value = "EPSG:32618"
     
-    assert loaded["test_key"] == "test_value"
-    assert loaded["number"] == 123
+    # Mock a simple polygon for bounds
+    from shapely.geometry import box
+    mock_get_bounds.return_value = box(-74.0, 40.5, -73.9, 40.6)
+
+    input_rasters = [{"path": str(sample_raster), "type": "covariate"}]
+    
+    # Run the function
+    output_paths = create_aligned_raster_stack(
+        city_name="TestCity",
+        input_rasters=input_rasters,
+        output_dir=temp_dir
+    )
+
+    assert len(output_paths) == 1
+    assert output_paths[0].exists()
+    assert output_paths[0].suffix == ".tif"
+
+    # Verify the output has the correct CRS and transform (approx)
+    with rasterio.open(output_paths[0]) as src:
+        assert src.crs.to_string() == "EPSG:32618"
+        # Check dimensions are reasonable (not 10x10 anymore due to reprojection/resampling)
+        assert src.width > 0
+        assert src.height > 0

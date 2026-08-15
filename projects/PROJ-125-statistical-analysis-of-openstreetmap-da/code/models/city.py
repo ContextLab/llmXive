@@ -1,5 +1,5 @@
 """
-CityBoundary model for handling urban area definitions.
+CityBoundary model for representing administrative boundaries.
 """
 from typing import Optional, Dict, Any, List
 from shapely.geometry import box, Polygon, mapping
@@ -7,114 +7,86 @@ from shapely.wkt import loads
 import json
 from .base import BaseModel
 from config import get_city_crs
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 class CityBoundary(BaseModel):
     """
-    Represents a city boundary with metadata.
-    
-    Attributes:
-        city_name: Name of the city.
-        geometry: Shapely geometry object (Polygon or MultiPolygon).
-        crs: Coordinate Reference System (EPSG code or string).
-        source: Source of the boundary data (e.g., 'osm', 'gadm').
-        metadata: Additional arbitrary metadata.
+    Represents the boundary of a city for spatial analysis.
     """
 
     def __init__(
         self,
-        city_name: str,
-        geometry: Any,
+        name: str,
+        wkt_geometry: str,
         crs: Optional[str] = None,
-        source: str = "osm",
         metadata: Optional[Dict[str, Any]] = None,
     ):
-        self.city_name = city_name
-        self.crs = crs or get_city_crs(city_name)
-        self.source = source
+        self.name = name
+        self.crs = crs or get_city_crs()
         self.metadata = metadata or {}
-        
-        # Handle geometry serialization/deserialization
-        if isinstance(geometry, str):
-            self.geometry = loads(geometry)
-        elif isinstance(geometry, dict) and "type" in geometry:
-            # GeoJSON dict
-            self.geometry = loads(json.dumps(geometry))
-        else:
-            self.geometry = geometry
+
+        # Parse geometry
+        try:
+            self._geometry = loads(wkt_geometry)
+        except Exception as e:
+            raise ValueError(f"Invalid WKT geometry: {e}")
+
+        # Validate geometry type
+        if not isinstance(self._geometry, (Polygon, box)):
+            raise ValueError(f"Geometry must be a Polygon or Box, got {type(self._geometry)}")
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+    @property
+    def bounds(self):
+        return self._geometry.bounds
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "crs": self.crs,
+            "geometry_wkt": self._geometry.wkt,
+            "metadata": self.metadata,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "CityBoundary":
+        return cls(
+            name=data["name"],
+            wkt_geometry=data["geometry_wkt"],
+            crs=data.get("crs"),
+            metadata=data.get("metadata", {}),
+        )
 
     def validate(self) -> bool:
         """
         Validate the CityBoundary instance.
-        
-        Checks:
-        1. City name is not empty.
-        2. Geometry is valid.
-        3. CRS is defined.
+        Checks: name is not empty, geometry is valid, CRS is defined.
         """
-        if not self.city_name or not isinstance(self.city_name, str):
-            logger.error("City name must be a non-empty string.")
-            return False
+        if not self.name or not isinstance(self.name, str):
+            raise ValueError("City name must be a non-empty string")
 
-        if self.geometry is None:
-            logger.error("Geometry cannot be None.")
-            return False
-
-        if not self.geometry.is_valid:
-            logger.error(f"Geometry is invalid: {self.geometry.is_valid_reason}")
-            return False
+        if not self._geometry.is_valid:
+            raise ValueError("Geometry is not valid")
 
         if not self.crs:
-            logger.error("CRS is not defined.")
-            return False
+            raise ValueError("CRS must be defined")
 
         return True
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_geojson(self) -> Dict[str, Any]:
         """
-        Convert the CityBoundary to a dictionary (GeoJSON compatible).
+        Convert the boundary to a GeoJSON-like dictionary.
         """
+        self.validate()
         return {
             "type": "Feature",
             "properties": {
-                "city_name": self.city_name,
-                "source": self.source,
-                "metadata": self.metadata,
+                "name": self.name,
+                "crs": self.crs,
+                **self.metadata,
             },
-            "geometry": mapping(self.geometry),
-            "crs": {"type": "name", "properties": {"name": self.crs}},
+            "geometry": mapping(self._geometry),
         }
-
-    def get_bounds(self) -> tuple:
-        """
-        Return the bounding box (minx, miny, maxx, maxy).
-        """
-        return self.geometry.bounds
-
-    @classmethod
-    def from_geojson(cls, geojson_path: str) -> "CityBoundary":
-        """
-        Load a CityBoundary from a GeoJSON file.
-        Expects a FeatureCollection or a single Feature.
-        """
-        with open(geojson_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        if data.get("type") == "FeatureCollection":
-            if len(data["features"]) == 0:
-                raise ValueError("GeoJSON FeatureCollection is empty.")
-            feature = data["features"][0]
-        elif data.get("type") == "Feature":
-            feature = data
-        else:
-            raise ValueError("Invalid GeoJSON structure.")
-
-        props = feature.get("properties", {})
-        city_name = props.get("city_name", "Unknown")
-        geometry = feature.get("geometry")
-        crs = data.get("crs", {}).get("properties", {}).get("name", "EPSG:4326")
-
-        return cls(city_name=city_name, geometry=geometry, crs=crs, source="file")

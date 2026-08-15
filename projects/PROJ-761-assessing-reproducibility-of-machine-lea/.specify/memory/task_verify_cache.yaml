@@ -1,0 +1,36 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or other evidence were provided to show that the required
+    folders (`data/raw`, `data/processed`, `code`, `tests`, `artifacts/logs`, `artifacts/plots`,
+    `artifacts/reports`, `contracts`) were actually created; without such proof the
+    task cannot be confirmed as done.
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No configuration files (e.g., `pyproject.toml` with ruff/black settings) or\
+    \ command\u2011line output showing that ruff and black were run on the empty project\
+    \ are present. Consequently there is no evidence that linting/formatting tools\
+    \ were configured or that initial checks verified their validity. The required\
+    \ artifacts are missing."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `contracts/` directory or JSON Schema files for `PaperManifest`, `ReproResult`,
+    or `StatSummary` were presented. Without these artifacts, the task of setting
+    up the directory and generating the required schemas is not satisfied.
+T013:
+  c: false
+  h: 8061a0c24f0492e2880e638c12f25a649f7e1722e530e65d9bd4fd8b59cd482d
+  r: "The provided `code/model_runner.py` is only partially shown and does not contain\
+    \ the training, evaluation, JSON\u2011output, or model\u2011substitution logic\
+    \ required by the task. Moreover, the expected output file `artifacts/reports/repro_results.json`\
+    \ is missing. The implementation therefore does not satisfy the stated requirements."
+T018:
+  c: false
+  h: cff54771b00bebe1f60672bd18d9d8b18928ad3ecc99baee584c53a113518900
+  r: "The repository contains a `code/main.py` file, but it is truncated and does\
+    \ not show any logic that aggregates `ReproResult` objects or writes them to `artifacts/reports/repro_results.json`.\
+    \ Moreover, the required output file `artifacts/reports/repro_results.json` is\
+    \ missing entirely. The task\u2019s core requirement\u2014producing a JSON report\
+    \ with deviations and score S\u2014is therefore not met."

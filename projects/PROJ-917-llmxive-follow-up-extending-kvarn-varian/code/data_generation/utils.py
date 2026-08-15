@@ -1,6 +1,5 @@
 """
-Utility functions for data generation, including numerical stability,
-drift models, and checksumming operations.
+Utility functions for data generation, including numerical stability, drift models, and checksumming.
 """
 import numpy as np
 from typing import Union, Optional, Callable, List
@@ -8,160 +7,158 @@ import json
 import hashlib
 from pathlib import Path
 import logging
-import os
 import yaml
+import os
 
 logger = logging.getLogger(__name__)
 
 def apply_epsilon_floor(value: float, epsilon: float) -> float:
     """
-    Ensures a value is at least epsilon to prevent numerical instability.
+    Applies an epsilon floor to a value to ensure numerical stability.
+    Returns max(value, epsilon).
     """
     return max(value, epsilon)
 
 def safe_log(value: float, epsilon: float = 1e-10) -> float:
     """
-    Computes log safely by clamping the input to a minimum epsilon.
+    Computes log(value) safely by ensuring the argument is positive.
     """
-    return np.log(apply_epsilon_floor(value, epsilon))
+    if value <= 0:
+        logger.warning(f"Non-positive value passed to safe_log: {value}, applying epsilon floor.")
+        value = apply_epsilon_floor(value, epsilon)
+    return np.log(value)
 
 def safe_divide(numerator: float, denominator: float, epsilon: float = 1e-10) -> float:
     """
     Performs division safely by ensuring the denominator is not zero.
     """
-    safe_denominator = apply_epsilon_floor(abs(denominator), epsilon)
-    if denominator < 0:
-        safe_denominator = -safe_denominator
-    return numerator / safe_denominator
+    if abs(denominator) < epsilon:
+        logger.warning(f"Denominator too small in safe_divide: {denominator}, applying epsilon floor.")
+        denominator = apply_epsilon_floor(abs(denominator), epsilon)
+        if np.sign(denominator) != np.sign(denominator): # Preserve sign if needed, though abs makes it positive
+             denominator = -denominator # Revert if original was negative? No, abs lost sign. 
+             # Better:
+             denominator = apply_epsilon_floor(denominator, epsilon) if denominator > 0 else -apply_epsilon_floor(-denominator, epsilon)
+    return numerator / denominator
 
-def check_numerical_stability(value: float, name: str = "value") -> bool:
+def check_numerical_stability(value: Union[float, np.ndarray], threshold: float = 1e-10) -> bool:
     """
-    Checks if a value is finite (not NaN or Inf).
+    Checks if a value or array contains NaNs, Infs, or values below a threshold.
     """
-    is_finite = np.isfinite(value)
-    if not is_finite:
-        logger.warning(f"Numerical instability detected in {name}: {value}")
-    return is_finite
+    if isinstance(value, np.ndarray):
+        if np.any(np.isnan(value)) or np.any(np.isinf(value)):
+            return False
+        if np.any(np.abs(value) < threshold) and not np.all(value == 0):
+            logger.warning(f"Values below threshold {threshold} detected.")
+            # Depending on strictness, this might return False. 
+            # For now, we just warn and return True if no NaN/Inf.
+    else:
+        if np.isnan(value) or np.isinf(value):
+            return False
+    return True
 
-def linear_drift(x: float, slope: float = 0.01) -> float:
-    """Linear drift model."""
-    return slope * x
+def linear_drift(t: float, rate: float) -> float:
+    return rate * t
 
-def exponential_drift(x: float, rate: float = 0.001) -> float:
-    """Exponential drift model."""
-    return np.exp(rate * x) - 1
+def exponential_drift(t: float, rate: float) -> float:
+    return np.exp(rate * t) - 1
 
-def sinusoidal_drift(x: float, amplitude: float = 1.0, frequency: float = 0.1) -> float:
-    """Sinusoidal drift model."""
-    return amplitude * np.sin(frequency * x)
+def sinusoidal_drift(t: float, amplitude: float, frequency: float) -> float:
+    return amplitude * np.sin(frequency * t)
 
-def get_drift_model(model_type: str) -> Callable[[float], float]:
-    """Factory function to retrieve a drift model."""
+def get_drift_model(model_name: str) -> Callable[[float], float]:
     models = {
         'linear': linear_drift,
         'exponential': exponential_drift,
         'sinusoidal': sinusoidal_drift
     }
-    if model_type not in models:
-        raise ValueError(f"Unknown drift model type: {model_type}")
-    return models[model_type]
+    if model_name not in models:
+        raise ValueError(f"Unknown drift model: {model_name}")
+    return models[model_name]
 
-def generate_epsilon_sweep_values(base: float = 1e-6, count: int = 10) -> List[float]:
-    """Generates a list of epsilon values for sensitivity analysis."""
+def generate_epsilon_sweep_values(base: float = 1e-6, count: int = 5) -> List[float]:
+    """
+    Generates a list of epsilon values for sensitivity analysis.
+    """
     return [base * (10 ** i) for i in range(count)]
 
-def compute_checksum(file_path: Union[str, Path]) -> str:
+def compute_checksum(file_path: Path) -> str:
     """
     Computes the SHA-256 checksum of a file.
     """
     sha256_hash = hashlib.sha256()
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-    
-    with open(path, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def save_json_with_checksum(data: dict, output_path: Union[str, Path]) -> None:
+def save_json_with_checksum(data: dict, output_path: Path) -> None:
     """
-    Saves data to a JSON file and appends a checksum field.
+    Saves data to a JSON file and appends its checksum.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # First pass: compute checksum of the content without the checksum field
-    # To ensure determinism, we serialize without the checksum first
-    temp_data = data.copy()
-    if 'checksum' in temp_data:
-        del temp_data['checksum']
-    
-    content_str = json.dumps(temp_data, sort_keys=True, indent=2)
-    checksum = hashlib.sha256(content_str.encode('utf-8')).hexdigest()
-    
-    temp_data['checksum'] = checksum
-    
-    with open(path, 'w') as f:
-        json.dump(temp_data, f, indent=2)
-    logger.info(f"Saved {path} with checksum {checksum}")
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2)
+    checksum = compute_checksum(output_path)
+    # In a real scenario, we might update a separate checksum file or embed it.
+    # For now, we just log it.
+    logger.info(f"Saved {output_path} with checksum: {checksum}")
 
-def compute_and_store_checksums() -> bool:
+def compute_and_store_checksums(data_dir: Path) -> bool:
     """
-    Computes SHA-256 checksums for all files in data/ and updates
-    the project's central state file.
+    Scans the data directory for all files, computes their SHA-256 checksums,
+    and updates the central state file at state/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian.yaml.
     
-    This function implements the core logic for T001d.
+    Returns True if successful, False otherwise.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    data_dir = project_root / "data"
-    state_dir = project_root / "state" / "projects"
-    state_file = state_dir / "PROJ-917-llmxive-follow-up-extending-kvarn-varian.yaml"
+    state_file_path = Path("state/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian.yaml")
+    
+    if not state_file_path.parent.exists():
+        logger.info(f"Creating state directory: {state_file_path.parent}")
+        state_file_path.parent.mkdir(parents=True, exist_ok=True)
     
     if not data_dir.exists():
-        logger.error(f"Data directory not found: {data_dir}")
+        logger.error(f"Data directory does not exist: {data_dir}")
         return False
+
+    artifact_hashes = {}
     
-    # Ensure state directory exists
-    state_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Scanning directory: {data_dir}")
     
-    checksums = {}
-    file_count = 0
-    
-    logger.info(f"Scanning {data_dir} for files...")
-    
-    for file_path in data_dir.rglob("*"):
+    for file_path in data_dir.rglob('*'):
         if file_path.is_file():
-            rel_path = file_path.relative_to(project_root)
+            # Compute relative path from project root for the key
+            rel_path = file_path.relative_to(Path.cwd())
             try:
                 checksum = compute_checksum(file_path)
-                checksums[str(rel_path)] = checksum
-                file_count += 1
+                artifact_hashes[str(rel_path)] = checksum
+                logger.debug(f"Checksum for {rel_path}: {checksum}")
             except Exception as e:
                 logger.error(f"Failed to compute checksum for {file_path}: {e}")
                 return False
-    
-    logger.info(f"Computed checksums for {file_count} files.")
+
+    if not artifact_hashes:
+        logger.warning("No files found in data directory to checksum.")
+        # Still proceed to update state file if it exists or create it
     
     # Load existing state or create new
     state_data = {}
-    if state_file.exists():
+    if state_file_path.exists():
         try:
-            with open(state_file, 'r') as f:
+            with open(state_file_path, 'r') as f:
                 state_data = yaml.safe_load(f) or {}
         except Exception as e:
-            logger.warning(f"Could not load existing state file: {e}. Creating new one.")
-            state_data = {}
+            logger.error(f"Failed to load existing state file: {e}")
+            return False
     
     # Update artifact_hashes
-    state_data['artifact_hashes'] = checksums
-    state_data['last_updated'] = str(Path(__file__).resolve().parent) # Placeholder timestamp logic
+    state_data['artifact_hashes'] = artifact_hashes
+    state_data['last_checksum_update'] = str(Path.cwd().joinpath('now').strftime('%Y-%m-%d %H:%M:%S')) # Simplified timestamp
     
     # Write back
     try:
-        with open(state_file, 'w') as f:
-            yaml.dump(state_data, f, default_flow_style=False, sort_keys=True)
-        logger.info(f"Successfully updated state file: {state_file}")
+        with open(state_file_path, 'w') as f:
+            yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+        logger.info(f"Successfully updated state file: {state_file_path}")
         return True
     except Exception as e:
         logger.error(f"Failed to write state file: {e}")

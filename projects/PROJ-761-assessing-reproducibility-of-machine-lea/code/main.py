@@ -69,6 +69,7 @@ def log_environment() -> Dict[str, Any]:
     """
     Capture and log environment details as per FR-012.
     Returns a dictionary of the environment snapshot.
+    Writes the snapshot to artifacts/logs/env.log.
     """
     env_info = {
         "timestamp": datetime.utcnow().isoformat() + "Z",

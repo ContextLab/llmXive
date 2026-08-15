@@ -27,3 +27,18 @@ T029:
     \ such an artifact, the requirement cannot be verified. The next implementer must\
     \ supply the implementation (e.g., a function or script) and a sample output showing\
     \ the aggregated accuracy table."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the fallback logic (detecting\
+    \ GLMM non\u2011convergence, fitting a fixed\u2011effects\u2011only model, and\
+    \ logging a warning) was provided; the artifact is missing entirely. The claim\
+    \ cannot be verified without the required implementation."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, function, or output implementing the Benjamini\u2011Hochberg\
+    \ FDR correction at \u2264\u202F0.05 is present; the provided text only describes\
+    \ unrelated user stories and contains no artifact that demonstrates the required\
+    \ multiple\u2011comparison correction. The task therefore lacks the necessary\
+    \ evidence of completion."

@@ -1,5 +1,5 @@
 """
-Raster models for covariates and temperature data.
+Raster data models for covariates and temperature data.
 """
 from typing import Optional, Dict, Any, List
 import json
@@ -7,175 +7,132 @@ from pathlib import Path
 import numpy as np
 from .base import BaseModel
 from config import get_path
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 class RasterCovariate(BaseModel):
     """
-    Represents a raster covariate layer (e.g., building density, NDVI).
-    
-    Attributes:
-        name: Unique identifier for the covariate.
-        file_path: Path to the source GeoTIFF.
-        variable_type: 'continuous', 'categorical', or 'binary'.
-        description: Human-readable description.
-        metadata: Additional metadata (resampling method, source, etc.).
+    Represents a raster covariate (e.g., NDVI, building density, road density).
     """
 
     def __init__(
         self,
         name: str,
-        file_path: str,
-        variable_type: str = "continuous",
+        path: Path,
         description: str = "",
+        crs: str = "EPSG:3857",
+        resolution: float = 30.0,
         metadata: Optional[Dict[str, Any]] = None,
     ):
         self.name = name
-        self.file_path = str(file_path)
-        self.variable_type = variable_type
+        self.path = Path(path)
         self.description = description
+        self.crs = crs
+        self.resolution = resolution
         self.metadata = metadata or {}
+
+        # Validate path exists
+        if not self.path.exists():
+            raise FileNotFoundError(f"Covariate file not found: {self.path}")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "path": str(self.path),
+            "description": self.description,
+            "crs": self.crs,
+            "resolution": self.resolution,
+            "metadata": self.metadata,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "RasterCovariate":
+        return cls(
+            name=data["name"],
+            path=Path(data["path"]),
+            description=data.get("description", ""),
+            crs=data.get("crs", "EPSG:3857"),
+            resolution=data.get("resolution", 30.0),
+            metadata=data.get("metadata", {}),
+        )
 
     def validate(self) -> bool:
         """
         Validate the RasterCovariate instance.
-        
-        Checks:
-        1. Name is not empty.
-        2. File path exists and is readable.
-        3. Variable type is valid.
+        Checks: path exists, name is valid, resolution is positive.
         """
         if not self.name:
-            logger.error("Covariate name cannot be empty.")
-            return False
+            raise ValueError("Raster name cannot be empty")
 
-        if not self.variable_type in ["continuous", "categorical", "binary"]:
-            logger.error(f"Invalid variable_type: {self.variable_type}")
-            return False
+        if not self.path.exists():
+            raise FileNotFoundError(f"File not found: {self.path}")
 
-        path = Path(self.file_path)
-        if not path.exists():
-            logger.error(f"Covariate file not found: {self.file_path}")
-            return False
+        if self.resolution <= 0:
+            raise ValueError("Resolution must be positive")
 
         return True
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the covariate to a dictionary.
-        """
-        return {
-            "name": self.name,
-            "file_path": self.file_path,
-            "variable_type": self.variable_type,
-            "description": self.description,
-            "metadata": self.metadata,
-        }
-
-    def get_stats(self) -> Dict[str, float]:
-        """
-        Compute basic statistics (min, max, mean, std) if numpy/rasterio available.
-        Returns dummy stats if file cannot be read.
-        """
-        try:
-            import rasterio
-            with rasterio.open(self.file_path) as src:
-                data = src.read(1)
-                valid_data = data[~np.isnan(data)]
-                if len(valid_data) == 0:
-                    return {"min": np.nan, "max": np.nan, "mean": np.nan, "std": np.nan}
-                return {
-                    "min": float(np.min(valid_data)),
-                    "max": float(np.max(valid_data)),
-                    "mean": float(np.mean(valid_data)),
-                    "std": float(np.std(valid_data)),
-                }
-        except Exception as e:
-            logger.warning(f"Could not compute stats for {self.name}: {e}")
-            return {"min": np.nan, "max": np.nan, "mean": np.nan, "std": np.nan}
 
 
 class TemperatureRaster(BaseModel):
     """
-    Represents the target variable: Land Surface Temperature (LST).
-    
-    Attributes:
-        file_path: Path to the temperature GeoTIFF.
-        unit: Temperature unit ('C' or 'K').
-        period: Time period of the composite (e.g., '2023_summer').
-        cloud_cover_pct: Average cloud cover percentage for the composite.
-        metadata: Additional metadata.
+    Represents a temperature raster (LST) derived from satellite imagery.
     """
 
     def __init__(
         self,
-        file_path: str,
-        unit: str = "C",
-        period: str = "unknown",
-        cloud_cover_pct: float = 0.0,
+        path: Path,
+        crs: str = "EPSG:3857",
+        resolution: float = 30.0,
+        source_dataset: str = "",
+        acquisition_date: Optional[str] = None,
+        cloud_cover: Optional[float] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ):
-        self.file_path = str(file_path)
-        self.unit = unit
-        self.period = period
-        self.cloud_cover_pct = cloud_cover_pct
+        self.path = Path(path)
+        self.crs = crs
+        self.resolution = resolution
+        self.source_dataset = source_dataset
+        self.acquisition_date = acquisition_date
+        self.cloud_cover = cloud_cover
         self.metadata = metadata or {}
+
+        if not self.path.exists():
+            raise FileNotFoundError(f"Temperature raster file not found: {self.path}")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "path": str(self.path),
+            "crs": self.crs,
+            "resolution": self.resolution,
+            "source_dataset": self.source_dataset,
+            "acquisition_date": self.acquisition_date,
+            "cloud_cover": self.cloud_cover,
+            "metadata": self.metadata,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "TemperatureRaster":
+        return cls(
+            path=Path(data["path"]),
+            crs=data.get("crs", "EPSG:3857"),
+            resolution=data.get("resolution", 30.0),
+            source_dataset=data.get("source_dataset", ""),
+            acquisition_date=data.get("acquisition_date"),
+            cloud_cover=data.get("cloud_cover"),
+            metadata=data.get("metadata", {}),
+        )
 
     def validate(self) -> bool:
         """
         Validate the TemperatureRaster instance.
-        
-        Checks:
-        1. File path exists.
-        2. Unit is valid ('C' or 'K').
-        3. Cloud cover is between 0 and 100.
+        Checks: path exists, resolution is positive, cloud cover (if present) is valid.
         """
-        path = Path(self.file_path)
-        if not path.exists():
-            logger.error(f"Temperature file not found: {self.file_path}")
-            return False
+        if not self.path.exists():
+            raise FileNotFoundError(f"File not found: {self.path}")
 
-        if self.unit not in ["C", "K"]:
-            logger.error(f"Invalid unit: {self.unit}. Must be 'C' or 'K'.")
-            return False
+        if self.resolution <= 0:
+            raise ValueError("Resolution must be positive")
 
-        if not (0.0 <= self.cloud_cover_pct <= 100.0):
-            logger.error(f"Cloud cover must be between 0 and 100: {self.cloud_cover_pct}")
-            return False
+        if self.cloud_cover is not None and not (0 <= self.cloud_cover <= 100):
+            raise ValueError("Cloud cover must be between 0 and 100")
 
         return True
-
-    def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert the temperature raster to a dictionary.
-        """
-        return {
-            "file_path": self.file_path,
-            "unit": self.unit,
-            "period": self.period,
-            "cloud_cover_pct": self.cloud_cover_pct,
-            "metadata": self.metadata,
-        }
-
-    def get_stats(self) -> Dict[str, float]:
-        """
-        Compute basic statistics for the temperature layer.
-        """
-        try:
-            import rasterio
-            with rasterio.open(self.file_path) as src:
-                data = src.read(1)
-                valid_data = data[~np.isnan(data)]
-                if len(valid_data) == 0:
-                    return {"min": np.nan, "max": np.nan, "mean": np.nan, "std": np.nan}
-                return {
-                    "min": float(np.min(valid_data)),
-                    "max": float(np.max(valid_data)),
-                    "mean": float(np.mean(valid_data)),
-                    "std": float(np.std(valid_data)),
-                }
-        except Exception as e:
-            logger.warning(f"Could not compute stats for temperature: {e}")
-            return {"min": np.nan, "max": np.nan, "mean": np.nan, "std": np.nan}

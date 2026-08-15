@@ -195,3 +195,191 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T16:17:32Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Building density has a positive correlation of approximately 0.45 with
+    daytime land surface temperature
+  claim_id: c_45314a0e
+  context: The correlation matrix reveals key relationships with temperature, specifically
+    that building density shows a positive correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Building Density: Positive correlation (r \u2248 0.45), indicating higher\
+    \ temperatures in denser urban areas."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:49:04Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Tree coverage has a negative correlation of approximately -0.52 with
+    daytime land surface temperature
+  claim_id: c_bb0cfe2d
+  context: The correlation matrix reveals key relationships with temperature, specifically
+    that tree coverage shows a negative correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Tree Coverage: Negative correlation (r \u2248 -0.52), confirming the\
+    \ cooling effect of vegetation."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:49:50Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Road density has a positive correlation of approximately 0.38 with daytime
+    land surface temperature
+  claim_id: c_8c19b5b9
+  context: The correlation matrix reveals key relationships with temperature, specifically
+    that road density shows a moderate positive correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Road Density: Moderate positive correlation (r \u2248 0.38), consistent\
+    \ with urban heat island effects."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:50:13Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Water bodies have a negative correlation of approximately -0.30 with
+    daytime land surface temperature
+  claim_id: c_01419436
+  context: The correlation matrix reveals key relationships with temperature, specifically
+    that water bodies show a negative correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Water Bodies: Negative correlation (r \u2248 -0.30), reflecting cooling\
+    \ influence."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:50:45Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Global Moran's I statistic for the temperature raster is 0.68
+  claim_id: c_3f3bc124
+  context: Section 4.1 reports the global Moran's I statistic and associated metrics
+    for the temperature raster.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Global Moran''s I statistic for the temperature raster: Moran''s I: 0.68'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:51:48Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Z-score for Moran's I is 42.3
+  claim_id: c_7d1a58cf
+  context: Section 4.1 reports the Z-score associated with the Moran's I statistic
+    for the temperature raster.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Z-score: 42.3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:52:53Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: p-value for Moran's I is less than 0.001
+  claim_id: c_b010e5a8
+  context: Section 4.1 reports the p-value associated with the Moran's I statistic
+    for the temperature raster.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P-value_for_Moran%27s_I_is_less_than_0.001
+  kind: magnitude
+  raw_text: 'p-value: < 0.001'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:53:44Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Empirical variogram nugget is 0.12
+  claim_id: c_1763ed6d
+  context: Section 4.2 reports the empirical variogram parameters including the nugget,
+    sill, and range.
+  evidence:
+    asserted: '0.12'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Nugget: 0.12 (measurement error + micro-scale variation)'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T00:53:44Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Empirical variogram sill is 0.85
+  claim_id: c_ea422302
+  context: Section 4.2 reports the empirical variogram parameters including the nugget,
+    sill, and range.
+  evidence:
+    asserted: '0.85'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Sill: 0.85 (total variance)'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T00:53:44Z'
+- artifact_path: projects/PROJ-125-statistical-analysis-of-openstreetmap-da/data/results/eda_report.md
+  attempts: 1
+  canonical: Empirical variogram range is approximately 2.5 km
+  claim_id: c_35fd8b4c
+  context: Section 4.2 reports the empirical variogram parameters including the nugget,
+    sill, and range.
+  evidence:
+    asserted: '2.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Range: ~2.5 km (distance at which spatial dependence becomes negligible)'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T00:53:44Z'

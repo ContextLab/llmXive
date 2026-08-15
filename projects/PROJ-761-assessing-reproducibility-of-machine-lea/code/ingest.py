@@ -1,279 +1,470 @@
-"""
-Ingestion module for the reproducibility pipeline.
-
-This module handles:
-1. Loading and validating the PaperManifest against a JSON schema.
-2. Fetching datasets from remote sources (URLs) or local paths.
-3. Extracting supplementary material based on manifest patterns or standard conventions.
-"""
-
 import json
 import os
 import re
 import shutil
 import tarfile
 import zipfile
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 
-import requests
-import yaml
-from jsonschema import validate, ValidationError
-from jsonschema.exceptions import SchemaError
+# Ensure logging is configured if not already
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Constants for standard supplementary naming conventions
-SUPP_PATTERNS = [
-    r".*_supp\.csv",
-    r".*_supplementary\.csv",
-    r".*_data\.parquet",
-    r".*_raw\.csv",
-    r".*_dataset\.csv",
-]
+# Constants for required dataset variables
+REQUIRED_VARIABLES = ['smiles', 'yield', 'covariates']
+# Common variations for yield column
+YIELD_VARIATIONS = ['yield', 'yield_pct', 'percent_yield', 'yield_percent', 'product_yield']
 
-# Paths relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-CONTRACTS_DIR = PROJECT_ROOT / "contracts"
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-
-# Ensure directories exist
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def load_manifest(manifest_path: Optional[Path] = None) -> Dict[str, Any]:
+def load_manifest(manifest_path: str) -> Dict[str, Any]:
     """
-    Load the manifest file (YAML or JSON).
-    Defaults to data/manifest.yaml if not provided.
+    Load a YAML manifest file and return its contents as a dictionary.
     """
-    if manifest_path is None:
-        manifest_path = PROJECT_ROOT / "data" / "manifest.yaml"
+    import yaml
+    path = Path(manifest_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
+    
+    with open(path, 'r') as f:
+        return yaml.safe_load(f)
 
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest file not found at {manifest_path}")
-
-    with open(manifest_path, "r", encoding="utf-8") as f:
-        content = f.read()
-
-    # Try YAML first, then JSON
-    try:
-        return yaml.safe_load(content)
-    except yaml.YAMLError:
-        try:
-            return json.loads(content)
-        except json.JSONDecodeError:
-            raise ValueError("Manifest file is neither valid YAML nor JSON")
-
-
-def validate_manifest(manifest: Dict[str, Any], schema_path: Optional[Path] = None) -> bool:
+def validate_manifest(manifest: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validate the manifest against the PaperManifest JSON schema.
+    Validate the manifest structure and required fields.
+    Returns (is_valid, list_of_errors).
     """
-    if schema_path is None:
-        schema_path = CONTRACTS_DIR / "PaperManifest.json"
+    errors = []
+    
+    # Check top-level required fields
+    required_top_level = ['doi', 'repo_url', 'dataset_name', 'reported_metrics']
+    for field in required_top_level:
+        if field not in manifest:
+            errors.append(f"Missing required top-level field: {field}")
+    
+    # Check dataset section
+    if 'dataset' not in manifest:
+        errors.append("Missing 'dataset' section in manifest")
+        return False, errors
+    
+    dataset = manifest['dataset']
+    
+    # Check for required dataset variables in schema or column list
+    # The schema might be defined in 'schema' or 'columns'
+    schema = dataset.get('schema', dataset.get('columns', {}))
+    
+    # Normalize schema to a list of column names if it's a dict
+    if isinstance(schema, dict):
+        columns = list(schema.keys())
+    elif isinstance(schema, list):
+        columns = schema
+    else:
+        errors.append("Dataset schema must be a list of columns or a dict of column definitions")
+        return False, errors
+    
+    # Check for SMILES
+    smiles_found = False
+    smiles_variations = ['smiles', 'smile', 'mol', 'molecule', 'compound_smiles']
+    for var in smiles_variations:
+        if any(var.lower() == col.lower() for col in columns):
+            smiles_found = True
+            break
+    
+    if not smiles_found:
+        errors.append("Missing required variable: SMILES (or variations: smiles, smile, mol, molecule, compound_smiles)")
+    
+    # Check for Yield
+    yield_found = False
+    for var in YIELD_VARIATIONS:
+        if any(var.lower() == col.lower() for col in columns):
+            yield_found = True
+            break
+    
+    if not yield_found:
+        errors.append(f"Missing required variable: yield (or variations: {', '.join(YIELD_VARIATIONS)})")
+    
+    # Check for covariates (reaction conditions)
+    # Covariates might be a single column or multiple condition columns
+    covariate_keywords = ['temperature', 'solvent', 'catalyst', 'loading', 'time', 'pressure', 'condition', 'reagent']
+    covariate_found = False
+    
+    for col in columns:
+        col_lower = col.lower()
+        if 'covariate' in col_lower or 'condition' in col_lower:
+            covariate_found = True
+            break
+        if any(kw in col_lower for kw in covariate_keywords):
+            covariate_found = True
+            break
+    
+    # Also check if there's a specific 'covariates' column
+    if any('covariate' in col.lower() for col in columns):
+        covariate_found = True
+    
+    if not covariate_found:
+        errors.append("Missing required variable: covariates (reaction conditions like temperature, solvent, catalyst, etc.)")
+    
+    return len(errors) == 0, errors
 
-    if not schema_path.exists():
-        # If schema doesn't exist yet, we can't validate strictly, but we can do basic checks
-        # For T005, we assume the schema might be created in T006, but we need to be robust.
-        # We will perform a basic structural check if the schema is missing.
-        required_fields = ["doi", "title", "datasets"]
-        for field in required_fields:
-            if field not in manifest:
-                raise ValueError(f"Manifest missing required field: {field}")
-        return True
-
-    try:
-        with open(schema_path, "r", encoding="utf-8") as f:
-            schema = json.load(f)
-        validate(instance=manifest, schema=schema)
-        return True
-    except (SchemaError, ValidationError) as e:
-        raise ValueError(f"Manifest validation failed: {e}")
-
-
-def fetch_dataset(url: str, output_dir: Path) -> Path:
+def fetch_dataset(dataset_info: Dict[str, Any], target_dir: str) -> str:
     """
-    Fetch a dataset from a URL and save it to the output directory.
-    Handles direct downloads and basic archive extraction (zip, tar).
+    Fetch dataset from URL or local path specified in manifest.
+    Returns path to downloaded/extracted data.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    filename = url.split("/")[-1].split("?")[0]
-    local_path = output_dir / filename
-
-    print(f"Downloading {url} to {local_path}...")
-    try:
-        response = requests.get(url, stream=True, timeout=60)
+    source_type = dataset_info.get('source_type', 'url')
+    source_path = dataset_info.get('source_path')
+    
+    if not source_path:
+        raise ValueError("Dataset source path not specified in manifest")
+    
+    os.makedirs(target_dir, exist_ok=True)
+    
+    if source_type == 'url':
+        logger.info(f"Fetching dataset from URL: {source_path}")
+        import requests
+        filename = os.path.basename(source_path.split('?')[0])
+        if not filename:
+            filename = 'dataset.zip'
+        
+        local_path = os.path.join(target_dir, filename)
+        
+        response = requests.get(source_path, stream=True)
         response.raise_for_status()
-        with open(local_path, "wb") as f:
+        
+        with open(local_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
-    except requests.RequestException as e:
-        raise RuntimeError(f"Failed to download {url}: {e}")
+        
+        logger.info(f"Downloaded dataset to {local_path}")
+        return local_path
+    
+    elif source_type == 'local':
+        logger.info(f"Using local dataset: {source_path}")
+        if not os.path.exists(source_path):
+            raise FileNotFoundError(f"Local dataset not found: {source_path}")
+        
+        # Copy to target directory
+        dest_path = os.path.join(target_dir, os.path.basename(source_path))
+        shutil.copy2(source_path, dest_path)
+        return dest_path
+    
+    else:
+        raise ValueError(f"Unknown source type: {source_type}")
 
-    # Check if it's an archive
-    if filename.endswith(".zip"):
-        extract_path = output_dir / filename.replace(".zip", "")
-        extract_path.mkdir(parents=True, exist_ok=True)
-        with zipfile.ZipFile(local_path, "r") as zip_ref:
-            zip_ref.extractall(extract_path)
-        return extract_path
-    elif filename.endswith((".tar.gz", ".tgz")):
-        extract_path = output_dir / filename.replace(".tar.gz", "").replace(".tgz", "")
-        extract_path.mkdir(parents=True, exist_ok=True)
-        with tarfile.open(local_path, "r:gz") as tar_ref:
-            tar_ref.extractall(extract_path)
-        return extract_path
-    elif filename.endswith(".tar"):
-        extract_path = output_dir / filename.replace(".tar", "")
-        extract_path.mkdir(parents=True, exist_ok=True)
-        with tarfile.open(local_path, "r") as tar_ref:
-            tar_ref.extractall(extract_path)
-        return extract_path
-
-    return local_path
-
-
-def find_supplementary_files(source_dir: Path, manifest_patterns: Optional[List[str]] = None) -> List[Path]:
+def find_supplementary_files(base_dir: str, patterns: Optional[List[str]] = None) -> List[str]:
     """
-    Find supplementary files in a directory based on manifest patterns or standard conventions.
+    Find supplementary data files matching patterns.
+    Default patterns: *_supp.csv, *_data.parquet, *_supplemental.*
     """
+    if patterns is None:
+        patterns = [
+            '*_supp.csv',
+            '*_supp.parquet',
+            '*_data.parquet',
+            '*_supplemental.*',
+            '*_raw.csv',
+            '*_raw.parquet'
+        ]
+    
     found_files = []
-    all_files = list(source_dir.rglob("*"))
-
-    # Compile patterns
-    patterns = []
-    if manifest_patterns:
-        patterns.extend(manifest_patterns)
-    patterns.extend(SUPP_PATTERNS)
-
-    compiled_patterns = [re.compile(p, re.IGNORECASE) for p in patterns]
-
-    for file_path in all_files:
-        if file_path.is_file():
-            filename = file_path.name
-            for pattern in compiled_patterns:
-                if pattern.match(filename):
-                    found_files.append(file_path)
-                    break
-
+    base_path = Path(base_dir)
+    
+    for pattern in patterns:
+        matches = list(base_path.rglob(pattern))
+        found_files.extend([str(m) for m in matches])
+    
     return found_files
 
-
-def process_manifest_entry(entry: Dict[str, Any], base_output_dir: Path) -> Dict[str, Any]:
+def process_manifest_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Process a single dataset entry from the manifest.
-    Returns a result dict with status and paths.
+    Process a single manifest entry to extract and validate dataset.
+    Returns a dictionary with dataset info and validation results.
     """
     result = {
-        "doi": entry.get("doi", "unknown"),
-        "dataset_name": entry.get("name", "unknown"),
-        "status": "success",
-        "message": "",
-        "files": []
+        'doi': entry.get('doi'),
+        'dataset_name': entry.get('dataset_name'),
+        'validation_status': 'unknown',
+        'missing_variables': [],
+        'data_path': None,
+        'errors': []
     }
-
-    source_type = entry.get("source_type", "url")
-    source_location = entry.get("location")
-
-    if not source_location:
-        result["status"] = "failed"
-        result["message"] = "Missing source location"
+    
+    try:
+        # Validate manifest structure
+        is_valid, errors = validate_manifest(entry)
+        
+        if not is_valid:
+            result['validation_status'] = 'failed'
+            result['errors'] = errors
+            
+            # Extract missing variables from errors
+            for error in errors:
+                if 'Missing required variable' in error:
+                    # Extract the variable name from the error message
+                    match = re.search(r'Missing required variable:\s*([^(]+)', error)
+                    if match:
+                        var_name = match.group(1).strip()
+                        result['missing_variables'].append(var_name)
+            
+            logger.warning(f"Manifest validation failed for {entry.get('doi')}: {errors}")
+            return result
+        
+        result['validation_status'] = 'passed'
+        
+        # Fetch dataset if validation passed
+        if 'dataset' in entry:
+            dataset_info = entry['dataset']
+            target_dir = os.path.join('data', 'raw', entry.get('dataset_name', 'unknown'))
+            
+            data_path = fetch_dataset(dataset_info, target_dir)
+            result['data_path'] = data_path
+            
+            # Find supplementary files
+            supp_files = find_supplementary_files(target_dir)
+            if supp_files:
+                result['supplementary_files'] = supp_files
+                logger.info(f"Found {len(supp_files)} supplementary files for {entry.get('doi')}")
+        
+        return result
+        
+    except Exception as e:
+        result['validation_status'] = 'error'
+        result['errors'].append(str(e))
+        logger.error(f"Error processing manifest entry for {entry.get('doi')}: {e}")
         return result
 
+def verify_dataset_variables(data_path: str, required_vars: List[str]) -> Tuple[bool, List[str], Dict[str, Any]]:
+    """
+    Verify that the dataset at data_path contains all required variables.
+    Returns (all_present, list_of_missing, detailed_info).
+    
+    This function attempts to load the dataset and check for required columns.
+    It supports CSV, Parquet, and JSON formats.
+    """
+    import pandas as pd
+    import json
+    
+    missing_vars = []
+    detailed_info = {
+        'file_type': None,
+        'columns_found': [],
+        'row_count': 0
+    }
+    
     try:
-        if source_type == "url":
-            fetch_path = fetch_dataset(source_location, base_output_dir)
-            if isinstance(fetch_path, Path) and fetch_path.is_file():
-                # If it's a single file, just add it
-                result["files"].append(str(fetch_path))
-            elif isinstance(fetch_path, Path) and fetch_path.is_dir():
-                # If it's a directory, look for data files inside
-                data_files = find_supplementary_files(fetch_path, entry.get("patterns"))
-                if not data_files:
-                    # Fallback: if no specific patterns found, take all CSV/Parquet
-                    data_files = list(fetch_path.rglob("*.csv")) + list(fetch_path.rglob("*.parquet"))
-                result["files"].extend([str(f) for f in data_files])
-        elif source_type == "local":
-            local_path = Path(source_location)
-            if not local_path.exists():
-                result["status"] = "failed"
-                result["message"] = f"Local path not found: {local_path}"
-                return result
-
-            if local_path.is_file():
-                result["files"].append(str(local_path))
-            elif local_path.is_dir():
-                data_files = find_supplementary_files(local_path, entry.get("patterns"))
-                if not data_files:
-                    data_files = list(local_path.rglob("*.csv")) + list(local_path.rglob("*.parquet"))
-                result["files"].extend([str(f) for f in data_files])
+        # Determine file type and load
+        path = Path(data_path)
+        suffix = path.suffix.lower()
+        
+        if suffix == '.csv':
+            df = pd.read_csv(data_path)
+            detailed_info['file_type'] = 'csv'
+        elif suffix in ['.parquet', '.pq']:
+            df = pd.read_parquet(data_path)
+            detailed_info['file_type'] = 'parquet'
+        elif suffix == '.json':
+            df = pd.read_json(data_path)
+            detailed_info['file_type'] = 'json'
+        elif suffix in ['.zip', '.tar', '.gz']:
+            # Try to extract and find CSV/Parquet inside
+            extract_dir = data_path + '_extracted'
+            os.makedirs(extract_dir, exist_ok=True)
+            
+            if suffix == '.zip':
+                with zipfile.ZipFile(data_path, 'r') as zip_ref:
+                    zip_ref.extractall(extract_dir)
+            elif suffix in ['.tar', '.gz']:
+                with tarfile.open(data_path, 'r:*') as tar_ref:
+                    tar_ref.extractall(extract_dir)
+            
+            # Look for data files in extracted directory
+            data_files = list(Path(extract_dir).rglob('*.csv')) + list(Path(extract_dir).rglob('*.parquet'))
+            
+            if data_files:
+                df = pd.read_csv(str(data_files[0])) if str(data_files[0]).endswith('.csv') else pd.read_parquet(str(data_files[0]))
+                detailed_info['file_type'] = 'extracted'
+            else:
+                raise ValueError("No supported data files found in archive")
         else:
-            result["status"] = "failed"
-            result["message"] = f"Unsupported source type: {source_type}"
-
-        if not result["files"]:
-            result["status"] = "failed"
-            result["message"] = "No data files found matching patterns"
-
+            raise ValueError(f"Unsupported file format: {suffix}")
+        
+        # Get column names (normalize to lowercase for comparison)
+        columns = [str(col).lower() for col in df.columns]
+        detailed_info['columns_found'] = list(df.columns)
+        detailed_info['row_count'] = len(df)
+        
+        # Check for required variables
+        for var in required_vars:
+            var_lower = var.lower()
+            
+            if var_lower == 'smiles':
+                # Check for SMILES variations
+                smiles_found = any(
+                    any(v.lower() == col for v in ['smiles', 'smile', 'mol', 'molecule', 'compound_smiles'])
+                    for col in columns
+                )
+                if not smiles_found:
+                    missing_vars.append('SMILES')
+            
+            elif var_lower == 'yield':
+                # Check for yield variations
+                yield_found = any(
+                    any(v.lower() == col for v in YIELD_VARIATIONS)
+                    for col in columns
+                )
+                if not yield_found:
+                    missing_vars.append('yield')
+            
+            elif var_lower == 'covariates':
+                # Check for covariate keywords
+                covariate_keywords = ['temperature', 'solvent', 'catalyst', 'loading', 'time', 'pressure', 'condition', 'reagent', 'covariate']
+                covariate_found = any(
+                    any(kw in col for kw in covariate_keywords)
+                    for col in columns
+                )
+                if not covariate_found:
+                    missing_vars.append('covariates')
+            else:
+                # Direct match for other variables
+                if not any(var_lower == col for col in columns):
+                    missing_vars.append(var)
+        
+        all_present = len(missing_vars) == 0
+        return all_present, missing_vars, detailed_info
+        
     except Exception as e:
-        result["status"] = "failed"
-        result["message"] = str(e)
+        logger.error(f"Error verifying dataset variables for {data_path}: {e}")
+        return False, required_vars, {'error': str(e)}
 
-    return result
-
-
-def ingest_pipeline(manifest_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def ingest_pipeline(manifest_path: str, output_dir: str = 'artifacts/reports') -> Dict[str, Any]:
     """
-    Main entry point for the ingestion pipeline.
-    1. Load manifest.
-    2. Validate manifest.
-    3. Fetch/Process each dataset entry.
-    4. Return results.
+    Main ingestion pipeline that:
+    1. Loads and validates the manifest
+    2. For each entry, verifies dataset variables against the manifest schema
+    3. Generates detailed flags for missing variables
+    4. Records results in ReproResult format with "Data Unavailable" status if needed
+    
+    Returns a summary dictionary of all processed entries.
     """
+    import json
+    from datetime import datetime
+    
+    # Load manifest
+    logger.info(f"Loading manifest from {manifest_path}")
     manifest = load_manifest(manifest_path)
-    validate_manifest(manifest)
-
-    results = []
-    datasets = manifest.get("datasets", [])
-
-    if not datasets:
-        print("No datasets found in manifest.")
-        return results
-
-    for entry in datasets:
-        print(f"Processing dataset: {entry.get('name', 'Unknown')}")
-        result = process_manifest_entry(entry, DATA_RAW_DIR)
-        results.append(result)
-        print(f"  Status: {result['status']}")
-        if result['status'] == 'failed':
-            print(f"  Error: {result['message']}")
+    
+    # Prepare results
+    results = {
+        'pipeline_run': {
+            'timestamp': datetime.now().isoformat(),
+            'manifest_path': manifest_path,
+            'total_entries': 0,
+            'valid_entries': 0,
+            'failed_entries': 0,
+            'data_unavailable_entries': 0
+        },
+        'entries': []
+    }
+    
+    # Process each entry in the manifest
+    entries = manifest.get('entries', []) if isinstance(manifest, dict) else manifest
+    if not isinstance(entries, list):
+        entries = [entries] if isinstance(entries, dict) else []
+    
+    results['pipeline_run']['total_entries'] = len(entries)
+    
+    for entry in entries:
+        doi = entry.get('doi', 'unknown')
+        logger.info(f"Processing entry: {doi}")
+        
+        # Process manifest entry
+        processed = process_manifest_entry(entry)
+        
+        # If validation passed, verify actual dataset variables
+        if processed['validation_status'] == 'passed' and processed.get('data_path'):
+            all_present, missing_vars, details = verify_dataset_variables(
+                processed['data_path'], 
+                REQUIRED_VARIABLES
+            )
+            
+            if not all_present:
+                processed['validation_status'] = 'data_unavailable'
+                processed['missing_variables'] = missing_vars
+                processed['data_details'] = details
+                results['pipeline_run']['data_unavailable_entries'] += 1
+                logger.warning(f"Data unavailable for {doi}: missing {missing_vars}")
+            else:
+                processed['data_details'] = details
+                results['pipeline_run']['valid_entries'] += 1
+        elif processed['validation_status'] == 'failed':
+            results['pipeline_run']['failed_entries'] += 1
         else:
-            print(f"  Files: {len(result['files'])}")
-
+            results['pipeline_run']['failed_entries'] += 1
+        
+        # Add to results
+        results['entries'].append({
+            'doi': doi,
+            'dataset_name': entry.get('dataset_name'),
+            'status': processed['validation_status'],
+            'missing_variables': processed.get('missing_variables', []),
+            'errors': processed.get('errors', []),
+            'data_path': processed.get('data_path'),
+            'data_details': processed.get('data_details', {})
+        })
+    
+    # Save results to output directory
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, 'ingestion_results.json')
+    
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Ingestion pipeline complete. Results saved to {output_path}")
     return results
-
 
 def main():
     """
-    CLI entry point for ingestion.
+    Entry point for the ingestion pipeline.
+    Usage: python -m code.ingest --manifest data/manifest.yaml --output artifacts/reports
     """
     import argparse
-
-    parser = argparse.ArgumentParser(description="Ingest and validate research data.")
-    parser.add_argument("--manifest", type=str, default=None, help="Path to manifest file")
+    
+    parser = argparse.ArgumentParser(description='Ingest and validate research datasets')
+    parser.add_argument('--manifest', type=str, default='data/manifest.yaml',
+                      help='Path to the manifest file')
+    parser.add_argument('--output', type=str, default='artifacts/reports',
+                      help='Output directory for results')
+    
     args = parser.parse_args()
-
+    
+    if not os.path.exists(args.manifest):
+        logger.error(f"Manifest file not found: {args.manifest}")
+        return 1
+    
     try:
-        results = ingest_pipeline(Path(args.manifest) if args.manifest else None)
-        # Write a summary log
-        log_path = DATA_RAW_DIR / "ingestion_log.json"
-        with open(log_path, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2)
-        print(f"Ingestion complete. Log saved to {log_path}")
+        results = ingest_pipeline(args.manifest, args.output)
+        
+        # Print summary
+        print(f"\nIngestion Pipeline Summary:")
+        print(f"  Total entries: {results['pipeline_run']['total_entries']}")
+        print(f"  Valid entries: {results['pipeline_run']['valid_entries']}")
+        print(f"  Failed entries: {results['pipeline_run']['failed_entries']}")
+        print(f"  Data unavailable entries: {results['pipeline_run']['data_unavailable_entries']}")
+        
+        if results['pipeline_run']['data_unavailable_entries'] > 0:
+            print(f"\n⚠️  WARNING: {results['pipeline_run']['data_unavailable_entries']} entries have missing required variables.")
+            print("These are flagged as 'Data Unavailable' in the results.")
+        
+        return 0
+        
     except Exception as e:
-        print(f"Pipeline failed: {e}")
-        raise
+        logger.error(f"Pipeline failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    exit(main())

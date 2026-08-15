@@ -1,5 +1,5 @@
 """
-Data models and schema validation for the UHI analysis pipeline.
+Data models and schema validation for the Urban Heat Island analysis pipeline.
 """
 from .base import BaseModel
 from .city import CityBoundary

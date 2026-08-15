@@ -1,8 +1,7 @@
 """
-Environment variable management utilities for the llmXive OSM-UHI pipeline.
+Environment variable management utilities for the Urban Heat Island project.
 
-Provides functions to load .env files, retrieve API keys, and validate
-required environment variables for Overpass API and AWS services.
+Handles loading .env files, retrieving API keys (Overpass, AWS), and validation.
 """
 import os
 from pathlib import Path
@@ -18,50 +17,52 @@ logger = logging.getLogger(__name__)
 def get_project_env_path() -> Path:
     """
     Returns the absolute path to the .env file in the project root.
-    
-    Returns:
-        Path: Path to the .env file.
     """
-    project_root = get_path("")  # get_path with empty string returns project root
-    return project_root / ".env"
+    return get_path("") / ".env"
 
 def load_env_vars(env_path: Optional[Path] = None) -> bool:
     """
-    Load environment variables from a .env file.
+    Loads environment variables from a .env file.
     
     Args:
-        env_path: Optional path to the .env file. If None, uses the project root .env.
-    
+        env_path: Optional explicit path to .env file. Defaults to project root.
+        
     Returns:
-        bool: True if loading was successful, False otherwise.
+        True if loading was successful (or file didn't exist but wasn't required),
+        False if a required file was missing or loading failed.
     """
     if env_path is None:
         env_path = get_project_env_path()
     
     if not env_path.exists():
-        logger.warning(f".env file not found at {env_path}. Continuing without it.")
+        logger.warning(f"Environment file not found at {env_path}. "
+                       "Please create it or copy from .env.example.")
         return False
     
     try:
-        load_dotenv(env_path)
-        logger.info(f"Loaded environment variables from {env_path}")
-        return True
+        # load_dotenv returns True if the file was found and loaded
+        success = load_dotenv(dotenv_path=env_path, override=True)
+        if success:
+            logger.info(f"Environment variables loaded from {env_path}")
+        else:
+            logger.warning(f"Failed to load environment variables from {env_path}")
+        return success
     except Exception as e:
-        logger.error(f"Failed to load .env file: {e}")
+        logger.error(f"Error loading environment variables: {e}")
         return False
 
 def get_env_var(key: str, default: Optional[str] = None, required: bool = False) -> Optional[str]:
     """
-    Retrieve an environment variable by key.
+    Retrieves an environment variable.
     
     Args:
-        key: The environment variable key.
+        key: The environment variable name.
         default: Default value if the key is not set.
-        required: If True, raises an error if the key is not set.
-    
+        required: If True, raises an error if the key is missing.
+        
     Returns:
-        Optional[str]: The value of the environment variable, or default.
-    
+        The value of the environment variable or the default.
+        
     Raises:
         ValueError: If required=True and the key is not set.
     """
@@ -69,113 +70,89 @@ def get_env_var(key: str, default: Optional[str] = None, required: bool = False)
     
     if required and value is None:
         raise ValueError(f"Required environment variable '{key}' is not set.")
-    
-    if value is not None:
-        logger.debug(f"Environment variable '{key}' retrieved.")
-    
+        
     return value
 
 def get_overpass_api_key() -> Optional[str]:
     """
-    Retrieve the Overpass API key from environment variables.
+    Retrieves the Overpass API key.
     
     Returns:
-        Optional[str]: The Overpass API key, or None if not set.
+        The API key string or None if not set.
     """
     return get_env_var("OVERPASS_API_KEY")
 
-def get_aws_credentials() -> Dict[str, str]:
+def get_aws_credentials() -> Dict[str, Optional[str]]:
     """
-    Retrieve AWS credentials from environment variables.
+    Retrieves AWS credentials from environment variables.
     
     Returns:
-        Dict[str, str]: A dictionary containing 'aws_access_key_id', 
-                        'aws_secret_access_key', and 'aws_region'.
-    
-    Raises:
-        ValueError: If any required AWS credential is missing.
+        A dictionary with 'aws_access_key_id', 'aws_secret_access_key', and 'aws_region'.
     """
-    required_keys = [
-        "AWS_ACCESS_KEY_ID",
-        "AWS_SECRET_ACCESS_KEY",
-        "AWS_DEFAULT_REGION"
-    ]
-    
-    credentials = {}
-    missing_keys = []
-    
-    for key in required_keys:
-        value = get_env_var(key)
-        if value:
-            credentials[key] = value
-        else:
-            missing_keys.append(key)
-    
-    if missing_keys:
-        raise ValueError(f"Missing required AWS credentials: {', '.join(missing_keys)}")
-    
-    logger.info("AWS credentials loaded successfully.")
-    return credentials
+    return {
+        "aws_access_key_id": get_env_var("AWS_ACCESS_KEY_ID"),
+        "aws_secret_access_key": get_env_var("AWS_SECRET_ACCESS_KEY"),
+        "aws_region": get_env_var("AWS_REGION", default="us-east-1")
+    }
 
-def validate_required_env_vars(required_vars: List[str]) -> bool:
+def validate_required_env_vars(required_keys: List[str]) -> bool:
     """
-    Validate that all required environment variables are set.
+    Validates that a list of required environment variables are set.
     
     Args:
-        required_vars: List of environment variable keys that must be set.
-    
+        required_keys: List of environment variable names that must be present.
+        
     Returns:
-        bool: True if all required variables are set, False otherwise.
+        True if all keys are present, False otherwise.
+        
+    Raises:
+        ValueError: If any required key is missing.
     """
     missing = []
-    for var in required_vars:
-        if not os.getenv(var):
-            missing.append(var)
+    for key in required_keys:
+        if not os.getenv(key):
+            missing.append(key)
     
     if missing:
-        logger.error(f"Missing required environment variables: {', '.join(missing)}")
-        return False
+        raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
     
-    logger.info("All required environment variables are set.")
+    logger.info(f"All required environment variables validated: {required_keys}")
     return True
 
-def create_example_env_file(output_path: Optional[Path] = None) -> Path:
+def create_example_env_file() -> Path:
     """
-    Create an example .env file with placeholder values for required keys.
-    
-    Args:
-        output_path: Optional path to write the example file. Defaults to project root .env.example.
+    Creates a .env.example file if it doesn't exist, documenting required keys.
     
     Returns:
-        Path: The path to the created example file.
+        Path to the created .env.example file.
     """
-    if output_path is None:
-        output_path = get_path(".env.example")
+    example_path = get_path("") / ".env.example"
     
-    example_content = """
-# Overpass API Configuration
-# Get your API key from: https://overpass-api.de/
+    if example_path.exists():
+        logger.info(f".env.example already exists at {example_path}")
+        return example_path
+    
+    content = """# Urban Heat Island Analysis - Environment Configuration
+# Copy this file to .env and fill in your credentials.
+# Do NOT commit .env to version control.
+
+# Overpass API (for OSM data)
+# Get a key from https://overpass-api.de/ or use a local instance
 OVERPASS_API_KEY=your_overpass_api_key_here
 
-# AWS Configuration for MODIS/Landsat Data
-# Get credentials from AWS IAM Console
+# AWS Credentials (for satellite data if using AWS S3)
+# Optional: Only required if fetching data from AWS
 AWS_ACCESS_KEY_ID=your_aws_access_key_id
 AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
-AWS_DEFAULT_REGION=us-west-2
-
-# Optional: Custom Overpass Server URL
-# OVERPASS_URL=https://overpass-api.de/api/interpreter
-""".strip()
+AWS_REGION=us-east-1
+"""
     
     try:
-        with open(output_path, "w") as f:
-            f.write(example_content)
-        logger.info(f"Created example environment file at {output_path}")
+        with open(example_path, 'w') as f:
+            f.write(content)
+        logger.info(f"Created .env.example at {example_path}")
     except Exception as e:
-        logger.error(f"Failed to create example env file: {e}")
+        logger.error(f"Failed to create .env.example: {e}")
         raise
     
-    return output_path
-
-# Initialize environment on module import
-load_env_vars()
+    return example_path

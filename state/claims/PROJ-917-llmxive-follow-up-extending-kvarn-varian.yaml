@@ -2236,3 +2236,326 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T21:50:30Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: statistical significance test sample size 30 runs
+  claim_id: c_b9cf3743
+  context: T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the final accumulated KL-divergence...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size 'n' is 30 runs for the statistical significance test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:27:01Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default NUM_RUNS value 30
+  claim_id: c_b08c7fe8
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing... NUM_RUNS (default 30).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for NUM_RUNS is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:27:26Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default simulation horizon value deferred
+  claim_id: c_4f6fbc1c
+  context: T016b-acc [P] [US3] ...The simulation horizon (number of steps) MUST be
+    read from code/config.py (default [deferred]) and NOT hardcoded as 1000.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_simulation_horizon_value_deferred
+  kind: entity_fact
+  raw_text: The default simulation horizon is deferred.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:28:47Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default EPSILON_FLOOR value 1e-6
+  claim_id: c_24b96830
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing... EPSILON_FLOOR=1e-6...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default value for EPSILON_FLOOR is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:29:32Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default CPU_ONLY value True
+  claim_id: c_826d21b1
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing CPU_ONLY=True...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_CPU_ONLY_value_True
+  kind: entity_fact
+  raw_text: The default value for CPU_ONLY is True.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:30:18Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: pilot sensitivity analysis 100 simulation steps
+  claim_id: c_77b27e1f
+  context: T025a [P] [US3] ...Must run a small subset of simulation steps (e.g., 100
+    steps) across the epsilon sweep to validate the configuration before the full
+    batch run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot sensitivity analysis uses a subset of 100 simulation steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:30:56Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: theoretical lower bound formula Delta squared over 12
+  claim_id: c_c5a59d3a
+  context: T032 [US3] Implement theoretical lower bound calculation using the analytical
+    noise model formula Delta^2/12...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical lower bound calculation uses the formula Delta^2/12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:31:37Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: closed-form baseline predictor formula 1 over variance
+  claim_id: c_c4980807
+  context: T024 [US2] Implement closed-form baseline predictor (s = 1/variance) in
+    code/model_training/baselines.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Closed-form_baseline_predictor_formula_1_over_variance
+  kind: entity_fact
+  raw_text: The closed-form baseline predictor is defined as s = 1/variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:33:55Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: pilot sensitivity analysis output file data/analysis/epsilon_pilot.json
+  claim_id: c_6be6b2d7
+  context: 'T005a [P] [US3] ...Output: data/analysis/epsilon_pilot.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pilot_sensitivity_analysis_output_file_data/analysis/epsilon
+  kind: entity_fact
+  raw_text: The pilot sensitivity analysis output file is data/analysis/epsilon_pilot.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:34:34Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: full sensitivity analysis output file data/analysis/epsilon_sensitivity.json
+  claim_id: c_ec48c9bc
+  context: 'T025b [US3] ...Output: data/analysis/epsilon_sensitivity.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_sensitivity_analysis_output_file_data/analysis/epsilon
+  kind: entity_fact
+  raw_text: The full sensitivity analysis output file is data/analysis/epsilon_sensitivity.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:35:14Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: theoretical lower bound output file data/analysis/theoretical_lower_bound.json
+  claim_id: c_0cd2e791
+  context: 'T032 [US3] ...Output: data/analysis/theoretical_lower_bound.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Theoretical_lower_bound_output_file_data/analysis/theoretica
+  kind: entity_fact
+  raw_text: The theoretical lower bound output file is data/analysis/theoretical_lower_bound.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:35:52Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: bound comparison output file data/analysis/bound_comparison.json
+  claim_id: c_ea04cc6b
+  context: 'T032b [US3] ...Output: data/analysis/bound_comparison.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bound_comparison_output_file_data/analysis/bound_comparison.
+  kind: entity_fact
+  raw_text: The bound comparison output file is data/analysis/bound_comparison.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:36:34Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: t-test results output file data/simulation/t_test_results.json
+  claim_id: c_118d1b98
+  context: 'T031 [US3] ...Output: data/simulation/t_test_results.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/T-test_results_output_file_data/simulation/t_test_results.js
+  kind: entity_fact
+  raw_text: The t-test results output file is data/simulation/t_test_results.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:37:34Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: baseline comparison output file data/metrics/baseline_comparison.json
+  claim_id: c_78e9094d
+  context: 'T035c [US2] ...Output: data/metrics/baseline_comparison.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_comparison_output_file_data/metrics/baseline_compar
+  kind: entity_fact
+  raw_text: The baseline comparison output file is data/metrics/baseline_comparison.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:38:21Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: training log output file data/metrics/training_log.csv
+  claim_id: c_c49ee555
+  context: 'T023 [US2] ...Output: data/models/mlp_weights.pt, data/metrics/training_log.csv.'
+  evidence:
+    entailment_evidence: Training log output file data/metrics/training log.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Training_log_output_file_data/metrics/training_log.csv
+  kind: entity_fact
+  raw_text: The training log output file is data/metrics/training_log.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-15T00:38:51Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: aggregated simulation results file data/simulation/accumulated_kl_divergence.csv
+  claim_id: c_9d565b8a
+  context: 'T030c1 [US3] ...Output: data/simulation/accumulated_kl_divergence.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aggregated_simulation_results_file_data/simulation/accumulat
+  kind: entity_fact
+  raw_text: The aggregated simulation results file is data/simulation/accumulated_kl_divergence.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:39:12Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: synthetic attention matrices file data/raw/synthetic_attention_matrices.parquet
+  claim_id: c_a1d2ca38
+  context: T017c [US1] ...Must write a single output file data/raw/synthetic_attention_matrices.parquet
+    containing both the matrix data... and the computed scaling_factor.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_attention_matrices_file_data/raw/synthetic_attenti
+  kind: entity_fact
+  raw_text: The synthetic attention matrices are stored in data/raw/synthetic_attention_matrices.parquet.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:39:48Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP model weights file data/models/mlp_weights.pt
+  claim_id: c_52d7fefc
+  context: 'T023 [US2] ...Output: data/models/mlp_weights.pt, data/metrics/training_log.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MLP_model_weights_file_data/models/mlp_weights.pt
+  kind: entity_fact
+  raw_text: The MLP model weights are saved to data/models/mlp_weights.pt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:40:48Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: final report file data/results/final_report.md
+  claim_id: c_7a379ae9
+  context: 'T033 [US3] ...Output: data/results/final_report.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_file_data/results/final_report.md
+  kind: entity_fact
+  raw_text: The final report is generated at data/results/final_report.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T00:41:33Z'

@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan by executing: `mkdir -p data/raw data/processed code tests artifacts/logs artifacts/plots artifacts/reports contracts`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing exact pinned versions: `torch==2.2.0+cpu`, `scikit-learn==1.5.0`, `rdkit==2024.3.1`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`, `matplotlib==3.8.0`, `pyyaml==6.0.1`, `requests==2.31.0`. **Note**: Installation requires `pip install -r requirements.txt --extra-index-url.
-- [ ] T003a [P] Create `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections configuring line length 88, target-version py311, and specific linting rules (E, F, W, I).
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing exact pinned versions: `torch==2.2.0+cpu`, `scikit-learn==1.5.0`, `rdkit==2024.3.1`, `statsmodels==0.14.1`, `pandas==2.2.0`, `numpy==1.26.0`, `matplotlib==3.8.0`, `pyyaml==6.0.1`, `requests==2.31.0`. **Note**: Installation requires `pip install -r requirements.txt --extra-index-url.
+- [X] T003a [P] Create `pyproject.toml` with `[tool.black]` and `[tool.ruff]` sections configuring line length 88, target-version py311, and specific linting rules (E, F, W, I).
 - [ ] T003b [P] Configure linting (ruff) and formatting (black) tools by running initial checks on the empty project structure to verify configuration validity.
 
 ---
@@ -56,9 +56,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `Dockerfile` with Python 3.11, CPU-only PyTorch 2.2, scikit-learn 1.5, RDKit; enforce no GPU flags
-- [ ] T005 [P] Implement `code/ingest.py` for manifest validation and data fetching (including supplementary material extraction) referencing `contracts/PaperManifest.json` for schema validation. Extraction logic must rely on defined patterns in the manifest or standard supplementary file naming conventions (e.g., `*_supp.csv`, `*_data.parquet`).
-- [~] T006 [P] Setup `contracts/` directory and generate JSON Schemas for `PaperManifest`, `ReproResult`, `StatSummary`
+- [X] T004 Create `Dockerfile` with Python 3.11, CPU-only PyTorch 2.2, scikit-learn 1.5, RDKit; enforce no GPU flags
+- [X] T005 [P] Implement `code/ingest.py` for manifest validation and data fetching (including supplementary material extraction) referencing `contracts/PaperManifest.json` for schema validation. Extraction logic must rely on defined patterns in the manifest or standard supplementary file naming conventions (e.g., `*_supp.csv`, `*_data.parquet`).
+- [ ] T006 [P] Setup `contracts/` directory and generate JSON Schemas for `PaperManifest`, `ReproResult`, `StatSummary`
 - [X] T007 Create `code/metrics.py` with functions for MAE, R², Spearman ρ, and the Deviation Index (S) calculation (FR-009) using the exact formula: `S = 1 – (|ΔMAE|/(|MAE_ref|+ε) + |ΔR2|/(|R2_ref|+ε) + |Δρ|/(|ρ_ref|+ε))/3` where ε = 1e-6. (See spec.md Requirements FR-009)
 - [X] T008 Configure environment logging in `code/main.py` to capture Python version, library versions, OS, and Docker hash (FR-012)
 - [X] T009 Implement `data/manifest.yaml` loader and validator to ensure DOI, repo URL, dataset name, and reported metrics are present (FR-001)
@@ -80,17 +80,17 @@
 
 - [X] T010 [P] [US1] Unit test for Deviation Index calculation in `tests/unit/test_metrics.py` (Depends on T007)
 - [X] T011 [P] [US1] Unit test for metric calculation (MAE, R², Spearman) in `tests/unit/test_metrics.py` (Depends on T007)
-- [ ] T012 [P] [US1] Integration test for data ingestion and validation in `tests/integration/test_ingest.py`
+- [X] T012 [P] [US1] Integration test for data ingestion and validation in `tests/integration/test_ingest.py`
 
 ### Implementation for User Story 1
 
 - [ ] T013 [P] [US1] Implement `code/model_runner.py` to load data from `data/processed/`, apply preprocessing, train model (CPU, seed 42 or reported), and evaluate. Output JSON to `artifacts/reports/repro_results.json`. Include logic to substitute models exceeding 1M parameters with a baseline and log "Model Substitution/Unavailable" (FR-004, FR-005). **Dependency**: Requires T006 (Schema) to be complete.
-- [ ] T014 [US1] Implement logic in `code/model_runner.py` to handle missing seeds (default 42) and flag in results (US-1 Scenario 2)
-- [ ] T015 [US1] Implement logic in `code/ingest.py` to verify dataset variables (SMILES, yield, covariates) against the manifest schema. If missing, generate a detailed flag in the results log for the specific missing variables and record in `ReproResult` as "Data Unavailable" (FR-003, Plan Phase 0).
-- [ ] T016 [US1] Implement `code/model_runner.py` to enforce the ≤1M parameter limit; log "Model Substitution/Unavailable" if exceeded (Plan Phase 2)
-- [ ] T017 [US1] Implement sensitivity analysis in `code/model_runner.py` to sweep seeds `{42, 123, 999}`, compute `metric_std` for each metric, and report the **maximum standard deviation** observed. Add `metric_std` and `max_metric_std` fields to the `ReproResult` JSON object (FR-010, SC-003). **Dependency**: Requires T006 (Schema) and T007 (Metrics).
+- [X] T014 [US1] Implement logic in `code/model_runner.py` to handle missing seeds (default 42) and flag in results (US-1 Scenario 2)
+- [X] T015 [US1] Implement logic in `code/ingest.py` to verify dataset variables (SMILES, yield, covariates) against the manifest schema. If missing, generate a detailed flag in the results log for the specific missing variables and record in `ReproResult` as "Data Unavailable" (FR-003, Plan Phase 0).
+- [X] T016 [US1] Implement `code/model_runner.py` to enforce the ≤1M parameter limit; log "Model Substitution/Unavailable" if exceeded (Plan Phase 2)
+- [X] T017 [US1] Implement sensitivity analysis in `code/model_runner.py` to sweep seeds `{42, 123, 999}`, compute `metric_std` for each metric, and report the **maximum standard deviation** observed. Add `metric_std` and `max_metric_std` fields to the `ReproResult` JSON object (FR-010, SC-003). **Dependency**: Requires T006 (Schema) and T007 (Metrics).
 - [ ] T018 [US1] Implement `code/main.py` to aggregate individual `ReproResult` objects into `artifacts/reports/repro_results.json` containing deviations and score S (FR-005, FR-009)
-- [ ] T019 [US1] Add logging in `code/main.py` to record environment details (Python, libs, OS, Docker hash) to `artifacts/logs/env.log` (FR-012)
+- [X] T019 [US1] Add logging in `code/main.py` to record environment details (Python, libs, OS, Docker hash) to `artifacts/logs/env.log` (FR-012)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,9 +104,9 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T022 [P] [US2] Unit test for paired t-test implementation in `tests/unit/test_stats.py`
-- [ ] T023 [P] [US2] Unit test for mixed-effects model implementation in `tests/unit/test_stats.py`
-- [ ] T024 [P] [US2] Integration test for Bland-Altman plot generation in `tests/integration/test_stats.py`
+- [X] T022 [P] [US2] Unit test for paired t-test implementation in `tests/unit/test_stats.py`
+- [X] T023 [P] [US2] Unit test for mixed-effects model implementation in `tests/unit/test_stats.py`
+- [X] T024 [P] [US2] Integration test for Bland-Altman plot generation in `tests/integration/test_stats.py`
 
 ### Implementation for User Story 2
 

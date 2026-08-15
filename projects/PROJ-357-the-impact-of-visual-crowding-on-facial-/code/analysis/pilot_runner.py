@@ -1,156 +1,119 @@
-"""
-Pilot Runner for Synthetic Human Judgment Data Collection.
-
-Orchestrates the synthetic pilot study by:
-1. Loading the stimuli manifest generated in T014.
-2. Invoking the synthetic data generator (T025) to simulate participant responses.
-3. Writing raw response data to data/raw/synthetic_pilot_responses.csv.
-"""
 import os
 import sys
 import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from config import ensure_directories, set_all_seeds, get_seed
-from analysis.synthetic_data_generator import generate_synthetic_responses
+from analysis.synthetic_data_generator import generate_synthetic_responses, load_manifest as gen_load_manifest, save_responses
+from config import get_seed, set_all_seeds, ensure_directories
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(project_root / 'data' / 'logs' / 'pilot_runner.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_manifest(manifest_path: Path) -> List[Dict[str, Any]]:
-    """Load and validate the stimuli manifest."""
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Stimuli manifest not found at {manifest_path}")
-    
-    with open(manifest_path, 'r') as f:
-        manifest = json.load(f)
-    
-    logger.info(f"Loaded manifest with {len(manifest)} stimuli")
-    return manifest
+def load_manifest(manifest_path: str) -> dict:
+    """Load the stimuli manifest JSON."""
+    path = Path(manifest_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Manifest not found at {manifest_path}")
+    with open(path, 'r') as f:
+        return json.load(f)
 
-def run_pilot(
-    manifest_path: Path,
-    output_path: Path,
-    num_participants: int = 10,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
+def run_pilot(manifest_path: str, output_dir: str, num_participants: int = 10, seed: int = 42) -> str:
     """
-    Orchestrate the synthetic pilot study.
+    Execute the synthetic pilot study.
     
     Args:
         manifest_path: Path to stimuli_manifest.json
-        output_path: Path for the output CSV
+        output_dir: Directory to write raw response data
         num_participants: Number of simulated participants
         seed: Random seed for reproducibility
-        
+    
     Returns:
-        Summary statistics of the generated data
+        Path to the generated raw responses file
     """
-    if seed is None:
-        seed = get_seed()
+    logger.info(f"Starting Synthetic Pilot with {num_participants} participants")
     
+    # Set seeds
     set_all_seeds(seed)
-    logger.info(f"Starting pilot study with seed {seed} and {num_participants} participants")
-    
-    # Load stimuli
-    stimuli = load_manifest(manifest_path)
-    if not stimuli:
-        raise ValueError("Manifest is empty; cannot generate pilot data.")
     
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_dir)
+    ensure_directories([output_path])
     
-    # Generate synthetic responses
-    logger.info(f"Generating synthetic responses for {len(stimuli)} stimuli...")
-    responses = generate_synthetic_responses(
-        stimuli=stimuli,
+    # Load manifest
+    logger.info(f"Loading manifest from {manifest_path}")
+    manifest = load_manifest(manifest_path)
+    
+    stimuli_list = list(manifest.values())
+    if not stimuli_list:
+        raise ValueError("Manifest contains no stimuli entries.")
+    
+    logger.info(f"Found {len(stimuli_list)} stimuli to process.")
+    
+    # Generate responses
+    raw_responses = generate_synthetic_responses(
+        stimuli_list=stimuli_list,
         num_participants=num_participants,
         seed=seed
     )
     
-    if not responses:
-        raise RuntimeError("Failed to generate any synthetic responses.")
+    # Define output file path
+    output_file = output_path / "raw_pilot_responses.json"
     
-    # Write to CSV
-    import pandas as pd
-    df = pd.DataFrame(responses)
-    df.to_csv(output_path, index=False)
+    # Save responses
+    save_responses(raw_responses, str(output_file))
     
-    logger.info(f"Successfully wrote {len(df)} responses to {output_path}")
-    
-    # Compute summary
-    summary = {
-        "total_responses": len(df),
-        "unique_participants": df['participant_id'].nunique(),
-        "unique_stimuli": df['stimulus_id'].nunique(),
-        "overall_accuracy": float(df['accuracy'].mean()),
-        "seed": seed,
-        "num_participants_configured": num_participants
-    }
-    
-    logger.info(f"Summary: {summary}")
-    return summary
+    logger.info(f"Successfully generated raw pilot data at {output_file}")
+    return str(output_file)
 
 def main():
-    parser = argparse.ArgumentParser(description="Run synthetic pilot study")
+    parser = argparse.ArgumentParser(description="Execute the synthetic pilot study.")
     parser.add_argument(
-        "--manifest",
-        type=str,
+        "--manifest", 
+        type=str, 
         default="data/interim/stimuli_manifest.json",
-        help="Path to stimuli manifest JSON"
+        help="Path to the stimuli manifest JSON file."
     )
     parser.add_argument(
-        "--output",
-        type=str,
-        default="data/raw/synthetic_pilot_responses.csv",
-        help="Path for output CSV"
+        "--output-dir", 
+        type=str, 
+        default="data/interim",
+        help="Directory to store raw pilot response data."
     )
     parser.add_argument(
-        "--participants",
-        type=int,
+        "--participants", 
+        type=int, 
         default=10,
-        help="Number of simulated participants"
+        help="Number of simulated participants."
     )
     parser.add_argument(
-        "--seed",
-        type=int,
-        default=None,
-        help="Random seed (default: from config)"
+        "--seed", 
+        type=int, 
+        default=42,
+        help="Random seed for reproducibility."
     )
     
     args = parser.parse_args()
     
-    # Ensure directories
-    ensure_directories()
-    
-    manifest_path = project_root / args.manifest
-    output_path = project_root / args.output
-    
     try:
-        summary = run_pilot(
-            manifest_path=manifest_path,
-            output_path=output_path,
+        result_path = run_pilot(
+            manifest_path=args.manifest,
+            output_dir=args.output_dir,
             num_participants=args.participants,
             seed=args.seed
         )
-        print(json.dumps(summary, indent=2))
+        print(f"Pilot execution complete. Output: {result_path}")
     except Exception as e:
-        logger.error(f"Pilot study failed: {e}", exc_info=True)
+        logger.error(f"Pilot execution failed: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

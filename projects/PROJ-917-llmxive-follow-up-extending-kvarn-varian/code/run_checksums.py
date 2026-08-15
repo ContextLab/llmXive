@@ -1,46 +1,53 @@
 """
-Entry point script to execute the checksumming process on the initial data/ structure.
-This script fulfills task T001d by verifying integrity and storing checksums.
+Script to execute checksumming on the data directory and update the central state file.
+This satisfies task T001d: Execute checksumming script on initial data/ structure to verify integrity.
 """
 import sys
 import logging
 from pathlib import Path
 
-# Ensure the code directory is in the path for imports
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
+# Adjust import to match the provided API surface
+# The API surface lists: from run_checksums import main
+# And imports from data_generation.utils import compute_and_store_checksums
 from data_generation.utils import compute_and_store_checksums
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def main():
     """
-    Executes the checksumming script on the initial data/ structure.
-    Verifies integrity and updates the central state file.
+    Entry point for the checksum execution script.
+    Computes checksums for all files in data/ and updates the state file.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger(__name__)
-
-    logger.info("Starting checksum verification for T001d...")
+    logger.info("Starting checksum verification for data directory...")
+    
+    # The path to the data directory relative to project root
+    data_dir = Path("data")
+    
+    if not data_dir.exists():
+        logger.error(f"Data directory not found: {data_dir.absolute()}")
+        sys.exit(1)
     
     try:
-        # Execute the checksum computation and storage
-        # This function is expected to walk the data/ directory,
-        # compute SHA-256 hashes, and write them to the state file.
-        success = compute_and_store_checksums()
+        # compute_and_store_checksums is expected to handle the logic of:
+        # 1. Scanning data_dir
+        # 2. Computing SHA-256
+        # 3. Updating state/projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian.yaml
+        result = compute_and_store_checksums(data_dir)
         
-        if success:
-            logger.info("Checksumming completed successfully. Integrity verified.")
-            return 0
+        if result:
+            logger.info("Checksumming completed successfully.")
+            logger.info(f"Updated artifact hashes in state file.")
+            sys.exit(0)
         else:
-            logger.error("Checksumming failed. Integrity check not passed.")
-            return 1
+            logger.error("Checksumming process returned failure.")
+            sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during checksumming: {e}", exc_info=True)
-        return 1
+        logger.error(f"Fatal error during checksum execution: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
