@@ -20,14 +20,3 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/winglian/sn18-all-20240204/resolve/main/data/train-00000-of-00033-128aba00cc1f11e111.parquet
   verified_at: '2026-08-14T03:30:57.943717Z'
-- artifact_hash: 34bc9d80a3bb2827c3c5185b2ed2ec6841ac5c671bffa61a7e0bd3eac0f546a3
-  artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Vif - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q113106917
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-08-15T10:13:05.170139Z'

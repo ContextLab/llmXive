@@ -1,6 +1,6 @@
 status: none
-intent: SN1 kinetic rate constants dataset HuggingFace validated NIST Chemistry WebBook
-  RDKit python package dataset
+intent: SN1 kinetic dataset HuggingFace SMILES temperature solvent substrate class
+  python package dataset
 required_fields:
 - SMILES
 - rate_constant
@@ -9,7 +9,6 @@ required_fields:
 - substrate_class
 - gasteiger_partial_charges
 - topological_indices
-- molecular_graph
-cache_key: ebda2b2c5370286c211b790bc66888518f0dd0af4f3732ecadcbfcdfde5d0163
-searched_at: '2026-08-14T03:14:56.730330+00:00'
+cache_key: aa357a90bf892e0d9bc1d3852fa28657da62183666d494002dbbccd9b2712991
+searched_at: '2026-08-15T19:14:24.108362+00:00'
 retry_count: 1

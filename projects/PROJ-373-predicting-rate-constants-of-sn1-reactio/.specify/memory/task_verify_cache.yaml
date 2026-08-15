@@ -21,6 +21,14 @@ T023:
     \ showing the required columns or top\u201110 configurations was provided. The\
     \ evidence needed to confirm that the CSV exists, is non\u2011empty, and contains\
     \ the specified fields is missing."
+T028:
+  c: false
+  h: b96c484cb05faa0ac2b698170e56c925771c3252df4d9dbbeabe0837e854ce7f
+  r: "The repository lacks the required input file `data/processed/cleaned_sn1.csv`,\
+    \ so the script cannot compute VIFs, and no `artifacts/collinearity_report.json`\
+    \ is present. Additionally, the provided `collinearity.py` is truncated and does\
+    \ not show the full VIF calculation and JSON generation logic. The task\u2019\
+    s essential artifacts are missing."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,3 +36,11 @@ T030:
     \ `artifacts/perturbation_results.csv`, `artifacts/collinearity_report.md`) is\
     \ provided, nor any content showing they exist, are non\u2011empty, or meet the\
     \ specified schemas. The task therefore remains unverified."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, generated artifacts, or the required `artifacts/feasibility_test_log.json`\
+    \ (or any other validation output) were provided. Without these files we cannot\
+    \ confirm that the pipeline was re\u2011run, that schemas were checked, or that\
+    \ any timeout/abortion was documented, so the task\u2019s validation requirement\
+    \ is unmet."

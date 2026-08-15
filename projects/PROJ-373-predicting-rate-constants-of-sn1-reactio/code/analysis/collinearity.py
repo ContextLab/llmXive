@@ -1,344 +1,208 @@
-"""
-Collinearity Analysis Module for SN1 Rate Constant Prediction.
-
-This module calculates Variance Inflation Factors (VIF) for predictor features,
-identifies highly correlated pairs, performs descriptive joint analysis,
-and generates a markdown report.
-
-It operates on the cleaned dataset produced by T016.
-"""
-
 import os
 import sys
 import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Any
-
 import pandas as pd
 import numpy as np
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
-# Static dictionary for chemical relationship descriptions
-CHEMICAL_RELATIONSHIPS = {
-    "Gasteiger_Charge_Max": "Electrophilic potential",
-    "Topological_Index_Wiener": "Molecular size/branching",
-    "CalcNumRotatableBonds": "Molecular flexibility",
-    "LogP": "Lipophilicity"
-}
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parents[2]
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-# Setup logging
-logger = logging.getLogger(__name__)
+from config import DataConfig, AnalysisConfig, ensure_dirs
+from utils.logger import get_logger
 
-def load_processed_data(input_path: str) -> pd.DataFrame:
-    """
-    Load the cleaned dataset from the specified path.
+logger = get_logger(__name__)
 
-    Args:
-        input_path: Path to the cleaned CSV file (data/processed/cleaned_sn1.csv).
-
-    Returns:
-        pandas DataFrame containing the processed data.
-    """
-    path = Path(input_path)
-    if not path.exists():
+def load_processed_data(config: DataConfig) -> pd.DataFrame:
+    """Load the cleaned dataset from T016."""
+    input_path = config.processed_data_path / "cleaned_sn1.csv"
+    if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logger.info(f"Loading processed data from {input_path}")
-    df = pd.read_csv(path)
-    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
+    
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
-def extract_feature_matrix(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+def extract_feature_matrix(df: pd.DataFrame, config: AnalysisConfig) -> pd.DataFrame:
     """
-    Extract the feature matrix (predictor variables) from the dataset.
-
-    This function assumes the dataset contains specific descriptor columns.
-    It filters out non-feature columns like 'smiles', 'rate_constant', etc.
-
-    Args:
-        df: The full processed DataFrame.
-
-    Returns:
-        Tuple of (feature_matrix, list_of_feature_names).
+    Extract the feature matrix for VIF calculation.
+    Per FR-007: Uses topological descriptors only; Gasteiger charges are excluded.
     """
-    # Define known feature columns based on T013 descriptors and T012 cleaning
-    # We try to select columns that are numeric and likely descriptors
-    possible_features = [
-        'Gasteiger_Charge_Max', 'Gasteiger_Charge_Min', 'Gasteiger_Charge_Sum',
-        'Topological_Index_Wiener', 'Topological_Index_Zagreb',
-        'CalcNumRotatableBonds', 'LogP', 'Molecular_Weight',
-        'Num_H_Acceptors', 'Num_H_Donors', 'Num_Rings'
-    ]
+    # Identify topological descriptor columns
+    # Based on data-model.md and typical RDKit outputs, these are usually prefixed with 'topo_'
+    # or are specific topological indices (e.g., 'wiener_index', 'balaban_index').
+    # We will select columns that match the schema's topological indices.
+    # If specific column names are not known, we assume columns containing 'topo' or specific known indices.
+    # However, to be robust, we look for columns that are numeric and likely descriptors.
+    # The schema defines: smiles, rate_constant, substrate_class, gasteiger_charges, topological_indices, source_id.
+    # We need to expand 'topological_indices' if it's a nested structure or select specific columns.
+    # Assuming the CSV has flattened columns for topological indices.
+    
+    # Filter for numeric columns that are likely topological descriptors
+    # We exclude 'rate_constant' (target), 'substrate_class' (categorical), 'source_id' (id), and 'smiles'.
+    # We also exclude columns related to Gasteiger charges if they are present and named distinctly.
+    
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    # Heuristic: Exclude target and known non-descriptor numeric columns
+    exclude_cols = ['rate_constant', 'substrate_class', 'source_id', 'smiles'] # smiles is str, but safe to list
+    
+    # Identify Gasteiger columns (usually prefixed with 'gasteiger' or 'charge')
+    gasteiger_cols = [col for col in numeric_cols if 'gasteiger' in col.lower() or 'charge' in col.lower()]
+    
+    # The remaining numeric columns are assumed to be topological descriptors
+    feature_cols = [col for col in numeric_cols if col not in exclude_cols and col not in gasteiger_cols]
+    
+    if not feature_cols:
+        logger.warning("No topological descriptor columns found. Checking for all numeric columns excluding target.")
+        feature_cols = [col for col in numeric_cols if col not in exclude_cols]
+    
+    logger.info(f"Extracting {len(feature_cols)} feature columns for VIF: {feature_cols[:5]}...")
+    
+    # Handle missing values in features (VIF cannot handle NaN)
+    # We drop rows with NaN in any of the selected features
+    feature_df = df[feature_cols].dropna()
+    
+    if len(feature_df) == 0:
+        raise ValueError("No valid rows after dropping NaNs in feature matrix.")
+    
+    logger.info(f"Feature matrix shape: {feature_df.shape}")
+    return feature_df
 
-    # Filter features that actually exist in the dataframe
-    available_features = [col for col in possible_features if col in df.columns]
-
-    # If no predefined features found, try to select all numeric columns
-    # excluding known non-feature columns
-    if not available_features:
-        exclude_cols = ['smiles', 'rate_constant', 'substrate_class', 'row_index', 'source_id']
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        available_features = [col for col in numeric_cols if col not in exclude_cols]
-
-    if not available_features:
-        raise ValueError("No numeric feature columns found in the dataset for VIF calculation.")
-
-    logger.info(f"Extracting feature matrix with columns: {available_features}")
-    feature_matrix = df[available_features].copy()
-
-    # Handle missing values by dropping rows (VIF cannot handle NaN)
-    initial_rows = len(feature_matrix)
-    feature_matrix = feature_matrix.dropna()
-    dropped_rows = initial_rows - len(feature_matrix)
-    if dropped_rows > 0:
-        logger.warning(f"Dropped {dropped_rows} rows due to missing values in features.")
-
-    return feature_matrix, available_features
-
-def calculate_vif(feature_matrix: pd.DataFrame) -> pd.DataFrame:
+def calculate_vif(X: pd.DataFrame) -> pd.Series:
     """
-    Calculate the Variance Inflation Factor (VIF) for each feature.
-
-    Args:
-        feature_matrix: DataFrame containing only numeric features.
-
-    Returns:
-        DataFrame with columns: 'feature', 'vif'.
+    Calculate Variance Inflation Factor (VIF) for each feature.
     """
-    logger.info("Calculating VIF for all features...")
-    vif_data = []
+    # Add constant for intercept
+    X_with_const = sm.add_constant(X)
+    vif_data = pd.Series(
+        [variance_inflation_factor(X_with_const.values, i) for i in range(X_with_const.shape[1])],
+        index=X_with_const.columns
+    )
+    # Remove the constant term from the result
+    vif_data = vif_data.drop('const')
+    return vif_data
 
-    # Add a constant for the intercept if statsmodels requires it (usually does for regression)
-    # However, for VIF calculation specifically, we just need the design matrix X.
-    # VIF_i = 1 / (1 - R_i^2) where R_i^2 is from regressing X_i on all other X_j.
-
-    # Ensure no constant column is present if we were doing regression, but for VIF
-    # we iterate over features.
-    for i, col in enumerate(feature_matrix.columns):
-        try:
-            vif = variance_inflation_factor(feature_matrix.values, i)
-            vif_data.append({'feature': col, 'vif': vif})
-        except Exception as e:
-            logger.error(f"Error calculating VIF for {col}: {e}")
-            vif_data.append({'feature': col, 'vif': np.nan})
-
-    vif_df = pd.DataFrame(vif_data)
-    vif_df = vif_df.sort_values(by='vif', ascending=False)
-    logger.info(f"VIF calculation complete. Max VIF: {vif_df['vif'].max():.2f}")
-    return vif_df
-
-def identify_highly_correlated_pairs(vif_df: pd.DataFrame, threshold: float = 5.0) -> List[Dict[str, Any]]:
+def identify_highly_correlated_pairs(vif_series: pd.Series, threshold: float = 5.0) -> list:
     """
-    Identify features with VIF greater than the threshold.
-
-    Args:
-        vif_df: DataFrame of VIF values.
-        threshold: VIF threshold above which a feature is considered highly correlated.
-
-    Returns:
-        List of dictionaries containing feature info and VIF value.
+    Identify pairs of predictors with VIF > threshold.
+    Note: VIF is calculated per variable. High VIF implies collinearity with *other* variables.
+    The task asks to "flag pairs". Since VIF is a scalar per variable, we flag variables with VIF > threshold.
+    To form "pairs", we can identify the variables involved.
+    However, strictly speaking, VIF > 5 for a variable X implies X is linearly dependent on others.
+    We will report the variables that exceed the threshold.
+    If the task strictly requires "pairs", we might need correlation matrix, but the prompt says "calculate VIF... flag pairs > 5".
+    Interpretation: Flag the variables (which form the collinear sets) that have VIF > 5.
+    We will return a list of objects describing the high-VIF variables.
     """
-    high_vif = vif_df[vif_df['vif'] > threshold].to_dict(orient='records')
-    logger.info(f"Found {len(high_vif)} features with VIF > {threshold}")
-    return high_vif
+    flagged = []
+    for var, vif in vif_series.items():
+        if vif > threshold:
+            flagged.append({
+                "descriptor": var,
+                "vif_score": float(vif),
+                "is_flagged": True,
+                "flag_reason": f"VIF ({vif:.2f}) exceeds threshold ({threshold})"
+            })
+    return flagged
 
-def perform_pca_if_needed(vif_df: pd.DataFrame, feature_matrix: pd.DataFrame, threshold: float = 10.0) -> Optional[Dict[str, Any]]:
+def perform_pca_if_needed(X: pd.DataFrame, threshold: float = 5.0) -> dict:
     """
-    Perform PCA as a fallback if any feature has VIF > threshold.
-
-    Args:
-        vif_df: DataFrame of VIF values.
-        feature_matrix: Original feature matrix.
-        threshold: VIF threshold to trigger PCA.
-
-    Returns:
-        Dictionary with PCA results or None if not triggered.
+    Perform PCA if high collinearity is detected.
+    Returns PCA summary.
     """
-    max_vif = vif_df['vif'].max()
-    if max_vif <= threshold:
-        logger.info(f"Max VIF ({max_vif:.2f}) <= {threshold}. PCA not triggered.")
-        return None
-
-    logger.warning(f"Max VIF ({max_vif:.2f}) > {threshold}. Triggering PCA fallback.")
+    vif_series = calculate_vif(X)
+    high_vif_vars = vif_series[vif_series > threshold]
+    
+    if len(high_vif_vars) == 0:
+        return {"pca_needed": False, "message": "No high collinearity detected."}
+    
     from sklearn.decomposition import PCA
-
     pca = PCA()
-    pca.fit(feature_matrix)
-
-    explained_variance_ratio = pca.explained_variance_ratio_
-    cumulative_variance = np.cumsum(explained_variance_ratio)
-
-    # Find number of components to explain 95% variance
-    n_components = np.argmax(cumulative_variance >= 0.95) + 1
-
+    pca.fit(X)
+    explained_variance = pca.explained_variance_ratio_
+    
     return {
-        'triggered': True,
-        'max_vif': max_vif,
-        'n_components_total': len(explained_variance_ratio),
-        'n_components_95': n_components,
-        'explained_variance_ratio': explained_variance_ratio.tolist(),
-        'cumulative_variance': cumulative_variance.tolist()
+        "pca_needed": True,
+        "high_vif_variables": high_vif_vars.to_dict(),
+        "explained_variance_ratio": explained_variance.tolist(),
+        "cumulative_variance": np.cumsum(explained_variance).tolist()
     }
 
-def generate_chemical_description(feature_name: str) -> str:
+def generate_chemical_description(flagged_pairs: list) -> list:
     """
-    Generate a chemical description for a feature using the static dictionary.
-
-    Args:
-        feature_name: Name of the feature.
-
-    Returns:
-        Description string.
+    Generate a report list.
+    Constraint: Do NOT invent chemical interpretations.
     """
-    return CHEMICAL_RELATIONSHIPS.get(feature_name, "Chemical relationship: Undetermined (requires expert review)")
+    # The prompt asks for a JSON report with flagged pairs, VIF values, and boolean is_flagged.
+    # It explicitly forbids chemical interpretation dictionaries.
+    # We return the flagged items as is, perhaps formatted for the report.
+    return flagged_pairs
 
-def run_collinearity_analysis(input_path: str, output_path: str, vif_threshold: float = 5.0, pca_threshold: float = 10.0) -> None:
+def run_collinearity_analysis(config: DataConfig, analysis_config: AnalysisConfig):
     """
-    Run the full collinearity analysis and generate the report.
-
-    Args:
-        input_path: Path to the cleaned dataset.
-        output_path: Path to save the markdown report.
-        vif_threshold: Threshold for flagging high VIF.
-        pca_threshold: Threshold for triggering PCA.
+    Main routine for collinearity analysis.
     """
-    logger.info("Starting Collinearity Analysis...")
-
-    # 1. Load Data
-    df = load_processed_data(input_path)
-
-    # 2. Extract Features
-    feature_matrix, feature_names = extract_feature_matrix(df)
-
+    ensure_dirs()
+    
+    # 1. Load data
+    df = load_processed_data(config)
+    
+    # 2. Extract feature matrix (Topological only)
+    X = extract_feature_matrix(df, analysis_config)
+    
+    if X.empty:
+        logger.error("Feature matrix is empty. Cannot calculate VIF.")
+        return
+    
     # 3. Calculate VIF
-    vif_df = calculate_vif(feature_matrix)
-
-    # 4. Identify High VIF Pairs (Features)
-    # Note: VIF is per feature, not per pair. The task asks to "flag pairs > 5".
-    # In standard VIF analysis, we flag individual features that have high multicollinearity
-    # with the *set* of other features. We will list the features with VIF > threshold.
-    # If the task strictly implies pairwise correlation, we would use correlation matrix,
-    # but the prompt explicitly says "Calculate VIF... flag pairs > 5".
-    # Interpretation: Flag features that are part of a collinear set (VIF > 5).
-    high_vif_features = identify_highly_correlated_pairs(vif_df, vif_threshold)
-
-    # 5. Perform PCA Fallback if needed
-    pca_result = perform_pca_if_needed(vif_df, feature_matrix, pca_threshold)
-
-    # 6. Generate Report
-    report_lines = [
-        "# Collinearity Analysis Report",
-        "",
-        f"**Input Data**: {input_path}",
-        f"**VIF Threshold**: {vif_threshold}",
-        f"**PCA Trigger Threshold**: {pca_threshold}",
-        "",
-        "## Summary",
-        "",
-        f"- Total features analyzed: {len(feature_names)}",
-        f"- Features with VIF > {vif_threshold}: {len(high_vif_features)}",
-        f"- PCA Triggered: {'Yes' if pca_result else 'No'}",
-        ""
-    ]
-
-    if high_vif_features:
-        report_lines.append("## Highly Correlated Features (VIF > {threshold})".format(threshold=vif_threshold))
-        report_lines.append("")
-        report_lines.append("| Feature | VIF | Chemical Relationship |")
-        report_lines.append("| :--- | :--- | :--- |")
-        for item in high_vif_features:
-            feature = item['feature']
-            vif_val = item['vif']
-            desc = generate_chemical_description(feature)
-            report_lines.append(f"| {feature} | {vif_val:.2f} | {desc} |")
-        report_lines.append("")
-    else:
-        report_lines.append(f"## No features with VIF > {vif_threshold} found.")
-        report_lines.append("")
-
-    if pca_result:
-        report_lines.append("## PCA Fallback Results")
-        report_lines.append("")
-        report_lines.append(f"- Max VIF: {pca_result['max_vif']:.2f}")
-        report_lines.append(f"- Total Components: {pca_result['n_components_total']}")
-        report_lines.append(f"- Components for 95% Variance: {pca_result['n_components_95']}")
-        report_lines.append("")
-        report_lines.append("### Explained Variance Ratio")
-        for i, var in enumerate(pca_result['explained_variance_ratio']):
-            report_lines.append(f"- Component {i+1}: {var:.4f}")
-        report_lines.append("")
-
-    # Detailed VIF Table for all features
-    report_lines.append("## Full VIF Table")
-    report_lines.append("")
-    report_lines.append("| Feature | VIF | Description |")
-    report_lines.append("| :--- | :--- | :--- |")
-    for _, row in vif_df.iterrows():
-        desc = generate_chemical_description(row['feature'])
-        report_lines.append(f"| {row['feature']} | {row['vif']:.2f} | {desc} |")
-    report_lines.append("")
-
-    # Write Report
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(output_file, 'w') as f:
-        f.write('\n'.join(report_lines))
-
+    vif_series = calculate_vif(X)
+    
+    # 4. Identify high VIF variables (pairs/sets)
+    # Since VIF is per variable, we report variables > threshold.
+    # The "pairs" interpretation is handled by reporting the set of collinear variables.
+    flagged_items = identify_highly_correlated_pairs(vif_series, threshold=analysis_config.vif_threshold)
+    
+    # 5. Generate Report
+    report = {
+        "analysis_type": "VIF Collinearity Check",
+        "threshold": analysis_config.vif_threshold,
+        "total_features_analyzed": len(vif_series),
+        "flagged_count": len(flagged_items),
+        "flagged_pairs": flagged_items,
+        "all_vif_scores": {k: float(v) for k, v in vif_series.items()}
+    }
+    
+    # 6. Save Report
+    output_path = analysis_config.collinearity_report_path
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    
     logger.info(f"Collinearity report saved to {output_path}")
+    return report
 
 def main():
-    """Main entry point for the collinearity analysis script."""
+    config = DataConfig()
+    analysis_config = AnalysisConfig()
+    
     parser = argparse.ArgumentParser(description="Run collinearity analysis on SN1 dataset.")
-    parser.add_argument(
-        "--input",
-        type=str,
-        default="data/processed/cleaned_sn1.csv",
-        help="Path to the cleaned dataset CSV (default: data/processed/cleaned_sn1.csv)"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default="artifacts/collinearity_report.md",
-        help="Path to save the markdown report (default: artifacts/collinearity_report.md)"
-    )
-    parser.add_argument(
-        "--vif-threshold",
-        type=float,
-        default=5.0,
-        help="VIF threshold for flagging high collinearity (default: 5.0)"
-    )
-    parser.add_argument(
-        "--pca-threshold",
-        type=float,
-        default=10.0,
-        help="VIF threshold for triggering PCA (default: 10.0)"
-    )
-
+    parser.add_argument("--threshold", type=float, default=5.0, help="VIF threshold for flagging.")
     args = parser.parse_args()
-
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
+    
+    analysis_config.vif_threshold = args.threshold
+    
     try:
-        run_collinearity_analysis(
-            input_path=args.input,
-            output_path=args.output,
-            vif_threshold=args.vif_threshold,
-            pca_threshold=args.pca_threshold
-        )
-        logger.info("Collinearity analysis completed successfully.")
-    except FileNotFoundError as e:
-        logger.error(f"Data file not found: {e}")
-        sys.exit(1)
+        run_collinearity_analysis(config, analysis_config)
     except Exception as e:
-        logger.error(f"Error during analysis: {e}")
-        sys.exit(1)
+        logger.error(f"Collinearity analysis failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
