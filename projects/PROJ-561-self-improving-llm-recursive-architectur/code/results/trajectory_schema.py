@@ -6,72 +6,50 @@ from pydantic import BaseModel, Field, field_validator
 from config import get_config
 
 class TrajectoryEntry(BaseModel):
-    """Schema for a single trajectory entry."""
-    cycle_number: int = Field(..., description="Cycle number")
-    param_count: int = Field(..., description="Number of parameters in model")
-    GSM8K: float = Field(..., description="GSM8K benchmark accuracy")
-    ARC: float = Field(..., description="ARC-Challenge benchmark accuracy")
-    BoolQ: float = Field(..., description="BoolQ benchmark ECE")
-    FLOPs: int = Field(..., description="FLOPs count for the cycle")
-    training_time: float = Field(..., description="Training time in seconds")
-    
-    @field_validator('GSM8K', 'ARC', 'BoolQ')
-    @classmethod
-    def validate_metrics(cls, v):
-        if v < 0.0 or v > 1.0:
-            raise ValueError(f"Benchmark metrics must be between 0 and 1, got {v}")
-        return v
+    cycle_number: int
+    param_count: int
+    gsm8k_accuracy: float
+    arc_challenge_accuracy: float
+    boolq_ece: float
+    flops: int
+    training_time: float
+    slope: float
+    intercept: float
+    r_squared: float
+    trend_direction: str
+    timed_out: Optional[bool] = False
 
-def write_trajectory(entry: TrajectoryEntry) -> str:
-    """Write a trajectory entry to the trajectory file."""
-    config = get_config()
-    trajectory_path = os.path.join(config.paths.results_dir, "trajectory.json")
+def write_trajectory(path: str, entry: TrajectoryEntry) -> None:
+    """
+    Appends a trajectory entry to the JSON file.
+    Creates the file if it doesn't exist.
+    """
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     
-    os.makedirs(os.path.dirname(trajectory_path), exist_ok=True)
+    data = []
+    if os.path.exists(path):
+        try:
+            with open(path, "r") as f:
+                data = json.load(f)
+        except json.JSONDecodeError:
+            data = []
     
-    # Read existing entries if file exists
-    entries = []
-    if os.path.exists(trajectory_path):
-        with open(trajectory_path, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line:
-                    try:
-                        entries.append(json.loads(line))
-                    except json.JSONDecodeError:
-                        continue
+    data.append(entry.model_dump())
     
-    # Append new entry
-    entries.append(entry.model_dump())
-    
-    # Write all entries
-    with open(trajectory_path, 'w') as f:
-        for entry_data in entries:
-            f.write(json.dumps(entry_data) + "\n")
-    
-    return trajectory_path
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
 
-def read_trajectory() -> List[Dict[str, Any]]:
-    """Read all trajectory entries from the file."""
-    config = get_config()
-    trajectory_path = os.path.join(config.paths.results_dir, "trajectory.json")
-    
-    if not os.path.exists(trajectory_path):
+def read_trajectory(path: str) -> List[TrajectoryEntry]:
+    """Reads the trajectory file and returns a list of entries."""
+    if not os.path.exists(path):
         return []
     
-    entries = []
-    with open(trajectory_path, 'r') as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
-                    entries.append(json.loads(line))
-                except json.JSONDecodeError:
-                    continue
+    with open(path, "r") as f:
+        data = json.load(f)
     
-    return entries
+    return [TrajectoryEntry(**item) for item in data]
 
-def get_latest_entry() -> Optional[Dict[str, Any]]:
-    """Get the latest trajectory entry."""
-    entries = read_trajectory()
+def get_latest_entry(path: str) -> Optional[TrajectoryEntry]:
+    """Returns the most recent entry."""
+    entries = read_trajectory(path)
     return entries[-1] if entries else None

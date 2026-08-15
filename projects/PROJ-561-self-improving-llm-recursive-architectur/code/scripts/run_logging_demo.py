@@ -1,108 +1,108 @@
 """
-Demonstration script for T009: Structured cycle logging.
-
-This script simulates a mock cycle and writes structured JSON logs
-to verify the logging functionality works as expected.
-
-Usage:
-    python scripts/run_logging_demo.py
-
-Output:
-    - results/logs/cycle_1.log (structured JSON log file)
-    - Console output confirming log creation
+Demo script to verify T009: Structured cycle logging and checkpointing.
+Runs a mock cycle and verifies log file creation and content.
 """
-
 import os
 import sys
 import json
+import tempfile
+import shutil
 
-# Add project root to path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
 from utils.logging import (
     init_cycle_logger,
-    update_cycle_log,
-    checkpoint_model_state,
     log_cycle_summary,
-    get_cycle_history,
-    log_error
+    log_error,
+    checkpoint_model_state,
+    get_cycle_history
 )
-from config import get_config
+from config import PathConfig, Config, get_config, set_config, ensure_directories
 
+class MockConfig:
+    def __init__(self, tmp_dir):
+        self.paths = PathConfig(
+            raw_data=os.path.join(tmp_dir, "raw"),
+            processed_data=os.path.join(tmp_dir, "processed"),
+            results=os.path.join(tmp_dir, "results"),
+            logs=os.path.join(tmp_dir, "logs"),
+            checkpoints=os.path.join(tmp_dir, "checkpoints")
+        )
 
 def main():
-    """Run a mock cycle and generate structured logs."""
-    print("Starting mock cycle logging demonstration...")
+    print("Starting T009 Logging Demo...")
+    
+    # Setup temp directory
+    temp_dir = tempfile.mkdtemp()
+    print(f"Using temporary directory: {temp_dir}")
+    
+    mock_config = MockConfig(temp_dir)
+    ensure_directories([
+        mock_config.paths.raw_data,
+        mock_config.paths.processed_data,
+        mock_config.paths.results,
+        mock_config.paths.logs,
+        mock_config.paths.checkpoints
+    ])
 
-    # Initialize logger for cycle 1
-    cycle_number = 1
-    logger = init_cycle_logger(cycle_number)
-    print(f"Initialized logger for cycle {cycle_number}")
+    # Patch get_config
+    import utils.logging
+    original_get_config = utils.logging.get_config
+    utils.logging.get_config = lambda: mock_config
 
-    # Simulate cycle events
-    update_cycle_log(cycle_number, "CYCLE_START", {"timestamp": "2026-01-01T00:00:00Z"}, logger)
-    print("Logged CYCLE_START")
+    try:
+        cycle_num = 1
+        print(f"Initializing logger for cycle {cycle_num}...")
+        logger = init_cycle_logger(cycle_num)
 
-    update_cycle_log(cycle_number, "MODEL_LOAD", {"model_name": "gpt-124m", "param_count": 124000000}, logger)
-    print("Logged MODEL_LOAD")
+        print("Logging cycle start...")
+        logger.info("Cycle started", extra={'cycle': cycle_num, 'component': 'orchestrator'})
 
-    update_cycle_log(cycle_number, "TRAINING_START", {"epochs": 1, "batch_size": 4}, logger)
-    print("Logged TRAINING_START")
-
-    # Simulate a training step
-    update_cycle_log(cycle_number, "TRAINING_STEP", {"epoch": 1, "loss": 2.45}, logger)
-    print("Logged TRAINING_STEP")
-
-    # Simulate evaluation
-    update_cycle_log(cycle_number, "EVALUATION", {"GSM8K": 0.12, "ARC": 0.35, "BoolQ": 0.68}, logger)
-    print("Logged EVALUATION")
-
-    # Simulate checkpoint
-    mock_state = {
-        "weights": {"dummy": "state"},
-        "cycle": cycle_number,
-        "param_count": 124000000,
-        "modification": {"type": "layer_add", "magnitude": 1}
-    }
-    checkpoint_path = checkpoint_model_state(cycle_number, mock_state)
-    print(f"Checkpoint saved to: {checkpoint_path}")
-
-    # Log cycle summary
-    summary = {
-        "status": "completed",
-        "duration_seconds": 120.5,
-        "final_loss": 2.15,
-        "improvement": True,
-        "metrics": {
-            "GSM8K": 0.12,
-            "ARC": 0.35,
-            "BoolQ": 0.68
+        print("Logging mock metrics...")
+        metrics = {
+            "gsm8k_accuracy": 0.45,
+            "arc_challenge_accuracy": 0.62,
+            "boolq_ece": 0.15,
+            "training_time_sec": 120.5,
+            "param_count": 125000000
         }
-    }
-    log_cycle_summary(cycle_number, summary, logger)
-    print("Logged CYCLE_SUMMARY")
+        log_cycle_summary(logger, cycle_num, metrics)
 
-    # Simulate an error (optional, for testing error logging)
-    # log_error(cycle_number, "Simulated timeout", "TimeoutError", logger)
+        print("Simulating a warning...")
+        log_warning(logger, cycle_num, "RAM usage approaching limit")
 
-    # Verify log file
-    log_path = os.path.join(project_root, "results", "logs", f"cycle_{cycle_number}.log")
-    if os.path.exists(log_path):
-        print(f"\n✓ Log file created successfully at: {log_path}")
-        history = get_cycle_history(cycle_number)
-        print(f"✓ Total log entries: {len(history)}")
+        print("Simulating a checkpoint...")
+        mock_model = type('MockModel', (), {
+            'state_dict': lambda self: {'dummy': 1.0}
+        })()
+        checkpoint_path = checkpoint_model_state(mock_model, cycle_num)
+        print(f"Checkpoint saved to: {checkpoint_path}")
 
-        # Print first entry as sample
-        if history:
-            print("\nSample log entry:")
-            print(json.dumps(history[0], indent=2))
-    else:
-        print(f"✗ Log file NOT found at: {log_path}")
-        sys.exit(1)
+        print("Retrieving cycle history...")
+        history = get_cycle_history(cycle_num)
+        print(f"Retrieved {len(history)} log entries.")
+        
+        # Verify JSON structure
+        log_file = os.path.join(mock_config.paths.results, "logs", f"cycle_{cycle_num}.log")
+        print(f"\nVerifying log file: {log_file}")
+        with open(log_file, 'r') as f:
+            for i, line in enumerate(f, 1):
+                try:
+                    entry = json.loads(line)
+                    print(f"  Entry {i}: {entry.get('message', 'N/A')}")
+                except json.JSONDecodeError:
+                    print(f"  Entry {i}: INVALID JSON")
 
-    print("\nMock cycle logging demonstration completed successfully.")
+        print("\nT009 Demo completed successfully.")
+        print("Log file created with structured JSON format.")
 
+    finally:
+        # Restore
+        utils.logging.get_config = original_get_config
+        # Cleanup
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        print("Cleaned up temporary directory.")
 
 if __name__ == "__main__":
     main()

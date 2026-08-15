@@ -1,10 +1,9 @@
-T001:
+T005c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings or `__init__.py` files were provided, so we cannot verify\
-    \ that the required folders and initialization files actually exist. The implementer\
-    \ must supply a file\u2011system snapshot or listing showing all specified directories\
-    \ and the presence of `__init__.py` in each."
+  r: "No `pipeline/loader.py` file with a fail\u2011fast wrapper raising `FileNotFoundError`\
+    \ is present, and no unit test asserting that the exception is raised for missing\
+    \ files was provided. The required code change and corresponding test are missing."
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,6 +11,27 @@ T006:
     \ code for loading a GPT checkpoint and performing CPU\u2011compatible weight\
     \ manipulation is missing. The task cannot be considered done without the actual\
     \ implementation artifact."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `config.py` file was presented in the evidence, and therefore there is nothing\
+    \ to load or check for the required hyperparameters, parameter\u2011increase constraint,\
+    \ or path definitions. The implementer must supply a non\u2011empty `config.py`\
+    \ that defines `lr=5e-5`, `bs=4`, a seed, enforces the \u226430\u202F% parameter\u2011\
+    increase limit, and includes the specified path variables, and it must load without\
+    \ error and assert the default values."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `utils/logging.py` file or any generated log file is provided for inspection,
+    so we cannot confirm that a structured JSON log is created after a mock cycle.
+    The required artifact and its functional verification are missing.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `pipeline/evaluator.py` file is present, nor any unit test that mocks datasets
+    and checks accuracy/ECE calculations. The required benchmark runner implementation
+    and its verification test are missing, so the task is not satisfied.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -47,9 +67,3 @@ T019:
   r: "No evidence of a `pipeline/stats.py` file or its contents was provided; thus\
     \ we cannot confirm that the paired bootstrap comparison logic and p\u2011value\
     \ output were implemented. The required artifact is missing."
-T090:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `pipeline/attempt_tracker.py` file or its contents are present, and no unit
-    test verifying that `AttemptLimitExceeded` is raised on the 4th attempt was provided.
-    The required code and test artifacts are missing.

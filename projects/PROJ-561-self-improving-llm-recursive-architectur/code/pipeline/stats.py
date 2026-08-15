@@ -1,7 +1,3 @@
-"""
-Statistical analysis utilities for the self-improving LLM pipeline.
-Implements paired bootstrap testing and exponential decay curve fitting.
-"""
 import numpy as np
 from typing import List, Tuple, Dict, Any, Optional
 from scipy.optimize import curve_fit
@@ -13,285 +9,179 @@ from config import get_config
 def exponential_decay(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
     """
     Exponential decay model: y = a * exp(-b * x) + c
-    
-    Args:
-        x: Independent variable (e.g., cycle number)
-        a: Amplitude of decay
-        b: Decay rate
-        c: Asymptotic value (plateau)
-    
-    Returns:
-        y: Modeled values
     """
     return a * np.exp(-b * x) + c
 
-def fit_exponential_decay(
-    x: np.ndarray,
-    y: np.ndarray,
-    p0: Optional[Tuple[float, float, float]] = None
-) -> Dict[str, Any]:
+def fit_exponential_decay(x: np.ndarray, y: np.ndarray) -> Tuple[float, float, float]:
     """
-    Fit an exponential decay model to data.
-    
-    Args:
-        x: Independent variable array (e.g., cycle numbers)
-        y: Dependent variable array (e.g., performance metrics)
-        p0: Initial guess for parameters (a, b, c). If None, uses defaults.
-    
-    Returns:
-        Dictionary containing:
-            - params: Fitted parameters (a, b, c)
-            - success: Boolean indicating if fitting succeeded
-            - message: Status message
-            - r_squared: Coefficient of determination
+    Fit an exponential decay model to the data.
+    Returns (a, b, c) parameters.
     """
-    if len(x) != len(y):
-        raise ValueError("x and y must have the same length")
-    
     if len(x) < 3:
-        return {
-            "params": None,
-            "success": False,
-            "message": "Insufficient data points for curve fitting (need >= 3)",
-            "r_squared": None
-        }
-    
-    if p0 is None:
-        # Default initial guesses
-        p0 = (y[0] - y[-1], 0.1, y[-1])
+        raise ValueError("Need at least 3 data points to fit exponential decay.")
     
     try:
-        popt, pcov = curve_fit(exponential_decay, x, y, p0=p0, maxfev=5000)
-        
-        # Calculate R-squared
-        y_pred = exponential_decay(x, *popt)
-        ss_res = np.sum((y - y_pred) ** 2)
-        ss_tot = np.sum((y - np.mean(y)) ** 2)
-        r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
-        
-        return {
-            "params": popt.tolist(),
-            "success": True,
-            "message": "Fit successful",
-            "r_squared": float(r_squared)
-        }
-    except Exception as e:
-        return {
-            "params": None,
-            "success": False,
-            "message": f"Fit failed: {str(e)}",
-            "r_squared": None
-        }
+        popt, _ = curve_fit(exponential_decay, x, y, p0=[y[0], 0.1, y[-1]])
+        return float(popt[0]), float(popt[1]), float(popt[2])
+    except RuntimeError:
+        raise RuntimeError("Failed to fit exponential decay model.")
 
-def detect_plateau_or_degradation(
-    trajectory_data: List[Dict[str, Any]],
-    metric_key: str = "GSM8K",
-    degradation_threshold: float = 0.05
-) -> Dict[str, Any]:
+def detect_plateau_or_degradation(params: Tuple[float, float, float], threshold: float = 0.01) -> str:
     """
-    Analyze trajectory data to detect plateau or degradation cycles.
-    
-    Args:
-        trajectory_data: List of trajectory entries from results/trajectory.json
-        metric_key: Key to use for performance metric (default: "GSM8K")
-        degradation_threshold: Relative threshold for degradation (default: 5%)
-    
-    Returns:
-        Dictionary containing:
-            - plateau_cycle: Cycle number where plateau was detected (or None)
-            - degradation_cycle: Cycle number where degradation was detected (or None)
-            - plateau_threshold: The metric value at plateau
-            - degradation_value: The metric value at degradation
+    Detect if the fitted exponential decay has plateaued or is degrading.
+    params: (a, b, c) from exponential decay fit.
+    Returns: 'plateau', 'degradation', or 'improving'.
     """
-    if not trajectory_data:
-        return {
-            "plateau_cycle": None,
-            "degradation_cycle": None,
-            "plateau_threshold": None,
-            "degradation_value": None
-        }
-    
-    cycles = []
-    values = []
-    
-    for entry in trajectory_data:
-        if metric_key in entry:
-            cycles.append(entry.get("cycle_number", len(cycles)))
-            values.append(entry[metric_key])
-    
-    if len(values) < 2:
-        return {
-            "plateau_cycle": None,
-            "degradation_cycle": None,
-            "plateau_threshold": None,
-            "degradation_value": None
-        }
-    
-    # Detect degradation: if current value drops below (1 - threshold) * baseline
-    baseline = values[0]
-    degradation_cycle = None
-    degradation_value = None
-    
-    for i, val in enumerate(values):
-        if val < baseline * (1 - degradation_threshold):
-            degradation_cycle = cycles[i]
-            degradation_value = val
-            break
-    
-    # Detect plateau: fit exponential decay and find where change < 1% of asymptotic value
-    plateau_cycle = None
-    plateau_threshold = None
-    
-    if len(values) >= 3:
-        x_arr = np.array(list(range(len(values))))
-        y_arr = np.array(values)
-        
-        fit_result = fit_exponential_decay(x_arr, y_arr)
-        
-        if fit_result["success"] and fit_result["params"]:
-            a, b, c = fit_result["params"]
-            
-            # Plateau detected when the derivative is small relative to the asymptotic value
-            # dy/dx = -a * b * exp(-b * x)
-            # We consider plateau when |dy/dx| < 0.01 * |c| (1% of asymptotic value)
-            for i, x_val in enumerate(x_arr):
-                derivative = -a * b * np.exp(-b * x_val)
-                if abs(derivative) < 0.01 * abs(c) if c != 0 else 0.001:
-                    plateau_cycle = cycles[i]
-                    plateau_threshold = float(c)
-                    break
-    
-    return {
-        "plateau_cycle": plateau_cycle,
-        "degradation_cycle": degradation_cycle,
-        "plateau_threshold": plateau_threshold,
-        "degradation_value": degradation_value
-    }
+    a, b, c = params
+    if b < threshold:
+        return 'plateau'
+    elif a < 0:
+        return 'degradation'
+    else:
+        return 'improving'
 
 def paired_bootstrap_test(
     baseline_scores: List[float],
-    post_mod_scores: List[float],
+    modified_scores: List[float],
     alpha: float = 0.05,
-    n_iterations: int = 10000,
-    seed: Optional[int] = None
+    resamples: Optional[int] = None
 ) -> Dict[str, Any]:
     """
-    Perform paired bootstrap test to compare two distributions.
-    
-    This test assesses whether the post-modification scores are significantly
-    different from baseline scores using a paired bootstrap approach.
+    Perform a paired bootstrap test to compare baseline and modified scores.
     
     Args:
-        baseline_scores: List of baseline performance scores
-        post_mod_scores: List of post-modification performance scores
-        alpha: Significance level (default: 0.05)
-        n_iterations: Number of bootstrap iterations (default: 10000)
-        seed: Random seed for reproducibility (optional)
+        baseline_scores: List of scores from the baseline model.
+        modified_scores: List of scores from the modified model.
+        alpha: Significance level (default 0.05).
+        resamples: Number of bootstrap resamples (defaults to config value).
     
     Returns:
-        Dictionary containing:
-            - p_value: Calculated p-value
-            - significant: Boolean indicating if difference is significant at alpha
-            - mean_baseline: Mean of baseline scores
-            - mean_post_mod: Mean of post-modification scores
-            - mean_diff: Mean difference (post_mod - baseline)
-            - ci_lower: Lower bound of 95% confidence interval
-            - ci_upper: Upper bound of 95% confidence interval
+        Dictionary containing p-value, confidence interval, and test result.
     """
-    if len(baseline_scores) != len(post_mod_scores):
-        raise ValueError("baseline_scores and post_mod_scores must have the same length")
+    if len(baseline_scores) != len(modified_scores):
+        raise ValueError("Baseline and modified scores must have the same length for paired test.")
     
     if len(baseline_scores) == 0:
-        raise ValueError("Input lists cannot be empty")
+        raise ValueError("Scores lists cannot be empty.")
     
-    if seed is not None:
-        np.random.seed(seed)
+    if resamples is None:
+        config = get_config()
+        resamples = config.hyperparameters.bootstrap_resamples
     
     baseline_arr = np.array(baseline_scores)
-    post_mod_arr = np.array(post_mod_scores)
+    modified_arr = np.array(modified_scores)
     
-    # Calculate observed mean difference
-    mean_diff_obs = np.mean(post_mod_arr - baseline_arr)
+    # Calculate observed difference (modified - baseline)
+    observed_diff = np.mean(modified_arr) - np.mean(baseline_arr)
     
-    # Paired bootstrap: resample pairs with replacement
-    n_pairs = len(baseline_arr)
+    # Bootstrap resampling
+    np.random.seed(42)  # For reproducibility
     bootstrap_diffs = []
+    n = len(baseline_arr)
     
-    for _ in range(n_iterations):
-        indices = np.random.choice(n_pairs, size=n_pairs, replace=True)
-        boot_baseline = baseline_arr[indices]
-        boot_post_mod = post_mod_arr[indices]
-        diff = np.mean(boot_post_mod - boot_baseline)
+    for _ in range(resamples):
+        indices = np.random.choice(n, size=n, replace=True)
+        resampled_baseline = baseline_arr[indices]
+        resampled_modified = modified_arr[indices]
+        diff = np.mean(resampled_modified) - np.mean(resampled_baseline)
         bootstrap_diffs.append(diff)
     
     bootstrap_diffs = np.array(bootstrap_diffs)
     
-    # Calculate p-value (two-tailed test)
-    # p-value = P(|bootstrap_diff| >= |observed_diff|)
-    p_value = np.mean(np.abs(bootstrap_diffs) >= np.abs(mean_diff_obs))
+    # Calculate p-value (two-tailed)
+    p_value = 2 * min(
+        np.mean(bootstrap_diffs >= observed_diff),
+        np.mean(bootstrap_diffs <= observed_diff)
+    )
     
-    # Calculate confidence interval (percentile method)
+    # Calculate 95% confidence interval
     ci_lower = np.percentile(bootstrap_diffs, 100 * alpha / 2)
     ci_upper = np.percentile(bootstrap_diffs, 100 * (1 - alpha / 2))
     
+    # Determine significance
+    is_significant = p_value < alpha
+    
     return {
-        "p_value": float(p_value),
-        "significant": p_value < alpha,
-        "mean_baseline": float(np.mean(baseline_arr)),
-        "mean_post_mod": float(np.mean(post_mod_arr)),
-        "mean_diff": float(mean_diff_obs),
-        "ci_lower": float(ci_lower),
-        "ci_upper": float(ci_upper)
+        'observed_difference': float(observed_diff),
+        'p_value': float(p_value),
+        'ci_lower': float(ci_lower),
+        'ci_upper': float(ci_upper),
+        'is_significant': bool(is_significant),
+        'alpha': float(alpha),
+        'resamples': int(resamples)
     }
 
-def save_decay_fit_results(
-    fit_result: Dict[str, Any],
-    output_path: Optional[str] = None
-) -> str:
+def linear_regression_trend(x: np.ndarray, y: np.ndarray) -> Dict[str, float]:
     """
-    Save exponential decay fit results to a JSON file.
+    Perform linear regression to analyze trend in performance over cycles.
     
     Args:
-        fit_result: Dictionary containing fit results
-        output_path: Path to output file (default: results/decay_analysis.json)
+        x: Independent variable (e.g., cycle numbers).
+        y: Dependent variable (e.g., performance metric).
     
     Returns:
-        Path to the saved file
+        Dictionary containing slope, intercept, r_squared, and trend direction.
     """
-    if output_path is None:
-        config = get_config()
-        output_path = config.get("decay_analysis_path", "results/decay_analysis.json")
+    if len(x) != len(y) or len(x) < 2:
+        raise ValueError("Need at least 2 data points for linear regression.")
     
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    n = len(x)
+    x_mean = np.mean(x)
+    y_mean = np.mean(y)
     
-    with open(output_path, 'w') as f:
-        json.dump(fit_result, f, indent=2)
+    # Calculate slope and intercept
+    numerator = np.sum((x - x_mean) * (y - y_mean))
+    denominator = np.sum((x - x_mean) ** 2)
     
-    return output_path
+    if denominator == 0:
+        raise ValueError("Cannot compute regression: x values are constant.")
+    
+    slope = numerator / denominator
+    intercept = y_mean - slope * x_mean
+    
+    # Calculate R-squared
+    y_pred = slope * x + intercept
+    ss_res = np.sum((y - y_pred) ** 2)
+    ss_tot = np.sum((y - y_mean) ** 2)
+    
+    if ss_tot == 0:
+        r_squared = 0.0
+    else:
+        r_squared = 1 - (ss_res / ss_tot)
+    
+    # Determine trend direction
+    if slope > 0.001:
+        trend_direction = 'improving'
+    elif slope < -0.001:
+        trend_direction = 'declining'
+    else:
+        trend_direction = 'flat'
+    
+    return {
+        'slope': float(slope),
+        'intercept': float(intercept),
+        'r_squared': float(r_squared),
+        'trend_direction': trend_direction
+    }
 
-def save_bootstrap_results(
-    bootstrap_result: Dict[str, Any],
-    output_path: Optional[str] = None
-) -> str:
+def save_bootstrap_results(results: Dict[str, Any], filepath: str) -> None:
     """
     Save bootstrap test results to a JSON file.
-    
-    Args:
-        bootstrap_result: Dictionary containing bootstrap results
-        output_path: Path to output file (default: results/bootstrap_analysis.json)
-    
-    Returns:
-        Path to the saved file
     """
-    if output_path is None:
-        config = get_config()
-        output_path = config.get("bootstrap_analysis_path", "results/bootstrap_analysis.json")
-    
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(bootstrap_result, f, indent=2)
-    
-    return output_path
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, 'w') as f:
+        json.dump(results, f, indent=2)
+
+def save_decay_fit_results(params: Tuple[float, float, float], trend: str, filepath: str) -> None:
+    """
+    Save exponential decay fit results to a JSON file.
+    """
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    data = {
+        'a': params[0],
+        'b': params[1],
+        'c': params[2],
+        'trend': trend
+    }
+    with open(filepath, 'w') as f:
+        json.dump(data, f, indent=2)

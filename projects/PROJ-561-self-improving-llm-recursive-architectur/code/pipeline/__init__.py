@@ -1,1 +1,1 @@
-# Pipeline package initialization
+# Pipeline package

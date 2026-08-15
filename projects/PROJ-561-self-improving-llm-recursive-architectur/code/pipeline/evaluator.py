@@ -1,6 +1,8 @@
 """
-Evaluator module for running benchmarks: GSM8K, ARC-Challenge, and BoolQ.
-Implements accuracy calculation and Expected Calibration Error (ECE).
+Evaluator module for benchmarking model performance on GSM8K, ARC-Challenge, and BoolQ.
+
+This module implements the benchmark runner and evaluation logic as specified in T010.
+It includes functions to load datasets, compute accuracy/ECE metrics, and run all benchmarks.
 """
 import torch
 import torch.nn as nn
@@ -8,115 +10,191 @@ import torch.nn.functional as F
 from typing import Dict, Any, List, Tuple, Optional
 from datasets import load_dataset
 import numpy as np
-from pipeline.loader import with_exponential_backoff, HFTransientError
-from config import get_config
+import re
+from tqdm import tqdm
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class VerificationGate:
     """
-    A simple gate to ensure evaluation logic is separated from generative logic.
-    This class provides a fixed interface for evaluation that cannot be
-    modified by the generative model's proposals.
+    A verification gate that ensures evaluation logic remains immutable.
+    This addresses the "Fixed-Point Problem" by preventing modification of benchmark criteria.
     """
-    def __init__(self):
-        self.benchmarks = ["gsm8k", "arc_challenge", "boolq"]
     
-    def verify_input(self, data: Any) -> bool:
-        """Verify that input data is valid for evaluation."""
-        if data is None:
-            return False
+    def __init__(self):
+        self._benchmark_names = frozenset(['GSM8K', 'ARC_Challenge', 'BoolQ'])
+        self._is_immutable = True
+    
+    def get_benchmark_names(self) -> Tuple[str, ...]:
+        """Return the immutable list of benchmark names."""
+        return tuple(self._benchmark_names)
+    
+    def validate_benchmark(self, name: str) -> bool:
+        """Validate that a benchmark name is in the allowed set."""
+        if name not in self._benchmark_names:
+            raise ValueError(f"Unknown benchmark: {name}. Allowed: {self._benchmark_names}")
         return True
 
-@with_exponential_backoff
-def load_gsm8k_dataset() -> Any:
-    """Load GSM8K dataset with retry logic."""
-    return load_dataset("gsm8k", "main", split="test")
+# Global verification gate instance
+_verification_gate = VerificationGate()
 
-@with_exponential_backoff
-def load_arc_challenge_dataset() -> Any:
-    """Load ARC-Challenge dataset with retry logic."""
-    return load_dataset("allenai/ai2_arc", "ARC-Challenge", split="test")
+def load_gsm8k_dataset(split: str = "test", streaming: bool = False) -> Any:
+    """
+    Load the GSM8K dataset (grade school math word problems).
+    
+    Args:
+        split: Dataset split to load (default: "test")
+        streaming: If True, stream the dataset instead of loading into memory
+    
+    Returns:
+        Dataset object from HuggingFace datasets
+    """
+    try:
+        dataset = load_dataset(
+            "gsm8k",
+            "main",
+            split=split,
+            streaming=streaming
+        )
+        logger.info(f"Loaded GSM8K dataset ({split}) with {len(dataset) if not streaming else 'streaming'} examples")
+        return dataset
+    except Exception as e:
+        logger.error(f"Failed to load GSM8K dataset: {e}")
+        raise
 
-@with_exponential_backoff
-def load_boolq_dataset() -> Any:
-    """Load BoolQ dataset with retry logic."""
-    return load_dataset("boolq", split="validation")
+def load_arc_challenge_dataset(split: str = "test", streaming: bool = False) -> Any:
+    """
+    Load the ARC-Challenge dataset (science questions).
+    
+    Args:
+        split: Dataset split to load (default: "test")
+        streaming: If True, stream the dataset instead of loading into memory
+    
+    Returns:
+        Dataset object from HuggingFace datasets
+    """
+    try:
+        dataset = load_dataset(
+            "allenai/ai2_arc",
+            "ARC-Challenge",
+            split=split,
+            streaming=streaming
+        )
+        logger.info(f"Loaded ARC-Challenge dataset ({split}) with {len(dataset) if not streaming else 'streaming'} examples")
+        return dataset
+    except Exception as e:
+        logger.error(f"Failed to load ARC-Challenge dataset: {e}")
+        raise
 
-def compute_gsm8k_accuracy(model: nn.Module, tokenizer: Any, dataset: Any, max_length: int = 512) -> float:
+def load_boolq_dataset(split: str = "validation", streaming: bool = False) -> Any:
+    """
+    Load the BoolQ dataset (Boolean questions).
+    
+    Args:
+        split: Dataset split to load (default: "validation")
+        streaming: If True, stream the dataset instead of loading into memory
+    
+    Returns:
+        Dataset object from HuggingFace datasets
+    """
+    try:
+        dataset = load_dataset(
+            "boolq",
+            split=split,
+            streaming=streaming
+        )
+        logger.info(f"Loaded BoolQ dataset ({split}) with {len(dataset) if not streaming else 'streaming'} examples")
+        return dataset
+    except Exception as e:
+        logger.error(f"Failed to load BoolQ dataset: {e}")
+        raise
+
+def compute_gsm8k_accuracy(model: nn.Module, tokenizer, dataset: Any, max_examples: Optional[int] = None) -> float:
     """
     Compute accuracy on GSM8K dataset.
     
+    The model generates answers to math word problems. Accuracy is computed
+    by checking if the generated answer matches the ground truth.
+    
     Args:
         model: The model to evaluate
-        tokenizer: The tokenizer for the model
-        dataset: The GSM8K dataset
-        max_length: Maximum sequence length
-        
+        tokenizer: Tokenizer for the model
+        dataset: GSM8K dataset
+        max_examples: Maximum number of examples to evaluate (None for all)
+    
     Returns:
-        float: Accuracy score
+        Accuracy as a float between 0 and 1
     """
-    if not hasattr(model, 'eval'):
-        raise ValueError("Model must have an eval() method")
-        
     model.eval()
     correct = 0
     total = 0
     
     device = next(model.parameters()).device
     
-    with torch.no_grad():
-        for example in dataset:
-            question = example['question']
-            answer = example['answer']
-            
-            # Extract the final answer from the solution
-            # GSM8K answers are typically in the format "#### 123"
-            if "####" in answer:
-                ground_truth = answer.split("####")[-1].strip()
-            else:
-                ground_truth = answer.strip()
-            
-            # Create input prompt
-            prompt = f"Question: {question}\nAnswer:"
-            inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=max_length).to(device)
-            
-            # Generate response
+    def extract_answer(text: str) -> Optional[str]:
+        """Extract the final answer from model output."""
+        # Look for the last occurrence of "####" followed by a number
+        match = re.search(r'####\s*([0-9,\.]+)', text)
+        if match:
+            return match.group(1).replace(',', '')
+        # Fallback: look for the last number in the text
+        numbers = re.findall(r'[-+]?\d*\.?\d+', text)
+        if numbers:
+            return numbers[-1]
+        return None
+    
+    examples = list(dataset) if not hasattr(dataset, '__iter__') else dataset
+    if max_examples:
+        examples = examples[:max_examples]
+    
+    for example in tqdm(examples, desc="Evaluating GSM8K"):
+        question = example['question']
+        answer = example['answer']
+        
+        # Extract ground truth answer
+        gt_answer = extract_answer(answer)
+        if gt_answer is None:
+            continue
+        
+        # Prepare input
+        prompt = f"Question: {question}\nAnswer: "
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).to(device)
+        
+        with torch.no_grad():
             outputs = model.generate(
                 **inputs,
-                max_new_tokens=50,
-                temperature=0.0,  # Greedy decoding for evaluation
-                do_sample=False
+                max_new_tokens=100,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id
             )
-            
-            # Decode response
-            response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-            # Extract the generated answer part
-            generated_answer = response.replace(prompt, "").strip()
-            
-            # Simple string matching for evaluation
-            # In a real scenario, we might use more sophisticated extraction
-            if ground_truth in generated_answer:
-                correct += 1
-            
-            total += 1
-            
-            # Early exit for testing if dataset is too large
-            if total >= 100:  # Limit for practical evaluation
-                break
+        
+        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        pred_answer = extract_answer(generated_text)
+        
+        if pred_answer is not None and pred_answer == gt_answer:
+            correct += 1
+        total += 1
     
     return correct / total if total > 0 else 0.0
 
-def compute_arc_challenge_accuracy(model: nn.Module, tokenizer: Any, dataset: Any, max_length: int = 512) -> float:
+def compute_arc_challenge_accuracy(model: nn.Module, tokenizer, dataset: Any, max_examples: Optional[int] = None) -> float:
     """
     Compute accuracy on ARC-Challenge dataset.
     
+    The model must select the correct answer from multiple choices.
+    Accuracy is computed by comparing the model's choice with the ground truth.
+    
     Args:
         model: The model to evaluate
-        tokenizer: The tokenizer for the model
-        dataset: The ARC-Challenge dataset
-        max_length: Maximum sequence length
-        
+        tokenizer: Tokenizer for the model
+        dataset: ARC-Challenge dataset
+        max_examples: Maximum number of examples to evaluate (None for all)
+    
     Returns:
-        float: Accuracy score
+        Accuracy as a float between 0 and 1
     """
     model.eval()
     correct = 0
@@ -124,116 +202,108 @@ def compute_arc_challenge_accuracy(model: nn.Module, tokenizer: Any, dataset: An
     
     device = next(model.parameters()).device
     
-    with torch.no_grad():
-        for example in dataset:
-            question = example['question']
-            choices = example['choices']
-            answer_key = example['answerKey']
-            
-            # Create prompt with choices
-            prompt = f"Question: {question}\n"
-            for i, choice in enumerate(choices['text']):
-                prompt += f"{choices['label'][i]}. {choice}\n"
-            prompt += "Answer:"
-            
-            inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=max_length).to(device)
-            
-            # Calculate log probabilities for each option
-            option_labels = choices['label']
-            option_texts = choices['text']
-            
-            log_probs = []
-            for label, text in zip(option_labels, option_texts):
-                option_prompt = prompt + " " + text
-                option_inputs = tokenizer(option_prompt, return_tensors="pt", truncation=True, max_length=max_length).to(device)
-                
-                outputs = model(**option_inputs)
-                logits = outputs.logits
-                
-                # Get log probability of the option text
-                shift_logits = logits[:, :-1, :].contiguous()
-                shift_labels = option_inputs['input_ids'][:, 1:].contiguous()
-                
-                # Calculate loss for the option text
-                loss_fct = nn.CrossEntropyLoss()
-                loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
-                log_probs.append(-loss.item())
-            
-            # Select the option with highest log probability
-            best_idx = np.argmax(log_probs)
-            predicted_label = option_labels[best_idx]
-            
-            if predicted_label == answer_key:
-                correct += 1
-            
-            total += 1
-            
-            # Early exit for testing
-            if total >= 100:
-                break
+    examples = list(dataset) if not hasattr(dataset, '__iter__') else dataset
+    if max_examples:
+        examples = examples[:max_examples]
+    
+    for example in tqdm(examples, desc="Evaluating ARC-Challenge"):
+        question = example['question']
+        choices = example['choices']
+        answer_key = example['answerKey']
+        
+        # Format choices
+        choice_text = "\n".join([f"{label}. {text}" for label, text in zip(choices['label'], choices['text'])])
+        prompt = f"Question: {question}\nChoices:\n{choice_text}\nAnswer:"
+        
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).to(device)
+        
+        with torch.no_grad():
+            outputs = model(**inputs)
+            logits = outputs.logits
+            last_token_logits = logits[0, -1, :]
+        
+        # Get the token ID for each choice label
+        choice_logits = []
+        for label in choices['label']:
+            token_ids = tokenizer.encode(label, add_special_tokens=False)
+            if len(token_ids) == 1:
+                choice_logits.append(last_token_logits[token_ids[0]].item())
+            else:
+                # If multiple tokens, average the logits
+                avg_logit = torch.mean(last_token_logits[token_ids]).item()
+                choice_logits.append(avg_logit)
+        
+        predicted_label = choices['label'][np.argmax(choice_logits)]
+        
+        if predicted_label == answer_key:
+            correct += 1
+        total += 1
     
     return correct / total if total > 0 else 0.0
 
-def compute_boolq_ece(model: nn.Module, tokenizer: Any, dataset: Any, max_length: int = 512, n_bins: int = 10) -> float:
+def compute_boolq_ece(model: nn.Module, tokenizer, dataset: Any, max_examples: Optional[int] = None, n_bins: int = 10) -> float:
     """
     Compute Expected Calibration Error (ECE) on BoolQ dataset.
     
+    ECE measures the calibration of the model's confidence predictions.
+    A lower ECE indicates better calibration.
+    
     Args:
         model: The model to evaluate
-        tokenizer: The tokenizer for the model
-        dataset: The BoolQ dataset
-        max_length: Maximum sequence length
+        tokenizer: Tokenizer for the model
+        dataset: BoolQ dataset
+        max_examples: Maximum number of examples to evaluate (None for all)
         n_bins: Number of bins for ECE calculation
-        
+    
     Returns:
-        float: ECE score
+        ECE as a float between 0 and 1
     """
     model.eval()
+    
     device = next(model.parameters()).device
+    
+    examples = list(dataset) if not hasattr(dataset, '__iter__') else dataset
+    if max_examples:
+        examples = examples[:max_examples]
     
     confidences = []
     accuracies = []
     
-    with torch.no_grad():
-        for example in dataset:
-            question = example['question']
-            answer = example['answer']  # True or False
-            
-            # Create prompt for yes/no question
-            prompt = f"Question: {question}\nAnswer:"
-            inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=max_length).to(device)
-            
-            # Get logits for "Yes" and "No"
-            yes_token = tokenizer(" Yes", add_special_tokens=False).input_ids[-1]
-            no_token = tokenizer(" No", add_special_tokens=False).input_ids[-1]
-            
+    for example in tqdm(examples, desc="Evaluating BoolQ ECE"):
+        question = example['question']
+        answer = example['answer']
+        
+        prompt = f"Passage: {question}\nQuestion: Is this true? Answer:"
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512).to(device)
+        
+        with torch.no_grad():
             outputs = model(**inputs)
-            logits = outputs.logits[0, -1, :]  # Last token logits
-            
-            yes_logit = logits[yes_token].item()
-            no_logit = logits[no_token].item()
-            
-            # Convert to probabilities
-            max_logit = max(yes_logit, no_logit)
-            exp_yes = np.exp(yes_logit - max_logit)
-            exp_no = np.exp(no_logit - max_logit)
-            prob_yes = exp_yes / (exp_yes + exp_no)
-            prob_no = exp_no / (exp_yes + exp_no)
-            
-            # Determine confidence and accuracy
-            if answer:
-                confidence = prob_yes
-                correct = 1 if prob_yes > 0.5 else 0
-            else:
-                confidence = prob_no
-                correct = 1 if prob_no > 0.5 else 0
-            
-            confidences.append(confidence)
-            accuracies.append(correct)
-            
-            # Early exit for testing
-            if len(confidences) >= 100:
-                break
+            logits = outputs.logits
+            last_token_logits = logits[0, -1, :]
+        
+        # Get probabilities for True/False
+        true_token_ids = tokenizer.encode("True", add_special_tokens=False)
+        false_token_ids = tokenizer.encode("False", add_special_tokens=False)
+        
+        # Use the first token of each answer
+        true_prob = F.softmax(last_token_logits[true_token_ids[0]], dim=0).item()
+        false_prob = F.softmax(last_token_logits[false_token_ids[0]], dim=0).item()
+        
+        # Normalize
+        total_prob = true_prob + false_prob
+        true_prob /= total_prob
+        false_prob /= total_prob
+        
+        # Model's prediction and confidence
+        if true_prob > false_prob:
+            pred = True
+            confidence = true_prob
+        else:
+            pred = False
+            confidence = false_prob
+        
+        confidences.append(confidence)
+        accuracies.append(1.0 if pred == answer else 0.0)
     
     # Calculate ECE
     confidences = np.array(confidences)
@@ -246,7 +316,6 @@ def compute_boolq_ece(model: nn.Module, tokenizer: Any, dataset: Any, max_length
         bin_lower = bin_boundaries[i]
         bin_upper = bin_boundaries[i + 1]
         
-        # Find samples in this bin
         in_bin = (confidences > bin_lower) & (confidences <= bin_upper)
         prop_in_bin = in_bin.sum() / len(confidences)
         
@@ -257,40 +326,51 @@ def compute_boolq_ece(model: nn.Module, tokenizer: Any, dataset: Any, max_length
     
     return ece
 
-def run_all_benchmarks(model: nn.Module, tokenizer: Any) -> Dict[str, float]:
+def run_all_benchmarks(
+    model: nn.Module,
+    tokenizer,
+    gsm8k_max: Optional[int] = None,
+    arc_max: Optional[int] = None,
+    boolq_max: Optional[int] = None
+) -> Dict[str, float]:
     """
-    Run all benchmarks and return results.
+    Run all benchmarks (GSM8K, ARC-Challenge, BoolQ) and return metrics.
     
     Args:
         model: The model to evaluate
-        tokenizer: The tokenizer for the model
-        
+        tokenizer: Tokenizer for the model
+        gsm8k_max: Maximum examples for GSM8K (None for all)
+        arc_max: Maximum examples for ARC-Challenge (None for all)
+        boolq_max: Maximum examples for BoolQ (None for all)
+    
     Returns:
-        Dict[str, float]: Dictionary of benchmark results
+        Dictionary with keys: 'GSM8K_accuracy', 'ARC_Challenge_accuracy', 'BoolQ_ECE'
     """
-    config = get_config()
-    results = {}
+    logger.info("Starting benchmark evaluation...")
     
     # Load datasets
-    try:
-        gsm8k_data = load_gsm8k_dataset()
-        results['GSM8K'] = compute_gsm8k_accuracy(model, tokenizer, gsm8k_data)
-    except Exception as e:
-        results['GSM8K'] = 0.0
-        print(f"Warning: Failed to load GSM8K: {e}")
+    logger.info("Loading datasets...")
+    gsm8k_dataset = load_gsm8k_dataset()
+    arc_dataset = load_arc_challenge_dataset()
+    boolq_dataset = load_boolq_dataset()
     
-    try:
-        arc_data = load_arc_challenge_dataset()
-        results['ARC'] = compute_arc_challenge_accuracy(model, tokenizer, arc_data)
-    except Exception as e:
-        results['ARC'] = 0.0
-        print(f"Warning: Failed to load ARC-Challenge: {e}")
+    # Run evaluations
+    results = {}
     
-    try:
-        boolq_data = load_boolq_dataset()
-        results['BoolQ'] = compute_boolq_ece(model, tokenizer, boolq_data)
-    except Exception as e:
-        results['BoolQ'] = 0.0
-        print(f"Warning: Failed to load BoolQ: {e}")
+    logger.info("Computing GSM8K accuracy...")
+    gsm8k_acc = compute_gsm8k_accuracy(model, tokenizer, gsm8k_dataset, max_examples=gsm8k_max)
+    results['GSM8K_accuracy'] = gsm8k_acc
+    logger.info(f"GSM8K Accuracy: {gsm8k_acc:.4f}")
     
+    logger.info("Computing ARC-Challenge accuracy...")
+    arc_acc = compute_arc_challenge_accuracy(model, tokenizer, arc_dataset, max_examples=arc_max)
+    results['ARC_Challenge_accuracy'] = arc_acc
+    logger.info(f"ARC-Challenge Accuracy: {arc_acc:.4f}")
+    
+    logger.info("Computing BoolQ ECE...")
+    boolq_ece = compute_boolq_ece(model, tokenizer, boolq_dataset, max_examples=boolq_max)
+    results['BoolQ_ECE'] = boolq_ece
+    logger.info(f"BoolQ ECE: {boolq_ece:.4f}")
+    
+    logger.info("Benchmark evaluation complete.")
     return results

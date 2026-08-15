@@ -111,7 +111,7 @@ results/
 2.  **Step 3.1: Parameter Constraint Check** (FR-019, FR-003): Validate proposed change does not exceed a moderate parameter increase. Reject if violated.
 3.  **Step 3.2: Distinctness Validation** (FR-020, FR-002): Compare proposal against history. Ensure Hamming distance >= 1 or >5% parameter change. Reject if not distinct.
 4.  **Step 3.3: External Oracle Check** (FR-021): Validate proposal against fixed heuristics (e.g., parameter efficiency).
-5. **Step 3.4: Training** (FR-004): Train for 1 epoch. **Fallback**: If estimated time > 2h, reduce training subset to [deferred] samples.
+5. **Step 3.4: Training** (FR-004): Train for epoch. **Fallback**: If estimated time > 2h, reduce training subset to [deferred] samples.
 6.  **Step 3.5: FLOPs Calculation** (FR-008): Use `torch.profiler` to record FLOPs with appropriate precision.
 7.  **Step 3.6: Evaluation** (FR-005): Evaluate on GSMK, ARC, and BoolQ
 

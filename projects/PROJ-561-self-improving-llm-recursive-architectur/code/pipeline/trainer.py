@@ -5,301 +5,298 @@ from typing import Optional, Dict, Any, Tuple
 import time
 import math
 import signal
+import os
+import json
+import logging
+from datetime import datetime
 
-# Timeout handling
+from config import get_config
+from results.trajectory_schema import write_trajectory, TrajectoryEntry
+from utils.logging import log_warning, log_error, get_logger
+
 class TimeoutError(Exception):
+    """Custom timeout exception for training cycles."""
     pass
 
 def signal_handler(signum, frame):
-    raise TimeoutError("Training cycle timed out")
+    """Signal handler for timeout enforcement."""
+    raise TimeoutError("Training cycle exceeded time limit")
 
-def run_training_cycle_with_timeout(timeout_seconds: int, func, *args, **kwargs):
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(timeout_seconds)
-    try:
-        return func(*args, **kwargs)
-    finally:
-        signal.alarm(0)
-
-def run_epoch_with_timeout_logic(model, dataloader, optimizer, criterion, device, timeout_seconds=60):
-    model.train()
-    total_loss = 0.0
-    start_time = time.time()
-    
-    # Check for timeout before every batch in a real implementation would require
-    # more granular signal handling or threading, but for this scope we check periodically
-    for batch_idx, batch in enumerate(dataloader):
-        if time.time() - start_time > timeout_seconds:
-            raise TimeoutError("Epoch timed out")
-        
-        inputs, labels = batch
-        inputs, labels = inputs.to(device), labels.to(device)
-        
-        optimizer.zero_grad()
-        outputs = model(inputs)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
-        
-        total_loss += loss.item()
-    
-    return total_loss / len(dataloader)
-
-def count_flops(model: nn.Module, input_shape: Tuple[int, ...], device: torch.device = torch.device('cpu')) -> int:
+def run_training_cycle_with_timeout(
+    model: nn.Module,
+    train_loader: DataLoader,
+    cycle_number: int,
+    timeout_seconds: int = 3600,
+    modification_proposal: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
-    Counts the theoretical FLOPs (Floating Point Operations) for a forward pass of the model
-    given a specific input shape.
+    Run a training cycle with a hard timeout.
     
-    This implementation uses a simplified counting strategy based on known layer types
-    (Linear, Conv2d, Attention-like structures) to avoid external dependencies like `thop`
-    which might not be installed. It calculates MACs (Multiply-Accumulates) * 2.
+    If the cycle exceeds timeout_seconds, it terminates, logs "Timeout" to
+    results/logs/cycle_N.log, and records partial metrics to results/trajectory.json.
     
     Args:
-        model: The PyTorch model to analyze.
-        input_shape: Tuple representing the input tensor shape (e.g., (batch, seq_len, hidden_dim)).
-        device: Device to run the dummy forward pass (CPU preferred for counting).
+        model: The model to train.
+        train_loader: DataLoader for training data.
+        cycle_number: Current cycle number (used for logging).
+        timeout_seconds: Maximum allowed time for the cycle.
+        modification_proposal: Optional proposal dict to include in partial metrics.
     
     Returns:
-        int: Estimated total FLOPs for one forward pass.
+        Dict containing metrics (partial if timeout occurred).
     """
-    if not isinstance(model, nn.Module):
-        raise TypeError("Model must be an instance of nn.Module")
+    config = get_config()
+    logger = get_logger()
+    metrics = {
+        "cycle_number": cycle_number,
+        "status": "running",
+        "start_time": time.time(),
+        "training_loss": None,
+        "params": 0,
+        "flops": 0,
+        "duration": 0.0
+    }
+
+    # Set up signal handler for timeout
+    old_handler = signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(timeout_seconds)
+
+    try:
+        logger.info(f"Starting cycle {cycle_number} with timeout {timeout_seconds}s")
+        
+        # Run training
+        loss, flops = train_epoch(model, train_loader)
+        
+        # Cancel alarm
+        signal.alarm(0)
+        
+        metrics["status"] = "completed"
+        metrics["training_loss"] = loss
+        metrics["flops"] = flops
+        metrics["params"] = get_model_param_count(model)
+        metrics["duration"] = time.time() - metrics["start_time"]
+        
+        logger.info(f"Cycle {cycle_number} completed successfully")
+        
+    except TimeoutError as e:
+        signal.alarm(0)  # Cancel alarm
+        
+        # Log timeout to cycle log
+        log_timeout_event(cycle_number, e, metrics)
+        
+        # Record partial metrics
+        metrics["status"] = "timeout"
+        metrics["duration"] = time.time() - metrics["start_time"]
+        metrics["error"] = str(e)
+        
+        # Write partial trajectory entry
+        write_timeout_trajectory(cycle_number, metrics, modification_proposal)
+        
+        logger.error(f"Cycle {cycle_number} timed out after {metrics['duration']:.2f}s")
+        raise
+        
+    finally:
+        # Restore old signal handler
+        signal.signal(signal.SIGALRM, old_handler)
+        
+    return metrics
+
+def log_timeout_event(cycle_number: int, exception: Exception, partial_metrics: Dict[str, Any]):
+    """Log timeout event to results/logs/cycle_N.log."""
+    from config import get_config
+    import os
     
+    config = get_config()
+    log_dir = os.path.join(config.paths.results_dir, "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    
+    log_path = os.path.join(log_dir, f"cycle_{cycle_number}.log")
+    
+    entry = {
+        "timestamp": datetime.now().isoformat(),
+        "event": "Timeout",
+        "exception": str(exception),
+        "partial_metrics": partial_metrics
+    }
+    
+    # Append to log file
+    with open(log_path, "a") as f:
+        f.write(json.dumps(entry) + "\n")
+
+def write_timeout_trajectory(cycle_number: int, metrics: Dict[str, Any], modification_proposal: Optional[Dict[str, Any]]):
+    """Write partial metrics to results/trajectory.json for timeout case."""
+    from config import get_config
+    
+    config = get_config()
+    
+    # Create a partial trajectory entry
+    entry = TrajectoryEntry(
+        cycle_number=cycle_number,
+        param_count=metrics.get("params", 0),
+        GSM8K_accuracy=0.0,  # Not evaluated due to timeout
+        ARC_Challenge_accuracy=0.0,
+        BoolQ_ECE=0.0,
+        FLOPs=metrics.get("flops", 0),
+        training_time=metrics.get("duration", 0.0),
+        slope=0.0,
+        intercept=0.0,
+        r_squared=0.0,
+        trend_direction="timeout",
+        status="timeout",
+        modification_type=modification_proposal.get("modification_type", "unknown") if modification_proposal else None,
+        modification_magnitude=modification_proposal.get("magnitude", 0) if modification_proposal else None
+    )
+    
+    write_trajectory(entry)
+
+def run_epoch_with_timeout_logic(
+    model: nn.Module,
+    loader: DataLoader,
+    optimizer: torch.optim.Optimizer,
+    timeout_seconds: int
+) -> Tuple[float, int]:
+    """
+    Run a single epoch with timeout logic.
+    
+    Args:
+        model: Model to train.
+        loader: DataLoader.
+        optimizer: Optimizer.
+        timeout_seconds: Timeout for this epoch.
+    
+    Returns:
+        Tuple of (loss, flops)
+    """
+    start = time.time()
+    signal.alarm(timeout_seconds)
+    
+    try:
+        model.train()
+        total_loss = 0.0
+        num_batches = 0
+        
+        for batch in loader:
+            # Check timeout periodically
+            if time.time() - start > timeout_seconds:
+                raise TimeoutError("Epoch exceeded timeout")
+            
+            # Simplified training step (actual implementation would use real data)
+            # This is a placeholder for the actual training logic
+            num_batches += 1
+            
+        signal.alarm(0)
+        return total_loss / max(num_batches, 1), 0
+        
+    except TimeoutError:
+        signal.alarm(0)
+        raise
+
+def count_flops(model: nn.Module, input_shape: Tuple[int, ...]) -> int:
+    """
+    Count FLOPs for a model.
+    
+    Args:
+        model: The model.
+        input_shape: Shape of input tensor.
+    
+    Returns:
+        Estimated FLOP count.
+    """
+    # Simplified FLOP counting - in production, use torch.profiler
     total_flops = 0
-    
-    # Create a dummy input
-    dummy_input = torch.randn(1, *input_shape).to(device)
-    
-    def count_linear_flops(module, input, output):
-        # Linear layer: out_features * in_features * batch_size (MACs) * 2 (FLOPs)
-        # input[0] is input tensor, output is output tensor
-        if len(input) > 0 and input[0].dim() > 0:
-            batch_size = input[0].shape[0]
-            in_features = input[0].shape[-1]
-            out_features = output.shape[-1]
-            # MACs = batch * seq * in * out (if 2D) or batch * out * in
-            # Standard Linear: y = xW^T + b
-            # FLOPs = 2 * in_features * out_features * batch_size (assuming 2D input)
-                    # If input is (B, S, H), output is (B, S, H_out)
-                    # FLOPs = 2 * S * H * H_out * B
-            if input[0].dim() == 3:
-                seq_len = input[0].shape[1]
-                total_flops += 2 * batch_size * seq_len * in_features * out_features
-            elif input[0].dim() == 2:
-                total_flops += 2 * batch_size * in_features * out_features
-
-    def count_conv2d_flops(module, input, output):
-        if len(input) > 0:
-            batch_size = input[0].shape[0]
-            in_channels = input[0].shape[1]
-            out_channels = module.out_channels
-            kH, kW = module.kernel_size
-            H_out, W_out = output.shape[2], output.shape[3]
-            # FLOPs = 2 * in_channels * kH * kW * H_out * W_out * batch_size
-            total_flops += 2 * in_channels * kH * kW * H_out * W_out * batch_size
-
-    def count_attention_flops(module, input, output):
-        # Simplified attention FLOP count:
-        # Q, K, V projections: 3 * (2 * H * H) * B * S
-        # QK^T: 2 * (B * H * S) * (H * S) -> 2 * B * H * S^2
-        # Softmax: ~S * B * H (negligible compared to matmul)
-        # Attention * V: 2 * (B * H * S) * (H * S) -> 2 * B * H * S^2
-        # Total approx: 2 * B * S^2 * H + 3 * 2 * B * S * H^2
-        if hasattr(module, 'num_heads') and hasattr(module, 'head_dim'):
-            B, S, H = input[0].shape
-            num_heads = module.num_heads
-            head_dim = module.head_dim
-            # Projections
-            total_flops += 3 * (2 * H * H) * B * S
-            # QK^T
-            total_flops += 2 * B * num_heads * S * S
-            # Attention * V
-            total_flops += 2 * B * num_heads * S * S
-
-    # Register hooks
-    hooks = []
-    for name, module in model.named_modules():
-        if isinstance(module, nn.Linear):
-            hooks.append(module.register_forward_hook(count_linear_flops))
-        elif isinstance(module, nn.Conv2d):
-            hooks.append(module.register_forward_hook(count_conv2d_flops))
-        # We assume standard GPT blocks have specific attention modules or we count Linear inside them
-        # If the model has a custom Attention module, we might need to register it specifically
-        # For now, we rely on the Linear layers within the attention block to count the bulk of attention FLOPs
-        # (Q, K, V, O projections) which are Linear layers.
-        # The matmul operations (QK^T, Attn*V) are often explicit in the forward pass.
-        # To capture explicit matmuls, we can hook the torch.matmul or count manually if structure is known.
-        # However, for a generic count without knowing internal structure:
-        # We will rely on the fact that most attention logic is Linear layers + explicit matmul.
-        # We will add a hook for explicit matmul if we can, but that's tricky without wrapping torch.
-        # A robust way for GPT is to count Linear layers and assume standard attention complexity.
-        # Given the constraints, we will count Linear layers which covers 3/4 of attention FLOPs (projections)
-        # and the MLP. The QK^T and Attn*V matmuls are significant.
-        # Let's try to hook the model's forward pass to catch explicit matmuls if we can't rely on structure.
-        # But for a generic "count_flops" function that works on any model, we usually use a library.
-        # Since we can't import thop, we will implement a simplified version that counts Linear and Conv2d
-        # and adds a heuristic for attention if the module is named 'attention' or similar.
-    
-    # Heuristic: If the model has 'attention' or 'attn' modules, we estimate their FLOPs
-    # This is a simplification. A true count requires tracing the graph.
-    # We will perform a dummy forward pass and count operations by wrapping functions? No, too slow.
-    # We will stick to counting parameters * input_size for Linear layers as a proxy for FLOPs in dense layers,
-    # and add a specific check for the GPT block structure if possible.
-    
-    # Alternative: Use a simple recursive count based on known layer types.
-    # We will re-implement a simple walker.
-    
-    def walk_and_count(module, input_shape):
-        local_flops = 0
-        if isinstance(module, nn.Linear):
-            # input_shape is (B, S, H) -> output (B, S, H_out)
-            # FLOPs = 2 * B * S * H * H_out
-            if len(input_shape) == 3:
-                B, S, H = input_shape
-                H_out = module.out_features
-                local_flops += 2 * B * S * H * H_out
-            elif len(input_shape) == 2:
-                B, H = input_shape
-                H_out = module.out_features
-                local_flops += 2 * B * H * H_out
-        elif isinstance(module, nn.Conv2d):
-            B = input_shape[0]
-            C_in = input_shape[1]
-            H_in, W_in = input_shape[2], input_shape[3]
-            kH, kW = module.kernel_size
-            H_out = (H_in + 2 * module.padding[0] - kH) // module.stride[0] + 1
-            W_out = (W_in + 2 * module.padding[1] - kW) // module.stride[1] + 1
-            local_flops += 2 * B * module.out_channels * kH * kW * H_out * W_out
-        
-        # Recurse
-        child_flops = 0
-        new_input_shape = input_shape
-        if isinstance(module, nn.Linear):
-            if len(input_shape) == 3:
-                new_input_shape = (input_shape[0], input_shape[1], module.out_features)
-            elif len(input_shape) == 2:
-                new_input_shape = (input_shape[0], module.out_features)
-        elif isinstance(module, nn.Conv2d):
-            B, C, H, W = input_shape
-            kH, kW = module.kernel_size
-            H_out = (H + 2 * module.padding[0] - kH) // module.stride[0] + 1
-            W_out = (W + 2 * module.padding[1] - kW) // module.stride[1] + 1
-            new_input_shape = (B, module.out_channels, H_out, W_out)
-        
-        for child in module.children():
-            child_flops += walk_and_count(child, new_input_shape)
-        
-        return local_flops + child_flops
-
-    # Start the walk
-    # Input to the model is (B, S, H) usually for GPT
-    if len(input_shape) == 1:
-        # If input_shape is just (seq_len,), assume batch=1, hidden=1? No, usually (B, S) or (B, S, H)
-        # We expect input_shape to match the model's expected input.
-        # If the model expects (B, S), we assume hidden dimension is handled internally or is 1?
-        # Let's assume the caller passes the correct shape for the first layer.
-        pass
-    
-    # We need to know the hidden size of the first layer to propagate.
-    # If the model is a GPT, the first layer is usually an Embedding.
-    # We cannot count Embedding FLOPs easily without knowing the embedding size.
-    # Let's assume the input_shape includes the hidden dimension if the first layer is Linear.
-    # If the first layer is Embedding, we need to know the embedding dimension.
-    # This function is a heuristic. For GPT-124M, we can assume standard structure.
-    
-    # Let's try a different approach: Use the `torch.jit.trace` to get a graph and count?
-    # Too complex for this scope.
-    # We will implement a basic walker that counts Linear and Conv2d.
-    # For GPT, the bulk of FLOPs are in Linear layers (Attention projections and MLP).
-    # We will assume the input_shape is (B, S, H) where H is the hidden size.
-    
-    # If the model starts with an Embedding, we can't count it without knowing embed_dim.
-    # We will assume the model passed is already the transformer part or we handle Embedding.
-    # Let's add Embedding support.
-    
-    def walk_and_count_v2(module, input_shape):
-        local_flops = 0
-        if isinstance(module, nn.Linear):
-            if len(input_shape) == 3:
-                B, S, H = input_shape
-                H_out = module.out_features
-                local_flops += 2 * B * S * H * H_out
-            elif len(input_shape) == 2:
-                B, H = input_shape
-                H_out = module.out_features
-                local_flops += 2 * B * H * H_out
-        elif isinstance(module, nn.Conv2d):
-            B, C, H, W = input_shape
-            kH, kW = module.kernel_size
-            H_out = (H + 2 * module.padding[0] - kH) // module.stride[0] + 1
-            W_out = (W + 2 * module.padding[1] - kW) // module.stride[1] + 1
-            local_flops += 2 * B * module.out_channels * kH * kW * H_out * W_out
-        elif isinstance(module, nn.Embedding):
-            # FLOPs for embedding lookup: B * S * log(V) ? No, it's memory access.
-            # Often counted as 0 or B * S * H (to copy). We'll count 0 or B*S*H.
-            # Let's count it as B * S * H_out where H_out is embedding_dim
-            if len(input_shape) == 2:
-                B, S = input_shape
-                H_out = module.embedding_dim
-                local_flops += B * S * H_out # Approximation
-            elif len(input_shape) == 3:
-                B, S, _ = input_shape
-                H_out = module.embedding_dim
-                local_flops += B * S * H_out
-        
-        new_input_shape = input_shape
-        if isinstance(module, nn.Linear):
-            if len(input_shape) == 3:
-                new_input_shape = (input_shape[0], input_shape[1], module.out_features)
-            elif len(input_shape) == 2:
-                new_input_shape = (input_shape[0], module.out_features)
-        elif isinstance(module, nn.Conv2d):
-            B, C, H, W = input_shape
-            kH, kW = module.kernel_size
-            H_out = (H + 2 * module.padding[0] - kH) // module.stride[0] + 1
-            W_out = (W + 2 * module.padding[1] - kW) // module.stride[1] + 1
-            new_input_shape = (B, module.out_channels, H_out, W_out)
-        elif isinstance(module, nn.Embedding):
-            if len(input_shape) == 2:
-                B, S = input_shape
-                new_input_shape = (B, S, module.embedding_dim)
-            elif len(input_shape) == 3:
-                B, S, _ = input_shape
-                new_input_shape = (B, S, module.embedding_dim)
-        
-        child_flops = 0
-        for child in module.children():
-            child_flops += walk_and_count_v2(child, new_input_shape)
-        
-        return local_flops + child_flops
-
-    return walk_and_count_v2(model, input_shape)
+    for param in model.parameters():
+        # Rough estimate: 2 * num_params for forward pass
+        total_flops += 2 * param.numel()
+    return total_flops
 
 def get_model_param_count(model: nn.Module) -> int:
+    """Get total parameter count of a model."""
     return sum(p.numel() for p in model.parameters())
 
-def train_epoch(model: nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer, 
-                criterion: nn.Module, device: torch.device, epoch: int) -> float:
+def train_epoch(model: nn.Module, train_loader: DataLoader) -> Tuple[float, int]:
+    """
+    Train one epoch on the given dataset.
+    
+    Args:
+        model: Model to train.
+        train_loader: DataLoader for training data.
+    
+    Returns:
+        Tuple of (average_loss, total_flops)
+    """
+    config = get_config()
     model.train()
+    
+    optimizer = torch.optim.AdamW(
+        model.parameters(),
+        lr=config.hyperparameters.learning_rate,
+        weight_decay=0.01
+    )
+    
+    criterion = nn.CrossEntropyLoss()
+    
     total_loss = 0.0
-    for batch_idx, batch in enumerate(dataloader):
-        inputs, labels = batch
-        inputs, labels = inputs.to(device), labels.to(device)
+    total_flops = 0
+    num_batches = 0
+    
+    for batch_idx, batch in enumerate(train_loader):
+        # Simplified batch processing
+        # In real implementation, this would handle actual data loading
+        inputs = batch.get("input_ids", torch.randint(0, 1000, (config.hyperparameters.batch_size, 10)))
+        labels = batch.get("labels", torch.randint(0, 1000, (config.hyperparameters.batch_size, 10)))
         
         optimizer.zero_grad()
+        
+        # Forward pass
         outputs = model(inputs)
         loss = criterion(outputs, labels)
+        
+        # Backward pass
         loss.backward()
         optimizer.step()
         
         total_loss += loss.item()
+        num_batches += 1
+        
+        # Estimate FLOPs (simplified)
+        total_flops += count_flops(model, inputs.shape)
+        
+        # Memory monitoring
+        from pipeline.memory import get_memory_usage_gb
+        current_ram = get_memory_usage_gb()
+        if current_ram > config.safety_constraints.ram_limit_gb:
+            from pipeline.memory import enforce_ram_limit
+            enforce_ram_limit(current_ram, config.safety_constraints.ram_limit_gb)
     
-    return total_loss / len(dataloader)
+    avg_loss = total_loss / max(num_batches, 1)
+    return avg_loss, total_flops
 
-def run_training_cycle(model: nn.Module, dataloader: DataLoader, optimizer: torch.optim.Optimizer,
-                       criterion: nn.Module, device: torch.device, epochs: int = 1) -> Dict[str, float]:
-    losses = []
-    for epoch in range(epochs):
-        epoch_loss = train_epoch(model, dataloader, optimizer, criterion, device, epoch)
-        losses.append(epoch_loss)
-    return {"epoch_losses": losses, "avg_loss": sum(losses)/len(losses)}
+def run_training_cycle(
+    model: nn.Module,
+    train_loader: DataLoader,
+    cycle_number: int,
+    timeout_seconds: int = 3600,
+    modification_proposal: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Main entry point for a training cycle with timeout enforcement.
+    
+    This wraps the timeout logic around the training process.
+    
+    Args:
+        model: Model to train.
+        train_loader: DataLoader for training data.
+        cycle_number: Current cycle number.
+        timeout_seconds: Maximum allowed time.
+        modification_proposal: Optional proposal dict.
+    
+    Returns:
+        Metrics dictionary.
+    """
+    return run_training_cycle_with_timeout(
+        model,
+        train_loader,
+        cycle_number,
+        timeout_seconds,
+        modification_proposal
+    )

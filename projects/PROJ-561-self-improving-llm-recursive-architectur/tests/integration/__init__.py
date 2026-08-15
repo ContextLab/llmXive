@@ -1,3 +1,1 @@
-"""
-Initialization file for the integration tests package.
-"""
+# Auto-initialized package

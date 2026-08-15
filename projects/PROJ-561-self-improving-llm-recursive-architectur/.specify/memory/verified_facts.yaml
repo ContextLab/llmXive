@@ -1,0 +1,21 @@
+200|100m 200m expected gpt greater less model parameter small than:
+  quote: 'P348: 110M'
+  source_id: Q95726718
+  url: https://www.wikidata.org/wiki/Q95726718
+  value: 110M
+'|bootstrap comparison default resample':
+  quote: tion. The simulations are conducted for a sample size of n = 200 with B =
+    1000 bootstrap
+  source_id: '1709.06855'
+  url: https://arxiv.org/abs/1709.06855
+  value: '1000'
+'|gsm8k system testing use':
+  quote: Reinforcement learning (RL) The reward model was a process reward model (PRM)
+    trained from Base according to the Math-Shepherd method. This reward model was
+    then used to train Instruct using group relative policy optimization (GRPO) on
+    a dataset of 144K math questions related to GSM8K and MATH. The reward model was
+    continuously updated during training to avoid reward hacking. This resulted in
+    RL.
+  source_id: DeepSeek
+  url: https://en.wikipedia.org/wiki/DeepSeek
+  value: 144K
