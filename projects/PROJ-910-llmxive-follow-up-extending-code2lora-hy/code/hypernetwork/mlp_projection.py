@@ -1,5 +1,5 @@
 """
-MLP Projection Layer for Code2LoRA Hypernetwork.
+MLP Projection Layer for Code2Lora Hypernetwork.
 
 This module defines a lightweight Multi-Layer Perceptron (MLP) that maps
 static AST feature vectors to the base model's embedding dimension.

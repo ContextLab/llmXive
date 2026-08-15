@@ -1,2 +1,2 @@
-# This directory contains processed datasets ready for analysis.
-# Intentionally left empty to preserve directory structure in git.
+# This directory is for processed data artifacts
+# Do not commit large data files; use .gitkeep to track the directory.

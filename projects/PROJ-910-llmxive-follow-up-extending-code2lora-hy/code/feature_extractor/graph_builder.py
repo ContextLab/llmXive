@@ -1,252 +1,331 @@
 """
-Graph Builder Module for Code2LoRA Hypernetwork.
+Graph Builder Module for AST-based Adapter Generation.
 
-This module computes import graph centrality metrics using networkx.
-It implements FR-001: Extract static AST features including graph-based metrics.
+This module implements the construction of import graphs from Python source code
+and computes centrality metrics using NetworkX. It fulfills FR-001 by extracting
+structural features that capture the dependency relationships within a repository.
+
+The module is designed to work in conjunction with ast_parser.py to provide
+a comprehensive feature set for the hypernetwork adapter generation.
 """
 
 import ast
 import os
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Set, Tuple
-
 import networkx as nx
+import logging
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 class ImportGraphBuilder:
     """
-    Builds an import dependency graph for a given codebase directory.
+    Builds an import graph from a directory of Python files.
+
+    The graph nodes represent modules (files), and edges represent import relationships.
+    This allows for the computation of centrality metrics that capture the structural
+    importance of different modules within the codebase.
     """
 
     def __init__(self, root_dir: Path):
         """
-        Initialize the builder with the root directory of the repository.
+        Initialize the graph builder with a root directory.
 
         Args:
             root_dir: Path to the root directory containing Python files.
         """
         self.root_dir = root_dir
         self.graph = nx.DiGraph()
-        self.node_files: Dict[str, str] = {}  # Maps module name to file path
+        self._file_to_module: Dict[str, str] = {}
+        self._module_to_file: Dict[str, str] = {}
 
-    def _get_module_name(self, file_path: Path) -> str:
+    def _discover_python_files(self) -> List[Path]:
         """
-        Convert a file path to a Python module name relative to root.
-
-        Args:
-            file_path: Absolute path to a Python file.
-
-        Returns:
-            Dot-separated module name (e.g., 'package.subpackage.module').
-        """
-        try:
-            rel_path = file_path.relative_to(self.root_dir)
-            parts = list(rel_path.parts)
-            if parts[-1].endswith('.py'):
-                parts[-1] = parts[-1][:-3]
-            if parts[-1] == '__init__':
-                parts = parts[:-1]
-            return '.'.join(parts) if parts else 'root'
-        except ValueError:
-            # File is outside root_dir, return absolute path hash or similar
-            return str(file_path)
-
-    def _scan_files(self) -> List[Path]:
-        """
-        Scan the root directory for all Python files.
+        Discover all Python files in the root directory.
 
         Returns:
             List of Path objects for all .py files found.
         """
-        py_files = []
+        python_files = []
         for root, _, files in os.walk(self.root_dir):
             for file in files:
-                if file.endswith('.py'):
-                    py_files.append(Path(root) / file)
-        return py_files
+                if file.endswith('.py') and not file.startswith('__'):
+                    python_files.append(Path(root) / file)
+        return python_files
 
-    def _parse_imports(self, file_path: Path) -> Set[str]:
+    def _get_module_name(self, file_path: Path) -> str:
         """
-        Parse a Python file and extract imported module names.
+        Convert a file path to a module name.
 
         Args:
             file_path: Path to the Python file.
 
         Returns:
-            Set of imported module names (strings).
+            String representation of the module name (relative to root).
+        """
+        try:
+            rel_path = file_path.relative_to(self.root_dir)
+            # Convert path separators to dots and remove .py extension
+            module_name = str(rel_path).replace(os.sep, '.').replace('/', '.')
+            if module_name.endswith('.py'):
+                module_name = module_name[:-3]
+            return module_name
+        except ValueError:
+            # File is outside root_dir, use absolute path as fallback
+            return str(file_path)
+
+    def _parse_imports(self, file_path: Path) -> Set[str]:
+        """
+        Parse a Python file and extract its import statements.
+
+        Args:
+            file_path: Path to the Python file.
+
+        Returns:
+            Set of imported module names.
         """
         imports = set()
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
-                tree = ast.parse(f.read(), filename=str(file_path))
-        except (SyntaxError, UnicodeDecodeError):
-            # Skip malformed files or encoding issues
-            return imports
+                content = f.read()
 
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                for alias in node.names:
-                    imports.add(alias.name.split('.')[0])
-            elif isinstance(node, ast.ImportFrom):
-                if node.module:
-                    imports.add(node.module.split('.')[0])
-                elif node.level > 0:
-                    # Relative import, resolve later if needed
-                    # For now, we'll treat relative imports as local
-                    pass
+            tree = ast.parse(content, filename=str(file_path))
+
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for alias in node.names:
+                        # Get the top-level module name
+                        module_name = alias.name.split('.')[0]
+                        imports.add(module_name)
+                elif isinstance(node, ast.ImportFrom):
+                    if node.module:
+                        # Get the top-level module name
+                        module_name = node.module.split('.')[0]
+                        imports.add(module_name)
+
+        except SyntaxError as e:
+            logger.warning(f"Syntax error in {file_path}: {e}")
+        except Exception as e:
+            logger.warning(f"Error parsing {file_path}: {e}")
+
         return imports
 
-    def build(self) -> nx.DiGraph:
+    def build_graph(self) -> nx.DiGraph:
         """
-        Build the import dependency graph for the entire repository.
+        Build the import graph for the entire repository.
 
         Returns:
-            A directed graph where nodes are modules and edges represent imports.
+            NetworkX DiGraph representing the import relationships.
         """
-        py_files = self._scan_files()
+        logger.info(f"Building import graph for {self.root_dir}")
 
-        # Add all files as nodes
-        for file_path in py_files:
+        python_files = self._discover_python_files()
+        logger.info(f"Found {len(python_files)} Python files")
+
+        # Create nodes for all files
+        for file_path in python_files:
             module_name = self._get_module_name(file_path)
-            self.graph.add_node(module_name)
-            self.node_files[module_name] = str(file_path)
+            self.graph.add_node(module_name, file_path=str(file_path))
+            self._file_to_module[str(file_path)] = module_name
+            self._module_to_file[module_name] = str(file_path)
 
-        # Add edges based on imports
-        for file_path in py_files:
+        # Create edges based on imports
+        for file_path in python_files:
             source_module = self._get_module_name(file_path)
-            imports = self._parse_imports(file_path)
+            imported_modules = self._parse_imports(file_path)
 
-            for imp in imports:
-                # Check if the imported module exists in our repository
-                if imp in self.node_files:
-                    self.graph.add_edge(source_module, imp)
-                # Note: We ignore external imports (e.g., 'os', 'sys') for now
-                # as they don't contribute to internal repository structure metrics.
+            for imported_module in imported_modules:
+                # Check if the imported module exists in our project
+                if imported_module in self._module_to_file:
+                    target_module = imported_module
+                    self.graph.add_edge(source_module, target_module, type='import')
+                elif imported_module in ['os', 'sys', 'pathlib', 'typing', 'json', 'logging', 'ast', 'collections', 'io', 'random', 'time', 'resource', 'hashlib', 'subprocess', 'signal', 'enum', 'dataclasses']:
+                    # Standard library modules - add as external nodes
+                    if imported_module not in self.graph:
+                        self.graph.add_node(imported_module, type='stdlib')
+                    self.graph.add_edge(source_module, imported_module, type='stdlib_import')
 
+        logger.info(f"Graph built with {self.graph.number_of_nodes()} nodes and {self.graph.number_of_edges()} edges")
         return self.graph
+
 
 def compute_centrality_metrics(graph: nx.DiGraph) -> Dict[str, Dict[str, float]]:
     """
-    Compute centrality metrics for nodes in the import graph.
+    Compute various centrality metrics for the import graph.
 
     Args:
-        graph: A directed graph representing module dependencies.
+        graph: NetworkX DiGraph representing the import relationships.
 
     Returns:
-        A dictionary mapping module names to their centrality scores.
-        Keys include 'in_degree', 'out_degree', 'betweenness', 'closeness'.
+        Dictionary mapping node names to their centrality metrics.
     """
-    if not graph.nodes():
+    if graph.number_of_nodes() == 0:
         return {}
 
-    metrics = {}
+    centrality_metrics = {}
 
-    # Degree centrality
-    in_deg = nx.in_degree_centrality(graph)
-    out_deg = nx.out_degree_centrality(graph)
+    # Compute degree centrality (in-degree and out-degree)
+    in_degree_centrality = nx.in_degree_centrality(graph)
+    out_degree_centrality = nx.out_degree_centrality(graph)
 
-    # Betweenness centrality
+    # Compute betweenness centrality
     try:
-        betweenness = nx.betweenness_centrality(graph, normalized=True)
-    except nx.NetworkXError:
-        betweenness = {node: 0.0 for node in graph.nodes()}
+        betweenness_centrality = nx.betweenness_centrality(graph)
+    except Exception as e:
+        logger.warning(f"Could not compute betweenness centrality: {e}")
+        betweenness_centrality = {node: 0.0 for node in graph.nodes()}
 
-    # Closeness centrality (only for weakly connected components if graph is disconnected)
+    # Compute closeness centrality
     try:
-        closeness = nx.closeness_centrality(graph, wf_improved=True)
-    except nx.NetworkXError:
-        closeness = {node: 0.0 for node in graph.nodes()}
+        closeness_centrality = nx.closeness_centrality(graph)
+    except Exception as e:
+        logger.warning(f"Could not compute closeness centrality: {e}")
+        closeness_centrality = {node: 0.0 for node in graph.nodes()}
 
+    # Compute eigenvector centrality (may fail for some graphs)
+    try:
+        eigenvector_centrality = nx.eigenvector_centrality(graph, max_iter=1000)
+    except Exception as e:
+        logger.warning(f"Could not compute eigenvector centrality: {e}")
+        eigenvector_centrality = {node: 0.0 for node in graph.nodes()}
+
+    # Aggregate metrics for each node
     for node in graph.nodes():
-        metrics[node] = {
-            'in_degree': in_deg.get(node, 0.0),
-            'out_degree': out_deg.get(node, 0.0),
-            'betweenness': betweenness.get(node, 0.0),
-            'closeness': closeness.get(node, 0.0)
+        centrality_metrics[node] = {
+            'in_degree_centrality': in_degree_centrality.get(node, 0.0),
+            'out_degree_centrality': out_degree_centrality.get(node, 0.0),
+            'betweenness_centrality': betweenness_centrality.get(node, 0.0),
+            'closeness_centrality': closeness_centrality.get(node, 0.0),
+            'eigenvector_centrality': eigenvector_centrality.get(node, 0.0)
         }
 
-    return metrics
+    return centrality_metrics
 
-def extract_graph_features(root_dir: Path) -> Dict[str, Any]:
+
+def extract_graph_features(centrality_metrics: Dict[str, Dict[str, float]]) -> Dict[str, Any]:
     """
-    Extract graph-based features from a repository directory.
-
-    This function builds the import graph, computes centrality metrics,
-    and aggregates them into a feature vector.
+    Extract aggregate graph features from centrality metrics.
 
     Args:
-        root_dir: Path to the root directory of the repository.
+        centrality_metrics: Dictionary of centrality metrics per node.
 
     Returns:
-        Dictionary containing graph features:
-        - 'num_nodes': Total number of modules
-        - 'num_edges': Total number of import relationships
-        - 'avg_in_degree': Average in-degree centrality
-        - 'avg_out_degree': Average out-degree centrality
-        - 'max_betweenness': Maximum betweenness centrality
-        - 'max_closeness': Maximum closeness centrality
-        - 'centrality_scores': Per-node centrality metrics
+        Dictionary of aggregate graph features.
     """
-    builder = ImportGraphBuilder(root_dir)
-    graph = builder.build()
-
-    if not graph.nodes():
+    if not centrality_metrics:
         return {
+            'avg_in_degree_centrality': 0.0,
+            'avg_out_degree_centrality': 0.0,
+            'avg_betweenness_centrality': 0.0,
+            'avg_closeness_centrality': 0.0,
+            'avg_eigenvector_centrality': 0.0,
+            'max_in_degree_centrality': 0.0,
+            'max_out_degree_centrality': 0.0,
+            'max_betweenness_centrality': 0.0,
+            'max_closeness_centrality': 0.0,
+            'max_eigenvector_centrality': 0.0,
             'num_nodes': 0,
-            'num_edges': 0,
-            'avg_in_degree': 0.0,
-            'avg_out_degree': 0.0,
-            'max_betweenness': 0.0,
-            'max_closeness': 0.0,
-            'centrality_scores': {}
+            'num_edges': 0
         }
 
-    centrality_metrics = compute_centrality_metrics(graph)
+    # Extract values for each metric type
+    in_degree_values = [m['in_degree_centrality'] for m in centrality_metrics.values()]
+    out_degree_values = [m['out_degree_centrality'] for m in centrality_metrics.values()]
+    betweenness_values = [m['betweenness_centrality'] for m in centrality_metrics.values()]
+    closeness_values = [m['closeness_centrality'] for m in centrality_metrics.values()]
+    eigenvector_values = [m['eigenvector_centrality'] for m in centrality_metrics.values()]
 
-    in_degrees = [m['in_degree'] for m in centrality_metrics.values()]
-    out_degrees = [m['out_degree'] for m in centrality_metrics.values()]
-    betweens = [m['betweenness'] for m in centrality_metrics.values()]
-    closenesses = [m['closeness'] for m in centrality_metrics.values()]
-
-    return {
-        'num_nodes': graph.number_of_nodes(),
-        'num_edges': graph.number_of_edges(),
-        'avg_in_degree': sum(in_degrees) / len(in_degrees) if in_degrees else 0.0,
-        'avg_out_degree': sum(out_degrees) / len(out_degrees) if out_degrees else 0.0,
-        'max_betweenness': max(betweens) if betweens else 0.0,
-        'max_closeness': max(closenesses) if closenesses else 0.0,
-        'centrality_scores': centrality_metrics
+    # Compute aggregate statistics
+    features = {
+        'avg_in_degree_centrality': sum(in_degree_values) / len(in_degree_values) if in_degree_values else 0.0,
+        'avg_out_degree_centrality': sum(out_degree_values) / len(out_degree_values) if out_degree_values else 0.0,
+        'avg_betweenness_centrality': sum(betweenness_values) / len(betweenness_values) if betweenness_values else 0.0,
+        'avg_closeness_centrality': sum(closeness_values) / len(closeness_values) if closeness_values else 0.0,
+        'avg_eigenvector_centrality': sum(eigenvector_values) / len(eigenvector_values) if eigenvector_values else 0.0,
+        'max_in_degree_centrality': max(in_degree_values) if in_degree_values else 0.0,
+        'max_out_degree_centrality': max(out_degree_values) if out_degree_values else 0.0,
+        'max_betweenness_centrality': max(betweenness_values) if betweenness_values else 0.0,
+        'max_closeness_centrality': max(closeness_values) if closeness_values else 0.0,
+        'max_eigenvector_centrality': max(eigenvector_values) if eigenvector_values else 0.0,
+        'num_nodes': len(centrality_metrics),
+        'num_edges': 0  # Will be set separately
     }
+
+    return features
+
 
 def get_graph_feature_vector_size() -> int:
     """
-    Return the size of the fixed-size feature vector extracted from graph metrics.
-
-    This corresponds to the number of aggregated metrics returned by
-    extract_graph_features (excluding the per-node centrality_scores dict).
+    Get the size of the graph feature vector.
 
     Returns:
-        Integer representing the number of scalar graph features.
+        Integer representing the number of features extracted.
     """
-    # num_nodes, num_edges, avg_in_degree, avg_out_degree, max_betweenness, max_closeness
-    return 6
+    # Number of features from extract_graph_features (excluding num_edges which is set separately)
+    # avg_in_degree_centrality, avg_out_degree_centrality, avg_betweenness_centrality,
+    # avg_closeness_centrality, avg_eigenvector_centrality,
+    # max_in_degree_centrality, max_out_degree_centrality, max_betweenness_centrality,
+    # max_closeness_centrality, max_eigenvector_centrality, num_nodes
+    return 11
 
-def get_aggregated_graph_features(root_dir: Path) -> List[float]:
+
+def get_aggregated_graph_features(root_dir: Path) -> Dict[str, Any]:
     """
-    Extract a fixed-size vector of aggregated graph features.
+    Build the import graph and extract aggregated features for a repository.
 
     Args:
         root_dir: Path to the root directory of the repository.
 
     Returns:
-        List of float values representing graph features in a fixed order.
+        Dictionary of aggregated graph features.
     """
-    features = extract_graph_features(root_dir)
-    return [
-        features['num_nodes'],
-        features['num_edges'],
-        features['avg_in_degree'],
-        features['avg_out_degree'],
-        features['max_betweenness'],
-        features['max_closeness']
-    ]
+    builder = ImportGraphBuilder(root_dir)
+    graph = builder.build_graph()
+
+    centrality_metrics = compute_centrality_metrics(graph)
+    features = extract_graph_features(centrality_metrics)
+
+    # Update edge count
+    features['num_edges'] = graph.number_of_edges()
+
+    return features
+
+
+def main():
+    """
+    Main function to demonstrate graph builder functionality.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Build import graph and compute centrality metrics')
+    parser.add_argument('--repo-path', type=str, required=True, help='Path to the repository')
+    parser.add_argument('--output', type=str, default=None, help='Output file for features (JSON)')
+
+    args = parser.parse_args()
+
+    repo_path = Path(args.repo_path)
+    if not repo_path.exists():
+        print(f"Error: Repository path does not exist: {repo_path}")
+        return 1
+
+    print(f"Building import graph for: {repo_path}")
+    features = get_aggregated_graph_features(repo_path)
+
+    if args.output:
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            import json
+            json.dump(features, f, indent=2)
+        print(f"Features saved to: {output_path}")
+    else:
+        import json
+        print(json.dumps(features, indent=2))
+
+    return 0
+
+
+if __name__ == '__main__':
+    exit(main())

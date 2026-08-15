@@ -1,259 +1,261 @@
+"""
+Evaluation Runner for RepoPeftBench.
+
+Implements Task T021: Load RepoPeftBench data, apply the AST-based adapter,
+and compute BOTH exact-match scores AND inference latency.
+
+Output: data/results/ast_scores.csv (columns: task_id, exact_match, latency_ms)
+"""
 import os
 import csv
 import json
 import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
 
+# Import local utilities
 from utils.config import load_config, Config
 from utils.logging import get_logger
-from feature_extractor.ast_parser import extract_features_from_directory
-from hypernetwork.adapter_generator import load_frozen_base_model
-from evaluation.latency_monitor import measure_inference_latency, save_latency_results, collect_latency_stats
+from data.download_repopeftbench import download_dataset, verify_dataset_integrity
+from evaluation.latency_monitor import measure_inference_latency, save_latency_results
+from evaluation.failure_classifier import run_task_with_classification, classify_exception, FailureMode
 
 logger = get_logger(__name__)
 
+# Constants
+RESULTS_DIR = Path("data/results")
+RAW_DATA_DIR = Path("data/raw")
+ADAPTER_DIR = Path("data/adapters")
+OUTPUT_FILE = RESULTS_DIR / "ast_scores.csv"
+LATENCY_LOG_FILE = RESULTS_DIR / "inference_latency_log.json"
 
-def load_repopeftbench_data(data_dir: str) -> List[Dict[str, Any]]:
+def load_repopeftbench_data(config: Config) -> List[Dict[str, Any]]:
     """
-    Load RepoPeftBench data from the specified directory.
-    Expects a CSV or JSONL file with 'task_id', 'prompt', 'expected_output'.
+    Load the RepoPeftBench dataset (Python subset).
+    Uses streaming if available to handle large datasets, otherwise loads in memory.
     """
-    data_path = Path(data_dir)
-    if not data_path.exists():
-        raise FileNotFoundError(f"RepoPeftBench data directory not found: {data_path}")
+    if not RAW_DATA_DIR.exists():
+        logger.error(f"Raw data directory {RAW_DATA_DIR} does not exist. Run download_repopeftbench.py first.")
+        raise FileNotFoundError(f"Raw data directory {RAW_DATA_DIR} not found.")
 
-    # Assuming the data is in a CSV format as per typical benchmarks
-    # Adjust parsing logic if the format differs (e.g., JSONL)
-    csv_files = list(data_path.glob("*.csv"))
-    if not csv_files:
-        # Try JSONL if no CSV found
-        jsonl_files = list(data_path.glob("*.jsonl"))
-        if jsonl_files:
-            data = []
-            with open(jsonl_files[0], 'r', encoding='utf-8') as f:
-                for line in f:
-                    data.append(json.loads(line))
-            return data
-        raise FileNotFoundError(f"No CSV or JSONL data files found in {data_path}")
+    # Attempt to load the dataset
+    # Assuming the download script has populated data/raw with the necessary files
+    # or we use the datasets library directly if the HF ID is configured
+    try:
+        from datasets import load_dataset
+        
+        # Check if local path exists, otherwise try HF
+        local_path = RAW_DATA_DIR / "python"
+        if local_path.exists():
+            logger.info(f"Loading local dataset from {local_path}")
+            ds = load_dataset(str(local_path), split="test", streaming=False)
+        else:
+            # Fallback to HF ID if configured in config, else default
+            hf_id = getattr(config, 'dataset_id', 'repo-peft-bench')
+            logger.info(f"Loading dataset from HF: {hf_id}")
+            ds = load_dataset(hf_id, "python", split="test", streaming=False)
+        
+        # Convert to list of dicts for easier processing
+        data = []
+        for item in ds:
+            data.append(item)
+        
+        logger.info(f"Loaded {len(data)} samples from RepoPeftBench.")
+        return data
+    except Exception as e:
+        logger.error(f"Failed to load RepoPeftBench: {e}")
+        raise
 
-    data = []
-    with open(csv_files[0], 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            data.append(row)
-
-    logger.info(f"Loaded {len(data)} tasks from {csv_files[0]}")
-    return data
-
-
-def load_ast_adapter(adapter_path: str, base_model_name: str) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
+def load_ast_adapter(config: Config) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
     """
-    Load the base model and the AST-generated adapter.
+    Load the base model and apply the AST-based adapter.
     """
-    logger.info(f"Loading base model: {base_model_name}")
-    tokenizer = AutoTokenizer.from_pretrained(base_model_name)
+    base_model_path = config.base_model_path
+    adapter_path = ADAPTER_DIR / "ast_adapter.safetensors"
+    
+    if not adapter_path.exists():
+        # Fallback to generic name if specific one doesn't exist
+        alt_path = ADAPTER_DIR / "adapter.safetensors"
+        if alt_path.exists():
+            adapter_path = alt_path
+        else:
+            raise FileNotFoundError(f"AST adapter not found at {ADAPTER_DIR}. Run adapter generation first.")
+
+    logger.info(f"Loading base model from {base_model_path}...")
+    tokenizer = AutoTokenizer.from_pretrained(base_model_path)
     model = AutoModelForCausalLM.from_pretrained(
-        base_model_name,
+        base_model_path,
         torch_dtype=torch.float32, # Use float32 for CPU compatibility if needed
         device_map="auto" if torch.cuda.is_available() else None
     )
+    
+    logger.info(f"Applying AST adapter from {adapter_path}...")
+    # Note: PeftModel.from_pretrained expects a folder usually, but safetensors can be loaded if structured correctly.
+    # If the adapter was saved as a single safetensors file without config, we might need to load weights manually.
+    # Assuming standard PEFT structure where the adapter folder contains adapter_model.safetensors and adapter_config.json.
+    # If the task generated a single file, we treat the directory containing it as the adapter path.
+    
+    # Adjusting for the likely output of T015 which saves to data/adapters/ast_adapter.safetensors
+    # PEFT usually expects a directory. Let's assume the directory 'ast_adapter' exists or we create a temp one.
+    # However, to be robust, we try loading from the directory if it exists, or the file if it's a directory name.
+    
+    adapter_folder = ADAPTER_DIR / "ast_adapter"
+    if not adapter_folder.exists():
+        # If the file exists but not the folder, we might need to handle it differently or assume the file IS the adapter model
+        # For this implementation, we assume the standard PEFT save structure (directory) was used or the file is placed in a folder.
+        # If T015 saved a single file, we might need to reconstruct the folder structure or load weights directly.
+        # Let's assume the standard PEFT directory structure for robustness, or adapt if T015 created a folder.
+        # If the file is just 'ast_adapter.safetensors', we try to load it as a folder containing it? No.
+        # Let's assume T015 created a folder 'ast_adapter' containing the files.
+        # If the path is a file, we treat it as the model file inside a default folder structure or raise error.
+        raise FileNotFoundError(f"Adapter directory {adapter_folder} not found. Expected standard PEFT folder structure.")
 
-    # Load adapter weights manually if needed, or use PEFT if integrated
-    # For this implementation, we assume the adapter weights are merged or loaded via a specific function
-    # The adapter_generator.py produces a .safetensors file. We need to load it.
-    # Assuming a helper function exists or we load it directly into the model
-    from peft import PeftModel
-    # If the adapter is a PEFT adapter:
-    # model = PeftModel.from_pretrained(model, adapter_path)
-    # If it's a raw safetensors file with specific weights, we might need custom loading logic.
-    # Given the project context, let's assume it's a PEFT-compatible path or we load weights directly.
-    # For now, assuming the adapter_path points to a directory with adapter_config.json and adapter_model.safetensors
-    try:
-        model = PeftModel.from_pretrained(model, adapter_path)
-        logger.info(f"Adapter loaded successfully from {adapter_path}")
-    except Exception as e:
-        logger.warning(f"Failed to load as PEFT adapter: {e}. Attempting direct weight loading or skipping.")
-        # Fallback or error handling if not PEFT
-        # For this task, we proceed assuming it works or we have a valid path
-        pass
-
+    model = PeftModel.from_pretrained(model, str(adapter_folder))
+    model = model.merge_and_unload() # Merge for inference to avoid overhead
+    
+    logger.info("Adapter loaded and merged successfully.")
     return model, tokenizer
 
+def compute_exact_match(prediction: str, reference: str) -> bool:
+    """
+    Compute exact match between prediction and reference.
+    """
+    return prediction.strip() == reference.strip()
 
 def run_inference(
     model: AutoModelForCausalLM,
     tokenizer: AutoTokenizer,
-    prompt: str,
-    max_length: int = 128
-) -> str:
+    task: Dict[str, Any],
+    timeout_sec: int = 30
+) -> Tuple[Optional[str], float, Optional[FailureMode]]:
     """
-    Run inference on a single prompt.
+    Run inference for a single task with latency measurement and timeout handling.
+    Returns (prediction, latency_ms, failure_mode).
     """
+    prompt = task.get("prompt", "")
+    reference = task.get("reference", "")
+    
     inputs = tokenizer(prompt, return_tensors="pt")
-    if torch.cuda.is_available():
-        inputs = {k: v.cuda() for k, v in inputs.items()}
+    input_len = inputs["input_ids"].shape[1]
+    
+    start_time = time.perf_counter()
+    failure_mode = None
+    prediction = None
+    
+    try:
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=128,
+                do_sample=False,
+                pad_token_id=tokenizer.eos_token_id
+            )
+        end_time = time.perf_counter()
+        
+        # Calculate latency (excluding input processing time roughly)
+        latency_ms = (end_time - start_time) * 1000
+        
+        generated_ids = outputs[0][input_len:]
+        prediction = tokenizer.decode(generated_ids, skip_special_tokens=True)
+        
+    except TimeoutError:
+        failure_mode = FailureMode.TIMEOUT
+        latency_ms = timeout_sec * 1000
+    except Exception as e:
+        failure_mode = classify_exception(e)
+        latency_ms = (time.perf_counter() - start_time) * 1000
+        prediction = None
+        
+    return prediction, latency_ms, failure_mode
 
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=max_length,
-            do_sample=False,
-            pad_token_id=tokenizer.eos_token_id
-        )
-
-    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    # Remove the prompt from the generated text to get only the completion
-    if generated_text.startswith(prompt):
-        generated_text = generated_text[len(prompt):]
-    return generated_text.strip()
-
-
-def compute_exact_match(predicted: str, expected: str) -> bool:
+def run_evaluation(config: Config) -> List[Dict[str, Any]]:
     """
-    Compute exact match between predicted and expected output.
+    Run the full evaluation pipeline.
     """
-    return predicted.strip() == expected.strip()
-
-
-def run_evaluation(
-    data: List[Dict[str, Any]],
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
-    output_scores_path: str,
-    output_latency_path: str,
-    max_samples: Optional[int] = None
-) -> Dict[str, Any]:
-    """
-    Run evaluation on the dataset and save results.
-    """
-    scores = []
-    latency_results = []
-
-    logger.info(f"Starting evaluation on {len(data)} tasks")
-
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    
+    logger.info("Loading RepoPeftBench data...")
+    data = load_repopeftbench_data(config)
+    
+    logger.info("Loading AST Adapter...")
+    model, tokenizer = load_ast_adapter(config)
+    
+    results = []
+    latency_stats = []
+    
     for i, task in enumerate(data):
-        if max_samples and i >= max_samples:
-            logger.info(f"Reached max_samples limit ({max_samples}). Stopping.")
-            break
-
-        task_id = task.get('task_id', f'task_{i}')
-        prompt = task.get('prompt', '')
-        expected = task.get('expected_output', '')
-
-        if not prompt:
-            logger.warning(f"Skipping task {task_id}: missing prompt")
-            continue
-
-        # Measure latency
-        def inference_wrapper():
-            return run_inference(model, tokenizer, prompt)
-
-        latency_entry = measure_inference_latency(task_id, inference_wrapper)
-        latency_results.append(latency_entry)
-
-        if latency_entry.get('status') == 'error':
-            scores.append({
-                'task_id': task_id,
-                'score': 0,
-                'error': latency_entry.get('error', 'Inference failed')
-            })
-            continue
-
-        predicted = run_inference(model, tokenizer, prompt)
-        match = compute_exact_match(predicted, expected)
-        scores.append({
-            'task_id': task_id,
-            'score': 1 if match else 0,
-            'predicted': predicted,
-            'expected': expected
+        task_id = task.get("task_id", f"task_{i}")
+        logger.info(f"Processing {task_id} ({i+1}/{len(data)})...")
+        
+        prediction, latency_ms, failure_mode = run_inference(model, tokenizer, task)
+        
+        if failure_mode:
+            exact_match = False
+            logger.warning(f"Task {task_id} failed with {failure_mode}")
+        else:
+            exact_match = compute_exact_match(prediction, task.get("reference", ""))
+            logger.debug(f"Task {task_id}: {exact_match}")
+        
+        results.append({
+            "task_id": task_id,
+            "exact_match": 1 if exact_match else 0,
+            "latency_ms": round(latency_ms, 3),
+            "failure_mode": failure_mode.value if failure_mode else None
         })
-
+        latency_stats.append(latency_ms)
+        
+        # Optional: Log progress
         if (i + 1) % 10 == 0:
-            logger.info(f"Processed {i + 1} tasks...")
+            avg_lat = sum(latency_stats) / len(latency_stats)
+            logger.info(f"Progress: {i+1}/{len(data)}, Avg Latency: {avg_lat:.2f}ms")
+    
+    return results
 
-    # Save scores
-    scores_path = Path(output_scores_path)
-    scores_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(scores_path, mode='w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['task_id', 'score', 'predicted', 'expected', 'error'])
+def save_results(results: List[Dict[str, Any]]) -> None:
+    """
+    Save results to CSV and latency stats to JSON.
+    """
+    if not results:
+        logger.warning("No results to save.")
+        return
+    
+    # Save CSV
+    with open(OUTPUT_FILE, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=["task_id", "exact_match", "latency_ms", "failure_mode"])
         writer.writeheader()
-        writer.writerows(scores)
-
-    # Save latency
-    latency_path = Path(output_latency_path)
-    latency_path.parent.mkdir(parents=True, exist_ok=True)
-    save_latency_results(latency_results, str(latency_path))
-
-    # Compute summary stats
-    total_tasks = len(scores)
-    correct = sum(1 for s in scores if s.get('score', 0) == 1)
-    accuracy = correct / total_tasks if total_tasks > 0 else 0.0
-
-    latency_stats = collect_latency_stats(latency_results)
-
-    summary = {
-        'total_tasks': total_tasks,
-        'correct': correct,
-        'accuracy': accuracy,
-        'latency_stats': latency_stats
-    }
-
-    logger.info(f"Evaluation complete. Accuracy: {accuracy:.4f}")
-    return summary
-
-
-def save_results(summary: Dict[str, Any], output_json_path: str) -> Path:
-    """
-    Save evaluation summary to a JSON file.
-    """
-    output_file = Path(output_json_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(summary, f, indent=2)
-    logger.info(f"Saved summary to {output_file}")
-    return output_file
-
+        writer.writerows(results)
+    
+    logger.info(f"Results saved to {OUTPUT_FILE}")
+    
+    # Save latency stats
+    if latency_stats := [r["latency_ms"] for r in results if r.get("failure_mode") is None]:
+        stats = {
+            "count": len(latency_stats),
+            "mean": sum(latency_stats) / len(latency_stats),
+            "min": min(latency_stats),
+            "max": max(latency_stats),
+            "p50": sorted(latency_stats)[len(latency_stats)//2],
+            "p99": sorted(latency_stats)[int(len(latency_stats)*0.99)]
+        }
+        with open(LATENCY_LOG_FILE, "w") as f:
+            json.dump(stats, f, indent=2)
+        logger.info(f"Latency stats saved to {LATENCY_LOG_FILE}")
 
 def main():
     """
-    CLI entry point for evaluation.
+    Main entry point for the evaluation runner.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Evaluate AST-based adapter on RepoPeftBench")
-    parser.add_argument("--config", type=str, default="config.yaml", help="Path to config file")
-    parser.add_argument("--data-dir", type=str, required=True, help="Path to RepoPeftBench data")
-    parser.add_argument("--adapter-path", type=str, required=True, help="Path to AST adapter")
-    parser.add_argument("--base-model", type=str, default="TinyLlama-1.1B-Chat-hf", help="Base model name")
-    parser.add_argument("--output-scores", type=str, default="data/results/ast_scores.csv", help="Output scores CSV")
-    parser.add_argument("--output-latency", type=str, default="data/results/latency.csv", help="Output latency CSV")
-    parser.add_argument("--output-summary", type=str, default="data/results/eval_summary.json", help="Output summary JSON")
-    parser.add_argument("--max-samples", type=int, default=None, help="Maximum number of samples to evaluate")
-
-    args = parser.parse_args()
-
-    config = load_config(args.config)
-    model, tokenizer = load_ast_adapter(args.adapter_path, args.base_model)
-
-    data = load_repopeftbench_data(args.data_dir)
-
-    summary = run_evaluation(
-        data,
-        model,
-        tokenizer,
-        args.output_scores,
-        args.output_latency,
-        args.max_samples
-    )
-
-    save_results(summary, args.output_summary)
-
-    print(f"Evaluation completed. Accuracy: {summary['accuracy']:.4f}")
-
+    config = load_config()
+    try:
+        results = run_evaluation(config)
+        save_results(results)
+        logger.info("Evaluation completed successfully.")
+    except Exception as e:
+        logger.error(f"Evaluation failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

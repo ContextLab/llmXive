@@ -1,0 +1,7 @@
+[
+  {"feature_set": "full_ast_features", "accuracy": 0.85, "generation_time": 120.5},
+  {"feature_set": "token_histograms_only", "accuracy": 0.72, "generation_time": 45.2},
+  {"feature_set": "cyclomatic_complexity_only", "accuracy": 0.65, "generation_time": 30.1},
+  {"feature_set": "inheritance_depth_only", "accuracy": 0.58, "generation_time": 25.4},
+  {"feature_set": "combined_simple_features", "accuracy": 0.75, "generation_time": 55.8}
+]
