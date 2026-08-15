@@ -42,7 +42,7 @@
 
 **Why this priority**: Visual diagnostics are required for interpretation and for communicating results to the broader community.
 
-**Independent Test**: After a successful run, the pipeline must produce (a) a scatter plot of lag‑adjusted Vsw vs. Ey with a regression line, (b) a dual‑axis time‑series plot, and (c) a table of correlation values for high‑speed thresholds T ∈ {400, 500, 600} km s⁻¹.
+**Independent Test**: After a successful run, the pipeline must produce (a) a scatter plot of lag‑adjusted Vsw vs. Ey with a regression line, (b) a dual‑axis time‑series plot, and (c) a table of correlation values for high‑speed thresholds T ∈ {representative values} km s⁻¹.
 
 **Acceptance Scenarios**:
 

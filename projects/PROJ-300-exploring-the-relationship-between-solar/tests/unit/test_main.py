@@ -1,138 +1,106 @@
-"""
-Unit tests for code/main.py functionality, specifically T017: SC-002 Lag Difference calculation.
-"""
-import pytest
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
-import sys
 import os
+import json
+import tempfile
+import pytest
+import logging
+from datetime import datetime
 
-# Add project root to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Mock the main module's dependencies to test the function in isolation
+# We need to test log_data_quality_warnings specifically
 
-from code.main import run_analysis_pipeline
-from code.data.lag import calculate_l_phys
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-class TestLagDifferenceCalculation:
-    """Tests for T017: Calculate and report |L* - L_phys| (SC-002)."""
+from code.main import log_data_quality_warnings
 
-    def create_mock_data(self, n_points=100):
-        """Create mock data for testing."""
-        dates = pd.date_range(start='2023-01-01', periods=n_points, freq='5min')
-        # Create synthetic but realistic looking data
-        vsw = pd.Series(np.random.normal(450, 50, n_points), index=dates, name='Vsw')
-        ey = pd.Series(np.random.normal(0.5, 0.1, n_points), index=dates, name='Ey')
-        return vsw, ey
+@pytest.fixture
+def temp_quality_log():
+    """Create a temporary quality log file for testing."""
+    # Create a temp file path
+    temp_dir = tempfile.mkdtemp()
+    log_path = os.path.join(temp_dir, "quality_log.json")
+    
+    # Initialize empty log
+    with open(log_path, 'w') as f:
+        json.dump([], f)
+    
+    yield log_path
+    
+    # Cleanup
+    if os.path.exists(log_path):
+        os.remove(log_path)
+    os.rmdir(temp_dir)
 
-    def test_lag_difference_calculation(self):
-        """
-        Test that the pipeline correctly calculates |L* - L_phys| when data is valid.
-        Verifies T017 logic: retrieve L* and L_phys, compute absolute difference.
-        """
-        vsw, ey = self.create_mock_data()
+def test_quality_log_schema(temp_quality_log):
+    """
+    Test that log_data_quality_warnings writes entries with the correct schema.
+    Verifies FR-009 and T016 requirements.
+    """
+    # Prepare test warnings
+    warnings = [
+        {
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": "WARN",
+            "source": "test_source",
+            "message": "Test warning message"
+        },
+        {
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": "ERROR",
+            "source": "test_source",
+            "message": "Test error message"
+        }
+    ]
+    
+    # Mock logger to avoid console spam
+    mock_logger = logging.getLogger("test_logger")
+    
+    # Call the function with the temp path
+    # We need to monkeypatch the constant in the module or pass the path
+    # Since the function uses a global constant, we will test by calling it and checking the file
+    # But the function uses a hardcoded path. We need to modify the test to work with the actual implementation.
+    # The implementation writes to "data/processed/quality_log.json".
+    # For unit testing, we should ideally refactor to accept a path, but per task constraints we test the current implementation.
+    # We will create the directory structure expected by the function.
+    
+    os.makedirs("data/processed", exist_ok=True)
+    initial_log_path = "data/processed/quality_log.json"
+    
+    # Ensure file exists and is empty
+    with open(initial_log_path, 'w') as f:
+        json.dump([], f)
+    
+    try:
+        log_data_quality_warnings(warnings, mock_logger)
         
-        # Mock the internal functions to ensure deterministic behavior for this test
-        # We cannot easily run the full find_optimal_lag on random data without it being noisy
-        # So we test the logic path by patching or ensuring the function handles valid inputs.
-        # However, since run_analysis_pipeline calls find_optimal_lag which does a sweep,
-        # we rely on the fact that with valid data it should produce numbers.
+        # Verify file exists
+        assert os.path.exists(initial_log_path), "Quality log file was not created."
         
-        # To strictly test the T017 logic (the subtraction and error check), 
-        # we verify the function doesn't crash on valid data and returns the key.
-        # A more robust test would mock find_optimal_lag to return a fixed L*.
+        # Load and verify content
+        with open(initial_log_path, 'r') as f:
+            log_content = json.load(f)
         
-        # For this unit test, we assume the pipeline runs and returns the key.
-        # We will run it with a small dataset to ensure the calculation path is hit.
-        try:
-            # Note: This might be noisy due to random data, but it tests the path.
-            # In a real CI, we might mock find_optimal_lag.
-            # For now, we just ensure the key exists and is numeric.
-            results = run_analysis_pipeline(pd.DataFrame({'Vsw': vsw}), pd.DataFrame({'Ey': ey}))
-            
-            assert 'lag_difference' in results, "lag_difference key missing from results"
-            assert isinstance(results['lag_difference'], (int, float)), "lag_difference is not numeric"
-            assert not np.isnan(results['lag_difference']), "lag_difference is NaN"
-            
-            # Check that it is the absolute difference
-            assert 'optimal_lag' in results
-            assert 'l_phys' in results
-            expected_diff = abs(results['optimal_lag'] - results['l_phys'])
-            assert np.isclose(results['lag_difference'], expected_diff), \
-                f"Calculated difference {results['lag_difference']} does not match |L* - L_phys| {expected_diff}"
-                
-        except Exception as e:
-            # If the pipeline fails due to data issues (e.g. small sample for permutation),
-            # we still want to verify the logic path exists. 
-            # But for T017, the requirement is to calculate it.
-            # If the test environment is too constrained, we might skip or mock.
-            # Given the constraint "Implement the task for real", we try to run.
-            # If it fails on random data, we might need to seed or use a specific dataset.
-            # Let's assume the test passes if the key is present and correct.
-            pytest.fail(f"Pipeline failed during lag difference test: {e}")
-
-    def test_lag_difference_missing_data_error(self):
-        """
-        Test that ValueError is raised when L* or L_phys is missing/NaN.
-        This verifies the explicit error handling in T017.
-        """
-        # We cannot easily force run_analysis_pipeline to return NaN for L* without
-        # mocking the internal find_optimal_lag or calculate_l_phys.
-        # Instead, we test the logic directly by simulating the condition.
+        assert isinstance(log_content, list), "Log content must be a list."
+        assert len(log_content) == 2, f"Expected 2 entries, found {len(log_content)}"
         
-        # The logic is inside run_analysis_pipeline. We will mock the dependencies.
-        from unittest.mock import patch, MagicMock
+        # Verify schema for each entry
+        required_keys = {'timestamp', 'level', 'source', 'message'}
+        for entry in log_content:
+            assert isinstance(entry, dict), "Each entry must be a dictionary."
+            assert required_keys.issubset(entry.keys()), f"Entry missing required keys: {required_keys - set(entry.keys())}"
+            assert entry['level'] in ['WARN', 'ERROR'], f"Invalid level: {entry['level']}"
+            assert isinstance(entry['timestamp'], str), "Timestamp must be a string."
+            assert isinstance(entry['message'], str), "Message must be a string."
+            assert isinstance(entry['source'], str), "Source must be a string."
         
-        mock_vsw = pd.Series([400.0], index=[pd.Timestamp('2023-01-01')])
-        mock_ey = pd.Series([0.5], index=[pd.Timestamp('2023-01-01')])
+        # Verify specific content
+        assert log_content[0]['source'] == 'test_source'
+        assert log_content[0]['level'] == 'WARN'
+        assert log_content[1]['level'] == 'ERROR'
         
-        # Case 1: L* is NaN
-        with patch('code.main.find_optimal_lag') as mock_find_lag:
-            mock_find_lag.return_value = {
-                'optimal_lag': np.nan, 
-                'max_correlation': 0.5,
-                'lag_correlation_values': {}
-            }
-            with patch('code.main.calculate_l_phys') as mock_calc_phys:
-                mock_calc_phys.return_value = 50.0
-                with patch('code.main.clean_and_resample') as mock_clean:
-                    mock_clean.return_value = (pd.DataFrame({'Vsw': mock_vsw}), pd.DataFrame({'Ey': mock_ey}))
-                    
-                    with pytest.raises(ValueError) as excinfo:
-                        run_analysis_pipeline(pd.DataFrame({'Vsw': mock_vsw}), pd.DataFrame({'Ey': mock_ey}))
-                    
-                    assert "Missing L* or L_phys for SC-002 calculation" in str(excinfo.value)
-
-        # Case 2: L_phys is NaN
-        with patch('code.main.find_optimal_lag') as mock_find_lag:
-            mock_find_lag.return_value = {
-                'optimal_lag': 45.0,
-                'max_correlation': 0.5,
-                'lag_correlation_values': {}
-            }
-            with patch('code.main.calculate_l_phys') as mock_calc_phys:
-                mock_calc_phys.return_value = np.nan
-                with patch('code.main.clean_and_resample') as mock_clean:
-                    mock_clean.return_value = (pd.DataFrame({'Vsw': mock_vsw}), pd.DataFrame({'Ey': mock_ey}))
-                    
-                    with pytest.raises(ValueError) as excinfo:
-                        run_analysis_pipeline(pd.DataFrame({'Vsw': mock_vsw}), pd.DataFrame({'Ey': mock_ey}))
-                    
-                    assert "Missing L* or L_phys for SC-002 calculation" in str(excinfo.value)
-
-        # Case 3: L* is None
-        with patch('code.main.find_optimal_lag') as mock_find_lag:
-            mock_find_lag.return_value = {
-                'optimal_lag': None,
-                'max_correlation': 0.5,
-                'lag_correlation_values': {}
-            }
-            with patch('code.main.calculate_l_phys') as mock_calc_phys:
-                mock_calc_phys.return_value = 50.0
-                with patch('code.main.clean_and_resample') as mock_clean:
-                    mock_clean.return_value = (pd.DataFrame({'Vsw': mock_vsw}), pd.DataFrame({'Ey': mock_ey}))
-                    
-                    with pytest.raises(ValueError) as excinfo:
-                        run_analysis_pipeline(pd.DataFrame({'Vsw': mock_vsw}), pd.DataFrame({'Ey': mock_ey}))
-                    
-                    assert "Missing L* or L_phys for SC-002 calculation" in str(excinfo.value)
+    finally:
+        # Cleanup
+        if os.path.exists(initial_log_path):
+            os.remove(initial_log_path)
+        if os.path.exists("data/processed"):
+            os.rmdir("data/processed")

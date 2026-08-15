@@ -1,11 +1,11 @@
 status: none
-intent: "download OMNIWeb 1\u2011minute solar wind Vsw Bz and THEMIS EFI Ey dataset\
-  \ python package dataset"
+intent: download OMNI 1-minute solar wind Vsw Bz and THEMIS EFI Ey python package
+  dataset
 required_fields:
 - timestamp
 - Vsw (km/s)
 - Bz (nT)
 - Ey (mV/m)
-cache_key: 75d2854e9581618b798d8b648212d77211ea2d17dfc23b7cf37819b6763c71e3
-searched_at: '2026-08-14T23:25:14.508510+00:00'
+cache_key: bf89179b8b3bbba757b30ca6ee0b447b635a5952c89f2be99f1c3554abeb2d59
+searched_at: '2026-08-15T11:19:09.877372+00:00'
 retry_count: 1

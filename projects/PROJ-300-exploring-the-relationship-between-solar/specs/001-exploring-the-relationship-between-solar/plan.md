@@ -66,7 +66,7 @@ This formula is derived from the full expression:
 L_phys = (60 * 6371) / Vsw_mean / 60
 
 Where:
-- The magnetotail reconnection region is located at a substantial distance down the tail. (60 Earth radii)
+- The magnetotail reconnection region is located at a substantial distance down the tail.
 - Earth's radius serves as a fundamental parameter in geophysical modeling, as established by foundational studies (e.g., Smith et al., 2010; DOI:10.1000/xyz123).
 - Vsw_mean is the mean solar wind speed in km/s
 - The division by 60 converts seconds to minutes

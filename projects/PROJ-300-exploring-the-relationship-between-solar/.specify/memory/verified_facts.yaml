@@ -1,6 +1,12 @@
-'|distance formula physic used':
-  quote: On average, the distance to the Moon is about 384,400 km (238,900 mi) from
-    Earth's centre, which corresponds to about 60 Earth radii or 1.28 light-seconds.
-  source_id: Orbit of the Moon
-  url: https://en.wikipedia.org/wiki/Orbit_of_the_Moon
-  value: '60'
+'|block bootstrap iteration moving use':
+  quote: "\u03B1 = 0.1. All bootstrap calculations are based on B = 1000 bootstrap\
+    \ replicates and R = 1000 model"
+  source_id: '1711.01070'
+  url: https://arxiv.org/abs/1711.01070
+  value: '1000'
+'|km one re':
+  quote: "A globally-average value is usually considered to be 6,371 kilometres (3,959\
+    \ mi) with a 0.3% variability (\xB110 km) for the following reasons."
+  source_id: Earth radius
+  url: https://en.wikipedia.org/wiki/Earth_radius
+  value: 6,371

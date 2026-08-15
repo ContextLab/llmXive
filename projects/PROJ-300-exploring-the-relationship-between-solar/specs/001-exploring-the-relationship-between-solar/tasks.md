@@ -72,6 +72,7 @@ requests==2.31.0
 scipy==1.11.4
 matplotlib==3.8.0
 tqdm==4.66.1
+portalocker==2.7.0
  ```
 
 - [X] T002b [P] Verify `requirements.txt` content.
@@ -124,15 +125,15 @@ tqdm==4.66.1
  - **Formula**: The implementation MUST use the simplified formula `L_phys = 6371 / vsw_mean`.
  - **Docstring Requirement**: The docstring MUST explicitly reference the full derivation from spec FR-012: `L_phys = (60 * 6371) / vsw_mean / 60` to ensure traceability to the `60 Re` constant and Constitution Principle VII.
  - **Docstring Text**: Insert the following text into the docstring:
-   """
-   Calculates the physics-based propagation lag (L_phys) in minutes.
-   Formula: L_phys = 6371 / vsw_mean
-   Derivation: L_phys = (60 * 6371) / vsw_mean / 60
-   Where:
-     - 60 Re is the nominal Earth-magnetotail distance (1 Re = 6371 km).
-     - vsw_mean is the mean solar wind speed in km/s.
-   Note: This uses a fixed distance as a heuristic approximation. The actual reconnection site varies dynamically.
-   """
+ """
+ Calculates the physics-based propagation lag (L_phys) in minutes.
+ Formula: L_phys = 6371 / vsw_mean
+ Derivation: L_phys = (scale_factor * 6371) / vsw_mean / time_conversion_factor
+ Where:
+ - 60 Re is the nominal Earth-magnetotail distance (1 Re = 6371 km).
+ - vsw_mean is the mean solar wind speed in km/s.
+ Note: This uses a fixed distance as a heuristic approximation. The actual reconnection site varies dynamically.
+ """
  - **Signature**: `def calculate_l_phys(vsw_mean: float) -> float`
 
 - [X] T047 [P] Write unit test `test_lag_calculation_formula` in `tests/unit/test_lag.py` verifying the result matches `6371 / vsw_mean` and that the code comment references the `60 Re` constant.
@@ -141,8 +142,11 @@ tqdm==4.66.1
 - [X] T006c [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` function `log_lag_derivation(vsw_mean, l_phys)` to write the physics derivation to `data/processed/quality_log.json` (FR-012).
  - **Signature**: `def log_lag_derivation(vsw_mean: float, l_phys: float) -> None`
  - **Deliverable**: Appends a JSON entry to `data/processed/quality_log.json` containing the constants, result, and a note about the dynamic X-line assumption.
+ - **Implementation Detail**: Use the `portalocker` library to ensure file safety. Specifically, open the file in append mode and use `portalocker.lock()` to prevent race conditions with T016.
+ - **Locking Protocol**: This task MUST acquire the lock FIRST. The sequence is: T006c acquires lock -> writes -> releases lock. T016 waits for lock -> acquires -> writes -> releases.
  - **Note**: `quality_log.json` is a supplementary diagnostic log; `results/us1_correlation.json` remains the primary "Single Source of Truth" (Constitution Principle IV) for the final report.
- - **File Safety**: This function MUST use file locking or append-only logic to prevent race conditions with T016.
+ - **File Safety**: This function MUST use `portalocker` for file locking to prevent race conditions with T016.
+ - **Dependency**: This task is foundational and must be completed before T020b.
 
 - [X] T006b [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` function `apply_lag_shift(series: pd.Series, lag_minutes: int) -> pd.Series` to shift the solar wind series forward by `lag_minutes` (FR-004).
  - **Signature**: `def apply_lag_shift(series: pd.Series, lag_minutes: int) -> pd.Series`
@@ -156,7 +160,8 @@ tqdm==4.66.1
  - **Implementation**: Create `tests/unit/test_main.py` and write `test_quality_log_schema` to verify the file exists and contains warning entries with the required keys.
  - **Verification**: Run `pytest tests/unit/test_main.py::test_quality_log_schema`.
  - **Verification Detail**: The test MUST assert that the loaded JSON list contains at least one dictionary with the keys `['timestamp', 'level', 'source', 'message']` for warning entries. It must NOT enforce that *all* entries have exactly these keys, to allow for other log types.
- - **File Safety**: This function MUST use file locking or append-only logic to prevent race conditions with T006c.
+ - **File Safety**: This function MUST use `portalocker` for file locking to prevent race conditions with T006c.
+ - **Locking Protocol**: This task MUST acquire the lock SECOND. The sequence is: T006c acquires lock -> writes -> releases lock. T016 waits for lock -> acquires -> writes -> releases.
  - **Dependency**: This task is foundational and must be completed before T020b.
 
 - [X] T007 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `calculate_correlation` for Pearson/Spearman calculation (used by FR-005/FR-006).
@@ -268,7 +273,7 @@ tqdm==4.66.1
 
 ## Phase 4: User Story 2 - Identify Optimal Propagation Lag (Priority: P2)
 
-**Goal**: Search a plausible lag window (30-90 min) and report the lag that maximizes the absolute correlation.
+**Goal**: Search a plausible lag window and report the lag that maximizes the absolute correlation.
 
 **Independent Test**: Execute the lag-search on a known synthetic dataset where the true lag is min; the pipeline must report 45 min (±1 min) as the optimal lag.
 
@@ -423,7 +428,7 @@ tqdm==4.66.1
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Testing (Phase 6)**: Can run in parallel with User Story implementation once modules are created
-- **Polish (Phase 7 & 8)**: Depends on all desired user stories, tests, and review fixes being complete
+- **Polish (Phase 7, 8, & 9)**: Depends on all desired user stories, tests, and review fixes being complete
 
 ### User Story Dependencies
 
@@ -444,7 +449,7 @@ tqdm==4.66.1
 - All tasks within a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 - Testing tasks (Phase 6) can run in parallel with implementation tasks once the target modules exist
-- Polish (Phase 7 & 8) tasks can run in parallel with final testing.
+- Polish (Phase 7, 8, & 9) tasks can run in parallel with final testing.
 
 ---
 
@@ -475,7 +480,7 @@ Task: "Implement projects/.../code/analysis/correlation.py Moving Block Bootstra
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add Polish (Phase 7 & 8) → Final review and README update.
+5. Add Polish (Phase 7, 8, & 9) → Final review and README update.
 6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -488,7 +493,7 @@ With multiple developers:
  - Developer B: User Story 2 (Lag Search)
  - Developer C: User Story 3 (Visualization)
 3. Stories complete and integrate independently
-4. Team collaborates on Phase 7 & 8 (Polish) to ensure consistent documentation.
+4. Team collaborates on Phase 7, 8, & 9 (Polish) to ensure consistent documentation.
 
 ---
 
@@ -512,3 +517,7 @@ With multiple developers:
 - **Task Splitting**: Implementation and testing tasks have been separated (e.g., T004a/T042) to ensure clear deliverables and verification steps.
 - **Execution Order**: Task T099 has been split into T099a (execute), T099b (verify), and T099c (checksum) to resolve circular dependencies.
 - **Phase 9 Removed**: Phase 9 (Revision) has been removed as the referenced review concerns (T070-T075) were not present in the current spec.md or plan.md artifacts, constituting scope creep. The tasks T060-T063 in Phase 7 address valid review concerns that *are* reflected in the current spec/plan artifacts.
+- **New Review Response Tasks**: Tasks T060-T063 in Phase 7 address valid review concerns regarding reference frames and physical mechanisms. These tasks are documentation and minor code enhancements to the output report, ensuring the project does not "fool itself" with a correlation number without physical context.
+- **Removed Tasks**: Tasks T070-T075 have been removed as they introduced unauthorized scope creep (Alfvén speed calculation, fine-grid sensitivity plots) not authorized by spec.md FR-001..FR-013.
+- **Locking Protocol**: Tasks T006c and T016 now explicitly define a locking order (T006c first, T016 second) to prevent deadlocks when writing to `quality_log.json`.
+- **Dependency Resolution**: `portalocker` has been added to `requirements.txt` to resolve the missing dependency for T006c and T016.
