@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-11T14:37:37Z",
+  "fetched_at": "2026-08-15T04:22:51Z",
   "field": "psychology",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,107 +9,106 @@
       "idea_body_excerpt": "The Impact of Self-Compassion on Resilience to Negative Feedback",
       "target_n": 5
     },
-    "duration_seconds": 54.999,
-    "ended_at": "2026-07-11T14:37:37Z",
+    "duration_seconds": 55.197,
+    "ended_at": "2026-08-15T04:22:51Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "self-compassion and emotional regulation following failure"
+          "self-compassion and emotional resilience"
         ],
         [
           2,
-          "self-kindness as a buffer against social rejection"
+          "self-kindness response to criticism"
         ],
         [
           3,
-          "resilience to criticism in self-compassionate individuals"
+          "resilience following negative social evaluation"
         ],
         [
           4,
-          "mindfulness and self-compassion in response to negative evaluation"
+          "self-compassion buffering effect against failure"
         ],
         [
           5,
-          "common humanity versus self-criticism after setbacks"
+          "mindful self-compassion and feedback processing"
         ],
         [
           6,
-          "self-compassion interventions for coping with academic feedback"
+          "self-criticism versus self-compassion in feedback situations"
         ],
         [
           7,
-          "the role of self-compassion in reducing shame after mistakes"
+          "psychological resilience to performance feedback"
         ],
         [
           8,
-          "psychological flexibility and self-compassion under stress"
+          "self-compassion interventions for feedback anxiety"
         ],
         [
           9,
-          "self-compassion versus self-esteem in handling negative feedback"
+          "common humanity and resilience to negative feedback"
         ],
         [
           10,
-          "coping mechanisms for performance anxiety using self-compassion"
+          "self-compassion and stress recovery after criticism"
         ],
         [
           11,
-          "neural correlates of self-compassion during negative feedback processing"
+          "response to negative feedback in self-compassionate individuals"
         ],
         [
           12,
-          "self-compassion training for improving resilience to workplace criticism"
+          "self-compassion as a moderator of feedback threat"
         ],
         [
           13,
-          "attachment styles, self-compassion, and response to failure"
+          "resilience mechanisms in the face of social rejection"
         ],
         [
           14,
-          "self-compassion and recovery from social exclusion"
+          "self-compassion and ego-depletion after failure"
         ],
         [
           15,
-          "the effect of self-compassion on attribution styles after failure"
+          "adaptive coping strategies for negative feedback"
         ],
         [
           16,
-          "self-compassion and stress reduction in high-stakes evaluation contexts"
+          "self-compassion and threat reactivity"
         ],
         [
           17,
-          "reducing defensive reactions to negative feedback through self-compassion"
+          "emotional regulation following negative feedback"
         ],
         [
           18,
-          "self-compassion and growth mindset in the face of criticism"
+          "self-compassion and growth mindset in response to criticism"
         ],
         [
           19,
-          "comparative effects of self-compassion and self-criticism on resilience"
+          "resilience to evaluative feedback and self-compassion"
         ],
         [
           20,
-          "self-compassion as a moderator of negative affect following feedback"
+          "self-compassion training and feedback tolerance"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "The Impact of Self-Compassion on Resilience to Negative Feedback psychology": 0,
-        "mindfulness and self-compassion in response to negative evaluation": 2,
-        "resilience to criticism in self-compassionate individuals": 0,
-        "self-compassion and emotional regulation following failure": 3,
-        "self-kindness as a buffer against social rejection": 0
+        "resilience following negative social evaluation": 2,
+        "self-compassion and emotional resilience": 1,
+        "self-kindness response to criticism": 0
       },
-      "total_queries_issued": 4
+      "total_queries_issued": 3
     },
     "extracted_queries": [
       "self-kindness common humanity mindfulness",
-      "self-compassion scale negative feedback task",
-      "emotional regulation self-criticism coping",
-      "feedback rejection resilience psychological recovery",
-      "self-compassion intervention growth mindset threat"
+      "self-compassion scale SC-S negative feedback stress reactivity",
+      "self-criticism shame resilience coping mechanisms",
+      "feedback acceptance emotional regulation recovery time",
+      "self-compassion intervention cognitive reappraisal threat response"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -128,16 +127,16 @@
     },
     "per_query_hit_count": {
       "The Impact of Self-Compassion on Resilience to Negative Feedback psychology": 3,
-      "emotional regulation self-criticism coping": 3,
-      "feedback rejection resilience psychological recovery": 2,
-      "self-compassion intervention growth mindset threat": 3,
-      "self-compassion scale negative feedback task": 3,
+      "feedback acceptance emotional regulation recovery time": 3,
+      "self-compassion intervention cognitive reappraisal threat response": 3,
+      "self-compassion scale SC-S negative feedback stress reactivity": 3,
+      "self-criticism shame resilience coping mechanisms": 2,
       "self-kindness common humanity mindfulness": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 5,
+      "rejected_count": 3,
       "rejections": [
         {
           "primary_pointer": "2112.03789",
@@ -145,29 +144,19 @@
           "title": "Self-exciting price impact via negative resilience in stochastic order books"
         },
         {
-          "primary_pointer": "2307.13187",
-          "rationale": "This paper focuses on digital emotion regulation via social media, which does not measure the specific variables of self-compassion or resilience to negative feedback required for the user's question. It falls under the rejection rule for distinct constructs sharing only broad thematic keywords (emotion/psychology) without addressing the specific mechanisms or empirical setting.",
-          "title": "Digital Emotion Regulation on Social Media"
+          "primary_pointer": "2305.08335",
+          "rationale": "The paper is entirely off-domain, focusing on engineering and computer science (cyber-physical systems and system resilience) rather than the psychological constructs of self-compassion and human resilience to negative feedback. The shared term \"resilience\" is a homonym in this context, referring to system fault tolerance rather than psychological coping mechanisms, which triggers the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "Enhancing Cyber-Resilience in Self-Healing Cyber-Physical Systems with Implicit Guarantees"
         },
         {
-          "primary_pointer": "2305.10446",
-          "rationale": "The paper focuses on using machine learning to classify discrete emotions from narrative components within a specific French corpus, which does not measure the psychological constructs of self-compassion or resilience to negative feedback, nor does it establish a baseline or mechanism for the user's specific causal relationship. It falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (e.g., \"emotion\" and \"regulation\" are present, but the specific variables of sel",
-          "title": "Emotion Recognition based on Psychological Components in Guided Narratives for Emotion Regulation"
-        },
-        {
-          "primary_pointer": "2106.05894",
-          "rationale": "The paper focuses on natural language processing and training dialogue models using \"adversarial negative responses\" (a technical term for synthetic data generation), which is a distinct construct from the psychological concept of \"negative feedback\" and the human trait of \"self-compassion.\" This falls under the rejection rule for distinct constructs sharing only homonym keywords (\"negative\" and \"feedback\" in a technical vs. psychological context) and is entirely off-domain (computer science vs.",
-          "title": "Synthesizing Adversarial Negative Responses for Robust Response Ranking and Evaluation"
-        },
-        {
-          "primary_pointer": "2602.18467",
-          "rationale": "The paper investigates self-compassion in the context of body composition metrics rather than resilience to negative feedback, failing to address the dependent variable or the specific psychological mechanism central to the user's research question. It does not meet inclusion criteria as it lacks a measurable connection to the core relationship under study (rejection rule: no measurable connection to user's mechanism, domain, or variables).",
-          "title": "Identifying Body Composition Measures That Correlate with Self-Compassion and Social Support"
+          "primary_pointer": "1303.2369",
+          "rationale": "The paper focuses on marketing dynamics, incentivized viral campaigns, and user activity prediction within social networks, which is an entirely different domain from the psychological mechanisms of self-compassion and resilience to negative feedback. It shares no measurable connection to the user's specific variables, population, or causal mechanisms, failing all inclusion criteria (a-f) and triggering the \"off-domain entirely\" rejection rule.",
+          "title": "Negative Effects of Incentivised Viral Campaigns for Activity in Social Networks"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-11T14:36:42Z",
+    "started_at": "2026-08-15T04:21:56Z",
     "term_input": {
       "normalized": "the impact of self-compassion on resilience to negative feedback psychology",
       "raw": "The Impact of Self-Compassion on Resilience to Negative Feedback psychology"
@@ -190,7 +179,7 @@
           "primary_pointer": "2503.17371"
         },
         "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='A Review of Urban Resilience Frameworks: Transferring Knowledge to Enhance Pandemic Resilience')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "failed_at": "2026-08-15T04:22:27Z",
         "reason": "query_irrelevant"
       },
       {
@@ -206,7 +195,7 @@
           "primary_pointer": "1711.01767"
         },
         "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Kurt Lewin, psychological constructs and sources of brain cognitive activity')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "failed_at": "2026-08-15T04:22:27Z",
         "reason": "query_irrelevant"
       },
       {
@@ -222,7 +211,7 @@
           "primary_pointer": "2511.05025"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='8bit-GPT: Exploring Human-AI Interaction on Obsolete Macintosh Operating Systems')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "failed_at": "2026-08-15T04:22:27Z",
         "reason": "query_irrelevant"
       },
       {
@@ -242,7 +231,7 @@
           "primary_pointer": "2201.05912"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Common Phone: A Multilingual Dataset for Robust Acoustic Modelling')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "failed_at": "2026-08-15T04:22:27Z",
         "reason": "query_irrelevant"
       },
       {
@@ -261,41 +250,24 @@
           "primary_pointer": "2505.23441"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Mean Field Control with Poissonian Common Noise: A Pathwise Compactification Approach')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "failed_at": "2026-08-15T04:22:27Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We describe the ADAPT system for the 2020 IWPT Shared Task on parsing enhanced Universal Dependencies in 17 languages. We implement a pipeline approach using UDPipe and UDPipe-future to provide initial levels of annotation. The enhanced dependency graph is either produced by a graph-based semantic dependency parser or is built from the basic tree using a small set of heuristics. Our results show that, for the majority of languages, a semantic dependency parser can be successfully applied to the task of parsing enhanced dependencies.\n  Unfortunately, we did not ensure a connected graph as part of our pipeline approach and our competition submission relied on a last-minute fix to pass the validation script which harmed our official evaluation scores significantly. Our submission ranked eighth in the official evaluation with a macro-averaged coarse ELAS F1 of 67.23 and a treebank average of 67.49. We later implemented our own graph-connecting fix which resulted in a score of 79.53 (language average) or 79.76 (treebank average), which would have placed fourth in the competition evaluation.",
+          "claimed_abstract": "Understanding how electronic structure determines the reactivity of solid surface, is a central topic of modern surface science. This is mostly commonly done through some intermediate quantity termed descriptor. However, such descriptors are very scarce for solid surface compared to for molecule, likely due to their significantly more complex electronic structure (cf. molecules). Here we elaborate on the theory of a concept dubbed \"Fermi softness\", which distinguishes itself by enabling prediction of surface reactivity with spatial as well as atomic resolution. Other pertinent concepts and descriptors are also mentioned so as to make the treatment comprehensive.",
           "claimed_authors": [
-            "James Barry",
-            "Joachim Wagner",
-            "Jennifer Foster"
+            "Bing Huang",
+            "Lin Zhuang"
           ],
-          "claimed_title": "The ADAPT Enhanced Dependency Parser at the IWPT 2020 Shared Task",
+          "claimed_title": "Fermi softness: a local perspective on surface reactivity",
           "claimed_venue": "arXiv",
           "claimed_year": 2020,
-          "primary_pointer": "2009.01712"
+          "primary_pointer": "2012.11259"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='The ADAPT Enhanced Dependency Parser at the IWPT 2020 Shared Task')",
-        "failed_at": "2026-07-11T14:37:09Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper describes our systems for IJCNLP 2017 Shared Task on Customer Feedback Analysis. We experimented with simple neural architectures that gave competitive performance on certain tasks. This includes shallow CNN and Bi-Directional LSTM architectures with Facebook's Fasttext as a baseline model. Our best performing model was in the Top 5 systems using the Exact-Accuracy and Micro-Average-F1 metrics for the Spanish (85.28% for both) and French (70% and 73.17% respectively) task, and outperformed all the other models on comment (87.28%) and meaningless (51.85%) tags using Micro Average F1 by Tags metric for the French task.",
-          "claimed_authors": [
-            "Dushyanta Dhyani"
-          ],
-          "claimed_title": "OhioState at IJCNLP-2017 Task 4: Exploring Neural Architectures for Multilingual Customer Feedback Analysis",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2017,
-          "primary_pointer": "1710.06931"
-        },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='OhioState at IJCNLP-2017 Task 4: Exploring Neural Architectures for Multilingual Customer Feedback Analysis')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Fermi softness: a local perspective on surface reactivity')",
+        "failed_at": "2026-08-15T04:22:27Z",
         "reason": "query_irrelevant"
       },
       {
@@ -313,23 +285,56 @@
           "primary_pointer": "cond-mat/9705087"
         },
         "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Scaling in stock market data: stable laws and beyond')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "failed_at": "2026-08-15T04:22:27Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The ability to regulate and cope with strong emotions is essential for maintaining our mental health and well-being. However, learning how to emotionally regulate can be a bit of a mystery since it is largely an invisible process and it can be difficult to conjure up strong emotions to practice regulating them. This is where virtual reality (or VR) comes in. VR is a computer-generated 3D environment where the user experiences a simulated world through 360 visuals, stereo audio, and 3D interaction with tracking sensors. VR is a very visceral experience that feels 'real' even though you know it isn't. If a virtual ball came flying at your head, you would duck! My past research shows that we can provide VR experiences that elicit strong emotional reactions so that people can practice coping and regulating their emotional responses. For example, I helped create a VR experience of being in nature and then going into space to see the Earth; it created the emotional reaction of awe and wonder that led to a deeper connection with our planet. This shows that emotional VR experiences can impact our emotions and behaviour both in VR and beyond. My research proposal is to investigate the feasibility of emotion regulation skills development in VR with teenagers. The idea is to simulate emotional experiences (like the 1st day of high school) as a means to develop emotion regulation skills so that they will be able to better cope with their emotions. I will lead the design, development, and evaluation of this VR experience and work directly with youth to meet their needs. This proof of concept prototype is the first step in developing a VR platform that provides youth with an effective way to regulate their emotions and improve their mental health from their own homes, which will lead to improvements in education, socio-emotional, and economic outcomes for youth in Canada and globally.",
+          "claimed_abstract": "Developing models and metrics that can address resilience against disruptions is vital to ensure power grid reliability and that adequate recovery and adaptation mechanisms are in place. In this paper, we propose a novel disruption mapping approach and apply it to the publicly available U.S. Department of Energy DOE-417 Electric Emergency and Disturbance Report to holistically analyze the origin of anomalous events and their propagation through the cyber, physical and human domains. We show that capturing the disruption process onset has implications for quantifying, mitigating, and reporting power grid resilience.",
           "claimed_authors": [
-            "Alexandra Kitson"
+            "Maureen S. Golan",
+            "Javad Mohammadi"
           ],
-          "claimed_title": "Investigating the Feasibility of Virtual Reality for Emotion Regulation with Youth",
+          "claimed_title": "Mapping Disruption Sources in the Power Grid and Implications for Resilience",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2212.00002"
+          "primary_pointer": "2207.08146"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Investigating the Feasibility of Virtual Reality for Emotion Regulation with Youth')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Mapping Disruption Sources in the Power Grid and Implications for Resilience')",
+        "failed_at": "2026-08-15T04:22:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The space-time foliation Sigma compatible with the gravitational field g on a 4-manifold M determines a fibration pi of M, pi : M -> N is a surjective submersion over the 1-dimensional leaves space N. M is then written as a disjoint union of the leaves of Sigma, which are 3-dimensional spacelike surfaces on M.\n  The decomposition, TM=Sigma + T^0 M, also implies that we can define a lift of the curves on N to curves (non-spacelike) on M.\n  The stable causality condition M coincides with Sigma being a causal space-time distribution, generated by an exact timelike 1-form omega^0 = dt where t is some real function on M. In this case M is written as a disjoint union of a family of spacelike 3-surfaces of constant t, which cover D^+(S) of a initial 3-surface S of M.",
+          "claimed_authors": [
+            "Mihaela Time"
+          ],
+          "claimed_title": "Space-time distributions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 1998,
+          "primary_pointer": "gr-qc/9810059"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Space-time distributions')",
+        "failed_at": "2026-08-15T04:22:28Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Ransomware recovery in critical manufacturing infrastructure is not only a backup-restoration problem. Production capability depends on coupled information-technology, operational-technology, physical-process, quality, logistics, identity, and supplier systems. After ransomware, a plant may rebuild servers yet remain unable to schedule work, authenticate operators, trust engineering workstations, release product, reconnect OT assets, or coordinate suppliers. This paper reframes manufacturing ransomware recovery as a critical-infrastructure continuity and interdependency problem. We conduct a PRISMA-guided multivocal review of academic literature, standards and government guidance, threat frameworks, public incident material, and verified full-text/source-page evidence anchors. The review identifies nine evidence-backed recovery failure modes: dependency blindness, untrusted restore point and backup over-trust, identity trust collapse, lack of proof-of-recovery, unsafe OT reconnection, segmentation assumption failure, capability mismatch, unmanaged degraded operation, and supplier dependency failure. We then introduce Minimum Viable Factory Recovery (MVF Recovery): the smallest safe, trusted, and operationally meaningful production capability that can be resumed under current dependency, evidence, identity, data, network, OT, and supplier constraints. MVF Recovery is an analytical objective rather than a claim of full recovery, implementation, or safety certification. The paper derives a recovery lifecycle and benchmarking directions as secondary outputs. The contribution is an evidence-calibrated foundation for capability-centric ransomware recovery in critical manufacturing infrastructure.",
+          "claimed_authors": [
+            "Chun Yin Chiu"
+          ],
+          "claimed_title": "From Backup Restoration to Minimum Viable Factory Recovery: A Systematization of Ransomware Recovery in Manufacturing Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.16167"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='From Backup Restoration to Minimum Viable Factory Recovery: A Systematization of Ransomware Recovery in Manufacturing Systems')",
+        "failed_at": "2026-08-15T04:22:28Z",
         "reason": "query_irrelevant"
       },
       {
@@ -348,124 +353,65 @@
           "primary_pointer": "2111.05071"
         },
         "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Conformity Assessments and Post-market Monitoring: A Guide to the Role of Auditing in the Proposed European AI Regulation')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "failed_at": "2026-08-15T04:22:28Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Emotion regulation is the process of consciously altering one's affective state, that is the underlying emotional state such as happiness, confidence, guilt, anger etc. The ability to effectively regulate emotions is necessary for functioning efficiently in everyday life. Today, the pervasiveness of digital technology is being purposefully employed to modify our affective states, a process known as digital emotion regulation. Understanding digital emotion regulation can help support the rise of ethical technology design, development, and deployment. This article presents an overview of digital emotion regulation in social media applications, as well as a synthesis of recent research on emotion regulation interventions for social media. We share our findings from analysing state-of-the-art literature on how different social media applications are utilised at different stages in the process of emotion regulation.",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
           "claimed_authors": [
-            "Akriti Verma",
-            "Shama Islam",
-            "Valeh Moghaddam",
-            "Adnan Anwar"
+            "Claudius Gros"
           ],
-          "claimed_title": "Digital Emotion Regulation on Social Media",
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
           "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2307.13187"
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Digital Emotion Regulation on Social Media')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-08-15T04:22:28Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Developing models and metrics that can address resilience against disruptions is vital to ensure power grid reliability and that adequate recovery and adaptation mechanisms are in place. In this paper, we propose a novel disruption mapping approach and apply it to the publicly available U.S. Department of Energy DOE-417 Electric Emergency and Disturbance Report to holistically analyze the origin of anomalous events and their propagation through the cyber, physical and human domains. We show that capturing the disruption process onset has implications for quantifying, mitigating, and reporting power grid resilience.",
+          "claimed_abstract": "The human brain is autonomously active. To understand the functional role of this self-sustained neural activity, and its interplay with the sensory data input stream, is an important question in cognitive system research and we review here the present state of theoretical modelling.\n  This review will start with a brief overview of the experimental efforts, together with a discussion of transient vs. self-sustained neural activity in the framework of reservoir computing. The main emphasis will be then on two paradigmal neural network architectures showing continuously ongoing transient-state dynamics: saddle point networks and networks of attractor relics.\n  Self-active neural networks are confronted with two seemingly contrasting demands: a stable internal dynamical state and sensitivity to incoming stimuli. We show, that this dilemma can be solved by networks of attractor relics based on competitive neural dynamics, where the attractor relics compete on one side with each other for transient dominance, and on the other side with the dynamical influence of the input signals. Unsupervised and local Hebbian-style online learning then allows the system to build up correlations between the internal dynamical transient states and the sensory input stream. An emergent cognitive capability results from this set-up. The system performs online, and on its own, a non-linear independent component analysis of the sensory data stream, all the time being continuously and autonomously active. This process maps the independent components of the sensory input onto the attractor relics, which acquire in this way a semantic meaning.",
           "claimed_authors": [
-            "Maureen S. Golan",
-            "Javad Mohammadi"
+            "Claudius Gros"
           ],
-          "claimed_title": "Mapping Disruption Sources in the Power Grid and Implications for Resilience",
+          "claimed_title": "Cognitive computation with autonomously active neural networks: an emerging field",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.08146"
+          "claimed_year": 2009,
+          "primary_pointer": "0901.3028"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Mapping Disruption Sources in the Power Grid and Implications for Resilience')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "details": "query-relevance 0.167 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Cognitive computation with autonomously active neural networks: an emerging field')",
+        "failed_at": "2026-08-15T04:22:28Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Diabetic retinopathy (DR) is a major cause of visual impairment, and effective treatment options depend heavily on timely and accurate diagnosis. Deep learning models have demonstrated great success identifying DR from retinal images. However, relying only on predictions made by models, without any indication of model confidence, creates uncertainty and poses significant risk in clinical settings. This paper investigates an alternative in uncertainty-aware deep learning models, including a rejection mechanism to reject low-confidence predictions, contextualized by deferred decision-making in clinical practice. The results show there is a trade-off between prediction coverage and coverage reliability. The Variational Bayesian model adopted a more conservative strategy when predicting DR, subsequently rejecting the uncertain predictions. The model is evaluated by means of important performance metrics such as Accuracy on accepted predictions, the proportion of accepted cases (coverage), the rejection-ratio, and Expected Calibration Error (ECE). The findings also demonstrate a clear trade-off between accuracy and caution, establishing that the use of uncertainty estimation and selective rejection improves the model's reliability in safety-critical diagnostic use cases.",
+          "claimed_abstract": "Humans use signs, e.g., sentences in a spoken language, for communication and thought. Hence, symbol systems like language are crucial for our communication with other agents and adaptation to our real-world environment. The symbol systems we use in our human society adaptively and dynamically change over time. In the context of artificial intelligence (AI) and cognitive systems, the symbol grounding problem has been regarded as one of the central problems related to {\\it symbols}. However, the symbol grounding problem was originally posed to connect symbolic AI and sensorimotor information and did not consider many interdisciplinary phenomena in human communication and dynamic symbol systems in our society, which semiotics considered. In this paper, we focus on the symbol emergence problem, addressing not only cognitive dynamics but also the dynamics of symbol systems in society, rather than the symbol grounding problem. We first introduce the notion of a symbol in semiotics from the humanities, to leave the very narrow idea of symbols in symbolic AI. Furthermore, over the years, it became more and more clear that symbol emergence has to be regarded as a multifaceted problem. Therefore, secondly, we review the history of the symbol emergence problem in different fields, including both biological and artificial systems, showing their mutual relations. We summarize the discussion and provide an integrative viewpoint and comprehensive overview of symbol emergence in cognitive systems. Additionally, we describe the challenges facing the creation of cognitive systems that can be part of symbol emergence systems.",
           "claimed_authors": [
-            "Madhushan Ramalingam",
-            "Yaish Riaz",
-            "Priyanthi Rajamanoharan",
-            "Piyumi Dasanayaka"
+            "Tadahiro Taniguchi",
+            "Emre Ugur",
+            "Matej Hoffmann",
+            "Lorenzo Jamone",
+            "Takayuki Nagai",
+            "Benjamin Rosman",
+            "Toshihiko Matsuka",
+            "Naoto Iwahashi",
+            "Erhan Oztop",
+            "Justus Piater",
+            "Florentin Wörgötter"
           ],
-          "claimed_title": "Enhancing Safety in Diabetic Retinopathy Detection: Uncertainty-Aware Deep Learning Models with Rejection Capabilities",
+          "claimed_title": "Symbol Emergence in Cognitive Developmental Systems: a Survey",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.00029"
+          "claimed_year": 2018,
+          "primary_pointer": "1801.08829"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Enhancing Safety in Diabetic Retinopathy Detection: Uncertainty-Aware Deep Learning Models with Rejection Capabilities')",
-        "failed_at": "2026-07-11T14:37:09Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Understanding attitudes towards STEM means quantifying the cognitive and emotional ways in which individuals, and potentially large language models too, conceptualise such subjects. This study uses behavioural forma mentis networks (BFMNs) to investigate the STEM-focused mindset, i.e. ways of associating and perceiving ideas, of 177 human participants and 177 artificial humans simulated by GPT-3.5. Participants were split in 3 groups - trainees, experts and academics - to compare the influence of expertise level on their mindset. The results revealed that human forma mentis networks exhibited significantly higher clustering coefficients compared to GPT-3.5, indicating that human mindsets displayed a tendency to form and close triads of conceptual associations while recollecting STEM ideas. Human experts, in particular, demonstrated robust clustering coefficients, reflecting better integration of STEM concepts into their cognitive networks. In contrast, GPT-3.5 produced sparser mindsets. Furthermore, both human and GPT mindsets framed mathematics in neutral or positive terms, differently from STEM high schoolers, researchers and other large language models sampled in other works. This research contributes to understanding how mindset structure can provide cognitive insights about memory structure and machine limitations.",
-          "claimed_authors": [
-            "Edith Haim",
-            "Lars van den Bergh",
-            "Cynthia S. Q. Siew",
-            "Yoed N. Kenett",
-            "Daniele Marinazzo",
-            "Massimo Stella"
-          ],
-          "claimed_title": "Cognitive networks highlight differences and similarities in the STEM mindsets of human and LLM-simulated trainees, experts and academics",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2502.19529"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Cognitive networks highlight differences and similarities in the STEM mindsets of human and LLM-simulated trainees, experts and academics')",
-        "failed_at": "2026-07-11T14:37:09Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Single crystals of iridates are usually grown by a flux method well above the boiling point of the SrCl2 solvent. This leads to non-equilibrium growth conditions and dramatically shortens the lifetime of expensive Pt crucibles. Here, we report the growth of Sr2IrO4, Sr3Ir2O7 and SrIrO3 single crystals in a reproducible way by using anhydrous SrCl2 flux well below its boiling point. We show that the yield of the different phases strongly depends on the nutrient/solvent ratio for fixed soak temperature and cooling rate. Using this low-temperature growth approach generally leads to a lower temperature-independent contribution to the magnetic susceptibility than previously reported. Crystals of SrIrO3 exhibit a paramagnetic behavior that can be remarkably well fitted with a Curie-Weiss law yielding physically reasonable parameters, in contrast to previous reports. Hence, reducing the soak temperature below the solvent boiling point not only provides more stable and controllable growth conditions in contrast to previously reported growth protocols, but also extends considerably the lifetime of expensive platinum crucibles and reduces the corrosion of heating and thermoelements of standard furnaces, thereby reducing growth costs.",
-          "claimed_authors": [
-            "Kaustuv Manna",
-            "Gizem Aslan-Cansever",
-            "Andrey Maljuk",
-            "Sabine Wurmehl",
-            "Silvia Seiro",
-            "Bernd Büchner"
-          ],
-          "claimed_title": "Flux growth of Sr(n+1)Ir(n)O(3n+1) [n=1, 2, infinity] crystals",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2004.03654"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Flux growth of Sr(n+1)Ir(n)O(3n+1) [n=1, 2, infinity] crystals')",
-        "failed_at": "2026-07-11T14:37:09Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Controlling the growth kinetics from the vapor phase has been a powerful paradigm enabling a variety of metastable epitaxial semiconductors such as Sn-containing group IV semiconductors (Si)GeSn. In addition to its importance for emerging photonic and optoelectronic applications, this class of materials is also a rich platform to highlight the interplay between kinetics and thermodynamic driving forces during growth of strained, nonequilibrium alloys. Indeed, these alloys are inherently strained and supersaturated in Sn and thus can suffer instabilities that are still to be fully elucidated. In this vein, in this work the atomic-scale microstructure of Ge0.82Sn0.18 is investigated at the onset of phase separation as the epitaxial growth aborts. In addition to the expected accumulation of Sn on the surface leading to Sn-rich droplets and sub-surface regions with the anticipated equilibrium Sn composition of 1.0at.%, the diffusion of Sn atoms also yields conspicuous Sn-decorated filaments with nonuniform Sn content in the range of ~1 to 11at.% . The latter are attributed to the formation and propagation of dislocations, facilitating the Sn transport toward the surface through pipe diffusion. Furthermore, the interface between the Sn droplet and GeSn shows a distinct, defective layer with Sn content of ~22at.%. This layer is likely formed by the expelled excess equilibrium Ge as the Sn solidifies, and its content seems to be a consequence of strain minimization between tetragonal Sn-rich and cubic Ge-rich equilibrium phases. The elucidation of these phenomena is crucial to understand the stability of GeSn semiconductors and control their epitaxial growth at a uniform composition.",
-          "claimed_authors": [
-            "Jérôme Nicolas",
-            "Simone Assali",
-            "Samik Mukherjee",
-            "Andriy Lotnyk",
-            "Oussama Moutanabbir"
-          ],
-          "claimed_title": "Dislocation pipe diffusion and solute segregation during the growth of metastable GeSn",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2003.01308"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Dislocation pipe diffusion and solute segregation during the growth of metastable GeSn')",
-        "failed_at": "2026-07-11T14:37:09Z",
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Self-Compassion on Resilience to Negative Feedback psychology', candidate_title='Symbol Emergence in Cognitive Developmental Systems: a Survey')",
+        "failed_at": "2026-08-15T04:22:28Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -490,12 +436,12 @@
           "final_url": "https://arxiv.org/abs/2502.15383",
           "http_status": 200,
           "pdf_sample_score": 0.1787,
-          "query_relevance_score": 0.6667,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-11T14:37:16Z"
+          "verified_at": "2026-08-15T04:22:27Z"
         }
       }
     ]
