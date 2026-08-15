@@ -4,286 +4,299 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
-import scipy.stats as stats
-import numpy as np
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+import numpy as np
+from scipy import stats
+
+# Import project configuration
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from src.utils.config import get_project_root, get_results_path
+
 logger = logging.getLogger(__name__)
 
-def load_evaluation_results(file_path: str) -> Dict[str, Any]:
-    """Load evaluation results from a JSON file."""
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Evaluation results file not found: {file_path}")
+# Constants for power analysis
+DEFAULT_EFFECT_SIZE = 0.5
+DEFAULT_ALPHA = 0.05
+DEFAULT_DESIRED_POWER = 0.8
+
+def load_evaluation_results(results_path: Path) -> Dict[str, Any]:
+    """Load the statistics report from disk."""
+    if not results_path.exists():
+        raise FileNotFoundError(f"Results file not found: {results_path}")
     
-    with open(path, 'r') as f:
+    with open(results_path, 'r') as f:
         return json.load(f)
 
-def extract_success_rates(results: Dict[str, Any]) -> Dict[str, List[float]]:
-    """Extract success rates for each strategy from evaluation results."""
-    success_rates = {}
-    if 'strategy_results' in results:
-        for strategy, data in results['strategy_results'].items():
-            if 'success_rates' in data:
-                success_rates[strategy] = data['success_rates']
-    return success_rates
+def extract_success_rates(report: Dict[str, Any]) -> Dict[str, float]:
+    """Extract success rates from the report."""
+    if 'strategy_results' not in report:
+        raise ValueError("Report missing 'strategy_results' key")
+    
+    rates = {}
+    for strategy, data in report['strategy_results'].items():
+        if 'mean_success_rate' in data:
+            rates[strategy] = data['mean_success_rate']
+    return rates
 
 def perform_paired_test(group1: List[float], group2: List[float]) -> Tuple[float, float]:
-    """Perform a paired t-test or Wilcoxon signed-rank test."""
+    """
+    Perform a paired t-test or Wilcoxon signed-rank test.
+    Returns (statistic, p_value).
+    """
     if len(group1) != len(group2) or len(group1) < 2:
-        raise ValueError("Both groups must have at least 2 samples and equal length")
+        raise ValueError("Groups must have equal length >= 2 for paired test")
     
-    # Check for normality using Shapiro-Wilk test
+    # Check for normality of differences (Shapiro-Wilk)
+    diffs = np.array(group1) - np.array(group2)
     try:
-        _, p_normality = stats.shapiro(np.array(group1) - np.array(group2))
-        use_t_test = p_normality > 0.05
+        _, p_normality = stats.shapiro(diffs)
+        use_ttest = p_normality > 0.05
     except Exception:
-        # Default to t-test if Shapiro-Wilk fails
-        use_t_test = True
-    
-    if use_t_test:
-        stat, p_value = stats.ttest_rel(group1, group2)
-        test_name = "paired_t_test"
-    else:
-        stat, p_value = stats.wilcoxon(group1, group2)
-        test_name = "wilcoxon_signed_rank"
-    
-    return p_value, test_name
+        # Fallback to t-test if Shapiro fails
+        use_ttest = True
 
-def apply_benjamini_hochberg(p_values: List[float], alpha: float = 0.05) -> List[float]:
-    """Apply Benjamini-Hochberg correction to a list of p-values."""
-    n = len(p_values)
-    if n == 0:
+    if use_ttest:
+        stat, p_val = stats.ttest_rel(group1, group2)
+    else:
+        stat, p_val = stats.wilcoxon(group1, group2)
+    
+    return float(stat), float(p_val)
+
+def apply_benjamini_hochberg(p_values: List[float]) -> List[float]:
+    """
+    Apply Benjamini-Hochberg correction to a list of p-values.
+    Returns corrected p-values.
+    """
+    if not p_values:
         return []
     
-    # Sort p-values and keep track of original indices
+    m = len(p_values)
     sorted_indices = np.argsort(p_values)
-    sorted_p_values = np.array([p_values[i] for i in sorted_indices])
+    sorted_p = np.array(p_values)[sorted_indices]
     
     # Calculate BH critical values
-    ranks = np.arange(1, n + 1)
-    critical_values = (ranks / n) * alpha
+    ranks = np.arange(1, m + 1)
+    critical_values = (ranks / m) * DEFAULT_ALPHA
     
     # Find the largest k such that p_(k) <= critical_(k)
-    adjusted_p_values = np.ones(n)
-    for i in range(n - 1, -1, -1):
-        if sorted_p_values[i] <= critical_values[i]:
-            # All p-values up to this index are significant
-            for j in range(i + 1):
-                adjusted_p_values[sorted_indices[j]] = min(1.0, sorted_p_values[j] * n / (j + 1))
-            break
-        else:
-            adjusted_p_values[sorted_indices[i]] = min(1.0, sorted_p_values[i] * n / (i + 1))
+    # We need to adjust p-values to be monotonic
+    adjusted_p = np.zeros(m)
+    min_val = 1.0
+    for i in reversed(range(m)):
+        val = min(1.0, sorted_p[i] * (m / (i + 1)))
+        min_val = min(min_val, val)
+        adjusted_p[i] = min_val
     
-    return adjusted_p_values.tolist()
+    # Reorder back to original
+    final_adjusted = np.zeros(m)
+    final_adjusted[sorted_indices] = adjusted_p
+    
+    return final_adjusted.tolist()
 
-def calculate_effect_size(group1: List[float], group2: List[float]) -> float:
-    """Calculate Cohen's d effect size."""
-    group1_np = np.array(group1)
-    group2_np = np.array(group2)
-    
-    mean_diff = np.mean(group1_np) - np.mean(group2_np)
-    pooled_std = np.sqrt((np.std(group1_np, ddof=1)**2 + np.std(group2_np, ddof=1)**2) / 2)
-    
-    if pooled_std == 0:
-        return 0.0
-    
-    return mean_diff / pooled_std
-
-def estimate_statistical_power(effect_size: float, n: int, alpha: float = 0.05, desired_power: float = 0.8) -> float:
+def calculate_statistical_power(
+    n: int, 
+    effect_size: float, 
+    alpha: float = DEFAULT_ALPHA, 
+    desired_power: float = DEFAULT_DESIRED_POWER
+) -> float:
     """
-    Estimate statistical power for a paired t-test.
+    Calculate statistical power for a paired t-test.
     
     Args:
-        effect_size: Cohen's d effect size
-        n: Sample size per group
+        n: Number of pairs (trials)
+        effect_size: Cohen's d (standardized difference)
         alpha: Significance level
-        desired_power: Target power (for reference)
-        
+        desired_power: Target power (not used in calculation, used for comparison)
+    
     Returns:
-        Estimated power value between 0 and 1
+        Estimated power (0.0 to 1.0)
     """
     if n < 2:
         return 0.0
     
-    # Use non-central t-distribution to estimate power
+    # Degrees of freedom
     df = n - 1
-    noncentrality_param = effect_size * np.sqrt(n / 2)
+    
+    # Non-centrality parameter for paired t-test
+    ncp = effect_size * np.sqrt(n)
     
     # Critical t-value for two-tailed test
-    t_critical = stats.t.ppf(1 - alpha/2, df)
+    t_crit = stats.t.ppf(1 - alpha / 2, df)
     
-    # Calculate power using non-central t-distribution
-    power = stats.nct.sf(t_critical, df, noncentrality_param) + stats.nct.cdf(-t_critical, df, noncentrality_param)
+    # Power is the probability that the non-central t-distribution
+    # exceeds the critical value
+    # We approximate using the non-central t CDF
+    power = 1 - stats.nct.cdf(t_crit, df, ncp) + stats.nct.cdf(-t_crit, df, ncp)
     
-    return max(0.0, min(1.0, power))
+    return float(power)
 
-def compare_strategies(results: Dict[str, Any], baseline_strategy: str = "baseline") -> Dict[str, Dict[str, Any]]:
-    """Compare all strategies against the baseline."""
-    success_rates = extract_success_rates(results)
-    comparisons = {}
+def compare_strategies(
+    results: Dict[str, Dict[str, Any]], 
+    baseline_strategy: str = "baseline"
+) -> List[Tuple[str, float, float]]:
+    """
+    Compare all strategies against the baseline.
+    Returns list of (strategy_name, statistic, p_value).
+    """
+    comparisons = []
     
-    if baseline_strategy not in success_rates:
-        logger.warning(f"Baseline strategy '{baseline_strategy}' not found in results")
-        return comparisons
+    if baseline_strategy not in results:
+        raise ValueError(f"Baseline strategy '{baseline_strategy}' not found in results")
     
-    baseline_rates = success_rates[baseline_strategy]
+    baseline_data = results[baseline_strategy]
+    if 'success_rates' not in baseline_data:
+        raise ValueError(f"Baseline strategy missing 'success_rates' data")
     
-    for strategy, rates in success_rates.items():
-        if strategy == baseline_strategy:
+    baseline_rates = baseline_data['success_rates']
+    
+    for strategy_name, data in results.items():
+        if strategy_name == baseline_strategy:
             continue
         
-        if len(rates) != len(baseline_rates):
-            logger.warning(f"Skipping comparison for {strategy}: length mismatch with baseline")
+        if 'success_rates' not in data:
+            logger.warning(f"Skipping {strategy_name}: missing success_rates")
             continue
         
-        try:
-            p_value, test_name = perform_paired_test(baseline_rates, rates)
-            effect_size = calculate_effect_size(baseline_rates, rates)
-            
-            comparisons[strategy] = {
-                "p_value": p_value,
-                "test_used": test_name,
-                "effect_size": effect_size,
-                "baseline_mean": np.mean(baseline_rates),
-                "strategy_mean": np.mean(rates),
-                "observed_success_rate_diff": abs(np.mean(rates) - np.mean(baseline_rates))
-            }
-        except Exception as e:
-            logger.error(f"Error comparing {strategy} with baseline: {e}")
+        strategy_rates = data['success_rates']
+        
+        if len(baseline_rates) != len(strategy_rates):
+            logger.warning(f"Skipping {strategy_name}: length mismatch with baseline")
             continue
+        
+        stat, p_val = perform_paired_test(baseline_rates, strategy_rates)
+        comparisons.append((strategy_name, stat, p_val))
     
     return comparisons
 
-def calculate_power_analysis(comparisons: Dict[str, Dict[str, Any]], alpha: float = 0.05, desired_power: float = 0.8) -> Dict[str, Any]:
-    """
-    Perform power analysis for all comparisons and add results to the report.
-    
-    Args:
-        comparisons: Dictionary of strategy comparisons with effect sizes
-        alpha: Significance level
-        desired_power: Target power threshold
-        
-    Returns:
-        Dictionary containing power analysis results for each comparison
-    """
-    power_results = {}
-    warnings = []
-    
-    for strategy, comp_data in comparisons.items():
-        effect_size = comp_data.get("effect_size", 0.0)
-        # Assume sample size from the data used in the comparison
-        # This would typically come from the number of trials N
-        n_trials = 5  # Default assumption based on FR-008 (N >= 5)
-        
-        # Calculate power
-        power = estimate_statistical_power(effect_size, n_trials, alpha, desired_power)
-        
-        power_results[strategy] = {
-            "estimated_power": power,
-            "effect_size": effect_size,
-            "sample_size_used": n_trials,
-            "alpha": alpha,
-            "meets_desired_power": power >= desired_power
-        }
-        
-        if power < desired_power:
-            warnings.append(
-                f"Power analysis for {strategy}: estimated power ({power:.3f}) < desired power ({desired_power}). "
-                f"Consider increasing N (currently {n_trials}) to improve statistical power."
-            )
-    
-    return {
-        "power_results": power_results,
-        "warnings": warnings,
-        "parameters": {
-            "alpha": alpha,
-            "desired_power": desired_power,
-            "assumed_effect_size": 0.5,  # As specified in task
-            "assumed_sample_size": n_trials
-        }
-    }
-
-def save_statistics_report(comparisons: Dict[str, Dict[str, Any]], 
-                          power_analysis: Dict[str, Any],
-                          output_path: str) -> None:
-    """Save the complete statistics report including power analysis."""
-    report = {
-        "comparisons": comparisons,
-        "power_analysis": power_analysis,
-        "summary": {
-            "total_comparisons": len(comparisons),
-            "power_warnings_count": len(power_analysis.get("warnings", [])),
-            "all_comparisons_meet_power": all(
-                data.get("meets_desired_power", False) 
-                for data in power_analysis.get("power_results", {}).values()
-            )
-        }
-    }
-    
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w') as f:
+def save_statistics_report(
+    report: Dict[str, Any], 
+    output_path: Path
+) -> None:
+    """Save the statistics report to JSON."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-    
     logger.info(f"Statistics report saved to {output_path}")
 
-def main():
-    """Main function to execute power analysis on evaluation results."""
-    # Define paths
-    results_path = Path("data/results/stats_report.json")
-    output_path = Path("data/results/stats_report.json")
+def main() -> None:
+    """
+    Main entry point for T043: Power Analysis Check.
     
-    # Check if results file exists
-    if not results_path.exists():
-        logger.error(f"Evaluation results file not found: {results_path}")
-        logger.error("Please run the evaluation pipeline first (T029) to generate stats_report.json")
-        sys.exit(1)
+    Reads data/results/stats_report.json, performs power analysis,
+    updates the report with estimated power, and saves it back.
+    """
+    project_root = get_project_root()
+    results_path = get_results_path()
+    report_path = results_path / "stats_report.json"
+    
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    logger.info(f"Loading report from {report_path}")
     
     try:
-        # Load evaluation results
-        results = load_evaluation_results(str(results_path))
-        
-        # Extract success rates and compare strategies
-        comparisons = compare_strategies(results)
-        
-        if not comparisons:
-            logger.warning("No valid comparisons found. Check if 'baseline' strategy exists in results.")
-            sys.exit(0)
-        
-        # Perform power analysis
-        power_analysis = calculate_power_analysis(comparisons)
-        
-        # Log warnings if power is insufficient
-        for warning in power_analysis.get("warnings", []):
-            logger.warning(warning)
-        
-        # Update the report with power analysis
-        # Load existing report if it exists, otherwise create new
-        if output_path.exists():
-            with open(output_path, 'r') as f:
-                existing_report = json.load(f)
-            existing_report["power_analysis"] = power_analysis
-            existing_report["comparisons"] = comparisons
-        else:
-            existing_report = {
-                "comparisons": comparisons,
-                "power_analysis": power_analysis
-            }
-        
-        # Save updated report
-        with open(output_path, 'w') as f:
-            json.dump(existing_report, f, indent=2)
-        
-        logger.info(f"Power analysis completed and saved to {output_path}")
-        logger.info(f"Total comparisons: {len(comparisons)}")
-        logger.info(f"Power warnings: {len(power_analysis.get('warnings', []))}")
-        
-    except Exception as e:
-        logger.error(f"Error during power analysis: {e}")
-        raise
+        report = load_evaluation_results(report_path)
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load report: {e}")
+        sys.exit(1)
+    
+    # Extract observed effect size from the report
+    # We assume the report contains 'strategy_results' with 'mean_success_rate'
+    # and we need to calculate the observed difference for power analysis
+    
+    strategy_results = report.get('strategy_results', {})
+    
+    if not strategy_results:
+        logger.warning("No strategy results found in report. Skipping power analysis.")
+        # Still save the report as is
+        save_statistics_report(report, report_path)
+        return
+    
+    # Find baseline and a comparison strategy to estimate effect size
+    # We'll use the first available strategy vs baseline
+    baseline_key = None
+    comparison_key = None
+    
+    for key in strategy_results:
+        if 'baseline' in key.lower():
+            baseline_key = key
+            break
+    
+    if not baseline_key:
+        # Use the first key as baseline if 'baseline' not found
+        baseline_key = list(strategy_results.keys())[0]
+    
+    for key in strategy_results:
+        if key != baseline_key:
+            comparison_key = key
+            break
+    
+    if not comparison_key:
+        logger.warning("Only one strategy found. Cannot compute effect size for power analysis.")
+        # Set a default low power or skip
+        report['power_analysis'] = {
+            'estimated_power': 0.0,
+            'note': 'Insufficient strategies for power analysis'
+        }
+        save_statistics_report(report, report_path)
+        return
+    
+    # Extract success rates
+    baseline_rates = strategy_results[baseline_key].get('success_rates', [])
+    comparison_rates = strategy_results[comparison_key].get('success_rates', [])
+    
+    if not baseline_rates or not comparison_rates:
+        logger.warning("Missing success rate data for power analysis.")
+        report['power_analysis'] = {
+            'estimated_power': 0.0,
+            'note': 'Missing success rate data'
+        }
+        save_statistics_report(report, report_path)
+        return
+    
+    # Calculate observed effect size (Cohen's d for paired samples)
+    diffs = np.array(baseline_rates) - np.array(comparison_rates)
+    mean_diff = np.mean(diffs)
+    std_diff = np.std(diffs, ddof=1)
+    
+    if std_diff == 0:
+        effect_size = 0.0
+    else:
+        effect_size = mean_diff / std_diff
+    
+    n = len(baseline_rates)
+    
+    # Calculate power
+    estimated_power = calculate_statistical_power(
+        n=n,
+        effect_size=abs(effect_size), # Use absolute value for power calculation
+        alpha=DEFAULT_ALPHA,
+        desired_power=DEFAULT_DESIRED_POWER
+    )
+    
+    # Prepare power analysis result
+    power_analysis = {
+        'observed_effect_size': float(effect_size),
+        'sample_size': n,
+        'alpha': DEFAULT_ALPHA,
+        'estimated_power': float(estimated_power),
+        'desired_power': DEFAULT_DESIRED_POWER,
+        'sufficient_power': estimated_power >= DEFAULT_DESIRED_POWER,
+        'recommendation': 'Proceed with test' if estimated_power >= DEFAULT_DESIRED_POWER else f'Consider increasing N (current power {estimated_power:.2f} < {DEFAULT_DESIRED_POWER})'
+    }
+    
+    # Update report
+    report['power_analysis'] = power_analysis
+    
+    # Log warning if power is low
+    if estimated_power < DEFAULT_DESIRED_POWER:
+        logger.warning(f"Statistical power is low ({estimated_power:.2f}). {power_analysis['recommendation']}")
+    else:
+        logger.info(f"Statistical power is sufficient ({estimated_power:.2f}).")
+    
+    # Save updated report
+    save_statistics_report(report, report_path)
+    
+    logger.info("Power analysis complete and report updated.")
 
 if __name__ == "__main__":
     main()

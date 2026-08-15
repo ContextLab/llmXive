@@ -49,10 +49,3 @@ T038:
     \ logs, output files, or a report confirming that the quickstart instructions\
     \ were executed and reproduced the full pipeline. The required artifact (validation\
     \ results) is missing."
-T043:
-  c: false
-  h: b14e37ea7dc8d8ba26e9885bf0f5e79a79a8501654b3fb18df8e8ab3f1b75c97
-  r: "The provided `src/evaluation/stats.py` does not contain any implementation of\
-    \ a power\u2011analysis check (the file is truncated and lacks such logic), and\
-    \ the required `data/results/stats_report.json` file is missing entirely. Consequently\
-    \ the task\u2019s specifications are not satisfied."
