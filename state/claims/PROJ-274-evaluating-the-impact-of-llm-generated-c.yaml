@@ -1,0 +1,1135 @@
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: N=15-20 is underpowered for medium effects
+  claim_id: c_7fb3d43e
+  context: Implement Sensitivity Analysis for alpha thresholds across a range of standard
+    significance levels. Explicitly report that N=15-20 is underpowered for medium
+    effects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly report that N=15-20 is underpowered for medium effects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:43:02Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: pilot study underpowered less than 20 percent to detect medium effects
+  claim_id: c_d4d1ed36
+  context: The report must calculate and display the achieved statistical power for
+    the observed effect size given N=15-20, and explicitly state the limitation that
+    the pilot is underpowered (<20%) to detect medium effects, aligning with the 'Assumption
+    about statistical power' in spec.md.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pilot_study_underpowered_less_than_20_percent_to_detect_medi
+  kind: magnitude
+  raw_text: Explicitly state the limitation that the pilot is underpowered (<20%)
+    to detect medium effects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:43:57Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: recruit 15 to 20 volunteers for pilot study
+  claim_id: c_fb8c1617
+  context: Recruit N=15-20 volunteers for the pilot study. Verify eligibility criteria
+    (developer background) and obtain informed consent.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit N=15-20 volunteers for the pilot study.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:44:21Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: mean of loc and cc columns is approximately 0.0
+  claim_id: c_39dcebb9
+  context: 'Verification: Assert that the mean of loc and cc columns in the output
+    file is ~0.0 (within floating point tolerance).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that the mean of loc and cc columns in the output file is ~0.0
+    (within floating point tolerance).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:44:52Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: analysis phase execution time less than 6 hours and RAM less than 7GB
+  claim_id: c_39cb3d5e
+  context: 'Verify Analysis Phase execution time < 6 hours and RAM < 7GB using the
+    active monitoring context manager from T010. Verification: Assert wall_clock_time
+    < 21600 and peak_RSS < 7GB in the logged analysis report.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_phase_execution_time_less_than_6_hours_and_RAM_less
+  kind: magnitude
+  raw_text: Verify execution time < 6 hours and RAM < 7GB using the active monitoring
+    context manager.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:45:16Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: generation phase execution time less than 15 minutes per repo
+  claim_id: c_629b1ca0
+  context: 'Verify Generation Phase execution time < 15 minutes per repo (US-2 constraint)
+    using scripts/measure_generation_resources.py. Verification: Assert total_time_per_repo
+    < 900s (measured from API call initiation to file write completion) and log context_window_usage.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generation_phase_execution_time_less_than_15_minutes_per_rep
+  kind: magnitude
+  raw_text: Verify Generation Phase execution time < 15 minutes per repo.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:45:42Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: total time per repo less than 900 seconds
+  claim_id: c_fa2cb5ff
+  context: 'Verification: Assert total_time_per_repo < 900s (measured from API call
+    initiation to file write completion) and log context_window_usage.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_time_per_repo_less_than_900_seconds
+  kind: magnitude
+  raw_text: Assert total_time_per_repo < 900s.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:46:01Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: wall clock time less than 21600 seconds
+  claim_id: c_345d9d75
+  context: 'Verification: Assert wall_clock_time < 21600 and peak_RSS < 7GB in the
+    logged analysis report.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wall_clock_time_less_than_21600_seconds
+  kind: magnitude
+  raw_text: Verify wall_clock_time < 21600.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:46:18Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: recruitment log contains 15 to 20 rows with UUID v4 participant IDs and
+    SHA-256 consent hashes
+  claim_id: c_1fd3c9e9
+  context: 'Verification: Assert file exists, contains N rows (15 <= N <= 20), and
+    each row has participant_id (UUID v4 format) and consent_hash (SHA-256 of consent
+    document).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert file exists, contains N rows (15 <= N <= 20), and each row has
+    participant_id (UUID v4 format) and consent_hash (SHA-256 of consent document).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:46:31Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: documentation filenames follow repo id docs md convention
+  claim_id: c_84405b09
+  context: Verify filenames follow {repo_id}_docs.md convention. Verify each file
+    contains a header with a SHA-256 checksum that matches the entry in data/checksums.txt.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Documentation_filenames_follow_repo_id_docs_md_convention
+  kind: entity_fact
+  raw_text: Verify filenames follow {repo_id}_docs.md convention.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:46:54Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: documentation files contain SHA-256 checksum headers matching data/checksums.txt
+  claim_id: c_f8d0890c
+  context: Verify each file contains a header with a SHA-256 checksum that matches
+    the entry in data/checksums.txt. Verify data/llm_config.yaml is updated with the
+    generation parameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify each file contains a header with a SHA-256 checksum that matches
+    the entry in data/checksums.txt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:47:06Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: use phi 2 GGUF quantized int4 model via llama cpp python
+  claim_id: c_755a5c0d
+  context: 'If API fails, load ''phi (quantized int4)'' using llama-cpp-python (specific
+    model ID: ''TheBloke/phi-2-GGUF'' or equivalent int4 quantized). MUST pin the
+    model to a specific HuggingFace commit hash.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use ''phi (quantized int4)'' using llama-cpp-python (specific model ID:
+    ''TheBloke/phi-2-GGUF'' or equivalent int4 quantized).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:47:23Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: plus or minus 15 percent metric for descriptive statistics only repos
+    retained for ANCOVA
+  claim_id: c_d72a95c4
+  context: "This task MUST NOT exclude or filter repos based on the \xB115% tolerance.\
+    \ The \xB115% metric is for descriptive statistics only; all repos passing the\
+    \ rubric (T021b) must be retained for ANCOVA adjustment."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The \xB115% metric is for descriptive statistics only; all repos passing\
+    \ the rubric (T021b) must be retained for ANCOVA adjustment."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:47:23Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: pilot study underpowered (<20%) to detect medium effects with N=15-20
+  claim_id: c_a3721f8d
+  context: T056 [P] [US3] Add explicit Power Analysis Reporting to data/reports/final_report.md.
+    The report must calculate and display the achieved statistical power for the observed
+    effect size given N=15-20, and explicitly state the limitation that the pilot
+    is underpowered (<20%) to detect medium effects, aligning with the 'Assumption
+    about statistical power' in spec.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The report must calculate and display the achieved statistical power for
+    the observed effect size given N=15-20, and explicitly state the limitation that
+    the pilot is underpowered (<20%) to detect medium effects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:55:44Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: N=15-20 is underpowered for medium effects
+  claim_id: c_e894cbf3
+  context: 'T039 [US3] Implement Sensitivity Analysis for alpha thresholds across
+    a range of standard significance levels. Explicitly report that N=15-20 is underpowered
+    for medium effects. Output: data/reports/sensitivity_analysis.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly report that N=15-20 is underpowered for medium effects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:55:44Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: 15 percent tolerance for descriptive statistics only with all passing
+    repos retained for ANCOVA
+  claim_id: c_1bb63026
+  context: "T021d [P] Execute quantitative matching logic per FR-009: compare LOC/CC\
+    \ of candidate repos against a baseline to generate a matching quality report.\
+    \ IMPORTANT: This task MUST NOT exclude or filter repos based on the \xB115% tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The \xB115% metric is for descriptive statistics only; all repos passing\
+    \ the rubric (T021b) must be retained for ANCOVA adjustment."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:58:05Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: N between 15 and 20 is underpowered for medium effects
+  claim_id: c_c48b57ba
+  context: T039 [US3] Implement Sensitivity Analysis for alpha thresholds across a
+    range of standard significance levels. Explicitly report that N=15-20 is underpowered
+    for medium effects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly report that N=15-20 is underpowered for medium effects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:58:06Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Reproducibility checklist verifying pinned seeds model hashes data checksums
+    and execution constraints
+  claim_id: c_eeddcdb5
+  context: 'T070 [P] [Setup] Create a Reproducibility Checklist in data/reports/reproducibility_checklist.md:
+    A step-by-step verification list confirming that all seeds are pinned, all model
+    hashes are verified, all data checksums match, and all execution constraints (time/memory)
+    were met.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_checklist_verifying_pinned_seeds_model_hashe
+  kind: entity_fact
+  raw_text: Verify that all seeds are pinned, all model hashes are verified, all data
+    checksums match, and all execution constraints (time/memory) were met.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:58:35Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify developer background eligibility and obtain informed consent
+  claim_id: c_ca9ba16b
+  context: 'T073 [US1] Recruit Participants: Recruit N=15-20 volunteers for the pilot
+    study. Verify eligibility criteria (developer background) and obtain informed
+    consent.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_developer_background_eligibility_and_obtain_informed
+  kind: entity_fact
+  raw_text: Verify eligibility criteria (developer background) and obtain informed
+    consent.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:58:56Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Recruitment log must contain 15 to 20 rows with UUID v4 participant IDs
+    and SHA-256 consent hashes
+  claim_id: c_c8ddb0bb
+  context: 'Verification: Assert file exists, contains N rows (15 <= N <= 20), and
+    each row has participant_id (UUID v4 format) and consent_hash (SHA-256 of consent
+    document).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert file exists, contains N rows (15 <= N <= 20), and each row has
+    participant_id (UUID v4 format) and consent_hash (SHA-256 of consent document).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T22:58:56Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Calculate and report Cohen's d for LLM versus No Docs comparison
+  claim_id: c_d9e20af4
+  context: 'T069 [P] [US3] Implement Effect Size Calculation in code/analysis.py:
+    Calculate Cohen''s d (or equivalent) for the primary pairwise comparison (LLM
+    vs. No Docs) and report it alongside the p-value.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_and_report_Cohen's_d_for_LLM_versus_No_Docs_compar
+  kind: entity_fact
+  raw_text: Calculate Cohen's d (or equivalent) for the primary pairwise comparison
+    (LLM vs. No Docs) and report it alongside the p-value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:01:00Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Pilot study is underpowered less than 20 percent to detect medium effects
+  claim_id: c_96e5404c
+  context: T056 [P] [US3] Add explicit Power Analysis Reporting to data/reports/final_report.md.
+    The report must calculate and display the achieved statistical power for the observed
+    effect size given N=15-20, and explicitly state the limitation that the pilot
+    is underpowered (<20%) to detect medium effects.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pilot_study_is_underpowered_less_than_20_percent_to_detect_m
+  kind: magnitude
+  raw_text: The pilot is underpowered (<20%) to detect medium effects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:01:29Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify documentation filenames follow repo_id_docs.md convention
+  claim_id: c_883e26c2
+  context: 'T076 [US2] Generate Documentation: Trigger the documentation generation
+    pipeline (doc_pipeline.py) for the selected repositories. Verify filenames follow
+    {repo_id}_docs.md convention.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_documentation_filenames_follow_repo_id_docs.md_conven
+  kind: entity_fact
+  raw_text: Verify filenames follow {repo_id}_docs.md convention.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:01:31Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify documentation file headers contain SHA-256 checksums matching
+    data/checksums.txt
+  claim_id: c_033fbc14
+  context: 'T076 [US2] Generate Documentation: Trigger the documentation generation
+    pipeline (doc_pipeline.py) for the selected repositories. Verify each file contains
+    a header with a SHA-256 checksum that matches the entry in data/checksums.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify each file contains a header with a SHA-256 checksum that matches
+    the entry in data/checksums.txt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:01:31Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Assert number of generated markdown documentation files equals number
+    of repositories
+  claim_id: c_c2cf6ff7
+  context: 'T076 [US2] Generate Documentation: Trigger the documentation generation
+    pipeline (doc_pipeline.py) for the selected repositories. Output: data/raw/llm_docs/
+    directory. Verification: Assert len(list(data/raw/llm_docs/*.md)) == N_repos.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Assert_number_of_generated_markdown_documentation_files_equa
+  kind: entity_fact
+  raw_text: Assert len(list(data/raw/llm_docs/*.md)) == N_repos.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:01:49Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Assert mean of loc and cc columns is approximately zero within floating
+    point tolerance
+  claim_id: c_d67695f9
+  context: 'T059 [P] [US3] Implement Covariate Centering in code/analysis.py before
+    running ANCOVA. The LOC and CC metrics from repo_covariates.json must be mean-centered
+    to prevent multicollinearity issues in the regression model. Verification: Assert
+    that the mean of loc and cc columns in the output file is ~0.0 (within floating
+    point tolerance).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that the mean of loc and cc columns in the output file is ~0.0
+    (within floating point tolerance).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:01:49Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify downloaded GGUF file matches expected SHA256 hash of pinned commit
+  claim_id: c_d9cb0549
+  context: T060 [P] [US2] Add Model Commit Hash Verification to code/doc_generation.py.
+    Before loading the local phi-2 fallback model, verify that the downloaded GGUF
+    file matches the expected SHA256 hash of the pinned commit to ensure reproducibility
+    and prevent the use of unverified model weights.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_downloaded_GGUF_file_matches_expected_SHA256_hash_of
+  kind: entity_fact
+  raw_text: Verify that the downloaded GGUF file matches the expected SHA256 hash
+    of the pinned commit to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:02:10Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Primary analysis must be Pre-specified Welch's ANOVA with ANCOVA adjustment
+  claim_id: c_af0dce63
+  context: 'NOTE: Per Plan Key Methodological Updates, the primary analysis MUST be
+    Pre-specified Welch''s ANOVA with ANCOVA adjustment.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis_must_be_Pre-specified_Welch's_ANOVA_with_AN
+  kind: entity_fact
+  raw_text: The primary analysis MUST be Pre-specified Welch's ANOVA with ANCOVA adjustment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:02:46Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Use statsmodels for ANCOVA with formula time condition loc cc doc_quality
+  claim_id: c_9ef6ecdb
+  context: 'T037c [US3] Implement ANCOVA (Analysis of Covariance) with Repository
+    Complexity (LOC, CC) and Human Doc Quality Score as covariates, as mandated by
+    Plan''s Key Methodological Updates. Library: Use statsmodels. Formula: time ~
+    condition + loc + cc + doc_quality.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_statsmodels_for_ANCOVA_with_formula_time_condition_loc_c
+  kind: entity_fact
+  raw_text: Use statsmodels library for ANCOVA with formula time ~ condition + loc
+    + cc + doc_quality.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:03:10Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Execute Welch's ANOVA with ANCOVA adjustment regardless of variance homogeneity
+  claim_id: c_c0be9dfe
+  context: 'T036a [P] [US3] Implement Primary Path: Pre-specified Welch''s ANOVA with
+    ANCOVA: Execute Welch''s ANOVA with ANCOVA adjustment regardless of variance homogeneity
+    (as mandated by Plan Key Methodological Updates).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_Welch's_ANOVA_with_ANCOVA_adjustment_regardless_of_v
+  kind: entity_fact
+  raw_text: Execute Welch's ANOVA with ANCOVA adjustment regardless of variance homogeneity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:03:37Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Perform ANCOVA or ANOVA on help_request_count across conditions using
+    same covariates as T037c
+  claim_id: c_bf4fef6c
+  context: 'T037d [P] [US3] Implement statistical comparison for SC-002 (Help Requests):
+    Perform ANCOVA/ANOVA on help_request_count across conditions (LLM vs None, Human
+    vs None) using the same covariates as T037c.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_ANCOVA_or_ANOVA_on_help_request_count_across_conditi
+  kind: entity_fact
+  raw_text: Perform ANCOVA/ANOVA on help_request_count across conditions (LLM vs None,
+    Human vs None) using the same covariates as T037c.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:04:01Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Perform ANCOVA or ANOVA on subjective_rating across conditions using
+    same covariates as T037c
+  claim_id: c_d3c69416
+  context: 'T037e [P] [US3] Implement statistical comparison for SC-003 (Subjective
+    Ratings): Perform ANCOVA/ANOVA on subjective_rating across conditions (LLM vs
+    Human, LLM vs None) using the same covariates as T037c.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_ANCOVA_or_ANOVA_on_subjective_rating_across_conditio
+  kind: entity_fact
+  raw_text: Perform ANCOVA/ANOVA on subjective_rating across conditions (LLM vs Human,
+    LLM vs None) using the same covariates as T037c.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:04:28Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify all scripts referenced in quickstart.md exist in code directory
+    structure as defined in plan.md
+  claim_id: c_e75386e6
+  context: 'T071 [P] [Setup] Proactive Run-Book Reconciliation: Before execution,
+    verify that all scripts referenced in quickstart.md exist in the code/ directory
+    structure as defined in plan.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_all_scripts_referenced_in_quickstart.md_exist_in_code
+  kind: entity_fact
+  raw_text: Verify that all scripts referenced in quickstart.md exist in the code/
+    directory structure as defined in plan.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:04:53Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Assert wall clock time less than 21600 seconds and peak RSS less than
+    7GB
+  claim_id: c_c36d53e0
+  context: 'T044 [P] Verify Analysis Phase execution time < 6 hours and RAM < 7GB
+    using the active monitoring context manager from T010. Verification: Assert wall_clock_time
+    < 21600 and peak_RSS < 7GB in the logged analysis report.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_wall_clock_time_less_than_21600_seconds_and_peak_RSS
+  kind: magnitude
+  raw_text: Assert wall_clock_time < 21600 and peak_RSS < 7GB in the logged analysis
+    report.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:05:32Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Assert total time per repo less than 900 seconds and log context window
+    usage
+  claim_id: c_3a8d0bbf
+  context: 'T045a [P] Verify Generation Phase execution time < 15 minutes per repo
+    (US-2 constraint) using scripts/measure_generation_resources.py. Verification:
+    Assert total_time_per_repo < 900s (measured from API call initiation to file write
+    completion) and log context_window_usage.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_total_time_per_repo_less_than_900_seconds_and_log_con
+  kind: magnitude
+  raw_text: Assert total_time_per_repo < 900s (measured from API call initiation to
+    file write completion) and log context_window_usage.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:06:06Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Calculate quantitative Human Doc Quality Score based on presence of Setup
+    API and Architecture sections
+  claim_id: c_a220e723
+  context: 'T021f [P] Implement Documentation Quality Rubric Scoring in code/validation.py:
+    Calculate a quantitative Human Doc Quality Score for the Human Docs condition
+    based on the presence of Setup, API, and Architecture sections.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_quantitative_Human_Doc_Quality_Score_based_on_pres
+  kind: entity_fact
+  raw_text: Calculate a quantitative Human Doc Quality Score for the Human Docs condition
+    based on the presence of Setup, API, and Architecture sections.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:06:41Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Scoring uses binary indicator per section present summed for maximum
+    total
+  claim_id: c_ca4b6b40
+  context: 'T021f [P] Implement Documentation Quality Rubric Scoring in code/validation.py:
+    ... Scoring: Binary indicator if section present, summed (maximum total).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scoring_uses_binary_indicator_per_section_present_summed_for
+  kind: entity_fact
+  raw_text: 'Scoring: Binary indicator if section present, summed (maximum total).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:07:30Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Human Doc Quality Score must be included as a covariate in the ANCOVA
+    model
+  claim_id: c_782b9a52
+  context: 'T021f [P] Implement Documentation Quality Rubric Scoring in code/validation.py:
+    ... This score must be included as a covariate in the ANCOVA model (T037c).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Human_Doc_Quality_Score_must_be_included_as_a_covariate_in_t
+  kind: entity_fact
+  raw_text: This score must be included as a covariate in the ANCOVA model (T037c).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:08:08Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Generate SHA-256 checksum of repo selection rubric JSON and record in
+    checksums file
+  claim_id: c_825c6810
+  context: T021b [P] Execute rubric on candidate repos, calculate LOC/CC metrics ...
+    Generate a checksum of data/raw/repo_selection_rubric.json using SHA-256 and record
+    it in data/checksums.txt in filename:hash format.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a checksum of data/raw/repo_selection_rubric.json using SHA-256
+    and record it in data/checksums.txt in filename:hash format.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:08:31Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Implement codebase fetching limited to 500 files and commit pinning logic
+  claim_id: c_ef3fc892
+  context: "T024 [P] Implement codebase fetching (\u2264500 files) and commit pinning\
+    \ logic in code/repo_utils.py (DEPENDS on T021d)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement codebase fetching (\u2264500 files) and commit pinning logic\
+    \ in code/repo_utils.py."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:08:32Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Use radon cc for Cyclomatic Complexity and cloc json for Lines of Code
+  claim_id: c_ff821182
+  context: T021c [P] Implement metric collection for covariate adjustment in code/validation.py
+    using radon cc -a -s for Cyclomatic Complexity and cloc --json for Lines of Code
+    (LOC).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_radon_cc_for_Cyclomatic_Complexity_and_cloc_json_for_Lin
+  kind: entity_fact
+  raw_text: Use radon cc -a -s for Cyclomatic Complexity and cloc --json for Lines
+    of Code (LOC).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:08:58Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback logic is for the model not for synthetic data
+  claim_id: c_59cc6987
+  context: 'T028 [US2] Implement fallback logic to local CPU-optimized model. ...
+    CRITICAL: This fallback is for the MODEL, NOT for synthetic data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_logic_is_for_the_model_not_for_synthetic_data
+  kind: entity_fact
+  raw_text: The fallback is for the MODEL, NOT for synthetic data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:10:07Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Log generation config to llm_config.yaml and generate checksum recorded
+    in checksums.txt
+  claim_id: c_3b45de0b
+  context: T028 [US2] ... Log generation config (model, temp, prompt, commit hash)
+    to data/llm_config.yaml and generate a checksum recorded in data/checksums.txt
+    to satisfy Constitution Principle VII.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_generation_config_to_llm_config.yaml_and_generate_checks
+  kind: entity_fact
+  raw_text: Log generation config (model, temp, prompt, commit hash) to data/llm_config.yaml
+    and generate a checksum recorded in data/checksums.txt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:10:59Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: If API fails load phi quantized int4 using llama-cpp-python with model
+    ID TheBloke/phi-2-GGUF
+  claim_id: c_b1bd447f
+  context: 'T028 [US2] Implement fallback logic to local CPU-optimized model. If API
+    fails, load ''phi (quantized int4)'' using llama-cpp-python (specific model ID:
+    TheBloke/phi-2-GGUF or equivalent int4 quantized).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If API fails, load ''phi (quantized int4)'' using llama-cpp-python (specific
+    model ID: TheBloke/phi-2-GGUF or equivalent int4 quantized).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:11:25Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Must pin model to specific HuggingFace commit hash
+  claim_id: c_63ee2554
+  context: T028 [US2] ... MUST pin the model to a specific HuggingFace commit hash
+    (use HF_COMMIT_HASH env var or constant).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Must_pin_model_to_specific_HuggingFace_commit_hash
+  kind: entity_fact
+  raw_text: MUST pin the model to a specific HuggingFace commit hash (use HF_COMMIT_HASH
+    env var or constant).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:12:10Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Implement active monitoring context manager using psutil and time to
+    log peak memory and wall-clock time
+  claim_id: c_93674115
+  context: T010 [P] [Setup] Implement active monitoring context manager in code/utils/monitor.py
+    using psutil and time to log peak memory and wall-clock time during execution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_active_monitoring_context_manager_using_psutil_and
+  kind: entity_fact
+  raw_text: Implement active monitoring context manager in code/utils/monitor.py using
+    psutil and time to log peak memory and wall-clock time during execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:12:34Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify task start end times logged clarification questions counted and
+    study concludes without data loss
+  claim_id: c_3c062b15
+  context: 'Independent Test: Run a mock study with simulated participants across
+    multiple conditions, verifying that task start/end times are logged, clarification
+    questions are counted, and the study concludes without data loss.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_task_start_end_times_logged_clarification_questions_c
+  kind: entity_fact
+  raw_text: Verify that task start/end times are logged, clarification questions are
+    counted, and the study concludes without data loss.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:13:21Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: If recruited count less than 15 log warning and allow study to continue
+    in pilot mode
+  claim_id: c_dbb4c3a9
+  context: "T013a [US1] Enforce N\u226515 Recruitment Gate: If recruited count < 15,\
+    \ log a WARNING Recruitment count < 15; proceeding with variance estimation only\
+    \ for pilot and allow study to continue in pilot mode."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/If_recruited_count_less_than_15_log_warning_and_allow_study
+  kind: magnitude
+  raw_text: If recruited count < 15, log a WARNING and allow study to continue in
+    pilot mode.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:14:41Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Filter for keywords how why what explain or explicitly tagged by moderator
+  claim_id: c_ee494609
+  context: 'T016 [US1] Implement clarification question logging (timestamp + content)
+    based on FR-004: filter for keywords (''how'', ''why'', ''what'', ''explain'')
+    OR explicitly tagged by the moderator via the experiment.py chat interface.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter_for_keywords_how_why_what_explain_or_explicitly_tagge
+  kind: entity_fact
+  raw_text: Filter for keywords ('how', 'why', 'what', 'explain') OR explicitly tagged
+    by the moderator via the experiment.py chat interface.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:15:17Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Moderator tag implemented as JSON field moderator_tagged true
+  claim_id: c_0598b2dc
+  context: 'T016 [US1] ... Protocol: Moderator tag is implemented as a JSON field
+    moderator_tagged: true set via the chat interface.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moderator_tag_implemented_as_JSON_field_moderator_tagged_tru
+  kind: entity_fact
+  raw_text: 'Moderator tag is implemented as a JSON field moderator_tagged: true set
+    via the chat interface.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:15:55Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Output includes help_request_count list of objects and cognitive_load_proxy
+    composite score
+  claim_id: c_86e6e073
+  context: 'T016 [US1] ... Output: help_request_count (integer), list of {timestamp,
+    content, moderator_tagged} objects, AND cognitive_load_proxy (composite score
+    calculated as a weighted combination of question_frequency normalized by avg_frequency
+    and task_time_deviation normalized by avg_deviation.).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_includes_help_request_count_list_of_objects_and_cogni
+  kind: entity_fact
+  raw_text: 'Output: help_request_count (integer), list of {timestamp, content, moderator_tagged}
+    objects, AND cognitive_load_proxy (composite score calculated as a weighted combination
+    of question_frequency normalized by avg_frequency and task_time_deviation normalized
+    by avg_deviation.).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:17:01Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Flag intervention and time capped set final time to MAX_TIME or record
+    as failed
+  claim_id: c_c59be580
+  context: 'T018 [US1] Implement Stop-Loss intervention logic: flag intervention_flag=True,
+    time_capped=True, set final_time=MAX_TIME (minutes), or record as failed if docs
+    are unusable in code/data_collection.py.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flag_intervention_and_time_capped_set_final_time_to_MAX_TIME
+  kind: entity_fact
+  raw_text: Flag intervention_flag=True, time_capped=True, set final_time=MAX_TIME
+    (minutes), or record as failed if docs are unusable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:17:50Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Calculate and log dropout_count in real-time during session
+  claim_id: c_2e0a0b45
+  context: 'T019 [US1] Implement handling for incomplete/abandoned records ... Update:
+    This task MUST calculate and log the dropout_count in real-time during the session
+    to ensure the data is available for the final report without post-hoc auditing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_and_log_dropout_count_in_real-time_during_session
+  kind: entity_fact
+  raw_text: This task MUST calculate and log the dropout_count in real-time during
+    the session to ensure the data is available for the final report without post-hoc
+    auditing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:18:40Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Output participant logs JSON with status incomplete for dropouts
+  claim_id: c_db8db111
+  context: 'T019 [US1] ... Output: data/raw/participant_logs.json with status: ''incomplete''
+    for dropouts.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_participant_logs_JSON_with_status_incomplete_for_drop
+  kind: entity_fact
+  raw_text: 'Output: data/raw/participant_logs.json with status: ''incomplete'' for
+    dropouts.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:19:14Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Each row must contain participant_id condition start_time end_time help_request_count
+    cognitive_load_proxy subjective_rating and status
+  claim_id: c_75291c1a
+  context: 'T075 [US1] Execute Pilot Study: Run the actual onboarding experiment with
+    recruited participants across all three conditions (LLM, Human, None). Verification:
+    ... Each row must contain: participant_id, condition, start_time, end_time, help_request_count,
+    cognitive_load_proxy, subjective_rating, and status (complete/incomplete).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Each_row_must_contain_participant_id_condition_start_time_en
+  kind: entity_fact
+  raw_text: 'Each row must contain: participant_id, condition, start_time, end_time,
+    help_request_count, cognitive_load_proxy, subjective_rating, and status (complete/incomplete).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:20:02Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify final report contains p-values for LLM vs None Human vs None and
+    LLM vs Human comparisons
+  claim_id: c_460b1851
+  context: 'T077 [US3] Run Final Analysis: Execute code/analysis/stats_runner.py on
+    data/processed/cleaned_dataset.csv. Verification: Assert file exists. Verify it
+    contains p-values for all three pairwise comparisons (LLM vs None, Human vs None,
+    LLM vs Human).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_final_report_contains_p-values_for_LLM_vs_None_Human
+  kind: entity_fact
+  raw_text: Verify it contains p-values for all three pairwise comparisons (LLM vs
+    None, Human vs None, LLM vs Human).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:20:43Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Verify final report includes Cognitive Load Proxy results and Subjective
+    Rating results
+  claim_id: c_14df2896
+  context: 'T077 [US3] Run Final Analysis: ... Verify it includes the Cognitive Load
+    Proxy results from T037d and Subjective Rating results from T037e.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_final_report_includes_Cognitive_Load_Proxy_results_an
+  kind: entity_fact
+  raw_text: Verify it includes the Cognitive Load Proxy results from T037d and Subjective
+    Rating results from T037e.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:21:29Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Recruit 15 to 20 volunteers for the pilot study
+  claim_id: c_014fef4b
+  context: 'T073 [US1] Recruit Participants: Recruit N=15-20 volunteers for the pilot
+    study.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit N=15-20 volunteers for the pilot study.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T23:21:29Z'

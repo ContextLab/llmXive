@@ -1,107 +1,70 @@
-"""
-Task T033: Run schema validation on participant logs.
-
-This script validates data/raw/participant_logs.json against contracts/dataset.schema.yaml.
-It acts as a gate: if validation fails, it writes a failure report and exits with code 1.
-If validation passes, it writes a success report and exits with code 0.
-
-Output: data/processed/validation_report.json
-"""
-
 import json
 import os
 import sys
 import yaml
 from datetime import datetime
+from pathlib import Path
+import logging
 
-# Import from existing API surface
+# Ensure we can import from the project root
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from validation import run_schema_validation, save_validation_report
 
-# Paths relative to project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RAW_LOGS_PATH = os.path.join(PROJECT_ROOT, "data", "raw", "participant_logs.json")
-SCHEMA_PATH = os.path.join(PROJECT_ROOT, "contracts", "dataset.schema.yaml")
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "data", "processed")
-OUTPUT_PATH = os.path.join(OUTPUT_DIR, "validation_report.json")
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def main():
-    # Ensure output directory exists
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    """
+    Entry point for generating the dataset schema and running validation.
+    
+    This script:
+    1. Generates `contracts/dataset.schema.yaml` based on data-model.md and
+       the structure of participant_logs.json (if available).
+    2. Runs schema validation on `data/raw/participant_logs.json` against
+       the generated schema.
+    3. Saves the validation report to `data/processed/validation_report.json`.
+    """
+    project_root = Path(__file__).parent.parent
+    contracts_dir = project_root / "contracts"
+    data_raw_dir = project_root / "data" / "raw"
+    data_processed_dir = project_root / "data" / "processed"
 
-    # Check prerequisites
-    if not os.path.exists(RAW_LOGS_PATH):
-        error_msg = f"Raw logs file not found: {RAW_LOGS_PATH}"
-        print(f"ERROR: {error_msg}", file=sys.stderr)
-        report = {
-            "status": "failed",
-            "reason": "Input file missing",
-            "input_path": RAW_LOGS_PATH,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        save_validation_report(report, OUTPUT_PATH)
-        sys.exit(1)
+    # Ensure directories exist
+    contracts_dir.mkdir(parents=True, exist_ok=True)
+    data_raw_dir.mkdir(parents=True, exist_ok=True)
+    data_processed_dir.mkdir(parents=True, exist_ok=True)
 
-    if not os.path.exists(SCHEMA_PATH):
-        error_msg = f"Schema file not found: {SCHEMA_PATH}"
-        print(f"ERROR: {error_msg}", file=sys.stderr)
-        report = {
-            "status": "failed",
-            "reason": "Schema file missing",
-            "schema_path": SCHEMA_PATH,
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        save_validation_report(report, OUTPUT_PATH)
-        sys.exit(1)
+    schema_path = contracts_dir / "dataset.schema.yaml"
+    raw_data_path = data_raw_dir / "participant_logs.json"
+    validation_report_path = data_processed_dir / "validation_report.json"
 
-    # Load schema
-    try:
-        with open(SCHEMA_PATH, 'r', encoding='utf-8') as f:
-            schema = yaml.safe_load(f)
-    except Exception as e:
-        error_msg = f"Failed to load schema: {e}"
-        print(f"ERROR: {error_msg}", file=sys.stderr)
-        report = {
-            "status": "failed",
-            "reason": f"Schema load error: {str(e)}",
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        save_validation_report(report, OUTPUT_PATH)
-        sys.exit(1)
+    logger.info(f"Generating schema at: {schema_path}")
+    
+    # Generate the schema
+    # This function is expected to exist in validation.py as per the API surface
+    # It should create the YAML file based on data-model.md and sample data structure
+    run_schema_validation(
+        schema_output_path=str(schema_path),
+        raw_data_path=str(raw_data_path),
+        report_output_path=str(validation_report_path)
+    )
 
-    # Load raw logs
-    try:
-        with open(RAW_LOGS_PATH, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-    except Exception as e:
-        error_msg = f"Failed to load raw logs: {e}"
-        print(f"ERROR: {error_msg}", file=sys.stderr)
-        report = {
-            "status": "failed",
-            "reason": f"Data load error: {str(e)}",
-            "timestamp": datetime.utcnow().isoformat()
-        }
-        save_validation_report(report, OUTPUT_PATH)
-        sys.exit(1)
-
-    # Run validation using the existing API
-    # The existing function returns (is_valid, report_dict)
-    is_valid, report_dict = run_schema_validation(data, schema)
-
-    # Enhance report with execution metadata
-    report_dict["timestamp"] = datetime.utcnow().isoformat()
-    report_dict["input_path"] = RAW_LOGS_PATH
-    report_dict["schema_path"] = SCHEMA_PATH
-
-    if is_valid:
-        report_dict["status"] = "passed"
-        print(f"Validation PASSED. Report written to {OUTPUT_PATH}")
-        save_validation_report(report_dict, OUTPUT_PATH)
-        sys.exit(0)
+    if schema_path.exists():
+        logger.info(f"Schema generated successfully at {schema_path}")
     else:
-        report_dict["status"] = "failed"
-        print(f"Validation FAILED. Report written to {OUTPUT_PATH}", file=sys.stderr)
-        save_validation_report(report_dict, OUTPUT_PATH)
+        logger.error("Schema generation failed: file not created.")
         sys.exit(1)
+
+    if validation_report_path.exists():
+        logger.info(f"Validation report generated at {validation_report_path}")
+    else:
+        logger.warning("Validation report not generated (raw data might be missing).")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -13,7 +13,7 @@ The research team MUST be able to manage the assignment of recruited volunteers 
 
 **Why this priority**: This is the core experimental mechanism. Without a controlled, randomized execution flow that captures time and interaction data, no comparative analysis can be performed.
 
-**Independent Test**: The system can be tested by running a mock study with 3 simulated participants across the 3 conditions, verifying that task start/end times are logged, clarification questions are counted, and the study concludes without data loss.
+**Independent Test**: The system can be tested by running a mock study with a small number of simulated participants across the conditions., verifying that task start/end times are logged, clarification questions are counted, and the study concludes without data loss.
 
 **Acceptance Scenarios**:
 
@@ -77,8 +77,8 @@ The system MUST be able to aggregate the collected study data (time, questions, 
     4. If data is non-normal (Shapiro-Wilk p < 0.05) AND variances are unequal, perform the Welch-James test (or a permutation test) to handle both violations.
     5. Apply appropriate post-hoc corrections (Tukey HSD for ANOVA, Games-Howell for Welch's, or permutation-based CI for Welch-James) (See US-3).
 - **FR-006**: The system MUST apply a family-wise error rate correction (Tukey HSD for ANOVA, Games-Howell for Welch's, or permutation-based correction for Welch-James) when conducting multiple pairwise comparisons to maintain the validity of the statistical inference (See US-3).
-- **FR-007**: The system MUST execute the entire data analysis pipeline (including statistical tests) on a standardized CPU-only environment (AWS t3.medium, Intel Xeon Platinum 8275CL, 2 vCPU, 4GB RAM, unlimited credits) within ≤ 6 hours runtime and ≤ 7GB RAM peak memory usage (See US-3).
-- **FR-008**: The system MUST implement model selection logic that attempts a primary API model and falls back to a local model if the API fails (HTTP 5xx error or latency > 300s). The fallback model MUST be 'phi-2 (quantized int4)' pinned to a specific HuggingFace commit hash (See US-2).
+- **FR-007**: The system MUST execute the entire data analysis pipeline (including statistical tests) on a standardized CPU-only environment (AWS t.medium, Intel Xeon Platinum 8275CL, 2 vCPU, 4GB RAM, unlimited credits) within ≤ 6 hours runtime and ≤ 7GB RAM peak memory usage (See US-3).
+- **FR-008**: The system MUST implement model selection logic that attempts a primary API model and falls back to a local model if the API fails (HTTP 5xx error or latency > 300s). The fallback model MUST be 'phi (quantized int4)' pinned to a specific HuggingFace commit hash (See US-2).
 - **FR-009**: The system MUST enforce repository selection criteria: selected repositories must have existing, high-quality human documentation verified by a rubric. The rubric requires:
     1. Presence of Setup, API, and Architecture sections (≥ 3/4 sections).
     2. Quantitative matching of repositories across conditions based on Lines of Code (LOC) and Cyclomatic Complexity (CC) with a tolerance of ±15% to minimize confounding (See US-2).

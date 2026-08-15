@@ -1,12 +1,12 @@
 """
-T032: Aggregate cleaning steps to produce data/processed/cleaned_dataset.csv.
+Cleaning Pipeline Runner for T032.
 
-This script:
-1. Reads the validation status from data/processed/validation_report.json (produced by T033).
-2. If validation passed, loads data/raw/participant_logs.json.
-3. Applies PII removal (T032a) and incomplete record handling (T032b) via code/analysis.py.
-4. Writes the cleaned dataset to data/processed/cleaned_dataset.csv.
-5. Updates checksums in data/checksums.txt.
+This script aggregates the cleaning steps (PII removal and incomplete record handling)
+implemented in code/analysis.py to produce the final cleaned dataset CSV.
+
+It depends on:
+- T033: Checks validation status via 'data/processed/validation_report.json'.
+- T032a/T032b: Utilizes functions from code/analysis.py.
 """
 
 import json
@@ -14,88 +14,138 @@ import os
 import sys
 import logging
 from datetime import datetime
+from pathlib import Path
 
-# Add project root to path for imports
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, project_root)
-
-from analysis import (
+# Import cleaning logic from analysis module
+# Based on API surface: from analysis import validate_input_data, handle_incomplete_records, save_cleaned_dataset_csv
+from code.analysis import (
     load_json_file,
-    save_json_file,
-    calculate_checksum,
-    update_checksums,
     remove_pii,
     handle_incomplete_records,
     save_cleaned_dataset_csv
 )
-from utils.monitor import monitor_execution
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Paths
-VALIDATION_REPORT_PATH = "data/processed/validation_report.json"
-RAW_LOGS_PATH = "data/raw/participant_logs.json"
-CLEANED_CSV_PATH = "data/processed/cleaned_dataset.csv"
-CHECKSUMS_PATH = "data/checksums.txt"
+def check_validation_status(validation_report_path: str) -> bool:
+    """
+    Checks if the validation report indicates success.
+    Blocks pipeline if validation failed (T033 dependency).
+    """
+    if not os.path.exists(validation_report_path):
+        logger.error(f"Validation report not found at {validation_report_path}. "
+                     "Did T033 run successfully?")
+        return False
+
+    try:
+        with open(validation_report_path, 'r') as f:
+            report = json.load(f)
+
+        status = report.get('status', 'unknown')
+        if status == 'passed':
+            logger.info("Validation check passed. Proceeding with cleaning.")
+            return True
+        else:
+            logger.error(f"Validation check FAILED with status: {status}. "
+                         "Aborting cleaning pipeline.")
+            return False
+    except Exception as e:
+        logger.error(f"Error reading validation report: {e}")
+        return False
+
+def run_cleaning_pipeline(
+    raw_data_path: str,
+    cleaned_output_path: str,
+    validation_report_path: str
+) -> bool:
+    """
+    Executes the cleaning pipeline:
+    1. Verify validation passed.
+    2. Load raw data.
+    3. Remove PII (T032a).
+    4. Handle incomplete records (T032b).
+    5. Save to CSV.
+    """
+    # 1. Check Validation
+    if not check_validation_status(validation_report_path):
+        return False
+
+    if not os.path.exists(raw_data_path):
+        logger.error(f"Raw data file not found at {raw_data_path}.")
+        return False
+
+    logger.info(f"Loading raw data from {raw_data_path}...")
+    try:
+        raw_data = load_json_file(raw_data_path)
+    except Exception as e:
+        logger.error(f"Failed to load raw data: {e}")
+        return False
+
+    if not raw_data:
+        logger.warning("Raw data is empty. Creating empty cleaned dataset.")
+        # Create empty CSV with headers if possible, or just return success
+        # Assuming standard headers based on spec
+        save_cleaned_dataset_csv([], cleaned_output_path)
+        return True
+
+    # 2. Remove PII (T032a)
+    logger.info("Removing PII...")
+    try:
+        cleaned_data = remove_pii(raw_data)
+    except Exception as e:
+        logger.error(f"Failed during PII removal: {e}")
+        return False
+
+    # 3. Handle Incomplete Records (T032b)
+    logger.info("Handling incomplete records...")
+    try:
+        final_data, dropouts = handle_incomplete_records(cleaned_data)
+        logger.info(f"Processed {len(cleaned_data)} records. "
+                    f"Kept {len(final_data)} for analysis. "
+                    f"Flagged {len(dropouts)} as dropouts.")
+    except Exception as e:
+        logger.error(f"Failed during incomplete record handling: {e}")
+        return False
+
+    # 4. Save to CSV (T032 Output)
+    logger.info(f"Saving cleaned dataset to {cleaned_output_path}...")
+    try:
+        save_cleaned_dataset_csv(final_data, cleaned_output_path)
+        logger.info("Cleaning pipeline completed successfully.")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save cleaned dataset: {e}")
+        return False
 
 def main():
-    logger.info("Starting T032: Cleaning Pipeline")
+    """
+    Main entry point for the cleaning pipeline.
+    Uses default paths defined in the project structure.
+    """
+    # Define paths relative to project root
+    # Ensure we are running from the project root or adjust paths accordingly
+    base_dir = Path(__file__).parent.parent
+    data_dir = base_dir / "data"
+    
+    raw_data_path = str(data_dir / "raw" / "participant_logs.json")
+    cleaned_output_path = str(data_dir / "processed" / "cleaned_dataset.csv")
+    validation_report_path = str(data_dir / "processed" / "validation_report.json")
 
-    # 1. Check validation status
-    if not os.path.exists(VALIDATION_REPORT_PATH):
-        logger.error(f"Validation report not found at {VALIDATION_REPORT_PATH}. "
-                     "Run T033 (schema validation) first.")
+    success = run_cleaning_pipeline(
+        raw_data_path=raw_data_path,
+        cleaned_output_path=cleaned_output_path,
+        validation_report_path=validation_report_path
+    )
+
+    if not success:
         sys.exit(1)
-
-    validation_report = load_json_file(VALIDATION_REPORT_PATH)
-    if not validation_report.get("status") == "passed":
-        logger.error("Validation failed. Aborting cleaning pipeline.")
-        logger.error(f"Validation details: {validation_report.get('details', 'Unknown')}")
-        sys.exit(1)
-
-    logger.info("Validation passed. Proceeding with cleaning.")
-
-    # 2. Load raw logs
-    if not os.path.exists(RAW_LOGS_PATH):
-        logger.error(f"Raw participant logs not found at {RAW_LOGS_PATH}.")
-        sys.exit(1)
-
-    raw_logs = load_json_file(RAW_LOGS_PATH)
-    logger.info(f"Loaded {len(raw_logs)} raw log entries.")
-
-    # 3. Apply PII removal (T032a)
-    cleaned_logs = remove_pii(raw_logs)
-    logger.info("PII removal completed.")
-
-    # 4. Handle incomplete records (T032b)
-    # This function returns (cleaned_data, dropouts)
-    final_cleaned_logs, dropouts = handle_incomplete_records(cleaned_logs)
-    logger.info(f"Handled incomplete records. {len(dropouts)} records flagged as dropouts.")
-
-    # Save dropouts to a separate file for reporting (as per T019/T032b)
-    dropouts_path = "data/processed/dropouts.json"
-    save_json_file(dropouts_path, dropouts)
-    logger.info(f"Saved dropouts to {dropouts_path}")
-
-    # 5. Save cleaned dataset as CSV (T032)
-    save_cleaned_dataset_csv(final_cleaned_logs, CLEANED_CSV_PATH)
-    logger.info(f"Saved cleaned dataset to {CLEANED_CSV_PATH}")
-
-    # 6. Update checksums
-    if not os.path.exists(CHECKSUMS_PATH):
-        with open(CHECKSUMS_PATH, 'w') as f:
-            f.write("# Checksums generated by llmXive pipeline\n")
-
-    update_checksums(CHECKSUMS_PATH, CLEANED_CSV_PATH)
-    update_checksums(CHECKSUMS_PATH, dropouts_path)
-    logger.info("Checksums updated.")
-
-    logger.info("T032: Cleaning Pipeline completed successfully.")
+    else:
+        print(f"Pipeline finished. Output written to {cleaned_output_path}")
 
 if __name__ == "__main__":
-    with monitor_execution("T032_cleaning_pipeline"):
-        main()
+    main()
