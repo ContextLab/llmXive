@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to identify cross-tumor predictive biomarkers for chemotherapy response. The approach integrates TCGA RNA-seq data and GEO microarray datasets, harmonizes gene identifiers, performs differential expression analysis (DESeq2), and conducts **Random-Effects Meta-Analysis (DerSimonian-Laird)** to derive a unified gene panel. Elastic-net logistic regression models are trained with nested cross-validation and validated via **Nested Leave-One-Cancer-Type-Out (LOO)** (where gene selection is re-run inside the loop) and external GEO cohorts. The pipeline is designed to execute within GitHub Actions free-tier constraints (limited CPU, 7GB RAM, 6h) by prioritizing streaming data access, CPU-tractable statistical methods, and strict resource monitoring.
+This project implements a computational pipeline to identify cross-tumor predictive biomarkers for chemotherapy response. The approach integrates TCGA RNA-seq data and GEO microarray datasets, harmonizes gene identifiers, performs differential expression analysis (DESeq2), and conducts **Random-Effects Meta-Analysis (DerSimonian-Laird)** to derive a unified gene panel. Elastic-net logistic regression models are trained with nested cross-validation and validated via **Nested Leave-One-Cancer-Type-Out (LOO)** (where gene selection is re-run inside the loop) and external GEO cohorts. The pipeline is designed to execute within GitHub Actions free-tier constraints (limited CPU, constrained RAM, 6h) by prioritizing streaming data access, CPU-tractable statistical methods, and strict resource monitoring.
 
 ## Technical Context
 
