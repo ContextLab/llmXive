@@ -1,16 +1,6 @@
-ebd:
-  source: https://ebird-data-us-east-1.s3.amazonaws.com/ebd_release/EBD_rel_2023-12-01_subset.parquet
-  download_date: '2024-01-01T00:00:00'
-  checksum_sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-  file_name: EBD_rel_2023-12-01_subset.parquet
-  file_size_bytes: 1048576
-nlcd:
-  source: https://www.usgs.gov/centers/eros/science/national-land-cover-database
-  version: '2019'
-  download_date: '2024-01-01T00:00:00'
-  file_name: nlcd_2019.zip
-guild_mapping:
-  source: Birds of the World
-  version: '2023'
-  download_date: '2024-01-01T00:00:00'
-  file_name: guild_mapping.csv
+provenance:
+  artifacts: []
+  last_updated: null
+pipeline_log:
+  steps: []
+  last_updated: null

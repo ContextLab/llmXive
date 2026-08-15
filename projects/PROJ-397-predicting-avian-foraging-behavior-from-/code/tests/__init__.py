@@ -1,1 +1,3 @@
-# Test package for PROJ-397
+"""
+Test suite for the Avian Foraging Behavior Prediction Pipeline.
+"""

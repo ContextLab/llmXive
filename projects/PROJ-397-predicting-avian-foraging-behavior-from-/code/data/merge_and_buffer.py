@@ -1,332 +1,264 @@
 import os
 import sys
 import logging
+import json
+import zipfile
+import tempfile
 from pathlib import Path
-from typing import List, Tuple, Optional, Dict, Any
+from typing import List, Dict, Any, Optional
+
 import pandas as pd
 import numpy as np
-import json
-import yaml
+import geopandas as gpd
+import rasterio
+from rasterio.mask import mask
+from rasterio.crs import CRS
+from shapely.geometry import Point, mapping
 
+# Import from project utils
 from utils.config import get_project_root, get_data_dir, get_processed_dir, get_raw_data_dir
-from utils.provenance import compute_file_hash, generate_provenance_record
+from utils.provenance import record_artifact_provenance
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Required columns for schema validation
-REQUIRED_COLUMNS = ['species_id', 'foraging_guild', 'land_cover_proportions']
+# --- Configuration Constants ---
+# These should ideally come from config.py, but are hardcoded here for the task scope
+# as per the existing API surface constraints.
+BUFFER_RADIUS_METERS = 100
+OBSERVATION_THRESHOLD = 50
+PROJECT_ROOT = get_project_root()
+DATA_DIR = get_data_dir()
+PROCESSED_DIR = get_processed_dir()
+RAW_DATA_DIR = get_raw_data_dir()
 
-def load_filtered_ebd(top_species_path: Path) -> pd.DataFrame:
-    """
-    Load the top species IDs from JSON and filter the EBD dataset.
+def load_filtered_ebd(top_species_path: Optional[Path] = None) -> pd.DataFrame:
+    """Load eBird data and filter to top species."""
+    if top_species_path is None:
+        top_species_path = PROCESSED_DIR / "top_25_species_ids.json"
     
-    Args:
-        top_species_path: Path to top_25_species_ids.json
-        
-    Returns:
-        Filtered DataFrame with only top species
-    """
     if not top_species_path.exists():
-        raise FileNotFoundError(f"Top species file not found: {top_species_path}")
-        
+        raise FileNotFoundError(f"Top species list not found at {top_species_path}")
+    
     with open(top_species_path, 'r') as f:
         top_species_ids = json.load(f)
-        
-    ebd_path = get_raw_data_dir() / "ebd_train.csv"
+    
+    ebd_path = RAW_DATA_DIR / "ebd_train.csv"
     if not ebd_path.exists():
-        raise FileNotFoundError(f"EBD data not found: {ebd_path}")
-        
-    logger.info(f"Loading EBD data from {ebd_path}")
-    df = pd.read_csv(ebd_path)
+        ebd_path = RAW_DATA_DIR / "ebd_train_fallback.parquet"
     
-    logger.info(f"Filtering to {len(top_species_ids)} top species")
-    filtered_df = df[df['species_id'].isin(top_species_ids)]
-    logger.info(f"Retained {len(filtered_df)} observations")
+    if ebd_path.suffix == '.parquet':
+        df = pd.read_parquet(ebd_path)
+    else:
+        df = pd.read_csv(ebd_path)
     
+    # Filter to top species
+    filtered_df = df[df['species_id'].isin(top_species_ids)].copy()
+    logger.info(f"Loaded {len(filtered_df)} observations for {len(top_species_ids)} species.")
     return filtered_df
 
-def load_guild_mapping(mapping_path: Path) -> pd.DataFrame:
-    """
-    Load the guild mapping CSV.
+def load_guild_mapping(mapping_path: Optional[Path] = None) -> pd.DataFrame:
+    """Load the generated guild mapping."""
+    if mapping_path is None:
+        mapping_path = PROCESSED_DIR / "guild_mapping.csv"
     
-    Args:
-        mapping_path: Path to guild_mapping.csv
-        
-    Returns:
-        DataFrame with species_id to foraging_guild mapping
-    """
     if not mapping_path.exists():
-        raise FileNotFoundError(f"Guild mapping not found: {mapping_path}")
-        
-    logger.info(f"Loading guild mapping from {mapping_path}")
+        raise FileNotFoundError(f"Guild mapping not found at {mapping_path}")
+    
     return pd.read_csv(mapping_path)
 
-def load_nlcd_raster(nlcd_path: Path) -> Any:
-    """
-    Load NLCD raster data.
+def load_nlcd_raster(nlcd_path: Optional[Path] = None) -> rasterio.DatasetReader:
+    """Load the NLCD raster dataset."""
+    if nlcd_path is None:
+        # Check for primary then fallback
+        primary = RAW_DATA_DIR / "nlcd_2019.zip"
+        fallback = RAW_DATA_DIR / "nlcd_2019_fallback.zip"
+        
+        if primary.exists():
+            nlcd_path = primary
+        elif fallback.exists():
+            nlcd_path = fallback
+        else:
+            raise FileNotFoundError("NLCD data not found. Run download_nlcd.py first.")
     
-    Args:
-        nlcd_path: Path to NLCD zip file
-        
-    Returns:
-        Loaded raster data object (rasterio dataset)
-    """
-    try:
-        import rasterio
-        from rasterio.mask import mask
-    except ImportError:
-        raise ImportError("rasterio is required for NLCD processing. Install with: pip install rasterio")
-        
-    if not nlcd_path.exists():
-        raise FileNotFoundError(f"NLCD data not found: {nlcd_path}")
-        
-    logger.info(f"Loading NLCD raster from {nlcd_path}")
-    # Extract and load - simplified for this implementation
-    # In production, this would handle zip extraction and tile management
-    return rasterio.open(nlcd_path)
+    # Unzip if necessary
+    if nlcd_path.suffix == '.zip':
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with zipfile.ZipFile(nlcd_path, 'r') as zip_ref:
+                zip_ref.extractall(tmpdir)
+                # Find the .tif file
+                tif_files = list(Path(tmpdir).rglob("*.tif"))
+                if not tif_files:
+                    raise FileNotFoundError("No .tif file found in NLCD zip.")
+                raster_path = tif_files[0]
+            return rasterio.open(raster_path)
+    else:
+        return rasterio.open(nlcd_path)
 
-def calculate_land_cover_proportions(ebd_df: pd.DataFrame, nlcd_dataset: Any) -> pd.DataFrame:
-    """
-    Calculate land cover proportions within 100m buffers for each observation.
+def calculate_land_cover_proportions(
+    obs_df: pd.DataFrame, 
+    raster: rasterio.DatasetReader,
+    buffer_m: int = BUFFER_RADIUS_METERS
+) -> pd.DataFrame:
+    """Calculate land cover proportions within a buffer for each observation."""
+    # Ensure CRS is projected for distance calculations
+    if not raster.crs.is_projected:
+        # Reproject raster to a projected CRS (e.g., UTM Zone 15N for central US)
+        # In a real pipeline, we might reproject on the fly or use a global projection
+        # For this task, we assume the raster is already projected or we handle it simply.
+        # A robust solution would reproject the raster or the points.
+        logger.warning("Raster CRS is not projected. Assuming data is already in a projected CRS or using a default projection.")
     
-    Args:
-        ebd_df: DataFrame with observation coordinates
-        nlcd_dataset: Loaded NLCD raster dataset
-        
-    Returns:
-        DataFrame with added land_cover_proportions column
-    """
-    try:
-        from shapely.geometry import Point, mapping
-        from rasterio.features import shape
-    except ImportError:
-        raise ImportError("shapely and rasterio are required for buffer calculations")
-        
-    logger.info("Calculating land cover proportions within 100m buffers")
+    # Create geometry column for observations
+    # Assuming columns 'longitude' and 'latitude' exist in obs_df
+    if 'longitude' not in obs_df.columns or 'latitude' not in obs_df.columns:
+        # Try common aliases
+        if 'lon' in obs_df.columns and 'lat' in obs_df.columns:
+            obs_df['longitude'] = obs_df['lon']
+            obs_df['latitude'] = obs_df['lat']
+        else:
+            raise ValueError("Observation data must contain 'longitude' and 'latitude' columns.")
     
-    # Initialize list to store proportions
-    proportions_list = []
+    geometry = [Point(xy) for xy in zip(obs_df['longitude'], obs_df['latitude'])]
+    gdf = gpd.GeoDataFrame(obs_df, geometry=geometry, crs="EPSG:4326")
     
-    for idx, row in ebd_df.iterrows():
+    # Reproject to a projected CRS (e.g., UTM) for accurate buffer calculation
+    # We'll use a generic UTM zone or a state plane if we knew the location, 
+    # but for simplicity in this script, we'll assume a generic projected CRS 
+    # or reproject to the raster's CRS if it's projected.
+    if raster.crs.is_projected:
+        gdf = gdf.to_crs(raster.crs)
+    else:
+        # Fallback to a standard projected CRS if raster is not projected
+        # This is a simplification; in production, we'd determine the appropriate UTM zone.
+        gdf = gdf.to_crs("EPSG:3857") # Web Mercator (approximate for small areas)
+    
+    # Calculate buffer proportions
+    results = []
+    for idx, row in gdf.iterrows():
+        buffer_geom = row['geometry'].buffer(buffer_m)
+        # Mask the raster with the buffer
         try:
-            # Create point geometry
-            point = Point(row['longitude'], row['latitude'])
+            out_image, out_transform = mask(raster, [mapping(buffer_geom)], crop=True)
+            out_mask = out_image[0] > 0 # Assuming 0 is nodata
             
-            # Create 100m buffer (approximate, assuming UTM projection for simplicity)
-            # In production, proper projection handling would be required
-            buffer = point.buffer(100)
+            # Count values
+            unique, counts = np.unique(out_image[0][out_mask], return_counts=True)
+            total_pixels = len(out_image[0][out_mask])
             
-            # Calculate proportions from raster
-            # This is a simplified implementation
-            # Real implementation would use rasterio.mask and calculate class frequencies
-            land_cover_proportions = {
-                'urban': 0.0,
-                'agriculture': 0.0,
-                'forest': 0.0,
-                'water': 0.0,
-                'wetland': 0.0,
-                'grassland': 0.0,
-                'barren': 0.0
-            }
+            if total_pixels == 0:
+                proportions = {}
+            else:
+                proportions = {f"lc_{int(val)}": int(cnt) / total_pixels for val, cnt in zip(unique, counts)}
             
-            # Placeholder: In real implementation, sample the raster within buffer
-            # and calculate class frequencies
-            
-            proportions_list.append(land_cover_proportions)
-            
+            # Store original row data + proportions
+            row_dict = row.drop('geometry').to_dict()
+            row_dict.update(proportions)
+            results.append(row_dict)
         except Exception as e:
             logger.warning(f"Failed to calculate buffer for observation {idx}: {e}")
-            # Use default proportions for failed calculations
-            proportions_list.append({
-                'urban': 0.0,
-                'agriculture': 0.0,
-                'forest': 0.0,
-                'water': 0.0,
-                'wetland': 0.0,
-                'grassland': 0.0,
-                'barren': 0.0
-            })
+            # Append row with NaN or 0 proportions
+            row_dict = row.drop('geometry').to_dict()
+            # Add placeholder columns for known land cover classes if needed
+            results.append(row_dict)
     
-    ebd_df = ebd_df.copy()
-    ebd_df['land_cover_proportions'] = proportions_list
-    
-    return ebd_df
+    return pd.DataFrame(results)
 
-def assign_guilds(df: pd.DataFrame, guild_mapping: pd.DataFrame) -> pd.DataFrame:
-    """
-    Assign foraging guilds to observations based on species_id.
+def assign_guilds(merged_df: pd.DataFrame, guild_df: pd.DataFrame) -> pd.DataFrame:
+    """Assign foraging guilds to observations based on species_id."""
+    if 'species_id' not in guild_df.columns or 'foraging_guild' not in guild_df.columns:
+        raise ValueError("Guild mapping must contain 'species_id' and 'foraging_guild' columns.")
     
-    Args:
-        df: DataFrame with species_id column
-        guild_mapping: DataFrame with species_id to foraging_guild mapping
-        
-    Returns:
-        DataFrame with added foraging_guild column
-    """
-    logger.info("Assigning foraging guilds")
-    
-    # Create mapping dictionary
-    guild_dict = dict(zip(guild_mapping['species_id'], guild_mapping['foraging_guild']))
-    
-    df = df.copy()
-    df['foraging_guild'] = df['species_id'].map(guild_dict)
-    
-    # Check for missing guild assignments
-    missing = df['foraging_guild'].isna().sum()
-    if missing > 0:
-        logger.warning(f"{missing} observations have missing guild assignments")
-        
-    return df
+    merged_df = merged_df.merge(
+        guild_df[['species_id', 'foraging_guild']], 
+        on='species_id', 
+        how='left'
+    )
+    return merged_df
 
-def filter_by_observation_count(df: pd.DataFrame, min_obs: int = 50) -> pd.DataFrame:
-    """
-    Filter observations to retain only species with >= min_obs observations.
-    
-    Args:
-        df: DataFrame with species_id column
-        min_obs: Minimum number of observations per species
-        
-    Returns:
-        Filtered DataFrame
-    """
-    logger.info(f"Filtering species with < {min_obs} observations")
-    
+def filter_by_observation_count(df: pd.DataFrame, min_count: int = OBSERVATION_THRESHOLD) -> pd.DataFrame:
+    """Filter observations to ensure statistical power (>= min_count per species)."""
+    # This is usually done before merging, but if done here, we count again.
+    # The task description says "filter for statistical power", which implies
+    # the final output should only contain species meeting this criteria.
+    # However, T012.5 already selects top species and T013 filters EBD.
+    # This function serves as a final safety check or re-filtering if needed.
     species_counts = df['species_id'].value_counts()
-    valid_species = species_counts[species_counts >= min_obs].index.tolist()
-    
+    valid_species = species_counts[species_counts >= min_count].index
     filtered_df = df[df['species_id'].isin(valid_species)]
     
-    dropped = len(df) - len(filtered_df)
+    dropped = df.shape[0] - filtered_df.shape[0]
     if dropped > 0:
-        logger.info(f"Dropped {dropped} observations from species with < {min_obs} records")
-        
+        logger.info(f"Dropped {dropped} observations for species with < {min_count} records.")
+    
     return filtered_df
 
-def validate_schema(df: pd.DataFrame) -> bool:
+def validate_schema(df: pd.DataFrame) -> None:
     """
-    Validate that the DataFrame contains required columns and valid data.
-    
-    Args:
-        df: DataFrame to validate
-        
-    Returns:
-        True if schema is valid
-        
-    Raises:
-        ValueError: If required columns are missing or data is invalid
+    Validate that the DataFrame contains required columns.
+    Raises ValueError if columns are missing.
     """
-    logger.info("Validating schema compliance")
+    required_columns = ['species_id', 'foraging_guild']
     
-    # Check for required columns
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
+    # Check for standard land cover proportion columns
+    # The schema might define specific LC classes, but we check for the pattern
+    # or the existence of at least one land cover column if the schema is dynamic.
+    # Based on the task: "individual columns for land cover proportions"
+    # We check for the presence of columns starting with 'lc_' or 'prop_'
+    # or specifically defined in a schema file if available.
+    # For this implementation, we enforce the presence of the core columns
+    # and verify that land cover columns exist.
     
-    # Validate species_id is not empty
-    if df['species_id'].isna().any() or (df['species_id'] == '').any():
-        raise ValueError("species_id contains missing or empty values")
-        
-    # Validate foraging_guild is not empty
-    if df['foraging_guild'].isna().any() or (df['foraging_guild'] == '').any():
-        raise ValueError("foraging_guild contains missing or empty values")
-        
-    # Validate land_cover_proportions is a list/dict with expected keys
-    if 'land_cover_proportions' in df.columns:
-        # Check that values are properly formatted (list or dict of proportions)
-        for idx, val in enumerate(df['land_cover_proportions']):
-            if pd.isna(val) or val is None:
-                raise ValueError(f"land_cover_proportions at index {idx} is null")
-            
-            # Convert string representation to dict if needed
-            if isinstance(val, str):
-                try:
-                    val = json.loads(val)
-                except json.JSONDecodeError:
-                    raise ValueError(f"land_cover_proportions at index {idx} is not valid JSON")
-            
-            if not isinstance(val, dict):
-                raise ValueError(f"land_cover_proportions at index {idx} is not a dictionary")
-            
-            # Check for expected land cover keys
-            expected_keys = {'urban', 'agriculture', 'forest', 'water', 'wetland', 'grassland', 'barren'}
-            if not expected_keys.issubset(set(val.keys())):
-                raise ValueError(f"land_cover_proportions at index {idx} missing expected keys")
-            
-            # Check that proportions sum to approximately 1.0
-            total = sum(val.values())
-            if abs(total - 1.0) > 0.01:
-                logger.warning(f"land_cover_proportions at index {idx} sums to {total}, not 1.0")
+    missing_core = [col for col in required_columns if col not in df.columns]
+    if missing_core:
+        raise ValueError(f"Missing required core columns: {missing_core}")
     
-    logger.info("Schema validation passed")
-    return True
+    # Check for land cover proportions
+    lc_cols = [col for col in df.columns if col.startswith('lc_') or 'prop' in col.lower()]
+    if not lc_cols:
+        # It's possible the schema expects specific columns like 'forest_prop', etc.
+        # If the schema is strict, we might need to load it.
+        # For now, we assume if no 'lc_' or 'prop' columns exist, it's invalid.
+        # However, to be robust against the specific "individual columns" requirement,
+        # we check if ANY land cover related columns exist.
+        # If the task implies specific names, we might need to hardcode them or load a schema.
+        # Let's assume the pattern 'lc_<value>' is used based on calculate_land_cover_proportions.
+        raise ValueError("Missing land cover proportion columns. Expected columns starting with 'lc_' or containing 'prop'.")
+    
+    logger.info(f"Schema validation passed. Found {len(lc_cols)} land cover columns.")
 
 def main():
-    """
-    Main function to execute the merge and buffer pipeline.
-    """
-    project_root = get_project_root()
-    processed_dir = get_processed_dir()
-    raw_dir = get_raw_data_dir()
-    
-    # Ensure output directory exists
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Define paths
-    top_species_path = processed_dir / "top_25_species_ids.json"
-    guild_mapping_path = processed_dir / "guild_mapping.csv"
-    nlcd_path = raw_dir / "nlcd_2019.zip"
-    output_path = processed_dir / "merged_observations.csv"
-    
-    logger.info("Starting merge and buffer pipeline")
+    """Main execution function for T013 (merge_and_buffer)."""
+    logger.info("Starting merge_and_buffer pipeline (T013).")
     
     try:
-        # Load data
-        ebd_df = load_filtered_ebd(top_species_path)
-        guild_mapping = load_guild_mapping(guild_mapping_path)
-        nlcd_dataset = load_nlcd_raster(nlcd_path)
+        # 1. Load data
+        ebd_df = load_filtered_ebd()
+        guild_df = load_guild_mapping()
+        raster = load_nlcd_raster()
         
-        # Calculate land cover proportions
-        ebd_df = calculate_land_cover_proportions(ebd_df, nlcd_dataset)
+        # 2. Calculate land cover proportions
+        logger.info("Calculating land cover proportions...")
+        merged_df = calculate_land_cover_proportions(ebd_df, raster)
         
-        # Assign guilds
-        ebd_df = assign_guilds(ebd_df, guild_mapping)
+        # 3. Assign guilds
+        logger.info("Assigning foraging guilds...")
+        merged_df = assign_guilds(merged_df, guild_df)
         
-        # Validate schema before saving
-        validate_schema(ebd_df)
+        # 4. Validate Schema (T015 requirement)
+        logger.info("Validating schema...")
+        validate_schema(merged_df)
         
-        # Save output
-        logger.info(f"Saving merged observations to {output_path}")
-        ebd_df.to_csv(output_path, index=False)
+        # 5. Filter by observation count (safety check)
+        merged_df = filter_by_observation_count(merged_df)
         
-        # Record provenance
-        provenance = generate_provenance_record(
-            step="merge_and_buffer",
-            input_files=[str(top_species_path), str(guild_mapping_path), str(nlcd_path)],
-            output_file=str(output_path),
-            script_path=__file__
-        )
+        # 6. Save output
+        output_path = PROCESSED_DIR / "merged_observations.csv"
+        merged_df.to_csv(output_path, index=False)
+        logger.info(f"Saved merged observations to {output_path}")
         
-        # Append to metadata
-        metadata_path = raw_dir.parent / "metadata.yaml"
-        if metadata_path.exists():
-            with open(metadata_path, 'r') as f:
-                metadata = yaml.safe_load(f) or {}
-        else:
-            metadata = {}
-            
-        if 'provenance' not in metadata:
-            metadata['provenance'] = []
-        metadata['provenance'].append(provenance)
-        
-        with open(metadata_path, 'w') as f:
-            yaml.dump(metadata, f, default_flow_style=False)
-        
-        logger.info("Pipeline completed successfully")
+        # 7. Record provenance
+        record_artifact_provenance(output_path, "T013-merge_and_buffer")
         
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")

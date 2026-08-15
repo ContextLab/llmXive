@@ -2867,3 +2867,811 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T07:32:48Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Across-Species Permutation Test performed with 1000 iterations
+  claim_id: c_9f6e1e28
+  context: Implement models/evaluate.py to load the trained model (from T019) and
+    the training metrics. Compute balanced accuracy and per-class F1 scores. Perform
+    the Across-Species Permutation Test with 1000 iterations (shuffling guild labels
+    across species).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST perform the Across-Species Permutation Test with 1000
+    iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:10:40Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Top 25 species selected by observation count
+  claim_id: c_1f8e462e
+  context: "The logic MUST: (1) Check if data/raw/ebd_train.csv exists; if not, check\
+    \ for data/raw/ebd_train_fallback.parquet; if neither, raise FileNotFoundError.\
+    \ (2) Filter the full pool of species to retain ONLY species with \u226550 observations.\
+    \ (3) Sort the filtered list by total record count descending and select a fixed\
+    \ set of N=25 top species."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The top 25 species are selected by observation count.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:11:16Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Species with fewer than 50 observations excluded
+  claim_id: c_280c5559
+  context: "Filter the full pool of species to retain ONLY species with \u226550 observations.\
+    \ (3) Sort the filtered list by total record count descending and select a fixed\
+    \ set of N=25 top species."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Species_with_fewer_than_50_observations_excluded
+  kind: magnitude
+  raw_text: Species with fewer than 50 observations are excluded from the dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:11:46Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime less than 6 hours
+  claim_id: c_cdfd5490
+  context: Profile merge_and_buffer.py and optimize buffer calculation using vectorization;
+    verify total runtime < 6h.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The pipeline runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:12:11Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Buffer land cover proportions calculated at 50m, 100m, and 200m radii
+  claim_id: c_1ab0b05a
+  context: calculate buffer land cover proportions using NLCD 2019 data within multiple
+    buffer radii (e.g., 50m, 100m, 200m) (using a projected CRS for deterministic
+    radii), join with data/processed/guild_mapping.csv (from T008b) to assign foraging
+    guilds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Buffer land cover proportions are calculated using multiple radii including
+    50m, 100m, and 200m.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:12:59Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Permutation test yields p-value less than 0.05
+  claim_id: c_4ff509eb
+  context: 'Independent Test: Verify balanced accuracy is measured against chance,
+    per-class F1 scores are computed, and the permutation test (a sufficient number
+    of iterations) yields p < 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_yields_p-value_less_than_0.05
+  kind: magnitude
+  raw_text: The permutation test must yield a p-value less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:13:54Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity less than 10
+  claim_id: c_9a72dab0
+  context: Refactor merge_and_buffer.py to ensure max cyclomatic complexity < 10.
+    Specifically refactor the calculate_buffer_proportions and merge_land_cover functions.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_less_than_10
+  kind: magnitude
+  raw_text: The cyclomatic complexity of the refactored functions must be less than
+    10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:14:23Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: NLCD land cover data from 2019 version
+  claim_id: c_45bc2846
+  context: Implement data/download_nlcd.py to fetch NLCD land cover data from the
+    public USGS LPDAAC S3 bucket s3://usgs-landsat/nlcd/2019/ using a deterministic
+    key pattern for the contiguous US.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NLCD land cover data is fetched from the 2019 version.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:14:45Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Across-Species Permutation Test with 1000 iterations
+  claim_id: c_562d9382
+  context: Perform the **Across-Species Permutation Test** with 1000 iterations (shuffling
+    guild labels across species). The script MUST compare the observed accuracy against
+    the null distribution to determine if land cover predicts guild independent of
+    species identity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must perform the Across-Species Permutation Test with 1000
+    iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:15:30Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Filter species with >= 50 observations
+  claim_id: c_daed4639
+  context: "The logic MUST: (1) Check if `data/raw/ebd_train.csv` exists; if not,\
+    \ check for `data/raw/ebd_train_fallback.parquet`; if neither, raise `FileNotFoundError`.\
+    \ (2) Filter the full pool of species to retain ONLY species with \u226550 observations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must filter to retain only species with 50 or more observations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:15:52Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Select top 25 species
+  claim_id: c_cf0d1bbb
+  context: Sort the filtered list by total record count descending and select a fixed
+    set of N=25 top species (handling ties by including all tied species at the 25th
+    rank threshold).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The selection logic must select a fixed set of 25 top species.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:16:16Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Calculate buffer land cover proportions at 50m, 100m, and 200m radii
+  claim_id: c_2c77dd68
+  context: calculate buffer land cover proportions using NLCD 2019 data within **multiple
+    buffer radii (e.g., 50m, 100m, 200m)** (using a projected CRS for deterministic
+    radii), join with `data/processed/guild_mapping.csv` (from T008b) to assign foraging
+    guilds
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The buffer land cover proportions must be calculated using multiple buffer
+    radii including 50m, 100m, and 200m.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:16:31Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime < 6 hours
+  claim_id: c_26d099dd
+  context: 'Performance optimization: Profile `merge_and_buffer.py` and optimize buffer
+    calculation using vectorization; verify total runtime < 6h.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_%3C_6_hours
+  kind: magnitude
+  raw_text: The total pipeline runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:16:32Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Peak memory usage < 7 GB
+  claim_id: c_76ec4f84
+  context: Implement `utils/validate_resources.py` to explicitly measure and log the
+    total pipeline runtime (must be < 6h) and peak memory usage (must be < 7GB) during
+    execution of T007.5.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_%3C_7_GB
+  kind: magnitude
+  raw_text: The peak memory usage must be less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:16:33Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Permutation test p-value < 0.05
+  claim_id: c_cd53c1a5
+  context: 'Independent Test: Verify balanced accuracy is measured against chance,
+    per-class F1 scores are computed, and the permutation test (a sufficient number
+    of iterations) yields p < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test p-value threshold is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:18:35Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Across-Species Permutation shuffles guild labels across species
+  claim_id: c_c1abb0ef
+  context: Perform the **Across-Species Permutation Test** with 1000 iterations (shuffling
+    guild labels across species). The script MUST compare the observed accuracy against
+    the null distribution to determine if land cover predicts guild independent of
+    species identity.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Across-Species_Permutation_shuffles_guild_labels_across_spec
+  kind: entity_fact
+  raw_text: The 'Across-Species Permutation' method involves shuffling guild labels
+    across species.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:19:17Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Across-Species Permutation Test with 1000 iterations
+  claim_id: c_2270ea9d
+  context: Implement models/evaluate.py to load the trained model (from T019) and
+    the training metrics. Compute balanced accuracy and per-class F1 scores. Perform
+    the Across-Species Permutation Test with 1000 iterations (shuffling guild labels
+    across species).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST perform the Across-Species Permutation Test with 1000
+    iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:20:44Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Filter species with 50 or more observations
+  claim_id: c_29c9d83c
+  context: "The logic MUST: (1) Check if data/raw/ebd_train.csv exists; if not, check\
+    \ for data/raw/ebd_train_fallback.parquet; if neither, raise FileNotFoundError.\
+    \ (2) Filter the full pool of species to retain ONLY species with \u226550 observations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The script must filter the full pool of species to retain ONLY species\
+    \ with \u226550 observations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:20:44Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Select top 25 species by observation count
+  claim_id: c_47d0725b
+  context: Sort the filtered list by total record count descending and select a fixed
+    set of N=25 top species (handling ties by including all tied species at the 25th
+    rank threshold).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The logic must select a fixed set of N=25 top species.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:21:23Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Calculate land cover proportions at 50m, 100m, and 200m buffers
+  claim_id: c_83d9a4c9
+  context: Calculate buffer land cover proportions using NLCD 2019 data within multiple
+    buffer radii (e.g., 50m, 100m, 200m) (using a projected CRS for deterministic
+    radii).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Buffer land cover proportions must be calculated using multiple buffer
+    radii including 50m, 100m, and 200m.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:21:24Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime under 6 hours
+  claim_id: c_94a83438
+  context: Profile merge_and_buffer.py and optimize buffer calculation using vectorization;
+    verify total runtime < 6h.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_under_6_hours
+  kind: magnitude
+  raw_text: The total pipeline runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:21:26Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Peak memory usage under 7 GB
+  claim_id: c_9e2bee64
+  context: Implement utils/validate_resources.py to explicitly measure and log the
+    total pipeline runtime (must be < 6h) and peak memory usage (must be < 7GB) during
+    execution of T007.5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_under_7_GB
+  kind: magnitude
+  raw_text: Peak memory usage must be less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:21:28Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Feature importance match defined as overlap count >= 1
+  claim_id: c_4f4aebf8
+  context: A 'Match' is recorded if the overlap count is >= 1. Document agreements
+    and divergences in the feature_importance_report.md.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_importance_match_defined_as_overlap_count_%3E=_1
+  kind: magnitude
+  raw_text: A match in feature importance validation is recorded if the overlap count
+    is greater than or equal to 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:22:14Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Maximum cyclomatic complexity of 10
+  claim_id: c_bdbb030b
+  context: Refactor merge_and_buffer.py to ensure max cyclomatic complexity < 10.
+    Specifically refactor the calculate_buffer_proportions and merge_land_cover functions.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_cyclomatic_complexity_of_10
+  kind: magnitude
+  raw_text: The cyclomatic complexity of refactored functions must be less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:22:17Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Across-Species Permutation Test with 1000 iterations
+  claim_id: c_237041f2
+  context: Implement models/evaluate.py to load the trained model... Perform the Across-Species
+    Permutation Test with 1000 iterations (shuffling guild labels across species).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST perform the Across-Species Permutation Test with 1000
+    iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:22:40Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Fixed set of 25 top species
+  claim_id: c_df7d48d1
+  context: Sort the filtered list by total record count descending and select a fixed
+    set of N=25 top species (handling ties by including all tied species at the 25th
+    rank threshold).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must process a fixed set of N=25 top species.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:23:31Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Species retention threshold of 50 observations
+  claim_id: c_b30d6b34
+  context: "Filter the full pool of species to retain ONLY species with \u226550 observations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Species_retention_threshold_of_50_observations
+  kind: magnitude
+  raw_text: Species must have at least 50 observations to be retained in the filtered
+    list.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:24:05Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Buffer radii of 50m, 100m, and 200m
+  claim_id: c_a08e9124
+  context: calculate buffer land cover proportions using NLCD 2019 data within multiple
+    buffer radii (e.g., 50m, 100m, 200m)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Buffer land cover proportions must be calculated using multiple radii
+    including 50m, 100m, and 200m.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:24:05Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: NLCD 2019 sourced from USGS LPDAAC S3 bucket
+  claim_id: c_50c58bbc
+  context: fetch NLCD land cover data from the public USGS LPDAAC S3 bucket s3://usgs-landsat/nlcd/2019/
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The NLCD 2019 land cover data is sourced from the USGS LPDAAC S3 bucket.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:24:27Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: eBird EBD records sourced from s3://ebird-data/ebd_release/
+  claim_id: c_e85bdb87
+  context: list the S3 bucket s3://ebird-data/ebd_release/, dynamically select the
+    most recent .parquet file
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EBird_EBD_records_sourced_from_s3://ebird-data/ebd_release/
+  kind: entity_fact
+  raw_text: The eBird EBD records are sourced from the S3 bucket s3://ebird-data/ebd_release/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:24:52Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime less than 6 hours
+  claim_id: c_b4bec635
+  context: Profile merge_and_buffer.py and optimize buffer calculation using vectorization;
+    verify total runtime < 6h.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The total pipeline runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:24:54Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 2
+  canonical: Peak memory usage less than 7 GB
+  claim_id: c_6d5ef5f7
+  context: Implement utils/validate_resources.py to explicitly measure and log the
+    total pipeline runtime (must be < 6h) and peak memory usage (must be < 7GB) during
+    execution of T007.5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: Peak memory usage must be less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:24:56Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Evaluate land cover prediction independence from species identity
+  claim_id: c_619b1397
+  context: The script MUST compare the observed accuracy against the null distribution
+    to determine if land cover predicts guild independent of species identity.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluate_land_cover_prediction_independence_from_species_ide
+  kind: entity_fact
+  raw_text: The evaluation script must compare observed accuracy against a null distribution
+    to determine if land cover predicts guild independent of species identity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:25:14Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Across-Species Permutation Test with 1000 iterations
+  claim_id: c_eb94e2b4
+  context: Task T020 description for User Story 2 regarding the evaluation of the
+    Random Forest classifier.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script MUST perform the Across-Species Permutation Test with 1000
+    iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:26:58Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime less than 6 hours
+  claim_id: c_c5fce226
+  context: Critical notes regarding performance optimization and validation tasks
+    T032 and T035.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: The pipeline total runtime must be less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:27:00Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Peak memory usage less than 7 GB
+  claim_id: c_c28bbefe
+  context: Critical notes regarding performance optimization and validation tasks
+    T032 and T035.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: The peak memory usage must be less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:27:01Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Filter species with at least 50 observations
+  claim_id: c_0040ce79
+  context: Task T012.5 description for selecting top species from the eBird data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_species_with_at_least_50_observations
+  kind: magnitude
+  raw_text: "The selection logic MUST retain ONLY species with \u226550 observations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:27:28Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Select top 25 species
+  claim_id: c_ff5f25d7
+  context: Task T012.5 description for selecting top species from the eBird data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The selection logic MUST select a fixed set of N=25 top species.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:27:29Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 3
+  canonical: Calculate land cover proportions for 50m, 100m, and 200m buffers
+  claim_id: c_59fedc1e
+  context: Task T013 description for merging eBird data with NLCD land cover data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The merge_and_buffer.py script must calculate buffer land cover proportions
+    using multiple buffer radii (e.g., 50m, 100m, 200m).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:27:46Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Permutation test p-value threshold 0.05
+  claim_id: c_74d2a4d5
+  context: Task T020 and T021 descriptions regarding the validation of the permutation
+    test results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The evaluation script must compare the observed accuracy against the\
+    \ null distribution to determine if land cover predicts guild independent of species\
+    \ identity with a p-value threshold of \u03B1 = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:28:12Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Select most recent parquet file from eBird S3 bucket
+  claim_id: c_9211e6a6
+  context: Task T011 description for downloading eBird data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_most_recent_parquet_file_from_eBird_S3_bucket
+  kind: magnitude
+  raw_text: The `download_ebd.py` script must dynamically select the most recent `.parquet`
+    file from the S3 bucket.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:29:09Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Fallback to eBird train sample parquet
+  claim_id: c_a3bf39f7
+  context: Task T011 description for downloading eBird data with a fallback mechanism.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_eBird_train_sample_parquet
+  kind: entity_fact
+  raw_text: The `download_ebd.py` script must fall back to the verified S3 subset
+    at `s3://ebird-data/ebd_release/ebd_train_sample.parquet` if the official source
+    fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:30:02Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Fetch NLCD 2019 from USGS LPDAAC S3
+  claim_id: c_71d09c7f
+  context: Task T012 description for downloading NLCD land cover data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The `download_nlcd.py` script must fetch NLCD land cover data from the
+    public USGS LPDAAC S3 bucket `s3://usgs-landsat/nlcd/2019/`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:30:22Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Fetch Birds of the World foraging guild data
+  claim_id: c_97c039b0
+  context: Task T008a description for downloading the guild source data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_Birds_of_the_World_foraging_guild_data
+  kind: entity_fact
+  raw_text: The `download_guild_source.py` script must fetch the 'Birds of the World'
+    foraging guild data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:30:47Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Stream NLCD tiles to avoid RAM overflow
+  claim_id: c_500e8c2d
+  context: Task T012.6 description for handling large NLCD raster files.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stream_NLCD_tiles_to_avoid_RAM_overflow
+  kind: entity_fact
+  raw_text: The `stream_nlcd_tiles.py` task must ensure the merged dataset never exceeds
+    the available RAM limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T14:31:14Z'

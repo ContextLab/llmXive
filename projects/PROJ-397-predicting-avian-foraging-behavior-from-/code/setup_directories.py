@@ -1,19 +1,26 @@
+"""
+Script to initialize all required project directories.
+This script ensures that the project structure is correctly set up
+before running any data processing or modeling tasks.
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Initialize the project directory structure for PROJ-397.
-    Creates the required subdirectories under projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/
-    """
-    # Define the base project path relative to the repository root
-    # The prompt specifies the project is at: projects/PROJ-397-predicting-avian-foraging-behavior-from-/
-    project_root = Path(__file__).parent.parent
-    base_path = project_root / "projects" / "PROJ-397-predicting-avian-foraging-behavior-from-" / "code"
-
-    # Define the required subdirectories
-    subdirs = [
+    """Create all necessary project directories."""
+    # Define the project root based on the task description
+    # The task specifies: projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/
+    # However, since we are running from within the code directory or as a module,
+    # we assume the script is run from the root where 'code' is a subdirectory.
+    # To be safe, we construct paths relative to the script's location or CWD.
+    
+    # Assuming the script is in code/ or code/setup_directories.py
+    # We need to create directories under code/
+    
+    base_dir = Path(__file__).parent
+    
+    directories = [
         "data",
         "models",
         "viz",
@@ -21,30 +28,27 @@ def main():
         "utils",
         "tests"
     ]
-
-    # Create the base directory if it doesn't exist
-    base_path.mkdir(parents=True, exist_ok=True)
-    print(f"Base directory created/verified: {base_path}")
-
-    # Create each subdirectory
+    
     created_dirs = []
-    for subdir in subdirs:
-        dir_path = base_path / subdir
-        dir_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(dir_path)
-        print(f"Directory created: {dir_path}")
-
-    # Create __init__.py files in each directory to make them Python packages
-    for subdir in subdirs:
-        init_path = base_path / subdir / "__init__.py"
-        init_path.touch(exist_ok=True)
-        print(f"Initialized package: {init_path}")
-
-    # Create __init__.py in the root code directory as well
-    root_init = base_path / "__init__.py"
-    root_init.touch(exist_ok=True)
-
-    print(f"Project structure initialization complete for {base_path}")
+    
+    for dir_name in directories:
+        dir_path = base_dir / dir_name
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(dir_path))
+            
+            # Create .gitkeep in each directory
+            gitkeep_path = dir_path / ".gitkeep"
+            if not gitkeep_path.exists():
+                gitkeep_path.touch()
+            created_dirs.append(f"  (created {gitkeep_path.name})")
+            
+            print(f"Created directory: {dir_path}")
+        except Exception as e:
+            print(f"Error creating directory {dir_path}: {e}")
+            sys.exit(1)
+    
+    print(f"\nSuccessfully created {len(directories)} directories with .gitkeep files.")
     return 0
 
 if __name__ == "__main__":
