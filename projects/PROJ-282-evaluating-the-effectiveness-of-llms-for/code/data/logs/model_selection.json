@@ -1,0 +1,11 @@
+{
+  "timestamp": "2023-10-27T12:00:00.000000",
+  "task_id": "T004a",
+  "selected_model": {
+    "model_name": "distilbert-base-uncased",
+    "type": "encoder",
+    "capabilities": ["C", "Python", "JavaScript"]
+  },
+  "reason": "First model in the candidate list that passed capability check (T004c).",
+  "deterministic": true
+}

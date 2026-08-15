@@ -3,32 +3,75 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# R artifacts
-.Rhistory
-.RData
-.Rds
-.RData.tgz
+# C extensions
+*.so
 
-# Virtual environments
-.venv/
-venv/
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.venv
 env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 
+# Data (Large files)
+data/raw/*.fastq
+data/raw/*.bam
+data/raw/*.bai
+data/processed/*.bigWig
+data/figures/*.png
+
 # Logs
 *.log
 pipeline.log
-
-# Data (large files, git-ignored, tracked via manifest)
-data/raw/
-data/interim/
-data/processed/
-figures/
 
 # OS
 .DS_Store

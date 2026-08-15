@@ -20,3 +20,15 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/jsvuln/jsvulndb/resolve/main/data/test.parquet
   verified_at: '2026-08-13T04:20:56.151749Z'
+- artifact_hash: d1d124f2c403e68b27f8e6d1ecd396fdd5fb4420f141a93349d1cd4e4d361db1
+  artifact_path: projects/PROJ-282-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2607.07974] A Multi-cluster Boundary Learning Method for Out-of-Scope
+    Intent Detection via MiniLM Embedding'
+  kind: url
+  value: https://arxiv.org/abs/2607.07974
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2607.07974
+  verified_at: '2026-08-15T15:29:30.870914Z'

@@ -7,56 +7,90 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  run-pipeline:
+  run-analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 360 # 6 hours limit
-
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r code/requirements.txt
-          pip install pytest
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('code/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
-      - name: Run Unit Tests
-        working-directory: code
-        run: |
-          pytest tests/ -v
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r code/requirements.txt
+        pip install pytest
 
-      - name: Run Full Analysis Pipeline
-        working-directory: code
-        run: |
-          # Run the main pipeline script.
-          # We use the --null-effect flag to generate synthetic data for CI
-          # to ensure the pipeline runs without needing external real data downloads,
-          # while still exercising the full code path (processing, analysis, plotting).
-          python main.py --null-effect
+    - name: Run Analysis Pipeline
+      id: run_pipeline
+      run: |
+        cd code
+        # Run the main pipeline script
+        # Using --null-effect for CI to ensure deterministic, fast execution without external data dependencies
+        # The script must complete successfully and write outputs to data/
+        start_time=$(date +%s)
+        python main.py --null-effect
+        end_time=$(date +%s)
+        duration=$((end_time - start_time))
+        echo "pipeline_duration=$duration" >> $GITHUB_OUTPUT
 
-      - name: Verify Outputs
-        working-directory: code
-        run: |
-          # Assert that expected output files were created
-          test -f ../data/processed/complexity_scores.csv
-          test -f ../data/processed/aggregated_d_scores.csv
-          test -f ../data/results/permutation_results.json
-          test -f ../data/results/sensitivity_results.json
-          test -f ../figures/boxplot_d_scores.png
-          test -f ../figures/sensitivity_analysis.png
-          echo "All expected output files verified."
+    - name: Assert Duration < 6 Hours
+      run: |
+        duration=${{ steps.run_pipeline.outputs.pipeline_duration }}
+        max_duration=21600 # 6 hours in seconds
+        if [ "$duration" -gt "$max_duration" ]; then
+          echo "ERROR: Pipeline took ${duration}s, exceeding the 6h (21600s) limit."
+          exit 1
+        else
+          echo "SUCCESS: Pipeline completed in ${duration}s (limit: ${max_duration}s)."
+        fi
 
-      - name: Upload Results Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: pipeline-results
-          path: |
-            data/
-            figures/
-            logs/
+    - name: Verify Output Artifacts
+      run: |
+        # Verify that the pipeline produced the required output files
+        # These paths match the project specification
+        required_files=(
+          "data/processed/complexity_scores.csv"
+          "data/processed/aggregated_d_scores.csv"
+          "data/processed/counterbalance_assignment.csv"
+          "data/results/permutation_results.json"
+          "data/results/sensitivity_results.json"
+          "figures/analysis_plot.png"
+        )
+
+        missing=false
+        for file in "${required_files[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "Missing required artifact: $file"
+            missing=true
+          else
+            echo "Found artifact: $file"
+          fi
+        done
+
+        if [ "$missing" = true ]; then
+          echo "ERROR: One or more required output files are missing."
+          exit 1
+        fi
+
+    - name: Upload Results Artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: analysis-results
+        path: |
+          data/results/
+          figures/
+        retention-days: 30

@@ -588,3 +588,125 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T19:18:13Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: SRA accessions SRP010775, SRP009050, SRP009051, SRP009052 for Human,
+    Chimp, Macaque, Marmoset
+  claim_id: c_a1a064d9
+  context: T013 [P] [US1] Implement SRA download script (src/pipeline/download.py)
+    to fetch FASTQs for Human (SRP010775), Chimp (SRP009050), Macaque (SRP009051),
+    Marmoset (SRP009052)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SRA_accessions_SRP010775,_SRP009050,_SRP009051,_SRP009052_fo
+  kind: entity_fact
+  raw_text: Implement SRA download script to fetch FASTQs for Human (SRP010775), Chimp
+    (SRP009050), Macaque (SRP009051), Marmoset (SRP009052)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:39:05Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Minimum 3 replicates required for detecting |Delta PSI| >= 0.1
+  claim_id: c_0b842e1c
+  context: "T041 [P] Execute power_analysis.R to validate the minimum 3 replicates\
+    \ requirement for detecting |\u0394PSI| \u2265 0.1"
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.1'
+    relation: Delta PSI
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Minimum_3_replicates_required_for_detecting_Delta_PSI_%3E=_0.1
+    source_value: https://en.wikipedia.org/wiki/Minimum_3_replicates_required_for_detecting_Delta_PSI_>=_0.1
+    subject: Minimum 3 replicates required for detecting
+  kind: relational
+  raw_text: "Execute power_analysis.R to validate the minimum 3 replicates requirement\
+    \ for detecting |\u0394PSI| \u2265 0.1"
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:39:36Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Lineage-specific event detection thresholds |Delta PSI| > 0.1 and FDR
+    < 0.05
+  claim_id: c_17f0b6d6
+  context: "T017 [US1] Implement lineage-specific event detection (src/pipeline/detect_events.py)\
+    \ applying |\u0394PSI| > 0.1 and FDR < 0.05 thresholds"
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 0.1 and FDR < 0.05'
+    relation: Delta PSI
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Lineage-specific_event_detection_thresholds_Delta_PSI_%3E_0.1_
+    source_value: https://en.wikipedia.org/wiki/Lineage-specific_event_detection_thresholds_Delta_PSI_>_0.1_
+    subject: Lineage-specific event detection thresholds
+  kind: relational
+  raw_text: "Implement lineage-specific event detection applying |\u0394PSI| > 0.1\
+    \ and FDR < 0.05 thresholds"
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:40:00Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Permutation test with at least 1000 iterations
+  claim_id: c_dc2155f4
+  context: "T036 [US3] Implement permutation test (\u22651,000 iterations) in stats.R\
+    \ shuffling LSE status across combined LSE+Control cohort"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_with_at_least_1000_iterations
+  kind: magnitude
+  raw_text: "Implement permutation test (\u22651,000 iterations) in stats.R"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:40:17Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Flanking sequence extraction for 500 bp regions
+  claim_id: c_bef4e9fa
+  context: "T024 [P] [US2] Implement flanking sequence extraction (src/pipeline/extract_flanks.py)\
+    \ using bedtools getfasta for \xB1500 bp regions"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement flanking sequence extraction using bedtools getfasta for \xB1\
+    500 bp regions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:40:33Z'
+- artifact_path: projects/PROJ-002-evolutionary-pressure-on-alternative-spl/specs/001-evolutionary-pressure-on-alternative-spl/tasks.md
+  attempts: 1
+  canonical: Acceleration threshold sweep of 0.5
+  claim_id: c_af0e65be
+  context: "T028 [P] [US2] Implement sensitivity analysis script (src/pipeline/sensitivity_analysis.py)\
+    \ to sweep acceleration threshold (\xB10.5)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis script to sweep acceleration threshold\
+    \ (\xB10.5)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:40:59Z'

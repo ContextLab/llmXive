@@ -61,7 +61,7 @@
 - [X] T007 Create base data models/entities in `code/data/models.py`. Fields: `ImageStimulus` (path, edge_density, entropy, fractal_dim), `ParticipantResponse` (participant_id, session_id, reaction_time, is_correct, timestamp), `AggregatedScore` (participant_id, session_id, d_score, n_trials_valid, status). Implement as Pydantic BaseModel classes.
 - [X] T008 Configure logging infrastructure in `code/utils/logging.py`
 - [ ] T033a [P] [US3] Document the methodological shift from ANOVA to Permutation Test in `research.md`, including justification and citation of the plan's decision. This task must be completed before T033 to ensure implementation aligns with the chosen statistical method.
-- [ ] T027a [P] [US2] Generate `data/processed/counterbalance_assignment.csv` mapping participant IDs to session orders (Low-High vs High-Low) using a seeded random shuffle (seed=42) to ensure a 50/50 split for each starting condition. This task generates a synthetic assignment map for CI/testing and does not depend on raw logs.
+- [X] T027a [P] [US2] Generate `data/processed/counterbalance_assignment.csv` mapping participant IDs to session orders (Low-High vs High-Low) using a seeded random shuffle (seed=42) to ensure a 50/50 split for each starting condition. This task generates a synthetic assignment map for CI/testing and does not depend on raw logs.
 - [ ] T027b [US2] Log the specific counterbalancing assignment strategy used in `logs/counterbalance_strategy.log`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -89,7 +89,7 @@
 - [X] T014 [P] [US1] Implement entropy of grayscale histograms in `code/stimuli/metrics.py`
 - [X] T015 [P] [US1] Implement fractal dimension via box-counting in `code/stimuli/metrics.py` (handle edge cases: clamp value to a bounded range or raise ValueError if out of bounds).
 - [X] T016 [US1] Implement image validation and error handling in `code/stimuli/validate.py`. Validates *input images* for corruption before batch processing in T017. Skips corrupted files, logs filenames. Depends on T013-T015.
-- [ ] T017 [US1] Create `code/stimuli/process.py` to batch-process `data/raw/stimuli/` and output `data/processed/complexity_scores.csv`. Output schema: `filename, edge_density, entropy, fractal_dim, complexity_category`.
+- [ ] T017 [US1] Create `code/stimuli/process.py` to batch-process `data/raw/stimuli/` and output `data/processed/complexity_scores.csv`. Output schema: `filename, edge_density, entropy, fractal_dim, complexity_category`. <!-- FAILED: unspecified -->
 - [ ] T018 [US1] Add logic to categorize images into Low/Medium/High complexity based on computed scores (use pandas.qcut with a specified number of bins).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -137,8 +137,8 @@
 
 - [X] T032 [P] [US3] Implement PCA dimensionality check in `code/analysis/pca.py` (verify metric construct validity)
 - [X] T033 [US3] Implement Permutation Test in `code/analysis/permutation.py`. Parameters: A sufficient number of permutations to ensure stable p-value estimation, seed 42, metric = mean difference of D-scores. Note: This task implements FR-003 (amended).
-- [~] T034 [US3] Calculate effect sizes: Report 'Permutation Effect Size' (Cohen's d) and 'Permutation p-value'. Explicitly note that 'partial η²' is not applicable; this satisfies FR-004 intent with the correct metric for the chosen test.
-- [~] T034a [US3] Implement post-hoc power calculation in `code/analysis/permutation.py`. Parameters: Cohen's d = 0.5, alpha = 0.05, sample size = N. Use `statsmodels.stats.power.TTestIndPower`. Output: `data/results/power_analysis.json` with `power_value`, `target (a high value), `status` (pass/fail). Depends on T033, T034.
+- [ ] T034 [US3] Calculate effect sizes: Report 'Permutation Effect Size' (Cohen's d) and 'Permutation p-value'. Explicitly note that 'partial η²' is not applicable; this satisfies FR-004 intent with the correct metric for the chosen test.
+- [ ] T034a [US3] Implement post-hoc power calculation in `code/analysis/permutation.py`. Parameters: Cohen's d = 0.5, alpha = 0.05, sample size = N. Use `statsmodels.stats.power.TTestIndPower`. Output: `data/results/power_analysis.json` with `power_value`, `target (a high value), `status` (pass/fail). Depends on T033, T034.
 - [X] T035a [US3] Implement Sensitivity Analysis: Threshold sweep (±0.05, ±0.10, ±0.15 SD of the complexity metric distribution) AND LOIO in `code/analysis/permutation.py`. Logic: Exclude sweep points where n < 15 per condition.
 - [X] T035b [US3] Generate LOIO sensitivity plot in `code/viz/plot.py`.
 - [ ] T036 [US3] Save results to `data/results/permutation_results.json` and `data/results/sensitivity_results.json`. Dependency: Requires T033, T034, T035a, and T035b.
@@ -153,8 +153,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T039 [P] Documentation updates in `docs/` (README, usage examples)
-- [~] T040 Code cleanup and refactoring (remove debug prints, ensure type hints)
+- [ ] T039 [P] Documentation updates in `docs/` (README, usage examples)
+- [ ] T040 Code cleanup and refactoring (remove debug prints, ensure type hints)
 - [ ] T043a Add CI workflow file (.github/workflows/analysis.yml) to run pipeline and assert duration < 6h.
 - [~] T043b Vectorize image processing loops if execution time exceeds target.
 - [~] T044 [P] Additional unit tests for edge cases (corrupted images, missing data) in `tests/`

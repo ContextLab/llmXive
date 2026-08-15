@@ -1,42 +1,59 @@
-# PROJ-002: Evolutionary Pressure on Alternative Splicing in Primates
+# Evolutionary Pressure on Alternative Splicing in Primates
 
-## Overview
-This project investigates lineage-specific splicing events (LSEs) across primates
-(Human, Chimp, Macaque, Marmoset) and tests for enrichment in accelerated regulatory regions.
-
-## Prerequisites
-- Python 3.11+
-- R 4.3+
-- STAR aligner (system install)
-- SUPPA2 (system install or via conda)
-- UCSC bedtools (system install)
+## Project Overview
+This project investigates evolutionary pressure on alternative splicing events across primates (Human, Chimp, Macaque, Marmoset) using RNA-seq data, phylogenetic conservation scores, and statistical modeling.
 
 ## Project Structure
 ```
 .
-├── config/ # Configuration files (genomes.yaml, etc.)
-├── data/
-│ ├── raw/ # Raw FASTQ/BAM files (git-ignored)
-│ ├── interim/ # Intermediate processing results
-│ └── processed/ # Final analysis tables
-├── code/
-│ ├── pipeline/ # Core pipeline scripts
-│ └── utils/ # Utility modules
+├── code/ # Source code
+│ ├── data_models/ # Data class definitions
+│ ├── pipeline/ # Pipeline execution scripts
+│ ├── utils/ # Utilities (logging, hashing)
+│ └── setup_python_env.py
+├── config/ # Configuration files (genomes, params)
+├── data/ # Data directory (raw, processed)
+│ ├── raw/ # Downloaded FASTQs, BAMs
+│ ├── processed/ # PSI tables, annotations
+│ └── figures/ # Output plots
+├── specs/ # Feature specifications
 ├── tests/ # Test suites
-├── figures/ # Generated plots
 ├── requirements.txt # Python dependencies
-├── requirements_r.txt # R dependencies
+├── pyproject.toml # Project config & formatting
 └── README.md
 ```
 
-## Quick Start
-1. Install Python dependencies:
- `pip install -r requirements.txt`
-2. Install R dependencies (via Rscript):
- `Rscript -e "install.packages(c('phylolm', 'ape', 'data.table', 'ggplot2'))"`
-3. Configure genome assemblies in `config/genomes.yaml`.
-4. Run the pipeline:
- `python code/pipeline/main.py`
+## Prerequisites
+- Python 3.11+
+- R 4.3+
+- External Tools: STAR, SUPPA2, bedtools, UCSC utilities
+
+## Installation
+1. Clone the repository.
+2. Create a virtual environment:
+ ```bash
+ python3.11 -m venv.venv
+ source.venv/bin/activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -e ".[dev]"
+ ```
+4. Install pre-commit hooks:
+ ```bash
+ pre-commit install
+ ```
+
+## Configuration
+Genome assemblies are defined in `config/genomes.yaml`. Ensure paths to reference genomes (FASTA, GTF, BigWig) are correctly set before running the pipeline.
+
+## Running the Pipeline
+See individual scripts in `code/pipeline/` for entry points.
+Example:
+```bash
+python code/setup_python_env.py
+python code/pipeline/download.py --config config/genomes.yaml
+```
 
 ## License
-MIT
+MIT License

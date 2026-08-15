@@ -4,82 +4,156 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Tuple
 import numpy as np
-import cv2
-from ..config import get_data_path, get_project_root
-from ..utils.logging import get_logger
-from .metrics import calculate_edge_density, calculate_entropy, calculate_fractal_dim
+from config import get_project_root, get_data_path
+from utils.logging import get_logger
+from stimuli.metrics import process_image_vectorized
+from stimuli.validate import get_valid_images
 
 logger = get_logger(__name__)
 
-def categorize_complexity(edge_density: float, entropy: float, fractal_dim: float) -> str:
+def categorize_complexity(df: pd.DataFrame, n_bins: int = 3) -> pd.DataFrame:
     """
-    Categorize image complexity into Low, Medium, or High.
-    Uses a simple weighted sum heuristic.
-    """
-    score = 0.3 * edge_density + 0.4 * entropy + 0.3 * fractal_dim
-    if score < 0.5:
-        return "Low"
-    elif score < 1.0:
-        return "Medium"
-    else:
-        return "High"
-
-def process_stimuli_batch(input_dir: str, output_path: str) -> pd.DataFrame:
-    """
-    Batch process images in input_dir and output complexity scores to output_path.
-    Uses vectorized operations where possible.
-    """
-    input_path = Path(input_dir)
-    if not input_path.exists():
-        logger.error(f"Input directory {input_dir} does not exist.")
-        return pd.DataFrame()
+    Categorize images into Low/Medium/High complexity based on computed scores.
+    
+    Uses pandas.qcut to create quantile-based bins.
+    
+    Args:
+        df: DataFrame containing at least 'edge_density', 'entropy', 'fractal_dim'
+        n_bins: Number of bins to create (default 3 for Low/Medium/High)
         
-    image_files = list(input_path.glob("*.png")) + list(input_path.glob("*.jpg")) + list(input_path.glob("*.jpeg"))
-    if not image_files:
-        logger.warning(f"No image files found in {input_dir}")
-        return pd.DataFrame()
+    Returns:
+        DataFrame with added 'complexity_category' column
+    """
+    if df.empty:
+        logger.warning("Empty DataFrame provided to categorize_complexity")
+        return df
+
+    # We use the mean of the three normalized metrics for categorization
+    # First, normalize each metric to [0, 1] range
+    metrics = ['edge_density', 'entropy', 'fractal_dim']
+    
+    # Check if all metrics exist
+    if not all(m in df.columns for m in metrics):
+        raise ValueError(f"DataFrame must contain columns: {metrics}")
+        
+    df_normalized = df.copy()
+    for metric in metrics:
+        min_val = df_normalized[metric].min()
+        max_val = df_normalized[metric].max()
+        if max_val - min_val == 0:
+            # If all values are the same, set to 0.5
+            df_normalized[metric] = 0.5
+        else:
+            df_normalized[metric] = (df_normalized[metric] - min_val) / (max_val - min_val)
+    
+    # Calculate composite score (mean of normalized metrics)
+    df_normalized['composite_score'] = df_normalized[metrics].mean(axis=1)
+    
+    # Use qcut to create bins
+    # Handle edge case where all values are identical
+    try:
+        df['complexity_category'] = pd.qcut(
+            df_normalized['composite_score'], 
+            q=n_bins, 
+            labels=['Low', 'Medium', 'High'],
+            duplicates='drop'
+        )
+        
+        # If duplicates='drop' resulted in fewer bins than requested, 
+        # manually assign based on percentiles
+        if df['complexity_category'].nunique() < n_bins:
+            logger.warning(f"Only {df['complexity_category'].nunique()} unique categories found. "
+                         "Using manual percentile assignment.")
+            percentiles = np.linspace(0, 100, n_bins + 1)
+            df['complexity_category'] = pd.cut(
+                df_normalized['composite_score'],
+                bins=percentiles,
+                labels=['Low', 'Medium', 'High'][:n_bins]
+            )
+            
+    except ValueError as e:
+        logger.error(f"qcut failed: {e}. Falling back to manual binning.")
+        # Fallback: manual percentile-based binning
+        percentiles = np.linspace(0, 100, n_bins + 1)
+        df['complexity_category'] = pd.cut(
+            df_normalized['composite_score'],
+            bins=percentiles,
+            labels=['Low', 'Medium', 'High'][:n_bins]
+        )
+        
+    return df
+
+def process_stimuli_batch(stimuli_dir: str, output_path: str) -> pd.DataFrame:
+    """
+    Batch process stimuli images and output complexity scores with categories.
+    
+    Args:
+        stimuli_dir: Path to directory containing stimuli images
+        output_path: Path to save the output CSV
+        
+    Returns:
+        DataFrame with complexity metrics and categories
+    """
+    stimuli_path = Path(stimuli_dir)
+    if not stimuli_path.exists():
+        raise FileNotFoundError(f"Stimuli directory not found: {stimuli_path}")
+        
+    logger.info(f"Processing stimuli from: {stimuli_path}")
+    
+    # Get valid images
+    valid_images = get_valid_images(stimuli_path)
+    logger.info(f"Found {len(valid_images)} valid images")
+    
+    if not valid_images:
+        logger.warning("No valid images found to process")
+        # Create empty DataFrame with correct schema
+        df = pd.DataFrame(columns=['filename', 'edge_density', 'entropy', 'fractal_dim', 'complexity_category'])
+        df.to_csv(output_path, index=False)
+        return df
         
     results = []
-    
-    for img_file in image_files:
+    for img_path in valid_images:
         try:
-            image = cv2.imread(str(img_file))
-            if image is None:
-                logger.warning(f"Could not read image: {img_file}")
-                continue
-                
-            edge_density = calculate_edge_density(image)
-            entropy_val = calculate_entropy(image)
-            fractal_dim = calculate_fractal_dim(image)
-            category = categorize_complexity(edge_density, entropy_val, fractal_dim)
+            # Process image
+            edge_density, entropy, fractal_dim = process_image_vectorized(str(img_path))
             
             results.append({
-                "filename": img_file.name,
-                "edge_density": edge_density,
-                "entropy": entropy_val,
-                "fractal_dim": fractal_dim,
-                "complexity_category": category
+                'filename': img_path.name,
+                'edge_density': edge_density,
+                'entropy': entropy,
+                'fractal_dim': fractal_dim
             })
         except Exception as e:
-            logger.error(f"Error processing {img_file}: {e}")
+            logger.error(f"Failed to process {img_path.name}: {e}")
             continue
             
+    if not results:
+        logger.warning("No images were successfully processed")
+        df = pd.DataFrame(columns=['filename', 'edge_density', 'entropy', 'fractal_dim', 'complexity_category'])
+        df.to_csv(output_path, index=False)
+        return df
+        
+    # Create DataFrame
     df = pd.DataFrame(results)
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Processed {len(df)} images. Output saved to {output_path}")
+    
+    # Categorize complexity
+    df = categorize_complexity(df)
+    
+    # Save to CSV
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
+    logger.info(f"Saved results to {output_file}")
+    
     return df
 
 def main():
-    """Entry point for batch processing."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Process stimuli batch")
-    parser.add_argument("--input", type=str, default="data/raw/stimuli", help="Input directory")
-    parser.add_argument("--output", type=str, default="data/processed/complexity_scores.csv", help="Output file path")
-    args = parser.parse_args()
+    """Main entry point for batch processing."""
+    root = get_project_root()
+    stimuli_dir = root / "data" / "raw" / "stimuli"
+    output_path = root / "data" / "processed" / "complexity_scores.csv"
     
-    process_stimuli_batch(args.input, args.output)
+    process_stimuli_batch(str(stimuli_dir), str(output_path))
 
 if __name__ == "__main__":
     main()

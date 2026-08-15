@@ -3,6 +3,9 @@ Main Orchestrator Script
 
 Executes the full pipeline: US1 -> US2 -> US3.
 Reconciled with quickstart.md to ensure all required steps are invoked.
+
+This script handles the orchestration of the three user stories.
+It requires real ADNI credentials to run successfully.
 """
 import argparse
 import sys

@@ -1,9 +1,12 @@
 T017:
   c: false
-  h: d715f547fcf211d24c4f8ed0613f9e2400344f6213b98d01260163f543add543
-  r: "The `code/stimuli/process.py` script is present and implements the required\
-    \ processing and CSV schema, but the expected output file `data/processed/complexity_scores.csv`\
-    \ does not exist, so the task\u2019s required artifact is missing."
+  h: 6777765da1af0bca417e1204166113baf84d6a4060b196bea9252d4950341264
+  r: "The repository contains a partially shown `code/stimuli/process.py`, but the\
+    \ script is truncated and does not include the batch\u2011processing logic or\
+    \ any code that writes `data/processed/complexity_scores.csv`. Moreover, the required\
+    \ CSV file is absent from the project. Consequently, the task\u2019s core deliverable\u2014\
+    producing the processed complexity scores file with the specified schema\u2014\
+    is not satisfied."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,22 +22,37 @@ T024:
     \ The required artifact is missing, so the task is not satisfied."
 T026:
   c: false
-  h: 8425fbaec5fcd9f804727cd2ec6b3f98724ab5f13686b2735e8fbaf7bbad615d
+  h: ce14deaab7090e4296c67db79d9ffc6f78171b0694694911009a0dd1a7ba2b61
   r: "The required output file `data/processed/aggregated_d_scores.csv` does not exist,\
-    \ and the provided `code/data/process.py` is truncated with no visible logic that\
-    \ writes the aggregated DataFrame to that CSV (nor a complete implementation of\
-    \ the aggregation function). The task\u2019s core deliverable is therefore missing."
-T027b:
+    \ and the provided `code/data/process.py` is incomplete/truncated with no evidence\
+    \ that it writes the CSV with the specified columns. The task\u2019s core deliverable\
+    \ is therefore missing."
+T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `logs/counterbalance_strategy.log` file was provided; the claim\
-    \ lacks any artifact showing the log\u2019s existence, content, or the specific\
-    \ counterbalancing strategy recorded. The required log file must be present and\
-    \ contain the strategy details for the task to be considered complete."
-T033a:
+  r: "No artifact containing the calculated permutation Cohen\u2019s\u202Fd, permutation\
+    \ p\u2011value, or the required note that partial\u202F\u03B7\xB2 is not applicable\
+    \ was provided; thus the task\u2019s deliverable is missing."
+T034a:
+  c: false
+  h: f5594c9a9d6829ab3ce474fea6cd66e99e44b0a912b87154ffca353b4373f615
+  r: "The provided `permutation.py` contains a permutation test and a partially shown\
+    \ effect\u2011size function, but it never performs a post\u2011hoc power calculation\
+    \ nor writes a JSON file to `data/results/power_analysis.json`. Moreover, the\
+    \ required output file `data/results/power_analysis.json` is missing entirely.\
+    \ The task\u2019s specifications (using Cohen\u2019s d\u202F=\u202F0.5, \u03B1\
+    \u202F=\u202F0.05, sample size N, and `TTestIndPower`) are not satisfied."
+T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file or excerpt was provided, and there is no evidence that\
-    \ the methodological shift from ANOVA to a permutation test has been documented,\
-    \ justified, or cited as required. The implementer must supply a non\u2011empty\
-    \ `research.md` containing the explanation and citation."
+  r: No README or usage example files were provided in a `docs/` directory, nor any
+    excerpt of updated documentation was shown. The claim only repeats the feature
+    specification without delivering the required documentation artifacts.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code artifacts were provided to verify that debug prints were removed or\
+    \ that type hints were added throughout the project. Without the cleaned source\
+    \ files or a diff showing the refactoring, we cannot confirm the task was actually\
+    \ completed. The implementer must supply the updated codebase (or a clear listing\
+    \ of changes) demonstrating the required cleanup and type\u2011hint additions."

@@ -50,3 +50,9 @@ T010a:
     downloaded dataset or file listings to verify that the VulDeePecker Python dataset
     was saved to `data/raw/`. The implementer must supply the downloaded files (or
     a directory listing) to satisfy the task definition.
+T012:
+  c: false
+  h: 2290225507890218f386783d3138ea862eeb4c7e07151e14fc43d987e0a8ba56
+  r: The required output files `data/processed/parsed_snippets.parquet` and `data/logs/dropped_samples.json`
+    are absent, and the referenced schema file is also missing, so the parsing, mapping,
+    and logging steps have not been demonstrated.

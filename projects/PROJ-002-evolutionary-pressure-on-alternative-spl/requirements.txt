@@ -1,20 +1,12 @@
-# Python 3.11 Dependencies for PROJ-002
-# Core Data & Math
-numpy>=1.24.0
+# Python Dependencies for PROJ-002
+# Generated for T002: Initialize Python 3.11 and R 4.3 project with dependencies
 pandas>=2.0.0
-scipy>=1.10.0
-scikit-learn>=1.2.0
-
-# Bioinformatics
-biopython>=1.81
-pybedtools>=0.9.0
-pyBigWig>=0.3.0
-
-# Utilities & Logging
+numpy>=1.24.0
 pyyaml>=6.0
+biopython>=1.81
 requests>=2.31.0
 tqdm>=4.65.0
+pybedtools>=0.9.0
+pyBigWig>=0.3.0
+scikit-learn>=1.3.0
 loguru>=0.7.0
-
-# Phylogenetics (Python wrappers where available, R packages listed for reference)
-# Note: phylolm, ape, data.table, ggplot2 are R packages and are installed via R

@@ -168,3 +168,82 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T12:55:54Z'
+- artifact_path: projects/PROJ-026-the-influence-of-visual-complexity-on-im/research.md
+  attempts: 1
+  canonical: Permutation tests align with best practices in psychometrics and experimental
+    psychology where parametric assumptions are suspect
+  claim_id: c_e4daa045
+  context: To address these limitations and ensure the robustness of our findings,
+    the analysis plan has been updated to utilize a Permutation Test for hypothesis
+    testing.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_tests_align_with_best_practices_in_psychometrics
+  kind: magnitude
+  raw_text: This decision aligns with best practices in psychometrics and experimental
+    psychology where parametric assumptions are suspect (Efron & Tibshirani, 1993;
+    Good, 2005).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:14:35Z'
+- artifact_path: projects/PROJ-026-the-influence-of-visual-complexity-on-im/research.md
+  attempts: 1
+  canonical: Permutation test p-values are exact probabilities under the null hypothesis
+    for sufficiently large permutations
+  claim_id: c_bfc482e1
+  context: 'Exact p-values: For a sufficiently large number of permutations, the p-value
+    is an exact probability under the null hypothesis, rather than an approximation
+    based on theoretical distributions (F-distribution).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_p-values_are_exact_probabilities_under_the
+  kind: entity_fact
+  raw_text: For a sufficiently large number of permutations, the p-value is an exact
+    probability under the null hypothesis, rather than an approximation based on theoretical
+    distributions (F-distribution).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:15:02Z'
+- artifact_path: projects/PROJ-026-the-influence-of-visual-complexity-on-im/research.md
+  attempts: 1
+  canonical: Greenwald, Nosek, and Banaji (2003) is the source of the D-score metric
+  claim_id: c_c038543e
+  context: "Greenwald, A. G., Nosek, B. A., & Banaji, M. R. (2003). Understanding\
+    \ and using the Implicit Association Test: I. An improved scoring algorithm. Journal\
+    \ of Personality and Social Psychology, 85(2), 197\u2013216. (Source of the D-score\
+    \ metric)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Greenwald, A. G., Nosek, B. A., & Banaji, M. R. (2003) is the source of
+    the D-score metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:15:26Z'
+- artifact_path: projects/PROJ-026-the-influence-of-visual-complexity-on-im/research.md
+  attempts: 1
+  canonical: Cohen (1988) is the source for effect size metrics
+  claim_id: c_5b1176ec
+  context: Cohen, J. (1988). Statistical Power Analysis for the Behavioral Sciences
+    (2nd ed.). Lawrence Erlbaum Associates. (Source for effect size metrics).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen, J. (1988) is the source for effect size metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:15:54Z'

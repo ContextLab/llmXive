@@ -1,116 +1,97 @@
 import os
+import sys
 import json
 import tempfile
-import pytest
+import hashlib
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import pytest
+
+# Add the code directory to the path so we can import the module
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
 
 from src.data.download_jsvulndb import (
-    compute_file_hash,
+    compute_sha256_file,
     load_checksums,
     save_checksums,
-    download_jsvulndb_subset,
-    extract_and_filter_js,
-    run_download_jsvulndb
+    update_global_checksums,
+    download_file,
+    ensure_output_dir
 )
 
-class TestChecksumFunctions:
-    def test_compute_file_hash(self, tmp_path):
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("hello world")
-        hash_val = compute_file_hash(test_file)
-        assert isinstance(hash_val, str)
-        assert len(hash_val) == 64  # SHA256 hex length
+class TestDownloadJSVulnDB:
+    @pytest.fixture
+    def temp_dir(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            yield Path(tmp)
 
-    def test_load_checksums_empty(self, tmp_path):
-        checksum_file = tmp_path / "checksums.json"
-        checksums = load_checksums(checksum_file)
-        assert checksums == {}
+    def test_ensure_output_dir(self, temp_dir):
+        new_dir = temp_dir / "subdir" / "nested"
+        ensure_output_dir(new_dir)
+        assert new_dir.exists()
+        assert new_dir.is_dir()
 
-    def test_load_checksums_existing(self, tmp_path):
-        checksum_file = tmp_path / "checksums.json"
-        data = {"file1.txt": "abc123"}
-        with open(checksum_file, "w") as f:
-            json.dump(data, f)
+    def test_compute_sha256_file(self, temp_dir):
+        test_file = temp_dir / "test.txt"
+        content = b"Hello, World!"
+        test_file.write_bytes(content)
         
-        checksums = load_checksums(checksum_file)
-        assert checksums == data
+        expected_hash = hashlib.sha256(content).hexdigest()
+        actual_hash = compute_sha256_file(test_file)
+        
+        assert actual_hash == expected_hash
 
-    def test_save_checksums(self, tmp_path):
-        checksum_file = tmp_path / "checksums.json"
-        data = {"file1.txt": "abc123"}
-        save_checksums(checksum_file, data)
-        
-        assert checksum_file.exists()
-        with open(checksum_file, "r") as f:
-            loaded = json.load(f)
-        assert loaded == data
+    def test_load_checksums_empty(self, temp_dir):
+        checksums_path = temp_dir / "checksums.json"
+        result = load_checksums(checksums_path)
+        assert result == {}
 
-class TestDownloadLogic:
-    @patch("src.data.download_jsvulndb.snapshot_download")
-    def test_download_jsvulndb_subset(self, mock_snapshot, tmp_path):
-        mock_snapshot.return_value = str(tmp_path / "mock_repo")
-        (tmp_path / "mock_repo").mkdir()
-        (tmp_path / "mock_repo" / "test.js").write_text("code")
+    def test_save_and_load_checksums(self, temp_dir):
+        checksums_path = temp_dir / "checksums.json"
+        test_data = {"file1.txt": "abc123", "file2.txt": "def456"}
         
-        # This would normally call the real function, but we mock the heavy lifting
-        # Just ensuring the logic flow doesn't crash with mocked inputs
-        # Note: The actual function calls snapshot_download which we mocked.
-        # We need to ensure the function returns the list of paths.
+        save_checksums(checksums_path, test_data)
+        loaded = load_checksums(checksums_path)
         
-        # Since the function is complex, we test the helper functions mostly.
-        # For this specific function, we verify it calls the mock and handles the return.
-        pass
+        assert loaded == test_data
 
-    def test_extract_and_filter_js_raw(self, tmp_path):
-        # Create a raw JS file
-        js_file = tmp_path / "script.js"
-        js_file.write_text("console.log('hi');")
+    def test_update_global_checksums(self, temp_dir):
+        checksums_path = temp_dir / "checksums.json"
+        initial_data = {"existing.txt": "oldhash"}
+        save_checksums(checksums_path, initial_data)
         
-        result = extract_and_filter_js([js_file], tmp_path / "output")
-        assert len(result) == 1
-        assert result[0].name == "script.js"
+        update_global_checksums(checksums_path, "new.txt", "newhash")
+        
+        final_data = load_checksums(checksums_path)
+        assert "existing.txt" in final_data
+        assert final_data["existing.txt"] == "oldhash"
+        assert "new.txt" in final_data
+        assert final_data["new.txt"] == "newhash"
 
-    def test_extract_and_filter_js_non_js(self, tmp_path):
-        # Create a non-JS file
-        py_file = tmp_path / "script.py"
-        py_file.write_text("print('hi')")
+    @patch('src.data.download_jsvulndb.requests.get')
+    def test_download_file_success(self, mock_get, temp_dir):
+        mock_response = MagicMock()
+        mock_response.iter_content.return_value = [b"chunk1", b"chunk2"]
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
         
-        result = extract_and_filter_js([py_file], tmp_path / "output")
-        assert len(result) == 0
+        url = "http://example.com/file.txt"
+        dest = temp_dir / "file.txt"
+        
+        success = download_file(url, dest)
+        
+        assert success is True
+        assert dest.exists()
+        assert dest.read_bytes() == b"chunk1chunk2"
 
-class TestIntegration:
-    @patch("src.data.download_jsvulndb.snapshot_download")
-    @patch("src.data.download_jsvulndb.get_project_root")
-    @patch("src.data.download_jsvulndb.get_data_raw_path")
-    @patch("src.data.download_jsvulndb.get_data_logs_path")
-    def test_run_download_jsvulndb_mocked(self, mock_logs, mock_raw, mock_root, mock_snapshot, tmp_path):
-        # Setup mocks
-        mock_root.return_value = tmp_path
-        mock_raw.return_value = tmp_path / "data" / "raw"
-        mock_logs.return_value = tmp_path / "data" / "logs"
+    @patch('src.data.download_jsvulndb.requests.get')
+    def test_download_file_failure(self, mock_get, temp_dir):
+        mock_get.side_effect = Exception("Network error")
         
-        mock_raw_path = tmp_path / "data" / "raw"
-        mock_logs_path = tmp_path / "data" / "logs"
-        mock_raw_path.mkdir(parents=True)
-        mock_logs_path.mkdir(parents=True)
+        url = "http://example.com/file.txt"
+        dest = temp_dir / "file.txt"
         
-        # Mock the download to return a fake file
-        fake_dir = tmp_path / "fake_download"
-        fake_dir.mkdir()
-        (fake_dir / "test.js").write_text("var x = 1;")
-        mock_snapshot.return_value = str(fake_dir)
+        success = download_file(url, dest)
         
-        # Run the function
-        result = run_download_jsvulndb()
-        
-        assert result["status"] == "success"
-        assert result["dataset"] == "JSVulnDB"
-        
-        # Check that checksum file was created
-        checksum_file = mock_raw_path / "checksums.json"
-        assert checksum_file.exists()
-        
-        # Check that log file was created
-        log_file = mock_logs_path / "jsvulndb_download.json"
-        assert log_file.exists()
+        assert success is False
+        assert not dest.exists()

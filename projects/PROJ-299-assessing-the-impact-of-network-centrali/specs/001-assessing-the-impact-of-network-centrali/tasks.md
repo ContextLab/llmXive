@@ -69,11 +69,11 @@
  - **Constraint**: Do NOT generate mock NIfTI files. If real data is unavailable for CI, the script MUST fail loudly with a clear error message (Constitution Principle I).
  - Output preprocessed NIfTI files to `data/processed/`.
 - [X] T010b [US1] Implement Framewise Displacement (FD) calculation in `code/preprocess/fMRI_pipeline.py` (FR-013)
- - Calculate mean FD and the percentage of volumes with FD > 0.5mm for each participant. [UNRESOLVED-CLAIM: c_e8b96c8d — status=not_enough_info]
+ - Calculate mean FD and the percentage of volumes with FD > 0.5mm for each participant. [UNRESOLVED-CLAIM: c_11a32ddd — status=not_enough_info]
  - Output FD metrics to `data/analysis/fd_metrics.csv`.
 - [X] T010c [US1] Implement QC exclusion logic in `code/preprocess/fMRI_pipeline.py` (FR-013)
  - **Input**: Read `data/analysis/fd_metrics.csv`.
- - **Logic**: Exclude participants with mean FD > 0.5mm OR >20% volumes > 0.5mm. [UNRESOLVED-CLAIM: c_43fb95a0 — status=not_enough_info]
+ - **Logic**: Exclude participants with mean FD > 0.5mm OR >20% volumes > 0.5mm. [UNRESOLVED-CLAIM: c_19ee4096 — status=not_enough_info]
  - **Output**: Generate `data/analysis/qc_log.json` listing excluded participants and reasons.
  - **Action**: Log exclusions and proceed with remaining subjects; do not abort the whole run.
 - [X] T011 [US1] Implement connectivity matrix construction in `code/centrality/connectivity.py` (FR-003)
@@ -120,11 +120,11 @@
  - **Regression Scope**: Fit **ONLY** the specified linear models (3 centrality metrics × 3 cognitive domains) as per FR-007. Do not add new predictors or models.
  - Control for covariates (age, sex, education, diagnosis).
  - {{claim:c_85c745b3}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)
- - Compute Pearson correlation matrix among centrality metrics.
+ - Compute Pearson correlation matrix among centrality metrics. [UNRESOLVED-CLAIM: c_9e5a3505 — status=not_enough_info]
 - [X] T017 [US2] Implement statistical diagnostics and FDR correction in `code/analysis/diagnostics.py` (FR-008, FR-009, FR-015)
  - Apply Benjamini-Hochberg FDR correction to the p-values; output q-values.
  - Check assumptions: Linearity, Normality (Shapiro-Wilk), Homoscedasticity (Breusch-Pagan), Independence.
- - Flag VIF > 5 (warnings only, do not halt). [UNRESOLVED-CLAIM: c_cb8ca6a1 — status=not_enough_info]
+ - Flag VIF > 5 (warnings only, do not halt). [UNRESOLVED-CLAIM: c_914d9886 — status=not_enough_info]
 - [X] T018 [US2] Implement main US2 orchestration script `code/main_us2.py`
  - Chain: QC Validation (T014) -> Merge (T015) -> Regression (T016) -> Diagnostics (T017).
  - Generate `data/analysis/regression_results.csv` and `data/analysis/diagnostics.json`.
@@ -170,7 +170,7 @@
 - [X] T025a [P] {{claim:c_b42ce24a}} <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T025b [P] Remove all TODO comments from `code/`.
 - [X] T026a [P] Optimize connectivity matrix calculation to use chunked processing for memory efficiency.
-- [X] T026b [P] Run integration test on N=20 and record runtime in `outputs/perf_metrics.json` to verify < 4 hour constraint. [UNRESOLVED-CLAIM: c_fcd39cf0 — status=not_enough_info]
+- [X] T026b [P] Run integration test on N=20 and record runtime in `outputs/perf_metrics.json` to verify < 4 hour constraint.
 - [X] T027 [P] Documentation updates: Add `quickstart.md` and update `README.md` with execution instructions
 
 ---
@@ -268,4 +268,4 @@ With multiple developers:
 - **Scope Constraint**: The pipeline strictly adheres to the spec-defined metrics (degree, betweenness, closeness) and regression models (9 models). No unauthorized metrics (e.g., fractal dimension) or models are included.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T028 Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [X] T028 Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

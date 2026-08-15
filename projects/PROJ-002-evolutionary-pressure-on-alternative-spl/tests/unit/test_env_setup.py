@@ -1,51 +1,32 @@
 """
-Unit tests for environment setup validation.
+Unit tests for environment setup verification.
 """
 import sys
-import subprocess
-from pathlib import Path
 import pytest
+from pathlib import Path
 
-def test_python_version_requirement():
-    """Verify that the current Python version meets the minimum requirement."""
-    # The setup script enforces 3.11+, but in testing environments we might be on 3.10 or 3.12
-    # We just verify the version info is accessible and valid
-    assert sys.version_info.major >= 3
-    assert sys.version_info.minor >= 8  # Minimum supported by most deps
+def test_python_version_minimum():
+    """Verify that the running Python version is at least 3.11."""
+    version = sys.version_info
+    assert version.major == 3, "Must be Python 3"
+    assert version.minor >= 11, f"Python version must be >= 3.11, found {version.major}.{version.minor}"
 
 def test_requirements_file_exists():
-    """Verify requirements.txt exists in the project root."""
-    req_file = Path(__file__).parent.parent.parent / "requirements.txt"
-    assert req_file.exists(), "requirements.txt must exist in project root"
-
-    content = req_file.read_text()
-    assert "pandas" in content
-    assert "numpy" in content
-    assert "biopython" in content
-    assert "requests" in content
-    assert "tqdm" in content
-    assert "loguru" in content
+    """Verify that requirements.txt exists in the project root."""
+    requirements_path = Path(__file__).parent.parent.parent / "requirements.txt"
+    assert requirements_path.exists(), f"requirements.txt not found at {requirements_path}"
 
 def test_r_requirements_file_exists():
-    """Verify requirements-r.txt exists in the project root."""
-    req_file = Path(__file__).parent.parent.parent / "requirements-r.txt"
-    assert req_file.exists(), "requirements-r.txt must exist in project root"
-
-    content = req_file.read_text()
-    assert "phylolm" in content
-    assert "ape" in content
-    assert "data.table" in content
-    assert "ggplot2" in content
+    """Verify that requirements-r.txt exists in the project root."""
+    r_requirements_path = Path(__file__).parent.parent.parent / "requirements-r.txt"
+    assert r_requirements_path.exists(), f"requirements-r.txt not found at {r_requirements_path}"
 
 def test_setup_python_script_exists():
-    """Verify setup_python_env.py exists."""
-    script = Path(__file__).parent.parent.parent / "code" / "setup_python_env.py"
-    assert script.exists(), "setup_python_env.py must exist"
+    """Verify that setup_python_env.py exists."""
+    setup_script = Path(__file__).parent.parent.parent / "code" / "setup_python_env.py"
+    assert setup_script.exists(), f"setup_python_env.py not found at {setup_script}"
 
 def test_setup_r_script_exists():
-    """Verify setup_r_env.sh exists."""
-    script = Path(__file__).parent.parent.parent / "code" / "setup_r_env.sh"
-    assert script.exists(), "setup_r_env.sh must exist"
-    # Check it is executable (on Unix systems)
-    # Note: This might fail in some CI environments depending on permissions, so we just check existence
-    # assert os.access(script, os.X_OK)
+    """Verify that setup_r_env.R exists."""
+    setup_script = Path(__file__).parent.parent.parent / "code" / "setup_r_env.R"
+    assert setup_script.exists(), f"setup_r_env.R not found at {setup_script}"

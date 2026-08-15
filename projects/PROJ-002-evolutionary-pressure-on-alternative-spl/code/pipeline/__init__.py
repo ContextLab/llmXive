@@ -1,3 +1,1 @@
-"""
-Pipeline execution modules.
-"""
+# Pipeline package initialization

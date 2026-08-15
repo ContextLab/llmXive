@@ -29,3 +29,12 @@ T007:
     \ the required classes (`RNASeqSample`, `SplicingEvent`, `EnrichmentResult`, `PhylogeneticTree`).\
     \ The implementer must add non\u2011empty Python (or appropriate language) modules\
     \ in that directory containing the base data model definitions."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration files, pipeline scripts, log files, or output data (e.g.,
+    PSI tables, `pipeline.log`, BAM files, `lineage_specific_events.tsv`) were provided.
+    Without these concrete artifacts, the claim that the environment configuration
+    for CI vs Full (HPC) modes has been set up cannot be verified. The implementer
+    must supply the actual implementation files and example run outputs demonstrating
+    the required behavior.
