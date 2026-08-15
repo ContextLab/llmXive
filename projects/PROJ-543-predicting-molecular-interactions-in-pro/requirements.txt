@@ -1,4 +1,4 @@
-# Core dependencies
+# Existing dependencies
 torch
 torch_geometric
 rdkit
@@ -8,14 +8,4 @@ pandas
 pyyaml
 biopython
 numpy
-matplotlib
-seaborn
-
-# Linting and Formatting (for T003)
-flake8
-black
-isort
-
-# Testing
 pytest
-pytest-cov

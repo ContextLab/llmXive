@@ -1,10 +1,3 @@
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no linting configuration files (e.g., `setup.cfg`, `.flake8`,
-    `pyproject.toml` with Black settings) or any evidence that flake8/black have been
-    set up and integrated into the project. Without these artifacts, the requirement
-    to configure linting and formatting tools is not satisfied.
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,3 +5,18 @@ T009:
     or `data/results/` actually exist in the repository; the artifact list is empty,
     so the required folder structure has not been demonstrated. The implementer must
     create these directories (or show a file tree confirming their presence).
+T011:
+  c: false
+  h: dac57507bed25b27004e3cba9b123eb35496390e58d3522d0576baa52ae60d42
+  r: The required artifact `tests/integration/test_graph_memory.py` does not exist
+    in the repository, so no integration test for graph construction memory footprint
+    is present. The task is therefore not satisfied.
+T016:
+  c: false
+  h: f772faf376ee00bddd72846137e1e0e44cc4f3140886cb41e3ee8c3f7bc7838c
+  r: "The repository contains `code/data/ingest.py`, but the shown content only handles\
+    \ loading PDBbind entries and does not implement the required 3D sensitivity analysis\
+    \ (varying cutoffs, recomputing graphs, computing edge count and node feature\
+    \ variance, and writing `data/results/sensitivity_analysis.json`). Moreover, the\
+    \ expected output file `data/results/sensitivity_analysis.json` is absent. The\
+    \ task\u2019s deliverables are therefore not present."

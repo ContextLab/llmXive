@@ -1,2 +1,2 @@
-# This file ensures the tests directory is tracked by git.
-# Do not remove.
+# This directory holds test files.
+# Tests are version-controlled and should be committed.

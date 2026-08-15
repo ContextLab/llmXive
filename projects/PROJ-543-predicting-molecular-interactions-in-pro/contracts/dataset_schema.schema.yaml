@@ -1,10 +1,9 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Molecular Interaction Dataset Schema
-description: |
-  Schema for validating US-1 (Data Ingestion) artifacts.
-  Defines the structure for molecular complex data including 3D coordinates,
-  atomic properties, and hydration states as required by the project specification.
-  Enforces high-resolution constraints (resolution > 0) and specific interaction flags.
+description: >
+  Schema for validating US-1 (Data Ingestion) outputs.
+  Enforces strict 3D coordinate presence, resolution thresholds,
+  and hydration state tracking as per project requirements.
 type: object
 required:
   - metadata
@@ -13,88 +12,95 @@ required:
 properties:
   metadata:
     type: object
+    description: Global complex metadata
     required:
       - pdb_id
       - resolution
       - water_flag
+      - source
     properties:
       pdb_id:
         type: string
-        description: Unique identifier for the Protein Data Bank entry.
+        description: PDB identifier
       resolution:
         type: number
-        description: Resolution of the crystallographic data in Angstroms.
-        exclusiveMinimum: 0
-        minimum: 0.0001
+        minimum: 0
+        exclusiveMinimum: false
+        description: Crystallographic resolution in Angstroms.
+          Must be > 0. High-resolution filter (<= 2.5 Å) applied upstream.
       water_flag:
         type: boolean
-        description: |
-          Indicates if water-mediated interactions were detected.
-          True if any water molecule is within 3.5 Å of ligand/protein atoms,
-          triggering specific analysis paths or exclusion.
+        description: >
+          True if water-mediated interactions were detected (oxygen distance < 3.5 Å).
+          If True, the complex may be excluded or flagged for water-aware analysis.
+      source:
+        type: string
+        description: Data source (e.g., 'PDBbind_v2020_refined')
       ligand_smiles:
         type: string
-        description: SMILES string of the ligand, optional but recommended.
-      target_protein:
+        nullable: true
+        description: SMILES string of the ligand if available
+      protein_chain:
         type: string
-        description: UniProt ID or protein name.
+        nullable: true
+        description: Protein chain ID
   atoms:
     type: array
-    description: List of atomic nodes in the molecular graph.
+    description: List of atom nodes in the graph
     items:
       type: object
       required:
-        - index
         - atom_type
         - coordinates_3d
         - charge
         - hydrophobicity
       properties:
-        index:
-          type: integer
-          description: Unique index for the atom node.
         atom_type:
           type: string
-          description: Element symbol or atom type (e.g., 'C', 'N', 'O', 'S', 'Cl').
+          description: >
+            Atomic element or RDKit atom type (e.g., 'C', 'N', 'O', 'S', 'Cl').
+            Must be a valid chemical symbol or defined type.
         coordinates_3d:
           type: array
-          description: 3D spatial coordinates (x, y, z) in Angstroms.
+          description: 3D Cartesian coordinates (x, y, z) in Angstroms.
           items:
             type: number
           minItems: 3
           maxItems: 3
         charge:
           type: number
-          description: Partial charge of the atom (e.g., from Gasteiger or AM1-BCC).
+          description: Partial charge or formal charge.
         hydrophobicity:
           type: number
-          description: Hydrophobicity scale value (e.g., Kyte-Doolittle or similar).
+          description: Hydrophobicity score (e.g., from atomic contributions).
         residue_name:
           type: string
-          description: Residue name (e.g., 'ALA', 'GLY') if part of a protein.
+          nullable: true
+          description: Residue name (e.g., 'ALA', 'LIG')
         residue_number:
           type: integer
-          description: Residue sequence number if part of a protein.
+          nullable: true
+          description: Residue sequence number
+        is_ligand:
+          type: boolean
+          description: True if the atom belongs to the ligand, False for protein.
   interactions:
     type: array
-    description: List of edges representing covalent and non-covalent interactions.
+    description: List of edges (interactions) in the graph
     items:
       type: object
       required:
-        - source
-        - target
-        - distance
+        - source_atom_idx
+        - target_atom_idx
         - interaction_type
+        - distance
       properties:
-        source:
+        source_atom_idx:
           type: integer
-          description: Index of the source atom.
-        target:
+          description: Index of the source atom in the 'atoms' array.
+        target_atom_idx:
           type: integer
-          description: Index of the target atom.
-        distance:
-          type: number
-          description: Euclidean distance between atoms in Angstroms.
+          description: Index of the target atom in the 'atoms' array.
         interaction_type:
           type: string
           enum:
@@ -105,8 +111,12 @@ properties:
             - salt_bridge
             - water_mediated
             - van_der_waals
-          description: Type of interaction detected.
+          description: Type of molecular interaction.
+        distance:
+          type: number
+          minimum: 0
+          description: Distance between atoms in Angstroms.
         is_water_mediated:
           type: boolean
-          description: True if the interaction is mediated by a water molecule.
+          description: True if this interaction is water-mediated.
 additionalProperties: false

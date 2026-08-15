@@ -1,19 +1,18 @@
-"""
-Setup script to create the required project directory structure.
-Creates: code/, data/raw/, data/processed/, data/results/, tests/, specs/
-"""
 import os
 import sys
 from pathlib import Path
+from utils.io import setup_logging, log_exception
 
-def main():
-    """Create the project directory structure."""
-    # Define the project root (current directory)
-    project_root = Path.cwd()
+def create_directories():
+    """
+    Create the required directory structure for the project:
+    data/raw/, data/processed/, data/results/, tests/, specs/
     
-    # Define the directories to create relative to the project root
+    Returns:
+        list: List of created directory paths as strings
+    """
+    base_dir = Path(__file__).resolve().parent.parent
     directories = [
-        "code",
         "data/raw",
         "data/processed",
         "data/results",
@@ -21,18 +20,52 @@ def main():
         "specs"
     ]
     
-    created_count = 0
+    created_paths = []
     for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
+        full_path = base_dir / dir_path
+        try:
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
+            created_paths.append(str(full_path))
+            logging = setup_logging()
+            if logging:
+                logging.info(f"Created directory: {full_path}")
+            else:
+                # Fallback if logging not fully initialized yet
+                print(f"Created directory: {full_path}")
+        except OSError as e:
+            error_msg = f"Failed to create directory {full_path}: {e}"
+            log_exception(e)
+            print(error_msg, file=sys.stderr)
+            raise
     
-    print(f"\nProject structure setup complete. {created_count} new directory(ies) created.")
-    return 0
+    return created_paths
+
+def main():
+    """Main entry point for directory creation."""
+    try:
+        logging = setup_logging()
+        if logging:
+            logging.info("Starting directory creation task T009")
+        else:
+            print("Starting directory creation task T009")
+        
+        created = create_directories()
+        
+        if logging:
+            logging.info(f"Successfully created {len(created)} directories")
+        else:
+            print(f"Successfully created {len(created)} directories")
+        
+        for path in created:
+            if logging:
+                logging.info(f"  - {path}")
+            else:
+                print(f"  - {path}")
+                
+    except Exception as e:
+        log_exception(e)
+        print(f"Task T009 failed: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

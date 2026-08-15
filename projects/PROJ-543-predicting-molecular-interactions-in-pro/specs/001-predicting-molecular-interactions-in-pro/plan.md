@@ -30,8 +30,8 @@ This project implements a Graph Neural Network (GNN) pipeline to predict protein
 - **Principle III (Data Hygiene)**: Raw data downloaded with checksums; transformations produce new files; no in-place modification.
 - **Principle IV (Single Source of Truth)**: All figures/stats trace to `data/` artifacts and `code/` execution logs.
 - **Principle V (Versioning)**: Content hashes tracked in `state/` manifest; artifacts updated on change.
-- **Principle VI (Molecular Graph Fidelity)**: Graph construction strictly follows RDKit-based edge definitions (covalent + distance-based non-covalent) to ensure Integrated Gradients validity. Sensitivity analysis (4.5-5.5 Å) included.
-- **Principle VII (Statistical Validation)**: **Mandatory Compliance**: Motif significance validated primarily via **two-sample t-tests** comparing high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes as required by the Constitution. Permutation tests (1,000 iterations) and Benjamini-Hochberg FDR correction (alpha=0.05) are used as secondary robustness checks (FR-006/FR-008).
+- **Principle VI (Molecular Graph Fidelity)**: Graph construction strictly follows RDKit-based edge definitions (covalent + a defined distance threshold for non-covalent interactions) to ensure Integrated Gradients validity. Sensitivity analysis (lower bound generalized) included.
+- **Principle VII (Statistical Validation)**: **Mandatory Compliance**: Motif significance validated primarily via **two-sample t-tests** comparing high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes as required by the Constitution. Permutation tests (sufficient iterations for convergence) and Benjamini-Hochberg FDR correction (alpha=0.05) are used as secondary robustness checks (FR-006/FR-008).
 
 ## Project Structure
 
@@ -103,7 +103,7 @@ No violations found. The complexity is justified by the requirement to handle 3D
    - Construct heterogeneous graph:
      - Nodes: Atoms (features: type, charge, hydrophobicity).
      - Edges: Covalent (RDKit) + Non-covalent (distance < 5.0 Å).
-   - **FR-009 Compliance**: Explicitly detect water-mediated interactions using a distance heuristic to oxygen atoms and set `water_flag` in the graph object.
+   - **FR-009 Compliance**: Explicitly detect water-mediated interactions using a Å distance heuristic to oxygen atoms and set `water_flag` in the graph object.
    - Handle missing hydrogens via RDKit inference.
 
 3. **1.3 Sensitivity Analysis**:

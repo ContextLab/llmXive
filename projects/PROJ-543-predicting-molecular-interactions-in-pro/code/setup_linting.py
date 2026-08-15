@@ -1,130 +1,112 @@
 """
-Setup script to install linting and formatting tools and create configuration files.
-This task implements T003: Configure linting (flake8/black) and formatting tools.
+Linting and formatting configuration setup for the project.
+
+This script configures flake8 and black for the project by creating
+the necessary configuration files and installing the tools.
 """
-import os
-import sys
 import subprocess
+import sys
+import os
 from pathlib import Path
 
-def install_tools():
-    """Install flake8, black, and isort if not already present."""
-    tools = ["flake8", "black", "isort"]
-    for tool in tools:
-        try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", tool])
-            print(f"Successfully installed {tool}")
-        except subprocess.CalledProcessError as e:
-            print(f"Failed to install {tool}: {e}")
-            return False
-    return True
-
-def create_flake8_config():
-    """Create .flake8 configuration file."""
-    config_content = """[flake8]
+def main():
+    """
+    Set up linting (flake8) and formatting (black) tools.
+    
+    This function:
+    1. Installs flake8 and black if not already installed
+    2. Creates a .flake8 configuration file at the project root
+    3. Creates a pyproject.toml with Black configuration if it doesn't exist
+    4. Creates a setup.cfg with additional linting rules if needed
+    """
+    project_root = Path(__file__).parent.parent
+    print(f"Setting up linting and formatting tools in {project_root}")
+    
+    # Install flake8 and black
+    print("Installing flake8 and black...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "flake8", "black"])
+        print("Successfully installed flake8 and black")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to install flake8 or black: {e}")
+        sys.exit(1)
+    
+    # Create .flake8 configuration file
+    flake8_config = project_root / ".flake8"
+    if not flake8_config.exists():
+        print(f"Creating {flake8_config}")
+        flake8_config.write_text("""[flake8]
 max-line-length = 120
-exclude =
-    .git,
-    __pycache__,
-    data/,
-    code/venv,
-    build,
-    dist
-ignore = E203, E266, W503
+extend-ignore = E203, E266, W503
+exclude = .git,__pycache__,build,dist,.venv,venv
 per-file-ignores =
-    # Allow long lines in data files or specific test files if needed
-    */tests/*:E501
-"""
-    config_path = Path(".flake8")
-    with open(config_path, "w") as f:
-        f.write(config_content)
-    print(f"Created {config_path}")
-
-def create_black_config():
-    """Create pyproject.toml configuration for Black if not exists, or append."""
-    pyproject_path = Path("pyproject.toml")
+    */__init__.py:F401
+max-complexity = 10
+""")
+    else:
+        print(f"{flake8_config} already exists, skipping")
     
-    if pyproject_path.exists():
-        with open(pyproject_path, "r") as f:
-            content = f.read()
-        if "[tool.black]" in content:
-            print("Black configuration already exists in pyproject.toml")
-            return True
-    
-    # Create or update pyproject.toml
-    black_config = """[tool.black]
+    # Create or update pyproject.toml with Black configuration
+    pyproject_file = project_root / "pyproject.toml"
+    black_config_section = """
+[tool.black]
 line-length = 120
 target-version = ['py311']
 include = '\\.pyi?$'
 exclude = '''
 /(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
-  | _build
-  | buck-out
+    \.git
+  | \.venv
+  | venv
   | build
   | dist
-  | data
 )/
 '''
 """
     
-    if pyproject_path.exists():
-        with open(pyproject_path, "a") as f:
-            f.write("\n" + black_config)
+    if pyproject_file.exists():
+        content = pyproject_file.read_text()
+        if "[tool.black]" not in content:
+            print(f"Adding Black configuration to {pyproject_file}")
+            pyproject_file.write_text(content.rstrip() + black_config_section)
+        else:
+            print(f"Black configuration already exists in {pyproject_file}")
     else:
-        with open(pyproject_path, "w") as f:
-            f.write(black_config)
+        print(f"Creating {pyproject_file} with Black configuration")
+        pyproject_file.write_text(f'"""\nProject configuration for PROJ-543\n"""\n{black_config_section}')
     
-    print(f"Updated {pyproject_path} with Black configuration")
-    return True
+    # Create setup.cfg with additional linting rules if it doesn't exist
+    setup_cfg = project_root / "setup.cfg"
+    if not setup_cfg.exists():
+        print(f"Creating {setup_cfg}")
+        setup_cfg.write_text("""[metadata]
+name = proj-543
+version = 0.1.0
 
-def create_isort_config():
-    """Create isort configuration in pyproject.toml."""
-    pyproject_path = Path("pyproject.toml")
-    
-    isort_config = """
-[tool.isort]
-profile = "black"
+[options]
+packages = find:
+python_requires = >=3.11
+
+[flake8]
+max-line-length = 120
+extend-ignore = E203, E266, W503
+exclude = .git,__pycache__,build,dist,.venv,venv
+per-file-ignores =
+    */__init__.py:F401
+max-complexity = 10
+
+[isort]
+profile = black
 line_length = 120
-skip_gitignore = true
-skip_glob = ["data/*", "code/venv/*", "build/*", "dist/*"]
-"""
-    
-    if pyproject_path.exists():
-        with open(pyproject_path, "r") as f:
-            content = f.read()
-        if "[tool.isort]" in content:
-            print("isort configuration already exists")
-            return True
-        with open(pyproject_path, "a") as f:
-            f.write(isort_config)
+""")
     else:
-        # Should not happen if create_black_config ran first, but handle gracefully
-        with open(pyproject_path, "w") as f:
-            f.write(isort_config)
+        print(f"{setup_cfg} already exists, skipping")
     
-    print(f"Updated {pyproject_path} with isort configuration")
-    return True
-
-def main():
-    """Main entry point for setup_linting."""
-    print("Starting linting and formatting setup...")
-    
-    if not install_tools():
-        print("Error: Failed to install linting tools.")
-        sys.exit(1)
-    
-    create_flake8_config()
-    create_black_config()
-    create_isort_config()
-    
-    print("\nLinting and formatting tools configured successfully.")
-    print("Run 'black . --check' and 'flake8' to verify.")
-    return 0
+    print("Linting and formatting configuration complete!")
+    print("\nYou can now run:")
+    print("  flake8 code/ tests/")
+    print("  black code/ tests/")
+    print("  black --check code/ tests/  # Check without modifying files")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

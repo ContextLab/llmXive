@@ -1,2 +1,2 @@
-# This file ensures the data/results directory is tracked by git.
-# Do not remove. Analysis reports and sensitivity analysis outputs will be saved here.
+# This directory holds analysis results, reports, and figures.
+# Generated JSON, PNG, and PDF files are ignored by .gitignore.

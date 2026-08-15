@@ -1,8 +1,8 @@
-torch>=2.0.0
-torch-geometric>=2.3.0
-rdkit>=2023.9.0
-datasets>=2.14.0
-scikit-learn>=1.3.0
-pandas>=2.0.0
-pyyaml>=6.0
-biopython>=1.81
+torch
+torch_geometric
+rdkit
+datasets
+scikit-learn
+pandas
+pyyaml
+biopython

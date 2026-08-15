@@ -1,2 +1,2 @@
-# This file ensures the data/processed directory is tracked by git.
-# Do not remove. Processed graph data and model checkpoints will be saved here.
+# This directory holds processed graph data and model weights.
+# Large binary files (.pt, .pth, .csv) are ignored by .gitignore.

@@ -1,168 +1,177 @@
-"""
-Generate reference pharmacophores from ChEMBL.
-
-This script queries the ChEMBL database (via the HuggingFace datasets library
-which hosts a pre-processed ChEMBL snapshot) to extract standard bioactivity
-data for Homo sapiens (IC50 and Ki). It aggregates unique pharmacophore
-definitions derived from these interactions, calculates a SHA256 checksum of
-the output, and records the dataset version.
-
-It strictly fails if the real data source is unavailable or the query returns
-no results. No synthetic data is generated.
-"""
-import hashlib
 import json
-import os
+import hashlib
 import sys
+import logging
 from pathlib import Path
 from typing import List, Dict, Any
 
 try:
     from datasets import load_dataset
 except ImportError:
-    print("ERROR: 'datasets' package not found. Please run: pip install datasets", file=sys.stderr)
+    print("ERROR: 'datasets' package is required. Install via: pip install datasets")
     sys.exit(1)
 
-# Ensure output directory exists
-OUTPUT_DIR = Path("data/reference")
-OUTPUT_FILE = OUTPUT_DIR / "pharmacophores.json"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+# Configure logging to match project standards
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def fetch_chembl_pharmacophores() -> List[Dict[str, Any]]:
+def calculate_sha256(file_path: Path) -> str:
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def fetch_chembl_pharmacophores(output_path: Path) -> Dict[str, Any]:
     """
-    Fetches bioactivity data from ChEMBL via HuggingFace datasets.
-    Filters for Homo sapiens and IC50/Ki activities.
+    Fetch bioactivity data from ChEMBL (Homo sapiens, IC50 or Ki) and generate
+    a pharmacophore reference file.
     
-    Raises an exception if the dataset is unavailable or the query fails.
+    This function:
+    1. Loads the 'chembl' dataset from Hugging Face.
+    2. Filters for target organism 'Homo sapiens' and activity types 'IC50' or 'Ki'.
+    3. Extracts representative molecular structures (SMILES) and activity values.
+    4. Calculates a SHA256 checksum of the resulting JSON data.
+    5. Raises an exception if the data fetch fails (no synthetic fallback).
+    
+    Args:
+        output_path: Path where the pharmacophores.json file will be saved.
+        
+    Returns:
+        Dictionary containing metadata and the pharmacophore data.
+        
+    Raises:
+        RuntimeError: If the ChEMBL dataset cannot be fetched or filtered.
     """
-    print("Loading ChEMBL dataset from HuggingFace...")
+    logger.info(f"Fetching ChEMBL data for Homo sapiens (IC50/Ki)...")
+    
+    # Define the query parameters for the dataset
+    # We use the 'chembl' dataset from Hugging Face which is a standard source
+    dataset_name = "chembl/chembl"
+    
     try:
-        # Load the ChEMBL dataset. We use streaming to handle potential size,
-        # but we need to filter first.
-        # The dataset 'chembl/chembl' contains bioactivity data.
-        # We load with streaming=True to avoid downloading the full ~7GB+ immediately,
-        # then iterate to filter.
-        ds = load_dataset("chembl/chembl", split="train", streaming=True)
+        # Load the dataset in streaming mode to handle large size without memory issues
+        # We filter on the fly to avoid downloading the full dataset if not needed
+        # Note: The exact column names might vary, but 'target_organism' and 'activity_type' are standard
+        dataset = load_dataset(
+            dataset_name, 
+            split="train", 
+            streaming=True
+        )
     except Exception as e:
-        raise RuntimeError(f"Failed to load ChEMBL dataset: {e}") from e
+        logger.error(f"Failed to load ChEMBL dataset from Hugging Face: {e}")
+        raise RuntimeError(f"CRITICAL: Could not fetch real data from ChEMBL. {e}")
 
-    print("Filtering for Homo sapiens and IC50/Ki activities...")
-    pharmacophores = []
-    
-    # We need to collect unique pharmacophore definitions.
-    # Since ChEMBL doesn't have a direct "pharmacophore" column, we derive a 
-    # signature based on the target protein and the ligand's SMILES/properties
-    # which effectively defines the interaction context for this reference set.
-    # However, the task asks for a "pharmacophore set". In the absence of a 
-    # pre-computed pharmacophore column, we will extract a representative set
-    # of (target, activity_type, value) tuples which serve as the reference
-    # for validation in T038.
-    # To make this a "pharmacophore" reference, we will group by Target and
-    # Activity Type to create a canonical "interaction profile".
-    
-    seen_signatures = set()
+    # Filter the dataset
+    logger.info("Filtering for Homo sapiens and IC50/Ki activities...")
+    filtered_data = []
     count = 0
-    limit = 50000  # Reasonable cap for a reference set to keep file size manageable
     
-    for row in ds:
-        if count >= limit:
-            break
-        
-        # Filter: target_organism = 'Homo sapiens'
-        # Note: In the HuggingFace chembl dataset, the column is often 'target_organism_scientific'
-        # or similar. We need to handle potential variations or errors in schema.
-        organism = row.get('target_organism_scientific') or row.get('target_organism')
-        if not organism or 'Homo sapiens' not in str(organism):
-            continue
-
-        # Filter: activity_type in ('IC50', 'Ki')
-        # The column is typically 'standard_type'
-        std_type = row.get('standard_type')
-        if std_type not in ('IC50', 'Ki'):
-            continue
-
-        # We need a valid value to make it useful
-        value = row.get('standard_value')
-        if value is None:
-            continue
-
-        # Create a canonical signature for this interaction context
-        # This serves as our "pharmacophore" reference point: Target + Activity Type + Value Range
-        target_id = row.get('target_chembl_id', 'unknown')
-        ligand_smiles = row.get('molecule_smiles', '')
-        
-        # We group by Target and Activity Type to avoid massive redundancy
-        signature_key = (target_id, std_type)
-        
-        if signature_key not in seen_signatures:
-            seen_signatures.add(signature_key)
-            
-            # Construct a pharmacophore entry
-            # Since we don't have 3D coordinates here, we store the metadata
-            # that defines the interaction context.
-            entry = {
-                "target_chembl_id": target_id,
-                "activity_type": std_type,
-                "standard_value": value,
-                "standard_units": row.get('standard_units', 'nM'),
-                "source": "ChEMBL",
-                "dataset_version": "chembl_latest_streaming" # Will be updated with actual version
-            }
-            pharmacophores.append(entry)
-            count += 1
-
-        # Log progress every 1000 items
-        if count % 1000 == 0:
-            print(f"  Processed {count} unique interaction contexts...")
-
-    if not pharmacophores:
-        raise ValueError("No valid pharmacophore data found after filtering. "
-                       "This might indicate a schema change in the ChEMBL dataset "
-                       "or network issues.")
-    
-    return pharmacophores
-
-def main():
-    print(f"Starting pharmacophore generation for {OUTPUT_FILE}")
+    # We need to collect a representative set. 
+    # Since streaming is used, we iterate and collect until we have enough or the dataset ends.
+    # We'll aim for a reasonable number of entries to form a reference set.
+    max_entries = 10000 
     
     try:
-        data = fetch_chembl_pharmacophores()
+        for item in dataset:
+            # Check target organism
+            organism = item.get('target_organism', '')
+            if 'Homo sapiens' not in organism:
+                continue
+            
+            # Check activity type
+            activity_type = item.get('activity_type', '')
+            if activity_type not in ['IC50', 'Ki']:
+                continue
+            
+            # Extract relevant fields
+            # Standard ChEMBL fields: molecule_structures (SMILES), standard_value, standard_units, activity_type
+            smiles = item.get('molecule_structures', {}).get('canonical_smiles')
+            standard_value = item.get('standard_value')
+            standard_units = item.get('standard_units')
+            
+            if not smiles or standard_value is None:
+                continue
+            
+            # Convert to pIC50 or pKi if necessary for consistency
+            # pX = -log10(X in M)
+            # IC50/Ki are usually in nM or uM. We assume standard units are consistent with the dataset.
+            # For simplicity, we store the raw value and unit, and the SMILES.
+            
+            entry = {
+                "smiles": smiles,
+                "activity_type": activity_type,
+                "standard_value": standard_value,
+                "standard_units": standard_units,
+                "target_organism": organism
+            }
+            
+            filtered_data.append(entry)
+            count += 1
+            
+            if count >= max_entries:
+                logger.info(f"Collected {count} entries. Stopping to keep reference set manageable.")
+                break
+                
     except Exception as e:
-        print(f"CRITICAL: Failed to fetch real data: {e}", file=sys.stderr)
-        # Do not generate synthetic data. Fail loudly.
-        sys.exit(1)
+        logger.error(f"Error during dataset iteration: {e}")
+        raise RuntimeError(f"CRITICAL: Failed to process ChEMBL data stream. {e}")
 
-    # Add metadata
-    final_data = {
+    if count == 0:
+        raise RuntimeError("CRITICAL: No valid data found for Homo sapiens with IC50/Ki activities.")
+
+    logger.info(f"Successfully filtered {count} entries.")
+
+    # Prepare the final structure
+    result = {
         "metadata": {
-            "generated_by": "T038a_pharmacophore_generator",
-            "source_query": "target_organism=Homo sapiens AND activity_type='IC50' OR 'Ki'",
-            "record_count": len(data),
-            "timestamp": "2026-05-14T12:00:00Z", # Placeholder, ideally dynamic
-            "dataset_version": "ChEMBL_Streaming_Fetch"
+            "source": "ChEMBL",
+            "dataset_version": "latest_streaming",
+            "query": "target_organism=Homo sapiens AND activity_type='IC50' OR 'Ki'",
+            "count": count,
+            "timestamp": "generated_runtime"
         },
-        "pharmacophores": data
+        "pharmacophores": filtered_data
     }
 
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
     # Write to JSON
-    json_str = json.dumps(final_data, indent=2)
-    OUTPUT_FILE.write_text(json_str)
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
 
-    # Calculate SHA256
-    sha256_hash = hashlib.sha256(json_str.encode('utf-8')).hexdigest()
+    # Calculate checksum
+    checksum = calculate_sha256(output_path)
+    result["metadata"]["sha256"] = checksum
     
-    # Update metadata with checksum and actual version info
-    final_data["metadata"]["sha256_checksum"] = sha256_hash
-    final_data["metadata"]["file_size_bytes"] = len(json_str.encode('utf-8'))
-    
-    # Rewrite with final metadata
-    json_str_final = json.dumps(final_data, indent=2)
-    OUTPUT_FILE.write_text(json_str_final)
+    # Update the file with the checksum
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
 
-    print(f"Successfully generated {OUTPUT_FILE}")
-    print(f"  Records: {len(data)}")
-    print(f"  SHA256: {sha256_hash}")
-    print(f"  Size: {len(json_str_final)} bytes")
+    logger.info(f"Pharmacophore reference saved to {output_path} with SHA256: {checksum}")
+    return result
+
+def main():
+    """Main entry point for generating pharmacophores."""
+    output_dir = Path("data/reference")
+    output_file = output_dir / "pharmacophores.json"
+    
+    logger.info("Starting pharmacophore generation task T038a...")
+    
+    try:
+        fetch_chembl_pharmacophores(output_file)
+        logger.info("Task T038a completed successfully.")
+    except RuntimeError as e:
+        logger.error(str(e))
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
