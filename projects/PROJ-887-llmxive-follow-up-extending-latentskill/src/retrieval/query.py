@@ -1,208 +1,296 @@
 """
-Query module for generating text embeddings using sentence-transformers.
+Query module for skill vector retrieval.
 
-This module implements FR-002: Generate query vectors using a lightweight
-sentence-transformer model and measure wall-clock latency.
+Handles generation of query vectors using sentence-transformers and
+retrieval from the skill index with Out-of-Distribution (OOD) detection.
 """
-
 import os
 import sys
-import time
 import logging
+import time
+import json
 from pathlib import Path
-from typing import List, Tuple, Optional, Dict, Any
-
+from typing import Dict, Any, List, Tuple, Optional, Union
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+from src.utils.config import get_project_root, get_results_path, set_seed
+from src.retrieval.strategies import load_skill_index, single_nearest_neighbor
 
-from src.utils.config import get_project_root, get_data_path, ensure_directories
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Default model - lightweight sentence-transformer
-DEFAULT_MODEL = "all-MiniLM-L6-v2"
-MODEL_DIMENSION = 384  # Dimension for all-MiniLM-L6-v2
+# Default configuration
+DEFAULT_OOD_THRESHOLD = 0.8
+DEFAULT_MODEL_NAME = "all-MiniLM-L6-v2"
+DEFAULT_TOP_K = 5
 
-def load_embedding_model(model_name: str = DEFAULT_MODEL) -> SentenceTransformer:
+def load_config() -> Dict[str, Any]:
+    """Load configuration from config.yaml or use defaults."""
+    project_root = get_project_root()
+    config_path = project_root / "config.yaml"
+    
+    if config_path.exists():
+        import yaml
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+            return config.get('retrieval', {})
+    return {}
+
+def get_ood_threshold(config: Dict[str, Any]) -> float:
+    """Get OOD threshold from config or use default."""
+    return config.get('ood_threshold', DEFAULT_OOD_THRESHOLD)
+
+def generate_query_vector(text: str, model_name: str = DEFAULT_MODEL_NAME) -> np.ndarray:
     """
-    Load a sentence-transformer model for generating embeddings.
-
+    Generate a query vector from text using a sentence-transformer model.
+    
     Args:
-        model_name: Name of the sentence-transformer model to load.
-
+        text: The query text.
+        model_name: Name of the sentence-transformer model to use.
+        
     Returns:
-        Loaded SentenceTransformer model.
+        numpy array of shape (embedding_dim,)
     """
-    logger.info(f"Loading embedding model: {model_name}")
-    try:
-        model = SentenceTransformer(model_name)
-        logger.info(f"Successfully loaded model: {model_name}")
-        logger.info(f"Model dimension: {model.get_sentence_embedding_dimension()}")
-        return model
-    except Exception as e:
-        logger.error(f"Failed to load model {model_name}: {e}")
-        raise
+    logger.info(f"Loading model: {model_name}")
+    model = SentenceTransformer(model_name)
+    
+    logger.info(f"Encoding text: '{text[:50]}...'")
+    start_time = time.time()
+    embedding = model.encode(text, convert_to_numpy=True)
+    end_time = time.time()
+    
+    latency_ms = (end_time - start_time) * 1000
+    logger.info(f"Embedding generated in {latency_ms:.2f}ms. Shape: {embedding.shape}")
+    
+    return embedding
 
-def generate_query_embeddings(
-    model: SentenceTransformer,
-    texts: List[str],
-    batch_size: int = 32
-) -> Tuple[np.ndarray, float]:
+def check_ood(query_vector: np.ndarray, index_vectors: np.ndarray, threshold: float) -> Tuple[bool, float]:
     """
-    Generate embeddings for a list of text queries.
-
-    Measures wall-clock latency for the embedding generation process.
-
+    Check if a query is out-of-distribution based on distance to nearest neighbor.
+    
     Args:
-        model: Loaded SentenceTransformer model.
-        texts: List of text strings to embed.
-        batch_size: Batch size for embedding generation.
-
+        query_vector: The query embedding vector.
+        index_vectors: The skill index vectors (N, D).
+        threshold: Maximum allowed cosine distance (default 0.8).
+        
     Returns:
-        Tuple of (embeddings as numpy array, wall-clock latency in seconds).
+        Tuple of (is_ood, min_distance)
+        
+    Raises:
+        ValueError: If the query is determined to be OOD.
     """
-    if not texts:
-        logger.warning("No texts provided for embedding generation")
-        return np.array([]), 0.0
-
-    logger.info(f"Generating embeddings for {len(texts)} queries (batch_size={batch_size})")
-
-    start_time = time.perf_counter()
-
-    try:
-        embeddings = model.encode(
-            texts,
-            batch_size=batch_size,
-            show_progress_bar=False,
-            convert_to_numpy=True
+    # Normalize vectors for cosine similarity
+    query_norm = query_vector / (np.linalg.norm(query_vector) + 1e-8)
+    index_norms = index_vectors / (np.linalg.norm(index_vectors, axis=1, keepdims=True) + 1e-8)
+    
+    # Compute cosine similarities
+    similarities = np.dot(index_norms, query_norm)
+    
+    # Compute cosine distances (1 - similarity)
+    distances = 1.0 - similarities
+    
+    min_distance = np.min(distances)
+    nearest_idx = np.argmin(distances)
+    
+    logger.info(f"Nearest neighbor distance: {min_distance:.4f} (threshold: {threshold})")
+    
+    if min_distance > threshold:
+        raise ValueError(
+            f"Query is Out-of-Distribution (OOD). "
+            f"Distance to nearest skill: {min_distance:.4f} > threshold: {threshold}. "
+            f"Nearest skill index: {nearest_idx}. "
+            f"Consider adding this skill to the database or refining the query."
         )
-    except Exception as e:
-        logger.error(f"Error during embedding generation: {e}")
-        raise
+    
+    return False, min_distance
 
-    end_time = time.perf_counter()
-    latency = end_time - start_time
-
-    logger.info(f"Generated embeddings in {latency:.4f} seconds "
-               f"({len(texts) / latency:.2f} queries/sec)")
-
-    # Ensure embeddings are 2D (even for single input)
-    if embeddings.ndim == 1:
-        embeddings = embeddings.reshape(1, -1)
-
-    return embeddings, latency
-
-def get_query_vector(
-    model: SentenceTransformer,
-    query_text: str
-) -> Tuple[np.ndarray, float]:
+def retrieve_skills(
+    query_vector: np.ndarray,
+    index_vectors: np.ndarray,
+    index_metadata: List[Dict[str, Any]],
+    top_k: int = DEFAULT_TOP_K,
+    threshold: Optional[float] = None,
+    config: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
-    Generate embedding for a single query text.
-
+    Retrieve top-k skills from the index, with OOD checking.
+    
     Args:
-        model: Loaded SentenceTransformer model.
-        query_text: Single text string to embed.
-
+        query_vector: The query embedding.
+        index_vectors: The skill index vectors.
+        index_metadata: Metadata for each skill in the index.
+        top_k: Number of top skills to retrieve.
+        threshold: OOD threshold (overrides config).
+        config: Configuration dictionary.
+        
     Returns:
-        Tuple of (embedding as 1D numpy array, wall-clock latency in seconds).
+        Dictionary containing retrieved skills and metrics.
+        
+    Raises:
+        ValueError: If query is OOD.
     """
-    embeddings, latency = generate_query_embeddings(model, [query_text])
-    return embeddings[0], latency
+    if config is None:
+        config = load_config()
+    
+    if threshold is None:
+        threshold = get_ood_threshold(config)
+    
+    # Check for OOD
+    logger.info("Performing OOD check...")
+    is_ood, min_distance = check_ood(query_vector, index_vectors, threshold)
+    
+    # Perform retrieval
+    logger.info(f"Retrieving top-{top_k} skills...")
+    start_time = time.time()
+    
+    # Normalize for cosine similarity
+    query_norm = query_vector / (np.linalg.norm(query_vector) + 1e-8)
+    index_norms = index_vectors / (np.linalg.norm(index_vectors, axis=1, keepdims=True) + 1e-8)
+    
+    similarities = np.dot(index_norms, query_norm)
+    top_indices = np.argsort(similarities)[::-1][:top_k]
+    
+    retrieval_time = (time.time() - start_time) * 1000
+    
+    retrieved_skills = []
+    for idx in top_indices:
+        skill_data = {
+            'index': int(idx),
+            'metadata': index_metadata[int(idx)],
+            'similarity': float(similarities[idx]),
+            'distance': float(1.0 - similarities[idx])
+        }
+        retrieved_skills.append(skill_data)
+    
+    result = {
+        'query_vector': query_vector,
+        'retrieved_skills': retrieved_skills,
+        'metrics': {
+            'embedding_latency_ms': 0.0,  # Should be set by caller
+            'retrieval_latency_ms': retrieval_time,
+            'is_ood': is_ood,
+            'min_distance': min_distance,
+            'threshold': threshold
+        }
+    }
+    
+    logger.info(f"Retrieved {len(retrieved_skills)} skills in {retrieval_time:.2f}ms")
+    return result
 
-def save_query_results(
-    embeddings: np.ndarray,
-    latencies: List[float],
-    output_path: Path,
-    query_texts: Optional[List[str]] = None
+def log_latency_metrics(
+    embedding_latency: float,
+    retrieval_latency: float,
+    interpolation_latency: float = 0.0
 ) -> None:
     """
-    Save query embeddings and latency metrics to disk.
-
+    Log latency metrics to data/results/latency_metrics.json.
+    
     Args:
-        embeddings: Array of embeddings (N x D).
-        latencies: List of latency measurements.
-        output_path: Path to save results.
-        query_texts: Optional list of original query texts for reference.
+        embedding_latency: Time to generate query vector (ms).
+        retrieval_latency: Time for index lookup (ms).
+        interpolation_latency: Time to compute weighted average (ms).
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    results = {
-        'embeddings': embeddings,
-        'latencies': latencies,
-        'total_queries': len(embeddings),
-        'avg_latency_ms': np.mean(latencies) * 1000 if latencies else 0,
-        'max_latency_ms': np.max(latencies) * 1000 if latencies else 0,
-        'min_latency_ms': np.min(latencies) * 1000 if latencies else 0,
+    results_path = get_results_path()
+    metrics_file = results_path / "latency_metrics.json"
+    
+    metrics = {
+        'embedding_latency_ms': embedding_latency,
+        'retrieval_latency_ms': retrieval_latency,
+        'interpolation_latency_ms': interpolation_latency,
+        'total_skill_selection_latency_ms': embedding_latency + retrieval_latency + interpolation_latency
     }
-
-    if query_texts:
-        results['query_texts'] = query_texts
-
-    # Save as NPZ (embeddings are large)
-    np.savez(
-        output_path,
-        embeddings=embeddings,
-        latencies=np.array(latencies),
-        metadata={
-            'total_queries': results['total_queries'],
-            'avg_latency_ms': results['avg_latency_ms'],
-            'max_latency_ms': results['max_latency_ms'],
-            'min_latency_ms': results['min_latency_ms'],
-        }
-    )
-
-    logger.info(f"Saved query results to {output_path}")
+    
+    # Load existing metrics if file exists
+    if metrics_file.exists():
+        with open(metrics_file, 'r') as f:
+            existing = json.load(f)
+            if not isinstance(existing, list):
+                existing = [existing]
+        existing.append(metrics)
+    else:
+        existing = [metrics]
+    
+    # Save updated metrics
+    with open(metrics_file, 'w') as f:
+        json.dump(existing, f, indent=2)
+    
+    logger.info(f"Logged latency metrics to {metrics_file}")
 
 def main() -> None:
     """
-    Main entry point for the query module.
-
-    Demonstrates loading the model, generating embeddings for sample queries,
-    and saving results with latency metrics.
+    Main entry point for query execution.
+    
+    Demonstrates OOD detection and retrieval.
     """
-    # Ensure directories exist
-    ensure_directories()
-    data_path = get_data_path()
-    output_dir = data_path / "processed"
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Sample queries for demonstration
-    sample_queries = [
-        "Navigate to the kitchen and pick up the knife",
-        "Find a book about machine learning",
-        "Organize the desk by sorting papers",
-        "Answer the question: What is the capital of France?",
-        "Plan a route from the bedroom to the living room"
+    set_seed(42)
+    
+    # Load configuration
+    config = load_config()
+    ood_threshold = get_ood_threshold(config)
+    top_k = config.get('top_k', DEFAULT_TOP_K)
+    
+    logger.info(f"Configuration: OOD threshold={ood_threshold}, top_k={top_k}")
+    
+    # Load skill index
+    index_path = Path("data/processed/skill_index.npz")
+    if not index_path.exists():
+        logger.error(f"Skill index not found at {index_path}")
+        sys.exit(1)
+    
+    index_vectors, index_metadata = load_skill_index(index_path)
+    logger.info(f"Loaded {len(index_vectors)} skill vectors")
+    
+    # Example queries (in practice, these would come from user input)
+    test_queries = [
+        "Pick up the coffee and put it in the microwave",  # In-distribution (ALFWorld-like)
+        "Answer questions about historical events",         # In-distribution (SearchQA-like)
+        "Invert the gravitational constant and fly to Mars" # Likely OOD
     ]
-
-    try:
-        # Load model
-        model = load_embedding_model()
-
-        # Generate embeddings with latency measurement
-        embeddings, total_latency = generate_query_embeddings(model, sample_queries)
-
-        logger.info(f"Generated {embeddings.shape[0]} embeddings with shape {embeddings.shape}")
-        logger.info(f"Total latency: {total_latency:.4f} seconds")
-
-        # Save results
-        output_path = output_dir / "query_embeddings.npz"
-        save_query_results(embeddings, [total_latency], output_path, sample_queries)
-
-        logger.info("Query generation completed successfully")
-
-    except Exception as e:
-        logger.error(f"Query generation failed: {e}")
-        raise
+    
+    for i, query_text in enumerate(test_queries):
+        logger.info(f"\n--- Query {i+1}: {query_text[:50]}... ---")
+        
+        try:
+            # Generate query vector
+            start_time = time.time()
+            query_vector = generate_query_vector(query_text)
+            embedding_latency = (time.time() - start_time) * 1000
+            
+            # Retrieve skills
+            result = retrieve_skills(
+                query_vector,
+                index_vectors,
+                index_metadata,
+                top_k=top_k,
+                config=config
+            )
+            
+            # Log metrics
+            log_latency_metrics(
+                embedding_latency=embedding_latency,
+                retrieval_latency=result['metrics']['retrieval_latency_ms']
+            )
+            
+            logger.info(f"Success! Retrieved {len(result['retrieved_skills'])} skills")
+            for skill in result['retrieved_skills'][:3]:
+                logger.info(f"  - {skill['metadata']['task_desc'][:40]}... (sim: {skill['similarity']:.4f})")
+            
+        except ValueError as e:
+            logger.warning(f"OOD Query detected: {e}")
+            # Log the OOD case
+            log_latency_metrics(
+                embedding_latency=(time.time() - start_time) * 1000,
+                retrieval_latency=0.0
+            )
+        
+        except Exception as e:
+            logger.error(f"Error processing query: {e}")
+            import traceback
+            traceback.print_exc()
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     main()

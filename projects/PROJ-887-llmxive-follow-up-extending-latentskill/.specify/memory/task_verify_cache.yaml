@@ -5,14 +5,6 @@ T001b:
     directories is provided; without file listings or contents we cannot confirm they
     exist or contain even minimal docstrings. The implementer must add and show these
     files.
-T012:
-  c: false
-  h: 193173be5c4750f4159a2821ca713d32bdca93416dfed2ab7beccca5df0de321
-  r: "The `src/ingestion/download_weights.py` file is truncated and does not contain\
-    \ a complete implementation (e.g., the `load_real_weights` function ends abruptly).\
-    \ Moreover, the required output files `data/raw/alfworld_weights.npz` and `data/raw/searchqa_weights.npz`\
-    \ are absent, indicating the script has not successfully generated or saved the\
-    \ weights. The task\u2019s specifications are therefore not met."
 T014d:
   c: false
   h: d3a25ae8e6b817eda42c5bdfc0a819744e1e9bc0d3e06256d0feafe849264cb8
@@ -21,13 +13,6 @@ T014d:
     \ of the script having been executed, nor any checksum or data\u2011type validation.\
     \ The task\u2019s core requirement\u2014producing and verifying the static index\
     \ file\u2014has not been fulfilled."
-T022b:
-  c: false
-  h: 021df1d3f20ea2ff5b8b7eb2aafc69f14460731120f37c8f2362f960365b3874
-  r: "The provided `src/validation/reconstruction_error.py` is truncated (ends abruptly\
-    \ with \u201Cw\u201D) and never reaches the code that writes the JSON result.\
-    \ Consequently, `data/results/reconstruction_error.json` does not exist, so the\
-    \ required output file is missing. The task is not fully implemented."
 T022d:
   c: false
   h: 744844338eb5a6bd8e20de3fdf6d89b094635d35b8a9532582ab67950513cb7e
@@ -43,14 +28,6 @@ T022e:
     \ actually generate the required `data/processed/eval_tasks.yaml`. Moreover, the\
     \ `eval_tasks.yaml` file does not exist in the repository. The task\u2019s output\
     \ artifact is therefore missing."
-T022g:
-  c: false
-  h: 4a4c90fb901f6798019ee5a0101dee81ae3933192f2f7bee79dad9b5f187f316
-  r: "The repository lacks the required output files `data/processed/known_composites_true_weights.npz`\
-    \ and `data/processed/known_composites_pairs.yaml`, and the provided `src/validation/generate_eval_tasks.py`\
-    \ script does not implement the synthesis of known composite tasks or their true\
-    \ weights as specified. The task\u2019s core functionality and expected artifacts\
-    \ are missing."
 T030:
   c: false
   h: 31697337b899f18abe6471214bde5c40b27567ac80fc0488cd5a29d5047bd7bf
@@ -72,3 +49,10 @@ T038:
     \ logs, output files, or a report confirming that the quickstart instructions\
     \ were executed and reproduced the full pipeline. The required artifact (validation\
     \ results) is missing."
+T043:
+  c: false
+  h: b14e37ea7dc8d8ba26e9885bf0f5e79a79a8501654b3fb18df8e8ab3f1b75c97
+  r: "The provided `src/evaluation/stats.py` does not contain any implementation of\
+    \ a power\u2011analysis check (the file is truncated and lacks such logic), and\
+    \ the required `data/results/stats_report.json` file is missing entirely. Consequently\
+    \ the task\u2019s specifications are not satisfied."

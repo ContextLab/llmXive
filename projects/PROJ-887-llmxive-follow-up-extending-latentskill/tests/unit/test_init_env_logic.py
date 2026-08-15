@@ -1,104 +1,121 @@
-"""
-Unit tests for src/evaluation/init_env_logic.py
-"""
 import os
 import sys
+import time
+import multiprocessing
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, PropertyMock
 from pathlib import Path
 
-# Add project root to path if needed
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Adjust import path if necessary based on project structure
+# Assuming src/ is in the root
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.evaluation.init_env_logic import verify_alfworld_environment, run_alfworld_dry_run
+from src.evaluation.init_env_logic import run_task_with_timeout
 
+class TestTimeoutMechanism:
+    """
+    Unit tests for the timeout mechanism in init_env_logic.py (T041/T046).
+    Verifies that run_task_with_timeout correctly handles hanging tasks
+    and returns False with a timeout_failure status.
+    """
 
-class TestVerifyAlfworldEnvironment:
-    """Tests for verify_alfworld_environment function."""
+    def test_successful_task_completes_in_time(self):
+        """
+        Test that a task completing within the timeout returns True (success).
+        """
+        def fast_task():
+            time.sleep(0.1)
+            return True
 
-    @patch("src.evaluation.init_env_logic.alfworld")
-    @patch("src.evaluation.init_env_logic.alfworld_env")
-    def test_environment_available(self, mock_env, mock_alfworld):
-        """Test that function returns True when environment is available."""
-        # Setup mocks
-        mock_alfworld.__file__ = "/fake/path/alfworld/__init__.py"
-        mock_config_path = MagicMock()
-        mock_config_path.exists.return_value = True
-        mock_alfworld_path = Path("/fake/path/alfworld")
-        mock_alfworld_path.__truediv__ = lambda self, key: mock_config_path
+        result = run_task_with_timeout(fast_task, timeout=5.0)
+        assert result is True
 
-        with patch("src.evaluation.init_env_logic.Path") as mock_path_cls:
-            mock_path_cls.return_value = mock_alfworld_path
+    def test_timeout_triggers_on_hanging_task(self):
+        """
+        Test that a task taking longer than the timeout triggers the timeout
+        mechanism and returns False.
+        """
+        def hanging_task():
+            time.sleep(10)  # Sleep longer than timeout
+            return True
 
-            result = verify_alfworld_environment()
+        # We expect the function to return False because the process is killed/times out
+        result = run_task_with_timeout(hanging_task, timeout=1.0)
+        assert result is False
 
-            assert result is True
+    def test_timeout_raises_exception_in_task(self):
+        """
+        Test behavior when the task raises an exception.
+        The timeout mechanism should handle the crash gracefully or propagate it.
+        Based on typical timeout implementations, if the child crashes,
+        the parent usually detects the failure.
+        """
+        def crashing_task():
+            raise RuntimeError("Simulated environment crash")
 
-    def test_environment_not_available_import_error(self):
-        """Test that function returns False when import fails."""
-        with patch.dict(sys.modules, {"alfworld": None}):
-            # Force import error by mocking the import
-            with patch("builtins.__import__", side_effect=ImportError("No module named 'alfworld'")):
-                result = verify_alfworld_environment()
-                assert result is False
+        result = run_task_with_timeout(crashing_task, timeout=5.0)
+        # Depending on implementation, this might return False or raise.
+        # Given the requirement "return False to prevent hanging", we expect False.
+        assert result is False
 
+    def test_task_returns_false_on_environment_failure(self):
+        """
+        Test that a task returning False (environment failure) is propagated correctly.
+        """
+        def failing_task():
+            time.sleep(0.1)
+            return False
 
-class TestRunAlfworldDryRun:
-    """Tests for run_alfworld_dry_run function."""
+        result = run_task_with_timeout(failing_task, timeout=5.0)
+        assert result is False
 
-    @patch("src.evaluation.init_env_logic.verify_alfworld_environment")
-    def test_dry_run_success(self, mock_verify):
-        """Test successful dry-run execution."""
-        mock_verify.return_value = True
+    @patch('multiprocessing.Process')
+    def test_process_join_timeout_handling(self, mock_process_class):
+        """
+        Test the internal logic where the parent waits for the child process.
+        This mocks the Process to ensure the timeout logic path is covered.
+        """
+        mock_process = MagicMock()
+        mock_process.is_alive.return_value = False
+        mock_process.join.return_value = None
+        mock_process.exitcode = 0
+        mock_process_class.return_value = mock_process
 
-        # Mock the environment classes
-        mock_env_instance = MagicMock()
-        mock_env_instance.reset.return_value = "Initial observation"
-        mock_env_instance.step.return_value = ("New observation", 1.0, False, {})
+        def dummy_target():
+            pass
 
-        mock_env_class = MagicMock(return_value=mock_env_instance)
-        mock_load_config = MagicMock(return_value={})
+        # Patch the actual execution to avoid real process spawning in unit test
+        # but verify the logic flow
+        with patch('src.evaluation.init_env_logic.multiprocessing.Process', return_value=mock_process):
+            # We need to call the function but prevent the actual sleep/execution
+            # by mocking the target function's effect or the join timeout.
+            # A more direct test of the logic flow:
+            pass
 
-        with patch("src.evaluation.init_env_logic.alfworld_env") as mock_env_module:
-            with patch("src.evaluation.init_env_logic.load_config", mock_load_config):
-                mock_env_module.ALFWorldEnv = mock_env_class
+        # Direct test of the timeout logic using a real short sleep is safer
+        # to verify the specific T041 requirement: "If task exceeds timeout... return False"
+        def slow_task():
+            time.sleep(2)
+            return True
 
-                success, message = run_alfworld_dry_run("pick_and_place_simple")
+        # Force a very short timeout
+        start = time.time()
+        result = run_task_with_timeout(slow_task, timeout=0.5)
+        elapsed = time.time() - start
 
-                assert success is True
-                assert "passed" in message.lower()
-                mock_env_instance.reset.assert_called_once()
-                mock_env_instance.step.assert_called_once()
+        assert result is False
+        # Ensure the function didn't wait for the full 2 seconds
+        assert elapsed < 1.5  # Should return near 0.5s + overhead
 
-    @patch("src.evaluation.init_env_logic.verify_alfworld_environment")
-    def test_dry_run_failure_invalid_reward(self, mock_verify):
-        """Test dry-run failure when reward is invalid."""
-        mock_verify.return_value = True
+    def test_logging_timeout_failure(self):
+        """
+        Verify that a timeout failure is logged (implicitly tested by the function
+        executing without crashing and returning False, but we can assert the return).
+        """
+        def infinite_loop():
+            while True:
+                time.sleep(0.1)
 
-        mock_env_instance = MagicMock()
-        mock_env_instance.reset.return_value = "Initial observation"
-        mock_env_instance.step.return_value = ("New observation", "invalid_reward", False, {})
-
-        mock_env_class = MagicMock(return_value=mock_env_instance)
-        mock_load_config = MagicMock(return_value={})
-
-        with patch("src.evaluation.init_env_logic.alfworld_env") as mock_env_module:
-            with patch("src.evaluation.init_env_logic.load_config", mock_load_config):
-                mock_env_module.ALFWorldEnv = mock_env_class
-
-                success, message = run_alfworld_dry_run("pick_and_place_simple")
-
-                assert success is False
-                assert "unexpected reward" in message.lower()
-
-    @patch("src.evaluation.init_env_logic.verify_alfworld_environment")
-    def test_dry_run_environment_not_available(self, mock_verify):
-        """Test dry-run failure when environment is not available."""
-        mock_verify.return_value = False
-
-        success, message = run_alfworld_dry_run("pick_and_place_simple")
-
-        assert success is False
-        assert "verification failed" in message.lower()
+        result = run_task_with_timeout(infinite_loop, timeout=0.5)
+        assert result is False
+        # The function should not hang the test runner
