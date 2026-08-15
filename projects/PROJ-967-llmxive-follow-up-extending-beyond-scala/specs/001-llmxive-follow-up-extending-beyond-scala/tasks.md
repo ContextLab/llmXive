@@ -46,7 +46,7 @@
 - [ ] T000 [P] Create `research.md` with Verified Datasets block: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/research.md` with a "Verified datasets" section. **Content**: Define the expected dataset ID 'z-reward/z-reward-v1' and a placeholder for the checksum. **CRITICAL**: This task must complete before T037 runs to satisfy Constitution Principle II (Verified Accuracy). **DEPENDS**: None.
 - [ ] T001a [P] Create project directories: Create directories `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results` relative to repository root. **REPLACES**: None.
 - [X] T001b [P] Create empty project files: Create empty files `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/.gitignore`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/pytest.ini`
-- [X] T001c [P] Write dependencies: Write `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt` with pinned versions of pandas, numpy, scikit-learn, scipy, pyyaml, pytest, ruff, black
+- [X] T001c [P] Write dependencies: Write `projects/PROJ-FOLLOW-UP-LLMXIVE/code/requirements.txt` with pinned versions of pandas, numpy, scikit-learn, scipy, pyyaml, pytest, ruff, black
 - [ ] T001d [P] Create **provisional** dataset schema template: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/contracts/dataset.schema.yaml` with the following exact YAML content:
 ```yaml
 schema_version: "1.0"
@@ -87,22 +87,23 @@ fields:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T037 [P] [US1] Download Z‑Reward evaluation dataset (real data) with verification:
+- [ ] T037 [US1] Download Z‑Reward evaluation dataset (real data) with verification:
   1. **Primary**: Verify dataset ID `z-reward/z-reward-v1` via the Reference‑Validator Agent; if verified, load with `datasets.load_dataset`.
   2. **Secondary**: If primary verification fails, verify `z-reward/z-reward-v2` and load.
   3. **Tertiary**: If both verifications fail, check environment variable `Z_REWARD_ARCHIVE_PATH` for a local `.zip` archive, extract to `data/raw/`, and load.
-  4. **Fallback**: If all real sources fail, **automatically invoke T037b** to generate a synthetic dataset (N=10,000) and set `IS_MOCK_DATA=True`. No RuntimeError is raised.
+  4. **FATAL**: If all real sources fail, **raise a clear `RuntimeError`** with message "Real dataset not found. Pipeline cannot proceed without real data for reproducibility." **DO NOT** invoke T037b automatically. T037b is for unit testing only and must be invoked manually if needed.
   5. **Verification**: After loading, assert presence of required columns (`prompt`, `image_url`, `teacher_scores` with the four rubric keys, `student_scalar`, `human_annotations` with the four rubric keys, `primary_dimension`). If any are missing, raise a clear `RuntimeError`.
-  6. **OUTPUT**: Write the loaded (or generated) dataset to `data/raw/z_reward.parquet`.
-  7. **BLOCKING**: Must complete before any ingestion or schema validation tasks.
+  6. **OUTPUT**: Write the loaded dataset to `data/raw/z_reward.parquet`.
+  7. **OUTPUT**: Write `data/raw/validation_log.json` containing schema validation results and exit code behavior.
+  8. **BLOCKING**: Must complete before any ingestion or schema validation tasks.
   **DEPENDS**: T001a, T000.
-- [ ] T037b [ ] [US1] Generate synthetic dataset for pipeline verification (only invoked by T037):
+- [ ] T037b [US1] Generate synthetic dataset for pipeline verification (MANUAL INVOCATION ONLY):
   1. **Input**: None (uses fixed random seed for reproducibility).
   2. **Generate**: Create a Pandas DataFrame matching the schema with columns `prompt`, `image_url`, `teacher_scores` (Alignment, Realism, Aesthetics, Plausibility), `student_scalar`, `human_annotations` (same four keys), `primary_dimension`.
   3. **Noise Independence**: Teacher scores are sampled from `np.random.normal(loc=5, scale=2, size=...)`; human annotations are sampled independently from a separate `np.random.normal(loc=5, scale=2, ...)` *with a different seed*, guaranteeing independent noise structures.
   4. **Output**: Write to `data/raw/mock_z_reward.parquet`.
   5. **Flag**: Set `IS_MOCK_DATA = true` in `data/processed/config.json`.
-  6. **NOTE**: This synthetic data is for unit‑testing only; final results must use real data when available.
+  6. **NOTE**: This synthetic data is for unit‑testing only; final results must use real data when available. **DO NOT** invoke automatically from T037.
   **DEPENDS**: T001d.
 - [ ] T038 [P] [US1] Schema Discovery and Validation:
   1. Read the raw dataset file produced by T037 (or T037b) from `data/raw/`.
@@ -171,14 +172,18 @@ fields:
   3. Handle zero‑variance cases (set variance = 0, entropy = 0) without crashing.
   4. Append these columns to the dataframe and write to `data/processed/entanglement_scores.csv`.
   **DEPENDS**: T012.
-- [ ] T022b [US2] **Global Covariance & Dominant Eigenvalue** (computed on the *entire* aligned dataset **before filtering**):
+- [ ] T022b [US2] **Global Covariance Matrix** (computed on the *entire* aligned dataset **before filtering**):
   1. Input: Read the *raw* aligned data from `data/processed/raw_data.parquet` (output of T012, prior to any exclusion).
   2. Extract the N × 4 matrix of teacher scores.
   3. If N < 4, raise a clear `RuntimeError`.
   4. Compute the 4 × 4 covariance matrix (`numpy.cov`, `rowvar=False`).
-  5. Compute the dominant eigenvalue (largest eigenvalue) of this matrix.
-  6. Write the covariance matrix and dominant eigenvalue to `results/covariance_matrix.json`.
+  5. Write the covariance matrix to `results/covariance_matrix.json`.
   **DEPENDS**: T012.
+- [ ] T022b-eigen [US2] **Dominant Eigenvalue Extraction**:
+  1. Input: Read the covariance matrix from `results/covariance_matrix.json` (output of T022b).
+  2. Compute the dominant eigenvalue (largest eigenvalue) of this matrix.
+  3. Write the dominant eigenvalue to `results/dominant_eigenvalue.json`.
+  **DEPENDS**: T022b.
 - [ ] T022c [US2] **Per‑Sample Mahalanobis Distance** (conditional):
   1. **Conditional Execution**: Run only if the pipeline will use Random Forest (i.e., after model‑selection task determines `model_type == "rf"` and N ≥ 300).
   2. Input: Use the *filtered* dataset from `data/processed/cleaned_data.parquet` (output of T024) and the global covariance matrix/mean from T022b.
@@ -186,17 +191,18 @@ fields:
      $D_M(x) = \sqrt{(x-\mu)^T \Sigma^{-1} (x-\mu)}$.
   4. Handle singular covariance matrices with pseudo‑inverse, issuing a warning.
   5. Append `mahalanobis_distance` column and write to `data/processed/entanglement_scores.csv`.
-  **DEPENDS**: T022b, T024, and the model‑selection flag (see T027d).
+  6. **Else**: If `model_type != "rf"`, write a 'skipped' log entry to `data/processed/feature_status.json`.
+  **DEPENDS**: T022b, T024, T027d.
 
 - [X] T023 [US2] Implement zero‑variance handling in `code/features.py`: set entropy to 0 and variance to 0 without crashing. **DEPENDS**: T020.
 
-- [X] T025a [US2] Compute Per‑Sample Stats:
+- [ ] T025a [US2] Compute Per‑Sample Stats:
   1. Read aligned data from `data/processed/raw_data.parquet` (full dataset) and the filtered dataset from `data/processed/cleaned_data.parquet`.
   2. Compute per‑sample variance, entropy, skewness, kurtosis (T020‑T021, T022a).
-  3. If `model_type == "rf"` (Random Forest), also compute Mahalanobis distance using the global covariance from T022b.
+  3. **Conditional**: If `model_type == "rf"` (Random Forest), compute Mahalanobis distance using the global covariance from T022b.
   4. Output a JSON record containing all per‑sample features plus the global `dominant_eigenvalue`.
   5. Ensure no null values for required keys.
-  **DEPENDS**: T024, T020, T021, T022a, T022b, T022c (conditional), and the model‑selection flag from T027d.
+  **DEPENDS**: T024, T020, T021, T022a, T022b.
 
 - [X] T025b [US2] Merge Features:
   1. Combine per‑sample features with the filtered dataframe.
@@ -236,7 +242,8 @@ fields:
   3. If 30 ≤ N < 300 → set `model_type = "ridge"` (use Ridge Regression).
   4. If N ≥ 300 → set `model_type = "rf"` (use Random Forest) and ensure Mahalanobis distance was computed (T022c).
   5. Write the decision to `data/processed/model_selection.json`.
-  **DEPENDS**: T024.
+  6. **Execution Order**: This task MUST run BEFORE T027a (Training Split) and T022c (Mahalanobis).
+  **DEPENDS**: T024, T038.
 
 - [X] T027a [US3] Configure training split:
   1. Read features from `data/processed/cleaned_data.parquet` (output of T025c).
@@ -251,9 +258,12 @@ fields:
   3. Save the trained model object to `results/model.pkl`.
   **DEPENDS**: T027a.
 
-- [ ] T027c [US3] Save placeholder model when training is skipped (e.g., N < 30). Write metadata `{"status":"no_data"}` to `results/model.pkl`. **DEPENDS**: T027b.
+- [ ] T027c [US3] Save placeholder model when training is skipped (e.g., N < 30):
+  1. Write metadata `{"status":"no_data", "message":"N < 30, correlation unmeasurable"}` to `results/model.pkl` using `pickle.dump(metadata, f)`.
+  2. Also write `{"status":"no_data", "message":"N < 30, correlation unmeasurable"}` to `results/results.json` to satisfy SC-001.
+  **DEPENDS**: T027b.
 
-- [X] T028 [US3] Implement k‑fold cross‑validation (5‑fold) using the same stratified bins from T027a. Compute mean R² and MAE across folds.
+- [X] T028 [US3] Implement k‑fold cross‑validation using the same stratified bins from T027a. Compute mean R² and MAE across folds.
 
 - [ ] T030a [US3] Implement permutation test:
   1. Using the training split (X_train, y_train) from T027a, permute `y_train` `n_permutations=1000` times (fixed `random_state=42`).
@@ -270,8 +280,8 @@ fields:
   1. Train a `DummyRegressor(strategy='mean')` on the training split.
   2. Evaluate on the test set to obtain baseline R² and MAE.
   3. Perform a paired t‑test (`scipy.stats.ttest_rel`) on the residuals of the selected model vs. the baseline.
-  4. **Success Criterion**: The task passes **only if** the paired t‑test yields `p < 0.05`. If test assumptions are violated, report `p_value_ttest: null` and **fail** the task (do not fall back to R² > 0).
-  5. Write `baseline_r2`, `p_value_ttest`, and `p_value_permutation` to `results/results.json`.
+  4. **Reporting**: Compute p-value. If p < 0.05, report "significant"; otherwise report "not significant". **DO NOT** fail the task based on p-value.
+  5. Write `baseline_r2`, `p_value_ttest`, `t_test_status` (significant/not significant), and `p_value_permutation` to `results/results.json`.
   **DEPENDS**: T029, T027a.
 
 - [ ] T031 [US3] Integrate training and evaluation:
@@ -289,11 +299,14 @@ fields:
 
 - [ ] T032 [P] Documentation updates: Create `quickstart.md` in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/` with explicit steps to reproduce the full pipeline (Install → Download → Ingest → Train → Evaluate) to satisfy Constitution Principle I. **DEPENDS**: T031.
 - [ ] T033 [P] Code cleanup and refactoring: Run `ruff check` and `black --check` on `code/` and `tests/`. Fix all errors until `ruff` exits with code 0 and `black` reports no changes. **DEPENDS**: T031.
-- [X] T034 [P] Profile and optimize feature engineering loop: Run `cProfile` on `code/features.py` using a random sample of the full dataset (or the maximum available subset) to estimate runtime.
+- [ ] T034a [P] Profile and optimize feature engineering loop (Part 1): Run `cProfile` on `code/features.py` using a random sample of the full dataset (or the maximum available subset) to estimate runtime.
   1. **Research Question**: Identify bottlenecks limiting performance.
   2. **Method**: Systematic profiling; reference scikit‑learn and scipy docs.
-  3. **Optimization**: If estimated runtime > 30 min, refactor to vectorized NumPy operations; ensure total runtime stays < 6 h on the CI runner.
+  3. **Output**: Generate `results/profile_report.txt` with bottleneck analysis.
   **DEPENDS**: T025c.
+- [ ] T034b [P] Profile and optimize feature engineering loop (Part 2): Refactor `code/features.py` based on `results/profile_report.txt` from T034a.
+  1. **Optimization**: If estimated runtime > 30 min, refactor to vectorized NumPy operations; ensure total runtime stays < 6 h on the CI runner.
+  **DEPENDS**: T034a.
 - [ ] T035 [P] Additional unit tests for edge cases: Write tests for `test_ingest.py` and `test_features.py` covering (1) Empty dataset, (2) NaN values in teacher logits, (3) Missing human annotations for all dimensions, (4) Zero‑variance distributions. **DEPENDS**: T018, T019.
 - [ ] T036 [P] Run `quickstart.md` validation to ensure reproducibility.
 
@@ -304,7 +317,7 @@ fields:
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. Includes Data Acquisition (T037) which must complete before US1 implementation (T012). **T037b** is an alternative path if T037 fails.
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. Includes Data Acquisition (T037) which must complete before US1 implementation (T012). **T037b** is an alternative path if T037 fails (manual invocation).
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -315,6 +328,8 @@ fields:
 - **T027a** reads the model‑selection flag
 - **T022c** runs only when `model_type == "rf"` (checked in T027d)
 - **T025a** conditionally includes Mahalanobis distance based on the same flag
+- **CRITICAL ORDERING**: T022b (Global Covariance) MUST run BEFORE T024 (Filtering). T022b depends ONLY on T012. T024 depends on T012. T022b and T024 can run in parallel after T012, but T022b must complete before T025a (which reads the global metric) and T022c (which uses the global metric).
+- **CRITICAL ORDERING**: T022c (Mahalanobis) depends on T027d (Model Selection) to prevent execution when Ridge is selected. T022c reads filtered data from T024.
 
 ### User Story Dependencies
 
@@ -342,18 +357,18 @@ fields:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross‑story dependencies that break independence
-- **CRITICAL**: All data loading tasks (T012, T037) must use real, reachable URLs (verified UCI or HF datasets) or package‑based fetchers. **NO synthetic fallbacks** allowed for final results, but T037b is allowed for unit testing.
+- **CRITICAL**: All data loading tasks (T012, T037) must use real, reachable URLs (verified UCI or HF datasets) or package‑based fetchers. **NO synthetic fallbacks** allowed for final results, but T037b is allowed for unit testing (manual invocation).
 - **CRITICAL**: All model training tasks must be CPU‑only (no CUDA, no 8‑bit quantization, no large LLMs). Use small models and sampled datasets if necessary.
 - **CRITICAL**: Entanglement features (T022a, T022c) MUST be computed using **per‑sample** statistics (Entropy, Variance, Skewness, Kurtosis, Mahalanobis Distance). **NO** global constants are allowed as per‑sample features.
-- **CRITICAL**: T022b computes Global Covariance/Eigenvalue via covariance matrix of the *entire* aligned dataset (pre‑filter), satisfying Constitution Principle VI.
-- **CRITICAL**: T022c computes Per‑Sample Mahalanobis Distance on the *filtered* dataset **only** when Random Forest is used.
+- **CRITICAL**: T022b computes Global Covariance/Eigenvalue via covariance matrix of the *entire* aligned dataset (pre‑filter), satisfying Constitution Principle VI. T022b depends ONLY on T012.
+- **CRITICAL**: T022c computes Per‑Sample Mahalanobis Distance on the *filtered* dataset **only** when Random Forest is used. T022c depends on T027d.
 - **CRITICAL**: Target variable (T024) MUST be calculated in `code/ingest.py` using metadata‑based dimension selection (T014), independent of model scores.
-- **CRITICAL**: Data Acquisition (T037, T037b) must complete before US1 implementation (T012) to ensure the ingestion script has real data to process. If T037 fails, T037b must run.
+- **CRITICAL**: Data Acquisition (T037, T037b) must complete before US1 implementation (T012) to ensure the ingestion script has real data to process. If T037 fails, T037b must be invoked manually.
 - **CRITICAL**: T025c must complete before T027a (Training) to guarantee feature‑schema compliance.
 - **CRITICAL**: T037 uses a multi‑source fallback chain (v1 → v2 → local archive) instead of hard‑coded single ID.
 - **CRITICAL**: T038 performs schema discovery on the raw source file (T037 or T037b) before ingestion.
 - **CRITICAL**: T033 has a concrete "done" state (ruff exit code 0).
-- **CRITICAL**: T034 has a concrete metric (runtime reduction or bottleneck report) using a [deferred] sample for profiling.
+- **CRITICAL**: T034a and T034b split profiling and refactoring.
 - **CRITICAL**: T035 specifies exact edge cases.
 - **CRITICAL**: T001a, T001b, T001c use the correct project prefix path.
 - **CRITICAL**: T013 handles missing student scalar columns explicitly by marking as excluded, NOT crashing.
@@ -361,12 +376,14 @@ fields:
 - **CRITICAL**: T022a computes valid per‑sample stats (Variance, Entropy, Skewness, Kurtosis).
 - **CRITICAL**: T022b computes Global Covariance/Eigenvalue via covariance matrix on *entire* dataset.
 - **CRITICAL**: T022c computes Per‑Sample Mahalanobis Distance on *filtered* data when Random Forest is used.
-- **CRITICAL**: T030c trains the Mean Predictor inline, compares R²/MAE, and mandates a **paired t‑test** on residuals as the primary validation method, with a fallback to reporting `p_value_ttest: null` if assumptions are violated. **NO bootstrap**.
+- **CRITICAL**: T030c trains the Mean Predictor inline, compares R²/MAE, and mandates a **paired t‑test** on residuals as the primary validation method, with a fallback to reporting `p_value_ttest: null` if assumptions are violated. **NO bootstrap**. Task does NOT fail if p >= 0.05; it reports status.
 - **CRITICAL**: T027a uses **quantile‑based binning** for stratified splitting of continuous targets.
 - **CRITICAL**: T024 must filter the dataframe, write to `data/processed/cleaned_data.parquet`, AND write `data/processed/fidelity_loss_summary.json` before T025a reads it.
 - **CRITICAL**: T025a must read the *filtered* output from T024.
 - **CRITICAL**: T001d creates a *provisional* template that T038 updates.
-- **CRITICAL**: T037 is NOT parallel [P].
-- **CRITICAL**: T022b depends on T024 (Filtered Data). However, FR‑002 and FR‑007 require computing the covariance matrix for the *ENTIRE dataset* (or defined batch window). This revision moves the dependency to T012 (raw aligned data) to satisfy the requirement.
-- **CRITICAL**: T022c depends on T022b and T024 (Filtered Data) and now includes conditional execution based on model type.
-- **CRITICAL**: T030c allows the Random Forest R² > 0 as a pass condition only if the paired t‑test is significant; otherwise the task fails.
+- **CRITICAL**: T037 is NOT parallel [P] and does NOT auto-invoke T037b.
+- **CRITICAL**: T022b depends on T012 (raw data), NOT T024 (filtered data).
+- **CRITICAL**: T022c depends on T027d (Model Selection) to prevent execution when Ridge is selected.
+- **CRITICAL**: T030c allows the Random Forest R² > 0 as a pass condition only if the paired t‑test is significant; otherwise the task reports "not significant" but does NOT fail.
+- **CRITICAL**: T025a does NOT depend on T022c. T025a handles the absence of Mahalanobis distance gracefully.
+- **CRITICAL**: T022b runs BEFORE T024 in the execution graph to satisfy FR-002.
