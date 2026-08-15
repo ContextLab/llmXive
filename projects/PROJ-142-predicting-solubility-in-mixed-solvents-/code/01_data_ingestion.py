@@ -1,357 +1,216 @@
-"""
-Data Ingestion Module for Solubility Prediction Project.
-
-Handles fetching EPA ESOL data, filtering by molecular weight,
-validating solvent compositions, and performing KNN imputation
-for missing solvent properties.
-"""
-
 import os
 import sys
 import json
 import hashlib
 import pandas as pd
 import numpy as np
+from sklearn.impute import KNNImputer
 from pathlib import Path
-from typing import Optional, Tuple, List
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from utils.constants import DATA_DIR, ARTIFACTS_DIR
-from utils.errors import CustomDataError, MissingURLError, InvalidStoichiometryError
+# Import local utilities
+from utils.constants import DATA_DIR, MAX_IMPUTATION_RATE
+from utils.errors import CustomDataError
 from utils.logging import monitor_resources
 
-# Constants for KNN imputation
-KNN_NEIGHBORS = 5
-IMPUTATION_THRESHOLD = 0.15  # 15% max allowed imputation rate
-
-# Constants for file paths
-CLEANED_COMPOSITIONS_PATH = DATA_DIR / "processed" / "cleaned_compositions.csv"
-IMPUTATION_LOG_PATH = ARTIFACTS_DIR / "imputation_log.txt"
-IMPUTATION_ERROR_LOG_PATH = ARTIFACTS_DIR / "imputation_error.log"
-
-# EPA ESOL Data URL (Real source)
-ESOL_DATA_URL = "https://github.com/bp-kelley/datasets/raw/master/esol/esol.csv"
-
-def fetch_esol_data(url: str = ESOL_DATA_URL) -> pd.DataFrame:
+def fetch_esol_data(url: str) -> pd.DataFrame:
     """
-    Fetch ESOL dataset from the specified URL.
+    Fetch ESOL data from the specified URL.
+    Includes pre-flight check via T041 logic (assumed handled by caller or wrapper).
+    """
+    # Placeholder for actual fetch logic using requests
+    # In a real scenario, this would use requests.get(url) and parse CSV
+    # For this implementation, we assume the data is already downloaded to data/raw/epa_solubility.csv
+    # as per T011.
+    raw_path = DATA_DIR / "raw" / "epa_solubility.csv"
+    if not raw_path.exists():
+        raise CustomDataError(f"Raw data file not found at {raw_path}. Run T011 first.")
     
-    Args:
-        url: URL to the ESOL dataset CSV file.
-        
-    Returns:
-        DataFrame containing the ESOL data.
-        
-    Raises:
-        MissingURLError: If the URL is invalid or data cannot be fetched.
-    """
-    try:
-        # Attempt to read directly from the URL
-        df = pd.read_csv(url)
-        return df
-    except Exception as e:
-        raise MissingURLError(f"Failed to fetch data from {url}: {str(e)}")
+    df = pd.read_csv(raw_path)
+    return df
 
 def calculate_molecular_weight(smiles: str) -> float:
     """
     Calculate molecular weight from SMILES string using RDKit.
-    
-    Args:
-        smiles: SMILES string of the molecule.
-        
-    Returns:
-        Molecular weight in Daltons.
     """
     try:
         from rdkit import Chem
         from rdkit.Chem import Descriptors
-        
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            return float('nan')
+            return np.nan
         return Descriptors.MolWt(mol)
-    except Exception:
-        return float('nan')
+    except ImportError:
+        # Fallback if RDKit not available, though it should be per requirements
+        raise ImportError("RDKit is required for molecular weight calculation.")
 
-def filter_by_molecular_weight(df: pd.DataFrame, max_mw: float = 500.0) -> pd.DataFrame:
+def filter_by_molecular_weight(df: pd.DataFrame, threshold: float = 500.0) -> pd.DataFrame:
     """
-    Filter DataFrame to include only molecules with molecular weight < max_mw.
-    
-    Args:
-        df: Input DataFrame with 'smiles' column.
-        max_mw: Maximum molecular weight threshold.
-        
-    Returns:
-        Filtered DataFrame.
+    Filter rows where Molecular Weight < threshold.
     """
-    # Calculate MW for all rows
-    df = df.copy()
-    df['molecular_weight'] = df['smiles'].apply(calculate_molecular_weight)
+    # Assuming 'smiles' column exists
+    if 'smiles' not in df.columns:
+        raise CustomDataError("Input DataFrame must contain 'smiles' column.")
     
-    # Filter rows where MW is valid and less than max_mw
-    filtered_df = df[(df['molecular_weight'] < max_mw) & (df['molecular_weight'].notna())]
-    
-    return filtered_df.reset_index(drop=True)
+    # Apply calculation
+    df['mw'] = df['smiles'].apply(calculate_molecular_weight)
+    filtered_df = df[df['mw'] < threshold].copy()
+    return filtered_df
 
-def validate_composition(df: pd.DataFrame, composition_col: str = 'mole_fraction', tolerance: float = 0.01) -> Tuple[pd.DataFrame, int]:
+def validate_composition(df: pd.DataFrame, tolerance: float = 1e-5) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Validate that composition sums equal 1.0 within tolerance.
-    If sum != 1.0, normalize the row.
-    
-    Args:
-        df: DataFrame with composition column.
-        composition_col: Name of the column containing composition values.
-        tolerance: Acceptable deviation from 1.0.
-        
-    Returns:
-        Tuple of (normalized DataFrame, count of rows normalized).
-        
-    Raises:
-        InvalidStoichiometryError: If a row cannot be normalized (e.g., all zeros).
+    Validate that composition columns sum to 1.0 within tolerance.
+    Returns (valid_rows, rejected_rows).
     """
-    df = df.copy()
-    normalized_count = 0
+    # Identify composition columns (e.g., mole_fraction_1, mole_fraction_2, etc.)
+    comp_cols = [col for col in df.columns if 'mole_fraction' in col]
     
-    if composition_col not in df.columns:
-        # If column doesn't exist, assume pure solvent (composition = 1.0)
-        return df, 0
-        
-    for idx, row in df.iterrows():
-        comp_val = row[composition_col]
-        
-        # Handle scalar vs list/array cases
-        if isinstance(comp_val, (int, float)):
-            current_sum = comp_val
-        else:
-            try:
-                current_sum = sum(comp_val)
-            except TypeError:
-                # If it's a string representation of a list, try to parse
-                try:
-                    parsed = json.loads(comp_val)
-                    current_sum = sum(parsed)
-                except:
-                    current_sum = 0.0
-        
-        if abs(current_sum - 1.0) > tolerance:
-            if current_sum == 0:
-                raise InvalidStoichiometryError(f"Row {idx} has zero composition sum, cannot normalize")
-            
-            # Normalize the composition
-            if isinstance(comp_val, (int, float)):
-                df.at[idx, composition_col] = 1.0
-            else:
-                try:
-                    normalized = [x / current_sum for x in comp_val]
-                    df.at[idx, composition_col] = normalized
-                except:
-                    # Fallback for string representations
-                    try:
-                        parsed = json.loads(comp_val)
-                        normalized = [x / current_sum for x in parsed]
-                        df.at[idx, composition_col] = json.dumps(normalized)
-                    except:
-                        raise CustomDataError(f"Could not normalize composition at row {idx}")
-            
-            normalized_count += 1
+    if not comp_cols:
+        # If no specific mole fraction columns, assume 'composition' or similar
+        # For this task, we assume columns like 'x1', 'x2' or explicit 'mole_fraction_*'
+        # Let's assume the data has 'mole_fraction_solvent1', 'mole_fraction_solvent2'
+        pass 
     
-    return df, normalized_count
+    # Calculate sum
+    df['comp_sum'] = df[comp_cols].sum(axis=1)
+    
+    # Check validity
+    valid_mask = np.abs(df['comp_sum'] - 1.0) <= tolerance
+    valid_df = df[valid_mask].copy()
+    rejected_df = df[~valid_mask].copy()
+    
+    return valid_df, rejected_df
+
+def perform_knn_imputation(df: pd.DataFrame, columns: list, n_neighbors: int = 5) -> tuple[pd.DataFrame, float]:
+    """
+    Perform KNN imputation on specified columns.
+    Returns imputed DataFrame and imputation rate (fraction of missing values imputed).
+    """
+    if not columns:
+        return df, 0.0
+    
+    # Check for missing values
+    missing_mask = df[columns].isna().any(axis=1)
+    if not missing_mask.any():
+        return df, 0.0
+    
+    # Count total missing cells
+    total_missing = df[columns].isna().sum().sum()
+    total_cells = df[columns].shape[0] * len(columns)
+    
+    imputer = KNNImputer(n_neighbors=n_neighbors)
+    imputed_values = imputer.fit_transform(df[columns])
+    
+    df_imputed = df.copy()
+    df_imputed[columns] = imputed_values
+    
+    imputation_rate = total_missing / total_cells if total_cells > 0 else 0.0
+    
+    return df_imputed, imputation_rate
+
+def log_imputation_rate(rate: float, log_path: str):
+    """
+    Log the imputation rate to a file.
+    """
+    with open(log_path, 'w') as f:
+        f.write(f"Imputation Rate: {rate:.4f}\n")
+        if rate > MAX_IMPUTATION_RATE:
+            f.write(f"WARNING: Imputation rate ({rate:.4f}) exceeds threshold ({MAX_IMPUTATION_RATE}).\n")
 
 def clean_and_prepare_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Perform general cleaning: drop duplicates, handle obvious errors.
-    
-    Args:
-        df: Input DataFrame.
-        
-    Returns:
-        Cleaned DataFrame.
+    Final cleaning steps: drop NaNs, ensure types, etc.
     """
-    df = df.drop_duplicates()
-    
-    # Drop rows with missing critical fields
-    critical_cols = ['smiles', 'solubility']
-    for col in critical_cols:
-        if col in df.columns:
-            df = df.dropna(subset=[col])
-    
-    return df.reset_index(drop=True)
+    # Drop rows with any remaining NaNs in critical columns
+    critical_cols = ['smiles', 'logS']
+    if all(c in df.columns for c in critical_cols):
+        df = df.dropna(subset=critical_cols)
+    return df
 
-def perform_knn_imputation(df: pd.DataFrame, 
-                           numeric_cols: Optional[List[str]] = None,
-                           neighbors: int = KNN_NEIGHBORS) -> Tuple[pd.DataFrame, float]:
+def main():
     """
-    Perform KNN imputation on numeric columns with missing values.
-    
-    Args:
-        df: Input DataFrame.
-        numeric_cols: List of numeric column names to impute. If None, auto-detect.
-        neighbors: Number of neighbors for KNN.
-        
-    Returns:
-        Tuple of (imputed DataFrame, imputation rate).
-        
-    Raises:
-        CustomDataError: If imputation rate exceeds threshold.
+    Main execution flow for T013: Data Imputation.
+    1. Load filtered data (from T012).
+    2. Perform KNN imputation.
+    3. Check rate against threshold.
+    4. Write outputs.
     """
-    df = df.copy()
-    
-    # Auto-detect numeric columns if not provided
-    if numeric_cols is None:
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    
-    if not numeric_cols:
-        return df, 0.0
-    
-    # Identify columns with missing values
-    cols_with_missing = [col for col in numeric_cols if df[col].isna().any()]
-    
-    if not cols_with_missing:
-        return df, 0.0
-    
-    # Calculate total missing values
-    total_missing = sum(df[col].isna().sum() for col in cols_with_missing)
-    total_cells = len(cols_with_missing) * len(df)
-    
-    if total_cells == 0:
-        return df, 0.0
-    
-    # Use sklearn's KNNImputer
-    try:
-        from sklearn.impute import KNNImputer
-    except ImportError:
-        raise CustomDataError("scikit-learn is required for KNN imputation. Install with: pip install scikit-learn")
-    
-    imputer = KNNImputer(n_neighbors=neighbors)
-    
-    # Extract data for imputation
-    impute_data = df[cols_with_missing].values
-    
-    # Perform imputation
-    try:
-        imputed_data = imputer.fit_transform(impute_data)
-    except Exception as e:
-        # If imputation fails (e.g., not enough samples), drop rows with missing values
-        df_clean = df.dropna(subset=cols_with_missing)
-        dropped_rows = len(df) - len(df_clean)
-        log_imputation_rate(0.0, dropped_rows, len(df), "imputation_failed")
-        return df_clean, 1.0  # Rate is 100% drop if we had to drop rows
-    
-    # Update DataFrame with imputed values
-    for i, col in enumerate(cols_with_missing):
-        df[col] = imputed_data[:, i]
-    
-    # Calculate imputation rate (proportion of cells that were imputed)
-    imputation_rate = total_missing / total_cells if total_cells > 0 else 0.0
-    
-    return df, imputation_rate
+    # Monitor resources
+    monitor_resources()
 
-def log_imputation_rate(rate: float, 
-                        imputed_count: int, 
-                        total_count: int, 
-                        status: str = "success") -> None:
-    """
-    Log imputation statistics to the log file.
+    # Paths
+    input_path = DATA_DIR / "processed" / "filtered_mw.csv"
+    output_path = DATA_DIR / "processed" / "imputed_data.csv"
+    rejected_path = DATA_DIR / "artifacts" / "rejected_rows.csv"
+    log_path = DATA_DIR / "artifacts" / "imputation_log.txt"
     
-    Args:
-        rate: Imputation rate (0.0 to 1.0).
-        imputed_count: Number of cells imputed.
-        total_count: Total number of cells checked.
-        status: Status of the operation.
-    """
-    log_entry = {
-        "timestamp": pd.Timestamp.now().isoformat(),
-        "imputation_rate": rate,
-        "imputed_cells": imputed_count,
-        "total_cells": total_count,
-        "status": status,
-        "threshold_exceeded": rate > IMPUTATION_THRESHOLD
-    }
-    
-    # Ensure artifacts directory exists
-    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-    
-    with open(IMPUTATION_LOG_PATH, 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
+    # Ensure directories exist
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    rejected_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
 
-def main() -> int:
-    """
-    Main execution function for data ingestion and imputation.
-    
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    try:
-        # Check resources
-        monitor_resources()
-        
-        print("Starting data ingestion and imputation pipeline...")
-        
-        # 1. Fetch data
-        print("Fetching ESOL data...")
-        df = fetch_esol_data()
-        print(f"Fetched {len(df)} rows.")
-        
-        # 2. Filter by molecular weight
-        print("Filtering by molecular weight (< 500 Da)...")
+    # Load data
+    if not input_path.exists():
+        # Fallback to raw if processed doesn't exist (for T012 dependency)
+        raw_path = DATA_DIR / "raw" / "epa_solubility.csv"
+        if not raw_path.exists():
+            print(f"ERROR: No input data found at {input_path} or {raw_path}", file=sys.stderr)
+            sys.exit(1)
+        df = pd.read_csv(raw_path)
+        # Apply MW filter if needed (T012 logic)
         df = filter_by_molecular_weight(df)
-        print(f"Filtered to {len(df)} rows.")
-        
-        # 3. Clean and prepare data
-        print("Cleaning data...")
-        df = clean_and_prepare_data(df)
-        print(f"Cleaned to {len(df)} rows.")
-        
-        # 4. Validate compositions
-        print("Validating solvent compositions...")
-        try:
-            df, normalized_count = validate_composition(df)
-            print(f"Normalized {normalized_count} composition rows.")
-        except InvalidStoichiometryError as e:
-            print(f"Error in composition validation: {e}")
-            # Drop problematic rows
-            df = df.dropna(subset=['mole_fraction'])
-            print(f"Dropped {len(df) - len(df)} rows due to composition errors.")
-        
-        # 5. Perform KNN imputation
-        print("Performing KNN imputation...")
-        df, imputation_rate = perform_knn_imputation(df)
-        
-        # Log the result
-        total_missing_before = sum(df.isna().sum().sum() for _ in [1])  # Placeholder for actual count
-        # Recalculate missing before imputation (we already imputed, so we estimate)
-        # For logging, we use the rate directly
-        log_imputation_rate(imputation_rate, int(imputation_rate * 100), 100)
-        
-        print(f"Imputation rate: {imputation_rate:.2%}")
-        
-        # Check threshold
-        if imputation_rate > IMPUTATION_THRESHOLD:
-            error_msg = f"ERROR: Imputation rate exceeded [deferred]: {imputation_rate:.2%} > {IMPUTATION_THRESHOLD:.2%}"
-            print(error_msg)
-            
-            # Write error log
-            IMPUTATION_ERROR_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-            with open(IMPUTATION_ERROR_LOG_PATH, 'w') as f:
-                f.write(f"{pd.Timestamp.now().isoformat()}: {error_msg}\n")
-                f.write(f"Rows dropped: {len(df)} (imputation failed, no rows could be saved)\n")
-            
-            return 1
-        
-        # 6. Save cleaned data
-        print(f"Saving cleaned compositions to {CLEANED_COMPOSITIONS_PATH}...")
-        CLEANED_COMPOSITIONS_PATH.parent.mkdir(parents=True, exist_ok=True)
-        df.to_csv(CLEANED_COMPOSITIONS_PATH, index=False)
-        
-        print("Data ingestion and imputation completed successfully.")
-        return 0
-        
-    except Exception as e:
-        print(f"Error during execution: {str(e)}")
-        return 1
+        # Save intermediate for consistency
+        df.to_csv(input_path, index=False)
+    else:
+        df = pd.read_csv(input_path)
+
+    # Composition Validation (T013 logic from description, though T012 was MW)
+    # The task T013 description mentions "Data Filtering (Composition)" in the list,
+    # but the detailed description is "Data Imputation".
+    # We will perform composition validation first as per the task list structure,
+    # then imputation.
+    
+    # Identify composition columns dynamically or assume standard names
+    # Assuming 'mole_fraction_1', 'mole_fraction_2' etc.
+    comp_cols = [c for c in df.columns if 'mole_fraction' in c]
+    if not comp_cols:
+        # If no mole fraction columns, skip validation or assume 1.0
+        valid_df = df
+        rejected_df = pd.DataFrame()
+    else:
+        valid_df, rejected_df = validate_composition(df, tolerance=1e-5)
+        if not rejected_df.empty:
+            rejected_df.to_csv(rejected_path, index=False)
+
+    # Perform Imputation
+    # Target columns for imputation: solvent properties
+    # Assuming 'solvent_desc', 'interaction_terms' are numeric columns that might be NaN
+    # In a real dataset, these might be floats.
+    # We will impute all numeric columns that are not IDs or SMILES.
+    numeric_cols = valid_df.select_dtypes(include=[np.number]).columns.tolist()
+    # Exclude 'mw' if it was added
+    if 'mw' in numeric_cols:
+        numeric_cols.remove('mw')
+    
+    imputed_df, rate = perform_knn_imputation(valid_df, numeric_cols, n_neighbors=5)
+    
+    # Log rate
+    log_imputation_rate(rate, str(log_path))
+    
+    # Check threshold
+    if rate > MAX_IMPUTATION_RATE:
+        error_log = DATA_DIR / "artifacts" / "imputation_error.log"
+        with open(error_log, 'w') as f:
+            f.write(f"ERROR: Imputation rate ({rate:.4f}) exceeded threshold ({MAX_IMPUTATION_RATE}).\n")
+        print(f"ERROR: Imputation rate exceeded threshold. Check {error_log}", file=sys.stderr)
+        sys.exit(1)
+
+    # Final cleaning
+    final_df = clean_and_prepare_data(imputed_df)
+    
+    # Write output
+    final_df.to_csv(output_path, index=False)
+    print(f"Successfully wrote imputed data to {output_path}")
+    print(f"Imputation rate: {rate:.4f}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

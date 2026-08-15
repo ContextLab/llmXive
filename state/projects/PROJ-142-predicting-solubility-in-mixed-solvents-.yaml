@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-142-predicting-solubility-in-mixed-solvents-
-last_run_id: 6685d2a8-5265-4073-a258-ef7fcd6023c7
+last_run_id: 743448b1-4ac2-4660-8696-33bc15fb0a1a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-142-predicting-solubility-in-mixed-solvents-/specs/001-predicting-solubility-in-mixed-solvents
 title: Predicting Solubility in Mixed Solvents with Machine Learning
-updated_at: '2026-08-13T22:00:56.892692Z'
+updated_at: '2026-08-15T19:58:15.906815Z'

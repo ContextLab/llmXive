@@ -4,10 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T009` (rejected 1x): declared artifact(s) missing/empty/invalid: tests/contract/test_schema_validation.py
-- `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: tests/integration/test_pipeline.py
-- `T012` (rejected 1x): The `data/processed/cleaned_compositions.csv` file does not exist, and the shown portion of `code/01_data_ingestion.py` is truncated before any logic that normalizes/rejects compositions and writes the filtered DataFrame to that path. Consequently, the required validation and output generation are not demonstrably implemented.
-- `T013` (rejected 1x): The required log file `data/artifacts/imputation_log.txt` does not exist, and the provided excerpt of `code/01_data_ingestion.py` shows no implementation of KNN imputation, row‑dropping on failure, or logging of the imputation rate. The task’s core functionality and artifact are missing.
+- `T018` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/solubility_features.csv
+- `T023` (rejected 1x): The required artifact `data/artifacts/trained_models.pkl` does not exist, and `code/04_evaluation.py` does not compute RMSE, MAE, or R² (it only computes absolute errors and a paired t‑test). Both the data dependency and the specified evaluation metrics are missing.
 
 ## Required change
 

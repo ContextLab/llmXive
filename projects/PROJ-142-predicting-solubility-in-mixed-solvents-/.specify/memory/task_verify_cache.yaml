@@ -13,36 +13,22 @@ T016:
     truncated before any such logic could appear. Moreover, the required output file
     `data/processed/solubility_features.csv` is absent, so no new columns have been
     appended. The task is therefore not fulfilled.
-T017b:
-  c: false
-  h: ec98883aea6a4fc12f56293bdad742973cfe03a02cb65e5ff29b05316e37ac9e
-  r: The required file `data/artifacts/pivot_decision.json` does not exist, so the
-    condition to trigger the task cannot be evaluated, and there is no evidence that
-    `tasks.md` was updated accordingly. Both the pivot decision artifact and the updated
-    task definitions are missing.
-T017c:
-  c: false
-  h: ec98883aea6a4fc12f56293bdad742973cfe03a02cb65e5ff29b05316e37ac9e
-  r: The required artifact `data/artifacts/pivot_decision.json` is missing, and there
-    is no evidence that `tasks.md` was updated to reflect a pivot decision. Consequently
-    the verification step cannot be performed as specified.
-T023:
-  c: false
-  h: d2cddf946add8bf275002921dea3ea8401003e1ad907bc3b5bd922e72b9eccc7
-  r: "The required artifact `data/artifacts/trained_models.pkl` does not exist, so\
-    \ the evaluation script cannot load any models. Moreover, the provided `code/04_evaluation.py`\
-    \ is truncated and does not show logic that iterates over all loaded models to\
-    \ compute RMSE, MAE, and R\xB2. Both the missing model file and the incomplete\
-    \ script prevent the task from being fulfilled."
 T024:
   c: false
-  h: 49d4776d30c1b411c12d2729b9d454c5301a74f8d92df7f6c051a37752bea81e
-  r: "The required artifact `data/artifacts/trained_models.pkl` does not exist, and\
-    \ the output file `data/artifacts/statistical_test_results.json` is also missing.\
-    \ Moreover, the provided `code/04_evaluation.py` does not contain a paired t\u2011\
-    test on absolute errors nor code to write the p\u2011value and t\u2011statistic\
-    \ to the JSON file. These core components must be added for the task to be considered\
-    \ complete."
+  h: 20b46ebbaf325b962926a8633b41a6b6c80e2f2dcf361f296aa7983a80e833ea
+  r: "The required artifact `data/artifacts/trained_models.pkl` does not exist, causing\
+    \ `load_models()` to raise a FileNotFoundError. Moreover, while `code/04_evaluation.py`\
+    \ defines a `perform_paired_ttest` function, it never actually reads the model,\
+    \ computes absolute errors from it, or invokes the test, so the paired\u2011t\u2011\
+    test implementation is not operational. The task\u2019s requirement is therefore\
+    \ unmet."
+T029:
+  c: false
+  h: 20b46ebbaf325b962926a8633b41a6b6c80e2f2dcf361f296aa7983a80e833ea
+  r: The required model artifact `data/artifacts/trained_models.pkl` does not exist,
+    and the `compute_shap_values` function in `code/04_evaluation.py` is incomplete
+    (truncated) and never reaches the SHAP computation or output step. Both the input
+    dependency and the SHAP implementation are therefore missing.
 T031:
   c: false
   h: aa9908f2c982791557715c253720c20ddd63e88698799e6595d1b734adaf1228
@@ -51,10 +37,11 @@ T031:
     \ is absent."
 T033:
   c: false
-  h: aa9908f2c982791557715c253720c20ddd63e88698799e6595d1b734adaf1228
-  r: "The required output file `data/artifacts/shap_ranking.json` is missing, so no\
-    \ Jaccard similarity metrics have been recorded. Without this artifact the task\u2019\
-    s deliverable is not present."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, notebook, or result output was provided that reads the sensitivity\u2011\
+    analysis results and computes the Jaccard similarity of the top\u20115 term sets\
+    \ across thresholds. The required artifact (e.g., a script/notebook and its computed\
+    \ similarity values) is missing, so the task is not satisfied."
 T034:
   c: false
   h: aa9908f2c982791557715c253720c20ddd63e88698799e6595d1b734adaf1228

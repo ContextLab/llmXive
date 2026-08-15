@@ -1,172 +1,162 @@
 """
-T025: Generate comparison report in data/artifacts/training_report.json.
+Generate comparison report for model training results.
 
-Reads trained models and statistical test results, calculates metrics,
-checks the R² > 0.70 threshold per Constitution Principle VII, and
-writes the final report.
+This script reads the evaluation metrics and statistical test results,
+then generates a comprehensive comparison report in JSON format.
 """
 import json
 import os
 import sys
 from pathlib import Path
-
-# Import from project API surface
 from utils.constants import DATA_DIR
 from utils.errors import CustomDataError
 
-# Ensure data directories exist
-ARTIFACTS_DIR = DATA_DIR / "artifacts"
-PROCESSED_DIR = DATA_DIR / "processed"
-ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 
-def load_pickle(path: Path):
-    """Safely load a pickle file."""
-    if not path.exists():
-        raise CustomDataError(f"Required artifact not found: {path}")
-    with open(path, "rb") as f:
-        return pickle.load(f)
+def load_pickle(filepath: Path) -> dict:
+    """Load a pickle file and return its contents."""
+    try:
+        with open(filepath, 'rb') as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        raise CustomDataError(f"File not found: {filepath}")
+    except Exception as e:
+        raise CustomDataError(f"Error loading pickle file {filepath}: {e}")
 
-def load_json(path: Path):
-    """Safely load a JSON file."""
-    if not path.exists():
-        raise CustomDataError(f"Required artifact not found: {path}")
-    with open(path, "r") as f:
-        return json.load(f)
 
-def calculate_absolute_r2_threshold(metrics: dict, threshold: float = 0.70) -> dict:
+def load_json(filepath: Path) -> dict:
+    """Load a JSON file and return its contents."""
+    try:
+        with open(filepath, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise CustomDataError(f"File not found: {filepath}")
+    except json.JSONDecodeError as e:
+        raise CustomDataError(f"Invalid JSON in {filepath}: {e}")
+
+
+def calculate_absolute_r2_threshold(metrics: dict, threshold: float = 0.70) -> bool:
     """
-    Check if the absolute R² > 0.70 threshold is met per Constitution VII.
-    
-    Returns a dict with the check result and details.
-    """
-    r2 = metrics.get("r2", 0.0)
-    abs_r2 = abs(r2)
-    passed = abs_r2 > threshold
-    
-    return {
-        "threshold": threshold,
-        "absolute_r2": abs_r2,
-        "passed": passed,
-        "message": f"R² threshold check (|R²| > {threshold}): {'PASSED' if passed else 'FAILED'}"
-    }
+    Check if the R² metric exceeds the absolute threshold.
 
-def generate_report(models_data: dict, stats_results: dict):
-    """
-    Generate the final comparison report.
-    
     Args:
-        models_data: Dict containing model metrics (RMSE, MAE, R²) per model.
-        stats_results: Dict containing statistical test results (p-values, etc.).
+        metrics: Dictionary containing evaluation metrics.
+        threshold: Minimum acceptable R² value (default 0.70).
+
+    Returns:
+        True if R² > threshold, False otherwise.
     """
+    r2 = metrics.get('r2', 0.0)
+    return r2 > threshold
+
+
+def generate_report(metrics: dict, stat_results: dict, models_info: dict) -> dict:
+    """
+    Generate a comprehensive comparison report.
+
+    Args:
+        metrics: Evaluation metrics dictionary.
+        stat_results: Statistical test results dictionary.
+        models_info: Information about trained models.
+
+    Returns:
+        Dictionary containing the comparison report.
+    """
+    # Determine if the model comparison is statistically significant
+    p_value = stat_results.get('p_value', 1.0)
+    is_significant = p_value < 0.05
+
+    # Determine if R² gate passes
+    r2_pass = calculate_absolute_r2_threshold(metrics)
+
+    # Build the report
     report = {
-        "status": "completed",
-        "threshold_check": {},
-        "model_metrics": {},
-        "statistical_significance": {},
-        "constitution_vii_compliance": {}
-    }
-
-    # Process model metrics and check thresholds
-    for model_name, metrics in models_data.items():
-        report["model_metrics"][model_name] = metrics
-        
-        # Explicit check for R² > 0.70 (Constitution VII)
-        threshold_result = calculate_absolute_r2_threshold(metrics)
-        report["threshold_check"][model_name] = threshold_result
-
-    # Incorporate statistical significance
-    report["statistical_significance"] = stats_results
-
-    # Summarize Constitution VII compliance
-    all_passed = all(
-        data["passed"] 
-        for data in report["threshold_check"].values()
-    )
-    report["constitution_vii_compliance"] = {
-        "all_models_pass_threshold": all_passed,
-        "threshold": 0.70,
-        "details": report["threshold_check"]
+        "report_type": "model_comparison",
+        "generated_at": None,  # Will be set by caller if needed
+        "metrics_summary": {
+            "rmse": metrics.get('rmse', None),
+            "r2": metrics.get('r2', None),
+            "mae": metrics.get('mae', None)
+        },
+        "statistical_significance": {
+            "test_type": "paired_t_test",
+            "p_value": p_value,
+            "is_significant": is_significant,
+            "alpha": 0.05,
+            "conclusion": "XGBoost significantly outperforms Abraham baseline" if is_significant else "No significant difference between models"
+        },
+        "model_comparison": {
+            "xgboost": {
+                "rmse": models_info.get('xgboost_rmse', None),
+                "r2": models_info.get('xgboost_r2', None)
+            },
+            "abraham_baseline": {
+                "rmse": models_info.get('abraham_rmse', None),
+                "r2": models_info.get('abraham_r2', None)
+            }
+        },
+        "gate_results": {
+            "r2_gate": "PASS" if r2_pass else "FAIL",
+            "statistical_gate": "PASS" if is_significant else "FAIL"
+        },
+        "recommendation": "Proceed with XGBoost model" if (r2_pass and is_significant) else "Re-evaluate model strategy"
     }
 
     return report
 
+
 def main():
-    """Main entry point for T025."""
+    """Main entry point for generating the comparison report."""
+    # Define paths
+    metrics_path = DATA_DIR / "artifacts" / "evaluation_metrics.json"
+    stat_results_path = DATA_DIR / "artifacts" / "statistical_test_results.json"
+    models_path = DATA_DIR / "artifacts" / "trained_models.pkl"
+    report_path = DATA_DIR / "artifacts" / "training_report.json"
+
+    # Ensure artifacts directory exists
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
     try:
-        # 1. Load trained models and metrics (produced by T021/T022/T023)
-        models_path = ARTIFACTS_DIR / "trained_models.pkl"
-        if not models_path.exists():
-            # Fallback: Check if 03_model_training.py generated a specific metrics file
-            # or if we need to re-run evaluation logic. 
-            # For T025, we assume 03_model_training.py or 04_evaluation.py 
-            # has already saved the metrics in a structured way or the pkl contains them.
-            # Let's assume the pkl contains a dict: {'models': {...}, 'metrics': {...}}
-            # If not, we might need to re-evaluate. 
-            # Given T023/024 existence, let's assume a metrics summary exists or is in the pkl.
-            # If strictly following the flow, 03_model_training.py usually saves the report.
-            # Let's try to load the report if it exists, otherwise load pkl.
-            pass 
-        
-        # Attempt to load the report generated by T023/T024 if available, 
-        # otherwise construct from pkl.
-        # The task T023 says "write statistical test results to ...statistical_test_results.json"
-        # T021/T022 save models to pkl.
-        
-        # Let's assume 03_model_training.py saved a 'model_metrics.json' or similar,
-        # or we extract from the pkl.
-        # To be robust, we check for the pkl first.
-        import pickle
-        
-        with open(models_path, "rb") as f:
-            models_pkg = pickle.load(f)
-        
-        # Expecting structure: {'models': {...}, 'metrics': {...}}
-        # If 'metrics' is missing, we might need to re-run evaluation logic.
-        # Assuming T023/024 logic was run and saved results.
-        
-        # If the pkl contains the metrics directly:
-        if "metrics" in models_pkg:
-            models_metrics = models_pkg["metrics"]
-        elif isinstance(models_pkg, dict) and all(isinstance(v, dict) for v in models_pkg.values()):
-            # Fallback: assume keys are model names and we need to calculate metrics or they are stored
-            # This is risky without knowing exact structure. 
-            # Let's assume the standard output of 03_model_training.py includes a metrics dict.
-            # If not, we raise an error as T025 depends on T023/024.
-            raise CustomDataError("Model metrics not found in trained_models.pkl. Ensure T023/T024 ran successfully.")
-        else:
-             raise CustomDataError("Unexpected format in trained_models.pkl")
+        # Load evaluation metrics
+        print(f"Loading metrics from {metrics_path}...")
+        metrics = load_json(metrics_path)
 
-        # Load statistical test results from T024
-        stats_path = ARTIFACTS_DIR / "statistical_test_results.json"
-        if stats_path.exists():
-            stats_results = load_json(stats_path)
-        else:
-            # If T024 hasn't run, we can't generate the full report with stats.
-            # We proceed with model metrics but note missing stats.
-            stats_results = {
-                "status": "missing",
-                "message": "statistical_test_results.json not found. T024 may not have run."
-            }
+        # Load statistical test results
+        print(f"Loading statistical results from {stat_results_path}...")
+        stat_results = load_json(stat_results_path)
 
-        # 2. Generate the report
-        final_report = generate_report(models_metrics, stats_results)
+        # Load trained models info (we only need metrics from here)
+        print(f"Loading model info from {models_path}...")
+        models_data = load_pickle(models_path)
 
-        # 3. Write to data/artifacts/training_report.json
-        output_path = ARTIFACTS_DIR / "training_report.json"
-        with open(output_path, "w") as f:
-            json.dump(final_report, f, indent=2)
+        # Extract model-specific metrics from the loaded data
+        # Assuming models_data contains 'metrics' key with model breakdown
+        models_info = {
+            'xgboost_rmse': models_data.get('metrics', {}).get('xgboost', {}).get('rmse'),
+            'xgboost_r2': models_data.get('metrics', {}).get('xgboost', {}).get('r2'),
+            'abraham_rmse': models_data.get('metrics', {}).get('abraham', {}).get('rmse'),
+            'abraham_r2': models_data.get('metrics', {}).get('abraham', {}).get('r2')
+        }
 
-        print(f"Report generated successfully: {output_path}")
-        print(f"Constitution VII R² > 0.70 Check: {final_report['constitution_vii_compliance']['all_models_pass_threshold']}")
+        # Generate the report
+        print("Generating comparison report...")
+        report = generate_report(metrics, stat_results, models_info)
 
-        return 0
+        # Write the report to disk
+        with open(report_path, 'w') as f:
+            json.dump(report, f, indent=2)
 
-    except FileNotFoundError as e:
-        print(f"ERROR: Required file not found: {e}", file=sys.stderr)
-        return 1
+        print(f"Report successfully written to {report_path}")
+        print(f"R² Gate: {report['gate_results']['r2_gate']}")
+        print(f"Statistical Significance: {report['statistical_significance']['is_significant']} (p={stat_results.get('p_value', 'N/A')})")
+        print(f"Recommendation: {report['recommendation']}")
+
+    except CustomDataError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"ERROR: Failed to generate report: {e}", file=sys.stderr)
-        return 1
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

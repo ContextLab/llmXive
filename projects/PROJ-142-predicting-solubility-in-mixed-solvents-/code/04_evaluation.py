@@ -6,189 +6,201 @@ import numpy as np
 from pathlib import Path
 from scipy import stats
 
-# Import constants and error types from the project's utility modules
-# Assuming these are available in the PYTHONPATH when running from the project root
-try:
-    from utils.constants import DATA_DIR, ARTIFACTS_DIR
-    from utils.errors import CustomDataError
-except ImportError:
-    # Fallback for direct execution or different environment setup
-    # This block ensures the script can at least be imported syntactically
-    DATA_DIR = Path("data")
-    ARTIFACTS_DIR = DATA_DIR / "artifacts"
-    
-    class CustomDataError(Exception):
-        pass
+# Project root is one level up from code/
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+ARTIFACTS_DIR = DATA_DIR / "artifacts"
+PROCESSED_DIR = DATA_DIR / "processed"
 
 def load_test_data():
-    """
-    Loads the test set features and labels from the processed dataset.
-    Assumes the data has been split and saved by the training pipeline.
-    """
-    # The training script (03_model_training.py) is responsible for saving
-    # the test features and labels, or the main pipeline saves them.
-    # Based on T023, we expect the data to be available.
-    # For this implementation, we assume a standard split file exists.
-    test_data_path = ARTIFACTS_DIR / "test_features.pkl"
-    test_labels_path = ARTIFACTS_DIR / "test_labels.pkl"
-
-    if not test_data_path.exists() or not test_labels_path.exists():
-        # If split files don't exist, try loading the full processed dataset
-        # and assume the last 20% is the test set (re-splitting for demo purposes)
-        # In a real run, this should be handled by the training script.
-        full_data_path = DATA_DIR / "processed" / "solubility_features.csv"
-        if full_data_path.exists():
-            import pandas as pd
-            df = pd.read_csv(full_data_path)
-            # Simple split for fallback
-            split_idx = int(len(df) * 0.8)
-            test_df = df.iloc[split_idx:]
-            # Assuming 'logS' is the target column
-            X_test = test_df.drop(columns=['logS'])
-            y_test = test_df['logS']
-            return X_test, y_test
-        else:
-            raise FileNotFoundError(f"Test data not found at {test_data_path} or {full_data_path}")
-
-    with open(test_data_path, 'rb') as f:
-        X_test = pickle.load(f)
-    with open(test_labels_path, 'rb') as f:
-        y_test = pickle.load(f)
-    
-    return X_test, y_test
+    """Load the processed dataset used for evaluation."""
+    file_path = PROCESSED_DIR / "solubility_features.csv"
+    if not file_path.exists():
+        raise FileNotFoundError(f"Test data file not found: {file_path}")
+    import pandas as pd
+    return pd.read_csv(file_path)
 
 def load_models():
-    """
-    Loads the trained models from the artifacts directory.
-    """
-    models_path = ARTIFACTS_DIR / "trained_models.pkl"
-    if not models_path.exists():
-        raise FileNotFoundError(f"Trained models not found at {models_path}")
-    
-    with open(models_path, 'rb') as f:
-        models = pickle.load(f)
-    return models
+    """Load trained models and metrics from the training artifact."""
+    file_path = ARTIFACTS_DIR / "trained_models.pkl"
+    if not file_path.exists():
+        raise FileNotFoundError(f"Model artifact not found: {file_path}")
+    with open(file_path, 'rb') as f:
+        return pickle.load(f)
 
-def calculate_metrics(y_true, y_pred):
+def calculate_metrics(models, df):
     """
-    Calculates RMSE, MAE, and R² for a given set of predictions.
+    Calculate absolute errors for XGBoost and Abraham models.
+    Assumes the dataframe has 'logS' (true) and prediction columns.
     """
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
+    # Ensure we have predictions
+    if 'logS_pred_xgboost' not in df.columns or 'logS_pred_abraham' not in df.columns:
+        raise ValueError("DataFrame must contain prediction columns: logS_pred_xgboost, logS_pred_abraham")
     
-    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
-    mae = np.mean(np.abs(y_true - y_pred))
-    ss_res = np.sum((y_true - y_pred) ** 2)
-    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
-    
+    y_true = df['logS'].values
+    y_pred_xgb = df['logS_pred_xgboost'].values
+    y_pred_abr = df['logS_pred_abraham'].values
+
+    abs_error_xgb = np.abs(y_true - y_pred_xgb)
+    abs_error_abr = np.abs(y_true - y_pred_abr)
+
     return {
-        "rmse": float(rmse),
-        "mae": float(mae),
-        "r2": float(r2)
+        'abs_error_xgboost': abs_error_xgb.tolist(),
+        'abs_error_abraham': abs_error_abr.tolist()
     }
 
-def evaluate_models(X_test, y_test, models):
+def perform_paired_ttest(abs_error_xgb, abs_error_abr, alpha=0.05):
     """
-    Evaluates all loaded models on the test set and returns predictions.
+    Perform a paired t-test on absolute errors per Constitution Principle VII.
+    Returns p-value, t-statistic, and a boolean indicating if the difference is significant.
     """
-    results = {}
-    predictions = {}
-    
-    for name, model in models.items():
-        try:
-            y_pred = model.predict(X_test)
-            predictions[name] = y_pred
-            results[name] = calculate_metrics(y_test, y_pred)
-        except Exception as e:
-            results[name] = {"error": str(e)}
-            predictions[name] = None
-            
-    return results, predictions
-
-def save_results(results, predictions, output_path):
-    """
-    Saves the evaluation results and statistical test results to JSON.
-    Implements T024: Paired t-test on absolute errors.
-    """
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Prepare statistical test results
-    statistical_tests = {}
-    
-    # Identify model pairs for comparison (e.g., XGBoost vs Random Forest)
-    model_names = list(predictions.keys())
-    valid_models = [m for m in model_names if predictions[m] is not None]
-    
-    if len(valid_models) >= 2:
-        # Perform paired t-test between the first two valid models
-        # as a representative comparison (or all pairs if needed)
-        # Per T024: "paired t-test on absolute errors"
-        m1_name = valid_models[0]
-        m2_name = valid_models[1]
-        
-        y_true = np.array(y_test)
-        err1 = np.abs(y_true - predictions[m1_name])
-        err2 = np.abs(y_true - predictions[m2_name])
-        
-        # Perform paired t-test
-        t_stat, p_value = stats.ttest_rel(err1, err2)
-        
-        statistical_tests[f"{m1_name}_vs_{m2_name}"] = {
-            "t_statistic": float(t_stat),
-            "p_value": float(p_value),
-            "significant_at_0.05": bool(p_value < 0.05),
-            "method": "paired_t_test_absolute_errors"
-        }
-    else:
-        statistical_tests["error"] = "Not enough valid models to perform paired t-test"
-
-    # Combine all results
-    final_output = {
-        "metrics": results,
-        "statistical_tests": statistical_tests,
-        "constitutional_principle": "VII (Paired t-test overrides FR-005 Wilcoxon)"
+    t_stat, p_value = stats.ttest_rel(abs_error_xgb, abs_error_abr)
+    significant = p_value < alpha
+    return {
+        't_statistic': float(t_stat),
+        'p_value': float(p_value),
+        'alpha': alpha,
+        'is_significant': significant,
+        'method': 'paired_t_test',
+        'hypothesis': 'Constitution Principle VII: Paired t-test on absolute errors'
     }
+
+def compute_shap_values():
+    """
+    Compute SHAP values for the best model using a background sample.
+    Reads 'best_model' from trained_models.pkl and samples 100 rows from solubility_features.csv.
+    Writes SHAP values to data/artifacts/shap_values.npy.
+    """
+    try:
+        import shap
+        import pandas as pd
+    except ImportError as e:
+        print(f"ERROR: Required library 'shap' not installed. Please install it via requirements.txt.", file=sys.stderr)
+        sys.exit(1)
+
+    print("Loading test data for SHAP background sample...")
+    df = load_test_data()
+
+    print("Loading trained models...")
+    models = load_models()
+
+    if 'best_model' not in models:
+        raise KeyError("Key 'best_model' not found in trained_models.pkl. Ensure T021/T022 completed successfully.")
+
+    best_model = models['best_model']
+
+    # Determine feature columns (exclude target and non-feature columns if any)
+    # Assuming the dataset has a specific set of feature columns used during training.
+    # We need to identify these. Usually, the last column is the target 'logS'.
+    feature_cols = [col for col in df.columns if col not in ['logS', 'solute_smiles', 'solvent_smiles']]
+    
+    if not feature_cols:
+        # Fallback: assume all except 'logS' are features
+        feature_cols = [col for col in df.columns if col != 'logS']
+
+    X = df[feature_cols].values
+    y = df['logS'].values
+
+    # Sample 100 rows for background data as per task requirement
+    n_samples = min(100, X.shape[0])
+    if n_samples < 10:
+        print("WARNING: Dataset too small for meaningful SHAP background sampling.", file=sys.stderr)
+        n_samples = X.shape[0]
+    
+    np.random.seed(42) # Use constant seed for reproducibility
+    indices = np.random.choice(X.shape[0], n_samples, replace=False)
+    background_data = X[indices]
+
+    print(f"Computing SHAP values for {n_samples} background samples...")
+    
+    # Initialize SHAP explainer
+    # For tree-based models (XGBoost/RF), TreeExplainer is preferred
+    try:
+        explainer = shap.TreeExplainer(best_model)
+        shap_values = explainer.shap_values(X)
+    except Exception as e:
+        print(f"Error initializing TreeExplainer: {e}. Falling back to KernelExplainer.", file=sys.stderr)
+        # Fallback for non-tree models or if TreeExplainer fails
+        explainer = shap.KernelExplainer(best_model.predict, background_data)
+        shap_values = explainer.shap_values(X, nsamples=100)
+
+    # Handle output format for binary classification (if applicable) vs regression
+    # For regression, shap_values is usually (n_samples, n_features)
+    if isinstance(shap_values, list):
+        # If list (e.g., multi-class), take the first or relevant class
+        shap_values = shap_values[0] if len(shap_values) > 0 else np.array([])
+    
+    shap_values = np.array(shap_values)
+
+    output_path = ARTIFACTS_DIR / "shap_values.npy"
+    print(f"Saving SHAP values to {output_path}...")
+    np.save(output_path, shap_values)
+
+    print(f"SHAP computation completed. Shape: {shap_values.shape}")
+    return shap_values
+
+def evaluate_models():
+    """
+    Main evaluation function:
+    1. Load data and models.
+    2. Calculate absolute errors.
+    3. Perform paired t-test.
+    4. Compute SHAP values (T029).
+    5. Save results.
+    """
+    print("Loading test data...")
+    df = load_test_data()
+    
+    print("Loading trained models...")
+    models = load_models()
+    
+    print("Calculating metrics...")
+    metrics = calculate_metrics(models, df)
+    
+    print("Performing paired t-test (Constitution Principle VII)...")
+    ttest_results = perform_paired_ttest(
+        metrics['abs_error_xgboost'], 
+        metrics['abs_error_abraham']
+    )
+    
+    output_path = ARTIFACTS_DIR / "statistical_test_results.json"
+    print(f"Saving statistical test results to {output_path}...")
     
     with open(output_path, 'w') as f:
-        json.dump(final_output, f, indent=2)
+        json.dump(ttest_results, f, indent=2)
+    
+    print(f"Results saved. P-value: {ttest_results['p_value']:.4f}, Significant: {ttest_results['is_significant']}")
+
+    # --- T029: SHAP Computation ---
+    print("\n--- Starting T029: SHAP Value Computation ---")
+    try:
+        compute_shap_values()
+        print("T029 completed successfully.")
+    except Exception as e:
+        print(f"ERROR during T029 (SHAP computation): {e}", file=sys.stderr)
+        # Do not fail the whole script if SHAP fails, but log it clearly
+        # However, per task requirement, we must write the artifact.
+        # If it fails to compute, we cannot write a valid artifact.
+        # We let the exception propagate or exit if critical.
+        sys.exit(1)
+    
+    return ttest_results
+
+def save_results(results):
+    """Helper to save results if called externally."""
+    output_path = ARTIFACTS_DIR / "statistical_test_results.json"
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
 
 def main():
-    """
-    Main entry point for the evaluation script.
-    """
-    print("Starting Evaluation Phase...")
-    
+    """Entry point for the script."""
     try:
-        # Load data and models
-        X_test, y_test = load_test_data()
-        models = load_models()
-        
-        # Evaluate models
-        results, predictions = evaluate_models(X_test, y_test, models)
-        
-        # Save results including statistical tests (T024)
-        output_path = ARTIFACTS_DIR / "statistical_test_results.json"
-        save_results(results, predictions, output_path)
-        
-        print(f"Evaluation complete. Results saved to {output_path}")
-        
-        # Print summary
-        for model_name, metrics in results.items():
-            if "error" not in metrics:
-                print(f"Model: {model_name}")
-                print(f"  RMSE: {metrics['rmse']:.4f}")
-                print(f"  R²: {metrics['r2']:.4f}")
-        
-        if statistical_tests := results.get("statistical_tests"): # type: ignore
-           print("Statistical Tests:")
-           for pair, stats_data in statistical_tests.items():
-               print(f"  {pair}: p={stats_data['p_value']:.4f}, t={stats_data['t_statistic']:.4f}")
-               
+        results = evaluate_models()
+        print("Evaluation completed successfully.")
+        sys.exit(0)
     except Exception as e:
         print(f"Error during evaluation: {e}", file=sys.stderr)
-        raise
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

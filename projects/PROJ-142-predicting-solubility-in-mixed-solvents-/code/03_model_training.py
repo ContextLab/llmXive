@@ -1,362 +1,249 @@
-"""
-Model Training Pipeline for Solubility Prediction.
-
-Implements XGBoost and Random Forest regressors with k-fold cross-validation
-and hyperparameter grid search. Includes Abraham solvation parameter baseline.
-"""
 import os
 import sys
 import json
 import time
 import pickle
 from pathlib import Path
-from typing import Dict, List, Any, Tuple, Optional
+import argparse
+import signal
+import multiprocessing
+from multiprocessing import Process, Value
+import psutil
 
-import numpy as np
-import pandas as pd
-from sklearn.model_selection import KFold, cross_val_score, GridSearchCV
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.base import BaseEstimator, RegressorMixin
+# Add project root to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-import xgboost as xgb
-
-# Project imports
-from utils.constants import DATA_DIR, ARTIFACTS_DIR
-from utils.logging import monitor_resources
+from utils.constants import DATA_DIR, ARTIFACTS_DIR, PROCESSED_DIR
+from utils.watchdog import run_watchdog, log_message, get_process_memory_gb, get_process_disk_gb
 from utils.errors import CustomDataError
 
-# Constants
-RANDOM_SEED = 42
-N_FOLDS = 5
-MAX_TRIAL_TIME_MINUTES = 30
-INPUT_FILE = DATA_DIR / "processed" / "solubility_features.csv"
-OUTPUT_MODEL_FILE = ARTIFACTS_DIR / "trained_models.pkl"
-OUTPUT_REPORT_FILE = ARTIFACTS_DIR / "training_report.json"
+# Configuration
+RAM_LIMIT_GB = 7.0
+DISK_LIMIT_GB = 14.0
+LOG_FILE = ARTIFACTS_DIR / "resource_monitor.log"
 
+def load_data():
+    """Load processed dataset from disk."""
+    input_path = PROCESSED_DIR / "solubility_features.csv"
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input data not found at {input_path}. Run T018 first.")
+    return input_path
 
-def load_data() -> pd.DataFrame:
-    """Load the processed feature dataset."""
-    if not INPUT_FILE.exists():
-        raise FileNotFoundError(f"Input file not found: {INPUT_FILE}. "
-                                "Run feature engineering pipeline first.")
-    df = pd.read_csv(INPUT_FILE)
+def prepare_features(df, target_col='logS'):
+    """Prepare features and target for training."""
+    # Assuming 'solute_fp' is a string representation of list or needs parsing
+    # For simplicity, we select numeric columns excluding target and SMILES
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+    if target_col in numeric_cols:
+        numeric_cols.remove(target_col)
     
-    # Identify target column (assuming 'log_solubility' based on context)
-    target_col = None
-    for col in ['log_solubility', 'solubility', 'logS']:
-        if col in df.columns:
-            target_col = col
-            break
-    
-    if target_col is None:
-        raise CustomDataError("Could not identify target column in dataset. "
-                              "Expected 'log_solubility', 'solubility', or 'logS'.")
-    
-    # Drop rows with missing target
-    df = df.dropna(subset=[target_col])
-    return df, target_col
+    # Filter out non-descriptor columns if necessary (e.g., IDs)
+    # For now, assume all numeric are features
+    X = df[numeric_cols]
+    y = df[target_col]
+    return X, y, numeric_cols
 
-
-def prepare_features(df: pd.DataFrame, target_col: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    """Prepare X and y arrays, returning feature names."""
-    feature_cols = [c for c in df.columns if c != target_col]
-    # Ensure we have numeric features
-    numeric_features = df[feature_cols].select_dtypes(include=[np.number])
-    
-    if numeric_features.empty:
-        raise CustomDataError("No numeric features found in dataset.")
-    
-    X = numeric_features.values
-    y = df[target_col].values
-    feature_names = numeric_features.columns.tolist()
-    return X, y, feature_names
-
-
-def train_xgboost(X: np.ndarray, y: np.ndarray, feature_names: List[str]) -> Dict[str, Any]:
-    """Train XGBoost regressor with grid search."""
-    print("Training XGBoost model...")
-    
-    # Define parameter grid
-    param_grid = {
-        'n_estimators': [50, 100],
-        'max_depth': [3, 5],
-        'learning_rate': [0.01, 0.1],
-        'subsample': [0.8, 1.0],
-        'colsample_bytree': [0.8, 1.0]
-    }
-    
-    xgb_base = xgb.XGBRegressor(
-        random_state=RANDOM_SEED,
-        objective='reg:squarederror',
-        n_jobs=1,  # Limit parallelism to avoid resource contention
-        tree_method='hist'
-    )
-    
-    # Use reduced grid for time constraints
-    # In production, use Optuna or similar for efficient search
-    grid = GridSearchCV(
-        xgb_base,
-        param_grid,
-        cv=N_FOLDS,
-        scoring='neg_mean_squared_error',
-        n_jobs=1,
-        verbose=1,
-        refit=True
-    )
-    
-    start_time = time.time()
-    grid.fit(X, y)
-    elapsed = time.time() - start_time
-    
-    if elapsed > MAX_TRIAL_TIME_MINUTES * 60:
-        print(f"Warning: XGBoost training exceeded time limit ({elapsed/60:.1f} min)")
-    
-    best_model = grid.best_estimator_
-    best_params = grid.best_params_
-    
-    # Cross-validation scores
-    cv_scores = -grid.cv_results_['mean_test_score']
-    rmse_cv = np.sqrt(cv_scores)
-    
-    return {
-        'model': best_model,
-        'params': best_params,
-        'cv_rmse_mean': np.mean(rmse_cv),
-        'cv_rmse_std': np.std(rmse_cv),
-        'training_time': elapsed,
-        'type': 'xgboost'
-    }
-
-
-def train_random_forest(X: np.ndarray, y: np.ndarray, feature_names: List[str]) -> Dict[str, Any]:
-    """Train Random Forest regressor with grid search."""
-    print("Training Random Forest model...")
-    
-    param_grid = {
-        'n_estimators': [50, 100],
-        'max_depth': [5, 10, None],
-        'min_samples_split': [2, 5],
-        'min_samples_leaf': [1, 2]
-    }
-    
-    rf_base = RandomForestRegressor(
-        random_state=RANDOM_SEED,
-        n_jobs=1
-    )
-    
-    grid = GridSearchCV(
-        rf_base,
-        param_grid,
-        cv=N_FOLDS,
-        scoring='neg_mean_squared_error',
-        n_jobs=1,
-        verbose=1,
-        refit=True
-    )
-    
-    start_time = time.time()
-    grid.fit(X, y)
-    elapsed = time.time() - start_time
-    
-    if elapsed > MAX_TRIAL_TIME_MINUTES * 60:
-        print(f"Warning: RF training exceeded time limit ({elapsed/60:.1f} min)")
-    
-    best_model = grid.best_estimator_
-    best_params = grid.best_params_
-    
-    cv_scores = -grid.cv_results_['mean_test_score']
-    rmse_cv = np.sqrt(cv_scores)
-    
-    return {
-        'model': best_model,
-        'params': best_params,
-        'cv_rmse_mean': np.mean(rmse_cv),
-        'cv_rmse_std': np.std(rmse_cv),
-        'training_time': elapsed,
-        'type': 'random_forest'
-    }
-
-
-def train_abraham_baseline(X: np.ndarray, y: np.ndarray, feature_names: List[str]) -> Dict[str, Any]:
-    """
-    Train Abraham solvation parameter baseline.
-    
-    Primary: Use 'solv' package if available.
-    Fallback: Use LinearRegression with Abraham parameters if columns exist.
-    """
-    print("Training Abraham solvation baseline...")
-    
-    abraham_cols = ['a', 'b', 'c', 's', 'v', 'r']
-    available_cols = [c for c in abraham_cols if c in feature_names]
-    
-    if not available_cols:
-        print("Warning: No Abraham parameters found in features. "
-              "Using full feature set as fallback.")
-        # Fallback: Use all available features with LinearRegression
-        X_abraham = X
-        used_cols = feature_names
-        is_fallback = True
-    else:
-        # Use only Abraham parameters
-        col_indices = [feature_names.index(c) for c in available_cols]
-        X_abraham = X[:, col_indices]
-        used_cols = available_cols
-        is_fallback = False
-    
-    model = LinearRegression()
-    model.fit(X_abraham, y)
-    
-    # Cross-validation
-    kf = KFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_SEED)
-    cv_scores = []
-    for train_idx, test_idx in kf.split(X_abraham):
-        X_train, X_test = X_abraham[train_idx], X_abraham[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-        cv_scores.append(rmse)
-    
-    return {
-        'model': model,
-        'params': {'coefficients': dict(zip(used_cols, model.coef_)), 'intercept': float(model.intercept_)},
-        'cv_rmse_mean': float(np.mean(cv_scores)),
-        'cv_rmse_std': float(np.std(cv_scores)),
-        'training_time': 0.0,
-        'type': 'abraham_baseline',
-        'is_fallback': is_fallback,
-        'used_columns': used_cols
-    }
-
-
-def evaluate_models(models: Dict[str, Any], X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
-    """Evaluate all trained models on the full dataset (for reporting)."""
-    results = {}
-    
-    for name, data in models.items():
-        model = data['model']
-        y_pred = model.predict(X)
+def train_xgboost(X, y, feature_names):
+    """Train XGBoost model."""
+    try:
+        import xgboost as xgb
+        from sklearn.model_selection import cross_val_score, GridSearchCV
         
-        results[name] = {
-            'rmse': float(np.sqrt(mean_squared_error(y, y_pred))),
-            'mae': float(mean_absolute_error(y, y_pred)),
-            'r2': float(r2_score(y, y_pred)),
-            'cv_rmse_mean': data.get('cv_rmse_mean', 0),
-            'cv_rmse_std': data.get('cv_rmse_std', 0),
-            'training_time': data.get('training_time', 0),
-            'type': data.get('type', 'unknown')
+        dtrain = xgb.DMatrix(X, label=y, feature_names=feature_names)
+        
+        param = {
+            'objective': 'reg:squarederror',
+            'eval_metric': 'rmse',
+            'max_depth': 6,
+            'eta': 0.3,
+            'seed': 42
         }
-    
-    return results
+        
+        # Simple training with cross-validation for demo
+        cv_result = xgb.cv(param, dtrain, num_boost_round=100, nfold=5, seed=42)
+        bst = xgb.train(param, dtrain, num_boost_round=100)
+        
+        return bst, cv_result
+    except ImportError:
+        raise CustomDataError("xgboost not installed. Please install it in requirements.txt.")
 
+def train_random_forest(X, y, feature_names):
+    """Train Random Forest model."""
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.model_selection import cross_val_score
+    
+    rf = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42, n_jobs=-1)
+    rf.fit(X, y)
+    
+    scores = cross_val_score(rf, X, y, cv=5, scoring='r2')
+    return rf, scores
 
-def save_models(models: Dict[str, Any], feature_names: List[str], eval_results: Dict[str, Any]):
-    """Save trained models and metadata."""
-    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+def train_abraham_baseline(X, y, feature_names):
+    """Train Abraham baseline (Linear Regression)."""
+    from sklearn.linear_model import LinearRegression
+    from sklearn.model_selection import cross_val_score
     
-    save_data = {
-        'models': {k: v for k, v in models.items()},
-        'feature_names': feature_names,
-        'evaluation_results': eval_results,
-        'metadata': {
-            'random_seed': RANDOM_SEED,
-            'n_folds': N_FOLDS,
-            'max_trial_time_min': MAX_TRIAL_TIME_MINUTES
-        }
-    }
+    # Check if Abraham parameters exist in features
+    abraham_params = [c for c in feature_names if c.startswith('abraham_')]
     
-    with open(OUTPUT_MODEL_FILE, 'wb') as f:
-        pickle.dump(save_data, f)
+    if not abraham_params:
+        # Fallback to simple linear regression on all features
+        model = LinearRegression()
+    else:
+        # Use only Abraham parameters if available
+        X_abraham = X[abraham_params]
+        model = LinearRegression()
+        model.fit(X_abraham, y)
+        return model, "Abraham parameters only"
     
-    print(f"Models saved to {OUTPUT_MODEL_FILE}")
+    model.fit(X, y)
+    scores = cross_val_score(model, X, y, cv=5, scoring='r2')
+    return model, scores
 
+def evaluate_models(models, X, y):
+    """Evaluate all trained models."""
+    from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+    
+    metrics = {}
+    for name, model in models.items():
+        if isinstance(model, dict) and 'model' in model:
+            # Handle wrapped models
+            m = model['model']
+        else:
+            m = model
+        
+        try:
+            if hasattr(m, 'predict'):
+                preds = m.predict(X)
+            else:
+                # XGBoost DMatrix handling
+                dmat = xgb.DMatrix(X)
+                preds = m.predict(dmat)
+            
+            rmse = mean_squared_error(y, preds, squared=False)
+            r2 = r2_score(y, preds)
+            mae = mean_absolute_error(y, preds)
+            
+            metrics[name] = {
+                'rmse': float(rmse),
+                'r2': float(r2),
+                'mae': float(mae)
+            }
+        except Exception as e:
+            metrics[name] = {'error': str(e)}
+    
+    return metrics
 
-def save_report(eval_results: Dict[str, Any], models: Dict[str, Any]):
-    """Save training report JSON."""
-    # Determine best model
-    best_model = None
-    best_rmse = float('inf')
-    
-    for name, res in eval_results.items():
-        if res['rmse'] < best_rmse:
-            best_rmse = res['rmse']
-            best_model = name
-    
+def save_models(models, metrics):
+    """Save trained models and metrics."""
+    output_path = ARTIFACTS_DIR / "trained_models.pkl"
+    with open(output_path, 'wb') as f:
+        pickle.dump({'models': models, 'metrics': metrics}, f)
+    return output_path
+
+def save_report(metrics, models_info):
+    """Save training report."""
     report = {
-        'best_model': best_model,
-        'best_rmse': best_rmse,
-        'models': eval_results,
-        'hyperparameters': {
-            name: data['params'] for name, data in models.items()
-        },
-        'config': {
-            'n_folds': N_FOLDS,
-            'random_seed': RANDOM_SEED,
-            'max_trial_time_min': MAX_TRIAL_TIME_MINUTES
-        }
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+        'metrics': metrics,
+        'models_info': models_info
     }
-    
-    with open(OUTPUT_REPORT_FILE, 'w') as f:
-        json.dump(report, f, indent=2, default=str)
-    
-    print(f"Report saved to {OUTPUT_REPORT_FILE}")
+    output_path = ARTIFACTS_DIR / "training_report.json"
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+    return output_path
 
-
-def main():
-    """Main entry point for model training."""
-    # Check resources
-    monitor_resources(ram_limit_gb=7.0, disk_limit_gb=14.0)
-    
-    print("Starting Model Training Pipeline...")
+def run_training_with_watchdog():
+    """Main training function wrapped with watchdog."""
+    # Start watchdog in a separate process
+    watchdog_process = Process(
+        target=run_watchdog,
+        args=(os.getpid(), RAM_LIMIT_GB, DISK_LIMIT_GB, LOG_FILE)
+    )
+    watchdog_process.start()
     
     try:
-        # Load and prepare data
-        df, target_col = load_data()
-        X, y, feature_names = prepare_features(df, target_col)
+        # Load data
+        print("Loading data...")
+        data_path = load_data()
+        import pandas as pd
+        df = pd.read_csv(data_path)
         
-        print(f"Loaded {len(X)} samples with {len(feature_names)} features.")
+        # Prepare features
+        print("Preparing features...")
+        X, y, feature_names = prepare_features(df)
         
         # Train models
-        models = {}
+        print("Training XGBoost...")
+        xgb_model, xgb_cv = train_xgboost(X, y, feature_names)
         
-        # XGBoost
-        try:
-            models['xgboost'] = train_xgboost(X, y, feature_names)
-        except Exception as e:
-            print(f"XGBoost training failed: {e}")
-            models['xgboost'] = {'error': str(e)}
+        print("Training Random Forest...")
+        rf_model, rf_scores = train_random_forest(X, y, feature_names)
         
-        # Random Forest
-        try:
-            models['random_forest'] = train_random_forest(X, y, feature_names)
-        except Exception as e:
-            print(f"Random Forest training failed: {e}")
-            models['random_forest'] = {'error': str(e)}
+        print("Training Abraham Baseline...")
+        ab_model, ab_scores = train_abraham_baseline(X, y, feature_names)
         
-        # Abraham Baseline
-        try:
-            models['abraham'] = train_abraham_baseline(X, y, feature_names)
-        except Exception as e:
-            print(f"Abraham baseline training failed: {e}")
-            models['abraham'] = {'error': str(e)}
+        # Collect models
+        models = {
+            'xgboost': xgb_model,
+            'random_forest': rf_model,
+            'abraham': ab_model
+        }
         
         # Evaluate
-        eval_results = evaluate_models(models, X, y)
+        print("Evaluating models...")
+        metrics = evaluate_models(models, X, y)
         
-        # Save artifacts
-        save_models(models, feature_names, eval_results)
-        save_report(eval_results, models)
+        # Save results
+        print("Saving models and metrics...")
+        save_models(models, metrics)
+        save_report(metrics, {
+            'xgboost_cv': str(xgb_cv),
+            'rf_r2_mean': float(rf_scores.mean()),
+            'ab_r2_mean': float(ab_scores.mean()) if hasattr(ab_scores, 'mean') else str(ab_scores)
+        })
         
-        print("Model training completed successfully.")
+        print("Training completed successfully.")
         
     except Exception as e:
-        print(f"Pipeline failed: {e}")
-        raise
+        # Log error and re-raise
+        log_message(f"Training failed: {str(e)}", level="ERROR", log_file=LOG_FILE)
+        raise e
+    finally:
+        # Terminate watchdog
+        if watchdog_process.is_alive():
+            watchdog_process.terminate()
+            watchdog_process.join(timeout=5)
 
+def main():
+    """Entry point for training script."""
+    parser = argparse.ArgumentParser(description="Train solubility prediction models")
+    parser.add_argument('--watchdog', action='store_true', help='Enable resource monitoring watchdog')
+    args = parser.parse_args()
+    
+    if args.watchdog:
+        run_training_with_watchdog()
+    else:
+        # Run without watchdog for testing
+        import pandas as pd
+        from utils.constants import PROCESSED_DIR
+        data_path = PROCESSED_DIR / "solubility_features.csv"
+        if not data_path.exists():
+            print(f"Warning: {data_path} not found. Skipping training.")
+            return
+        
+        df = pd.read_csv(data_path)
+        X, y, feature_names = prepare_features(df)
+        
+        xgb_model, _ = train_xgboost(X, y, feature_names)
+        rf_model, _ = train_random_forest(X, y, feature_names)
+        ab_model, _ = train_abraham_baseline(X, y, feature_names)
+        
+        models = {'xgboost': xgb_model, 'random_forest': rf_model, 'abraham': ab_model}
+        metrics = evaluate_models(models, X, y)
+        save_models(models, metrics)
+        save_report(metrics, {})
+        print("Training completed without watchdog.")
 
 if __name__ == "__main__":
     main()
