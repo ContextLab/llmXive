@@ -20,9 +20,20 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-16T06:35:44.541285Z'
-- artifact_hash: 1713bd86f912a3584dec042dc5157232fb72cfa624feade81c9827acb4b92d26
+- artifact_hash: 250309835301f41814fe27bd5c474ecedfaf273020f545715a080d7d39372315
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-08-15T04:39:28.350101Z'
+- artifact_hash: 250309835301f41814fe27bd5c474ecedfaf273020f545715a080d7d39372315
+  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
@@ -30,10 +41,21 @@
   value: https://next-gen.materialsproject.org/api/v2/materials`
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/api/v2/materials
-  verified_at: '2026-08-13T03:36:29.665184Z'
-- artifact_hash: 1713bd86f912a3584dec042dc5157232fb72cfa624feade81c9827acb4b92d26
+  verified_at: '2026-08-15T04:39:28.350101Z'
+- artifact_hash: 250309835301f41814fe27bd5c474ecedfaf273020f545715a080d7d39372315
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
-  cite_id: c-002
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Search Publications | NIST
+  kind: url
+  value: https://www.nist.gov/publications/search`
+  verification_status: pending
+  verified_against_url: https://www.nist.gov/publications/search
+  verified_at: '2026-08-15T04:39:28.350101Z'
+- artifact_hash: 250309835301f41814fe27bd5c474ecedfaf273020f545715a080d7d39372315
+  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: p-value - Wikipedia
@@ -41,4 +63,4 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-08-13T03:36:29.665184Z'
+  verified_at: '2026-08-15T04:39:28.350101Z'
