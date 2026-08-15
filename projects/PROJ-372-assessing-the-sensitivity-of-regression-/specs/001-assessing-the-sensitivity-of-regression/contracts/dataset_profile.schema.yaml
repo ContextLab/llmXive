@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DatasetProfile"
+description: "Schema for the global profile of an input dataset including violation metrics."
+type: "object"
+required:
+  - dataset_id
+  - source_url
+  - n_rows
+  - n_predictors
+  - condition_number
+  - bp_statistic
+  - bp_p_value
+  - max_cooks_distance
+  - violation_severity
+  - checksum
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset instance."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "The verified URL from which the dataset was downloaded."
+  n_rows:
+    type: "integer"
+    minimum: 1
+    description: "Total number of rows in the dataset."
+  n_predictors:
+    type: "integer"
+    minimum: 1
+    description: "Number of numerical predictor columns."
+  condition_number:
+    type: "number"
+    description: "Condition number of the design matrix (measure of collinearity)."
+  bp_statistic:
+    type: "number"
+    description: "Breusch-Pagan test statistic for heteroscedasticity."
+  bp_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value associated with the Breusch-Pagan statistic."
+  max_cooks_distance:
+    type: "number"
+    description: "Maximum Cook's Distance value across all observations (outlier metric)."
+  violation_severity:
+    type: "string"
+    enum:
+      - "Low"
+      - "Medium"
+      - "High"
+      - "Unknown"
+    description: "Categorical classification of violation severity based on BP p-value thresholds."
+  checksum:
+    type: "string"
+    pattern: "^[a-f0-9]{32}$"
+    description: "MD5 checksum of the raw downloaded file."

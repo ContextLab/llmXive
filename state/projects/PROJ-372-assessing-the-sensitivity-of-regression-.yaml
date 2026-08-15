@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-06T18:44:56.305502Z'
-current_stage: flesh_out_complete
+current_stage: analyzed
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-372-assessing-the-sensitivity-of-regression-
-last_run_id: bd5783d3-f786-4136-b987-79d7ea6ff8fc
+last_run_id: aadebb56-fc41-48a5-b911-01a7cca2308b
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression
 title: Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection
-updated_at: '2026-07-16T18:42:46.455520Z'
+updated_at: '2026-08-15T15:00:05.829625Z'
