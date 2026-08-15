@@ -65,7 +65,7 @@ Researcher performs differential abundance testing (ANCOM) between high- and low
 ### Functional Requirements
 
 - **FR-001**: System MUST download 16S rRNA amplicon tables from Earth Microbiome Project agricultural subset or MG-RAST soil microbiome repository with ≥100 samples retained after filtering (See US-1)
-- **FR-002**: System MUST rarefy OTU/ASV tables to uniform sequencing depth of 10k reads per sample using QIIME 2 (See US-1)
+- **FR-002**: System MUST rarefy OTU/ASV tables to uniform sequencing depth using QIIME 2 (See US-1)
 - **FR-003**: System MUST compute alpha-diversity metrics (Shannon, Simpson, Faith's PD) per sample using QIIME 2's `diversity alpha` plugin (See US-2)
 - **FR-004**: System MUST fit beta regression or binomial generalized linear mixed-effects models with disease incidence (proportion 0-100%) as response, alpha diversity as fixed effect, and random intercepts for plant species and geographic region (See US-2)
 - **FR-005**: System MUST conduct permutation tests with a sufficient number of permutations to confirm observed correlations exceed random expectations (See US-2)

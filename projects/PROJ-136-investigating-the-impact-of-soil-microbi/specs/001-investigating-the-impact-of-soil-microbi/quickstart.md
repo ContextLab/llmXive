@@ -1,156 +1,78 @@
-# Quickstart: 001-soil-microbiome-diversity-disease-resistance
+# Quickstart: Investigating the Impact of Soil Microbiome Diversity on Plant Disease Resistance
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip (Python package manager)
-- Docker (for QIIME 2/CoNet containerization, optional)
-- Git (for version control)
+-   Python 3.11+
+-   `pip` or `conda`
+-   Access to the internet (for dataset download)
 
 ## Installation
 
-### 1. Clone Repository
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-136-investigating-the-impact-of-soil-microbi
+    ```
 
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    *Note: This installs `pandas`, `scikit-learn`, `statsmodels`, `biom-format`, `networkx`, `datasets`, `ancombc`.*
+
+## Running the Pipeline
+
+The pipeline is designed to halt gracefully if data is missing.
+
+### Step 1: Data Acquisition
+Download the available OTU data. The system will attempt to find disease data but will halt if missing.
 ```bash
-git clone <repository-url>
-cd projects/PROJ-136-investigating-the-impact-of-soil-microbi
+python code/data_acquisition.py
+```
+*Output*: `data/raw/otu_table.tsv`, or `data/raw/verification_report.json` if disease data is missing.
+
+### Step 2: Check Feasibility
+If `verification_report.json` exists, the pipeline has halted. Review the report for missing variables. No further steps should be taken.
+```bash
+cat data/raw/verification_report.json
 ```
 
-### 2. Create Virtual Environment
-
+### Step 3: Preprocessing (Only if data available)
+Rarefy the OTU table and compute alpha diversity.
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python code/preprocessing.py
 ```
+*Output*: `data/processed/rarefied-table.qza`, `data/processed/alpha-diversity.tsv`.
 
-### 3. Install Dependencies
-
+### Step 4: Matching (Only if data available)
+Attempt to join data.
 ```bash
-pip install -r code/requirements.txt
+python code/matching.py
 ```
+*Output*: `data/processed/matched_samples.csv`.
 
-Expected dependencies (per code/requirements.txt):
-- pandas
-- numpy
-- scipy
-- scikit-learn
-- statsmodels
-- biopython
-- networkx
-- pytest
-- pyyaml
-
-### 4. Verify Installation
-
+### Step 5: Statistical Analysis (Only if data available)
+Run GLMM, permutation tests, and network analysis.
 ```bash
-python -c "import pandas; import statsmodels; import networkx; print('All dependencies installed successfully')"
+python code/analysis/models.py
+python code/analysis/network.py
 ```
+*Output*: `data/processed/model_results.json`, `data/processed/network_nodes.csv`.
 
-## Data Acquisition
-
-### **PAUSE: DATASETS UNAVAILABLE**
-
-**IMPORTANT**: Per research.md, the verified datasets block contains NO verified sources for EMP agricultural subset, MG-RAST soil microbiome, or plant disease incidence records.
-
-**DO NOT PROCEED** until one of the following is completed:
-
-1. **Option A**: Locate and verify alternative datasets containing required variables (OTU/ASV tables with plant species, GPS, soil type, sequencing depth; disease incidence with sample ID, disease type, incidence rate, measurement date)
-2. **Option B**: Amend the spec to reference available datasets that contain subset of required variables
-3. **Option C**: Flag as blocking gap requiring spec revision
-
-If datasets become verified and available:
-
+### Step 6: Report Generation
+Generate the final summary.
 ```bash
-python code/analysis/data_acquisition.py --source emp --output data/raw/emp_agricultural.csv
-python code/analysis/data_acquisition.py --source mg-rast --output data/raw/mg-rast_soil.csv
-python code/analysis/data_acquisition.py --source disease --output data/raw/disease_incidence.csv
+python code/generate_report.py
 ```
-
-### Step 2: Compute Checksums
-
-```bash
-python code/analysis/data_acquisition.py --checksum --input data/raw/ --output state/PROJ-136-artifact-hashes.json
-```
-
-## Preprocessing
-
-```bash
-python code/analysis/preprocessing.py --input data/raw/ --output data/processed/ --rarefaction-depth 10000
-```
-
-This will:
-- Filter OTU/ASV tables to retain taxa present in ≥5% of samples
-- Rarefy to uniform sequencing depth (10k reads per sample)
-- Align disease incidence data with soil samples via location and date fields
-
-## Analysis
-
-### Step 1: Compute Alpha-Diversity
-
-```bash
-python code/analysis/diversity_analysis.py --input data/processed/filtered_otu_table.csv --output data/processed/diversity_metrics.csv
-```
-
-### Step 2: Fit Statistical Models
-
-```bash
-python code/analysis/statistical_models.py --input data/processed/diversity_metrics.csv --output results/model_results.json
-```
-
-### Step 3: Run Permutation Tests
-
-```bash
-python code/analysis/permutation_tests.py --input data/processed/diversity_metrics.csv --permutations 10000 --output results/permutation_results.json
-```
-
-### Step 4: ANCOM Differential Abundance
-
-```bash
-python code/analysis/keystone_taxa.py --input data/processed/filtered_otu_table.csv --disease-cutoff median --output results/ancom_results.json
-```
-
-### Step 5: Co-occurrence Network
-
-```bash
-python code/analysis/keystone_taxa.py --network --input data/processed/filtered_otu_table.csv --output results/network_analysis.json
-```
-
-## Testing
-
-### Run All Tests
-
-```bash
-pytest code/tests/ -v
-```
-
-### Run Contract Tests
-
-```bash
-pytest code/tests/contract/ -v
-```
-
-### Run Integration Tests
-
-```bash
-pytest code/tests/integration/ -v
-```
-
-## Output
-
-Expected outputs in `results/`:
-
-- `model_results.json`: Beta regression/GLMM coefficients, p-values, effect sizes
-- `permutation_results.json`: Permutation test p-values, stability metrics
-- `ancom_results.json`: Differential abundance q-values, enriched taxa
-- `network_analysis.json`: Co-occurrence network centrality metrics, keystone taxa
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Model convergence failure | Check sample size; try alternative model specifications; report as limitation |
-| ANCOM no significant taxa | Report as null result; do NOT fabricate findings |
-| Dataset variables missing | Record [MISSING_VARIABLE: <variable-name>] per FR-008 |
-| Memory error | Sample data to fit 7 GB RAM constraint; document sampling rate |
-| QIIME 2 not available | Fall back to scikit-bio diversity calculations |
-| **PAUSE: Datasets unavailable** | Do not proceed until research.md FATAL MISMATCH is resolved via Option A/B/C |
+-   **"No verified source found"**: This is expected. The pipeline will halt and generate `verification_report.json`. Check `data/raw/verification_report.json` for details.
+-   **"GLMM failed to converge"**: This may happen with small sample sizes. The pipeline will log a warning and report the result as "Unstable".
+-   **Memory Error**: If the OTU table is too large, the script will automatically sample the first 1000 rows.

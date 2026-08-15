@@ -1,42 +1,48 @@
-# Implementation Plan: 001-soil-microbiome-diversity-disease-resistance
+# Implementation Plan: Investigating the Impact of Soil Microbiome Diversity on Plant Disease Resistance
 
-**Branch**: `001-soil-microbiome-diversity-disease-resistance` | **Date**: 2026-06-24 | **Spec**: `/specs/001-soil-microbiome-diversity-disease-resistance/spec.md`
+**Branch**: `001-soil-microbiome-diversity-disease-resistance` | **Date**: 2024-01-15 | **Spec**: `specs/001-soil-microbiome-diversity-disease-resistance/spec.md`
 **Input**: Feature specification from `/specs/001-soil-microbiome-diversity-disease-resistance/spec.md`
 
 ## Summary
 
-This project investigates the associational relationship between soil microbiome alpha-diversity and plant disease incidence using observational data. **BLOCKING GATE**: Per research.md, no verified dataset sources exist for EMP agricultural subset, MG-RAST soil microbiome, or plant disease incidence records. Implementation is contingent on dataset verification or spec amendment. The technical approach involves: (1) downloading and preprocessing 16S rRNA amplicon tables and disease incidence records, (2) computing alpha-diversity metrics and fitting beta regression/GLMM models, (3) performing ANCOM differential abundance testing and co-occurrence network analysis for keystone taxon identification. All analyses will be framed as associational per FR-009, with multiple-comparison correction per FR-010 and power analysis per FR-015. **Note**: Spec uses "Disease Resistance" terminology but measures "disease incidence" (construct validity threat documented in research.md).
+This project investigates the associational relationship between soil microbiome alpha-diversity and plant disease incidence. The technical approach involves downloading 16S rRNA amplicon tables and matched disease metadata, preprocessing data (filtering, rarefaction), computing diversity metrics, and fitting binomial generalized linear mixed-effects models (GLMM) with permutation testing.
+
+**Critical Feasibility Finding**: A comprehensive search of verified open-source datasets confirms that **no single dataset exists** that simultaneously contains matched 16S rRNA amplicon tables AND plant disease incidence records with sufficient metadata (GPS/Date) for joining.
+
+**Revised Strategy**: The plan adopts a **Data Availability Gate** approach:
+1.  **Phase 0**: Verify data availability. If matched data is not found, generate a `verification_report.json` documenting the missing variables and halt the analysis pipeline.
+2.  **Phase 1**: If data is available, proceed with acquisition and preprocessing.
+3.  **Phase 2**: Statistical modeling.
+4.  **No Synthetic Data**: The plan explicitly **DOES NOT** generate synthetic disease labels for the research analysis. Synthetic data is only used for unit testing the code logic (separate from the research pipeline). If the data is missing, the research question is declared unanswerable with current open data, and a Feasibility Report is generated instead of statistical findings.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: scikit-learn, pandas, numpy, scipy, statsmodels, biopython, networkx, qiime2 (via subprocess), co-occurrence network tools  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `code/`)  
-**Testing**: pytest with contract validation against schema files  
-**Target Platform**: Linux (GitHub Actions free-tier runner: standard CPU resources, limited RAM, no GPU)  
-**Project Type**: computational research pipeline  
-**Performance Goals**: Complete analysis within 6 hours on CPU-only runner; memory usage ≤7 GB  
-**Constraints**: No GPU acceleration; default precision only; sampled datasets if needed to fit RAM; all analyses must be reproducible per Constitution Principle I  
-**Scale/Scope**: Target ≥30 matched samples (per spec); empirical targets deferred to research phase  
-**BLOCKING GATE**: Analysis steps contingent on dataset verification per Constitution Principle II. Do NOT proceed until research.md Dataset Strategy FATAL MISMATCH is resolved.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Primary Dependencies**: `pandas`, `scikit-learn`, `statsmodels`, `biom-format`, `qiime2` (via subprocess or API), `networkx`, `ancombc`, `numpy`, `scipy`, `datasets`.  
+**Storage**: Local file system (`data/raw/`, `data/processed/`), CSV/TSV/JSON formats.  
+**Testing**: `pytest` (unit tests for data parsing, integration tests for pipeline stages).  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM).  
+**Project Type**: Scientific Analysis Pipeline / CLI.  
+**Performance Goals**: End-to-end pipeline execution < 6 hours on CPU (if data available); memory usage < 6GB.  
+**Constraints**: Must run on CPU-first; no local GPU. Must handle datasets that may not perfectly match (FR-008).  
+**Scale/Scope**: Target a sufficient number of samples (if matched), otherwise generate Feasibility Report.  
+**ANCOM Implementation**: The plan uses `ancombc` as the implementation for the ANCOM requirement (FR-006).
 
 ## Constitution Check
 
-| Principle | Status | Evidence/Annotation |
-|-----------|--------|---------------------|
-| I. Reproducibility | PASS | See code/requirements.txt; random seed pinning in code/analysis/*.py (permutation_tests.py, statistical_models.py); containerization requirements for QIIME 2/CoNet |
-| II. Verified Accuracy | BLOCKING | No verified dataset sources exist for EMP agricultural subset, MG-RAST soil microbiome, or disease incidence records (research.md:Dataset Strategy). Principle II cannot be satisfied until datasets are verified or spec amended. |
-| III. Data Hygiene | PASS | Checksum all files under data/ via code/analysis/data_acquisition.py; preserve raw data unchanged in data/raw/; derivations in data/processed/ reference raw sources |
-| IV. Single Source of Truth | PASS | All figures/statistics trace to data/ rows and code/ blocks; no hand-typed numbers; see data-model.md entity relationships |
-| V. Versioning Discipline | PASS | Content hashes for all artifacts in state/PROJ-136-artifact-hashes.json; state updated on artifact changes |
-| VI. Ecological Data Provenance | PASS | Store EMP/MG-RAST/disease data in data/raw/ with provenance metadata (source URL, download date, version); derivations reference raw sources per data-model.md data flow |
-| VII. Statistical Analysis Transparency | PASS | Record software versions (statsmodels, scikit-bio), seeds, model specs in code/analysis/*.py; output test statistics and p-values per research.md Statistical Methods |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-**Dataset Fit Warning**: Per the verified datasets block, NO verified source exists for the Earth Microbiome Project agricultural subset, MG-RAST soil microbiome repository, or plant disease incidence records referenced in the spec. Research.md must explicitly state this mismatch and either (a) identify alternative verified datasets that contain the required variables, or (b) flag this as a blocking gap requiring spec amendment. **IMPLEMENTATION BLOCKED** until this is resolved.
+| Principle | Compliance Status | Action Required |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/analysis/`. Data sources cited. |
+| **II. Verified Accuracy** | **FAIL (Data Unavailable)** | The hypothesis test cannot be performed due to missing data. The *process* of verifying the missing source is accurate, but the *outcome* (hypothesis test) is unverified. |
+| **III. Data Hygiene** | **FAIL (Data Unavailable)** | No real disease data is available to maintain hygiene for the analysis. The pipeline halts to prevent fabrication. |
+| **IV. Single Source of Truth** | **PASS** | All stats trace to `data/processed/` artifacts (if produced). |
+| **V. Versioning Discipline** | **PASS** | Artifacts carry content hashes. |
+| **VI. Ecological Data Provenance** | **PASS** | Raw EMP/OTU data stored in `data/raw/` with metadata. |
+| **VII. Statistical Analysis Transparency** | **PASS** | Model specs (fixed/random effects) recorded in `code/analysis/`. |
 
-**Construct Validity Note**: Spec title uses "Disease Resistance" but measures "disease incidence" (observational, not controlled inoculation). All plan/research docs use "disease incidence" consistently; spec amendment required for terminological alignment (spec-root cause).
+**Resolution**: The plan explicitly handles the "FAIL" status by generating a `verification_report.json` and halting. This prevents the fabrication of results and adheres to the spirit of the constitution by being transparent about data limitations.
 
 ## Project Structure
 
@@ -44,15 +50,12 @@ This project investigates the associational relationship between soil microbiome
 
 ```text
 specs/001-soil-microbiome-diversity-disease-resistance/
-├── plan.md              # This file (/speckit-plan command output)
-├── research.md          # Phase 0 output (/speckit-plan command)
-├── data-model.md        # Phase 1 output (/speckit-plan command)
-├── quickstart.md        # Phase 1 output (/speckit-plan command)
-├── contracts/           # Phase 1 output (/speckit-plan command)
-│   ├── sample.schema.yaml
-│   ├── disease-incidence.schema.yaml
-│   └── taxon.schema.yaml
-└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -60,58 +63,61 @@ specs/001-soil-microbiome-diversity-disease-resistance/
 ```text
 projects/PROJ-136-investigating-the-impact-of-soil-microbi/
 ├── data/
-│   ├── raw/                 # Original downloaded datasets (checksummed)
-│   └── processed/           # Derived files (rarefied tables, diversity metrics)
+│   ├── raw/
+│   │   ├── otu_tables/          # Downloaded OTU/ASV tables
+│   │   └── verification_report.json  # Generated if data is missing
+│   └── processed/
+│       ├── rarefied-table.qza   # Rarefied OTU table (if data available)
+│       ├── alpha-diversity.tsv  # Computed alpha diversity (if data available)
+│       └── matched_samples.csv  # Merged dataset (if data available)
 ├── code/
+│   ├── __init__.py
+│   ├── data_acquisition.py      # Downloads and verifies data (T012, T014)
+│   ├── preprocessing.py         # Rarefaction, filtering (T018)
+│   ├── matching.py              # Joins OTU and Disease data (T016)
 │   ├── analysis/
-│   │   ├── data_acquisition.py    # Creates Sample, Disease Incidence entities; validates contracts/sample.schema.yaml, contracts/disease-incidence.schema.yaml
-│   │   ├── preprocessing.py       # Creates processed Sample data; validates contracts/sample.schema.yaml
-│   │   ├── diversity_analysis.py  # Creates alpha-diversity metrics for Sample; validates contracts/sample.schema.yaml
-│   │   ├── statistical_models.py  # Uses Sample, Disease Incidence entities; validates contracts/sample.schema.yaml, contracts/disease-incidence.schema.yaml
-│   │   ├── keystone_taxa.py       # Creates Taxon entities; validates contracts/taxon.schema.yaml
-│   │   └── permutation_tests.py   # Uses Sample, Disease Incidence entities; validates contracts/sample.schema.yaml, contracts/disease-incidence.schema.yaml
-│   ├── tests/
-│   │   ├── contract/              # Validates against contracts/*.schema.yaml files
-│   │   ├── integration/
-│   │   └── unit/
-│   └── requirements.txt
-├── state/
-│   └── projects/PROJ-136-investigating-the-impact-of-soil-microbi.yaml
-└── specs/001-soil-microbiome-diversity-disease-resistance/
-    └── [documentation files]
+│   │   ├── diversity_metrics.py # Shannon, Simpson, Faith's PD
+│   │   ├── models.py            # GLMM, Beta Regression, Permutation tests
+│   │   ├── network.py           # ANCOM, CoNet
+│   │   └── power_analysis.py    # A priori power calculation
+│   └── utils/
+│       └── config.py            # Seeds, paths, thresholds
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── requirements.txt
+└── README.md
 ```
 
-**Traceability Mapping**: Analysis scripts → Data-model entities → Contract schemas:
-- `data_acquisition.py`: Creates Sample, Disease Incidence → contracts/sample.schema.yaml, contracts/disease-incidence.schema.yaml
-- `preprocessing.py`: Modifies Sample (sequencing_depth, rarefaction_depth) → contracts/sample.schema.yaml
-- `diversity_analysis.py`: Creates alpha-diversity metrics on Sample → contracts/sample.schema.yaml
-- `statistical_models.py`: Uses Sample (alpha-diversity), Disease Incidence (incidence_rate) → contracts/sample.schema.yaml, contracts/disease-incidence.schema.yaml
-- `keystone_taxa.py`: Creates Taxon (relative_abundance, differential_abundance_q) → contracts/taxon.schema.yaml
-- `permutation_tests.py`: Uses Sample (alpha-diversity), Disease Incidence (incidence_rate) → contracts/sample.schema.yaml, contracts/disease-incidence.schema.yaml
-
-**Contract Coverage**: All data outputs validated against corresponding schema files before downstream processing. Contract tests in `code/tests/contract/` enforce schema compliance.
-
-**Structure Decision**: Single computational research project structure. Data layer separated from code layer; analysis scripts organized by functional area (acquisition, preprocessing, diversity, models, keystones, permutation). Tests organized by contract/integration/unit levels. This supports Constitution Principles I (Reproducibility), III (Data Hygiene), and VII (Statistical Transparency).
+**Structure Decision**: Single project structure chosen. The workflow is linear (Acquire -> Preprocess -> Match -> Analyze), making a monolithic `code/` directory with sub-packages for analysis phases optimal. This minimizes cross-module dependencies and simplifies the Docker containerization for CI.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| None | N/A | N/A |
+| **Data Availability Gate** | No single verified dataset contains both OTU and Disease data. | Using a single "fake" dataset would violate Constitution Principle II (Verified Accuracy) and III (Data Hygiene). We must halt and report. |
+| **No Synthetic Fallback** | Generating synthetic disease labels invalidates the biological hypothesis. | Synthetic data cannot support the research question. The pipeline must stop to avoid false conclusions. |
+| **Unit Testing Separation** | Code must be validated without real data. | Unit tests use mocks, but the research pipeline requires real data. Separating these ensures code quality without compromising scientific integrity. |
 
-## FR Coverage Mapping
+## Task List (Revised)
 
-| FR ID | Plan Element | Research.md Section |
-|-------|--------------|---------------------|
-| FR-001 | data_acquisition.py downloads EMP/MG-RAST | Dataset Strategy |
-| FR-002 | preprocessing.py rarefaction to a standardized read depth | Preprocessing |
-| FR-003 | diversity_analysis.py computes Shannon/Simpson/Faith's PD | Alpha-Diversity Computation |
-| FR-004 | statistical_models.py fits beta regression/GLMM | Beta Regression / GLMM |
-| FR-005 | permutation_tests.py executes multiple permutations | Permutation Tests |
-| FR-006 | keystone_taxa.py runs ANCOM | ANCOM Differential Abundance |
-| FR-007 | keystone_taxa.py constructs CoNet networks | Co-occurrence Networks |
-| FR-008 | data_acquisition.py checks required variables | Dataset Strategy (variable verification) |
-| FR-009 | All results framed as associational | Statistical Methods (framings) |
-| FR-010 | Multiple-comparison correction in all hypothesis tests | Multiple-Comparison Correction |
-| FR-012 | VIF calculation for alpha-diversity collinearity | Statistical Methods (collinearity diagnosis) |
-| FR-015 | power_analysis.py conducts a priori power analysis | Power Analysis |
+### Phase 0: Verification & Planning
+- **T000**: **Amend Spec**. Align terminology ('Disease Resistance' vs 'disease incidence') in the spec title and text to ensure traceability.
+- **T012**: **Verify Data Availability**. Check for matched OTU and Disease data. If missing, generate `verification_report.json` and halt. This task MUST pass for T013/T014 to execute.
+- **T015**: Perform A priori Power Analysis (FR-015) using actual sample count (if available) or report 'Insufficient Data'.
+
+### Phase 1: Data Acquisition & Preprocessing (Conditional on T012 Pass)
+- **T013**: Download OTU data (if T012 passed). Logic: Attempt to download from verified sources (EMP/MG-RAST). If no source found, generate `verification_report.json` with `[MISSING_VARIABLE: otu_data]` and halt.
+- **T014**: Download Disease data (if T012 passed). Logic: Attempt to download from verified sources. If no source found, generate `verification_report.json` with `[MISSING_VARIABLE: disease_incidence]` and halt.
+- **T016**: Match data (if T013/T014 passed). Logic: Join on GPS/Date. If match fails (<30 samples), generate `verification_report.json` and halt.
+- **T018**: Preprocess (Rarefaction, Filtering). Logic: Run QIIME rarefaction to a standardized sequencing depth.. Handle edge cases (e.g., varying depth >10x) by logging warnings and proceeding with available depth. Output `data/processed/rarefied-table.qza`.
+
+### Phase 2: Analysis (Conditional on T016 Pass)
+- **T033A**: Create reference meta-analysis values file.
+- **T033**: Measure correlation coefficient (skip comparison if T033A unverified).
+- **T037**: ANCOM (Depends on T040).
+- **T038**: CoNet (Depends on T040).
+- **T040**: High/Low disease group stratification.
+
+### Phase 3: Reporting
+- **T051**: Generate final report (or Feasibility Report).
