@@ -1,9 +1,7 @@
-# Project Structure Manifest
-# Generated for: PROJ-349-predicting-the-impact-of-ball-milling-on
-# Task: T001 - Create project structure manifest
-# Date: 2024-01-01
+# Project Directory Structure Manifest
+# Generated for PROJ-349: Predicting the Impact of Ball Milling on Particle Size Distribution
+# This file lists the required directory structure for the project.
 
-# Core Source Directories
 src/
 src/cli/
 src/config/
@@ -15,36 +13,22 @@ src/model/
 src/preprocess/
 src/utils/
 
-# Test Directories
 tests/
 tests/contract/
 tests/integration/
 tests/unit/
 
-# Data Directories
 data/
 data/raw/
 data/processed/
 data/splits/
 
-# Results and Artifacts
 results/
-figures/
 
-# Contracts and Specifications
 contracts/
-specs/
 
-# CI/CD Configuration
 .github/
 .github/workflows/
 
-# Documentation
+scripts/
 docs/
-
-# Configuration Files
-config.yaml
-requirements.txt
-pyproject.toml
-.flake8
-.gitignore

@@ -1,6 +1,15 @@
-'|forest maximum model random tree':
-  quote: 'North America from 1500 to the Present. Cambridge, United Kingdom: Cambridge
-    University Press.'
-  source_id: '2304.02632'
-  url: https://arxiv.org/abs/2304.02632
-  value: '1500'
+'|alpha level significance statistical test use':
+  quote: "The error that a practising statistician would consider the more important\
+    \ to avoid (which is a subjective judgment) is called the error of the first kind.\
+    \ The first demand of the mathematical theory is to deduce such test criteria\
+    \ as would ensure that the probability of committing an error of the first kind\
+    \ would equal (or approximately equal, or not exceed) a preassigned number \u03B1\
+    , such as \u03B1 = 0.05 or 0.01, etc. This number is called the level of significance."
+  source_id: P-value
+  url: https://en.wikipedia.org/wiki/P-value
+  value: '0.05'
+'|dataset row target':
+  quote: '500'
+  source_id: '2506.09162'
+  url: https://arxiv.org/abs/2506.09162
+  value: '500'

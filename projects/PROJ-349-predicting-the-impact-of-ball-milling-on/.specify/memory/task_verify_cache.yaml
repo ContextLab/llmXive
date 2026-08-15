@@ -25,22 +25,15 @@ T009b:
   r: "The required file `src/config/settings.py` does not exist, so there is no `load_config()`\
     \ implementation to parse and validate `config.yaml`. Consequently the task\u2019\
     s core deliverable is missing."
-T010:
-  c: false
-  h: b7c5d60827481409a1df108b84f750174fa1a29947d1bbdfc2a2431a5099f80d
-  r: "The `tests/contract/test_dataset_schema.py` file exists but the required schema\
-    \ file `contracts/dataset.schema.yaml` is missing, causing the test to fail before\
-    \ validation. Moreover, `test_schema_validation_passes(df)` does not use `jsonschema.validate`\
-    \ nor raise `jsonschema.ValidationError` as specified; it implements a custom\
-    \ check and returns a boolean. These issues mean the task\u2019s functional and\
-    \ dependency requirements are not satisfied."
 T012:
   c: false
-  h: e3d4fc0553290520001ca737b07181b36dd9104c051ae7209b693b19d5da80ab
+  h: 77c64a3c2a46b35a84aa5d2256a79a5d86e3d43b268e2beab2dd1642c04b416e
   r: "The repository contains `src/ingest/materials_project.py`, but the file is truncated\
-    \ and does not show logic for parsing the required fields, writing `data/raw/materials_project_raw.json`,\
-    \ or flagging rows lacking `source_id`. Moreover, the required output file `data/raw/materials_project_raw.json`\
-    \ is absent. The task\u2019s core deliverables are therefore not satisfied."
+    \ (e.g., ends with an unfinished `logger.` line) and lacks the full implementation\
+    \ (no `map_item_to_schema`, no writing to `data/raw/materials_project_raw.json`).\
+    \ Moreover, the required output file `data/raw/materials_project_raw.json` does\
+    \ not exist. Consequently the task\u2019s mandatory output and complete script\
+    \ are missing."
 T013:
   c: false
   h: 49cd3a29c64a72636f04b5b17d71702c8ec59415ffc1512df76dfab4d43097fe
@@ -72,13 +65,6 @@ T015a:
     merge size guard, or the write to `data/raw/merged_dataset.parquet`. Moreover,\
     \ the expected output Parquet file is absent. The task therefore lacks the necessary\
     \ logic and artifact."
-T015b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code artifact defining a `validate_traceability` function was provided, nor
-    any evidence (e.g., test results, documentation) showing that such a function
-    checks each row for `source_name` and `source_id`. The required implementation
-    is therefore missing.
 T016e:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

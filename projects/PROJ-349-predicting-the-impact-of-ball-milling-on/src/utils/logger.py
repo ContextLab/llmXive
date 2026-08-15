@@ -1,73 +1,56 @@
 """
-Logging utilities for the ball milling prediction pipeline.
+Logging utility module.
+Provides a consistent logging interface across the project.
 """
-
 import logging
 import os
 from pathlib import Path
 from typing import Optional, Union
 
-# Global logger instance
+# Singleton logger instance
 _logger: Optional[logging.Logger] = None
-_log_level: int = logging.INFO
-
 
 def get_module_logger(name: str) -> logging.Logger:
     """
-    Get a logger instance for a specific module.
-
-    Args:
-        name: Module name (usually __name__).
-
-    Returns:
-        Configured logger instance.
+    Returns a logger for the specified module name.
+    If the root logger is not configured, it configures it.
     """
-    logger = logging.getLogger(name)
+    global _logger
     
-    if not logger.handlers:
-        logger.setLevel(_log_level)
+    if _logger is None:
+        _logger = logging.getLogger("llmXive")
+        _logger.setLevel(logging.INFO)
         
-        # Create console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(_log_level)
-        
-        # Create formatter
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        console_handler.setFormatter(formatter)
-        
-        # Add handler to logger
-        logger.addHandler(console_handler)
+        # Avoid adding handlers multiple times
+        if not _logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            handler.setFormatter(formatter)
+            _logger.addHandler(handler)
     
-    return logger
+    return logging.getLogger(name)
 
-
-def set_log_level(level: Union[int, str]) -> None:
+def set_log_level(level: Union[str, int]) -> None:
     """
-    Set the global log level.
-
-    Args:
-        level: Log level as integer or string (e.g., 'DEBUG', 'INFO').
+    Sets the global log level.
+    Accepts string ('DEBUG', 'INFO', etc.) or integer level.
     """
-    global _log_level
+    global _logger
+    if _logger is None:
+        _logger = logging.getLogger("llmXive")
     
     if isinstance(level, str):
-        _log_level = getattr(logging, level.upper(), logging.INFO)
-    else:
-        _log_level = level
+        level = getattr(logging, level.upper(), logging.INFO)
     
-    # Update all existing handlers
-    for logger in logging.root.manager.loggerDict.values():
-        if isinstance(logger, logging.Logger):
-            logger.setLevel(_log_level)
-            for handler in logger.handlers:
-                handler.setLevel(_log_level)
-
+    _logger.setLevel(level)
+    for handler in _logger.handlers:
+        handler.setLevel(level)
 
 def reset_logger() -> None:
-    """Reset the logger configuration to defaults."""
-    global _logger, _log_level
+    """Resets the global logger configuration."""
+    global _logger
     _logger = None
-    _log_level = logging.INFO
-    logging.root.handlers = []
+    logging.getLogger("llmXive").handlers.clear()
+    logging.getLogger("llmXive").setLevel(logging.NOTSET)

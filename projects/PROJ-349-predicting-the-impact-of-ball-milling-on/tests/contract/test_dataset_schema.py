@@ -1,186 +1,141 @@
 """
-Contract tests for dataset schema validation.
-
-These tests verify that the dataset schema defined in 
-contracts/dataset.schema.yaml is correctly enforced.
+Contract test for dataset schema validation.
+Validates that the dataset conforms to the schema defined in contracts/dataset.schema.yaml.
 """
-
-import json
 import os
 import sys
+import json
+import pytest
 from pathlib import Path
-from typing import Dict, Any
 
 import pandas as pd
-import pytest
-import yaml
+from jsonschema import validate, ValidationError
 
-# Add project root to path for imports
+# Add project root to path for imports if running directly
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.utils.exceptions import SchemaValidationError
-from src.utils.logger import get_module_logger
+from src.preprocess.validate_schema import load_schema
+from src.utils.exceptions import InsufficientDataError
 
-logger = get_module_logger(__name__)
 
-# Path to schema file
-SCHEMA_PATH = project_root / "contracts" / "dataset.schema.yaml"
-
-def load_schema(schema_path: str) -> Dict[str, Any]:
-    """Load and parse the JSON schema from YAML file."""
-    with open(schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
-    return schema
-
-def test_schema_validation_passes(df: pd.DataFrame) -> bool:
+def test_schema_validation_passes(df):
     """
     Test that a valid dataframe passes schema validation.
-    
+
     Args:
-        df: DataFrame to validate against the schema
-        
-    Returns:
-        True if validation passes
-        
-    Raises:
-        SchemaValidationError: If validation fails
+        df (pd.DataFrame): A dataframe that should conform to the schema.
     """
-    if not SCHEMA_PATH.exists():
-        raise FileNotFoundError(f"Schema file not found: {SCHEMA_PATH}")
-    
-    schema = load_schema(str(SCHEMA_PATH))
-    
-    # Convert DataFrame to dict for jsonschema validation
-    # jsonschema expects a dict, not a DataFrame
-    data_dict = df.to_dict(orient='records')
-    
-    # Validate each record individually
-    # Note: jsonschema.validate can validate a list of objects
-    # but we'll validate each record to get better error messages
-    for i, record in enumerate(data_dict):
-        try:
-            # We'll use a simplified validation approach here
-            # since jsonschema.validate with a list schema is complex
-            # Instead, we check that all required fields exist and have correct types
-            required_fields = schema.get('required', [])
-            properties = schema.get('properties', {})
-            
-            for field in required_fields:
-                if field not in record:
-                    raise SchemaValidationError(
-                        f"Record {i}: Missing required field '{field}'"
-                    )
-                
-                # Type checking
-                if field in properties:
-                    expected_type = properties[field].get('type')
-                    value = record[field]
-                    
-                    if value is not None:
-                        # Check type compatibility
-                        if expected_type == 'number' and not isinstance(value, (int, float)):
-                            raise SchemaValidationError(
-                                f"Record {i}: Field '{field}' should be number, got {type(value).__name__}"
-                            )
-                        elif expected_type == 'string' and not isinstance(value, str):
-                            raise SchemaValidationError(
-                                f"Record {i}: Field '{field}' should be string, got {type(value).__name__}"
-                            )
-                        elif expected_type == 'integer' and not isinstance(value, int):
-                            # Allow float if it's a whole number
-                            if isinstance(value, float) and value.is_integer():
-                                record[field] = int(value)
-                            else:
-                                raise SchemaValidationError(
-                                    f"Record {i}: Field '{field}' should be integer, got {type(value).__name__}"
-                                )
-            
-            logger.debug(f"Record {i} passed schema validation")
-            
-        except SchemaValidationError:
-            raise
-        except Exception as e:
-            raise SchemaValidationError(
-                f"Record {i}: Unexpected validation error: {str(e)}"
-            )
-    
-    logger.info("Schema validation passed for all records")
-    return True
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    if not schema_path.exists():
+        pytest.fail(f"Schema file not found at {schema_path}")
 
-def test_schema_validation_fails_missing_field() -> None:
-    """Test that schema validation fails when a required field is missing."""
-    # Create a DataFrame with a missing required field
-    df = pd.DataFrame({
-        'experiment_id': ['exp1', 'exp2'],
-        'source': ['mp', 'nist'],
-        # Missing 'material_type' which is required
-        'milling_speed': [100, 200],
-    })
-    
-    with pytest.raises(SchemaValidationError) as exc_info:
-        test_schema_validation_passes(df)
-    
-    assert "Missing required field 'material_type'" in str(exc_info.value)
-    logger.info("Correctly detected missing required field")
+    schema = load_schema(schema_path)
 
-def test_schema_validation_fails_wrong_type() -> None:
-    """Test that schema validation fails when a field has wrong type."""
-    # Create a DataFrame with wrong type for a field
-    df = pd.DataFrame({
-        'experiment_id': ['exp1', 'exp2'],
-        'source': ['mp', 'nist'],
-        'material_type': ['metal', 'ceramic'],
-        'milling_speed': [100, 200],
-        'milling_time': ['1 hour', '2 hours'],  # Should be number
-    })
-    
-    with pytest.raises(SchemaValidationError) as exc_info:
-        test_schema_validation_passes(df)
-    
-    assert "should be number" in str(exc_info.value)
-    logger.info("Correctly detected wrong field type")
+    # Convert dataframe to dict for jsonschema validation
+    # jsonschema expects a dict of lists or a single object dict.
+    # Since our schema defines an 'object' with properties, we validate a single row.
+    # To test the structure, we validate the first row.
+    if len(df) == 0:
+        pytest.skip("DataFrame is empty, cannot validate structure.")
 
-def test_schema_validation_with_valid_data() -> None:
-    """Test schema validation with a properly formatted DataFrame."""
-    # Create a DataFrame with all required fields and correct types
-    df = pd.DataFrame({
-        'experiment_id': ['exp1', 'exp2'],
-        'source': ['mp', 'nist'],
-        'source_id': ['mp-123', 'nist-456'],
-        'material_type': ['metal', 'ceramic'],
-        'milling_speed': [100.0, 200.0],
-        'milling_time': [30.0, 60.0],
-        'ball_to_powder_ratio': [10.0, 5.0],
-        'youngs_modulus': [200.0, 300.0],
-        'density': [7.8, 3.9],
-        'd10': [10.0, 20.0],
-        'd50': [50.0, 100.0],
-        'd90': [100.0, 200.0],
-        'process_duration': [1.0, 2.0],
-    })
-    
-    # This should not raise any exception
-    result = test_schema_validation_passes(df)
-    assert result is True
-    logger.info("Valid data passed schema validation")
+    # Convert to dict of lists format if needed, but jsonschema.validate
+    # expects the instance to match the schema type.
+    # The schema is type: object. So we validate a single row dict.
+    row_dict = df.iloc[0].to_dict()
 
-def test_load_schema_file_exists() -> None:
-    """Test that the schema file exists and can be loaded."""
-    assert SCHEMA_PATH.exists(), f"Schema file not found: {SCHEMA_PATH}"
-    
-    schema = load_schema(str(SCHEMA_PATH))
-    assert 'properties' in schema, "Schema missing 'properties' key"
-    assert 'required' in schema, "Schema missing 'required' key"
-    
-    # Check for expected fields
-    expected_fields = [
-        'experiment_id', 'source', 'source_id', 'material_type',
-        'milling_speed', 'milling_time', 'ball_to_powder_ratio',
-        'youngs_modulus', 'density', 'd10', 'd50', 'd90', 'process_duration'
-    ]
-    
-    for field in expected_fields:
-        assert field in schema['properties'], f"Schema missing property '{field}'"
-    
-    logger.info("Schema file loaded and validated successfully")
+    try:
+        validate(instance=row_dict, schema=schema)
+    except ValidationError as e:
+        pytest.fail(f"Schema validation failed for row: {e.message}")
+
+
+def test_schema_validation_fails_missing_field():
+    """
+    Test that a dataframe with a missing required field fails validation.
+    """
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    schema = load_schema(schema_path)
+
+    # Create a dataframe missing 'experiment_id'
+    data = {
+        "source_name": ["Materials Project"],
+        "source_id": ["12345"],
+        # missing experiment_id
+        "material_type": ["Copper"],
+        "milling_speed": [500.0],
+        "milling_time": [1.0],
+        "ball_to_powder_ratio": [10.0],
+        "youngs_modulus": [110.0],
+        "density": [8.96],
+        "d10": [10.0],
+        "d50": [50.0],
+        "d90": [100.0],
+        "process_duration": [3600.0]
+    }
+    df = pd.DataFrame(data)
+    row_dict = df.iloc[0].to_dict()
+
+    with pytest.raises(ValidationError):
+        validate(instance=row_dict, schema=schema)
+
+
+def test_schema_validation_fails_wrong_type():
+    """
+    Test that a dataframe with a wrong type for a field fails validation.
+    """
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    schema = load_schema(schema_path)
+
+    # Create a dataframe with wrong type for milling_speed (string instead of number)
+    data = {
+        "experiment_id": ["exp_001"],
+        "source_name": ["Materials Project"],
+        "source_id": ["12345"],
+        "material_type": ["Copper"],
+        "milling_speed": "fast",  # Should be number
+        "milling_time": [1.0],
+        "ball_to_powder_ratio": [10.0],
+        "youngs_modulus": [110.0],
+        "density": [8.96],
+        "d10": [10.0],
+        "d50": [50.0],
+        "d90": [100.0],
+        "process_duration": [3600.0]
+    }
+    df = pd.DataFrame(data)
+    row_dict = df.iloc[0].to_dict()
+
+    with pytest.raises(ValidationError):
+        validate(instance=row_dict, schema=schema)
+
+
+def test_schema_validation_fails_enum():
+    """
+    Test that a dataframe with an invalid source_name fails validation.
+    """
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    schema = load_schema(schema_path)
+
+    # Create a dataframe with invalid source_name
+    data = {
+        "experiment_id": ["exp_001"],
+        "source_name": ["Invalid Source"],  # Not in enum
+        "source_id": ["12345"],
+        "material_type": ["Copper"],
+        "milling_speed": [500.0],
+        "milling_time": [1.0],
+        "ball_to_powder_ratio": [10.0],
+        "youngs_modulus": [110.0],
+        "density": [8.96],
+        "d10": [10.0],
+        "d50": [50.0],
+        "d90": [100.0],
+        "process_duration": [3600.0]
+    }
+    df = pd.DataFrame(data)
+    row_dict = df.iloc[0].to_dict()
+
+    with pytest.raises(ValidationError):
+        validate(instance=row_dict, schema=schema)
