@@ -124,3 +124,26 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-18T04:38:59Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Query crossref API for DOI 10.1016/j.addma.2020.101632
+  claim_id: c_a750135f
+  context: 'Attempt Literature Baseline: Query crossref API for DOI ''10.1016/j.addma.2020.101632''.
+    If fetch fails or metadata lacks rankings, use a hardcoded default literature
+    ranking.'
+  evidence:
+    asserted: '10.1016'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: Query crossref API for DOI '10.1016/j.addma.2020.101632'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T13:36:34Z'

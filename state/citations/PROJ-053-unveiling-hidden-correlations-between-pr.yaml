@@ -43,9 +43,42 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.addma.2020.101632
   verified_at: '2026-08-13T18:36:07.694901Z'
-- artifact_hash: 2b1c6aadbbb52e18dab15695a1d8c2dac4547f4fa59444137b7c31562c10bdd1
+- artifact_hash: 1a8118ef6daba442b6c8cc5037706a1dcc3e3116507735efa2e10cb71ba1e588
   artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Paralimnadia westraliensis Timms, 2016, n. sp.
+  kind: url
+  value: https://doi.org/10.5281/zenodo.4685643`
+  verification_status: pending
+  verified_against_url: https://zenodo.org/records/4685644
+  verified_at: '2026-08-15T14:01:28.369434Z'
+- artifact_hash: 1a8118ef6daba442b6c8cc5037706a1dcc3e3116507735efa2e10cb71ba1e588
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: j.addma.2020.101632
+  kind: url
+  value: https://api.crossref.org/works/10.1016/j.addma.2020.101632`
+  verification_status: pending
+  verified_against_url: https://api.crossref.org/works/10.1016/j.addma.2020.101632
+  verified_at: '2026-08-15T14:01:28.369434Z'
+- artifact_hash: 1a8118ef6daba442b6c8cc5037706a1dcc3e3116507735efa2e10cb71ba1e588
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.4685643
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4685643
+  verified_at: '2026-08-15T14:01:28.369434Z'
+- artifact_hash: 1a8118ef6daba442b6c8cc5037706a1dcc3e3116507735efa2e10cb71ba1e588
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: Grain refinement of stainless steel in ultrasound-assisted additive
@@ -54,4 +87,4 @@
   value: 10.1016/j.addma.2020.101632
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.addma.2020.101632
-  verified_at: '2026-08-13T18:40:26.995297Z'
+  verified_at: '2026-08-15T14:01:28.369434Z'

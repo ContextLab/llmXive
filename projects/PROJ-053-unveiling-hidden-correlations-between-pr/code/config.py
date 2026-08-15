@@ -4,54 +4,68 @@ from pathlib import Path
 from typing import Optional
 
 # Project Root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # Directories
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-RESULTS_DIR = PROJECT_ROOT / "results"
-MODELS_DIR = RESULTS_DIR / "models"
-FIGURES_DIR = RESULTS_DIR / "figures"
-DOCS_DIR = PROJECT_ROOT / "docs"
-STATE_DIR = PROJECT_ROOT / "state"
-LOGS_DIR = PROJECT_ROOT / "logs"
+_DATA_DIR = _PROJECT_ROOT / "data"
+_RAW_DATA_DIR = _DATA_DIR / "raw"
+_PROCESSED_DATA_DIR = _DATA_DIR / "processed"
+_RESULTS_DIR = _PROJECT_ROOT / "results"
+_MODELS_DIR = _RESULTS_DIR / "models"
+_FIGURES_DIR = _RESULTS_DIR / "figures"
+_DOCS_DIR = _PROJECT_ROOT / "docs"
+_STATE_DIR = _PROJECT_ROOT / "state"
+_LOGS_DIR = _PROJECT_ROOT / "logs"
+_CONTRACTS_DIR = _PROJECT_ROOT / "contracts"
 
-# Random Seed
+# Configuration Keys
+TIME_LIMIT_SECONDS = 21600  # 6 hours
 RANDOM_SEED = 42
 
-# Performance Thresholds
-TIME_LIMIT_SECONDS = 21600  # 6 hours
+# Manual Data Paths
+MANUAL_DATA_PATHS = {
+    "am_data_csv": _RAW_DATA_DIR / "am_data.csv"
+}
+
+# Hardcoded Baseline for Literature Fallback (T031)
+LITERATURE_BASELINE_RANKING = {
+    'laser_power': 1,
+    'scan_speed': 2,
+    'layer_thickness': 3
+}
 
 def get_project_root() -> Path:
-    return PROJECT_ROOT
+    return _PROJECT_ROOT
 
 def get_data_dir() -> Path:
-    return DATA_DIR
+    return _DATA_DIR
 
 def get_raw_data_dir() -> Path:
-    return RAW_DATA_DIR
+    return _RAW_DATA_DIR
 
 def get_processed_data_dir() -> Path:
-    return PROCESSED_DATA_DIR
+    return _PROCESSED_DATA_DIR
 
 def get_results_dir() -> Path:
-    return RESULTS_DIR
+    return _RESULTS_DIR
 
 def get_models_dir() -> Path:
-    return MODELS_DIR
+    return _MODELS_DIR
 
 def get_figures_dir() -> Path:
-    return FIGURES_DIR
+    return _FIGURES_DIR
 
 def get_docs_dir() -> Path:
-    return DOCS_DIR
+    return _DOCS_DIR
 
 def get_state_dir() -> Path:
-    return STATE_DIR
+    return _STATE_DIR
 
 def get_logs_dir() -> Path:
-    return LOGS_DIR
+    return _LOGS_DIR
+
+def get_contracts_dir() -> Path:
+    return _CONTRACTS_DIR
 
 def get_random_seed() -> int:
     return RANDOM_SEED
@@ -59,15 +73,26 @@ def get_random_seed() -> int:
 def get_time_limit_seconds() -> int:
     return TIME_LIMIT_SECONDS
 
-def ensure_directories() -> None:
-    """Ensure all required directories exist."""
+def ensure_directories():
+    """Create all necessary directories if they do not exist."""
     dirs = [
-        DATA_DIR, RAW_DATA_DIR, PROCESSED_DATA_DIR,
-        RESULTS_DIR, MODELS_DIR, FIGURES_DIR,
-        DOCS_DIR, STATE_DIR, LOGS_DIR
+        _DATA_DIR, _RAW_DATA_DIR, _PROCESSED_DATA_DIR,
+        _RESULTS_DIR, _MODELS_DIR, _FIGURES_DIR,
+        _DOCS_DIR, _STATE_DIR, _LOGS_DIR, _CONTRACTS_DIR
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
-def get_logger(name: str = "config") -> logging.Logger:
-    return logging.getLogger(name)
+def get_logger(name: str = "llmXive") -> logging.Logger:
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    return logger
+
+# Helper to load hardcoded baseline directly from config if needed elsewhere
+def get_hardcoded_baseline_ranking() -> dict:
+    return LITERATURE_BASELINE_RANKING

@@ -1,1 +1,1 @@
-"""Visualization module."""
+# Viz package initialization

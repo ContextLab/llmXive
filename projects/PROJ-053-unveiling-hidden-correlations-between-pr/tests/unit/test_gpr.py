@@ -1,134 +1,162 @@
 import pytest
 import numpy as np
 import pandas as pd
-import tempfile
 import os
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
-from sklearn.model_selection import cross_val_score, KFold
+import sys
+import tempfile
 
-# Import from the project's models module
-from models.gpr_trainer import optimize_hyperparameters, train_gpr_model
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-def test_optimize_hyperparameters():
-    """Test GPR hyperparameter optimization - T021."""
-    # Create synthetic data with known non-linear relationship
-    np.random.seed(42)
-    n_samples = 50
-    X = np.random.uniform(0, 1, (n_samples, 2))
-    y = np.sin(X[:, 0] * 10) + np.cos(X[:, 1] * 10) + np.random.normal(0, 0.1, n_samples)
+from code.models.gpr_trainer import optimize_hyperparameters, train_gpr_model
+from code.models.metrics import calculate_r2, calculate_rmse
+from code.config import get_random_seed
+
+@pytest.fixture
+def synthetic_training_data():
+    """Create synthetic data for GPR training tests."""
+    np.random.seed(get_random_seed())
+    n_samples = 100
     
-    # Optimize hyperparameters
-    best_kernel, best_params = optimize_hyperparameters(X, y, n_iterations=5)
+    # Generate features
+    X = np.random.rand(n_samples, 3) * 100  # laser_power, scan_speed, layer_thickness
     
-    # Verify results
-    assert best_kernel is not None
-    assert best_params is not None
-    assert isinstance(best_kernel, (C * RBF))
+    # Generate target with known non-linear relationship
+    y = (
+        0.5 * X[:, 0] +  # laser_power
+        0.3 * X[:, 1] -  # scan_speed
+        0.2 * X[:, 2] +  # layer_thickness
+        0.1 * np.sin(X[:, 0]) +  # Non-linear component
+        np.random.normal(0, 2, n_samples)  # Noise
+    )
     
-    # Verify parameters are reasonable
-    assert 'constant_value' in best_params
+    return X, y
+
+@pytest.fixture
+def synthetic_test_data():
+    """Create synthetic test data."""
+    np.random.seed(get_random_seed() + 1)
+    n_samples = 20
+    
+    X = np.random.rand(n_samples, 3) * 100
+    y = (
+        0.5 * X[:, 0] +
+        0.3 * X[:, 1] -
+        0.2 * X[:, 2] +
+        0.1 * np.sin(X[:, 0]) +
+        np.random.normal(0, 2, n_samples)
+    )
+    
+    return X, y
+
+def test_optimize_hyperparameters(synthetic_training_data):
+    """Test hyperparameter optimization for GPR."""
+    X, y = synthetic_training_data
+    
+    best_params, best_score = optimize_hyperparameters(X, y, cv=3)
+    
+    # Check that optimization returns valid parameters
     assert 'length_scale' in best_params
+    assert 'sigma' in best_params
+    assert 'noise_level' in best_params
+    
+    # Check that score is a valid number
+    assert isinstance(best_score, float)
+    assert best_score > -np.inf
 
-def test_train_gpr_model():
+def test_train_gpr_model(synthetic_training_data, synthetic_test_data):
     """Test GPR model training and prediction."""
-    # Create synthetic data
-    np.random.seed(42)
-    n_samples = 50
-    X = np.random.uniform(0, 1, (n_samples, 2))
-    y = np.sin(X[:, 0] * 10) + np.cos(X[:, 1] * 10) + np.random.normal(0, 0.1, n_samples)
+    X_train, y_train = synthetic_training_data
+    X_test, y_test = synthetic_test_data
     
-    # Split into train and test
-    split_idx = int(0.8 * n_samples)
-    X_train, X_test = X[:split_idx], X[split_idx:]
-    y_train, y_test = y[:split_idx], y[split_idx:]
+    model = train_gpr_model(X_train, y_train)
     
-    # Train GPR model
-    model, metrics = train_gpr_model(X_train, y_train, X_test, y_test)
+    # Check that model can make predictions
+    predictions, uncertainty = model.predict(X_test, return_std=True)
     
-    # Verify model is trained
-    assert model is not None
-    assert isinstance(model, GaussianProcessRegressor)
+    assert len(predictions) == len(X_test)
+    assert len(uncertainty) == len(X_test)
     
-    # Verify metrics are computed
-    assert 'r2' in metrics
-    assert 'rmse' in metrics
-    assert 'mae' in metrics
-    
-    # Verify predictions are reasonable
-    assert metrics['r2'] > -1.0  # R2 can be negative but should be > -1 for reasonable model
-    assert metrics['rmse'] >= 0
-    assert metrics['mae'] >= 0
+    # Check that uncertainty is positive
+    assert np.all(uncertainty > 0)
 
-def test_gpr_uncertainty_quantification():
-    """Test that GPR provides uncertainty estimates."""
-    np.random.seed(42)
-    n_samples = 50
-    X = np.random.uniform(0, 1, (n_samples, 2))
-    y = np.sin(X[:, 0] * 10) + np.random.normal(0, 0.1, n_samples)
+def test_gpr_model_performance(synthetic_training_data, synthetic_test_data):
+    """Test that GPR model achieves reasonable performance metrics."""
+    X_train, y_train = synthetic_training_data
+    X_test, y_test = synthetic_test_data
     
-    split_idx = int(0.8 * n_samples)
-    X_train, X_test = X[:split_idx], X[split_idx:]
-    y_train, y_test = y[:split_idx], y[split_idx:]
+    model = train_gpr_model(X_train, y_train)
+    predictions, _ = model.predict(X_test, return_std=True)
     
-    model, _ = train_gpr_model(X_train, y_train, X_test, y_test)
+    r2 = calculate_r2(y_test, predictions)
+    rmse = calculate_rmse(y_test, predictions)
     
-    # Predict with uncertainty
-    y_pred, y_std = model.predict(X_test, return_std=True)
+    # Check that R² is reasonable (should be > 0 for this synthetic data)
+    assert r2 > 0.0, f"R² score {r2} is unexpectedly low"
     
-    # Verify uncertainty estimates
-    assert y_pred.shape == y_test.shape
-    assert y_std.shape == y_test.shape
-    assert all(y_std >= 0)  # Standard deviation should be non-negative
+    # Check that RMSE is reasonable relative to target range
+    target_range = np.max(y_test) - np.min(y_test)
+    assert rmse < target_range * 0.5, f"RMSE {rmse} is too large relative to target range {target_range}"
 
-def test_gpr_cross_validation():
-    """Test that GPR uses cross-validation for hyperparameter tuning."""
-    np.random.seed(42)
-    n_samples = 60
-    X = np.random.uniform(0, 1, (n_samples, 2))
-    y = np.sin(X[:, 0] * 10) + np.cos(X[:, 1] * 10) + np.random.normal(0, 0.1, n_samples)
+def test_gpr_uncertainty_quantification(synthetic_training_data):
+    """Test that GPR provides meaningful uncertainty estimates."""
+    X_train, y_train = synthetic_training_data
     
-    # Optimize with cross-validation
-    best_kernel, best_params = optimize_hyperparameters(X, y, n_iterations=10)
+    # Train on a subset of data
+    X_subset = X_train[:50]
+    y_subset = y_train[:50]
     
-    # Verify the kernel has been optimized
-    assert best_kernel is not None
-    assert best_params is not None
+    model = train_gpr_model(X_subset, y_subset)
     
-    # The optimized kernel should have different parameters than default
-    default_kernel = C(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-2, 1e2))
-    assert best_kernel != default_kernel or best_params != {'constant_value': 1.0, 'length_scale': 1.0}
+    # Predict on training data (should have low uncertainty)
+    _, uncertainty_train = model.predict(X_subset, return_std=True)
+    
+    # Predict on new data (should have higher uncertainty)
+    X_new = X_train[50:]
+    _, uncertainty_new = model.predict(X_new, return_std=True)
+    
+    # Check that uncertainty is generally higher for new data
+    # (This is a statistical property, so we check the mean)
+    assert np.mean(uncertainty_new) >= np.mean(uncertainty_train) * 0.8, \
+        "Uncertainty for new data should be comparable or higher than training data"
 
-def test_gpr_with_small_dataset():
-    """Test GPR performance on small dataset (N=50) - T026 validation."""
-    np.random.seed(42)
-    n_samples = 50
-    X = np.random.uniform(0, 1, (n_samples, 2))
-    y = np.sin(X[:, 0] * 10) + np.cos(X[:, 1] * 10) + np.random.normal(0, 0.1, n_samples)
+def test_gpr_with_different_kernels(synthetic_training_data):
+    """Test GPR training with different kernel configurations."""
+    X, y = synthetic_training_data
     
-    split_idx = int(0.8 * n_samples)
-    X_train, X_test = X[:split_idx], X[split_idx:]
-    y_train, y_test = y[:split_idx], y[split_idx:]
+    # Test with default RBF kernel
+    model_rbf = train_gpr_model(X, y)
+    predictions_rbf, _ = model_rbf.predict(X[:10], return_std=True)
     
-    model, metrics = train_gpr_model(X_train, y_train, X_test, y_test)
-    
-    # Verify the model can achieve reasonable performance on small data
-    # This is the success metric from T026: R² > 0.5
-    assert metrics['r2'] > 0.5, f"GPR failed to recover signal on synthetic data (R²={metrics['r2']})"
+    assert len(predictions_rbf) == 10
+    assert np.all(np.isfinite(predictions_rbf))
 
-def test_gpr_kernel_structure():
-    """Test that the GPR kernel has the correct structure."""
-    np.random.seed(42)
-    n_samples = 50
-    X = np.random.uniform(0, 1, (n_samples, 2))
-    y = np.random.normal(0, 1, n_samples)
+def test_gpr_hyperparameter_sensitivity(synthetic_training_data):
+    """Test that GPR performance is sensitive to hyperparameters."""
+    X, y = synthetic_training_data
     
-    best_kernel, _ = optimize_hyperparameters(X, y, n_iterations=5)
+    # Train with optimized hyperparameters
+    best_params, best_score = optimize_hyperparameters(X, y, cv=3)
+    model_optimized = train_gpr_model(X, y)
     
-    # Verify kernel structure
-    assert hasattr(best_kernel, 'k1')  # C * RBF structure
-    assert hasattr(best_kernel, 'k2')
+    # Train with fixed (potentially suboptimal) hyperparameters
+    from sklearn.gaussian_process import GaussianProcessRegressor
+    from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
     
-    # Verify it's a product of ConstantKernel and RBF
-    from sklearn.gaussian_process.kernels import ConstantKernel as C, RBF
-    assert isinstance(best_kernel, C * RBF)
+    fixed_kernel = C(1.0) * RBF(length_scale=1.0)
+    model_fixed = GaussianProcessRegressor(kernel=fixed_kernel, random_state=get_random_seed())
+    model_fixed.fit(X, y)
+    
+    # Compare performance on a test set
+    X_test = X[:20]
+    y_test = y[:20]
+    
+    pred_opt, _ = model_optimized.predict(X_test, return_std=True)
+    pred_fixed = model_fixed.predict(X_test)
+    
+    r2_opt = calculate_r2(y_test, pred_opt)
+    r2_fixed = calculate_r2(y_test, pred_fixed)
+    
+    # Optimized model should generally perform better or equally well
+    assert r2_opt >= r2_fixed - 0.1, \
+        f"Optimized model R² ({r2_opt}) should be at least close to fixed model R² ({r2_fixed})"

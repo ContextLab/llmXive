@@ -7,7 +7,7 @@
 
 This project implements a Gaussian Process Regression (GPR) pipeline to model **associational** non-linear relationships between additive manufacturing (AM) processing parameters (laser power, scan speed, layer thickness) and mechanical properties (yield strength, ductility). The system ingests public or user-provided AM alloy datasets, performs rigorous preprocessing (median imputation, min-max normalization **fit on training data only**, one-hot encoding), trains a GPR model with an RBF kernel using -fold cross-validation, and generates uncertainty-aware visualizations (contour plots, heatmaps) to identify high-priority experimental regimes.
 
-**Critical Scope Note**: This project does **not** claim causal discovery. All claims are framed as associational ("Laser Power is associated with Yield Strength"). The "optimization regimes" identified are statistical suggestions for data-sparse regions, not causal prescriptions. The implementation is constrained to run on free-tier CPU-only CI runners (limited cores, ~7 GB RAM) and adheres strictly to the project constitution regarding reproducibility, data hygiene, and verified accuracy.
+**Critical Scope Note**: This project does **not** claim causal discovery. All claims are framed as associational ("Laser Power is associated with Yield Strength"). The "optimization regimes" identified are statistical suggestions for data-sparse regions, not causal prescriptions. The implementation is constrained to run on free-tier CPU-only CI runners with limited cores and constrained RAM. and adheres strictly to the project constitution regarding reproducibility, data hygiene, and verified accuracy.
 
 ## Technical Context
 
@@ -162,7 +162,7 @@ projects/PROJ-053-unveiling-hidden-correlations-between-pr/
 
 **Task 2.7: Physical Regime Mapping**
 - **Action**: Load `normalization_bounds.json`.
-- **Output**: Annotate all visualizations with physical units (e.g., "Laser Power: 100-500W") derived from training set bounds, ensuring interpretability of "parameter regimes".
+- **Output**: Annotate all visualizations with physical units (e.g., "Laser Power: -500W") derived from training set bounds, ensuring interpretability of "parameter regimes".
 
 ### Phase 3: Visualization & Reporting (FR-005, FR-007, SC-005)
 

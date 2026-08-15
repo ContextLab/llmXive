@@ -1,10 +1,25 @@
+# Dataset Schema for Additive Manufacturing Alloy Properties
+# Defines required and optional columns for validation
+
 required_columns:
   - laser_power
   - scan_speed
   - layer_thickness
   - yield_strength
   - ductility
+
 optional_columns:
   - fatigue_life
-  - alloy_type
-description: "Schema for AM alloy dataset"
+
+column_types:
+  laser_power: numeric
+  scan_speed: numeric
+  layer_thickness: numeric
+  yield_strength: numeric
+  ductility: numeric
+  fatigue_life: numeric
+
+description: |
+  This schema defines the expected structure for the AM alloy dataset.
+  Required columns must be present for validation to pass.
+  Optional columns are allowed but not required.
