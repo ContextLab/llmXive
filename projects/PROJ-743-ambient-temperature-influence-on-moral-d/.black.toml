@@ -1,0 +1,6 @@
+# Black configuration file
+# While Black is primarily configured via pyproject.toml, 
+# this file is included for completeness if Black is invoked with --config.
+# The actual settings are in pyproject.toml under [tool.black].
+line-length = 88
+target-version = ['py39', 'py310', 'py311']

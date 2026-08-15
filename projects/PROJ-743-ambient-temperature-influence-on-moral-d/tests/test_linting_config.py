@@ -1,57 +1,67 @@
 """
-Tests for linting and formatting configuration.
-Verifies that pyproject.toml exists and contains required sections for ruff and black.
+Unit tests for linting and formatting configuration.
+These tests verify that the configuration files (pyproject.toml, .ruff.toml, .black.toml)
+exist and contain the expected settings for Black and Ruff.
 """
 import os
-import sys
 import pytest
 from pathlib import Path
-
-# Add parent directory to path to import config_linting
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from config_linting import ensure_pyproject_toml
+import tomllib
 
 @pytest.fixture
 def project_root():
-    """Get the project root directory."""
-    return Path(__file__).parent.parent
+    """Return the project root directory."""
+    return Path(__file__).resolve().parent.parent
 
 def test_pyproject_toml_exists(project_root):
-    """Test that pyproject.toml is created or exists."""
-    pyproject_path = ensure_pyproject_toml()
-    assert pyproject_path.exists(), "pyproject.toml should exist after running ensure_pyproject_toml"
-
-def test_black_section_exists(project_root):
-    """Test that pyproject.toml contains [tool.black] section."""
-    ensure_pyproject_toml()
+    """Test that pyproject.toml exists."""
     pyproject_path = project_root / "pyproject.toml"
-    with open(pyproject_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    assert "[tool.black]" in content, "pyproject.toml must contain [tool.black] section"
-    assert "line-length" in content, "Black configuration must include line-length"
+    assert pyproject_path.exists(), "pyproject.toml should exist in the project root."
 
-def test_ruff_section_exists(project_root):
-    """Test that pyproject.toml contains [tool.ruff] section."""
-    ensure_pyproject_toml()
+def test_pyproject_toml_has_black_config(project_root):
+    """Test that pyproject.toml contains Black configuration."""
     pyproject_path = project_root / "pyproject.toml"
-    with open(pyproject_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    assert "[tool.ruff]" in content, "pyproject.toml must contain [tool.ruff] section"
-    assert "line-length" in content, "Ruff configuration must include line-length"
+    assert pyproject_path.exists(), "pyproject.toml should exist."
+    
+    content = pyproject_path.read_text()
+    assert "[tool.black]" in content, "pyproject.toml should contain [tool.black] section."
+    assert "line-length = 88" in content, "Black line-length should be 88."
+    assert "target-version" in content, "Black target-version should be specified."
 
-def test_ruff_lint_section_exists(project_root):
-    """Test that pyproject.toml contains [tool.ruff.lint] section."""
-    ensure_pyproject_toml()
+def test_pyproject_toml_has_ruff_config(project_root):
+    """Test that pyproject.toml contains Ruff configuration."""
     pyproject_path = project_root / "pyproject.toml"
-    with open(pyproject_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    assert "[tool.ruff.lint]" in content, "pyproject.toml must contain [tool.ruff.lint] section"
+    assert pyproject_path.exists(), "pyproject.toml should exist."
+    
+    content = pyproject_path.read_text()
+    assert "[tool.ruff]" in content, "pyproject.toml should contain [tool.ruff] section."
+    assert "select" in content, "Ruff select list should be specified."
+    assert "ignore" in content, "Ruff ignore list should be specified."
 
-def test_ruff_format_section_exists(project_root):
-    """Test that pyproject.toml contains [tool.ruff.format] section."""
-    ensure_pyproject_toml()
-    pyproject_path = project_root / "pyproject.toml"
-    with open(pyproject_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    assert "[tool.ruff.format]" in content, "pyproject.toml must contain [tool.ruff.format] section"
+def test_ruff_toml_exists(project_root):
+    """Test that .ruff.toml exists."""
+    ruff_toml_path = project_root / ".ruff.toml"
+    assert ruff_toml_path.exists(), ".ruff.toml should exist in the project root."
+
+def test_black_toml_exists(project_root):
+    """Test that .black.toml exists."""
+    black_toml_path = project_root / ".black.toml"
+    assert black_toml_path.exists(), ".black.toml should exist in the project root."
+
+def test_ruff_config_valid_syntax(project_root):
+    """Test that .ruff.toml is valid TOML syntax."""
+    ruff_toml_path = project_root / ".ruff.toml"
+    try:
+        with open(ruff_toml_path, "rb") as f:
+            tomllib.load(f)
+    except Exception as e:
+        pytest.fail(f".ruff.toml is not valid TOML: {e}")
+
+def test_black_config_valid_syntax(project_root):
+    """Test that .black.toml is valid TOML syntax."""
+    black_toml_path = project_root / ".black.toml"
+    try:
+        with open(black_toml_path, "rb") as f:
+            tomllib.load(f)
+    except Exception as e:
+        pytest.fail(f".black.toml is not valid TOML: {e}")

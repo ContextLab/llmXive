@@ -46,7 +46,7 @@
 **⚠️ CRITICAL**: No other tasks can begin until Phase 0 is complete and the data gap is resolved.
 
 - [X] T001 [P] Verify the canonical URL for the Copernicus Climate Data Store (CDS) API for ERA hourly data (2016-2019) and confirm accessibility (HTTP 200) using the `cdsapi` library configuration. Log the verification result (including API endpoint and status) to `results/logs/data_validation_log.txt`.
-- [ ] T002 [P] Write a Python script `code/fetch_era5.py` that uses the `cdsapi` library to authenticate and request hourly ERA5 2m temperature data for 2016-2019. Execute this script to fetch a sample subset to `data/raw/era5_sample.h5` for validation. Log success/fail to `results/logs/data_validation_log.txt`.
+- [ ] T002 [P] Write a Python script `code/fetch_era5.py` that uses the `cdsapi` library to authenticate and request hourly ERA5 2m temperature data for 2016-2019. Execute this script to fetch a sample subset to `data/raw/era5_sample.h5` for validation. Log success/fail to `results/logs/data_validation_log.txt`. <!-- FAILED: unspecified -->
 - [ ] T003 [P] Compute and record the SHA-256 checksum of the downloaded ERA5 sample file in `state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml`.
 - [X] T004 [P] Programmatically validate that the downloaded ERA5 sample meets the hourly temporal resolution and geographic grid size standards defined in FR-014. Log validation status (Pass/Fail) to `results/logs/data_validation_log.txt`.
 - [X] T005 [P] Verify the Moral Machine dataset source against the "Verified Accuracy" principle and log the validation status to `results/logs/data_validation_log.txt` using a standardized format: "Source: <name>, Status: <Pass/Fail>".
@@ -98,10 +98,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T017 [P] [US1] Implement `code/ingestion.py` to load Moral Machine dataset and filter records with missing location data or impossible response times (<100ms or >10,000ms), logging excluded records to `results/logs/exclusion_log.csv` in CSV format (FR-002, FR-010)
+- [X] T017 [P] [US1] Implement `code/ingestion.py` to load Moral Machine dataset and filter records with missing location data or impossible response times (<100ms or >10,000ms), logging excluded records to `results/logs/exclusion_log.csv` in CSV format (FR-002, FR-010)
 - [X] T018 [US1] Implement ERA5 Reanalysis data fetching logic in `code/ingestion.py` using the CDS API (`cdsapi`) for 2016-2019 (FR-001). **Note**: This task depends on T002 completing.
-- [ ] T019 [US1] Implement geospatial matching logic in `code/ingestion.py` to link Moral Machine records to nearest ERA5 grid within 100km threshold. Explicitly flag records >100km by setting `match_quality` to 'low' and logging the exact reason "distance > 100km" to `results/logs/exclusion_log.csv` before exclusion (FR-009). **Note**: This task depends on T018 completing.
-- [ ] T020 [US1] Implement time-based interpolation for missing ERA5 hourly values in `code/ingestion.py`: apply linear interpolation ONLY if the gap is ≤2 hours; EXCLUDE the record if the gap >2 hours. Log all excluded records with reasons (e.g., "ERA5 coverage gap", "Low confidence match", "temporal_gap > 2h") to `results/logs/exclusion_log.csv` in CSV format (Edge Case: Missing Temp, FR-002). **Note**: This task depends on T019 completing.
+- [X] T019 [US1] Implement geospatial matching logic in `code/ingestion.py` to link Moral Machine records to nearest ERA5 grid within 100km threshold. Explicitly flag records >100km by setting `match_quality` to 'low' and logging the exact reason "distance > 100km" to `results/logs/exclusion_log.csv` before exclusion (FR-009). **Note**: This task depends on T018 completing.
+- [X] T020 [US1] Implement time-based interpolation for missing ERA5 hourly values in `code/ingestion.py`: apply linear interpolation ONLY if the gap is ≤2 hours; EXCLUDE the record if the gap >2 hours. Log all excluded records with reasons (e.g., "ERA5 coverage gap", "Low confidence match", "temporal_gap > 2h") to `results/logs/exclusion_log.csv` in CSV format (Edge Case: Missing Temp, FR-002). **Note**: This task depends on T019 completing.
 - [ ] T022 [US1] Implement output generation to save merged dataset to `data/processed/merged_dataset.parquet` and log success rate (SC-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

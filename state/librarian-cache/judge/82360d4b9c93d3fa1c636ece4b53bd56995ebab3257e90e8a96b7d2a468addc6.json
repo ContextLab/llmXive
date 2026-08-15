@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.03118",
+  "judged_at": "2026-08-15T09:34:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"vidu s1: a real-time interactive video generation model\" computer science",
+  "rationale": "This paper is the foundational source document for the \"Vidu S1\" model explicitly named in the user's research question, satisfying category (d) as the canonical reference for the specific system the user intends to extend. Without this paper, a literature review on \"llmXive follow-up: extending Vidu S1\" would lack the primary definition of the baseline architecture and capabilities being modified.",
+  "relevant": true
+}

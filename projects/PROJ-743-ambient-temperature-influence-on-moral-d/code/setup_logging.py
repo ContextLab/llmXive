@@ -3,106 +3,156 @@ import sys
 import logging
 from datetime import datetime
 from pathlib import Path
+
 from config import get_path_env_override
 
-# Define log directory based on project structure
-LOG_DIR = Path("results/logs")
 
-# Ensure the log directory exists
-def _ensure_log_dir():
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Global registry to hold configured logger instances
+_loggers = {}
+_handlers_configured = False
 
-# Configure the root logger for the project
-def setup_logging():
-    _ensure_log_dir()
+
+def ensure_directories(log_dir: Path) -> None:
+    """Ensure the logging directory exists."""
+    if not log_dir.exists():
+        log_dir.mkdir(parents=True, exist_ok=True)
+
+
+def setup_logging(log_dir: Path) -> None:
+    """
+    Configure the root logging infrastructure.
     
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    Sets up file handlers for specific log categories (data quality, model diagnostics)
+    and ensures the directory structure exists.
     
-    # Data Quality Log file
-    data_quality_log_path = LOG_DIR / f"data_quality_{timestamp}.log"
-    
-    # Model Diagnostics Log file
-    model_diagnostics_log_path = LOG_DIR / f"model_diagnostics_{timestamp}.log"
-    
-    # Configure root logger to avoid duplicate handlers if called multiple times
+    Args:
+        log_dir: The directory where log files will be written.
+    """
+    global _handlers_configured
+    if _handlers_configured:
+        return
+
+    ensure_directories(log_dir)
+
+    # Define log file paths
+    data_quality_log_path = log_dir / "data_quality.log"
+    model_diagnostics_log_path = log_dir / "model_diagnostics.log"
+    general_log_path = log_dir / "pipeline.log"
+
+    # Configure root logger to NOT propagate to avoid duplicate console output
+    # if other parts of the system configure root differently, though usually
+    # we want a file handler on the root for general pipeline events.
     root_logger = logging.getLogger()
-    if not root_logger.handlers:
-        root_logger.setLevel(logging.INFO)
-        # Optional: Console handler for immediate feedback
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
-        root_logger.addHandler(console_handler)
+    root_logger.setLevel(logging.DEBUG)
 
-    return data_quality_log_path, model_diagnostics_log_path
+    # Remove any existing handlers to ensure idempotency in testing
+    if root_logger.handlers:
+        root_logger.handlers.clear()
 
-def get_data_quality_logger(name: str = "data_quality"):
-    """
-    Returns a logger instance that writes data quality logs to results/logs/.
-    This logger is intended for ingestion validation, filtering stats, and data integrity checks.
-    """
-    _ensure_log_dir()
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    # General Pipeline Handler (INFO and above)
+    general_handler = logging.FileHandler(general_log_path, mode='a', encoding='utf-8')
+    general_handler.setLevel(logging.INFO)
+    general_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    general_handler.setFormatter(general_formatter)
+    root_logger.addHandler(general_handler)
+
+    # Data Quality Handler (DEBUG and above)
+    dq_handler = logging.FileHandler(data_quality_log_path, mode='a', encoding='utf-8')
+    dq_handler.setLevel(logging.DEBUG)
+    dq_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    dq_handler.setFormatter(dq_formatter)
     
-    # Avoid adding duplicate handlers if this is called multiple times
-    if not logger.handlers:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = LOG_DIR / f"data_quality_{timestamp}.log"
-        
-        file_handler = logging.FileHandler(log_file, mode='a')
-        file_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-        
+    # Create a specific logger for data quality
+    data_quality_logger = logging.getLogger('data_quality')
+    data_quality_logger.addHandler(dq_handler)
+    data_quality_logger.setLevel(logging.DEBUG)
+    data_quality_logger.propagate = False  # Don't double-log to root
+
+    # Model Diagnostics Handler (DEBUG and above)
+    md_handler = logging.FileHandler(model_diagnostics_log_path, mode='a', encoding='utf-8')
+    md_handler.setLevel(logging.DEBUG)
+    md_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    md_handler.setFormatter(md_formatter)
+
+    # Create a specific logger for model diagnostics
+    model_diagnostics_logger = logging.getLogger('model_diagnostics')
+    model_diagnostics_logger.addHandler(md_handler)
+    model_diagnostics_logger.setLevel(logging.DEBUG)
+    model_diagnostics_logger.propagate = False
+
+    # Console handler for immediate feedback during development (WARNING and above)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.WARNING)
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    console_handler.setFormatter(console_formatter)
+    root_logger.addHandler(console_handler)
+
+    _handlers_configured = True
+    # Log initialization
+    root_logger.info(f"Logging infrastructure initialized. Logs written to {log_dir}")
+
+
+def get_data_quality_logger() -> logging.Logger:
+    """
+    Retrieve the dedicated logger for data quality checks.
+    
+    Returns:
+        A logger instance configured to write to data_quality.log.
+    """
+    log_dir = Path(get_path_env_override("RESULTS_LOGS_DIR", "results/logs"))
+    setup_logging(log_dir)
+    logger = logging.getLogger('data_quality')
+    if not logger.hasHandlers():
+        # Fallback if setup_logging wasn't called explicitly first
+        setup_logging(log_dir)
     return logger
 
-def get_model_diagnostics_logger(name: str = "model_diagnostics"):
+
+def get_model_diagnostics_logger() -> logging.Logger:
     """
-    Returns a logger instance that writes model diagnostics to results/logs/.
-    This logger is intended for convergence checks, residual analysis, and coefficient logging.
-    """
-    _ensure_log_dir()
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    Retrieve the dedicated logger for model diagnostics.
     
-    if not logger.handlers:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = LOG_DIR / f"model_diagnostics_{timestamp}.log"
-        
-        file_handler = logging.FileHandler(log_file, mode='a')
-        file_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-        
+    Returns:
+        A logger instance configured to write to model_diagnostics.log.
+    """
+    log_dir = Path(get_path_env_override("RESULTS_LOGS_DIR", "results/logs"))
+    setup_logging(log_dir)
+    logger = logging.getLogger('model_diagnostics')
+    if not logger.hasHandlers():
+        setup_logging(log_dir)
     return logger
 
-def main():
+
+def main() -> None:
     """
-    Entry point to demonstrate logging infrastructure setup.
-    Creates log files and writes initial startup entries.
+    Entry point to verify logging setup and write a sample log entry.
     """
-    print("Setting up logging infrastructure...")
-    setup_logging()
-    
+    log_dir = Path(get_path_env_override("RESULTS_LOGS_DIR", "results/logs"))
+    setup_logging(log_dir)
+
     dq_logger = get_data_quality_logger()
     md_logger = get_model_diagnostics_logger()
-    
+    root_logger = logging.getLogger()
+
+    # Write test entries to verify the infrastructure
     dq_logger.info("Data Quality Logger initialized successfully.")
-    dq_logger.info("Ready to log ingestion validation results.")
+    dq_logger.debug("Sample data quality check: Schema validation passed.")
     
     md_logger.info("Model Diagnostics Logger initialized successfully.")
-    md_logger.info("Ready to log model convergence and parameter estimates.")
+    md_logger.debug("Sample model diagnostic: Convergence check started.")
     
-    print(f"Logs will be written to: {LOG_DIR}")
-    print("Logging infrastructure setup complete.")
+    root_logger.info("Pipeline logging system operational.")
+
+    print(f"Logging infrastructure setup complete. Check {log_dir} for log files.")
+
 
 if __name__ == "__main__":
     main()
