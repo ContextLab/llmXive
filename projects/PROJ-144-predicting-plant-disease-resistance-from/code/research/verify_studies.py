@@ -8,6 +8,7 @@ from typing import List, Dict, Any, Optional
 from utils.constants import DATA_RAW_DIR
 
 MANIFEST_PATH = DATA_RAW_DIR / "study_manifest.json"
+# Metabolomics Workbench API endpoint for study search
 MW_API_SEARCH = "https://www.metabolomicsworkbench.org/data/study_summary.php"
 
 def search_plant_studies() -> List[Dict[str, Any]]:
@@ -35,7 +36,11 @@ def search_plant_studies() -> List[Dict[str, Any]]:
         return []
 
     candidates = []
-    keywords = ["pre-challenge", "baseline", "inoculation", "time course", "resistance", "pathogen"]
+    # Keywords indicating temporal data (pre-challenge, baseline, time course) or resistance
+    keywords = [
+        "pre-challenge", "baseline", "inoculation", "time course", 
+        "resistance", "pathogen", "challenge", "treatment"
+    ]
     
     for study in data.get("STUDIES", []):
         study_id = study.get("STUDY_ID")
@@ -43,14 +48,14 @@ def search_plant_studies() -> List[Dict[str, Any]]:
         abstract = study.get("ABSTRACT", "") or ""
         
         # Filter for potential relevance (inclusion criteria)
-        # We look for temporal markers in the title or abstract
         content = f"{title} {abstract}".lower()
         if any(kw in content for kw in keywords):
             candidates.append({
                 "study_id": study_id,
                 "title": title,
                 "abstract": abstract,
-                "download_url": f"https://www.metabolomicsworkbench.org/data/download.php?STUDY_ID={study_id}&TYPE=STUDY"
+                "download_url": f"https://www.metabolomicsworkbench.org/data/download.php?STUDY_ID={study_id}&TYPE=STUDY",
+                "phenotype_url": f"https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID={study_id}&VIEW=PHENOTYPE"
             })
     
     return candidates
@@ -58,7 +63,7 @@ def search_plant_studies() -> List[Dict[str, Any]]:
 def verify_studies(candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Verifies candidates and constructs the final manifest.
-    Selects the first valid public study found.
+    Selects the first valid public study found that meets criteria.
     """
     manifest = []
     
@@ -67,11 +72,12 @@ def verify_studies(candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         print(f"Verifying study: {study_id} - {candidate['title']}")
         
         # Construct the entry for the manifest
-        # The task requires: study_id, title, download_url
+        # The task requires: study_id, title, download_url, phenotype_url
         entry = {
             "study_id": study_id,
             "title": candidate["title"],
-            "download_url": candidate["download_url"]
+            "download_url": candidate["download_url"],
+            "phenotype_url": candidate["phenotype_url"]
         }
         
         manifest.append(entry)
@@ -97,6 +103,7 @@ def main():
         print(f"Failed to fetch studies from API: {e}")
         # If API fails, we cannot proceed with real data. 
         # We write an empty manifest to indicate failure, but the script itself runs.
+        # However, per constraints, we must not fabricate. If no data, manifest is empty.
         manifest = []
     else:
         if not candidates:

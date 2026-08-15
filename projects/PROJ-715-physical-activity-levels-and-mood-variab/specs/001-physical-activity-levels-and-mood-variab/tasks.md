@@ -135,9 +135,9 @@
 - [X] T029 [US3] Implement `code/analysis.py` sensitivity analysis: re-run primary model on "weekdays only" dataset and compare coefficients
 - [X] T030 [US3] Implement `code/analysis.py` sensitivity analysis: re-run model using "active minutes" instead of step counts and compare direction of effect
 - [X] T031a [US3] Implement `code/analysis.py` logic to exclude single-rating days from the dataset for the primary sensitivity branch
-- [ ] T031b [US3] Implement `code/analysis.py` logic to impute single-rating days using the participant's median mood value for the secondary sensitivity branch
-- [ ] T031c [US3] Implement `code/analysis.py` to execute a bootstrap sampling loop (1000 iterations, seed 42): for each iteration, fit the exclusion model (T031a logic) and the imputation model (T031b logic), **compare the coefficients of the two models within the iteration**, record whether the direction remains consistent, and verify the consistency of this comparison in ≥80% of the bootstrap samples
-- [ ] T032 [US3] Implement `code/report.py` to generate PDF/HTML report containing effect sizes, CIs, diagnostic plots (including 'residuals vs. fitted' from T023), LOPO results, and sensitivity analysis summaries
+- [X] T031b [US3] Implement `code/analysis.py` logic to impute single-rating days using the participant's median mood value for the secondary sensitivity branch
+- [X] T031c [US3] Implement `code/analysis.py` to execute a bootstrap sampling loop (1000 iterations, seed 42): for each iteration, fit the exclusion model (T031a logic) and the imputation model (T031b logic), **compare the coefficients of the two models within the iteration**, record whether the direction remains consistent, and verify the consistency of this comparison in ≥80% of the bootstrap samples
+- [X] T032 [US3] Implement `code/report.py` to generate PDF/HTML report containing effect sizes, CIs, diagnostic plots (including 'residuals vs. fitted' from T023), LOPO results, and sensitivity analysis summaries
 - [ ] T033 [US3] Ensure report explicitly states "associational" findings and avoids causal language
 
 **Checkpoint**: All user stories should now be independently functional

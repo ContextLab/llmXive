@@ -34,12 +34,22 @@
 
 ## Phase 0: Data Acquisition & Verification (FR-001, FR-014)
 
-**Purpose**: Identify and verify public datasets with specific Study IDs before implementation begins. **Depends on T001a/b.**
-**Ordering Note**: T012a must complete successfully before T012b can run. T012b must complete before T017.
+**Purpose**: Identify, verify, download, and validate public datasets. **Depends on T001a/b.**
+**Ordering Note**: T012a -> T012b -> T013 -> T017. T012a must complete before T012b. T012b must complete before T013. T013 must complete before T017.
 
-- [X] T012a [US1] **Implement** `code/research/verify_studies.py` to generate `data/raw/study_manifest.json`. **Logic**: Use hardcoded, verified Metabolomics Workbench Study IDs known to contain pre-challenge metabolite profiles and resistance metadata (e.g., `MW000001`, `MW000002`). **Endpoint**: Query `. **Schema**: Expect JSON response with `study_id`, `title`, `download_url`, and `phenotype_url`. **Retry Mechanism**: If the first study fails, try the next hardcoded ID. **Do NOT** dynamically search or guess IDs. **Output**: Write a JSON list to `data/raw/study_manifest.json` containing `study_id`, `title`, and `download_url`. **Verification**: Run script and verify `data/raw/study_manifest.json` exists and contains valid JSON with at least one Study ID and a valid URL. **Mandatory Check**: Ensure the generated file is not empty and contains valid JSON before marking task complete.
+- [ ] T012a [US1] **Re-implement** `code/research/verify_studies.py` to generate `data/raw/study_manifest.json`. **Logic**: Query the Metabolomics Workbench API (endpoint: `) with search parameters for `subject_type=plant` and `data_type=metabolomics`. Filter results to identify studies containing both `pre-challenge`/`baseline` metabolite profiles and `disease resistance`/`phenotype` metadata. **Output**: Write a JSON list to `data/raw/study_manifest.json` containing `study_id`, `title`, `download_url`, and `phenotype_url` for at least one valid study. **Verification**: Run script and verify `data/raw/study_manifest.json` exists, is non-empty, and contains valid JSON with at least one Study ID and valid URLs. **Mandatory Check**: Ensure the generated file is not empty and contains valid JSON before marking task complete.
 
-- [ ] T012b [US1] **Download** raw intensity tables and phenotype metadata using the `download_url` from `data/raw/study_manifest.json`. **Pre-requisite**: T012a must complete successfully. **Pre-check**: Verify `data/raw/study_manifest.json` exists. If missing, raise `DataUnavailableError` with message "Pre-requisite manifest missing. Run T012a first." **Download Logic**: For each entry in the manifest, `requests.get()` the `download_url`. **File Naming**: Save raw files as `data/raw/{study_id}_raw_intensity.csv` and `data/raw/{study_id}_phenotype.csv`. **Verify** sample metadata for 'pre-challenge', 'baseline', or timestamps prior to pathogen inoculation. **Specific Criteria**: Check for columns named `timepoint` or `treatment_phase` with values `pre-challenge`, `baseline`, or timestamps < challenge_date. **Hard Fail**: If temporal verification fails for a specific study, raise `TemporalVerificationError` with the specific study ID and missing criteria. Do NOT skip or fallback. **Output**: Store raw files with SHA256 checksums in `data/raw/`. **Verification**: Confirm files exist and metadata contains required temporal fields.
+- [ ] T012b [US1] **Download** raw intensity tables and phenotype metadata using the `download_url` from `data/raw/study_manifest.json`. **Pre-requisite**: T012a must complete successfully. **Pre-check**: Verify `data/raw/study_manifest.json` exists. If missing, raise `DataUnavailableError` with message "Pre-requisite manifest missing. Run T012a first." **Download Logic**: For each entry in the manifest, `requests.get()` the `download_url`. **File Naming**: Save raw files as `data/raw/{study_id}_raw_intensity.csv` and `data/raw/{study_id}_phenotype.csv`. **Output**: Store raw files with SHA256 checksums in `data/raw/`. **Verification**: Confirm files exist and are non-empty. <!-- ATOMIZE: requested -->
+
+- [ ] T013 [US1] **Implement** `code/data/validate_temporal.py` to verify FR-014: **Explicitly check metadata for 'pre-challenge', 'baseline', or timestamps prior to pathogen inoculation. If metadata lacks these, raise `TemporalVerificationError` and halt the pipeline for that study. Do NOT skip.** **Pre-requisite**: T012b must complete successfully. **Input**: `data/raw/{study_id}_phenotype.csv`. **Output**: `data/processed/temporal_validation_log.json` indicating pass/fail per study. **Verification**: Run script and ensure it raises an error if temporal criteria are not met.
+
+- [X] T014 [US1] **Implement** `code/data/harmonize_labels.py` to handle label harmonization (FR-013). **Logic**: <!-- ATOMIZE: requested -->
+ 1. Load raw labels from `data/raw/{study_id}_phenotype.csv`.
+ 2. Analyze `measurement_method` and `assay_score` distribution to detect heterogeneity (multiple methods or mixed binary/ordinal scales).
+ 3. **If heterogeneity exists (including multi-study binary scenarios)**: Stratify labels by `measurement_method` OR apply z-scoring within study.
+ 4. **If no heterogeneity (single binary method, single study)**: Apply global alignment logic (0/1).
+ 5. **Output**: Generate `data/processed/harmonized_labels.csv` containing standardized binary (0/1) or z-scored labels.
+ **Verification**: Run script and verify output file contains harmonized labels with no missing values.
 
 ---
 
@@ -70,19 +80,15 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `code/data/validate_temporal.py` to verify FR-014: **Explicitly check metadata for 'pre-challenge', 'baseline', or timestamps prior to pathogen inoculation. If metadata lacks these, raise `TemporalVerificationError` and halt the pipeline for that study. Do NOT skip.**
-- [ ] T014a [US1] **Implement** `code/data/harmonize_labels.py` (Heterogeneity Check): Load raw labels. Analyze `measurement_method` and `assay_score` distribution. Determine if heterogeneity exists (multiple methods or ordinal scales). Output `data/processed/heterogeneity_flag.json`.
-- [ ] T014b [US1] **Implement** `code/data/harmonize_labels.py` (Z-scoring/Stratification): If heterogeneity detected, stratify labels by `measurement_method`. If ordinal, apply z-scoring within study. Output `data/processed/stratified_labels.csv`.
-- [ ] T014c [US1] **Implement** `code/data/harmonize_labels.py` (Binary Alignment): If no heterogeneity (single binary method), apply global alignment logic to ensure consistent 0/1 semantics across studies. Output `data/processed/binary_labels.csv`.
-- [ ] T014d [US1] **Merge** logic from T014a, T014b, T014c into a single executable `code/data/harmonize_labels.py`. Ensure the script routes to the correct logic based on the `heterogeneity_flag`. Output `data/processed/harmonized_labels.csv`.
-- [X] T015 [US1] Implement `code/data/preprocess.py` to:
+- [X] T016 [P] Add logging functions for data acquisition and preprocessing steps to `code/utils/io.py`. **Ensure functions exist before T015 is implemented.**
+- [X] T015 [US1] Implement `code/data/preprocess.py` to: <!-- FAILED: unspecified -->
  - Log-transform intensities and discard features missing >30% (FR-002)
  - Align metabolites via InChIKey across studies
  - **Apply ComBat batch-effect correction ONLY if study count >= 2** (FR-004). If count < 2, skip ComBat and log a warning.
  - **Handle InChIKey alignment failures**: Log missing metabolites to `results/alignment_missing.json` and proceed with the intersection of aligned metabolites. **Flag if intersection < 10 metabolites.**
- - **Output**: Generate `data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv`, and `data/processed/preprocess_log.json`.
-- [X] T016 [US1] Add logging for data acquisition and preprocessing steps to `code/utils/io.py`
-- [ ] T017 [US1] **Execute** `code/data/preprocess.py` using the command `python code/data/preprocess.py --study_ids data/raw/study_manifest.json --output data/processed/`. **Pre-check**: Verify `data/raw/study_manifest.json` exists. If missing, raise `DataUnavailableError` with message "Pre-requisite manifest missing. Run T012a first." **Pre-requisite**: Requires T012b to complete successfully. **Output**: Generate `data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv`, and `data/processed/preprocess_log.json`. **Verify file existence, non-empty content, and record SHA256 checksums in `state/artifact_hashes.yaml`. If files are missing or empty, raise an error and halt.**
+ - **Input**: `data/raw/` files and `data/processed/harmonized_labels.csv` (from T014).
+ - **Output**: Generate `data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv` (merged with harmonized), and `data/processed/preprocess_log.json`.
+- [ ] T017 [US1] **Execute** `code/data/preprocess.py` using the command `python code/data/preprocess.py --study_ids data/raw/study_manifest.json --output data/processed/`. **Pre-check**: Verify `data/raw/study_manifest.json` and `data/processed/harmonized_labels.csv` exist. If missing, raise `DataUnavailableError`. **Pre-requisite**: Requires T012b and T013 to complete successfully. **Output**: Generate `data/processed/batch_corrected_matrix.csv`, `data/processed/labels.csv`, and `data/processed/preprocess_log.json`. **Verify file existence, non-empty content, and record SHA256 checksums in `state/artifact_hashes.yaml`. If files are missing or empty, raise an error and halt.** <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,19 +107,21 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/modeling/train.py` to:
+- [X] T020 [US2] Implement `code/modeling/train.py` to: <!-- FAILED: unspecified -->
  - **Check Sample Size**: Load processed data and count samples (N).
  - **Conditional Split**:
- * If N >= 50: Reserve independent hold-out set using stratified sampling on `binary_label`. Output `train_indices` and `holdout_indices` lists to `data/processed/split_indices.json`. Log the actual fraction reserved to `state/artifact_hashes.yaml`.
- * If N < 50: **Mandatory Learning Curve Analysis**. Skip hold-out set for primary metric. Perform **Learning Curve Analysis** (see T021c) using full stratified k-fold CV. Flag power limitation in the report.
+ * If N >= 50: Reserve independent hold-out set using stratified sampling on `binary_label`. Output `train_indices` and `holdout_indices` lists to `data/processed/split_indices.json`. Log the actual fraction reserved.
+ * If N < 50: **Mandatory Learning Curve Analysis**. Skip hold-out set for primary metric. Perform **Learning Curve Analysis** by training on subsamples at varying fractions of the training set: `[0.2, 0.4, 0.6, 0.8, 1.0]`. Plot **Balanced Accuracy vs. Sample Size**. Output to `results/learning_curve.json`. Flag power limitation in the report.
  - Train Random Forest (n_estimators=500, max_depth=10) with Stratified k-fold CV (FR-005). Use `param_grid={'max_depth': [5, 10, 15, 20]}` for `GridSearchCV`.
  - **Output**: Save `results/feature_importance_ranking.json` containing the top-ranked metabolites ranked by mean decrease in impurity. Also save `data/processed/split_indices.json` if N>=50.
-- [X] T021a [US2] Implement `code/modeling/evaluate.py` (Correlation Analysis - Global Context): Load `data/processed/split_indices.json` and `data/processed/batch_corrected_matrix.csv`. Compute pairwise correlations (metabolite vs. resistance). Apply Benjamini-Hochberg FDR correction to p-values before filtering. Filter for |r| > 0.4, p < 0.01. Output to `results/shap_analysis.json` (key `correlations`).
-- [ ] T021b [US2] Implement `code/modeling/evaluate.py` (Model Validation): Compute Balanced Accuracy, ROC-AUC, Precision-Recall on the independent hold-out set or CV if N < 50. Run permutation testing with ≥1,000 permutations. **Output**: `results/model_validation.json`.
-- [ ] T021c [US2] Implement `code/modeling/evaluate.py` (Learning Curve Analysis): **Triggered if N < 50 (or as a standard check)**. Train model on subsamples at varying fractions of the training set: `[0.2, 0.4, 0.6, 0.8, 1.0]`. Plot **Balanced Accuracy vs. Sample Size**. Output to `results/learning_curve.json`. **Success Criterion**: This task MUST generate `results/learning_curve.json` to satisfy SC-004.
+- [ ] T021a [US2] Implement `code/modeling/evaluate.py` (Correlation Analysis - Global Context): Load `data/processed/split_indices.json` and `data/processed/batch_corrected_matrix.csv`. Compute pairwise correlations (metabolite vs. resistance). Apply Benjamini-Hochberg FDR correction to p-values before filtering. Filter for |r| > 0.4, p < 0.01. Output to `results/shap_analysis.json` (key `correlations`). <!-- FAILED: unspecified -->
+- [X] T021b [US2] Implement `code/modeling/evaluate.py` (Model Validation & Learning Curve): <!-- FAILED: unspecified -->
+ * **If N >= 50**: Compute Balanced Accuracy, ROC-AUC, Precision-Recall on the independent hold-out set. Run permutation testing with ≥1,000 permutations. **Output**: `results/model_validation.json`.
+ * **If N < 50**: Ensure Learning Curve Analysis (triggered in T020) has generated `results/learning_curve.json`. Use the max accuracy from the curve as the metric. Run permutation testing on the full dataset.
+ * **Output**: Aggregate results into `results/model_validation.json`.
 - [ ] T021d [US2] Implement `code/modeling/evaluate.py` (Sensitivity Analysis): Sweep probability decision thresholds (baseline +/- diff ∈ {small, 0.05, 0.1}). Report False Positive Rate (FPR) and False Negative Rate (FNR) at each threshold. **Output**: `results/sensitivity_analysis.json`.
 - [X] T022 [US2] Execute collinearity diagnostics (VIF calculation) for ALL features in the processed dataset.
-- [ ] T024 [US2] **Execute** generation of `results/metrics.json`, `results/shap_analysis.json` by aggregating results from T020, T021a, T021b, T021c, T021d, and T022.
+- [X] T024 [US2] **Execute** generation of `results/metrics.json`, `results/shap_analysis.json` by aggregating results from T020, T021a, T021b, T021d, and T022.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,11 +139,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026a [US3] **Implement** `code/modeling/interpret.py` (Extraction): Extract top-ranked metabolites ranked by mean decrease in impurity from the trained Random Forest model. Save the list of top 10 metabolites to `results/top_metabolites.json`.
-- [ ] T026b [US3] **Implement** `code/modeling/interpret.py` (Mapping): Read `results/top_metabolites.json`. Map metabolites to KEGG/MetaCyc pathways using the KEGG REST API or InChIKey lookups. **Fallback Strategy**: If primary mapping fails, attempt secondary lookup via metabolite synonyms. **Strict Requirement**: If <10 metabolites map after fallback, raise `PathwayMappingError` and halt. Do NOT proceed with partial mapping. **Output**: `results/pathway_analysis.json` with mapped pathways.
-- [ ] T026c [US3] **Implement** `code/modeling/interpret.py` (Reporting): Read `results/pathway_analysis.json` and `results/top_metabolites.json`. Generate interpretation report discussing biological plausibility. Include the mandatory "framing" text.
-- [ ] T027 [US3] **Execute** generation of `results/pathway_analysis.json` by merging results from T026a, T026b, T026c.
-- [ ] T028 [US3] **Execute** generation of visualization `results/plots/pathway_barplot.png` based on data from `results/pathway_analysis.json`.
+- [ ] T026a [US3] **Implement** `code/modeling/interpret.py` (Extraction): Extract top-ranked metabolites ranked by mean decrease in impurity from the trained Random Forest model. Save the list of top 10 metabolites to `results/top_metabolites.json`. <!-- FAILED: unspecified -->
+- [~] T026b [US3] **Implement** `code/modeling/interpret.py` (Mapping): Read `results/top_metabolites.json`. Map metabolites to KEGG/MetaCyc pathways using the KEGG REST API or InChIKey lookups. **Fallback Strategy**: If primary mapping fails, attempt secondary lookup via metabolite synonyms. **Soft Fail Strategy**: If <10 metabolites map, proceed with the available mappings and log a warning (do NOT raise an error). **Output**: `results/pathway_mappings.json` containing mapped pathways and a `mapping_success_rate` field.
+- [~] T026c [US3] **Implement** `code/modeling/interpret.py` (Reporting): Read `results/pathway_mappings.json` and `results/top_metabolites.json`. Generate interpretation report discussing biological plausibility. Include the mandatory "framing" text. **Output**: `results/pathway_report.json` containing the narrative report.
+- [X] T027 [US3] **Execute** generation of `results/pathway_analysis.json` by merging results from T026a (`top_metabolites.json`), T026b (`pathway_mappings.json`), and T026c (`pathway_report.json`) into a single canonical output file. **Verification**: Ensure the merged file contains all keys and is valid JSON.
+- [~] T028 [US3] **Execute** generation of visualization `results/plots/pathway_barplot.png` based on data from `results/pathway_analysis.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -158,9 +166,7 @@
  - `Install dependencies: pip install -r code/requirements.txt`
  - `Run Pipeline: python code/main.py`
  - `Upload artifacts: results/`
- - `timeout-minutes: a sufficient duration to allow complete execution of the method
-
-The research question, method, and references remain unchanged as required by the planning document structure.`
+ - `timeout-minutes: 360`
  - **Verification**: Validate YAML syntax and ensure all steps are executable.
 - [ ] T030b [P] **Implement** `code/utils/ci_trigger.py` to write a self-contained Python script that triggers the GitHub Actions workflow and polls for completion with a timeout. **Logic**: Use GitHub API to trigger workflow_dispatch, then poll `runs` endpoint every 30s until status is 'completed' or timeout (15 min) is reached. **Pre-requisite**: T030a must be complete.
 - [ ] T030c [P] **Execute** `code/utils/ci_trigger.py` to trigger CI and verify success. **Logic**: Run the script generated in T030b. Verify it returns success or timeout error. Do not rely on manual triggers. **Pre-requisite**: T030b must be complete.

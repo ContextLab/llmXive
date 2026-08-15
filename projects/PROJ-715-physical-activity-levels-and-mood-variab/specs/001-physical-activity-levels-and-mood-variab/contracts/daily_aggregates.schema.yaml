@@ -1,71 +1,41 @@
 # Schema for daily_aggregates.csv
-# Generated for Task T016
-# Defines the expected structure, types, and constraints for the daily aggregates output.
-
-name: daily_aggregates
-description: Daily aggregated metrics for physical activity and mood variability
-fields:
-  - name: participant_id
+# Validates the output of User Story 1 (Preprocessing)
+type: object
+required:
+  - participant_id
+  - date
+  - total_steps
+  - mean_mood
+  - mood_std
+  - log_mood_std
+properties:
+  participant_id:
     type: string
-    required: true
     description: Unique identifier for the participant
-    
-  - name: date
-    type: date
-    format: "%Y-%m-%d"
-    required: true
-    description: The date of the aggregated data (YYYY-MM-DD)
-    
-  - name: total_steps
+  date:
+    type: string
+    format: date
+    description: Date of the observation (YYYY-MM-DD)
+  total_steps:
     type: integer
-    required: true
     minimum: 0
-    description: Total number of steps recorded for the participant on this day
-    
-  - name: mean_mood
+    description: Total number of steps recorded for the day
+  mean_mood:
     type: number
-    required: true
-    description: Mean mood rating for the day (calculated from EMA responses)
-    # Note: Mood ratings are typically on a scale (e.g., 1-5 or 0-100)
-    
-  - name: mood_std
+    description: Average mood rating for the day
+  mood_std:
     type: number
-    required: true
-    minimum: 0.0
+    minimum: 0
     description: Standard deviation of mood ratings for the day
-    # Note: This value is log-transformed (log(mood_std + epsilon)) as per T015b
-    
-  - name: sleep_duration
+  log_mood_std:
     type: number
-    required: false
-    nullable: true
-    description: Derived sleep duration in hours (may be null if not derivable)
-    
-  - name: baseline_affect
+    description: Log-transformed mood standard deviation (mood_std + epsilon)
+  sleep_duration:
     type: number
-    required: false
     nullable: true
-    description: Derived baseline affect score (may be null if not derivable)
-    
-  - name: n_mood_ratings
-    type: integer
-    required: true
-    minimum: 2
-    description: Number of valid mood ratings used for the daily calculation
-    
-  - name: day_of_week
-    type: integer
-    required: true
-    minimum: 0
-    maximum: 6
-    description: Day of week (0=Monday, 6=Sunday)
-    
-constraints:
-  - name: unique_participant_day
-    description: Each participant_id and date combination must be unique
-    unique:
-      - participant_id
-      - date
-  - name: min_ratings
-    description: Days with fewer than 2 mood ratings are excluded
-    filter: n_mood_ratings >= 2
+    description: Derived sleep duration in hours (optional)
+  baseline_affect:
+    type: number
+    nullable: true
+    description: Derived baseline affect (optional)
+additionalProperties: false

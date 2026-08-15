@@ -1,190 +1,127 @@
-"""
-Unit tests for the save_daily_aggregates module (Task T016).
-
-Tests verify:
-1. The CSV file is written to the correct location.
-2. The file content matches the schema requirements.
-3. The validation logic correctly identifies valid and invalid data.
-"""
-import os
-import sys
-import tempfile
 import pytest
 import pandas as pd
+import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+import sys
 
 # Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from save_daily_aggregates import save_and_validate
-from output_validator import load_schema, validate_dataframe
 from config import get_path
 
 @pytest.fixture
-def sample_aggregates_df():
-    """Create a sample DataFrame that should pass validation."""
-    data = {
-        'participant_id': ['P001', 'P001', 'P002'],
-        'date': pd.to_datetime(['2023-01-01', '2023-01-02', '2023-01-01']),
-        'total_steps': [5000, 7500, 3000],
-        'mean_mood': [3.5, 4.0, 2.5],
-        'mood_std': [0.5, 0.8, 0.2], # Assuming log-transformed or raw
-        'sleep_duration': [7.0, 6.5, 8.0],
-        'baseline_affect': [3.0, 3.2, 2.8],
-        'n_mood_ratings': [5, 4, 3],
-        'day_of_week': [6, 0, 6]
+def mock_schema():
+    return {
+        "type": "object",
+        "required": ["participant_id", "date", "total_steps", "mean_mood", "mood_std", "log_mood_std"],
+        "properties": {
+            "participant_id": {"type": "string"},
+            "date": {"type": "string", "format": "date"},
+            "total_steps": {"type": "integer", "minimum": 0},
+            "mean_mood": {"type": "number"},
+            "mood_std": {"type": "number", "minimum": 0},
+            "log_mood_std": {"type": "number"},
+            "sleep_duration": {"type": "number", "nullable": True},
+            "baseline_affect": {"type": "number", "nullable": True}
+        },
+        "additionalProperties": False
     }
-    return pd.DataFrame(data)
 
 @pytest.fixture
-def invalid_aggregates_df():
-    """Create a DataFrame that should fail validation (missing required field)."""
-    data = {
-        'participant_id': ['P001'],
-        'date': pd.to_datetime(['2023-01-01']),
-        'total_steps': [5000],
-        # Missing mean_mood, mood_std, etc.
-        'n_mood_ratings': [5],
-        'day_of_week': [6]
-    }
-    return pd.DataFrame(data)
+def valid_dataframe():
+    return pd.DataFrame({
+        "participant_id": ["P001", "P002"],
+        "date": ["2013-03-01", "2013-03-02"],
+        "total_steps": [5000, 12000],
+        "mean_mood": [3.5, 4.2],
+        "mood_std": [0.5, 0.8],
+        "log_mood_std": [-0.693, -0.223],
+        "sleep_duration": [7.5, 6.2],
+        "baseline_affect": [3.0, 3.5]
+    })
 
-@pytest.fixture
-def temp_output_dir():
-    """Create a temporary directory for output files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
-
-@patch('save_daily_aggregates.load_bronze_data')
-@patch('save_daily_aggregates.compute_daily_aggregates')
-@patch('save_daily_aggregates.get_path')
-@patch('save_daily_aggregates.os.path.exists')
-def test_save_and_validate_success(
-    mock_exists, mock_get_path, mock_compute, mock_load, sample_aggregates_df, temp_output_dir
-):
-    """Test that a valid DataFrame is saved and validation passes."""
-    
-    # Mock file existence checks
-    def exists_side_effect(path):
-        if "bronze.parquet" in str(path):
-            return True
-        if "daily_aggregates.schema.yaml" in str(path):
-            return True
-        return False
-    
-    mock_exists.side_effect = exists_side_effect
-    
-    # Mock get_path to return temp directory paths
-    def get_path_side_effect(folder, filename=None):
-        if folder == "data_raw":
-            return str(temp_output_dir / "bronze.parquet")
-        elif folder == "data_processed":
-            return str(temp_output_dir / filename) if filename else str(temp_output_dir)
-        elif folder == "specs":
-            return str(temp_output_dir / "daily_aggregates.schema.yaml")
-        return str(temp_output_dir)
-    
-    mock_get_path.side_effect = get_path_side_effect
-    
-    # Mock data loading and computation
-    mock_load.return_value = pd.DataFrame() # Dummy
-    mock_compute.return_value = sample_aggregates_df
-    
-    # Mock schema loading
-    with patch('output_validator.load_schema') as mock_load_schema:
-        mock_load_schema.return_value = {
-            "fields": [
-                {"name": "participant_id", "type": "string"},
-                {"name": "date", "type": "date"},
-                {"name": "total_steps", "type": "integer"},
-                {"name": "mean_mood", "type": "number"},
-                {"name": "mood_std", "type": "number"},
-                {"name": "sleep_duration", "type": "number"},
-                {"name": "baseline_affect", "type": "number"},
-                {"name": "n_mood_ratings", "type": "integer"},
-                {"name": "day_of_week", "type": "integer"}
-            ]
-        }
+def test_save_and_validate_success(valid_dataframe, mock_schema, tmp_path):
+    """Test that valid data passes validation and is saved."""
+    # Mock config to use tmp_path
+    with patch('save_daily_aggregates.get_path') as mock_get_path:
+        # Setup paths
+        output_file = tmp_path / "daily_aggregates.csv"
+        schema_file = tmp_path / "schema.yaml"
         
-        # Mock validate_dataframe to return success
-        with patch('output_validator.validate_dataframe') as mock_validate:
-            mock_validate.return_value = (True, [])
-            
-            # Run the function
-            result = save_and_validate()
-            
-            # Assertions
-            assert result is True
-            
-            # Verify CSV was written
-            csv_path = temp_output_dir / "daily_aggregates.csv"
-            assert csv_path.exists()
-            
-            # Verify content
-            df_written = pd.read_csv(csv_path)
-            assert len(df_written) == len(sample_aggregates_df)
-            assert list(df_written.columns) == list(sample_aggregates_df.columns)
-
-@patch('save_daily_aggregates.load_bronze_data')
-@patch('save_daily_aggregates.compute_daily_aggregates')
-@patch('save_daily_aggregates.get_path')
-@patch('save_daily_aggregates.os.path.exists')
-def test_save_and_validate_fails_schema(
-    mock_exists, mock_get_path, mock_compute, mock_load, invalid_aggregates_df, temp_output_dir
-):
-    """Test that validation fails when data does not match schema."""
-    
-    def exists_side_effect(path):
-        if "bronze.parquet" in str(path): return True
-        if "daily_aggregates.schema.yaml" in str(path): return True
-        return False
-    
-    mock_exists.side_effect = exists_side_effect
-    
-    def get_path_side_effect(folder, filename=None):
-        if folder == "data_raw": return str(temp_output_dir / "bronze.parquet")
-        elif folder == "data_processed": return str(temp_output_dir / filename) if filename else str(temp_output_dir)
-        elif folder == "specs": return str(temp_output_dir / "daily_aggregates.schema.yaml")
-        return str(temp_output_dir)
-    
-    mock_get_path.side_effect = get_path_side_effect
-    mock_load.return_value = pd.DataFrame()
-    mock_compute.return_value = invalid_aggregates_df
-    
-    with patch('output_validator.load_schema') as mock_load_schema:
-        mock_load_schema.return_value = {
-            "fields": [
-                {"name": "participant_id", "type": "string"},
-                {"name": "mean_mood", "type": "number"}, # Required but missing in df
-                # ... other fields
-            ]
-        }
+        # Mock get_path to return our tmp paths
+        def side_effect(*args):
+            if args[0] == "data" and args[1] == "processed" and args[2] == "daily_aggregates.csv":
+                return output_file
+            elif args[0] == "specs" and args[1] == "001-physical-activity-mood-variability" and args[2] == "contracts" and args[3] == "daily_aggregates.schema.yaml":
+                return schema_file
+            return tmp_path / "dummy"
         
-        with patch('output_validator.validate_dataframe') as mock_validate:
-            mock_validate.return_value = (False, ["Missing required field: mean_mood"])
-            
-            result = save_and_validate()
-            
-            assert result is False
-            
-            # CSV might still be written before validation in some flows, 
-            # but the function returns False
-            # In our implementation, we write then validate.
-            assert temp_output_dir.joinpath("daily_aggregates.csv").exists()
+        mock_get_path.side_effect = side_effect
 
-def test_schema_structure():
-    """Verify the schema file exists and has correct structure."""
-    schema_path = get_path("specs", "001-physical-activity-mood-variability/contracts/daily_aggregates.schema.yaml")
-    
-    if not os.path.exists(schema_path):
-        pytest.skip(f"Schema file not found at {schema_path} (expected if running in isolation without full setup)")
-    
-    schema = load_schema(schema_path)
-    
-    assert "fields" in schema
-    field_names = [f["name"] for f in schema["fields"]]
-    
-    required_fields = ["participant_id", "date", "total_steps", "mean_mood", "mood_std", "n_mood_ratings", "day_of_week"]
-    for field in required_fields:
-        assert field in field_names, f"Required field '{field}' missing from schema"
+        # Create dummy schema file
+        import yaml
+        with open(schema_file, 'w') as f:
+            yaml.dump(mock_schema, f)
+
+        # Mock the validation result to be successful
+        with patch('save_daily_aggregates.load_schema', return_value=mock_schema):
+            with patch('save_daily_aggregates.validate_dataframe', return_value={"valid": True, "errors": []}):
+                # Mock pandas read_csv to return our valid dataframe
+                with patch('pandas.read_csv', return_value=valid_dataframe):
+                    # Mock to_csv to avoid actual file writing issues in test environment if needed,
+                    # but we want to ensure the logic runs.
+                    with patch.object(pd.DataFrame, 'to_csv') as mock_to_csv:
+                        result_path = save_and_validate()
+                        
+                        assert result_path == output_file
+                        mock_to_csv.assert_called_once_with(output_file, index=False)
+
+def test_save_and_validate_fails_invalid_schema(valid_dataframe, tmp_path):
+    """Test that invalid data raises an error."""
+    with patch('save_daily_aggregates.get_path') as mock_get_path:
+        output_file = tmp_path / "daily_aggregates.csv"
+        schema_file = tmp_path / "schema.yaml"
+        
+        def side_effect(*args):
+            if args[0] == "data" and args[1] == "processed" and args[2] == "daily_aggregates.csv":
+                return output_file
+            elif args[0] == "specs" and args[1] == "001-physical-activity-mood-variability" and args[2] == "contracts" and args[3] == "daily_aggregates.schema.yaml":
+                return schema_file
+            return tmp_path / "dummy"
+        
+        mock_get_path.side_effect = side_effect
+
+        import yaml
+        with open(schema_file, 'w') as f:
+            yaml.dump({"type": "object"}, f) # Minimal schema
+
+        # Mock validation to fail
+        with patch('save_daily_aggregates.load_schema', return_value={"type": "object"}):
+            with patch('save_daily_aggregates.validate_dataframe', return_value={"valid": False, "errors": ["Missing required column"]}):
+                with patch('pandas.read_csv', return_value=valid_dataframe):
+                    with pytest.raises(ValueError, match="Daily aggregates validation failed"):
+                        save_and_validate()
+
+def test_save_and_validate_file_not_found(tmp_path):
+    """Test that missing input file raises an error."""
+    with patch('save_daily_aggregates.get_path') as mock_get_path:
+        output_file = tmp_path / "non_existent.csv"
+        schema_file = tmp_path / "schema.yaml"
+        
+        def side_effect(*args):
+            if args[0] == "data" and args[1] == "processed" and args[2] == "daily_aggregates.csv":
+                return output_file
+            elif args[0] == "specs" and args[1] == "001-physical-activity-mood-variability" and args[2] == "contracts" and args[3] == "daily_aggregates.schema.yaml":
+                return schema_file
+            return tmp_path / "dummy"
+        
+        mock_get_path.side_effect = side_effect
+        
+        # Ensure file doesn't exist
+        if output_file.exists():
+            output_file.unlink()
+
+        with pytest.raises(FileNotFoundError, match="Preprocessing output not found"):
+            save_and_validate()

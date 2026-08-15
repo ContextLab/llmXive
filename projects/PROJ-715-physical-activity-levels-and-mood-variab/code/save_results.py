@@ -3,110 +3,102 @@ import sys
 import logging
 import json
 from pathlib import Path
+import yaml
 
-from analysis import run_analysis
+# Import from sibling modules as per API surface
 from config import get_path
+from output_validator import load_schema, validate_dataframe
+from analysis import run_analysis
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
-def load_schema(schema_path: Path) -> dict:
-    """Load a YAML schema definition."""
-    import yaml
-    with open(schema_path, "r") as f:
-        return yaml.safe_load(f)
-
-
-def validate_results_schema(results: dict, schema: dict) -> bool:
+def validate_results_schema(results: dict, schema_path: Path) -> bool:
     """
-    Validate the results dictionary against the JSON schema definition.
-    Performs basic structural checks based on the schema keys.
+    Validate the model results dictionary against the JSON schema definition.
+    
+    Args:
+        results: The dictionary containing model results.
+        schema_path: Path to the YAML schema file.
+        
+    Returns:
+        bool: True if valid, raises ValueError otherwise.
     """
-    required_keys = schema.get("required", [])
-    properties = schema.get("properties", {})
-
-    # Check required top-level keys
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+        
+    with open(schema_path, 'r') as f:
+        schema = yaml.safe_load(f)
+    
+    # Basic structural validation based on expected keys from spec
+    required_keys = ['models', 'diagnostics', 'lopo_results', 'sensitivity_analysis', 'metadata']
     for key in required_keys:
         if key not in results:
-            logger.error(f"Validation failed: Missing required key '{key}'")
-            return False
-
-    # Check types of specific known fields if defined in schema
-    if "properties" in schema:
-        for key, prop_def in properties.items():
-            if key in results:
-                expected_type = prop_def.get("type")
-                if expected_type == "object" and not isinstance(results[key], dict):
-                    logger.error(f"Validation failed: '{key}' should be an object")
-                    return False
-                if expected_type == "array" and not isinstance(results[key], list):
-                    logger.error(f"Validation failed: '{key}' should be an array")
-                    return False
-                if expected_type == "string" and not isinstance(results[key], str):
-                    logger.error(f"Validation failed: '{key}' should be a string")
-                    return False
-                if expected_type == "number" and not isinstance(results[key], (int, float)):
-                    logger.error(f"Validation failed: '{key}' should be a number")
-                    return False
-
+            raise ValueError(f"Missing required key in results: {key}")
+    
+    # Validate 'models' structure
+    if not isinstance(results['models'], list):
+        raise ValueError("'models' must be a list of model result objects")
+        
+    if len(results['models']) < 2:
+        raise ValueError("Expected at least two models (mood_std and mean_mood)")
+        
+    for model in results['models']:
+        if 'model_name' not in model:
+            raise ValueError("Each model must have a 'model_name'")
+        if 'fixed_effects' not in model:
+            raise ValueError(f"Model {model.get('model_name', 'unknown')} missing 'fixed_effects'")
+        if 'converged' not in model:
+            raise ValueError(f"Model {model.get('model_name', 'unknown')} missing 'converged' status")
+    
     logger.info("Schema validation passed.")
     return True
 
-
 def save_results_to_json(results: dict, output_path: Path) -> None:
-    """Save the results dictionary to a JSON file."""
+    """
+    Save the model results dictionary to a JSON file.
+    
+    Args:
+        results: The dictionary containing model results.
+        output_path: Path to the output JSON file.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w") as f:
+    
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
+        
     logger.info(f"Results saved to {output_path}")
-
 
 def main():
     """
-    Main entry point for T025: Save model results to JSON and validate.
-    1. Runs the analysis pipeline (T019-T024) to get results.
-    2. Loads the schema from specs.
-    3. Validates the results.
-    4. Saves to data/processed/model_results.json.
+    Main entry point for saving and validating model results.
+    Runs the full analysis pipeline and saves the results.
     """
-    logger.info("Starting T025: Save and validate model results.")
-
-    # 1. Run analysis to get results
-    # The run_analysis function (implemented in T019-T024) returns the results dict
     try:
+        # 1. Run the full analysis to get results
+        logger.info("Running full analysis pipeline...")
         results = run_analysis()
+        
+        if results is None:
+            logger.error("Analysis returned no results. Aborting save.")
+            sys.exit(1)
+        
+        # 2. Define paths
+        schema_path = get_path("specs/001-physical-activity-mood-variability/contracts/model_results.schema.yaml")
+        output_path = get_path("data/processed/model_results.json")
+        
+        # 3. Validate results against schema
+        logger.info(f"Validating results against schema: {schema_path}")
+        validate_results_schema(results, schema_path)
+        
+        # 4. Save to JSON
+        save_results_to_json(results, output_path)
+        
+        logger.info("Task T025 completed successfully: model results saved and validated.")
+        
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
+        logger.error(f"Error during save results process: {e}")
         sys.exit(1)
-
-    if not results:
-        logger.error("Analysis returned empty results.")
-        sys.exit(1)
-
-    # 2. Load schema
-    schema_path = get_path("specs/001-physical-activity-mood-variability/contracts/model_results.schema.yaml")
-    if not schema_path.exists():
-        logger.error(f"Schema file not found: {schema_path}")
-        sys.exit(1)
-
-    schema = load_schema(schema_path)
-
-    # 3. Validate results
-    if not validate_results_schema(results, schema):
-        logger.error("Results validation failed. Aborting save.")
-        sys.exit(1)
-
-    # 4. Save results
-    output_path = get_path("data/processed/model_results.json")
-    save_results_to_json(results, output_path)
-
-    logger.info("T025 completed successfully.")
-
 
 if __name__ == "__main__":
     main()
