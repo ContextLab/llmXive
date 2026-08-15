@@ -78,18 +78,47 @@ def detect_outliers_iqr(df: pd.DataFrame, group_col: str = 'Condition', multipli
     df = df.groupby(group_col, group_keys=False).apply(flag_outliers)
     return df
 
+def normalize_and_flag_outliers(df: pd.DataFrame, group_col: str = 'Condition') -> pd.DataFrame:
+    """
+    Normalize reaction times AND flag outliers using the Interquartile Range (IQR) method
+    calculated per Condition group (FR-002).
+    
+    This function combines normalization and outlier detection into a single pipeline step.
+    It adds 'RT_normalized' and 'is_outlier' columns to the dataframe.
+    
+    Args:
+        df: Input dataframe
+        group_col: Column to group by for IQR calculation (default: 'Condition')
+        
+    Returns:
+        DataFrame with normalized reaction times and outlier flags.
+        Does NOT remove rows; only flags them.
+    """
+    # First normalize the reaction times
+    df = normalize_rt(df)
+    
+    # Then flag outliers based on the original Reaction Time column per group
+    df = detect_outliers_iqr(df, group_col=group_col)
+    
+    return df
+
 def extract_features(df: pd.DataFrame) -> pd.DataFrame:
     """
     Extract summary features per participant/condition.
     
+    Computes mean Reaction Time and average Mood for each unique combination of
+    Participant ID and Condition. If 'Participant ID' is missing, aggregates only by Condition.
+    
     Args:
-        df: Input dataframe
+        df: Input dataframe (preprocessed, must contain 'Condition', 'Reaction Time', 'Mood')
         
     Returns:
-        DataFrame with extracted features
+        DataFrame with extracted features: ['Participant ID', 'Condition', 'mean_rt', 'avg_mood']
+        or ['Condition', 'mean_rt', 'avg_mood'] if no participant ID.
     """
     if 'Participant ID' not in df.columns:
-        # If no participant ID, group by condition only
+        # Fallback: group by condition only if participant ID is missing
+        logging.warning("Column 'Participant ID' not found. Aggregating by Condition only.")
         features = df.groupby('Condition').agg({
             'Reaction Time': 'mean',
             'Mood': 'mean'
@@ -123,16 +152,28 @@ def save_preprocessed_data(df: pd.DataFrame, output_path: str, design_type: str)
 def run_preprocessing(input_path: str, output_path: str, design_type: str):
     """Run the full preprocessing pipeline."""
     logging.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
+    
+    # Handle directory input (common for raw data ingestion) vs file input
+    if os.path.isdir(input_path):
+        # Look for CSV files in the directory
+        csv_files = [f for f in os.listdir(input_path) if f.endswith('.csv')]
+        if not csv_files:
+            raise FileNotFoundError(f"No CSV files found in {input_path}")
+        # Assume the first valid CSV is the target, or combine if needed.
+        # For this pipeline, we assume a single consolidated CSV or the first one found.
+        input_file = os.path.join(input_path, csv_files[0])
+        logging.info(f"Found input file: {input_file}")
+    else:
+        input_file = input_path
+    
+    df = pd.read_csv(input_file)
     
     logging.info("Cleaning data")
     df = clean_data(df)
     
-    logging.info("Normalizing reaction times")
-    df = normalize_rt(df)
-    
-    logging.info("Detecting outliers")
-    df = detect_outliers_iqr(df)
+    logging.info("Normalizing reaction times and flagging outliers")
+    # T021 Implementation: Use the combined function
+    df = normalize_and_flag_outliers(df, group_col='Condition')
     
     logging.info("Extracting features")
     features = extract_features(df)

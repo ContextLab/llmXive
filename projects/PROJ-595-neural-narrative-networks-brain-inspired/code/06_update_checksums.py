@@ -1,74 +1,83 @@
 """
-T018: Run checksums after data processing and update state file.
+T018: Run utils/checksums.py after data processing and update state file.
 
-This script computes SHA-256 checksums for all processed data artifacts
-generated in User Story 1 and updates the project state file.
+This script computes SHA-256 checksums for all processed data files in the
+project's data directories and updates the state file to track data integrity.
+It is designed to be run after data ingestion and preprocessing steps to
+ensure data consistency and detect any corruption.
+
+Output:
+    Updates state/state.json with checksums for all tracked data files.
+    Logs success or failure of the checksum update process.
 """
 import os
 import sys
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from utils.checksums import compute_directory_checksums, update_state_file, load_state_file
 from utils.logging_config import get_logger, info, error, warning
 from config import get_config
 
 def main():
-    logger = get_logger("checksums")
-    config = get_config()
+    """
+    Main entry point for T018: Update checksums after data processing.
     
-    # Define the directories to checksum (processed data from US1)
-    data_dirs = [
-        project_root / "data" / "neural" / "processed",
-        project_root / "data" / "text"
+    1. Loads configuration to determine data directories.
+    2. Computes checksums for all files in the processed data directories.
+    3. Updates the state file with the new checksums.
+    4. Logs the result.
+    """
+    logger = get_logger("T018_checksums")
+    info(logger, "Starting checksum update process for processed data.")
+    
+    config = get_config()
+    data_root = Path("data")
+    
+    # Define directories to checksum based on US1 outputs
+    # T013: data/neural/processed/roi_timecourses.csv
+    # T017: data/neural/processed/event_averages.csv
+    # T015: data/text/rocstories_sample.jsonl
+    dirs_to_check = [
+        data_root / "neural" / "processed",
+        data_root / "text",
     ]
     
     # Filter to existing directories
-    existing_dirs = [d for d in data_dirs if d.exists()]
+    existing_dirs = [d for d in dirs_to_check if d.exists()]
     
     if not existing_dirs:
-        error("No processed data directories found. Run data ingestion first.")
+        error(logger, "No processed data directories found. Did you run T013, T015, and T017?")
         return 1
     
-    logger.info(f"Computing checksums for {len(existing_dirs)} directories")
+    info(logger, f"Found {len(existing_dirs)} data directory(ies) to checksum.")
     
-    # Compute checksums for each directory
-    all_checksums = {}
-    for dir_path in existing_dirs:
-        logger.info(f"Processing: {dir_path}")
-        try:
-            dir_checksums = compute_directory_checksums(dir_path)
-            all_checksums[str(dir_path)] = dir_checksums
-            info(f"  Found {len(dir_checksums)} files")
-        except Exception as e:
-            error(f"Failed to compute checksums for {dir_path}: {e}")
-            return 1
+    # Compute checksums for all files in these directories
+    checksums = {}
+    for d in existing_dirs:
+        info(logger, f"Computing checksums for: {d}")
+        dir_checksums = compute_directory_checksums(d)
+        checksums.update(dir_checksums)
     
-    # Load existing state or create new
-    state_file_path = project_root / "state" / "data_checksums.json"
+    if not checksums:
+        error(logger, "No files found to checksum in the specified directories.")
+        return 1
     
+    info(logger, f"Computed checksums for {len(checksums)} file(s).")
+    
+    # Update the state file
+    state_file_path = Path("state") / "state.json"
     try:
-        existing_state = load_state_file(state_file_path)
-    except FileNotFoundError:
-        existing_state = {}
-        logger.info("Creating new state file")
-    
-    # Update state with new checksums
-    updated_state = update_state_file(existing_state, all_checksums)
-    
-    # Save updated state
-    try:
-        update_state_file(updated_state, state_file_path, save=True)
-        info(f"State file updated: {state_file_path}")
+        update_state_file(state_file_path, checksums)
+        info(logger, f"Successfully updated state file: {state_file_path}")
+        return 0
     except Exception as e:
-        error(f"Failed to save state file: {e}")
+        error(logger, f"Failed to update state file: {e}")
         return 1
-    
-    logger.info("Checksum update complete")
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

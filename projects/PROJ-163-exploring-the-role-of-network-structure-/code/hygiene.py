@@ -11,15 +11,14 @@ import os
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional
+from datetime import datetime
 
 # Project root relative to this file's location (assuming code/ is a subdirectory)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"
 STATE_DIR = PROJECT_ROOT / "state" / "projects"
-STATE_FILE_NAME = "PROJ-163-exploring-the-role-of-network-structure-....yaml"
-# Fallback if the exact name isn't known, we look for the specific project state file
-# The task description says "PROJ-163-...yaml", we will construct the likely path or search.
-# Based on T001, the structure is created. We assume the file exists or create it.
+# The exact filename pattern based on the project ID
+STATE_FILE_PREFIX = "PROJ-163-exploring-the-role-of-network-structure-"
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA256 hash of a file."""
@@ -37,7 +36,7 @@ def find_state_file() -> Optional[Path]:
     """Find the project state YAML file."""
     if STATE_DIR.exists():
         # Look for files starting with the project ID
-        candidates = list(STATE_DIR.glob("PROJ-163*.yaml"))
+        candidates = list(STATE_DIR.glob(f"{STATE_FILE_PREFIX}*.yaml"))
         if candidates:
             return candidates[0]
     return None
@@ -46,9 +45,10 @@ def load_state(state_path: Path) -> Dict[str, Any]:
     """Load existing state or return a default structure."""
     if state_path.exists():
         with open(state_path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f) or {}
+            content = yaml.safe_load(f)
+            return content if content else {}
     return {
-        "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+        "project_id": STATE_FILE_PREFIX,
         "last_updated": None,
         "artifacts": {}
     }
@@ -77,7 +77,7 @@ def process_data_directory() -> Dict[str, str]:
                 try:
                     file_hash = compute_sha256(file_path)
                     hashes[rel_path] = file_hash
-                    print(f"Computed hash for: {rel_path}")
+                    print(f"Computed hash for: {rel_path} -> {file_hash[:16]}...")
                 except Exception as e:
                     print(f"Error computing hash for {rel_path}: {e}")
     return hashes
@@ -87,16 +87,20 @@ def update_state_file(hashes: Dict[str, str]) -> None:
     state_path = find_state_file()
     if not state_path:
         # If no state file exists, create one in the expected location
-        state_path = STATE_DIR / "PROJ-163-exploring-the-role-of-network-structure-.yaml"
+        state_path = STATE_DIR / f"{STATE_FILE_PREFIX}.yaml"
         print(f"Creating new state file at: {state_path}")
 
     state = load_state(state_path)
+    
+    # Update artifacts with the new hashes
     state["artifacts"] = hashes
-    # Add a timestamp or version marker if needed, keeping it simple for now
-    state["last_updated"] = "updated_by_hygiene_task"
+    
+    # Update timestamp
+    state["last_updated"] = datetime.utcnow().isoformat()
     
     save_state(state_path, state)
     print(f"State file updated at: {state_path}")
+    print(f"Total artifacts tracked: {len(hashes)}")
 
 def main():
     """Main entry point for the hygiene script."""
@@ -107,16 +111,13 @@ def main():
     # Step 1: Compute hashes
     hashes = process_data_directory()
     
-    if not hashes:
-        print("No data files found to hash.")
-        # Still update state to reflect empty state if file exists
-        # or create empty state
-        update_state_file(hashes)
-        return
-
-    # Step 2: Update state file
+    # Step 2: Update state file (even if empty, to reflect current state)
     update_state_file(hashes)
-    print("Hygiene check completed successfully.")
+    
+    if not hashes:
+        print("No data files found to hash. State updated with empty artifacts.")
+    else:
+        print("Hygiene check completed successfully.")
 
 if __name__ == "__main__":
     main()

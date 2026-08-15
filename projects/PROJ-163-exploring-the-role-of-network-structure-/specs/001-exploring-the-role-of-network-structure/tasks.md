@@ -53,11 +53,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/hygiene.py` to compute `sha256sum` for all files in `data/` and update `state/projects/PROJ-163-...yaml` artifact hashes
+- [X] T004 Create `code/hygiene.py` to compute `sha256sum` for all files in `data/` and update `state/projects/PROJ-163-...yaml` artifact hashes
 - [X] T005 [P] Implement basic logging infrastructure in `code/__init__.py` and `code/main.py`
 - [ ] T006 [P] Setup environment configuration management (load IBM Quantum API tokens/defaults)
 - [X] T007 Create base data models (dataclasses) for `QubitDevice`, `GraphMetric`, `PerformanceMetric`, `CorrelationResult` in `code/models.py`
-- [~] T008 [US1] Update `spec.md` (FR-003) to formally retract the "historical time window" requirement for topology, documenting the resolution as a cross-sectional study (per Plan.md Spec Gap). This task must be completed before T028/T029.
+- [X] T008 [US1] Update `spec.md` (FR-003) to formally retract the "historical time window" requirement for topology, documenting the resolution as a cross-sectional study (per Plan.md Spec Gap). This task must be completed before T028/T029.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -73,7 +73,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Contract test for API response schema parsing in `tests/test_fetcher.py` using `jsonschema` library to validate against `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml`
+- [ ] T010 [P] [US1] Contract test for API response schema parsing in `tests/test_fetcher.py` using `jsonschema` library to validate against `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml`
 - [X] T011 [P] [US1] Integration test for live API fetch with rate-limit handling in `tests/test_integration_fetch.py`
 
 ### Implementation for User Story 1
@@ -83,8 +83,8 @@
 - [X] T013b [US1] Implement `fetch_backend_properties` in `code/fetcher.py` using the retry logic from T013a, handling 503 errors and malformed data (log warning and exclude device) per US1 Acceptance Scenario 2.
 - [X] T014 [US1] Implement `validate_data_freshness` in `code/fetcher.py` to exclude devices with data > 30 days old, ensuring the 60-second timeout constraint is enforced.
 - [X] T015a [US1] Implement `extract_topology_data` in `code/fetcher.py` to extract `coupling_map` and qubit indices from raw JSON.
-- [ ] T015b [US1] Implement `extract_performance_metrics` in `code/fetcher.py` to extract `T1`, `T2`, `gate_errors`, and `readout_errors` from raw JSON.
-- [ ] T016 [US1] Save raw JSON snapshots to `data/raw/` with timestamps and checksums
+- [X] T015b [US1] Implement `extract_performance_metrics` in `code/fetcher.py` to extract `T1`, `T2`, `gate_errors`, and `readout_errors` from raw JSON.
+- [~] T016 [US1] Save raw JSON snapshots to `data/raw/` with timestamps and checksums
 - [ ] T017 [US1] Generate structured CSV `data/processed/raw_calibration.csv` containing all valid device metrics
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -99,16 +99,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for graph metric calculation on synthetic graphs in `tests/test_graph_builder.py`
-- [ ] T019 [P] [US2] Integration test for processing real device coupling maps in `tests/test_graph_builder.py`
+- [X] T018 [P] [US2] Unit test for graph metric calculation on synthetic graphs in `tests/test_graph_builder.py`
+- [X] T019 [P] [US2] Integration test for processing real device coupling maps in `tests/test_graph_builder.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `build_coupling_graph` in `code/graph_builder.py` to create undirected NetworkX graphs from `coupling_map` lists
-- [ ] T021 [US2] Implement `compute_shortest_path_metrics` in `code/graph_builder.py` (average shortest-path length, diameter) handling disconnected components
-- [ ] T022 [US2] Implement `compute_clustering_and_assortativity` in `code/graph_builder.py` (global clustering coefficient, degree assortativity)
-- [ ] T023 [US2] Implement `compute_edge_betweenness_and_spectral_gap` in `code/graph_builder.py` (edge betweenness distribution, spectral gap of Laplacian)
-- [ ] T024 [US2] Handle disconnected graphs: set spectral gap to 0, compute path-length metrics only for connected components
+- [X] T020 [P] [US2] Implement `build_coupling_graph` in `code/graph_builder.py` to create undirected NetworkX graphs from `coupling_map` lists
+- [X] T021 [US2] Implement `compute_shortest_path_metrics` in `code/graph_builder.py` (average shortest-path length, diameter) handling disconnected components
+- [X] T022 [US2] Implement `compute_clustering_and_assortativity` in `code/graph_builder.py` (global clustering coefficient, degree assortativity)
+- [X] T023 [US2] Implement `compute_edge_betweenness_and_spectral_gap` in `code/graph_builder.py` (edge betweenness distribution, spectral gap of Laplacian)
+- [~] T024 [US2] Handle disconnected graphs: set spectral gap to 0, compute path-length metrics only for connected components
 - [ ] T025 [US2] Generate structured CSV `data/processed/graph_metrics.csv` linking `device_id`, `metric_name`, `value`, `is_finite`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -123,7 +123,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for Spearman correlation and FDR correction in `tests/test_stats_engine.py`
+- [X] T026 [P] [US3] Unit test for Spearman correlation and FDR correction in `tests/test_stats_engine.py`
 - [ ] T027 [P] [US3] Integration test for full pipeline with synthetic data in `tests/test_stats_engine.py`
 
 ### Implementation for User Story 3

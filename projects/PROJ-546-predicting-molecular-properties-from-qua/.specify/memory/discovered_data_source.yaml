@@ -1,10 +1,9 @@
 status: none
-intent: Zenodo Experimental Barrier Dataset HOMO LUMO reference datasets DFTB+ parameters
-  python package dataset
+intent: Zenodo experimental barrier dataset csv download python package dataset
 required_fields:
-- smiles
+- molecule_id
 - experimental_barrier
-- reaction_id
-cache_key: 9c8cc83b3092f56e90cb458363f07ce386b91e30b87595986f1a59082f246e21
-searched_at: '2026-08-11T08:15:04.530143+00:00'
+- smiles
+cache_key: 4a98fcc4701b6bf1a34446fa5be932ce4008f0630c2fd21d48dfd5eca63c4594
+searched_at: '2026-08-15T18:43:01.244480+00:00'
 retry_count: 1

@@ -1,47 +1,55 @@
-# Output Schema for Processed and Analyzed Data
-# Used to validate output files after processing
-
+$schema: http://json-schema.org/draft-07/schema#
+title: Processed and Analysis Output Schema
+description: Schema for processed data and analysis results.
 type: object
-required:
-  - date
-  - gdelt_normalized
-  - trends_normalized
-
 properties:
-  date:
-    type: string
-    constraints:
-      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
-      min_length: 10
-      max_length: 10
-    description: "Date in YYYY-MM-DD format"
-
-  gdelt_normalized:
-    type: number
-    constraints:
-      min: -3.0
-      max: 3.0
-    description: "Z-score normalized GDELT event count"
-
-  trends_normalized:
-    type: number
-    constraints:
-      min: -3.0
-      max: 3.0
-    description: "Z-score normalized Google Trends interest"
-
-  gdelt_stationary:
-    type: boolean
-    description: "Whether the GDELT series is stationary"
-
-  trends_stationary:
-    type: boolean
-    description: "Whether the Trends series is stationary"
-
-  lag:
-    type: integer
-    description: "Lag value for Granger causality (optional)"
-
-  p_value:
-    type: number
-    description: "P-value from Granger causality test (optional)"
+  aligned_timeseries:
+    type: object
+    required:
+      - file_path
+      - expected_columns
+      - stationarity_status
+    properties:
+      file_path:
+        type: string
+        pattern: "^data/processed/aligned_timeseries\\.csv$"
+      expected_columns:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "date"
+          minItems: 1
+      stationarity_status:
+        type: string
+        enum: ["stationary", "non-stationary"]
+  granger_results:
+    type: object
+    required:
+      - file_path
+      - lags_tested
+      - p_values
+    properties:
+      file_path:
+        type: string
+        pattern: "^data/processed/granger_results\\.csv$"
+      lags_tested:
+        type: array
+        items:
+          type: integer
+        contains:
+          const: 1
+      p_values:
+        type: array
+        items:
+          type: number
+        minItems: 1
+  analysis_report:
+    type: object
+    required:
+      - file_path
+    properties:
+      file_path:
+        type: string
+        pattern: "^data/reports/analysis_report\\.pdf$"
+additionalProperties: false

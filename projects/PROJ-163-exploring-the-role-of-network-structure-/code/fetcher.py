@@ -1,256 +1,249 @@
+"""
+Fetcher Module for IBM Quantum Calibration Data (US1)
+
+Implements logic to retrieve, validate, and extract data from IBM Quantum backends.
+Includes retry logic, data freshness validation, and extraction of topology/metrics.
+"""
 import logging
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timedelta
 import time
 import json
 import os
+from datetime import datetime, timedelta
+from typing import List, Optional, Dict, Any, Tuple
 
-# Import from local project modules
-from config import load_config, IBMQuantumConfig
+from qiskit_ibm_runtime import QiskitRuntimeService
+from logger import setup_logger
+from config import load_config, setup_ibm_runtime
+from snapshot_saver import save_backend_snapshot
 
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
-# Configuration for retry logic
+# Configuration constants
 MAX_RETRIES = 3
-BACKOFF_FACTOR = 2
-REQUEST_TIMEOUT = 60
+BASE_DELAY = 2.0  # seconds
+REQUEST_TIMEOUT = 60  # seconds
+MAX_DATA_AGE_DAYS = 30
 
-def retry_with_exponential_backoff(func, max_attempts: int = MAX_RETRIES, backoff_factor: int = BACKOFF_FACTOR, timeout: int = REQUEST_TIMEOUT):
+def retry_with_exponential_backoff(func, max_retries: int = MAX_RETRIES, base_delay: float = BASE_DELAY):
     """
     Decorator to retry a function with exponential backoff.
-    Handles 503 errors specifically as per T013a.
+    Handles 503 errors and timeouts specifically.
     """
     def wrapper(*args, **kwargs):
         last_exception = None
-        for attempt in range(1, max_attempts + 1):
+        for attempt in range(1, max_retries + 1):
             try:
-                logger.debug(f"Attempting {func.__name__} (attempt {attempt}/{max_attempts})")
-                result = func(*args, **kwargs)
-                return result
+                return func(*args, **kwargs)
             except Exception as e:
                 last_exception = e
-                # Check if it's a 503-like error or generic timeout
-                # Assuming the underlying qiskit-ibm-runtime raises specific exceptions or we catch generic ones
-                # For this implementation, we assume standard HTTP errors or connection errors
-                error_code = getattr(e, 'status_code', None) if hasattr(e, 'status_code') else None
-                if error_code == 503 or "503" in str(e):
-                    wait_time = backoff_factor ** attempt
-                    logger.warning(f"503 error encountered. Retrying in {wait_time}s...")
-                    time.sleep(wait_time)
-                    continue
+                # Check for specific retryable errors (503, Timeout)
+                error_str = str(e).lower()
+                if attempt < max_retries and ('503' in error_str or 'timeout' in error_str or 'rate limit' in error_str):
+                    delay = base_delay ** attempt
+                    logger.warning(f"Attempt {attempt} failed with {e}. Retrying in {delay}s...")
+                    time.sleep(delay)
                 else:
-                    # For other errors, we might not retry or retry based on config
-                    # For now, re-raise if not 503 to fail fast on other issues
-                    raise e
+                    logger.error(f"Attempt {attempt} failed with {e}. Giving up.")
+                    raise
         raise last_exception
     return wrapper
 
-def fetch_backends_list() -> List[str]:
-    """
-    Retrieves all accessible backend names.
-    Uses Qiskit IBM Runtime to fetch the list.
-    """
+def fetch_backends_list(service: QiskitRuntimeService) -> List[str]:
+    """Retrieve all accessible backend names."""
+    logger.info("Fetching list of accessible backends...")
     try:
-        from qiskit_ibm_runtime import QiskitRuntimeService
-        config = load_config()
-        service = QiskitRuntimeService(channel="ibm_quantum", token=config.ibm_token)
-        # Get backends, filtering for those that are operational
         backends = service.backends()
-        return [b.name for b in backends if b.operational]
+        return [b.name for b in backends]
     except Exception as e:
         logger.error(f"Failed to fetch backends list: {e}")
         raise
 
 @retry_with_exponential_backoff
-def fetch_backend_properties(backend_name: str) -> Dict[str, Any]:
+def fetch_backend_properties(service: QiskitRuntimeService, device_id: str) -> Dict[str, Any]:
     """
-    Fetches raw calibration properties for a specific backend.
+    Fetch raw properties for a specific backend.
     Handles 503 errors and malformed data.
     """
+    logger.info(f"Fetching properties for {device_id}...")
     try:
-        from qiskit_ibm_runtime import QiskitRuntimeService
-        config = load_config()
-        service = QiskitRuntimeService(channel="ibm_quantum", token=config.ibm_token)
-        backend = service.backend(backend_name)
-        properties = backend.properties()
-        if not properties:
-            raise ValueError(f"No properties found for {backend_name}")
+        # QiskitRuntimeService method to get properties
+        # Note: The exact method might vary slightly by SDK version, 
+        # but 'properties' is the standard attribute on backend objects 
+        # or a method call like backend.properties()
+        backend = service.backend(device_id)
+        props = backend.properties()
         
-        # Convert to dict for easier processing
-        # The properties object has methods like to_dict() or direct attribute access
-        # depending on the version. We assume a dict-like structure or convert it.
-        if hasattr(properties, 'to_dict'):
-            return properties.to_dict()
-        return properties
+        if props is None:
+            logger.warning(f"Properties returned None for {device_id}.")
+            return {}
+        
+        # Convert to dict if it's a custom object, or return as is if already dict-like
+        # Qiskit properties object usually has a to_dict() or similar, 
+        # but often we just need the raw structure for snapshotting.
+        # We ensure we return a JSON-serializable structure.
+        if hasattr(props, 'to_dict'):
+            return props.to_dict()
+        return props
     except Exception as e:
-        logger.warning(f"Failed to fetch properties for {backend_name}: {e}")
-        raise
+        logger.warning(f"Failed to fetch properties for {device_id}: {e}. Excluding device.")
+        return {}
 
-def validate_data_freshness(properties: Dict[str, Any], max_age_days: int = 30) -> bool:
+def validate_data_freshness(properties: Dict[str, Any], max_age_days: int = MAX_DATA_AGE_DAYS) -> bool:
     """
-    Validates that the calibration data is fresh (<= max_age_days).
+    Validate that the data is not older than max_age_days.
     Returns True if fresh, False otherwise.
     """
     if not properties:
         return False
     
-    # The 'last_update_date' is typically a string in ISO format
+    # Look for 'last_update_date' or similar timestamp in properties
+    # IBM Quantum properties structure usually contains 'last_update_date'
     last_update = properties.get('last_update_date')
+    
     if not last_update:
-        logger.warning("No last_update_date found in properties.")
+        logger.warning("No last_update_date found in properties. Assuming stale.")
         return False
-    
-    try:
-        # Parse ISO format string
-        if isinstance(last_update, str):
-            update_time = datetime.fromisoformat(last_update.replace('Z', '+00:00'))
-        else:
-            # Handle if it's already a datetime object
-            update_time = last_update
-        
-        now = datetime.now(update_time.tzinfo) if update_time.tzinfo else datetime.now()
-        age = now - update_time
-        
-        if age > timedelta(days=max_age_days):
-            logger.info(f"Data for device is {age.days} days old (> {max_age_days}).")
+
+    # Handle different date formats if necessary, but Qiskit usually returns datetime
+    if isinstance(last_update, datetime):
+        update_dt = last_update
+    else:
+        # Fallback parsing if string
+        try:
+            update_dt = datetime.fromisoformat(str(last_update).replace('Z', '+00:00'))
+        except ValueError:
+            logger.warning("Could not parse last_update_date. Assuming stale.")
             return False
-        
-        return True
-    except Exception as e:
-        logger.error(f"Error parsing date {last_update}: {e}")
+
+    now = datetime.now(update_dt.tzinfo) if update_dt.tzinfo else datetime.utcnow()
+    age = now - update_dt
+
+    if age > timedelta(days=max_age_days):
+        logger.info(f"Data for device is {age.days} days old (> {max_age_days}). Excluding.")
         return False
 
-def extract_topology_data(raw_json: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Extracts coupling_map and qubit indices from raw JSON properties.
-    
-    Args:
-        raw_json: The raw dictionary from backend.properties()
-    
-    Returns:
-        A dictionary containing:
-            - 'device_id': str
-            - 'coupling_map': List[List[int]]
-            - 'qubit_indices': List[int]
-            - 'num_qubits': int
-    """
-    device_id = raw_json.get('backend_name') or raw_json.get('backend_version')
-    if not device_id:
-        raise ValueError("Could not identify device_id from raw JSON")
-    
-    coupling_map = raw_json.get('coupling_map', [])
-    
-    # Ensure coupling_map is a list of lists
-    if not isinstance(coupling_map, list):
-        logger.warning(f"Invalid coupling_map format for {device_id}: {type(coupling_map)}")
-        coupling_map = []
-    
-    # Extract all unique qubit indices involved in the coupling map
-    qubit_indices = set()
-    for edge in coupling_map:
-        if isinstance(edge, (list, tuple)) and len(edge) >= 2:
-            qubit_indices.add(edge[0])
-            qubit_indices.add(edge[1])
-    
-    # Also check 'n_qubits' if available to include isolated qubits if any (though usually coupling_map covers active ones)
-    # However, standard IBM data usually lists all qubits in the map if they are part of the topology.
-    # If we have n_qubits, we might want to ensure we don't miss isolated ones, but for topology,
-    # the coupling_map is the definitive source of edges.
-    
-    result = {
-        "device_id": str(device_id),
-        "coupling_map": coupling_map,
-        "qubit_indices": sorted(list(qubit_indices)),
-        "num_qubits": len(qubit_indices)
-    }
-    
-    logger.debug(f"Extracted topology for {device_id}: {len(coupling_map)} edges, {len(qubit_indices)} qubits.")
-    return result
+    return True
 
-def extract_performance_metrics(raw_json: Dict[str, Any]) -> Dict[str, Any]:
+def extract_topology_data(properties: Dict[str, Any]) -> Tuple[List[List[int]], List[int]]:
     """
-    Extracts T1, T2, gate_errors, and readout_errors from raw JSON.
-    
-    Args:
-        raw_json: The raw dictionary from backend.properties()
-    
-    Returns:
-        A dictionary containing extracted metrics keyed by qubit/gate.
+    Extract coupling_map and qubit indices from raw JSON.
+    Returns (coupling_map, qubit_indices)
     """
-    device_id = raw_json.get('backend_name')
-    qubits = raw_json.get('qubits', [])
-    gates = raw_json.get('gates', [])
+    # Coupling map is usually a list of [source, target] pairs
+    coupling_map = properties.get('coupling_map', [])
     
+    # Qubit indices are usually 0 to N-1, but we can extract from qubits list
+    qubits = properties.get('qubits', [])
+    qubit_indices = list(range(len(qubits))) if qubits else []
+
+    return coupling_map, qubit_indices
+
+def extract_performance_metrics(properties: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extract T1, T2, gate_errors, and readout_errors from raw JSON.
+    Returns a dictionary of metrics.
+    """
     metrics = {
-        "device_id": str(device_id),
-        "t1": {},
-        "t2": {},
-        "gate_errors": {},
-        "readout_errors": {}
+        't1': [],
+        't2': [],
+        'gate_errors': [],
+        'readout_errors': []
     }
-    
-    # Parse Qubit properties (T1, T2)
-    for qubit_data in qubits:
-        qubit_idx = qubit_data.get('name')
-        if not isinstance(qubit_idx, int):
-            continue
+
+    qubits = properties.get('qubits', [])
+    gates = properties.get('gates', [])
+
+    # Extract T1, T2
+    for i, qubit in enumerate(qubits):
+        t1_val = None
+        t2_val = None
+        for item in qubit:
+            if item.get('name') == 'T1':
+                t1_val = item.get('value')
+            elif item.get('name') == 'T2':
+                t2_val = item.get('value')
         
-        for prop in qubit_data:
-            if prop.get('name') == 'T1':
-                metrics["t1"][qubit_idx] = prop.get('value')
-            elif prop.get('name') == 'T2':
-                metrics["t2"][qubit_idx] = prop.get('value')
-    
-    # Parse Gate properties (error rates)
+        if t1_val is not None:
+            metrics['t1'].append({'qubit': i, 'value': t1_val, 'unit': 's'})
+        if t2_val is not None:
+            metrics['t2'].append({'qubit': i, 'value': t2_val, 'unit': 's'})
+
+    # Extract Gate Errors (CX)
     for gate in gates:
-        gate_name = gate.get('gate')
-        qubits_list = gate.get('qubits', [])
-        for prop in gate.get('parameters', []):
-            if prop.get('name') == 'gate_error':
-                key = f"{gate_name}_{'-'.join(map(str, qubits_list))}"
-                metrics["gate_errors"][key] = prop.get('value')
-    
-    # Parse Readout properties
-    # Readout errors are often stored in the 'qubits' list under 'readout_error' or similar
-    # but sometimes in a separate 'readout' section. IBM properties usually put it in qubits.
-    for qubit_data in qubits:
-        qubit_idx = qubit_data.get('name')
-        if not isinstance(qubit_idx, int):
-            continue
-        for prop in qubit_data:
-            if prop.get('name') == 'readout_error':
-                metrics["readout_errors"][qubit_idx] = prop.get('value')
-    
+        if gate.get('gate') == 'cx':
+            for item in gate.get('parameters', []):
+                if item.get('name') == 'gate_error':
+                    metrics['gate_errors'].append({
+                        'qubits': gate.get('qubits'),
+                        'value': item.get('value')
+                    })
+
+    # Extract Readout Errors
+    for i, qubit in enumerate(qubits):
+        for item in qubit:
+            if item.get('name') == 'readout_error':
+                metrics['readout_errors'].append({
+                    'qubit': i,
+                    'value': item.get('value')
+                })
+
     return metrics
 
-def fetch_all_backends() -> List[Dict[str, Any]]:
+def fetch_all_backends():
     """
-    Orchestrates the fetching of all backends, filtering by freshness,
-    and extracting topology and performance data.
+    Main orchestration function to fetch data for all accessible backends,
+    validate freshness, and save raw snapshots.
     """
-    backend_names = fetch_backends_list()
-    logger.info(f"Found {len(backend_names)} operational backends.")
+    logger.info("Starting full backend fetch and snapshot process.")
     
-    results = []
-    for name in backend_names:
+    config = load_config()
+    service = setup_ibm_runtime(config)
+    
+    if not service:
+        logger.error("Failed to initialize IBM Quantum Runtime service.")
+        return
+
+    backends = fetch_backends_list(service)
+    logger.info(f"Found {len(backends)} accessible backends.")
+
+    valid_devices = []
+    
+    for device_id in backends:
         try:
-            props = fetch_backend_properties(name)
+            props = fetch_backend_properties(service, device_id)
             
-            if not validate_data_freshness(props):
-                logger.info(f"Skipping {name}: data too old.")
+            if not props:
                 continue
+
+            if not validate_data_freshness(props):
+                continue
+
+            # Save raw snapshot
+            save_backend_snapshot(device_id, props)
             
-            topology = extract_topology_data(props)
-            performance = extract_performance_metrics(props)
+            # Extract and store for downstream processing (in memory for now, 
+            # or could be written to a processed CSV immediately if needed)
+            coupling_map, qubits = extract_topology_data(props)
+            metrics = extract_performance_metrics(props)
             
-            results.append({
-                "topology": topology,
-                "performance": performance,
-                "raw_timestamp": props.get('last_update_date')
+            valid_devices.append({
+                'device_id': device_id,
+                'properties': props,
+                'coupling_map': coupling_map,
+                'qubits': qubits,
+                'metrics': metrics
             })
+            
         except Exception as e:
-            logger.error(f"Failed to process {name}: {e}")
+            logger.error(f"Error processing {device_id}: {e}")
             continue
-    
-    logger.info(f"Successfully processed {len(results)} backends.")
-    return results
+
+    logger.info(f"Successfully processed and saved {len(valid_devices)} valid devices.")
+    return valid_devices
+
+def main():
+    """Entry point for the fetcher script."""
+    fetch_all_backends()
+
+if __name__ == "__main__":
+    main()

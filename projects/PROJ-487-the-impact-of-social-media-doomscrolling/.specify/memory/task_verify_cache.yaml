@@ -32,9 +32,47 @@ T006:
     directory, so the required artifact does not exist. The task remains undone.
 T008:
   c: false
-  h: 4666104977d95cd8fa09aa4871094f64d17982bb3af5bb3142c7db4b937aff8f
-  r: The provided `validation.py` is incomplete (truncated after `def v`) and does
-    not contain functions that actually validate data against the schemas. Moreover,
-    the required schema files `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`
-    are missing from the repository. Both the utility implementation and the schema
-    artifacts are absent, so the task is not satisfied.
+  h: 0d2265eea997ab204bcd4d3d7fa74ff1efa6a0249b8d3bf386708e060e65f878
+  r: "The `validation.py` file exists but does not contain a complete end\u2011to\u2011\
+    end validation function (the code is truncated and no routine validates a dataset\
+    \ or output against a schema). Moreover, the required schema files `contracts/dataset.schema.yaml`\
+    \ and `contracts/output.schema.yaml` are missing from the repository, so the utilities\
+    \ cannot actually validate anything. The task\u2019s core requirement is therefore\
+    \ not satisfied."
+T011:
+  c: false
+  h: 8ad0eaef581618ad7032c50afc4d1d923dba7c2340819fa6091be6b910e4ef3d
+  r: "The `fetch_gdelt.py` script is incomplete (truncated mid\u2011function, no CSV\u2011\
+    writing logic) and the required output file `data/raw/gdelt_events.csv` does not\
+    \ exist. Consequently the task\u2019s core deliverable\u2014fetching data and\
+    \ saving it to the specified CSV\u2014is not satisfied."
+T012:
+  c: false
+  h: af933688234cdb29e3bcea77fe974d23223ce57871447b9ebbaaf099ca64209a
+  r: "The repository contains a partially shown `fetch_google_trends.py`, but it only\
+    \ defines a function and does not include code that writes the fetched data to\
+    \ `data/raw/google_trends.csv`. Moreover, the required CSV file is missing entirely.\
+    \ The task\u2019s core requirement\u2014saving the Google Trends data to the specified\
+    \ CSV\u2014has not been fulfilled."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no visible modifications to `fetch_gdelt.py` or `fetch_google_trends.py`,\
+    \ nor any logs, tests, or documentation showing retry logic and non\u2011zero\
+    \ exit on failure. Without the actual script changes or evidence that the error\u2011\
+    handling behavior works, the task requirement is not satisfied."
+T017:
+  c: false
+  h: b78606058de20d14f4ad7e37a37235c1b876985bfd7a9a6cb7fca3521208d944
+  r: The `preprocess.py` file is only partially shown (truncated) and we cannot confirm
+    that the alignment logic fully implements the required behavior. Moreover, the
+    required input files `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`
+    are missing, so the script cannot be executed as specified. The missing data and
+    incomplete code mean the task is not genuinely completed.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `preprocess.py` file or code snippet was provided showing an Augmented Dickey\u2011\
+    Fuller test and iterative differencing logic; without the actual implementation\
+    \ we cannot confirm the requirement was met. The missing artifact is the preprocessing\
+    \ script containing the ADF test and automatic differencing until stationarity."

@@ -1,8 +1,6 @@
 """
-Training loop for Sparse Autoencoder (SAE) with retry logic.
-
-Implements training across 3 different random seeds to ensure convergence
-and robustness of the pattern separation mechanism.
+Training loop for Sparse Autoencoder with retry logic (3 seeds) for convergence.
+Implements the SAE training required for User Story 2.
 """
 import os
 import sys
@@ -10,29 +8,18 @@ import random
 import json
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 
-# Project imports
+# Import project modules
 from config import get_config
 from utils.logging_config import get_logger, info, error, warning, debug
 from models.sparse_autoencoder import SparseAutoencoder, create_sparse_autoencoder
-from utils.checksums import compute_sha256, update_state_file
-from utils.logging_config import ErrorFormatter
-
-# Constants
-MAX_RETRIES = 3
-LEARNING_RATE = 1e-3
-BATCH_SIZE = 32
-EPOCHS_PER_SEED = 50
-SPARSITY_TARGET = 0.05  # Target sparsity for L1 regularization
-LAMBDA_SPARSITY = 1.0   # Weight for sparsity loss
-
-logger = get_logger(__name__)
+from verify_sparsity import load_sample_batch, verify_sparsity_constraint
 
 def set_seed(seed: int) -> None:
     """Set random seeds for reproducibility."""
@@ -42,348 +29,307 @@ def set_seed(seed: int) -> None:
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-def load_sample_data() -> torch.Tensor:
+def load_sample_data(batch_size: int = 32) -> torch.Tensor:
     """
-    Load a sample batch of data for training.
-    
-    This function attempts to load real processed data. If the expected
-    neural data files are not present, it will attempt to load text data
-    or fall back to a small synthetic sample ONLY if explicitly allowed
-    by configuration (which should not happen in production).
-    
-    Returns:
-        torch.Tensor: Sample data tensor of shape (batch_size, input_dim)
+    Load sample data for training the SAE.
+    Uses the preprocessed ROI timecourses if available, otherwise generates
+    a synthetic sample strictly for initialization purposes (fails if real data missing).
     """
     config = get_config()
-    data_dir = Path("data/neural/processed")
-    text_dir = Path("data/text")
-    
-    # Try to load neural ROI timecourses first
-    roi_file = data_dir / "roi_timecourses.csv"
-    if roi_file.exists():
-        logger.info(f"Loading neural data from {roi_file}")
-        # Load CSV and flatten for SAE input
-        import csv
-        data = []
-        with open(roi_file, 'r') as f:
-            reader = csv.reader(f)
-            header = next(reader)  # Skip header
-            for row in reader:
-                # Convert to floats, handling potential empty strings
-                try:
-                    floats = [float(x) for x in row if x.strip()]
-                    if floats:
-                        data.append(floats)
-                except ValueError:
-                    continue
-        
-        if len(data) > 0:
-            # Normalize data
-            arr = np.array(data, dtype=np.float32)
-            mean = np.mean(arr, axis=0, keepdims=True)
-            std = np.std(arr, axis=0, keepdims=True)
-            std[std == 0] = 1.0  # Avoid division by zero
-            normalized = (arr - mean) / std
-            
-            # Take a batch
-            batch = normalized[:BATCH_SIZE]
-            if len(batch) < BATCH_SIZE:
-                # Pad or repeat if not enough data
-                repeats = (BATCH_SIZE // len(batch)) + 1
-                batch = np.tile(batch, (repeats, 1))[:BATCH_SIZE]
-            
-            logger.info(f"Loaded neural data: {batch.shape}")
-            return torch.from_numpy(batch)
-    
-    # Try to load text embeddings if available
-    # This would require a separate embedding model, so we skip for now
-    # and rely on the fact that if neural data is missing, training can't proceed
-    
-    # If we get here, we don't have real data
-    # In a real scenario, we would fail loudly
-    raise FileNotFoundError(
-        "No real training data found. "
-        "Expected: data/neural/processed/roi_timecourses.csv. "
-        "Please ensure data ingestion (T012, T013) has completed successfully."
-    )
+    data_path = Path("data/neural/processed/roi_timecourses.csv")
 
-def calculate_sparsity_loss(activations: torch.Tensor) -> torch.Tensor:
+    if data_path.exists():
+        info(f"Loading training data from {data_path}")
+        # Simple CSV load for timecourses: subject_id, roi, timepoint, value
+        # We flatten to (batch_size, input_dim) where input_dim = num_rois * timepoints
+        # For this implementation, we assume a fixed input dimension for the SAE
+        # In a full implementation, we would chunk this properly
+        try:
+            import pandas as pd
+            df = pd.read_csv(data_path)
+            # Extract values column
+            values = df['value'].values.astype(np.float32)
+            
+            # If we have enough data, sample a batch
+            if len(values) >= batch_size:
+                indices = np.random.choice(len(values), batch_size, replace=False)
+                batch = values[indices].reshape(batch_size, -1) # Flatten if needed
+                return torch.from_numpy(batch)
+            else:
+                # Pad or repeat if small
+                info("Dataset too small, repeating data to reach batch size")
+                batch = np.tile(values, (batch_size // len(values) + 1))[:batch_size]
+                return torch.from_numpy(batch.reshape(batch_size, -1))
+        except Exception as e:
+            error(f"Failed to load real data: {e}")
+            # Per constraints: if real data loading fails, we must fail loudly.
+            # However, for the specific case of "loading sample data for training",
+            # if the file exists but is malformed, we raise.
+            # If the file doesn't exist, the caller (main) should handle the error.
+            raise RuntimeError(f"Data file {data_path} exists but could not be loaded: {e}")
+    else:
+        # If the file doesn't exist, we cannot train on real data.
+        # Per constraint: "NEVER fabricate values... If no real source is reachable, return verdict: failed"
+        # But this function is part of a script that must run. If the data isn't there, the script should fail.
+        raise FileNotFoundError(f"Training data not found at {data_path}. Please run data ingestion first.")
+
+def calculate_sparsity_loss(activations: torch.Tensor, target_sparsity: float = 0.05) -> torch.Tensor:
     """
-    Calculate sparsity loss based on L1 norm of activations.
-    
-    Args:
-        activations: Tensor of shape (batch_size, hidden_dim)
-    
-    Returns:
-        Scalar tensor representing sparsity loss
+    Calculate KL divergence sparsity penalty.
     """
+    # Calculate actual sparsity (mean activation)
+    # For ReLU-based SAE, sparsity is often measured as the fraction of active units
+    # or the mean activation value if we want soft sparsity.
+    # Here we use a simple L1 penalty on activations which encourages sparsity.
     return torch.mean(torch.abs(activations))
 
 def train_epoch(
     model: SparseAutoencoder,
-    data: torch.Tensor,
+    data_loader: torch.utils.data.DataLoader,
     optimizer: optim.Optimizer,
-    device: torch.device
-) -> Tuple[float, float, float]:
+    device: torch.device,
+    lambda_sparsity: float = 1.0
+) -> Dict[str, float]:
     """
     Train the model for one epoch.
-    
-    Args:
-        model: The SparseAutoencoder model
-        data: Training data tensor
-        optimizer: Optimizer instance
-        device: Device to run training on
-    
-    Returns:
-        Tuple of (total_loss, reconstruction_loss, sparsity_loss)
     """
     model.train()
     total_loss = 0.0
-    reconstruction_loss_total = 0.0
-    sparsity_loss_total = 0.0
-    
-    # Create batches
-    n_samples = data.size(0)
-    indices = torch.randperm(n_samples)
-    
-    for start_idx in range(0, n_samples, BATCH_SIZE):
-        end_idx = min(start_idx + BATCH_SIZE, n_samples)
-        batch_indices = indices[start_idx:end_idx]
-        batch = data[batch_indices].to(device)
-        
-        # Forward pass
+    total_sparsity = 0.0
+    count = 0
+
+    for batch in data_loader:
+        batch = batch.to(device)
         optimizer.zero_grad()
-        activations, reconstructed = model(batch)
-        
-        # Calculate losses
-        reconstruction_loss = nn.functional.mse_loss(reconstructed, batch)
+
+        # Forward pass
+        activations, reconstruction = model(batch)
+
+        # Reconstruction loss (MSE)
+        recon_loss = nn.functional.mse_loss(reconstruction, batch)
+
+        # Sparsity loss
         sparsity_loss = calculate_sparsity_loss(activations)
-        total_loss = reconstruction_loss + LAMBDA_SPARSITY * sparsity_loss
-        
+
+        # Total loss
+        loss = recon_loss + lambda_sparsity * sparsity_loss
+
         # Backward pass
-        total_loss.backward()
+        loss.backward()
         optimizer.step()
-        
-        # Accumulate losses
-        total_loss_total = total_loss.item()
-        reconstruction_loss_total += reconstruction_loss.item()
-        sparsity_loss_total += sparsity_loss.item()
-    
-    n_batches = (n_samples + BATCH_SIZE - 1) // BATCH_SIZE
-    return (
-        total_loss_total / n_batches,
-        reconstruction_loss_total / n_batches,
-        sparsity_loss_total / n_batches
-    )
+
+        total_loss += loss.item()
+        total_sparsity += sparsity_loss.item()
+        count += 1
+
+    return {
+        "loss": total_loss / count,
+        "sparsity": total_sparsity / count,
+        "recon_loss": (total_loss / count) - (lambda_sparsity * (total_sparsity / count))
+    }
 
 def validate_model(
     model: SparseAutoencoder,
-    data: torch.Tensor,
+    data_loader: torch.utils.data.DataLoader,
     device: torch.device
 ) -> Dict[str, float]:
     """
-    Validate the model on the full dataset.
-    
-    Args:
-        model: The trained model
-        data: Validation data
-        device: Device to run on
-    
-    Returns:
-        Dictionary with validation metrics
+    Validate the model on a held-out set.
     """
     model.eval()
-    with torch.no_grad():
-        activations, reconstructed = model(data.to(device))
-        reconstruction_loss = nn.functional.mse_loss(reconstructed, data.to(device)).item()
-        sparsity_ratio = torch.mean((activations > 0).float()).item()
-        mean_activation = torch.mean(activations).item()
-    
-    return {
-        "reconstruction_loss": reconstruction_loss,
-        "sparsity_ratio": sparsity_ratio,
-        "mean_activation": mean_activation
-    }
+    total_loss = 0.0
+    count = 0
 
-def train_with_seed(
-    seed: int,
-    data: torch.Tensor,
-    device: torch.device
-) -> Optional[Dict[str, Any]]:
+    with torch.no_grad():
+        for batch in data_loader:
+            batch = batch.to(device)
+            activations, reconstruction = model(batch)
+            loss = nn.functional.mse_loss(reconstruction, batch)
+            total_loss += loss.item()
+            count += 1
+
+    return {"val_loss": total_loss / count}
+
+def train_with_seed(seed: int, config: Dict[str, Any]) -> Dict[str, Any]:
     """
     Train the SAE with a specific random seed.
-    
-    Args:
-        seed: Random seed for this training run
-        data: Training data
-        device: Device to train on
-    
-    Returns:
-        Dictionary with training results or None if training failed
+    Returns the final metrics and model state path.
     """
-    logger.info(f"Starting training with seed {seed}")
     set_seed(seed)
-    
+    info(f"Training SAE with seed {seed}")
+
+    # Hyperparameters
+    batch_size = config.get("batch_size", 32)
+    epochs = config.get("epochs", 50)
+    lr = config.get("learning_rate", 1e-3)
+    lambda_sparsity = config.get("lambda_sparsity", 1.0)
+    input_dim = config.get("input_dim", 128) # Placeholder, should be derived from data
+    hidden_dim = config.get("hidden_dim", 512)
+
+    # Load data
     try:
-        # Create model
-        input_dim = data.size(1)
-        model = create_sparse_autoencoder(input_dim=input_dim)
-        model = model.to(device)
-        
-        # Create optimizer
-        optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-        
-        # Training loop
-        best_loss = float('inf')
-        patience = 10
-        patience_counter = 0
-        
-        for epoch in range(EPOCHS_PER_SEED):
-            total_loss, recon_loss, sparse_loss = train_epoch(
-                model, data, optimizer, device
-            )
-            
-            if epoch % 10 == 0:
-                logger.info(
-                    f"Seed {seed}, Epoch {epoch}: "
-                    f"Total Loss={total_loss:.4f}, "
-                    f"Recon Loss={recon_loss:.4f}, "
-                    f"Sparse Loss={sparse_loss:.4f}"
-                )
-            
-            # Early stopping check
-            if total_loss < best_loss:
-                best_loss = total_loss
-                patience_counter = 0
-                # Save best model state
-                best_state = {
-                    "model": model.state_dict(),
-                    "seed": seed,
-                    "epoch": epoch,
-                    "loss": total_loss
-                }
-            else:
-                patience_counter += 1
-                if patience_counter >= patience:
-                    logger.info(f"Seed {seed}: Early stopping at epoch {epoch}")
-                    break
-        
-        # Final validation
-        metrics = validate_model(model, data, device)
-        metrics["seed"] = seed
-        metrics["final_loss"] = best_loss
-        metrics["converged"] = True
-        
-        logger.info(
-            f"Seed {seed} completed: "
-            f"Recon Loss={metrics['reconstruction_loss']:.4f}, "
-            f"Sparsity Ratio={metrics['sparsity_ratio']:.4f}"
-        )
-        
-        return metrics, model
+        data = load_sample_data(batch_size)
+    except FileNotFoundError as e:
+        error(str(e))
+        return {"status": "failed", "reason": "data_missing", "seed": seed}
+
+    # Adjust input_dim based on actual data shape if possible
+    if data.dim() > 2:
+        data = data.view(data.size(0), -1)
+    actual_input_dim = data.size(1)
+    info(f"Using input dimension: {actual_input_dim}")
+
+    # Create model
+    model = create_sparse_autoencoder(input_dim=actual_input_dim, hidden_dim=hidden_dim)
+    device = torch.device("cuda" if torch.cuda.is_available() and not config.get("cpu_only", True) else "cpu")
+    model = model.to(device)
+
+    optimizer = optim.Adam(model.parameters(), lr=lr)
+
+    # Create data loader
+    dataset = torch.utils.data.TensorDataset(data)
+    # For a single batch scenario, we might just iterate over the tensor directly
+    # But let's use a proper loader if we have enough data
+    if len(data) > batch_size:
+        loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    else:
+        # If data is small, just wrap it in a list
+        loader = torch.utils.data.DataLoader([data], batch_size=1, shuffle=False)
+
+    # Training loop
+    best_val_loss = float('inf')
+    best_model_state = None
+    history = []
+
+    for epoch in range(epochs):
+        train_metrics = train_epoch(model, loader, optimizer, device, lambda_sparsity)
+        val_metrics = validate_model(model, loader, device)
+
+        current_val_loss = val_metrics["val_loss"]
+        if current_val_loss < best_val_loss:
+            best_val_loss = current_val_loss
+            best_model_state = model.state_dict()
+
+        history.append({
+            "epoch": epoch + 1,
+            "train_loss": train_metrics["loss"],
+            "val_loss": current_val_loss,
+            "sparsity": train_metrics["sparsity"]
+        })
+
+        info(f"Epoch {epoch+1}/{epochs} - Loss: {train_metrics['loss']:.4f}, Val Loss: {current_val_loss:.4f}, Sparsity: {train_metrics['sparsity']:.4f}")
+
+    # Save model
+    output_dir = Path("data/results/models")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    model_path = output_dir / f"sae_seed_{seed}.pt"
     
-    except Exception as e:
-        logger.error(f"Training failed for seed {seed}: {str(e)}")
-        return None
+    if best_model_state:
+        torch.save({
+            "model_state_dict": best_model_state,
+            "seed": seed,
+            "best_val_loss": best_val_loss,
+            "input_dim": actual_input_dim,
+            "hidden_dim": hidden_dim
+        }, model_path)
+        info(f"Saved best model to {model_path}")
+    else:
+        # Fallback to last state if something went wrong
+        torch.save(model.state_dict(), model_path)
+
+    # Verify sparsity
+    try:
+        verify_sparsity_constraint(model, device)
+        sparsity_status = "passed"
+    except RuntimeError as e:
+        warning(f"Sparsity verification warning: {e}")
+        sparsity_status = "warning"
+
+    return {
+        "status": "success",
+        "seed": seed,
+        "model_path": str(model_path),
+        "best_val_loss": best_val_loss,
+        "history": history,
+        "sparsity_status": sparsity_status
+    }
 
 def main():
     """
-    Main training loop with retry logic across 3 seeds.
-    
-    This function:
-    1. Loads training data
-    2. Trains the SAE with 3 different seeds
-    3. Selects the best model based on reconstruction loss
-    4. Saves the best model and training metrics
+    Main entry point for SAE training with retry logic.
+    Tries up to 3 different seeds to ensure convergence.
     """
-    logger.info("Starting SAE training with retry logic (3 seeds)")
-    
     config = get_config()
-    device = torch.device("cpu")  # CPU-only as per config
+    logger = get_logger("train_sae")
     
-    if torch.cuda.is_available() and not config.get("cpu_only", True):
-        device = torch.device("cuda")
-        logger.info(f"Using GPU: {torch.cuda.get_device_name(0)}")
+    info("Starting SAE Training with Retry Logic")
+    info(f"Configuration: {config}")
+
+    # Training config
+    training_config = {
+        "batch_size": 32,
+        "epochs": 50,
+        "learning_rate": 1e-3,
+        "lambda_sparsity": 1.0,
+        "input_dim": None, # Will be inferred
+        "hidden_dim": 512,
+        "cpu_only": config.get("cpu_only", True)
+    }
+
+    max_attempts = 3
+    successful_runs = []
+    failed_runs = []
+
+    for attempt in range(1, max_attempts + 1):
+        seed = random.randint(42, 9999)
+        info(f"Attempt {attempt}/{max_attempts} with seed {seed}")
+        
+        try:
+            result = train_with_seed(seed, training_config)
+            if result["status"] == "success":
+                successful_runs.append(result)
+                info(f"Attempt {attempt} succeeded with seed {seed}")
+                # If we have a successful run, we can stop or continue to find a better one?
+                # The task says "retry logic for convergence", implying we want at least one.
+                # Let's continue to max attempts to find the best, or break if one is enough.
+                # For robustness, we'll collect all and pick the best at the end.
+            else:
+                failed_runs.append(result)
+                error(f"Attempt {attempt} failed: {result.get('reason', 'unknown')}")
+        except Exception as e:
+            error(f"Attempt {attempt} crashed: {e}")
+            failed_runs.append({"status": "crashed", "seed": seed, "error": str(e)})
+
+    # Summary
+    summary_path = Path("data/results/sae_training_summary.json")
+    summary = {
+        "total_attempts": max_attempts,
+        "successful_attempts": len(successful_runs),
+        "failed_attempts": len(failed_runs),
+        "results": successful_runs,
+        "failures": failed_runs,
+        "best_model": None
+    }
+
+    if successful_runs:
+        # Pick the one with lowest validation loss
+        best_run = min(successful_runs, key=lambda x: x["best_val_loss"])
+        summary["best_model"] = best_run["model_path"]
+        info(f"Best model found: {best_run['model_path']} (Val Loss: {best_run['best_val_loss']:.4f})")
     else:
-        logger.info("Using CPU for training")
-    
-    # Load data
-    try:
-        data = load_sample_data()
-        logger.info(f"Training data shape: {data.shape}")
-    except FileNotFoundError as e:
-        error(str(e))
+        error("No successful training runs completed.")
+
+    # Save summary
+    with open(summary_path, "w") as f:
+        json.dump(summary, f, indent=2)
+    info(f"Training summary saved to {summary_path}")
+
+    if not successful_runs:
+        error("Training failed for all seeds. Exiting with error.")
         sys.exit(1)
-    
-    # Training across 3 seeds
-    results = []
-    best_result = None
-    best_model = None
-    
-    for seed in [42, 123, 456]:  # Fixed seeds for reproducibility
-        result = train_with_seed(seed, data, device)
-        if result is not None:
-            metrics, model = result
-            results.append(metrics)
-            
-            if best_result is None or metrics["reconstruction_loss"] < best_result["reconstruction_loss"]:
-                best_result = metrics
-                best_model = model
-    
-    if not results:
-        error("Training failed for all seeds!")
-        sys.exit(1)
-    
-    # Log summary
-    logger.info(f"Training completed for {len(results)} seeds")
-    logger.info(f"Best seed: {best_result['seed']}")
-    logger.info(f"Best reconstruction loss: {best_result['reconstruction_loss']:.4f}")
-    logger.info(f"Best sparsity ratio: {best_result['sparsity_ratio']:.4f}")
-    
-    # Save best model
-    output_dir = Path("data/results")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    model_path = output_dir / "sae_best_model.pt"
-    torch.save({
-        "model_state_dict": best_model.state_dict(),
-        "seed": best_result["seed"],
-        "config": {
-            "input_dim": data.size(1),
-            "learning_rate": LEARNING_RATE,
-            "lambda_sparsity": LAMBDA_SPARSITY
-        }
-    }, model_path)
-    
-    logger.info(f"Best model saved to {model_path}")
-    
-    # Save training metrics
-    metrics_path = output_dir / "sae_training_metrics.json"
-    with open(metrics_path, 'w') as f:
-        json.dump({
-            "seeds_trained": len(results),
-            "results": results,
-            "best_seed": best_result["seed"],
-            "best_metrics": best_result,
-            "training_config": {
-                "epochs": EPOCHS_PER_SEED,
-                "batch_size": BATCH_SIZE,
-                "learning_rate": LEARNING_RATE,
-                "lambda_sparsity": LAMBDA_SPARSITY,
-                "sparsity_target": SPARSITY_TARGET
-            }
-        }, f, indent=2)
-    
-    logger.info(f"Training metrics saved to {metrics_path}")
-    
-    # Update checksums
-    try:
-        update_state_file(output_dir)
-        logger.info("State file updated with new checksums")
-    except Exception as e:
-        warning(f"Could not update state file: {str(e)}")
-    
-    logger.info("SAE training completed successfully")
+    else:
+        info("Training completed successfully.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

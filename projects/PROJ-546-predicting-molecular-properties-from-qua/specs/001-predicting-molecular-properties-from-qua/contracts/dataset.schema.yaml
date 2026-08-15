@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Experimental Barrier Dataset Schema"
-description: "Schema for the raw Zenodo input dataset."
+title: "Dataset Schema"
+description: "Schema for the input Zenodo dataset and derived descriptor files."
 type: "object"
 properties:
   molecule_id:
@@ -8,12 +8,31 @@ properties:
     description: "Unique identifier for the molecule."
   smiles:
     type: "string"
-    description: "Canonical SMILES representation."
+    description: "Canonical SMILES string."
   experimental_barrier:
     type: "number"
-    description: "Experimental barrier height in kcal/mol."
+    description: "Experimental barrier height in eV."
+  HOMO_energy:
+    type: "number"
+    description: "HOMO energy in eV."
+  LUMO_energy:
+    type: "number"
+    description: "LUMO energy in eV."
+  mayer_bond_order:
+    type: "number"
+    description: "Sum of Mayer bond orders."
+  molecular_weight:
+    type: "number"
+    description: "Molecular weight in g/mol."
+  atom_count:
+    type: "integer"
+    description: "Total number of atoms."
+  functional_groups:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of identified functional groups."
 required:
   - molecule_id
-  - smiles
   - experimental_barrier
 additionalProperties: false

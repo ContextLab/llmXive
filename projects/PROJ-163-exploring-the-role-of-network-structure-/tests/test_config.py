@@ -1,231 +1,164 @@
 """
 Tests for the IBM Quantum configuration management module.
+
+These tests verify that:
+- Environment variables are correctly loaded
+- Validation logic works as expected
+- The service setup handles errors appropriately
 """
 import os
-import tempfile
 import pytest
-from pathlib import Path
-from unittest.mock import patch
-
-from code.config import (
-    IBMQuantumConfig,
-    load_config,
-    setup_ibm_runtime
-)
+from unittest.mock import patch, MagicMock
+from code.config import load_config, IBMQuantumConfig, setup_ibm_runtime
+from qiskit_ibm_runtime.exceptions import IBMInputValueError
 
 class TestIBMQuantumConfig:
-    """Tests for the IBMQuantumConfig class."""
+    """Tests for the IBMQuantumConfig dataclass."""
 
-    def test_init_defaults(self):
-        """Test initialization with default values."""
-        config = IBMQuantumConfig(token="fake_token_1234567890")
-        assert config.token == "fake_token_1234567890"
+    def test_valid_config_creation(self):
+        """Test creation of a valid config object."""
+        config = IBMQuantumConfig(token="valid_token_12345678901234567890123456789012")
+        assert config.token == "valid_token_12345678901234567890123456789012"
         assert config.channel == "ibm_quantum"
-        assert config.timeout == 60
-        assert config.max_retries == 3
-        assert config.url is None
-        assert config.instance is None
+        assert config.timeout_seconds == 120
 
-    def test_init_custom(self):
-        """Test initialization with custom values."""
+    def test_config_with_optional_fields(self):
+        """Test config with optional fields populated."""
         config = IBMQuantumConfig(
-            token="my_token",
-            instance="hub/group/project",
+            token="valid_token_12345678901234567890123456789012",
+            instance="ibm-q/open/main",
+            url="https://custom.url/api",
             channel="ibm_cloud",
-            url="https://custom.url",
-            timeout=120,
-            max_retries=5
+            timeout_seconds=60
         )
-        assert config.token == "my_token"
-        assert config.instance == "hub/group/project"
+        assert config.instance == "ibm-q/open/main"
+        assert config.url == "https://custom.url/api"
         assert config.channel == "ibm_cloud"
-        assert config.url == "https://custom.url"
-        assert config.timeout == 120
-        assert config.max_retries == 5
+        assert config.timeout_seconds == 60
 
-    def test_validate_success(self):
-        """Test validation with a valid token."""
-        config = IBMQuantumConfig(token="a" * 30)
-        assert config.validate() is True
-        assert config._validated is True
+    def test_empty_token_raises_error(self):
+        """Test that empty token raises ValueError."""
+        with pytest.raises(ValueError, match="token cannot be empty"):
+            IBMQuantumConfig(token="")
 
-    def test_validate_missing_token(self):
-        """Test validation fails if token is missing."""
-        config = IBMQuantumConfig(token=None)
-        assert config.validate() is False
-        assert config._validated is False
+    def test_whitespace_token_raises_error(self):
+        """Test that whitespace-only token raises ValueError."""
+        with pytest.raises(ValueError, match="token cannot be empty"):
+            IBMQuantumConfig(token="   ")
 
-    def test_validate_short_token(self):
-        """Test validation fails if token is too short."""
-        config = IBMQuantumConfig(token="short")
-        assert config.validate() is False
-
-    def test_from_env(self):
-        """Test loading from environment variables."""
-        with patch.dict(os.environ, {
-            "IBM_QUANTUM_TOKEN": "env_token_1234567890",
-            "IBM_QUANTUM_INSTANCE": "env_hub/env_group",
-            "IBM_QUANTUM_TIMEOUT": "90",
-            "IBM_QUANTUM_MAX_RETRIES": "4"
-        }):
-            config = IBMQuantumConfig.from_env()
-            assert config.token == "env_token_1234567890"
-            assert config.instance == "env_hub/env_group"
-            assert config.timeout == 90
-            assert config.max_retries == 4
-
-    def test_from_env_defaults(self):
-        """Test loading from environment uses defaults when vars missing."""
-        with patch.dict(os.environ, {}, clear=True):
-            config = IBMQuantumConfig.from_env()
-            assert config.token is None
-            assert config.timeout == 60
-            assert config.max_retries == 3
-
-    def test_from_file_valid(self):
-        """Test loading from a valid YAML file."""
-        yaml_content = """
-        token: file_token_1234567890
-        instance: file_hub/file_group
-        timeout: 100
-        max_retries: 6
-        """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write(yaml_content)
-            temp_path = Path(f.name)
-
-        try:
-            config = IBMQuantumConfig.from_file(temp_path)
-            assert config.token == "file_token_1234567890"
-            assert config.instance == "file_hub/file_group"
-            assert config.timeout == 100
-            assert config.max_retries == 6
-        finally:
-            temp_path.unlink()
-
-    def test_from_file_invalid_yaml(self):
-        """Test loading from an invalid YAML file raises ValueError."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write("invalid: yaml: content: [")
-            temp_path = Path(f.name)
-
-        try:
-            with pytest.raises(ValueError):
-                IBMQuantumConfig.from_file(temp_path)
-        finally:
-            temp_path.unlink()
-
-    def test_from_file_not_found(self):
-        """Test loading from a non-existent file raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            IBMQuantumConfig.from_file(Path("/nonexistent/path/config.yaml"))
-
-    def test_get_runtime_credentials(self):
-        """Test generating credentials dict for qiskit-ibm-runtime."""
-        config = IBMQuantumConfig(
-            token="my_token",
-            instance="hub/group/project",
-            url="https://custom.url"
-        )
-        creds = config.get_runtime_credentials()
-        assert creds == {
-            "channel": "ibm_quantum",
-            "token": "my_token",
-            "instance": "hub/group/project",
-            "url": "https://custom.url"
-        }
-
-        # Test without optional fields
-        config_min = IBMQuantumConfig(token="my_token")
-        creds_min = config_min.get_runtime_credentials()
-        assert creds_min == {
-            "channel": "ibm_quantum",
-            "token": "my_token"
-        }
+    def test_invalid_channel_raises_error(self):
+        """Test that invalid channel raises ValueError."""
+        with pytest.raises(ValueError, match="Invalid channel"):
+            IBMQuantumConfig(token="valid_token_12345678901234567890123456789012", channel="invalid")
 
 class TestLoadConfig:
     """Tests for the load_config function."""
 
-    def test_load_from_file(self):
-        """Test load_config prioritizes file over env."""
-        yaml_content = """
-        token: file_token_1234567890
-        """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-            f.write(yaml_content)
-            temp_path = Path(f.name)
+    def test_load_config_missing_token(self):
+        """Test that missing token raises RuntimeError."""
+        # Ensure the env var is not set
+        with patch.dict(os.environ, {}, clear=True):
+            with pytest.raises(RuntimeError, match="IBM Quantum token not found"):
+                load_config()
 
-        try:
-            # Set env var to different value
-            with patch.dict(os.environ, {"IBM_QUANTUM_TOKEN": "env_token_1234567890"}):
-                config = load_config(temp_path)
-                assert config.token == "file_token_1234567890"
-        finally:
-            temp_path.unlink()
+    def test_load_config_success(self):
+        """Test successful loading of config from environment."""
+        test_token = "test_token_12345678901234567890123456789012"
+        with patch.dict(os.environ, {"IBM_QUANTUM_TOKEN": test_token}):
+            config = load_config()
+            assert config.token == test_token
+            assert config.channel == "ibm_quantum"
 
-    def test_load_from_env_fallback(self):
-        """Test load_config falls back to env if file missing."""
-        with patch.dict(os.environ, {"IBM_QUANTUM_TOKEN": "env_token_1234567890"}):
-            config = load_config(Path("/nonexistent.yaml"))
-            assert config.token == "env_token_1234567890"
+    def test_load_config_with_all_env_vars(self):
+        """Test loading config with all optional environment variables."""
+        env_vars = {
+            "IBM_QUANTUM_TOKEN": "test_token_12345678901234567890123456789012",
+            "IBM_QUANTUM_INSTANCE": "ibm-q/open/main",
+            "IBM_QUANTUM_URL": "https://custom.url/api",
+            "IBM_QUANTUM_CHANNEL": "ibm_cloud",
+            "IBM_QUANTUM_TIMEOUT": "60",
+            "IBM_QUANTUM_MAX_RETRIES": "5",
+            "IBM_QUANTUM_BACKOFF_FACTOR": "3"
+        }
+        with patch.dict(os.environ, env_vars):
+            config = load_config()
+            assert config.token == env_vars["IBM_QUANTUM_TOKEN"]
+            assert config.instance == env_vars["IBM_QUANTUM_INSTANCE"]
+            assert config.url == env_vars["IBM_QUANTUM_URL"]
+            assert config.channel == env_vars["IBM_QUANTUM_CHANNEL"]
+            assert config.timeout_seconds == 60
+            assert config.max_retries == 5
+            assert config.backoff_factor == 3
 
-    def test_load_default_file(self):
-        """Test load_config looks for default config.yaml in cwd."""
-        # This test is tricky without a real file in cwd, so we mock the check
-        # We verify the logic by ensuring it tries to load from cwd if no path given
-        # and falls back to env if not found.
-        with patch.dict(os.environ, {"IBM_QUANTUM_TOKEN": "env_token_1234567890"}):
-            # Mock Path.cwd() to return a temp dir with no config
-            with tempfile.TemporaryDirectory() as tmpdir:
-                with patch('code.config.Path.cwd', return_value=Path(tmpdir)):
-                    config = load_config()
-                    assert config.token == "env_token_1234567890"
+    def test_load_config_invalid_timeout(self):
+        """Test that invalid timeout value raises ValueError."""
+        with patch.dict(os.environ, {
+            "IBM_QUANTUM_TOKEN": "test_token_12345678901234567890123456789012",
+            "IBM_QUANTUM_TIMEOUT": "not_a_number"
+        }):
+            with pytest.raises(ValueError, match="Invalid numeric configuration value"):
+                load_config()
 
 class TestSetupIbmRuntime:
     """Tests for the setup_ibm_runtime function."""
 
-    def test_setup_with_valid_config(self):
-        """Test setup_ibm_runtime with a valid config object."""
-        config = IBMQuantumConfig(token="valid_token_1234567890")
-        
-        # Clear env vars first
-        vars_to_clear = ["IBM_QUANTUM_TOKEN", "IBM_QUANTUM_INSTANCE", "IBM_QUANTUM_URL"]
-        original = {}
-        for v in vars_to_clear:
-            original[v] = os.environ.pop(v, None)
+    @patch('code.config.QiskitRuntimeService')
+    def test_setup_success(self, mock_service_class):
+        """Test successful service setup."""
+        mock_service_instance = MagicMock()
+        mock_service_instance.backends.return_value = [MagicMock(name="fake_backend")]
+        mock_service_class.return_value = mock_service_instance
 
-        try:
-            setup_ibm_runtime(config)
-            assert os.environ.get("IBM_QUANTUM_TOKEN") == "valid_token_1234567890"
-        finally:
-            # Restore original env
-            for k, v in original.items():
-                if v is not None:
-                    os.environ[k] = v
-                elif k in os.environ:
-                    del os.environ[k]
+        config = IBMQuantumConfig(token="valid_token_12345678901234567890123456789012")
+        service = setup_ibm_runtime(config)
 
-    def test_setup_with_invalid_config(self):
-        """Test setup_ibm_runtime raises RuntimeError with invalid config."""
-        config = IBMQuantumConfig(token=None)
-        
-        with pytest.raises(RuntimeError, match="IBM Quantum configuration is invalid"):
+        mock_service_class.assert_called_once_with(
+            channel="ibm_quantum",
+            token="valid_token_12345678901234567890123456789012",
+            instance=None,
+            url=None
+        )
+        assert service == mock_service_instance
+
+    @patch('code.config.QiskitRuntimeService')
+    def test_setup_with_config_params(self, mock_service_class):
+        """Test service setup with specific config parameters."""
+        mock_service_instance = MagicMock()
+        mock_service_instance.backends.return_value = []
+        mock_service_class.return_value = mock_service_instance
+
+        config = IBMQuantumConfig(
+            token="valid_token_12345678901234567890123456789012",
+            instance="ibm-q/open/main",
+            url="https://custom.url/api",
+            channel="ibm_cloud"
+        )
+        service = setup_ibm_runtime(config)
+
+        mock_service_class.assert_called_once_with(
+            channel="ibm_cloud",
+            token="valid_token_12345678901234567890123456789012",
+            instance="ibm-q/open/main",
+            url="https://custom.url/api"
+        )
+
+    @patch('code.config.QiskitRuntimeService')
+    def test_setup_invalid_credentials(self, mock_service_class):
+        """Test service setup with invalid credentials."""
+        mock_service_class.side_effect = IBMInputValueError(
+            "Invalid token", "Invalid token provided"
+        )
+
+        config = IBMQuantumConfig(token="invalid_token")
+        with pytest.raises(RuntimeError, match="Configuration error"):
             setup_ibm_runtime(config)
 
-    def test_setup_uses_env_if_not_set(self):
-        """Test setup_ibm_runtime sets env vars only if not already set."""
-        config = IBMQuantumConfig(token="new_token_1234567890")
-        
-        # Set existing env var
-        original_token = os.environ.get("IBM_QUANTUM_TOKEN")
-        os.environ["IBM_QUANTUM_TOKEN"] = "existing_token_1234567890"
-        
-        try:
+    @patch('code.config.QiskitRuntimeService')
+    def test_setup_runtime_error(self, mock_service_class):
+        """Test service setup with runtime error."""
+        from qiskit_ibm_runtime.exceptions import IBMRuntimeError
+        mock_service_class.side_effect = IBMRuntimeError("Runtime error", "Connection failed")
+
+        config = IBMQuantumConfig(token="valid_token_12345678901234567890123456789012")
+        with pytest.raises(RuntimeError, match="Runtime error"):
             setup_ibm_runtime(config)
-            # Should not overwrite existing
-            assert os.environ.get("IBM_QUANTUM_TOKEN") == "existing_token_1234567890"
-        finally:
-            if original_token is not None:
-                os.environ["IBM_QUANTUM_TOKEN"] = original_token
-            elif "IBM_QUANTUM_TOKEN" in os.environ:
-                del os.environ["IBM_QUANTUM_TOKEN"]

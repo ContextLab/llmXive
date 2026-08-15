@@ -1,0 +1,4 @@
+# Code directory structure
+# - data/: Scripts for data fetching, preprocessing, and analysis
+# - tests/: Unit and integration tests
+# - utils/: Utility functions (logging, validation)

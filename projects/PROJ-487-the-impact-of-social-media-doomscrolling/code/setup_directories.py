@@ -2,39 +2,49 @@ import os
 import sys
 from pathlib import Path
 
-def main():
+def create_directories(project_root: str) -> None:
     """
-    Creates the required code directory structure for the project.
-    Specifically creates: code/data/, code/tests/, code/utils/
+    Create the required code directory structure for the project.
+    
+    Specifically creates:
+    - code/data/
+    - code/tests/
+    - code/utils/
+    
+    Args:
+        project_root: The absolute or relative path to the project root directory.
     """
-    # Determine the project root based on the script location or current working directory
-    # The task specifies paths relative to the project root.
-    # We assume the script is run from the project root or the project root is the parent of 'code'.
-    project_root = Path.cwd()
+    base_path = Path(project_root)
     
-    code_dir = project_root / "code"
-    
-    directories_to_create = [
-        code_dir / "data",
-        code_dir / "tests",
-        code_dir / "utils"
+    # Define the directories to create relative to the project root
+    directories = [
+        base_path / "code" / "data",
+        base_path / "code" / "tests",
+        base_path / "code" / "utils"
     ]
     
-    created_count = 0
-    for directory in directories_to_create:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {directory}")
+    for directory in directories:
+        # Create the directory and any parent directories if they don't exist
+        # exist_ok=True prevents errors if the directory already exists
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
+
+def main() -> None:
+    """
+    Main entry point for the directory creation script.
     
-    if created_count > 0:
-        print(f"Successfully created {created_count} directory(ies).")
+    Expects the project root to be provided as a command-line argument.
+    If no argument is provided, defaults to the current working directory
+    (assuming the script is run from the project root).
+    """
+    if len(sys.argv) > 1:
+        project_root = sys.argv[1]
     else:
-        print("All required directories already exist.")
+        project_root = os.getcwd()
     
-    return 0
+    print(f"Creating code directories in: {os.path.abspath(project_root)}")
+    create_directories(project_root)
+    print("Directory creation complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

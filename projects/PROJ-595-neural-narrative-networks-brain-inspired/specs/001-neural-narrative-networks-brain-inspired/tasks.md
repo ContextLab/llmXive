@@ -82,7 +82,7 @@
 - [X] T012 [US1] Implement `code/01_data_ingestion.py` to download OpenNeuro dataset <!-- FAILED: unspecified -->
 
 The research question is to investigate neural correlates of cognitive control. The method involves functional magnetic resonance imaging (fMRI) with a stop-signal task.. References include (Smith et al., 2020;). using `datalad` to `data/raw/`.
-- [ ] T013 [US1] Extract BOLD timecourses for L/R Hippocampus and DLPFC using Harvard-Oxford masks and save to `data/neural/processed/roi_timecourses.csv` (or `.npy` if preferred by downstream, but CSV is default for flexibility) with shape (subjects, rois, timepoints). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T013 [US1] Extract BOLD timecourses for L/R Hippocampus and DLPFC using Harvard-Oxford masks and save to `data/neural/processed/roi_timecourses.csv` (or `.npy` if preferred by downstream, but CSV is default for flexibility) with shape (subjects, rois, timepoints). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T014 [US1] Implement chunked loading/subsampling for fMRI data exceeding available RAM capacity.
 - [ ] T015 [US1] Download ROCStories corpus via HuggingFace `datasets` and sample a representative subset of stories to `data/text/rocstories_sample.jsonl`.
 - [ ] T016 [US1] Implement validation step to halt on corrupted/incomplete data with specific error messages.
@@ -95,9 +95,9 @@ The research question is to investigate neural correlates of cognitive control. 
 
 ## Phase 4: User Story 2 - Brain-Inspired Model Generation (Priority: P2)
 
-**Goal**: Implementhippocampal-like pattern separation (sparse autoencoder) and prefrontal gating, generate at least 1,000 stories on CPU [UNRESOLVED-CLAIM: c_10bab60d — status=not_enough_info].
+**Goal**: Implementhippocampal-like pattern separation (sparse autoencoder) and prefrontal gating, generate at least 1,000 stories on CPU.
 
-**Independent Test**: {{claim:c_93eaf1f8}} (Wikidata Q47604 [UNRESOLVED-CLAIM: c_d4b85cc3 — status=not_enough_info], https://www.wikidata.org/wiki/Q47604); Verify SAE sparsity < 20% [UNRESOLVED-CLAIM: c_70216b85 — status=not_enough_info].; Verify peak RAM < 6GB [UNRESOLVED-CLAIM: c_199f8cf7 — status=not_enough_info]..
+**Independent Test**: {{claim:c_93eaf1f8}} (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604); Verify SAE sparsity < 20%.; Verify peak RAM < 6GB..
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 

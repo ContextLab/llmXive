@@ -1,43 +1,35 @@
-# Dataset Schema for GDELT and Google Trends Data
-# Used to validate input data files before processing
-
+$schema: http://json-schema.org/draft-07/schema#
+title: GDELT and Google Trends Dataset Schema
+description: Schema for raw dataset files fetched from GDELT and Google Trends.
 type: object
-required:
-  - date
-  - source
-  - value
-
 properties:
-  date:
-    type: string
-    constraints:
-      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
-      min_length: 10
-      max_length: 10
-    description: "Date in YYYY-MM-DD format"
-
-  source:
-    type: string
-    constraints:
-      enum:
-        - gdelt
-        - google_trends
-    description: "Data source identifier"
-
-  value:
-    type: number
-    constraints:
-      min: 0
-    description: "Numeric value (event count or search interest)"
-
-  metric:
-    type: string
-    description: "Metric name (optional)"
-
-  region:
-    type: string
-    description: "Geographic region (optional)"
-
-  keyword:
-    type: string
-    description: "Search keyword (for Google Trends data)"
+  gdelt_events:
+    type: object
+    required:
+      - file_path
+      - expected_columns
+      - column_types
+    properties:
+      file_path:
+        type: string
+        pattern: "^data/raw/gdelt_events\\.csv$"
+      expected_columns:
+        type: array
+        items:
+          type: string
+        contains:
+          const: "date"
+          minItems: 1
+      column_types:
+        type: object
+        properties:
+          date:
+            type: string
+            const: "datetime"
+          event_count:
+            type: string
+            const: "integer"
+          sentiment_score:
+            type: string
+            const: "float"
+additionalProperties: false

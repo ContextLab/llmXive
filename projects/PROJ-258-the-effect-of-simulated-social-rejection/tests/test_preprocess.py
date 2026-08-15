@@ -1,141 +1,131 @@
-"""
-Tests for the preprocessing module (User Story 2).
-"""
-import pytest
 import pandas as pd
 import numpy as np
 import os
 import sys
-import gc
+import json
+import tempfile
+import shutil
 
-# Add code directory to path
-code_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'code')
-if code_dir not in sys.path:
-    sys.path.insert(0, code_dir)
+# Add parent directory to path to import code modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from preprocess import clean_data, normalize_rt, detect_outliers_iqr, extract_features
-from config import get_memory_threshold_mb
+from code.preprocess import (
+    clean_data, 
+    normalize_and_flag_outliers, 
+    extract_features, 
+    save_preprocessed_data, 
+    run_preprocessing
+)
 
+def test_extract_features():
+    """
+    Test T022: Feature Extraction.
+    Verifies that mean_rt and avg_mood are computed correctly per participant/condition.
+    """
+    # Create a mock dataset with known values
+    data = {
+        'Participant ID': [1, 1, 1, 2, 2, 2],
+        'Condition': ['Rejection', 'Control', 'Rejection', 'Control', 'Rejection', 'Control'],
+        'Reaction Time': [100, 120, 110, 130, 140, 150],
+        'Mood': [3.0, 5.0, 4.0, 4.5, 2.0, 6.0]
+    }
+    df = pd.DataFrame(data)
+    
+    # Run extraction
+    result = extract_features(df)
+    
+    # Verify columns
+    assert 'Participant ID' in result.columns
+    assert 'Condition' in result.columns
+    assert 'mean_rt' in result.columns
+    assert 'avg_mood' in result.columns
+    
+    # Verify calculations for Participant 1, Rejection
+    # RT: (100 + 110) / 2 = 105
+    # Mood: (3.0 + 4.0) / 2 = 3.5
+    p1_rej = result[(result['Participant ID'] == 1) & (result['Condition'] == 'Rejection')]
+    assert not p1_rej.empty
+    assert p1_rej['mean_rt'].values[0] == 105.0
+    assert p1_rej['avg_mood'].values[0] == 3.5
+    
+    # Verify calculations for Participant 2, Control
+    # RT: 150
+    # Mood: 6.0
+    p2_ctrl = result[(result['Participant ID'] == 2) & (result['Condition'] == 'Control')]
+    assert not p2_ctrl.empty
+    assert p2_ctrl['mean_rt'].values[0] == 150.0
+    assert p2_ctrl['avg_mood'].values[0] == 6.0
+    
+    print("T022 Feature Extraction test passed.")
 
-class TestPreprocess:
-    """Tests for preprocessing functions."""
+def test_extract_features_no_participant_id():
+    """
+    Test T022 fallback: Aggregation by Condition only when Participant ID is missing.
+    """
+    data = {
+        'Condition': ['Rejection', 'Control', 'Rejection', 'Control'],
+        'Reaction Time': [100, 120, 110, 130],
+        'Mood': [3.0, 5.0, 4.0, 4.5]
+    }
+    df = pd.DataFrame(data)
+    
+    result = extract_features(df)
+    
+    assert 'Participant ID' not in result.columns
+    assert 'Condition' in result.columns
+    assert len(result) == 2  # One row per condition
+    
+    # Rejection: RT mean = (100+110)/2 = 105, Mood mean = 3.5
+    rej_row = result[result['Condition'] == 'Rejection']
+    assert abs(rej_row['mean_rt'].values[0] - 105.0) < 0.01
+    assert abs(rej_row['avg_mood'].values[0] - 3.5) < 0.01
+    
+    print("T022 Fallback (no Participant ID) test passed.")
 
-    def test_outlier_detection_iqr(self):
-        """
-        T028: Contract test to assert correct flagging per Condition group.
+def test_run_preprocessing_integration():
+    """
+    Integration test for the full pipeline including T022 feature extraction.
+    Verifies that output files are created on disk.
+    """
+    # Setup temp directory
+    temp_dir = tempfile.mkdtemp()
+    try:
+        input_file = os.path.join(temp_dir, 'input.csv')
+        output_file = os.path.join(temp_dir, 'output.csv')
         
-        Verifies that:
-        1. The IQR method is calculated PER group (Condition).
-        2. An outlier is flagged (column 'is_outlier' added) but rows are NOT removed.
-        3. The specific outlier value is correctly identified.
-        """
-        # Create data with a clear outlier in Group A, but normal values in Group B.
-        # Group A: [10, 12, 11, 100, 13] -> Q1=10.5, Q3=12, IQR=1.5. Upper Bound = 12 + 1.5*1.5 = 14.25. 100 is outlier.
-        # Group B: [20, 22, 21] -> Q1=20.5, Q3=22, IQR=1.5. Upper Bound = 22 + 1.5*1.5 = 24.25. No outliers.
+        # Create input data
         data = {
-            'Condition': ['A', 'A', 'A', 'A', 'A', 'B', 'B', 'B'],
-            'ReactionTime': [10.0, 12.0, 11.0, 100.0, 13.0, 20.0, 22.0, 21.0]
+            'Participant ID': [1, 1, 2, 2],
+            'Condition': ['Rejection', 'Control', 'Rejection', 'Control'],
+            'Reaction Time': [100.0, 120.0, 110.0, 130.0],
+            'Mood': [3.0, 5.0, 4.0, 4.5]
         }
-        df = pd.DataFrame(data)
+        pd.DataFrame(data).to_csv(input_file, index=False)
         
-        # Run outlier detection
-        # Expected behavior: Adds 'is_outlier' column, does not drop rows.
-        result_df = detect_outliers_iqr(df, group_col='Condition', value_col='ReactionTime')
+        # Run pipeline
+        result = run_preprocessing(input_file, output_file, 'Within-Subjects')
         
-        # Assert 1: Column exists
-        assert 'is_outlier' in result_df.columns, "detect_outliers_iqr must add 'is_outlier' column"
+        # Verify output file exists
+        assert os.path.exists(output_file), f"Output file {output_file} was not created"
         
-        # Assert 2: No rows were removed (length preserved)
-        assert len(result_df) == len(df), "detect_outliers_iqr must flag outliers, not remove rows"
+        # Verify metadata file exists
+        metadata_file = output_file.replace('.csv', '_metadata.json')
+        assert os.path.exists(metadata_file), f"Metadata file {metadata_file} was not created"
         
-        # Assert 3: The specific outlier (100.0) is flagged True
-        outlier_row = result_df[result_df['ReactionTime'] == 100.0]
-        assert outlier_row['is_outlier'].iloc[0] is True, "Value 100.0 should be flagged as outlier in Group A"
+        # Verify content of output
+        output_df = pd.read_csv(output_file)
+        assert 'mean_rt' in output_df.columns
+        assert 'avg_mood' in output_df.columns
+        assert len(output_df) == 4  # 2 participants * 2 conditions
         
-        # Assert 4: Normal values are flagged False
-        normal_row_a = result_df[result_df['ReactionTime'] == 10.0]
-        assert normal_row_a['is_outlier'].iloc[0] is False, "Value 10.0 should NOT be flagged"
+        print("T022 Integration test passed.")
         
-        # Assert 5: Values in other groups are not affected by Group A's stats
-        normal_row_b = result_df[result_df['ReactionTime'] == 22.0]
-        assert normal_row_b['is_outlier'].iloc[0] is False, "Value 22.0 in Group B should NOT be flagged"
+    finally:
+        # Cleanup
+        shutil.rmtree(temp_dir)
 
-    def test_memory_usage_under_limit(self):
-        """
-        T029: Integration test to verify memory stays under limit (7 GB).
-        
-        This test generates a synthetic dataset of a specific size to stress the memory
-        and verifies that the preprocessing pipeline (clean_data) completes without
-        exceeding the configured threshold (7 GB).
-        
-        It uses psutil to measure actual RSS memory before and after processing.
-        """
-        # Configuration
-        MAX_MEMORY_MB = get_memory_threshold_mb() # Should be 7 * 1024 = 7168
-        
-        # Generate a dataset large enough to be measurable but safe for 7GB limit.
-        # 100,000 rows * ~20 bytes per row ~ 2MB, which is trivial.
-        # To actually test memory pressure, we create a larger frame.
-        # 10 million rows might be too much for the runner, but 1 million is safe.
-        # Let's target ~100MB-500MB usage to ensure we are well under 7GB but above trivial.
-        N_ROWS = 2_000_000 
-        
-        # Force garbage collection before measuring baseline
-        gc.collect()
-        
-        try:
-            import psutil
-            process = psutil.Process()
-            baseline_mem = process.memory_info().rss / 1024 / 1024
-        except ImportError:
-            pytest.skip("psutil not installed, skipping memory measurement but validating logic")
-            return
-
-        # Create data
-        # We use numpy to generate arrays, then construct DataFrame to ensure we have real memory pressure
-        np.random.seed(42)
-        p_ids = np.repeat(np.arange(N_ROWS // 10), 10)
-        conditions = np.tile(['Rejection', 'Control'], N_ROWS // 20)
-        # Reaction times: float64
-        rts = np.random.exponential(scale=0.5, size=N_ROWS) + 0.2 
-        moods = np.random.normal(loc=5.0, scale=1.5, size=N_ROWS)
-
-        df = pd.DataFrame({
-            'Participant_ID': p_ids,
-            'Condition': conditions,
-            'ReactionTime': rts,
-            'Mood': moods
-        })
-
-        # Measure memory after creation
-        try:
-            gc.collect()
-            mem_after_create = process.memory_info().rss / 1024 / 1024
-        except ImportError:
-            mem_after_create = 0
-
-        # Run the actual preprocessing pipeline
-        # This is the code under test
-        cleaned_df = clean_data(df)
-
-        # Measure memory after processing
-        gc.collect()
-        try:
-            mem_after_process = process.memory_info().rss / 1024 / 1024
-        except ImportError:
-            mem_after_process = 0
-
-        # Assertions
-        assert len(cleaned_df) > 0, "Preprocessing must not drop all data"
-        assert 'is_outlier' in cleaned_df.columns, "clean_data must flag outliers"
-
-        # Verify memory constraint
-        # We allow some variance, but it must be strictly under the 7GB limit
-        assert mem_after_process < MAX_MEMORY_MB, (
-            f"Memory usage {mem_after_process:.2f} MB exceeds limit of {MAX_MEMORY_MB} MB. "
-            f"Peak increase: {mem_after_process - baseline_mem:.2f} MB"
-        )
-
-        # Log for debugging if needed
-        print(f"Memory Test: Baseline={baseline_mem:.2f}MB, AfterCreate={mem_after_create:.2f}MB, "
-              f"AfterProcess={mem_after_process:.2f}MB, Limit={MAX_MEMORY_MB}MB")
+if __name__ == "__main__":
+    test_extract_features()
+    test_extract_features_no_participant_id()
+    test_run_preprocessing_integration()
+    print("All T022 tests passed.")

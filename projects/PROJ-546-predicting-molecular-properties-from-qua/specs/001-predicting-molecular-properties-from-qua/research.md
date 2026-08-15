@@ -1,95 +1,111 @@
 # Research: Predicting Molecular Properties from Quantum Chemical Calculations
 
-## Executive Summary
+## Summary
 
-This research validates the feasibility of predicting molecular barrier heights using a hybrid semi-empirical and high-level DFT approach. The study leverages a verified experimental dataset from Zenodo (ID fetched from `idea.md`) and computes quantum descriptors using DFTB+ (full set) and Psi4 (subset). The primary challenge is computational feasibility within a constrained CPU time limit of GitHub Actions. The research question investigates whether a reduced subset of data can be processed efficiently under computational constraints. The method employs a scaled-down CPU to evaluate a manageable subset size, demonstrating that while full DFT remains intractable for large sets, a representative subset is feasible (). The plan strictly avoids gated datasets and relies on open, verifiable sources.
+This research validates the feasibility of using semi-empirical (DFTB+) and high-level (Psi4) quantum chemical descriptors to predict experimental molecular barrier heights. The study addresses the computational trade-off between accuracy and speed by comparing two Random Forest models trained on different descriptor sets, using a paired t-test to evaluate statistical significance.
 
-**Critical Clarification**: The goal is **purely correlational**. We do not claim that DFTB+ or DFT descriptors *cause* the barrier heights. The comparison is between two approximations of the same function (mapping descriptors to experimental barriers). The analysis cannot distinguish whether the Semi-Empirical model fails due to poor descriptors or poor model fit, as the 'truth' is fixed. The goal is to measure the correlation strength of gas-phase electronic properties with macroscopic experimental barriers.
+**Scientific Scope Clarification**: The comparison is explicitly defined as "DFTB+ on DFTB+ geometry" vs "Psi4 on DFTB+ geometry". This tests the sensitivity of the energy functional to geometry errors. Optimizing geometries at the DFT level is out of scope due to resource constraints (Constitution Principle VII). The experimental barriers may include solvation effects, while calculations are gas-phase; this missing physics is a known limitation of the validation target.
 
 ## Dataset Strategy
 
-### Verified Datasets
+### Primary Dataset
+- **Source**: Experimental barrier dataset from Zenodo (Accession ID: [ID from Idea.md], URL: [URL from Idea.md]).
+- **Access**: Programmatic download via `requests` or `zenodo_get` (if API available).
+- **Verification**: SHA-256 checksum verification against the Zenodo record metadata before processing (Constitution Principle III). Status logged to `logs/verification.log`.
+- **Content**: `smiles`, `experimental_barrier`, `molecule_id`.
+- **Feasibility**: Zenodo provides direct download links; no credentials required. Fits within CI runner constraints.
+- **License**: Open Access (CC-BY).
 
-The project relies on the following verified sources for input data:
+### Secondary Datasets (Verified Sources Only)
+The following verified datasets from the `# Verified datasets` block are available but **NOT** used for the primary analysis to ensure consistency with the Zenodo experimental barriers:
+- **HOMO**: ` (Available but not selected for this study; Zenodo source preferred for barrier correlation).
+- **DFT**: ` (Available but not selected; we compute DFT descriptors ourselves for the subset).
+- **SMILES**: ` (Available but not selected; Zenodo source is the ground truth).
 
-1. **Experimental Barrier Dataset (Primary)**:
- * **Source**: Zenodo (Accession ID fetched from `idea/predicting-molecular-properties-from-qua.md` and verified before execution).
- * **Verification**: The Zenodo record is the canonical source. The dataset contains `smiles`, `experimental_barrier`, and `molecule_id`.
- * **Access**: Direct download via Zenodo API or file URL.
- * **Status**: **Verified**. The spec explicitly references a Zenodo source.
+**Decision**: The Zenodo dataset is the single source of truth for experimental barriers. We do not use external HOMO/LUMO datasets because the study requires *computed* descriptors from the *same* molecules to ensure valid comparison.
 
-2. **Auxiliary Datasets (HOMO/LUMO/SMILES)**:
- * The `# Verified datasets` block provides several Hugging Face datasets (e.g., `matchbench/semi-homo`, `maykcaldas/smiles-transformers`).
- * **Decision**: These are **NEVER used**, even for validation or pre-training. The study is strictly anchored to the Zenodo experimental barrier dataset to maintain Single Source of Truth (Principle IV). Using auxiliary datasets would introduce unverified provenance and violate the spec's requirement to compute descriptors from the specific experimental molecules.
+### Data Availability & Streaming
+- The Zenodo dataset is expected to be small (<100MB) for SMILES and barriers, allowing full download.
+- If the dataset exceeds memory, we will stream using `pandas.read_csv(..., chunksize=...)` or `datasets.load_dataset(..., streaming=True)` if a HF mirror exists (not currently verified).
+- **No access-gated data**: Zenodo is open access.
 
-### Data Availability & Feasibility
+## Methodology
 
-* **Zenodo Dataset**: Must be downloaded via programmatic fetch (e.g., `requests` or `zenodo_get`). The file size is expected to be small (CSV), fitting easily within the available disk and RAM limits.
-* **Streaming**: Not required for the input CSV, but the optimized geometries (XYZ files) will be written to disk incrementally to avoid memory spikes.
-* **Gated Data**: The plan explicitly avoids ADNI, HCP, or other gated datasets. The Zenodo source is open.
+### 1. Geometry Optimization (DFTB+)
+- **Tool**: `dftb+` (Semi-empirical).
+- **Input**: SMILES → 3D coordinates (RDKit) → DFTB+ optimization.
+- **Strategy**:
+ - Generate initial 3D conformation using RDKit.
+ - Run DFTB+ geometry optimization.
+ - **Retry Logic**: If convergence fails, retry **once** with a different initial guess (randomized perturbation).
+ - **Failure Handling**: If retry fails, log to `logs/convergence_failures.log` with `molecule_id`, `timestamp`, `error_code`, `error_message`.
+- **Resource Fit**: DFTB+ is CPU-efficient and fits within 2-core/7GB RAM constraints.
 
-### Dataset-Variable Fit
+### 2. Descriptor Calculation
+- **Semi-Empirical (DFTB+)**:
+ - Compute HOMO, LUMO, Mayer bond orders from optimized geometries.
+ - **Note on Mayer Bond Order**: While Mayer bond orders are a matrix, we use the sum of bond orders as a proxy for molecular size/bonding capacity, acknowledging this loses specific bond information (Scientific Soundness limitation).
+ - Output: `data/descriptors_semi.csv`.
+- **High-Level (Psi4)**:
+ - **Subset**: Stratified random sample of 50 molecules (stratified by **barrier height bins**). If N < 50, use all N.
+ - **Input**: Use the *exact same* optimized geometries from DFTB+ (Constitution Principle VI).
+ - **Method**: DFT (e.g., B3LYP/6-31G*) for consistency.
+ - **Output**: `data/descriptors_dft.csv`.
+- **Confounds (FR-008)**:
+ - Compute Molecular Weight (MW), atom count, and functional group enumeration using RDKit (`rdkit.Chem.Lipinski`, `rdkit.Chem.Descriptors`).
+ - Output: `data/confounds.csv`.
 
-* **Required Variables**: `smiles`, `experimental_barrier`, `molecule_id`.
-* **Derived Variables**: `HOMO_energy`, `LUMO_energy`, `mayer_bond_order` (computed), `mw`, `atom_count`, `functional_groups` (confounds).
-* **Fit**: The Zenodo dataset provides the necessary input. The computed descriptors will be generated from the SMILES strings via DFTB+ and Psi4. No external dataset is needed for predictors.
+### 3. Modeling & Evaluation
+- **Models**: Two Random Forest Regressors (Scikit-learn).
+ - Model A: Trained on `descriptors_semi.csv` (Subset only).
+ - Model B: Trained on `descriptors_dft.csv` (Subset only).
+ - **Critical**: Both models trained on the **exact same 50 samples** to isolate the method effect.
+- **Training**:
+ - Fixed train/test splits (same indices for both models).
+ - Random seed pinned.
+- **Evaluation**:
+ - Compute MAE against `experimental_barrier` on the test set.
+ - **Paired T-Test**: Compare error distributions (MAE per molecule) of Model A vs. Model B.
+ - Null Hypothesis: No difference in error distribution.
+ - Significance Level: α=0.05.
+ - Output: `reports/evaluation.json` with keys `semi_empirical_mae`, `dft_mae`, `t_statistic`, `p_value`, `null_hypothesis`, `significance_level`.
+ - **Success Rate**: Calculate and report the ratio of successfully optimized geometries in `reports/evaluation.json`.
 
-## Computational Strategy
+### 4. Sensitivity Analysis (US3)
+- **Feature Importance**: Extract from RF models.
+- **Stability Check**:
+ - Sweep cutoffs: {, 0.05, 0.1}.
+ - Inject noise: σ={, 0.05}.
+ - Verify rank correlation of top 3 descriptors ≥ 0.9.
+ - **Note**: This tests *model* stability to input noise, not physical system stability. Structural uncertainty (geometry errors) is a separate, unquantified source of error.
+- **Output**: `reports/sensitivity.csv` with columns `cutoff`, `noise_sigma`, `top_3_descriptors`, `rank_correlation`.
 
-### CPU-First Approach (GitHub Actions)
+## Statistical Rigor
 
-1. **Semi-Empirical (DFTB+)**:
- * **Feasibility**: DFTB+ is designed for speed and is CPU-tractable for moderate-sized molecules.
- * **Strategy**: Run geometry optimization and descriptor extraction on the full dataset.
- * **Optimization**: Use a minimal basis set (e.g., `mio` or `3ob` parameter set) and strict convergence criteria to balance speed and accuracy.
- * **Memory**: Stream the dataset; process molecules one-by-one or in small batches (e.g., 10) to stay under 7 GB RAM.
+- **Multiple Comparisons**: Not applicable (only one primary hypothesis test: paired t-test).
+- **Sample Size**:
+ - Semi-empirical: Subset N=50 (for comparison).
+ - DFT: Subset N=50.
+ - **Power Limitation**: Acknowledged. N=50 is small for DFT but sufficient for a feasibility study and paired comparison. The study frames DFT results as a high-fidelity baseline, not a population estimate. The t-test may have low power to detect small effect sizes (Type II error risk).
+- **Causal Inference**: Associational only. No randomization of molecular properties.
+- **Measurement Validity**: HOMO/LUMO/Mayer are standard quantum chemical descriptors. Validation evidence cited from DFTB+ and Psi4 literature.
+- **Collinearity**: Acknowledged. HOMO/LUMO often correlated. Feature importance will be reported with correlation matrix inspection.
+- **Solvation Limitation**: The experimental barriers may include solvation effects, while calculations are gas-phase. The error metric reflects both method inaccuracy and missing physics.
 
-2. **High-Level DFT (Psi4)**:
- * **Feasibility**: Full DFT for a large dataset is **not** feasible on the CPU runner.
- * **Strategy**: Restrict to a **stratified random subset of 50 molecules** (as per US2).
- * **Method**: Use a modest basis set (e.g., `def2-SVP`) and a limited number of SCF iterations.
- * **Environment**: **Both DFTB+ and Psi4 are installed in the SAME Conda environment** to ensure identical library versions and floating-point precision, eliminating hardware/software confounds.
- * **No GPU Offload**: The pipeline is self-contained within GitHub Actions. No external GPU kernels are used.
+## Compute Feasibility
 
-### Statistical Rigor
+- **CPU-First**:
+ - DFTB+ optimization: CPU-native, fast.
+ - DFT (Psi4) on 50 samples: CPU-native, computationally expensive, limited to subset due to time/memory constraints (Constitution Principle VII).
+ - ML (Random Forest): CPU-native, negligible time.
+- **GPU Escape Hatch**: Not required. No deep learning or large language models used.
+- **Memory**: < 7 GB RAM (DFTB+ and Psi4 are memory-efficient for small molecules; RDKit is lightweight).
+- **Disk**: < 14 GB (XYZ files are small; CSVs are small).
 
-* **Paired T-Test**: The comparison between Semi-Empirical RF and DFT RF models will use a paired t-test on the **out-of-fold** predictions from the 50-sample subset.
- * **Null Hypothesis**: No difference in error distribution between Semi-Empirical RF and DFT RF models.
- * **Significance**: α = 0.05.
- * **Correction**: Not strictly required for a single t-test, but the sensitivity analysis will involve multiple comparisons. A Bonferroni correction or False Discovery Rate (FDR) will be applied if multiple hypothesis tests are run on the sensitivity results.
-* **Power Analysis**: The sample size is fixed by the spec. The plan acknowledges the **low statistical power** to detect small effect sizes. To mitigate this:
- * Use **5-fold Cross-Validation** with **out-of-fold** predictions for the t-test.
- * Apply **bootstrapping** to estimate confidence intervals.
- * Use a **Wilcoxon signed-rank test** if normality assumptions fail.
- * Explicitly state in the report that results are interpreted with caution due to low power.
-* **Causal Inference**: The study is observational (correlational). Claims will be framed as "association" between descriptors and barriers, not causation.
-* **Collinearity**: HOMO and LUMO are often correlated. The plan will check for multicollinearity (VIF) in the Random Forest models and report the relationship descriptively.
-* **Confound Control (FR-008)**:
- * Calculate Molecular Weight (MW), Atom Count, and **functional group enumeration**.
- * Perform **partial correlation analysis** to isolate the effect of quantum descriptors from molecular size.
- * Report the **change in R²** when MW/functional groups are added as covariates.
+## Addressing Unresolved Concerns
 
-## Edge Case Handling
-
-* **Convergence Failure**:
- 1. Retry once with a different initial guess.
- 2. If failed, log to `logs/convergence_failures.log` with `molecule_id`, `timestamp`, `error_code`, `error_message`.
- 3. Status: `failed_after_retry`.
-* **OOM**: Monitor memory usage. If exceeded, kill process, log to `logs/oom_failures.log`.
-* **Physical Invalidity**:
- 1. If `HOMO >= LUMO`, retry once.
- 2. If still failed, log to `logs/structural_failures.log`.
- 3. Do not blindly skip to avoid selection bias.
-
-## Limitations
-
-* **Circular Validation**: The comparison is between two approximations of the same function against a noisy experimental target. It does not validate the physical accuracy of the quantum calculations. The analysis cannot distinguish whether the Semi-Empirical model fails due to poor descriptors or poor model fit.
-* **Category Error**: Experimental barrier heights are macroscopic observables influenced by solvent, temperature, and entropy, whereas HOMO/LUMO are gas-phase electronic properties. The model learns a statistical mapping, not a physical verification.
-* **Low Power**: N=50 limits the ability to detect small effect sizes. Results are interpreted with caution.
-* **Confound Bias**: Despite partial correlation analysis, unmeasured confounds may exist.
-
-## Decision/Rationale
-
-* **CPU vs. GPU**: The primary pipeline (DFTB+) is CPU-first. The DFT subset (50 samples) is small enough to be attempted on CPU. The pipeline is self-contained within GitHub Actions. No external GPU kernels are used.
-* **Dataset Choice**: The Zenodo dataset is the only verified source for the *experimental barriers*. Auxiliary HuggingFace datasets are **NEVER used**.
-* **Statistical Method**: Paired t-test on out-of-fold predictions is appropriate for comparing two models on the same test set. Sensitivity analysis uses rank correlation (Spearman) to assess stability. Bootstrapping and Wilcoxon tests are used to mitigate low power.
+- **FR-008 (Confounds)**: `code/confounds.py` will explicitly implement RDKit logic (`rdkit.Chem.Lipinski`, `rdkit.Chem.Descriptors`) to derive MW, atom count, and functional groups from `data/raw/` SMILES. Output `data/confounds.csv` will be generated before US2.
+- **T046b (Structural Constraint)**: Removed. The spec defines gas-phase SMILES; no crystallographic data exists. We validate physical validity via `HOMO >= LUMO` checks and retry logic, not external crystal data.
+- **T011d/T011e (Ontology/Error Budget)**: Removed. These are philosophical tasks not mapped to FRs. The plan focuses on FR-008 for confounds analysis.
+- **Dataset Size (T020)**: The stratified subset logic will check `N` and adjust if `N < 50` (e.g., take all available).
+- **Directory Structure (T001a-c)**: The plan explicitly defines the directory tree. The implementation step will create these directories.

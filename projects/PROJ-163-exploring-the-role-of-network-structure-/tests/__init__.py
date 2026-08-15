@@ -1,4 +1,4 @@
-"""
-Tests for llmXive Project: Exploring the Role of Network Structure in Superconducting Qubit Coupling
-"""
-pass
+# llmXive test package
+import logging
+
+logger = logging.getLogger(__name__)

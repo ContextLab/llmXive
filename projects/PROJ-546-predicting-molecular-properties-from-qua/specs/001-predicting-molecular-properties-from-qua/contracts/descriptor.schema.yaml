@@ -1,11 +1,17 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Descriptor Schema"
-description: "Schema for computed quantum chemical descriptors (HOMO, LUMO, Mayer)."
+description: "Schema for computed quantum chemical descriptors."
 type: "object"
 properties:
   molecule_id:
     type: "string"
     description: "Unique identifier for the molecule."
+  method:
+    type: "string"
+    enum:
+      - "dftb+"
+      - "psi4"
+    description: "Computational method used."
   HOMO_energy:
     type: "number"
     description: "HOMO energy in eV."
@@ -14,17 +20,15 @@ properties:
     description: "LUMO energy in eV."
   mayer_bond_order:
     type: "number"
-    description: "Mayer bond order (dimensionless)."
-  status:
+    description: "Sum of Mayer bond orders."
+  computed_at:
     type: "string"
-    enum:
-      - "success"
-      - "failed_after_retry"
-    description: "Status of the calculation."
+    format: "date-time"
+    description: "Timestamp of computation."
 required:
   - molecule_id
+  - method
   - HOMO_energy
   - LUMO_energy
   - mayer_bond_order
-  - status
 additionalProperties: false

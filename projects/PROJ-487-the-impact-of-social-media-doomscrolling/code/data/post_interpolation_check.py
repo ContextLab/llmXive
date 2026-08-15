@@ -4,116 +4,129 @@ import json
 import logging
 import pandas as pd
 from datetime import datetime
-from typing import Dict, Any
-
-# Add project root to path if running from script location
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, project_root)
-
 from utils.logging import get_logger
-
-# Constants
-DATA_FILE = os.path.join(project_root, "data", "processed", "aligned_timeseries.csv")
-OUTPUT_FILE = os.path.join(project_root, "data", "processed", "validation_status.json")
-COMPLETENESS_THRESHOLD = 0.95  # 95%
 
 logger = get_logger(__name__)
 
 def calculate_completeness(df: pd.DataFrame) -> float:
     """
-    Calculate the percentage of non-null values in the dataframe.
-    Excludes the 'date' column from the calculation if present.
+    Calculate the percentage of non-null values in the dataset.
+    
+    Args:
+        df: DataFrame containing the time-series data.
+        
+    Returns:
+        Float representing the completeness percentage (0.0 to 100.0).
     """
     if df.empty:
         return 0.0
-
-    # Identify numeric columns or specific data columns to check
-    # Assuming the dataframe has a 'date' column and numeric time-series columns
-    data_cols = [col for col in df.columns if col != 'date']
-
-    if not data_cols:
-        logger.warning("No data columns found to check for completeness.")
-        return 0.0
-
-    total_cells = df[data_cols].size
-    non_null_cells = df[data_cols].count().sum()
-
+    
+    # Count total cells and non-null cells
+    total_cells = df.size
+    non_null_cells = df.count().sum()
+    
     if total_cells == 0:
         return 0.0
+        
+    completeness = (non_null_cells / total_cells) * 100
+    return completeness
 
-    return non_null_cells / total_cells
-
-def check_post_interpolation_completeness() -> Dict[str, Any]:
+def check_post_interpolation_completeness(
+    input_path: str,
+    output_path: str,
+    threshold: float = 95.0
+) -> bool:
     """
-    Main function to verify data completeness after interpolation.
-    Reads aligned_timeseries.csv, calculates completeness, and writes validation_status.json.
-    Exits with code 1 if completeness < 95%.
+    Verify that the processed time-series data meets the minimum completeness threshold.
+    
+    Args:
+        input_path: Path to the aligned timeseries CSV.
+        output_path: Path to write the validation_status.json.
+        threshold: Minimum required completeness percentage (default 95.0%).
+        
+    Returns:
+        True if completeness meets threshold, False otherwise.
+        
+    Raises:
+        FileNotFoundError: If input file does not exist.
+        ValueError: If file is empty or invalid.
     """
-    logger.info(f"Starting post-interpolation completeness check for {DATA_FILE}")
-
-    # Check if file exists
-    if not os.path.exists(DATA_FILE):
-        error_msg = f"Error: Data file not found: {DATA_FILE}"
-        logger.error(error_msg)
-        return {
-            "status": "failed",
-            "reason": "Data file not found",
-            "file": DATA_FILE,
-            "timestamp": datetime.now().isoformat()
-        }
-
+    logger.info(f"Checking post-interpolation completeness for {input_path}")
+    
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
     try:
-        df = pd.read_csv(DATA_FILE)
-        logger.info(f"Loaded data: {len(df)} rows, {len(df.columns)} columns")
-
-        completeness = calculate_completeness(df)
-        logger.info(f"Calculated completeness: {completeness:.4f} ({completeness*100:.2f}%)")
-
-        status = "passed" if completeness >= COMPLETENESS_THRESHOLD else "failed"
-        result = {
-            "status": status,
-            "completeness": completeness,
-            "threshold": COMPLETENESS_THRESHOLD,
-            "file": DATA_FILE,
-            "rows_checked": len(df),
-            "timestamp": datetime.now().isoformat()
-        }
-
-        if status == "failed":
-            error_msg = f"Data completeness {completeness*100:.2f}% is below threshold {COMPLETENESS_THRESHOLD*100:.2f}%"
-            logger.error(error_msg)
-            # Do not exit here, return status to let caller decide, 
-            # but per spec we must exit non-zero if failed.
-            # We will handle the exit in main() after saving the status.
-
-        # Save validation status
-        os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-        with open(OUTPUT_FILE, 'w') as f:
-            json.dump(result, f, indent=2)
-        logger.info(f"Validation status written to {OUTPUT_FILE}")
-
-        return result
-
+        df = pd.read_csv(input_path)
     except Exception as e:
-        error_msg = f"Error during completeness check: {str(e)}"
-        logger.exception(error_msg)
-        return {
-            "status": "failed",
-            "reason": str(e),
-            "file": DATA_FILE,
-            "timestamp": datetime.now().isoformat()
-        }
+        logger.error(f"Failed to read CSV: {e}")
+        raise
+    
+    if df.empty:
+        logger.error("Input DataFrame is empty")
+        raise ValueError("Input DataFrame is empty")
+    
+    completeness = calculate_completeness(df)
+    logger.info(f"Calculated completeness: {completeness:.2f}%")
+    
+    passed = completeness >= threshold
+    status = "PASSED" if passed else "FAILED"
+    
+    validation_result = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "input_file": input_path,
+        "completeness_percentage": completeness,
+        "threshold_percentage": threshold,
+        "status": status,
+        "passed": passed
+    }
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(validation_result, f, indent=2)
+    
+    logger.info(f"Validation result written to {output_path}")
+    
+    if not passed:
+        logger.error(f"Completeness check FAILED: {completeness:.2f}% < {threshold}%")
+    
+    return passed
 
 def main():
-    """Entry point for the script."""
-    result = check_post_interpolation_completeness()
+    """Main entry point for the post-interpolation check."""
+    # Define paths relative to project root
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    input_path = os.path.join(project_root, "data", "processed", "aligned_timeseries.csv")
+    output_path = os.path.join(project_root, "data", "processed", "validation_status.json")
     
-    if result["status"] == "failed":
-        logger.error("Post-interpolation completeness check FAILED.")
+    # Setup logging
+    setup_logging = False
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+    
+    try:
+        success = check_post_interpolation_completeness(input_path, output_path)
+        if success:
+            logger.info("Post-interpolation completeness check PASSED")
+            sys.exit(0)
+        else:
+            logger.error("Post-interpolation completeness check FAILED")
+            sys.exit(1)
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
         sys.exit(1)
-    
-    logger.info("Post-interpolation completeness check PASSED.")
-    sys.exit(0)
+    except ValueError as e:
+        logger.error(f"Invalid data: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

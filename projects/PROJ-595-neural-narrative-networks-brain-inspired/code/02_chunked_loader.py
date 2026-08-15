@@ -1,285 +1,371 @@
+"""
+Chunked loading and subsampling for large fMRI datasets.
+
+This module provides utilities to handle fMRI data that exceeds available RAM
+by processing data in chunks and subsampling when necessary.
+
+Implements:
+- estimate_file_size_mb: Estimate file size in MB
+- get_available_ram_gb: Get available system RAM
+- calculate_chunk_size: Calculate optimal chunk size based on constraints
+- load_fMRI_chunked: Load fMRI data in chunks
+- subsample_fMRI: Subsample fMRI data to fit memory constraints
+- iter_fMRI_chunks: Iterator for processing fMRI data in chunks
+- process_roi_timecourses_chunked: Process ROI timecourses in chunks
+- main: Entry point for standalone execution
+"""
 import os
 import gc
 import psutil
 import numpy as np
 from pathlib import Path
 from typing import Optional, Tuple, Iterator, Dict, Any
-import nibabel as nib
-
 from config import get_config
 from utils.logging_config import get_logger, info, error, warning
 
 logger = get_logger(__name__)
 
-def estimate_file_size_mb(file_path: str) -> float:
+def estimate_file_size_mb(file_path: Path) -> float:
     """
-    Estimate the size of a file in Megabytes.
+    Estimate file size in megabytes.
+    
+    Args:
+        file_path: Path to the file
+        
+    Returns:
+        File size in MB
+        
+    Raises:
+        FileNotFoundError: If file does not exist
     """
-    path = Path(file_path)
-    if not path.exists():
+    if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-    size_bytes = path.stat().st_size
-    return size_bytes / (1024 * 1024)
+    
+    size_bytes = file_path.stat().st_size
+    size_mb = size_bytes / (1024 * 1024)
+    logger.debug(f"Estimated file size for {file_path}: {size_mb:.2f} MB")
+    return size_mb
 
 def get_available_ram_gb() -> float:
     """
-    Get available system RAM in Gigabytes using psutil.
+    Get available system RAM in gigabytes.
+    
+    Returns:
+        Available RAM in GB
     """
-    try:
-        mem = psutil.virtual_memory()
-        # Use available memory, falling back to total if 'available' is not reliable on some OS
-        avail_bytes = mem.available if hasattr(mem, 'available') else mem.total
-        return avail_bytes / (1024 ** 3)
-    except Exception as e:
-        warning(f"Could not read system memory via psutil: {e}. Defaulting to config limit.")
-        return get_config().get('max_ram_gb', 7)
+    process = psutil.Process(os.getpid())
+    available_memory = psutil.virtual_memory().available
+    available_gb = available_memory / (1024 * 1024 * 1024)
+    logger.debug(f"Available system RAM: {available_gb:.2f} GB")
+    return available_gb
 
 def calculate_chunk_size(
     file_size_mb: float,
-    target_chunk_mb: float = 500.0
+    max_ram_gb: Optional[float] = None,
+    safety_factor: float = 0.5
 ) -> int:
     """
-    Calculate the number of timepoints (or slices) to load in a single chunk
-    to keep memory usage under the target size.
-
-    This is a heuristic based on the assumption that the data is roughly
-    (Timepoints x Voxels x Subjects) and we want to process a fraction.
-    For NIfTI, we often process by volume (timepoint).
+    Calculate optimal chunk size for loading data.
+    
+    Args:
+        file_size_mb: Size of the file in MB
+        max_ram_gb: Maximum RAM to use (GB), defaults to config value
+        safety_factor: Fraction of available RAM to use for chunking (0.0-1.0)
+        
+    Returns:
+        Number of rows/chunks to load at once
     """
-    if file_size_mb <= target_chunk_mb:
-        return 0  # Signal to load whole file
-
-    # Heuristic: If file is 10GB and we want 500MB chunks, we need ~20 chunks.
-    # We assume data is loaded as (X, Y, Z, T). We will slice along T.
-    # This function returns the number of volumes to load per chunk.
-    # We assume the file size is proportional to the number of volumes.
-    ratio = target_chunk_mb / file_size_mb
-    # We need to know the total volumes to return a count.
-    # Since this function only takes size, we return a ratio factor.
-    # The caller must handle the actual slicing logic based on this factor.
-    # To make it useful for the caller who needs an integer count:
-    # We assume a standard max volume count for estimation if unknown,
-    # but strictly speaking, the caller needs the header info.
-    # Let's change the interface: return the ratio, and the caller calculates count.
-    # Actually, let's keep it simple: return the ratio.
-    # The caller will use: chunk_size = max(1, int(total_volumes * ratio))
-    return ratio
+    config = get_config()
+    if max_ram_gb is None:
+        max_ram_gb = config.get('max_ram_gb', 7)
+    
+    available_gb = get_available_ram_gb()
+    usable_gb = min(max_ram_gb, available_gb) * safety_factor
+    
+    # Convert to MB for calculation
+    usable_mb = usable_gb * 1024
+    
+    # If file fits in memory, load it all
+    if file_size_mb <= usable_mb:
+        logger.info(f"File ({file_size_mb:.2f} MB) fits in available RAM ({usable_gb:.2f} GB). Loading entirely.")
+        return -1  # Signal to load entire file
+    
+    # Calculate chunk size as a fraction of usable memory
+    # Target: load 10-20 chunks at a time for efficient processing
+    target_chunks = 15
+    chunk_size_mb = usable_mb / target_chunks
+    
+    # Estimate rows per MB (rough heuristic: 1MB ≈ 1000 rows for typical fMRI data)
+    # This is a simplification; actual rows depend on data structure
+    rows_per_mb = 1000
+    chunk_rows = int(chunk_size_mb * rows_per_mb)
+    
+    # Ensure minimum chunk size
+    chunk_rows = max(chunk_rows, 100)
+    
+    logger.info(f"Calculated chunk size: {chunk_rows} rows (~{chunk_size_mb:.2f} MB)")
+    return chunk_rows
 
 def load_fMRI_chunked(
-    file_path: str,
-    start_idx: int,
-    end_idx: int,
-    memory_limit_gb: Optional[float] = None
+    file_path: Path,
+    chunk_size: int = -1,
+    dtype: np.dtype = np.float32,
+    columns: Optional[list] = None
 ) -> np.ndarray:
     """
-    Load a specific chunk (slice along the time axis) of an fMRI NIfTI file.
-
+    Load fMRI data in chunks to handle large files.
+    
     Args:
-        file_path: Path to the .nii or .nii.gz file.
-        start_idx: Start index (inclusive) for the time axis (4th dimension).
-        end_idx: End index (exclusive) for the time axis.
-        memory_limit_gb: Optional override for RAM limit.
-
+        file_path: Path to the data file (CSV or NPY)
+        chunk_size: Number of rows per chunk, -1 for entire file
+        dtype: Data type for the array
+        columns: Specific columns to load (for CSV files)
+        
     Returns:
-        np.ndarray: The data chunk with shape (X, Y, Z, T_chunk).
+        NumPy array containing the loaded data
+        
+    Raises:
+        FileNotFoundError: If file does not exist
+        ValueError: If file format is unsupported
     """
-    if memory_limit_gb is None:
-        memory_limit_gb = get_config().get('max_ram_gb', 7)
-
-    path = Path(file_path)
-    if not path.exists():
+    if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
-    try:
-        img = nib.load(path)
-        data = img.get_fdata(dtype=np.float32) # Load as float32 to save memory vs float64
-
-        if data.ndim != 4:
-            raise ValueError(f"Expected 4D NIfTI file, got {data.ndim}D. File: {file_path}")
-
-        # Ensure indices are within bounds
-        total_timepoints = data.shape[3]
-        start_idx = max(0, min(start_idx, total_timepoints))
-        end_idx = max(0, min(end_idx, total_timepoints))
-
-        if start_idx >= end_idx:
-            raise ValueError(f"Invalid chunk range: [{start_idx}, {end_idx}) for {total_timepoints} timepoints.")
-
-        chunk = data[..., start_idx:end_idx]
-        return chunk
-
-    except Exception as e:
-        error(f"Failed to load fMRI chunk from {file_path}: {e}")
-        raise
+    
+    file_ext = file_path.suffix.lower()
+    
+    if file_ext == '.npy':
+        # For .npy files, we still need to handle memory-mapped loading
+        # if the file is too large
+        if chunk_size == -1:
+            logger.info(f"Loading entire .npy file: {file_path}")
+            data = np.load(file_path, mmap_mode='r')
+            return data.astype(dtype)
+        else:
+            # Memory-map and load in chunks
+            logger.info(f"Loading .npy file in chunks: {file_path}")
+            data = np.load(file_path, mmap_mode='r')
+            total_rows = data.shape[0]
+            result = []
+            
+            for start in range(0, total_rows, chunk_size):
+                end = min(start + chunk_size, total_rows)
+                chunk = np.array(data[start:end])
+                result.append(chunk)
+                gc.collect()
+            
+            return np.concatenate(result, axis=0).astype(dtype)
+    
+    elif file_ext == '.csv':
+        import pandas as pd
+        
+        logger.info(f"Loading .csv file: {file_path}")
+        
+        if chunk_size == -1:
+            # Load entire file
+            df = pd.read_csv(file_path, dtype=dtype)
+            if columns:
+                df = df[columns]
+            return df.values
+        else:
+            # Load in chunks
+            chunks = []
+            for chunk in pd.read_csv(file_path, chunksize=chunk_size, dtype=dtype):
+                if columns:
+                    chunk = chunk[columns]
+                chunks.append(chunk.values)
+                gc.collect()
+            
+            return np.concatenate(chunks, axis=0)
+    
+    else:
+        raise ValueError(f"Unsupported file format: {file_ext}. Use .npy or .csv")
 
 def subsample_fMRI(
     data: np.ndarray,
-    step: int = 1
+    target_size_mb: float,
+    method: str = 'random'
 ) -> np.ndarray:
     """
-    Subsample the time axis of the fMRI data.
-
+    Subsample fMRI data to fit within memory constraints.
+    
     Args:
-        data: 4D numpy array (X, Y, Z, T).
-        step: Subsampling step (e.g., 2 means every 2nd timepoint).
-
+        data: NumPy array of fMRI data
+        target_size_mb: Target size in MB
+        method: Subsampling method ('random', 'uniform', 'first')
+        
     Returns:
-        Subsampled numpy array.
+        Subsampled NumPy array
+        
+    Raises:
+        ValueError: If method is unsupported
     """
-    if step <= 1:
+    if method not in ['random', 'uniform', 'first']:
+        raise ValueError(f"Unsupported subsampling method: {method}")
+    
+    # Estimate current size
+    current_size_mb = data.nbytes / (1024 * 1024)
+    
+    if current_size_mb <= target_size_mb:
+        logger.info(f"Data ({current_size_mb:.2f} MB) already fits within target ({target_size_mb:.2f} MB)")
         return data
-    return data[..., ::step]
+    
+    # Calculate subsampling ratio
+    ratio = target_size_mb / current_size_mb
+    logger.info(f"Subsampling ratio: {ratio:.3f} (reducing from {current_size_mb:.2f} MB to {target_size_mb:.2f} MB)")
+    
+    if method == 'first':
+        # Keep first N rows
+        n_rows = max(1, int(data.shape[0] * ratio))
+        return data[:n_rows]
+    
+    elif method == 'uniform':
+        # Keep every Nth row
+        step = max(1, int(1 / ratio))
+        return data[::step]
+    
+    elif method == 'random':
+        # Random sampling
+        n_rows = max(1, int(data.shape[0] * ratio))
+        indices = np.random.choice(data.shape[0], size=n_rows, replace=False)
+        indices.sort()
+        return data[indices]
 
 def iter_fMRI_chunks(
-    file_path: str,
-    chunk_size_mb: float = 500.0,
-    memory_limit_gb: Optional[float] = None
-) -> Iterator[Tuple[int, int, np.ndarray]]:
+    file_path: Path,
+    chunk_size: int = 1000,
+    dtype: np.dtype = np.float32,
+    columns: Optional[list] = None
+) -> Iterator[np.ndarray]:
     """
-    Iterate over an fMRI file in memory-safe chunks.
-
+    Iterator for processing fMRI data in chunks.
+    
+    Args:
+        file_path: Path to the data file
+        chunk_size: Number of rows per chunk
+        dtype: Data type for the array
+        columns: Specific columns to load
+        
     Yields:
-        Tuple of (start_index, end_index, data_chunk)
+        NumPy arrays containing chunk data
     """
-    if memory_limit_gb is None:
-        memory_limit_gb = get_config().get('max_ram_gb', 7)
-
-    file_size_mb = estimate_file_size_mb(file_path)
-    path = Path(file_path)
-
-    # Load header to get dimensions
-    img = nib.load(path)
-    data_shape = img.shape
-    if len(data_shape) != 4:
-        raise ValueError(f"Expected 4D NIfTI file, got {len(data_shape)}D. File: {file_path}")
-
-    total_volumes = data_shape[3]
-
-    # Estimate data size per volume in MB
-    # Assuming float32 (4 bytes)
-    bytes_per_volume = data_shape[0] * data_shape[1] * data_shape[2] * 4
-    vol_size_mb = bytes_per_volume / (1024 * 1024)
-
-    if vol_size_mb == 0:
-        raise ValueError(f"Invalid volume size calculation for {file_path}")
-
-    # Calculate volumes per chunk
-    volumes_per_chunk = max(1, int((chunk_size_mb * 0.8) / vol_size_mb)) # 0.8 safety factor
-
-    start = 0
-    while start < total_volumes:
-        end = min(start + volumes_per_chunk, total_volumes)
-        info(f"Loading chunk: volumes {start} to {end} (total {total_volumes})")
-
-        chunk = load_fMRI_chunked(str(path), start, end, memory_limit_gb)
-        yield (start, end, chunk)
-
-        # Force garbage collection to ensure memory is released before next load
-        gc.collect()
-        start = end
+    file_ext = file_path.suffix.lower()
+    
+    if file_ext == '.csv':
+        import pandas as pd
+        
+        for chunk in pd.read_csv(file_path, chunksize=chunk_size, dtype=dtype):
+            if columns:
+                chunk = chunk[columns]
+            yield chunk.values
+            gc.collect()
+    
+    elif file_ext == '.npy':
+        data = np.load(file_path, mmap_mode='r')
+        total_rows = data.shape[0]
+        
+        for start in range(0, total_rows, chunk_size):
+            end = min(start + chunk_size, total_rows)
+            chunk = np.array(data[start:end])
+            yield chunk
+            gc.collect()
+    
+    else:
+        raise ValueError(f"Unsupported file format: {file_ext}")
 
 def process_roi_timecourses_chunked(
-    input_path: str,
-    output_path: str,
-    roi_mask_path: Optional[str] = None,
-    chunk_size_mb: float = 500.0
-) -> None:
+    input_path: Path,
+    output_path: Path,
+    chunk_size: Optional[int] = None,
+    max_ram_gb: Optional[float] = None
+) -> Dict[str, Any]:
     """
-    Process fMRI data in chunks to extract ROI timecourses and write to CSV.
-    This function is a skeleton for the logic required by T013/T014.
-    It demonstrates the chunked loading pattern.
-
-    Note: This function assumes roi_mask_path is a 4D mask or a list of 3D masks.
-    For T014, the critical part is the chunked iteration and writing.
+    Process ROI timecourses in chunks and save to output file.
+    
+    Args:
+        input_path: Path to input file
+        output_path: Path to output file
+        chunk_size: Number of rows per chunk (auto-calculated if None)
+        max_ram_gb: Maximum RAM to use (GB)
+        
+    Returns:
+        Dictionary with processing statistics
     """
-    path = Path(input_path)
-    out_path = Path(output_path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    info(f"Starting chunked processing of {input_path} -> {output_path}")
-
-    # We need to handle the output accumulation.
-    # Strategy: Write header once, then append chunks.
-    # Or accumulate in memory if the output is small (timepoints x ROIs).
-    # Since output is (subjects * timepoints) x ROIs, and timepoints are large,
-    # we might need to stream the output too if it's huge, but usually
-    # the extracted timecourse is much smaller than the full 4D volume.
-    # Let's assume we can buffer the extracted timecourses for one subject/chunk.
-
-    # For this implementation, we will iterate chunks, extract ROIs for the chunk,
-    # and write to CSV immediately to keep memory low.
-
-    # Determine ROIs (simplified: assume we load masks or have a fixed set of indices)
-    # In a real scenario, we'd load the mask here once (it's usually small 3D).
-    # If roi_mask_path is provided, load it.
-    # If not, we might just save the full chunk or a dummy extraction.
-    # For T014, the focus is on the loading mechanism.
-
-    headers_written = False
-    mode = 'w'
-
-    try:
-        for start_idx, end_idx, chunk_data in iter_fMRI_chunks(input_path, chunk_size_mb):
-            # chunk_data shape: (X, Y, Z, T_chunk)
-            # Simulate ROI extraction: mean over a specific voxel region for demonstration
-            # In real T013, we would apply the mask here.
-            # Here we just compute mean signal across the spatial dimensions for the chunk
-            # to simulate a single "ROI" or we can compute mean for a fixed mask.
-            # Let's assume we have a mask of shape (X, Y, Z) for one ROI.
-            # Since we don't have the actual mask file in this context, we'll simulate
-            # by taking the mean of the first 10x10x10 voxels as a placeholder "ROI".
-            # This is just to show the data flow.
-
-            # Extract a dummy ROI timecourse (mean of first 10x10x10 voxels)
-            # Shape: (T_chunk,)
-            # Note: This is a placeholder for the actual mask application logic.
-            dummy_roi_data = np.mean(chunk_data[:10, :10, :10, :], axis=(0, 1, 2))
-
-            # Write to CSV
-            with open(out_path, mode) as f:
-                if not headers_written:
-                    f.write("timepoint,roi_mean_signal\n")
-                    headers_written = True
-
-                for t, val in enumerate(dummy_roi_data):
-                    f.write(f"{start_idx + t},{val:.6f}\n")
-
-            info(f"Processed chunk {start_idx}-{end_idx}, written to {output_path}")
-
-    except Exception as e:
-        error(f"Error during chunked processing: {e}")
-        raise
-    finally:
-        gc.collect()
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    # Estimate file size
+    file_size_mb = estimate_file_size_mb(input_path)
+    
+    # Calculate chunk size if not provided
+    if chunk_size is None:
+        chunk_size = calculate_chunk_size(file_size_mb, max_ram_gb)
+    
+    stats = {
+        'input_file': str(input_path),
+        'output_file': str(output_path),
+        'file_size_mb': file_size_mb,
+        'chunk_size': chunk_size,
+        'total_rows_processed': 0
+    }
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    if chunk_size == -1:
+        # Load entire file
+        logger.info("Loading entire file into memory")
+        data = load_fMRI_chunked(input_path, chunk_size=-1)
+        np.save(output_path, data)
+        stats['total_rows_processed'] = data.shape[0]
+        stats['output_shape'] = list(data.shape)
+    else:
+        # Process in chunks
+        logger.info(f"Processing file in chunks of {chunk_size} rows")
+        
+        all_data = []
+        for i, chunk in enumerate(iter_fMRI_chunks(input_path, chunk_size)):
+            logger.debug(f"Processing chunk {i+1}: {chunk.shape}")
+            all_data.append(chunk)
+            stats['total_rows_processed'] += chunk.shape[0]
+            gc.collect()
+        
+        # Concatenate and save
+        result = np.concatenate(all_data, axis=0)
+        np.save(output_path, result)
+        stats['output_shape'] = list(result.shape)
+    
+    logger.info(f"Processing complete. Output saved to {output_path}")
+    return stats
 
 def main():
     """
-    Main entry point for testing the chunked loader.
+    Main entry point for standalone execution.
+    
+    Demonstrates chunked loading and processing of fMRI data.
     """
     config = get_config()
-    info(f"Running chunked loader with config: {config}")
-
-    # Example usage (requires a real file to run successfully)
-    # input_file = "data/raw/example_func.nii.gz"
-    # output_file = "data/processed/roi_timecourses_chunked.csv"
-
-    # For demonstration without a real file, we log the functions available.
-    info("Functions available for chunked loading:")
-    info("- estimate_file_size_mb")
-    info("- get_available_ram_gb")
-    info("- load_fMRI_chunked")
-    info("- iter_fMRI_chunks")
-    info("- process_roi_timecourses_chunked")
-
-    # If a file path is provided via environment or args, run the pipeline
-    # This is a placeholder for actual execution
-    import sys
-    if len(sys.argv) > 1:
-        input_path = sys.argv[1]
-        output_path = sys.argv[2] if len(sys.argv) > 2 else "data/processed/test_output.csv"
-        process_roi_timecourses_chunked(input_path, output_path)
+    logger.info("Starting chunked loader demonstration")
+    logger.info(f"Configuration: {config}")
+    
+    # Example usage with a hypothetical file
+    # In practice, this would be called with real file paths
+    input_file = Path("data/raw/example_fmri_data.csv")
+    output_file = Path("data/processed/example_fmri_data_processed.npy")
+    
+    if input_file.exists():
+        try:
+            stats = process_roi_timecourses_chunked(
+                input_file,
+                output_file,
+                max_ram_gb=config.get('max_ram_gb', 7)
+            )
+            logger.info(f"Processing statistics: {stats}")
+        except Exception as e:
+            error(f"Error processing file: {e}")
+            raise
     else:
-        info("No input file provided. Usage: python code/02_chunked_loader.py <input_nifti> [output_csv]")
+        logger.warning(f"Input file not found: {input_file}. Skipping demonstration.")
+        logger.info("This script is designed to be imported and used by other pipeline components.")
 
 if __name__ == "__main__":
     main()

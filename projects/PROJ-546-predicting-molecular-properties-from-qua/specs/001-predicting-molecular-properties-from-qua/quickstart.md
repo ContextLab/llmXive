@@ -2,79 +2,62 @@
 
 ## Prerequisites
 
-- **Python**: 3.11 or higher.
-- **System Packages**:
- - `git`, `wget`, `curl`.
- - **Conda** (Miniconda or Anaconda) installed and in PATH.
-- **Environment**:
- - Linux (Ubuntu 22.04 recommended for CI compatibility).
- - Sufficient RAM and disk space.
+- **Python**: 3.11+
+- **DFTB+**: Installed and in PATH.
+- **Psi4**: Installed and in PATH.
+- **RDKit**: Via conda or pip.
+- **Git**: For repository access.
 
-## Installation
+## Setup
 
-1. **Clone the Repository**:
- ```bash
- git clone
- cd PROJ-546-predicting-molecular-properties-from-qua
- ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-546-predicting-molecular-properties-from-qua
+   ```
 
-2. **Create & Setup Conda Environment**:
- This step installs DFTB+ and Psi4 in a single environment to ensure version consistency.
- ```bash
- conda create -n mol_prop python=3.11 -y
- conda activate mol_prop
- # Install DFTB+ and Psi4 (estimated time: <30 mins)
- conda install -c conda-forge dftb+ psi4 rdkit pandas scikit-learn -y
- ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/macOS
+   ```
 
-3. **Install Python Dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-4. **Verify System Tools**:
- ```bash
- dftb+ --version
- psi4 --version
- ```
+4. **Verify DFTB+ and Psi4**:
+   ```bash
+   dftb+ --version
+   psi4 --version
+   ```
 
 ## Running the Pipeline
 
-The pipeline is orchestrated via `code/main.py`.
-
-### Full Pipeline (Semi-Empirical + DFT Subset)
+The pipeline is executed sequentially via the main entry point:
 
 ```bash
-python code/main.py --full
+python code/main.py
 ```
 
-This will:
-1. Fetch the Zenodo dataset (ID from `idea.md`).
-2. Optimize geometries (DFTB+).
-3. Compute semi-empirical descriptors.
-4. Calculate confounds (MW, functional groups).
-5. Select a 50-sample subset.
-6. Compute DFT descriptors (Psi4) on the same geometries.
-7. Train models (5-fold CV), perform confound analysis, and generate reports.
+This script orchestrates:
+1. Data fetching and checksum verification.
+2. Geometry optimization (DFTB+).
+3. Descriptor calculation (DFTB+ and Psi4 subset).
+4. Confounds analysis.
+5. Model training and evaluation.
+6. Sensitivity analysis.
 
-### Sensitivity Analysis
+## Output
 
-```bash
-python code/sensitivity.py
-```
-
-## Output Artifacts
-
-After successful completion, the following files will be generated:
-
-- `data/descriptors_semi.csv`: Semi-empirical descriptors.
-- `data/descriptors_dft.csv`: DFT descriptors (subset).
-- `reports/evaluation.json`: Model performance, t-test results (with metadata), and confound analysis.
-- `reports/sensitivity.csv`: Feature importance stability.
-- `logs/convergence_failures.log`: Failed molecules.
+- **Descriptors**: `data/descriptors_semi.csv`, `data/descriptors_dft.csv`.
+- **Logs**: `logs/convergence_failures.log`, `logs/oom_failures.log`.
+- **Reports**: `reports/evaluation.json`, `reports/sensitivity.csv`.
+- **Confounds**: `data/confounds.csv`.
 
 ## Troubleshooting
 
-- **Convergence Failures**: Check `logs/convergence_failures.log`. If many failures, consider adjusting DFTB+ parameters in `code/geometry_opt.py`.
-- **OOM Errors**: Check `logs/oom_failures.log`. Reduce batch size in `code/utils.py`.
-- **Installation Time**: If installation exceeds 30 minutes, check network speed or Conda channel configuration. The total runtime budget is allocated to allow for a comprehensive evaluation within a standard single-day window.
+- **Convergence Failure**: Check `logs/convergence_failures.log`. If >10% fail, check initial geometry generation.
+- **OOM**: Reduce batch size in `code/config.py` or check memory limits.
+- **Missing DFTB+/Psi4**: Ensure binaries are in PATH.
