@@ -1,1 +1,1 @@
-# Notebooks module
+# Jupyter notebooks package for PROJ-397

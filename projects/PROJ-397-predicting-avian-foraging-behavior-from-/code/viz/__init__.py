@@ -1,1 +1,1 @@
-# Visualization module
+# Visualization package for PROJ-397

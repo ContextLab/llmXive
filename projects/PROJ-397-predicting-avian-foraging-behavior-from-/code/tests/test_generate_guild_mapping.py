@@ -1,117 +1,151 @@
-"""
-Unit tests for data/generate_guild_mapping.py
-"""
-
 import os
 import sys
 import unittest
 import tempfile
 import csv
+import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from datetime import datetime
 import yaml
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path to import modules
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from data.generate_guild_mapping import (
-    validate_schema, 
-    save_mapping, 
-    fetch_guild_mapping,
-    load_metadata
+    load_guild_source,
+    validate_schema,
+    save_mapping,
+    record_provenance_in_metadata,
+    load_metadata,
+    save_metadata
 )
-from utils.config import get_project_root
+from utils.config import get_data_dir, get_raw_data_dir, get_processed_dir
 
 class TestGenerateGuildMapping(unittest.TestCase):
-    
     def setUp(self):
-        """Set up test fixtures."""
-        self.test_data = [
-            {'species_id': 'Turdus_migratorius', 'foraging_guild': 'Ground_forager'},
-            {'species_id': 'Cardinalis_cardinalis', 'foraging_guild': 'Seed_eater'},
-            {'species_id': 'Accipiter_strigatus', 'foraging_guild': 'Aerial_hunter'}
-        ]
+        """Set up temporary directories for testing."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.raw_dir = Path(self.temp_dir) / "raw"
+        self.processed_dir = Path(self.temp_dir) / "processed"
+        self.data_dir = Path(self.temp_dir)
+        self.raw_dir.mkdir()
+        self.processed_dir.mkdir()
         
+        # Create a mock source file
+        self.mock_source = self.raw_dir / "guild_source.csv"
+        with open(self.mock_source, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['species_id', 'foraging_guild', 'extra_col'])
+            writer.writerow(['12345', 'Granivore', 'extra_data'])
+            writer.writerow(['67890', 'Insectivore', 'more_data'])
+            writer.writerow(['11111', 'Nectarivore', 'data'])
+
+    def tearDown(self):
+        """Clean up temporary directories."""
+        shutil.rmtree(self.temp_dir)
+
+    def test_load_guild_source_valid(self):
+        """Test loading a valid guild source CSV."""
+        data = load_guild_source(self.mock_source)
+        self.assertEqual(len(data), 3)
+        self.assertIn('species_id', data[0])
+        self.assertIn('foraging_guild', data[0])
+        self.assertEqual(data[0]['species_id'], '12345')
+        self.assertEqual(data[0]['foraging_guild'], 'Granivore')
+
+    def test_load_guild_source_missing_file(self):
+        """Test loading a non-existent guild source raises error."""
+        non_existent = self.raw_dir / "non_existent.csv"
+        with self.assertRaises(FileNotFoundError):
+            load_guild_source(non_existent)
+
+    def test_load_guild_source_missing_columns(self):
+        """Test loading a source with missing required columns raises error."""
+        bad_source = self.raw_dir / "bad_source.csv"
+        with open(bad_source, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['species_id', 'other_col']) # Missing foraging_guild
+            writer.writerow(['12345', 'val'])
+        
+        with self.assertRaises(ValueError):
+            load_guild_source(bad_source)
+
     def test_validate_schema_valid(self):
         """Test schema validation with valid data."""
-        self.assertTrue(validate_schema(self.test_data))
-        
+        valid_data = [
+            {'species_id': '1', 'foraging_guild': 'G', 'source_citation': 'C', 'extraction_date': '2023-01-01'},
+            {'species_id': '2', 'foraging_guild': 'I', 'source_citation': 'C', 'extraction_date': '2023-01-01'}
+        ]
+        result = validate_schema(valid_data)
+        self.assertTrue(result)
+
     def test_validate_schema_empty(self):
         """Test schema validation with empty data."""
-        self.assertFalse(validate_schema([]))
-        
-    def test_validate_schema_missing_fields(self):
-        """Test schema validation with missing required fields."""
-        invalid_data = [{'species_id': 'Test'}]  # Missing foraging_guild
-        self.assertFalse(validate_schema(invalid_data))
-        
-    def test_save_mapping_creates_file(self):
-        """Test that save_mapping creates the output file with correct structure."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / 'test_mapping.csv'
-            save_mapping(self.test_data, output_path)
-            
-            self.assertTrue(output_path.exists())
-            
-            # Read and verify content
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                
-            # Check required columns exist
-            self.assertIn('species_id', rows[0])
-            self.assertIn('foraging_guild', rows[0])
-            self.assertIn('source_citation', rows[0])
-            self.assertIn('extraction_date', rows[0])
-            
-            # Check data integrity
-            self.assertEqual(len(rows), 3)
-            self.assertEqual(rows[0]['species_id'], 'Turdus_migratorius')
-            self.assertEqual(rows[0]['foraging_guild'], 'Ground_forager')
+        with self.assertRaises(ValueError):
+            validate_schema([])
 
-    @patch('data.generate_guild_mapping.requests.get')
-    def test_fetch_guild_mapping_success(self, mock_get):
-        """Test successful fetch from source URL."""
-        # Mock response
-        mock_response = MagicMock()
-        mock_response.text = """species_id,foraging_guild
-        Turdus_migratorius,Ground_forager
-        Cardinalis_cardinalis,Seed_eater"""
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
-        
-        result = fetch_guild_mapping("http://example.com/guilds.csv")
-        
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0]['species_id'], 'Turdus_migratorius')
-        self.assertEqual(result[0]['foraging_guild'], 'Ground_forager')
+    def test_validate_schema_missing_keys(self):
+        """Test schema validation with missing keys."""
+        bad_data = [
+            {'species_id': '1', 'foraging_guild': 'G'} # Missing citation and date
+        ]
+        with self.assertRaises(ValueError):
+            validate_schema(bad_data)
 
-    @patch('data.generate_guild_mapping.requests.get')
-    def test_fetch_guild_mapping_failure(self, mock_get):
-        """Test fetch raises error on failure."""
-        mock_get.side_effect = Exception("Network error")
+    def test_save_mapping(self):
+        """Test saving mapping to CSV."""
+        output_path = self.processed_dir / "test_mapping.csv"
+        data = [
+            {'species_id': '1', 'foraging_guild': 'G', 'source_citation': 'C', 'extraction_date': '2023-01-01'},
+            {'species_id': '2', 'foraging_guild': 'I', 'source_citation': 'C', 'extraction_date': '2023-01-01'}
+        ]
         
-        with self.assertRaises(Exception):
-            fetch_guild_mapping("http://example.com/guilds.csv")
+        save_mapping(data, output_path)
+        
+        self.assertTrue(output_path.exists())
+        
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0]['species_id'], '1')
+        self.assertEqual(rows[0]['foraging_guild'], 'G')
+        self.assertEqual(rows[0]['source_citation'], 'C')
+        self.assertEqual(rows[0]['extraction_date'], '2023-01-01')
 
-    def test_load_metadata_missing_file(self):
-        """Test that load_metadata raises error when metadata file is missing."""
-        # Temporarily rename metadata file if it exists
-        metadata_path = get_project_root() / 'data' / 'metadata.yaml'
-        original_exists = metadata_path.exists()
+    def test_record_provenance_in_metadata(self):
+        """Test recording provenance in metadata."""
+        # Create a dummy output file first
+        output_path = self.processed_dir / "dummy_output.csv"
+        with open(output_path, 'w') as f:
+            f.write("species_id,foraging_guild\n1,G\n")
         
-        if original_exists:
-            temp_path = metadata_path.with_suffix('.yaml.bak')
-            metadata_path.rename(temp_path)
+        metadata = {}
+        updated_metadata = record_provenance_in_metadata(metadata, self.mock_source, output_path)
         
-        try:
-            with self.assertRaises(FileNotFoundError):
-                load_metadata()
-        finally:
-            # Restore original file
-            if original_exists:
-                temp_path.rename(metadata_path)
+        self.assertIn('steps', updated_metadata)
+        self.assertEqual(len(updated_metadata['steps']), 1)
+        
+        step = updated_metadata['steps'][0]
+        self.assertEqual(step['step'], 'generate_guild_mapping')
+        self.assertEqual(step['input_file'], str(self.mock_source))
+        self.assertEqual(step['output_file'], str(output_path))
+        self.assertIn('input_hash', step)
+        self.assertIn('output_hash', step)
+        self.assertEqual(step['row_count'], 1) # 1 data row + 1 header
+
+    def test_load_and_save_metadata(self):
+        """Test loading and saving metadata YAML."""
+        metadata_path = self.data_dir / "test_metadata.yaml"
+        test_data = {'key': 'value', 'nested': {'a': 1}}
+        
+        save_metadata(test_data, metadata_path)
+        self.assertTrue(metadata_path.exists())
+        
+        loaded = load_metadata(metadata_path)
+        self.assertEqual(loaded['key'], 'value')
+        self.assertEqual(loaded['nested']['a'], 1)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,49 +1,37 @@
 # Predicting Avian Foraging Behavior from Public eBird Data and Land Cover Maps
 
 ## Project Overview
+This project implements a machine learning pipeline to predict avian foraging guilds using public eBird observation data and NLCD land cover maps. The goal is to understand the relationship between habitat composition and foraging behavior across bird species.
 
-This project aims to predict avian foraging guilds using public eBird occurrence data and NLCD 2019 land cover maps. The pipeline extracts records for top species, merges them with land cover data within 100m buffers, and trains a Random Forest classifier to predict foraging guilds.
+## Structure
+- `code/`: Source code for the pipeline
+ - `data/`: Data download, processing, and aggregation scripts
+ - `models/`: Model training and evaluation scripts
+ - `viz/`: Visualization and reporting scripts
+ - `utils/`: Utility functions and configuration
+ - `tests/`: Unit and integration tests
+- `data/`: Raw and processed data files
+- `docs/`: Documentation and results
+- `specs/`: Feature specifications and design documents
 
-## Directory Structure
-
-```
-code/
-├── data/
-│ ├── raw/ # Raw downloaded data (EBD, NLCD)
-│ ├── processed/ # Processed and merged datasets
-│ └── metadata/ # Metadata and provenance records
-├── models/ # Trained models and evaluation results
-├── viz/ # Visualization scripts and outputs
-├── notebooks/ # Jupyter notebooks for analysis
-├── utils/ # Utility modules (config, provenance)
-├── tests/ # Unit and integration tests
-├── docs/ # Documentation and reports
-└── contracts/ # Data schema contracts
-```
+## Prerequisites
+- Python 3.8+
+- Required packages listed in `requirements.txt`
 
 ## Quick Start
-
-1. **Initialize Directories**:
+1. Install dependencies:
  ```bash
- python code/setup_directories.py
+ pip install -r requirements.txt
  ```
-
-2. **Install Dependencies**:
+2. Run the full pipeline:
  ```bash
- pip install -r code/requirements.txt
- ```
-
-3. **Run the Pipeline**:
- ```bash
- bash code/run_pipeline.sh
+ bash run_pipeline.sh
  ```
 
 ## Data Sources
-
-- **eBird Basic Dataset (EBD)**: Downloaded from S3 bucket `s3://ebird-data/ebd_release/`
-- **NLCD 2019 Land Cover**: Downloaded from USGS EarthExplorer
-- **Birds of the World**: Used for foraging guild mapping
+- eBird Basic Dataset (EBD) from Cornell Lab of Ornithology
+- NLCD 2019 Land Cover data from USGS
+- Birds of the World foraging guild data from Cornell Lab of Ornithology
 
 ## License
-
-This project is for research purposes only. Please refer to the data sources' terms of use.
+This project is for research purposes only. Please refer to the original data sources for their respective licenses and usage terms.

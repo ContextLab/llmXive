@@ -1,1 +1,1 @@
-# Utilities module
+# Utility functions package for PROJ-397

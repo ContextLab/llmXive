@@ -5,51 +5,46 @@ from pathlib import Path
 def main():
     """
     Initialize the project directory structure for PROJ-397.
-    
-    Creates the following directories under code/:
-    - data
-    - models
-    - viz
-    - notebooks
-    - utils
-    - tests
-    
-    Also creates necessary subdirectories for data processing:
-    - data/raw
-    - data/processed
-    - data/metadata
+    Creates the required subdirectories under projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/
     """
-    # Determine the project root relative to this script
-    # The script is expected to be run from the project root or code/
-    script_path = Path(__file__).resolve()
-    code_dir = script_path.parent
-    
-    # Define subdirectories to create
+    # Define the base project path relative to the repository root
+    # The prompt specifies the project is at: projects/PROJ-397-predicting-avian-foraging-behavior-from-/
+    project_root = Path(__file__).parent.parent
+    base_path = project_root / "projects" / "PROJ-397-predicting-avian-foraging-behavior-from-" / "code"
+
+    # Define the required subdirectories
     subdirs = [
         "data",
-        "data/raw",
-        "data/processed",
         "models",
         "viz",
         "notebooks",
         "utils",
-        "tests",
-        "docs",
-        "docs/results",
-        "contracts"
+        "tests"
     ]
-    
-    created_count = 0
+
+    # Create the base directory if it doesn't exist
+    base_path.mkdir(parents=True, exist_ok=True)
+    print(f"Base directory created/verified: {base_path}")
+
+    # Create each subdirectory
+    created_dirs = []
     for subdir in subdirs:
-        dir_path = code_dir / subdir
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
-    
-    print(f"\nInitialization complete. Created {created_count} new directories.")
+        dir_path = base_path / subdir
+        dir_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(dir_path)
+        print(f"Directory created: {dir_path}")
+
+    # Create __init__.py files in each directory to make them Python packages
+    for subdir in subdirs:
+        init_path = base_path / subdir / "__init__.py"
+        init_path.touch(exist_ok=True)
+        print(f"Initialized package: {init_path}")
+
+    # Create __init__.py in the root code directory as well
+    root_init = base_path / "__init__.py"
+    root_init.touch(exist_ok=True)
+
+    print(f"Project structure initialization complete for {base_path}")
     return 0
 
 if __name__ == "__main__":

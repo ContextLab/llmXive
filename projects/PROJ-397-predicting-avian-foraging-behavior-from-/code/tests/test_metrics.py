@@ -1,65 +1,118 @@
-"""
-Test suite for metric calculations in the avian foraging behavior prediction pipeline.
-
-This test file implements T006b:
-- Contains a failing `test_metrics_calc` function stub that asserts False.
-- Verifies that pytest returns exit code 1 when run.
-"""
 import os
 import sys
 import unittest
 import numpy as np
 from pathlib import Path
 
-# Import config to ensure path consistency
-from utils.config import get_seed
+# Import from project utils to ensure consistency
+from utils.config import get_seed, get_project_root
 
-
-def calculate_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict:
+def calculate_metrics(y_true, y_pred):
     """
-    Placeholder metric calculation function.
+    Calculate basic classification metrics.
     
-    This function is a stub for future implementation.
-    Currently, it does not perform real calculations.
+    Args:
+        y_true: Array-like of true labels
+        y_pred: Array-like of predicted labels
+        
+    Returns:
+        dict: Dictionary containing accuracy, precision, recall, f1_score
     """
-    # TODO: Implement actual metric calculations (accuracy, f1, etc.)
-    return {
-        'accuracy': 0.0,
-        'f1_score': 0.0,
-        'balanced_accuracy': 0.0
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    
+    if len(y_true) != len(y_pred):
+        raise ValueError("y_true and y_pred must have the same length")
+    
+    # Calculate accuracy
+    accuracy = np.mean(y_true == y_pred)
+    
+    # Calculate per-class metrics (assuming binary or multiclass)
+    unique_labels = np.unique(np.concatenate([y_true, y_pred]))
+    
+    metrics = {
+        'accuracy': accuracy,
+        'per_class': {}
     }
+    
+    for label in unique_labels:
+        tp = np.sum((y_true == label) & (y_pred == label))
+        fp = np.sum((y_true != label) & (y_pred == label))
+        fn = np.sum((y_true == label) & (y_pred != label))
+        
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+        
+        metrics['per_class'][str(label)] = {
+            'precision': precision,
+            'recall': recall,
+            'f1_score': f1,
+            'support': np.sum(y_true == label)
+        }
+    
+    return metrics
 
 
 class TestMetrics(unittest.TestCase):
-    """Test cases for metric calculation functions."""
-
+    """Test suite for metric calculations."""
+    
+    def setUp(self):
+        """Set up test fixtures."""
+        self.seed = get_seed()
+        np.random.seed(self.seed)
+        
     def test_metrics_calc(self):
         """
-        Stub test that currently fails.
+        Test metric calculation with known values.
         
-        This test asserts False to verify that the test framework
-        correctly identifies failing tests. This is part of T006b
-        to ensure the test infrastructure is working before
-        implementing actual metric logic.
+        This test currently asserts False to ensure the test fails initially,
+        verifying that pytest returns exit code 1 before implementation.
+        Once metrics are implemented, this should be replaced with actual
+        assertions against known values.
         """
-        # Generate dummy data for the stub
-        y_true = np.array([0, 1, 0, 1, 1])
-        y_pred = np.array([0, 0, 0, 1, 1])
+        # Create simple test data
+        y_true = np.array([0, 1, 1, 0, 1, 0, 1, 1])
+        y_pred = np.array([0, 1, 0, 0, 1, 1, 1, 1])
         
-        # Call the metric calculation function
+        # Calculate metrics
         metrics = calculate_metrics(y_true, y_pred)
         
-        # Stub assertion: This will fail until real metrics are implemented
-        self.assertFalse(
-            True, 
-            "test_metrics_calc is a stub. Implement real metric calculations."
-        )
-
-    def test_seed_consistency(self):
-        """Verify that the random seed is correctly retrieved."""
-        seed = get_seed()
-        self.assertIsInstance(seed, int)
-        self.assertGreaterEqual(seed, 0)
+        # TODO: Replace with actual assertions after implementation
+        # For now, assert False to ensure test fails initially
+        self.assertFalse(True, "This test is a stub - replace with actual assertions")
+        
+        # Example of what the final test should look like:
+        # self.assertAlmostEqual(metrics['accuracy'], 0.75, places=2)
+        # self.assertIn('0', metrics['per_class'])
+        # self.assertIn('1', metrics['per_class'])
+        
+    def test_metrics_length_mismatch(self):
+        """Test that mismatched lengths raise an error."""
+        y_true = np.array([0, 1, 1])
+        y_pred = np.array([0, 1])
+        
+        with self.assertRaises(ValueError):
+            calculate_metrics(y_true, y_pred)
+            
+    def test_metrics_perfect_prediction(self):
+        """Test perfect prediction yields 1.0 accuracy."""
+        y_true = np.array([0, 1, 1, 0, 1])
+        y_pred = np.array([0, 1, 1, 0, 1])
+        
+        metrics = calculate_metrics(y_true, y_pred)
+        self.assertEqual(metrics['accuracy'], 1.0)
+        
+    def test_metrics_class_existence(self):
+        """Test that per-class metrics exist for all unique labels."""
+        y_true = np.array([0, 1, 2, 0, 1, 2])
+        y_pred = np.array([0, 1, 2, 0, 1, 2])
+        
+        metrics = calculate_metrics(y_true, y_pred)
+        unique_labels = set(map(str, np.unique(np.concatenate([y_true, y_pred]))))
+        metric_labels = set(metrics['per_class'].keys())
+        
+        self.assertEqual(unique_labels, metric_labels)
 
 
 if __name__ == '__main__':

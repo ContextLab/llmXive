@@ -54,7 +54,7 @@ specs/001-avian-foraging-land-cover/
 projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/
 ├── data/
 │   ├── download_ebd.py          # Downloads and checksums EBD (Official + Fallback)
-│   ├── download_nlcd.py         # Downloads and checksums NLCD 2019 (USGS)
+│   ├── download_nlcd.py         # Downloads and checksums NLCD (USGS)
 │   ├── merge_and_buffer.py      # Merges data, calculates buffers of varying radii to assess spatial influence.
 │   └── aggregate.py             # Aggregates observations to species-level profiles
 ├── models/

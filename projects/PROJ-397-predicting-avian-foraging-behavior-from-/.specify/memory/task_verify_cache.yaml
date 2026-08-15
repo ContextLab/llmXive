@@ -1,16 +1,22 @@
-T002:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that `README.md` and `run_pipeline.sh` actually exist
-    in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`; the response
-    contains only the task description and no file listings or content. The required
-    placeholder files are therefore missing.
-T004:
+  r: No evidence of the required `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/`
+    directory (with the six subfolders) is presented; the claim lacks any artifact
+    or listing to confirm the structure exists. The implementer must provide a directory
+    listing or screenshots showing the created folders.
+T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `utils/config.py` file or its contents were presented, so there is no evidence\
-    \ that paths, random seeds, and constants have been defined as required. The task\u2019\
-    s artifact is missing, making the implementation incomplete."
+  r: No `utils/provenance.py` file or its contents were provided; without the actual
+    module we cannot confirm that metadata logging and hash generation were implemented
+    as required. The required artifact is missing.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `run_pipeline.sh` file or its contents were presented; the required orchestration
+    script in `projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/` is
+    missing, so the task is not satisfied.
 T010:
   c: false
   h: c42dfd879aa7099ed349fd4e40230aeb0b8b37ea3b0853a2c7cddd1f0ec304bd

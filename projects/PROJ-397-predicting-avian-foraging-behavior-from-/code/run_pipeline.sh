@@ -1,61 +1,112 @@
 #!/bin/bash
-# Orchestration script for the Avian Foraging Behavior Prediction Pipeline
-# This script runs all pipeline phases in the correct dependency order
+#
+# run_pipeline.sh - Orchestration script for the Avian Foraging Behavior Prediction Pipeline
+#
+# This script executes all pipeline steps in dependency order:
+# 1. Data Download (EBD, NLCD, Guild Source)
+# 2. Data Processing (Selection, Merging, Aggregation)
+# 3. Model Training and Evaluation
+# 4. Visualization and Reporting
+#
+# Usage: bash run_pipeline.sh
+#
 
-set -e  # Exit on error
+set -e  # Exit on any error
 
-# Configuration
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LOG_FILE="${SCRIPT_DIR}/pipeline_run.log"
-echo "Pipeline started at $(date)" > "$LOG_FILE"
+# Change to script directory
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
-log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
-}
+echo "=========================================="
+echo "Avian Foraging Behavior Prediction Pipeline"
+echo "=========================================="
+echo "Starting pipeline execution at $(date)"
+echo ""
 
-run_step() {
-    local step_name="$1"
-    local script_path="$2"
-    log "Starting step: $step_name"
-    if [ -f "$script_path" ]; then
-        python "$script_path" >> "$LOG_FILE" 2>&1
-        log "Completed step: $step_name"
-    else
-        log "ERROR: Script not found: $script_path"
-        exit 1
-    fi
-}
+# --- PHASE 1: Data Download ---
+echo "[PHASE 1] Data Download"
+echo "------------------------"
 
-# Phase 1: Setup (if not already done)
-log "=== Phase 1: Setup ==="
-run_step "setup_directories" "${SCRIPT_DIR}/setup_directories.py"
+echo "Step 1.1: Download eBird EBD data..."
+python data/download_ebd.py
+echo "eBird data downloaded."
 
-# Phase 2: Foundational
-log "=== Phase 2: Foundational ==="
-# Note: config.py and provenance.py are imported by other scripts, 
-# no standalone execution needed unless testing
+echo "Step 1.2: Download NLCD 2019 land cover data..."
+python data/download_nlcd.py
+echo "NLCD data downloaded."
 
-# Phase 3: User Story 1 - Data Extraction and Merging
-log "=== Phase 3: User Story 1 - Data Extraction ==="
-run_step "download_ebd" "${SCRIPT_DIR}/data/download_ebd.py"
-run_step "download_nlcd" "${SCRIPT_DIR}/data/download_nlcd.py"
-run_step "generate_guild_mapping" "${SCRIPT_DIR}/data/generate_guild_mapping.py"
-run_step "record_nlcd_provenance" "${SCRIPT_DIR}/data/record_nlcd_provenance.py"
-run_step "select_top_species" "${SCRIPT_DIR}/data/select_top_species.py"
-run_step "merge_and_buffer" "${SCRIPT_DIR}/data/merge_and_buffer.py"
-run_step "aggregate" "${SCRIPT_DIR}/data/aggregate.py"
-run_step "extract_top_species" "${SCRIPT_DIR}/data/extract_top_species.py"
+echo "Step 1.3: Download Birds of the World guild source data..."
+python data/download_guild_source.py
+echo "Guild source data downloaded."
 
-# Phase 4: User Story 2 - Model Training and Evaluation
-log "=== Phase 4: User Story 2 - Model Training ==="
-run_step "train" "${SCRIPT_DIR}/models/train.py"
-run_step "evaluate" "${SCRIPT_DIR}/models/evaluate.py"
+echo "Step 1.4: Generate guild mapping from source..."
+python data/generate_guild_mapping.py
+echo "Guild mapping generated."
 
-# Phase 5: User Story 3 - Visualization
-log "=== Phase 5: User Story 3 - Visualization ==="
-run_step "plot_confusion" "${SCRIPT_DIR}/viz/plot_confusion.py"
-run_step "plot_importance" "${SCRIPT_DIR}/viz/plot_importance.py"
-run_step "map_habitat" "${SCRIPT_DIR}/viz/map_habitat.py"
+echo "Step 1.5: Record NLCD provenance..."
+python data/record_nlcd_provenance.py
+echo "NLCD provenance recorded."
 
-log "=== Pipeline completed successfully ==="
-log "Pipeline finished at $(date)"
+echo ""
+
+# --- PHASE 2: Data Processing ---
+echo "[PHASE 2] Data Processing"
+echo "-------------------------"
+
+echo "Step 2.1: Select top species (>=50 obs)..."
+python data/select_top_species.py
+echo "Top species selected."
+
+echo "Step 2.2: Merge observations with land cover and assign guilds..."
+python data/merge_and_buffer.py
+echo "Data merged and buffered."
+
+echo "Step 2.3: Aggregate observations to species profiles..."
+python data/aggregate.py
+echo "Data aggregated."
+
+echo "Step 2.4: Extract top 25 species for visualization..."
+python data/extract_top_species.py
+echo "Top species extracted for visualization."
+
+echo ""
+
+# --- PHASE 3: Model Training and Evaluation ---
+echo "[PHASE 3] Model Training and Evaluation"
+echo "---------------------------------------"
+
+echo "Step 3.1: Train Random Forest classifier..."
+python models/train.py
+echo "Model trained."
+
+echo "Step 3.2: Evaluate model and run permutation test..."
+python models/evaluate.py
+echo "Model evaluated."
+
+echo ""
+
+# --- PHASE 4: Visualization and Reporting ---
+echo "[PHASE 4] Visualization and Reporting"
+echo "-------------------------------------"
+
+echo "Step 4.1: Generate confusion matrix..."
+python viz/plot_confusion.py
+echo "Confusion matrix generated."
+
+echo "Step 4.2: Generate feature importance chart and report..."
+python viz/plot_importance.py
+echo "Feature importance chart and report generated."
+
+echo "Step 4.3: Validate feature importance against literature..."
+python viz/validate_importance.py
+echo "Feature importance validated."
+
+echo "Step 4.4: Generate spatial habitat map..."
+python viz/map_habitat.py
+echo "Spatial habitat map generated."
+
+echo ""
+echo "=========================================="
+echo "Pipeline execution completed successfully!"
+echo "Finished at $(date)"
+echo "=========================================="

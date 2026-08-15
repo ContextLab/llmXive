@@ -2471,3 +2471,399 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T23:47:09Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: filter species with at least 50 observations
+  claim_id: c_a3a379a1
+  context: "Implement data/select_top_species.py to load data/raw/ebd_train.csv (from\
+    \ T011), FIRST filter to retain ONLY species with \u226550 observations, THEN\
+    \ sort the filtered list by total record count descending"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_species_with_at_least_50_observations
+  kind: magnitude
+  raw_text: "filter to retain ONLY species with \u226550 observations"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:16:49Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: select top species subset
+  claim_id: c_395be07c
+  context: THEN sort the filtered list by total record count descending and select
+    a representative subset of top species (handling ties by including all tied species
+    at the specified rank threshold)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_top_species_subset
+  kind: entity_fact
+  raw_text: select a representative subset of top species
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:17:25Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: proceed with available count if fewer than 25 valid species
+  claim_id: c_21142d1e
+  context: If fewer than 25 valid species exist, proceed with the available count
+    and log the shortfall to data/processed/selection_log.txt.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_with_available_count_if_fewer_than_25_valid_species
+  kind: magnitude
+  raw_text: If fewer than 25 valid species exist, proceed with the available count
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:18:01Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: calculate land cover proportions within 100m buffers using NLCD 2019
+  claim_id: c_64a23c3e
+  context: load data/raw/nlcd_2019.zip (from T012), calculate buffer land cover proportions
+    using NLCD 2019 data within 100m buffers, join with data/processed/guild_mapping.csv
+    (from T008b)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate buffer land cover proportions using NLCD 2019 data within 100m
+    buffers
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:18:30Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: extract top 25 species by observation count
+  claim_id: c_9843dba6
+  context: Implement data/extract_top_species.py to extract the top 25 species (N=25)
+    by observation count from data/processed/species_profiles.csv
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: top 25 species (N=25) by observation count
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:19:08Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Across-Species Permutation Test with 1000 iterations
+  claim_id: c_f77feb95
+  context: Perform the Across-Species Permutation Test with a sufficient number of
+    iterations (1000). This test operates on the species-level aggregated data (from
+    T016).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Across-Species Permutation Test with a sufficient number of iterations
+    (1000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:19:24Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: validate p-value calculation logic matches spec intent
+  claim_id: c_e8f3e2ea
+  context: Add a code cell that asserts the p-value calculation logic matches the
+    spec's intent.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_p-value_calculation_logic_matches_spec_intent
+  kind: entity_fact
+  raw_text: validate that the p-value calculation logic matches the spec's intent
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:19:52Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: confusion matrix output filename and format
+  claim_id: c_66ebdeb8
+  context: 'Output filename: docs/results/confusion_matrix.png, format: PNG, Figure
+    size: standard dimensions appropriate for publication, colormap: ''viridis''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Confusion_matrix_output_filename_and_format
+  kind: entity_fact
+  raw_text: 'output filename: docs/results/confusion_matrix.png, format: PNG, Figure
+    size: standard dimensions appropriate for publication, colormap: ''viridis'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:20:16Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: filter visualization scope to top 2 species
+  claim_id: c_039846f9
+  context: Implement viz/map_habitat.py to generate a continuous raster prediction
+    surface (GeoJSON/PNG) of high-probability foraging habitats by applying the model
+    to a spatial grid, strictly filtering the visualization scope to the top 2 species
+    listed in data/processed/top_25_species_for_viz.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: strictly filtering the visualization scope to the top 2 species
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:20:58Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: list top 3 land cover predictors per guild
+  claim_id: c_1ef78fe5
+  context: For each foraging guild, list the top 3 land cover predictors identified
+    by the model and cross-reference them with the habitat descriptions in the source
+    literature.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: top 3 land cover predictors identified by the model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:21:40Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: verify total runtime less than 6 hours
+  claim_id: c_864c04d4
+  context: Profile merge_and_buffer.py and optimize buffer calculation using vectorization;
+    verify total runtime < 6h.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: verify total runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:21:57Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Filter species for at least 50 observations before selecting top species
+  claim_id: c_c993800c
+  context: 'Phase 3: User Story 1 - Data Extraction and Merging Pipeline. Task T012.5
+    details the selection logic for top species.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_species_for_at_least_50_observations_before_selecting
+  kind: magnitude
+  raw_text: "Implement data/select_top_species.py to load data/raw/ebd_train.csv,\
+    \ FIRST filter to retain ONLY species with \u226550 observations, THEN sort the\
+    \ filtered list by total record count descending and select a representative subset\
+    \ of top species."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:28:08Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Proceed with available species count if fewer than 25 valid species exist
+  claim_id: c_008d883e
+  context: 'Phase 3: User Story 1. Task T012.5 handles edge cases for species selection.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_with_available_species_count_if_fewer_than_25_valid
+  kind: magnitude
+  raw_text: If fewer than 25 valid species exist, proceed with the available count
+    and log the shortfall to data/processed/selection_log.txt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:28:41Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Save top species identifiers to top_25_species_ids.json
+  claim_id: c_7002a7bb
+  context: 'Phase 3: User Story 1. Task T012.5 output requirements.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_top_species_identifiers_to_top_25_species_ids.json
+  kind: entity_fact
+  raw_text: Save the final list of top species identifiers to data/processed/top_25_species_ids.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:29:19Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Calculate buffer land cover proportions within 100m buffers using NLCD
+    2019 data
+  claim_id: c_21ba34b0
+  context: 'Phase 3: User Story 1. Task T013 describes the merging and buffering logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement data/merge_and_buffer.py to calculate buffer land cover proportions
+    using NLCD 2019 data within 100m buffers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:29:42Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Perform Across-Species Permutation Test with 1000 iterations
+  claim_id: c_575d16cc
+  context: 'Phase 4: User Story 2. Task T020b specifies the permutation test parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement models/evaluate.py to perform the Across-Species Permutation
+    Test with a sufficient number of iterations (1000).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:30:00Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Determine if land cover predicts guild independent of species identity
+    via permutation test
+  claim_id: c_0557543f
+  context: 'Phase 4: User Story 2. Task T020b describes the statistical goal of the
+    permutation test.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Determine_if_land_cover_predicts_guild_independent_of_specie
+  kind: entity_fact
+  raw_text: Compare the observed accuracy against this null distribution to determine
+    if land cover predicts guild independent of species identity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:30:27Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Generate confusion matrix for top 2 species
+  claim_id: c_d4d09987
+  context: 'Phase 5: User Story 3. Task T025b specifies the scope of the confusion
+    matrix generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement viz/plot_confusion.py to generate the confusion matrix image
+    for the top 2 species.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:30:48Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Filter spatial habitat map visualization to top 2 species
+  claim_id: c_4ef2a3ef
+  context: 'Phase 5: User Story 3. Task T027 defines the visualization scope.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement viz/map_habitat.py to generate a continuous raster prediction
+    surface strictly filtering the visualization scope to the top 2 species.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:31:07Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Generate qualitative comparison table for feature importance with binary
+    match flag
+  claim_id: c_749d326b
+  context: 'Phase 5: User Story 3. Task T028.5 outlines the validation report format.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_qualitative_comparison_table_for_feature_importance
+  kind: entity_fact
+  raw_text: 'Generate a markdown table with columns: Guild, Top Predictor, Literature
+    Description, Match/Mismatch (binary flag based on whether the predictor aligns
+    with the literature description).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:31:55Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: List top 3 land cover predictors per guild and cross-reference with literature
+  claim_id: c_f66564af
+  context: 'Phase 5: User Story 3. Task T028.5 specifies the qualitative comparison
+    method.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each foraging guild, list the top 3 land cover predictors identified
+    by the model and cross-reference them with the habitat descriptions in the source
+    literature.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:32:19Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Verify total runtime is less than 6 hours
+  claim_id: c_1017b636
+  context: 'Phase N: Polish & Cross-Cutting Concerns. Task T032 specifies performance
+    optimization goals.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify total runtime < 6h for merge_and_buffer.py optimization.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:32:48Z'
