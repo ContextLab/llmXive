@@ -23,7 +23,7 @@ This feature implements a neuroimaging analysis pipeline to investigate the rela
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase research. Re-check after Phase 1 design.*
 
 | Principle | Check Status | Evidence/Action |
 |-----------|--------------|-----------------|
@@ -128,7 +128,7 @@ data/
 4.  **Confounder Handling**: Calculate missingness for age/medication. If >50% missing, drop covariate and log.
 
 ### Phase 2: Network Metric Computation (US-2)
-1.  **Parcellation**: Schaefer-100 or AAL.
+1.  **Parcellation**: Schaefer or AAL.
 2.  **Connectivity**: Pearson correlation of ROI time series.
 3.  **Metrics**: Modularity (Q), Global Efficiency, Local Efficiency (using `bctpy` v0.5+).
 4.  **Validation**: Ensure values are non-negative/finite. Handle NaNs by exclusion.

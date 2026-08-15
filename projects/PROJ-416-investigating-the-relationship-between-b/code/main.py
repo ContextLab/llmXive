@@ -1,6 +1,3 @@
-"""
-Main entry point for the pipeline orchestration.
-"""
 import argparse
 import logging
 import sys
@@ -13,63 +10,54 @@ from code.data.validate import run_validation
 from code.data.preprocess import run_preprocessing
 from code.data.save_metadata import run_save_metadata
 from code.analysis.network import run_analysis as run_network_analysis
+from code.analysis.validate_metrics import run_validation as run_metrics_validation
 from code.analysis.stats import run_analysis as run_stats_analysis
+from code.analysis.report import run_analysis as run_report_generation
 from code.analysis.save_stats_results import run_save_stats_results
-from code.analysis.report import run_analysis as run_report_analysis
+from code.scripts.run_quickstart_validation import main as run_quickstart_validation
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Brain Network Dynamics Pipeline")
     parser.add_argument("--stage", type=str, required=True,
-                        choices=["download", "validate", "preprocess", "compute", "analyze", "report", "all"],
-                        help="Which stage of the pipeline to run")
+                        choices=["download", "validate", "preprocess", "save_metadata", 
+                                 "compute", "validate_metrics", "analyze", "report", 
+                                 "save_stats", "quickstart"],
+                        help="Pipeline stage to execute")
     parser.add_argument("--config", type=str, default="code/.env",
                         help="Path to configuration file")
     return parser.parse_args()
 
+def run_stage(stage: str):
+    logging.info(f"Executing stage: {stage}")
+    Config.ensure_directories()
+    
+    if stage == "download":
+        run_download()
+    elif stage == "validate":
+        run_validation()
+    elif stage == "preprocess":
+        run_preprocessing()
+    elif stage == "save_metadata":
+        run_save_metadata()
+    elif stage == "compute":
+        run_network_analysis()
+    elif stage == "validate_metrics":
+        run_metrics_validation()
+    elif stage == "analyze":
+        run_stats_analysis()
+    elif stage == "report":
+        run_report_generation()
+    elif stage == "save_stats":
+        run_save_stats_results()
+    elif stage == "quickstart":
+        run_quickstart_validation()
+    
+    logging.info(f"Stage {stage} completed successfully.")
+
 def main():
     args = parse_args()
-    config = Config()
-    
-    # Setup logging
-    log_file = config.LOGS_DIR / "pipeline.log"
-    setup_logging(log_file)
-    logger = logging.getLogger(__name__)
-
-    logger.info(f"Starting pipeline stage: {args.stage}")
-
-    try:
-        if args.stage == "download":
-            run_download(config)
-        elif args.stage == "validate":
-            run_validation(config)
-        elif args.stage == "preprocess":
-            run_preprocessing(config)
-        elif args.stage == "compute":
-            # Run network analysis (US2)
-            run_network_analysis(config)
-        elif args.stage == "analyze":
-            # Run statistical analysis (US3)
-            stats_results = run_stats_analysis(config)
-            # Save stats results to CSV (T035)
-            run_save_stats_results(stats_results, config)
-        elif args.stage == "report":
-            # Generate final report
-            run_report_analysis(config)
-        elif args.stage == "all":
-            # Run full pipeline
-            run_download(config)
-            run_validation(config)
-            run_preprocessing(config)
-            run_network_analysis(config)
-            stats_results = run_stats_analysis(config)
-            run_save_stats_results(stats_results, config)
-            run_report_analysis(config)
-        
-        logger.info(f"Stage {args.stage} completed successfully.")
-
-    except Exception as e:
-        logger.error(f"Pipeline failed at stage {args.stage}: {e}", exc_info=True)
-        sys.exit(1)
+    setup_logging()
+    run_stage(args.stage)
 
 if __name__ == "__main__":
     main()

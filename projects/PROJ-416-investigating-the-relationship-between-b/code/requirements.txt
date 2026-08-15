@@ -1,9 +1,13 @@
-python-dotenv  # auto-added: imported by run-book but missing from venv
-matplotlib  # auto-added: imported by run-book but missing from venv
-networkx  # auto-added: imported by run-book but missing from venv
-nilearn  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-pre_commit  # auto-added: imported by run-book but missing from venv
-scipy  # auto-added: imported by run-book but missing from venv
-statsmodels  # auto-added: imported by run-book but missing from venv
+nibabel>=5.0.0
+nilearn>=0.10.0
+scikit-learn>=1.0.0
+networkx>=3.0.0
+pandas>=1.5.0
+numpy>=1.23.0
+matplotlib>=3.6.0
+scipy>=1.9.0
+pytest>=7.0.0
+python-dotenv>=1.0.0
+statsmodels>=0.13.0
+bctpy>=0.5.0
+requests>=2.28.0

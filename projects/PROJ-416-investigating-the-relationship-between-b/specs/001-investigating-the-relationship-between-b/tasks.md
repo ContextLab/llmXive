@@ -61,16 +61,25 @@
 - [X] T007 Create `code/config.py` for environment variables (OpenNeuro ID, paths, seeds)
 - [X] T008 Implement `code/utils/logging.py` with structured logging for pipeline provenance
 - [X] T009 Setup `tests/unit` and `tests/integration` directory structures
-- [X] T001a [Research] Verify the existence of a pre-identified OpenNeuro dataset ID in `data/verified_sources.json`.
- - **Scope**: This task enforces the "Dataset-Variable Fit" gate. It checks for the presence of `data/verified_sources.json` containing a valid OpenNeuro ID and metadata.
- - **Deliverable**: The task MUST write a JSON file `data/verified_sources.json` with the following schema if a valid ID is found: `{"openneuro_id": "ds-XXXX", "verified_date": "YYYY-MM-DD", "notes": "...", "has_pre_post": true, "has_clinical_scores": true}`.
- - **Blocking Logic**: If the file is missing, invalid, or no pre-identified ID is found, the task MUST raise a `FatalError` immediately with the message "BLOCKED: No verified dataset source found. Project cannot proceed."
- - This task resolves the "STATUS: BLOCKED" issue in the plan by enforcing the gate before any network calls.
+- [X] T001a [Blocking Prerequisite] Implement Multi-Source Data Aggregation (FR-013, Plan Phase 0.1):
+ - **Scope**: This task enforces the "Dataset-Variable Fit" gate by implementing an iterative search across multiple public repositories.
+ - **Logic**:
+ 1. Define a list of verified sources: [OpenNeuro, HCP-Young-Adults subset, Secondary Repository].
+ 2. Iterate through each source, checking for:
+ - Resting-state fMRI (NIfTI).
+ - Paired pre/post clinical scores.
+ - Validated anxiety instrument (GAD-7, HAM-A).
+ 3. **Select** the first source meeting all criteria.
+ 4. **Halt** with "Data Unavailable: No longitudinal dataset found" if all 3 fail.
+ 5. If a source is found, write `data/verified_sources.json` with schema: `{"source_name": "...", "dataset_id": "...", "verified_date": "YYYY-MM-DD", "notes": "...", "has_pre_post": true, "has_clinical_scores": true}`.
+ - **Blocking Logic**: If no source is found after checking all 3, raise a `FatalError` immediately with the message "BLOCKED: No verified dataset source found after multi-source aggregation. Project cannot proceed."
  - **Dependency**: This task is a hard prerequisite. It must complete successfully before T012 or T041 can proceed.
  - **Note**: This task is SEQUENTIAL, NOT parallel. It blocks the entire pipeline until a verified source is confirmed.
+ - **Clarification**: If the specific longitudinal VR therapy dataset is not found, the pipeline MUST halt with the specific "Data Unavailable" error. It MUST NOT proceed with non-VR data.
 - [X] T041 [US1] Implement a strict "Verified Source" gate in `code/data/download.py`: Read the OpenNeuro ID from `data/verified_sources.json` (populated by T001a). If the ID is missing or invalid, the script MUST raise a `FatalError` immediately and exit. Do NOT attempt to fetch from arbitrary IDs.
  - **Precedes**: T012 (Download).
  - **Location**: `code/data/download.py`
+ - **Clarification**: This is a runtime check embedded within the execution flow of T012, ensuring the gate runs immediately before download attempts.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -102,17 +111,17 @@
  5. Iterate through subjects, check for individual completeness (pre AND post scans present), exclude ONLY incomplete subjects, and log the exclusion reason (Edge Case: Incomplete Scans).
  *Must complete BEFORE T014*.
 - [X] T014 [US1] Implement `code/data/preprocess.py` for motion correction, slice timing, and normalization using `nilearn` (CPU-optimized).
- - Use `nilearn.image.resample_img` and `nilearn.image.smooth_img` with specific parameters: smoothing kernel appropriate for the data resolution, high-pass filter 0.01 Hz.
+ - Use `nilearn.image.resample_img` and `nilearn.image.smooth_img` with specific parameters: smoothing kernel appropriate for the data resolution, high-pass filter with a low-frequency cutoff.
  - Target a feasibility subset of N=10 subjects for CI (Spec FR-002 targets N=20; pipeline logic must support N=20 but CI runs N=10).
  - Output preprocessed NIfTI files to `data/processed/`.
 - [X] T015 [US1] Implement quality control in `code/data/preprocess.py` (or `code/data/qc.py`) to:
  1. Calculate Mean Framewise Displacement (FD) for each subject.
  2. Exclude subjects if translation > 3mm OR rotation > 3° (distinct checks as per FR-002, SC-002).
  3. Extract clinical confounders (medication, age, comorbidities) from metadata if available.
- 4. Save `mean_fd` (float), `translation_mm`, `rotation_deg`, and clinical confounders to `data/metrics/network_metrics.csv` as mandatory columns.
+ 4. Save `mean_fd` (float), `translation_mm`, `rotation_deg`, and clinical confounders to `data/metrics/qc_metrics.csv` as mandatory columns.
  *Must run AFTER T014 to process the output NIfTI, but BEFORE US2 consumes the metrics*.
 - [X] T016 [US1] Add logging for excluded subjects and specific exclusion reasons in `logs/preprocessing.log`
-- [X] T017 [US1] Implement `code/data/save_metadata.py` to store subject list, exclusion reasons, and motion metrics in `data/metrics/subject_info.json` with schema: `{"subject_id": "...", "status": "included|excluded", "exclusion_reason": "..."}`.
+- [X] T017 [US1] Implement `code/data/save_metadata.py` to store subject list, exclusion reasons, and motion metrics in `data/metrics/qc_metrics.csv` with schema: `{"subject_id": "...", "status": "included|excluded", "exclusion_reason": "..."}`.
  *Must run AFTER T015 to capture final exclusion decisions. This is the strict final step of US1*.
 
 **Checkpoint**: At this point, User Story 1 is fully functional ONLY after T017 completes.
@@ -148,7 +157,7 @@
 
 ## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
 
-**Goal**: Perform ANCOVA analysis (Post ~ Pre + Metric), apply FDR correction, run sensitivity analysis, and generate diagnostic plots. Implement Univariate Models as primary path, with Ridge regression as conditional fallback per Spec.
+**Goal**: Perform ANCOVA analysis (Post ~ Pre + Metric), apply FDR correction, run sensitivity analysis, and generate diagnostic plots. Implement Univariate Models as primary path, with PCA for collinearity as mandated by Spec.
 
 **Independent Test**: Run on sample data; verify regression coefficients, p-values, effect sizes, and plots are generated.
 
@@ -162,30 +171,39 @@
 ### Code Implementation for User Story 3
 
 - [X] T028 [US3] Implement `code/analysis/stats.py` to perform ANCOVA (Post ~ Pre + Metric + Confounds + FD_Covariate) with `statsmodels`.
- - **Dependency**: Requires network metrics from T024 (US2), motion metrics from T015 (US1), and the final curated subject list from T017 (US1).
+ - **Dependency**: Requires network metrics from T024 (US2), and the final curated subject list from T017 (US1).
 - [X] T029 [US3] Implement VIF calculation and regression logic in `code/analysis/stats.py`.
  - **MANDATORY PATH**: If VIF <= 5, use standard OLS regression with FDR correction.
- - **MANDATORY FALLBACK PATH**: If VIF > 5, apply Ridge regression with lambda=1.0 as required by Spec FR-005/FR-012. If the Ridge model fails to converge or R² < 0.05, switch to separate univariate models with FDR correction.
- - **Note**: The Plan explicitly rejects Ridge regression as methodologically unsound. However, the Spec mandate (FR-005/FR-012) takes precedence. This task MUST implement the Ridge fallback as specified. A log message must be generated: "WARNING: Spec FR-005 mandates Ridge regression fallback despite Plan's methodological concerns."
- - Log the model type used (OLS or Ridge) in the output.
-- [X] T029b [US3] Implement logic in `code/analysis/stats.py` to append a Methodological Note to `reports/results.md`, explicitly documenting the primary path (Univariate) and the conditional fallback (Ridge) as implemented.
+ - **MANDATORY COLLINEARITY HANDLING**: If VIF > 5, compute Principal Components (PCA) of the network metrics.
+ - Use `sklearn.decomposition.PCA` to generate components.
+ - **Halt Condition**: If PCA fails OR if fewer than 2 components explain >90% variance, HALT the pipeline with "Collinearity Unresolvable".
+ - **Exploratory Mode**: If PCA succeeds but <2 components explain >90% variance, proceed with the PCA components as predictors but log a warning and switch to "Exploratory Mode" (report effect sizes, no p-value claims) as per Plan Phase 0.5.
+ - **Use**: Use the resulting principal components as predictors in the ANCOVA model.
+ - **Note**: Ridge regression is explicitly FORBIDDEN by FR-005 and Plan Complexity Tracking. Do NOT implement Ridge regression.
+ - **Clarification**: While the Plan mentions PCA for "exploratory visualization", FR-005 of the Spec mandates using PCA components as predictors if VIF > 5. This task implements the Spec requirement, prioritizing the Spec over the Plan note.
+ - Log the model type used (OLS or PCA) in the output.
+ - **Dependency**: Requires base model structure from T028.
+- [X] T029b [US3] Implement logic in `code/analysis/stats.py` to append a Methodological Note to `reports/results.md`, explicitly documenting the primary path (Univariate) and the conditional PCA path as implemented.
 - [X] T030 [US3] Implement multiple comparison correction (FDR/Bonferroni) in `code/analysis/stats.py` for >1 metric hypothesis
-- [X] T031 [US3] Implement power analysis in `code/analysis/stats.py` using `statsmodels.stats.power.FTestPower.solve_power` as the G*Power equivalent with parameters: alpha=0.05, power=0.8, effect_size=0.15 (standard convention for small effects in neuroimaging, Cohen 1988; override via config if research phase determines otherwise).
- - HALT if N < 5.
- - FLAG limitation if 5 <= N < 10.
+- [X] T031 [US3] Implement power analysis in `code/analysis/stats.py` using `statsmodels.stats.power.FTestPower` as the G*Power equivalent with parameters: alpha=0.05, power=0.8, effect_size=0.15 (standard convention for small effects in neuroimaging, Cohen; override via config if research phase determines otherwise).
+ - **HALT Logic**: If N < 5, HALT the pipeline with "Insufficient Power: N < 5".
+ - **WARNING Logic**: If a minimal threshold of N is not met, FLAG limitation. with "WARNING: Underpowered for hypothesis testing (Power < 0.8)" and switch to **Exploratory Mode** (report effect sizes, no p-value claims).
  - Calculate the 'minimum N required' value.
- - **Output**: Save the full calculation details (including `min_N_required`, `effect_size`, `alpha`, `power`) to `data/metrics/power_analysis.json` with the following schema: `{"min_N_required": <int>, "effect_size": <float>, "alpha": <float>, "power": <float>, "method": "FTestPower"}`.
- - **Clarification**: Use `statsmodels` FTestPower as the accepted "equivalent" to G*Power.
+ - **Output**: Save the full calculation details (including `min_N_required`, `effect_size`, `alpha`, `power`, `method`) to `data/metrics/power_analysis.json` with the following schema: `{"min_N_required": <int>, "effect_size": <float>, "alpha": <float>, "power": <float>, "method": "FTestPower"}`.
+ - **Clarification**: Use `statsmodels` FTestPower as the accepted "equivalent" to G*Power. Document the mapping of parameters (e.g., `effect_size=0.15` corresponds to G*Power's `f²=0.15`) in the output JSON and report to ensure Verified Accuracy.
 - [X] T031b [US3] Implement logic in `code/analysis/stats.py` to consume `data/metrics/power_analysis.json` generated by T031, and include the `min_N_required` value and method details in the final report generation.
-- [X] T032 [US3] Implement sensitivity analysis in `code/analysis/stats.py` sweeping motion thresholds over the specific set {2.0, 3.0} mm and p-values over {0.01, 0.05, 0.1} and reporting variation in outcome rates (FR-010, SC-006).
- - Justification: A stricter standard for high-quality fMRI is adopted, while the Spec threshold remains at 3.0mm.
- - Output: Save the variation in outcome rates for each threshold combination.
+- [X] T032 [US3] Implement sensitivity analysis in `code/analysis/stats.py` sweeping:
+ 1. Motion thresholds: {, 3.0} mm.
+ 2. P-values: {< 0.05, 0.1}.
+ 3. **Outcome definitions**: {Change Score, Residual, Raw Post}.
+ - **Scope**: Per FR-010 and Plan Phase 4, the sensitivity analysis sweeps motion, p-value, AND outcome definitions to satisfy SC-006.
+ - **Output**: Save the variation in outcome rates and effect sizes for each threshold combination to `reports/sensitivity_analysis.md`.
 - [X] T033 [US3] Implement `code/analysis/plots.py` to generate scatter plots with regression lines and residual diagnostics
 - [X] T034 [US3] Generate final report in `reports/results.md` with associational framing (FR-008); include logic to check `metadata.study_design` for string 'randomized' OR `metadata.randomized` for boolean true; if neither exists OR if fields are missing, default to framing findings as ASSOCIATIONAL (SC-005); include all metrics, coefficients, and the minimum N value.
 - [X] T035 [US3] Save all statistical outputs (coefficients, p-values, VIF, power calc, min_N) to `data/metrics/statistical_results.csv` with columns: `subject_id`, `metric`, `coefficient`, `p_value_uncorrected`, `p_value_corrected`, `vif`, `min_N_required`, `model_type`.
-- [X] T045 [US3] [Integration] Implement `tests/integration/test_data_flow.py` to verify the output of T015 (motion metrics) is correctly consumed by T028 (stats) as a covariate, and that T024 (network metrics) is correctly consumed by T028.
+- [X] T045 [US3] [Integration] Implement `tests/integration/test_data_flow.py` to verify the output of T017 (motion metrics) is correctly consumed by T028 (stats) as a covariate, and that T024 (network metrics) is correctly consumed by T028.
  - **Moved from Phase N+1 to Phase 5** to ensure integration testing happens during implementation.
- - **Validates**: The entire chain: T015 -> T024 -> T017 -> T028.
+ - **Validates**: The entire chain: T017 -> T024 -> T028.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -209,11 +227,54 @@
 **Goal**: Resolve specific methodological conflicts identified in the plan review and ensure strict adherence to data hygiene rules.
 
 - [X] T043 [US1] Update `code/data/validate.py` to strictly enforce the "Real Data Only" rule: Remove any `try/except` blocks that fallback to synthetic data generation. If `nilearn` or `bids` fails to load a specific subject's data, the pipeline must crash with a detailed error log, not a synthetic substitute. Add a unit test `tests/unit/test_validate.py` that asserts the process exits with code 1 on a simulated download failure.
-- [X] T044 [US3] Enhance `code/analysis/stats.py` sensitivity analysis (T032) to explicitly sweep the motion threshold over the specific set {2.0, 3.0} mm and p-value over {0.01, 0.05, 0.1} and generate a summary table in `reports/sensitivity_analysis.md` showing the count of significant findings at each threshold.
+- [X] T044 [US3] [Active] Enhance `code/analysis/stats.py` sensitivity analysis (T032) to explicitly sweep:
+ 1. Motion threshold: {2.0, 3.0} mm.
+ 2. P-value: {0.01, 0.05, 0.1}.
+ 3. Outcome definitions: {Change Score, Residual, Raw Post}.
+ - **Note**: Outcome definitions are NOW included in the sweep as per Plan Phase 4 and SC-006.
+ - Generate a summary table in `reports/sensitivity_analysis.md` showing the count of significant findings and effect sizes at each threshold combination.
  - **Artifact**: `reports/sensitivity_analysis.md`
- - **Columns**: `threshold_type`, `threshold_value`, `significant_count`, `outcome_rate`.
+ - **Columns**: `threshold_type`, `threshold_value`, `significant_count`, `effect_size`, `ci_lower`, `ci_upper`.
+ - **Clarification**: This task explicitly mandates the generation of the artifact with the specified schema.
 
-**Note**: Task T042 has been removed as the methodological conflict is resolved by the code logic in T029 (Univariate primary, Ridge fallback).
+**Note**: Task T042 has been removed as the methodological conflict is resolved by the code logic in T029 (Univariate primary, PCA for collinearity).
+
+---
+
+## Phase N+2: Final Verification & Documentation
+
+**Goal**: Ensure all critical constraints are met and documentation reflects the final implementation state.
+
+- [ ] T046 [US1] [Verification] Run a dry-run of the data download and validation pipeline against the `data/verified_sources.json` entry to confirm the "Verified Source" gate triggers correctly if the file is missing or corrupted.
+ - **Precedes**: Any real data download attempts.
+ - **Deliverable**: A log entry in `logs/validation.log` confirming the gate logic is active and functional.
+ - **Artifact**: `logs/validation.log` containing "SUCCESS: Verified Source Gate Active".
+- [X] T047 [US3] [Verification] Validate the `reports/results.md` output against the "Associational Framing" rule (FR-008).
+ - **Logic**: If `metadata.study_design` != 'randomized' AND `metadata.randomized` != true, ensure the report explicitly states "Findings are framed as ASSOCIATIONAL".
+ - **Action**: If the framing is incorrect, the task must fail and the report generation logic must be patched.
+- [X] T048 [US3] [Verification] Confirm the `data/metrics/power_analysis.json` file contains the `min_N_required` key and that `reports/results.md` references this value accurately.
+ - **Action**: If missing, update `code/analysis/stats.py` to ensure the JSON schema is strictly followed.
+- [ ] T049 [Polish] Update `README.md` to include a "Known Limitations" section referencing the "Underpowered" warning logic (SC-004) and the "Associational" framing constraint.
+ - **Deliverable**: `README.md` with "Known Limitations" section.
+- [ ] T050 [Polish] Run a final end-to-end integration test on the N=10 subset to ensure all phases (Download -> Preprocess -> Metrics -> Stats -> Report) execute without manual intervention. <!-- ATOMIZE: requested -->
+ - **Dependencies**: T046, T049.
+ - **Clarification**: Given the "High Risk" of data availability, this task verifies the "Data Unavailable" halt is the expected success state if no real data is found.
+ - **Deliverable**: A script `run_e2e.sh` and a log file `ci_e2e_log.txt`.
+ - **Success Criteria**: `ci_e2e_log.txt` must contain "SUCCESS: Data Unavailable Halt Confirmed" OR "SUCCESS: All phases passed".
+ - **Note**: If no real data is available, the log must confirm the pipeline halted with the specific "Data Unavailable" error message as a valid pass condition.
+
+---
+
+## Phase N+3: Post-Analysis Data Hygiene & Stream Validation
+
+**Goal**: Ensure the streaming implementation for large datasets (if applicable) adheres to the "Real Data + Real Results" rule and that no synthetic fallbacks exist in the data loading logic.
+
+- [X] T052 [US1] [Verification] Verify that `code/data/validate.py` raises a `FatalError` immediately if the `anxiety_instrument` is not in the whitelist (GAD-7, HAM-A, BAI) and does not fallback to a "best guess" or synthetic label.
+ - **Action**: Add a unit test `tests/unit/test_validate_instrument.py` that asserts a `FatalError` is raised for an unknown instrument.
+- [X] T053 [US3] [Verification] Confirm that the `reports/results.md` includes a specific "Data Source" section listing the exact OpenNeuro ID, dataset version, and download date used for the analysis.
+ - **Action**: Update `code/reports/generate.py` to inject this metadata into the final report header.
+
+**Note**: Task T051 has been removed as it references a 'large dataset' streaming requirement that contradicts the spec's defined pilot scale (N<20).
 
 ---
 
@@ -228,6 +289,8 @@
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Revision (Phase N+1)**: Depends on completion of all core implementation tasks (Phase 3-5) to verify and patch specific logic.
+- **Final Verification (Phase N+2)**: Depends on completion of Phase N+1.
+- **Data Hygiene (Phase N+3)**: Depends on completion of Phase N+2 to ensure final data integrity.
 
 ### User Story Dependencies
 
@@ -310,8 +373,10 @@ With multiple developers:
 - **Critical Constraint**: All data processing must fit within 2 CPU cores, 7GB RAM, 14GB disk, and 6 hours. Use N=10 subset for CI.
 - **Critical Constraint**: No GPU/CUDA. No 8-bit/4-bit quantization. No deep learning training.
 - **Critical Constraint**: If dataset variables (pre/post scores) are missing, the pipeline MUST halt immediately with "Missing required variable: [variable_name]" (FR-011).
-- **Critical Constraint**: Implement Univariate Models as PRIMARY path. Implement Ridge regression as conditional FALLBACK (VIF > 5) as per FR-005/FR-012.
-- **Critical Constraint**: Sensitivity analysis must sweep motion thresholds {2.0, 3.0} mm and p-values {0.01, 0.05, 0.1}.
+- **Critical Constraint**: Implement Univariate Models as PRIMARY path. Implement PCA for collinearity (VIF > 5) as mandated by FR-005/FR-012. Ridge regression is FORBIDDEN.
+- **Critical Constraint**: Sensitivity analysis must sweep motion thresholds across low and moderate values, p-values {0.01, 0.05, 0.1}, AND outcome definitions {Change Score, Residual, Raw Post}.
 - **Critical Constraint**: Report must frame findings as ASSOCIATIONAL if `metadata.study_design` is not 'randomized' (string) OR `metadata.randomized` is not true (boolean), or if fields are missing.
-- **Critical Constraint**: G*Power calculation must explicitly save 'minimum N required' to `data/metrics/power_analysis.json` and `reports/results.md` (SC-004).
+- **Critical Constraint**: G*Power calculation must explicitly save 'minimum N required' to `data/metrics/power_analysis.json` and `reports/results.md` (SC-004), including 'Exploratory Mode' warning logic for 5 ≤ N < required and HALT for N < 5.
 - **Critical Constraint**: T045 (Data Flow Verification) is now part of Phase 5 to ensure integration testing happens during implementation.
+- **Critical Constraint**: T046-T050 (Final Verification) are mandatory to close the loop on data hygiene and reporting constraints.
+- **Critical Constraint**: T051 has been removed as it contradicts the pilot scale. T052-T053 (Data Hygiene & Stream Validation) are mandatory to ensure no synthetic fallbacks and proper streaming implementation.

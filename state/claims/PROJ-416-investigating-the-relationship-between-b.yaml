@@ -617,3 +617,49 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-20T20:55:37Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: Current sample size of 10 is below minimum required sample size of 20
+  claim_id: c_a85c010f
+  context: 'WARNING: Underpowered for hypothesis testing (Power < 0.8). Current N
+    (10) is below the minimum required (20).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Current N (10) is below the minimum required (20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:40:57Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: modularity coefficient is 0.450 with p-value 0.030 in OLS model
+  claim_id: c_4431891f
+  context: Statistical Results table showing modularity metric results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: modularity | 0.450 | 0.030 | OLS
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:41:12Z'
+- artifact_path: projects/PROJ-416-investigating-the-relationship-between-b/reports/results.md
+  attempts: 1
+  canonical: global_efficiency coefficient is 0.220 with p-value 0.150 in OLS model
+  claim_id: c_e9a8978f
+  context: Statistical Results table showing global_efficiency metric results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global_efficiency | 0.220 | 0.150 | OLS
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:41:30Z'

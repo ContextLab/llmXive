@@ -21,3 +21,9 @@ T040:
   r: "No evidence of a `quickstart.md` file, its validation script, or CI run logs\
     \ is provided; without these artifacts we cannot confirm that the end\u2011to\u2011\
     end flow was executed and passed on CI. The required validation output is missing."
+T048:
+  c: false
+  h: 2c3219ee4bb2c4a35cef56cf5448b8797b9dfdad17c7adcaf7ba189085bec9eb
+  r: The required `data/metrics/power_analysis.json` file does not exist, so its `min_N_required`
+    key cannot be verified, and the `reports/results.md` file is also missing, so
+    no reference to the value can be checked. Both required artifacts are absent.
