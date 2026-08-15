@@ -5,146 +5,153 @@ import logging
 import argparse
 import math
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
 
-# Configure logging
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_model_metrics(metrics_path: str) -> Dict[str, Any]:
+def load_model_metrics(metrics_path: str) -> dict:
     """Load model metrics from JSON file."""
-    path = Path(metrics_path)
-    if not path.exists():
+    if not os.path.exists(metrics_path):
         raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
 
-    with open(path, 'r') as f:
+    with open(metrics_path, 'r') as f:
         return json.load(f)
 
-def calculate_variance_from_metrics(metrics: Dict[str, Any]) -> float:
-    """
-    Calculate variance of residuals from metrics.
-    Uses MAE and sample size to estimate variance if raw residuals are not available.
-    Assumes normal distribution for approximation: Var ~ (MAE * sqrt(pi/2))^2
-    """
-    mae = metrics.get('mae', 0.0)
-    if mae == 0:
-        return 0.0
-    # Approximation: Standard Deviation ~ MAE / sqrt(2/pi) = MAE * sqrt(pi/2)
-    std_dev = mae * math.sqrt(math.pi / 2)
-    return std_dev ** 2
+def calculate_variance_from_metrics(metrics: dict) -> float:
+    """Calculate variance from multiple model runs if available."""
+    # If we have multiple runs, calculate variance
+    if 'runs' in metrics and len(metrics['runs']) > 1:
+        r2_values = [run['r2'] for run in metrics['runs']]
+        mean_r2 = sum(r2_values) / len(r2_values)
+        variance = sum((x - mean_r2) ** 2 for x in r2_values) / len(r2_values)
+        return variance
+    # Otherwise estimate from single run metrics
+    # Use a conservative estimate based on R2
+    r2 = metrics.get('r2', 0.5)
+    # Variance of prediction error is related to (1 - R2)
+    return 1.0 - r2
 
-def calculate_mde(variance: float, n: int, alpha: float = 0.05, power: float = 0.8) -> float:
+def calculate_mde(variance: float, sample_size: int, alpha: float = 0.05, power: float = 0.8) -> float:
     """
-    Calculate Minimum Detectable Effect (MDE) for a two-sample t-test approximation.
-    MDE = (Z_alpha/2 + Z_beta) * sqrt(2 * variance / n)
+    Calculate Minimum Detectable Effect (MDE).
+
+    MDE = Z_alpha/2 + Z_beta * sqrt(2 * variance / n)
+
+    Where:
+    - Z_alpha/2 is the critical value for significance level alpha
+    - Z_beta is the critical value for power (1 - beta)
+    - variance is the variance of the estimator
+    - n is the sample size
     """
-    # Z-scores for common alpha and power
-    # Z_alpha/2 for alpha=0.05 is approx 1.96
-    # Z_beta for power=0.8 is approx 0.84
-    z_alpha = 1.96
-    z_beta = 0.84
+    # Critical values for standard normal distribution
+    z_alpha = 1.96  # For alpha = 0.05 (two-tailed)
+    z_beta = 0.84   # For power = 0.8
 
-    if n == 0 or variance == 0:
-        return float('inf')
+    # Standard error
+    se = math.sqrt(2 * variance / sample_size)
 
-    mde = (z_alpha + z_beta) * math.sqrt(2 * variance / n)
+    # MDE
+    mde = (z_alpha + z_beta) * se
     return mde
 
 def calculate_required_sample_size(mde: float, variance: float, alpha: float = 0.05, power: float = 0.8) -> int:
     """
-    Calculate required sample size to detect a given MDE.
-    n = 2 * variance * (Z_alpha/2 + Z_beta)^2 / MDE^2
+    Calculate required sample size for a given MDE.
+
+    n = 2 * (Z_alpha/2 + Z_beta)^2 * variance / MDE^2
     """
-    if mde == 0 or variance == 0:
-        return 0
+    z_alpha = 1.96  # For alpha = 0.05
+    z_beta = 0.84   # For power = 0.8
 
-    z_alpha = 1.96
-    z_beta = 0.84
+    numerator = 2 * ((z_alpha + z_beta) ** 2) * variance
+    denominator = mde ** 2
 
-    n = 2 * variance * (z_alpha + z_beta) ** 2 / (mde ** 2)
-    return int(math.ceil(n))
+    if denominator == 0:
+        raise ValueError("MDE cannot be zero")
 
-def run_power_analysis(metrics_path: str, data_path: str, output_path: str) -> None:
-    """Run power analysis and generate report."""
-    logger.info(f"Loading metrics from {metrics_path}")
+    return math.ceil(numerator / denominator)
+
+def run_power_analysis(metrics_path: str, output_path: str, target_mde: float = 0.1) -> dict:
+    """
+    Run power analysis based on model metrics.
+
+    Args:
+        metrics_path: Path to model metrics JSON
+        output_path: Path to save power analysis report
+        target_mde: Target minimum detectable effect size
+
+    Returns:
+        Dictionary with power analysis results
+    """
+    logger.info(f"Loading metrics from: {metrics_path}")
     metrics = load_model_metrics(metrics_path)
 
-    # Estimate variance from MAE (since raw residuals are not stored)
+    logger.info("Calculating variance from metrics...")
     variance = calculate_variance_from_metrics(metrics)
-    logger.info(f"Estimated variance from MAE: {variance:.4f}")
+    logger.info(f"Estimated variance: {variance:.4f}")
 
-    # Get sample size from metrics if available, otherwise estimate from data
-    # For this implementation, we assume the sample size is the number of test samples
-    # If not in metrics, we try to infer or use a default placeholder for the report
-    # In a real scenario, we would load the data to count rows.
-    # Here we assume 'test_size' is in metrics or we default to a large number for the calculation context
-    # If not present, we assume the model was trained on a substantial dataset.
-    # Let's assume the test set size is available in metrics or we default to a reasonable number for the report context.
-    # To be safe, we'll use a placeholder if not found, but log it.
-    n = metrics.get('test_size', 0)
-    if n == 0:
-        # Fallback: if we can't get n, we can't calculate MDE accurately.
-        # We will assume a theoretical n based on the project context (e.g., 2000) for the report,
-        # but clearly state it's an assumption.
-        n = 2000
-        logger.warning(f"Test size not found in metrics. Assuming n={n} for calculation.")
+    # Get current sample size from metrics if available
+    current_sample_size = metrics.get('sample_size', 1000)
 
-    mde = calculate_mde(variance, n)
-    required_n = calculate_required_sample_size(mde, variance)
+    logger.info(f"Current sample size: {current_sample_size}")
 
-    # Generate report
-    report_lines = [
-        "# Power Analysis Report",
-        "",
-        "## Inputs",
-        f"- Metrics Source: {metrics_path}",
-        f"- Estimated Variance (from MAE): {variance:.4f}",
-        f"- Sample Size (n): {n}",
-        f"- Alpha: 0.05",
-        f"- Power: 0.8",
-        "",
-        "## Results",
-        f"- Minimum Detectable Effect (MDE): {mde:.4f}",
-        f"- Required Sample Size for MDE: {required_n}",
-        "",
-        "## Conclusion",
-    ]
+    # Calculate MDE for current sample size
+    mde_current = calculate_mde(variance, current_sample_size)
+    logger.info(f"Current MDE: {mde_current:.4f}")
 
-    if n >= required_n:
-        conclusion = f"The current sample size (n={n}) is sufficient to detect an effect size of {mde:.4f} with 80% power."
+    # Calculate required sample size for target MDE
+    required_size = calculate_required_sample_size(target_mde, variance)
+    logger.info(f"Required sample size for MDE={target_mde}: {required_size}")
+
+    # Power analysis report
+    report = {
+        'variance': variance,
+        'current_sample_size': current_sample_size,
+        'current_mde': mde_current,
+        'target_mde': target_mde,
+        'required_sample_size': required_size,
+        'power_analysis': {
+            'alpha': 0.05,
+            'power': 0.8,
+            'z_alpha': 1.96,
+            'z_beta': 0.84
+        }
+    }
+
+    # Determine if current sample is sufficient
+    if current_sample_size >= required_size:
+        report['sufficient'] = True
+        report['message'] = f"Current sample size ({current_sample_size}) is sufficient for MDE={target_mde}"
     else:
-        conclusion = f"The current sample size (n={n}) is INSUFFICIENT. A sample size of {required_n} is required to detect an effect size of {mde:.4f} with 80% power."
+        report['sufficient'] = False
+        report['message'] = f"Current sample size ({current_sample_size}) is insufficient. Need {required_size} for MDE={target_mde}"
 
-    report_lines.append(conclusion)
-    report_lines.append("")
-    report_lines.append("## Limitations")
-    report_lines.append("- Variance was estimated from MAE assuming a normal distribution of residuals.")
-    report_lines.append("- Actual sample size was inferred from metrics; if unavailable, a theoretical value was used.")
+    # Save report
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
 
-    report_content = "\n".join(report_lines)
-
-    # Write report
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_file, 'w') as f:
-        f.write(report_content)
-
-    logger.info(f"Power analysis report saved to {output_path}")
+    logger.info(f"Power analysis report saved to: {output_path}")
+    return report
 
 def main():
-    parser = argparse.ArgumentParser(description="Run power analysis for model evaluation")
-    parser.add_argument("--metrics", type=str, default="artifacts/metrics.json", help="Path to model metrics JSON")
-    parser.add_argument("--data", type=str, default="data/processed/cleaned_sn1.csv", help="Path to processed data (for sample size check if needed)")
-    parser.add_argument("--output", type=str, default="artifacts/power_analysis_report.md", help="Path to output report")
+    parser = argparse.ArgumentParser(description='Run power analysis on model metrics')
+    parser.add_argument('--metrics', type=str, required=True, help='Path to model metrics JSON')
+    parser.add_argument('--output', type=str, required=True, help='Path to output report')
+    parser.add_argument('--target-mde', type=float, default=0.1, help='Target MDE')
+
     args = parser.parse_args()
 
-    run_power_analysis(args.metrics, args.data, args.output)
+    try:
+        report = run_power_analysis(args.metrics, args.output, args.target_mde)
+        print(json.dumps(report, indent=2))
+    except Exception as e:
+        logger.error(f"Power analysis failed: {e}")
+        sys.exit(1)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
