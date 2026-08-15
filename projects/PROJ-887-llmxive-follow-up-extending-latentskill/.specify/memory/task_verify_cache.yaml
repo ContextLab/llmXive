@@ -5,14 +5,16 @@ T001b:
     directories is provided; without file listings or contents we cannot confirm they
     exist or contain even minimal docstrings. The implementer must add and show these
     files.
-T014d:
+T012a:
   c: false
-  h: d3a25ae8e6b817eda42c5bdfc0a819744e1e9bc0d3e06256d0feafe849264cb8
-  r: "The repository contains the `src/retrieval/vector_db.py` script, but the required\
-    \ output file `data/processed/skill_index.npz` is absent, and there is no evidence\
-    \ of the script having been executed, nor any checksum or data\u2011type validation.\
-    \ The task\u2019s core requirement\u2014producing and verifying the static index\
-    \ file\u2014has not been fulfilled."
+  h: 9b7f8214d545f06d9a61e3980fd9e2f78da503e0c449a4efb24aa3b893aa97f1
+  r: The `download_weights.py` script is present but contains placeholder URLs for
+    the arXiv and GitHub fallbacks and is truncated, so it does not fully implement
+    the required fallback logic or raise a `FileNotFoundError` on total failure. Moreover,
+    the expected output files `data/raw/alfworld_weights.npz` and `data/raw/searchqa_weights.npz`
+    are missing, indicating the script has not successfully fetched and saved the
+    real weights. The next implementer must complete the script (real URLs, full fallback
+    handling, proper logging) and ensure the two `.npz` files are created.
 T022d:
   c: false
   h: 744844338eb5a6bd8e20de3fdf6d89b094635d35b8a9532582ab67950513cb7e
@@ -28,14 +30,13 @@ T022e:
     \ actually generate the required `data/processed/eval_tasks.yaml`. Moreover, the\
     \ `eval_tasks.yaml` file does not exist in the repository. The task\u2019s output\
     \ artifact is therefore missing."
-T030:
+T030b:
   c: false
-  h: 31697337b899f18abe6471214bde5c40b27567ac80fc0488cd5a29d5047bd7bf
-  r: "The required `data/processed/known_composites_pairs.yaml` file is absent, so\
-    \ the script cannot read the held\u2011out synthetic pairs. Moreover, the provided\
-    \ `src/validation/linearity_check.py` snippet stops before any logic that computes\
-    \ text\u2011space and weight\u2011space distances or calculates a Pearson correlation,\
-    \ indicating the core functionality is not implemented."
+  h: 81e08ce351492fbfb5c35614b68b06fdef3b503ad7d93b8423b5303f34cfc666
+  r: "The required output file `data/results/linearity_correlation.json` does not\
+    \ exist, and the provided `src/validation/linearity_check.py` (partially shown)\
+    \ does not demonstrate reading a threshold from `config.py` or appending a `linearity_valid`\
+    \ boolean to that JSON file. The task\u2019s core requirement is therefore unmet."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

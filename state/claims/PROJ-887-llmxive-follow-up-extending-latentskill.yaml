@@ -2073,3 +2073,230 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T11:28:54Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Fetch LoRA weights from latent-skills/alfworld-weights and latent-skills/searchqa-weights
+    HuggingFace datasets
+  claim_id: c_768d651d
+  context: 'Phase 3: User Story 1 - Constructing the Skill Vector Database. T012a
+    [US1] Implement src/ingestion/download_weights.py to fetch real LoRA weights.
+    Primary Source: HuggingFace dataset ''latent-skills/alfworld-weights''...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_LoRA_weights_from_latent-skills/alfworld-weights_and_l
+  kind: entity_fact
+  raw_text: 'Implement src/ingestion/download_weights.py to fetch real LoRA weights
+    from HuggingFace dataset ''latent-skills/alfworld-weights'' (path: weights/alfworld/*.npz)
+    and ''latent-skills/searchqa-weights'' (path: weights/searchqa/*.npz).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:39:32Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Generate static CPU-compatible index from flattened LoRA A/B matrices
+    for ALFWorld and Search-QA
+  claim_id: c_df04620f
+  context: 'Phase 3: User Story 1 - Constructing the Skill Vector Database. Goal:
+    Ingest pre-trained LoRA adapters (A and B matrices) from ALFWorld and Search-QA,
+    flatten them into normalized high-dimensional vectors, and generate a static CPU-compatible
+    index.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_static_CPU-compatible_index_from_flattened_LoRA_A/B
+  kind: entity_fact
+  raw_text: Generate a static CPU-compatible index by flattening pre-trained LoRA
+    adapters (A and B matrices) from ALFWorld and Search-QA into normalized high-dimensional
+    vectors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:42:48Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Use all-MiniLM-L6-v2 model for query vector generation
+  claim_id: c_bce2e7d1
+  context: 'Phase 4: User Story 2 - Executing Retrieval and Interpolation Strategies.
+    T019 [US2] Implement src/retrieval/query.py (FR-002) to generate query vectors
+    using a lightweight sentence-transformer model (all-MiniLM-L6-v2).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_all-MiniLM-L6-v2_model_for_query_vector_generation
+  kind: entity_fact
+  raw_text: Use the 'all-MiniLM-L6-v2' model to generate query vectors for the Skill
+    Vector Database.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:43:07Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Select 20 random pairs of base skills with seed 42 for composite task
+    generation
+  claim_id: c_b5e5c877
+  context: 'Phase 4: User Story 2. T022g1 [US2] Implement src/validation/generate_eval_tasks.py
+    to generate held-out composite task descriptions by: (1) Selecting exactly 20
+    random pairs of base skills from the Skill Vector Database (T014d) with seed 42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 20 random pairs of base skills from the Skill Vector Database
+    with seed 42 to generate held-out composite task descriptions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:43:35Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Convert TinyLlama/TinyLlama-1B-Chat-v1.0 to GGUF format
+  claim_id: c_2e0818c0
+  context: 'Phase 5: User Story 3. T026a1 [US3] Download and convert the base LLM
+    to GGUF format. Action: Use llama.cpp''s convert-hf-to-gguf.py script: python
+    convert-hf-to-gguf.py --model TinyLlama/TinyLlama-1B-Chat-v1.0 --outfile model.gguf.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use TinyLlama/TinyLlama-1B-Chat-v1.0 as the base LLM, converting it to
+    GGUF format.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:43:54Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Fallback to Phi-2:3b quantized if model exceeds 7GB RAM
+  claim_id: c_bfa5e48c
+  context: 'Phase 5: User Story 3. T026a1 [US3] ...Pre-check: Verify the model size
+    fits within 7GB RAM using os.path.getsize on the downloaded file; if not, select
+    Phi-2:3b (quantized) as fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Phi-2:3b (quantized) as a fallback if TinyLlama does not fit within
+    7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:44:11Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Execute 5 or more independent runs per task for binary outcome recording
+  claim_id: c_07c28b90
+  context: 'Phase 5: User Story 3. T027 [US3] Implement src/evaluation/runner.py loop
+    to execute N >= 5 independent runs per task (FR-008) and record binary outcomes,
+    calculating the mean of these outcomes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run N >= 5 independent runs per task to record binary outcomes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:44:34Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Perform sensitivity analysis for k values 1, 3, 5, and 10
+  claim_id: c_c5d2c8a4
+  context: 'Phase 5: User Story 3. T031a [US3] Implement src/evaluation/run_sensitivity_sweep.py
+    to perform descriptive analysis of sensitivity results for k in {1, 3, 5, 10}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform sensitivity analysis for k values in the set {1, 3, 5, 10}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:46:16Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg correction to p-values
+  claim_id: c_b67fccbd
+  context: 'Phase 5: User Story 3. T058 [US3] ...Apply Benjamini-Hochberg correction
+    to these sensitivity p-values as required by FR-006. ... T057 [US3] ...Apply Benjamini-Hochberg
+    correction to the combined set of primary p-values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Benjamini-Hochberg_correction_to_p-values
+  kind: entity_fact
+  raw_text: Apply Benjamini-Hochberg correction to p-values for sensitivity analysis
+    and primary comparisons.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:46:38Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Implement 30-second timeout for ALFWorld run_task
+  claim_id: c_f0efe8ac
+  context: 'Phase 7: Revision - Data Source & Execution Robustness. T041 [US3] ...Wrap
+    the run_task call in a multiprocessing.Process with a 30-second timeout.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a 30-second timeout for the ALFWorld environment run_task call.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:46:51Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if disk space is below 500MB
+  claim_id: c_29b1977a
+  context: 'Phase 8: Revision - Execution Safety & Edge Case Handling. T047 [US3]
+    ...If free space < 500MB, raise RuntimeError to prevent partial writes.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_RuntimeError_if_disk_space_is_below_500MB
+  kind: magnitude
+  raw_text: Raise a RuntimeError if free disk space is less than 500MB before writing
+    large adapter files or logs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:47:47Z'
+- artifact_path: projects/PROJ-887-llmxive-follow-up-extending-latentskill/specs/001-llmxive-follow-up-extending-latentskill/tasks.md
+  attempts: 1
+  canonical: Skip statistical test if group variance is zero
+  claim_id: c_3d9a5337
+  context: 'Phase 8: Revision - Execution Safety & Edge Case Handling. T050 [US3]
+    ...If variance is zero in a group, skip the t-test/Wilcoxon for that pair and
+    log Warning: Zero variance in group, statistical test skipped.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Skip_statistical_test_if_group_variance_is_zero
+  kind: entity_fact
+  raw_text: Log a warning and skip statistical testing if variance is zero in a group.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T15:48:31Z'

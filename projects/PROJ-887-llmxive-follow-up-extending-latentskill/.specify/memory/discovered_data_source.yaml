@@ -1,0 +1,13 @@
+status: none
+intent: LatentSkill LoRA adapters ALFWorld Search-QA HuggingFace python package dataset
+required_fields:
+- skill_id
+- task_description
+- benchmark
+- adapter_A_matrix
+- adapter_B_matrix
+- flattened_vector
+- normalized_vector
+cache_key: d4fd789bce4750831a0170e242cfdf1dc303e9d20547d900696eeeb983283bd2
+searched_at: '2026-08-15T15:31:17.629489+00:00'
+retry_count: 1
