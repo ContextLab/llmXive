@@ -13,9 +13,16 @@ properties:
   gcn_prediction:
     type: "number"
     description: "Prediction from the Graph Convolutional Network."
+  baseline_prediction:
+    type: "number"
+    description: "Prediction from the 2D Topology Baseline."
   gcn_error:
     type: "number"
     description: "Absolute error of the GCN model."
+    minimum: 0
+  baseline_error:
+    type: "number"
+    description: "Absolute error of the Baseline model."
     minimum: 0
   split:
     type: "string"
@@ -27,6 +34,8 @@ required:
   - mol_id
   - true_surface_area
   - gcn_prediction
+  - baseline_prediction
   - gcn_error
+  - baseline_error
   - split
 additionalProperties: false

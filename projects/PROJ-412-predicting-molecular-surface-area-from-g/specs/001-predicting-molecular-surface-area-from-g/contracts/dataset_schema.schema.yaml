@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Paired Dataset Schema
+description: Schema for data/processed/paired_dataset.parquet
+type: object
+properties:
+  smiles:
+    type: string
+    description: SMILES string of the molecule
+  node_features:
+    type: array
+    description: List of node feature vectors (N_atoms x D_features)
+    items:
+      type: array
+      items:
+        type: number
+  edge_index:
+    type: array
+    description: List of edge indices (2 x N_edges)
+    items:
+      type: integer
+  edge_features:
+    type: array
+    description: List of edge feature vectors (N_edges x D_edge_features)
+    items:
+      type: array
+      items:
+        type: number
+  target_sasa:
+    type: number
+    description: Ground truth 3D Solvent Accessible Surface Area (Å²)
+  split:
+    type: string
+    enum:
+      - train
+      - test
+    description: Data split assignment
+  molecular_weight:
+    type: number
+    description: Molecular weight in g/mol
+required:
+  - smiles
+  - node_features
+  - edge_index
+  - edge_features
+  - target_sasa
+  - split
+  - molecular_weight
+additionalProperties: false

@@ -20,6 +20,23 @@ properties:
       - mae
       - rmse
       - r2
+  baseline:
+    type: "object"
+    description: "2D Topology Baseline (GBR on 2D descriptors) metrics"
+    properties:
+      mae:
+        type: "number"
+        description: "Mean Absolute Error in Å²"
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error in Å²"
+      r2:
+        type: "number"
+        description: "Coefficient of determination"
+    required:
+      - mae
+      - rmse
+      - r2
   oracle:
     type: "object"
     description: "Geometry Oracle (Direct 3D Computation) metrics"
@@ -39,11 +56,11 @@ properties:
       - r2
   comparison:
     type: "object"
-    description: "Statistical comparison between GCN and Oracle"
+    description: "Statistical comparison between GCN and 2D Topology Baseline"
     properties:
       p_value:
         type: "number"
-        description: "P-value from one-sample test (t-test or Wilcoxon)"
+        description: "P-value from paired t-test"
       statistic:
         type: "number"
         description: "Test statistic value"
@@ -78,6 +95,7 @@ properties:
         - adjusted_p_value
 required:
   - gcn
+  - baseline
   - oracle
   - comparison
   - sensitivity

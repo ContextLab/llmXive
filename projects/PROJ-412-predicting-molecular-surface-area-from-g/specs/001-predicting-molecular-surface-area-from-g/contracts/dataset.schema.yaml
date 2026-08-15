@@ -41,9 +41,13 @@ properties:
         type: "integer"
       energyMinSteps:
         type: "integer"
+  scaffold_id:
+    type: "string"
+    description: "Bemis-Murcko scaffold identifier for splitting"
 required:
   - smiles
   - sasa
   - num_atoms
   - conformer_failed
+  - scaffold_id
 additionalProperties: false

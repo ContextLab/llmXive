@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Results Schema
+description: Schema for results/predictions/predictions.parquet
+type: object
+properties:
+  smiles:
+    type: string
+    description: SMILES string
+  true_sasa:
+    type: number
+    description: Actual SASA
+  gcn_pred:
+    type: number
+    description: GCN prediction
+  baseline_pred:
+    type: number
+    description: 2D Topology Baseline prediction
+  gcn_error:
+    type: number
+    description: Absolute error of GCN
+  baseline_error:
+    type: number
+    description: Absolute error of Baseline
+  success_gcn:
+    type: boolean
+    description: True if gcn_error < threshold
+  success_baseline:
+    type: boolean
+    description: True if baseline_error < threshold
+required:
+  - smiles
+  - true_sasa
+  - gcn_pred
+  - baseline_pred
+  - gcn_error
+  - baseline_error
+  - success_gcn
+  - success_baseline
+additionalProperties: false

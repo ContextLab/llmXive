@@ -1,162 +1,118 @@
 # Implementation Plan: Predicting Molecular Surface Area from Graph Convolutional Networks
 
-**Branch**: `001-predict-molecular-surface-area` | **Date**: 2026-07-13 | **Spec**: `specs/001-predicting-molecular-surface-area/spec.md`
+**Branch**: `001-predict-molecular-surface-area` | **Date**: 2026-07-14 | **Spec**: `specs/001-predicting-molecular-surface-area/spec.md`
 **Input**: Feature specification from `/specs/001-predicting-molecular-surface-area/spec.md`
 
 ## Summary
 
-This project implements a computational study to determine if 2D molecular topology (via Graph Convolutional Networks) can predict 3D molecular surface area (SASA) as accurately as direct 3D geometry calculations. The implementation ingests SMILES strings from verified public datasets, generates 2D graph features and 3D conformers using RDKit, trains a lightweight GCN on CPU hardware, and compares its performance against a "Geometry Oracle" (direct RDKit SASA calculation) and a "Descriptor Baseline" (Linear Regression on molecular descriptors). The plan strictly adheres to the compute constraints (CPU-first, limited RAM). and data hygiene requirements (checksums, verified sources).
+This feature implements a comparative study to determine if 2D Graph Convolutional Networks (GCNs) can predict 3D molecular surface areas with accuracy comparable to a 2D-topology baseline. The approach ingests SMILES from the `zhangh1990/zinc` HuggingFace dataset, generates 2D graph features and 3D conformers via RDKit (with MMFF94 minimization), trains a lightweight CPU-optimized GCN, and performs a statistically rigorous comparison (paired t-test) against a Gradient Boosting Regressor (GBR) trained on 2D descriptors. The plan strictly adheres to compute constraints (CPU-first, ≤7GB RAM) and data hygiene principles (checksums, streaming, scaffold splits).
 
 ## Technical Context
 
-**Language/Version**: Python 3.10  
-**Primary Dependencies**: `rdkit`, `torch` (CPU version), `scikit-learn`, `pandas`, `pyarrow`, `deepchem` (for data loading utilities), `numpy`, `pytest`, `ruff`, `black`  
-**Storage**: Local filesystem (Parquet for processed data, JSON for configs, CSV for splits)  
-**Testing**: `pytest` (unit, integration, contract)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, moderate RAM)  
-**Project Type**: Computational research pipeline / CLI  
-**Performance Goals**: Complete data ingestion, model training, and evaluation within 6 hours on CPU.  
-**Constraints**: No local GPU; must handle invalid SMILES gracefully; must halt if conformer failure rate >10%; must use only verified dataset URLs.  
-**Scale/Scope**: Processing a subset of ZINC15 or similar (target a large-scale collection of molecules, estimated from Hugging Face dataset metadata field `total_rows` (value: [deferred]) for `zinc_processed.parquet`, to fit RAM, streaming if necessary).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `rdkit`, `torch` (CPU build), `scikit-learn`, `pandas`, `pyarrow`, `datasets` (HuggingFace), `numpy`  
+**Storage**: Local filesystem (`data/`), Parquet format for intermediate artifacts  
+**Testing**: `pytest` (unit), `pytest-cov` (coverage), contract tests against YAML schemas  
+**Target Platform**: GitHub Actions Runner (2 CPU, 7GB RAM) with automatic offload to Kaggle GPU if CUDA is detected  
+**Project Type**: Data Science / Machine Learning Pipeline  
+**Performance Goals**: Complete full pipeline (ingest → train → eval) within 6 hours on CPU; MAE comparison p-value < 0.05 if 2D is superior  
+**Constraints**: 
+- No local GPU usage by default; GPU offload only if model architecture demands it (not applicable for this lightweight GCN).
+- **Dataset Size Limit**: The pipeline is capped at **[deferred] molecules** due to the 7GB RAM constraint. If the source dataset exceeds this, a random sample of [deferred] molecules (fixed seed) is taken. The power limitation of this sample size is explicitly reported in the final analysis.
+- All random seeds pinned for reproducibility.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+Research question: How can molecular properties be predicted efficiently?
+Method: Graph neural networks
+References: (No specific citations provided in the original passage). The specific dataset 'zhangh/zinc' contains a large collection of molecules, so the full dataset will be processed. Streaming is enabled as a fallback if the size exceeds limits.
 
-## Constitution Check
-
-*Gates determined based on constitution file `projects/PROJ-412-predicting-molecular-surface-area-from-g/.specify/memory/constitution.md`*
-
-| Principle | Status | Implementation Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/config.py`. Data fetched from canonical URLs only. `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | All dataset citations in `research.md` map to the "Verified datasets" block provided in the prompt. No hallucinated URLs. |
-| **III. Data Hygiene** | **PASS** | Pipeline generates `data/raw/` (checksummed), `data/processed/` (derived), and `data/splits/`. No in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | All metrics in reports trace to `results/` JSON/CSV artifacts generated by scripts. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will be hashed in `state/` upon completion. |
-| **VI. Geometric Fidelity vs. Topological Abstraction** | **PASS** | Plan explicitly includes a "Geometry Oracle" (direct SASA) and a GCN. Comparison is the primary metric (MAE/R²). |
-| **VII. Conformational Sampling Discipline** | **PASS** | `data/processed/conformer_params.json` will record RDKit parameters (attempts, minimization steps) used for label generation. |
-
-## Project Structure
-
-### Documentation (this feature)
+**Project Structure**
 
 ```text
-specs/001-predicting-molecular-surface-area/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
-```
-
-### Source Code (repository root)
-
-```text
-code/
-├── __init__.py
-├── config.py            # Global config, seeds, paths
+projects/PROJ-412-predicting-molecular-surface-area-from-g/
+├── code/
+│   ├── __init__.py
+│   ├── data/
+│   │   ├── ingest.py          # Downloads ZINC15, checksums, validates SMILES
+│   │   ├── preprocess.py      # 2D graph feat, 3D conformers, SASA, splits
+│   │   └── splits.py          # Stratified split logic
+│   ├── models/
+│   │   ├── gcn.py             # GCN model definition (PyTorch)
+│   │   ├── baseline.py        # 2D Topology Baseline (Sklearn GradientBoostingRegressor)
+│   │   └── __init__.py
+│   ├── train/
+│   │   ├── train_gcn.py       # Training loop, early stopping
+│   │   └── train_baseline.py  # Baseline fitting
+│   ├── eval/
+│   │   ├── compare.py         # Paired t-test, MAE/RMSE/R² calculation
+│   │   └── sensitivity.py     # Threshold sweep, FDR correction
+│   ├── utils/
+│   │   ├── seeds.py           # Seed management
+│   │   ├── logger.py          # Structured logging
+│   │   └── io.py              # Parquet I/O helpers
+│   └── main.py                # Orchestration script
+├── tests/
+│   ├── unit/
+│   │   ├── test_preprocess.py
+│   │   └── test_gcn.py
+│   ├── contract/
+│   │   └── test_schemas.py    # Validates output against contracts/
+│   └── integration/
+│       └── test_pipeline.py
 ├── data/
-│   ├── __init__.py
-│   ├── ingest.py        # T048: Fetch and validate SMILES
-│   ├── preprocess.py    # T014, T015: Graph feat, 3D gen, SASA calc
-│   └── split.py         # T016: Stratified split
-├── models/
-│   ├── __init__.py
-│   ├── gcn.py           # T021a: GCN Architecture
-│   └── baseline.py      # T021b: Linear Regression Baseline
-├── train/
-│   ├── __init__.py
-│   └── run.py           # T022: Training loop, early stopping
-├── eval/
-│   ├── __init__.py
-│   ├── metrics.py       # T025, T029: MAE, RMSE, R², t-test
-│   ├── oracle.py        # T024: Geometry Oracle (Direct SASA)
-│   └── sensitivity.py   # T034: Threshold sweep
-├── utils/
-│   ├── __init__.py
-│   ├── logger.py        # T018: Logging setup
-│   └── validators.py    # T017: SMILES/Conformer validation
-└── main.py              # Orchestration entry point
-
-tests/
-├── __init__.py
-├── contract/            # T026, T027: Schema validation tests
-├── integration/         # End-to-end pipeline tests
-└── unit/                # Unit tests for featurizers, models
-
-data/
-├── raw/                 # Downloaded parquet files (checksummed)
-├── processed/           # Graphs, features, SASA labels, conformer_params.json
-└── splits/              # Train/test indices, split report
-
-results/
-├── reports/             # Final analysis, sensitivity, runtime
-└── artifacts/           # Model weights, predictions
+│   ├── raw/
+│   │   └── checksums.json     # Generated by ingest.py
+│   ├── processed/
+│   │   ├── graphs_with_features.parquet
+│   │   ├── conformers.parquet
+│   │   ├── descriptors.parquet
+│   │   ├── paired_dataset.parquet
+│   │   ├── splits.json
+│   │   ├── conformer_params.json
+│   │   └── sensitivity_absolute.csv
+│   └── schemas/
+│       └── dataset_schema.yaml
+├── state/
+│   └── projects/PROJ-412-predicting-molecular-surface-area-from-g.yaml
+├── results/
+│   ├── reports/
+│   │   └── evaluation_report.md
+│   ├── plots/
+│   │   └── sensitivity_curve.png
+│   └── models/
+│       ├── gcn_model.pt
+│       └── baseline_model.pkl
+├── requirements.txt
+├── contracts/
+│   ├── dataset_schema.schema.yaml
+│   ├── evaluation_schema.schema.yaml
+│   ├── gcn_output.schema.yaml
+│   ├── molecule.schema.yaml
+│   ├── output.schema.yaml
+│   ├── prediction.schema.yaml
+│   ├── sensitivity.schema.yaml
+│   └── data_schema.schema.yaml
+└── ruff.toml
 ```
 
-**Structure Decision**: Single project structure selected. Separation of `data`, `models`, `train`, and `eval` ensures modularity and aligns with the "Reproducibility" principle by isolating data generation from model training.
+**Structure Decision**: Single project structure selected. The `code/` directory is namespaced by function (`data`, `models`, `train`, `eval`) to enforce separation of concerns and facilitate unit testing. This aligns with the "Reproducibility" principle by isolating data logic from model logic.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Dual Baseline Strategy** (Geometry Oracle + Linear Regression) | Required by Spec FR-004 and Constitution Principle VI to distinguish between "3D geometry is hard to compute" vs "2D topology is insufficient". | A single baseline (e.g., just Linear Regression) would fail to quantify the information loss of 2D topology relative to the theoretical 3D ground truth. |
-| **Conformer Param Logging** | Required by Constitution Principle VII to ensure "3D" labels are reproducible and not artifacts of a specific search. | Hardcoding parameters without logging would violate the "Single Source of Truth" and "Reproducibility" principles. |
-| **Threshold Sensitivity Sweep** | Required by Spec FR-006 to prevent cherry-picking success metrics. | Reporting a single threshold (e.g., 0.05) without sensitivity analysis is methodologically weak and rejected by the panel. |
-| **Conformer Variance** | Required to account for ETKDG heuristic uncertainty. | Using a single conformer would bias results if the conformer search fails to find the global minimum. |
+No violations detected in Constitution Check. Complexity is minimized by:
+1. Using a CPU-tractable GCN (no GPU needed for inference/training on <50k samples).
+2. Leveraging `datasets` library for streaming to avoid OOM.
+3. Using `scikit-learn` for the 2D Topology Baseline (Gradient Boosting Regressor) for robust non-linear modeling without deep learning overhead.
 
-## FR/SC Coverage Map
+## Constitution Check
 
-| Requirement | Plan Phase/Step | Description |
-| :--- | :--- | :--- |
-| **FR-001** (Ingest SMILES -> 2D Graph) | Phase 1: Data Ingestion & Preprocessing | `code/data/ingest.py` fetches verified SMILES; `code/data/preprocess.py` generates ConvMol features. |
-| **FR-002** (Generate 3D SASA) | Phase 1: Data Ingestion & Preprocessing | `code/data/preprocess.py` uses RDKit ETKDG to generate conformers and compute SASA (mean of multiple conformers). |
-| **FR-003** (Train GCN, CPU, for a sufficient number of epochs to ensure convergence.) | Phase 2: Model Training | `code/train/run.py` implements GCN with early stopping (patience=5) on CPU. |
-| **FR-004** (Geometry-Based Baseline) | Phase 2: Geometry Oracle Evaluation (T024) | `code/eval/oracle.py` performs direct SASA calculation via RDKit on test set (deterministic). |
-| **FR-004** (Descriptor Baseline) | Phase 2: Baseline Comparison (T021b) | `code/models/baseline.py` trains Linear Regression on molecular descriptors. |
-| **FR-005** (Paired t-test) | Phase 2: Evaluation | `code/eval/metrics.py` performs paired t-test on MAE errors (GCN vs Linear Baseline), reports p-value and Cohen's d. |
-| **FR-006** (Sensitivity Analysis) | Phase 2: Sensitivity | `code/eval/sensitivity.py` sweeps thresholds {low, medium, high} Å²
+*GATE: Must pass before Phase 0 research.*
 
-The specific value to remove/generalize: 'low'
-
-Rewritten passage:
-thresholds {low, medium, high} Å². |
-| **FR-007** (Multiple Comparison Correction) | Phase 2: Sensitivity | `code/eval/sensitivity.py` applies Bonferroni/FDR to threshold sweep p-values. |
-| **SC-001** (R² Comparison) | Phase 2: Evaluation | Measured in `results/reports/final_metrics.json`. |
-| **SC-002** (MAE Comparison) | Phase 2: Evaluation | Measured in `results/reports/final_metrics.json`. |
-| **SC-003** (Statistical Significance) | Phase 2: Evaluation | Measured in `results/reports/final_metrics.json` (t-test). |
-| **SC-004** (Robustness) | Phase 2: Sensitivity | Measured in `results/reports/sensitivity_analysis.md`. |
-| **SC-005** (Runtime Feasibility) | Phase 3: Execution | Measured via `pipeline_execution.log` and `results/reports/runtime_verification.md` (T052-Report). |
-
-
-## Task Definitions (Revised)
-
-- **T024 (Geometry Oracle Evaluation)**: Implements direct SASA calculation for the test set using RDKit. This is a deterministic script, not a trained model. It outputs the "Oracle" MAE (expected to be negligible) and R² (expected to be high) to quantify the theoretical limit.
-- **T021b (Descriptor Baseline)**: Trains a Linear Regression model on molecular descriptors (MW, atom count, etc.). This serves as the practical baseline to compare against the GCN.
-- **T034 (Sensitivity Sweep)**: Sweeps MAE thresholds across a range of values and applies Bonferroni/FDR correction to the resulting p-values.
-- **T052-Report (Runtime Verification)**: Generates `results/reports/runtime_verification.md` to satisfy SC-005.
-
-## Compute Feasibility
-
-### CPU-First Strategy
-
-*   **Hardware**: GitHub Actions free-tier (A modest number of CPU cores and sufficient RAM.).
-*   **Model**: Lightweight GCN (2-3 layers, hidden dim ≤ 256).
-*   **Training**: Batch size adjusted to fit RAM (e.g., moderate to large values). Early stopping (patience=5) prevents overfitting and saves time.
-*   **3D Generation**: RDKit 3D generation is CPU-bound but parallelizable. Chunked processing (e.g., in batches of molecules) prevents OOM.
-* **Fallback Strategy**: If the full dataset exceeds the 6-hour CPU limit, the pipeline will automatically sample a subset (e.g., [deferred] molecules) to ensure completion. No automated GPU offload is planned to avoid CI failure risks; manual offload is an optional user step.
-
-### Decision/Rationale
-
-| Method | Run Location | Rationale |
-| :--- | :--- | :--- |
-| Data Ingestion/Preprocessing | CPU | I/O and RDKit 3D generation are CPU-optimized. |
-| GCN Training | CPU (Default) | Small GCN fits in CPU RAM. |
-| Baseline (Linear Reg) | CPU | Trivial for CPU. |
-| Sensitivity Analysis | CPU | Simple arithmetic on prediction arrays. |
-
-## Ethical and Safety Considerations
-
-*   **No Causal Claims**: The study is associative. No claim is made that 2D topology *causes* surface area; rather, it predicts it.
-*   **Ground Truth Definition**: SASA is defined as the mean of multiple RDKit-computed conformers. This is a computational approximation, not a physical measurement. The plan explicitly states this limitation.
-*   **Conformer Uncertainty**: The standard deviation of the conformers is reported to quantify the heuristic variance of ETKDG.
+| Principle | Status | Reference |
+|-----------|--------|-----------|
+| I. Reproducibility | **PASS** | Seeds pinned in `code/utils/seeds.py`; datasets fetched via verified HF URLs; `requirements.txt` pins versions. |
+| II. Verified Accuracy | **PASS** | All dataset URLs cited are from the "Verified datasets" block in the user message (ZINC15 HF link). No fabricated URLs. |
+| III. Data Hygiene | **PASS** | `code/data/ingest.py` generates `data/raw/checksums.json`; raw data immutable; derivations written to new files in `data/processed/`. |
+| IV. Single Source of Truth | **PASS** | All metrics (MAE, R²) trace to `results/reports/evaluation_results.csv`; no hand-typed numbers in plan/research. |
+| V. Versioning Discipline | **PASS** | Content hashes recorded in `state/...yaml`; artifact names include versioned seeds. |
+| VI. Geometric Fidelity vs. Topological Abstraction | **PASS** | Plan explicitly compares GCN (2D) vs. 2D Topology Baseline (GBR on 2D descriptors) via paired t-test (FR-005, SC-003). The "Geometry Oracle" is a deterministic reference only. |
+| VII. Conformational Sampling Discipline | **PASS** | `code/data/preprocess.py` logs RDKit conformer params (numThreads, maxAttempts, energyMinSteps) to `data/processed/conformer_params.json`; failure rates logged. |

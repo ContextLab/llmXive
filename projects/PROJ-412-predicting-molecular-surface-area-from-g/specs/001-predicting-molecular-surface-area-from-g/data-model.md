@@ -1,76 +1,99 @@
 # Data Model: Predicting Molecular Surface Area from Graph Convolutional Networks
 
+## Overview
+
+This document defines the data schemas for the molecular surface area prediction pipeline. It ensures data integrity, type safety, and reproducibility across the ingestion, preprocessing, and evaluation stages. All data is stored in Parquet format (for tabular data) or JSON (for configuration).
+
 ## Entity Definitions
 
-### 1. Molecule
-Represents a single chemical compound in the dataset.
-- **Attributes**:
-  - `smiles` (string): Canonical SMILES string.
-  - `molecular_weight` (float): Calculated molecular weight (g/mol).
-  - `num_atoms` (int): Number of atoms in the molecule.
-  - `sasa_label` (float): Solvent Accessible Surface Area in Å² (computed via RDKit 3D).
-  - `conformer_success` (bool): True if 3D conformer was successfully generated.
-  - `exclusion_reason` (string, optional): Reason for exclusion (e.g., "Invalid SMILES", "Conformer Fail").
+### 1. Raw Molecule (Ingestion)
+- **Source**: ZINC15 HuggingFace dataset (`zhangh1990/zinc`).
+- **Format**: Parquet (streamed).
+- **Key Fields**:
+  - `smiles`: String (SMILES notation).
+  - `molecular_weight`: Float (computed by RDKit).
+  - `scaffold_id`: String (Bemis-Murcko scaffold for splitting).
 
-### 2. GraphFeature
-Represents the 2D topological representation of a Molecule.
-- **Attributes**:
-  - `molecule_id` (string): Reference to Molecule SMILES.
-  - `node_features` (array): Flattened array of atom features (type, hybridization, charge, etc.).
-  - `edge_index` (array): Connectivity matrix (source, target).
-  - `edge_features` (array): Bond features (type, conjugation, etc.).
+### 2. Graph Features (2D)
+- **Source**: Derived from `smiles` via RDKit.
+- **Format**: Parquet (`data/processed/graphs_with_features.parquet`).
+- **Structure**:
+  - `smiles`: String.
+  - `node_features`: List[List[Float]] (N_atoms x D_features).
+  - `edge_index`: List[List[Int]] (2 x N_edges).
+  - `edge_features`: List[List[Float]] (N_edges x D_edge_features).
+  - `molecular_weight`: Float.
+  - `num_atoms`: Int.
+  - `excluded_reason`: String (if applicable, e.g., "invalid_smiles", "too_large").
 
-### 3. PredictionResult
-Represents the output of a model inference.
-- **Attributes**:
-  - `molecule_id` (string): Reference to Molecule SMILES.
-  - `model_type` (string): "GCN" or "Baseline".
-  - `predicted_sasa` (float): Predicted surface area.
-  - `error` (float): Absolute error (`|predicted - actual|`).
-  - `threshold_status` (string): "Pass" or "Fail" based on current threshold.
+### 3. 3D Conformers & Labels
+- **Source**: RDKit 3D generation with MMFF94 minimization.
+- **Format**: Parquet (`data/processed/conformers.parquet` and `data/processed/descriptors.parquet`).
+- **Conformer Fields**:
+  - `smiles`: String.
+  - `conformer_id`: Int.
+  - `sasa`: Float (Solvent Accessible Surface Area, computed from minimized conformer).
+  - `volume`: Float.
+  - `radius_of_gyration`: Float.
+  - `generation_status`: String ("success", "failed").
+  - `failure_reason`: String (if failed).
+- **Descriptor Fields** (for Baseline):
+  - `smiles`: String.
+  - `num_atoms`: Int.
+  - `num_bonds`: Int.
+  - **Note**: The `sasa` value is **NOT** included as a feature for the baseline model to prevent tautological prediction. The baseline uses 2D descriptors only.
 
-### 4. TrainingConfig
-Represents the hyperparameters used for a specific run.
-- **Attributes**:
-  - `seed` (int): Random seed.
-  - `epochs` (int): Max epochs.
-  - `batch_size` (int): Batch size.
-  - `learning_rate` (float).
-  - `conformer_params` (dict): RDKit parameters used (attempts, energy minimization steps).
+### 4. Paired Dataset (Training/Testing)
+- **Source**: Merge of Graph Features and 3D Labels.
+- **Format**: Parquet (`data/processed/paired_dataset.parquet`).
+- **Fields**:
+  - `smiles`: String.
+  - `node_features`: List[List[Float]].
+  - `edge_index`: List[List[Int]].
+  - `edge_features`: List[List[Float]].
+  - `target_sasa`: Float.
+  - `split`: String ("train", "test").
+  - `molecular_weight`: Float.
+  - `scaffold_id`: String.
+
+### 5. Evaluation Results
+- **Source**: Model predictions vs. Ground Truth.
+- **Format**: Parquet (`results/predictions/predictions.parquet`) and CSV (`results/reports/evaluation_results.csv`).
+- **Fields**:
+  - `smiles`: String.
+  - `true_sasa`: Float.
+  - `gcn_pred`: Float.
+  - `baseline_pred`: Float.
+  - `gcn_error`: Float.
+  - `baseline_error`: Float.
+  - `success_gcn`: Boolean (error < threshold).
+  - `success_baseline`: Boolean (error < threshold).
 
 ## Data Flow Diagram
 
 ```mermaid
 graph TD
-    A[Raw SMILES Parquet] -->|Ingest & Validate| B[Valid SMILES List]
-    B -->|2D Graph Featurization| C[Graph Features]
-    B -->|3D Conformer Gen| D[3D Conformers]
-    D -->|SASA Calc| E[SASA Labels]
-    C & E -->|Merge & Split| F[Processed Dataset]
-    F -->|Train| G[GCN Model]
-    F -->|Baseline| H[Linear Reg Model]
-    G & H -->|Evaluate| I[Prediction Results]
-    I -->|Sensitivity Sweep| J[Sensitivity Report]
-    I -->|Stats Test| K[Final Metrics Report]
+    A[ZINC15 Raw] -->|Ingest| B(Raw Parquet)
+    B -->|Validate| C{Valid SMILES?}
+    C -->|No| D[Exclude & Log]
+    C -->|Yes| E[2D Graph Features]
+    E --> F[Graph Parquet]
+    F -->|3D Gen + Minimization| G{Conformer Success?}
+    G -->|No| D
+    G -->|Yes| H[3D Descriptors & SASA]
+    H --> I[Descriptos Parquet]
+    F & I -->|Merge| J[Paired Dataset]
+    J -->|Scaffold Split| K[Train/Test Splits]
+    K --> L[GCN Training]
+    K --> M[Baseline Training]
+    L & M --> N[Evaluation]
+    N --> O[Predictions & Metrics]
 ```
 
-## Storage Schema
+## Constraints & Invariants
 
-### Raw Data (`data/raw/`)
-- `zinc_processed.parquet`: Original downloaded file.
-- `checksums.json`: SHA256 hashes of raw files.
-
-### Processed Data (`data/processed/`)
-- `graphs_with_features.parquet`: Merged SMILES, Graph Features, and SASA Labels.
-- `conformer_params.json`: JSON file recording RDKit parameters used.
-- `failure_report.csv`: Log of molecules excluded due to conformer failure.
-
-### Splits (`data/splits/`)
-- `train_indices.csv`: List of SMILES in training set.
-- `test_indices.csv`: List of SMILES in test set.
-- `split_report.json`: KS test p-value, distribution stats.
-
-### Results (`results/`)
-- `final_metrics.json`: MAE, RMSE, R², t-test p-value, effect size.
-- `sensitivity_analysis.csv`: Success rates at each threshold.
-- `runtime_verification.md`: Total pipeline runtime.
+1.  **No NaN in Target**: `target_sasa` must be non-null for all training samples.
+2.  **Stratified & Scaffold Split**: The distribution of `molecular_weight` and `scaffold_id` in train/test must satisfy KS test p-value > 0.05 and ensure structural novelty.
+3.  **Atom Limit**: Molecules with `num_atoms` > 100 are excluded (to fit RAM).
+4.  **Checksum**: Raw data files must match the checksum in `data/raw/checksums.json`.
+5.  **Feature Exclusion**: The `sasa` value is excluded from the feature set for the baseline model to prevent tautological prediction.

@@ -1,25 +1,12 @@
-status: verified
-kind: pypi_package
-ref: deepchem
-access_python: "import deepchem as dc\n\n# Load a small MolNet dataset (QM7) with\
-  \ a simple graph featurizer\nfeaturizer = dc.feat.ConvMolFeaturizer()\ntasks, (train,\
-  \ valid, test), transformers = dc.molnet.load_qm7(featurizer=featurizer, split='random')\n\
-  \n# Number of records in the training split\nrecords = len(train)\nprint(f\"RECORDS={records}\"\
-  )\n\n# Determine which fields are present in the training dataset\nfields = []\n\
-  if hasattr(train, \"ids\"):\n    fields.append(\"ids\")\nif hasattr(train, \"X\"\
-  ):\n    sample = train.X[0]\n    # ConvMolFeaturizer returns a ConvMol object; treat\
-  \ it as a feature field\n    fields.append(\"features\")\nprint(\"FIELDS=\" + \"\
-  ,\".join(fields))"
-record_count: 5470
-sample_fields:
-- ids
-- features
-field_coverage: 0.5
+status: none
+intent: ZINC15 PubChem SMILES surface area parquet RDKit python package dataset
 required_fields:
 - smiles
 - atom_features
 - bond_features
 - surface_area
-intent: download ZINC15 PubChem ChEMBL SMILES with SASA surface area python package
-  dataset
-cache_key: bc24fdc7f4703e56e41d1fbb130ed5937b4e6813cdc1c9b2c446854f8030f02a
+- molecular_weight
+- molecule_id
+cache_key: 6fef59a28c9ff2309817a61baa31988c7b62c5dc5c6b9239963e25e00375147a
+searched_at: '2026-08-15T00:53:24.330951+00:00'
+retry_count: 1

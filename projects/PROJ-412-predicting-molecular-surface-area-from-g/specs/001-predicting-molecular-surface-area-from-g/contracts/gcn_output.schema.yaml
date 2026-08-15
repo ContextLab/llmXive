@@ -39,7 +39,7 @@ properties:
         properties:
           mae:
             type: "number"
-            description: "Mean Absolute Error for Geometry Oracle/Baseline."
+            description: "Mean Absolute Error for 2D Topology Baseline."
           rmse:
             type: "number"
             description: "Root Mean Squared Error for Baseline."
