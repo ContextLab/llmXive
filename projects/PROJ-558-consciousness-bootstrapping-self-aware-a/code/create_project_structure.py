@@ -1,47 +1,28 @@
 import os
 from pathlib import Path
 
-def create_structure():
+def create_structure(base_path: str = "projects/PROJ-558-consciousness-bootstrapping-self-aware-a") -> None:
     """
-    Creates the directory structure for the consciousness bootstrapping project.
+    Creates the directory structure for the Consciousness Bootstrapping project.
     
-    Structure:
-    projects/PROJ-558-consciousness-bootstrapping-self-aware-a/
-    ├── data/
-    │   ├── raw/
-    │   └── processed/
-    ├── code/
-    ├── tests/
-    └── artifacts/
-        ├── checkpoints/
-        └── results/
+    Args:
+        base_path: The root directory for the project structure.
     """
-    base_path = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
+    root = Path(base_path)
     
     directories = [
-        base_path,
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "code",
-        base_path / "tests",
-        base_path / "artifacts" / "checkpoints",
-        base_path / "artifacts" / "results",
-        base_path / "artifacts" / "figures",
+        "data/raw",
+        "data/processed",
+        "code",
+        "tests",
+        "artifacts/checkpoints",
+        "artifacts/results",
     ]
     
-    created_count = 0
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {directory}")
-        else:
-            print(f"Directory already exists: {directory}")
-    
-    print(f"\nTotal directories created: {created_count}")
-    print(f"Project structure initialized at: {base_path}")
-    
-    return True
+    for dir_path in directories:
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
 
 if __name__ == "__main__":
     create_structure()

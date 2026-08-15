@@ -1,3 +1,10 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No __init__.py files for the specified directories are shown or referenced in\
+    \ the provided evidence; the claim lacks any concrete artifact confirming their\
+    \ creation. The next implementer must add the missing files and ensure they are\
+    \ non\u2011empty."
 T003a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
