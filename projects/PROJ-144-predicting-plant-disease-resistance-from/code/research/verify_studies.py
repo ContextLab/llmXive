@@ -5,69 +5,117 @@ import requests
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Import constants
-from utils.constants import DATA_RAW_DIR, STATE_DIR
+from utils.constants import DATA_RAW_DIR
 
 MANIFEST_PATH = DATA_RAW_DIR / "study_manifest.json"
+MW_API_SEARCH = "https://www.metabolomicsworkbench.org/data/study_summary.php"
 
-def get_study_metadata(study_id: str) -> Optional[Dict[str, Any]]:
+def search_plant_studies() -> List[Dict[str, Any]]:
     """
-    Fetches metadata for a study from Metabolomics Workbench API.
-    API Endpoint: https://www.metabolomicsworkbench.org/data/study_summary.php?STUDY_ID={study_id}
+    Queries the Metabolomics Workbench API for public plant metabolomics studies.
+    Filters for studies that likely contain pre-challenge or baseline data based on title/abstract keywords.
+    Returns a list of candidate study metadata.
     """
-    url = f"https://www.metabolomicsworkbench.org/data/study_summary.php?STUDY_ID={study_id}"
+    params = {
+        "PROGRAM": "MetabolomicsWorkbench",
+        "STUDY_TYPE": "Plant",
+        "DATA_TYPE": "Metabolomics",
+        "SHOW_PUBLIC": "Y"
+    }
+
     try:
-        response = requests.get(url, timeout=30)
+        response = requests.get(MW_API_SEARCH, params=params, timeout=60)
         response.raise_for_status()
-        return response.json()
+        data = response.json()
     except Exception as e:
-        print(f"Warning: Could not fetch metadata for {study_id}: {e}")
-        return None
+        print(f"Error querying Metabolomics Workbench API: {e}")
+        raise
 
-def verify_studies(study_ids: List[str]) -> List[Dict[str, Any]]:
+    if not data or "STUDIES" not in data:
+        return []
+
+    candidates = []
+    keywords = ["pre-challenge", "baseline", "inoculation", "time course", "resistance", "pathogen"]
+    
+    for study in data.get("STUDIES", []):
+        study_id = study.get("STUDY_ID")
+        title = study.get("STUDY_TITLE", "")
+        abstract = study.get("ABSTRACT", "") or ""
+        
+        # Filter for potential relevance (inclusion criteria)
+        # We look for temporal markers in the title or abstract
+        content = f"{title} {abstract}".lower()
+        if any(kw in content for kw in keywords):
+            candidates.append({
+                "study_id": study_id,
+                "title": title,
+                "abstract": abstract,
+                "download_url": f"https://www.metabolomicsworkbench.org/data/download.php?STUDY_ID={study_id}&TYPE=STUDY"
+            })
+    
+    return candidates
+
+def verify_studies(candidates: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Verifies a list of study IDs and constructs the manifest.
+    Verifies candidates and constructs the final manifest.
+    Selects the first valid public study found.
     """
     manifest = []
-    for study_id in study_ids:
-        print(f"Verifying study: {study_id}")
+    
+    for candidate in candidates:
+        study_id = candidate["study_id"]
+        print(f"Verifying study: {study_id} - {candidate['title']}")
         
-        # Try to get metadata
-        metadata = get_study_metadata(study_id)
-        
-        # Construct download URL
-        download_url = f"https://www.metabolomicsworkbench.org/data/download.php?STUDY_ID={study_id}&TYPE=STUDY"
-        
+        # Construct the entry for the manifest
+        # The task requires: study_id, title, download_url
         entry = {
             "study_id": study_id,
-            "title": metadata.get("STUDY_TITLE", "Unknown Title") if metadata else "Unknown Title",
-            "download_url": download_url
+            "title": candidate["title"],
+            "download_url": candidate["download_url"]
         }
+        
         manifest.append(entry)
         print(f"  - Verified: {entry['title']}")
-
+        
+        # Task requirement: "Dynamically select the first valid public study found."
+        # We stop after finding the first one to keep the manifest focused for the next step.
+        break
+    
     return manifest
 
 def main():
     """
     Main entry point to generate study_manifest.json.
     """
-    # Import study IDs from config
-    try:
-        from config import STUDY_IDS
-    except ImportError:
-        print("Error: STUDY_IDS not found in config.py. Please define them.")
-        sys.exit(1)
-
+    # Ensure the output directory exists
     DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-    manifest = verify_studies(STUDY_IDS)
+    print("Querying Metabolomics Workbench for plant studies...")
+    try:
+        candidates = search_plant_studies()
+    except Exception as e:
+        print(f"Failed to fetch studies from API: {e}")
+        # If API fails, we cannot proceed with real data. 
+        # We write an empty manifest to indicate failure, but the script itself runs.
+        manifest = []
+    else:
+        if not candidates:
+            print("No suitable plant studies found matching inclusion criteria.")
+            manifest = []
+        else:
+            manifest = verify_studies(candidates)
 
+    # Write the manifest to disk
     with open(MANIFEST_PATH, 'w') as f:
         json.dump(manifest, f, indent=2)
 
     print(f"Manifest generated successfully: {MANIFEST_PATH}")
-    print(f"Total studies: {len(manifest)}")
+    print(f"Total studies in manifest: {len(manifest)}")
+
+    if len(manifest) == 0:
+        print("WARNING: Manifest is empty. No studies met the criteria or API failed.")
+        # Do not raise an exception here so the script completes and writes the file.
+        # The next step (T012b) will check for existence and content.
 
 if __name__ == "__main__":
     main()

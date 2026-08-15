@@ -21,6 +21,15 @@ T005:
     \ and a SHA256 hash to `state/artifact_hashes.yaml` (creating the file if absent).\
     \ The required functionality is present and the code will generate the YAML log\
     \ as specified."
+T012a:
+  c: false
+  h: e409b9cfc802078221e37973d8415117830837e3bc8b46572356f5ae35391195
+  r: "The required output file `data/raw/study_manifest.json` is missing, and the\
+    \ provided `verify_studies.py` script is truncated before any code that creates/writes\
+    \ the manifest (the `main()` function is incomplete). Without the generated JSON\
+    \ file, the task\u2019s verification criteria are not met. The next implementer\
+    \ must ensure the script writes a non\u2011empty, valid JSON manifest to the specified\
+    \ path."
 T013:
   c: true
   h: 7cd8a1a3de28821a8f7b2b337b64d6c8933b320b93a966043bf3ae261f01417e
@@ -66,11 +75,3 @@ T029b:
     \ missing, so the narrative report cannot be generated. Additionally, the existing\
     \ `results/pathway_analysis.json` is incomplete (truncated). The task\u2019s deliverables\
     \ are therefore not satisfied."
-T030b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI logs, workflow run screenshots, or any runtime/RAM metrics are provided;\
-    \ there is no artifact demonstrating that the GitHub Actions pipeline was executed\
-    \ under the free\u2011tier limits (\u22646\u202Fh, \u22647\u202FGB). The implementer\
-    \ therefore has not supplied the required evidence of a successful integration\
-    \ test."

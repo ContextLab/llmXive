@@ -1,73 +1,89 @@
-"""
-Unit tests for verify_studies.py
-"""
 import json
 import os
 import sys
 import tempfile
 from pathlib import Path
-import pytest
+from unittest.mock import patch, MagicMock
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add code root to path if not already
+code_root = Path(__file__).parent.parent.parent / "code"
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
-from config import STUDY_IDS, MW_BASE_URL
-from research.verify_studies import (
-    search_studies,
-    get_study_metadata,
-    check_pre_challenge_profiles,
-    check_disease_resistance_metadata,
-    verify_studies
-)
+from research.verify_studies import search_plant_studies, verify_studies, MANIFEST_PATH
 
-def test_study_ids_defined():
-    """Test that STUDY_IDS is defined and non-empty"""
-    assert isinstance(STUDY_IDS, list)
-    assert len(STUDY_IDS) > 0
-    assert all(isinstance(sid, str) for sid in STUDY_IDS)
-
-def test_base_url_format():
-    """Test that MW_BASE_URL is correctly formatted"""
-    assert MW_BASE_URL.startswith("http")
-    assert "metabolomicsworkbench" in MW_BASE_URL.lower()
-
-def test_check_pre_challenge_profiles_with_real_metadata():
-    """Test pre-challenge profile detection with realistic metadata"""
-    metadata_with_pre = {
-        "study_title": "Plant response to pathogen at baseline and post-inoculation",
-        "description": "Metabolomic profiles collected at pre-challenge and post-challenge time points"
+def test_search_plant_studies_structure():
+    """
+    Tests that the search function returns a list of dictionaries with expected keys.
+    Uses mocking to avoid real API calls during unit tests.
+    """
+    mock_data = {
+        "STUDIES": [
+            {
+                "STUDY_ID": "ST001234",
+                "STUDY_TITLE": "Time course analysis of plant resistance",
+                "ABSTRACT": "Pre-challenge metabolite profiles were measured."
+            }
+        ]
     }
-    assert check_pre_challenge_profiles(metadata_with_pre) is True
 
-    metadata_without_pre = {
-        "study_title": "General plant metabolomics",
-        "description": "Unspecified sampling time"
-    }
-    assert check_pre_challenge_profiles(metadata_without_pre) is False
+    with patch('research.verify_studies.requests.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = mock_data
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
 
-def test_check_disease_resistance_metadata():
-    """Test disease resistance metadata detection"""
-    metadata_with_resistance = {
-        "study_title": "Disease resistance in Arabidopsis",
-        "phenotype": "Resistance score to Pseudomonas syringae"
-    }
-    assert check_disease_resistance_metadata(metadata_with_resistance) is True
+        results = search_plant_studies()
 
-    metadata_without_resistance = {
-        "study_title": "Metabolite profiling under drought",
-        "phenotype": "Water potential"
-    }
-    assert check_disease_resistance_metadata(metadata_without_resistance) is False
+        assert isinstance(results, list)
+        assert len(results) > 0
+        assert "study_id" in results[0]
+        assert "title" in results[0]
+        assert "download_url" in results[0]
 
-def test_verify_studies_returns_list():
-    """Test that verify_studies returns a list of dictionaries"""
-    result = verify_studies()
-    assert isinstance(result, list)
-    if len(result) > 0:
-        assert all(isinstance(item, dict) for item in result)
-        # Check required keys
-        for item in result:
-            assert 'study_id' in item
-            assert 'title' in item
-            assert 'download_url' in item
+def test_verify_studies_creates_manifest_structure():
+    """
+    Tests that verify_studies returns the correct structure for the manifest.
+    """
+    candidates = [
+        {
+            "study_id": "ST001234",
+            "title": "Test Study",
+            "download_url": "http://example.com"
+        }
+    ]
+
+    manifest = verify_studies(candidates)
+
+    assert len(manifest) == 1
+    assert manifest[0]["study_id"] == "ST001234"
+    assert manifest[0]["title"] == "Test Study"
+    assert manifest[0]["download_url"] == "http://example.com"
+
+def test_manifest_generation_logic():
+    """
+    Tests the logic of manifest generation and file writing.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Temporarily override MANIFEST_PATH for testing
+        test_manifest_path = Path(tmpdir) / "study_manifest.json"
+        
+        # Mock the main logic to write to temp file
+        candidates = [
+            {
+                "study_id": "ST001234",
+                "title": "Test Study",
+                "download_url": "http://example.com"
+            }
+        ]
+        manifest = verify_studies(candidates)
+
+        with open(test_manifest_path, 'w') as f:
+            json.dump(manifest, f)
+
+        # Verify file content
+        with open(test_manifest_path, 'r') as f:
+            loaded = json.load(f)
+
+        assert len(loaded) == 1
+        assert loaded[0]["study_id"] == "ST001234"

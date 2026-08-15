@@ -31,14 +31,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmxive
   verified_at: '2026-08-12T06:00:41.266117Z'
-- artifact_hash: 258c186a442ded0c72fcf5c440c2b7406fb1d5e88da5af0064899befa56437e3
+- artifact_hash: 9e4b3027aaee39ffd0791e223e33a6dc76435d7db6065cac80f83bae5cc49cf4
   artifact_path: projects/PROJ-144-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.metabolomicsworkbench.org/data/study_textformat.php?STUDY_ID={STUDY_ID}`
+  value: https://www.metabolomicsworkbench.org/studies/study_analysis_data.php?STUDY_ID={study_id}`
   verification_status: mismatch
-  verified_against_url: https://www.metabolomicsworkbench.org/data/study_textformat.php?STUDY_ID={STUDY_ID
-  verified_at: '2026-08-13T21:19:28.786048Z'
+  verified_against_url: https://www.metabolomicsworkbench.org/studies/study_analysis_data.php?STUDY_ID={study_id
+  verified_at: '2026-08-15T03:13:51.472044Z'
