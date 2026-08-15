@@ -1,65 +1,79 @@
-type: object
+$defs:
+  ConfigDict:
+    properties:
+      arbitrary_types_allowed:
+        default: false
+        title: Arbitrary Types Allowed
+        type: boolean
+    title: ConfigDict
+    type: object
 properties:
-  composition:
-    type: string
-    description: Chemical formula string, e.g., 'Al2O3'
-  weibull_modulus:
-    type: number
-    description: The Weibull modulus (m) value
-  sample_count:
-    type: integer
-    minimum: 1
-    description: Number of samples used for measurement (N)
-  is_range_flag:
-    type: boolean
-    description: True if weibull_modulus was a range midpoint
-  range_original:
-    anyOf:
-      - type: string
-      - type: 'null'
-    description: Original range string if is_range_flag is True
-  is_imputed:
-    type: boolean
-    description: True if any descriptors were imputed
-  primary_anion_cation_group:
-    anyOf:
-      - type: string
-      - type: 'null'
-    description: e.g., 'O-Al', 'N-Si'
-  sintering_temp:
-    anyOf:
-      - type: number
-      - type: 'null'
-    description: Sintering temperature in Kelvin
-  mean_atomic_radius:
-    anyOf:
-      - type: number
-      - type: 'null'
-    minimum: 0.0
-    description: Mean atomic radius of cations
-  electronegativity_std:
-    anyOf:
-      - type: number
-      - type: 'null'
-    minimum: 0.0
-    description: Std dev of electronegativity
-  valence_electron_concentration:
-    anyOf:
-      - type: number
-      - type: 'null'
-    minimum: 0.0
-    description: Valence electron concentration
   cation_size_variance:
     anyOf:
-      - type: number
-      - type: 'null'
-    minimum: 0.0
+    - type: number
+    - type: 'null'
+    default: null
+    title: Cation Size Variance
+  composition:
+    title: Composition
+    type: string
+  electronegativity_std:
+    anyOf:
+    - type: number
+    - type: 'null'
+    default: null
+    title: Electronegativity Std
+  is_imputed:
+    default: false
+    title: Is Imputed
+    type: boolean
+  is_range_flag:
+    default: false
+    title: Is Range Flag
+    type: boolean
+  mean_atomic_radius:
+    anyOf:
+    - type: number
+    - type: 'null'
+    default: null
+    title: Mean Atomic Radius
+  primary_anion_cation_group:
+    title: Primary Anion Cation Group
+    type: string
+  range_original:
+    anyOf:
+    - type: string
+    - type: 'null'
+    default: null
+    title: Range Original
   range_uncertainty:
     anyOf:
-      - type: number
-      - type: 'null'
-    minimum: 0.0
+    - type: number
+    - type: 'null'
+    default: null
+    title: Range Uncertainty
+  sample_count:
+    title: Sample Count
+    type: integer
+  sintering_temp:
+    anyOf:
+    - type: number
+    - type: 'null'
+    default: null
+    title: Sintering Temp
+  valence_electron_concentration:
+    anyOf:
+    - type: number
+    - type: 'null'
+    default: null
+    title: Valence Electron Concentration
+  weibull_modulus:
+    title: Weibull Modulus
+    type: number
 required:
-  - composition
-  - weibull_modulus
-  - sample_count
+- composition
+- weibull_modulus
+- sample_count
+- primary_anion_cation_group
+title: CeramicEntry
+type: object

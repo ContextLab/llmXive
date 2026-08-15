@@ -1,43 +1,28 @@
-type: object
 properties:
-  model_type:
-    type: string
-    description: Type of model, e.g., 'RandomForest', 'GradientBoosting'
-  mae:
-    type: number
-    minimum: 0.0
-    description: Mean Absolute Error
-  r_squared:
-    type: number
-    description: R-squared score
+  cv_stability_scores:
+    additionalProperties:
+      type: number
+    title: Cv Stability Scores
+    type: object
   feature_importance_ranking:
-    type: array
     items:
       type: object
-      properties:
-        feature:
-          type: string
-        importance:
-          type: number
-      required:
-        - feature
-        - importance
-    description: List of dicts with 'feature' and 'importance' keys
-  cv_stability_scores:
-    type: object
-    description: Stability metrics for feature importance across CV folds
-  hyperparameters:
-    type: object
-    description: Final hyperparameters used
-  cross_validation_scores:
-    anyOf:
-      - type: array
-        items:
-          type: number
-      - type: 'null'
-    description: Scores from each CV fold
+    title: Feature Importance Ranking
+    type: array
+  mae:
+    title: Mae
+    type: number
+  model_type:
+    title: Model Type
+    type: string
+  r_squared:
+    title: R Squared
+    type: number
 required:
-  - model_type
-  - mae
-  - r_squared
-  - feature_importance_ranking
+- model_type
+- mae
+- r_squared
+- feature_importance_ranking
+- cv_stability_scores
+title: ModelResult
+type: object

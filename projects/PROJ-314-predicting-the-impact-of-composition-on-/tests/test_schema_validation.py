@@ -1,90 +1,98 @@
 """
-Unit tests for T012a schema validation logic.
+Tests for schema validation logic.
 """
 import pytest
 import yaml
 import tempfile
+import os
 from pathlib import Path
-import sys
+from code.contracts.validate_schemas import validate_model_result_schema, validate_ceramic_entry_schema, load_yaml_schema
 
-# Add parent directory to path to allow imports if running standalone
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
-
-from contracts.validate_schemas import (
-    load_yaml_file, 
-    validate_schema_fields, 
-    REQUIRED_CERAMIC_ENTRY_FIELDS,
-    REQUIRED_MODEL_RESULT_FIELDS
-)
-
-def test_load_yaml_file_valid():
-    """Test loading a valid YAML file."""
+def test_validate_model_result_schema_valid():
+    """Test validation with a correctly formed model_result schema."""
+    schema_content = {
+        "type": "object",
+        "properties": {
+            "model_type": {"type": "string"},
+            "mae": {"type": "number"},
+            "r_squared": {"type": "number"},
+            "feature_importance_ranking": {"type": "array"},
+            "cv_stability_scores": {"type": "object"}
+        }
+    }
+    
     with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        f.write("properties:\n  field1: {type: string}\n")
-        temp_path = Path(f.name)
+        yaml.dump(schema_content, f)
+        temp_path = f.name
     
     try:
-        data = load_yaml_file(temp_path)
-        assert 'properties' in data
-        assert 'field1' in data['properties']
+        result = validate_model_result_schema(temp_path)
+        assert result is True
     finally:
-        temp_path.unlink()
+        os.unlink(temp_path)
 
-def test_load_yaml_file_missing():
-    """Test loading a non-existent file raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        load_yaml_file(Path("/nonexistent/path/schema.yaml"))
-
-def test_validate_schema_fields_all_present():
-    """Test validation when all required fields are present."""
-    schema = {
+def test_validate_model_result_schema_missing_field():
+    """Test validation fails when a required field is missing."""
+    schema_content = {
+        "type": "object",
         "properties": {
-            "composition": {"type": "string"},
-            "weibull_modulus": {"type": "number"},
-            "sample_count": {"type": "integer"},
-            "is_range_flag": {"type": "boolean"},
-            "range_original": {"type": "string"},
-            "primary_anion_cation_group": {"type": "string"},
-            "sintering_temp": {"type": "number"},
-            "is_imputed": {"type": "boolean"},
-            "mean_atomic_radius": {"type": "number"},
-            "electronegativity_std": {"type": "number"},
-            "valence_electron_concentration": {"type": "number"},
-            "extra_field": {"type": "string"}
+            "model_type": {"type": "string"},
+            "mae": {"type": "number"}
+            # Missing r_squared, feature_importance_ranking, cv_stability_scores
         }
     }
     
-    errors = validate_schema_fields(schema, REQUIRED_CERAMIC_ENTRY_FIELDS, "test_schema")
-    assert len(errors) == 0
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(schema_content, f)
+        temp_path = f.name
+    
+    try:
+        with pytest.raises(ValueError) as excinfo:
+            validate_model_result_schema(temp_path)
+        assert "missing required fields" in str(excinfo.value)
+    finally:
+        os.unlink(temp_path)
 
-def test_validate_schema_fields_missing():
-    """Test validation when some required fields are missing."""
-    schema = {
+def test_validate_model_result_schema_missing_type():
+    """Test validation fails when a field has no type."""
+    schema_content = {
+        "type": "object",
         "properties": {
-            "composition": {"type": "string"},
-            # Missing most other fields
+            "model_type": {"type": "string"},
+            "mae": {"type": "number"},
+            "r_squared": {"type": "number"},
+            "feature_importance_ranking": {}, # Missing type
+            "cv_stability_scores": {"type": "object"}
         }
     }
     
-    errors = validate_schema_fields(schema, REQUIRED_CERAMIC_ENTRY_FIELDS, "test_schema")
-    assert len(errors) == 1
-    assert "missing required fields" in errors[0].lower()
-    assert "weibull_modulus" in errors[0]
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(schema_content, f)
+        temp_path = f.name
+    
+    try:
+        with pytest.raises(ValueError) as excinfo:
+            validate_model_result_schema(temp_path)
+        assert "missing a 'type' definition" in str(excinfo.value)
+    finally:
+        os.unlink(temp_path)
 
-def test_validate_schema_fields_no_properties():
-    """Test validation when properties key is missing."""
-    schema = {
-        "type": "object"
-        # No properties key
+def test_validate_ceramic_entry_schema():
+    """Test validation of ceramic entry schema structure."""
+    schema_content = {
+        "type": "object",
+        "properties": {
+            "composition": {"type": "string"},
+            "weibull_modulus": {"type": "number"}
+        }
     }
     
-    errors = validate_schema_fields(schema, REQUIRED_CERAMIC_ENTRY_FIELDS, "test_schema")
-    assert len(errors) == 1
-    assert "missing 'properties' definition" in errors[0]
-
-def test_required_fields_defined():
-    """Ensure required field sets are not empty."""
-    assert len(REQUIRED_CERAMIC_ENTRY_FIELDS) > 0
-    assert len(REQUIRED_MODEL_RESULT_FIELDS) > 0
-    assert "weibull_modulus" in REQUIRED_CERAMIC_ENTRY_FIELDS
-    assert "mae" in REQUIRED_MODEL_RESULT_FIELDS
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(schema_content, f)
+        temp_path = f.name
+    
+    try:
+        result = validate_ceramic_entry_schema(temp_path)
+        assert result is True
+    finally:
+        os.unlink(temp_path)

@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-proj-314"
+name = "proj-314-weibull-ceramics"
 version = "0.1.0"
-description = "Predicting the impact of composition on the Weibull modulus of ceramics"
+description = "Predicting the Impact of Composition on the Weibull Modulus of Ceramics"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -19,69 +19,103 @@ dependencies = [
     "huggingface_hub",
     "arxiv",
     "pdfplumber",
+    "periodictable",
+    "pymatgen",
     "python-dotenv",
-    "pydantic",
     "jsonschema",
     "psutil",
-    "numpy",
     "matplotlib",
     "seaborn",
+    "tabula-py",
+    "camelot-py[cv]",
+    "pydantic",
+    "pydantic-settings"
 ]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
 
 [tool.black]
 line-length = 100
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
+    \.git
     | \.venv
-    | _build
-    | buck-out
+    | venv
+    | __pycache__
     | build
     | dist
 )/
 '''
 
 [tool.ruff]
-target-version = "py311"
 line-length = 100
+target-version = "py311"
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
 ]
 ignore = [
-    "E501",  # line too long (black handles this)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in CLI)
+    "C901", # too complex (allow higher complexity for data pipelines)
 ]
 
 [tool.ruff.isort]
-known-first-party = ["code"]
-force-single-line = false
-order-by-type = true
+known-first-party = [
+    "code",
+    "ingestion",
+    "descriptors",
+    "modeling",
+    "diagnostics",
+    "report",
+    "config",
+    "logger",
+    "hash_artifacts",
+    "physics_mappings",
+    "sample_fallback",
+    "memory_monitor",
+    "timeout_wrapper",
+    "verify_citation_log",
+    "generate_metrics_report",
+    "generate_shap_plots",
+    "evaluate_and_save_metrics",
+    "setup_directories",
+    "run_pipeline_timing"
+]
+known-third-party = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "sklearn",
+    "shap",
+    "matplotlib",
+    "seaborn",
+    "yaml",
+    "jsonschema",
+    "psutil",
+    "chemparse",
+    "periodictable",
+    "pymatgen",
+    "requests",
+    "dotenv",
+    "datasets",
+    "huggingface_hub",
+    "arxiv",
+    "pdfplumber",
+    "pydantic",
+    "tabula",
+    "camelot"
+]
 
 [tool.ruff.per-file-ignores]
-"code/__init__.py" = ["F401"]
-"code/scripts/*" = ["B018"]
+"code/__init__.py" = ["F401", "F403"]
+"tests/*" = ["S101"] # Allow asserts in tests
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short"
-
-[tool.coverage.run]
-source = ["code"]
-omit = ["*/tests/*", "*/scripts/*"]

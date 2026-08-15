@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists
+# This directory stores processed, cleaned, and feature-engineered data.
+# Intermediate steps (e.g., step0_*.csv) and final cleaned datasets go here.

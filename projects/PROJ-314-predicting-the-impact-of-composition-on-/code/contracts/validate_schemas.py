@@ -1,8 +1,6 @@
 """
-Schema Validation Module.
-
-Validates the generated YAML schemas (ceramic_entry.schema.yaml and model_result.schema.yaml)
-to ensure they are correctly formatted and contain all required fields as specified in the task.
+Validation logic for schema files.
+Ensures generated YAML schemas match the Pydantic definitions.
 """
 import yaml
 import json
@@ -10,8 +8,8 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Set
 
-# Define the required fields for CeramicEntry schema
-CERAMIC_ENTRY_REQUIRED_FIELDS: Set[str] = {
+# Required fields for CeramicEntry as per T012a
+REQUIRED_CERAMIC_ENTRY_FIELDS = {
     "composition",
     "weibull_modulus",
     "sample_count",
@@ -25,8 +23,8 @@ CERAMIC_ENTRY_REQUIRED_FIELDS: Set[str] = {
     "valence_electron_concentration"
 }
 
-# Define the required fields for ModelResult schema
-MODEL_RESULT_REQUIRED_FIELDS: Set[str] = {
+# Required fields for ModelResult as per T012b
+REQUIRED_MODEL_RESULT_FIELDS = {
     "model_type",
     "mae",
     "r_squared",
@@ -34,139 +32,123 @@ MODEL_RESULT_REQUIRED_FIELDS: Set[str] = {
     "cv_stability_scores"
 }
 
-def load_yaml_schema(file_path: Path) -> Dict[str, Any]:
-    """Load and parse a YAML schema file."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {file_path}")
+SCHEMA_DIR = Path(__file__).parent
+CERAMIC_SCHEMA_PATH = SCHEMA_DIR / "ceramic_entry.schema.yaml"
+MODEL_SCHEMA_PATH = SCHEMA_DIR / "model_result.schema.yaml"
+
+
+def load_yaml_schema(path: Path) -> Dict[str, Any]:
+    """Load a YAML schema file."""
+    if not path.exists():
+        raise FileNotFoundError(f"Schema file not found: {path}")
     
-    with open(file_path, 'r', encoding='utf-8') as f:
-        try:
-            return yaml.safe_load(f)
-        except yaml.YAMLError as e:
-            raise ValueError(f"Invalid YAML format in {file_path}: {e}")
+    with open(path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
 
 def validate_ceramic_entry_schema(schema: Dict[str, Any]) -> List[str]:
     """
-    Validate the CeramicEntry schema.
-    
-    Checks:
-    1. Valid YAML structure (properties exist)
-    2. Contains all required fields
-    
-    Returns a list of error messages. Empty list means valid.
+    Validate ceramic_entry.schema.yaml against required fields.
+    Returns a list of error messages. Empty list if valid.
     """
     errors = []
     
+    # Check top-level structure
     if "properties" not in schema:
-        errors.append("Schema missing 'properties' key.")
+        errors.append("Schema missing 'properties' key")
         return errors
     
     properties = schema["properties"]
-    missing_fields = CERAMIC_ENTRY_REQUIRED_FIELDS - set(properties.keys())
     
+    # Check required fields
+    missing_fields = REQUIRED_CERAMIC_ENTRY_FIELDS - set(properties.keys())
     if missing_fields:
-        errors.append(f"CeramicEntry schema missing required fields: {sorted(missing_fields)}")
-    else:
-        print("✓ CeramicEntry schema contains all required fields.")
-        
-    # Optional: Check for basic type definitions if present
-    for field in CERAMIC_ENTRY_REQUIRED_FIELDS:
-        if field in properties and "type" not in properties[field]:
-            errors.append(f"CeramicEntry field '{field}' is missing 'type' definition.")
+        errors.append(f"Missing required fields in ceramic_entry schema: {sorted(missing_fields)}")
+    
+    # Check 'required' list in schema matches required fields
+    schema_required = set(schema.get("required", []))
+    if not REQUIRED_CERAMIC_ENTRY_FIELDS.issubset(schema_required):
+        missing_in_required = REQUIRED_CERAMIC_ENTRY_FIELDS - schema_required
+        errors.append(f"Fields in properties but not in 'required' list: {sorted(missing_in_required)}")
     
     return errors
+
 
 def validate_model_result_schema(schema: Dict[str, Any]) -> List[str]:
     """
-    Validate the ModelResult schema.
-    
-    Checks:
-    1. Valid YAML structure (properties exist)
-    2. Contains all required fields
-    
-    Returns a list of error messages. Empty list means valid.
+    Validate model_result.schema.yaml against required fields.
+    Returns a list of error messages. Empty list if valid.
     """
     errors = []
     
+    # Check top-level structure
     if "properties" not in schema:
-        errors.append("Schema missing 'properties' key.")
+        errors.append("Schema missing 'properties' key")
         return errors
     
     properties = schema["properties"]
-    missing_fields = MODEL_RESULT_REQUIRED_FIELDS - set(properties.keys())
     
+    # Check required fields
+    missing_fields = REQUIRED_MODEL_RESULT_FIELDS - set(properties.keys())
     if missing_fields:
-        errors.append(f"ModelResult schema missing required fields: {sorted(missing_fields)}")
-    else:
-        print("✓ ModelResult schema contains all required fields.")
-        
-    # Optional: Check for basic type definitions if present
-    for field in MODEL_RESULT_REQUIRED_FIELDS:
-        if field in properties and "type" not in properties[field]:
-            errors.append(f"ModelResult field '{field}' is missing 'type' definition.")
+        errors.append(f"Missing required fields in model_result schema: {sorted(missing_fields)}")
+    
+    # Check 'required' list in schema matches required fields
+    schema_required = set(schema.get("required", []))
+    if not REQUIRED_MODEL_RESULT_FIELDS.issubset(schema_required):
+        missing_in_required = REQUIRED_MODEL_RESULT_FIELDS - schema_required
+        errors.append(f"Fields in properties but not in 'required' list: {sorted(missing_in_required)}")
     
     return errors
 
-def main() -> int:
-    """
-    Main entry point for schema validation.
+
+def main():
+    """Main entry point for schema validation."""
+    all_valid = True
     
-    Validates both ceramic_entry.schema.yaml and model_result.schema.yaml
-    in the code/contracts/ directory.
-    """
-    contracts_dir = Path(__file__).parent
-    ceramic_entry_path = contracts_dir / "ceramic_entry.schema.yaml"
-    model_result_path = contracts_dir / "model_result.schema.yaml"
+    print("Validating ceramic_entry.schema.yaml...")
+    try:
+        ceramic_schema = load_yaml_schema(CERAMIC_SCHEMA_PATH)
+        ceramic_errors = validate_ceramic_entry_schema(ceramic_schema)
+        if ceramic_errors:
+            print(f"  ❌ Invalid: {len(ceramic_errors)} error(s)")
+            for err in ceramic_errors:
+                print(f"     - {err}")
+            all_valid = False
+        else:
+            print("  ✅ Valid")
+    except FileNotFoundError as e:
+        print(f"  ❌ Error: {e}")
+        all_valid = False
+    except Exception as e:
+        print(f"  ❌ Error loading schema: {e}")
+        all_valid = False
     
-    all_errors = []
-    success = True
-
-    # Validate CeramicEntry Schema
-    print(f"Validating: {ceramic_entry_path}")
-    if not ceramic_entry_path.exists():
-        print(f"❌ ERROR: File not found: {ceramic_entry_path}")
-        success = False
+    print("\nValidating model_result.schema.yaml...")
+    try:
+        model_schema = load_yaml_schema(MODEL_SCHEMA_PATH)
+        model_errors = validate_model_result_schema(model_schema)
+        if model_errors:
+            print(f"  ❌ Invalid: {len(model_errors)} error(s)")
+            for err in model_errors:
+                print(f"     - {err}")
+            all_valid = False
+        else:
+            print("  ✅ Valid")
+    except FileNotFoundError as e:
+        print(f"  ❌ Error: {e}")
+        all_valid = False
+    except Exception as e:
+        print(f"  ❌ Error loading schema: {e}")
+        all_valid = False
+    
+    if all_valid:
+        print("\n✅ All schemas validated successfully.")
+        sys.exit(0)
     else:
-        try:
-            schema = load_yaml_schema(ceramic_entry_path)
-            errors = validate_ceramic_entry_schema(schema)
-            if errors:
-                all_errors.extend(errors)
-                success = False
-            else:
-                print("✓ CeramicEntry schema is valid.")
-        except Exception as e:
-            print(f"❌ ERROR: Failed to load CeramicEntry schema: {e}")
-            success = False
+        print("\n❌ Schema validation failed.")
+        sys.exit(1)
 
-    # Validate ModelResult Schema
-    print(f"Validating: {model_result_path}")
-    if not model_result_path.exists():
-        print(f"❌ ERROR: File not found: {model_result_path}")
-        success = False
-    else:
-        try:
-            schema = load_yaml_schema(model_result_path)
-            errors = validate_model_result_schema(schema)
-            if errors:
-                all_errors.extend(errors)
-                success = False
-            else:
-                print("✓ ModelResult schema is valid.")
-        except Exception as e:
-            print(f"❌ ERROR: Failed to load ModelResult schema: {e}")
-            success = False
-
-    # Final Report
-    print("\n" + "="*50)
-    if success and not all_errors:
-        print("✅ ALL SCHEMAS VALIDATED SUCCESSFULLY")
-        return 0
-    else:
-        print("❌ VALIDATION FAILED")
-        for err in all_errors:
-            print(f"  - {err}")
-        return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

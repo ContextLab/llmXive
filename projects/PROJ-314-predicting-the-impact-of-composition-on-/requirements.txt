@@ -9,9 +9,14 @@ datasets
 huggingface_hub
 arxiv
 pdfplumber
-python-dotenv
+periodictable
+pymatgen
 pydantic
 jsonschema
+python-dotenv
+pytest
+ruff
+black
 psutil
 tabula-py
 camelot-py

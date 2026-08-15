@@ -1,4 +1,4 @@
-- artifact_hash: 2636257217d39de6b1fee7ea1878efc2559d6f94a4d519474312748238eeabfa
+- artifact_hash: fa6499d99d8fb99c635b51d5bff9e631beff6c6778d0a25d49e3c2054c8189e2
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,26 +8,38 @@
   value: https://example.com
   verification_status: pending
   verified_against_url: https://example.com
-  verified_at: '2026-08-14T14:09:00.508091Z'
-- artifact_hash: 2636257217d39de6b1fee7ea1878efc2559d6f94a4d519474312748238eeabfa
+  verified_at: '2026-08-15T01:01:26.269122Z'
+- artifact_hash: fa6499d99d8fb99c635b51d5bff9e631beff6c6778d0a25d49e3c2054c8189e2
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://materialsproject.org/rest`
+  value: https://materialsproject.org/rest/v2/elasticity/`
   verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/rest
-  verified_at: '2026-08-14T14:09:00.508091Z'
-- artifact_hash: 2636257217d39de6b1fee7ea1878efc2559d6f94a4d519474312748238eeabfa
+  verified_against_url: https://next-gen.materialsproject.org/rest/v2/elasticity/
+  verified_at: '2026-08-15T01:01:26.269122Z'
+- artifact_hash: fa6499d99d8fb99c635b51d5bff9e631beff6c6778d0a25d49e3c2054c8189e2
   artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.nist.gov/materials-data/ceramic-data`
-  verification_status: mismatch
-  verified_against_url: https://www.nist.gov/materials-data/ceramic-data
-  verified_at: '2026-08-14T14:09:00.508091Z'
+  value: https://materials.nist.gov/api/ceramics`
+  verification_status: unreachable
+  verified_against_url: https://materials.nist.gov/api/ceramics
+  verified_at: '2026-08-15T01:01:26.269122Z'
+- artifact_hash: fa6499d99d8fb99c635b51d5bff9e631beff6c6778d0a25d49e3c2054c8189e2
+  artifact_path: projects/PROJ-314-predicting-the-impact-of-composition-on-/specs/001-predicting-the-impact-of-composition-on/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Two\u2010step Synthesis of Platelike Potassium Sodium Niobate Template\
+    \ Particles by Hydrothermal Method"
+  kind: doi
+  value: 10.1111/jace.12345
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1111/jace.12345
+  verified_at: '2026-08-15T01:01:26.269122Z'

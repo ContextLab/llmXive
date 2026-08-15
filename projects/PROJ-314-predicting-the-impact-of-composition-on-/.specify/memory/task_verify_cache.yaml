@@ -1,53 +1,27 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a created project directory (e.g., `projects/PROJ-314-predicting-the-impact-of-composition-on-\u2026\
-    `) or any of its expected sub\u2011folders/files is provided; the claim lacks\
-    \ any tangible artifact to confirm the required structure exists."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with `[tool.black]`\
-    \ or `[tool.ruff]`, `.ruff.toml`, or pre\u2011commit hook definitions) were presented,\
-    \ nor any evidence that `ruff` and `black` have been set up for the project. Without\
-    \ these artifacts the requirement to configure linting and formatting is not satisfied."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listings, creation scripts, or any file\u2011system evidence for\
-    \ `data/raw/`, `data/processed/`, or `data/artifacts/` were provided, so we cannot\
-    \ confirm that the required directories have been set up. The implementer must\
-    \ supply proof (e.g., a tree view, `os.makedirs` calls, or actual files in those\
-    \ folders)."
 T010b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No evidence of a `logs/citation_validation.log` file was provided, nor any output\
     \ showing it was created or contains entries. The required artifact is missing,\
     \ so the task\u2019s verification requirement is not satisfied."
-T016b:
-  c: true
-  h: 5bc0036081b6adb01b9d77f00f6f1eedd048667bb9ce228158dec669f1a9ff77
-  r: "The `docs/data_gap_protocol.md` file exists, is non\u2011empty, and contains\
-    \ the detailed protocol steps, the full JSON schema for `data/reports/data_availability_report.json`,\
-    \ and the required halting logic. The task\u2019s sole deliverable was this documentation,\
-    \ which is present and complete."
-T017a:
+T016:
   c: false
-  h: b34bb97679776d6579f3025dbd7862b4d62419acb0a9dd0cbd7f9a0d9f4eb63c
-  r: "The repository lacks the required `data/processed/step0_sample_count_filtered.csv`\
-    \ file, and a quick scan of `code/ingestion.py` shows no implementation of `filter_valid_sample_count()`\
-    \ (the snippet ends before such a function). Consequently the per\u2011entry sample\u2011\
-    count filtering logic and its CSV output are not present."
-T018c:
+  h: 2de2f6b9683a299acce9bfc55f94f6bd9c2191a84dba301074d433a4dcb7f665
+  r: "The repository contains `code/contracts/schemas.py` with the required Pydantic\
+    \ models, but the two YAML files `ceramic_entry.schema.yaml` and `model_result.schema.yaml`\
+    \ are not present (the only missing file listed is `schema.yaml`). Moreover, the\
+    \ export function only writes those two files; since they were never generated,\
+    \ the task\u2019s requirement to have the schemas exported to YAML in `code/contracts/`\
+    \ is not met. The next implementer should run `export_schemas_to_yaml()` (or add\
+    \ code to generate the files) and ensure the resulting `ceramic_entry.schema.yaml`\
+    \ and `model_result.schema.yaml` ex"
+T017b:
   c: false
-  h: b598b5747f9fcb6cf1fe115db94aa90cae35bf52ca2edb4a8af438b8fb770017
-  r: "The `fetch_materials_project_data()` function is present, but it does not verify\
-    \ that the loaded dataset contains any rows (no \u201Cno\u2011data\u201D check)\
-    \ and therefore does not raise the required `RuntimeError` when the API returns\
-    \ an empty result. Moreover, the expected output file `data/raw/materials_project_raw.json`\
-    \ is missing from the repository. Both issues must be fixed for the task to be\
-    \ considered complete."
+  h: c06eddcde21084faec28109a1f5314faf47c805f700895c821b65aa5db552ce0
+  r: The repository lacks `data/processed/final_count.txt` and the generated `data/reports/data_availability_report.json`.
+    Moreover, `code/ingestion.py` does not contain a `validate_data_gap()` implementation
+    (the provided excerpt shows no such function). Consequently the required logic
+    and output artifacts are missing.
 T018d:
   c: false
   h: 9f1fb6b8974abebd467f301473a323c1c82619d6a63808239b2c008ba90eaaea
@@ -55,6 +29,13 @@ T018d:
     does not parse all required columns (`sample_count`, `sintering_temp`), does not
     write the raw response to `data/raw/nist_raw.json`, and the fallback logic is
     not invoked. Moreover, the expected output file `data/raw/nist_raw.json` is missing.
+T018e:
+  c: false
+  h: 95360063840c550dfccc3baf1eb5a4fb3bd327ae54df04f21dcc3e4f9ce6c4fa
+  r: The repository lacks the required output file `data/raw/arxiv_raw.json`, and
+    a review of `code/ingestion.py` shows no implementation of `fetch_arxiv_data()`
+    that performs the arXiv search, PDF table extraction, validation, fallback logic,
+    and saving of results as specified. The task therefore remains unfinished.
 T018f:
   c: false
   h: d20e497f53c16924117ed18f0b843eb47c8b091151850a398414ece2ba3686d0
@@ -62,13 +43,6 @@ T018f:
     function is not present (or not fully implemented) and the expected output file
     `data/processed/step_final_cleaned.csv` does not exist. Both the core pipeline
     implementation and its resulting CSV are missing, so the task is not satisfied.
-T018g:
-  c: false
-  h: 32a3acb1438c10b81593593ccbf64529359853ae37627a96c7edaece170223d6
-  r: The repository lacks a `fetch_curated_literature_data()` implementation in `code/ingestion.py`,
-    and the expected output file `data/raw/curated_literature_raw.json` does not exist.
-    Consequently the required data fetching, parsing, merging, and saving steps are
-    not present.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -78,6 +52,13 @@ T020:
     cannot be verified as satisfied. The next implementer must provide the actual
     validation logic and evidence (e.g., code snippet, test results) showing that
     after imputation no primary predictor contains missing values.
+T025:
+  c: false
+  h: ef73281f86077ceefd87ce335adf1a2be9ded5977c7b2a88787ad734690c4dfa
+  r: The repository contains the integration test file, but it is truncated and never
+    reaches the part that would generate and write `data/results/cv_split_report.json`.
+    Moreover, the expected JSON report file is absent from the `data/results` directory.
+    The required artifact is missing, so the task is not fully satisfied.
 T028:
   c: false
   h: 8cf42a5b444dc57939ae6a8fb3c1dd11b519510f946e0bcfd87404352441ada8
@@ -92,14 +73,6 @@ T028b:
     \ implementation, and the required output file `data/results/baseline_metrics.json`\
     \ is absent. Consequently the task\u2019s core requirement\u2014creating the baseline\
     \ predictor and saving its MAE\u2014is not satisfied."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation was provided that demonstrates the addition\
-    \ of logic to exclude material classes with fewer than\u202F5 samples from stratified\
-    \ splitting. Without an artifact showing the implemented change (e.g., updated\
-    \ data pipeline, unit test, or commit diff), the requirement cannot be confirmed\
-    \ as met."
 T044:
   c: false
   h: e2b0c1d4fdf570584ce7b7fc65343bce91cd175ebf5c69f0771a16289e50ac67
