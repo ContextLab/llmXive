@@ -1,1 +1,1 @@
-# src.services package
+# services package

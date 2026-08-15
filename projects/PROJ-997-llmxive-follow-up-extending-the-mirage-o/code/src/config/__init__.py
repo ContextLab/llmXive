@@ -1,1 +1,1 @@
-# src.config package
+# config package

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-follow-up"
 version = "0.1.0"
-description = "Extending 'The Mirage of Optimizing Training Policies'"
+description = "Extending 'The Mirage of Optimizing Training Policies: Monotonic Inference Policies'"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -22,9 +22,12 @@ dependencies = [
     "matplotlib>=3.7.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "scripts*", "tests*"]
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+]
 
 [tool.black]
 line-length = 100
@@ -32,24 +35,24 @@ target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.ruff]
-# Ruff configuration is in .ruff.toml to keep pyproject.toml focused on build/package config
-# This file serves as the primary entry point for Black and project metadata

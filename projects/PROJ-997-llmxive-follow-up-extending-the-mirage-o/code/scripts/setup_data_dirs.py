@@ -1,37 +1,55 @@
+"""
+Script to initialize the project data directory structure.
+Creates required directories for raw data, processed data, and model artifacts.
+"""
 import os
 from pathlib import Path
+import logging
 
-def setup_data_directories(root_dir: str = ".") -> None:
+# Configure basic logging for this script
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+def setup_data_directories(project_root: Path) -> None:
     """
-    Create the required data directory structure for the llmXive project.
+    Creates the standard data directory structure required by the project.
     
-    Creates the following directories relative to root_dir:
-    - data/raw/
-    - data/processed/
-    - data/models/
+    Directories created:
+    - data/raw/        : For raw, unprocessed datasets
+    - data/processed/  : For processed, cleaned, and feature-engineered data
+    - data/models/     : For saved model artifacts and checkpoints
     
     Args:
-        root_dir: The root directory of the project (default: current directory)
+        project_root: The root path of the project where data directories will be created.
     """
-    base_path = Path(root_dir)
-    data_path = base_path / "data"
-    
-    directories = [
-        "raw",
-        "processed",
-        "models"
+    data_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/models"
     ]
     
-    for dir_name in directories:
-        dir_path = data_path / dir_name
-        dir_path.mkdir(parents=True, exist_ok=True)
-        # Ensure the directory is not empty by adding a .gitkeep file
-        # This ensures the directory is tracked by git even if empty
-        gitkeep_path = dir_path / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.write_text("# Keep this directory")
-        
-        print(f"Created: {dir_path}")
+    created_count = 0
+    
+    for dir_path in data_dirs:
+        full_path = project_root / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_count += 1
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
+    
+    logger.info(f"Successfully created {created_count} data directories under {project_root}")
 
 if __name__ == "__main__":
-    setup_data_directories()
+    # Determine project root (assuming script is in code/scripts/)
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent.parent
+    
+    logger.info(f"Project root detected at: {project_root}")
+    setup_data_directories(project_root)
+    logger.info("Data directory setup complete.")

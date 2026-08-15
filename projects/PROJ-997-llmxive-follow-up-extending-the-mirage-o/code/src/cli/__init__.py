@@ -1,1 +1,1 @@
-# src.cli package
+# cli package

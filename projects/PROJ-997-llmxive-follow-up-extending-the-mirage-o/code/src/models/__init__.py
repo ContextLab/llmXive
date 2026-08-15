@@ -1,1 +1,1 @@
-# src.models package
+# models package

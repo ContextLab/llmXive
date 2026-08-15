@@ -33,7 +33,7 @@
  Tasks MUST be organized by user story so each story can be:
  - Implemented independently
  - Tested independently
- - Delivered as an MVP increment
+ - Delivered as a MVP increment
 
  DO NOT keep these sample tasks in the generated tasks.md file.
  ============================================================================
@@ -79,18 +79,30 @@
 
 ### Implementation for User Story 1
 
+**⚠️ Sequential Execution**: Tasks T012, T013, T014 MUST complete before T015 begins. T015 orchestrates the paired loop.
+
 - [X] T012 [P] [US1] Implement `src/services/feature_extractor.py`: Load full-precision Llama-8B, extract gradient norms (L2) and local curvature (Hutchinson's estimator) for GSM8K/Ultrachat samples
-- [X] T013 [P] [US1] Implement `src/services/quantized_inference.py`: Wrap `llama-cpp-python` to run INT4, INT8, and FP8 inference on CPU; **explicitly catch** `llama_cpp.LlamaError` and `OSError`, **log the error** with a specific format (e.g., "Error loading quantization: {error}"), **skip the sample**, and **continue to the next sample** to ensure partial completion; **verify** that the final dataset is not empty and log the count of skipped samples.
+- [X] T013 [US1] Implement `src/services/quantized_inference.py`: Wrap `llama-cpp-python` to run INT4, INT8, and FP8 inference on CPU; **explicitly raise a critical exception** if `llama_cpp.LlamaError` or `OSError` occurs during quantization loading or inference. **DO NOT** skip samples or continue on engine failure. This ensures ground-truth generation for *every* input sample as required by FR-002 and Constitution Principle VI. Log the error with a specific format (e.g., "CRITICAL ENGINE FAILURE: {error}") before raising.
 - [X] T014 [US1] Implement `src/services/gap_calculator.py`: Compute exact KL divergence between full-precision and quantized logits; add epsilon for numerical stability
-- [ ] T015 [US1] Implement `src/cli/generate_dataset.py`: Orchestrate streaming of GSM8K/Ultrachat prompts; **for every sample**, execute feature extraction (T012) and quantized inference (T013) **in a paired loop** to ensure alignment, then write `data/processed/training_sample.parquet` with columns: `input_id`, `gradient_norms`, `local_curvature`, `quantized_logits`, `calculated_kl_divergence`, `quantization_level`
+- [ ] T017 [US1] Add logging for data generation progress: Implement logging to `logs/pipeline.log` in **JSON lines format** with keys `sample_id`, `status` (success/error/skipped), and `error_code` (if applicable) for every sample processed. This ensures reproducibility and documented derivation as per Constitution Principle I. **Note**: This must be implemented *before* T015 execution. **Dependency**: Must run before T015.
+- [ ] T015 [US1] Implement `src/cli/generate_dataset.py`: Orchestrate streaming of GSM8K/Ultrachat prompts; **for every sample**, execute feature extraction (T012) and quantized inference (T013) **in a paired loop** to ensure alignment. **Store `quantized_logits` as a serialized JSON string** to manage file size. Write `data/processed/training_sample.parquet` with columns: `input_id`, `gradient_norms`, `local_curvature`, `quantized_logits` (string), `calculated_kl_divergence`, `quantization_level`. **Verification**: Task is complete ONLY when `data/processed/training_sample.parquet` exists, contains the specified schema, and the file size is within feasible limits (< 5GB). **Dependency**: Must run after T012, T013, T014, T017 are complete.
+- [ ] T015B [US1] Implement `src/cli/validate_dataset_levels.py`: Load `training_sample.parquet` and **assert** that samples exist for **all three** quantization levels (INT4, INT8, FP8). If any level is missing, **fail loudly** with a clear error message listing the missing levels. **Dependency**: Must run after T015.
+- [ ] T015C [US1] Implement `src/cli/monitor_runtime.py`: **Orchestrate** T015 with an internal timeout loop. Measure runtime *during* data generation. If elapsed time approaches 5.5 hours, **trigger a dataset reduction** (reduce sample size by [deferred] chunks) until the estimated total time is < 6 hours or the sample size reaches the floor of n=300. If the floor cannot be met or the constraint cannot be satisfied, **fail loudly**. **Dependency**: Must run after T015 (conceptually orchestrates it) and before T015B.
+- [ ] T015D [US1] Implement `src/cli/verify_dataset_completeness.py`: Load `training_sample.parquet` and compare the row count against the original input prompt count. **Fail loudly** if counts do not match, ensuring the 'every input sample' mandate is met. **Dependency**: Must run after T015C.
 - [X] T016 [US1] Modify `src/cli/generate_dataset.py` to append a summary log entry at the end of execution recording the **actual observed proportion** of samples with non-zero `calculated_kl_divergence` and report it in the pipeline log
-- [ ] T017 [US1] Add logging for data generation progress, skipped samples, and quantization errors
 - [X] T018 [US1] Implement `src/services/vif_checker.py`: Calculate Variance Inflation Factor (VIF) for gradient norms and curvature on the generated dataset; log results to `logs/pipeline.log` to validate the Assumption before model training
-- [ ] T018A [US1] Implement `src/cli/validate_features.py`: Load `training_sample.parquet`, run VIF diagnostic using `src/services/vif_checker.py`, and **log a warning** (do not raise an error) if collinearity exceeds threshold (VIF > 10) to ensure features are valid before training; log results to `logs/pipeline.log`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
-**Explicit Internal Dependencies for T015**: T015 depends on T012, T013, and T014 being complete to ensure feature extraction, quantized inference, and gap calculation services are available for the paired loop.
+---
+
+## Phase 3.2: Feature Diagnostics (Post-Data Generation)
+
+**Purpose**: Validate dataset features before model training
+
+- [ ] T018B [US1] Implement `src/cli/validate_features_diagnostic.py`: Load `training_sample.parquet`, run VIF diagnostic using `src/services/vif_checker.py` (calling T018), and **log a warning** (do not raise an error) if collinearity exceeds threshold (VIF > 10) to ensure features are valid before training; log results to `logs/pipeline.log`. **Dependency**: Must run after T015D.
+
+**Checkpoint**: Features validated
 
 ---
 
@@ -107,7 +119,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T021A [US2] Implement `src/cli/prepare_data_split.py`: Load `training_sample.parquet`, **stratify by quantization level** (column name: `quantization_level`), and **concatenate stratified splits into a single training set**; write train/val/test splits to `data/processed/split_{set}.parquet`; **ASSERT** that each split contains samples from all three levels, raising an error if not (ensuring FR-004)
+- [ ] T021A [US2] Implement `src/cli/prepare_data_split.py`: Load `training_sample.parquet`, **stratify by quantization level** (column name: `quantization_level`), and **concatenate stratified splits into a single training set**. Write train/val/test splits to `data/processed/split_train.parquet`, `data/processed/split_val.parquet`, and `data/processed/split_test.parquet`. **Verification**: **Assert** that each split contains samples from all three levels (INT4, INT8, FP8) before writing. If any level is missing, **fail loudly**. **Dependency**: Must run after T018B.
 - [ ] T021 [US2] Implement `src/cli/train_predictor.py`: Load stratified `train.parquet` (output of T021A), train KRR, and save model artifact to `data/models/gap_predictor.pkl`
 - [X] T022 [US2] Implement evaluation logic in `src/services/evaluator.py`: Calculate Pearson correlation (r) and MAE between predicted and actual divergence on test set
 - [ ] T022A [US2] Implement `src/cli/evaluate_on_test.py`: Load `test.parquet` (output of T021A), load `gap_predictor.pkl` (output of T021), and run the evaluation logic from T022 against the test set; report metrics to `data/processed/test_metrics.json`
@@ -129,16 +141,18 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026A [US3] Implement `src/cli/synchronize_inputs.py`: Generate a fixed set of input prompts with a **fixed random seed (seed=42)** and write them to `data/processed/synchronized_inputs.json`; this artifact serves as the single source of truth for both T027 and T028 to ensure paired t-test validity; **generate a set of prompts**.
-- [X] T026 [US3] Implement `src/cli/orchestrate_baseline_proxy.py`: Load `test.parquet`, set a **fixed random seed**, and **synchronize input prompts** from T026A; trigger T027 (baseline) and T028 (proxy) with these shared inputs to ensure valid paired comparison
-- [ ] T027 [US3] Implement `src/cli/run_baseline_sync.py`: Execute the **full-hardware-sync baseline** by running actual quantized inference for every sample in the test set (using the same quantization levels as the dataset); calculate ground-truth acceptance rates and final reasoning scores; output results to `data/processed/baseline_metrics.json`; this task provides the ground-truth baseline for T028
-- [X] T028 [US3] Implement `src/cli/run_proxy_loop.py`: Simulate MIPU loop (Proxy Policy vs. **Baseline from T027**) on test set; **execute the script** against the synchronized inputs to generate `proxy_metrics.json`; calculate acceptance rates and final reasoning scores; perform paired t-test comparing Proxy vs. Baseline (FR-006)
-- [ ] T029 [US3] Implement statistical comparison in `src/services/statistical_tester.py`: Perform paired t-test on acceptance rates and final scores; apply Bonferroni correction; **generate `t_test_results.json`** artifact.
-- [ ] T031 [US3] Implement `src/services/bound_verifier.py`: Verify `|predicted - actual| < 0.1` holds **separately for INT4, INT8, and FP8 levels**; **calculate and report** the "percentage of samples satisfying the bound across ALL three levels" to a machine-readable artifact `data/processed/consistency_report.json`
-- [ ] T032 [US3] Implement `src/cli/aggregate_consistency.py`: Aggregate results from T031 to **verify consistency** across all three levels (INT4, INT8, FP8); report correlation coefficient per level and a summary consistency metric (SC-004) in `data/processed/consistency_report.json`
-- [ ] T030 [US3] Implement `src/services/latency_meter.py`: Measure time for **policy evaluation step** (KRR prediction) vs. **full inference latency of the quantized engine** (from T027); **calculate `latency_reduction_percentage`** using formula: `(baseline_time - proxy_time) / baseline_time * 100`; write `proxy_time`, `baseline_time`, `reduction_percentage` to `data/processed/latency_metrics.json` to verify SC-002 (≥90% reduction target)
+**⚠️ Sequential Execution**: T026A -> T026 -> T027 -> T028 -> T029. T027B and T032 run after T028.
+
+- [ ] T026A [US3] Implement `src/cli/synchronize_inputs.py`: Generate a fixed set of input prompts with a **fixed random seed (seed=42)** and write them to `data/processed/synchronized_inputs.json`. **Define RL Task**: The task is GSMK correctness. The 'reward' is 1 if the model's generated answer matches the ground truth, 0 otherwise. **Remove** any custom 'stop/continue' action space. This artifact serves as the single source of truth for both T027 and T028 to ensure paired t-test validity.
+- [ ] T026 [US3] Implement `src/cli/orchestrate_baseline_proxy.py`: Load `test.parquet`, set a **fixed random seed**, and **synchronize input prompts** from T026A; trigger T027 (baseline) and T028 (proxy) with these shared inputs to ensure valid paired comparison. **Remove** any logic that 'triggers' T027/T028; this task only prepares and passes inputs.
+- [ ] T027 [US3] Implement `src/cli/run_baseline_sync.py`: Execute the **full-hardware-sync baseline** by running actual quantized inference for every sample in the test set (using the same quantization levels as the dataset); calculate ground-truth acceptance rates and final reasoning scores based on the **RL task definition** (GSM8K correctness); output results to `data/processed/baseline_metrics.json` with schema `{"acceptance_rate": float, "reasoning_score": float, "timing_metadata": {"total_time": float}}`. **Verification**: Task is complete ONLY when `baseline_metrics.json` exists with valid data. **Dependency**: Must run after T026.
+- [ ] T028 [US3] Implement `src/cli/run_proxy_loop.py`: Simulate MIPU loop (Proxy Policy vs. **Baseline from T027**) on test set; **execute the script** against the synchronized inputs to generate `proxy_metrics.json`; calculate acceptance rates and final reasoning scores based on the **RL task definition**; perform paired t-test comparing Proxy vs. Baseline (FR-006). **Proxy Policy Logic**: Accept if predicted gap < 0.1. **Output Schema**: `{"acceptance_rate": float, "reasoning_score": float, "timing_metadata": {"total_time": float}}`. **Verification**: Task is complete ONLY when `proxy_metrics.json` exists with valid data. **Dependency**: Must run after T027.
+- [ ] T029 [US3] Implement statistical comparison in `src/utils/stats.py`: Perform paired t-test on acceptance rates and final scores; apply **Bonferroni correction**; **generate `data/processed/t_test_results.json`** with schema `{"p_value": float, "statistic": float, "method": "bonferroni_corrected_t_test"}`. **Dependency**: Must run after T027 and T028.
+- [ ] T027B [US3] Implement `src/cli/verify_bound_consistency.py`: Verify `|predicted - actual| < 0.1` holds **separately for INT4, INT8, and FP8 levels**. Calculate the percentage of samples satisfying the bound for each level and the global consistency metric. **Generate `data/processed/consistency_report.json`** with schema `{"per_level_correlations": {"INT4": float, "INT8": float, "FP8": float}, "global_consistency_metric": float, "bound_satisfaction_pct": float}`. **Verification**: Task is complete only if `bound_satisfaction_pct` > 95% for at least one level. **Dependency**: Must run after T028.
+- [ ] T032 [US3] Implement `src/cli/aggregate_bound_results.py`: Aggregate the results from T027B to produce a final summary report. **Generate `data/processed/aggregated_consistency_report.json`** with the global consistency metric and a pass/fail verdict based on the threshold. **Dependency**: Must run after T027B.
+- [ ] T030 [US3] Implement `src/services/latency_meter.py`: Measure time for **policy evaluation step** (KRR prediction) vs. **baseline policy evaluation step** (time to run full hardware sync check for the same prompt). **Read timing metadata from `baseline_metrics.json` and `proxy_metrics.json`**. **Calculate `latency_reduction_percentage`** using formula: `(baseline_policy_eval_time - proxy_policy_eval_time) / baseline_policy_eval_time * 100`; **verify** if the reduction meets the ≥90% target (SC-002); write `proxy_policy_eval_time`, `baseline_policy_eval_time`, `reduction_percentage`, `target_met` (boolean) to `data/processed/latency_metrics.json`. **Dependency**: Must run after T027 and T028.
 - [X] T033 [US3] Generate final research report with all metrics, plots, and statistical conclusions in `docs/reports/001-llmxive-mipu-gap-bounds.md`, including **latency_reduction_percentage** for the **policy evaluation step** (SC-002), consistency findings, **Bonferroni correction method**, and adjusted alpha threshold
-- [ ] T034 [US3] Update `state/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o.yaml` to set `updated_at` to current ISO timestamp and populate `artifact_hashes` with checksums of `data/processed/*.parquet` and `data/models/*.pkl`
+- [ ] T034 [US3] Update `state/projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o.yaml` to set `updated_at` to current ISO 8601 timestamp and populate `artifact_hashes` with SHA-256 checksums of `data/processed/*.parquet` and `data/models/*.pkl`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,14 +162,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035A [P] Update `README.md` with installation steps: Add specific instructions for installing dependencies, setting up environment variables, and running the pipeline.
-- [ ] T035B [P] Update `docs/api.md` with function signatures: Document key functions in `src/services/`, `src/cli/`, and `src/models/` including parameters and return types.
-- [ ] T036A [P] Remove unused imports: Scan all Python files and remove any unused imports.
-- [ ] T036B [P] Optimize loops in `generate_ground_truth.py`: Reduce memory usage by optimizing data loading and processing loops.
-- [ ] T037A [P] Ensure streaming works correctly: Verify chunked processing reduces peak memory usage to < 7GB for datasets > 7GB.
-- [ ] T038 [P] Additional unit tests for edge cases (flat loss landscape, zero gradients) in `tests/unit/`
-- [ ] T039 Security hardening (ensure no PII in logs or datasets)
-- [ ] T040 Run `quickstart.md` validation to ensure reproducibility
+- [ ] T035A [P] Polish and Cleanup: Update `README.md` with installation steps.
+- [ ] T035B [P] Polish and Cleanup: Generate `docs/api.md` with function signatures.
+- [ ] T035C [P] Polish and Cleanup: Remove unused imports, optimize loops in `generate_ground_truth.py`, and verify streaming works correctly (<7GB memory).
+- [ ] T035D [P] Polish and Cleanup: Run `quickstart.md` validation and ensure no PII in logs.
 
 ---
 
@@ -188,7 +198,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -202,9 +212,9 @@
 Task: "Unit test for KL divergence calculation edge cases in tests/unit/test_gap_calculator.py"
 Task: "Integration test for data streaming and schema validation in tests/integration/test_data_generation.py"
 
-# Launch all models/services for User Story 1 together:
+# Launch all models/services for User Story 1 together (Sequential Execution Required):
 Task: "Implement src/services/feature_extractor.py"
-Task: "Implement src/services/quantized_inference.py"
+Task: "Implement src/services/quantized_inference.py" (Must complete before T015)
 Task: "Implement src/services/gap_calculator.py"
 ```
 
@@ -254,9 +264,14 @@ With multiple developers:
 - **Critical Constraint**: Streaming must be used for all dataset loading to avoid OOM on GitHub Actions runners.
 - **Critical Constraint**: Quantized inference must use `llama.cpp` on CPU; if too slow, reduce sample size, do not simulate.
 - **Critical Constraint**: Baseline comparison (T028) MUST use the full-hardware-sync execution from T027, not a static rule.
-- **Critical Constraint**: Data splitting (T021A) MUST stratify by quantization level to ensure joint training (FR-004).
-- **Critical Constraint**: Bound verification (T031/T032) MUST report consistency across all three levels (INT4, INT8, FP8).
+- **Critical Constraint**: Data splitting (T021A) MUST stratify by quantization level to ensure joint training (FR-004) and enforce n >= 300 floor.
+- **Critical Constraint**: Bound verification (T027B) MUST report consistency across all three levels (INT4, INT8, FP8) with a >95% threshold.
 - **Critical Constraint**: Latency measurement (T030) MUST isolate the 'policy evaluation step' and record the specific metric for SC-002.
 - **Critical Constraint**: T015 MUST pair feature extraction and inference for every sample.
 - **Critical Constraint**: T026 MUST synchronize seeds and inputs for T027/T028.
-- **Critical Constraint**: T021A MUST assert all quantization levels are present in splits.
+- **Critical Constraint**: T021A MUST assert all quantization levels are present in splits (or adapt sample size).
+- **Critical Constraint**: T013 MUST fail loudly on engine failure, not skip.
+- **Critical Constraint**: T026A MUST define the RL task as GSM8K correctness (no custom actions).
+- **Critical Constraint**: T015B MUST validate all quantization levels are present.
+- **Critical Constraint**: T015C MUST enforce the 6-hour runtime limit *during* generation.
+- **Critical Constraint**: T015D MUST verify dataset completeness (row count) before proceeding.
