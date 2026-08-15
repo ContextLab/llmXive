@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a Zero-Shot Drift Detection system for the AgentDoG 1.5 framework. The system computes a "Drift Score" for security logs by calculating the cosine distance between log embeddings and a **pre-defined safety taxonomy** derived from the *AgentDoG 1.5* paper's categories (external to the test dataset). It validates these scores against human annotations (using a gold-standard proxy for CI) and compares performance against a zero-shot LLM baseline (gpt-4o-mini). The implementation prioritizes CPU-first execution (using `all-MiniLM-L6-v2`) to fit within GitHub Actions free-tier constraints (7GB RAM, 6h limit) while maintaining statistical rigor (p < 0.05, Cohen's d ≥ 0.5) and strict data reproducibility.
+This project implements a Zero-Shot Drift Detection system for the AgentDoG 1.5 framework. The system computes a "Drift Score" for security logs by calculating the cosine distance between log embeddings and a **pre-defined safety taxonomy** derived from the *AgentDoG 1.5* paper's categories (external to the test dataset). It validates these scores against human annotations (using a gold-standard proxy for CI) and compares performance against a zero-shot LLM baseline (gpt-4o-mini). The implementation prioritizes CPU-first execution (using `all-MiniLM-L6-v2`) to fit within GitHub Actions free-tier constraints (GB RAM, 6h limit) while maintaining statistical rigor (p < 0.05, Cohen's d ≥ 0.5) and strict data reproducibility.
 
 ## Technical Context
 

@@ -75,14 +75,14 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2410.21676
   verified_at: '2026-08-12T15:52:33.437743Z'
-- artifact_hash: f2239695654e7dfa9423634ff8567ef104d8fde99a6d69a6eaeb6e8e915345eb
+- artifact_hash: 408f010ca95ca301521a9e095d196467ad1557e3ce5f5fec93f7b9784613e960
   artifact_path: projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/specs/001-llmxive-follow-up-extending-agentdog-1-5/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: '[2410.21676] How Does Critical Batch Size Scale in Pre-training?'
   kind: url
-  value: https://huggingface.co/datasets/AgentDoG/safety-taxonomy`
+  value: https://arxiv.org/abs/2410.21676
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/AgentDoG/safety-taxonomy
-  verified_at: '2026-08-13T17:07:47.037771Z'
+  verified_against_url: https://arxiv.org/abs/2410.21676
+  verified_at: '2026-08-15T11:54:47.048054Z'

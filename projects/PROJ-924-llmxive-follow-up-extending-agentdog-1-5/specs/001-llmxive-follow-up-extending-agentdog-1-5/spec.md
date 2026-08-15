@@ -63,8 +63,8 @@ The AgentDoG safety taxonomy includes four categories:
 7. **Final Report**: Generate comparison report with statistical validation.
 
 ## Resource Constraints
-- Maximum RAM: 7 GB (GitHub Actions free-tier)
-- Maximum runtime: 30 minutes for benchmark tasks
+- Maximum RAM: GB (GitHub Actions free-tier)
+- Maximum runtime: a bounded duration suitable for benchmark tasks
 - Model: google/flan-t5-small (substituted from gpt-4o-mini due to memory constraints)
 
 ## Success Metrics
