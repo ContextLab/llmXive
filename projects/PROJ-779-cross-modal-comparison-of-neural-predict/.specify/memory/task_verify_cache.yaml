@@ -1,3 +1,25 @@
+T032:
+  c: false
+  h: 134445be4696f8fca7f35874cedb60ba6c103382cf6606306bff6f1d982e9de6
+  r: The repository lacks the required input file `data/processed/cleaned_data.fif`
+    and the expected output `data/results/metrics_summary.json`. Moreover, the provided
+    `code/main.py` is truncated and does not show any logic that actually invokes
+    an extraction step after preprocessing, so we cannot confirm the required behavior.
+    Both the necessary files and the complete script implementation are missing.
+T036:
+  c: false
+  h: 781ce5402d362194450012439b6cac1656ddeb85801a6cf7b751394b6c31daa6
+  r: The required GitHub Actions workflow file `.github/workflows/ci.yml` is missing,
+    so there is no evidence that the CI integration test was implemented, run, or
+    met the specified resource and success constraints.
+T039:
+  c: false
+  h: ed71639131a713959a0e65f5bca3fa0a64c05a1f22b617bd62e389ab4afb0402
+  r: "The provided `code/analysis/source.py` contains only head\u2011model and forward\u2011\
+    solution setup functions and shows no implementation of a \u03C3\u2011sweep, Coefficient\
+    \ of Variation calculation, or CSV export. Moreover, the required output file\
+    \ `data/results/sensitivity_analysis.csv` is absent from the repository. Both\
+    \ the core functionality and the expected result file are missing."
 T048:
   c: false
   h: f6eed9a677e5c7ffb349f2d45c0ea1cc42864835e48a78a10deae451eb56a1f5

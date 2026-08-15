@@ -74,7 +74,7 @@ code/
 ## Phase Breakdown & FR/SC Mapping
 
 ### Phase 0: Data Acquisition & Validation (FR-001, FR-008, FR-009, FR-011)
-- **Action**: Download Auditory (ds000246) and Visual (ds000117) datasets from OpenNeuro.
+- **Action**: Download Auditory and Visual datasets from OpenNeuro.
 - **Validation**: Check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard).
 - **FR Mapping**: FR-001 (Download/Validate), FR-008 (Trial count error), FR-009 (Missing modality), FR-011 (Sampling rate error).
 - **SC Mapping**: SC-004 (Feasibility check starts here).

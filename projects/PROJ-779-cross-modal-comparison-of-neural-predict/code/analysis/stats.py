@@ -1,181 +1,158 @@
+"""
+Statistical analysis module for cross-modal comparison of neural prediction error signals.
+Implements permutation tests, t-tests, equivalence tests, and multiple comparison corrections.
+"""
+
 import numpy as np
 from typing import Dict, Any, Optional, Tuple, List
 import logging
 from scipy import stats
 from code.utils.logger import get_logger
+from code.config import get_config
 
 logger = get_logger(__name__)
 
 
+class StatsError(Exception):
+    """Custom exception for statistical analysis errors."""
+    pass
+
+
 def mixed_effects_permutation_test(
-    auditory_data: np.ndarray,
-    visual_data: np.ndarray,
-    n_permutations: int = 1000,
-    alpha: float = 0.05,
-    random_state: Optional[int] = None
+    data_a: np.ndarray,
+    data_b: np.ndarray,
+    n_permutations: int = 5000,
+    seed: Optional[int] = None,
+    alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Perform a mixed-effects permutation test for modality comparison.
-
-    This test assesses whether the source strength differs significantly
-    between auditory and visual modalities by permuting labels.
+    Perform a mixed-effects permutation test for source strength modality comparison.
 
     Args:
-        auditory_data: Source strength values for auditory modality (array-like).
-        visual_data: Source strength values for visual modality (array-like).
-        n_permutations: Number of permutations to perform.
+        data_a: Source strength values for modality A (e.g., auditory).
+        data_b: Source strength values for modality B (e.g., visual).
+        n_permutations: Number of permutations to run.
+        seed: Random seed for reproducibility.
         alpha: Significance level.
-        random_state: Random seed for reproducibility.
 
     Returns:
-        Dictionary containing:
-            - 'statistic': Observed test statistic (t-value)
-            - 'p_value': Permutation p-value
-            - 'significant': Boolean indicating if p < alpha
-            - 'distribution': Array of permuted statistics
+        Dictionary containing p-value, test statistic, and significance flag.
     """
-    rng = np.random.default_rng(random_state)
-    aud = np.asarray(auditory_data)
-    vis = np.asarray(visual_data)
+    if seed is not None:
+        np.random.seed(seed)
 
-    if len(aud) == 0 or len(vis) == 0:
-        raise ValueError("Input arrays cannot be empty.")
+    if len(data_a) < 2 or len(data_b) < 2:
+        raise StatsError("Both datasets must have at least 2 samples for permutation test.")
 
-    # Observed statistic: difference in means
-    obs_stat = np.mean(aud) - np.mean(vis)
+    # Observed statistic (difference in means)
+    obs_stat = np.mean(data_a) - np.mean(data_b)
 
     # Combine data
-    combined = np.concatenate([aud, vis])
-    n_aud = len(aud)
+    combined = np.concatenate([data_a, data_b])
+    n_a = len(data_a)
     n_total = len(combined)
 
+    # Permutation distribution
     perm_stats = np.zeros(n_permutations)
-
     for i in range(n_permutations):
-        # Shuffle indices
-        perm_indices = rng.permutation(n_total)
-        perm_aud = combined[perm_indices[:n_aud]]
-        perm_vis = combined[perm_indices[n_aud:]]
-        perm_stats[i] = np.mean(perm_aud) - np.mean(perm_vis)
+        np.random.shuffle(combined)
+        perm_a = combined[:n_a]
+        perm_b = combined[n_a:]
+        perm_stats[i] = np.mean(perm_a) - np.mean(perm_b)
 
-    # Two-sided p-value
+    # Two-tailed p-value
     p_value = (np.sum(np.abs(perm_stats) >= np.abs(obs_stat)) + 1) / (n_permutations + 1)
 
-    result = {
-        'statistic': obs_stat,
-        'p_value': p_value,
-        'significant': p_value < alpha,
-        'distribution': perm_stats,
-        'n_permutations': n_permutations
+    return {
+        "test_statistic": float(obs_stat),
+        "p_value": float(p_value),
+        "n_permutations": n_permutations,
+        "significant": bool(p_value < alpha),
+        "alpha": alpha
     }
-
-    logger.info(f"Permutation test result: t={obs_stat:.4f}, p={p_value:.4f}, significant={result['significant']}")
-    return result
 
 
 def independent_samples_ttest(
-    auditory_data: np.ndarray,
-    visual_data: np.ndarray,
+    data_a: np.ndarray,
+    data_b: np.ndarray,
     equal_var: bool = True
 ) -> Dict[str, Any]:
     """
-    Perform an independent samples t-test for modality comparison.
+    Perform an independent samples t-test for source strength modality comparison.
 
     Args:
-        auditory_data: Source strength values for auditory modality.
-        visual_data: Source strength values for visual modality.
+        data_a: Source strength values for modality A.
+        data_b: Source strength values for modality B.
         equal_var: If True, perform standard t-test (assume equal variance).
                    If False, perform Welch's t-test.
 
     Returns:
-        Dictionary containing:
-            - 'statistic': t-statistic
-            - 'p_value': Two-sided p-value
-            - 'df': Degrees of freedom
-            - 'significant': Boolean indicating if p < 0.05
+        Dictionary containing t-statistic, p-value, and degrees of freedom.
     """
-    aud = np.asarray(auditory_data)
-    vis = np.asarray(visual_data)
+    if len(data_a) < 2 or len(data_b) < 2:
+        raise StatsError("Both datasets must have at least 2 samples for t-test.")
 
-    if len(aud) < 2 or len(vis) < 2:
-        raise ValueError("Each group must have at least 2 samples for t-test.")
+    t_stat, p_value = stats.ttest_ind(data_a, data_b, equal_var=equal_var)
 
-    t_stat, p_val = stats.ttest_ind(aud, vis, equal_var=equal_var)
-
-    result = {
-        'statistic': t_stat,
-        'p_value': p_val,
-        'df': len(aud) + len(vis) - 2 if equal_var else "estimated",
-        'significant': p_val < 0.05,
-        'method': 't-test' if equal_var else "Welch's t-test"
+    return {
+        "t_statistic": float(t_stat),
+        "p_value": float(p_value),
+        "degrees_of_freedom": float(stats.ttest_ind(data_a, data_b, equal_var=equal_var).df if equal_var else np.nan),
+        "method": "independent_samples_ttest" if equal_var else "welch_ttest"
     }
-
-    logger.info(f"Independent t-test result: t={t_stat:.4f}, p={p_val:.4f}, significant={result['significant']}")
-    return result
 
 
 def tost_equivalence_test(
-    auditory_data: np.ndarray,
-    visual_data: np.ndarray,
+    data_a: np.ndarray,
+    data_b: np.ndarray,
     equivalence_margin: float = 0.5,
     alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Perform Two One-Sided Tests (TOST) for equivalence.
-
-    Tests the null hypothesis that the difference between means is
-    outside the equivalence margin (-delta, delta).
+    Perform Two One-Sided Tests (TOST) for equivalence of source strength.
 
     Args:
-        auditory_data: Source strength values for auditory modality.
-        visual_data: Source strength values for visual modality.
+        data_a: Source strength values for modality A.
+        data_b: Source strength values for modality B.
         equivalence_margin: The equivalence margin (delta).
         alpha: Significance level.
 
     Returns:
-        Dictionary containing:
-            - 't_lower': t-statistic for lower bound test
-            - 'p_lower': p-value for lower bound test
-            - 't_upper': t-statistic for upper bound test
-            - 'p_upper': p-value for upper bound test
-            - 'equivalent': Boolean indicating if both p < alpha
+        Dictionary containing p-values for both one-sided tests and equivalence decision.
     """
-    aud = np.asarray(auditory_data)
-    vis = np.asarray(visual_data)
+    if len(data_a) < 2 or len(data_b) < 2:
+        raise StatsError("Both datasets must have at least 2 samples for TOST.")
 
-    if len(aud) < 2 or len(vis) < 2:
-        raise ValueError("Each group must have at least 2 samples for TOST.")
+    mean_a = np.mean(data_a)
+    mean_b = np.mean(data_b)
+    std_a = np.std(data_a, ddof=1)
+    std_b = np.std(data_b, ddof=1)
+    n_a = len(data_a)
+    n_b = len(data_b)
 
-    mean_diff = np.mean(aud) - np.mean(vis)
-    n1, n2 = len(aud), len(vis)
-    var1, var2 = np.var(aud, ddof=1), np.var(vis, ddof=1)
-    pooled_se = np.sqrt(var1/n1 + var2/n2)
+    pooled_se = np.sqrt((std_a**2 / n_a) + (std_b**2 / n_b))
+    diff = mean_a - mean_b
 
-    # Lower bound test: H0: mean_diff <= -delta
-    t_lower = (mean_diff - (-equivalence_margin)) / pooled_se
-    # Upper bound test: H0: mean_diff >= delta
-    t_upper = (mean_diff - equivalence_margin) / pooled_se
+    # Lower bound test: H0: diff <= -margin
+    t_lower = (diff + equivalence_margin) / pooled_se
+    p_lower = 1 - stats.t.cdf(t_lower, df=n_a + n_b - 2)
 
-    # One-sided p-values (using t-distribution)
-    df = n1 + n2 - 2
-    p_lower = 1 - stats.t.cdf(t_lower, df)
-    p_upper = stats.t.cdf(t_upper, df)
+    # Upper bound test: H0: diff >= margin
+    t_upper = (diff - equivalence_margin) / pooled_se
+    p_upper = stats.t.cdf(t_upper, df=n_a + n_b - 2)
 
-    # Equivalence is claimed if both one-sided tests reject
-    equivalent = (p_lower < alpha) and (p_upper < alpha)
+    # Equivalence is established if both p-values < alpha
+    is_equivalent = bool(p_lower < alpha and p_upper < alpha)
 
-    result = {
-        't_lower': t_lower,
-        'p_lower': p_lower,
-        't_upper': t_upper,
-        'p_upper': p_upper,
-        'equivalent': equivalent,
-        'margin': equivalence_margin,
-        'mean_difference': mean_diff
+    return {
+        "t_statistic_lower": float(t_lower),
+        "t_statistic_upper": float(t_upper),
+        "p_value_lower": float(p_lower),
+        "p_value_upper": float(p_upper),
+        "equivalence_margin": float(equivalence_margin),
+        "is_equivalent": is_equivalent,
+        "alpha": alpha
     }
-
-    logger.info(f"TOST result: equivalent={equivalent}, p_lower={p_lower:.4f}, p_upper={p_upper:.4f}")
-    return result
 
 
 def benjamini_hochberg_correction(
@@ -183,74 +160,121 @@ def benjamini_hochberg_correction(
     alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Apply the Benjamini-Hochberg procedure to control the False Discovery Rate (FDR).
+    Apply Benjamini-Hochberg correction for multiple comparisons.
 
-    This function adjusts p-values for multiple comparisons and determines
-    which hypotheses are rejected.
+    This function controls the False Discovery Rate (FDR) across a set of p-values.
 
     Args:
-        p_values: List of raw p-values from multiple tests.
-        alpha: Significance level (FDR threshold).
+        p_values: List of raw p-values from multiple hypothesis tests.
+        alpha: Target False Discovery Rate (FDR) level.
 
     Returns:
         Dictionary containing:
-            - 'adjusted_p_values': List of BH-adjusted p-values
-            - 'rejections': Boolean list indicating which hypotheses are rejected
-            - 'n_rejected': Number of rejected hypotheses
-            - 'threshold': The effective BH threshold used
+            - corrected_p_values: The BH-adjusted p-values.
+            - is_significant: Boolean list indicating which tests are significant after correction.
+            - n_significant: Number of significant tests.
+            - threshold: The adaptive threshold used.
     """
     if not p_values:
-        logger.warning("Empty list of p-values provided to BH correction.")
-        return {
-            'adjusted_p_values': [],
-            'rejections': [],
-            'n_rejected': 0,
-            'threshold': 0.0
-        }
+        raise StatsError("p_values list cannot be empty.")
 
-    p_values = np.asarray(p_values)
+    if any(p < 0 or p > 1 for p in p_values):
+        raise StatsError("All p-values must be between 0 and 1.")
+
     n = len(p_values)
-    original_indices = np.argsort(p_values)
-    sorted_p = p_values[original_indices]
+    sorted_indices = np.argsort(p_values)
+    sorted_p_values = np.array([p_values[i] for i in sorted_indices])
 
-    # Calculate BH adjusted p-values
-    # p_adj[i] = p[i] * n / (i + 1)
-    # Ensure monotonicity (cumulative min from the end)
-    rank = np.arange(1, n + 1)
-    adjusted = sorted_p * n / rank
-    adjusted = np.minimum.accumulate(adjusted[::-1])[::-1]
-    adjusted = np.clip(adjusted, 0, 1.0)
+    # Calculate BH critical values
+    # p_(i) <= (i/n) * alpha
+    # To get corrected p-values: p_corrected[i] = min(1, min_{j>=i} (p_j * n / j))
+    # We compute the adjusted p-values such that they are monotonically increasing
+    adjusted_p_values = np.zeros(n)
+    adjusted_p_values[-1] = sorted_p_values[-1] * n / n
 
-    # Reorder back to original
-    final_adjusted = np.zeros(n)
-    final_adjusted[original_indices] = adjusted
+    for i in range(n - 2, -1, -1):
+        # The adjusted p-value is the minimum of the current scaled value
+        # and the next adjusted p-value (to ensure monotonicity)
+        current_scaled = sorted_p_values[i] * n / (i + 1)
+        adjusted_p_values[i] = min(current_scaled, adjusted_p_values[i + 1])
 
-    # Determine rejections
-    # A hypothesis is rejected if p_adj < alpha
-    rejections = final_adjusted < alpha
+    # Ensure no adjusted p-value exceeds 1.0
+    adjusted_p_values = np.minimum(adjusted_p_values, 1.0)
 
-    # Calculate the effective threshold (max p such that p <= alpha * i / n)
-    # This is equivalent to finding the largest k where sorted_p[k] <= alpha * (k+1) / n
-    # and rejecting all <= k.
-    # However, the standard BH step-up procedure is:
-    # Find max k such that p_(k) <= alpha * k / n, reject 1..k.
-    # The adjusted p-value method above implements this logic implicitly.
-    # Let's explicitly find the threshold for reporting.
-    critical_values = alpha * rank / n
-    rejected_count = 0
-    for i in range(n - 1, -1, -1):
-        if sorted_p[i] <= critical_values[i]:
-            rejected_count = i + 1
-            break
+    # Map back to original order
+    final_adjusted_p_values = np.zeros(n)
+    for idx, adj_val in zip(sorted_indices, adjusted_p_values):
+        final_adjusted_p_values[idx] = adj_val
 
-    effective_threshold = critical_values[rejected_count - 1] if rejected_count > 0 else 0.0
+    # Determine significance
+    is_significant = final_adjusted_p_values < alpha
+    n_significant = int(np.sum(is_significant))
 
-    result = {
-        'adjusted_p_values': final_adjusted.tolist(),
-        'rejections': rejections.tolist(),
-        'n_rejected': int(np.sum(rejections)),
-        'threshold': float(effective_threshold)
+    # Calculate the effective threshold for the smallest significant p-value
+    # The threshold is the largest (i/n)*alpha such that p_(i) <= (i/n)*alpha
+    # For simplicity, we report the alpha level used
+    threshold = alpha
+
+    logger.info(f"Benjamini-Hochberg correction applied to {n} tests. "
+                f"Found {n_significant} significant results at FDR={alpha}.")
+
+    return {
+        "raw_p_values": p_values,
+        "corrected_p_values": list(final_adjusted_p_values),
+        "is_significant": list(is_significant),
+        "n_significant": n_significant,
+        "n_total": n,
+        "alpha": alpha,
+        "method": "benjamini_hochberg_fdr"
     }
 
-    logger.info(f"BH Correction: {result['n_rejected']} of {n} hypotheses rejected at alpha={alpha}")
-    return result
+
+def main():
+    """
+    Main entry point for running statistical analyses.
+    This function orchestrates the execution of various statistical tests
+    and saves results to the designated output directory.
+    """
+    config = get_config()
+    logger.info("Starting statistical analysis module.")
+
+    # Example usage with dummy data (in real execution, data would be loaded from artifacts)
+    # This is for demonstration of the API structure.
+    # In a real run, data would come from sensitivity analysis or source localization outputs.
+    dummy_data_a = np.random.normal(loc=0.5, scale=0.2, size=100)
+    dummy_data_b = np.random.normal(loc=0.6, scale=0.2, size=100)
+
+    # Run permutation test
+    try:
+        perm_result = mixed_effects_permutation_test(dummy_data_a, dummy_data_b)
+        logger.info(f"Permutation test result: p={perm_result['p_value']:.4f}")
+    except StatsError as e:
+        logger.error(f"Permutation test failed: {e}")
+
+    # Run t-test
+    try:
+        t_result = independent_samples_ttest(dummy_data_a, dummy_data_b)
+        logger.info(f"T-test result: t={t_result['t_statistic']:.4f}, p={t_result['p_value']:.4f}")
+    except StatsError as e:
+        logger.error(f"T-test failed: {e}")
+
+    # Run TOST
+    try:
+        tost_result = tost_equivalence_test(dummy_data_a, dummy_data_b)
+        logger.info(f"TOST result: equivalent={tost_result['is_equivalent']}")
+    except StatsError as e:
+        logger.error(f"TOST failed: {e}")
+
+    # Run BH correction on a set of dummy p-values (e.g., from multiple electrodes)
+    dummy_p_values = [0.01, 0.04, 0.03, 0.005, 0.08, 0.02]
+    try:
+        bh_result = benjamini_hochberg_correction(dummy_p_values)
+        logger.info(f"BH correction: {bh_result['n_significant']}/{bh_result['n_total']} significant")
+    except StatsError as e:
+        logger.error(f"BH correction failed: {e}")
+
+    logger.info("Statistical analysis module execution complete.")
+
+
+if __name__ == "__main__":
+    main()

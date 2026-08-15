@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-779-cross-modal-comparison-of-neural-predict
-last_run_id: 817a693d-140d-48db-8128-c37c09c08633
+last_run_id: b9ee6053-1341-41a0-baeb-ce7a14a245ea
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-779-cross-modal-comparison-of-neural-predict/specs/001-cross-modal-comparison-of-neural-predict
 title: Cross-Modal Comparison of Neural Prediction Error Signals
-updated_at: '2026-08-13T21:37:36.995935Z'
+updated_at: '2026-08-15T19:04:18.889645Z'

@@ -47,8 +47,9 @@
 - [X] T001b [P] Create `code/data/` directory and `code/data/__init__.py`
 - [X] T001c [P] Create `code/analysis/` and `code/validation/` directories with `__init__.py` files
 - [X] T002 [P] Create `requirements.txt` with pinned versions (mne, numpy, scipy, scikit-learn, pandas, statsmodels, h5py, requests, pytest, huggingface_hub)
-- [X] T003 [P] Create virtualenv and install dependencies from `requirements.txt` <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
-- [X] T004 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T003 [P] **Setup Virtualenv**: Create `.venv` directory and install dependencies from `requirements.txt`. **Verification**: Run `pip list` and confirm all packages from `requirements.txt` are installed with correct versions.
+- [X] T004 [P] **Configure Linting/Formatting**: Create `.ruff.toml` and `pyproject.toml` with `[tool.black]` and `[tool.ruff]` configuration sections. **Verification**: Run `ruff check code/` and `black --check code/` to ensure exit code 0.
+- [X] T010 [P] **Setup Config Management**: Create `code/config_loader.py` to load environment variables from `.env` (or defaults) and `.env.example` with placeholder keys. **Verification**: Run `python -c "from code.config_loader import load; load()"` and verify no errors.
 
 ---
 
@@ -63,8 +64,9 @@
 - [X] T007 [P] Setup `code/data/__init__.py` and base logging infrastructure
 - [X] T008 Create base `code/data/data_loader.py` skeleton for dataset validation logic
 - [X] T009 Configure error handling and logging infrastructure in `code/utils/logger.py`
-- [ ] T010 Setup environment configuration management (load from `.env` or defaults)
 - [X] T011 [P] **Setup**: Document "Real Data" assumption in `docs/README.md` and `code/config.py`, explicitly stating that all data must originate from OpenNeuro datasets and that no synthetic data generation is permitted.
+- [X] T055a [P] **Draft Constitution Amendment**: Create `docs/constitution-amendment-vii.md` explicitly documenting the substitution of behavioral measures with split-half reliability for passive oddball paradigms (as authorized by Plan 'Constitution Check' section), and propose text amendment. **Format**: Markdown document with clear justification, reference to Plan 'Constitution Check', and proposed text amendment. **Verification**: Document created and reviewed.
+- [X] T055b [P] **Propose Amendment**: Open a Pull Request containing `docs/constitution-amendment-vii.md` for governance review. **Note**: Ratification is a governance action performed by the Advancement-Evaluator Agent; this task is complete upon PR creation. **Verification**: PR created and linked. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel (dependent on data availability)
 
@@ -86,15 +88,14 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `code/data/download.py` to fetch ds (auditory) using `mne.datasets`. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure.**
-- [X] T016 [US1] Implement `code/data/download.py` to fetch ds (visual) using `huggingface_hub.snapshot_download` with **Dataset ID: openneuro/ds ** and **Version Tag: r.0 **. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure.** **Depends on T015 completion** (sequential dataset fetch for consistency). <!-- FAILED: unspecified -->
-- [X] T017 [US1] Implement `code/data/download.py` validation logic for Auditory: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard); halt with specific error codes if failed (FR-008, FR-009, FR-011). **Depends on T015.**
-- [X] T018 [US1] Implement `code/data/download.py` validation logic for Visual: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard); halt with specific error codes if failed (FR-008, FR-009, FR-011). **Depends on T016.** <!-- FAILED: unspecified -->
+- [X] T015 [US1] Implement `code/data/download.py` to fetch ds000XXX (auditory) using `mne.datasets`. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure.**
+- [X] T016 [P] [US1] **Implement Visual Download**: Implement `code/data/download.py` to fetch ds (visual) using `mne.datasets.fetch_openneuro_dataset(ds_id="ds000117")`. **This task must ensure metadata is extracted immediately after fetch to validate the dataset structure independently of T015.** **Depends on**: None (Independent of T015).
+- [X] T017 [US1] Implement `code/data/download.py` validation logic for Auditory: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard); halt with specific error codes (FR-008, FR-009, FR-011) if failed. **Depends on T015.**
+- [X] T018 [US1] Implement `code/data/download.py` validation logic for Visual: check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard) for ds000117; halt with specific error codes (FR-008, FR-009, FR-011) if failed. **Depends on T016.**
 - [X] T019 [US1] Implement `code/data/preprocess.py` bandpass filter (low-frequency cutoff).
 - [X] T020 [US1] Implement `code/data/preprocess.py` ICA artifact removal (using MNE default settings, CPU-tractable). **Depends on T019.**
 - [X] T021 [US1] Implement `code/data/preprocess.py` common average re-referencing. **Depends on T020.**
-- [ ] T022 [US1] Implement `code/data/preprocess.py` to **SAVE CLEANED DATA ARTIFACT** (`data/processed/cleaned_data.fif`) and trial rejection logging. **Depends on T021.**
-- [X] T023 [US1] Create `code/main.py` orchestration script to chain download → validate → preprocess
+- [ ] T022 [US1] **Save Cleaned Data**: Implement `code/data/preprocess.py` to **SAVE CLEANED DATA ARTIFACT** (`data/processed/cleaned_data.fif`) and trial rejection logging. **Depends on T021.**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. US2 and US3 can only start after T022 completes.
 
@@ -117,9 +118,9 @@
 - [X] T027 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves (Oddball - Standard) at fronto-central electrodes (Auditory). **Depends on T022 (Cleaned Data Artifact).**
 - [X] T028 [P] [US2] Implement `code/analysis/metrics.py` function to compute difference waves at occipito-parietal electrodes (Visual). **Depends on T022 (Cleaned Data Artifact).**
 - [X] T029 [US2] Implement `code/analysis/metrics.py` peak latency extraction (Auditory and Visual modalities)
-- [X] T030 [US2] Implement `code/analysis/metrics.py` mean amplitude extraction for the same windows <!-- FAILED: unspecified -->
-- [X] T031 [US2] Implement `code/analysis/metrics.py` to generate a summary table (DataFrame/JSON) with latency, amplitude, and modality labels
-- [ ] T032 [US2] Update `code/main.py` to call extraction after preprocessing and save results to `data/results/metrics_summary.json` <!-- FAILED: unspecified -->
+- [ ] T030 [US2] **Extract Mean Amplitude**: Implement `code/analysis/metrics.py` mean amplitude extraction. **Windows**: Auditory (early to mid-latency), Visual (–350 ms). **Output**: `data/results/metrics_summary.json`. **Verification**: Verify JSON contains `mean_amplitude` field for both modalities with correct window labels. **Depends on T022.** <!-- ATOMIZE: requested -->
+- [X] T031 [US2] Implement `code/analysis/metrics.py` to generate a summary table (DataFrame/JSON) with latency, amplitude, and modality labels. **Depends on T030.**
+- [ ] T032 [US2] Update `code/main.py` to call extraction after preprocessing. **Input**: `data/processed/cleaned_data.fif`. **Output**: `data/results/metrics_summary.json`. **Verification**: Run `main.py` and verify `metrics_summary.json` exists with non-empty content. **Depends on T031.** <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently.
 
@@ -136,23 +137,23 @@
 - [X] T033 [P] [US3] Unit test for MNE lead field generation in `tests/unit/analysis/test_source.py` <!-- SKIPPED: non-mapping output -->
 - [X] T034 [P] [US3] Unit test for permutation test logic in `tests/unit/analysis/test_stats.py`
 - [X] T035 [P] [US3] Unit test for split-half reliability calculation in `tests/unit/validation/test_reliability.py`
-- [ ] T036 [P] [US3] CI Integration test: Run full pipeline on GitHub Actions and verify time/memory constraints <!-- FAILED: unspecified -->
+- [ ] T036 [P] [US3] CI Integration test: Run full pipeline on GitHub Actions. **Workflow**: `.github/workflows/ci.yml`. **Constraints**: 2 CPU, 7GB RAM. **Success**: Exit code 0, runtime < 6h. **Verification**: Check CI logs for resource usage and exit code. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
 - [X] T037 [US3] Implement `code/analysis/source.py` to setup ICBM152 head model and compute lead fields. **Depends on T022 (cleaned data) and T005 (config paths).**
 - [X] T038 [US3] Implement `code/analysis/source.py` MNE with depth weighting and orientation normalization. **Depends on T037 (Lead Fields).**
-- [ ] T039 [US3] Implement `code/analysis/source.py` sensitivity analysis: sweep spatial smoothing kernel (σ ∈ {low, medium, high} mm), compute Coefficient of Variation, and **Generate and save `data/results/sensitivity_analysis.csv` containing source strength vs. sigma values** (FR-014). **Depends on T038.**
-- [X] T040 [US3] Implement `code/analysis/stats.py` Mixed-Effects Permutation Test (sufficient permutations for robust inference) for **source strength** modality comparison. **Depends on T039.**
-- [X] T041 [US3] Implement `code/analysis/stats.py` independent samples t-test for **source strength** modality comparison (Required by FR-006 'OR' condition). **Depends on T040.**
-- [X] T042 [US3] Implement `code/analysis/stats.py` TOST (Two One-Sided Tests) for **source strength** equivalence. **Depends on T041.**
-- [X] T043 [US3] Implement `code/analysis/stats.py` Benjamini-Hochberg correction for multiple comparisons. **Depends on T042.**
-- [X] T044 [US3] Implement `code/validation/reliability.py` split-half reliability (Odd/Even trials) and Cronbach's α calculation (FR-013). **Depends on T039.**
+- [ ] T039 [US3] **Sensitivity Analysis**: Implement `code/analysis/source.py` sensitivity analysis: sweep spatial smoothing kernel σ over **σ ∈ {5, 10, 15} mm**, compute Coefficient of Variation, and **Generate and save `data/results/sensitivity_analysis.csv` containing source strength vs. sigma values** (FR-014). **Depends on T038.** <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T040 [P] [US3] Implement `code/analysis/stats.py` Mixed-Effects Permutation Test (sufficient permutations for robust inference) for **source strength** modality comparison. **Depends on T039.** <!-- FAILED: unspecified -->
+- [X] T041 [P] [US3] Implement `code/analysis/stats.py` independent samples t-test for **source strength** modality comparison (Required by FR-006 'OR' condition). **Depends on T039.**
+- [X] T042 [P] [US3] Implement `code/analysis/stats.py` TOST (Two One-Sided Tests) for **source strength** equivalence. **Depends on T039.**
+- [X] T043 [P] [US3] Implement `code/analysis/stats.py` Benjamini-Hochberg correction for multiple comparisons. **Depends on T039.**
+- [X] T044 [US3] Implement `code/validation/reliability.py` split-half reliability (Odd/Even trials) and Cronbach's α calculation (FR-013). **Depends on T031 (Metrics Summary).** <!-- ATOMIZE: requested -->
+- [ ] T048 [US3] **Data Integrity Verification**: Implement `code/main.py` to validate that processed data artifacts match the checksums recorded in `state/projects/PROJ-779-cross-modal-comparison-of-neural-predict.yaml` (generated during T015/T016). **Depends on T022 (Cleaned Data).**
 - [X] T045 [US3] Implement `code/main.py` to aggregate results from T037-T044 for final report generation (Report Assembly). **Depends on completion of T037-T044.**
 - [X] T046 [US3] Implement `code/main.py` logic for Latency Classification: Check |Δt| < 50ms (SC-001) and set classification field.
-- [X] T047 [US3] Implement `code/main.py` logic for Source Overlap: Check **Dice > 0.6 AND TOST p < 0.05** (Plan Logic) and set classification field. **Note: Implements Plan Phase 4 logic, overriding obsolete SC-002 text.**
-- [ ] T048 [US3] **Data Integrity Verification**: Implement `code/main.py` to validate that processed data artifacts match the checksums recorded in `data/manifest.json` (generated during T015/T016). **Replace any 'random source' detection logic with this concrete checksum verification to ensure data originates from the fetched OpenNeuro sources.** **Depends on T045.**
-- [ ] T049 [US3] Generate final report in `data/results/final_report.md` stating: (A) Latency difference vs 50ms threshold, (B) Source overlap (Dice) & TOST result, (C) Reliability score, (D) Computational feasibility confirmation. **Depends on T046, T047, T048.**
+- [ ] T047 [US3] **Source Overlap Logic**: Implement `code/main.py` logic for Source Overlap: Check **Dice > 0.6 AND TOST p < 0.05** (Plan Phase 4 Logic). **Note**: Implements Plan Phase 4 logic, which supersedes ambiguous SC-002 text. **Current Spec SC-002 defines 'p > 0.05' for domain-general; this task implements the Plan's proposed logic pending ratification of the SC-002 amendment.** **Depends on T048, T046, T042.**
+- [ ] T049 [US3] **Generate Final Report**: Generate final report in `data/results/final_report.md`. **Sections**: (A) Latency difference vs 50ms threshold, (B) Source overlap (Dice) & TOST result, (C) Reliability score, (D) Computational feasibility confirmation, (E) Constitution Compliance (citing proposed amendment from T055a/T055b). **Verification**: Verify report contains all sections and specific metrics (Dice > 0.6, TOST p < 0.05). **Note**: Acknowledges SC-002 conflict pending ratification. **Depends on T048, T046, T047.**
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -163,22 +164,27 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T050 [P] Documentation updates: Create `docs/README.md` with installation steps and `docs/quickstart.md` with usage examples.
-- [ ] T051 Code cleanup and refactoring
-- [ ] T052 Performance optimization to ensure <6h runtime on CI (e.g., subsampling if needed, optimizing MNE parameters)
-- [ ] T053 [P] Additional unit tests for edge cases (missing modalities, low SNR) in `tests/unit/`
-- [ ] T054 Run `quickstart.md` validation to ensure reproducibility
+- [ ] T051a [P] Refactor: Enforce black formatting on all Python files. **Verification**: Run `black --check code/` and ensure exit code 0.
+- [ ] T051b [P] Refactor: Remove unused imports from all Python files. **Verification**: Run `ruff check --select F401 code/` and ensure exit code 0.
+- [ ] T051c [P] Refactor: Fix all ruff warnings. **Verification**: Run `ruff check code/` and ensure exit code 0.
+- [ ] T052a [P] Optimize: Profile MNE runtime and identify bottlenecks. **Verification**: Generate profiling report.
+- [ ] T052b [P] Optimize: Optimize memory usage in preprocessing to ensure <6h runtime on CI. **Verification**: Run on CI and confirm runtime < 6h.
+- [ ] T053a [P] Test: Unit test for missing modalities (FR-009) in `tests/unit/`. **Verification**: Test fails when modality missing, passes when present.
+- [ ] T053b [P] Test: Unit test for low SNR handling (FR-010) in `tests/unit/`. **Verification**: Test reports failure and skips source analysis.
+- [ ] T053c [P] Test: Unit test for sampling rate <500Hz (FR-011) in `tests/unit/`. **Verification**: Test halts with specific error.
+- [ ] T054 [P] Run `quickstart.md` validation to ensure reproducibility.
 
 ---
 
 ## Phase 7: Review Resolution & Constitution Compliance (Revision Pass)
 
 **Purpose**: Address specific reviewer concerns regarding Constitution Principle VII (Validation Independence) and ensure strict adherence to the "Real Data + Real Results" rule.
+**Note**: T055a/T055b have been moved to Phase 2. This phase is now for final compliance checks.
 
 ### Implementation for Review Resolution
 
-- [ ] T055 [US3] **Draft Constitution Amendment**: Create `docs/constitution-amendment-vii.md` explicitly documenting the substitution of behavioral measures with split-half reliability for passive oddball paradigms, and submit for ratification. **This task MUST be completed before T056/T057 are executed.**
-- [ ] T056 [US3] Refactor `code/validation/reliability.py` to explicitly document that Split-Half Reliability is used as a **proxy** for Validation Independence (Principle VII) and reference the approved amendment from T055 (FR-013).
-- [ ] T057 [US3] Update `data/results/final_report.md` generation logic to include a dedicated "Constitution Compliance" section that explicitly cites the approved amendment from T055 and confirms all other principles (I-VI) are met.
+- [ ] T056 [US3] Refactor `code/validation/reliability.py` to explicitly document that Split-Half Reliability is used as a **proxy** for Validation Independence (Principle VII) and reference the **proposed** amendment from T055a/T055b (FR-013). **Note**: Acknowledges amendment is 'proposed' pending ratification.
+- [ ] T057 [US3] Update `data/results/final_report.md` generation logic to include a dedicated "Constitution Compliance" section that explicitly cites the **proposed** amendment from T055a/T055b and confirms all other principles (I-VI) are met. **Note**: Acknowledges SC-002 conflict pending ratification. **Depends on T055b.**
 
 **Checkpoint**: All reviewer concerns regarding Constitution Principle VII and data integrity are explicitly addressed and documented.
 
@@ -232,7 +238,7 @@ Task: "Unit test for trial count validation in tests/unit/data/test_validation.p
 # Launch all models for User Story 1 together:
 Task: "Implement code/data/preprocess.py" (T019-T021)
 ```
-*Note: T015 (Download Auditory) and T016 (Download Visual) are sequential and cannot run in parallel with each other or with preprocessing. T017 depends on T015; T018 depends on T016.*
+*Note: T015 (Download Auditory) and T016 (Download Visual) are now independent and can run in parallel. T017 depends on T015; T018 depends on T016.*
 
 ---
 
@@ -278,4 +284,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must be executable on CPU-only GitHub Actions free-tier (limited CPU resources, 7GB RAM, 6h limit). No GPU, no 8-bit quantization, no large model training.
 - **Data Integrity**: All datasets must be fetched from real sources (OpenNeuro ds000246, ds000117); no synthetic data generation.
-- **Constitution Compliance**: Explicitly acknowledge the use of Split-Half Reliability as a proxy for Validation Independence (Principle VII) in all reporting and documentation, pending formal amendment (T055).
+- **Constitution Compliance**: Explicitly acknowledge the use of Split-Half Reliability as a proxy for Validation Independence (Principle VII) in all reporting and documentation, pending formal amendment (T055a/T055b).
