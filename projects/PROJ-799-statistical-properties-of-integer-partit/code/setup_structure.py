@@ -1,38 +1,57 @@
+"""
+Project Structure Initialization Script.
+
+This script creates the complete directory structure for the PROJ-799 project,
+including all necessary subdirectories for code, data, tests, docs, and state.
+"""
 import os
 import sys
 from pathlib import Path
 
+
 def main():
-    """
-    Creates the complete directory structure for project PROJ-799.
-    This script is idempotent and safe to run multiple times.
-    """
-    project_root = Path(__file__).resolve().parent.parent
-    project_name = "PROJ-799-statistical-properties-of-integer-partit"
-    base_dir = project_root / project_name
-
-    # Define the required directory structure relative to base_dir
+    """Create the complete directory structure for the project."""
+    # Define the base project directory
+    project_root = Path("projects/PROJ-799-statistical-properties-of-integer-partit")
+    
+    # Define all required subdirectories
     directories = [
-        "code",
-        "code/utils",
-        "data/raw",
-        "data/processed",
-        "data/schemas",
-        "tests",
-        "tests/data",
-        "docs",
-        "state",
-        "state/projects",
+        # Core directories
+        project_root / "code",
+        project_root / "code" / "utils",
+        
+        # Data directories
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "schemas",
+        
+        # Test directories
+        project_root / "tests",
+        project_root / "tests" / "data",
+        
+        # Documentation
+        project_root / "docs",
+        
+        # State tracking
+        project_root / "state" / "projects",
     ]
-
-    print(f"Ensuring directory structure for {project_name}...")
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"  Created/Verified: {full_path.relative_to(project_root)}")
-
-    print("Directory structure setup complete.")
+    
+    # Create all directories
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {directory}")
+    
+    print(f"\nProject structure initialization complete.")
+    print(f"Total directories created: {created_count}")
+    print(f"Base project directory: {project_root}")
+    
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

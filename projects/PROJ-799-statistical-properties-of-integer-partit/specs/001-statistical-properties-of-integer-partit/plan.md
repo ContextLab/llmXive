@@ -28,7 +28,7 @@ The research question is [insert research question verbatim], the method is [ins
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - **I. Reproducibility**: All random seeds (for cross-validation splits) will be pinned in `code/`. The prime generation and DP logic are deterministic. External data (primes) is generated on-the-fly, ensuring identical results on fresh runs.
-- **II. Verified Accuracy**: Citations to Meinardus' theorem and partition asymptotics will be verified against primary sources (Meinardus 1954, Andrews 1998) in the Research phase *before* code implementation. The plan explicitly defers the final verification of the formula derivation until the research phase is complete, ensuring Principle II compliance without premature claims.
+- **II. Verified Accuracy**: Citations to Meinardus' theorem and partition asymptotics will be verified against primary sources (Meinardus, Andrews) in the Research phase *before* code implementation. The plan explicitly defers the final verification of the formula derivation until the research phase is complete, ensuring Principle II compliance without premature claims.
 - **III. Data Hygiene**: All generated data files (`data/raw/partitions.csv`, `data/processed/features.csv`) will be checksummed in `state/`. No in-place modifications; derivations produce new files.
 - **IV. Single Source of Truth**: All statistics in the final report will trace to `data/processed/features.csv` and `code/regression_analysis.py`. The `output/regression_summary.json` is the derived artifact.
 - **V. Versioning**: Artifacts (code, data, plans) will carry content hashes. `state/` will track `updated_at` timestamps.

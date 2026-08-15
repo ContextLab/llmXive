@@ -1,28 +1,18 @@
-T001:
+T004:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or any files were presented as evidence; the required `projects/PROJ-799-statistical-properties-of-integer-partit/`
-    hierarchy (code/, data/, tests/, docs/, state/) is missing from the provided artifacts.
-T003a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/.flake8` file is present in the provided evidence, and there is no content
-    shown that would constitute a flake8 configuration. The required linting configuration
-    file is missing, so the task is not satisfied.
-T003b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `code/.black` file is present in the provided artifact list; without the\
-    \ configuration file the requirement to create a Black formatter config is unmet.\
-    \ The implementer must add a non\u2011empty `code/.black` file containing valid\
-    \ Black settings."
+  h: 771d9ccf7d3925d02ea276f1b84c5fe2ca789c1e325438c5068433deee364c00
+  r: "The repository lacks the required `code/utils/primes.npy` file, and the provided\
+    \ `prime_sieve.py` does not contain any logic that generates the primes up to\
+    \ 50,000, saves them as a 1\u2011D `np.int32` array, computes its SHA\u2011256\
+    \ hash, or writes the hash and a fresh timestamp into `state/projects/PROJ-799.yaml`.\
+    \ The YAML entry still has an empty checksum and an outdated timestamp."
 T006:
   c: true
-  h: ade5b562e9dc3f7a336a77f115ca355063689c583d46800d7ecbda60359b3421
-  r: "Both `data/schemas/partition_record.schema.yaml` (912\u202Fbytes) and `data/schemas/regression_output.schema.yaml`\
-    \ (2923\u202Fbytes) exist, are non\u2011empty, and contain valid JSON\u2011Schema\
-    \ definitions matching the expected file names and purpose. No required artifact\
-    \ is missing."
+  h: 3409cc9c6794096ba1e27741be5829d203052bb1bb79a8ca66140f5760f473d2
+  r: "Both `data/schemas/partition_record.schema.yaml` (867\u202Fbytes) and `data/schemas/regression_output.schema.yaml`\
+    \ (2367\u202Fbytes) exist, are non\u2011empty, and contain valid JSON\u2011Schema\
+    \ YAML definitions, fulfilling the task\u2019s requirement to create those two\
+    \ schema files."
 T008:
   c: false
   h: e855f9e3bf0d76cefe56a3163a89d25392a37fe89883b54ed6c4eb9d4e19d894
@@ -46,10 +36,3 @@ T016b:
     \ named `test_features_non_null` as the task explicitly requests; it only provides\
     \ separate column\u2011specific checks. Both the missing CSV and the absent correctly\u2011\
     named test mean the task\u2019s requirement is not satisfied."
-T032:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files or logs were provided showing that a `n_max` configuration parameter
-    was added to `generate_partitions.py` and `asymptotic_baseline.py`, nor that its
-    value is logged at runtime. The required artifact (modified scripts with the new
-    parameter and logging) is missing.

@@ -2665,3 +2665,109 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T16:59:33Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: p_P(n) equals zero for n less than 2
+  claim_id: c_f8354367
+  context: 'Characteristics: p_P(n) is zero for n < 2 and exhibits significant stochastic
+    fluctuations for small n due to the sparsity of primes.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P_P(n)_equals_zero_for_n_less_than_2
+  kind: magnitude
+  raw_text: p_P(n) is zero for n < 2
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T20:44:45Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: distinct prime partitions require sum 5 for second partition
+  claim_id: c_38f387bb
+  context: treated as a boundary condition where p_P(n) = 0 for n < 5 (the first prime
+    is 2, but distinct primes require 2+3=5 for a second partition).
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 4 5
+      source_id: A000041
+      url: https://oeis.org/A000041
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: distinct primes require 2+3=5 for a second partition
+  resolved_value: '5'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T20:44:54Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: pi(50000) equals approximately 5133
+  claim_id: c_52ee8f4a
+  context: 'Theoretical Bound: At n=50,000, pi(n) approx 5,133. The ratio of primes
+    to integers is approx 0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: at n=50,000, pi(n) approx 5,133
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T20:45:12Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: ratio of primes to integers at 50000 is approximately 0.1
+  claim_id: c_f554f379
+  context: At n=50,000, pi(n) approx 5,133. The ratio of primes to integers is approx
+    0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ratio of primes to integers is approx 0.1 at n=50,000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T20:45:31Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: average prime gap between 50 and 50000 is approximately 11
+  claim_id: c_94cef7d8
+  context: 'Gap Dominance: In this region, the prime gap size g_n is large enough
+    (average approx 11) to create measurable ''holes'' in the partition generation
+    process'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the range 50 to 50,000, the average prime gap is approx 11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T20:45:52Z'
+- artifact_path: projects/PROJ-799-statistical-properties-of-integer-partit/docs/scope_justification.md
+  attempts: 1
+  canonical: unrestricted partition function p(n) growth formula
+  claim_id: c_fe87b7c3
+  context: The unrestricted partition function p(n) grows as exp(pi * sqrt(2n/3)).
+    The distinct-prime partition function grows significantly slower.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unrestricted partition function p(n) grows as exp(pi * sqrt(2n/3))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T20:47:22Z'
