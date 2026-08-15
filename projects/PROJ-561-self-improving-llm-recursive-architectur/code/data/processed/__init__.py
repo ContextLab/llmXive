@@ -1,3 +1,1 @@
-"""
-Initialization file for the processed data package.
-"""
+# Auto-generated package initialization

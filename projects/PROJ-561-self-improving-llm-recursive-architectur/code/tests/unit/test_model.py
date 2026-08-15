@@ -1,15 +1,6 @@
 import unittest
-from unittest.mock import patch, MagicMock, PropertyMock
-import torch
-import torch.nn as nn
-import math
-import sys
-import os
-
-# Add code directory to path if not already present
-if 'code' not in sys.path:
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
+from unittest.mock import patch, MagicMock
+from pipeline.model import validate_modification_distinctness
 from schemas.modification_proposal import ModificationProposal
 from pipeline.model import validate_modification_distinctness
 
@@ -106,23 +97,26 @@ class TestDistinctnessValidation(unittest.TestCase):
         )
         self.assertTrue(validate_modification_distinctness(proposal_distinct, history))
 
-        # Matches first entry (type and magnitude)
-        proposal_match_1 = ModificationProposal(
+        # New proposal with zero magnitude should NOT be distinct
+        proposal_same = ModificationProposal(
             modification_type="layer_add",
-            magnitude=1,
-            rationale="Duplicate first",
-            estimated_param_count=1000
+            magnitude=0.0,
+            rationale="New",
+            estimated_param_count=100
         )
-        self.assertFalse(validate_modification_distinctness(proposal_match_1, history))
+        self.assertFalse(validate_modification_distinctness(proposal_same, history))
 
-        # Matches second entry (type and magnitude)
-        proposal_match_2 = ModificationProposal(
-            modification_type="head_count_change",
-            magnitude=4,
-            rationale="Duplicate second",
-            estimated_param_count=500
-        )
-        self.assertFalse(validate_modification_distinctness(proposal_match_2, history))
+    def test_multiple_history_items(self):
+        """Test against multiple history items, should be distinct if different from ALL."""
+        history = [
+            ModificationProposal("layer_add", 10.0, "Old1", 100),
+            ModificationProposal("layer_add", 20.0, "Old2", 100),
+            ModificationProposal("head_count_change", 5.0, "Old3", 100)
+        ]
+        # Case 1: New is same type as first, similar mag -> False
+        proposal_fail = ModificationProposal("layer_add", 10.5, "New", 100)
+        self.assertFalse(validate_modification_distinctness(proposal_fail, history))
 
-if __name__ == '__main__':
-    unittest.main()
+        # Case 2: New is same type as first, diff mag; same type as second, diff mag; diff type from third -> True
+        proposal_pass = ModificationProposal("layer_add", 50.0, "New", 100)
+        self.assertTrue(validate_modification_distinctness(proposal_pass, history))

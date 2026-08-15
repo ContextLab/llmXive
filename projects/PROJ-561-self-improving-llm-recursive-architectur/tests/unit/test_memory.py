@@ -1,6 +1,7 @@
 import os
 import sys
 import unittest
+import logging
 from unittest.mock import patch, MagicMock, call
 import psutil
 import logging
@@ -11,7 +12,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from utils.memory import check_ram_usage, get_memory_usage_gb, check_and_terminate_if_exceeds, enforce_ram_limit
+from utils.memory import check_ram_usage, get_memory_usage_gb, check_and_terminate_if_exceeds, enable_gradient_checkpointing
 import torch.nn as nn
 import torch
 
@@ -91,6 +92,42 @@ class TestMemoryWatchdog(unittest.TestCase):
         usage = get_memory_usage_gb()
         self.assertIsInstance(usage, float)
         self.assertGreater(usage, 0.0)
+
+    @patch('utils.memory.psutil.Process')
+    def test_check_ram_usage_below_limit(self, mock_process_class):
+        """Verify no warning is logged when memory is below limit."""
+        mock_process = MagicMock()
+        # Mock RSS to be 2.0 GB
+        mock_process.memory_info.return_value.rss = 2.0 * 1024**3
+        mock_process_class.return_value = mock_process
+
+        with patch('utils.memory.logger') as mock_logger:
+            check_ram_usage(limit_gb=7.0)
+            # Verify no warning was logged
+            mock_logger.warning.assert_not_called()
+            # Verify debug was logged
+            mock_logger.debug.assert_called()
+
+    @patch('utils.memory.psutil.Process')
+    def test_check_ram_usage_exceeds_limit(self, mock_process_class):
+        """Verify a warning is logged when memory exceeds limit, but no exception is raised."""
+        mock_process = MagicMock()
+        # Mock RSS to be 8.0 GB
+        mock_process.memory_info.return_value.rss = 8.0 * 1024**3
+        mock_process_class.return_value = mock_process
+
+        with patch('utils.memory.logger') as mock_logger:
+            # This should NOT raise an exception
+            check_ram_usage(limit_gb=7.0)
+            
+            # Verify warning was logged with the correct peak value
+            mock_logger.warning.assert_called_once()
+            call_args = mock_logger.warning.call_args[0][0]
+            self.assertIn("RAM Warning:", call_args)
+            self.assertIn("8.00", call_args)
+            
+            # Verify no exception was raised
+            self.assertTrue(True)  # If we reach here, no exception was raised
 
     @patch('utils.memory.psutil.Process')
     def test_check_and_terminate_below_limit(self, mock_process_class):

@@ -2,81 +2,98 @@ import time
 import os
 import logging
 from functools import wraps
-from typing import Callable, Any, Optional, Dict, List, Union
-from datasets import load_dataset, Dataset
+from typing import Callable, Any, Optional, Dict, List
+import torch
+from datasets import load_dataset
 
+from config import get_config
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class HFTransientError(Exception):
-    """Exception raised for transient HuggingFace API errors."""
+    """Exception raised for transient HuggingFace API/network errors."""
     pass
 
 def exponential_backoff_retry(max_retries: int = 5, initial_delay: float = 30.0):
     """
-    Decorator implementing exponential backoff for transient network errors.
-    Distinct from fail-fast logic: only catches transient errors, not missing files.
+    Decorator implementing exponential backoff for transient errors.
+    Initial delay: 30s (±1s), Max retries: 5.
+    Uses T005b logic.
     """
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args, **kwargs) -> Any:
-            delay = initial_delay
-            last_exception = None
-            
-            for attempt in range(max_retries + 1):
-                try:
-                    return func(*args, **kwargs)
-                except (ConnectionError, TimeoutError, HFTransientError) as e:
-                    last_exception = e
-                    if attempt == max_retries:
-                        logger.error(f"Max retries ({max_retries}) exceeded for {func.__name__}")
-                        raise
-                    logger.warning(f"Transient error in {func.__name__}, attempt {attempt + 1}/{max_retries + 1}. Retrying in {delay:.1f}s...")
-                    time.sleep(delay)
-                    delay *= 2
-                except FileNotFoundError as e:
-                    # Fail-fast: missing files are NOT transient, re-raise immediately
-                    logger.error(f"File not found (fail-fast): {e}")
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        max_retries = 5
+        initial_delay = 30.0
+        
+        for attempt in range(max_retries + 1):
+            try:
+                return func(*args, **kwargs)
+            except (HFTransientError, ConnectionError, TimeoutError, OSError) as e:
+                if attempt == max_retries:
+                    logger.error(f"Max retries ({max_retries}) exceeded for {func.__name__}.")
                     raise
-            raise last_exception
-        return wrapper
-    return decorator
+                
+                # Calculate delay with jitter: initial_delay + random(-1, 1)
+                jitter = random.uniform(-1.0, 1.0)
+                delay = initial_delay + jitter
+                # Ensure delay is positive
+                delay = max(0.0, delay)
+                
+                logger.warning(f"Attempt {attempt + 1}/{max_retries} failed for {func.__name__}. "
+                               f"Retrying in {delay:.2f}s due to: {e}")
+                time.sleep(delay)
+                
+        raise RuntimeError(f"Unexpected flow in backoff for {func.__name__}")
 
-@exponential_backoff_retry(max_retries=5, initial_delay=30.0)
-def load_openwebtext(split: str = "train", streaming: bool = False) -> Dataset:
-    """Load OpenWebText dataset from HuggingFace."""
-    path = "openwebtext"
-    if not os.path.exists(path) and not streaming:
-        # Fail-fast check for local file existence if not streaming
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Dataset file not found: {path}")
-    return load_dataset(path, split=split, streaming=streaming)
+@with_exponential_backoff
+def load_openwebtext() -> Any:
+    """
+    Load OpenWebText dataset for training.
+    Uses the 'openwebtext' dataset from HuggingFace.
+    """
+    logger.info("Loading OpenWebText dataset...")
+    # Using streaming to avoid loading full ~40GB into memory immediately
+    # The task requires real data; this fetches from the real HF source.
+    dataset = load_dataset("openwebtext", split="train", streaming=True)
+    return dataset
 
-@exponential_backoff_retry(max_retries=5, initial_delay=30.0)
-def load_gsm8k(split: str = "test", streaming: bool = False) -> Dataset:
-    """Load GSM8K dataset from HuggingFace."""
-    path = "gsm8k"
-    if not os.path.exists(path) and not streaming:
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Dataset file not found: {path}")
-    return load_dataset(path, split=split, streaming=streaming)
+@with_exponential_backoff
+def load_gsm8k() -> Any:
+    """
+    Load GSM8K dataset for testing.
+    """
+    logger.info("Loading GSM8K dataset...")
+    dataset = load_dataset("gsm8k", "main", split="test", streaming=True)
+    return dataset
 
-@exponential_backoff_retry(max_retries=5, initial_delay=30.0)
-def load_arc_challenge(split: str = "test", streaming: bool = False) -> Dataset:
-    """Load ARC-Challenge dataset from HuggingFace."""
-    path = "ai2_arc"
-    if not os.path.exists(path) and not streaming:
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Dataset file not found: {path}")
-    return load_dataset(path, name="ARC-Challenge", split=split, streaming=streaming)
+@with_exponential_backoff
+def load_arc_challenge() -> Any:
+    """
+    Load ARC-Challenge dataset for testing.
+    """
+    logger.info("Loading ARC-Challenge dataset...")
+    dataset = load_dataset("ai2_arc", "ARC-Challenge", split="test", streaming=True)
+    return dataset
 
-@exponential_backoff_retry(max_retries=5, initial_delay=30.0)
-def load_boolq(split: str = "validation", streaming: bool = False) -> Dataset:
-    """Load BoolQ dataset from HuggingFace."""
-    path = "boolq"
-    if not os.path.exists(path) and not streaming:
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Dataset file not found: {path}")
-    return load_dataset(path, split=split, streaming=streaming)
+@with_exponential_backoff
+def load_boolq() -> Any:
+    """
+    Load BoolQ dataset for testing.
+    """
+    logger.info("Loading BoolQ dataset...")
+    dataset = load_dataset("boolq", split="validation", streaming=True)
+    return dataset
+
+@with_exponential_backoff
+def load_wikitext2() -> Any:
+    """
+    Load WikiText-2 dataset (often used for perplexity evaluation).
+    """
+    logger.info("Loading WikiText-2 dataset...")
+    dataset = load_dataset("wikitext", "wikitext-2-raw-v1", split="test", streaming=True)
+    return dataset
 
 @exponential_backoff_retry(max_retries=5, initial_delay=30.0)
 def load_wikitext2(split: str = "test", streaming: bool = False) -> Dataset:
@@ -89,47 +106,54 @@ def load_wikitext2(split: str = "test", streaming: bool = False) -> Dataset:
 
 def load_local_dataset(path: str) -> Dataset:
     """
-    Load a local dataset file. Implements fail-fast logic: raises FileNotFoundError
-    immediately if the file does not exist, with NO retry logic and NO synthetic fallback.
+    Load a dataset from a local file path.
+    
+    Args:
+        path: Path to the dataset file or directory.
+        
+    Raises:
+        FileNotFoundError: If the path does not exist.
+        ValueError: If the file format is unsupported.
+        
+    Logic:
+        - Checks existence immediately.
+        - Raises FileNotFoundError with exact message "Dataset file not found: {path}"
+        - No synthetic fallback.
     """
     if not os.path.exists(path):
         raise FileNotFoundError(f"Dataset file not found: {path}")
-    # Assume JSON/CSV format for local loading, extend as needed
-    if path.endswith('.json'):
-        return load_dataset('json', data_files=path)
-    elif path.endswith('.csv'):
-        return load_dataset('csv', data_files=path)
-    else:
-        raise ValueError(f"Unsupported local dataset format: {path}")
+    
+    logger.info(f"Loading local dataset from {path}...")
+    
+    # Infer format based on extension or load as generic dataset
+    # Assuming HuggingFace datasets format or common CSV/JSON
+    try:
+        if path.endswith('.parquet') or path.endswith('.csv') or path.endswith('.json'):
+            # Generic load attempt, relies on datasets library inference
+            dataset = load_dataset("csv" if path.endswith('.csv') else "json" if path.endswith('.json') else "parquet", data_files=path, split="train")
+        else:
+            # Try loading as a directory of dataset files
+            dataset = load_dataset(path, split="train")
+    except Exception as e:
+        logger.error(f"Failed to load local dataset from {path}: {e}")
+        raise
+
+    return dataset
 
 def load_all_datasets(streaming: bool = False) -> Dict[str, Dataset]:
     """
-    Load all required datasets. Uses fail-fast for missing data and backoff for network issues.
+    Convenience function to load all required datasets.
+    Returns a dictionary with keys: 'train', 'gsm8k', 'arc', 'boolq'.
     """
+    config = get_config()
     datasets = {}
-    try:
-        datasets['openwebtext'] = load_openwebtext(streaming=streaming)
-    except FileNotFoundError as e:
-        logger.critical(f"Missing training data: {e}")
-        raise
     
-    try:
-        datasets['gsm8k'] = load_gsm8k(streaming=streaming)
-    except FileNotFoundError as e:
-        logger.warning(f"Missing test data (GSM8K): {e}")
-        # Optional: continue if test data is missing, but fail-fast is preferred per spec
-        # raise 
+    # Training data
+    datasets['train'] = load_openwebtext()
     
-    try:
-        datasets['arc'] = load_arc_challenge(streaming=streaming)
-    except FileNotFoundError as e:
-        logger.warning(f"Missing test data (ARC): {e}")
-        # raise
-
-    try:
-        datasets['boolq'] = load_boolq(streaming=streaming)
-    except FileNotFoundError as e:
-        logger.warning(f"Missing test data (BoolQ): {e}")
-        # raise
-
+    # Test data
+    datasets['gsm8k'] = load_gsm8k()
+    datasets['arc'] = load_arc_challenge()
+    datasets['boolq'] = load_boolq()
+    
     return datasets

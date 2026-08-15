@@ -2,159 +2,182 @@ import os
 import sys
 import gc
 import time
+import logging
 import psutil
 import torch
 import logging
 from typing import Optional, Callable, Any, Tuple
 
-# Configure logger for this module
 logger = logging.getLogger(__name__)
 
 def get_memory_usage_gb() -> float:
     """
-    Returns the current RAM usage of the current process in GB.
+    Get the current RSS memory usage of the current process in GB.
+    
+    Returns:
+        float: Memory usage in GB.
     """
     process = psutil.Process(os.getpid())
-    # RSS (Resident Set Size) is the non-swapped physical memory the task has used
-    mem_bytes = process.memory_info().rss
-    return mem_bytes / (1024 ** 3)
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024 ** 3)
 
-def check_ram_usage(limit_gb: float = 6.8) -> bool:
+def check_ram_usage(limit_gb: float = 7.0) -> None:
     """
-    Checks current RAM usage against a limit.
+    Check if peak RAM usage exceeds the specified limit and log a warning.
     
-    If critical threshold exceeded, logs a warning "RAM Critical" and logs
-    the warning only. Does NOT trigger termination (termination is handled by
-    T073/enforce_ram_limit per FR-015).
+    This function monitors the current process memory usage. If the usage
+    exceeds the limit, it logs a warning message with the actual peak value.
+    It does NOT trigger termination; termination is handled by T036a per FR-015.
     
     Args:
-        limit_gb: The RAM limit in GB (default 6.8).
-        
-    Returns:
-        True if usage is within limits, False if critical threshold exceeded.
-    """
-    current_usage = get_memory_usage_gb()
+        limit_gb (float): The RAM limit in GB. Defaults to 7.0GB per SC-005 target.
     
-    if current_usage >= limit_gb:
-        logger.warning(f"RAM Critical: Current usage {current_usage:.2f} GB exceeds limit {limit_gb:.2f} GB")
-        return False
-    
-    return True
-
-def check_and_terminate_if_exceeds(limit_gb: float = 7.0) -> None:
-    """
-    Checks memory usage and terminates the process if it exceeds the limit.
-    This is the enforcement logic for T073/FR-015.
-    
-    Args:
-        limit_gb: The hard limit in GB.
-        
-    Raises:
-        SystemExit: If memory usage exceeds the limit.
+    Note:
+        This function logs a warning but does not raise an exception or exit.
     """
     current_usage = get_memory_usage_gb()
     if current_usage > limit_gb:
-        logger.critical(f"RAM EXCEEDED: {current_usage:.2f} GB > {limit_gb:.2f} GB. Terminating.")
+        logger.warning(f"RAM Warning: {current_usage:.2f}GB")
+    else:
+        logger.debug(f"RAM usage: {current_usage:.2f}GB (limit: {limit_gb}GB)")
+
+def check_and_terminate_if_exceeds(limit_gb: float = 7.0) -> None:
+    """
+    Check if memory exceeds limit and terminate if it does.
+    
+    This is the termination logic referenced in the task description (T036a).
+    
+    Args:
+        limit_gb (float): The RAM limit in GB.
+    
+    Raises:
+        SystemExit: If memory usage exceeds the limit.
+    """
+    usage = get_memory_usage_gb()
+    if usage > limit_gb:
+        logger.error(f"CRITICAL: Memory usage {usage:.2f}GB exceeds limit {limit_gb}GB. Terminating.")
         sys.exit(1)
 
 def enable_gradient_checkpointing(model: torch.nn.Module) -> None:
     """
-    Enables gradient checkpointing on a model if the method exists.
+    Enable gradient checkpointing for a model if supported.
+    
+    Args:
+        model (torch.nn.Module): The model to enable checkpointing on.
     """
     if hasattr(model, 'gradient_checkpointing_enable'):
-        try:
-            model.gradient_checkpointing_enable()
-            logger.info("Gradient checkpointing enabled.")
-        except Exception as e:
-            logger.warning(f"Failed to enable gradient checkpointing: {e}")
+        model.gradient_checkpointing_enable()
+        logger.info("Gradient checkpointing enabled.")
     else:
-        logger.debug("Model does not support gradient_checkpointing_enable.")
+        logger.debug("Model does not support gradient checkpointing.")
 
-def auto_scale_batch_size(model: torch.nn.Module, base_batch_size: int = 4, max_attempts: int = 8) -> int:
+def auto_scale_batch_size(model: torch.nn.Module, max_batch_size: int = 4) -> int:
     """
-    Attempts to find a batch size that fits in memory by halving the base batch size.
-    """
-    gc.collect()
-    torch.cuda.empty_cache() if torch.cuda.is_available() else None
+    Attempt to auto-scale batch size based on available memory.
     
-    current_usage = get_memory_usage_gb()
-    limit_gb = 6.0 # Leave some headroom
-    
-    if current_usage > limit_gb:
-        # Immediate fallback if already over limit
-        return 1
-    
-    batch_size = base_batch_size
-    attempts = 0
-    
-    while attempts < max_attempts:
-        try:
-            # Dummy forward pass to simulate load (simplified for utility)
-            # In a real trainer, this would be the actual training step
-            # For this utility, we assume if we are here, we are trying to fit
-            # The actual check happens in the training loop, this is a heuristic
-            return batch_size
-        except RuntimeError as e:
-            if "out of memory" in str(e).lower():
-                batch_size //= 2
-                if batch_size < 1:
-                    batch_size = 1
-                    break
-                gc.collect()
-                torch.cuda.empty_cache() if torch.cuda.is_available() else None
-            else:
-                raise
-        attempts += 1
+    Args:
+        model (torch.nn.Module): The model to test.
+        max_batch_size (int): Maximum batch size to attempt.
         
-    return batch_size
+    Returns:
+        int: The batch size that fits in memory.
+    """
+    batch_size = max_batch_size
+    while batch_size >= 1:
+        try:
+            # Simple memory check simulation
+            # In a real scenario, this would try a forward pass
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            
+            usage = get_memory_usage_gb()
+            if usage < 6.0:  # Safety margin
+                break
+            
+            batch_size //= 2
+        except Exception:
+            batch_size //= 2
+    
+    return max(1, batch_size)
 
 def run_epoch_with_memory_monitoring(
     epoch_func: Callable, 
-    limit_gb: float = 6.8, 
+    limit_gb: float = 7.0, 
     *args, 
     **kwargs
 ) -> Any:
     """
-    Wrapper to run an epoch function with memory monitoring.
-    Logs warnings if usage is high, but allows execution to continue.
+    Run an epoch function with memory monitoring.
+    
+    Args:
+        epoch_func: The function to run (e.g., a training epoch).
+        limit_gb: Memory limit in GB.
+        *args: Arguments to pass to epoch_func.
+        **kwargs: Keyword arguments to pass to epoch_func.
+        
+    Returns:
+        Any: The result of epoch_func.
     """
-    # Pre-check
-    check_ram_usage(limit_gb)
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    
+    start_usage = get_memory_usage_gb()
+    logger.info(f"Starting epoch. Current memory: {start_usage:.2f}GB")
     
     try:
         result = epoch_func(*args, **kwargs)
-    finally:
-        # Post-check
-        check_ram_usage(limit_gb)
-        
-    return result
+        end_usage = get_memory_usage_gb()
+        logger.info(f"Epoch completed. Peak memory: {end_usage:.2f}GB")
+        return result
+    except Exception as e:
+        end_usage = get_memory_usage_gb()
+        logger.error(f"Epoch failed at {end_usage:.2f}GB: {str(e)}")
+        raise
 
 class MemoryWatchdog:
     """
-    A context manager or utility to monitor memory during a specific block of code.
+    A context manager and utility class for monitoring memory during execution.
     """
-    def __init__(self, limit_gb: float = 6.8, logger_name: str = "MemoryWatchdog"):
+    def __init__(self, limit_gb: float = 7.0, check_interval: float = 1.0):
         self.limit_gb = limit_gb
-        self.logger = logging.getLogger(logger_name)
-        self.peak_usage_gb = 0.0
-
-    def check(self) -> bool:
+        self.check_interval = check_interval
+        self.peak_usage = 0.0
+        self._monitoring = False
+    
+    def _check(self) -> None:
         usage = get_memory_usage_gb()
-        if usage > self.peak_usage_gb:
-            self.peak_usage_gb = usage
-        
-        if usage >= self.limit_gb:
-            self.logger.warning(f"Watchdog: RAM Critical at {usage:.2f} GB (Limit: {self.limit_gb} GB)")
-            return False
-        return True
-
-    def get_peak(self) -> float:
-        return self.peak_usage_gb
+        if usage > self.peak_usage:
+            self.peak_usage = usage
+        if usage > self.limit_gb:
+            logger.warning(f"RAM Warning: {usage:.2f}GB")
+    
+    def start(self) -> None:
+        """Start the watchdog monitoring loop."""
+        self._monitoring = True
+        self.peak_usage = get_memory_usage_gb()
+        # In a real implementation, this would spawn a thread
+        logger.info(f"Memory watchdog started. Limit: {self.limit_gb}GB")
+    
+    def stop(self) -> None:
+        """Stop the watchdog monitoring loop."""
+        self._monitoring = False
+        logger.info(f"Memory watchdog stopped. Peak usage: {self.peak_usage:.2f}GB")
+    
+    def __enter__(self) -> 'MemoryWatchdog':
+        self.start()
+        return self
+    
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.stop()
 
 def enforce_ram_limit(limit_gb: float = 7.0) -> None:
     """
-    Enforce a hard RAM limit. If exceeded, terminate the process.
-    This is the specific logic required for T073.
+    Enforce RAM limit by terminating if exceeded.
+    
+    Args:
+        limit_gb: The RAM limit in GB.
     """
     usage = get_memory_usage_gb()
     if usage > limit_gb:

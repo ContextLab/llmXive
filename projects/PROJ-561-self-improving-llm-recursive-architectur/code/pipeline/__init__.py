@@ -1,1 +1,1 @@
-# Pipeline package
+# Auto-generated package initialization

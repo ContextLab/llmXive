@@ -4,12 +4,13 @@ from pathlib import Path
 
 def verify_project_structure():
     """
-    Verify that all required directories and __init__.py files exist.
+    Verifies the existence of all required directories and __init__.py files
+    for the project structure defined in T001.
     
-    Returns True if all checks pass, False otherwise.
-    Prints verification results to stdout.
+    Returns:
+        tuple: (success: bool, missing_dirs: list, missing_inits: list)
     """
-    base_dir = Path(__file__).resolve().parent.parent
+    base_path = Path(__file__).resolve().parent.parent
     
     required_dirs = [
         "code",
@@ -20,64 +21,42 @@ def verify_project_structure():
         "tests",
         "tests/unit",
         "tests/integration",
-        "results/logs",
-        "results/figures",
-        "data/checkpoints",
-        "templates",
-        "utils",
-        "pipeline",
-        "schemas",
-        "scripts",
+        "code/pipeline",
+        "code/utils",
+        "code/schemas",
+        "code/results",
+        "code/tests/unit",
+        "code/tests/integration",
+        "code/scripts",
+        "data/logs",
     ]
     
-    # Directories that should have __init__.py
-    python_package_dirs = [
-        "code",
-        "tests",
-        "tests/unit",
-        "tests/integration",
-        "utils",
-        "pipeline",
-        "schemas",
-        "scripts",
-        "results",
-        "data",
-    ]
-    
-    all_passed = True
-    
-    print("Verifying project structure...")
-    print("=" * 50)
-    
-    # Check directories
-    print("\nChecking directories:")
+    missing_dirs = []
     for dir_path in required_dirs:
-        full_path = base_dir / dir_path
-        if full_path.exists() and full_path.is_dir():
-            print(f"  ✓ {dir_path}/")
-        else:
-            print(f"  ✗ {dir_path}/ (MISSING)")
-            all_passed = False
+        full_path = base_path / dir_path
+        if not full_path.exists() or not full_path.is_dir():
+            missing_dirs.append(str(full_path))
     
-    # Check __init__.py files
-    print("\nChecking __init__.py files:")
-    for dir_path in python_package_dirs:
-        full_path = base_dir / dir_path
+    missing_inits = []
+    for dir_path in required_dirs:
+        full_path = base_path / dir_path
         init_file = full_path / "__init__.py"
-        if init_file.exists() and init_file.is_file():
-            print(f"  ✓ {dir_path}/__init__.py")
-        else:
-            print(f"  ✗ {dir_path}/__init__.py (MISSING)")
-            all_passed = False
+        if not init_file.exists():
+            missing_inits.append(str(init_file))
     
-    print("\n" + "=" * 50)
-    if all_passed:
-        print("✓ All checks passed!")
-    else:
-        print("✗ Some checks failed. Please run setup_project.py first.")
-    
-    return all_passed
+    success = len(missing_dirs) == 0 and len(missing_inits) == 0
+    return success, missing_dirs, missing_inits
 
 if __name__ == "__main__":
-    success = verify_project_structure()
-    sys.exit(0 if success else 1)
+    success, missing_dirs, missing_inits = verify_project_structure()
+    if success:
+        print("Project structure verification: PASSED")
+        print("All required directories and __init__.py files exist.")
+        sys.exit(0)
+    else:
+        print("Project structure verification: FAILED")
+        if missing_dirs:
+            print(f"Missing directories: {missing_dirs}")
+        if missing_inits:
+            print(f"Missing __init__.py files: {missing_inits}")
+        sys.exit(1)

@@ -1,1 +1,1 @@
-# Auto-initialized package
+# Auto-generated package initialization

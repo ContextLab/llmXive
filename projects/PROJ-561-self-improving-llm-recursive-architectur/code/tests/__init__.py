@@ -1,1 +1,1 @@
-# Tests package
+# Auto-generated package initialization

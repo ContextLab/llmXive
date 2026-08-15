@@ -4,150 +4,142 @@ from scipy.optimize import curve_fit
 from scipy.stats import t
 import json
 import os
+import logging
 from config import get_config
+
+logger = logging.getLogger(__name__)
 
 def exponential_decay(x: np.ndarray, a: float, b: float, c: float) -> np.ndarray:
     """
-    Exponential decay model: y = a * exp(-b * x) + c
+    Exponential decay function: y = a * exp(-b * x) + c
     """
     return a * np.exp(-b * x) + c
 
-def fit_exponential_decay(x: np.ndarray, y: np.ndarray) -> Tuple[float, float, float]:
+def fit_exponential_decay(x: np.ndarray, y: np.ndarray) -> Dict[str, float]:
     """
     Fit an exponential decay model to the data.
-    Returns (a, b, c) parameters.
+    Returns dictionary with fitted parameters and goodness of fit.
     """
-    if len(x) < 3:
-        raise ValueError("Need at least 3 data points to fit exponential decay.")
-    
     try:
-        popt, _ = curve_fit(exponential_decay, x, y, p0=[y[0], 0.1, y[-1]])
-        return float(popt[0]), float(popt[1]), float(popt[2])
-    except RuntimeError:
-        raise RuntimeError("Failed to fit exponential decay model.")
+        popt, pcov = curve_fit(exponential_decay, x, y, p0=[y[0], 1.0, y[-1]])
+        a, b, c = popt
+        
+        # Calculate R-squared
+        y_pred = exponential_decay(x, *popt)
+        ss_res = np.sum((y - y_pred) ** 2)
+        ss_tot = np.sum((y - np.mean(y)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+        
+        return {
+            'a': float(a),
+            'b': float(b),
+            'c': float(c),
+            'r_squared': float(r_squared)
+        }
+    except Exception as e:
+        logger.warning(f"Exponential decay fit failed: {e}")
+        return {'a': 0.0, 'b': 0.0, 'c': 0.0, 'r_squared': 0.0}
 
-def detect_plateau_or_degradation(params: Tuple[float, float, float], threshold: float = 0.01) -> str:
+def detect_plateau_or_degradation(metrics: List[float], threshold: float = 0.01) -> str:
     """
-    Detect if the fitted exponential decay has plateaued or is degrading.
-    params: (a, b, c) from exponential decay fit.
-    Returns: 'plateau', 'degradation', or 'improving'.
+    Detect if the metrics show a plateau or degradation.
+    Returns 'plateau', 'degradation', or 'improving'.
     """
-    a, b, c = params
-    if b < threshold:
-        return 'plateau'
-    elif a < 0:
-        return 'degradation'
-    else:
+    if len(metrics) < 2:
         return 'improving'
+    
+    # Check for recent degradation
+    recent_change = metrics[-1] - metrics[-2]
+    if recent_change < -threshold:
+        return 'degradation'
+    
+    # Check for plateau (small changes)
+    if abs(recent_change) < threshold:
+        return 'plateau'
+    
+    return 'improving'
 
 def paired_bootstrap_test(
-    baseline_scores: List[float],
-    modified_scores: List[float],
-    alpha: float = 0.05,
-    resamples: Optional[int] = None
+    baseline: List[float], 
+    post_mod: List[float], 
+    n_resamples: int = 1000, 
+    alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Perform a paired bootstrap test to compare baseline and modified scores.
-    
-    Args:
-        baseline_scores: List of scores from the baseline model.
-        modified_scores: List of scores from the modified model.
-        alpha: Significance level (default 0.05).
-        resamples: Number of bootstrap resamples (defaults to config value).
-    
-    Returns:
-        Dictionary containing p-value, confidence interval, and test result.
+    Perform a paired bootstrap test to compare baseline and post-modification metrics.
+    Returns p-value and significance determination.
     """
-    if len(baseline_scores) != len(modified_scores):
-        raise ValueError("Baseline and modified scores must have the same length for paired test.")
+    if len(baseline) != len(post_mod):
+        raise ValueError("Baseline and post_mod must have the same length for paired test")
     
-    if len(baseline_scores) == 0:
-        raise ValueError("Scores lists cannot be empty.")
-    
-    if resamples is None:
-        config = get_config()
-        resamples = config.hyperparameters.bootstrap_resamples
-    
-    baseline_arr = np.array(baseline_scores)
-    modified_arr = np.array(modified_scores)
-    
-    # Calculate observed difference (modified - baseline)
-    observed_diff = np.mean(modified_arr) - np.mean(baseline_arr)
+    n_pairs = len(baseline)
+    diff_original = np.mean(post_mod) - np.mean(baseline)
     
     # Bootstrap resampling
-    np.random.seed(42)  # For reproducibility
-    bootstrap_diffs = []
-    n = len(baseline_arr)
+    boot_diffs = []
+    for _ in range(n_resamples):
+        indices = np.random.choice(n_pairs, size=n_pairs, replace=True)
+        boot_baseline = np.array(baseline)[indices]
+        boot_post_mod = np.array(post_mod)[indices]
+        diff = np.mean(boot_post_mod) - np.mean(boot_baseline)
+        boot_diffs.append(diff)
     
-    for _ in range(resamples):
-        indices = np.random.choice(n, size=n, replace=True)
-        resampled_baseline = baseline_arr[indices]
-        resampled_modified = modified_arr[indices]
-        diff = np.mean(resampled_modified) - np.mean(resampled_baseline)
-        bootstrap_diffs.append(diff)
-    
-    bootstrap_diffs = np.array(bootstrap_diffs)
+    boot_diffs = np.array(boot_diffs)
     
     # Calculate p-value (two-tailed)
     p_value = 2 * min(
-        np.mean(bootstrap_diffs >= observed_diff),
-        np.mean(bootstrap_diffs <= observed_diff)
+        np.sum(boot_diffs >= diff_original) / n_resamples,
+        np.sum(boot_diffs <= diff_original) / n_resamples
     )
     
-    # Calculate 95% confidence interval
-    ci_lower = np.percentile(bootstrap_diffs, 100 * alpha / 2)
-    ci_upper = np.percentile(bootstrap_diffs, 100 * (1 - alpha / 2))
+    is_significant = p_value < alpha
     
     # Determine significance
     is_significant = p_value < alpha
     
     return {
-        'observed_difference': float(observed_diff),
         'p_value': float(p_value),
-        'ci_lower': float(ci_lower),
-        'ci_upper': float(ci_upper),
         'is_significant': bool(is_significant),
-        'alpha': float(alpha),
-        'resamples': int(resamples)
+        'alpha': alpha,
+        'n_resamples': n_resamples,
+        'original_difference': float(diff_original),
+        'bootstrap_mean': float(np.mean(boot_diffs)),
+        'bootstrap_std': float(np.std(boot_diffs))
     }
 
 def linear_regression_trend(x: np.ndarray, y: np.ndarray) -> Dict[str, float]:
     """
-    Perform linear regression to analyze trend in performance over cycles.
-    
-    Args:
-        x: Independent variable (e.g., cycle numbers).
-        y: Dependent variable (e.g., performance metric).
-    
-    Returns:
-        Dictionary containing slope, intercept, r_squared, and trend direction.
+    Perform linear regression to analyze trend in performance trajectory.
+    Returns slope, intercept, r_squared, and trend direction.
     """
-    if len(x) != len(y) or len(x) < 2:
-        raise ValueError("Need at least 2 data points for linear regression.")
+    if len(x) < 2:
+        return {
+            'slope': 0.0,
+            'intercept': y[0] if len(y) > 0 else 0.0,
+            'r_squared': 0.0,
+            'trend_direction': 'flat'
+        }
     
+    # Linear regression
     n = len(x)
-    x_mean = np.mean(x)
-    y_mean = np.mean(y)
+    sum_x = np.sum(x)
+    sum_y = np.sum(y)
+    sum_xy = np.sum(x * y)
+    sum_x2 = np.sum(x ** 2)
     
-    # Calculate slope and intercept
-    numerator = np.sum((x - x_mean) * (y - y_mean))
-    denominator = np.sum((x - x_mean) ** 2)
-    
+    denominator = n * sum_x2 - sum_x ** 2
     if denominator == 0:
-        raise ValueError("Cannot compute regression: x values are constant.")
+        slope = 0.0
+    else:
+        slope = (n * sum_xy - sum_x * sum_y) / denominator
     
-    slope = numerator / denominator
-    intercept = y_mean - slope * x_mean
+    intercept = (sum_y - slope * sum_x) / n
     
-    # Calculate R-squared
+    # R-squared calculation
     y_pred = slope * x + intercept
     ss_res = np.sum((y - y_pred) ** 2)
-    ss_tot = np.sum((y - y_mean) ** 2)
-    
-    if ss_tot == 0:
-        r_squared = 0.0
-    else:
-        r_squared = 1 - (ss_res / ss_tot)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
     
     # Determine trend direction
     if slope > 0.001:
@@ -164,24 +156,27 @@ def linear_regression_trend(x: np.ndarray, y: np.ndarray) -> Dict[str, float]:
         'trend_direction': trend_direction
     }
 
-def save_bootstrap_results(results: Dict[str, Any], filepath: str) -> None:
-    """
-    Save bootstrap test results to a JSON file.
-    """
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    with open(filepath, 'w') as f:
-        json.dump(results, f, indent=2)
-
-def save_decay_fit_results(params: Tuple[float, float, float], trend: str, filepath: str) -> None:
+def save_decay_fit_results(results: Dict[str, Any], output_path: str) -> None:
     """
     Save exponential decay fit results to a JSON file.
     """
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    data = {
-        'a': params[0],
-        'b': params[1],
-        'c': params[2],
-        'trend': trend
-    }
-    with open(filepath, 'w') as f:
-        json.dump(data, f, indent=2)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Decay fit results saved to {output_path}")
+
+def save_bootstrap_results(results: Dict[str, Any], output_path: str) -> None:
+    """
+    Save bootstrap test results to a JSON file.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Bootstrap results saved to {output_path}")
+
+def get_bootstrap_resamples() -> int:
+    """
+    Get the number of bootstrap resamples from config.
+    """
+    config = get_config()
+    return getattr(config, 'bootstrap_resamples', 1000)

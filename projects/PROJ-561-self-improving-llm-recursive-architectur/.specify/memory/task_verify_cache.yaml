@@ -1,9 +1,3 @@
-T005c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `pipeline/loader.py` file with a fail\u2011fast wrapper raising `FileNotFoundError`\
-    \ is present, and no unit test asserting that the exception is raised for missing\
-    \ files was provided. The required code change and corresponding test are missing."
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -29,9 +23,10 @@ T009:
 T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `pipeline/evaluator.py` file is present, nor any unit test that mocks datasets
-    and checks accuracy/ECE calculations. The required benchmark runner implementation
-    and its verification test are missing, so the task is not satisfied.
+  r: "No `pipeline/evaluator.py` file or corresponding unit test is present in the\
+    \ provided evidence; therefore the required benchmark runner and evaluation logic,\
+    \ as well as the mocked\u2011dataset test asserting accuracy/ECE, are missing.\
+    \ The implementer must add the module and its test to satisfy T010."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

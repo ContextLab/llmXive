@@ -1,1 +1,1 @@
-# Results package
+# Auto-generated package initialization

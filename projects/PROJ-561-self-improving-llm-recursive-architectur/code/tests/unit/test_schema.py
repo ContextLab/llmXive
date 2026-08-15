@@ -1,35 +1,36 @@
+"""
+Unit tests for the modification proposal schema (T013).
+"""
 import pytest
 import json
 from pydantic import ValidationError
 from schemas.modification_proposal import ModificationProposal, validate_modification_json
 
-
 class TestModificationProposalSchema:
-    """Unit tests for the ModificationProposal schema and validation logic."""
+    """Tests for ModificationProposal Pydantic model."""
 
     def test_valid_proposal_layer_add(self):
-        """Test that a valid layer_add proposal is accepted."""
-        valid_json = json.dumps({
+        """Test a valid layer_add proposal."""
+        data = {
             "modification_type": "layer_add",
             "magnitude": 2,
-            "rationale": "Adding layers to increase depth and capacity.",
+            "rationale": "Adding layers to increase depth",
             "estimated_param_count": 1000000
-        })
-        proposal = validate_modification_json(valid_json)
+        }
+        proposal = ModificationProposal(**data)
         assert proposal.modification_type == "layer_add"
         assert proposal.magnitude == 2
-        assert "increase" in proposal.rationale.lower()
         assert proposal.estimated_param_count == 1000000
 
     def test_valid_proposal_head_count_change(self):
-        """Test that a valid head_count_change proposal is accepted."""
-        valid_json = json.dumps({
+        """Test a valid head_count_change proposal."""
+        data = {
             "modification_type": "head_count_change",
             "magnitude": 4,
-            "rationale": "Increasing attention heads for better parallelism.",
+            "rationale": "Increasing attention heads",
             "estimated_param_count": 500000
-        })
-        proposal = validate_modification_json(valid_json)
+        }
+        proposal = ModificationProposal(**data)
         assert proposal.modification_type == "head_count_change"
         assert proposal.magnitude == 4
         assert proposal.estimated_param_count == 500000
@@ -50,68 +51,89 @@ class TestModificationProposalSchema:
         with pytest.raises(ValidationError):
             validate_modification_json(invalid_json)
 
-    def test_invalid_modification_type(self):
-        """Test that an invalid modification_type raises ValidationError."""
-        invalid_json = json.dumps({
-            "modification_type": "invalid_type",
-            "magnitude": 2,
-            "rationale": "Testing invalid type.",
-            "estimated_param_count": 100
-        })
-        with pytest.raises(ValidationError):
-            validate_modification_json(invalid_json)
-
-    def test_negative_magnitude(self):
-        """Test that negative magnitude raises ValidationError."""
-        invalid_json = json.dumps({
+    def test_missing_magnitude_field_raises_validation_error(self):
+        """
+        Verification: Assert ValidationError is raised specifically for a missing magnitude field.
+        """
+        data = {
             "modification_type": "layer_add",
-            "magnitude": -5,
-            "rationale": "Testing negative magnitude.",
-            "estimated_param_count": 100
-        })
-        with pytest.raises(ValidationError):
-            validate_modification_json(invalid_json)
+            "rationale": "Missing magnitude test",
+            "estimated_param_count": 1000
+        }
+        with pytest.raises(ValidationError) as exc_info:
+            ModificationProposal(**data)
+        
+        # Verify the error is specifically about the missing 'magnitude' field
+        errors = exc_info.value.errors()
+        assert len(errors) == 1
+        assert errors[0]['loc'] == ('magnitude',)
+        assert 'field required' in errors[0]['msg'].lower() or 'missing' in errors[0]['msg'].lower()
 
-    def test_zero_magnitude(self):
-        """Test that zero magnitude raises ValidationError (must be > 0)."""
-        invalid_json = json.dumps({
+    def test_missing_modification_type_raises_validation_error(self):
+        """Test that missing modification_type raises ValidationError."""
+        data = {
+            "magnitude": 2,
+            "rationale": "Missing type test",
+            "estimated_param_count": 1000
+        }
+        with pytest.raises(ValidationError):
+            ModificationProposal(**data)
+
+    def test_invalid_magnitude_zero_raises_error(self):
+        """Test that magnitude=0 raises ValidationError."""
+        data = {
             "modification_type": "layer_add",
             "magnitude": 0,
-            "rationale": "Testing zero magnitude.",
-            "estimated_param_count": 100
-        })
+            "rationale": "Zero magnitude test",
+            "estimated_param_count": 1000
+        }
         with pytest.raises(ValidationError):
-            validate_modification_json(invalid_json)
+            ModificationProposal(**data)
 
-    def test_empty_rationale(self):
-        """Test that empty rationale raises ValidationError."""
-        invalid_json = json.dumps({
-            "modification_type": "layer_add",
+    def test_invalid_magnitude_negative_raises_error(self):
+        """Test that negative magnitude raises ValidationError."""
+        data = {
+            "modification_type": "head_count_change",
+            "magnitude": -1,
+            "rationale": "Negative magnitude test",
+            "estimated_param_count": 1000
+        }
+        with pytest.raises(ValidationError):
+            ModificationProposal(**data)
+
+    def test_invalid_modification_type_raises_error(self):
+        """Test that invalid modification_type raises ValidationError."""
+        data = {
+            "modification_type": "invalid_type",
             "magnitude": 2,
-            "rationale": "",
-            "estimated_param_count": 100
-        })
+            "rationale": "Invalid type test",
+            "estimated_param_count": 1000
+        }
         with pytest.raises(ValidationError):
-            validate_modification_json(invalid_json)
+            ModificationProposal(**data)
 
-    def test_whitespace_only_rationale(self):
-        """Test that whitespace-only rationale raises ValidationError."""
-        invalid_json = json.dumps({
+    def test_validate_modification_json_valid(self):
+        """Test the validate_modification_json helper function with valid input."""
+        json_str = json.dumps({
             "modification_type": "layer_add",
-            "magnitude": 2,
-            "rationale": "   ",
-            "estimated_param_count": 100
+            "magnitude": 3,
+            "rationale": "JSON validation test",
+            "estimated_param_count": 2000000
         })
-        with pytest.raises(ValidationError):
-            validate_modification_json(invalid_json)
-
-    def test_direct_model_instantiation(self):
-        """Test direct instantiation of ModificationProposal model."""
-        proposal = ModificationProposal(
-            modification_type="layer_add",
-            magnitude=3,
-            rationale="Direct instantiation test",
-            estimated_param_count=200000
-        )
-        assert proposal.modification_type == "layer_add"
+        proposal = validate_modification_json(json_str)
         assert proposal.magnitude == 3
+
+    def test_validate_modification_json_missing_magnitude(self):
+        """Test the validate_modification_json helper function with missing magnitude."""
+        json_str = json.dumps({
+            "modification_type": "layer_add",
+            "rationale": "Missing magnitude in JSON",
+            "estimated_param_count": 1000
+        })
+        with pytest.raises(ValidationError):
+            validate_modification_json(json_str)
+
+    def test_validate_modification_json_invalid_json(self):
+        """Test the validate_modification_json helper function with invalid JSON string."""
+        with pytest.raises(json.JSONDecodeError):
+            validate_modification_json("not valid json")

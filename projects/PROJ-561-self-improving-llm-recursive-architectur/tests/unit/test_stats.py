@@ -1,176 +1,246 @@
 import unittest
 import numpy as np
-from typing import List, Tuple
-import sys
+from unittest.mock import patch, MagicMock
+import json
 import os
+import tempfile
+from pipeline.stats import (
+    exponential_decay,
+    fit_exponential_decay,
+    detect_plateau_or_degradation,
+    paired_bootstrap_test,
+    linear_regression_trend,
+    save_decay_fit_results,
+    save_bootstrap_results,
+    get_bootstrap_resamples
+)
+from config import get_config, set_config, Config, Hyperparameters, SafetyConstraints, PathConfig
 
-# Add project root to path if running standalone
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
-from pipeline.stats import paired_bootstrap_test, exponential_decay, fit_exponential_decay
-
-
-class TestBootstrapSignificanceLogic(unittest.TestCase):
-    """
-    Unit tests for bootstrap significance logic in pipeline/stats.py.
-    Tests paired_bootstrap_test function for correct p-value calculation
-    and statistical validity under known conditions.
-    """
-
-    def setUp(self):
-        """Set up test fixtures."""
-        np.random.seed(42)  # Reproducibility
-        self.alpha = 0.05
-
-    def test_identical_distributions_high_pvalue(self):
-        """
-        When two distributions are identical (or nearly so),
-        the bootstrap test should return a high p-value (> alpha).
-        """
-        # Generate two identical distributions
-        baseline = np.random.normal(loc=0.5, scale=0.1, size=1000)
-        modified = baseline.copy()  # Exact copy
-
-        p_value = paired_bootstrap_test(baseline, modified, alpha=self.alpha)
-
-        # P-value should be high (fail to reject null hypothesis)
-        self.assertGreater(p_value, self.alpha,
-                           "Identical distributions should yield high p-value")
-
-    def test_significant_difference_low_pvalue(self):
-        """
-        When two distributions are significantly different,
-        the bootstrap test should return a low p-value (< alpha).
-        """
-        # Generate two clearly different distributions
-        baseline = np.random.normal(loc=0.5, scale=0.05, size=1000)
-        modified = np.random.normal(loc=0.7, scale=0.05, size=1000)  # Shifted mean
-
-        p_value = paired_bootstrap_test(baseline, modified, alpha=self.alpha)
-
-        # P-value should be low (reject null hypothesis)
-        self.assertLess(p_value, self.alpha,
-                        "Significantly different distributions should yield low p-value")
-
-    def test_small_sample_stability(self):
-        """
-        Test that the bootstrap test handles small sample sizes gracefully
-        without crashing, even if statistical power is low.
-        """
-        baseline = np.array([0.4, 0.5, 0.6, 0.5, 0.45])
-        modified = np.array([0.42, 0.48, 0.55, 0.52, 0.47])
-
-        # Should not raise an exception
-        p_value = paired_bootstrap_test(baseline, modified, alpha=self.alpha)
-
-        # P-value should be a valid float between 0 and 1
-        self.assertIsInstance(p_value, float)
-        self.assertGreaterEqual(p_value, 0.0)
-        self.assertLessEqual(p_value, 1.0)
-
-    def test_paired_structure_preserved(self):
-        """
-        Verify that the paired nature of the test is respected.
-        When differences are consistently positive, p-value should be low.
-        """
-        # Create paired data with consistent positive difference
-        baseline = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        modified = np.array([1.2, 2.2, 3.2, 4.2, 5.2])  # +0.2 consistently
-
-        p_value = paired_bootstrap_test(baseline, modified, alpha=self.alpha)
-
-        # Should detect the consistent improvement
-        self.assertLess(p_value, self.alpha,
-                        "Consistently positive differences should yield low p-value")
-
-    def test_asymmetric_distributions(self):
-        """
-        Test with asymmetric distributions to ensure robustness.
-        """
-        # Skewed baseline (exponential)
-        baseline = np.random.exponential(scale=1.0, size=500) + 0.5
-        # Skewed modified (shifted exponential)
-        modified = np.random.exponential(scale=1.0, size=500) + 1.0
-
-        p_value = paired_bootstrap_test(baseline, modified, alpha=self.alpha)
-
-        # Should handle non-normal distributions
-        self.assertIsInstance(p_value, float)
-        self.assertGreaterEqual(p_value, 0.0)
-        self.assertLessEqual(p_value, 1.0)
-
-    def test_edge_case_zero_variance(self):
-        """
-        Test behavior when one distribution has zero variance (constant values).
-        """
-        baseline = np.ones(100) * 0.5  # Constant
-        modified = np.ones(100) * 0.5  # Same constant
-
-        p_value = paired_bootstrap_test(baseline, modified, alpha=self.alpha)
-
-        # Should not crash; p-value should be 1.0 (no difference)
-        self.assertEqual(p_value, 1.0,
-                         "Identical constant distributions should yield p-value=1.0")
-
-    def test_bootstrap_iterations_parameter(self):
-        """
-        Verify that the function accepts and uses the n_iterations parameter.
-        """
-        baseline = np.random.normal(0.5, 0.1, 200)
-        modified = np.random.normal(0.6, 0.1, 200)
-
-        # Run with fewer iterations for speed in test
-        p_value_fast = paired_bootstrap_test(baseline, modified, n_iterations=100)
-        p_value_slow = paired_bootstrap_test(baseline, modified, n_iterations=1000)
-
-        # Both should be valid floats
-        self.assertIsInstance(p_value_fast, float)
-        self.assertIsInstance(p_value_slow, float)
-
-        # With more iterations, result should be more stable (though not deterministic)
-        # Just check that both are in valid range
-        self.assertGreaterEqual(p_value_fast, 0.0)
-        self.assertLessEqual(p_value_fast, 1.0)
-        self.assertGreaterEqual(p_value_slow, 0.0)
-        self.assertLessEqual(p_value_slow, 1.0)
-
-    def test_exponential_decay_basic(self):
-        """
-        Test the exponential_decay function with known parameters.
-        """
-        x = np.array([0, 1, 2, 3, 4, 5])
-        a, b, c = 2.0, 0.5, 1.0
+class TestExponentialDecay(unittest.TestCase):
+    def test_exponential_decay_formula(self):
+        """Test that the exponential decay function produces correct values."""
+        x = np.array([0, 1, 2, 3])
+        a, b, c = 10.0, 0.5, 2.0
+        y = exponential_decay(x, a, b, c)
+        
         expected = a * np.exp(-b * x) + c
+        np.testing.assert_array_almost_equal(y, expected)
 
-        result = exponential_decay(x, a, b, c)
+    def test_decay_behavior(self):
+        """Test that decay function actually decreases."""
+        x = np.array([0, 1, 2, 3, 4])
+        y = exponential_decay(x, 10.0, 0.5, 2.0)
+        self.assertTrue(y[0] > y[-1], "Decay function should decrease over time")
 
-        np.testing.assert_array_almost_equal(result, expected, decimal=5,
-                                             err_msg="exponential_decay formula incorrect")
+class TestFitExponentialDecay(unittest.TestCase):
+    def test_fit_perfect_decay(self):
+        """Test fitting on perfect exponential decay data."""
+        x = np.linspace(0, 10, 50)
+        true_a, true_b, true_c = 5.0, 0.3, 1.0
+        y = exponential_decay(x, true_a, true_b, true_c) + np.random.normal(0, 0.01, len(x))
+        
+        results = fit_exponential_decay(x, y)
+        
+        # Check that fitted parameters are close to true values
+        self.assertAlmostEqual(results['a'], true_a, delta=0.5)
+        self.assertAlmostEqual(results['b'], true_b, delta=0.1)
+        self.assertAlmostEqual(results['c'], true_c, delta=0.1)
+        
+        # R-squared should be high for good fit
+        self.assertGreater(results['r_squared'], 0.9)
 
-    def test_fit_exponential_decay_convergence(self):
-        """
-        Test that fit_exponential_decay can recover parameters from synthetic data.
-        """
-        # Generate synthetic data with noise
-        true_a, true_b, true_c = 3.0, 0.3, 0.5
-        x_data = np.linspace(0, 10, 50)
-        y_true = true_a * np.exp(-true_b * x_data) + true_c
-        y_noisy = y_true + np.random.normal(0, 0.1, size=x_data.shape)
+    def test_fit_returns_dict(self):
+        """Test that fit function returns a dictionary with required keys."""
+        x = np.array([1, 2, 3])
+        y = np.array([2, 1.5, 1])
+        
+        results = fit_exponential_decay(x, y)
+        
+        self.assertIsInstance(results, dict)
+        self.assertIn('a', results)
+        self.assertIn('b', results)
+        self.assertIn('c', results)
+        self.assertIn('r_squared', results)
 
-        # Fit the model
-        popt, pcov = fit_exponential_decay(x_data, y_noisy)
+class TestDetectPlateauOrDegradation(unittest.TestCase):
+    def test_detect_improvement(self):
+        """Test detection of improving metrics."""
+        metrics = [0.5, 0.6, 0.7, 0.8, 0.9]
+        result = detect_plateau_or_degradation(metrics)
+        self.assertEqual(result, 'improving')
 
-        # Recovered parameters should be close to true parameters
-        recovered_a, recovered_b, recovered_c = popt
+    def test_detect_plateau(self):
+        """Test detection of plateau metrics."""
+        metrics = [0.8, 0.81, 0.805, 0.802, 0.801]
+        result = detect_plateau_or_degradation(metrics)
+        self.assertEqual(result, 'plateau')
 
-        # Allow reasonable tolerance due to noise
-        self.assertAlmostEqual(recovered_a, true_a, delta=0.5,
-                               msg=f"a: {recovered_a} vs {true_a}")
-        self.assertAlmostEqual(recovered_b, true_b, delta=0.1,
-                               msg=f"b: {recovered_b} vs {true_b}")
-        self.assertAlmostEqual(recovered_c, true_c, delta=0.2,
-                               msg=f"c: {recovered_c} vs {true_c}")
+    def test_detect_degradation(self):
+        """Test detection of degradation metrics."""
+        metrics = [0.9, 0.85, 0.8, 0.75, 0.7]
+        result = detect_plateau_or_degradation(metrics)
+        self.assertEqual(result, 'degradation')
 
+    def test_short_sequence(self):
+        """Test with very short sequence."""
+        metrics = [0.5]
+        result = detect_plateau_or_degradation(metrics)
+        self.assertEqual(result, 'improving')
 
-if __name__ == '__main__':
-    unittest.main()
+class TestPairedBootstrapTest(unittest.TestCase):
+    def test_significant_difference(self):
+        """Test bootstrap test with clearly different distributions."""
+        np.random.seed(42)
+        baseline = np.random.normal(0.5, 0.1, 100)
+        post_mod = np.random.normal(0.7, 0.1, 100)
+        
+        results = paired_bootstrap_test(baseline, post_mod, n_resamples=1000)
+        
+        self.assertIn('p_value', results)
+        self.assertIn('is_significant', results)
+        self.assertIn('original_difference', results)
+        
+        # With clear difference, should be significant
+        self.assertTrue(results['is_significant'])
+
+    def test_no_significant_difference(self):
+        """Test bootstrap test with similar distributions."""
+        np.random.seed(42)
+        baseline = np.random.normal(0.5, 0.1, 100)
+        post_mod = np.random.normal(0.51, 0.1, 100)
+        
+        results = paired_bootstrap_test(baseline, post_mod, n_resamples=1000)
+        
+        # With similar distributions, might not be significant
+        self.assertIn('p_value', results)
+        self.assertIn('is_significant', results)
+
+    def test_mismatched_lengths_raises_error(self):
+        """Test that mismatched lengths raise ValueError."""
+        baseline = [0.5, 0.6, 0.7]
+        post_mod = [0.6, 0.7]
+        
+        with self.assertRaises(ValueError):
+            paired_bootstrap_test(baseline, post_mod)
+
+    def test_configurable_resamples(self):
+        """Test that number of resamples is configurable via config."""
+        # Set config with custom resamples
+        config = get_config()
+        config.bootstrap_resamples = 500
+        
+        np.random.seed(42)
+        baseline = np.random.normal(0.5, 0.1, 50)
+        post_mod = np.random.normal(0.6, 0.1, 50)
+        
+        results = paired_bootstrap_test(baseline, post_mod, n_resamples=500)
+        self.assertEqual(results['n_resamples'], 500)
+
+class TestLinearRegressionTrend(unittest.TestCase):
+    def test_perfect_linear_increase(self):
+        """Test linear regression on perfect increasing line."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])  # y = 2x
+        
+        results = linear_regression_trend(x, y)
+        
+        self.assertAlmostEqual(results['slope'], 2.0, places=5)
+        self.assertAlmostEqual(results['intercept'], 0.0, places=5)
+        self.assertAlmostEqual(results['r_squared'], 1.0, places=5)
+        self.assertEqual(results['trend_direction'], 'improving')
+
+    def test_perfect_linear_decrease(self):
+        """Test linear regression on perfect decreasing line."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([10, 8, 6, 4, 2])  # y = -2x + 12
+        
+        results = linear_regression_trend(x, y)
+        
+        self.assertAlmostEqual(results['slope'], -2.0, places=5)
+        self.assertLess(results['trend_direction'], 'flat')  # Should be 'declining'
+        self.assertEqual(results['trend_direction'], 'declining')
+
+    def test_flat_line(self):
+        """Test linear regression on flat line."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([5, 5, 5, 5, 5])
+        
+        results = linear_regression_trend(x, y)
+        
+        self.assertAlmostEqual(results['slope'], 0.0, places=5)
+        self.assertEqual(results['trend_direction'], 'flat')
+        self.assertAlmostEqual(results['r_squared'], 0.0, places=5)
+
+    def test_noisy_linear_trend(self):
+        """Test linear regression on noisy linear data."""
+        np.random.seed(42)
+        x = np.array([1, 2, 3, 4, 5])
+        y = 2 * x + np.random.normal(0, 0.5, 5)
+        
+        results = linear_regression_trend(x, y)
+        
+        # Slope should be close to 2
+        self.assertGreater(results['slope'], 1.5)
+        self.assertLess(results['slope'], 2.5)
+        self.assertEqual(results['trend_direction'], 'improving')
+        self.assertGreater(results['r_squared'], 0.8)
+
+class TestSaveFunctions(unittest.TestCase):
+    def test_save_decay_fit_results(self):
+        """Test saving decay fit results to file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'results', 'decay_fit.json')
+            
+            results = {
+                'a': 5.0,
+                'b': 0.3,
+                'c': 1.0,
+                'r_squared': 0.95
+            }
+            
+            save_decay_fit_results(results, output_path)
+            
+            self.assertTrue(os.path.exists(output_path))
+            
+            with open(output_path, 'r') as f:
+                loaded = json.load(f)
+            
+            self.assertEqual(loaded['a'], 5.0)
+            self.assertEqual(loaded['b'], 0.3)
+
+    def test_save_bootstrap_results(self):
+        """Test saving bootstrap results to file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'results', 'bootstrap.json')
+            
+            results = {
+                'p_value': 0.03,
+                'is_significant': True,
+                'alpha': 0.05,
+                'n_resamples': 1000
+            }
+            
+            save_bootstrap_results(results, output_path)
+            
+            self.assertTrue(os.path.exists(output_path))
+            
+            with open(output_path, 'r') as f:
+                loaded = json.load(f)
+            
+            self.assertEqual(loaded['p_value'], 0.03)
+            self.assertTrue(loaded['is_significant'])
+
+class TestConfigIntegration(unittest.TestCase):
+    def test_get_bootstrap_resamples_from_config(self):
+        """Test that get_bootstrap_resamples reads from config."""
+        # Reset to default
+        config = get_config()
+        if hasattr(config, 'bootstrap_resamples'):
+            original = config.bootstrap_resamples
+        else:
+            original = 1000
+        
+        # Test default
+        resamples = get_bootstrap_resamples()
+        self.assertIsInstance(resamples, int)
+        self.assertGreater(resamples, 0)

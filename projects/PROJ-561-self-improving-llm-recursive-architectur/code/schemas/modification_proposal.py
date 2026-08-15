@@ -1,59 +1,76 @@
+"""
+Schema definitions for architectural modification proposals.
+"""
 from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import Literal, Optional, List
 import json
 
+ModificationType = Literal['layer_add', 'head_count_change']
 
 class ModificationProposal(BaseModel):
     """
-    Pydantic model representing a proposed architectural modification to the LLM.
+    Pydantic model representing a proposed architectural modification.
     
-    Fields:
-        modification_type: The type of change ('layer_add' or 'head_count_change').
-        magnitude: The integer magnitude of the change (e.g., number of layers to add, 
-                   or change in number of attention heads).
-        rationale: A string explaining the reasoning behind the proposal.
-        estimated_param_count: The estimated number of parameters added/removed by this change.
+    Attributes:
+        modification_type: Type of modification ('layer_add' or 'head_count_change').
+        magnitude: Integer magnitude of the change (e.g., number of layers to add).
+        rationale: Human-readable explanation for the proposal.
+        estimated_param_count: Estimated number of parameters added/changed.
     """
-    modification_type: Literal['layer_add', 'head_count_change'] = Field(
-        ..., 
-        description="Type of architectural modification"
+    modification_type: ModificationType = Field(
+        ...,
+        description="Type of modification: 'layer_add' or 'head_count_change'"
     )
     magnitude: int = Field(
-        ..., 
-        gt=0, 
+        ...,
+        gt=0,
         description="Magnitude of the change (must be positive integer)"
     )
     rationale: str = Field(
-        ..., 
-        min_length=1, 
+        ...,
+        min_length=1,
         description="Rationale for the proposed modification"
     )
     estimated_param_count: int = Field(
-        ..., 
+        ...,
+        ge=0,
         description="Estimated parameter count change"
     )
 
-    @field_validator('rationale')
+    @field_validator('modification_type')
     @classmethod
-    def validate_rationale(cls, v: str) -> str:
-        if not v.strip():
-            raise ValueError("Rationale cannot be empty or whitespace only")
-        return v.strip()
+    def validate_type(cls, v):
+        if v not in ['layer_add', 'head_count_change']:
+            raise ValueError(f"modification_type must be 'layer_add' or 'head_count_change', got '{v}'")
+        return v
 
+    @field_validator('magnitude')
+    @classmethod
+    def validate_magnitude(cls, v):
+        if v <= 0:
+            raise ValueError(f"magnitude must be a positive integer, got {v}")
+        return v
+
+    @field_validator('estimated_param_count')
+    @classmethod
+    def validate_param_count(cls, v):
+        if v < 0:
+            raise ValueError(f"estimated_param_count must be non-negative, got {v}")
+        return v
 
 def validate_modification_json(json_str: str) -> ModificationProposal:
     """
-    Validates a JSON string against the ModificationProposal schema.
+    Validate a JSON string against the ModificationProposal schema.
     
     Args:
-        json_str: A JSON string representing the proposal.
+        json_str: JSON string to validate.
         
     Returns:
-        A validated ModificationProposal instance.
+        Validated ModificationProposal instance.
         
     Raises:
-        ValidationError: If the JSON is invalid or does not match the schema.
-        json.JSONDecodeError: If the input is not valid JSON.
+        ValidationError: If the JSON is invalid or missing required fields.
+        json.JSONDecodeError: If the string is not valid JSON.
     """
     try:
         data = json.loads(json_str)

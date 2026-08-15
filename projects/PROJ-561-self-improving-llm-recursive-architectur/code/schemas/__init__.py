@@ -1,1 +1,1 @@
-# Schemas package
+# Auto-generated package initialization
