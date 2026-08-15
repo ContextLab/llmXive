@@ -1,1 +1,1 @@
-# Package marker for data_generation module
+# data_generation package

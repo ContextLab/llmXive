@@ -1,0 +1,64 @@
+openapi: 3.0.0
+info:
+  title: Sensitivity Analysis API
+  version: 1.0.0
+  description: API for sensitivity analysis of sparsity parameters
+
+paths:
+  /run/sensitivity:
+    post:
+      summary: Run sensitivity analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensitivityRequest'
+      responses:
+        '200':
+          description: Sensitivity analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensitivityResponse'
+
+components:
+  schemas:
+    SensitivityRequest:
+      type: object
+      properties:
+        sparsity_densities:
+          type: array
+          items:
+            type: number
+          example: [0.1, 0.2, 0.3]
+        base_theta:
+          type: number
+          example: 1.5
+        matrix_size:
+          type: integer
+          example: 1000
+
+    SensitivityResponse:
+      type: object
+      properties:
+        report_path:
+          type: string
+        variation_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SparsityResult'
+        stability_assessment:
+          type: string
+
+    SparsityResult:
+      type: object
+      properties:
+        sparsity_density:
+          type: number
+        theta_c_estimate:
+          type: number
+        confidence_interval:
+          type: array
+          items:
+            type: number

@@ -32,7 +32,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH
   verified_at: '2026-07-09T14:09:16.396152Z'
-- artifact_hash: d9a479b906e0eda68f1cff3c94875230e8d180a302c9e76a4fd0d7ea60d740c9
+- artifact_hash: 756f5f651e280d232b5d37a760a89eb0cdf8a873763afacbcc167daa7c2982eb
   artifact_path: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -43,4 +43,4 @@
   value: https://arxiv.org/abs/2510.20502
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2510.20502
-  verified_at: '2026-07-19T21:35:50.592421Z'
+  verified_at: '2026-08-15T06:27:01.288910Z'

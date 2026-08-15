@@ -1,5 +1,5 @@
-'|eigenvalue follow infinity large law limit matrice semicircle support wigner':
-  quote: '[-2, 2]'
-  source_id: '1301.6224'
-  url: https://arxiv.org/abs/1301.6224
-  value: '[-2, 2]'
+'|converge distribution empirical entry matrix spectral symmetric':
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'

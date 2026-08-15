@@ -1,5 +1,5 @@
 """
-Unit tests for FFT-based homogenization solver.
+Unit tests for FFT-based homogenization solver convergence and correctness.
 """
 import numpy as np
 import pytest
@@ -79,3 +79,41 @@ def test_convergence():
     # Stiffness should be between 0 and 1 (normalized)
     assert np.all(C_eff >= 0), "Stiffness should be non-negative"
     assert np.all(C_eff <= 2.0), "Stiffness should not exceed theoretical max significantly"
+
+
+def test_convergence_tolerance():
+    """
+    Test that increasing iterations improves convergence for a heterogeneous material.
+    """
+    N = 32
+    # Create a random heterogeneous microstructure
+    np.random.seed(42)
+    microstructure = np.random.rand(N, N) > 0.5
+
+    # Run with low iterations
+    C_low = compute_effective_stiffness(
+        microstructure,
+        E0=1.0,
+        nu0=0.3,
+        n_iterations=5,
+        tolerance=1e-1
+    )
+
+    # Run with high iterations
+    C_high = compute_effective_stiffness(
+        microstructure,
+        E0=1.0,
+        nu0=0.3,
+        n_iterations=100,
+        tolerance=1e-6
+    )
+
+    # The high iteration result should be more stable (smaller variance in off-diagonals
+    # if the material is symmetric, though we just check finiteness and bounds here)
+    assert np.all(np.isfinite(C_high)), "High iteration result must be finite"
+    assert np.all(C_high >= 0), "High iteration result must be non-negative"
+    
+    # Check that the solver actually changed the result between low and high iterations
+    # (indicating that iterations matter for convergence)
+    diff = np.abs(C_high - C_low)
+    assert np.max(diff) > 1e-10, "Solver should show convergence behavior with more iterations"

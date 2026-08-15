@@ -7,101 +7,80 @@ from typing import Any, Dict, List, Optional
 
 from utils.config import get_project_paths
 
-def _get_checksum(data: Dict[str, Any]) -> str:
-    """Generate a deterministic checksum for result data."""
-    normalized = json.dumps(data, sort_keys=True, default=str)
-    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 def record_simulation_result(
-    seed: int,
-    matrix_size: int,
-    perturbation_norm: float,
-    perturbation_type: str,
     eigenvalues: List[float],
-    outlier_indices: List[int],
-    theoretical_edge: float,
-    is_outlier_present: bool,
-    sparsity_density: Optional[float] = None,
-    execution_time_seconds: Optional[float] = None,
+    perturbation_config: Dict[str, Any],
+    simulation_metadata: Dict[str, Any],
+    output_dir: Optional[Path] = None,
 ) -> Path:
     """
-    Records a single simulation result to data/processed/ with metadata.
-    Returns the path to the written JSON file.
+    Record a single simulation run's results to a JSON file in data/processed/.
+
+    Args:
+        eigenvalues: List of computed eigenvalues (sorted descending).
+        perturbation_config: Dictionary describing the perturbation applied.
+        simulation_metadata: Dictionary with run metadata (seed, timestamp, N, etc.).
+        output_dir: Optional override for the output directory. Defaults to
+                    data/processed/ based on project config.
+
+    Returns:
+        Path to the written JSON file.
     """
-    paths = get_project_paths()
-    processed_dir = paths["data"] / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    if output_dir is None:
+        project_paths = get_project_paths()
+        output_dir = project_paths.processed_dir
+        output_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now().isoformat()
-    result_id = f"run_{seed}_{matrix_size}_{int(perturbation_norm * 1000)}"
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    result_data: Dict[str, Any] = {
-        "result_id": result_id,
-        "timestamp": timestamp,
-        "parameters": {
-            "seed": seed,
-            "matrix_size": matrix_size,
-            "perturbation_norm": perturbation_norm,
-            "perturbation_type": perturbation_type,
-            "sparsity_density": sparsity_density,
-        },
-        "results": {
-            "eigenvalues": eigenvalues,
-            "outlier_indices": outlier_indices,
-            "theoretical_edge": theoretical_edge,
-            "is_outlier_present": is_outlier_present,
-        },
-        "metadata": {
-            "checksum": _get_checksum(result_data),
-        },
+    # Construct the result record
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "metadata": simulation_metadata,
+        "perturbation": perturbation_config,
+        "eigenvalues": eigenvalues,
     }
 
-    if execution_time_seconds is not None:
-        result_data["metadata"]["execution_time_seconds"] = execution_time_seconds
+    # Generate a unique filename based on timestamp and seed
+    seed = simulation_metadata.get("seed", 0)
+    n = simulation_metadata.get("N", 0)
+    timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    filename = f"run_n{n}_seed{seed}_{timestamp_str}.json"
+    output_path = output_dir / filename
 
-    output_file = processed_dir / f"{result_id}.json"
-    with open(output_file, "w") as f:
-        json.dump(result_data, f, indent=2)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(record, f, indent=2)
 
-    return output_file
+    return output_path
+
 
 def append_to_aggregated_results(
-    result_path: Path,
+    results_path: Path,
     aggregated_file: Optional[Path] = None,
 ) -> Path:
     """
-    Appends a single result to an aggregated CSV file for sweep analysis.
-    Converts JSON result to CSV row format.
+    Append a single result record to an aggregated JSONL (or JSON) results file.
+
+    Args:
+        results_path: Path to the single result JSON file to append.
+        aggregated_file: Path to the aggregated results file. Defaults to
+                         data/processed/aggregated_results.jsonl.
+
+    Returns:
+        Path to the updated aggregated file.
     """
     if aggregated_file is None:
-        paths = get_project_paths()
-        aggregated_file = paths["data"] / "processed" / "aggregated_results.csv"
+        project_paths = get_project_paths()
+        aggregated_file = project_paths.processed_dir / "aggregated_results.jsonl"
 
-    with open(result_path, "r") as f:
-        data = json.load(f)
+    # Read the single result
+    with open(results_path, "r", encoding="utf-8") as f:
+        record = json.load(f)
 
-    params = data["parameters"]
-    results = data["results"]
-    meta = data["metadata"]
-
-    row = {
-        "result_id": data["result_id"],
-        "timestamp": data["timestamp"],
-        "seed": params["seed"],
-        "matrix_size": params["matrix_size"],
-        "perturbation_norm": params["perturbation_norm"],
-        "perturbation_type": params["perturbation_type"],
-        "sparsity_density": params.get("sparsity_density"),
-        "top_eigenvalue": results["eigenvalues"][0] if results["eigenvalues"] else None,
-        "num_outliers": len(results["outlier_indices"]),
-        "is_outlier_present": results["is_outlier_present"],
-        "checksum": meta["checksum"],
-    }
-
-    file_exists = aggregated_file.exists()
-    with open(aggregated_file, "a") as f:
-        if not file_exists:
-            f.write(",".join(row.keys()) + "\n")
-        f.write(",".join(str(v) for v in row.values()) + "\n")
+    # Append as a single line in JSONL format
+    with open(aggregated_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record) + "\n")
 
     return aggregated_file

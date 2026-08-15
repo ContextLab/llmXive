@@ -1,1 +1,1 @@
-# Package marker for utils module
+# utils package

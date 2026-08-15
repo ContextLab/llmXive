@@ -1,14 +1,13 @@
 """
 Stress test script for VirtualTactileEstimator with noise injection.
 
-This script validates the robustness of the VirtualTactileEstimator under
-varying noise conditions, simulating real-world sensor imperfections.
+This script validates the stability and accuracy of the estimator under
+varying noise conditions, simulating sensor imperfections and extreme
+friction scenarios as required by US2.
 
-It tests:
-1. Moving average filter smoothing under high-frequency noise
-2. Epsilon clamping stability near zero velocity
-3. Linear correlation between k_est and ground-truth friction
-4. Division-by-zero protection
+It generates synthetic torque/velocity pairs with controlled noise levels,
+runs the estimator, and outputs statistical metrics (MAE, StdDev) to
+data/generated/stress_test_results.json.
 """
 import os
 import sys
@@ -17,322 +16,191 @@ import logging
 import argparse
 import time
 import numpy as np
-from collections import deque
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Tuple, List, Dict, Any
 
-# Import the estimator from the existing API surface
+# Add parent directory to path for imports if running as script
+if 'code' not in sys.path:
+    code_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, code_dir)
+
 from estimator import VirtualTactileEstimator
-from logging_config import get_logger, setup_all_loggers
+from logging_config import get_logger_for_module
 
-# Constants for stress testing
-DEFAULT_NOISE_LEVELS = [0.0, 0.1, 0.2, 0.5, 1.0]
-DEFAULT_VELOCITY_RANGE = (0.01, 2.0)
-DEFAULT_FRICTION_VALUES = [0.1, 0.3, 0.5, 0.7, 0.9]
-DEFAULT_NUM_SAMPLES = 1000
-DEFAULT_WINDOW_SIZE = 5
-DEFAULT_EPSILON = 0.001
+logger = get_logger_for_module(__name__)
 
 def generate_noisy_torque_velocity_pairs(
-    friction_values: List[float],
-    num_samples: int,
-    noise_levels: List[float],
+    base_friction: float,
     velocity_range: Tuple[float, float],
-    seed: Optional[int] = None
-) -> List[Dict[str, Any]]:
+    noise_std: float,
+    num_samples: int,
+    rng: np.random.Generator
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Generate synthetic torque/velocity pairs with controlled noise.
+    Generate synthetic torque and velocity pairs with injected Gaussian noise.
     
-    Ground truth: torque = friction * velocity (simplified linear model)
+    Args:
+        base_friction: The underlying friction coefficient (ground truth).
+        velocity_range: Tuple (min_vel, max_vel) for velocity sampling.
+        noise_std: Standard deviation of the Gaussian noise to inject.
+        num_samples: Number of samples to generate.
+        rng: NumPy random generator for reproducibility.
+    
+    Returns:
+        Tuple of (torque_array, velocity_array) with noise injected.
     """
-    if seed is not None:
-        np.random.seed(seed)
+    # Velocity is uniformly distributed in the given range
+    velocities = rng.uniform(velocity_range[0], velocity_range[1], num_samples)
     
-    data = []
-    for friction in friction_values:
-        for noise_level in noise_levels:
-            for _ in range(num_samples):
-                # Generate ground truth velocity
-                velocity = np.random.uniform(velocity_range[0], velocity_range[1])
-                
-                # Ground truth torque (linear relationship with friction)
-                true_torque = friction * velocity
-                
-                # Add noise to both measurements
-                noisy_velocity = velocity + np.random.normal(0, noise_level)
-                noisy_torque = true_torque + np.random.normal(0, noise_level * 10)  # Torque noise scaled
-                
-                # Ensure velocity doesn't go negative (physical constraint)
-                noisy_velocity = max(noisy_velocity, 0.0001)
-                
-                data.append({
-                    'friction': friction,
-                    'noise_level': noise_level,
-                    'true_velocity': velocity,
-                    'true_torque': true_torque,
-                    'noisy_velocity': noisy_velocity,
-                    'noisy_torque': noisy_torque
-                })
+    # Theoretical torque = friction * velocity (simplified model for stress testing)
+    # We add a small epsilon to velocity to avoid exact zero division in generation logic
+    # if we were simulating the reverse, but here we generate torque directly.
+    base_torques = base_friction * velocities
     
-    return data
+    # Inject Gaussian noise
+    noise = rng.normal(0.0, noise_std, num_samples)
+    noisy_torques = base_torques + noise
+    
+    # Ensure velocity doesn't become exactly zero if we were to use it as denominator later,
+    # though the estimator handles it. We keep velocities as generated.
+    return noisy_torques, velocities
 
 def run_stress_test(
     noise_levels: List[float],
     friction_values: List[float],
-    num_samples: int,
-    window_size: int,
-    epsilon: float,
-    seed: Optional[int] = None,
-    output_dir: str = "data/stress_test_results"
+    trials_per_config: int = 10,
+    samples_per_trial: int = 100,
+    seed: int = 42
 ) -> Dict[str, Any]:
     """
-    Run the full stress test suite on the VirtualTactileEstimator.
+    Execute the stress test suite across various noise levels and friction values.
     
-    Returns a dictionary containing test results and statistics.
+    Args:
+        noise_levels: List of noise standard deviations to test.
+        friction_values: List of ground-truth friction coefficients to test.
+        trials_per_config: Number of independent trials per (noise, friction) config.
+        samples_per_trial: Number of samples per trial.
+        seed: Random seed for reproducibility.
+    
+    Returns:
+        Dictionary containing aggregated results and statistics.
     """
-    # Setup logging
-    logger = get_logger("stress_test")
-    logger.info(f"Starting stress test with {len(noise_levels)} noise levels, "
-               f"{len(friction_values)} friction values, {num_samples} samples each")
-    
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Generate test data
-    test_data = generate_noisy_torque_velocity_pairs(
-        friction_values=friction_values,
-        num_samples=num_samples,
-        noise_levels=noise_levels,
-        velocity_range=DEFAULT_VELOCITY_RANGE,
-        seed=seed
-    )
-    
-    logger.info(f"Generated {len(test_data)} test samples")
-    
-    # Initialize estimator
-    estimator = VirtualTactileEstimator(
-        window_size=window_size,
-        epsilon=epsilon
-    )
-    
-    # Results storage
+    rng = np.random.default_rng(seed)
     results = {
-        'test_parameters': {
-            'noise_levels': noise_levels,
-            'friction_values': friction_values,
-            'num_samples': num_samples,
-            'window_size': window_size,
-            'epsilon': epsilon,
-            'seed': seed
-        },
-        'per_condition_results': [],
-        'overall_statistics': {}
+        "configs": [],
+        "summary": {
+            "mean_absolute_error_by_noise": {},
+            "stability_variance_by_noise": {}
+        }
     }
     
-    # Track all k_est values for correlation analysis
-    all_true_frictions = []
-    all_estimated_k = []
+    logger.info(f"Starting stress test with {len(noise_levels)} noise levels and {len(friction_values)} friction values.")
     
-    # Process each sample
-    for i, sample in enumerate(test_data):
-        # Reset estimator for each friction condition to avoid cross-contamination
-        if i > 0 and (sample['friction'] != test_data[i-1]['friction'] or 
-                     sample['noise_level'] != test_data[i-1]['noise_level']):
-            estimator.reset()
+    for noise_std in noise_levels:
+        noise_results = []
+        stability_vars = []
         
-        # Feed data to estimator
-        k_est = estimator.update(
-            torque=sample['noisy_torque'],
-            velocity=sample['noisy_velocity']
-        )
+        for friction in friction_values:
+            for trial_idx in range(trials_per_config):
+                # Generate data
+                torques, velocities = generate_noisy_torque_velocity_pairs(
+                    base_friction=friction,
+                    velocity_range=(0.1, 2.0), # Avoid zero velocity
+                    noise_std=noise_std,
+                    num_samples=samples_per_trial,
+                    rng=rng
+                )
+                
+                # Initialize estimator for this trial
+                # Window=5, epsilon=1e-4 as per T005 specs
+                estimator = VirtualTactileEstimator(window_size=5, epsilon=1e-4)
+                
+                est_values = []
+                for t, v in zip(torques, velocities):
+                    # Feed data point by point to simulate streaming
+                    k_est = estimator.update(t, v)
+                    if k_est is not None and np.isfinite(k_est):
+                        est_values.append(k_est)
+                
+                if not est_values:
+                    logger.warning(f"Trial {trial_idx} for friction={friction}, noise={noise_std} produced no valid estimates.")
+                    continue
+                
+                # Calculate error metrics for this trial
+                mean_est = np.mean(est_values)
+                error = abs(mean_est - friction)
+                noise_results.append(error)
+                
+                # Calculate variance as a stability metric
+                if len(est_values) > 1:
+                    stability_vars.append(np.var(est_values))
         
-        # Store results
-        result_entry = {
-            'sample_id': i,
-            'friction': sample['friction'],
-            'noise_level': sample['noise_level'],
-            'true_velocity': sample['true_velocity'],
-            'true_torque': sample['true_torque'],
-            'noisy_velocity': sample['noisy_velocity'],
-            'noisy_torque': sample['noisy_torque'],
-            'estimated_k': k_est,
-            'is_clamped': estimator.is_clamped,
-            'window_count': len(estimator.velocity_history)
-        }
-        
-        results['per_condition_results'].append(result_entry)
-        
-        # Collect for correlation analysis (only after warm-up period)
-        if len(estimator.velocity_history) >= window_size:
-            all_true_frictions.append(sample['friction'])
-            all_estimated_k.append(k_est)
-        
-        # Progress logging
-        if (i + 1) % 1000 == 0:
-            logger.info(f"Processed {i + 1}/{len(test_data)} samples")
-    
-    # Calculate overall statistics
-    if all_true_frictions:
-        correlation = np.corrcoef(all_true_frictions, all_estimated_k)[0, 1]
-        mse = np.mean((np.array(all_true_frictions) - np.array(all_estimated_k)) ** 2)
-        rmse = np.sqrt(mse)
-        
-        results['overall_statistics'] = {
-            'correlation_coefficient': float(correlation),
-            'mean_squared_error': float(mse),
-            'root_mean_squared_error': float(rmse),
-            'total_samples_processed': len(all_true_frictions),
-            'warmup_samples_skipped': len(test_data) - len(all_true_frictions)
-        }
-        
-        logger.info(f"Correlation (k_est vs friction): {correlation:.4f}")
-        logger.info(f"RMSE: {rmse:.4f}")
-    else:
-        logger.warning("No samples passed warm-up period for correlation analysis")
-        results['overall_statistics'] = {
-            'error': 'Insufficient data for correlation analysis'
-        }
-    
-    # Check for division-by-zero protection
-    clamped_count = sum(1 for r in results['per_condition_results'] if r['is_clamped'])
-    results['overall_statistics']['clamped_samples'] = clamped_count
-    results['overall_statistics']['clamping_rate'] = clamped_count / len(results['per_condition_results'])
-    
-    logger.info(f"Clamping rate: {results['overall_statistics']['clamping_rate']:.4f}")
-    
-    # Write results to JSON
-    output_file = os.path.join(output_dir, "stress_test_results.json")
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Results written to {output_file}")
-    
-    # Write summary CSV for quick analysis
-    summary_file = os.path.join(output_dir, "stress_test_summary.csv")
-    with open(summary_file, 'w') as f:
-        f.write("friction,noise_level,count,mean_k_est,std_k_est\n")
-        
-        # Aggregate by condition
-        condition_stats = {}
-        for r in results['per_condition_results']:
-            key = (r['friction'], r['noise_level'])
-            if key not in condition_stats:
-                condition_stats[key] = {'k_est': [], 'count': 0}
-            condition_stats[key]['k_est'].append(r['estimated_k'])
-            condition_stats[key]['count'] += 1
-        
-        for (friction, noise), stats in condition_stats.items():
-            k_est_array = np.array(stats['k_est'])
-            mean_k = np.mean(k_est_array)
-            std_k = np.std(k_est_array)
-            f.write(f"{friction},{noise},{stats['count']},{mean_k:.6f},{std_k:.6f}\n")
-    
-    logger.info(f"Summary written to {summary_file}")
+        # Aggregate results for this noise level
+        if noise_results:
+            results["summary"]["mean_absolute_error_by_noise"][str(noise_std)] = float(np.mean(noise_results))
+            results["summary"]["stability_variance_by_noise"][str(noise_std)] = float(np.mean(stability_vars))
+            logger.info(f"Noise Level {noise_std}: Mean MAE = {np.mean(noise_results):.4f}, Mean Variance = {np.mean(stability_vars):.4f}")
+        else:
+            logger.warning(f"No valid results for noise level {noise_std}")
     
     return results
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Stress test VirtualTactileEstimator with noise injection"
-    )
-    parser.add_argument(
-        '--noise-levels',
-        type=float,
-        nargs='+',
-        default=DEFAULT_NOISE_LEVELS,
-        help='Noise levels to test (default: {})'.format(DEFAULT_NOISE_LEVELS)
-    )
-    parser.add_argument(
-        '--friction-values',
-        type=float,
-        nargs='+',
-        default=DEFAULT_FRICTION_VALUES,
-        help='Friction values to test (default: {})'.format(DEFAULT_FRICTION_VALUES)
-    )
-    parser.add_argument(
-        '--num-samples',
-        type=int,
-        default=DEFAULT_NUM_SAMPLES,
-        help='Number of samples per condition (default: {})'.format(DEFAULT_NUM_SAMPLES)
-    )
-    parser.add_argument(
-        '--window-size',
-        type=int,
-        default=DEFAULT_WINDOW_SIZE,
-        help='Moving average window size (default: {})'.format(DEFAULT_WINDOW_SIZE)
-    )
-    parser.add_argument(
-        '--epsilon',
-        type=float,
-        default=DEFAULT_EPSILON,
-        help='Epsilon for clamping (default: {})'.format(DEFAULT_EPSILON)
-    )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=None,
-        help='Random seed for reproducibility'
-    )
-    parser.add_argument(
-        '--output-dir',
-        type=str,
-        default="data/stress_test_results",
-        help='Output directory for results (default: data/stress_test_results)'
-    )
-    parser.add_argument(
-        '--log-file',
-        type=str,
-        default=None,
-        help='Log file path (default: None)'
-    )
+    """Main entry point for the stress test script."""
+    parser = argparse.ArgumentParser(description="Stress test VirtualTactileEstimator with noise injection.")
+    parser.add_argument("--noise-levels", type=float, nargs="+", default=[0.0, 0.05, 0.1, 0.2, 0.5],
+                        help="List of noise standard deviations to test.")
+    parser.add_argument("--friction-values", type=float, nargs="+", default=[0.1, 0.5, 1.0, 1.5, 2.0],
+                        help="List of ground-truth friction coefficients to test.")
+    parser.add_argument("--trials", type=int, default=10, help="Trials per configuration.")
+    parser.add_argument("--samples", type=int, default=100, help="Samples per trial.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
+    parser.add_argument("--output", type=str, default="data/generated/stress_test_results.json",
+                        help="Path to save results JSON.")
     
     args = parser.parse_args()
     
-    # Setup logging
-    if args.log_file:
-        setup_all_loggers(log_file=args.log_file)
+    # Ensure output directory exists
+    output_dir = os.path.dirname(args.output)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
-    logger = get_logger("stress_test")
-    logger.info("Starting VirtualTactileEstimator stress test")
+    logger.info(f"Running stress test with seed={args.seed}")
+    logger.info(f"Noise levels: {args.noise_levels}")
+    logger.info(f"Friction values: {args.friction_values}")
     
     start_time = time.time()
+    results = run_stress_test(
+        noise_levels=args.noise_levels,
+        friction_values=args.friction_values,
+        trials_per_config=args.trials,
+        samples_per_trial=args.samples,
+        seed=args.seed
+    )
+    end_time = time.time()
     
-    try:
-        results = run_stress_test(
-            noise_levels=args.noise_levels,
-            friction_values=args.friction_values,
-            num_samples=args.num_samples,
-            window_size=args.window_size,
-            epsilon=args.epsilon,
-            seed=args.seed,
-            output_dir=args.output_dir
-        )
-        
-        elapsed_time = time.time() - start_time
-        logger.info(f"Stress test completed in {elapsed_time:.2f} seconds")
-        
-        # Print summary
-        print("\n" + "="*60)
-        print("STRESS TEST SUMMARY")
-        print("="*60)
-        print(f"Noise levels tested: {args.noise_levels}")
-        print(f"Friction values tested: {args.friction_values}")
-        print(f"Total samples: {args.num_samples * len(args.noise_levels) * len(args.friction_values)}")
-        print(f"Window size: {args.window_size}")
-        print(f"Epsilon: {args.epsilon}")
-        print(f"Seed: {args.seed}")
-        print(f"Time elapsed: {elapsed_time:.2f}s")
-        
-        if 'correlation_coefficient' in results['overall_statistics']:
-            print(f"\nCorrelation (k_est vs friction): {results['overall_statistics']['correlation_coefficient']:.4f}")
-            print(f"RMSE: {results['overall_statistics']['root_mean_squared_error']:.4f}")
-            print(f"Clamping rate: {results['overall_statistics']['clamping_rate']:.4f}")
-        
-        print(f"\nResults saved to: {args.output_dir}")
-        print("="*60)
-        
-    except Exception as e:
-        logger.error(f"Stress test failed: {str(e)}", exc_info=True)
-        raise
+    results["metadata"] = {
+        "execution_time_seconds": end_time - start_time,
+        "noise_levels_tested": args.noise_levels,
+        "friction_values_tested": args.friction_values,
+        "trials_per_config": args.trials,
+        "samples_per_trial": args.samples,
+        "seed": args.seed
+    }
+    
+    # Write results to disk
+    with open(args.output, "w") as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Stress test completed. Results saved to {args.output}")
+    print(f"Results written to {args.output}")
 
 if __name__ == "__main__":
+    # Initialize logging
+    init_logger = logging.getLogger()
+    if not init_logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        init_logger.addHandler(handler)
+        init_logger.setLevel(logging.INFO)
+    
     main()

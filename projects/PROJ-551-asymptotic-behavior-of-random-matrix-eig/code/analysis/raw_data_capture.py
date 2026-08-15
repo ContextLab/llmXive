@@ -1,242 +1,301 @@
 """
-Raw Data Capture Module for Constitution Principle III (Data Hygiene).
+Raw data capture and hygiene module for Constitution Principle III compliance.
 
-This module generates raw matrix instances (Wigner + Perturbation) and
-intermediate states, saving them to `data/raw/` and computing checksums
-to ensure traceability and integrity.
+This module handles the generation, storage, and checksumming of raw matrix
+instances and intermediate states before any aggregation occurs.
 """
 import os
 import logging
 import json
 import time
+import hashlib
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
-
 import numpy as np
 from scipy import sparse
 
-# Import from existing API surface
-from generators.wigner import generate_wigner_matrix
-from generators.perturbation import create_perturbation
-from utils.config import get_project_paths, get_seed, get_matrix_size, get_perturbation_norm, get_sparsity_density
+from utils.config import get_project_paths, ensure_directories
 from utils.checksum import compute_file_checksum, save_checksum_manifest
-from utils.logging_config import setup_simulation_logger
 
 logger = logging.getLogger(__name__)
 
 
-def save_dense_matrix_to_npy(matrix: np.ndarray, filepath: Path) -> str:
+def save_dense_matrix_to_npy(matrix: np.ndarray, output_path: Path, metadata: Dict[str, Any]) -> str:
     """
-    Saves a dense numpy matrix to .npy format and returns the checksum.
+    Save a dense matrix to .npy format and return its checksum.
+    
+    Args:
+        matrix: The dense numpy array to save.
+        output_path: The full path where the .npy file will be saved.
+        metadata: Dictionary containing metadata about the matrix (seed, N, theta, etc.).
+        
+    Returns:
+        str: The SHA-256 checksum of the saved file.
     """
-    np.save(str(filepath), matrix)
-    checksum = compute_file_checksum(filepath)
-    logger.info(f"Saved dense matrix to {filepath} (Checksum: {checksum[:16]}...)")
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save matrix
+    np.save(str(output_path), matrix)
+    
+    # Compute checksum
+    checksum = compute_file_checksum(output_path)
+    
+    # Save metadata alongside
+    metadata_path = output_path.with_suffix('.json')
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+        
+    logger.info(f"Saved dense matrix to {output_path} (checksum: {checksum[:16]}...)")
     return checksum
 
 
-def save_sparse_matrix_to_npz(matrix: sparse.csr_matrix, filepath: Path) -> str:
+def save_sparse_matrix_to_npz(matrix: sparse.csr_matrix, output_path: Path, metadata: Dict[str, Any]) -> str:
     """
-    Saves a sparse matrix to .npz format and returns the checksum.
+    Save a sparse matrix to .npz format and return its checksum.
+    
+    Args:
+        matrix: The sparse scipy matrix to save.
+        output_path: The full path where the .npz file will be saved.
+        metadata: Dictionary containing metadata about the matrix.
+        
+    Returns:
+        str: The SHA-256 checksum of the saved file.
     """
-    sparse.save_npz(str(filepath), matrix)
-    checksum = compute_file_checksum(filepath)
-    logger.info(f"Saved sparse matrix to {filepath} (Checksum: {checksum[:16]}...)")
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save matrix
+    sparse.save_npz(str(output_path), matrix)
+    
+    # Compute checksum
+    checksum = compute_file_checksum(output_path)
+    
+    # Save metadata alongside
+    metadata_path = output_path.with_suffix('.json')
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+        
+    logger.info(f"Saved sparse matrix to {output_path} (checksum: {checksum[:16]}...)")
     return checksum
 
 
 def capture_and_checksum_raw_instance(
-    n: int,
-    theta: float,
-    sparsity: float,
-    seed: int,
-    output_dir: Optional[Path] = None,
-    run_id: Optional[str] = None
-) -> Dict[str, Any]:
+    matrix: np.ndarray,
+    perturbation: Optional[np.ndarray] = None,
+    perturbation_type: str = "diagonal",
+    seed: int = 0,
+    N: int = 1000,
+    theta: float = 2.5,
+    sparsity_density: Optional[float] = None,
+    output_dir: Optional[Path] = None
+) -> Dict[str, str]:
     """
-    Generates a single raw matrix instance (Wigner + Perturbation),
-    saves it to disk in `data/raw/`, computes checksums, and returns metadata.
-
-    This satisfies Constitution Principle III: Data Hygiene.
-
+    Capture a raw matrix instance, save it, and compute its checksum.
+    
+    This function satisfies Constitution Principle III (Data Hygiene) by ensuring
+    that raw data is preserved and checksummed before any aggregation or analysis.
+    
     Args:
-        n: Matrix dimension.
+        matrix: The raw Wigner matrix (N x N).
+        perturbation: Optional perturbation matrix applied to the Wigner matrix.
+        perturbation_type: Type of perturbation ("diagonal", "block-sparse", "random-sparse").
+        seed: Random seed used for generation.
+        N: Matrix dimension.
         theta: Perturbation norm.
-        sparsity: Sparsity density of the perturbation.
-        seed: Random seed for reproducibility.
-        output_dir: Directory to save raw data (defaults to project data/raw).
-        run_id: Unique identifier for this run (optional, generated if None).
-
+        sparsity_density: Density if sparse perturbation was used.
+        output_dir: Directory to save raw data. Defaults to data/raw/ from config.
+        
     Returns:
-        Dictionary containing file paths, checksums, and parameters.
+        Dictionary containing file paths and checksums for all saved artifacts.
     """
     if output_dir is None:
         paths = get_project_paths()
-        output_dir = paths["raw_data"]
-
-    # Ensure directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    if run_id is None:
-        run_id = f"run_{int(time.time())}_{seed}"
-
-    logger.info(f"Capturing raw instance: N={n}, theta={theta}, sparsity={sparsity}, seed={seed}")
-
-    # 1. Generate Wigner Matrix
-    # Set seed explicitly for this specific generation step
-    np.random.seed(seed)
-    wigner_matrix = generate_wigner_matrix(n)
-
-    # Save Wigner Matrix
-    wigner_path = output_dir / f"{run_id}_wigner.npy"
-    wigner_checksum = save_dense_matrix_to_npy(wigner_matrix, wigner_path)
-
-    # 2. Generate Perturbation Matrix
-    # Continue random state or re-seed? Task implies a single seed for the instance.
-    # We use the same seed context or a derived one to ensure reproducibility.
-    # For strict reproducibility, we re-seed the perturbation generation if needed,
-    # but typically the generator handles internal state.
-    # Here we pass the seed to ensure deterministic perturbation if the generator supports it.
-    perturbation_matrix = create_perturbation(n, theta, sparsity, seed=seed)
-
-    # Save Perturbation Matrix (sparse)
-    # Convert to sparse if dense for storage efficiency if it is sparse
-    if sparse.issparse(perturbation_matrix):
-        pert_path = output_dir / f"{run_id}_perturbation.npz"
-        pert_checksum = save_sparse_matrix_to_npz(perturbation_matrix, pert_path)
-        is_sparse = True
-    else:
-        pert_path = output_dir / f"{run_id}_perturbation.npy"
-        pert_checksum = save_dense_matrix_to_npy(perturbation_matrix, pert_path)
-        is_sparse = False
-
-    # 3. Save Intermediate State: The Sum (H = W + P)
-    # We compute the sum explicitly for the "intermediate state" before eigenvalue computation
-    # to ensure we are checksumming the exact input to the solver.
-    # If both are sparse, sum is sparse. If one is dense, sum is dense.
-    if sparse.issparse(wigner_matrix) and sparse.issparse(perturbation_matrix):
-        total_matrix = wigner_matrix + perturbation_matrix
-        total_path = output_dir / f"{run_id}_total.npz"
-        total_checksum = save_sparse_matrix_to_npz(total_matrix, total_path)
-    else:
-        # Ensure dense for sum if any component is dense
-        w_dense = wigner_matrix.toarray() if sparse.issparse(wigner_matrix) else wigner_matrix
-        p_dense = perturbation_matrix.toarray() if sparse.issparse(perturbation_matrix) else perturbation_matrix
-        total_matrix = w_dense + p_dense
-        total_path = output_dir / f"{run_id}_total.npy"
-        total_checksum = save_dense_matrix_to_npy(total_matrix, total_path)
-
-    # 4. Construct Metadata Manifest Entry
-    manifest_entry = {
-        "run_id": run_id,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "parameters": {
-            "n": n,
-            "theta": theta,
-            "sparsity": sparsity,
-            "seed": seed
-        },
-        "files": {
-            "wigner": {
-                "path": str(wigner_path.relative_to(output_dir.parent)),
-                "checksum": wigner_checksum,
-                "format": "npy"
-            },
-            "perturbation": {
-                "path": str(pert_path.relative_to(output_dir.parent)),
-                "checksum": pert_checksum,
-                "format": "npz" if is_sparse else "npy"
-            },
-            "total": {
-                "path": str(total_path.relative_to(output_dir.parent)),
-                "checksum": total_checksum,
-                "format": "npz" if sparse.issparse(total_matrix) else "npy"
-            }
-        }
+        output_dir = paths["data_raw"]
+        
+    ensure_directories([output_dir])
+    
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    run_id = f"N{N}_theta{theta:.2f}_seed{seed}"
+    
+    results = {}
+    
+    # Save Wigner matrix
+    wigner_path = output_dir / f"wigner_{run_id}.npy"
+    wigner_meta = {
+        "type": "wigner",
+        "N": N,
+        "seed": seed,
+        "timestamp": timestamp,
+        "perturbation_applied": perturbation is not None,
+        "perturbation_type": perturbation_type,
+        "theta": theta,
+        "sparsity_density": sparsity_density
     }
-
-    logger.info(f"Raw instance captured and checksummed: {run_id}")
-    return manifest_entry
+    results["wigner_path"] = str(wigner_path)
+    results["wigner_checksum"] = save_dense_matrix_to_npy(matrix, wigner_path, wigner_meta)
+    
+    # Save perturbation if provided
+    if perturbation is not None:
+        pert_path = output_dir / f"perturbation_{run_id}.npy"
+        pert_meta = {
+            "type": perturbation_type,
+            "N": N,
+            "seed": seed,
+            "timestamp": timestamp,
+            "theta": theta,
+            "sparsity_density": sparsity_density
+        }
+        results["perturbation_path"] = str(pert_path)
+        results["perturbation_checksum"] = save_dense_matrix_to_npy(perturbation, pert_path, pert_meta)
+        
+        # Save combined matrix (W + P)
+        combined = matrix + perturbation
+        combined_path = output_dir / f"combined_{run_id}.npy"
+        combined_meta = {
+            "type": "combined",
+            "N": N,
+            "seed": seed,
+            "timestamp": timestamp,
+            "components": ["wigner", perturbation_type],
+            "theta": theta,
+            "sparsity_density": sparsity_density
+        }
+        results["combined_path"] = str(combined_path)
+        results["combined_checksum"] = save_dense_matrix_to_npy(combined, combined_path, combined_meta)
+    
+    logger.info(f"Raw data capture complete for run {run_id}. Checksums: {results['wigner_checksum'][:16]}...")
+    return results
 
 
 def run_hygiene_capture(
-    n: Optional[int] = None,
-    theta: Optional[float] = None,
-    sparsity: Optional[float] = None,
-    seed: Optional[int] = None,
+    matrices: Dict[str, np.ndarray],
+    run_metadata: Dict[str, Any],
     output_dir: Optional[Path] = None
-) -> Dict[str, Any]:
+) -> Dict[str, str]:
     """
-    Orchestrates the capture of a single raw data instance.
-    Falls back to config defaults if parameters are not provided.
+    Run hygiene capture for multiple matrix instances (e.g., intermediate states).
+    
+    Args:
+        matrices: Dictionary mapping state names to numpy arrays.
+        run_metadata: Metadata for the run (seed, N, theta, etc.).
+        output_dir: Directory to save raw data.
+        
+    Returns:
+        Dictionary of file paths and checksums.
     """
-    # Resolve parameters
-    if n is None:
-        n = get_matrix_size()
-    if theta is None:
-        theta = get_perturbation_norm()
-    if sparsity is None:
-        sparsity = get_sparsity_density()
-    if seed is None:
-        seed = get_seed()
-
     if output_dir is None:
         paths = get_project_paths()
-        output_dir = paths["raw_data"]
-
-    # Setup logger
-    log_path = output_dir.parent / "logs" / "raw_capture.log"
-    setup_simulation_logger("raw_capture", log_file=str(log_path))
-
-    # Capture
-    manifest_entry = capture_and_checksum_raw_instance(
-        n=n,
-        theta=theta,
-        sparsity=sparsity,
-        seed=seed,
-        output_dir=output_dir
-    )
-
-    # Save manifest for this run
-    manifest_path = output_dir / f"{manifest_entry['run_id']}_manifest.json"
+        output_dir = paths["data_raw"]
+        
+    ensure_directories([output_dir])
+    
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    run_id = f"run_{timestamp}"
+    
+    results = {}
+    
+    for state_name, matrix in matrices.items():
+        safe_name = state_name.replace(" ", "_").replace("(", "").replace(")", "")
+        file_path = output_dir / f"{safe_name}_{run_id}.npy"
+        
+        meta = {
+            "state_name": state_name,
+            "N": matrix.shape[0],
+            "timestamp": timestamp,
+            **run_metadata
+        }
+        
+        checksum = save_dense_matrix_to_npy(matrix, file_path, meta)
+        results[state_name] = {
+            "path": str(file_path),
+            "checksum": checksum
+        }
+        
+    # Save a manifest of all captured files
+    manifest_path = output_dir / f"manifest_{run_id}.json"
+    manifest = {
+        "run_id": run_id,
+        "timestamp": timestamp,
+        "metadata": run_metadata,
+        "files": results
+    }
+    
     with open(manifest_path, 'w') as f:
-        json.dump(manifest_entry, f, indent=2)
-
-    # Update global checksum manifest if it exists or create new
-    global_manifest_path = output_dir.parent / "checksums" / "raw_manifest.json"
-    save_checksum_manifest(manifest_entry, global_manifest_path)
-
-    return manifest_entry
+        json.dump(manifest, f, indent=2)
+        
+    results["manifest_path"] = str(manifest_path)
+    results["manifest_checksum"] = compute_file_checksum(manifest_path)
+    
+    logger.info(f"Hygiene capture complete for {len(matrices)} matrices. Manifest: {manifest_path}")
+    return results
 
 
 def main():
     """
-    Entry point for CLI execution.
-    Usage: python -m code.analysis.raw_data_capture
+    Main entry point for raw data capture demonstration.
+    
+    This script generates a sample Wigner matrix, applies a perturbation,
+    captures the raw instances, and writes checksums to disk.
     """
     import argparse
-
-    parser = argparse.ArgumentParser(description="Capture and checksum raw matrix instances.")
-    parser.add_argument("--n", type=int, help="Matrix size (N)")
-    parser.add_argument("--theta", type=float, help="Perturbation norm")
-    parser.add_argument("--sparsity", type=float, help="Sparsity density")
-    parser.add_argument("--seed", type=int, help="Random seed")
+    from generators.wigner import generate_wigner_matrix
+    from generators.perturbation import create_perturbation
+    
+    parser = argparse.ArgumentParser(description="Capture and checksum raw matrix instances")
+    parser.add_argument("--N", type=int, default=1000, help="Matrix dimension")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--theta", type=float, default=2.5, help="Perturbation norm")
+    parser.add_argument("--perturbation-type", type=str, default="diagonal", 
+                      choices=["diagonal", "block-sparse", "random-sparse"],
+                      help="Type of perturbation")
+    parser.add_argument("--sparsity-density", type=float, default=0.1,
+                      help="Sparsity density for sparse perturbations")
     args = parser.parse_args()
-
-    try:
-        result = run_hygiene_capture(
-            n=args.n,
-            theta=args.theta,
-            sparsity=args.sparsity,
-            seed=args.seed
-        )
-        print(f"Success. Manifest saved to: {result['run_id']}_manifest.json")
-        print(f"Checksums: Wigner={result['files']['wigner']['checksum'][:16]}... "
-              f"Pert={result['files']['perturbation']['checksum'][:16]}... "
-              f"Total={result['files']['total']['checksum'][:16]}...")
-    except Exception as e:
-        logger.exception("Failed to capture raw data")
-        raise
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    logger.info(f"Starting raw data capture: N={args.N}, seed={args.seed}, "
+               f"theta={args.theta}, type={args.perturbation_type}")
+    
+    # Generate Wigner matrix
+    np.random.seed(args.seed)
+    wigner = generate_wigner_matrix(args.N)
+    
+    # Create perturbation
+    perturbation = create_perturbation(
+        args.N, 
+        args.theta, 
+        perturbation_type=args.perturbation_type,
+        sparsity_density=args.sparsity_density,
+        seed=args.seed
+    )
+    
+    # Capture and checksum
+    paths = get_project_paths()
+    output_dir = paths["data_raw"]
+    
+    results = capture_and_checksum_raw_instance(
+        matrix=wigner,
+        perturbation=perturbation,
+        perturbation_type=args.perturbation_type,
+        seed=args.seed,
+        N=args.N,
+        theta=args.theta,
+        sparsity_density=args.sparsity_density if args.perturbation_type != "diagonal" else None,
+        output_dir=output_dir
+    )
+    
+    # Save checksum manifest
+    manifest_path = output_dir / "checksum_manifest.json"
+    save_checksum_manifest([results], manifest_path)
+    
+    logger.info("Raw data capture and checksumming complete.")
+    logger.info(f"Results: {json.dumps(results, indent=2)}")
+    logger.info(f"Manifest saved to: {manifest_path}")
 
 
 if __name__ == "__main__":

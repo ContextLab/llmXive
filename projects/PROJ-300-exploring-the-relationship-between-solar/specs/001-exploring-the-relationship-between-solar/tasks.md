@@ -123,15 +123,26 @@ tqdm==4.66.1
 - [X] T006a [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` function `calculate_l_phys(vsw_mean: float) -> float` to compute the physics-based propagation lag (FR-012).
  - **Formula**: The implementation MUST use the simplified formula `L_phys = 6371 / vsw_mean`.
  - **Docstring Requirement**: The docstring MUST explicitly reference the full derivation from spec FR-012: `L_phys = (60 * 6371) / vsw_mean / 60` to ensure traceability to the `60 Re` constant and Constitution Principle VII.
+ - **Docstring Text**: Insert the following text into the docstring:
+   """
+   Calculates the physics-based propagation lag (L_phys) in minutes.
+   Formula: L_phys = 6371 / vsw_mean
+   Derivation: L_phys = (60 * 6371) / vsw_mean / 60
+   Where:
+     - 60 Re is the nominal Earth-magnetotail distance (1 Re = 6371 km).
+     - vsw_mean is the mean solar wind speed in km/s.
+   Note: This uses a fixed distance as a heuristic approximation. The actual reconnection site varies dynamically.
+   """
  - **Signature**: `def calculate_l_phys(vsw_mean: float) -> float`
 
 - [X] T047 [P] Write unit test `test_lag_calculation_formula` in `tests/unit/test_lag.py` verifying the result matches `6371 / vsw_mean` and that the code comment references the `60 Re` constant.
  - **Verification**: Run `pytest tests/unit/test_lag.py::test_lag_calculation_formula`.
 
-- [X] T006c [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` function `log_lag_derivation(vsw_mean, l_phys)` to write the physics derivation to `data/processed/quality_log.json` (FR-012).
+- [X] T006c [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` function `log_lag_derivation(vsw_mean, l_phys)` to write the physics derivation to `data/processed/quality_log.json` (FR-012).
  - **Signature**: `def log_lag_derivation(vsw_mean: float, l_phys: float) -> None`
- - **Deliverable**: Appends a JSON entry to `data/processed/quality_log.json` containing the constants and result.
+ - **Deliverable**: Appends a JSON entry to `data/processed/quality_log.json` containing the constants, result, and a note about the dynamic X-line assumption.
  - **Note**: `quality_log.json` is a supplementary diagnostic log; `results/us1_correlation.json` remains the primary "Single Source of Truth" (Constitution Principle IV) for the final report.
+ - **File Safety**: This function MUST use file locking or append-only logic to prevent race conditions with T016.
 
 - [X] T006b [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/data/lag.py` function `apply_lag_shift(series: pd.Series, lag_minutes: int) -> pd.Series` to shift the solar wind series forward by `lag_minutes` (FR-004).
  - **Signature**: `def apply_lag_shift(series: pd.Series, lag_minutes: int) -> pd.Series`
@@ -141,10 +152,11 @@ tqdm==4.66.1
  - **Verification**: Run `pytest tests/unit/test_lag.py::test_lag_shift_applies_correctly`.
 
 - [X] T016 [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` function `log_data_quality_warnings(warnings: list)` to log data-quality warnings to `data/processed/quality_log.json` (FR-009).
- - **Schema**: The JSON file MUST contain a list of objects with keys: `{"timestamp": "ISO8601", "level": "WARN|ERROR", "source": "string", "message": "string"}`.
- - **Implementation**: Create `tests/unit/test_main.py` and write `test_quality_log_schema` to verify the file exists and matches the schema.
+ - **Schema**: The JSON file MUST contain a list of objects. Warning entries MUST contain keys: `{"timestamp": "ISO8601", "level": "WARN|ERROR", "source": "string", "message": "string"}`. Other log entries (e.g., lag derivation) may use different schemas.
+ - **Implementation**: Create `tests/unit/test_main.py` and write `test_quality_log_schema` to verify the file exists and contains warning entries with the required keys.
  - **Verification**: Run `pytest tests/unit/test_main.py::test_quality_log_schema`.
- - **Verification Detail**: The test MUST assert that the loaded JSON list contains dictionaries with exactly the keys `['timestamp', 'level', 'source', 'message']`.
+ - **Verification Detail**: The test MUST assert that the loaded JSON list contains at least one dictionary with the keys `['timestamp', 'level', 'source', 'message']` for warning entries. It must NOT enforce that *all* entries have exactly these keys, to allow for other log types.
+ - **File Safety**: This function MUST use file locking or append-only logic to prevent race conditions with T006c.
  - **Dependency**: This task is foundational and must be completed before T020b.
 
 - [X] T007 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `calculate_correlation` for Pearson/Spearman calculation (used by FR-005/FR-006).
@@ -154,8 +166,8 @@ tqdm==4.66.1
 - [X] T049 [P] Write unit test `test_calculate_correlation` in `tests/unit/test_correlation.py`.
  - **Verification**: Run `pytest tests/unit/test_correlation.py::test_calculate_correlation`.
 
-- [X] T008 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `circular_block_permutation` with `n_iterations=10000 ` for empirical p-values (FR-005).
- - **Block Size**: Use a fixed block size heuristic: `max(, len(series) // 10)`. **Do not implement dynamic block size estimation logic not specified in FR-005.**
+- [X] T008 [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `circular_block_permutation` with `n_iterations=10000 ` for empirical p-values (FR-005).
+ - **Block Size**: Use a fixed block size heuristic: `max(5, len(series) // 10)`. **Do not implement dynamic block size estimation logic not specified in FR-005.**
  - **Signature**: `def circular_block_permutation(x: pd.Series, y: pd.Series, n_iterations: int = 10000) -> float`
  - **Output**: Empirical p-value.
  - **Dependency**: Depends on T005a for the 5-minute cadence format.
@@ -164,24 +176,24 @@ tqdm==4.66.1
  - **Verification**: Run `pytest tests/unit/test_correlation.py::test_permutation_block_size`.
  - **Note**: The test verifies the fixed block size logic as implemented.
 
-- [X] T009 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `moving_block_bootstrap` with `n_iterations=1000 ` (Kunsch 1989, Politis & Romano 1994) for 95% confidence intervals (FR-006).
+- [X] T009 [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/correlation.py` function `moving_block_bootstrap` with `n_iterations=1000 ` (Kunsch 1989, Politis & Romano 1994) for 95% confidence intervals (FR-006).
  - **Block Size**: Use the same fixed block size heuristic as T008: `max(5, len(series) // 10)`. **Do not implement dynamic block size estimation logic not specified in FR-006.**
  - **Signature**: `def moving_block_bootstrap(x: pd.Series, y: pd.Series, n_iterations: int = 1000) -> tuple`
- - **Output**: Tuple (ci_lower, ci_upper).
+ - **Output**: Tuple (ci_lower: float, ci_upper: float).
  - **Dependency**: Depends on T005a for the 5-minute cadence format.
 
 - [X] T051 [P] Write unit test `test_bootstrap_block_size` and `test_bootstrap_ci_calculation` in `tests/unit/test_correlation.py`.
  - **Verification**: Run `pytest tests/unit/test_correlation.py::test_bootstrap_block_size`.
- - **Note**: The test verifies the fixed block size logic as implemented.
+ - **Note**: The test verifies the fixed block size logic.
 
-- [X] T010 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py` function `find_optimal_lag` to sweep the multi-minute window and identify optimal lag `L*` (FR-010).
+- [X] T010 [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/lag_search.py` function `find_optimal_lag` to sweep the multi-minute window and identify optimal lag `L*` (FR-010).
  - **Signature**: `def find_optimal_lag(x: pd.Series, y: pd.Series, min_lag: int, max_lag: int, step: int) -> dict`
  - **Output**: Dictionary with `optimal_lag`, `max_correlation`, `lag_correlation_values`.
 
 - [X] T052 [P] Write unit test `test_lag_sweep_window` and `test_optimal_lag_identification` in `tests/unit/test_lag_search.py`.
  - **Verification**: Run `pytest tests/unit/test_lag_search.py::test_lag_sweep_window`.
 
-- [X] T011 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py` function `analyze_thresholds` to sweep thresholds `T` across the **fixed set** `T ∈ {T₁, T₂, T₃} km s⁻¹` and recompute correlations (FR-007).
+- [X] T011 [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/analysis/sensitivity.py` function `analyze_thresholds` to sweep thresholds `T` across the **fixed set** `T ∈ {T₁, T₂, T₃} km s⁻¹` and recompute correlations (FR-007).
  - **Signature**: `def analyze_thresholds(x: pd.Series, y: pd.Series, thresholds: list) -> dict`
  - **Output**: Dictionary mapping threshold to correlation stats.
  - **Requirement**: The `thresholds` argument MUST be exactly `[400, 500, 600]` as per FR-007.
@@ -189,13 +201,13 @@ tqdm==4.66.1
 - [X] T053 [P] Write unit test `test_threshold_filtering` and `test_sensitivity_correlation_calculation` in `tests/unit/test_sensitivity.py`.
  - **Verification**: Run `pytest tests/unit/test_sensitivity.py::test_threshold_filtering`.
 
-- [X] T012 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_scatter` to generate scatter plot of lag-adjusted Vsw vs. Ey with regression line (FR-008a).
+- [X] T012 [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_scatter` to generate scatter plot of lag-adjusted Vsw vs. Ey with regression line (FR-008a).
  - **Signature**: `def plot_scatter(x: pd.Series, y: pd.Series, optimal_lag: int, output_path: str)`
 
 - [X] T054 [P] Write unit test `test_plot_scatter` in `tests/unit/test_plots.py`.
  - **Verification**: Run `pytest tests/unit/test_plots.py::test_plot_scatter`.
 
-- [X] T013 [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_timeseries` to generate dual-axis time-series overlay of Vsw and Ey (FR-008b).
+- [X] T013 [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/viz/plots.py` function `plot_timeseries` to generate dual-axis time-series overlay of Vsw and Ey (FR-008b).
  - **Signature**: `def plot_timeseries(df_sw: pd.DataFrame, df_ey: pd.DataFrame, output_path: str)`
 
 - [X] T055 [P] Write unit test `test_plot_timeseries` in `tests/unit/test_plots.py`.
@@ -213,14 +225,16 @@ tqdm==4.66.1
 
 ### Implementation for User Story 1
 
-- [X] T020a [P] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` function `run_data_pipeline` to orchestrate data ingestion and cleaning.
+- [X] T020a [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` function `run_data_pipeline` to orchestrate data ingestion and cleaning.
  - **Logic**: Call `fetch_omni_sw`, `fetch_themis_ey`, then `clean_and_resample`. Save cleaned data to `projects/PROJ-300-exploring-the-relationship-between-solar/data/processed/cleaned_data.csv`.
  - **Verification**: Unit test verifying file creation and schema.
+ - **Dependency**: This task is Sequential [S] and depends on the completion of Phase 2 (specifically T016).
 
 - [X] T020b [S] Implement `projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py` function `run_analysis_pipeline` to orchestrate the core analysis.
  - **Logic**: Load cleaned data. Call `calculate_l_phys`, `log_lag_derivation`, `apply_lag_shift`, `find_optimal_lag`, `circular_block_permutation`, `moving_block_bootstrap`, `analyze_thresholds`, `log_data_quality_warnings`. Compile results into a dictionary.
  - **Output Keys**: The resulting dictionary MUST contain: `pearson`, `spearman`, `p_val_permutation`, `optimal_lag`, `lag_difference`, `ci_bootstrap`, `sensitivity_table`, `notes`.
- - **Dependency**: This task depends on the completion of foundational tasks (T004a-T011, T016) and cannot run in parallel with them.
+ - **Dependency**: This task is Sequential [S] and depends on the completion of Phase 2 (specifically T016 and T006c).
+ - **Implementation Mandate**: The function MUST explicitly call `log_data_quality_warnings` and `log_lag_derivation` as defined in T016 and T006c respectively.
  - **Verification**: Unit test verifying output dictionary keys.
 
 - [X] T021a [P] Create static test fixture for US-1.
@@ -284,8 +298,8 @@ tqdm==4.66.1
 
 ### Implementation for User Story 3
 
-- [X] T062 [S] [Review: Feynman] Update `code/analysis/sensitivity.py` to ensure the threshold analysis (T ∈ {400, 500, 600}) explicitly reports numeric correlation values for human analysis.
- - **Requirement**: The code must compute the correlation for each threshold and report the numeric values. **Do NOT implement an automated trend classification algorithm (linear/quadratic/saturated).** The output must allow for human analysis of saturation trends.
+- [X] T062 [S] Update `code/analysis/sensitivity.py` to ensure the threshold analysis (T ∈ {400, 500, 600}) explicitly reports numeric correlation values for human analysis.
+ - **Requirement**: The code must compute the correlation for each threshold and report the numeric values, including delta metrics if applicable, to allow human analysis of saturation trends. **Do NOT implement an automated trend classification algorithm (linear/quadratic/saturated).** The output must allow for human analysis of saturation trends.
  - **Output Schema**: The `sensitivity_table` MUST be a dictionary mapping the threshold integer (e.g., `400`) to a dictionary containing `pearson`, `spearman`, and `p_value`. Example: `{400: {"pearson": 0.5, "spearman": 0.6, "p_value": 0.01}}`.
  - **Verification**: Run the pipeline and verify the `sensitivity_table` output contains numeric correlation values for each threshold.
  - **Dependency**: T011
@@ -346,7 +360,7 @@ tqdm==4.66.1
  - **Verification**: All tests pass (exit code 0). **This task must be completed before T099a.**
 
 - [X] T099a [S] Execute pipeline on sample data to generate results artifacts.
- - **Execution**: Run `python code/main.py --start 2023-01-01 --end 2023-01-03`.
+ - **Execution**: Run `python code/main.py --start <start_date> --end <end_date>`.
  - **Deliverable**: Ensure `results/us1_correlation.json`, `results/plot_scatter.png`, `results/plot_timeseries.png`, and `data/processed/quality_log.json` are created.
  - **Verification**: Check file existence. **This task must be completed before T099b.**
  - **Dependency**: T016, T020b, T028, T027
@@ -474,6 +488,7 @@ With multiple developers:
  - Developer B: User Story 2 (Lag Search)
  - Developer C: User Story 3 (Visualization)
 3. Stories complete and integrate independently
+4. Team collaborates on Phase 7 & 8 (Polish) to ensure consistent documentation.
 
 ---
 
@@ -487,12 +502,13 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All data ingestion must use verified URLs (OMNIWeb, CDAWeb) and no GPU libraries. Permutation tests must be optimized for CPU-only execution.
-- **Scope Alignment**: The project scope is strictly limited to the requirements in spec.md. No tasks related to out-of-scope physics concepts are included in the core pipeline. Documentation in Phase 7 clarifies the physical context without adding code.
+- **Scope Alignment**: The project scope is strictly limited to the requirements in spec.md. No tasks related to out-of-scope physics concepts are included in the core pipeline. Documentation in Phase 7 and 8 clarifies the physical context without adding code.
 - **Test Coverage**: All Independent Tests from US-1 and US-2 are now explicitly mapped to test tasks (T021, T022, T034, T037) with specific function names and verification commands.
 - **Formula Consistency**: Task T006a implements the correct simplified formula `6371 / Vsw_mean` and logs the full derivation for traceability.
 - **Task Splitting**: Implementation and testing tasks have been separated (e.g., T004a/T042) to ensure clear deliverables and verification steps.
 - **Execution Order**: Task T041a (Run unit tests) now precedes T099a (Execute pipeline) to ensure code correctness before full pipeline execution.
-- **Critical Constraint on Fabrication**: All data must be real. The "schematic diagram" and "Alfvén Mach Number" tasks have been removed from the core pipeline to prevent scope creep and fabrication, but are addressed as documentation in Phase 7.
+- **Critical Constraint on Fabrication**: All data must be real. The "schematic diagram" and "Alfvén Mach Number" tasks have been removed from the core pipeline to prevent scope creep and fabrication, but are addressed as documentation in Phase 7 and 8.
 - **Review Response**: Phase 7 (T060-T063) has been added to address specific concerns from prior research-stage reviews regarding reference frames (Einstein) and physical mechanisms (Feynman). These tasks focus on documentation and clarifying existing code outputs, not introducing new computational requirements.
 - **Task Splitting**: Implementation and testing tasks have been separated (e.g., T004a/T042) to ensure clear deliverables and verification steps.
 - **Execution Order**: Task T099 has been split into T099a (execute), T099b (verify), and T099c (checksum) to resolve circular dependencies.
+- **Phase 9 Removed**: Phase 9 (Revision) has been removed as the referenced review concerns (T070-T075) were not present in the current spec.md or plan.md artifacts, constituting scope creep. The tasks T060-T063 in Phase 7 address valid review concerns that *are* reflected in the current spec/plan artifacts.

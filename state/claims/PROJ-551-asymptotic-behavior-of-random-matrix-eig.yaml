@@ -321,3 +321,121 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-07T18:46:45Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/README.md
+  attempts: 1
+  canonical: outliers emerge when perturbation strength theta is greater than 1
+  claim_id: c_0048fe0a
+  context: "## Key Findings - Outliers emerge when perturbation strength $\theta >\
+    \ 1$"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outliers_emerge_when_perturbation_strength_theta_is_greater
+  kind: magnitude
+  raw_text: "Outliers emerge when perturbation strength $\theta > 1$"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T06:48:37Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: critical threshold for diagonal perturbations is 1.01 plus or minus 0.02
+  claim_id: c_a61ff62a
+  context: '### Phase Transition Threshold - Diagonal perturbations: $\theta_c \approx
+    1.01 \pm 0.02$'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Diagonal perturbations: $\theta_c \approx 1.01 \pm 0.02$'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T06:51:06Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: critical threshold variation is less than 5 percent across sparsity densities
+    0.1 to 0.3
+  claim_id: c_9c69a0ff
+  context: '### Sensitivity Analysis The critical threshold $\theta_c$ remains stable
+    (< 5% variation) across sparsity densities $p \in [0.1, 0.3]$, confirming robustness
+    of the BBP transition.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_threshold_variation_is_less_than_5_percent_across_s
+  kind: magnitude
+  raw_text: The critical threshold $\theta_c$ remains stable (< 5% variation) across
+    sparsity densities $p \in [0.1, 0.3]$
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T06:51:39Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/design.md
+  attempts: 1
+  canonical: Wigner semicircle law for N x N symmetric matrices with mean 0 and variance
+    1/N converges to rho(x) = 1/(2pi) * sqrt(4 - x^2) on interval [-2, 2]
+  claim_id: c_82be7940
+  context: Theoretical Background - Wigner Semicircle Law
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: "For an N \xD7 N symmetric matrix W_N with i.i.d. entries (mean 0, variance\
+    \ 1/N), the empirical spectral distribution converges to: \u03C1(x) = 1/(2\u03C0\
+    ) \u221A(4 - x\xB2), x \u2208 [-2, 2]"
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T06:52:05Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/design.md
+  attempts: 1
+  canonical: BBP phase transition outliers emerge when perturbation norm theta is
+    greater than 1
+  claim_id: c_5b72a27d
+  context: Theoretical Background - BBP Phase Transition
+  evidence:
+    asserted: '1.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: magnitude
+  raw_text: "When adding a rank-k perturbation P_N with norm \u03B8, outliers emerge\
+    \ when \u03B8 > 1."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T06:52:05Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/specs/001-asymptotic-behavior-of-random-matrix-eig/design.md
+  attempts: 1
+  canonical: BBP phase transition outlier location formula lambda_out = theta + 1/theta
+  claim_id: c_e8b594f7
+  context: Theoretical Background - BBP Phase Transition
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The outlier location is given by: \u03BB_out = \u03B8 + 1/\u03B8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T06:53:34Z'

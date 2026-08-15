@@ -1,34 +1,35 @@
-# Quickstart Guide
+# Quick Start Guide
 
 ## Prerequisites
 - Python 3.11+
 - pip
 
 ## Installation
-1. Clone the repository.
-2. Navigate to the project root.
-3. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
+```bash
+cd projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig
+pip install -r code/requirements.txt
+```
 
-## Running the Simulation
-1. Generate a single Wigner matrix with perturbation:
- ```bash
- python code/main.py --N 1000 --theta 2.5 --seed 42
- ```
-2. Run a parameter sweep:
- ```bash
- python code/analysis/threshold_sweep.py --N_min 500 --N_max 2000 --theta_min 1.0 --theta_max 3.0
- ```
+## Running a Single Simulation
+Generate a Wigner matrix with a rank-1 sparse perturbation and compute eigenvalues:
+```bash
+python code/main.py --n 1000 --theta 2.5 --seed 42
+```
+Output: `data/processed/single_run_results.json`
 
-## Output
-- Raw matrices: `data/raw/`
-- Processed results: `data/processed/`
-- Logs: `data/logs/`
-- Figures: `figures/`
+## Running the Full Parameter Sweep
+Execute a grid search over matrix sizes $N \in [500, 2000]$ and perturbation strengths $\theta \in [1.0, 3.0]$:
+```bash
+python code/analysis/threshold_sweep.py
+```
+Output: `data/processed/threshold_sweep_results.csv`
 
-## Reproducibility
-- All runs are logged with timestamps and random seeds.
-- Raw data is checksummed before processing.
-- Use `--seed` to ensure reproducibility.
+## Reproducing Results
+1. Verify data integrity: `python code/utils/checksum.py verify`
+2. Re-run Monte Carlo simulations: `python code/analysis/monte_carlo_runner.py`
+3. Generate sensitivity report: `python code/analysis/sensitivity_analysis.py`
+
+## Troubleshooting
+- If memory errors occur, reduce `--n` or use `--streaming` mode
+- Ensure `data/raw/` has sufficient disk space for matrix storage
+- Check `data/logs/simulation_run.log` for detailed error messages

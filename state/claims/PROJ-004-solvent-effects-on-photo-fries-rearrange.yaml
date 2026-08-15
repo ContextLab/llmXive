@@ -806,3 +806,211 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T13:46:51Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: detection limit 1.0e-4 OD at 3 sigma
+  claim_id: c_2279c78b
+  context: "The minimum detectable absorbance change (\u0394A) is determined by the\
+    \ noise floor of the detector in the absence of a sample. The system is capable\
+    \ of detecting \u0394A \u2265 1.0 \xD7 10\u207B\u2074 optical density units (OD)\
+    \ at a 3\u03C3 confidence level."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system is capable of detecting \u0394A \u2265 1.0 \xD7 10\u207B\u2074\
+    \ optical density units (OD) at a 3\u03C3 confidence level."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:04:26Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: detector linear range 1.0e-4 OD to 0.5 OD
+  claim_id: c_c5fa2496
+  context: "Detection Limit: The system is capable of detecting \u0394A \u2265 1.0\
+    \ \xD7 10\u207B\u2074 optical density units (OD) at a 3\u03C3 confidence level.\
+    \ Dynamic Range: The detector operates linearly from 1.0 \xD7 10\u207B\u2074 OD\
+    \ to 0.5 OD."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The detector operates linearly from 1.0 \xD7 10\u207B\u2074 OD to 0.5\
+    \ OD."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:05:02Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: time range 10 ns to 10 microseconds
+  claim_id: c_80b0849c
+  context: "Temporal Resolution: Time Range: 10 ns to 10 \xB5s. Sampling Rate: 100\
+    \ MS/s (Mega-samples per second)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The time range is 10 ns to 10 \xB5s."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:05:36Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: sampling rate 100 MS/s
+  claim_id: c_29f123fb
+  context: "Time Range: 10 ns to 10 \xB5s. Sampling Rate: 100 MS/s (Mega-samples per\
+    \ second). Temporal Resolution: Limited by the laser pulse width and detector\
+    \ response time, typically <5 ns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling rate is 100 MS/s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:06:05Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: temporal resolution less than 5 ns
+  claim_id: c_3a5c4407
+  context: 'Sampling Rate: 100 MS/s (Mega-samples per second). Temporal Resolution:
+    Limited by the laser pulse width and detector response time, typically <5 ns.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Temporal_resolution_less_than_5_ns
+  kind: magnitude
+  raw_text: The temporal resolution is typically <5 ns.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:06:43Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: aryl ester concentration 1.0e-4 M
+  claim_id: c_9f7692ae
+  context: "Solute: Aryl ester substrate (e.g., phenyl benzoate) at a concentration\
+    \ of 1.0 \xD7 10\u207B\u2074 M. Solvent: High-purity solvents (HPLC grade) selected\
+    \ from the data/chemicals/solvents.yaml registry."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The aryl ester substrate concentration is 1.0 \xD7 10\u207B\u2074 M."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:08:52Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: sample volume 3.0 mL per cuvette 1 cm path length
+  claim_id: c_a77d994e
+  context: 'Solvent: High-purity solvents (HPLC grade) selected from the data/chemicals/solvents.yaml
+    registry. Volume: 3.0 mL per cuvette (1 cm path length).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample volume is 3.0 mL per cuvette with a 1 cm path length.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:09:39Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: relative humidity controlled to plus or minus 2 percent
+  claim_id: c_00630191
+  context: "Degassing: All samples are degassed via three freeze-pump-thaw cycles\
+    \ to remove dissolved oxygen, which acts as a triplet quencher. Hydration Control:\
+    \ Relative humidity (RH) is monitored and controlled to \xB12% RH during sample\
+    \ preparation and measurement."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Relative humidity is controlled to \xB12% RH during sample preparation\
+    \ and measurement."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:09:39Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: experiment temperature 298 K plus or minus 0.5 C
+  claim_id: c_7e7b2993
+  context: "Hydration Control: Relative humidity (RH) is monitored and controlled\
+    \ to \xB12% RH during sample preparation and measurement. Temperature: Experiments\
+    \ are conducted at 298 K (25\xB0C) \xB1 0.5\xB0C using a thermostatted cuvette\
+    \ holder."
+  evidence:
+    asserted: '298.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: "Experiments are conducted at 298 K (25\xB0C) \xB1 0.5\xB0C."
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T07:09:40Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: bayesian hierarchical model analysis with 3 replicates per solvent
+  claim_id: c_dc88c00a
+  context: To address the low sample size (n=3 replicates per solvent), the primary
+    analysis uses a Bayesian Hierarchical Model. This approach allows for the estimation
+    of posterior distributions for kinetic parameters (lifetime, amplitude) while
+    accounting for replicate variability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary analysis uses a Bayesian Hierarchical Model with n=3 replicates
+    per solvent.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T07:09:56Z'
+- artifact_path: projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/docs/methodology.md
+  attempts: 1
+  canonical: gelman 2013 bayesian data analysis crc press
+  claim_id: c_b749c975
+  context: 'Statistical Methods: Gelman, A., et al. (2013). Bayesian Data Analysis.
+    CRC Press.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: (2013). Bayesian Data Analysis . CRC Press, London, 3rd edition. 615
+      source_id: '1309.1799'
+      url: https://arxiv.org/abs/1309.1799
+      value: CRC Press
+    filled: true
+  kind: numeric
+  raw_text: Gelman, A., et al. (2013) published Bayesian Data Analysis through CRC
+    Press.
+  resolved_value: CRC Press
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T07:10:15Z'

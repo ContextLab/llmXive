@@ -96,20 +96,20 @@
 
 **Goal**: {{claim:c_55975982}} (2510.20502, https://arxiv.org/abs/2510.20502) with varying void/inclusion densities and compute their effective elastic stiffness tensors using FFT-based numerical homogenization.
 
-**Independent Test**: Output directory contains ≥ 2,000 image files and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds.
+**Independent Test**: Output directory contains ≥ 2,000 image files and a metadata file with stiffness tensors within Voigt-Reuss-Hill bounds. [UNRESOLVED-CLAIM: c_072625a0 — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T014 [P] [US1] Unit test for microstructure generation logic in `tests/unit/test_generation.py`
-- [ ] T015 [P] [US1] Unit test for FFT homogenization convergence in `tests/unit/test_homogenization.py`
-- [ ] T016 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
+- [X] T014 [P] [US1] Unit test for microstructure generation logic in `tests/unit/test_generation.py`
+- [X] T015 [P] [US1] Unit test for FFT homogenization convergence in `tests/unit/test_homogenization.py`
+- [X] T016 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement stratified microstructure generator in `code/data_generation/generate_microstructures.py` (FR-001, uses `scikit-image`, ensures density-topology decoupling). Output: PNG files in `data/raw/` named `micro_{seed}.png` (128x128 pixels, as per amended FR-001 in T004).
-- [ ] T018 [US1] Implement stiffness tensor calculator in `code/data_generation/compute_stiffness.py` (FR-002, calls FFT solver, outputs to `data/raw/`)
+- [X] T017 [US1] Implement stratified microstructure generator in `code/data_generation/generate_microstructures.py` (FR-001, uses `scikit-image`, ensures density-topology decoupling). Output: PNG files in `data/raw/` named `micro_{seed}.png` (128x128 pixels, as per amended FR-001 in T004).
+- [X] T018 [US1] Implement stiffness tensor calculator in `code/data_generation/compute_stiffness.py` (FR-002, calls FFT solver, outputs to `data/raw/`)
 - [ ] T019 [US1] Add validation logic to check physical plausibility of generated tensors (Voigt-Reuss-Hill bounds) and schema conformity (depends on T012, T009). Note: VRH used ONLY for filtering invalid runs; ground truth is the FFT value. Explicitly validate that FFT results fall within VRH bounds; if not, flag and exclude.
 - [ ] T020 [US1] Create orchestration script `code/main.py` to run generation pipeline end-to-end. CLI args: `--seed`, `--n_samples`. Sequence: generate -> compute -> validate. Exit codes: 0=success, 1=fail. (depends on T017, T018, T019)
 - [ ] T021 [US1] Log derivation metadata (seeds, parameters) to `data/processed/derivation_log.json`

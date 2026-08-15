@@ -1,1 +1,1 @@
-# Package marker for code module
+# code package

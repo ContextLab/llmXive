@@ -1,1 +1,1 @@
-# Package marker for tests module
+# tests package

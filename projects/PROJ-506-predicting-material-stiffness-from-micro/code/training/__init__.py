@@ -1,1 +1,1 @@
-# Package marker for training module
+# training package

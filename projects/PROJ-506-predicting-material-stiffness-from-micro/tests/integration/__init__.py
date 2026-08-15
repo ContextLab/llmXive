@@ -1,1 +1,1 @@
-# Package marker for integration tests module
+# integration tests package

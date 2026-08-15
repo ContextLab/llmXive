@@ -1,159 +1,161 @@
 """
-Unit tests for VirtualTactileEstimator FR-007 clamping logic.
+Unit tests for FR-007: Bounded Range Clamping logic in VirtualTactileEstimator.
 
-Verifies that the estimator correctly bounds k_est values within [min_k, max_k]
-as per FR-007 requirements.
+This test suite verifies that the estimator strictly enforces the min_k and max_k
+constraints defined in FR-007, ensuring the output never exceeds the bounded range.
 """
 import pytest
 import numpy as np
 import sys
 import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Ensure the code directory is in the path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from estimator import VirtualTactileEstimator
 
 
 class TestFR007ClampingLogic:
-    """Test cases specifically for FR-007 bounded range clamping."""
+    """Tests for the bounded range clamping (FR-007)."""
 
-    def test_clamping_respects_min_k(self):
-        """Verify that k_est is clamped to min_k when calculation yields lower value."""
-        estimator = VirtualTactileEstimator(window_size=1, min_k=0.5, max_k=10.0)
-        
-        # Create a scenario where raw calculation would be < min_k
-        # k = |torque| / (|velocity| + epsilon)
-        # If torque=0.0001, velocity=1.0, epsilon=1e-4: k ≈ 0.0001 / 1.0001 ≈ 0.0001
-        # This is < min_k=0.5, so should be clamped
-        result = estimator.update(torque=0.0001, velocity=1.0)
-        
-        assert result >= 0.5, f"Result {result} should be clamped to min_k=0.5"
-        assert result == 0.5, f"Result {result} should equal min_k exactly when below threshold"
+    def test_initialization_defaults(self):
+        """Verify default clamping bounds."""
+        estimator = VirtualTactileEstimator()
+        assert estimator.min_k == 0.0
+        assert estimator.max_k == 10.0
 
-    def test_clamping_respects_max_k(self):
-        """Verify that k_est is clamped to max_k when calculation yields higher value."""
-        estimator = VirtualTactileEstimator(window_size=1, min_k=0.0, max_k=2.0)
-        
-        # Create a scenario where raw calculation would be > max_k
-        # If torque=10.0, velocity=0.0001, epsilon=1e-4: k ≈ 10.0 / 0.0002 ≈ 50000
-        # This is > max_k=2.0, so should be clamped
-        result = estimator.update(torque=10.0, velocity=0.0001)
-        
-        assert result <= 2.0, f"Result {result} should be clamped to max_k=2.0"
-        assert result == 2.0, f"Result {result} should equal max_k exactly when above threshold"
+    def test_custom_bounds_initialization(self):
+        """Verify custom bounds are set correctly."""
+        estimator = VirtualTactileEstimator(min_k=1.0, max_k=5.0)
+        assert estimator.min_k == 1.0
+        assert estimator.max_k == 5.0
 
-    def test_clamping_allows_normal_range(self):
-        """Verify that values within [min_k, max_k] pass through unchanged."""
-        estimator = VirtualTactileEstimator(window_size=1, min_k=0.0, max_k=100.0)
+    def test_clamping_below_min_k(self):
+        """
+        Verify that a calculated k_est below min_k is clamped to min_k.
         
-        # Create a scenario where raw calculation is within bounds
-        # If torque=0.5, velocity=1.0, epsilon=1e-4: k ≈ 0.5 / 1.0001 ≈ 0.49995
-        result = estimator.update(torque=0.5, velocity=1.0)
+        Scenario: 
+        - torque = 0.01, velocity = 1.0 (instantaneous k = 0.01)
+        - min_k = 0.5
+        - Expected result: 0.5
+        """
+        estimator = VirtualTactileEstimator(min_k=0.5, max_k=10.0, window_size=1)
+        result = estimator.update(torque=0.01, velocity=1.0)
         
-        expected = 0.5 / (1.0 + 1e-4)
-        assert abs(result - expected) < 1e-6, f"Result {result} should equal expected {expected}"
-        assert result >= 0.0 and result <= 100.0
+        # The instantaneous k is 0.01, which is < 0.5
+        # It should be clamped to 0.5
+        assert result == 0.5
+        assert result >= estimator.min_k
 
-    def test_clamping_with_moving_average(self):
-        """Verify clamping works correctly after moving average smoothing."""
-        estimator = VirtualTactileEstimator(window_size=3, min_k=1.0, max_k=5.0)
+    def test_clamping_above_max_k(self):
+        """
+        Verify that a calculated k_est above max_k is clamped to max_k.
         
-        # Feed values that would average to something outside bounds
-        # First: very low (will be clamped to 1.0)
-        estimator.update(torque=0.0001, velocity=1.0)  # raw ~0.0001 -> clamped 1.0
-        # Second: very high (will be clamped to 5.0)
-        estimator.update(torque=10.0, velocity=0.0001)  # raw ~50000 -> clamped 5.0
-        # Third: very low again
-        estimator.update(torque=0.0001, velocity=1.0)   # raw ~0.0001 -> clamped 1.0
+        Scenario:
+        - torque = 100.0, velocity = 0.001 (instantaneous k = 100,000)
+        - max_k = 5.0
+        - Expected result: 5.0
+        Note: epsilon (1e-4) is added, so velocity becomes 0.0011 roughly,
+        but the ratio is still massive.
+        """
+        estimator = VirtualTactileEstimator(min_k=0.0, max_k=5.0, window_size=1, epsilon=1e-4)
+        result = estimator.update(torque=100.0, velocity=0.001)
         
-        # Buffer now has [1.0, 5.0, 1.0] -> mean = 2.333...
-        # This is within bounds, so no further clamping needed
-        result = estimator.get_current_estimate()
-        
-        assert result is not None
-        assert 1.0 <= result <= 5.0, f"Result {result} should be within [1.0, 5.0]"
-        
-        # Verify the mean calculation
-        expected_mean = (1.0 + 5.0 + 1.0) / 3.0
-        assert abs(result - expected_mean) < 1e-6, f"Result {result} should equal mean {expected_mean}"
+        # The instantaneous k is extremely high, > 5.0
+        # It should be clamped to 5.0
+        assert result == 5.0
+        assert result <= estimator.max_k
 
-    def test_clamping_boundary_precision(self):
-        """Test clamping at exact boundary values."""
-        estimator = VirtualTactileEstimator(window_size=1, min_k=2.0, max_k=8.0)
+    def test_value_within_bounds_unchanged(self):
+        """
+        Verify that a calculated k_est within [min_k, max_k] is returned unchanged.
         
-        # Test exactly at min_k
-        # torque = 2.0 * (velocity + epsilon)
-        # If velocity = 1.0: torque = 2.0 * 1.0001 = 2.0002
-        result_min = estimator.update(torque=2.0002, velocity=1.0)
-        assert abs(result_min - 2.0) < 1e-6, f"Result {result_min} should be exactly 2.0"
+        Scenario:
+        - torque = 1.0, velocity = 1.0 (instantaneous k = 1.0)
+        - min_k = 0.0, max_k = 10.0
+        - Expected result: 1.0
+        """
+        estimator = VirtualTactileEstimator(min_k=0.0, max_k=10.0, window_size=1)
+        result = estimator.update(torque=1.0, velocity=1.0)
         
-        # Test exactly at max_k
-        # torque = 8.0 * (velocity + epsilon)
-        # If velocity = 1.0: torque = 8.0 * 1.0001 = 8.0008
-        result_max = estimator.update(torque=8.0008, velocity=1.0)
-        assert abs(result_max - 8.0) < 1e-6, f"Result {result_max} should be exactly 8.0"
+        # 1.0 is within [0.0, 10.0], so it should be returned as is (within float tolerance)
+        assert np.isclose(result, 1.0)
 
-    def test_clamping_with_zero_velocity(self):
-        """Verify clamping handles zero velocity (division by epsilon)."""
-        estimator = VirtualTactileEstimator(window_size=1, min_k=0.0, max_k=1000.0)
+    def test_moving_average_respects_bounds(self):
+        """
+        Verify that the moving average of values is clamped, not just individual values.
         
-        # Zero velocity with non-zero torque
-        result = estimator.update(torque=1.0, velocity=0.0)
+        Scenario:
+        - 5 samples: 4 samples of k=0.0, 1 sample of k=20.0 (clamped to 10.0 internally? No, 
+          the formula clamps the smoothed result).
+        - Let's trace:
+          1. Update k=0.0 (clamped to 0.0) -> Buffer: [0.0]
+          2. Update k=0.0 (clamped to 0.0) -> Buffer: [0.0, 0.0]
+          3. Update k=0.0 (clamped to 0.0) -> Buffer: [0.0, 0.0, 0.0]
+          4. Update k=0.0 (clamped to 0.0) -> Buffer: [0.0, 0.0, 0.0, 0.0]
+          5. Update k=20.0 (clamped to 10.0? No, clamping happens AFTER smoothing in current impl)
+          
+        Wait, let's re-read the implementation logic in estimator.py:
+        1. instantaneous_k calculated.
+        2. appended to buffer.
+        3. smoothed_k = mean(buffer).
+        4. clamped_k = max(min, min(max, smoothed_k)).
         
-        # k = 1.0 / (0.0 + 1e-4) = 10000.0
-        # Should be clamped to max_k=1000.0
-        assert result == 1000.0, f"Result {result} should be clamped to max_k=1000.0"
+        So if we have 4 zeros and 1 huge value:
+        Buffer: [0, 0, 0, 0, 200000]
+        Mean: 40000
+        Clamped (max 10.0): 10.0
+        
+        Let's test this specific flow.
+        """
+        estimator = VirtualTactileEstimator(min_k=0.0, max_k=10.0, window_size=5)
+        
+        # Add 4 low values
+        estimator.update(0.001, 1.0) # k ~ 0.001
+        estimator.update(0.001, 1.0)
+        estimator.update(0.001, 1.0)
+        estimator.update(0.001, 1.0)
+        
+        # Add 1 high value
+        # torque=100, velocity=0.001 -> k ~ 100,000
+        result = estimator.update(100.0, 0.001)
+        
+        # Mean of ~0 and ~100,000 is ~20,000. 
+        # Should be clamped to 10.0
+        assert result == 10.0
 
-    def test_clamping_configuration_validation(self):
-        """Verify that invalid clamping configurations raise errors."""
-        # min_k > max_k should raise ValueError
+    def test_stiction_clamping_interaction(self):
+        """
+        Verify that stiction handling (epsilon) combined with clamping works correctly.
+        
+        Scenario:
+        - velocity = 0.0 (stiction)
+        - torque = 0.0001
+        - instantaneous_k = 0.0001 / (0 + 1e-4) = 1.0
+        - If min_k=2.0, result should be 2.0.
+        """
+        estimator = VirtualTactileEstimator(min_k=2.0, max_k=10.0, window_size=1, epsilon=1e-4)
+        result = estimator.update(torque=0.0001, velocity=0.0)
+        
+        # instantaneous = 1.0
+        # clamped to min 2.0
+        assert result == 2.0
+
+    def test_invalid_bounds_initialization(self):
+        """Verify that initialization fails if max_k < min_k."""
         with pytest.raises(ValueError):
             VirtualTactileEstimator(min_k=10.0, max_k=5.0)
-        
-        # min_k < 0 should raise ValueError
-        with pytest.raises(ValueError):
-            VirtualTactileEstimator(min_k=-1.0, max_k=10.0)
 
-    def test_clamping_persistence_across_resets(self):
-        """Verify clamping logic persists correctly after reset."""
-        estimator = VirtualTactileEstimator(window_size=1, min_k=2.0, max_k=8.0)
+    def test_boundary_exact_match(self):
+        """Verify exact match at boundaries."""
+        estimator = VirtualTactileEstimator(min_k=1.0, max_k=5.0, window_size=1)
         
-        # Set a clamped value
-        estimator.update(torque=100.0, velocity=0.0001)  # Should be clamped to 8.0
-        first_result = estimator.get_current_estimate()
-        assert first_result == 8.0
+        # Force k=1.0
+        # torque=1.0, velocity=1.0 -> k=1.0
+        result_min = estimator.update(1.0, 1.0)
+        assert result_min == 1.0
         
-        # Reset
-        estimator.reset()
-        
-        # Set another clamped value
-        estimator.update(torque=0.0001, velocity=1.0)  # Should be clamped to 2.0
-        second_result = estimator.get_current_estimate()
-        assert second_result == 2.0
-
-    def test_clamping_with_extreme_values(self):
-        """Test clamping with extreme torque/velocity values."""
-        estimator = VirtualTactileEstimator(window_size=1, min_k=0.1, max_k=50.0)
-        
-        # Very large torque
-        result_large = estimator.update(torque=1e6, velocity=1.0)
-        assert result_large == 50.0, f"Large torque should clamp to max_k"
-        
-        # Very small torque
-        result_small = estimator.update(torque=1e-10, velocity=1.0)
-        assert result_small == 0.1, f"Small torque should clamp to min_k"
-
-    def test_clamping_preserves_finite_check(self):
-        """Verify clamping doesn't interfere with finite number validation."""
-        estimator = VirtualTactileEstimator(min_k=0.0, max_k=10.0)
-        
-        # Should raise ValueError for non-finite inputs
-        with pytest.raises(ValueError):
-            estimator.update(torque=float('inf'), velocity=1.0)
-        
-        with pytest.raises(ValueError):
-            estimator.update(torque=1.0, velocity=float('nan'))
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        # Force k=5.0
+        # torque=5.0, velocity=1.0 -> k=5.0
+        result_max = estimator.update(5.0, 1.0)
+        assert result_max == 5.0

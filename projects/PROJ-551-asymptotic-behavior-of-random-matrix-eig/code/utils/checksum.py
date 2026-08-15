@@ -1,156 +1,130 @@
 """
-Data hygiene utilities for checksums per Constitution Principle III.
+Checksum utilities for data hygiene and integrity verification.
+
+Implements Constitution Principle III: Data Hygiene.
 """
 import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 
 from .config import get_project_paths
 
 
-def compute_file_checksum(file_path: Union[str, Path], algorithm: str = 'sha256') -> str:
+def compute_file_checksum(file_path: Union[str, Path], algorithm: str = "sha256") -> str:
     """
-    Compute SHA-256 (or other hashlib-supported) checksum of a file.
-
+    Compute the checksum of a file.
+    
     Args:
-        file_path: Path to the file to checksum.
-        algorithm: Hash algorithm name (default: 'sha256').
-
+        file_path: Path to the file.
+        algorithm: Hash algorithm to use (default: sha256).
+        
     Returns:
-        Hexadecimal digest string.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
+        Hexadecimal string of the checksum.
     """
     file_path = Path(file_path)
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found for checksum: {file_path}")
-
-    try:
-        hasher = hashlib.new(algorithm)
-    except ValueError as e:
-        raise ValueError(f"Unsupported hash algorithm: {algorithm}") from e
-
+        raise FileNotFoundError(f"File not found: {file_path}")
+        
+    hasher = hashlib.new(algorithm)
+    
     with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(8192), b""):
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(8192), b''):
             hasher.update(chunk)
-
+            
     return hasher.hexdigest()
 
 
-def compute_directory_checksums(
-    root_dir: Union[str, Path],
-    extensions: List[str] = None,
-    algorithm: str = 'sha256'
-) -> Dict[str, str]:
+def compute_directory_checksums(dir_path: Union[str, Path], pattern: str = "*") -> Dict[str, str]:
     """
-    Compute checksums for all files in a directory tree.
-
+    Compute checksums for all files in a directory matching a pattern.
+    
     Args:
-        root_dir: Root directory to traverse.
-        extensions: Optional list of file extensions to include (e.g. ['.csv', '.npy']).
-                   If None, all files are included.
-        algorithm: Hash algorithm name.
-
+        dir_path: Path to the directory.
+        pattern: Glob pattern to match files (default: "*").
+        
     Returns:
         Dictionary mapping relative file paths to their checksums.
     """
-    root_dir = Path(root_dir)
-    if not root_dir.is_dir():
-        raise NotADirectoryError(f"Root path is not a directory: {root_dir}")
-
+    dir_path = Path(dir_path)
+    if not dir_path.is_dir():
+        raise NotADirectoryError(f"Not a directory: {dir_path}")
+        
     checksums = {}
-
-    for file_path in root_dir.rglob('*'):
+    
+    for file_path in dir_path.glob(pattern):
         if file_path.is_file():
-            if extensions is None or file_path.suffix in extensions:
-                rel_path = file_path.relative_to(root_dir)
-                try:
-                    checksums[str(rel_path)] = compute_file_checksum(file_path, algorithm)
-                except FileNotFoundError:
-                    # Skip files that might be deleted during traversal
-                    continue
-
+            rel_path = file_path.relative_to(dir_path)
+            checksums[str(rel_path)] = compute_file_checksum(file_path)
+            
     return checksums
 
 
-def save_checksum_manifest(
-    checksums: Dict[str, str],
-    output_path: Union[str, Path],
-    metadata: Dict[str, str] = None
-) -> None:
+def save_checksum_manifest(checksums_list: List[Dict[str, str]], manifest_path: Union[str, Path]) -> None:
     """
-    Save a checksum manifest to a JSON file.
-
+    Save a manifest of checksums to a JSON file.
+    
     Args:
-        checksums: Dictionary of relative paths to checksums.
-        output_path: Path to the output JSON file.
-        metadata: Optional metadata dictionary (e.g. timestamp, algorithm used).
+        checksums_list: List of dictionaries containing checksum information.
+        manifest_path: Path where the manifest will be saved.
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    manifest_path = Path(manifest_path)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    
     manifest = {
-        "algorithm": "sha256",
-        "metadata": metadata or {},
-        "checksums": checksums
+        "checksums": checksums_list,
+        "algorithm": "sha256"
     }
-
-    with open(output_path, 'w', encoding='utf-8') as f:
+    
+    with open(manifest_path, 'w') as f:
         json.dump(manifest, f, indent=2)
 
 
-def load_checksum_manifest(manifest_path: Union[str, Path]) -> Dict[str, str]:
+def load_checksum_manifest(manifest_path: Union[str, Path]) -> Dict:
     """
     Load a checksum manifest from a JSON file.
-
+    
     Args:
-        manifest_path: Path to the manifest JSON file.
-
+        manifest_path: Path to the manifest file.
+        
     Returns:
-        Dictionary of relative paths to checksums.
+        Dictionary containing the manifest data.
     """
     manifest_path = Path(manifest_path)
     if not manifest_path.exists():
         raise FileNotFoundError(f"Manifest not found: {manifest_path}")
-
-    with open(manifest_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
-    return data.get("checksums", {})
+        
+    with open(manifest_path, 'r') as f:
+        return json.load(f)
 
 
-def verify_checksums(
-    root_dir: Union[str, Path],
-    manifest_path: Union[str, Path]
-) -> Dict[str, bool]:
+def verify_checksums(manifest_path: Union[str, Path], base_dir: Optional[Union[str, Path]] = None) -> Dict[str, bool]:
     """
-    Verify files against a saved checksum manifest.
-
+    Verify file checksums against a manifest.
+    
     Args:
-        root_dir: Root directory where files are located.
-        manifest_path: Path to the manifest JSON file.
-
+        manifest_path: Path to the checksum manifest.
+        base_dir: Base directory for relative paths in the manifest.
+        
     Returns:
-        Dictionary mapping relative paths to verification status (True=valid, False=invalid).
+        Dictionary mapping file paths to verification status (True/False).
     """
-    root_dir = Path(root_dir)
     manifest = load_checksum_manifest(manifest_path)
     results = {}
-
-    for rel_path, expected_checksum in manifest.items():
-        file_path = root_dir / rel_path
-        if not file_path.exists():
-            results[rel_path] = False
-            continue
-
-        try:
+    
+    base_dir = Path(base_dir) if base_dir else Path(manifest_path).parent
+    
+    for checksum_info in manifest.get("checksums", []):
+        for file_path_str, expected_checksum in checksum_info.items():
+            file_path = base_dir / file_path_str if not Path(file_path_str).is_absolute() else Path(file_path_str)
+            
+            if not file_path.exists():
+                results[file_path_str] = False
+                continue
+                
             actual_checksum = compute_file_checksum(file_path)
-            results[rel_path] = (actual_checksum == expected_checksum)
-        except Exception:
-            results[rel_path] = False
-
+            results[file_path_str] = (actual_checksum == expected_checksum)
+            
     return results

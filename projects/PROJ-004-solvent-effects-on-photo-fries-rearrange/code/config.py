@@ -1,9 +1,51 @@
 """
 Configuration and path management for the project.
+
+This module enforces CPU-only execution constraints and defines file paths
+for data directories.
 """
 
 import os
+import sys
 from pathlib import Path
+
+# Enforce CPU-only execution constraints
+# Disable GPU usage for all major libraries to ensure reproducible CPU execution
+# in CI environments without GPU support.
+
+# Set environment variables BEFORE importing torch or tensorflow
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+
+# Attempt to disable GPU in torch if available
+try:
+    import torch
+    torch.set_num_threads(1)
+    if torch.cuda.is_available():
+        # Force CPU usage even if CUDA is detected
+        torch.set_default_device("cpu")
+        # Log warning about GPU being disabled
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning("GPU detected but forced to CPU-only mode via config.py")
+except ImportError:
+    pass
+except Exception:
+    # Silently ignore any torch configuration errors
+    pass
+
+# Attempt to disable GPU in tensorflow if available
+try:
+    import tensorflow as tf
+    tf.config.set_visible_devices([], 'GPU')
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning("TensorFlow GPU devices disabled via config.py")
+except ImportError:
+    pass
+except Exception:
+    # Silently ignore any tensorflow configuration errors
+    pass
 
 # Project root is the parent of the code directory
 _PROJECT_ROOT = Path(__file__).parent.parent

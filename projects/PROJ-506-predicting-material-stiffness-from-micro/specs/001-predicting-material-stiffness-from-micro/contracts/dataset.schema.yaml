@@ -1,67 +1,45 @@
-# Dataset Schema Contract
-# Defines the structure and validation rules for the synthetic microstructure dataset.
-# Used by validation logic in code/data_generation/ to ensure data integrity.
+# Dataset Schema Contract for Microstructure-Stiffness Dataset
+# This schema defines the required structure for the generated dataset metadata.
+# Used for validation in T019 and T016 (Contract Tests).
+#
+# Fields:
+# - image_path: Relative path to the generated microstructure image (PNG)
+# - stiffness_tensor: 6x6 Voigt notation stiffness tensor (C_ij) flattened to 36 floats
+# - inclusion_density: Fraction of volume occupied by inclusions (0.0 to 1.0)
+# - seed: Random seed used for reproducibility
 
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Material Stiffness Microstructure Dataset Entry"
-description: >
-  A single record in the generated dataset, linking a microstructure image 
-  to its computed effective stiffness tensor and generation metadata.
 type: object
 required:
   - image_path
   - stiffness_tensor
   - inclusion_density
   - seed
+
 properties:
   image_path:
     type: string
-    description: >
-      Relative path to the microstructure image file (PNG format).
-      Expected location: data/raw/micro_{seed}.png
-      Pattern: data/raw/micro_*.png
-    minLength: 1
+    description: "Relative path to the microstructure image file (e.g., 'data/raw/micro_12345.png')"
     pattern: "^data/raw/micro_\\d+\\.png$"
-  
+
   stiffness_tensor:
     type: array
-    description: >
-      The effective 6x6 elastic stiffness tensor in Voigt notation (C_ij).
-      Represented as a flat list of 36 float values (row-major order).
-      Units: GPa.
-      Must satisfy physical symmetry (C_ij == C_ji) and positive definiteness.
+    description: "Flattened 6x6 effective stiffness tensor (Voigt notation) in Pa"
     items:
       type: number
       format: float
     minItems: 36
     maxItems: 36
-    uniqueItems: false
-  
+
   inclusion_density:
     type: number
-    description: >
-      The volume fraction of inclusions (or voids, depending on generation mode)
-      in the microstructure.
-      Range: [0.0, 1.0]
+    format: float
+    description: "Volume fraction of inclusions in the microstructure"
     minimum: 0.0
     maximum: 1.0
-  
+
   seed:
     type: integer
-    description: >
-      The random seed used to generate this specific microstructure.
-      Allows for exact reproducibility of the image and its properties.
-    minimum: 0
+    description: "Random seed used to generate this specific microstructure instance"
 
 additionalProperties: false
-examples:
-  - image_path: "data/raw/micro_42.png"
-    stiffness_tensor:
-      - 160.5, 65.2, 65.2, 0.0, 0.0, 0.0,
-        65.2, 160.5, 65.2, 0.0, 0.0, 0.0,
-        65.2, 65.2, 160.5, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 75.1, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 75.1, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.0, 75.1
-    inclusion_density: 0.25
-    seed: 42
+description: "Schema for validating individual dataset entries in the metadata file."

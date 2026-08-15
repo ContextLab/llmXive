@@ -1,1 +1,1 @@
-# Package marker for contract tests module
+# contract tests package
