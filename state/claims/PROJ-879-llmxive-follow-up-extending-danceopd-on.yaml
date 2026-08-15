@@ -92,3 +92,124 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-15T12:17:57Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Teacher routing ground truth dataset contains at least 1000 rows with
+    valid expert identifiers and consistent velocity vector dimensions
+  claim_id: c_28c258d4
+  context: "Independent Test: The system produces a CSV/Parquet file with \u22651,000\
+    \ rows, valid expert identifiers, and consistent velocity vector dimensions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_routing_ground_truth_dataset_contains_at_least_1000
+  kind: magnitude
+  raw_text: "The system produces a CSV/Parquet file with \u22651,000 rows, valid expert\
+    \ identifiers, and consistent velocity vector dimensions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T02:06:43Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: teacher_ground_truth.parquet contains at least 1000 rows with valid routing
+    labels
+  claim_id: c_5bcc39bc
+  context: "Integration test for data generation pipeline in projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/integration/test_data_generation.py.\
+    \ Logic: Verify teacher_ground_truth.parquet exists, has \u22651000 rows, and\
+    \ valid routing labels matching the teacher's known architecture."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Teacher_ground_truth.parquet_contains_at_least_1000_rows_wit
+  kind: magnitude
+  raw_text: "Verify teacher_ground_truth.parquet exists, has \u22651000 rows, and\
+    \ valid routing labels matching the teacher's known architecture."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T02:06:59Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: DecisionTreeClassifier trained for max_depth values systematically varying
+    from 2 to 20
+  claim_id: c_19a7adc9
+  context: "Implement a loop to train DecisionTreeClassifier (scikit\u2011learn, CPU)\
+    \ for max_depth values systematically varying from 2 to 20 (step 1) in code/01_train_trees.py.\
+    \ Logic: Train a tree for each depth d in [2, 3,..., 20]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a tree for each depth d in [2, 3,..., 20].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T02:07:14Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: FID and CLIP calculated for teacher vs tree with max_depth=5 on full
+    dataset with valid p-values
+  claim_id: c_1ce6f2df
+  context: 'Independent Test: The system calculates FID/CLIP for teacher vs. tree
+    (depth=5) on the full dataset and outputs valid p-values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system calculates FID/CLIP for teacher vs. tree (depth=5) on the full
+    dataset and outputs valid p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T02:07:21Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Tasks run on CPU-only CI with at most 7 GB RAM and 6 hours total runtime
+  claim_id: c_95bf4072
+  context: "Critical Constraint: All tasks must run on CPU\u2011only CI with minimal\
+    \ computational resources (limited CPU cores and RAM, \u22647 GB RAM, \u22646\
+    \ hours total runtime). No CUDA, no 8\u2011bit/4\u2011bit quantization, no large\
+    \ model training."
+  evidence:
+    candidates:
+    - - Tasks run on CPU-only CI with at most
+      - 7.0
+    - - GB RAM and
+      - 6.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Tasks_run_on_CPU-only_CI_with_at_most_7_GB_RAM_and_6_hours_t
+  kind: magnitude
+  raw_text: "All tasks must run on CPU\u2011only CI with minimal computational resources\
+    \ (limited CPU cores and RAM, \u22647 GB RAM, \u22646 hours total runtime)."
+  resolved_value: Tasks run on CPU-only CI with at most 7 GB RAM and 6 hours total
+    runtime
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T02:07:26Z'
+- artifact_path: projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/specs/001-llmxive-follow-up-extending-danceopd-on/tasks.md
+  attempts: 1
+  canonical: Memory profile peak usage is less than 6 GB
+  claim_id: c_06ea91f7
+  context: 'Performance optimization for data streaming: Implement chunked loading
+    to reduce memory usage. Verification: Memory profile shows < 6 GB peak.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_profile_peak_usage_is_less_than_6_GB
+  kind: magnitude
+  raw_text: Memory profile shows < 6 GB peak.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T02:07:36Z'

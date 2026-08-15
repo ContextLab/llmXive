@@ -1,44 +1,53 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/InferenceResult.json",
   "title": "InferenceResult",
-  "description": "Schema for individual inference results from the teacher model.",
+  "description": "Schema for the result of a single inference run, including generated image metadata and routing decisions.",
   "type": "object",
   "properties": {
     "sample_id": {
       "type": "string",
-      "description": "Unique identifier for the input sample."
+      "description": "Reference to the original sample ID."
     },
-    "source": {
+    "predicted_routing_label": {
       "type": "string",
-      "description": "Source dataset (e.g., 'imagenet', 'laion').",
-      "enum": ["imagenet", "laion"]
+      "description": "The expert label predicted by the model or tree.",
+      "pattern": "^expert_[a-z_]+$"
     },
-    "prompt_embedding": {
-      "type": "array",
-      "items": {
-        "type": "number"
-      },
-      "description": "Embedding vector for the input prompt."
-    },
-    "noise_level": {
-      "type": "number",
-      "description": "Noise level parameter used during generation."
-    },
-    "routing_label": {
+    "ground_truth_routing_label": {
       "type": "string",
-      "description": "Expert identifier selected by the teacher model."
+      "description": "The expert label from the teacher model (if available).",
+      "pattern": "^expert_[a-z_]+$",
+      "nullable": true
+    },
+    "generated_image_path": {
+      "type": "string",
+      "description": "Relative path to the generated image file."
     },
     "velocity_vector": {
       "type": "array",
       "items": {
-        "type": "number"
+        "type": "number",
+        "format": "float32"
       },
-      "description": "Velocity vector produced by the selected expert field."
+      "description": "The velocity vector used for generation."
     },
-    "execution_time_ms": {
+    "inference_time_ms": {
       "type": "number",
-      "description": "Time taken to perform inference in milliseconds."
+      "description": "Time taken for inference in milliseconds.",
+      "minimum": 0
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "partial", "failed", "undefined_route"],
+      "description": "Status of the inference run."
+    },
+    "error_message": {
+      "type": "string",
+      "nullable": true,
+      "description": "Error details if status is not success."
     }
   },
-  "required": ["sample_id", "source", "prompt_embedding", "noise_level", "routing_label", "velocity_vector"]
+  "required": ["sample_id", "predicted_routing_label", "generated_image_path", "velocity_vector", "inference_time_ms", "status"],
+  "additionalProperties": false
 }

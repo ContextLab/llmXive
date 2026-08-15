@@ -1,123 +1,171 @@
-"""
-Task T016b: Validate that teacher_routing_dataset.parquet contains samples from
-both ImageNet-1K and LAION-400M sources.
-
-This script loads the processed dataset and verifies the presence of source
-identifiers for both required datasets. It exits with code 0 if validation
-passes, or code 1 if the dataset is missing or incomplete.
-"""
 import argparse
 import sys
 import json
 from pathlib import Path
 from typing import Dict, Any, List, Tuple
-
 import pandas as pd
 
-# Import config utilities
 from utils.config import get_config
 
+# Constants for source identification
+IMAGENET_SOURCE_ID = "imagenet-1k"
+LAION_SOURCE_ID = "laion-400m"
 
-def load_dataset(dataset_path: Path) -> pd.DataFrame:
-    """Load the teacher routing dataset from Parquet."""
-    if not dataset_path.exists():
-        raise FileNotFoundError(f"Dataset not found at: {dataset_path}")
-    
-    try:
-        df = pd.read_parquet(dataset_path)
-        return df
-    except Exception as e:
-        raise RuntimeError(f"Failed to load dataset: {e}") from e
+def load_dataset(dataset_path: str) -> pd.DataFrame:
+    """
+    Load the teacher routing dataset from a Parquet file.
 
+    Args:
+        dataset_path: Path to the parquet file.
 
-def validate_sources(df: pd.DataFrame, config: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
+    Returns:
+        DataFrame containing the dataset.
+
+    Raises:
+        FileNotFoundError: If the dataset file does not exist.
+        ValueError: If the dataset is empty or missing required columns.
+    """
+    path = Path(dataset_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {dataset_path}")
+
+    df = pd.read_parquet(path)
+
+    if df.empty:
+        raise ValueError(f"Dataset file is empty: {dataset_path}")
+
+    required_columns = ["source", "prompt_embedding", "noise_level", "routing_label", "velocity_vector"]
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Dataset missing required columns: {missing_cols}")
+
+    return df
+
+def validate_sources(df: pd.DataFrame) -> Tuple[bool, Dict[str, Any]]:
     """
     Validate that the dataset contains samples from both ImageNet-1K and LAION-400M.
-    
+
+    Args:
+        df: The loaded dataset DataFrame.
+
     Returns:
-        Tuple of (is_valid, metadata_dict)
+        A tuple (is_valid, report_dict).
+        is_valid: True if both sources are present, False otherwise.
+        report_dict: Detailed statistics about the validation.
     """
-    required_sources = config.get("data", {}).get("expected_sources", ["imagenet", "laion"])
-    source_column = config.get("data", {}).get("source_column", "source")
-    
-    if source_column not in df.columns:
-        return False, {
-            "error": f"Required source column '{source_column}' not found in dataset",
-            "found_columns": list(df.columns),
-            "required_sources": required_sources
-        }
-    
-    found_sources = df[source_column].unique().tolist()
-    missing_sources = [s for s in required_sources if s not in found_sources]
-    
-    stats = {
+    report = {
         "total_samples": len(df),
-        "unique_sources": found_sources,
-        "required_sources": required_sources,
-        "missing_sources": missing_sources,
-        "source_counts": df[source_column].value_counts().to_dict()
+        "source_counts": {},
+        "sources_present": [],
+        "is_valid": False,
+        "error_message": None
     }
-    
-    is_valid = len(missing_sources) == 0
-    
-    return is_valid, stats
 
+    # Count samples per source
+    source_counts = df["source"].value_counts().to_dict()
+    report["source_counts"] = source_counts
 
-def run_validation(args: argparse.Namespace) -> int:
+    # Check for required sources
+    has_imagenet = IMAGENET_SOURCE_ID in source_counts
+    has_laion = LAION_SOURCE_ID in source_counts
+
+    if has_imagenet:
+        report["sources_present"].append(IMAGENET_SOURCE_ID)
+    if has_laion:
+        report["sources_present"].append(LAION_SOURCE_ID)
+
+    # Validation logic
+    if has_imagenet and has_laion:
+        report["is_valid"] = True
+        report["message"] = "Validation PASSED: Dataset contains samples from both ImageNet-1K and LAION-400M."
+    else:
+        missing = []
+        if not has_imagenet:
+            missing.append(IMAGENET_SOURCE_ID)
+        if not has_laion:
+            missing.append(LAION_SOURCE_ID)
+        report["error_message"] = f"Validation FAILED: Missing source(s): {', '.join(missing)}"
+        report["message"] = report["error_message"]
+
+    return report["is_valid"], report
+
+def run_validation(dataset_path: str, output_log_path: str) -> int:
     """
-    Main validation logic.
-    
+    Main validation routine.
+
+    Args:
+        dataset_path: Path to the input dataset.
+        output_log_path: Path to write the validation report JSON.
+
     Returns:
-        Exit code (0 for success, 1 for failure)
+        Exit code (0 for success, 1 for validation failure, 2 for runtime error).
     """
-    config = get_config()
-    dataset_path = Path(args.dataset_path) if args.dataset_path else get_config().get("paths", {}).get("processed_dataset")
-    
-    if not dataset_path:
-        print("ERROR: No dataset path provided and no default found in config.")
-        return 1
-    
-    dataset_path = Path(dataset_path)
-    
     try:
         print(f"Loading dataset from: {dataset_path}")
         df = load_dataset(dataset_path)
         print(f"Loaded {len(df)} samples.")
-        
+
         print("Validating data sources...")
-        is_valid, stats = validate_sources(df, config)
-        
-        # Output stats to stdout as JSON for logging
-        print(json.dumps(stats, indent=2))
-        
+        is_valid, report = validate_sources(df)
+
+        # Ensure output directory exists
+        output_path = Path(output_log_path)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write report
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
+        print(f"Validation report written to: {output_log_path}")
+
+        # Print summary
+        print("\n--- Validation Summary ---")
+        print(f"Total Samples: {report['total_samples']}")
+        print(f"Sources Found: {', '.join(report['sources_present']) if report['sources_present'] else 'None'}")
+        print(f"Status: {'PASSED' if is_valid else 'FAILED'}")
+        if report.get('error_message'):
+            print(f"Error: {report['error_message']}")
+        print("--------------------------\n")
+
         if not is_valid:
-            print(f"VALIDATION FAILED: Missing sources: {stats['missing_sources']}")
             return 1
-        
-        print("VALIDATION PASSED: Dataset contains samples from all required sources.")
         return 0
-        
+
     except FileNotFoundError as e:
-        print(f"ERROR: {e}")
-        return 1
+        print(f"Error: {e}", file=sys.stderr)
+        return 2
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 2
     except Exception as e:
-        print(f"ERROR: Unexpected error during validation: {e}")
-        return 1
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        return 2
 
-
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Validate data sources in teacher routing dataset")
+def main():
+    """Entry point for the validation script."""
+    parser = argparse.ArgumentParser(
+        description="Validate that teacher_routing_dataset.parquet contains samples from both ImageNet-1K and LAION-400M."
+    )
     parser.add_argument(
-        "--dataset-path",
+        "--dataset",
         type=str,
         default=None,
-        help="Path to the teacher_routing_dataset.parquet file. If not provided, uses config default."
+        help="Path to the teacher routing dataset parquet file. Defaults to config path."
     )
-    
-    args = parser.parse_args()
-    exit_code = run_validation(args)
-    sys.exit(exit_code)
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Path to output validation report JSON. Defaults to config path."
+    )
 
+    args = parser.parse_args()
+    config = get_config()
+
+    dataset_path = args.dataset or get_path(config, "teacher_routing_dataset_path")
+    output_log_path = args.output or str(Path(get_path(config, "results_dir")) / "source_validation_report.json")
+
+    exit_code = run_validation(dataset_path, output_log_path)
+    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()

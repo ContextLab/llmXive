@@ -1,45 +1,66 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/DecisionTreeMetadata.json",
   "title": "DecisionTreeMetadata",
-  "description": "Schema for metadata associated with trained decision tree models.",
+  "description": "Schema for metadata associated with a trained Decision Tree model.",
   "type": "object",
   "properties": {
     "model_id": {
       "type": "string",
-      "description": "Unique identifier for the model."
+      "description": "Unique identifier for the model artifact."
     },
     "max_depth": {
       "type": "integer",
-      "description": "Maximum depth of the decision tree."
+      "description": "Maximum depth of the decision tree.",
+      "minimum": 1
+    },
+    "training_dataset_version": {
+      "type": "string",
+      "description": "SHA256 hash or version ID of the training dataset."
     },
     "training_accuracy": {
       "type": "number",
-      "description": "Accuracy on the training set."
+      "format": "float",
+      "description": "Accuracy on the training split.",
+      "minimum": 0.0,
+      "maximum": 1.0
     },
-    "validation_accuracy": {
+    "test_accuracy": {
       "type": "number",
-      "description": "Accuracy on the validation/test set."
+      "format": "float",
+      "description": "Accuracy on the held-out test split.",
+      "minimum": 0.0,
+      "maximum": 1.0
     },
     "feature_names": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Names of features used in training."
+      "description": "List of feature names used for training."
     },
-    "num_samples": {
-      "type": "integer",
-      "description": "Number of samples used for training."
+    "class_labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of class labels (expert IDs) the model predicts."
     },
     "created_at": {
       "type": "string",
       "format": "date-time",
-      "description": "Timestamp of model creation."
+      "description": "ISO 8601 timestamp of model creation."
+    },
+    "file_path": {
+      "type": "string",
+      "description": "Relative path to the saved model file (e.g., .pkl)."
     },
     "sha256_hash": {
       "type": "string",
-      "description": "SHA256 hash of the model file."
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "SHA256 hash of the model file for integrity verification."
     }
   },
-  "required": ["model_id", "max_depth", "training_accuracy", "validation_accuracy", "num_samples", "created_at", "sha256_hash"]
+  "required": ["model_id", "max_depth", "training_dataset_version", "training_accuracy", "test_accuracy", "feature_names", "class_labels", "created_at", "file_path", "sha256_hash"],
+  "additionalProperties": false
 }

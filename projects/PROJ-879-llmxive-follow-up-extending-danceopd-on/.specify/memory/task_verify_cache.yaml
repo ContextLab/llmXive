@@ -1,10 +1,10 @@
-T012b:
+T009:
   c: false
-  h: bb93ab5c2ba609c5259b31c6d87adde47d64d5e28affcec2cd51acdddc74eb04
-  r: The required parquet files `data/raw/imageNet_samples.parquet` and `data/raw/laion_samples.parquet`
-    are missing, so the implementer cannot load any samples, perform the length assertions,
-    or combine them as specified. The core artifact needed to satisfy the task does
-    not exist.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides no actual JSON files at `specs/contracts/TeacherRoutingDataset.json`,\
+    \ `InferenceResult.json`, or `DecisionTreeMetadata.json`; there is no evidence\
+    \ that these schemas exist, are non\u2011empty, or define the required fields\
+    \ and constraints. The required artifacts are missing."
 T013a:
   c: false
   h: 16433e4f6d0cf5aac76d62dc0148ff701d37cdddf09fbdc82d793bddc2bd05b4
@@ -15,27 +15,6 @@ T013a:
     \ not abort with a clear error when neither GPU inference nor a verified fallback\
     \ is available. Consequently, the task\u2019s primary and fallback requirements\
     \ are not met."
-T013b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, logs, or dataset modifications were presented that demonstrate detection
-    of undefined routing paths, counting/logging of such occurrences, and exclusion
-    of those samples from the final output. The required artifact (implementation
-    and evidence of the exclusion behavior) is missing.
-T014:
-  c: false
-  h: 7f36ea5dccfc139ec0737cc1f0c3733931770613037e594f0032c7d2698655cb
-  r: "The `code/00_data_extraction.py` file is present but the provided excerpt ends\
-    \ abruptly and does not show any logic that writes the extracted data to `data/processed/teacher_routing_dataset.parquet`.\
-    \ Moreover, the required Parquet file is missing from the repository. The task\u2019\
-    s core output (the processed dataset) is not present."
-T016b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `teacher_routing_dataset.parquet` file or any inspection results are provided,\
-    \ and there is no evidence (e.g., a script output, summary table, or data snippet)\
-    \ showing that the dataset contains samples from both ImageNet\u20111K and LAION\u2011\
-    400M sources. The required artifact and its validation are missing."
 T016c:
   c: false
   h: adb80bab38810273476d3fa4b18ab5f2de39f15aafa1b0cf037c4a2cf961beeb
@@ -51,10 +30,30 @@ T020:
     \ and performs a stratified train\u2011test split using scikit\u2011learn. This\
     \ fulfills the task\u2019s requirement to implement the splitting logic; the missing\
     \ parquet file is a prerequisite artifact from T014, not part of T020 itself."
-T022:
+T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact such as a log file, CSV, or printed table showing \u201CRouting\
-    \ Consistency\u201D (accuracy) for each tree depth on the test set is present;\
-    \ the implementer provided only the task description and specifications without\
-    \ any actual output data. The required per\u2011depth accuracy results are missing."
+  r: No evidence of updated files in `docs/` or modifications to `README.md` was presented;
+    without the actual documentation artifacts, we cannot confirm the required updates
+    were made.
+T035b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No coverage run output, pytest results, or code diff is provided to demonstrate
+    that dead code and unused imports have been removed from the `code/` modules.
+    Without such artifacts, we cannot verify that the requirement has been satisfied.
+T035c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no actual artifact (e.g., updated `code/` files, a log showing
+    `python -m code.import` executing without ImportError, or a test script). Without
+    concrete code changes or execution evidence, we cannot confirm that circular dependencies
+    were removed or that the verification command runs successfully. The required
+    artifact is missing.
+T036a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains no code, script, or documentation showing a chunked\u2011\
+    loading implementation, nor any memory\u2011profiling data demonstrating a peak\
+    \ below 6\u202FGB. Consequently the required performance\u2011optimization artifact\
+    \ and verification evidence are missing."
