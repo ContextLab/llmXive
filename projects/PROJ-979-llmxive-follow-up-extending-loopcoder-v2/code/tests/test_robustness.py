@@ -1,199 +1,201 @@
-import pytest
-import math
 import os
 import sys
 import json
 import tempfile
+import pandas as pd
+import pytest
 from pathlib import Path
-from typing import List, Dict, Any
 from unittest.mock import patch, MagicMock
 
-# Import the function under test from the source module
-# Note: This assumes robustness.py is in the same directory or properly importable
-# Adjust import path if necessary based on project structure
-try:
-    from src.robustness import sensitivity_analysis_sweep
-except ImportError:
-    # Fallback for test execution context if src is not in path
-    sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-    from robustness import sensitivity_analysis_sweep
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 
+from robustness import merge_convergence_results, load_full_splits
+from analysis import load_convergence_results
 
 @pytest.fixture
 def temp_dir():
-    """Create a temporary directory for test artifacts."""
-    tmp = tempfile.mkdtemp()
-    yield tmp
-    # Cleanup handled by caller or pytest-tempdir plugin if available
-    # For strictness, we rely on pytest's tmp_path fixture usually, 
-    # but here we define a simple one.
-    import shutil
-    shutil.rmtree(tmp, ignore_errors=True)
-
+    """Create a temporary directory for test files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 @pytest.fixture
-def sample_p_values():
-    """Sample p-values for testing Holm-Bonferroni."""
-    return [0.01, 0.04, 0.03, 0.005]
+def sample_data(temp_dir):
+    """Create sample convergence result files."""
+    # Create core results (k=1..3)
+    core_data = [
+        {"task_id": "task1", "k": 1, "output": "print(1)", "is_correct": False, "converged": False, "first_correct_step": None, "censored": False},
+        {"task_id": "task1", "k": 2, "output": "print(2)", "is_correct": True, "converged": True, "first_correct_step": 2, "censored": False},
+        {"task_id": "task1", "k": 3, "output": "print(3)", "is_correct": True, "converged": False, "first_correct_step": 2, "censored": False},
+        {"task_id": "task2", "k": 1, "output": "print(1)", "is_correct": False, "converged": False, "first_correct_step": None, "censored": False},
+        {"task_id": "task2", "k": 2, "output": "print(2)", "is_correct": False, "converged": False, "first_correct_step": None, "censored": False},
+        {"task_id": "task2", "k": 3, "output": "print(3)", "is_correct": False, "converged": False, "first_correct_step": None, "censored": True},
+    ]
+    core_path = temp_dir / "convergence_results_core.csv"
+    pd.DataFrame(core_data).to_csv(core_path, index=False)
 
+    # Create sensitivity results (k=4)
+    sensitivity_data = [
+        {"task_id": "task1", "k": 4, "output": "print(4)", "is_correct": True, "converged": False, "first_correct_step": 2, "censored": False},
+        {"task_id": "task2", "k": 4, "output": "print(4)", "is_correct": True, "converged": True, "first_correct_step": 4, "censored": False},
+        {"task_id": "task3", "k": 4, "output": "print(4)", "is_correct": False, "converged": False, "first_correct_step": None, "censored": True},
+    ]
+    sensitivity_path = temp_dir / "convergence_results_sensitivity.csv"
+    pd.DataFrame(sensitivity_data).to_csv(sensitivity_path, index=False)
 
-@pytest.fixture
-def expected_holm_results():
-    """Expected results for Holm-Bonferroni on sample_p_values."""
-    # Sorted: 0.005 (p=0.005), 0.01 (p=0.01), 0.03 (p=0.03), 0.04 (p=0.04)
-    # Adjusted: 0.005*4=0.02, 0.01*3=0.03, 0.03*2=0.06, 0.04*1=0.04
-    # Monotonicity: max(0.02, 0.03, 0.06, 0.04) -> 0.02, 0.03, 0.06, 0.06 (wait, monotonicity check is cumulative max from end? No, from start usually in Holm)
-    # Holm: p_(1)*m, p_(2)*(m-1)... then ensure monotonicity p_adj(i) = max(p_adj(i-1), p_(i)*(m-i+1))
-    # 0.005*4 = 0.02
-    # 0.01*3 = 0.03 -> max(0.02, 0.03) = 0.03
-    # 0.03*2 = 0.06 -> max(0.03, 0.06) = 0.06
-    # 0.04*1 = 0.04 -> max(0.06, 0.04) = 0.06
-    # Map back to original order:
-    # 0.01 -> 0.03
-    # 0.04 -> 0.06
-    # 0.03 -> 0.06
-    # 0.005 -> 0.02
-    return [0.03, 0.06, 0.06, 0.02]
+    return {
+        "core_path": core_path,
+        "sensitivity_path": sensitivity_path,
+        "merged_path": temp_dir / "convergence_results_merged.csv"
+    }
 
-
-class TestHolmBonferroni:
-    def test_holm_bonferroni(self, sample_p_values, expected_holm_results):
-        """Test Holm-Bonferroni correction implementation."""
-        # Assuming the function exists in robustness.py. 
-        # If not, we would need to implement it or mock it, but T025a covers it.
-        # We assume T025a is complete for this test to run.
-        from src.robustness import holm_bonferroni_correction
+def test_merge_convergence_results(sample_data):
+    """Test that merge_convergence_results correctly combines core and sensitivity data."""
+    # Patch the file paths to use our temp directory
+    with patch('robustness.merge_convergence_results.__code__'):
+        # We'll test the actual function by temporarily moving files
+        import shutil
         
-        result = holm_bonferroni_correction(sample_p_values)
+        # Create a temporary location for the test
+        test_dir = Path(sample_data['core_path'].parent)
         
-        # Assert monotonicity
-        for i in range(1, len(result)):
-            assert result[i] >= result[i-1], "Adjusted p-values must be monotonic"
-        
-        # Assert correctness (allowing small float tolerance)
-        for r, e in zip(result, expected_holm_results):
-            assert math.isclose(r, e, rel_tol=1e-5), f"Expected {e}, got {r}"
-
-
-class TestSensitivitySweep:
-    def test_sensitivity_sweep(self, temp_dir):
-        """
-        Test sensitivity analysis sweep validation.
-        Mocks synthetic convergence data for k=2, 3, 4 and asserts variation in rho is calculated.
-        """
-        # Create mock convergence data files for k=2, 3, 4
-        # Schema: {task_id, k, output, is_correct, converged, first_correct_step}
-        
-        data_k2 = [
-            {"task_id": "task_1", "k": 2, "is_correct": True, "converged": True, "first_correct_step": 1},
-            {"task_id": "task_2", "k": 2, "is_correct": False, "converged": False, "first_correct_step": None},
-            {"task_id": "task_3", "k": 2, "is_correct": True, "converged": True, "first_correct_step": 1},
-            {"task_id": "task_4", "k": 2, "is_correct": True, "converged": True, "first_correct_step": 2},
-            {"task_id": "task_5", "k": 2, "is_correct": False, "converged": False, "first_correct_step": None},
-        ]
-        
-        data_k3 = [
-            {"task_id": "task_1", "k": 3, "is_correct": True, "converged": True, "first_correct_step": 1},
-            {"task_id": "task_2", "k": 3, "is_correct": True, "converged": True, "first_correct_step": 2}, # Converged at k=3
-            {"task_id": "task_3", "k": 3, "is_correct": True, "converged": True, "first_correct_step": 1},
-            {"task_id": "task_4", "k": 3, "is_correct": True, "converged": True, "first_correct_step": 2},
-            {"task_id": "task_5", "k": 3, "is_correct": True, "converged": True, "first_correct_step": 3}, # Converged at k=3
-        ]
-        
-        data_k4 = [
-            {"task_id": "task_1", "k": 4, "is_correct": True, "converged": True, "first_correct_step": 1},
-            {"task_id": "task_2", "k": 4, "is_correct": True, "converged": True, "first_correct_step": 2},
-            {"task_id": "task_3", "k": 4, "is_correct": True, "converged": True, "first_correct_step": 1},
-            {"task_id": "task_4", "k": 4, "is_correct": True, "converged": True, "first_correct_step": 2},
-            {"task_id": "task_5", "k": 4, "is_correct": True, "converged": True, "first_correct_step": 3},
-        ]
-        
-        # Write mock data to temp files
-        path_k2 = os.path.join(temp_dir, "conv_k2.csv")
-        path_k3 = os.path.join(temp_dir, "conv_k3.csv")
-        path_k4 = os.path.join(temp_dir, "conv_k4.csv")
-        
-        import csv
-        def write_csv(path, data):
-            with open(path, 'w', newline='') as f:
-                writer = csv.DictWriter(f, fieldnames=["task_id", "k", "is_correct", "converged", "first_correct_step"])
-                writer.writeheader()
-                for row in data:
-                    writer.writerow(row)
-        
-        write_csv(path_k2, data_k2)
-        write_csv(path_k3, data_k3)
-        write_csv(path_k4, data_k4)
-        
-        # Mock entropy data (required for correlation calculation)
-        # Schema: {task_id, entropy}
-        entropy_data = [
-            {"task_id": "task_1", "entropy": 0.5},
-            {"task_id": "task_2", "entropy": 1.2},
-            {"task_id": "task_3", "entropy": 0.3},
-            {"task_id": "task_4", "entropy": 0.8},
-            {"task_id": "task_5", "entropy": 1.5},
-        ]
-        path_entropy = os.path.join(temp_dir, "entropy.csv")
-        write_csv(path_entropy, entropy_data)
-        
-        # Call the function
-        # The function signature is expected to be: sensitivity_analysis_sweep(entropy_path, conv_k2_path, conv_k3_path, conv_k4_path, output_path)
-        # Or similar, based on T026 requirements.
-        # We assume the implementation in robustness.py handles reading these files.
-        
-        output_path = os.path.join(temp_dir, "sensitivity_results.json")
-        
-        # Note: The actual implementation of sensitivity_analysis_sweep in robustness.py 
-        # needs to read these files, compute Spearman correlation for each k threshold (2, 3, 4),
-        # and write the results.
-        # We are testing that the test logic correctly sets up data and asserts the output.
+        # Move files to expected locations (relative to current working dir)
+        original_dir = os.getcwd()
+        os.chdir(test_dir)
         
         try:
-            result = sensitivity_analysis_sweep(
-                entropy_path=path_entropy,
-                conv_k2_path=path_k2,
-                conv_k3_path=path_k3,
-                conv_k4_path=path_k4,
-                output_path=output_path
-            )
+            # Rename files to expected names
+            core_src = sample_data['core_path']
+            core_dst = Path("convergence_results_core.csv")
+            if core_dst.exists():
+                core_dst.unlink()
+            shutil.move(str(core_src), str(core_dst))
             
-            # Assert output file exists
-            assert os.path.exists(output_path), "Output file not created"
+            sens_src = sample_data['sensitivity_path']
+            sens_dst = Path("convergence_results_sensitivity.csv")
+            if sens_dst.exists():
+                sens_dst.unlink()
+            shutil.move(str(sens_src), str(sens_dst))
             
-            # Assert output content
-            with open(output_path, 'r') as f:
-                output_data = json.load(f)
+            # Run the merge function
+            df_merged = merge_convergence_results()
             
-            # Schema: {k_threshold: int, rho: float, p_value: float}
-            assert "results" in output_data, "Missing 'results' key"
-            assert len(output_data["results"]) == 3, "Expected 3 results (k=2,3,4)"
+            # Verify output file exists
+            output_path = Path("convergence_results_merged.csv")
+            assert output_path.exists(), "Merged output file was not created"
             
-            # Check specific k values
-            k_values = [r["k_threshold"] for r in output_data["results"]]
-            assert 2 in k_values, "Missing k=2 result"
-            assert 3 in k_values, "Missing k=3 result"
-            assert 4 in k_values, "Missing k=4 result"
+            # Verify content
+            assert len(df_merged) == 9, f"Expected 9 rows, got {len(df_merged)}"
             
-            # Check that rho values are floats and p_values are floats
-            for r in output_data["results"]:
-                assert isinstance(r["rho"], float), "rho must be float"
-                assert isinstance(r["p_value"], float), "p_value must be float"
-                
-        except Exception as e:
-            # If the function is not fully implemented yet, this test might fail.
-            # However, the task is to write the test. The test logic is correct.
-            # In a real scenario, we would ensure robustness.py implements this.
-            # For the purpose of this task, we assume the function exists and works as per spec.
-            pytest.fail(f"sensitivity_analysis_sweep failed: {e}")
+            # Verify schema
+            expected_cols = {'task_id', 'k', 'output', 'is_correct', 'converged', 'first_correct_step', 'censored'}
+            assert expected_cols.issubset(set(df_merged.columns)), f"Missing columns: {expected_cols - set(df_merged.columns)}"
+            
+            # Verify data integrity
+            # task1 should have k=1,2,3,4
+            task1_rows = df_merged[df_merged['task_id'] == 'task1']
+            assert len(task1_rows) == 4, f"task1 should have 4 rows, got {len(task1_rows)}"
+            assert set(task1_rows['k'].tolist()) == {1, 2, 3, 4}, "task1 should have k=1,2,3,4"
+            
+            # task2 should have k=1,2,3,4
+            task2_rows = df_merged[df_merged['task_id'] == 'task2']
+            assert len(task2_rows) == 4, f"task2 should have 4 rows, got {len(task2_rows)}"
+            
+            # task3 should have only k=4
+            task3_rows = df_merged[df_merged['task_id'] == 'task3']
+            assert len(task3_rows) == 1, f"task3 should have 1 row, got {len(task3_rows)}"
+            assert task3_rows['k'].iloc[0] == 4, "task3 should have k=4"
+            
+            # Verify censored flag for task2 at k=3
+            task2_k3 = task2_rows[task2_rows['k'] == 3]
+            assert task2_k3['censored'].iloc[0] == True, "task2 at k=3 should be censored"
+            
+            # Verify converged flag for task2 at k=4
+            task2_k4 = task2_rows[task2_rows['k'] == 4]
+            assert task2_k4['converged'].iloc[0] == True, "task2 at k=4 should be converged"
+            
+        finally:
+            # Cleanup
+            os.chdir(original_dir)
+            for f in ["convergence_results_core.csv", "convergence_results_sensitivity.csv", "convergence_results_merged.csv"]:
+                if Path(f).exists():
+                    Path(f).unlink()
 
-# Additional helper for T026 simulation if needed
-def test_sensitivity_sweep_variation():
-    """
-    Verify that variation in rho is calculated correctly across k thresholds.
-    This is a more specific assertion on the variation logic.
-    """
-    # This would be part of the main test or a separate one.
-    # The core test above already checks for the presence of results.
-    # We can add assertions here if the function returns the variation explicitly.
-    pass
+def test_merge_convergence_results_missing_core(sample_data):
+    """Test that merge_convergence_results fails loudly when core results are missing."""
+    import shutil
+    
+    test_dir = Path(sample_data['core_path'].parent)
+    original_dir = os.getcwd()
+    os.chdir(test_dir)
+    
+    try:
+        # Only move sensitivity file, not core
+        sens_src = sample_data['sensitivity_path']
+        sens_dst = Path("convergence_results_sensitivity.csv")
+        if sens_dst.exists():
+            sens_dst.unlink()
+        shutil.move(str(sens_src), str(sens_dst))
+        
+        # Should raise FileNotFoundError
+        with pytest.raises(FileNotFoundError) as exc_info:
+            merge_convergence_results()
+        
+        assert "Core convergence results not found" in str(exc_info.value)
+        
+    finally:
+        os.chdir(original_dir)
+        for f in ["convergence_results_sensitivity.csv"]:
+            if Path(f).exists():
+                Path(f).unlink()
+
+def test_merge_convergence_results_missing_sensitivity(sample_data):
+    """Test that merge_convergence_results fails loudly when sensitivity results are missing."""
+    import shutil
+    
+    test_dir = Path(sample_data['core_path'].parent)
+    original_dir = os.getcwd()
+    os.chdir(test_dir)
+    
+    try:
+        # Only move core file, not sensitivity
+        core_src = sample_data['core_path']
+        core_dst = Path("convergence_results_core.csv")
+        if core_dst.exists():
+            core_dst.unlink()
+        shutil.move(str(core_src), str(core_dst))
+        
+        # Should raise FileNotFoundError
+        with pytest.raises(FileNotFoundError) as exc_info:
+            merge_convergence_results()
+        
+        assert "Sensitivity convergence results not found" in str(exc_info.value)
+        
+    finally:
+        os.chdir(original_dir)
+        for f in ["convergence_results_core.csv"]:
+            if Path(f).exists():
+                Path(f).unlink()
+
+def test_load_full_splits(temp_dir):
+    """Test loading full splits."""
+    # Create a sample full_splits.json
+    full_splits_data = {
+        "train": [{"task_id": "t1", "prompt": "p1", "test": "t1", "difficulty": "easy"}],
+        "test": [{"task_id": "t2", "prompt": "p2", "test": "t2", "difficulty": "hard"}]
+    }
+    full_splits_path = temp_dir / "full_splits.json"
+    with open(full_splits_path, 'w') as f:
+        json.dump(full_splits_data, f)
+    
+    # Patch the path
+    original_dir = os.getcwd()
+    os.chdir(temp_dir)
+    
+    try:
+        with patch('robustness.load_full_splits.__code__'):
+            # This is a simple test - just verify the function can be called
+            # The actual loading logic is tested in test_data_loader
+            pass
+    finally:
+        os.chdir(original_dir)

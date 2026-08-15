@@ -1,345 +1,299 @@
-"""
-Data loading and preprocessing utilities.
-
-This module handles:
-- Fetching datasets from HuggingFace
-- Computing checksums
-- Stratified sampling
-- Filtering underpowered strata
-"""
-
 import hashlib
 import json
 import os
 import random
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
-
+import pandas as pd
 from datasets import load_dataset
-import yaml
 
-# Configure logging
-import logging
-logger = logging.getLogger(__name__)
-
-CONFIG_PATH = "code/config.yaml"
-RAW_DATA_DIR = "data/raw"
-PROCESSED_DATA_DIR = "data/processed"
-
-def load_config() -> Dict[str, Any]:
-    """Load configuration from YAML file."""
-    if not os.path.exists(CONFIG_PATH):
-        logger.warning(f"Config file not found: {CONFIG_PATH}, using defaults")
-        return {
-            "strata_threshold": 50,
-            "non_inferiority_delta": 0.05,
-            "entropy_n_samples": 10,
-            "convergence_k_range": [1, 2, 3]
-        }
-    
-    with open(CONFIG_PATH, 'r') as f:
+def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
+    """
+    Load configuration from YAML file.
+    """
+    import yaml
+    with open(config_path, "r") as f:
         return yaml.safe_load(f)
 
 def ensure_directories():
-    """Ensure all required directories exist."""
-    dirs = [RAW_DATA_DIR, PROCESSED_DATA_DIR, "data/raw", "data/processed"]
+    """
+    Ensure required directories exist.
+    """
+    dirs = [
+        "data/raw",
+        "data/processed",
+        "code/src",
+        "code/tests",
+        "code/notebooks"
+    ]
     for d in dirs:
         Path(d).mkdir(parents=True, exist_ok=True)
 
 def compute_sha256(file_path: str) -> str:
-    """Compute SHA256 hash of a file."""
+    """
+    Compute SHA256 hash of a file.
+    """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def fetch_datasets() -> Tuple[Any, Any]:
+def fetch_datasets():
     """
-    Fetch HumanEval and MBPP datasets from HuggingFace.
-    
-    Returns:
-        Tuple of (humaneval_dataset, mbpp_dataset)
+    Fetch HumanEval and MBPP datasets.
     """
     ensure_directories()
     
-    logger.info("Fetching HumanEval dataset...")
-    humaneval = load_dataset("openai_humaneval", trust_remote_code=True)
+    # Fetch HumanEval
+    try:
+        human_eval = load_dataset("openai_humaneval")
+        human_eval.save_to_disk("data/raw/human_eval")
+        logger.info("HumanEval dataset fetched and saved.")
+    except Exception as e:
+        logger.error(f"Failed to fetch HumanEval: {e}")
+        raise
     
-    logger.info("Fetching MBPP dataset...")
-    mbpp = load_dataset("mbpp", trust_remote_code=True)
-    
-    # Save raw copies
-    humaneeval_path = os.path.join(RAW_DATA_DIR, "humaneval.json")
-    mbpp_path = os.path.join(RAW_DATA_DIR, "mbpp.json")
-    
-    with open(humaneval_path, 'w') as f:
-        json.dump(humaneval['test'].to_list(), f)
-    
-    with open(mbpp_path, 'w') as f:
-        json.dump(mbpp['train'].to_list(), f)
-    
-    logger.info(f"Datasets saved to {RAW_DATA_DIR}")
-    return humaneval, mbpp
+    # Fetch MBPP
+    try:
+        mbpp = load_dataset("mbpp")
+        mbpp.save_to_disk("data/raw/mbpp")
+        logger.info("MBPP dataset fetched and saved.")
+    except Exception as e:
+        logger.error(f"Failed to fetch MBPP: {e}")
+        raise
 
-def checksum_datasets() -> str:
+def checksum_datasets():
     """
-    Compute SHA256 checksums for all files in data/raw/.
-    
-    Returns:
-        Path to checksums file
+    Compute checksums for all files in data/raw and data/processed.
     """
     checksums = []
     
-    for root, _, files in os.walk(RAW_DATA_DIR):
+    for root, dirs, files in os.walk("data/raw"):
         for file in files:
             file_path = os.path.join(root, file)
             checksum = compute_sha256(file_path)
-            rel_path = os.path.relpath(file_path, RAW_DATA_DIR)
-            checksums.append(f"{checksum}  {rel_path}")
+            checksums.append(f"{checksum}  {file_path}")
     
-    checksum_path = os.path.join(PROCESSED_DATA_DIR, "checksums.txt")
-    with open(checksum_path, 'w') as f:
-        f.write('\n'.join(checksums))
+    for root, dirs, files in os.walk("data/processed"):
+        for file in files:
+            file_path = os.path.join(root, file)
+            checksum = compute_sha256(file_path)
+            checksums.append(f"{checksum}  {file_path}")
     
-    logger.info(f"Checksums saved to {checksum_path}")
-    return checksum_path
+    with open("data/checksums.txt", "w") as f:
+        f.write("\n".join(checksums))
+    
+    logger.info("Checksums computed and saved to data/checksums.txt")
 
-def determine_strata(task: Dict[str, Any]) -> str:
+def determine_strata(data: List[Dict]) -> Dict[str, int]:
     """
-    Determine stratum for a task based on difficulty or task_id hash.
-    
-    Args:
-        task: Task dictionary
-        
-    Returns:
-        Stratum name
+    Determine strata based on difficulty column or task_id hashing.
     """
-    if 'difficulty' in task:
-        return task['difficulty']
-    elif 'task_id' in task:
-        # Hash-based stratum if difficulty not available
-        task_id = task['task_id']
-        hash_val = int(hashlib.md5(task_id.encode()).hexdigest(), 16)
-        return f"stratum_{hash_val % 5}"
-    else:
-        return "unknown"
+    strata = {}
+    for item in data:
+        difficulty = item.get("difficulty", "unknown")
+        if difficulty not in strata:
+            strata[difficulty] = 0
+        strata[difficulty] += 1
+    return strata
 
-def stratified_sample(
-    data: List[Dict[str, Any]],
-    strata_key: str = "difficulty",
-    sample_size: int = 100,
-    threshold: int = 50
-) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+def stratified_sample(data: List[Dict], strata: Dict[str, int], sample_size: int) -> List[Dict]:
     """
-    Perform stratified sampling on dataset.
-    
-    Args:
-        data: List of task dictionaries
-        strata_key: Key to use for stratification
-        sample_size: Target sample size
-        threshold: Minimum samples per stratum
-        
-    Returns:
-        Tuple of (sampled_data, strata_log)
+    Perform stratified sampling.
     """
-    # Group by strata
-    strata_groups: Dict[str, List[Dict]] = {}
-    for task in data:
-        stratum = determine_strata(task)
-        if stratum not in strata_groups:
-            strata_groups[stratum] = []
-        strata_groups[stratum].append(task)
+    sampled = []
+    for stratum, count in strata.items():
+        stratum_data = [item for item in data if item.get("difficulty", "unknown") == stratum]
+        sample_count = min(int(count * sample_size / len(data)), len(stratum_data))
+        sampled.extend(random.sample(stratum_data, sample_count))
+    return sampled
+
+def stratify_data():
+    """
+    Apply stratified sampling by difficulty.
+    """
+    cfg = load_config()
+    threshold = cfg.get("strata_threshold", 50)
     
-    # Log strata info
+    # Load data
+    data_path = "data/raw/human_eval"
+    if not os.path.exists(data_path):
+        fetch_datasets()
+    
+    human_eval = load_dataset("data/raw/human_eval")
+    data = list(human_eval["train"])
+    
+    # Determine strata
+    strata = determine_strata(data)
+    
+    # Log strata
     strata_log = {
-        "strata": [],
-        "total_samples": len(data),
-        "threshold": threshold
+        "strata": [
+            {
+                "name": name,
+                "count": count,
+                "underpowered": count < threshold
+            }
+            for name, count in strata.items()
+        ]
     }
     
-    sampled = []
-    underpowered_strata = []
-    
-    for stratum, tasks in strata_groups.items():
-        count = len(tasks)
-        underpowered = count < threshold
-        
-        strata_log["strata"].append({
-            "name": stratum,
-            "count": count,
-            "underpowered": underpowered
-        })
-        
-        if underpowered:
-            underpowered_strata.append(stratum)
-        else:
-            # Sample from this stratum
-            n = min(count, sample_size // len(strata_groups))
-            sampled.extend(random.sample(tasks, n))
-    
-    return sampled, strata_log
-
-def stratify_data(
-    humaneval: Any,
-    mbpp: Any,
-    output_path: str = os.path.join(PROCESSED_DATA_DIR, "strata_log.json"),
-    threshold: int = 50
-) -> None:
-    """
-    Apply stratified sampling and save strata log.
-    
-    Args:
-        humaneval: HumanEval dataset
-        mbpp: MBPP dataset
-        output_path: Output path for strata log
-        threshold: Minimum samples per stratum
-    """
-    # Combine datasets
-    all_data = []
-    
-    # Process HumanEval
-    for item in humaneval['test']:
-        all_data.append({
-            "task_id": item.get('task_id', 'humaneval_' + str(len(all_data))),
-            "prompt": item.get('prompt', ''),
-            "test": item.get('test', ''),
-            "difficulty": "medium"  # Default difficulty
-        })
-    
-    # Process MBPP
-    for item in mbpp['train']:
-        all_data.append({
-            "task_id": item.get('task_id', 'mbpp_' + str(len(all_data))),
-            "prompt": item.get('prompt', ''),
-            "test": item.get('test', ''),
-            "difficulty": "easy"  # Default difficulty
-        })
-    
-    # Stratify
-    sampled, strata_log = stratified_sample(all_data, threshold=threshold)
-    
-    # Save strata log
-    with open(output_path, 'w') as f:
+    with open("data/processed/strata_log.json", "w") as f:
         json.dump(strata_log, f, indent=2)
     
-    logger.info(f"Strata log saved to {output_path}")
+    logger.info("Strata log saved to data/processed/strata_log.json")
+    
+    # Save splits
+    save_splits(data)
+    filter_strata()
 
-def save_splits(
-    data: List[Dict[str, Any]],
-    output_path: str = os.path.join(PROCESSED_DATA_DIR, "splits.json")
-) -> None:
+def save_splits(data: List[Dict]):
     """
     Save processed splits to JSON.
-    
-    Args:
-        data: List of task dictionaries
-        output_path: Output path
     """
-    # Split into train/test (80/20)
+    # Split into train and test
     random.shuffle(data)
     split_idx = int(len(data) * 0.8)
+    train = data[:split_idx]
+    test = data[split_idx:]
     
     splits = {
-        "train": data[:split_idx],
-        "test": data[split_idx:]
+        "train": train,
+        "test": test
     }
     
-    with open(output_path, 'w') as f:
+    with open("data/processed/splits.json", "w") as f:
         json.dump(splits, f, indent=2)
     
-    logger.info(f"Splits saved to {output_path}")
+    logger.info("Splits saved to data/processed/splits.json")
 
-def filter_strata(
-    strata_log_path: str = os.path.join(PROCESSED_DATA_DIR, "strata_log.json"),
-    splits_path: str = os.path.join(PROCESSED_DATA_DIR, "splits.json"),
-    output_path: str = os.path.join(PROCESSED_DATA_DIR, "filtered_splits.json")
-) -> None:
+def filter_strata():
     """
-    Filter out samples from underpowered strata.
-    
-    Args:
-        strata_log_path: Path to strata log
-        splits_path: Path to splits file
-        output_path: Output path for filtered splits
+    Filter out underpowered strata.
     """
-    # Pre-check: verify files exist
-    if not os.path.exists(strata_log_path):
-        raise FileNotFoundError(f"Strata log not found: {strata_log_path}")
-    if not os.path.exists(splits_path):
-        raise FileNotFoundError(f"Splits file not found: {splits_path}")
-    
     # Load strata log
-    with open(strata_log_path, 'r') as f:
+    with open("data/processed/strata_log.json", "r") as f:
         strata_log = json.load(f)
     
-    # Identify underpowered strata
-    underpowered_names = {
-        s['name'] for s in strata_log['strata'] if s.get('underpowered', False)
-    }
-    
-    logger.info(f"Filtering out {len(underpowered_names)} underpowered strata")
-    
     # Load splits
-    with open(splits_path, 'r') as f:
+    with open("data/processed/splits.json", "r") as f:
         splits = json.load(f)
     
-    # Determine stratum for each task and filter
-    def get_stratum(task: Dict) -> str:
-        if 'difficulty' in task:
-            return task['difficulty']
-        elif 'task_id' in task:
-            hash_val = int(hashlib.md5(task['task_id'].encode()).hexdigest(), 16)
-            return f"stratum_{hash_val % 5}"
-        return "unknown"
+    # Identify underpowered strata
+    underpowered = [s["name"] for s in strata_log["strata"] if s["underpowered"]]
     
-    filtered_train = []
-    filtered_test = []
+    # Filter data
+    filtered_train = [item for item in splits["train"] if item.get("difficulty", "unknown") not in underpowered]
+    filtered_test = [item for item in splits["test"] if item.get("difficulty", "unknown") not in underpowered]
     
-    for task in splits.get('train', []):
-        stratum = get_stratum(task)
-        if stratum not in underpowered_names:
-            filtered_train.append(task)
-    
-    for task in splits.get('test', []):
-        stratum = get_stratum(task)
-        if stratum not in underpowered_names:
-            filtered_test.append(task)
-    
+    # Save filtered splits
     filtered_splits = {
         "train": filtered_train,
         "test": filtered_test
     }
     
-    with open(output_path, 'w') as f:
+    with open("data/processed/filtered_splits.json", "w") as f:
         json.dump(filtered_splits, f, indent=2)
     
-    logger.info(f"Filtered splits saved to {output_path}")
-    logger.info(f"Original: {len(splits.get('train', [])) + len(splits.get('test', []))} -> Filtered: {len(filtered_train) + len(filtered_test)}")
+    # Save exclusion report
+    exclusion_report = {
+        "underpowered_strata": underpowered,
+        "excluded_count": len(splits["train"]) - len(filtered_train) + len(splits["test"]) - len(filtered_test),
+        "total_count": len(splits["train"]) + len(splits["test"])
+    }
+    
+    with open("data/processed/exclusion_rate_report.json", "w") as f:
+        json.dump(exclusion_report, f, indent=2)
+    
+    logger.info("Filtered splits saved to data/processed/filtered_splits.json")
+
+def generate_unseen_set():
+    """
+    Generate unseen validation set.
+    """
+    # Load splits
+    with open("data/processed/splits.json", "r") as f:
+        splits = json.load(f)
+    
+    test_set = splits["test"]
+    
+    # Split test set into held_out_test and unseen_validation
+    random.shuffle(test_set)
+    split_idx = int(len(test_set) * 0.5)
+    held_out_test = test_set[:split_idx]
+    unseen_validation = test_set[split_idx:]
+    
+    # Save unseen validation set
+    unseen_df = pd.DataFrame(unseen_validation)
+    unseen_df.to_csv("data/processed/unseen_validation_set.csv", index=False)
+    
+    # Update checksums
+    checksum_datasets()
+    
+    logger.info("Unseen validation set saved to data/processed/unseen_validation_set.csv")
+
+def verify_disjoint_sets():
+    """
+    Verify that held_out_test and unseen_validation are disjoint.
+    """
+    # Load splits
+    with open("data/processed/splits.json", "r") as f:
+        splits = json.load(f)
+    
+    # Load unseen validation set
+    unseen_df = pd.read_csv("data/processed/unseen_validation_set.csv")
+    unseen_ids = set(unseen_df["task_id"].tolist())
+    
+    # Get held_out_test task_ids
+    held_out_ids = set([item["task_id"] for item in splits["test"]])
+    
+    # Check intersection
+    intersection = held_out_ids & unseen_ids
+    
+    if len(intersection) > 0:
+        raise ValueError(f"Intersection found: {intersection}")
+    
+    # Log result
+    result = {
+        "intersection_size": len(intersection),
+        "status": "disjoint"
+    }
+    
+    with open("data/processed/disjoint_verification.json", "w") as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info("Disjoint sets verified")
+
+def load_filtered_splits(input_path: str = "data/processed/filtered_splits.json") -> List[Dict]:
+    """
+    Load filtered splits from JSON.
+    """
+    with open(input_path, "r") as f:
+        data = json.load(f)
+    # Return combined train and test for inference
+    return data["train"] + data["test"]
 
 def main():
-    """Main entry point for data loader."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Data loading and preprocessing")
-    parser.add_argument("--fetch", action="store_true", help="Fetch datasets")
-    parser.add_argument("--checksum", action="store_true", help="Compute checksums")
-    parser.add_argument("--stratify", action="store_true", help="Stratify data")
-    parser.add_argument("--filter", action="store_true", help="Filter underpowered strata")
+    parser = argparse.ArgumentParser(description="Data Loader")
+    parser.add_argument("--action", type=str, required=True, help="Action to perform: fetch, stratify, filter, generate_unseen, verify_disjoint")
     
     args = parser.parse_args()
     
-    ensure_directories()
-    
-    if args.fetch:
-        humaneval, mbpp = fetch_datasets()
-        if args.stratify:
-            stratify_data(humaneval, mbpp)
-        if args.checksum:
-            checksum_datasets()
-    
-    if args.filter:
+    if args.action == "fetch":
+        fetch_datasets()
+    elif args.action == "stratify":
+        stratify_data()
+    elif args.action == "filter":
         filter_strata()
+    elif args.action == "generate_unseen":
+        generate_unseen_set()
+    elif args.action == "verify_disjoint":
+        verify_disjoint_sets()
+    else:
+        raise ValueError(f"Unknown action: {args.action}")
 
 if __name__ == "__main__":
     main()

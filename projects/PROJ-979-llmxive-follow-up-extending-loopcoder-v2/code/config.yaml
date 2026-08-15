@@ -1,0 +1,6 @@
+CODELLAMA_CPU_PATH: "NOT_SET"
+CODELLAMA_GPU_PATH: "NOT_SET"
+strata_threshold: 50
+non_inferiority_delta: 0.05
+entropy_n_samples: 10
+convergence_k_range: [1, 2, 3]

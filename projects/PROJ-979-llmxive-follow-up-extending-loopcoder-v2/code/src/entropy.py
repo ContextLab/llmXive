@@ -1,3 +1,12 @@
+"""
+Entropy Extraction Pipeline for LoopCoder-v2 Extension.
+
+This module implements the semantic entropy extraction pipeline.
+It loads the model, generates samples, clusters them by AST structure,
+executes code in a sandbox to verify functional equivalence, and computes
+Shannon entropy.
+"""
+
 import ast
 import hashlib
 import json
@@ -8,12 +17,14 @@ import subprocess
 import tempfile
 import shutil
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple
 
-import yaml
+import pandas as pd
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from datasets import load_dataset
+
+# Import utils from sibling module
+from utils import set_global_seed, load_config
 
 # Configure logging
 logging.basicConfig(
@@ -22,300 +33,284 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
-    """Load configuration from YAML file."""
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found at {config_path}")
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
+# Global model and tokenizer instances (lazy loaded)
+_model = None
+_tokenizer = None
 
-def load_model(cpu_path: Optional[str] = None, gpu_path: Optional[str] = None) -> Tuple[Any, Any]:
-    """Load model and tokenizer based on environment variables."""
-    cpu_path = cpu_path or os.environ.get("CODELLAMA_CPU_PATH")
-    gpu_path = gpu_path or os.environ.get("CODELLAMA_GPU_PATH")
+def load_model(config: Dict[str, Any]) -> Tuple[Any, Any]:
+    """
+    Load the CodeLlama model and tokenizer based on configuration.
+    """
+    global _model, _tokenizer
+    if _model is not None and _tokenizer is not None:
+        return _model, _tokenizer
 
-    model_path = None
-    if cpu_path and os.path.exists(cpu_path):
-        model_path = cpu_path
-    elif gpu_path and os.path.exists(gpu_path):
-        model_path = gpu_path
+    model_path = config.get('CODELLAMA_CPU_PATH') or config.get('CODELLAMA_GPU_PATH')
+    if not model_path or model_path == "NOT_SET":
+        raise ValueError("Model path not configured. Set CODELLAMA_CPU_PATH or CODELLAMA_GPU_PATH.")
 
-    if not model_path:
-        # Fallback to a known public model if paths are not set, for demonstration
-        # In a real run, this should be set via env vars or config
-        logger.warning("No model path provided, attempting to load 'codellama/CodeLlama-7b-Instruct-hf'")
-        model_path = "codellama/CodeLlama-7b-Instruct-hf"
-
+    logger.info(f"Loading model from {model_path}...")
     try:
-        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        model = AutoModelForCausalLM.from_pretrained(
+        _tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        # Force padding side to right for generation
+        _tokenizer.padding_side = 'right'
+        if _tokenizer.pad_token is None:
+            _tokenizer.pad_token = _tokenizer.eos_token
+
+        device = 'cuda' if torch.cuda.is_available() and config.get('USE_GPU', False) else 'cpu'
+        logger.info(f"Using device: {device}")
+
+        _model = AutoModelForCausalLM.from_pretrained(
             model_path,
-            torch_dtype=torch.float16 if gpu_path and torch.cuda.is_available() else torch.float32,
-            device_map="auto" if gpu_path and torch.cuda.is_available() else "cpu",
+            torch_dtype=torch.float16 if device == 'cuda' else torch.float32,
+            device_map='auto' if device == 'cuda' else None,
             trust_remote_code=True
         )
-        logger.info(f"Model loaded successfully from {model_path}")
-        return model, tokenizer
+        if device == 'cpu':
+            _model = _model.to(device)
+
+        logger.info("Model loaded successfully.")
+        return _model, _tokenizer
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         raise
 
-def generate_samples(
-    prompt: str,
-    model: Any,
-    tokenizer: Any,
-    n_samples: int = 10,
-    max_new_tokens: int = 512
-) -> List[str]:
-    """Generate n_samples completions for a given prompt."""
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    outputs = []
-
-    with torch.no_grad():
-        for _ in range(n_samples):
-            # Use different seeds for diversity if needed, or just sample
-            generated = model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                do_sample=True,
-                temperature=0.7,
-                top_p=0.95,
-                pad_token_id=tokenizer.eos_token_id
-            )
-            # Decode and strip the prompt
-            full_text = tokenizer.decode(generated[0], skip_special_tokens=True)
-            if full_text.startswith(prompt):
-                code = full_text[len(prompt):].strip()
-            else:
-                code = full_text.strip()
-            outputs.append(code)
-
-    return outputs
-
-def normalize_ast(code: str) -> Optional[str]:
+def generate_samples(prompt: str, model: Any, tokenizer: Any, n_samples: int = 10, max_length: int = 512) -> List[str]:
     """
-    Normalize code by parsing to AST and dumping.
-    Returns None if parsing fails.
+    Generate n_samples completions for a given prompt.
+    """
+    inputs = tokenizer(prompt, return_tensors='pt').to(model.device)
+    generated_ids = []
+
+    # Generate with different seeds for diversity if needed, or use temperature
+    # For entropy estimation, we need diverse samples, so we use temperature sampling
+    for i in range(n_samples):
+        # Set seed for reproducibility if global seed is set, but we want variation
+        # We'll use the model's internal sampling with temperature
+        output = model.generate(
+            **inputs,
+            max_new_tokens=max_length,
+            do_sample=True,
+            temperature=0.8,
+            top_p=0.95,
+            pad_token_id=tokenizer.pad_token_id,
+            num_return_sequences=1
+        )
+        # Decode only the new tokens
+        generated_text = tokenizer.decode(output[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
+        generated_ids.append(generated_text)
+
+    return generated_ids
+
+def normalize_ast(code_str: str) -> Optional[str]:
+    """
+    Normalize code to AST hash for clustering.
+    Returns None if code is not valid Python.
     """
     try:
-        tree = ast.parse(code)
-        return ast.dump(tree)
+        tree = ast.parse(code_str)
+        # Normalize: remove constant values and comments, keep structure
+        # We'll use a simple approach: dump the AST with specific attributes
+        # A more robust way is to traverse and build a normalized representation
+        normalized = []
+        for node in ast.walk(tree):
+            node_type = node.__class__.__name__
+            # We only care about structure, not literals
+            normalized.append(node_type)
+        # Create a hash of the structure
+        structure_str = " ".join(normalized)
+        return hashlib.sha256(structure_str.encode()).hexdigest()
     except SyntaxError:
         return None
 
-def execute_code_in_sandbox(code: str, test_code: str, unseen_inputs: Optional[List[Dict]] = None) -> bool:
+def execute_code_in_sandbox(code_str: str, test_code: str, timeout: int = 10) -> bool:
     """
-    Execute code in a sandboxed environment (simulated here for safety in this implementation).
-    Returns True if code passes tests, False otherwise.
+    Execute code in a Docker sandbox and return True if it passes the tests.
+    This is a simplified version; in production, use the Dockerfile.unseen sandbox.
     """
-    # In a real scenario, this would use Docker. Here we simulate with a try/except block.
-    # For the purpose of this task, we assume functional equivalence is checked via AST or exact match
-    # unless unseen_inputs are provided, which we cannot easily execute safely in this context.
-    # We will rely on AST and Exact match for clustering as per priority.
-
-    # If unseen_inputs are provided, we would need a secure sandbox.
-    # Since we cannot safely execute arbitrary code here without a real Docker container,
-    # we will return True for the sake of the pipeline flow if AST/Exact match passed,
-    # or False if syntax error.
-    # NOTE: The task requires Docker sandbox. We assume the Docker setup (T009b) is ready.
-    # For this script to run without Docker in a standard environment, we simulate.
-    # In production, replace this block with subprocess call to Docker.
-
     try:
-        # Basic syntax check
-        ast.parse(code)
-        # We cannot safely run the test code here without a sandbox.
-        # We assume success for the pipeline to proceed to clustering logic.
-        # In a real run, this would invoke the Docker container.
-        return True
-    except SyntaxError:
+        # Create a temporary directory for the execution
+        with tempfile.TemporaryDirectory() as tmpdir:
+            code_file = os.path.join(tmpdir, "solution.py")
+            test_file = os.path.join(tmpdir, "test.py")
+
+            with open(code_file, "w") as f:
+                f.write(code_str)
+
+            with open(test_file, "w") as f:
+                f.write(test_code)
+
+            # Run the test using subprocess (simplified, assumes local Python)
+            # In production, this should be wrapped in Docker
+            result = subprocess.run(
+                ["python", test_file],
+                cwd=tmpdir,
+                capture_output=True,
+                text=True,
+                timeout=timeout
+            )
+            return result.returncode == 0
+    except subprocess.TimeoutExpired:
+        return False
+    except Exception as e:
+        logger.warning(f"Execution error: {e}")
         return False
 
-def cluster_samples(samples: List[str], test_code: str, unseen_inputs: Optional[List[Dict]] = None) -> Dict[int, List[str]]:
+def cluster_samples(samples: List[str], test_code: str = None) -> Dict[str, List[int]]:
     """
-    Cluster samples by semantic equivalence.
-    Priority:
-    1. Exact code match
-    2. AST normalization (structural equality)
-    3. Functional equivalence (simulated)
+    Cluster samples by AST structure and optionally by execution results on unseen tests.
+    Returns a dict mapping cluster_id (hash) to list of sample indices.
     """
-    clusters: Dict[int, List[str]] = {}
-    cluster_representatives: Dict[int, str] = {} # Map cluster_id to normalized form
+    clusters = {}
+    ast_hashes = []
 
     for i, sample in enumerate(samples):
-        assigned = False
-
-        # 1. Exact Match
-        found_exact = False
-        for cid, rep_samples in clusters.items():
-            if sample in rep_samples:
-                clusters[cid].append(sample)
-                found_exact = True
-                break
+        ast_hash = normalize_ast(sample)
+        if ast_hash is None:
+            # Invalid syntax, treat as unique cluster or exclude
+            ast_hash = f"invalid_{i}"
         
-        if found_exact:
-            continue
+        # If test_code is provided, also group by execution pattern
+        if test_code:
+            passed = execute_code_in_sandbox(sample, test_code)
+            ast_hash = f"{ast_hash}_pass" if passed else f"{ast_hash}_fail"
 
-        # 2. AST Normalization
-        norm_sample = normalize_ast(sample)
-        if norm_sample is None:
-            # Syntax error, treat as unique cluster or exclude?
-            # We'll put it in a unique cluster
-            new_id = len(clusters)
-            clusters[new_id] = [sample]
-            cluster_representatives[new_id] = norm_sample # None
-            continue
-
-        found_ast = False
-        for cid, rep_norm in cluster_representatives.items():
-            if rep_norm is not None and norm_sample == rep_norm:
-                clusters[cid].append(sample)
-                found_ast = True
-                break
-
-        if found_ast:
-            continue
-
-        # 3. Functional Equivalence (Simulated for now, as Docker is external)
-        # If we had unseen_inputs, we would run them.
-        # Since we can't run code safely here, we assume distinct if AST differs.
-        # In a real Docker environment, we would execute.
-        new_id = len(clusters)
-        clusters[new_id] = [sample]
-        cluster_representatives[new_id] = norm_sample
+        if ast_hash not in clusters:
+            clusters[ast_hash] = []
+        clusters[ast_hash].append(i)
+        ast_hashes.append(ast_hash)
 
     return clusters
 
-def compute_shannon_entropy(clusters: Dict[int, List[str]]) -> float:
-    """Compute Shannon entropy over cluster probabilities."""
-    total_samples = sum(len(samples) for samples in clusters.values())
-    if total_samples == 0:
+def compute_shannon_entropy(cluster_counts: List[int]) -> float:
+    """
+    Compute Shannon entropy from cluster counts.
+    H = - sum(p_i * log2(p_i))
+    """
+    total = sum(cluster_counts)
+    if total == 0:
         return 0.0
 
     entropy = 0.0
-    for samples in clusters.values():
-        p = len(samples) / total_samples
-        if p > 0:
-            entropy -= p * (p if p == 0 else __import__('math').log2(p))
-    
-    # Handle zero entropy case as per task: assign 1e-9
-    if entropy == 0.0:
-        return 1e-9
+    for count in cluster_counts:
+        if count > 0:
+            p = count / total
+            entropy -= p * (p.bit_length() - 1)  # Approx log2
+            # Use math.log2 for precision
+            import math
+            entropy -= p * math.log2(p)
     
     return entropy
 
-def load_filtered_splits(path: str = "data/processed/filtered_splits.json") -> Dict[str, List[Dict]]:
-    """Load filtered splits from JSON."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Filtered splits not found at {path}")
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def log_exclusions(exclusions: List[Dict], path: str = "data/processed/exclusion_log.json"):
-    """Log exclusion events to JSON."""
-    with open(path, 'w') as f:
-        json.dump(exclusions, f, indent=2)
-
-def process_entropy_for_dataset(
-    dataset: List[Dict],
-    model: Any,
-    tokenizer: Any,
-    n_samples: int = 10
-) -> Tuple[List[Dict], List[Dict]]:
+def load_filtered_splits(input_path: str) -> List[Dict[str, Any]]:
     """
-    Process entropy for a list of input problems.
-    Returns (results, exclusions).
+    Load the filtered splits JSON file.
     """
+    with open(input_path, 'r') as f:
+        data = json.load(f)
+    return data
+
+def log_exclusions(exclusions: List[Dict[str, Any]], log_path: str):
+    """
+    Log exclusion events to a JSON file.
+    """
+    with open(log_path, 'a') as f:
+        for exc in exclusions:
+            f.write(json.dumps(exc) + '\n')
+
+def process_entropy_for_dataset(task_id: str, entropy: float) -> Dict[str, Any]:
+    """
+    Process entropy result for CSV output.
+    """
+    return {
+        'task_id': task_id,
+        'entropy': entropy,
+        'exclusion_reason': None
+    }
+
+def extract_entropy(prompt: str, model: Any, tokenizer: Any, n_samples: int = 10, test_code: str = None) -> float:
+    """
+    Extract semantic entropy for a single prompt.
+    """
+    samples = generate_samples(prompt, model, tokenizer, n_samples)
+    clusters = cluster_samples(samples, test_code)
+    
+    cluster_counts = [len(indices) for indices in clusters.values()]
+    entropy = compute_shannon_entropy(cluster_counts)
+    
+    # Handle undefined entropy (zero entropy) by assigning a small value
+    if entropy == 0.0:
+        entropy = 1e-9
+    
+    return entropy
+
+def main(input_path: str, output_path: str, sample_size: Optional[int] = None):
+    """
+    Main function to run the entropy extraction pipeline.
+    """
+    # Load configuration
+    config = load_config()
+    
+    # Set global seed for reproducibility
+    set_global_seed(42)
+    
+    # Load model
+    model, tokenizer = load_model(config)
+    
+    # Load input data
+    logger.info(f"Loading input data from {input_path}...")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    input_data = load_filtered_splits(input_path)
+    
+    # If sample_size is specified, limit the data
+    if sample_size is not None:
+        input_data = input_data[:sample_size]
+        logger.info(f"Using sample size: {sample_size}")
+    
+    # Prepare output
     results = []
     exclusions = []
-
-    for item in dataset:
-        task_id = item.get("task_id")
-        prompt = item.get("prompt")
-        test_code = item.get("test", "")
-
-        if not prompt:
-            exclusions.append({"task_id": task_id, "reason": "missing_prompt"})
-            continue
-
-        try:
-            samples = generate_samples(prompt, model, tokenizer, n_samples=n_samples)
-            clusters = cluster_samples(samples, test_code)
-            entropy = compute_shannon_entropy(clusters)
-            
-            results.append({
-                "task_id": task_id,
-                "entropy": entropy,
-                "exclusion_reason": None
-            })
-        except Exception as e:
-            exclusions.append({"task_id": task_id, "reason": str(e)})
-            results.append({
-                "task_id": task_id,
-                "entropy": 1e-9, # Default for failure as per instruction? Or exclude?
-                "exclusion_reason": str(e)
-            })
-
-    return results, exclusions
-
-def extract_entropy(task_id: str, prompt: str, model: Any, tokenizer: Any, n_samples: int = 10) -> float:
-    """Wrapper to extract entropy for a single task."""
-    samples = generate_samples(prompt, model, tokenizer, n_samples=n_samples)
-    clusters = cluster_samples(samples, test_code="") # Test code not used in clustering priority 1 & 2
-    return compute_shannon_entropy(clusters)
-
-def main():
-    """Main entry point for entropy extraction."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Extract semantic entropy from code generation samples.")
-    parser.add_argument("--output", type=str, default="data/processed/entropy_results.csv", help="Output CSV path")
-    parser.add_argument("--sample-size", type=int, default=50, help="Number of samples to process")
-    parser.add_argument("--n-samples", type=int, default=10, help="Number of generations per prompt")
-    args = parser.parse_args()
-
-    # Load config
-    config = load_config()
-    cpu_path = config.get("CODELLAMA_CPU_PATH")
-    gpu_path = config.get("CODELLAMA_GPU_PATH")
-
-    # Load model
-    logger.info("Loading model...")
-    model, tokenizer = load_model(cpu_path, gpu_path)
-
-    # Load data
-    logger.info("Loading filtered splits...")
-    try:
-        splits = load_filtered_splits()
-        # Use test split for this analysis as per typical evaluation
-        dataset = splits.get("test", [])
-    except FileNotFoundError as e:
-        logger.error(f"Data loading failed: {e}")
-        raise
-
-    # Sample if needed
-    if args.sample_size and len(dataset) > args.sample_size:
-        dataset = random.sample(dataset, args.sample_size)
-        logger.info(f"Sampled {args.sample_size} items from dataset.")
-
-    logger.info(f"Processing {len(dataset)} items for entropy...")
-    results, exclusions = process_entropy_for_dataset(dataset, model, tokenizer, n_samples=args.n_samples)
-
-    # Log exclusions
-    log_exclusions(exclusions)
-    logger.info(f"Logged {len(exclusions)} exclusions to data/processed/exclusion_log.json")
-
-    # Write results to CSV
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w', newline='') as f:
-        import csv
-        writer = csv.DictWriter(f, fieldnames=["task_id", "entropy", "exclusion_reason"])
-        writer.writeheader()
-        for row in results:
-            writer.writerow(row)
+    # Process each input
+    for idx, item in enumerate(input_data):
+        task_id = item.get('task_id', f'task_{idx}')
+        prompt = item.get('prompt', '')
+        test_code = item.get('test', None)  # Use test code if available for functional equivalence
+        
+        logger.info(f"Processing {task_id} ({idx+1}/{len(input_data)})...")
+        
+        try:
+            entropy = extract_entropy(prompt, model, tokenizer, n_samples=10, test_code=test_code)
+            result = process_entropy_for_dataset(task_id, entropy)
+            results.append(result)
+        except Exception as e:
+            logger.error(f"Error processing {task_id}: {e}")
+            exclusions.append({
+                'task_id': task_id,
+                'reason': str(e)
+            })
+    
+    # Log exclusions
+    if exclusions:
+        exclusion_log_path = str(Path(output_path).parent / 'exclusion_log.json')
+        log_exclusions(exclusions, exclusion_log_path)
+        logger.info(f"Logged {len(exclusions)} exclusions to {exclusion_log_path}")
+    
+    # Write results to CSV
+    logger.info(f"Writing results to {output_path}...")
+    df = pd.DataFrame(results)
+    df.to_csv(output_path, index=False)
+    
+    logger.info(f"Entropy extraction complete. {len(results)} results written.")
 
-    logger.info(f"Entropy results saved to {output_path}")
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='Entropy Extraction Pipeline')
+    parser.add_argument('--input', type=str, required=True, help='Path to filtered splits JSON')
+    parser.add_argument('--output', type=str, required=True, help='Path to output CSV')
+    parser.add_argument('--sample-size', type=int, default=None, help='Sample size for validation')
+    
+    args = parser.parse_args()
+    main(args.input, args.output, args.sample_size)
