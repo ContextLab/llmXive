@@ -31,7 +31,7 @@
   verification_status: unreachable
   verified_against_url: https://oeis.org/A008299
   verified_at: '2026-06-24T21:21:17.157543Z'
-- artifact_hash: 116571ab42199afd9c0b4a427ecbc48ac7fd92dab937ee458b1e5f614a4c3572
+- artifact_hash: 425495959a0b2a13c4741a8fbf959261622ce1c8d7ec44163ac920b184b69742
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: 10.1038/sdata.2014.22
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-08-10T04:18:55.365985Z'
-- artifact_hash: 7ada1631867e4c505208403ab32080ab35c190c252cbd2377d7fc002094a2a38
+  verified_at: '2026-08-15T21:37:57.988122Z'
+- artifact_hash: 77344a494dc76684480db7191e5c1598573cb30baffa2d65a80a375c428da07e
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: 10.1038/sdata.2014.22
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-08-10T04:22:03.007617Z'
+  verified_at: '2026-08-15T21:41:25.162761Z'

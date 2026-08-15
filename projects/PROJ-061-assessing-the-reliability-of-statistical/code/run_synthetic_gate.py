@@ -1,12 +1,14 @@
 """
-T031b: Execute the Synthetic Ground Truth test (T031a) and act as a blocking gate.
+Synthetic Ground Truth Execution Gate (T031b)
 
-This script runs the synthetic data generation and power recovery test defined in T031a.
-It verifies that the empirical power recovery rate is within 5% of the true theoretical power.
+This script executes the Synthetic Ground Truth test defined in T031a (power_empirical.py).
+It acts as a blocking gate: if the recovery rate is not within 5% of the true power,
+the script exits with a failure code, preventing any real-data processing (Phase 3+) from beginning.
 
-If the check fails, it exits with a non-zero code and prints a failure message.
-If it passes, it writes the results to data/results/synthetic_gate_results.json
-and exits successfully.
+Output:
+  - Prints the recovery rate and pass/fail status to stdout.
+  - Writes the full result to `data/results/synthetic_gate_result.json`.
+  - Exits with code 0 on pass, 1 on fail.
 """
 import json
 import sys
@@ -16,85 +18,71 @@ from pathlib import Path
 import numpy as np
 from scipy import stats
 
-# Project imports
-from config import RANDOM_SEED, DATASET_LIST
-from utils import setup_logging, save_json
-from power_empirical import run_synthetic_power_test
+# Import the specific function from the implemented module
+from power_empirical import run_synthetic_ground_truth_test
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def main():
-    logger = setup_logging()
-    logger.info("Starting Synthetic Ground Truth Test (T031b)...")
+    logger.info("Starting Synthetic Ground Truth Gate (T031b)...")
     
-    # Configuration for the test
-    # We use a standard effect size (Cohen's d = 0.5) and sample size
-    # to ensure we have a known theoretical power to compare against.
-    effect_size = 0.5
-    n_per_group = 64  # Standard sample size for d=0.5 to get ~80% power
-    alpha = 0.05
-    n_bootstrap_samples = 1000
-    n_simulations = 500  # Number of synthetic datasets to generate for the test
-    
-    logger.info(f"Parameters: d={effect_size}, n={n_per_group}, alpha={alpha}")
-    logger.info(f"Running {n_simulations} simulations with {n_bootstrap_samples} bootstrap samples...")
-    
-    # Run the synthetic test
-    # This function generates data with known parameters and checks recovery
-    result = run_synthetic_power_test(
-        effect_size=effect_size,
-        n_per_group=n_per_group,
-        alpha=alpha,
-        n_bootstrap_samples=n_bootstrap_samples,
-        n_simulations=n_simulations,
-        random_seed=RANDOM_SEED
-    )
-    
-    theoretical_power = result['theoretical_power']
-    empirical_power = result['empirical_power']
-    recovery_rate = result['recovery_rate']
-    tolerance = 0.05  # 5% tolerance
-    
-    logger.info(f"Theoretical Power: {theoretical_power:.4f}")
-    logger.info(f"Empirical Power (Recovery Rate): {empirical_power:.4f}")
-    logger.info(f"Difference: {abs(theoretical_power - empirical_power):.4f}")
-    
-    # Validation Logic
-    passed = abs(theoretical_power - empirical_power) <= tolerance
-    
-    output_dir = Path("data/results")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_file = output_dir / "synthetic_gate_results.json"
-    
-    report = {
-        "task_id": "T031b",
-        "status": "passed" if passed else "failed",
-        "parameters": {
-            "effect_size": effect_size,
-            "n_per_group": n_per_group,
-            "alpha": alpha,
-            "n_bootstrap_samples": n_bootstrap_samples,
-            "n_simulations": n_simulations
-        },
-        "results": {
-            "theoretical_power": float(theoretical_power),
-            "empirical_power": float(empirical_power),
-            "recovery_rate": float(recovery_rate),
-            "absolute_error": float(abs(theoretical_power - empirical_power)),
-            "tolerance": tolerance
-        },
-        "gate_result": passed,
-        "message": "Synthetic Ground Truth validation PASSED. Real data processing can proceed." if passed else "Synthetic Ground Truth validation FAILED. Real data processing is BLOCKED."
-    }
-    
-    save_json(report, output_file)
-    logger.info(f"Results written to {output_file}")
-    
-    if not passed:
-        logger.error("GATE FAILED: Recovery rate is not within 5% of theoretical power.")
-        logger.error("No real-data processing (Phase 3+) can begin.")
+    # Ensure output directory exists
+    results_dir = Path("data/results")
+    results_dir.mkdir(parents=True, exist_ok=True)
+    output_path = results_dir / "synthetic_gate_result.json"
+
+    try:
+        # Execute the test logic defined in T031a
+        # This function generates synthetic data with known parameters,
+        # runs bootstrap, and compares recovered power to true power.
+        result = run_synthetic_ground_truth_test()
+        
+        recovery_rate = result.get("recovery_rate", 0.0)
+        true_power = result.get("true_power", 0.0)
+        empirical_power = result.get("empirical_power", 0.0)
+        absolute_error = result.get("absolute_error", 0.0)
+        passed = result.get("passed", False)
+        message = result.get("message", "")
+
+        # Log results
+        logger.info(f"True Power: {true_power:.4f}")
+        logger.info(f"Empirical Power: {empirical_power:.4f}")
+        logger.info(f"Absolute Error: {absolute_error:.4f}")
+        logger.info(f"Recovery Rate (within 5%): {recovery_rate:.4f}")
+        
+        if passed:
+            logger.info("✅ GATE PASSED: Recovery rate is within 5%. Proceeding to real-data processing.")
+        else:
+            logger.error("❌ GATE FAILED: Recovery rate is NOT within 5%. Blocking real-data processing.")
+
+        # Write results to disk
+        gate_result = {
+            "task_id": "T031b",
+            "status": "passed" if passed else "failed",
+            "true_power": true_power,
+            "empirical_power": empirical_power,
+            "absolute_error": absolute_error,
+            "recovery_rate": recovery_rate,
+            "message": message,
+            "timestamp": None  # Can be populated if needed
+        }
+        
+        with open(output_path, "w") as f:
+            json.dump(gate_result, f, indent=2)
+        
+        logger.info(f"Results written to {output_path}")
+
+        # Exit with appropriate code for CI/CD gating
+        sys.exit(0 if passed else 1)
+
+    except Exception as e:
+        logger.error(f"Gate execution failed with exception: {e}")
         sys.exit(1)
-    
-    logger.info("GATE PASSED: Validation successful. Proceeding to real data processing.")
-    sys.exit(0)
 
 if __name__ == "__main__":
     main()

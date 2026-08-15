@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -56,16 +56,16 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can begin.
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T002 [P] Create `requirements.txt` at repository root containing: `pandas>=2.0`, `numpy>=1.24`, `scipy>=1.10`, `statsmodels>=0.14`, `scikit-learn>=1.2`, `pyyaml>=6.0`, `datasets>=2.14`, `pytest>=7.4`, `linearmodels>=4.3`, `ruff>=0.1.0`, `black>=23.0`
+- [X] T002 [P] Create `requirements.txt` at repository root containing: `pandas>=2.0`, `numpy>=1.24`, `scipy>=1.10`, `statsmodels>=0.14`, `scikit-learn>=1.2`, `pyyaml>=6.0`, `datasets>=2.14`, `pytest>=7.4`, `linearmodels>=4.3`, `ruff>=0.1.0`, `black>=23.0`
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Setup data directory structure (`data/raw`, `data/processed`, `artifacts`) and `.gitignore` for large files
-- [ ] T005 [P] Implement utility module for checksumming (MD5) and validation in `src/utils/validation.py`
-- [ ] T006 [P] Setup environment configuration management (loading dataset lists, random seeds) in `src/utils/config.py`
-- [ ] T007 [P] Create base data models (Pydantic/TypedDict) for `DatasetProfile`, `StabilityResult`, `InteractionModel` in `src/models/data_models.py`
-- [ ] T007a [P] **Define Sample Size Tiers**: Hardcode the 5 sample size tier percentages as `[10, 25, 50, 75, 90]` into `src/utils/config.py` as `SAMPLE_SIZE_TIERS` list. These values are fixed for this implementation cycle to satisfy FR-003.
-- [ ] T008 [P] Configure error handling and logging infrastructure (structured logs to `artifacts/run.log`) in `src/utils/logger.py`
-- [ ] T009 [P] Implement checkpoint mechanism (save/load JSON state) in `src/utils/checkpoint.py` defining the **schema** for checkpoint state that T024 and T037 will consume to prevent schema drift.
-- [ ] T017 [P] **Define Sample Size Tiers and Research Rationale**: Generate `research.md` in `specs/001-sensitivity-regression-coefficients/` explicitly documenting the rationale for the fixed sample size tier percentages `[10, 25, 50, 75, 90]`. Replace any `[deferred]` placeholders in the spec with these concrete values. This task must complete before US2 tasks (T023+) begin.
+- [~] T004 [P] Setup data directory structure (`data/raw`, `data/processed`, `artifacts`) and `.gitignore` for large files
+- [X] T005 [P] Implement utility module for checksumming (MD5) and validation in `src/utils/validation.py`
+- [X] T006 [P] Setup environment configuration management (loading dataset lists, random seeds) in `src/utils/config.py`
+- [X] T007 [P] Create base data models (Pydantic/TypedDict) for `DatasetProfile`, `StabilityResult`, `InteractionModel` in `src/models/data_models.py`
+- [X] T007a [P] **Define Sample Size Tiers**: Hardcode the 5 sample size tier percentages as `[10, 25, 50, 75, 90]` into `src/utils/config.py` as `SAMPLE_SIZE_TIERS` list. These values are fixed for this implementation cycle to satisfy FR-003.
+- [X] T008 [P] Configure error handling and logging infrastructure (structured logs to `artifacts/run.log`) in `src/utils/logger.py`
+- [X] T009 [P] Implement checkpoint mechanism (save/load JSON state) in `src/utils/checkpoint.py` defining the **schema** for checkpoint state that T024 and T037 will consume to prevent schema drift.
+- [~] T017 [P] **Define Sample Size Tiers and Research Rationale**: Generate `research.md` in `specs/001-sensitivity-regression-coefficients/` explicitly documenting the rationale for the fixed sample size tier percentages `[10, 25, 50, 75, 90]`. Replace any `[deferred]` placeholders in the spec with these concrete values. This task must complete before US2 tasks (T023+) begin.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,14 +81,14 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for `DatasetProfile` schema validation in `tests/unit/test_profiler.py` implementing function `test_dataset_profile_rejects_null_bp_stat` with assertion that null BP stats raise ValidationError.
-- [ ] T011 [P] [US1] Integration test for dataset download and checksum verification in `tests/integration/test_downloader.py` using the 'Auto' dataset from UCI with a specific hardcoded checksum value.
+- [X] T010 [P] [US1] Unit test for `DatasetProfile` schema validation in `tests/unit/test_profiler.py` implementing function `test_dataset_profile_rejects_null_bp_stat` with assertion that null BP stats raise ValidationError.
+- [X] T011 [P] [US1] Integration test for dataset download and checksum verification in `tests/integration/test_downloader.py` using the 'Auto' dataset from UCI with a specific hardcoded checksum value.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `downloader.py` in `src/ingestion/` to fetch datasets from verified HuggingFace/UCI URLs using `datasets.load_dataset(..., streaming=True)`
-- [ ] T013 [US1] Implement strict data loader in `src/ingestion/downloader.py` that raises on failure. **Clarification**: "NO synthetic fallback" means no generation of fake data. **Rule**: If dataset > 100k rows, subsample to 100k rows; do not generate synthetic data. Raise error only if download fails or data is invalid.
-- [ ] T014 [US1] Implement `profiler.py` in `src/ingestion/` to compute Condition Number, Breusch-Pagan statistic, and Cook's Distance on the full dataset (or streamed sample if >7GB)
+- [~] T012 [P] [US1] Implement `downloader.py` in `src/ingestion/` to fetch datasets from verified HuggingFace/UCI URLs using `datasets.load_dataset(..., streaming=True)`
+- [X] T013 [US1] Implement strict data loader in `src/ingestion/downloader.py` that raises on failure. **Clarification**: "NO synthetic fallback" means no generation of fake data. **Rule**: If dataset > 100k rows, subsample to 100k rows; do not generate synthetic data. Raise error only if download fails or data is invalid.
+- [~] T014 [US1] Implement `profiler.py` in `src/ingestion/` to compute Condition Number, Breusch-Pagan statistic, and Cook's Distance on the full dataset (or streamed sample if >7GB)
 - [ ] T015 [US1] Implement logic in `src/ingestion/profiler.py` to classify violation severity (Low/Medium/High) based on computed statistics and handle multicollinearity (condition number > 30)
 - [ ] T016 [US1] Implement subsampling logic in `src/ingestion/profiler.py` for datasets > 100k rows to ensure CPU feasibility. **Reference**: Compare subsampled BP stat against the BP stat computed on the largest available sample (full dataset or streamed sample if >7GB) to verify stability (<5% deviation).
 - [ ] T019 [US1] **Implement Streaming Aggregation Strategy** in `src/ingestion/profiler.py` to compute full-dataset violation metrics (BP, Cook's) via streaming aggregation for datasets > 7GB, ensuring FR-002 compliance.
@@ -167,8 +167,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -234,9 +234,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (including T017)
-   - Developer B: User Story 2 (waiting for T017)
-   - Developer C: User Story 3 (waiting for US2)
+ - Developer A: User Story 1 (including T017)
+ - Developer B: User Story 2 (waiting for T017)
+ - Developer C: User Story 3 (waiting for US2)
 3. Stories complete and integrate independently
 
 ---

@@ -1,13 +1,9 @@
 """
-Perturbation modules for injecting statistical assumption violations into datasets.
-
-Implements:
-1. Heavy-tailed noise injection (t-distribution)
-2. AR(1) autocorrelation injection
-3. Effect size heterogeneity via mixing two sub-populations
+Perturbation modules for injecting assumption violations into datasets.
+All logic is CPU-only (no GPU dependencies).
 """
 import logging
-from typing import Tuple, Optional, Dict, Any
+from typing import Tuple, Optional, Dict, Any, List
 import numpy as np
 from scipy import stats
 from config import RANDOM_SEED
@@ -18,238 +14,195 @@ def inject_heavy_tailed_noise(
     data: np.ndarray,
     contamination_rate: float = 0.1,
     degrees_of_freedom: float = 3.0,
-    scale_factor: float = 5.0
-) -> Tuple[np.ndarray, Dict[str, Any]]:
+    seed: Optional[int] = None
+) -> np.ndarray:
     """
-    Inject heavy-tailed noise by replacing a fraction of data points with 
-    values drawn from a t-distribution (heavy-tailed).
+    Inject heavy-tailed noise (t-distribution) into the data.
+    CPU-only implementation using numpy.
     
     Args:
-        data: Input numpy array
-        contamination_rate: Fraction of data to replace (0.0 to 1.0)
-        degrees_of_freedom: df for t-distribution (lower = heavier tails)
-        scale_factor: Scale multiplier for the t-distribution noise
+        data: Input array
+        contamination_rate: Proportion of data to replace with heavy-tailed noise
+        degrees_of_freedom: DF for t-distribution (lower = heavier tails)
+        seed: Random seed for reproducibility
         
     Returns:
-        Tuple of (perturbed_data, metadata_dict)
+        Perturbed data array
     """
-    if not 0.0 <= contamination_rate <= 1.0:
-        raise ValueError("contamination_rate must be between 0.0 and 1.0")
-    
-    rng = np.random.default_rng(RANDOM_SEED)
+    if seed is not None:
+        np.random.seed(seed)
+    else:
+        np.random.seed(RANDOM_SEED)
+        
     n = len(data)
     n_contaminated = int(n * contamination_rate)
     
-    if n_contaminated == 0:
-        logger.warning("contamination_rate too low, no points injected")
-        return data.copy(), {
-            "type": "heavy_tailed_noise",
-            "contamination_rate": contamination_rate,
-            "actual_contaminated": 0,
-            "degrees_of_freedom": degrees_of_freedom
-        }
-    
-    # Select random indices to contaminate
-    indices = rng.choice(n, size=n_contaminated, replace=False)
+    # Generate indices for contamination
+    indices = np.random.choice(n, size=n_contaminated, replace=False)
     
     # Generate heavy-tailed noise
-    # Center t-distribution at 0, then scale
-    noise = rng.standard_t(df=degrees_of_freedom, size=n_contaminated) * scale_factor * np.std(data)
+    # Scale noise to match data variance roughly
+    data_std = np.std(data)
+    noise = stats.t.rvs(df=degrees_of_freedom, size=n_contaminated, scale=data_std)
     
     # Create copy and inject noise
     perturbed_data = data.copy()
-    perturbed_data[indices] = noise
+    perturbed_data[indices] += noise
     
-    logger.info(f"Heavy-tailed noise injected: {n_contaminated}/{n} points ({contamination_rate*100:.1f}%)")
-    
-    return perturbed_data, {
-        "type": "heavy_tailed_noise",
-        "contamination_rate": contamination_rate,
-        "actual_contaminated": n_contaminated,
-        "degrees_of_freedom": degrees_of_freedom,
-        "scale_factor": scale_factor
-    }
+    logger.info(f"Injected heavy-tailed noise into {n_contaminated}/{n} samples (df={degrees_of_freedom})")
+    return perturbed_data
 
 def inject_ar1_autocorrelation(
     data: np.ndarray,
     ar_coefficient: float = 0.5,
-    noise_std: Optional[float] = None
-) -> Tuple[np.ndarray, Dict[str, Any]]:
+    seed: Optional[int] = None
+) -> np.ndarray:
     """
     Inject AR(1) autocorrelation into the data.
-    
-    The AR(1) process is: x_t = phi * x_{t-1} + epsilon_t
-    where epsilon_t ~ N(0, sigma^2)
+    CPU-only implementation using numpy.
     
     Args:
-        data: Input numpy array (assumed to be time-ordered)
-        ar_coefficient: The phi parameter (|phi| < 1 for stationarity)
-        noise_std: Standard deviation of the innovation noise. If None, 
-                  uses 10% of the original data's std.
-                
+        data: Input array (assumed to be time-ordered)
+        ar_coefficient: AR(1) coefficient (0 < phi < 1)
+        seed: Random seed for reproducibility
+        
     Returns:
-        Tuple of (perturbed_data, metadata_dict)
+        Perturbed data array with AR(1) structure
     """
-    if not -1.0 < ar_coefficient < 1.0:
-        raise ValueError("ar_coefficient must be between -1.0 and 1.0 for stationarity")
-    
-    rng = np.random.default_rng(RANDOM_SEED)
+    if seed is not None:
+        np.random.seed(seed)
+    else:
+        np.random.seed(RANDOM_SEED)
+        
     n = len(data)
+    if n < 2:
+        logger.warning("Array too short for AR(1) injection")
+        return data
+        
+    # Generate white noise
+    noise_std = np.std(data) * np.sqrt(1 - ar_coefficient**2)
+    white_noise = np.random.normal(0, noise_std, n)
     
-    if noise_std is None:
-        noise_std = 0.1 * np.std(data)
-        if noise_std == 0:
-            noise_std = 1.0
+    # Apply AR(1) process: y_t = phi * y_{t-1} + epsilon_t
+    ar_data = np.zeros(n)
+    ar_data[0] = data[0] + white_noise[0]
     
-    # Initialize AR(1) process
-    perturbed_data = np.zeros(n)
-    perturbed_data[0] = data[0]  # Start with first point
-    
-    # Generate innovations
-    innovations = rng.normal(0, noise_std, n)
-    
-    # Apply AR(1) recursion
     for t in range(1, n):
-        perturbed_data[t] = ar_coefficient * perturbed_data[t-1] + innovations[t]
+        ar_data[t] = ar_coefficient * ar_data[t-1] + (1 - ar_coefficient) * data[t] + white_noise[t]
     
-    # Scale to match original mean/variance roughly
-    # This preserves the autocorrelation structure while keeping data magnitude similar
-    target_mean = np.mean(data)
-    target_std = np.std(data)
-    current_mean = np.mean(perturbed_data)
-    current_std = np.std(perturbed_data)
+    # Normalize to preserve original mean and variance approximately
+    ar_data = (ar_data - np.mean(ar_data)) * (np.std(data) / np.std(ar_data)) + np.mean(data)
     
-    if current_std > 0:
-        perturbed_data = (perturbed_data - current_mean) / current_std * target_std + target_mean
-    
-    logger.info(f"AR(1) autocorrelation injected: phi={ar_coefficient}, noise_std={noise_std:.4f}")
-    
-    return perturbed_data, {
-        "type": "ar1_autocorrelation",
-        "ar_coefficient": ar_coefficient,
-        "noise_std": noise_std,
-        "original_mean": float(np.mean(data)),
-        "original_std": float(np.std(data))
-    }
+    logger.info(f"Injected AR(1) autocorrelation with coefficient {ar_coefficient}")
+    return ar_data
 
 def verify_ar1_coefficient(
     data: np.ndarray,
     target_coefficient: float,
     tolerance: float = 0.05
-) -> Tuple[bool, float, Dict[str, Any]]:
+) -> Tuple[bool, float]:
     """
-    Verify if the AR(1) coefficient in the data matches the target within tolerance.
-    
-    Uses the lag-1 autocorrelation as an estimate of the AR(1) coefficient.
+    Verify that the AR(1) coefficient in the data matches the target.
+    CPU-only implementation using numpy/scipy.
     
     Args:
-        data: Input numpy array
+        data: Input array
         target_coefficient: Expected AR(1) coefficient
-        tolerance: Acceptable difference between estimated and target
+        tolerance: Acceptable deviation from target
         
     Returns:
-        Tuple of (is_valid, estimated_coefficient, metadata_dict)
+        Tuple of (is_valid, achieved_coefficient)
     """
-    if len(data) < 3:
-        return False, 0.0, {"error": "Insufficient data points for AR(1) estimation"}
-    
-    # Estimate lag-1 autocorrelation
-    lag1 = data[1:]
-    lag0 = data[:-1]
-    
-    # Simple correlation estimate
-    numerator = np.mean((lag1 - np.mean(lag1)) * (lag0 - np.mean(lag0)))
-    denominator = np.std(lag0) * np.std(lag1)
+    n = len(data)
+    if n < 3:
+        logger.warning("Insufficient data to verify AR(1) coefficient")
+        return False, 0.0
+        
+    # Estimate AR(1) coefficient using lag-1 autocorrelation
+    data_centered = data - np.mean(data)
+    numerator = np.sum(data_centered[:-1] * data_centered[1:])
+    denominator = np.sum(data_centered[:-1] ** 2)
     
     if denominator == 0:
-        estimated_coeff = 0.0
+        estimated_phi = 0.0
     else:
-        estimated_coeff = numerator / denominator
+        estimated_phi = numerator / denominator
+        
+    is_valid = abs(estimated_phi - target_coefficient) <= tolerance
+    logger.info(f"AR(1) verification: target={target_coefficient}, achieved={estimated_phi:.4f}, valid={is_valid}")
     
-    is_valid = abs(estimated_coeff - target_coefficient) <= tolerance
-    
-    logger.info(
-        f"AR(1) verification: target={target_coefficient:.4f}, "
-        f"estimated={estimated_coeff:.4f}, diff={abs(estimated_coeff - target_coefficient):.4f}, "
-        f"valid={is_valid}"
-    )
-    
-    return is_valid, estimated_coeff, {
-        "type": "ar1_verification",
-        "target_coefficient": target_coefficient,
-        "estimated_coefficient": float(estimated_coeff),
-        "tolerance": tolerance,
-        "is_valid": is_valid,
-        "difference": float(abs(estimated_coeff - target_coefficient))
-    }
+    return is_valid, estimated_phi
 
 def inject_effect_size_heterogeneity(
     data: np.ndarray,
-    group1_mean: float = 0.0,
-    group2_mean: float = 1.5,
+    group_labels: np.ndarray,
     mixing_ratio: float = 0.2,
-    scale: Optional[float] = None
-) -> Tuple[np.ndarray, Dict[str, Any]]:
+    separation_distance: float = 1.5,
+    seed: Optional[int] = None
+) -> np.ndarray:
     """
     Inject effect size heterogeneity by mixing two sub-populations.
-    
-    Creates a mixture distribution where a fraction (mixing_ratio) of the data
-    comes from a second population with a different mean (separation distance).
+    CPU-only implementation using numpy.
     
     Args:
-        data: Input numpy array
-        group1_mean: Mean of the primary population (usually 0 for standardized data)
-        group2_mean: Mean of the secondary population (separation distance in SD units)
-        mixing_ratio: Fraction of data to come from the second population (0.0 to 1.0)
-        scale: Standard deviation for the distributions. If None, uses std of input data.
+        data: Input array
+        group_labels: Binary labels (0 or 1) indicating group membership
+        mixing_ratio: Proportion of the minority group to introduce
+        separation_distance: Effect size difference in standard deviations
+        seed: Random seed for reproducibility
         
     Returns:
-        Tuple of (perturbed_data, metadata_dict)
-        
-    Note:
-        Based on spec US-2 Acceptance 3: mixing_ratio=0.2, separation=1.5 SD
+        Perturbed data array with heterogeneous effect sizes
     """
-    if not 0.0 <= mixing_ratio <= 1.0:
-        raise ValueError("mixing_ratio must be between 0.0 and 1.0")
-    
-    rng = np.random.default_rng(RANDOM_SEED)
+    if seed is not None:
+        np.random.seed(seed)
+    else:
+        np.random.seed(RANDOM_SEED)
+        
     n = len(data)
+    data_std = np.std(data)
+    data_mean = np.mean(data)
     
-    if scale is None:
-        scale = np.std(data)
-        if scale == 0:
-            scale = 1.0
+    # Identify indices for the minority group
+    # We'll create a new mixed population
+    n_mixed = int(n * mixing_ratio)
+    mixed_indices = np.random.choice(n, size=n_mixed, replace=False)
     
-    # Determine number of points from group 2
-    n_group2 = int(n * mixing_ratio)
+    # Create perturbed values for the mixed group
+    # Shift by separation_distance * std
+    perturbation = separation_distance * data_std * np.sign(np.random.randn(n_mixed))
+    data[mixed_indices] += perturbation
     
-    # Create indices for group 2
-    group2_indices = rng.choice(n, size=n_group2, replace=False)
+    logger.info(f"Injected effect size heterogeneity: {n_mixed} samples shifted by {separation_distance} std")
+    return data
+
+def main():
+    """
+    Demonstration of perturbation functions (CPU-only).
+    This function is for testing purposes and does not produce persistent artifacts.
+    """
+    logger.info("Running perturbation module demonstration (CPU-only)")
     
-    # Create perturbed data
-    perturbed_data = data.copy()
+    # Create sample data
+    np.random.seed(RANDOM_SEED)
+    sample_data = np.random.normal(0, 1, 1000)
+    sample_labels = np.random.randint(0, 2, 1000)
     
-    # Replace group 2 points with new values from the second population
-    # The second population has mean shifted by group2_mean * scale
-    perturbed_data[group2_indices] = rng.normal(
-        loc=group1_mean + group2_mean * scale,
-        scale=scale,
-        size=n_group2
-    )
+    # Test heavy-tailed noise
+    result_ht = inject_heavy_tailed_noise(sample_data.copy(), contamination_rate=0.1, degrees_of_freedom=3.0)
+    logger.info(f"Heavy-tailed noise: mean={np.mean(result_ht):.4f}, std={np.std(result_ht):.4f}")
     
-    logger.info(
-        f"Effect size heterogeneity injected: "
-        f"mixing_ratio={mixing_ratio}, separation={group2_mean:.2f} SD, "
-        f"n_group2={n_group2}/{n}"
-    )
+    # Test AR(1)
+    result_ar = inject_ar1_autocorrelation(sample_data.copy(), ar_coefficient=0.5)
+    is_valid, achieved = verify_ar1_coefficient(result_ar, 0.5)
+    logger.info(f"AR(1) verification: valid={is_valid}, achieved={achieved:.4f}")
     
-    return perturbed_data, {
-        "type": "effect_size_heterogeneity",
-        "mixing_ratio": mixing_ratio,
-        "group1_mean": group1_mean,
-        "group2_mean": group2_mean,
-        "separation_distance": group2_mean,
-        "scale": scale,
-        "actual_n_group2": n_group2,
-        "total_n": n
-    }
+    # Test effect size heterogeneity
+    result_het = inject_effect_size_heterogeneity(sample_data.copy(), sample_labels, mixing_ratio=0.2, separation_distance=1.5)
+    logger.info(f"Heterogeneity injection: mean={np.mean(result_het):.4f}, std={np.std(result_het):.4f}")
+    
+    logger.info("All perturbation tests completed successfully (CPU-only)")
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    main()

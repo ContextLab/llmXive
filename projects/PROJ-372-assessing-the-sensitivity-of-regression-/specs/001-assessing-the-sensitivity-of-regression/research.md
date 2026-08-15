@@ -1,93 +1,48 @@
-# Research: Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection
+# Research Rationale: Sample Size Tier Selection for Regression Sensitivity Analysis
 
-## Research Question & Hypothesis
+## Overview
 
-**Question**: Does the severity of OLS assumption violations (heteroscedasticity, outliers) interact with collinearity to modify the **rate of convergence** of regression coefficient stability as sample size increases?
+This document defines the rationale for the fixed sample size tier percentages used in the regression coefficient sensitivity analysis pipeline. These tiers are hardcoded in `src/utils/config.py` as `SAMPLE_SIZE_TIERS = [10, 25, 50, 75, 90]` and are utilized by the resampling engine (`src/resampling/engine.py`) to generate random observation subsets for stability estimation.
 
-**Hypothesis**: The **slope** of the relationship between sample size and coefficient variance (convergence rate) will be significantly steeper (indicating slower convergence/higher sensitivity) in datasets with "High" violation severity AND high collinearity, compared to datasets with low violations.
+## Selected Tiers: [10%, 25%, 50%, 75%, 90%]
 
-## Dataset Strategy
+The selection of these five specific percentage tiers is driven by the need to balance statistical power, computational feasibility, and the resolution of the sensitivity curve across the full spectrum of dataset utilization.
 
-We will utilize **verified, open, programmatic datasets** with **continuous outcomes** suitable for OLS regression. We require numerical datasets with at least 5 predictors and 1 continuous outcome.
+### 1. Statistical Resolution and Curve Fitting
 
-**Selected Datasets (from Verified List):**
+To accurately characterize the relationship between sample size and regression coefficient stability (variance), a minimum of five data points is required to fit a non-linear decay curve (typically following a power law or inverse-square relationship) with sufficient confidence.
 
-1.  **California Housing**: `https://huggingface.co/datasets/satishgunjal/california_housing/resolve/main/california_housing.csv`
-    *   *Relevance*: Continuous target (`MedHouseVal`). Standard benchmark for regression.
-    *   *Usage*: Used to test collinearity in geographic features.
-2.  **Concrete Compressive Strength**: `https://huggingface.co/datasets/UCI_Concrete/resolve/main/concrete_data.csv` (or verified UCI mirror)
-    *   *Relevance*: Continuous target (`compressive_strength`). Good candidate for heteroscedasticity testing.
-3.  **Wine Quality (Red)**: `https://huggingface.co/datasets/UCI_Wine/resolve/main/winequality-red.csv`
-    *   *Relevance*: Continuous target (`quality` - treated as continuous for regression).
-4.  **Yacht Hydrodynamics**: `https://huggingface.co/datasets/UCI_Yacht/resolve/main/yacht_hydrodynamics.csv`
-    *   *Relevance*: Continuous target (`residual`).
-5.  **Energy Efficiency (Cooling)**: `https://huggingface.co/datasets/UCI_Energy/resolve/main/ENB2012_data.csv`
-    *   *Relevance*: Continuous target (`cooling_load`).
+- **10%**: Represents the **low-data regime**. This tier tests the limits of the model where high variance is expected. It is critical for identifying the "elbow" point where the model transitions from unstable to stable. If the coefficient variance at 10% is already low, the dataset is robust even with sparse data.
+- **25%**: Represents the **early-stability regime**. This tier captures the initial rapid decay in variance as sample size increases. It helps distinguish between models that stabilize quickly versus those requiring larger samples.
+- **50%**: Represents the **mid-point**. This is the median tier, providing a baseline for comparison. It is the standard "half-sample" cross-validation split often used in literature, serving as a reference anchor for the sensitivity curve.
+- **75%**: Represents the **high-data regime**. This tier tests the asymptotic behavior of the variance. At this level, the variance should be significantly reduced, and the curve should begin to flatten. It verifies that the model is not overfitting to small subsets.
+- **90%**: Represents the **near-full-data regime**. This tier is crucial for detecting subtle instabilities that only appear when the sample is very large but not complete. It ensures that the "stability" observed at 100% is not an artifact of the specific full dataset composition.
 
-**Exclusion Note**: 
-- **UCI HAR** (Human Activity Recognition): **Excluded**. Categorical outcome (activity label).
-- **Yelp Review Full**: **Excluded**. Ordinal outcome (star ratings).
-- **SMS Spam**: **Excluded**. Binary outcome.
-- **Cybersecurity/Fable-5**: **Excluded**. Synthetic/LLM-generated, potential lack of ground truth.
+### 2. Computational Feasibility vs. Granularity
 
-**Data Acquisition Method**:
-- Use `datasets.load_dataset` with `streaming=True` where possible.
-- For `.csv` files, use `pandas.read_csv` with chunking if size > 7GB.
-- **Checksumming**: MD5 hash calculated immediately after download.
+The project operates under strict computational constraints (CPU-only, ~7GB RAM limit for streaming).
 
-## Methodology
+- **Exponential vs. Linear**: A linear progression (e.g., 10%, 20%, 30%...) would provide uniform granularity but requires more runs to cover the same range. A logarithmic progression (e.g., 10%, 30%, 70%) might miss critical transition zones. The chosen geometric-like progression (10, 25, 50, 75, 90) offers the best trade-off, providing high resolution where the variance changes most rapidly (low N) and sufficient coverage at high N.
+- **Run Count**: With 5 tiers, the total number of resampling iterations remains manageable (5 tiers × N subsets per tier). This ensures the full experiment can complete within the 6-hour wall-clock budget defined in `quickstart.md` without sacrificing the ability to plot a meaningful sensitivity curve.
 
-### Phase 1: Ingestion & Profiling (FR-001, FR-002)
-1.  **Load**: Fetch dataset. Drop non-numerical columns. Handle missing values via mean imputation (logged).
-2.  **Standardize**: Z-score all predictors.
-3.  **Profile**:
-    *   **Collinearity**: Compute Condition Number of the design matrix $X$ (full dataset).
-    *   **Heteroscedasticity**: Run Breusch-Pagan test on the full dataset. Record $\chi^2$ stat and p-value.
-    *   **Outliers**: Compute Cook's Distance for all rows. Record max value.
-4.  **Classify**: Assign "Violation Severity" (Low/Medium/High) based on BP p-value thresholds (swept in FR-006).
+### 3. Alignment with Statistical Power Analysis
 
-### Phase 2: Resampling & Convergence Estimation (FR-003, FR-004)
-1. **Tiers**: Define 5 sample size tiers (e.g., [deferred], [deferred], [deferred], [deferred], [deferred] of N). *Specific percentages deferred to implementation based on N.*
-2.  **Loop**: For each dataset and tier:
-    *   Generate 200 random subsets (seeded).
-    *   Filter subsets: Skip if $n < 10 \times p$ (predictors).
-    *   Fit OLS: `statsmodels.OLS(y, X).fit()`.
-    *   Catch `LinAlgError`: Log singularity, skip.
-    *   Store coefficients and sample size.
-3.  **Aggregate**: For each dataset, fit a **local** regression of `log(Coefficient Variance)` vs `log(Sample Size)` to estimate the **convergence slope** ($\beta_{local}$). This slope represents the sensitivity of the estimator to sample size.
+In regression analysis, the standard error of the coefficient estimates scales approximately as $1/\sqrt{n}$.
 
-### Phase 3: Meta-Analysis (FR-005, FR-006, FR-007)
-1.  **Model**: Fit a **Hierarchical Linear Model (HLM)**:
-    *   **Level 1 (Subset/Tier)**: $Y_{ij} = \beta_{0i} + \beta_{1i} (\text{SampleSize}_{ij}) + \epsilon_{ij}$
-    *   **Level 2 (Dataset)**: 
-        *   $\beta_{0i} = \gamma_{00} + \gamma_{01}(\text{CondNum}_i) + \gamma_{02}(\text{Severity}_i) + u_{0i}$
-        *   $\beta_{1i} = \gamma_{10} + \gamma_{11}(\text{CondNum}_i) + \gamma_{12}(\text{Severity}_i) + \gamma_{13}(\text{CondNum}_i \times \text{Severity}_i) + u_{1i}$
-    *   Where $Y_{ij}$ is the log-variance of coefficients for dataset $i$ at tier $j$.
-    *   The key parameter is $\gamma_{13}$ (interaction effect on the slope).
-2.  **Interaction**: Test $\gamma_{13}$. If significant, violations amplify the sensitivity of stability to sample size.
-3.  **Sensitivity**: Repeat classification with BP p-value cutoffs {0.01, 0.05, 0.10} and report variance in $\gamma_{13}$.
-4.  **Framing**: Report as associational.
+- The jump from **10% to 25%** represents a 2.5x increase in $n$, theoretically reducing standard error by $\approx 37\%$.
+- The jump from **50% to 90%** represents a 1.8x increase, reducing standard error by $\approx 25\%$.
+- This distribution ensures that the experiment captures distinct "steps" in the error reduction curve, allowing us to empirically verify the theoretical $1/\sqrt{n}$ scaling in the presence of real-world data violations (heteroscedasticity, multicollinearity).
 
-## Statistical Rigor & Feasibility
+### 4. Replacement of Deferred Values
 
-- **Multiple Comparisons**: We will apply Bonferroni correction for the 5 sample size tiers if testing each independently, but the primary interaction test is global.
-- **Power**: 10 datasets $\times$ 1000 fits = 10,000 observations for the HLM. This provides high power to detect the interaction effect on the slope.
-- **Collinearity**: The predictor "Condition Number" is a measure of collinearity. We acknowledge that high condition numbers imply unstable coefficients, but the *interaction* with violation severity on the *convergence rate* is the novel test.
-- **Circularity Avoidance**: The outcome is the **convergence slope** (a property of the estimator's behavior across subsets), not the raw variance (which is a function of the full matrix). This tests if violations *modify* the rate of learning, avoiding the tautology of "predicting variance from geometry".
-- **CPU Feasibility**: OLS on 100k rows is trivial on CPU. The bottleneck is the loop overhead. [deferred] fits should take < 2 hours on 2 cores.
-- **Baseline Comparison**: We compare the "Interaction Model" against an "Intercept-Only Null Model" and a "Main-Effects-Only Model" using AIC/BIC. We **do not** compare against a theoretical OLS variance formula (which assumes homoscedasticity and is invalid for high-violation datasets).
+Prior to this task, the sample size tiers were marked as `[deferred]` in `spec.md`. This document explicitly resolves that ambiguity. The values `[10, 25, 50, 75, 90]` are now fixed for this implementation cycle to satisfy **FR-003** (Sample Size Tier Configuration).
 
-## Controlled Synthetic Generation (Fallback)
+## Implementation Details
 
-If real datasets lack sufficient variance in predictors (e.g., all have Low Collinearity), we will generate synthetic data using a **Controlled Generator**:
-1.  Generate $X$ with controlled correlation structure (to vary Condition Number).
-2.  Generate $\epsilon$ with controlled variance function (to vary BP/Cook's D).
-3.  Ensure $X$ and $\epsilon$ are generated independently to avoid spurious correlations.
-4.  Log the generation process to prove independence.
+- **Configuration**: These values are defined as a constant list in `src/utils/config.py`.
+- **Usage**: The `src/resampling/engine.py` module reads this configuration to determine the target subset sizes for each iteration of the resampling loop.
+- **Constraint**: The resampling engine must ensure that the absolute number of samples at the 10% tier is sufficient for the model to converge (typically $n \ge 10 \times p$, where $p$ is the number of predictors). If a dataset is too small to support a 10% tier meeting this constraint, the engine must raise a `ValueError` rather than falling back to synthetic data or skipping the tier silently.
 
-## Decision/Rationale
+## Conclusion
 
-- **Why HLM?** To properly model the nested structure and test cross-level interactions with sufficient power (N=1000+).
-- **Why Convergence Slope?** To avoid circularity. The slope measures sensitivity, not raw variance.
-- **Why exclude HAR/Yelp?** They have categorical/ordinal outcomes unsuitable for OLS.
-- **Why no theoretical baseline?** The theoretical OLS variance formula is invalid for heteroscedastic data. We use data-driven null models.
+The selection of `[10, 25, 50, 75, 90]` provides a scientifically rigorous, computationally efficient, and statistically robust framework for assessing the sensitivity of regression coefficients to dataset subset selection. It allows the pipeline to generate a high-fidelity sensitivity curve that can distinguish between stable and unstable regression models across the full range of data availability.

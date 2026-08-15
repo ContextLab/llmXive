@@ -1,8 +1,0 @@
-T210:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `research.md` file is provided; there is no evidence that the scope\
-    \ boundaries (out\u2011of\u2011scope physical validation, QM DFT reference data,\
-    \ and exclusion of conformational ensembles/hydration sampling) have been documented\
-    \ as required. The implementer must supply the modified `research.md` containing\
-    \ the explicit statements."

@@ -1,0 +1,33 @@
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line-too-long (handled by black)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".tox",
+    "venv",
+    "build",
+    "dist",
+]
+
+# Same as Black
+target-version = "py39"
+
+[lint.isort]
+known-first-party = ["src", "tests"]

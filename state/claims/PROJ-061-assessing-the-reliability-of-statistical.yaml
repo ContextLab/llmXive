@@ -569,23 +569,6 @@
   updated_at: '2026-07-14T11:33:08Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 2
-  canonical: Theoretical power calculation uses Cohen's d of 0.5
-  claim_id: c_1597ac82
-  context: 'T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation
-    for two-sample t-test (Cohen''s d = 0.5) using `statsmodels`'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
-    using statsmodels
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:33:08Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 2
   canonical: Effect size heterogeneity mixing ratio 0.2, separation 1.5 standard deviations
   claim_id: c_f0201afb
   context: 'T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
@@ -790,22 +773,6 @@
   updated_at: '2026-07-14T11:45:24Z'
 - artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
   attempts: 1
-  canonical: Bootstrap iterations reduced to 500 if runtime exceeds 6 hours
-  claim_id: c_dc0f3ee7
-  context: T032 [Validation] ... 2. If still > 6h, **reduce** bootstrap iterations
-    to 500.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: If still > 6h, reduce bootstrap iterations to 500.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T11:45:24Z'
-- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
-  attempts: 1
   canonical: Full pipeline runs on 10 diverse datasets
   claim_id: c_b3e55b7c
   context: T034 [Validation] **Run full pipeline** on 10 diverse datasets (from T004a
@@ -987,3 +954,234 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T11:53:11Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: 'Select 10 diverse public datasets from UCI/OpenML: 3 continuous, 3 count,
+    4 binary with N >= 30'
+  claim_id: c_210103dd
+  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
+    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
+    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:30:16Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap recovery rate must match true power within 5%
+  claim_id: c_9060d0f2
+  context: 'T031a Implement `code/power_empirical.py` synthetic test mode logic: Generate
+    data with known parameters, run bootstrap, verify recovery rate matches true power
+    within 5% (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify recovery rate matches true power within 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:30:16Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Effect size heterogeneity mixing ratio 0.2 and separation distance 1.5
+    standard deviations
+  claim_id: c_a4c8617c
+  context: 'T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
+    ... 3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing
+    ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2
+    Acceptance 3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mixing ratio of 0.2 and separation distance of 1.5 standard deviations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:30:37Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime constraint is 6 hours
+  claim_id: c_690695e0
+  context: 'T032 [Validation] **Profile and Enforce Runtime**: Profile execution time
+    for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement**'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated total runtime > 6 hours, implement hard enforcement
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:30:37Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 2
+  canonical: Bootstrap iterations reduced to 500 if runtime exceeds 6 hours
+  claim_id: c_dc0f3ee7
+  context: T032 [Validation] ... 2. If still > 6h, **reduce** bootstrap iterations
+    to 500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If still > 6h, reduce bootstrap iterations to 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:30:37Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Select 10 UCI datasets with specific distribution types and minimum sample
+    size
+  claim_id: c_1fa9bf15
+  context: 'T004a [P] **Select and list 10 diverse public datasets** (continuous,
+    count, binary) from UCI/OpenML satisfying FR-001 and Constitution Principle VII;
+    **Algorithm**: Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Select the first 10 datasets from the UCI Machine Learning Repository
+    that match criteria: 3 continuous, 3 count, 4 binary; each must have N >= 30.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:33:58Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Bootstrap recovery rate must match true power within 5 percent
+  claim_id: c_aa79dde1
+  context: 'T031a Implement `code/power_empirical.py` synthetic test mode logic: Generate
+    data with known parameters, run bootstrap, verify recovery rate matches true power
+    within 5% (FR-008).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data with known parameters, run bootstrap, verify recovery rate
+    matches true power within 5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:33:58Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 3
+  canonical: Theoretical power calculation uses Cohen's d of 0.5
+  claim_id: c_1597ac82
+  context: 'T012 [P] [US1] Implement `code/power_theory.py`: Theoretical power calculation
+    for two-sample t-test (Cohen''s d = 0.5) using `statsmodels`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical power calculation for two-sample t-test (Cohen's d = 0.5)
+    using statsmodels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:35:55Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Effect size heterogeneity uses mixing ratio of 0.2 and separation of
+    1.5 standard deviations
+  claim_id: c_994c487c
+  context: 'T021 [P] [US2] Implement `code/perturbations.py`: Injection modules for:
+    ... 3. **Effect size heterogeneity via mixing two sub-populations** with a **mixing
+    ratio of 0.2** and **separation distance of 1.5 standard deviations** (Spec US-2
+    Acceptance 3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mixing ratio of 0.2 and separation distance of 1.5 standard deviations
+    for effect size heterogeneity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:36:11Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.01, 0.05, and 0.10
+  claim_id: c_33a546c9
+  context: T028 [US3] Implement sensitivity analysis logic in `code/main.py` to sweep
+    thresholds across a **configurable range defined in `code/config.py` (e.g., THRESHOLDS
+    = [0.01, 0.05, 0.10]**).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Thresholds of 0.01, 0.05, and 0.10 for sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:36:31Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime must not exceed 6 hours
+  claim_id: c_820d3c1e
+  context: 'T032 [Validation] **Profile and Enforce Runtime**: Profile execution time
+    for the full suite. **If estimated total runtime > 6 hours, implement hard enforcement**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated total runtime > 6 hours, implement hard enforcement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:36:31Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Prune 2 largest datasets if runtime exceeds limit
+  claim_id: c_3a24e960
+  context: 'T032 [Validation] **Profile and Enforce Runtime**: ... 1. **Prune** the
+    2 datasets with the largest N first.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Prune_2_largest_datasets_if_runtime_exceeds_limit
+  kind: magnitude
+  raw_text: Prune the 2 datasets with the largest N first if runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:37:11Z'
+- artifact_path: projects/PROJ-061-assessing-the-reliability-of-statistical/specs/001-assessing-the-reliability-of-statistical/tasks.md
+  attempts: 1
+  canonical: Reduce bootstrap iterations to 500 if runtime exceeds limit
+  claim_id: c_841d4877
+  context: 'T032 [Validation] **Profile and Enforce Runtime**: ... 2. If still > 6h,
+    reduce bootstrap iterations to 500..'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce bootstrap iterations to 500 if runtime still exceeds 6 hours after
+    pruning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:37:30Z'

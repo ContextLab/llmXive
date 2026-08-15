@@ -1,0 +1,22 @@
+# Dataset Configuration
+# This file defines the datasets to be ingested and analyzed.
+# Format: List of dataset objects with 'name', 'source', 'type', and 'config'.
+#
+# Example for UCI Auto dataset:
+# datasets:
+#   - name: "auto_mpg"
+#     source: "uci"
+#     config:
+#       dataset_name: "Auto"
+#       split: "train"
+#
+# Example for HuggingFace dataset:
+#   - name: "housing"
+#     source: "huggingface"
+#     config:
+#       dataset_id: "openml/openml-ml1" # Replace with actual ID
+#       split: "train"
+#
+# Currently empty to allow pipeline to start without specific datasets
+# until the user populates this file.
+datasets: []

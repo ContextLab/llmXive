@@ -16423,3 +16423,139 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T04:22:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: QM9 dataset contains 133,885 small organic molecules
+  claim_id: c_bdc215dc
+  context: 'Primary Dataset: QM9 (133,885 small organic molecules).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The QM9 dataset contains 133,885 small organic molecules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:38:18Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 0
+  canonical: verify DOI 10.1038/sdata.2014.22 metadata
+  claim_id: c_b1bd96a0
+  context: 'Phase 2: Foundational (Blocking Prerequisites), Task T091'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Run `reference-validator` to verify DOI 10.1038/sdata.2014.22 local metadata
+    and record hash in `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T21:38:39Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: create reproducible random subset with seed 42
+  claim_id: c_670ac469
+  context: "Phase 3: User Story 1 \u2013 Dataset Preparation and Baseline Feature\
+    \ Extraction, Task T016"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a reproducible random subset in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/create_subset.py`
+    (seed 42) such that the resulting dataset is of a manageable size for initial
+    prototyping and testing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:39:28Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: implement GNN training with 50 epochs and patience 10
+  claim_id: c_98aacbcd
+  context: "Phase 4: User Story 2 \u2013 Model Training and Evaluation Pipeline, Task\
+    \ T028"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement GNN training with multiple seeds, 50 epochs, early stopping
+    (patience = 10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:39:59Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: compute MAE/RMSE against QM9 dipole-moment reference values
+  claim_id: c_9c69c6a0
+  context: "Phase 4: User Story 2 \u2013 Model Training and Evaluation Pipeline, Task\
+    \ T032"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_MAE/RMSE_against_QM9_dipole-moment_reference_values
+  kind: entity_fact
+  raw_text: "Compute MAE/RMSE against QM9 dipole\u2011moment reference values"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:40:26Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: generate metrics.csv with 95% confidence intervals via bootstrap
+  claim_id: c_1db09f3f
+  context: "Phase 4: User Story 2 \u2013 Model Training and Evaluation Pipeline, Task\
+    \ T034"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate `results/metrics.csv` with columns `seed`, `model`, `mae`, `rmse`,\
+    \ `mae_ci_lower`, `mae_ci_upper`, `rmse_ci_lower`, `rmse_ci_upper` \u2013 CI computed\
+    \ via bootstrap (95 % confidence) within this task."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:40:44Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: implement paired t-tests with alpha 0.05
+  claim_id: c_5c1abbb9
+  context: "Phase 5: User Story 3 \u2013 Feature Attribution and Statistical Significance\
+    \ Analysis, Task T041"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement paired t\u2011tests (\u03B1 = 0.05) comparing RMSE distributions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:41:00Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
+  attempts: 1
+  canonical: QM DFT reference data BLYP/6-31G(2df,p) serves as sole ground truth
+  claim_id: c_375825be
+  context: 'Phase 7: Documentation & Polish, Task T210'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Update `research.md` to explicitly document scope boundaries: state that
+    physical measurement validation (e.g., Stark-effect spectroscopy) is out-of-scope
+    and that QM DFT reference data (BLYP/6-31G(2df,p)) serves as the sole ground truth'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T21:41:22Z'

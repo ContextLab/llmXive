@@ -1,13 +1,16 @@
 status: none
-intent: Materials Project elasticity dataset with CIF and elastic tensors download
-  python package dataset
+intent: Materials Project elastic tensor CIF dataset download python package dataset
 required_fields:
 - material_id
+- formula
 - cif
-- elastic_tensor_6c
-- elastic_tensor_units
-- composition
+- elastic_tensor_voigt
+- elastic_tensor_full
 - space_group
-cache_key: 9108618d0e271f3bde3cd1cf7481981e4ec2b8354e454fbf7ed7649cd3072869
-searched_at: '2026-07-25T08:40:47.377067+00:00'
+- dimensionality
+- elastic_moduli
+- bulk_modulus
+- shear_modulus
+cache_key: de4c314fe974b6a10f413a343e14bbd62ff0efbe5d4af8d4422afd27196b6a5d
+searched_at: '2026-08-15T21:44:13.432859+00:00'
 retry_count: 1
