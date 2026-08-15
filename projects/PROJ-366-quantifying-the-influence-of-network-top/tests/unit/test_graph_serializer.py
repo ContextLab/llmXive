@@ -1,88 +1,69 @@
+"""
+Unit tests for graph serialization logic.
+"""
 import os
 import json
 import pickle
 import tempfile
+import hashlib
 from pathlib import Path
-import numpy as np
 import pytest
 
-from code.ingest.graph_serializer import serialize_graph, calculate_checksum, serialize_directory_graphs
+from ingest.graph_serializer import calculate_checksum, serialize_graph, save_checksum_manifest
 
-@pytest.fixture
-def temp_output_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+def test_calculate_checksum():
+    """Test that checksum calculation is deterministic and correct."""
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
+        content = b"test data for checksum"
+        tmp.write(content)
+        tmp_path = Path(tmp.name)
 
-@pytest.fixture
-def sample_graph_data():
-    return {
-        "sample_id": "test_001",
-        "nodes": np.array([[0.0, 0.0, 0.0], [1.0, 1.0, 1.0]]),
-        "edges": np.array([[0, 1]]),
-        "metadata": {"cutoff": 3.0, "atom_type": "Si"}
+    try:
+        checksum = calculate_checksum(tmp_path)
+        expected = hashlib.sha256(content).hexdigest()
+        assert checksum == expected, f"Checksum mismatch: {checksum} != {expected}"
+    finally:
+        tmp_path.unlink()
+
+def test_serialize_graph():
+    """Test that graph serialization creates a valid pickle file."""
+    mock_graph = {
+        "node_count": 100,
+        "edge_count": 250,
+        "positions": [[0.0, 0.0, 0.0]],
+        "metadata": {"source": "test"}
     }
 
-def test_calculate_checksum(temp_output_dir):
-    test_file = temp_output_dir / "test.txt"
-    test_file.write_text("hello world")
-    
-    checksum = calculate_checksum(test_file)
-    assert len(checksum) == 32  # MD5 length
-    assert checksum == calculate_checksum(test_file)  # Deterministic
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_graph.pkl"
+        
+        checksum = serialize_graph(mock_graph, output_path)
+        
+        assert output_path.exists(), "Output file was not created."
+        assert len(checksum) == 64, "Checksum should be 64 hex chars."
 
-def test_serialize_graph_pickle(temp_output_dir, sample_graph_data):
-    result = serialize_graph(sample_graph_data, "test_001", temp_output_dir, format="pickle")
-    
-    assert "sample_id" in result
-    assert result["sample_id"] == "test_001"
-    assert result["format"] == "pickle"
-    assert "checksum" in result
-    assert "file_path" in result
-    
-    # Verify file exists and can be loaded
-    file_path = Path(result["file_path"])
-    assert file_path.exists()
-    
-    with open(file_path, "rb") as f:
-        loaded_data = pickle.load(f)
-    
-    assert np.array_equal(loaded_data["nodes"], sample_graph_data["nodes"])
-    assert np.array_equal(loaded_data["edges"], sample_graph_data["edges"])
+        # Verify content can be loaded
+        with open(output_path, 'rb') as f:
+            loaded_graph = pickle.load(f)
+        
+        assert loaded_graph["node_count"] == mock_graph["node_count"]
+        assert loaded_graph["edge_count"] == mock_graph["edge_count"]
 
-def test_serialize_graph_parquet_fallback(temp_output_dir, sample_graph_data):
-    # This test assumes pandas might not be installed or data structure doesn't support parquet directly
-    # The implementation falls back to pickle in such cases, which is valid behavior
-    result = serialize_graph(sample_graph_data, "test_002", temp_output_dir, format="parquet")
-    
-    # Depending on implementation details, it might be parquet or pickle fallback
-    assert result["sample_id"] == "test_002"
-    assert "checksum" in result
-    assert Path(result["file_path"]).exists()
+def test_save_checksum_manifest():
+    """Test manifest saving and loading."""
+    manifest_data = [
+        {"file": "a.pkl", "checksum": "abc123"},
+        {"file": "b.pkl", "checksum": "def456"}
+    ]
 
-def test_serialize_directory_graphs(temp_output_dir, sample_graph_data):
-    # Create a fake input directory with a dummy XYZ-like structure
-    # Since we can't easily mock the full XYZ parsing without a real file,
-    # we test the serialization logic by manually calling serialize_graph
-    # and verifying the directory creation and manifest logic if we were to extend.
-    # Here we just verify the function signature and basic error handling
-    
-    # We will mock the build_graph_from_xyz behavior by pre-populating a list
-    # But since serialize_directory_graphs calls build_graph_from_xyz internally,
-    # we rely on the fact that if no .xyz files exist, it returns empty list.
-    
-    input_dir = temp_output_dir / "input_xyz"
-    input_dir.mkdir()
-    
-    # No .xyz files, should return empty
-    results = serialize_directory_graphs(input_dir, temp_output_dir / "output")
-    assert len(results) == 0
-
-def test_checksum_consistency(temp_output_dir, sample_graph_data):
-    # Serialize twice and check checksums are identical
-    result1 = serialize_graph(sample_graph_data, "test_003", temp_output_dir, format="pickle")
-    result2 = serialize_graph(sample_graph_data, "test_003", temp_output_dir, format="pickle")
-    
-    # Note: If the file is overwritten, the checksum should be the same.
-    # If the file name is unique, we'd compare different files.
-    # Here we overwrite the same file name.
-    assert result1["checksum"] == result2["checksum"]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        manifest_path = Path(tmpdir) / "manifest.json"
+        
+        save_checksum_manifest(manifest_data, manifest_path)
+        
+        assert manifest_path.exists()
+        
+        with open(manifest_path, 'r') as f:
+            loaded = json.load(f)
+        
+        assert loaded == manifest_data

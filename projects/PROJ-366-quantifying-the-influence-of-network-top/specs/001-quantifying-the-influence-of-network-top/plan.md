@@ -21,7 +21,7 @@ Method: Constructing atomic graphs with a bond cutoff. using `ase` (FR-001); (2)
 **Project Type**: Computational research pipeline / CLI.  
 **Performance Goals**: Full pipeline must complete within 6 hours on 2 CPU cores. Due to the computational cost of Green-Kubo, the sample size is reduced to **N=2** representative samples to ensure feasibility.  
 **Constraints**: No GPU usage; no 8-bit/4-bit quantization; memory footprint < 7 GB.  
-**Scale/Scope**: 2 independent amorphous silicon supercells (≥atoms each); 2-layer GNN with < 1M parameters.
+**Scale/Scope**: Multiple independent amorphous silicon supercells (≥atoms each); 2-layer GNN with < 1M parameters.
 
 > **Note on Dataset Availability**: The spec assumes pre-equilibrated amorphous silicon configurations are available (N ≥ 10). The "Verified datasets" block indicates NO verified source for `ThermalSample` or `AtomicGraph`. The plan assumes these will be generated via the `code/ingest/generate_samples.py` script (using `ase` + `LAMMPS` wrapper) or fetched from a local archive if provided. If no raw data is provided, the pipeline will halt with a clear error (US-1, Edge Case: corrupted/missing input).
 

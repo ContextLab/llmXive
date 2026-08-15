@@ -91,7 +91,7 @@
  - Output: `data/processed/preprocessed_data.parquet` (final, atomic write).
 - [X] T015 [US1] Implement `code/models/train.py`:
  - Utilize **Cycle ID** (from official SILSO historical cycle list, mapped as categorical integer) as a feature, per FR-003 and Constitution Principle VI.
- - Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel). [UNRESOLVED-CLAIM: c_de3ffa02 — status=not_enough_info]
+ - Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel).
  - Execute **Leave-One-Cycle-Out (LOCO)** Cross-Validation: Train on all cycles except one, validate on the held-out cycle.
  - Calculate RMSE and R² for each held-out cycle.
  - Save best model artifact to `code/models/artifacts/best_model.joblib`.
@@ -111,7 +111,7 @@
  - **Derive per-cycle baseline offsets**: Calculate the mean residual of each satellite-era cycle against this single global fallback model.
  - Save the fallback model to `code/models/artifacts/fallback_model.joblib`.
  - Save the per-cycle baseline offsets to `data/processed/cycle_specific_coefficients.json`.
-- [ ] T029 [US1/Phase3.5] Implement `code/analysis/sensitivity.py` to:
+- [X] T029 [US1/Phase3.5] Implement `code/analysis/sensitivity.py` to:
  - Load `data/processed/cycle_specific_coefficients.json` (per-cycle baseline offsets from T019).
  - Sweep **inconsistency tolerance threshold** over absolute differences {0.01, 0.05, 0.1}, per FR-009.
  - Measure **reconstruction stability** defined as the standard deviation of RMSE across the sweep, comparing against the Cycle-Agnostic baseline.
@@ -158,7 +158,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for error reduction calculation in `tests/test_comparison.py`
+- [X] T024 [P] [US3] Unit test for error reduction calculation in `tests/test_comparison.py`
 - [X] T025 [P] [US3] Unit test for FDR correction logic in `tests/test_stats.py`
 
 ### Implementation for User Story 3

@@ -9,8 +9,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T006** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T008** — No configuration files, scripts, or documentation were presented that define or manage environment variables for data paths. The claim provides no tangible artifact (e.g., a `.env` file, a Python module using `os.getenv`, or instructions) to verify that environment variable management has been set up. Consequently, the requirement is not satisfied.
-- **T029** — declared artifact(s) missing/empty/invalid: code/analysis/sensitivity.py
 - **T022** — declared artifact(s) missing/empty/invalid: data/processed/reconstruction_1610_2002.parquet
 - **T023** — declared artifact(s) missing/empty/invalid: data/processed/variance_analysis.json
-- **T024** — The required artifact `tests/test_comparison.py` does not exist on disk, so no unit test for error reduction calculation is present. The task cannot be considered completed until the file is created with appropriate test code.
 - **T026** — declared artifact(s) missing/empty/invalid: code/analysis/comparison.py

@@ -47,13 +47,13 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 [P] Create `code/config.py` with pinned random seeds, path constants, and model hyperparameters (max_tokens=256, batch_size=1)
-- [ ] T004 [P] Create `code/update_state.py` to manage `state.yaml` and artifact hashing per Constitution Principle V
+- [X] T004 [P] Create `code/update_state.py` to manage `state.yaml` and artifact hashing per Constitution Principle V
 - [X] T005 [P] Implement `code/download.py` to fetch CodeXGLUE prompts from HuggingFace datasets, filter for security keywords (SQL, XSS, auth, injection, sanitize, password, token), **select a subset of top candidates by relevance score**, and generate `data/prompts/raw_manifest.json` with checksums. Justification: Resource constraints (N=30 total) require this reduction from the original FR-002 scope.
 - [X] T006 [P] Create `data/prompts/handcrafted.json` with 20 web-security prompts: **5 prompts each for database access, HTML rendering, authentication, and injection **
 - [X] T007 [P] Create `data/mappings/nist_severity_map.yaml` with explicit NIST-based mapping rules (e.g., "High" -> 4, "Medium" -> 3) for severity conversion
-- [ ] T008 [P] Implement `code/generate.py` with **120s timeout ** handling for generation and CPU-only 4-bit quantization loading for StarCoder-Base, CodeGen, GPT-NeoX (model loader logic)
+- [X] T008 [P] Implement `code/generate.py` with **120s timeout ** handling for generation and CPU-only 4-bit quantization loading for StarCoder-Base, CodeGen, GPT-NeoX (model loader logic)
 - [X] T009 [P] Implement `code/analyze.py` to orchestrate Bandit, Semgrep, and CodeQL with **A timeout per scan is established.** (scanner infrastructure setup)
-- [ ] T010 [P] Implement `code/prompts.py` to combine `raw_manifest.json` (T005) and `handcrafted.json` (T006) into a final `data/prompts/manifest.json` with source attribution and checksums. **Note**: This task is parallel-safe relative to other Phase 2 tasks but requires T005 and T006 completion.
+- [X] T010 [P] Implement `code/prompts.py` to combine `raw_manifest.json` (T005) and `handcrafted.json` (T006) into a final `data/prompts/manifest.json` with source attribution and checksums. **Note**: This task is parallel-safe relative to other Phase 2 tasks but requires T005 and T006 completion.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,7 +74,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization (bitsandbytes CPU-compatible)
+- [X] T013 [P] [US1] Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization (bitsandbytes CPU-compatible)
 - [ ] T014 [US1] Implement generation loop in `code/generate.py` to process 30 prompts (N=90 snippets total) using `data/prompts/manifest.json`, logging failures to `data/failures.log`
 - [ ] T015 [US1] Implement scanner runner in `code/analyze.py` to pipe snippets through Bandit (Python), Semgrep (security rules), CodeQL (Java/JS)
 - [ ] T016 [US1] Implement severity mapping in `code/metrics.py` to convert raw scanner labels to NIST-based ordinal rank using `data/mappings/nist_severity_map.yaml`
@@ -248,5 +248,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All model loading MUST use 4-bit quantization on CPU only (no CUDA/bitsandbytes GPU requirements).
-- **CRITICAL**: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit 6h/7GB budget [UNRESOLVED-CLAIM: c_e0de96a4 — status=not_enough_info]; A large number of prompts is infeasible. (amended in T000a).
+- **CRITICAL**: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit 6h/7GB budget; A large number of prompts is infeasible. (amended in T000a).
 - **CRITICAL**: FPR data is used for descriptive reporting only (PROXY), NOT for algorithmic correction of vulnerability counts (FR-004b).

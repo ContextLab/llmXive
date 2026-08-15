@@ -41,8 +41,8 @@ htmlcov/
 nosetests.xml
 coverage.xml
 *.cover
-.hypothesis
-.pytest_cache
+.hypothesis/
+.pytest_cache/
 
 # Translations
 *.mo
@@ -57,26 +57,35 @@ ENV/
 env.bak/
 venv.bak/
 
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # pyenv
 .python-version
 
-# IDEs and OSs
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
-# Project specific
-data/raw/*
+# Ruff
+.ruff_cache/
+
+# Data (tracked via .gitkeep in subdirs, but ignore large raw files if added manually)
+data/raw/*.csv
+data/raw/*.parquet
+data/raw/*.json
+data/raw/*.txt
 !data/raw/.gitkeep
-data/processed/*
 !data/processed/.gitkeep
-code/models/artifacts/*
-!code/models/artifacts/.gitkeep
-figures/*
-!figures/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db

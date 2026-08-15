@@ -1,46 +1,81 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ThermalSample
-description: Schema for a thermal sample containing graph data and conductivity metadata.
+description: >
+  Schema for a thermal sample containing an atomic graph, computed thermal conductivity,
+  simulation metadata, and convergence status.
 type: object
 required:
-  sample_id
-  graph_id
-  conductivity
-  conductivity_unit
-  metadata
+  - sample_id
+  - graph_id
+  - thermal_conductivity
+  - conductivity_unit
+  - simulation_params
+  - metadata
 properties:
   sample_id:
     type: string
     description: Unique identifier for the thermal sample.
   graph_id:
     type: string
-    description: Reference to the associated AtomicGraph.
-  conductivity:
+    description: Reference to the associated AtomicGraph graph_id.
+  thermal_conductivity:
     type: number
-    description: Thermal conductivity value in W/(m·K).
+    minimum: 0
+    description: Computed thermal conductivity value.
   conductivity_unit:
     type: string
-    const: "W/(m·K)"
+    const: "W/mK"
     description: Unit of thermal conductivity.
+  converged:
+    type: boolean
+    description: Whether the Green-Kubo simulation converged (relative change < 1% in final segment).
+  simulation_params:
+    type: object
+    description: Parameters used for the Green-Kubo simulation.
+    required:
+      - lammps_version
+      - potential_file
+      - timestep
+      - thermostat_type
+      - temperature
+      - cores
+    properties:
+      lammps_version:
+        type: string
+      potential_file:
+        type: string
+      timestep:
+        type: number
+        description: Timestep in femtoseconds.
+      thermostat_type:
+        type: string
+      temperature:
+        type: number
+        description: Simulation temperature in Kelvin.
+      cores:
+        type: integer
+        minimum: 1
+      duration_ps:
+        type: number
+        description: Total simulation duration in picoseconds.
+      hcacf_segments:
+        type: integer
+        description: Number of segments used for averaging.
   metadata:
     type: object
-    required:
-      - converged
-      - simulation_time_ps
-      - temperature_k
+    description: Additional metadata.
     properties:
-      converged:
-        type: boolean
-        description: Whether the Green-Kubo simulation converged.
-      simulation_time_ps:
-        type: number
-        minimum: 0.0
-        description: Total simulation time in picoseconds.
-      temperature_k:
-        type: number
-        minimum: 0.0
-        description: Simulation temperature in Kelvin.
-      excluded_reason:
+      creation_timestamp:
         type: string
-        description: Reason for exclusion if the sample was filtered out.
+        format: date-time
+      checksum:
+        type: string
+        description: SHA-256 checksum of the serialized sample.
+      outlier_excluded:
+        type: boolean
+        description: True if this sample was excluded due to topological defects.
+      exclusion_reason:
+        type: string
+        description: Reason for exclusion if outlier_excluded is true.
+    additionalProperties: true
 additionalProperties: false

@@ -517,3 +517,148 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T07:05:43Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Random Forest model with max_depth 10 and n_estimators 100
+  claim_id: c_c579264d
+  context: 'Implement code/models/train.py: Utilize Cycle ID... Train Random Forest
+    (max_depth=10, n_estimators=100) and Gaussian Process (RBF kernel).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest (max_depth=10, n_estimators=100) and Gaussian Process
+    (RBF kernel).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:15:45Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling with 1000 iterations for variance comparison
+  claim_id: c_96dfee30
+  context: 'Implement code/analysis/stats.py: Bootstrap resampling with at least 1000
+    iterations for variance comparison across Maunder, Dalton, and Modern minima (FR-005,
+    Constitution Principle VII).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_with_1000_iterations_for_variance_compa
+  kind: magnitude
+  raw_text: Bootstrap resampling with at least 1000 iterations for variance comparison
+    across Maunder, Dalton, and Modern minima.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:16:12Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Inconsistency tolerance threshold sweep values 0.01, 0.05, 0.1
+  claim_id: c_4da33359
+  context: 'Implement code/analysis/sensitivity.py to: Sweep inconsistency tolerance
+    threshold over absolute differences {0.01, 0.05, 0.1}, per FR-009.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep inconsistency tolerance threshold over absolute differences {0.01,
+    0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:16:30Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Computational resource usage RAM less than 7 GB and Runtime less than
+    6 hours
+  claim_id: c_e8478e4e
+  context: Verify computational resource usage (RAM < 7 GB, Runtime < 6h) in tests/test_performance.py
+    (FR-008, SC-004).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Computational_resource_usage_RAM_less_than_7_GB_and_Runtime
+  kind: magnitude
+  raw_text: Verify computational resource usage (RAM < 7 GB, Runtime < 6h).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:17:07Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: RMSE calculated over satellite era 2016 to present
+  claim_id: c_add9e751
+  context: "Implement code/analysis/comparison.py: Calculate RMSE over the overlapping\
+    \ satellite era (2016\u2013present), per SC-001."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate RMSE over the overlapping satellite era (2016\u2013present)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:17:23Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Cycle-Agnostic fallback model trained on satellite-era dataset 2003 to
+    present
+  claim_id: c_3ab174cf
+  context: "Implement code/models/train_fallback.py: Train a single Cycle-Agnostic\
+    \ fallback model (GSN-only, no Cycle ID features) on the full satellite-era dataset\
+    \ (2003\u2013present)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train a single Cycle-Agnostic fallback model on the full satellite-era\
+    \ dataset (2003\u2013present)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:17:58Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: TSI reconstruction generated for pre-satellite GSN record 1610 to 2002
+  claim_id: c_02ac5371
+  context: "Goal: Apply the calibrated model... to the pre-satellite GSN record (1610\u2013\
+    2002) to generate TSI reconstruction with uncertainty bands."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate reconstruction for the pre-satellite GSN record (1610\u2013\
+    2002)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:18:07Z'
+- artifact_path: projects/PROJ-381-reconstructing-solar-irradiance-from-his/specs/001-reconstructing-solar-irradiance-from-his/tasks.md
+  attempts: 1
+  canonical: Cycle ID from official SILSO historical cycle list used as categorical
+    integer feature
+  claim_id: c_201499c0
+  context: Utilize Cycle ID (from official SILSO historical cycle list, mapped as
+    categorical integer) as a feature, per FR-003 and Constitution Principle VI.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cycle_ID_from_official_SILSO_historical_cycle_list_used_as_c
+  kind: entity_fact
+  raw_text: Use Cycle ID from official SILSO historical cycle list mapped as categorical
+    integer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:18:57Z'

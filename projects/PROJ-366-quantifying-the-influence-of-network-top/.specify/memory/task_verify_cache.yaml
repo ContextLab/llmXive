@@ -41,3 +41,37 @@ T032:
     \ actually delivered. The implementer must provide the implementation (e.g., a\
     \ Python module or notebook) and example results showing per\u2011sample importance\
     \ scores."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files or directories were presented under `data/processed/model_outputs/`;\
+    \ thus the LMM coefficients, correlation results (r and p\u2011value), and their\
+    \ interpretation are not saved, nor is there any evidence that such outputs were\
+    \ generated. The required artifact is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md file or its contents were provided as evidence; without the actual
+    file we cannot verify that it contains a pipeline overview and execution instructions.
+    The required artifact is missing.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logs, timing reports, or result files are present to demonstrate that a full\
+    \ integration test was run on representative samples, nor any evidence that the\
+    \ end\u2011to\u2011end pipeline completed within the required 6\u2011hour limit.\
+    \ The required artifact (test execution evidence) is missing."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No documentation files for the `contracts/` schemas and data models are present
+    in the provided evidence; the implementer did not supply any artifact (e.g., markdown,
+    reST, or HTML docs) that describes those schemas or models. The task therefore
+    remains unfinished.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact such as a validation log, report, or updated `quickstart.md` confirming
+    that the prerequisites and steps were checked is present. The implementer provided
+    no evidence that the `quickstart.md` validation was actually run, so the task
+    requirement is not satisfied.

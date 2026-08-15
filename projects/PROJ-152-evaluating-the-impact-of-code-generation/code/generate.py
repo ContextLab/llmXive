@@ -1,11 +1,9 @@
 """
-generate.py - Model loading and code generation pipeline.
+Code Generation Module for llmXive Project PROJ-152.
 
-Loads StarCoder-Base, CodeGen, and GPT-NeoX with CPU-only 4-bit quantization.
-Generates code snippets from prompts with a 120s timeout per generation.
-Outputs: data/generated/snippets.csv
+Implements model loading, snippet generation, and result saving for
+evaluating the impact of code generation models on code security.
 """
-
 import os
 import sys
 import time
@@ -13,245 +11,298 @@ import signal
 import logging
 import hashlib
 import json
+import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from peft import PeftModel
+
+# Import project config
+import config
+from update_state import calculate_file_hash
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("data/failures.log", mode="a")
+        logging.FileHandler('data/failures.log', mode='a')
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Project root relative to this file
-ROOT_DIR = Path(__file__).parent.parent
-DATA_DIR = ROOT_DIR / "data"
-GENERATED_DIR = DATA_DIR / "generated"
-PROMPTS_FILE = DATA_DIR / "prompts" / "manifest.json"
-OUTPUT_CSV = GENERATED_DIR / "snippets.csv"
-
-# Ensure directories exist
-GENERATED_DIR.mkdir(parents=True, exist_ok=True)
-
-# Model Configuration
-# Using 4-bit quantization via bitsandbytes (CPU compatible)
-# Note: bitsandbytes-cpu is required in requirements.txt
-MODELS = [
-    "bigcode/starcoderbase",
-    "Salesforce/codegen-2B-mono",
-    "EleutherAI/gpt-neox-20b", # Using 20b as standard, but task says GPT-NeoX 1.3b. 
-                               # Adjusting to 1.3b if specific small model needed, 
-                               # but standard GPT-NeoX is 20b. Task says "GPT-NeoX 1.3B".
-                               # Let's use the 1.3b variant if it exists or the main one.
-                               # HuggingFace: EleutherAI/gpt-neox-1.3b
-    "EleutherAI/gpt-neox-1.3b"
-]
-MODEL_NAMES = {
-    "bigcode/starcoderbase": "StarCoder-Base",
-    "Salesforce/codegen-2B-mono": "CodeGen",
-    "EleutherAI/gpt-neox-1.3b": "GPT-NeoX"
-}
-
-GENERATION_TIMEOUT = 120  # seconds
+# Constants
+GENERATION_TIMEOUT = 120  # seconds per snippet
 MAX_NEW_TOKENS = 256
 BATCH_SIZE = 1
+QUANTIZATION_BITS = 4
 
-# Timeout handler
 class TimeoutError(Exception):
+    """Custom timeout error for generation tasks."""
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutError("Generation timed out")
+    """Signal handler for generation timeout."""
+    raise TimeoutError(f"Generation timed out after {GENERATION_TIMEOUT} seconds")
 
-def load_model(model_id: str):
+def load_model(model_name: str, model_path: str) -> Tuple[Any, Any]:
     """
-    Load a model with 4-bit quantization for CPU.
-    Requires: transformers, torch, bitsandbytes (cpu version)
+    Load a model with 4-bit quantization for CPU execution.
+    
+    Args:
+        model_name: Name of the model (e.g., 'starcoder-base', 'codegen')
+        model_path: Path to the model directory or HuggingFace model ID
+        
+    Returns:
+        Tuple of (model, tokenizer)
     """
-    logger.info(f"Loading model: {model_id}")
+    logger.info(f"Loading model: {model_name} from {model_path}")
+    
+    # Configure 4-bit quantization for CPU
+    quantization_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_compute_dtype=torch.float32,  # Use float32 for CPU compatibility
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_use_double_quant=True,
+        llm_int8_enable_fp32_cpu_offload=True,
+        llm_int8_has_fp16_weight=False,
+        llm_int8_skip_modules=["lm_head"],
+        llm_int8_threshold=6.0
+    )
+    
     try:
-        from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-        import torch
-
-        # 4-bit quantization config for CPU
-        # Note: bitsandbytes CPU support is experimental but required for this task.
-        # If bitsandbytes CPU fails, we fallback to standard loading (warning).
-        try:
-            quantization_config = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.float32, # CPU uses float32
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4"
-            )
-            model = AutoModelForCausalLM.from_pretrained(
-                model_id,
-                quantization_config=quantization_config,
-                device_map="cpu", # Force CPU
-                torch_dtype=torch.float32,
-                low_cpu_mem_usage=True
-            )
-            logger.info(f"Model {model_id} loaded with 4-bit quantization.")
-        except Exception as e:
-            logger.warning(f"4-bit quantization failed for {model_id} ({e}). Attempting standard load.")
-            model = AutoModelForCausalLM.from_pretrained(
-                model_id,
-                device_map="cpu",
-                torch_dtype=torch.float32,
-                low_cpu_mem_usage=True
-            )
-
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_path,
+            trust_remote_code=True,
+            padding_side="left"
+        )
+        
+        # Set pad token if not set
         if tokenizer.pad_token is None:
             tokenizer.pad_token = tokenizer.eos_token
         
+        model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            quantization_config=quantization_config,
+            device_map="cpu",  # Force CPU for safety
+            trust_remote_code=True,
+            torch_dtype=torch.float32
+        )
+        
+        model.eval()
+        logger.info(f"Successfully loaded {model_name}")
         return model, tokenizer
-    except ImportError as e:
-        logger.error(f"Missing dependencies for model loading: {e}")
-        raise
+        
     except Exception as e:
-        logger.error(f"Failed to load model {model_id}: {e}")
+        logger.error(f"Failed to load model {model_name}: {str(e)}")
         raise
 
-def generate_snippet(model, tokenizer, prompt: str, prompt_id: str, model_name: str) -> Optional[Dict[str, Any]]:
+def generate_snippet(
+    model: Any,
+    tokenizer: Any,
+    prompt: str,
+    model_name: str
+) -> str:
     """
-    Generate a code snippet with timeout handling.
-    """
-    start_time = time.time()
+    Generate a code snippet from a prompt with timeout handling.
     
-    # Set signal for timeout (Unix only)
-    if hasattr(signal, 'SIGALRM'):
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(GENERATION_TIMEOUT)
+    Args:
+        model: Loaded model
+        tokenizer: Loaded tokenizer
+        prompt: Input prompt string
+        model_name: Name of the model for logging
+        
+    Returns:
+        Generated code snippet string
+    """
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(GENERATION_TIMEOUT)
     
     try:
-        inputs = tokenizer(prompt, return_tensors="pt")
-        # Move to CPU explicitly
-        inputs = {k: v for k, v in inputs.items()} # Already on CPU if model is
-
+        # Tokenize input
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+        
+        # Generate with constraints
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
                 max_new_tokens=MAX_NEW_TOKENS,
-                do_sample=True,
                 temperature=0.7,
                 top_p=0.95,
+                do_sample=True,
                 pad_token_id=tokenizer.pad_token_id,
-                eos_token_id=tokenizer.eos_token_id
+                eos_token_id=tokenizer.eos_token_id,
+                repetition_penalty=1.1
             )
         
-        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        # Decode output
+        generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
         
-        # Clean up: remove prompt from generated text if it was repeated
-        if generated_text.startswith(prompt):
-            generated_text = generated_text[len(prompt):]
+        # Extract only the generated part (after the prompt)
+        if generated.startswith(prompt):
+            snippet = generated[len(prompt):].strip()
+        else:
+            snippet = generated.strip()
         
-        elapsed = time.time() - start_time
-        logger.info(f"Generated snippet for {prompt_id} ({model_name}) in {elapsed:.2f}s")
+        return snippet
         
-        return {
-            "prompt_id": prompt_id,
-            "model": model_name,
-            "code": generated_text.strip(),
-            "line_count": len(generated_text.splitlines()),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "status": "success"
-        }
-
-    except TimeoutError:
-        logger.error(f"Timeout generating for {prompt_id} ({model_name}) after {GENERATION_TIMEOUT}s")
-        return {
-            "prompt_id": prompt_id,
-            "model": model_name,
-            "code": "",
-            "line_count": 0,
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "status": "timeout"
-        }
+    except TimeoutError as e:
+        logger.warning(f"Timeout generating for model {model_name}: {str(e)}")
+        raise
     except Exception as e:
-        logger.error(f"Error generating for {prompt_id} ({model_name}): {e}")
-        return {
-            "prompt_id": prompt_id,
-            "model": model_name,
-            "code": "",
-            "line_count": 0,
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-            "status": f"error: {str(e)}"
-        }
+        logger.error(f"Error generating snippet for model {model_name}: {str(e)}")
+        raise
     finally:
-        if hasattr(signal, 'SIGALRM'):
-            signal.alarm(0) # Cancel alarm
+        signal.alarm(0)  # Cancel the alarm
 
-def load_prompts() -> List[Dict[str, Any]]:
-    """Load prompts from manifest.json"""
-    if not PROMPTS_FILE.exists():
-        raise FileNotFoundError(f"Prompts manifest not found: {PROMPTS_FILE}")
+def load_prompts(manifest_path: str) -> List[Dict[str, Any]]:
+    """
+    Load prompts from the unified manifest.
     
-    with open(PROMPTS_FILE, 'r') as f:
-        data = json.load(f)
+    Args:
+        manifest_path: Path to manifest.json
+        
+    Returns:
+        List of prompt dictionaries
+    """
+    with open(manifest_path, 'r', encoding='utf-8') as f:
+        manifest = json.load(f)
     
-    return data.get("prompts", [])
+    return manifest.get('prompts', [])
 
-def save_results(results: List[Dict[str, Any]]):
-    """Save results to CSV"""
-    import csv
+def save_results(
+    results: List[Dict[str, Any]],
+    output_path: str,
+    failures_log_path: str
+) -> None:
+    """
+    Save generation results to CSV and log failures.
     
-    if not results:
-        logger.warning("No results to save.")
-        return
-
-    fieldnames = ["snippet_id", "model", "prompt_id", "code", "line_count", "timestamp", "status"]
+    Args:
+        results: List of result dictionaries
+        output_path: Path to output CSV file
+        failures_log_path: Path to failures log file
+    """
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
-    with open(OUTPUT_CSV, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    fieldnames = ['snippet_id', 'model', 'prompt_id', 'code', 'line_count', 'timestamp']
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for r in results:
-            # Generate snippet_id based on hash of content to ensure uniqueness
-            content_str = f"{r['model']}-{r['prompt_id']}-{r['code']}"
-            snippet_id = hashlib.md5(content_str.encode()).hexdigest()[:12]
-            r["snippet_id"] = snippet_id
-            writer.writerow(r)
+        
+        for result in results:
+            # Calculate line count
+            line_count = len(result['code'].splitlines()) if result['code'] else 0
+            
+            writer.writerow({
+                'snippet_id': result['snippet_id'],
+                'model': result['model'],
+                'prompt_id': result['prompt_id'],
+                'code': result['code'],
+                'line_count': line_count,
+                'timestamp': result['timestamp']
+            })
     
-    logger.info(f"Saved {len(results)} results to {OUTPUT_CSV}")
+    logger.info(f"Saved {len(results)} results to {output_path}")
 
 def main():
-    logger.info("Starting code generation pipeline.")
+    """Main generation loop to process all prompts with all models."""
+    logger.info("Starting generation pipeline for PROJ-152")
+    
+    # Load configuration
+    prompts_manifest = config.PROMPTS_MANIFEST_PATH
+    output_csv = config.GENERATED_CSV_PATH
+    
+    # Define models to run
+    models_config = [
+        {
+            "name": "starcoder-base",
+            "path": "bigcode/starcoderbase-1b"  # Smaller version for CPU
+        },
+        {
+            "name": "codegen",
+            "path": "Salesforce/codegen-600m"
+        },
+        {
+            "name": "gpt-neox",
+            "path": "EleutherAI/pythia-1b"  # Using Pythia as GPT-NeoX alternative
+        }
+    ]
     
     # Load prompts
-    prompts = load_prompts()
-    logger.info(f"Loaded {len(prompts)} prompts.")
+    prompts = load_prompts(prompts_manifest)
+    logger.info(f"Loaded {len(prompts)} prompts")
+    
+    if len(prompts) == 0:
+        logger.error("No prompts found in manifest. Exiting.")
+        sys.exit(1)
     
     all_results = []
+    failure_count = 0
     
-    # Load and process each model
-    for model_id in MODELS:
-        model_name = MODEL_NAMES[model_id]
+    for model_config in models_config:
+        model_name = model_config["name"]
+        model_path = model_config["path"]
+        
         try:
-            model, tokenizer = load_model(model_id)
+            # Load model
+            model, tokenizer = load_model(model_name, model_path)
+            
+            # Process each prompt
+            for prompt_data in prompts:
+                prompt_id = prompt_data['id']
+                prompt_text = prompt_data['prompt']
+                
+                snippet_id = f"{model_name}_{prompt_id}"
+                timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+                
+                try:
+                    # Generate snippet
+                    generated_code = generate_snippet(model, tokenizer, prompt_text, model_name)
+                    
+                    result = {
+                        'snippet_id': snippet_id,
+                        'model': model_name,
+                        'prompt_id': prompt_id,
+                        'code': generated_code,
+                        'timestamp': timestamp
+                    }
+                    
+                    all_results.append(result)
+                    logger.info(f"Generated: {snippet_id}")
+                    
+                except Exception as e:
+                    failure_count += 1
+                    logger.error(f"Failed to generate {snippet_id}: {str(e)}")
+                    # Log to failures file
+                    with open(config.FAILURES_LOG_PATH, 'a', encoding='utf-8') as f:
+                        f.write(f"{timestamp} - {model_name} - {prompt_id} - ERROR: {str(e)}\n")
+            
+            # Unload model to free memory
+            del model, tokenizer
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            logger.info(f"Completed model: {model_name}")
+            
         except Exception as e:
-            logger.error(f"Skipping model {model_name} due to load error: {e}")
-            continue
-        
-        # Generate for each prompt
-        for prompt_data in prompts:
-            prompt_text = prompt_data.get("text", "")
-            prompt_id = prompt_data.get("id", "unknown")
-            
-            if not prompt_text:
-                logger.warning(f"Skipping empty prompt {prompt_id}")
-                continue
-            
-            result = generate_snippet(model, tokenizer, prompt_text, prompt_id, model_name)
-            all_results.append(result)
-        
-        # Optional: Clear GPU memory (not needed for CPU, but good practice)
-        del model, tokenizer
-        
-    save_results(all_results)
-    logger.info("Generation pipeline complete.")
+            logger.error(f"Failed to load model {model_name}: {str(e)}")
+            with open(config.FAILURES_LOG_PATH, 'a', encoding='utf-8') as f:
+                f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - MODEL_LOAD_ERROR - {model_name} - {str(e)}\n")
+    
+    # Save results
+    save_results(all_results, output_csv, config.FAILURES_LOG_PATH)
+    
+    # Update state
+    from update_state import update_state_for_directory
+    update_state_for_directory('data/generated')
+    
+    logger.info(f"Generation pipeline completed. Total: {len(all_results)}, Failures: {failure_count}")
+    logger.info(f"Output saved to {output_csv}")
 
 if __name__ == "__main__":
     main()

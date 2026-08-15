@@ -1396,3 +1396,258 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T04:26:46Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate raw_manifest.json with checksums
+  claim_id: c_23fb3aca
+  context: 'Phase 2: Foundational - T005 task description.'
+  evidence:
+    entailment_evidence: 'Generate raw manifest.
+
+
+      ---
+
+
+      json with checksums'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Generate_raw_manifest.json_with_checksums
+  kind: entity_fact
+  raw_text: Generate data/prompts/raw_manifest.json with checksums.
+  resolved_value: Generate raw_manifest.json with checksums
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T12:40:06Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 20 handcrafted web-security prompts (5 each for database access, HTML
+    rendering, authentication, injection)
+  claim_id: c_debdec5c
+  context: 'Phase 2: Foundational - T006 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5
+    prompts each for database access, HTML rendering, authentication, and injection.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:40:21Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Process 30 prompts resulting in 90 snippets
+  claim_id: c_b655cfb6
+  context: 'Phase 3: User Story 1 - T014 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Process 30 prompts (N=90 snippets total) using data/prompts/manifest.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:40:39Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate snippets.csv with 90 rows
+  claim_id: c_6d523918
+  context: 'Phase 3: User Story 1 - T018 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/generated/snippets.csv with columns: snippet_id, model,
+    prompt_id, code, line_count, timestamp (N=90 rows expected).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:41:09Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Select 10 snippets per model (30 total) for calibration
+  claim_id: c_683e48a8
+  context: 'Phase 4: User Story 2 - T022 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 10 snippets per model (N=30 total) from raw_findings.csv
+    using stratified sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:41:26Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Run ZINB regression if zero-vulnerability percentage is greater than
+    or equal to 20%
+  claim_id: c_d6b718d8
+  context: 'Phase 4: User Story 2 - T026 task description.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_ZINB_regression_if_zero-vulnerability_percentage_is_grea
+  kind: magnitude
+  raw_text: "Run Zero-Inflated Negative Binomial (ZINB) regression ONLY IF the zero-vulnerability\
+    \ percentage is \u2265 20.0%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:41:45Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Dataset of 30 prompts (10 CodeXGLUE + 20 handcrafted) fits 6 hour and
+    7 GB budget
+  claim_id: c_9f539a31
+  context: Notes section regarding resource constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit 6h/7GB budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:43:18Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Select exactly 10 snippets per model (N=30 total) for calibration
+  claim_id: c_3822468e
+  context: 'Phase 4: User Story 2 - Implementation T022 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 10 snippets per model (N=30 total) from raw_findings.csv
+    using stratified sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:47:54Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generate snippets.csv with N=90 rows
+  claim_id: c_bc726d2b
+  context: 'Phase 3: User Story 1 - Implementation T018 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/generated/snippets.csv with columns: snippet_id, model,
+    prompt_id, code, line_count, timestamp (N=90 rows expected).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:47:54Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Create handcrafted.json with 20 web-security prompts (5 per category)
+  claim_id: c_c0c9dbd3
+  context: 'Phase 2: Foundational - Implementation T006 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5
+    prompts each for database access, HTML rendering, authentication, and injection.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:47:54Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Handcrafted dataset contains 20 prompts with 5 per category (database,
+    HTML, auth, injection)
+  claim_id: c_244bb8bb
+  context: 'Phase 2: Foundational - Task T006'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5
+    prompts each for database access, HTML rendering, authentication, and injection.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:50:22Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generation process covers 30 prompts resulting in 90 code snippets
+  claim_id: c_f00b4b7d
+  context: 'Phase 3: User Story 1 - Task T014'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generate.py to process 30 prompts (N=90 snippets total)
+    using data/prompts/manifest.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:50:39Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Models loaded: StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B with 4-bit
+    quantization'
+  claim_id: c_03346f97
+  context: 'Phase 3: User Story 1 - Task T013'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load multiple models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with
+    4-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:50:59Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Calibration sample size is 10 snippets per model totaling 30
+  claim_id: c_1283526c
+  context: 'Phase 4: User Story 2 - Task T022'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 10 snippets per model (N=30 total) from raw_findings.csv
+    using stratified sampling for Manual Calibration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:51:16Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'ZINB regression condition: zero-vulnerability percentage greater than
+    or equal to 20.0%'
+  claim_id: c_693eba74
+  context: 'Phase 4: User Story 2 - Task T026'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ZINB_regression_condition:_zero-vulnerability_percentage_gre
+  kind: magnitude
+  raw_text: "Run Zero-Inflated Negative Binomial (ZINB) regression ONLY IF the zero-vulnerability\
+    \ percentage is \u2265 20.0%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T12:51:18Z'

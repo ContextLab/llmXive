@@ -1,62 +1,119 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: GNNOutput
-description: Schema for the output of the GNN training and inference pipeline.
+description: >
+  Schema for the output of the GNN model training and inference, including
+  predictions, feature importance, and loss history.
 type: object
 required:
-  model_id
-  architecture
-  hyperparameters
-  training_metrics
-  feature_importance
+  - model_id
+  - architecture
+  - predictions
+  - feature_importance
+  - loss_history
+  - metrics
 properties:
   model_id:
     type: string
-    description: Unique identifier for the trained model.
+    description: Unique identifier for the trained model instance.
   architecture:
-    type: string
-    enum:
-      - "StaticScatteringPotentialGNN"
-    description: Name of the model architecture used.
-  hyperparameters:
     type: object
+    description: Details of the GNN architecture used.
     required:
-      - hidden_dim
       - num_layers
-      - learning_rate
+      - hidden_dim
+      - num_params
     properties:
-      hidden_dim:
-        type: integer
-        minimum: 1
       num_layers:
         type: integer
         minimum: 1
-      learning_rate:
-        type: number
-        minimum: 0.0
-  training_metrics:
-    type: object
-    required:
-      - final_loss
-      - convergence_epoch
-    properties:
-      final_loss:
-        type: number
-        minimum: 0.0
-      convergence_epoch:
+      hidden_dim:
         type: integer
         minimum: 1
-      history:
-        type: array
-        items:
-          type: object
-          properties:
-            epoch:
-              type: integer
-            loss:
-              type: number
+      num_params:
+        type: integer
+        minimum: 1
+      activation:
+        type: string
+      pooling:
+        type: string
+  predictions:
+    type: array
+    description: List of predictions per sample (Static Scattering Potential proxy).
+    items:
+      type: object
+      required:
+        - sample_id
+        - true_value
+        - predicted_value
+      properties:
+        sample_id:
+          type: string
+        true_value:
+          type: number
+        predicted_value:
+          type: number
+        error:
+          type: number
+          description: Absolute error |true - predicted|.
   feature_importance:
+    type: array
+    description: List of feature importance scores (e.g., from SHAP).
+    items:
+      type: object
+      required:
+        - feature_name
+        - mean_abs_shap_value
+      properties:
+        feature_name:
+          type: string
+        mean_abs_shap_value:
+          type: number
+          minimum: 0
+        shap_values:
+          type: array
+          items:
+            type: number
+          description: Raw SHAP values if available.
+  loss_history:
+    type: array
+    description: Training loss per epoch.
+    items:
+      type: object
+      required:
+        - epoch
+        - loss
+      properties:
+        epoch:
+          type: integer
+          minimum: 0
+        loss:
+          type: number
+          minimum: 0
+        val_loss:
+          type: number
+          minimum: 0
+  metrics:
     type: object
-    description: Map of feature names to importance scores.
-    additionalProperties:
-      type: number
+    description: Overall model performance metrics.
+    required:
+      - final_train_loss
+      - final_val_loss
+      - convergence_achieved
+    properties:
+      final_train_loss:
+        type: number
+      final_val_loss:
+        type: number
+      convergence_achieved:
+        type: boolean
+      convergence_epoch:
+        type: integer
+      r2_score:
+        type: number
+      mse:
+        type: number
+  training_config:
+    type: object
+    description: Hyperparameters used for training.
+    additionalProperties: true
 additionalProperties: false

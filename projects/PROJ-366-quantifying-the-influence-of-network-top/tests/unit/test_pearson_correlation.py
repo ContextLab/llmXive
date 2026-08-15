@@ -1,153 +1,172 @@
 """
-Unit tests for Pearson correlation analysis (T033a).
+Unit Tests for Pearson Correlation Analysis (T033a)
 
-Tests the core logic of computing Pearson correlation between feature
-importance and thermal conductivity without requiring full pipeline execution.
+Tests:
+  - load_feature_importance_data
+  - load_thermal_conductivity_data
+  - align_data
+  - compute_pearson_correlation
+  - generate_correlation_report
+  - save_results
 """
 import json
 import pickle
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import numpy as np
-import pytest
 
-# Import the functions to test
+import pytest
+import numpy as np
+
+# Import the module under test
 from analysis.pearson_correlation import (
     load_feature_importance_data,
     load_thermal_conductivity_data,
     align_data,
     compute_pearson_correlation,
-    generate_correlation_report
+    generate_correlation_report,
+    save_results,
+    main
 )
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
 
-def test_load_feature_importance_data(temp_dir):
-    """Test loading feature importance data from JSON."""
-    # Create mock data
-    mock_data = {
-        "sample_1": [0.1, 0.2, 0.3],
-        "sample_2": [0.4, 0.5, 0.6]
-    }
-    
-    file_path = temp_dir / "feature_importance.json"
-    with open(file_path, 'w') as f:
-        json.dump(mock_data, f)
-    
-    result = load_feature_importance_data(file_path)
-    
-    assert result == mock_data
-    assert "sample_1" in result
-    assert len(result["sample_1"]) == 3
+class TestLoadFeatureImportanceData:
+    def test_load_existing_file(self):
+        """Test loading an existing feature importance file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            data = {
+                "sample_1": {"feat1": 0.5, "feat2": 0.3},
+                "sample_2": {"feat1": 0.2, "feat2": 0.8}
+            }
+            file_path = tmpdir / "feature_importance.json"
+            with open(file_path, 'w') as f:
+                json.dump(data, f)
 
-def test_load_feature_importance_data_not_found(temp_dir):
-    """Test error handling when file is missing."""
-    file_path = temp_dir / "nonexistent.json"
-    
-    with pytest.raises(FileNotFoundError):
-        load_feature_importance_data(file_path)
+            result = load_feature_importance_data(tmpdir)
+            assert result == data
 
-def test_load_thermal_conductivity_data(temp_dir):
-    """Test loading conductivity data from pickle files."""
-    # Create mock thermal samples
-    sample_1 = {"id": "sample_1", "conductivity": 1.5}
-    sample_2 = {"id": "sample_2", "conductivity": 2.0}
-    
-    with open(temp_dir / "sample_1.pkl", 'wb') as f:
-        pickle.dump(sample_1, f)
-    with open(temp_dir / "sample_2.pkl", 'wb') as f:
-        pickle.dump(sample_2, f)
-    
-    result = load_thermal_conductivity_data(temp_dir)
-    
-    assert "sample_1" in result
-    assert "sample_2" in result
-    assert result["sample_1"] == 1.5
-    assert result["sample_2"] == 2.0
+    def test_missing_file_raises_error(self):
+        """Test that missing file raises FileNotFoundError."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with pytest.raises(FileNotFoundError):
+                load_feature_importance_data(Path(tmpdir))
 
-def test_load_thermal_conductivity_data_missing_key(temp_dir):
-    """Test handling of samples missing conductivity key."""
-    sample_1 = {"id": "sample_1"}  # No conductivity
-    
-    with open(temp_dir / "sample_1.pkl", 'wb') as f:
-        pickle.dump(sample_1, f)
-    
-    result = load_thermal_conductivity_data(temp_dir)
-    
-    assert "sample_1" not in result
 
-def test_align_data():
-    """Test alignment of feature and conductivity data."""
-    feature_data = {
-        "sample_1": [0.1, 0.2],
-        "sample_2": [0.3, 0.4],
-        "sample_3": [0.5, 0.6]
-    }
-    
-    conductivity_data = {
-        "sample_2": 1.5,
-        "sample_3": 2.0,
-        "sample_4": 2.5  # Not in feature data
-    }
-    
-    sample_ids, feature_matrix, cond_values = align_data(feature_data, conductivity_data)
-    
-    assert len(sample_ids) == 2
-    assert "sample_2" in sample_ids
-    assert "sample_3" in sample_ids
-    
-    assert len(feature_matrix) == 2
-    assert feature_matrix[0] == [0.3, 0.4]
-    assert cond_values[0] == 1.5
+class TestLoadThermalConductivityData:
+    def test_load_pickle_files(self):
+        """Test loading conductivity from pickle files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            # Create sample pickle files
+            for i in range(3):
+                sample = {
+                    "sample_id": f"sample_{i}",
+                    "thermal_conductivity": 1.0 + i * 0.5
+                }
+                file_path = tmpdir / f"sample_{i}.pkl"
+                with open(file_path, 'wb') as f:
+                    pickle.dump(sample, f)
 
-def test_align_data_no_common(temp_dir):
-    """Test error when no common samples exist."""
-    feature_data = {"sample_1": [0.1]}
-    conductivity_data = {"sample_2": 1.5}
-    
-    with pytest.raises(ValueError, match="No common samples"):
-        align_data(feature_data, conductivity_data)
+            result = load_thermal_conductivity_data(tmpdir)
+            assert len(result) == 3
+            assert result["sample_0"] == 1.0
+            assert result["sample_1"] == 1.5
+            assert result["sample_2"] == 2.0
 
-def test_compute_pearson_correlation():
-    """Test Pearson correlation computation."""
-    # Perfect positive correlation
-    feature_matrix = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0]]
-    conductivity_values = [1.0, 2.0, 3.0]
-    
-    results = compute_pearson_correlation(feature_matrix, conductivity_values)
-    
-    # Feature 0 should be perfectly correlated (r=1.0)
-    assert np.isclose(results["feature_0"]["r"], 1.0)
-    assert results["feature_0"]["p_value"] < 0.05
-    
-    # Feature 1 should also be perfectly correlated
-    assert np.isclose(results["feature_1"]["r"], 1.0)
+    def test_missing_directory_raises_error(self):
+        """Test that missing directory raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_thermal_conductivity_data(Path("/nonexistent"))
 
-def test_compute_pearson_correlation_insufficient_data():
-    """Test handling of insufficient data points."""
-    feature_matrix = [[1.0]]  # Only one sample
-    conductivity_values = [1.0]
-    
-    results = compute_pearson_correlation(feature_matrix, conductivity_values)
-    
-    assert np.isnan(results["feature_0"]["r"])
 
-def test_generate_correlation_report():
-    """Test report generation."""
-    sample_ids = ["s1", "s2"]
-    correlation_results = {
-        "feature_0": {"r": 0.9, "p_value": 0.01},
-        "feature_1": {"r": 0.2, "p_value": 0.5}
-    }
-    
-    report = generate_correlation_report(sample_ids, correlation_results)
-    
-    assert report["sample_count"] == 2
-    assert report["features_analyzed"] == 2
-    assert "summary" in report
-    assert report["summary"]["significant_correlations_count"] == 1
+class TestAlignData:
+    def test_align_common_samples(self):
+        """Test aligning data with common sample IDs."""
+        feature_imp = {
+            "s1": {"f1": 0.5},
+            "s2": {"f1": 0.3},
+            "s3": {"f1": 0.2}
+        }
+        conductivity = {
+            "s1": 1.0,
+            "s2": 2.0,
+            "s4": 3.0  # s4 not in feature_imp
+        }
+
+        x, y, ids = align_data(feature_imp, conductivity)
+
+        assert set(ids) == {"s1", "s2"}
+        assert len(x) == 2
+        assert len(y) == 2
+        # Check values (mean of abs)
+        assert x[0] == 0.5  # s1
+        assert y[0] == 1.0
+        assert x[1] == 0.3  # s2
+        assert y[1] == 2.0
+
+    def test_no_common_samples_raises_error(self):
+        """Test that no common samples raises ValueError."""
+        feature_imp = {"s1": {"f1": 0.5}}
+        conductivity = {"s2": 1.0}
+
+        with pytest.raises(ValueError):
+            align_data(feature_imp, conductivity)
+
+
+class TestComputePearsonCorrelation:
+    def test_perfect_correlation(self):
+        """Test with perfectly correlated data."""
+        x = [1.0, 2.0, 3.0, 4.0]
+        y = [2.0, 4.0, 6.0, 8.0]
+        r, p = compute_pearson_correlation(x, y)
+        assert np.isclose(r, 1.0)
+        assert p < 0.05
+
+    def test_no_correlation(self):
+        """Test with uncorrelated data (small sample)."""
+        # Use data that is known to have low correlation
+        x = [1.0, 2.0, 3.0, 4.0]
+        y = [4.0, 1.0, 3.0, 2.0]
+        r, p = compute_pearson_correlation(x, y)
+        # r should be small
+        assert abs(r) < 0.5
+
+    def test_insufficient_samples_raises_error(self):
+        """Test that < 2 samples raises ValueError."""
+        with pytest.raises(ValueError):
+            compute_pearson_correlation([1.0], [2.0])
+
+
+class TestGenerateCorrelationReport:
+    def test_report_structure(self):
+        """Test that the report contains expected keys."""
+        report = generate_correlation_report(
+            r=0.85,
+            p_value=0.01,
+            sample_ids=["s1", "s2"],
+            n_samples=2
+        )
+
+        assert report["analysis_type"] == "Pearson Correlation"
+        assert report["spec_reference"] == "FR-005"
+        assert report["task_id"] == "T033a"
+        assert report["n_samples"] == 2
+        assert report["correlation_coefficient"] == 0.85
+        assert report["p_value"] == 0.01
+        assert "interpretation" in report
+
+class TestSaveResults:
+    def test_save_to_file(self):
+        """Test saving report to a JSON file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = Path(tmpdir)
+            report = {"test": "value"}
+            output_path = tmpdir / "result.json"
+
+            save_results(report, output_path)
+
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                loaded = json.load(f)
+            assert loaded == report

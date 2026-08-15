@@ -12,3 +12,10 @@ T010:
     provided `code/prompts.py` is truncated before any logic that would create and
     write that manifest. Consequently the task of combining the two source JSONs into
     a final manifest with attribution and checksums has not been fulfilled.
+T014:
+  c: false
+  h: b52121aa278ec7eef4551303d3c25ff888f4ae007ee2eab7782656f628bf6ca4
+  r: "The provided `code/generate.py` is truncated and does not show a loop that iterates\
+    \ over the 30 prompts, invokes generation for the three models, and writes results;\
+    \ the required `data/failures.log` file is absent. Consequently, the task\u2019\
+    s core requirements are not demonstrably fulfilled."

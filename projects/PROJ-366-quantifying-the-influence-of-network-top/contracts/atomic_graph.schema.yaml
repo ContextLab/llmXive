@@ -1,63 +1,69 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: AtomicGraph
-description: Schema for an atomic graph representing amorphous silicon structure.
+description: >
+  Schema for an atomic graph representing an amorphous silicon configuration.
+  Nodes are atoms, edges are bonds defined by a cutoff distance (default 3.0 Å).
 type: object
 required:
   - graph_id
-  - node_count
-  - edge_count
+  - atom_count
+  - bond_count
+  - cutoff_distance
   - nodes
   - edges
-  - bond_cutoff
   - metadata
 properties:
   graph_id:
     type: string
-    description: Unique identifier for the graph.
-  node_count:
+    description: Unique identifier for the graph (derived from source file hash or name).
+  atom_count:
     type: integer
     minimum: 1
     description: Total number of atoms (nodes) in the graph.
-  edge_count:
+  bond_count:
     type: integer
     minimum: 0
     description: Total number of bonds (edges) in the graph.
-  bond_cutoff:
+  cutoff_distance:
     type: number
     minimum: 0
     description: Bond cutoff distance in Angstroms used for construction.
   nodes:
     type: array
-    description: List of atomic nodes.
+    description: List of atomic node data.
     items:
       type: object
       required:
-        - node_id
+        - atom_id
         - element
         - position
         - degree
       properties:
-        node_id:
+        atom_id:
           type: integer
-          description: Unique index for the atom.
+          description: Unique integer ID for the atom within this graph.
         element:
           type: string
-          enum: ["Si"]
+          const: "Si"
           description: Chemical element symbol.
         position:
           type: array
-          minItems: 3
-          maxItems: 3
+          description: Cartesian coordinates [x, y, z] in Angstroms.
           items:
             type: number
-          description: [x, y, z] coordinates in Angstroms.
+          minItems: 3
+          maxItems: 3
         degree:
           type: integer
           minimum: 0
-          description: Number of connected bonds (coordination number).
+          description: Node degree (number of bonds).
+        properties:
+          type: object
+          description: Optional per-atom properties (e.g., forces, energy).
+          additionalProperties: true
   edges:
     type: array
-    description: List of undirected edges.
+    description: List of bond connections.
     items:
       type: object
       required:
@@ -67,10 +73,10 @@ properties:
       properties:
         source:
           type: integer
-          description: Index of the source node.
+          description: ID of the source atom.
         target:
           type: integer
-          description: Index of the target node.
+          description: ID of the target atom.
         distance:
           type: number
           minimum: 0
@@ -81,11 +87,20 @@ properties:
     properties:
       source_file:
         type: string
-        description: Path to the source XYZ file.
-      timestamp:
+        description: Path to the original XYZ file.
+      creation_timestamp:
         type: string
         format: date-time
         description: ISO 8601 timestamp of graph creation.
-      software:
+      builder_version:
         type: string
-        description: Software used for construction (e.g., 'ase').
+        description: Version of the graph builder script.
+      box_dimensions:
+        type: array
+        description: Simulation box dimensions [Lx, Ly, Lz] if periodic.
+        items:
+          type: number
+        minItems: 3
+        maxItems: 3
+    additionalProperties: true
+additionalProperties: false
