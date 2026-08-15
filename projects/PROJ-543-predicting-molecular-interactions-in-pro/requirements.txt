@@ -1,0 +1,21 @@
+# Core dependencies
+torch
+torch_geometric
+rdkit
+datasets
+scikit-learn
+pandas
+pyyaml
+biopython
+numpy
+matplotlib
+seaborn
+
+# Linting and Formatting (for T003)
+flake8
+black
+isort
+
+# Testing
+pytest
+pytest-cov

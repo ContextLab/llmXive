@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — No evidence was provided that the required directories (`code/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/`, `specs/`) actually exist in the project repository; the response only contains specifications and no file‑system listing. The implementer must supply a view of the project tree or confirm the creation of those folders.
+- **T001b** — The provided information contains only a feature specification for data ingestion and GNN training; there is no evidence of a Git repository being initialized nor a `.gitignore` file created for Python/data artifacts. The required artifacts are missing, so the task is not satisfied.
+- **T002a** — No evidence of a Python 3.11 virtual environment under the `code/` directory is provided—no folder, activation scripts, or `pyproject.toml`/`requirements.txt` indicating a created venv. The implementer therefore has not supplied the required artifact.
+- **T002b** — No artifact (e.g., a requirements file, installation script, or proof of a populated virtual environment) was provided showing that the listed packages (`torch`, `torch_geometric`, `rdkit`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`, `biopython`) have been installed. The implementer must supply concrete evidence of a created virtualenv with these dependencies installed.

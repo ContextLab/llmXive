@@ -1,0 +1,14 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no linting configuration files (e.g., `setup.cfg`, `.flake8`,
+    `pyproject.toml` with Black settings) or any evidence that flake8/black have been
+    set up and integrated into the project. Without these artifacts, the requirement
+    to configure linting and formatting tools is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the directories `data/raw/`, `data/processed/`,
+    or `data/results/` actually exist in the repository; the artifact list is empty,
+    so the required folder structure has not been demonstrated. The implementer must
+    create these directories (or show a file tree confirming their presence).

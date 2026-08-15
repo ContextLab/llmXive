@@ -1,0 +1,2 @@
+# This file ensures the data/results directory is tracked by git.
+# Do not remove. Analysis reports and sensitivity analysis outputs will be saved here.

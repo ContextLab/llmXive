@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a Graph Neural Network (GNN) pipeline to predict protein-ligand binding affinity (pKd) from 3D structural data (PDBbind v2020 refined set). The system ingests D coordinates, constructs heterogeneous graphs encoding steric constraints via distance-based edges, trains a 3-layer message-passing GNN on CPU, and applies Integrated Gradients to identify and statistically validate recurring interaction motifs against known pharmacophores. The plan strictly adheres to Constitution Principle VII by employing two-sample t-tests for primary statistical validation, supplemented by permutation tests for robustness.
+This project implements a Graph Neural Network (GNN) pipeline to predict protein-ligand binding affinity (pKd) from 3D structural data (PDBbind v2020 refined set). The system ingests D coordinates, constructs heterogeneous graphs encoding steric constraints via distance-based edges, trains a multi-layer message-passing GNN on CPU, and applies Integrated Gradients to identify and statistically validate recurring interaction motifs against known pharmacophores. The plan strictly adheres to Constitution Principle VII by employing two-sample t-tests for primary statistical validation, supplemented by permutation tests for robustness.
 
 ## Technical Context
 
@@ -30,7 +30,7 @@ This project implements a Graph Neural Network (GNN) pipeline to predict protein
 - **Principle III (Data Hygiene)**: Raw data downloaded with checksums; transformations produce new files; no in-place modification.
 - **Principle IV (Single Source of Truth)**: All figures/stats trace to `data/` artifacts and `code/` execution logs.
 - **Principle V (Versioning)**: Content hashes tracked in `state/` manifest; artifacts updated on change.
-- **Principle VI (Molecular Graph Fidelity)**: Graph construction strictly follows RDKit-based edge definitions (covalent + 5.0 Å non-covalent) to ensure Integrated Gradients validity. Sensitivity analysis (4.5-5.5 Å) included.
+- **Principle VI (Molecular Graph Fidelity)**: Graph construction strictly follows RDKit-based edge definitions (covalent + distance-based non-covalent) to ensure Integrated Gradients validity. Sensitivity analysis (4.5-5.5 Å) included.
 - **Principle VII (Statistical Validation)**: **Mandatory Compliance**: Motif significance validated primarily via **two-sample t-tests** comparing high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes as required by the Constitution. Permutation tests (1,000 iterations) and Benjamini-Hochberg FDR correction (alpha=0.05) are used as secondary robustness checks (FR-006/FR-008).
 
 ## Project Structure
@@ -103,7 +103,7 @@ No violations found. The complexity is justified by the requirement to handle 3D
    - Construct heterogeneous graph:
      - Nodes: Atoms (features: type, charge, hydrophobicity).
      - Edges: Covalent (RDKit) + Non-covalent (distance < 5.0 Å).
-   - **FR-009 Compliance**: Explicitly detect water-mediated interactions using a 3.5 Å distance heuristic to oxygen atoms and set `water_flag` in the graph object.
+   - **FR-009 Compliance**: Explicitly detect water-mediated interactions using a distance heuristic to oxygen atoms and set `water_flag` in the graph object.
    - Handle missing hydrogens via RDKit inference.
 
 3. **1.3 Sensitivity Analysis**:
@@ -121,7 +121,7 @@ No violations found. The complexity is justified by the requirement to handle 3D
 
 1. **2.1 Model Training**:
    - Train a multi-layer MPNN with a configurable depth on the sampled dataset.
-   - Set a reasonable maximum training duration; early stopping if no improvement for 10 epochs.
+   - Set a reasonable maximum training duration; early stopping if no improvement for a predefined number of epochs.
    - Use scaffold-based splitting to ensure chemical diversity in test set.
 
 2. **2.2 Inference Benchmarking**:

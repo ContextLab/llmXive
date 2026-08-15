@@ -1,0 +1,2 @@
+# This file ensures the data/processed directory is tracked by git.
+# Do not remove. Processed graph data and model checkpoints will be saved here.

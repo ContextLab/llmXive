@@ -1,0 +1,112 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Molecular Interaction Dataset Schema
+description: |
+  Schema for validating US-1 (Data Ingestion) artifacts.
+  Defines the structure for molecular complex data including 3D coordinates,
+  atomic properties, and hydration states as required by the project specification.
+  Enforces high-resolution constraints (resolution > 0) and specific interaction flags.
+type: object
+required:
+  - metadata
+  - atoms
+  - interactions
+properties:
+  metadata:
+    type: object
+    required:
+      - pdb_id
+      - resolution
+      - water_flag
+    properties:
+      pdb_id:
+        type: string
+        description: Unique identifier for the Protein Data Bank entry.
+      resolution:
+        type: number
+        description: Resolution of the crystallographic data in Angstroms.
+        exclusiveMinimum: 0
+        minimum: 0.0001
+      water_flag:
+        type: boolean
+        description: |
+          Indicates if water-mediated interactions were detected.
+          True if any water molecule is within 3.5 Å of ligand/protein atoms,
+          triggering specific analysis paths or exclusion.
+      ligand_smiles:
+        type: string
+        description: SMILES string of the ligand, optional but recommended.
+      target_protein:
+        type: string
+        description: UniProt ID or protein name.
+  atoms:
+    type: array
+    description: List of atomic nodes in the molecular graph.
+    items:
+      type: object
+      required:
+        - index
+        - atom_type
+        - coordinates_3d
+        - charge
+        - hydrophobicity
+      properties:
+        index:
+          type: integer
+          description: Unique index for the atom node.
+        atom_type:
+          type: string
+          description: Element symbol or atom type (e.g., 'C', 'N', 'O', 'S', 'Cl').
+        coordinates_3d:
+          type: array
+          description: 3D spatial coordinates (x, y, z) in Angstroms.
+          items:
+            type: number
+          minItems: 3
+          maxItems: 3
+        charge:
+          type: number
+          description: Partial charge of the atom (e.g., from Gasteiger or AM1-BCC).
+        hydrophobicity:
+          type: number
+          description: Hydrophobicity scale value (e.g., Kyte-Doolittle or similar).
+        residue_name:
+          type: string
+          description: Residue name (e.g., 'ALA', 'GLY') if part of a protein.
+        residue_number:
+          type: integer
+          description: Residue sequence number if part of a protein.
+  interactions:
+    type: array
+    description: List of edges representing covalent and non-covalent interactions.
+    items:
+      type: object
+      required:
+        - source
+        - target
+        - distance
+        - interaction_type
+      properties:
+        source:
+          type: integer
+          description: Index of the source atom.
+        target:
+          type: integer
+          description: Index of the target atom.
+        distance:
+          type: number
+          description: Euclidean distance between atoms in Angstroms.
+        interaction_type:
+          type: string
+          enum:
+            - covalent
+            - hydrogen_bond
+            - hydrophobic
+            - pi_stacking
+            - salt_bridge
+            - water_mediated
+            - van_der_waals
+          description: Type of interaction detected.
+        is_water_mediated:
+          type: boolean
+          description: True if the interaction is mediated by a water molecule.
+additionalProperties: false

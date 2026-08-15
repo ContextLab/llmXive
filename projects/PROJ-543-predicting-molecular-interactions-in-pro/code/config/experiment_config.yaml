@@ -1,0 +1,27 @@
+# Experiment Configuration
+# This file defines seeds and hyperparameters for the molecular interaction prediction pipeline.
+
+seed: 42
+
+hyperparameters:
+  # Model Architecture
+  hidden_channels: 128
+  num_layers: 3
+  dropout: 0.1
+
+  # Training
+  learning_rate: 0.001
+  batch_size: 32
+  epochs: 100
+  patience: 10
+
+  # Molecular Graph Construction
+  cutoff_distance: 5.0
+  water_cutoff: 3.5
+  resolution_threshold: 2.5
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  data_results: data/results
+  figures: figures
