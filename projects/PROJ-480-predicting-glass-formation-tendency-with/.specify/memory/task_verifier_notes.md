@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No directory structure or file list was provided as evidence; the claim that the required folders were created cannot be confirmed without tangible artifacts showing the presence of `src/data`, `src/models`, `src/reports`, `src/cli`, `src/lib`, `tests/contract`, `tests/unit`, `tests/integration`, `data/raw`, `data/processed`, `state/`, and `reports/`. The implementer must supply a manifest, screenshot, or script output proving that these directories exist and are non‑empty.
+- **T003** — No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with ruff/black settings, or a `pre-commit` config) were found in the provided artifact list, nor any documentation showing that flake8/ruff and black have been set up for the project. Without these concrete files, the task of configuring the tools is not satisfied.
+- **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T006** — declared artifact(s) missing/empty/invalid: src/lib/config.py

@@ -1,0 +1,18 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory structure or file list was provided as evidence; the claim that\
+    \ the required folders were created cannot be confirmed without tangible artifacts\
+    \ showing the presence of `src/data`, `src/models`, `src/reports`, `src/cli`,\
+    \ `src/lib`, `tests/contract`, `tests/unit`, `tests/integration`, `data/raw`,\
+    \ `data/processed`, `state/`, and `reports/`. The implementer must supply a manifest,\
+    \ screenshot, or script output proving that these directories exist and are non\u2011\
+    empty."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`
+    with ruff/black settings, or a `pre-commit` config) were found in the provided
+    artifact list, nor any documentation showing that flake8/ruff and black have been
+    set up for the project. Without these concrete files, the task of configuring
+    the tools is not satisfied.

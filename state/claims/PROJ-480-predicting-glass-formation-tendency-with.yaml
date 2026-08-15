@@ -1,0 +1,506 @@
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 iterations to verify P_shuffled < 0.95 * P_real
+  claim_id: c_b8e87c30
+  context: 'Secondary Robustness Check: Perform permutation test (1000 iterations)
+    to verify $P_{shuffled} < 0.95 \times P_{real}$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform permutation test (1000 iterations) to verify $P_{shuffled} < 0.95
+    \times P_{real}$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:52:00Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Feature permutation test uses 1000 iterations to calculate Spearman correlation
+    p-value
+  claim_id: c_3191b2ac
+  context: Permutation test (1000 iterations) to validate monotonic trend significance
+    (p < 0.05) or AUC > 0.6 for top features. Permute the feature values (not the
+    target) 1000 times and re-calculate Spearman correlation to determine the p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permute the feature values (not the target) 1000 times and re-calculate
+    Spearman correlation to determine the p-value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:52:13Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity analysis sweeps 21 points from 0.0 to 1.0 in 0.05
+    steps
+  claim_id: c_a77872ee
+  context: Threshold sweep logic. Skip if target_type != binary. Sweep probability
+    from 0.0 to 1.0 (inclusive) in steps of 0.05 (exactly 21 points).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep probability from 0.0 to 1.0 (inclusive) in steps of 0.05 (exactly
+    21 points).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:52:40Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Memory usage must stay under 7GB on full dataset
+  claim_id: c_d970e5ef
+  context: 'Performance optimization: Verify memory usage stays < 7GB on full dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_must_stay_under_7GB_on_full_dataset
+  kind: entity_fact
+  raw_text: Verify memory usage stays < 7GB on full dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:53:23Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Models must run within 2-core and 7GB RAM limits
+  claim_id: c_d8929b01
+  context: 'CPU Constraints: Ensure all models run within 2-core, 7GB RAM limits.
+    Use XGBoost by default, but switch to Ridge/PCA if VIF thresholds are met.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure all models run within 2-core, 7GB RAM limits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:53:55Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Model training completes in under 6 hours on CPU-limited Docker container
+  claim_id: c_b6aaa35d
+  context: 'Independent Test: Executing src/models/train.py in a CPU-limited Docker
+    container completes < 6 hours, outputs state/model.pkl, and generates state/power_analysis.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Executing src/models/train.py in a CPU-limited Docker container completes
+    < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:53:55Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Data source Zenodo DOI 10.5281/zenodo.5778205
+  claim_id: c_c6e2bbd8
+  context: 'Implement src/data/download.py: Fetch data from Zenodo DOI: 10.5281/zenodo.5778205
+    (experimental $D_c$).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental $D_c$)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:54:42Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Minimum sample count 30
+  claim_id: c_583ea820
+  context: Data hygiene (drop missing, log counts, validate chemical balance). Minimum
+    sample count check (raise DataValidationError if < 30).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum sample count check (raise DataValidationError if < 30)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:54:42Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Permutation test 1000 iterations threshold 0.95
+  claim_id: c_ad712306
+  context: "Secondary Robustness Check: Perform permutation test (1000 iterations)\
+    \ to verify $P_{shuffled} < 0.95 \times P_{real}$."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform permutation test (1000 iterations) to verify P_shuffled < 0.95
+    * P_real
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:54:46Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for Ridge Regression
+  claim_id: c_3c3a6d9c
+  context: 'Model selection logic: Default to XGBoost (regressor or classifier). If
+    VIF > 10, switch to Ridge Regression.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to Ridge Regression if VIF > 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:54:46Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: VIF threshold 30 for PCA plus Ridge
+  claim_id: c_103d4e71
+  context: If VIF > 10, switch to Ridge Regression. If VIF > 30, switch to PCA + Ridge.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Switch to PCA + Ridge if VIF > 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:54:46Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Training time limit 6 hours
+  claim_id: c_8b650472
+  context: 'Training Constraint: If training exceeds 6 hours, first attempt to simplify
+    the model... If still exceeded, raise DataValidationError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Training constraint: If training exceeds 6 hours, raise DataValidationError'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:54:52Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Threshold sweep 21 points from 0.0 to 1.0
+  claim_id: c_a8e0d834
+  context: Threshold sweep logic. Skip if target_type != binary. Sweep probability
+    from 0.0 to 1.0 (inclusive) in steps of 0.05 (exactly 21 points).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep probability from 0.0 to 1.0 (inclusive) in steps of 0.05 (exactly
+    21 points)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:54:52Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Memory usage limit 7 GB
+  claim_id: c_a0fe993f
+  context: 'Performance optimization: Verify memory usage stays < 7GB on full dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate memory usage stays < 7GB on full dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:54:52Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Data source for experimental Dc is Zenodo DOI 10.5281/zenodo.5778205
+  claim_id: c_4a75a95f
+  context: 'T009 [US1] Implement src/data/download.py: Fetch data from Zenodo DOI:
+    10.5281/zenodo.5778205 (experimental $D_c$).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental $D_c$).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:55:10Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Data source for experimental D_c is Zenodo DOI 10.5281/zenodo.5778205
+  claim_id: c_e7385084
+  context: 'T009 [US1] Implement src/data/download.py: Fetch data from Zenodo DOI:
+    10.5281/zenodo.5778205 (experimental $D_c$).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental D_c).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:55:49Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 iterations to verify P_shuffled < 0.95 times
+    P_real
+  claim_id: c_e0e3908a
+  context: 'T017 [US2] ... 5. Secondary Robustness Check: Perform permutation test
+    (1000 iterations) to verify $P_{shuffled} < 0.95 \times P_{real}$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform permutation test (1000 iterations) to verify P_shuffled < 0.95\
+    \ \xD7 P_real."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:55:49Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Feature permutation test uses 1000 iterations to determine p-value via
+    Spearman correlation
+  claim_id: c_d4b267fc
+  context: T021 [US3] ... Permutation test (1000 iterations) to validate monotonic
+    trend significance ... Permute the feature values (not the target) 1000 times
+    and re-calculate Spearman correlation to determine the p-value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permute the feature values 1000 times and re-calculate Spearman correlation
+    to determine the p-value.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:55:49Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity analysis sweeps 0.0 to 1.0 in 0.05 steps totaling
+    21 points
+  claim_id: c_d83d28af
+  context: T026 [US4] ... Sweep probability from 0.0 to 1.0 (inclusive) in steps of
+    0.05 (exactly 21 points). Validate count == 21.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep probability from 0.0 to 1.0 (inclusive) in steps of 0.05 (exactly
+    21 points).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:55:49Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Memory usage constraint is less than 7GB on full dataset
+  claim_id: c_579908e0
+  context: 'T038 Performance optimization: Verify memory usage stays < 7GB on full
+    dataset.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_constraint_is_less_than_7GB_on_full_dataset
+  kind: magnitude
+  raw_text: Ensure memory usage stays < 7GB on full dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:56:22Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 3
+  canonical: Data source for experimental Dc is Zenodo DOI 10.5281/zenodo.5778205
+  claim_id: c_65c1aa5d
+  context: 'Implement src/data/download.py: Fetch data from Zenodo DOI: 10.5281/zenodo.5778205
+    (experimental $D_c$).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Fetch data from Zenodo DOI: 10.5281/zenodo.5778205 (experimental $D_c$).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:58:22Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Minimum sample count threshold is 30
+  claim_id: c_6939b5c3
+  context: 'Implement src/data/validation.py: Minimum sample count check (raise DataValidationError
+    if < 30).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Minimum sample count check (raise DataValidationError if < 30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:58:22Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Target sample count is 500
+  claim_id: c_e9c6c34c
+  context: 'Create src/lib/constants.py with fixed random seed (42), file paths, and
+    EXPLICIT validation thresholds: MIN_SAMPLES=30, TARGET_SAMPLES=500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Target samples target is 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:59:05Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Circularity threshold is 0.99
+  claim_id: c_df1eddcc
+  context: 'Create src/lib/constants.py with fixed random seed (42), file paths, and
+    EXPLICIT validation thresholds: CIRCULARITY_THRESHOLD=0.99.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Circularity threshold is 0.99.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:59:29Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: VIF Ridge threshold is 10
+  claim_id: c_49be6482
+  context: 'Create src/lib/constants.py with fixed random seed (42), file paths, and
+    EXPLICIT validation thresholds: VIF_RIDGE_THRESHOLD=10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF Ridge threshold is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T17:59:58Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: VIF PCA threshold is 30
+  claim_id: c_6dd6d667
+  context: 'Create src/lib/constants.py with fixed random seed (42), file paths, and
+    EXPLICIT validation thresholds: VIF_PCA_THRESHOLD=30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF PCA threshold is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T18:00:11Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Model training time limit is 6 hours
+  claim_id: c_a6a472de
+  context: 'Training Constraint: If training exceeds 6 hours, first attempt to simplify
+    the model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training constraint limit is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T18:00:27Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Permutation test iteration count is 1000
+  claim_id: c_928ecdc1
+  context: 'Secondary Robustness Check: Perform permutation test (1000 iterations)
+    to verify P_shuffled < 0.95 * P_real.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation test runs for 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T18:00:42Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Threshold sweep produces 21 points from 0.0 to 1.0
+  claim_id: c_9c205e0f
+  context: 'Threshold sweep logic: Sweep probability from 0.0 to 1.0 (inclusive) in
+    steps of 0.05 (exactly 21 points).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold sweep steps from 0.0 to 1.0 in steps of 0.05 (exactly 21 points).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T18:01:06Z'
+- artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  attempts: 1
+  canonical: Maximum memory usage is 7GB
+  claim_id: c_47557bc4
+  context: 'Performance optimization: Verify memory usage stays < 7GB on full dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maximum_memory_usage_is_7GB
+  kind: entity_fact
+  raw_text: Memory usage must stay under 7GB on full dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T18:01:21Z'

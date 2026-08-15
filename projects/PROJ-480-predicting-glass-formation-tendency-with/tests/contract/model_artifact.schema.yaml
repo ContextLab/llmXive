@@ -1,0 +1,134 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Artifact Schema
+description: Schema for the final trained model and its associated diagnostics.
+type: object
+required:
+  - model_info
+  - performance_metrics
+  - diagnostics
+properties:
+  model_info:
+    type: object
+    required:
+      - model_type
+      - hyperparameters
+      - training_timestamp
+      - feature_columns
+    properties:
+      model_type:
+        type: string
+        enum: [XGBoostRegressor, XGBClassifier, Ridge, PCA_Ridge]
+      hyperparameters:
+        type: object
+        description: Dictionary of model hyperparameters.
+      training_timestamp:
+        type: string
+        format: date-time
+      feature_columns:
+        type: array
+        items:
+          type: string
+      target_type:
+        type: string
+        enum: [regression, classification]
+  performance_metrics:
+    type: object
+    required:
+      - cv_score
+      - cv_std
+    properties:
+      cv_score:
+        type: number
+      cv_std:
+        type: number
+      test_score:
+        type: number
+      baseline_score:
+        type: number
+      mdes:
+        type: number
+        description: Minimum Detectable Effect Size.
+      achieved_power:
+        type: number
+        description: Achieved statistical power.
+  diagnostics:
+    type: object
+    required:
+      - collinearity
+      - circularity
+      - selection_bias
+    properties:
+      collinearity:
+        type: object
+        required:
+          - vif_scores
+          - status
+        properties:
+          vif_scores:
+            type: object
+            additionalProperties:
+              type: number
+            description: VIF score for each feature.
+          status:
+            type: string
+            enum: [OK, WARNING, CRITICAL]
+            description: Status based on VIF thresholds.
+          comment:
+            type: string
+            description: Human-readable explanation of collinearity status.
+      circularity:
+        type: object
+        required:
+          - linear_check
+          - permutation_check
+        properties:
+          linear_check:
+            type: object
+            required:
+              - r_squared
+              - passed
+            properties:
+              r_squared:
+                type: number
+              passed:
+                type: boolean
+                description: True if R^2 < 0.99.
+          permutation_check:
+            type: object
+            required:
+              - p_value
+              - passed
+            properties:
+              p_value:
+                type: number
+              passed:
+                type: boolean
+                description: True if P_shuffled < 0.95 * P_real.
+          comment:
+            type: string
+            description: Human-readable explanation of circularity status.
+      selection_bias:
+        type: object
+        required:
+          - ks_statistic
+          - passed
+        properties:
+          ks_statistic:
+            type: number
+            description: Kolmogorov-Smirnov statistic against synthetic reference.
+          passed:
+            type: boolean
+            description: True if bias is within acceptable limits.
+          comment:
+            type: string
+            description: Human-readable explanation of bias status.
+  provenance:
+    type: object
+    required:
+      - data_checksum
+      - pipeline_version
+    properties:
+      data_checksum:
+        type: string
+      pipeline_version:
+        type: string

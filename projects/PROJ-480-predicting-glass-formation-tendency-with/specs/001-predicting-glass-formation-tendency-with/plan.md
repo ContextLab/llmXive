@@ -84,7 +84,7 @@ tests/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |:--- |:--- |:--- |
-| **Adaptive Leave-One-Group-Out (LOGO) CV** | Prevents data leakage from chemical families. **Fallback**: If chemical families are sparse (<5 samples), LOGO ensures every sample is tested against a model trained on distinct families, eliminating unstable fold metrics. | Random CV would overestimate performance. Fixed 5-fold stratification fails on sparse data (1-2 samples per fold). |
+| **Adaptive Leave-One-Group-Out (LOGO) CV** | Prevents data leakage from chemical families. **Fallback**: If chemical families are sparse (<5 samples), LOGO ensures every sample is tested against a model trained on distinct families, eliminating unstable fold metrics. | Random CV would overestimate performance. Fixed k-fold stratification fails on sparse data (1-2 samples per fold). |
 | **Dual-Mode (Reg/Class)** | Data may contain $D_c$ (continuous) or only binary labels. | Forcing one mode would discard valid data or require arbitrary label conversion. |
 | **Robust Circularity Check** | Ensures target is not a mathematical function of descriptors. Uses **Permutation Test** on shuffled targets, comparing real vs. shuffled performance. | Simple linear R² fails to detect non-linear circularity or valid high-correlation physics. |
 | **Collinearity Handling** | Thermodynamic descriptors are often collinear. **Strategy**: If VIF > 10, switch to **Ridge Regression**; if VIF > 30, use **PCA**. | Ignoring collinearity inflates feature importance. XGBoost alone may be unstable in small samples. |
@@ -99,7 +99,7 @@ tests/
  - **Action**:
  - If $N < 30$: Halt with `DataValidationError` (Insufficient data for any statistical inference).
  - If $30 \le N < 77$: Proceed with a `PowerWarning`. The study is **underpowered**; report the Minimum Detectable Effect Size (MDES) explicitly. Do not claim "no effect" if power is low.
- - If $N \ge 77$: Proceed normally with full power justification.
+ - If $N$ is sufficiently large: Proceed normally with full power justification.
 
 ### 2. Feature Engineering (Precise Definitions)
 Using `pymatgen`, compute:
@@ -116,15 +116,15 @@ Using `pymatgen`, compute:
  4. **Physical Rationale**: Glass formation in these systems is often dominated by the primary matrix element's packing efficiency; thus, the majority element serves as a physically meaningful proxy for the "family".
 - **Stratification**:
  - **Standard**: **Leave-One-Group-Out (LOGO)**. Train on all groups except one, test on the left-out group. Repeat for all groups.
- - **Fallback**: If a group has only 1 sample, LOGO is still valid (train on all others, test on that one). This ensures stable variance estimates even with sparse data.
+ - **Fallback**: If a group has a minimal sample size, LOGO is still valid. (train on all others, test on that one). This ensures stable variance estimates even with sparse data.
 
 ### 4. Circularity & Collinearity Diagnostics
 - **Circularity Check (Non-Linear, Relative)**:
- 1. Train the model on **shuffled** target values (permutation test, 100 iterations).
+ . Train the model on **shuffled** target values (permutation test, 100 iterations).
  2. Calculate the mean performance (R²/AUC) of the shuffled models ($P_{shuffled}$).
  3. Calculate the mean performance of the real model ($P_{real}$).
- 4. **Threshold**: If $P_{shuffled} \ge 0.95 \times P_{real}$, flag as `CircularDataError`.
- 5. **Physical Correlation Note**: High $P_{real}$ is valid and expected. The check only flags if the model learns the **shuffled** data almost as well as the real data (indicating data leakage or mathematical identity).
+ 4. **Threshold**: If $P_{shuffled}$ is sufficiently close to $P_{real}$, flag as `CircularDataError`.
+ . **Physical Correlation Note**: High $P_{real}$ is valid and expected. The check only flags if the model learns the **shuffled** data almost as well as the real data (indicating data leakage or mathematical identity).
 - **Collinearity Handling**:
  1. Calculate VIF for all predictors.
  2. **If VIF > 10**: Switch model from XGBoost to **Ridge Regression** (L2 regularization) to stabilize coefficients.

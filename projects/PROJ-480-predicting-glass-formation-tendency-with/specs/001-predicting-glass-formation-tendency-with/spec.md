@@ -37,7 +37,7 @@ The researcher needs to train a Gradient Boosting model (XGBoost) on the compute
 **Acceptance Scenarios**:
 
 1. **Given** the prepared training dataset with a fixed random seed of 42, **When** the model is trained with default CPU parameters, **Then** the training process completes in ≤ 6 hours on a 2-core CPU environment (target: < 30 minutes).
-2. **Given** a trained model, **When** 5-fold Cluster-Aware Cross-Validation is executed, **Then** the system outputs the primary metric (mean AUC for classification, mean R² for regression) and its standard deviation is less than 10% of the mean metric value, indicating model stability.
+2. **Given** a trained model, **When** Cluster-Aware Cross-Validation is executed with a k-fold partitioning scheme., **Then** the system outputs the primary metric (mean AUC for classification, mean R² for regression) and its standard deviation is sufficiently low relative to the mean metric value, indicating model stability.
 3. **Given** the test set (held out with seed=42), **When** predictions are generated, **Then** the system reports the achieved accuracy (classification) or R² (regression) against the baseline (majority class frequency for classification, or intercept-only model for regression), without triggering "Out of Memory" errors.
 4. **Given** the final model and dataset size, **When** the power analysis module runs, **Then** it calculates the Minimum Detectable Effect Size (MDES) and reports the achieved power at α=0.05. The process completes successfully regardless of the power value.
 
@@ -70,7 +70,7 @@ The researcher needs to perform a sensitivity analysis on the classification thr
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained binary classifier, **When** the sensitivity analysis module runs, **Then** it sweeps the classification threshold (probability of 'glass') over the continuous range [0.0, 1.0] in steps of 0.05 (21 points).
+1. **Given** a trained binary classifier, **When** the sensitivity analysis module runs, **Then** it sweeps the classification threshold (probability of 'glass') over the continuous range from the minimum to the maximum possible value in fixed steps.
 2. **Given** the swept thresholds, **When** the analysis completes, **Then** it reports the variation in false-positive and false-negative rates for each cutoff value.
 3. **Given** the results, **When** the report is generated, **Then** it identifies the threshold that maximizes the F1-score.
 
@@ -103,7 +103,7 @@ The researcher needs to verify that binary labels are empirically observed (not 
 **Acceptance Scenarios**:
 
 1. **Given** the dataset, **When** the circularity test runs, **Then** it checks if the target variable can be perfectly reconstructed from the descriptors (e.g., R² > 0.99 for a simple linear model) and raises a `CircularDataError` if detected.
-2. **Given** binary labels, **When** the provenance check runs, **Then** it verifies that labels are empirically observed outcomes or, if derived from $D_c$, that the threshold used is a physically meaningful value (e.g., 1mm) and not an arbitrary statistical split.
+2. **Given** binary labels, **When** the provenance check runs, **Then** it verifies that labels are empirically observed outcomes or, if derived from $D_c$, that the threshold used is a physically meaningful value (e.g., a small magnitude) and not an arbitrary statistical split.
 3. **Given** the top predictors, **When** the collinearity diagnostic runs, **Then** it calculates Variance Inflation Factor (VIF) scores for all top predictors and writes them to the `ModelArtifact` JSON file with a 'comment' field.
 4. **Given** the dataset, **When** the selection bias check runs, **Then** it verifies that the distribution of descriptors does not show a bias towards known "Inoue's Rules" regions that would trivialize the prediction task, and reports any detected bias.
 
@@ -123,7 +123,7 @@ The researcher needs to verify that binary labels are empirically observed (not 
 - **FR-002**: System MUST compute atomic descriptors (atomic size mismatch, mixing enthalpy, electronegativity) for every composition using `pymatgen`, ensuring no null values for the primary predictors (See US-1).
 - **FR-003**: System MUST detect the target variable type: if continuous critical casting thickness ($D_c$) is available, train a regressor; otherwise, train a binary classifier (glass vs. crystal). Training must complete within 6 hours on a 2-core, 7GB RAM environment. The system MUST use '5-fold Cluster-Aware Cross-Validation' (stratified by chemical family) to prevent data leakage (See US-2).
 - **FR-004**: System MUST output a ranked list of feature importances and generate a 2D visualization of the relationship for the top two descriptors (decision boundary for classification, partial dependence for regression) (See US-3).
-- **FR-005**: System MUST perform a sensitivity analysis on the classification threshold (probability of 'glass') by sweeping the cutoff value over the continuous range from the minimum to the maximum probability in regular steps (21 points) and reporting the variation in false-positive and false-negative rates to determine the optimal operating point (maximizing F1-score). This requirement applies ONLY when the target is binary (See US-4).
+- **FR-005**: System MUST perform a sensitivity analysis on the classification threshold (probability of 'glass') by sweeping the cutoff value over the continuous range from the minimum to the maximum probability in regular steps (multiple points) and reporting the variation in false-positive and false-negative rates to determine the optimal operating point (maximizing F1-score). This requirement applies ONLY when the target is binary (See US-4).
 - **FR-006**: System MUST validate that the dataset contains all required variables (target variable and predictors) before training. If a required variable is missing for the entire dataset, the system MUST halt execution and raise a `DataValidationError` with the message 'Missing required variable: {variable_name} in {dataset_name}'. If missing only in specific rows, those rows are dropped and the count is logged. (See US-1).
 - **FR-007**: System MUST frame all predictive findings as associational (not causal) in the final report, as the data is observational. The final report MUST include a 'Limitations' section explicitly stating this, and the report generation script MUST verify this via a keyword scan for causal verbs (See US-5).
 - **FR-008**: System MUST perform a collinearity diagnostic (Variance Inflation Factor) on the top predictors and report VIF scores, noting that high correlation may be physically expected in thermodynamic descriptors. VIF scores MUST be written to the `ModelArtifact` JSON file with a 'comment' field (See US-3).
@@ -148,10 +148,10 @@ The researcher needs to verify that binary labels are empirically observed (not 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Dataset completeness is measured against the requirement of ≥ 30 valid samples (target ≥ 500) with non-null predictors, where 'valid' means non-null composition, target, descriptors, and chemically balanced (See FR-001, FR-006).
-- **SC-002**: Model training time is measured against the 6-hour CPU-only constraint on a 2-core, 7GB RAM environment (See FR-003).
+- **SC-002**: Model training time is measured against a bounded CPU-only time constraint on a multi-core, limited-RAM environment (See FR-003).
 - **SC-003**: Classification accuracy (or regression R²) is measured against the baseline of majority class frequency (classification) or intercept-only model (regression), with a post-hoc power analysis or MDES justification reported (See FR-003, FR-010, US-2).
 - **SC-004**: Feature importance stability is measured against the standard deviation of scores across 5-fold Cluster-Aware Cross-Validation (See FR-004, US-3).
-- **SC-005**: Threshold sensitivity is measured by the variation in recall and precision across the swept cutoff values [0.0, 1.0] in steps of 0.05 (21 points) (See FR-005).
+- **SC-005**: Threshold sensitivity is measured by the variation in recall and precision across the swept cutoff values in incremental steps. (See FR-005).
 - **SC-006**: Collinearity diagnostics are measured by the Variance Inflation Factor (VIF) for the top predictors, with a report generated for all scores and a 'comment' field in the `ModelArtifact` (See FR-008).
 
 ## Assumptions

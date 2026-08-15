@@ -53,3 +53,14 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.6084/m9.figshare.EXPERIMENTAL_DSET
   verified_at: '2026-08-13T19:24:36.382438Z'
+- artifact_hash: 648b0678783496771ecb911e79fc3cb23c5078f6db42d2330dcc9afc80abc268
+  artifact_path: projects/PROJ-480-predicting-glass-formation-tendency-with/specs/001-predicting-glass-formation-tendency-with/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.5778205
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.5778205
+  verified_at: '2026-08-15T17:58:04.800185Z'
