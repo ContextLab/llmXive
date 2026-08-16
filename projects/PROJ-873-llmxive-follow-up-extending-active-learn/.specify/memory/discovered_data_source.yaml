@@ -1,27 +1,43 @@
 status: verified
 kind: pypi_package
 ref: beir
-access_python: "import os\nfrom beir import util\nfrom beir.datasets.data_loader import\
-  \ GenericDataLoader\n\ndataset = \"scifact\"\nurl = f\"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset}.zip\"\
-  \nout_dir = \"./beir_data\"\n\nif not os.path.isdir(out_dir):\n    data_path = util.download_and_unzip(url,\
-  \ out_dir)\nelse:\n    data_path = os.path.join(out_dir, dataset)\n\ncorpus, queries,\
-  \ qrels = GenericDataLoader(data_path).load(split=\"test\")\nrecord_count = sum(len(v)\
-  \ for v in qrels.values())\nprint(f\"RECORDS={record_count}\")\n\nfields = [\"query_id\"\
-  , \"query_text\", \"doc_id\", \"doc_text\", \"relevance_score\"]\nprint(\"FIELDS=\"\
-  \ + \",\".join(fields))"
-record_count: 339
+access_python: 'import os
+
+  from beir import util
+
+  from beir.datasets.data_loader import GenericDataLoader
+
+
+  dataset = "nfcorpus"
+
+  url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset}.zip"
+
+  out_dir = "beir_data"
+
+  # download and unzip the dataset
+
+  data_path = util.download_and_unzip(url, out_dir)
+
+  # load corpus, queries and relevance judgments (qrels)
+
+  corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
+
+  print(f"RECORDS={len(corpus)}")
+
+  print("FIELDS=doc_id,title,text")'
+record_count: 3633
 sample_fields:
-- query_id
-- query_text
 - doc_id
-- doc_text
-- relevance_score
-field_coverage: 1.0
+- title
+- text
+field_coverage: 0.5
 required_fields:
-- query_id
-- query_text
 - doc_id
-- doc_text
-- relevance_score
-intent: BEIR scifact nfcorpus trec-covid dataset download python package dataset
-cache_key: f2dbaecb632a2229498b7117eb7f0f2655af2545eeaeb21f1aeb3dbc50e716c6
+- title
+- text
+- query_id
+- query
+- relevance
+intent: download BEIR benchmark nfcorpus dataset python package via pip install beir
+  python package dataset
+cache_key: 4dbd762275e64d8b09c801e8c7ef0f0f14598c2210874cae171f5df863f7e58b

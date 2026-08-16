@@ -18,14 +18,17 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 # Configuration for log paths
+# Ensure we use the project's data directory structure
 DATA_DIR = "data/processed"
-COMPARISON_LOG_PATH = os.path.join(DATA_DIR, "comparison_log.json")
+# Corrected paths to match task spec: JSONL for comparisons, JSON for resources
+COMPARISON_LOG_PATH = os.path.join(DATA_DIR, "comparison_log.jsonl")
 RESOURCE_LOG_PATH = os.path.join(DATA_DIR, "resource_log.json")
 
 # Global lock for thread-safe file writing
 _log_lock = threading.Lock()
 _resource_monitor_thread: Optional[threading.Thread] = None
 _stop_monitoring_event = threading.Event()
+_monitor_start_time: Optional[float] = None
 
 def _get_timestamp() -> str:
     """Return current UTC timestamp in ISO format."""
@@ -34,12 +37,12 @@ def _get_timestamp() -> str:
 def init_logging():
     """Initialize logging infrastructure and ensure directories exist."""
     os.makedirs(DATA_DIR, exist_ok=True)
-    # Clear existing log if any to ensure a fresh run
+    # Clear existing logs to ensure a fresh run
     if os.path.exists(COMPARISON_LOG_PATH):
         os.remove(COMPARISON_LOG_PATH)
     if os.path.exists(RESOURCE_LOG_PATH):
         os.remove(RESOURCE_LOG_PATH)
-    logger.info("Logging initialized")
+    logger.info(f"Logging initialized. Comparison log: {COMPARISON_LOG_PATH}, Resource log: {RESOURCE_LOG_PATH}")
 
 def get_comparison_log_path() -> str:
     return COMPARISON_LOG_PATH
@@ -72,9 +75,16 @@ def _collect_resource_stats() -> Dict[str, Any]:
     try:
         import resource
         usage = resource.getrusage(resource.RUSAGE_SELF)
+        # ru_maxrss is in KB on Linux, convert to MB
+        max_rss_mb = usage.ru_maxrss / 1024.0 
+        
+        # Calculate elapsed time if monitoring started
+        elapsed = time.time() - _monitor_start_time if _monitor_start_time else 0.0
+
         return {
             "timestamp": _get_timestamp(),
-            "max_rss_mb": usage.ru_maxrss / 1024.0,  # Convert KB to MB (Linux)
+            "elapsed_sec": elapsed,
+            "max_rss_mb": max_rss_mb,
             "user_cpu_sec": usage.ru_utime,
             "system_cpu_sec": usage.ru_stime,
             "voluntary_context_switches": usage.ru_nvcsw,
@@ -99,11 +109,12 @@ def _monitor_loop(interval_seconds: float = 60.0):
 
 def start_resource_monitoring(interval_seconds: float = 60.0):
     """Start the background thread for resource monitoring."""
-    global _resource_monitor_thread
+    global _resource_monitor_thread, _monitor_start_time
     if _resource_monitor_thread is not None and _resource_monitor_thread.is_alive():
         logger.warning("Resource monitoring already running")
         return
 
+    _monitor_start_time = time.time()
     _stop_monitoring_event.clear()
     _resource_monitor_thread = threading.Thread(
         target=_monitor_loop, 
@@ -149,7 +160,7 @@ def main():
         time.sleep(0.1)
     
     stop_resource_monitoring()
-    logger.info("Test run complete. Check data/processed/comparison_log.json")
+    logger.info("Test run complete. Check data/processed/comparison_log.jsonl and data/processed/resource_log.json")
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T000` (rejected 1x): No evidence of the `specs/001-llmxive-prp-redundancy/spec.md` file or its updated contents is provided; without the actual file showing the required phrase replacements, we cannot confirm the spec was edited as requested. The implementer must supply the updated spec file containing the explicit “limit of 6 hours” and “limit of 7GB” wording.
+- `T012` (rejected 1x): The provided `code/data_loader.py` contains only dataset downloading and loading logic and explicitly forbids synthetic fallbacks; it lacks any synonym‑replacement or sentence‑shuffling implementation, does not generate clusters, and never writes `data/processed/injected_datasets.json` (the file is missing). Consequently the required synthetic redundancy injection and validation artifacts are absent.
 
 ## Required change
 

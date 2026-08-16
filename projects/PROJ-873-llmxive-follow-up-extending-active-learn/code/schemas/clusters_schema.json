@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Clustering Results Schema",
+  "description": "Schema for data/processed/clusters.json produced by T020 (MinHash-LSH Clustering).",
+  "type": "object",
+  "required": [
+    "metadata",
+    "clusters"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": [
+        "algorithm",
+        "jaccard_threshold",
+        "num_hashes",
+        "num_bands",
+        "total_clusters",
+        "total_documents_processed",
+        "processed_at"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "MinHash-LSH"
+          ],
+          "description": "Clustering algorithm used."
+        },
+        "jaccard_threshold": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Jaccard similarity threshold used for clustering (typically > 0.95)."
+        },
+        "num_hashes": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of hash functions used in MinHash."
+        },
+        "num_bands": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of bands used in LSH."
+        },
+        "total_clusters": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of clusters detected."
+        },
+        "total_documents_processed": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of documents processed for clustering."
+        },
+        "processed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of processing."
+        }
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "description": "List of detected clusters containing document indices.",
+      "items": {
+        "type": "object",
+        "required": [
+          "cluster_id",
+          "indices",
+          "size",
+          "estimated_jaccard"
+        ],
+        "properties": {
+          "cluster_id": {
+            "type": "integer",
+            "description": "Unique identifier for the cluster."
+          },
+          "indices": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 2,
+            "description": "List of document indices in this cluster."
+          },
+          "size": {
+            "type": "integer",
+            "description": "Number of documents in the cluster."
+          },
+          "estimated_jaccard": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Estimated average Jaccard similarity within the cluster."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Injected Datasets Schema",
+  "description": "Schema for data/processed/injected_datasets.json produced by T012 (Synthetic Redundancy Injection).",
+  "type": "object",
+  "required": [
+    "metadata",
+    "clusters",
+    "unique_subset_indices"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": [
+        "dataset_name",
+        "injection_method",
+        "synonym_probability",
+        "shuffle_window",
+        "cluster_count",
+        "total_documents",
+        "generated_at"
+      ],
+      "properties": {
+        "dataset_name": {
+          "type": "string",
+          "description": "Name of the source BEIR dataset (e.g., 'nfcorpus', 'scifact')."
+        },
+        "injection_method": {
+          "type": "string",
+          "enum": [
+            "synonym_replacement",
+            "sentence_shuffling",
+            "combined"
+          ],
+          "description": "Primary method used for redundancy injection."
+        },
+        "synonym_probability": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Probability of synonym replacement applied."
+        },
+        "shuffle_window": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Window size for sentence shuffling."
+        },
+        "cluster_count": {
+          "type": "integer",
+          "minimum": 20,
+          "description": "Number of redundancy clusters generated (FR-002 requirement)."
+        },
+        "total_documents": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of documents in the injected dataset."
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of generation."
+        }
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "description": "List of redundancy clusters. Each cluster contains near-duplicate document indices.",
+      "items": {
+        "type": "object",
+        "required": [
+          "cluster_id",
+          "indices",
+          "avg_similarity",
+          "min_similarity"
+        ],
+        "properties": {
+          "cluster_id": {
+            "type": "integer",
+            "description": "Unique identifier for the cluster."
+          },
+          "indices": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 3,
+            "maxItems": 5,
+            "description": "List of document indices belonging to this cluster."
+          },
+          "avg_similarity": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Average pairwise cosine similarity within the cluster."
+          },
+          "min_similarity": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Minimum pairwise cosine similarity within the cluster (must be > 0.95 per FR-002)."
+          }
+        }
+      },
+      "minItems": 20
+    },
+    "unique_subset_indices": {
+      "type": "array",
+      "description": "List of indices representing the unique subset (one representative per cluster + non-clustered docs).",
+      "items": {
+        "type": "integer"
+      }
+    }
+  }
+}

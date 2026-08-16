@@ -1,11 +1,11 @@
-T012:
-  c: false
-  h: 7ffed348df0be640a37b5113fcc003d7d7ac6580d4c7dc571273dc6ae90768ac
-  r: "The repository contains a `code/data_loader.py` file, but it only includes dataset\
-    \ download and loading utilities; there is no implementation of synonym\u2011\
-    replacement or sentence\u2011shuffling to create redundancy clusters. Moreover,\
-    \ the required output files `data/processed/injected_datasets.json` and `data/processed/injected_trec_covid.json`\
-    \ are absent. The task\u2019s core requirements are therefore unmet."
+T006:
+  c: true
+  h: d2197dbfc618d0c0b45c6ba8ba6d63861dddf7d5a86da9061905c4e5318a4592
+  r: "The `code/logging_config.py` file exists, is non\u2011empty, and defines functions\
+    \ to initialize logging, write pairwise comparison entries to a JSONL file, and\
+    \ collect resource usage stats for a JSON resource log, matching the task\u2019\
+    s specifications. The actual log files are runtime outputs and need not exist\
+    \ beforehand."
 T013:
   c: false
   h: 29b1682228a3082bd2b352a17842a1277a738bdd6da0e8dcdfbdac8789b602a5
@@ -96,3 +96,9 @@ T059:
     \ checks the false\u2011positive merge rate, relaxes the Jaccard threshold, logs\
     \ the adjustment, or raises `ClusteringFailureError` when the rate remains >\u202F\
     10\u202F%. These are essential to satisfy task T059."
+T065a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The review found no `code/schemas/injected_datasets.json` or `code/schemas/clusters.json`\
+    \ files, nor any inline JSON schema definitions for these artifacts. Without the\
+    \ required schema files, the task\u2019s deliverable is missing."

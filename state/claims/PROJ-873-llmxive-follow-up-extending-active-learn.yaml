@@ -4204,3 +4204,44 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T14:23:56Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: 'Thakur et al. (2021) published BEIR: A Heterogeneous Benchmark for Zero-shot
+    Evaluation of Information Retrieval Models on arXiv:2104.08663'
+  claim_id: c_5cbbbc81
+  context: 'Research Question: How can the BEIR framework be adapted to support cross-domain
+    retrieval evaluation using the TREC-COVID dataset? Method: Extend the existing
+    BEIR data loader to include the trec-covid corpus and integrate it into the evaluation
+    pipeline.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Reference: Thakur et al. (2021). BEIR: A Heterogeneous Benchmark for
+    Zero-shot Evaluation of Information Retrieval Models. arXiv:2104.08663.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T13:59:38Z'
+- artifact_path: projects/PROJ-873-llmxive-follow-up-extending-active-learn/specs/001-llmxive-follow-up-extending-active-learn/tasks.md
+  attempts: 1
+  canonical: Thakur et al. 2021 BEIR benchmark arXiv:2104.08663
+  claim_id: c_b00c5a6d
+  context: 'Research Question: How can the BEIR framework be adapted to support cross-domain
+    retrieval evaluation using the TREC-COVID dataset? Method: Extend the existing
+    BEIR data loader to include the trec-covid corpus and integrate it into the evaluation
+    pipeline. References: Thakur et al. (2021).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The document references ''Thakur et al. (2021). BEIR: A Heterogeneous
+    Benchmark for Zero-shot Evaluation of Information Retrieval Models. arXiv:2104.08663''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T14:01:07Z'
