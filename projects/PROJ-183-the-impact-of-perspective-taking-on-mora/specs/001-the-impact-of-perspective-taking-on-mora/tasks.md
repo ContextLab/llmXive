@@ -49,7 +49,7 @@
 - [X] T004a [P] Create `pyproject.toml` and `.ruff.toml` with explicit rules: Enable E501 (line length), W292 (newline at EOF), and F401 (unused imports). Configure black line-length=88.
 - [X] T004b [P] Run `black --check.` and `ruff check.` to verify formatting/linting rules are applied to existing code (if any).
 - [X] T041 [P] [US4] Implement resource monitoring in `code/main.py`: Add logging for peak RAM usage (target ≤7 GB) and total runtime (target ≤6 hours). Log warnings if thresholds are approached but do NOT raise errors to avoid aborting the pipeline. (SC-005, FR-007)
-- [ ] T042 [P] [US4] Implement resource monitoring in `code/main.py`: Ensure the logging mechanism from T041 is active for the entire pipeline run. Log final metrics to `data/logs/resource_metrics.log`. (SC-005, FR-007)
+- [X] T042 [P] [US4] Implement resource monitoring in `code/main.py`: Ensure the logging mechanism from T041 is active for the entire pipeline run. Log final metrics to `data/logs/resource_metrics.log`. (SC-005, FR-007)
 
 ---
 
@@ -60,12 +60,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T005 [P] Create `code/config.py` with random seed pinning, path constants, and dataset URL configuration (verified URL for "Against the Others!" dataset)
-- [~] T006 [P] Initialize `data/raw/`, `data/processed/`, and `data/human/` directories with `.gitkeep`
+- [ ] T006 [P] Initialize `data/raw/`, `data/processed/`, and `data/human/` directories with `.gitkeep`
 - [ ] T007 [P] Create `contracts/stimulus.schema.yaml` and `contracts/participant.schema.yaml` defining data structures
 - [X] T008 Create base `code/__init__.py` and analysis `code/analysis/__init__.py` modules
 - [X] T009a [P] Implement formal power analysis function in `code/analysis/stats.py` (input: effect_size, power, alpha) returning required N. Do NOT write to config yet.
-- [X] T009b [P] Verify fixed N=240: Run T009a function with d=0.5, power=0.8. Write a comment in `code/config.py` at the top of the file: `# Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient. [UNRESOLVED-CLAIM: c_f29cb9d3 — status=not_enough_info] ` Verify the comment exists via `grep` or similar. (FR-009b)
-- [~] T010 [P] Setup `tests/` directory structure with `pytest` configuration
+- [X] T009b [P] Verify fixed N=240: Run T009a function with d=0.5, power=0.8. Write a comment in `code/config.py` at the top of the file: `# Power analysis (d=0.5, power=0.8) confirms N=240 is sufficient. [UNRESOLVED-CLAIM: c_61027c90 — status=not_enough_info] ` Verify the comment exists via `grep` or similar. (FR-009b)
+- [ ] T010 [P] Setup `tests/` directory structure with `pytest` configuration
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,15 +85,15 @@
 - [ ] T016 [US1] Implement stratified sampling logic in `code/data/stimuli.py` to balance moderate/high intensity posts across conditions
 - [ ] T017 [US1] Implement `code/data/stimuli.py` to generate "Perspective-Taking" and "Control Summarization" prompt templates (FR-002)
 - [ ] T018 [US1] Save final curated stimuli to `data/processed/stimuli.json` with all metadata, instruction variants, and sentiment scores (FR-002)
-- [~] T019 [P] [US1] Add logging for data ingestion, filtering, and stratification steps
+- [ ] T019 [P] [US1] Add logging for data ingestion, filtering, and stratification steps
 - [ ] T051 [US1] Implement a validation report in `code/analysis/stats.py` (or `code/data/stimuli.py`) to verify that the stratification (T016) successfully balanced the VADER sentiment scores between the two experimental conditions. Save the report to `data/processed/stratification_report.json` and log the difference in mean sentiment. Do NOT fail the pipeline if the difference is large; only report it. (SC-006)
 
 ### Tests for User Story 1
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. These validate structures produced by T015/T018.
 
-- [ ] T011 [P] [US1] Unit test for data ingestion validation in `tests/test_ingest.py` (check n≥60, topic split, error on <60)
-- [ ] T012 [P] [US1] Unit test for stimulus generation in `tests/test_stimuli.py` (check 2 variants per ID, sentiment balance)
+- [X] T011 [P] [US1] Unit test for data ingestion validation in `tests/test_ingest.py` (check n≥60, topic split, error on <60)
+- [X] T012 [P] [US1] Unit test for stimulus generation in `tests/test_stimuli.py` (check 2 variants per ID, sentiment balance)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,7 +107,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement `code/data/cleaning.py` to load raw CSV and filter for `consent_given == true`. **Note**: This task implements Constitution Principle VI, which overrides the narrower exclusion criteria in FR-003 regarding consent. (FR-003, Constitution VI)
+- [X] T023 [US2] Implement `code/data/cleaning.py` to load raw CSV and filter for `consent_given == true`. **Note**: This task implements Constitution Principle VI, which overrides the narrower exclusion criteria in FR-003 regarding consent. (FR-003, Constitution VI)
 - [ ] T024 [US2] Implement attention check filter in `code/data/cleaning.py` to exclude participants failing >1 item (FR-003)
 - [ ] T025 [US2] Implement straight-lining detection in `code/data/cleaning.py`: Calculate variance of the 7 items of the Moral Outrage Scale for each participant. Exclude any participant exhibiting zero variance across these scale items. (FR-003, Edge Case 2)
 - [ ] T026 [US2] Implement mean outrage score calculation in `code/data/cleaning.py` using the 7-item Moral Outrage Scale (FR-004)

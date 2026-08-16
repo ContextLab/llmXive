@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.02127",
+  "judged_at": "2026-08-16T15:45:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular dielectric constants from graph-based descriptors chemistry",
+  "rationale": "This paper satisfies criterion (b) as it measures the dependent variable (static dielectric constants) within the user's domain (molecular systems/liquids), providing essential context on the physical observable and its calculation uncertainties that any literature review on predicting this property must address. Additionally, it serves as an empirical baseline (c) for the target quantity, which is necessary for evaluating the accuracy of new prediction models.",
+  "relevant": true
+}

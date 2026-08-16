@@ -4,13 +4,13 @@
   "reason": "1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=1)",
   "artifacts": [],
   "failures": [
-    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py\", line 19, in <module>\n    from llm_generator import generate_code, save_generated_code, save_generation_result, process_task_generation\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/llm_generator.py\", line 251, in <module>\n    @log_operation(\"process_generation_task\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py\", line 66, in <module>\n    @log_operation(\"process_task\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable"
   ],
-  "fix_rounds": 4,
+  "fix_rounds": 5,
   "model_tier": 0,
-  "total_attempts": 23,
+  "total_attempts": 24,
   "replan_rounds": 1,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-18T06:08:39Z"
+  "updated_at": "2026-08-16T15:51:44Z"
 }

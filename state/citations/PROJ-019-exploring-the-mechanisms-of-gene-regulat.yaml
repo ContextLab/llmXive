@@ -9,26 +9,14 @@
   verification_status: verified
   verified_against_url: https://www.encodeproject.org/
   verified_at: '2026-07-02T14:55:52.188148Z'
-- artifact_hash: 2bae951b0c2ec4cf32be48a6538304355b7ca2e7ea2c8805b2913f973917ba58
-  artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/README.md
+- artifact_hash: 5808f2277a088de426bdf56a3432ecec1377d8001894e2cc48845c7865497a5e
+  artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat/quickstart.md
   cite_id: c-001
   cited_authors: []
-  cited_title: FIMO
-  fetched_title: FIMO - MEME Suite
+  cited_title: null
+  fetched_title: FIMO - Submission form
   kind: url
-  value: http://meme-suite.org/doc/fimo.html
+  value: https://meme-suite.org/meme/tools/fimo
   verification_status: pending
-  verified_against_url: https://meme-suite.org/meme/doc/fimo.html
-  verified_at: '2026-07-26T15:53:05.586394Z'
-- artifact_hash: 2bae951b0c2ec4cf32be48a6538304355b7ca2e7ea2c8805b2913f973917ba58
-  artifact_path: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/README.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: BEDTools
-  fetched_title: 'bedtools: a powerful toolset for genome arithmetic &#8212; bedtools
-    2.31.0 documentation'
-  kind: url
-  value: https://bedtools.readthedocs.io/
-  verification_status: pending
-  verified_against_url: https://bedtools.readthedocs.io/en/stable/
-  verified_at: '2026-07-26T15:53:05.586394Z'
+  verified_against_url: https://meme-suite.org/meme/tools/fimo
+  verified_at: '2026-08-16T15:49:45.231222Z'

@@ -1,11 +1,14 @@
 status: none
-intent: download MBPP and HumanEval Python code generation datasets pip package
+intent: download MBPP and HumanEval benchmark tasks python package dataset
 required_fields:
 - task_id
 - prompt
-- canonical_solution
+- function_signature
+- description
 - test_cases
-- entry_point
-cache_key: 66c6f05795e5f6d1496fd8b57e0dd0de84530ef25edadb0b68c62930ae8ee6cd
-searched_at: '2026-07-18T06:10:15.700739+00:00'
+- reference_solution
+- language
+- dataset_name
+cache_key: 34e69ac55c3b890568ede01b3d7b41ec6de5f5cf16978fd883e55e6503bffc9d
+searched_at: '2026-08-16T15:51:58.757632+00:00'
 retry_count: 1

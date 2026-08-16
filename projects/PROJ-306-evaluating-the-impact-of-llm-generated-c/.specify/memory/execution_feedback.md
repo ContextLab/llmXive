@@ -8,11 +8,9 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 19, in <module>
-    from llm_generator import generate_code, save_generated_code, save_generation_result, process_task_generation
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/llm_generator.py", line 251, in <module>
-    @log_operation("process_generation_task")
-     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py", line 66, in <module>
+    @log_operation("process_task")
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: 'LogEntry' object is not callable
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
@@ -25,7 +23,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 ### `get_model_config` — defined in `code/config.py`; called 1 way(s):
 
-- code/llm_generator.py: config = get_model_config(model_name)
+- code/llm_generator.py: model_config = get_model_config(model_name)
 
 Make `get_model_config` in `code/config.py` accept ALL of the above.
 

@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gene-regulation-analysis"
+name = "gene-regulation-pipeline"
 version = "0.1.0"
 description = "Exploring the mechanisms of gene regulation across different cell types"
 requires-python = ">=3.11"
@@ -16,58 +16,48 @@ dependencies = [
     "matplotlib",
     "biopython",
     "pytest",
-    "ruff",
-    "black",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
 [tool.ruff]
-# Same as Black.
 line-length = 88
 target-version = "py311"
-
-# Assume Python 3.11
-[tool.ruff.lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # pyflakes
     "I",  # isort
-    "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
 ]
 ignore = [
-    "E501",  # line too long (handled by black)
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
 ]
-
-# Allow autofix for all enabled rules (when `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files
 exclude = [
     ".bzr",
     ".direnv",
@@ -90,16 +80,20 @@ exclude = [
     "venv",
 ]
 
-# Per-rule configuration
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]  # Ignore unused imports in __init__.py files
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
-known-third-party = ["requests", "pandas", "pybedtools", "scipy", "seaborn", "matplotlib", "biopython", "pytest"]
+[tool.ruff.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]

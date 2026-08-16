@@ -141,9 +141,9 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T034 [P] Documentation updates in `README.md` and `specs/001-gene-regulation/quickstart.md`
-- [ ] T035 Code cleanup and refactoring <!-- ATOMIZE: requested -->
-- [~] T036 Performance optimization for FIMO execution (parallelization if safe) <!-- ATOMIZE: requested -->
-- [~] T037 [P] Additional unit tests in `tests/unit/`
+- [ ] T035 Code cleanup and refactoring <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T036 Performance optimization for FIMO execution (parallelization if safe) <!-- ATOMIZE: requested -->
+- [ ] T037 [P] Additional unit tests in `tests/unit/`
 - [~] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility <!-- FAILED: unspecified -->
 
 ---

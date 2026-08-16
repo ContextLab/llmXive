@@ -1,3 +1,3 @@
 """
-Contract tests for API and data format compliance.
+Contract tests verifying API interfaces and data schemas.
 """

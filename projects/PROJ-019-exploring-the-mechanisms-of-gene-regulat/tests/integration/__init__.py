@@ -1,3 +1,3 @@
 """
-Integration tests for component interactions.
+Integration tests for multi-module workflows.
 """

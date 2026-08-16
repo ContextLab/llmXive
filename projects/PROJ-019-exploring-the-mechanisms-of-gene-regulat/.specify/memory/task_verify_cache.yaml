@@ -1,65 +1,25 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/`,
-    `code/`, `data/`, `tests/`) is provided; the implementer did not supply any artifact
-    confirming the directory structure exists. The task remains unfinished until these
-    folders are created and shown.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided showing that `__init__.py` files actually exist in\
-    \ the `code/` and `tests/` directories; without those files present, the task\
-    \ requirement is not satisfied. The implementer must add non\u2011empty `__init__.py`\
-    \ files to both directories."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of `.gitkeep` files in `data/raw/`, `data/interim/`, or `data/processed/`
-    was provided; the artifact list is empty, so the requirement of creating those
-    placeholder files is not satisfied. The next implementer must add a `.gitkeep`
-    (or equivalent empty placeholder) file to each of the three directories.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting/formatting configuration files (e.g., pyproject.toml, .ruff.toml,\
-    \ black settings, or pre\u2011commit hooks) are provided or referenced, so there\
-    \ is no evidence that ruff and black have been configured for the project. The\
-    \ required artifacts are missing."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/` directory or its `unit`, `integration`, and `contract`
-    subfolders was provided; the implementer did not supply any files or directory
-    listings showing the required structure. The task therefore remains unfinished.
-T015:
-  c: false
-  h: 92a8a9d3bc8cb5220cc19fd05982105169ba92457d3a9cdcb26dcd72cb236e04
-  r: "The repository contains a non\u2011empty `code/main.py` that defines `generate_ingestion_summary`,\
-    \ but the required output file `data/processed/ingestion_summary.json` is absent,\
-    \ indicating the orchestration logic has not been executed (or is incomplete).\
-    \ The missing summary JSON means the task\u2019s core deliverable was not produced."
 T024:
   c: false
-  h: 361a929a5e98ac7300249fdb0d29ff5419cbf8f3903afd832a0a20793e0614c9
-  r: "The repository contains an updated `code/main.py` with a `generate_enrichment_matrix`\
-    \ function, but the required output file `data/processed/enrichment_matrix.csv`\
-    \ is absent, and the shown `main` function is truncated so it\u2019s unclear whether\
-    \ the orchestration actually runs the scanning/enrichment steps and writes the\
-    \ CSV. The missing CSV means the task\u2019s primary deliverable is not present."
+  h: 016271fa36cf213e99e43a32a0a02041793cd3da6fcdc1f2a8ec2497eac934b5
+  r: The provided `code/main.py` is truncated and does not contain a complete orchestration
+    (e.g., a `main` entry point that runs download, preprocessing, scanning, enrichment,
+    and then calls `generate_enrichment_matrix`). Moreover, the required output file
+    `data/processed/enrichment_matrix.csv` is absent from the repository. The task
+    therefore remains unfinished.
 T028:
   c: false
-  h: 9210c5692bdcf1de0bbc7d90844eda05ced5a20617272c9788a6808d070a228a
-  r: "The required output file `data/processed/heatmap.png` does not exist, so the\
-    \ task\u2019s deliverable is missing. (Even though `code/visualize.py` is present,\
-    \ the heatmap image was never generated.)"
+  h: 651b50a6c0b446db93e84a08bf9822a84bffd18dbc0e66198d1f786c656f5fcb
+  r: The repository contains `code/visualize.py`, but the required output file `data/processed/heatmap.png`
+    is absent, indicating the heatmap was never generated. The missing image must
+    be produced by the script for the task to be considered complete.
 T032:
   c: false
-  h: 2ee9301a9d3fea023345997efd9f4e2bb76a34d8cc8bd0a78b3d3eac3cb9f780
-  r: "The repository contains a partially shown `code/main.py`, but the shown code\
-    \ does not include any logic that creates `data/processed/validation_report.json`\
-    \ or performs the required validation/overlap statistics. Moreover, the file `data/processed/validation_report.json`\
-    \ is absent from the disk. The task\u2019s core output is therefore missing."
+  h: 069cabafadba783fac2780825b2da1392fe9063b95f612a7f53b7ae49c99eee4
+  r: "The repository lacks the required `data/processed/validation_report.json` file,\
+    \ and the shown portion of `code/main.py` does not contain logic that runs the\
+    \ validation step or writes a validation report (the script is truncated and only\
+    \ includes ingestion and enrichment matrix code). Consequently the task of orchestrating\
+    \ visualization\u202F+\u202Fvalidation and producing the JSON report is not fulfilled."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -74,3 +34,19 @@ T035:
     \ gene\u2011regulation pipeline was performed; the only provided information is\
     \ the original feature specification, with no artifacts indicating changes, linting,\
     \ modularization, or tests. Consequently the required deliverable is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., updated FIMO execution script, parallelization implementation,
+    benchmark results, or documentation) was provided to demonstrate that FIMO has
+    been optimized or parallelized. Without code changes, performance measurements,
+    or any concrete output, the claim cannot be verified. The next implementer must
+    supply the modified code and evidence (e.g., timing comparisons) showing safe
+    parallel execution of FIMO.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of any files under `tests/unit/` was provided; without actual unit\
+    \ test files present, the requirement for \u201CAdditional unit tests in `tests/unit/`\u201D\
+    \ is not satisfied. The implementer must add non\u2011empty test modules in that\
+    \ directory."

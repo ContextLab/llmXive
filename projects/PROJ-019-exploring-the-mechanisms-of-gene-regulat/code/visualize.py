@@ -38,6 +38,9 @@ def cluster_matrix(df: pd.DataFrame) -> pd.DataFrame:
 
 def generate_heatmap(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
     """Generate a heatmap of the enrichment matrix."""
+    import matplotlib
+    # Use Agg backend to prevent GUI errors in headless environments
+    matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -46,11 +49,15 @@ def generate_heatmap(df: pd.DataFrame, output_path: Optional[Path] = None) -> Pa
 
     clustered_df = cluster_matrix(df)
 
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(clustered_df, cmap='viridis', annot=False, cbar=True)
-    plt.title("Motif Enrichment Heatmap (q-values)")
+    plt.figure(figsize=(12, 10))
+    # Use a colormap suitable for heatmaps; viridis is standard
+    sns.heatmap(clustered_df, cmap='viridis', annot=False, cbar=True, 
+                cbar_kws={'label': 'Adjusted q-value'})
+    plt.title("Motif Enrichment Heatmap (q-values) by Cell Type")
+    plt.xlabel("Motif ID")
+    plt.ylabel("Cell Type")
     plt.tight_layout()
-    plt.savefig(path)
+    plt.savefig(path, dpi=150)
     plt.close()
 
     logger.info(f"Heatmap saved to {path}")
@@ -58,13 +65,23 @@ def generate_heatmap(df: pd.DataFrame, output_path: Optional[Path] = None) -> Pa
 
 def main() -> None:
     """Entry point for CLI."""
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     try:
+        logger.info("Loading enrichment matrix...")
         df = load_enrichment_matrix()
-        generate_heatmap(df)
-        print("Visualization complete.")
+        
+        if df.empty:
+            raise ValueError("Enrichment matrix is empty. Cannot generate heatmap.")
+        
+        logger.info(f"Loaded {len(df)} rows. Generating heatmap...")
+        output_path = generate_heatmap(df)
+        print(f"Visualization complete. Output: {output_path}")
+    except FileNotFoundError as e:
+        logger.error(f"Input file missing: {e}")
+        logger.error("Please ensure T024 (generate_enrichment_matrix) has been run successfully.")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Visualization failed: {e}")
+        logger.error(f"Visualization failed: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":
