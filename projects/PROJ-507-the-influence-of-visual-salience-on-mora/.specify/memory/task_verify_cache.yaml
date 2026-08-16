@@ -1,0 +1,47 @@
+T014:
+  c: false
+  h: e194eafea619e054d23ac34fa93bbac4b7afcbefb1774465efa3298bec48d177
+  r: "The required output file `data/processed/validated_candidates.csv` does not\
+    \ exist, and the provided `code/data_prep.py` excerpt shows no implementation\
+    \ of metadata filtering for \u201Csocial\u201D/\u201Cconflict\u201D tags or loading\
+    \ of external validation data. The task\u2019s core functionality and expected\
+    \ output are therefore missing."
+T015:
+  c: false
+  h: d65eac09ab36b618f395498485a1ecf77edb1736731b615965fa5ffec10b7cb5
+  r: "The repository contains `code/human_coding.py` and `code/human_coding_ui.py`,\
+    \ but the scripts are truncated and do not show the full processing logic, and\
+    \ the required output file `data/processed/valid_scenarios.csv` is absent. Without\
+    \ the generated CSV and a complete implementation that actually computes Cohen\u2019\
+    s \u03BA, applies the \u22650.6 threshold, and excludes failing scenarios, the\
+    \ task is not satisfied. The next implementer must provide a complete, runnable\
+    \ `human_coding.py` that writes the `valid_scenarios.csv` file with the correct\
+    \ filtering logic."
+T015a:
+  c: false
+  h: 5c0d36a022ee568f75ff60b38a9f12fd07e499217c12855e9c14ddcddd2dca78
+  r: "The required output file `data/processed/human_coding_annotations.csv` does\
+    \ not exist, and the provided `code/human_coding_ui.py` is incomplete (truncated)\
+    \ so we cannot confirm it enforces the \u22653 annotator rule or implements the\
+    \ majority\u2011vote logic. The task therefore remains unfinished."
+T021:
+  c: false
+  h: 6245411e1df1dd19299402802e5e20d1fbe9d7c7c4805aa126e9550abc563075
+  r: "The required file `tests/unit/test_data_schema.py` does not exist, so no unit\
+    \ test for validating the data schema (participant_id, image_id, salience, rating)\
+    \ is present. The task\u2019s core deliverable is missing."
+T023:
+  c: false
+  h: b2dedf26dd2a437b45f4e8b88e975df4e72a908fdc608ca283312ff6488edb3a
+  r: The required output file `data/survey/survey_sequences.json` does not exist,
+    and the provided `code/survey_deploy.py` excerpt does not show the implementation
+    of SessionState, Latin Square randomization, or the logic that writes the JSON
+    file. Without the generated sequence file and clear evidence of the required constraints,
+    the task is not fulfilled.
+T026b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or test artifacts were provided that create or check
+    the `data/survey/` and `data/synth/` directories, enforce naming conventions,
+    or raise a `DataHygieneError` for misplaced files. The required enforcement logic
+    and verification are missing.

@@ -1,0 +1,18 @@
+# Existing dependencies
+numpy
+pandas
+scipy
+statsmodels
+Pillow
+requests
+matplotlib
+seaborn
+opencv-python-headless
+streamlit
+torch
+transformers
+diffusers
+ordinal
+
+# New dependencies for T023 (if any, though mostly covered above)
+# No new dependencies strictly required beyond existing set

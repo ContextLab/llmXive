@@ -1,0 +1,79 @@
+# Research Configuration
+# This file contains configuration parameters for the visual salience study.
+# Environment variables can override these defaults.
+
+# Data sources
+data:
+  visual_genome:
+    # Default to using the Hugging Face datasets library
+    source: "visual_genome"
+    split: "train"
+    streaming: true
+    # If using local path, set via VISUAL_GENOME_PATH env var
+    local_path_env: "VISUAL_GENOME_PATH"
+
+  moral_d:
+    # Optional MoralD dataset
+    source: "morald"
+    local_path_env: "MORAL_D_PATH"
+    # Fallback to synthetic only if explicitly configured
+    allow_synthetic_fallback: false
+
+  external_validation:
+    local_path_env: "EXTERNAL_VALIDATION_PATH"
+
+# Model configuration
+models:
+  clip:
+    model_name: "ViT-B/32"
+    device: "cpu"  # or "cuda" if available
+    precision: "float32"
+
+# Analysis parameters
+analysis:
+  clmm:
+    # Cumulative Link Mixed Model settings
+    formula: "Rating ~ Salience + (1|Participant) + (1|Scenario)"
+    convergence_threshold: 1e-6
+    max_iterations: 100
+
+  post_hoc:
+    correction: "tukey"  # or "bonferroni"
+    alpha: 0.05
+
+  power:
+    target_power: 0.80
+    alpha: 0.05
+
+# Human coding requirements
+human_coding:
+  min_annotators: 3
+  kappa_threshold: 0.6
+  majority_vote: true
+
+# Salience manipulation
+salience:
+  levels: ["low", "medium", "high"]
+  luminance_thresholds:
+    low: 0.3
+    medium: 0.5
+    high: 0.7
+  semantic_preservation:
+    roi_similarity_threshold: 0.95
+    background_similarity_threshold: 0.99
+    texture_change_threshold: 0.05
+
+# Precision and validation
+precision:
+  min_acceptable: "deferred"  # or specific value like 0.5
+  ci_width_factor: 0.5  # CI width < 0.5 * effect_size
+
+# Runtime constraints
+runtime:
+  max_hours: 6
+  max_memory_gb: 7
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

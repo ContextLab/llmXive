@@ -1,0 +1,8 @@
+{
+  "SC-001": {"is_ambiguous": true, "tags": ["social", "conflict"]},
+  "SC-002": {"is_ambiguous": true, "tags": ["social"]},
+  "SC-003": {"is_ambiguous": false, "tags": ["clear_violation"]},
+  "SC-004": {"is_ambiguous": true, "tags": ["social", "conflict"]},
+  "SC-005": {"is_ambiguous": true, "tags": ["social"]},
+  "SC-006": {"is_ambiguous": true, "tags": ["social"]}
+}

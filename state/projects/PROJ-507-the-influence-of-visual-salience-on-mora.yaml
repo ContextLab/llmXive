@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T22:21:38.778018Z'
-current_stage: analyzed
+current_stage: tasked
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-507-the-influence-of-visual-salience-on-mora
-last_run_id: 790e141a-129f-42b8-8894-f40e31e6d01f
+last_run_id: 26b8173d-714c-458f-a44d-fc741f1a53fc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-507-the-influence-of-visual-salience-on-mora/specs/001-the-influence-of-visual-salience-on-mora
 title: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
-updated_at: '2026-08-16T02:39:20.822712Z'
+updated_at: '2026-08-16T09:17:06.679394Z'
