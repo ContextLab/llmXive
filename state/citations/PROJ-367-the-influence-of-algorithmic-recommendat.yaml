@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 009e9c6c18b68130a736679abdcbdb7890c37c7c53dfa436339f1624b95fe7a1
+  artifact_path: projects/PROJ-367-the-influence-of-algorithmic-recommendat/specs/001-the-influence-of-algorithmic-recommendat/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: file-000.parquet
+  kind: url
+  value: https://huggingface.co/datasets/psw5495/pick_and_place/resolve/main/data/chunk-000/file-000.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69c9fec3e047ead239e19f51/1b13c6640faa9cef711414199dac8558956759f818f5bf5815ed006c52a146e1?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27file-000.parquet%3B+filename%3D%22file-000.parquet%22%3B&user_id=public&Expires=1786889124&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjljOWZlYzNlMDQ3ZWFkMjM5ZTE5ZjUxLzFiMTNjNjY0MGZhYTljZWY3MTE0MTQxOTlkYWM4NTU4OTU2NzU5ZjgxOGY1YmY1ODE1ZWQwMDZjNTJhMTQ2ZTFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmlsZS0wMDAucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmZpbGUtMDAwLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Njg4OTEyNH19fV19&Signature=MEUCIQC86B4qQuZMkXzb4JgrgqPyMR1vtU5cNb2glZ-bNNZ%7EfgIgEPol0MCfZh066idus3Oj78xbPwpBtFTTixuK8MX1u5E_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-16T13:05:24.430372Z'

@@ -1,0 +1,10 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001** — No code, script, dataset, or output files were presented; the claim lacks any tangible artifact (e.g., preprocessing script, JSON results, modeling script, or regression output) to verify that the required data ingestion, diversity metric calculation, and propensity‑score weighting have been implemented. The task cannot be considered complete without these concrete deliverables.
+- **T002** — The required file `projects/PROJ-367-the-influence-of-algorithmic-recommendat/code/requirements.txt` does not exist, so the project has not been initialized with dependencies at the specified location. The existing `code/requirements.txt` is irrelevant to the task.
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with Black and Ruff settings, a `.flake8` config, or corresponding CI scripts) are present, and the provided project description contains only data‑processing requirements. Consequently, the task of configuring ruff/flake8 and Black has not been delivered.
+- **T004** — declared artifact(s) missing/empty/invalid: code/config.py
+- **T009** — No pytest configuration (e.g., `pytest.ini`, `conftest.py`, or test discovery settings) is present in the indicated `projects/PROJ-367-the-influence-of-algorithmic-recommendat/tests/` directory, nor any evidence that pytest has been set up. The required artifact is missing, so the task is not satisfied.
+- **T015** — The repository contains `code/main.py`, but the required output file `data/processed/diversity_scores.parquet` is absent, and there is no accompanying test script that runs a hard‑coded dataset and checks the calculated scores against manual entropy values within the 0.001 tolerance. Both the output artifact and the verification step are missing.

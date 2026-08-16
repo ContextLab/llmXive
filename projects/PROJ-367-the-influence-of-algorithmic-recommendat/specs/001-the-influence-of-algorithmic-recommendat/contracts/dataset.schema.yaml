@@ -1,0 +1,27 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Dataset Schema for Recommendation Diversity Study"
+type: object
+description: "Schema for the raw input dataset containing user sessions with recommendations and enrollments."
+properties:
+  user_id:
+    type: string
+    description: "Unique identifier for the user."
+  session_id:
+    type: string
+    description: "Unique identifier for the session."
+  recommended_categories:
+    type: array
+    items:
+      type: string
+    description: "List of categories recommended by the algorithm."
+  enrolled_categories:
+    type: array
+    items:
+      type: string
+    description: "List of categories enrolled by the user."
+required:
+  - user_id
+  - session_id
+  - recommended_categories
+  - enrolled_categories
+additionalProperties: false

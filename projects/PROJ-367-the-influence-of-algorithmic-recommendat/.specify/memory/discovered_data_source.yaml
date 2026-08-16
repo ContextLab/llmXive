@@ -1,0 +1,12 @@
+status: none
+intent: MOOC course recommendation and enrollment dataset with recommended and enrolled
+  item lists python package dataset
+required_fields:
+- user_id
+- session_id
+- recommended_items
+- enrolled_items
+- timestamp
+cache_key: 92f1ae05f2bf1af30e663f6a77c817ea0025e63e95d36a9dcba3111e9ddf094d
+searched_at: '2026-08-16T12:57:38.100260+00:00'
+retry_count: 1

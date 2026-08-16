@@ -1,0 +1,53 @@
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Line length for black compatibility
+line-length = 88
+
+# Exclude common directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "figures",
+    "docs"
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I"]
+
+# Ignore specific rules if necessary
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Per-file ignores
+per-file-ignores = {}
+
+[tool.ruff.lint.isort]
+# Configuration to match black's default
+known-first-party = ["code", "tests"]
+force-sort-within-sections = false
+combine-as-imports = true
+split-on-trailing-comma = true
