@@ -6,13 +6,6 @@ T009c:
     invoke the API loader until 100 repos, merge datasets, and write the Parquet file).
     Moreover, the required output file `data/raw/github_issues_raw_merged.parquet`
     does not exist. The orchestrator therefore does not meet the specified requirements.
-T011:
-  c: false
-  h: 01a26d8078b8f49b8312804006483824602d452ed396e86f2c1b41578c6a7d18
-  r: "The required output files `data/processed/cleaned_issues.csv` and `data/logs/completeness_report.json`\
-    \ are absent, and there is no evidence that the validator was run to produce a\
-    \ \u226595\u202F% completeness check. Consequently the task\u2019s core deliverables\
-    \ are missing."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

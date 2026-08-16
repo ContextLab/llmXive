@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T009a` (rejected 1x): The repository contains `code/data/loader_hf.py`, but the script never writes the fetched data to `data/raw/github_issues_raw_hf.parquet` nor does it perform full schema validation against `contracts/dataset.schema.yaml`. Moreover, the required output parquet file and the schema file are absent from the project. Consequently the task’s deliverables are not present.
-- `T009b` (rejected 1x): The required output file `data/raw/github_issues_raw_api.parquet` does not exist, and the provided `loader_api.py` is truncated (no visible logic for fetching issues, handling stop conditions, or writing the Parquet file). Without the generated dataset, the task’s deliverable is not satisfied.
+- `T011` (rejected 1x): The required output file `data/processed/cleaned_issues.csv` is missing (and thus no checksum can be generated), so the core part of the task is not satisfied despite the presence of a validation report. The implementer must create the cleaned dataset at the specified path (and compute its checksum) before the task can be considered complete.
+- `T012` (rejected 1x): declared artifact(s) missing/empty/invalid: data/logs/preprocessing.log
+- `T017` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/outlier_report.json
 
 ## Required change
 

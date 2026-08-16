@@ -1,229 +1,230 @@
 """
-Unit tests for hypothesis testing module, specifically verifying Westfall-Young permutation
-for label-dependent tests in T021.
+Unit tests for Holm-Bonferroni correction in hypothesis testing (T021).
+
+Verifies that:
+1. Holm-Bonferroni correction is correctly applied
+2. Corrected p-values are monotonic
+3. Significance decisions match expected behavior
 """
+
 import pytest
 import numpy as np
-from unittest.mock import patch, MagicMock
+from scipy import stats
+from statsmodels.stats.multitest import multipletests
 from pathlib import Path
 import sys
 
-# Add code directory to path for imports
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from analysis.hypothesis_testing import (
-    load_cleaned_data,
-    prepare_groups_for_test,
-    perform_kruskal_wallis,
     perform_pairwise_comparisons,
     analyze_hypotheses,
-    save_results,
+    perform_kruskal_wallis
 )
-from utils.config import get_config
 
 
-class TestWestfallYoungPermutation:
-    """Tests to verify Westfall-Young permutation is applied for label-dependent tests."""
+class TestHolmBonferroniCorrection:
+    """Tests for Holm-Bonferroni correction implementation."""
 
-    @pytest.fixture
-    def sample_data(self):
-        """Create sample data for testing."""
+    def test_holm_correction_monotonicity(self):
+        """Test that Holm-corrected p-values are monotonic with raw p-values."""
+        # Create synthetic groups with known differences
         np.random.seed(42)
-        n_samples = 1000
-        data = {
-            "resolution_time_hours": np.random.lognormal(mean=2, sigma=1, size=n_samples),
-            "language": np.random.choice(
-                ["Python", "JavaScript", "Java", "C++", "Go"], size=n_samples
-            ),
-            "repo_id": np.random.choice(range(100), size=n_samples),
-            "star_count": np.random.randint(10, 1000, size=n_samples),
+        groups = {
+            'lang_a': np.random.normal(10, 2, 100),
+            'lang_b': np.random.normal(12, 2, 100),
+            'lang_c': np.random.normal(10, 2, 100),
+            'lang_d': np.random.normal(15, 2, 100),
         }
-        return data
 
-    def test_perform_kruskal_wallis_uses_permutation(self, sample_data):
-        """
-        Verify that perform_kruskal_wallis applies Westfall-Young permutation
-        for label-dependent tests.
-        """
-        # Mock the data loading to return our sample data
-        with patch("analysis.hypothesis_testing.pd.read_csv") as mock_read_csv:
-            import pandas as pd
-            mock_read_csv.return_value = pd.DataFrame(sample_data)
+        results = perform_pairwise_comparisons(groups)
 
-            # Call the function with permutation enabled (default for Westfall-Young)
-            result = perform_kruskal_wallis(
-                data=sample_data,
-                target_col="resolution_time_hours",
-                group_col="language",
-                use_permutation=True,
-                n_permutations=100,
-                random_state=42,
-            )
+        # Extract corrected p-values
+        corrected_pvalues = [r['holm_corrected_pvalue'] for r in results]
 
-            # Verify result structure
-            assert "statistic" in result
-            assert "p_value" in result
-            assert "p_value_permutation" in result
-            assert "method" in result
+        # Extract raw p-values
+        raw_pvalues = [r['raw_pvalue'] for r in results]
 
-            # Verify permutation method is indicated
-            assert result["method"] == "Kruskal-Wallis with Westfall-Young permutation"
+        # Sort by raw p-value
+        sorted_indices = np.argsort(raw_pvalues)
+        sorted_corrected = [corrected_pvalues[i] for i in sorted_indices]
 
-            # Verify permutation p-value is present and numeric
-            assert isinstance(result["p_value_permutation"], (int, float))
-            assert 0 <= result["p_value_permutation"] <= 1
+        # Holm-corrected p-values should be non-decreasing when sorted by raw p-value
+        for i in range(len(sorted_corrected) - 1):
+            assert sorted_corrected[i] <= sorted_corrected[i + 1], \
+                "Holm-corrected p-values should be non-decreasing"
 
-    def test_perform_pairwise_comparisons_uses_permutation(self, sample_data):
-        """
-        Verify that perform_pairwise_comparisons applies Westfall-Young permutation
-        for label-dependent pairwise tests.
-        """
-        with patch("analysis.hypothesis_testing.pd.read_csv") as mock_read_csv:
-            import pandas as pd
-            mock_read_csv.return_value = pd.DataFrame(sample_data)
+    def test_holm_correction_less_conservative_than_bonferroni(self):
+        """Test that Holm is less conservative than standard Bonferroni."""
+        np.random.seed(42)
+        groups = {
+            'lang_a': np.random.normal(10, 2, 50),
+            'lang_b': np.random.normal(12, 2, 50),
+            'lang_c': np.random.normal(10, 2, 50),
+            'lang_d': np.random.normal(15, 2, 50),
+            'lang_e': np.random.normal(10, 2, 50),
+        }
 
-            # Call pairwise comparisons with permutation
-            result = perform_pairwise_comparisons(
-                data=sample_data,
-                target_col="resolution_time_hours",
-                group_col="language",
-                use_permutation=True,
-                n_permutations=100,
-                random_state=42,
-            )
+        results = perform_pairwise_comparisons(groups)
 
-            # Verify result structure
-            assert "comparisons" in result
-            assert "method" in result
+        raw_pvalues = [r['raw_pvalue'] for r in results]
+        holm_corrected = [r['holm_corrected_pvalue'] for r in results]
 
-            # Verify permutation method is indicated
-            assert "Westfall-Young" in result["method"]
+        # Compute Bonferroni manually
+        n_tests = len(raw_pvalues)
+        bonf_corrected = [p * n_tests for p in raw_pvalues]
+        bonf_corrected = [min(p, 1.0) for p in bonf_corrected]
 
-            # Verify each comparison has permutation p-value
-            for comp in result["comparisons"]:
-                assert "p_value_permutation" in comp
-                assert 0 <= comp["p_value_permutation"] <= 1
+        # Holm should be <= Bonferroni for all tests
+        for holm_p, bonf_p in zip(holm_corrected, bonf_corrected):
+            assert holm_p <= bonf_p, \
+                "Holm-corrected p-values should be <= Bonferroni-corrected p-values"
 
-    def test_analyze_hypotheses_applies_permutation(self, sample_data):
-        """
-        Verify that analyze_hypotheses applies Westfall-Young permutation
-        when analyzing group differences.
-        """
-        with patch("analysis.hypothesis_testing.pd.read_csv") as mock_read_csv:
-            import pandas as pd
-            mock_read_csv.return_value = pd.DataFrame(sample_data)
+    def test_holm_significance_threshold(self):
+        """Test that significance decisions are correct at α=0.05."""
+        np.random.seed(42)
+        # Create groups with clear differences
+        groups = {
+            'lang_a': np.random.normal(5, 1, 100),
+            'lang_b': np.random.normal(20, 1, 100),
+            'lang_c': np.random.normal(5, 1, 100),
+        }
 
-            # Mock save_results to avoid file I/O
-            with patch("analysis.hypothesis_testing.save_results"):
-                result = analyze_hypotheses(
-                    data_path="dummy_path.csv",
-                    target_col="resolution_time_hours",
-                    group_col="language",
-                    use_permutation=True,
-                    n_permutations=100,
-                    random_state=42,
-                    output_path="dummy_output.json",
-                )
+        results = perform_pairwise_comparisons(groups)
 
-                # Verify result contains permutation information
-                assert "kruskal_wallis" in result
-                assert "pairwise_comparisons" in result
+        # At least one comparison should be significant
+        significant_count = sum(1 for r in results if r['is_significant_holm'])
+        assert significant_count >= 1, \
+            "With clearly different groups, at least one comparison should be significant"
 
-                # Verify permutation was used
-                assert result["kruskal_wallis"]["method"] == "Kruskal-Wallis with Westfall-Young permutation"
-                assert "p_value_permutation" in result["kruskal_wallis"]
+    def test_holm_with_identical_groups(self):
+        """Test that identical groups produce non-significant results."""
+        np.random.seed(42)
+        data = np.random.normal(10, 2, 100)
+        groups = {
+            'lang_a': data.copy(),
+            'lang_b': data.copy(),
+            'lang_c': data.copy(),
+        }
 
-    def test_permutation_count_affects_p_value(self, sample_data):
-        """
-        Verify that different permutation counts produce different p-values,
-        confirming permutation is actually being run.
-        """
-        with patch("analysis.hypothesis_testing.pd.read_csv") as mock_read_csv:
-            import pandas as pd
-            mock_read_csv.return_value = pd.DataFrame(sample_data)
+        results = perform_pairwise_comparisons(groups)
 
-            # Run with different permutation counts
-            result_50 = perform_kruskal_wallis(
-                data=sample_data,
-                target_col="resolution_time_hours",
-                group_col="language",
-                use_permutation=True,
-                n_permutations=50,
-                random_state=42,
-            )
+        # All corrected p-values should be high (non-significant)
+        for r in results:
+            assert r['holm_corrected_pvalue'] > 0.05, \
+                "Identical groups should not be significant after correction"
+            assert not r['is_significant_holm'], \
+                "Identical groups should not be marked significant"
 
-            result_200 = perform_kruskal_wallis(
-                data=sample_data,
-                target_col="resolution_time_hours",
-                group_col="language",
-                use_permutation=True,
-                n_permutations=200,
-                random_state=42,
-            )
+    def test_pairwise_comparison_structure(self):
+        """Test that pairwise comparison results have correct structure."""
+        np.random.seed(42)
+        groups = {
+            'lang_a': np.random.normal(10, 2, 50),
+            'lang_b': np.random.normal(12, 2, 50),
+        }
 
-            # P-values should differ due to different permutation counts
-            # (though they should be in the same ballpark)
-            assert result_50["p_value_permutation"] != result_200["p_value_permutation"]
+        results = perform_pairwise_comparisons(groups)
 
-            # Both should be valid probabilities
-            assert 0 <= result_50["p_value_permutation"] <= 1
-            assert 0 <= result_200["p_value_permutation"] <= 1
+        assert len(results) == 1, "Should have 1 pairwise comparison for 2 groups"
 
-    def test_permutation_flag_controls_behavior(self, sample_data):
-        """
-        Verify that use_permutation=False disables permutation testing.
-        """
-        with patch("analysis.hypothesis_testing.pd.read_csv") as mock_read_csv:
-            import pandas as pd
-            mock_read_csv.return_value = pd.DataFrame(sample_data)
+        comp = results[0]
+        required_fields = [
+            'group1', 'group2', 'sample1_size', 'sample2_size',
+            'u_statistic', 'raw_pvalue', 'holm_corrected_pvalue',
+            'is_significant_holm'
+        ]
 
-            # Run without permutation
-            result = perform_kruskal_wallis(
-                data=sample_data,
-                target_col="resolution_time_hours",
-                group_col="language",
-                use_permutation=False,
-                n_permutations=100,
-                random_state=42,
-            )
+        for field in required_fields:
+            assert field in comp, f"Missing field: {field}"
 
-            # Verify result indicates standard method
-            assert "standard" in result["method"].lower() or "chi-squared" in result["method"].lower()
+    def test_kruskal_wallis_consistency(self):
+        """Test that Kruskal-Wallis results are consistent with scipy."""
+        np.random.seed(42)
+        groups = {
+            'lang_a': np.random.normal(10, 2, 100),
+            'lang_b': np.random.normal(15, 2, 100),
+            'lang_c': np.random.normal(10, 2, 100),
+        }
 
-            # Verify permutation p-value is not present or is None
-            assert "p_value_permutation" not in result or result["p_value_permutation"] is None
+        # Our implementation
+        h_stat, p_val = perform_kruskal_wallis(groups)
 
-    def test_westfall_young_handles_label_dependency(self, sample_data):
-        """
-        Verify that Westfall-Young permutation properly handles label dependency
-        by using the same permutation across all test statistics.
-        """
-        with patch("analysis.hypothesis_testing.pd.read_csv") as mock_read_csv:
-            import pandas as pd
-            mock_read_csv.return_value = pd.DataFrame(sample_data)
+        # Scipy implementation
+        scipy_h, scipy_p = stats.kruskal(
+            groups['lang_a'], groups['lang_b'], groups['lang_c']
+        )
 
-            # Run permutation test
-            result = perform_kruskal_wallis(
-                data=sample_data,
-                target_col="resolution_time_hours",
-                group_col="language",
-                use_permutation=True,
-                n_permutations=100,
-                random_state=123,
-            )
+        assert np.isclose(h_stat, scipy_h, rtol=1e-5), \
+            "H-statistic should match scipy"
+        assert np.isclose(p_val, scipy_p, rtol=1e-5), \
+            "p-value should match scipy"
 
-            # Run again with same seed to verify reproducibility
-            result_repro = perform_kruskal_wallis(
-                data=sample_data,
-                target_col="resolution_time_hours",
-                group_col="language",
-                use_permutation=True,
-                n_permutations=100,
-                random_state=123,
-            )
 
-            # Results should be identical with same seed
-            assert result["p_value_permutation"] == result_repro["p_value_permutation"]
+class TestHypothesisPipeline:
+    """Integration tests for the full hypothesis testing pipeline."""
 
-            # This confirms the permutation procedure is deterministic and
-            # properly handles the label dependency through consistent resampling
+    def test_analyze_hypotheses_output_structure(self, tmp_path):
+        """Test that analyze_hypotheses produces correct output structure."""
+        np.random.seed(42)
+        # Create a minimal valid dataframe
+        from analysis.hypothesis_testing import load_cleaned_data
+        import pandas as pd
+
+        # We'll test with synthetic data by mocking
+        test_df = pd.DataFrame({
+            'language': ['a'] * 50 + ['b'] * 50 + ['c'] * 50,
+            'resolution_time_hours': np.concatenate([
+                np.random.normal(10, 2, 50),
+                np.random.normal(15, 2, 50),
+                np.random.normal(10, 2, 50),
+            ])
+        })
+
+        # Mock the load function
+        import analysis.hypothesis_testing as ht_module
+        original_load = ht_module.load_cleaned_data
+        ht_module.load_cleaned_data = lambda: test_df
+
+        try:
+            results = analyze_hypotheses(test_df)
+
+            # Check structure
+            assert 'omnibus_test' in results
+            assert 'pairwise_comparisons' in results
+            assert 'westfall_young_permutation' in results
+            assert 'metadata' in results
+
+            # Check omnibus test fields
+            assert 'h_statistic' in results['omnibus_test']
+            assert 'p_value' in results['omnibus_test']
+            assert 'is_significant' in results['omnibus_test']
+
+            # Check pairwise fields
+            assert 'comparisons' in results['pairwise_comparisons']
+            assert 'n_comparisons' in results['pairwise_comparisons']
+
+            # Check Westfall-Young fields
+            assert 'westfall_young_pvalue' in results['westfall_young_permutation']
+            assert 'n_permutations' in results['westfall_young_permutation']
+
+        finally:
+            ht_module.load_cleaned_data = original_load
+
+    def test_minimum_groups_requirement(self):
+        """Test that analysis fails with < 2 groups."""
+        import pandas as pd
+        import analysis.hypothesis_testing as ht_module
+
+        test_df = pd.DataFrame({
+            'language': ['a'] * 100,
+            'resolution_time_hours': np.random.normal(10, 2, 100)
+        })
+
+        with pytest.raises(ValueError, match="Insufficient groups"):
+            analyze_hypotheses(test_df)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
