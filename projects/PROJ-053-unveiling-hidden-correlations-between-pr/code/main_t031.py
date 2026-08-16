@@ -5,86 +5,102 @@ import logging
 import pickle
 from pathlib import Path
 
-from config import get_results_dir, get_models_dir, get_project_root
+# Add project root to path
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT.parent))
+
+from config import get_project_root, get_results_dir, get_models_dir, get_processed_data_dir, ensure_directories, get_random_seed
 from utils.logger import setup_logging
 from utils.importance_analyzer import run_correlation_analysis, setup_importance_logger
 
 def setup_pipeline_logging():
-    """Setup logging for T031 pipeline."""
+    """Set up logging for the T031 pipeline."""
     return setup_logging("t031_pipeline")
 
+def load_model(model_path: str):
+    """Load the trained GPR model."""
+    logger = logging.getLogger("t031_pipeline")
+    logger.info(f"Loading model from {model_path}")
+    with open(model_path, 'rb') as f:
+        return pickle.load(f)
+
+def load_processed_test_data():
+    """
+    Load processed test data (X_test, y_test, feature_names).
+    Assumes data is saved in standard locations by T016.
+    """
+    logger = logging.getLogger("t031_pipeline")
+    processed_dir = get_processed_data_dir()
+    
+    # Assuming T016 saves these files or they are accessible
+    # Standard names based on typical pipeline outputs
+    x_test_path = os.path.join(processed_dir, "X_test.npy")
+    y_test_path = os.path.join(processed_dir, "y_test.npy")
+    feature_names_path = os.path.join(processed_dir, "feature_names.json")
+    
+    if not all(os.path.exists(p) for p in [x_test_path, y_test_path, feature_names_path]):
+        logger.error("Test data files not found. Ensure T016 (preprocess) has completed successfully.")
+        sys.exit(1)
+    
+    import numpy as np
+    X_test = np.load(x_test_path)
+    y_test = np.load(y_test_path)
+    
+    with open(feature_names_path, 'r') as f:
+        feature_names = json.load(f)
+    
+    logger.info(f"Loaded test data: X_test shape {X_test.shape}, y_test shape {y_test.shape}")
+    return X_test, y_test, feature_names
+
 def main():
-    """Main entry point for T031 execution."""
+    """
+    Orchestrates T031: Permutation Importance Correlation Analysis.
+    1. Load Model.
+    2. Load Test Data.
+    3. Run Correlation Analysis (loads baseline, computes importance, saves to metrics).
+    """
     logger = setup_pipeline_logging()
-    logger.info("Starting T031: Permutation Importance Correlation Analysis Pipeline")
+    logger.info("Starting T031 Pipeline")
     
-    # 1. Load GPR Model
-    models_dir = get_models_dir()
-    model_path = models_dir / "gpr_model.pkl"
-    
-    if not model_path.exists():
-        logger.error("GPR model not found at {}. Please run T026 first.".format(model_path))
-        sys.exit(1)
-    
-    try:
-        with open(model_path, 'rb') as f:
-            model = pickle.load(f)
-        logger.info("GPR model loaded successfully.")
-    except Exception as e:
-        logger.error(f"Failed to load GPR model: {e}")
-        sys.exit(1)
-    
-    # 2. Load Test Data
-    # We expect the test data to be saved by the preprocessing/training pipeline.
-    # Common location: data/processed/test_data.pkl
-    processed_dir = get_project_root() / "data" / "processed"
-    test_data_path = processed_dir / "test_data.pkl"
-    
-    if not test_data_path.exists():
-        logger.error("Test data not found at {}. Please ensure T016/T018 have run.".format(test_data_path))
-        sys.exit(1)
-    
-    try:
-        with open(test_data_path, 'rb') as f:
-            test_data = pickle.load(f)
-            X_test = test_data['X_test']
-            y_test = test_data['y_test']
-            feature_names = test_data['feature_names']
-        logger.info("Test data loaded successfully.")
-    except Exception as e:
-        logger.error(f"Failed to load test data: {e}")
-        sys.exit(1)
-    
-    # 3. Run Correlation Analysis
-    try:
-        results = run_correlation_analysis(model, X_test, y_test, feature_names, logger)
-    except Exception as e:
-        logger.error(f"Correlation analysis failed: {e}")
-        sys.exit(1)
-    
-    # 4. Save Results to metrics.json
+    ensure_directories()
     results_dir = get_results_dir()
-    metrics_path = results_dir / "metrics.json"
+    models_dir = get_models_dir()
     
-    # Load existing metrics
-    metrics = {}
-    if metrics_path.exists():
-        try:
-            with open(metrics_path, 'r') as f:
-                metrics = json.load(f)
-        except json.JSONDecodeError:
-            logger.warning("Existing metrics.json is invalid. Overwriting.")
-            metrics = {}
+    # Paths
+    model_path = os.path.join(models_dir, "gpr_model.pkl")
     
-    # Append T031 results
-    metrics["t031_correlation_analysis"] = results
+    if not os.path.exists(model_path):
+        logger.error(f"GPR Model not found at {model_path}. Run T026 first.")
+        sys.exit(1)
     
-    # Write back
-    with open(metrics_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    
-    logger.info(f"Results appended to {metrics_path}")
-    logger.info("T031 completed successfully.")
+    try:
+        # Load Data
+        model = load_model(model_path)
+        X_test, y_test, feature_names = load_processed_test_data()
+        
+        # Run Analysis
+        # This function handles loading the baseline (and failing if missing),
+        # calculating importance, and updating metrics.json
+        results = run_correlation_analysis(
+            model=model,
+            X_test=X_test,
+            y_test=y_test,
+            feature_names=feature_names,
+            results_dir=results_dir,
+            logger=logger
+        )
+        
+        logger.info("T031 Pipeline completed successfully.")
+        print(json.dumps(results, indent=2))
+        
+    except FileNotFoundError as e:
+        logger.critical(f"Critical Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.critical(f"Pipeline failed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
