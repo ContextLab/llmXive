@@ -1,3 +1,35 @@
-# Extends pyproject.toml settings for specific overrides if needed
-# Currently, all config is in pyproject.toml for simplicity.
-extend = "pyproject.toml"
+# Explicit ruff configuration file for IDE compatibility
+# This file mirrors the settings in pyproject.toml
+
+target-version = "py311"
+line-length = 100
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+
+ignore = [
+    "E501",
+    "B008",
+]
+
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "build",
+    "dist",
+    "*.egg-info",
+    "data/",
+    "logs/"
+]
+
+[per-file-ignores]
+"__init__.py" = ["F401"]
+"code/scripts/*.py" = ["T201"]

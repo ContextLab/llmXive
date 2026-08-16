@@ -1,11 +1,3 @@
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with `[tool.ruff]`
-    settings, a `.ruff.toml`, or a `black` configuration) are present in the provided
-    evidence, nor any scripts or documentation showing that `ruff` and `black` have
-    been set up for the project. The required artifacts to demonstrate that linting
-    and formatting are configured are missing.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,6 +47,13 @@ T020:
     cannot be verified as satisfied. The next implementer must provide the actual
     validation logic and evidence (e.g., code snippet, test results) showing that
     after imputation no primary predictor contains missing values.
+T025:
+  c: false
+  h: 098daeff3ba714f057a047260f2f368d3f8fe3cde3632cd462a61468ae359064
+  r: "The integration test file exists, but the required output `data/results/cv_split_report.json`\
+    \ was not created (it is missing), so the test does not fulfill the task\u2019\
+    s requirement to generate the stratification report with the specified schema.\
+    \ The artifact needed for completion is absent."
 T027b:
   c: false
   h: a97381a7740ffba1da2e78f4e3a022ab9b44ba008f52e3444b281e886cb3144b
