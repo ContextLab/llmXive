@@ -1,62 +1,56 @@
-"""
-Data processing module for splitting and validating datasets.
-Implements geometry-disjoint train/test splits.
-"""
 import os
 import sys
 import json
 import math
 import random
+import gc
 from pathlib import Path
-from typing import Dict, List, Set, Tuple, Any
-import pandas as pd
-import pyarrow.parquet as pq
-import hashlib
+from typing import List, Dict, Any, Set, Tuple
 
-# Import shared utilities from the project structure
-# Note: The prompt indicates 'utils' is in code/, so we adjust import path
-sys.path.insert(0, str(Path(__file__).parent))
+try:
+    import pandas as pd
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+except ImportError as e:
+    print(f"CRITICAL: Missing dependencies for data processing. Run: pip install pandas pyarrow")
+    sys.exit(1)
+
 from utils.data_utils import compute_checksum, update_checksums
 
-def load_raw_data(raw_path: str) -> pd.DataFrame:
-    """
-    Load the raw synthetic episodes dataset.
+# Configuration paths
+CONFIG_PATH = "code/config.yaml"
+RAW_DATA_PATH = "data/raw/synthetic_episodes.parquet"
+PROCESSED_DIR = "data/processed"
+TRAIN_PATH = os.path.join(PROCESSED_DIR, "train.parquet")
+TEST_PATH = os.path.join(PROCESSED_DIR, "test.parquet")
+CHECKSUMS_PATH = "data/checksums.json"
+
+def load_config() -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    import yaml
+    if not os.path.exists(CONFIG_PATH):
+        raise FileNotFoundError(f"Config file not found at {CONFIG_PATH}")
+    with open(CONFIG_PATH, 'r') as f:
+        return yaml.safe_load(f)
+
+def load_raw_data() -> pd.DataFrame:
+    """Load the raw synthetic episodes dataset."""
+    if not os.path.exists(RAW_DATA_PATH):
+        raise FileNotFoundError(f"Raw data file not found at {RAW_DATA_PATH}. Run generate_data.py first.")
     
-    Args:
-        raw_path: Path to the raw parquet file.
-        
-    Returns:
-        DataFrame containing the raw episodes.
-        
-    Raises:
-        FileNotFoundError: If the raw file does not exist.
-        ValueError: If the file is not a valid parquet.
-    """
-    if not os.path.exists(raw_path):
-        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
-    
-    try:
-        df = pd.read_parquet(raw_path)
-        # Ensure required columns exist
-        required_cols = ['geometry_id', 'stability_label']
-        missing = [c for c in required_cols if c not in df.columns]
-        if missing:
-            raise ValueError(f"Raw data missing required columns: {missing}")
-        return df
-    except Exception as e:
-        raise ValueError(f"Failed to load parquet file {raw_path}: {e}")
+    print(f"Loading raw data from {RAW_DATA_PATH}...")
+    df = pq.read_table(RAW_DATA_PATH).to_pandas()
+    print(f"Loaded {len(df)} rows with columns: {list(df.columns)}")
+    return df
 
 def get_unique_geometries(df: pd.DataFrame) -> Set[str]:
-    """
-    Extract unique geometry IDs from the dataset.
+    """Extract unique geometry IDs from the dataset."""
+    if 'geometry_id' not in df.columns:
+        raise ValueError("Dataset must contain 'geometry_id' column for geometry-disjoint split.")
     
-    Args:
-        df: DataFrame with 'geometry_id' column.
-        
-    Returns:
-        Set of unique geometry ID strings.
-    """
-    return set(df['geometry_id'].unique())
+    unique_ids = set(df['geometry_id'].unique())
+    print(f"Found {len(unique_ids)} unique geometry IDs")
+    return unique_ids
 
 def split_geometry_disjoint(
     df: pd.DataFrame, 
@@ -64,145 +58,126 @@ def split_geometry_disjoint(
     seed: int = 42
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Split the dataset into train and test sets such that no geometry ID
-    appears in both sets.
-    
-    This ensures the model is tested on entirely novel object geometries.
+    Split data into train/test sets based on unique geometry IDs.
+    Ensures that no geometry ID appears in both train and test sets.
     
     Args:
-        df: The full dataset DataFrame.
-        train_ratio: Fraction of geometries to include in training (default 0.8).
-        seed: Random seed for reproducibility.
+        df: The input dataframe with 'geometry_id' column
+        train_ratio: Proportion of unique geometries to use for training
+        seed: Random seed for reproducibility
         
     Returns:
-        Tuple of (train_df, test_df).
-        
-    Raises:
-        ValueError: If there are not enough unique geometries to split.
+        Tuple of (train_df, test_df)
     """
-    if train_ratio <= 0 or train_ratio >= 1:
-        raise ValueError("train_ratio must be between 0 and 1 (exclusive)")
+    unique_ids = get_unique_geometries(df)
     
-    unique_geoms = get_unique_geometries(df)
-    if len(unique_geoms) < 2:
-        raise ValueError(f"Need at least 2 unique geometries to split, found {len(unique_geoms)}")
-    
+    # Shuffle and split the unique IDs
     random.seed(seed)
-    geoms_list = list(unique_geoms)
-    random.shuffle(geoms_list)
+    id_list = list(unique_ids)
+    random.shuffle(id_list)
     
-    split_idx = int(len(geoms_list) * train_ratio)
-    train_geoms = set(geoms_list[:split_idx])
-    test_geoms = set(geoms_list[split_idx:])
+    split_idx = int(len(id_list) * train_ratio)
+    train_ids = set(id_list[:split_idx])
+    test_ids = set(id_list[split_idx:])
     
-    # Filter DataFrame
-    train_df = df[df['geometry_id'].isin(train_geoms)].copy()
-    test_df = df[df['geometry_id'].isin(test_geoms)].copy()
+    print(f"Train geometries: {len(train_ids)}, Test geometries: {len(test_ids)}")
     
-    # Verify disjointness
-    train_set = set(train_df['geometry_id'].unique())
-    test_set = set(test_df['geometry_id'].unique())
-    intersection = train_set.intersection(test_set)
+    # Filter dataframe based on geometry IDs
+    train_df = df[df['geometry_id'].isin(train_ids)].reset_index(drop=True)
+    test_df = df[df['geometry_id'].isin(test_ids)].reset_index(drop=True)
+    
+    print(f"Train rows: {len(train_df)}, Test rows: {len(test_df)}")
+    
+    # Validate disjointness
+    train_geom_set = set(train_df['geometry_id'].unique())
+    test_geom_set = set(test_df['geometry_id'].unique())
+    intersection = train_geom_set & test_geom_set
+    
     if intersection:
-        raise RuntimeError(f"Geometry split failed: shared geometries {intersection}")
+        raise ValueError(f"Geometry-disjoint split failed! Shared geometries: {intersection}")
     
     return train_df, test_df
 
-def validate_splits(train_df: pd.DataFrame, test_df: pd.DataFrame) -> Dict[str, Any]:
+def validate_splits(train_df: pd.DataFrame, test_df: pd.DataFrame) -> bool:
     """
-    Validate the resulting splits for statistical power and disjointness.
+    Validate the splits meet requirements:
+    1. No shared geometry IDs
+    2. Total rows >= 5000
+    3. Test rows >= 1000
+    """
+    train_geoms = set(train_df['geometry_id'].unique())
+    test_geoms = set(test_df['geometry_id'].unique())
     
-    Args:
-        train_df: Training DataFrame.
-        test_df: Test DataFrame.
-        
-    Returns:
-        Dictionary with validation stats.
-        
-    Raises:
-        AssertionError: If validation constraints (e.g., min rows) are violated.
-    """
+    # Check disjointness
+    if train_geoms & test_geoms:
+        print("FAIL: Train and test sets share geometry IDs!")
+        return False
+    
     total_rows = len(train_df) + len(test_df)
     test_rows = len(test_df)
     
-    # Assert total rows >= 5000 (from T016d requirement)
-    assert total_rows >= 5000, f"Total rows {total_rows} < 5000"
+    print(f"Validation: Total rows={total_rows}, Test rows={test_rows}")
     
-    # Assert test rows >= 1000 (from T016d requirement)
-    assert test_rows >= 1000, f"Test rows {test_rows} < 1000"
+    if total_rows < 5000:
+        print(f"FAIL: Total rows ({total_rows}) < 5000")
+        return False
     
-    # Assert disjointness
-    train_geoms = set(train_df['geometry_id'].unique())
-    test_geoms = set(test_df['geometry_id'].unique())
-    assert len(train_geoms.intersection(test_geoms)) == 0, "Splits are not disjoint"
+    if test_rows < 1000:
+        print(f"FAIL: Test rows ({test_rows}) < 1000")
+        return False
     
-    return {
-        "total_rows": total_rows,
-        "train_rows": len(train_df),
-        "test_rows": test_rows,
-        "train_unique_geoms": len(train_geoms),
-        "test_unique_geoms": len(test_geoms),
-        "valid": True
-    }
+    print("Validation PASSED")
+    return True
 
 def save_parquet(df: pd.DataFrame, path: str) -> None:
-    """
-    Save DataFrame to a parquet file.
-    
-    Args:
-        df: DataFrame to save.
-        path: Output file path.
-    """
+    """Save dataframe to parquet file."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    df.to_parquet(path, index=False)
+    table = pa.Table.from_pandas(df)
+    pq.write_table(table, path)
+    print(f"Saved {len(df)} rows to {path}")
 
-def update_checksums_registry(file_path: str, registry_path: str) -> None:
-    """
-    Update the project's checksum registry with the new file.
-    
-    Args:
-        file_path: Path to the file to checksum.
-        registry_path: Path to the checksums.json file.
-    """
+def update_checksums_registry(file_path: str) -> None:
+    """Update the checksums.json registry with the new file's checksum."""
     checksum = compute_checksum(file_path)
-    update_checksums(registry_path, file_path, checksum)
+    update_checksums(file_path, checksum, CHECKSUMS_PATH)
+    print(f"Updated checksum for {file_path}")
 
 def main():
-    """
-    Main entry point for the data processing script.
-    Loads raw data, performs geometry-disjoint split, validates, and saves.
-    """
-    # Paths
-    project_root = Path(__file__).parent.parent
-    raw_path = project_root / "data" / "raw" / "synthetic_episodes.parquet"
-    processed_dir = project_root / "data" / "processed"
-    train_path = processed_dir / "train.parquet"
-    test_path = processed_dir / "test.parquet"
-    checksums_path = project_root / "data" / "checksums.json"
+    """Main entry point for geometry-disjoint split."""
+    print("=== Starting Geometry-Disjoint Split (T016c) ===")
     
-    print(f"Loading raw data from: {raw_path}")
-    df = load_raw_data(str(raw_path))
-    print(f"Loaded {len(df)} rows.")
+    # Load raw data
+    df = load_raw_data()
     
-    print("Performing geometry-disjoint split (80/20)...")
-    train_df, test_df = split_geometry_disjoint(df, train_ratio=0.8, seed=42)
+    # Load config for split ratio if available
+    try:
+        config = load_config()
+        train_ratio = config.get('split', {}).get('train_ratio', 0.8)
+        seed = config.get('split', {}).get('seed', 42)
+    except Exception as e:
+        print(f"Warning: Could not load config, using defaults: train_ratio=0.8, seed=42")
+        train_ratio = 0.8
+        seed = 42
     
-    print("Validating splits...")
-    stats = validate_splits(train_df, test_df)
-    print(f"Validation passed: {stats}")
+    # Perform split
+    train_df, test_df = split_geometry_disjoint(df, train_ratio=train_ratio, seed=seed)
     
-    print(f"Saving train set to: {train_path} ({len(train_df)} rows)")
-    save_parquet(train_df, str(train_path))
+    # Validate splits
+    if not validate_splits(train_df, test_df):
+        print("ERROR: Split validation failed. Aborting.")
+        sys.exit(1)
     
-    print(f"Saving test set to: {test_path} ({len(test_df)} rows)")
-    save_parquet(test_df, str(test_path))
+    # Save processed data
+    save_parquet(train_df, TRAIN_PATH)
+    save_parquet(test_df, TEST_PATH)
     
     # Update checksums
-    print("Updating checksums...")
-    update_checksums_registry(str(train_path), str(checksums_path))
-    update_checksums_registry(str(test_path), str(checksums_path))
+    update_checksums_registry(TRAIN_PATH)
+    update_checksums_registry(TEST_PATH)
     
-    print("Processing complete.")
+    print("=== Geometry-Disjoint Split Complete ===")
+    print(f"Train: {TRAIN_PATH} ({len(train_df)} rows)")
+    print(f"Test: {TEST_PATH} ({len(test_df)} rows)")
 
 if __name__ == "__main__":
     main()

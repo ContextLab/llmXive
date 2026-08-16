@@ -1,10 +1,7 @@
 """
-Train a Geometry-Only Baseline model.
-
-This script trains a lightweight model (Logistic Regression via PyTorch) 
-using ONLY the `initial_object_bounds` feature to predict stability.
-
-Output: data/processed/baseline_model.pt
+Train a geometry-only baseline model.
+Uses only 'initial_object_bounds' to predict stability.
+Saves the model to data/processed/baseline_model.pt.
 """
 import os
 import sys
@@ -12,8 +9,10 @@ import random
 import gc
 import signal
 import time
+import json
 import math
 from pathlib import Path
+from typing import Tuple, List, Optional, Dict, Any
 
 import torch
 import torch.nn as nn
@@ -22,85 +21,100 @@ from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 import numpy as np
 
-# Ensure imports work from code/ directory context
-# We assume this file is run as `python code/train_baseline.py`
-# or installed in an environment where `code` is on PYTHONPATH.
-# To be safe for local execution, we add parent to path if needed.
-if __name__ == "__main__":
-    # Add current directory to path to allow imports of sibling modules
-    # if run as script, but rely on environment for standard imports.
-    pass
+# --------------------------------------------------------------------------
+# Configuration & Paths
+# --------------------------------------------------------------------------
 
-# --- Configuration & Constants ---
-RANDOM_SEED = 42
-TRAIN_PATH = "data/processed/train.parquet"
-TEST_PATH = "data/processed/test.parquet"
-OUTPUT_MODEL_PATH = "data/processed/baseline_model.pt"
-DEVICE = torch.device("cpu") # Enforce CPU only per project constraints
-BATCH_SIZE = 128
-EPOCHS = 20
-LEARNING_RATE = 0.01
+def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    import yaml
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f)
 
-# --- Timeout Handling (Consistent with train_model.py) ---
+# --------------------------------------------------------------------------
+# Timeout Handling (matches train_model.py pattern)
+# --------------------------------------------------------------------------
+
 class TimeoutError(Exception):
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutError("Training timed out")
+    raise TimeoutError("Training timeout exceeded")
 
-def set_timeout(seconds):
+def set_timeout(seconds: int):
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(seconds)
 
 def reset_timeout():
     signal.alarm(0)
 
-# --- Dataset Class ---
+# --------------------------------------------------------------------------
+# Dataset
+# --------------------------------------------------------------------------
+
 class GeometryOnlyDataset(Dataset):
     """
-    Dataset that loads ONLY initial_object_bounds as features.
-    
-    The raw data contains columns like:
-    - initial_object_bounds: A list/array of 6 floats (min_x, min_y, min_z, max_x, max_y, max_z)
-    - stability: The target label (0 or 1)
+    Dataset that loads only 'initial_object_bounds' and 'stability_label'.
     """
-    def __init__(self, parquet_path):
+    def __init__(self, parquet_path: str):
+        self.parquet_path = parquet_path
+        # Load data
         self.df = pd.read_parquet(parquet_path)
         
-        # Extract features: initial_object_bounds
-        # Assuming the column contains lists or arrays of 6 floats.
-        # We flatten them to shape (N, 6).
-        if 'initial_object_bounds' not in self.df.columns:
-            raise ValueError(f"Column 'initial_object_bounds' not found in {parquet_path}")
-        
-        # Convert list of lists to numpy array
-        # Handle potential nested list structure
-        bounds_list = self.df['initial_object_bounds'].tolist()
-        self.features = np.array(bounds_list, dtype=np.float32)
-        
-        if self.features.shape[1] != 6:
-            raise ValueError(f"Expected 6 bounds values, got {self.features.shape[1]}")
+        # Validate columns
+        required_cols = ['initial_object_bounds', 'stability_label']
+        missing = [c for c in required_cols if c not in self.df.columns]
+        if missing:
+            raise ValueError(f"Missing required columns in {parquet_path}: {missing}")
 
-        # Extract target
-        if 'stability' not in self.df.columns:
-            raise ValueError(f"Column 'stability' not found in {parquet_path}")
-        self.targets = self.df['stability'].values.astype(np.float32)
+        # Flatten bounds: (x_min, y_min, z_min, x_max, y_max, z_max) -> 6 features
+        # Assuming initial_object_bounds is a list/array of 6 floats per row
+        self.X = []
+        for _, row in self.df.iterrows():
+            bounds = row['initial_object_bounds']
+            if isinstance(bounds, (list, np.ndarray)):
+                # Ensure it's a flat list of 6
+                flat = list(bounds)
+                if len(flat) != 6:
+                    # If it's nested or different shape, flatten and take first 6 or pad
+                    flat = [float(x) for x in bounds]
+                    if len(flat) != 6:
+                        raise ValueError(f"Expected 6 bounds, got {len(flat)}")
+                self.X.append(flat)
+            else:
+                raise ValueError(f"Invalid bounds format: {type(bounds)}")
+        
+        self.X = np.array(self.X, dtype=np.float32)
+        self.y = self.df['stability_label'].values.astype(np.int64)
+        print(f"Loaded {len(self.y)} samples for geometry-only baseline.")
 
     def __len__(self):
-        return len(self.df)
+        return len(self.y)
 
     def __getitem__(self, idx):
-        return torch.tensor(self.features[idx]), torch.tensor(self.targets[idx])
+        x = torch.tensor(self.X[idx], dtype=torch.float32)
+        y = torch.tensor(self.y[idx], dtype=torch.float32)
+        return x, y
 
-# --- Model Definition ---
+def collate_fn(batch):
+    """Standard collate function."""
+    xs, ys = zip(*batch)
+    return torch.stack(xs), torch.stack(ys)
+
+# --------------------------------------------------------------------------
+# Model
+# --------------------------------------------------------------------------
+
 class GeometryBaselineModel(nn.Module):
     """
-    A simple MLP for geometry-only baseline.
-    Input: 6 values (min/max x,y,z)
-    Output: 1 value (logit for stability)
+    Simple MLP for geometry-only prediction.
+    Input: 6 floats (bounds)
+    Output: 1 float (logit)
     """
-    def __init__(self, input_dim=6, hidden_dim=32):
-        super(GeometryBaselineModel, self).__init__()
+    def __init__(self, input_dim: int = 6, hidden_dim: int = 32):
+        super().__init__()
         self.net = nn.Sequential(
             nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
@@ -108,152 +122,139 @@ class GeometryBaselineModel(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_dim // 2, 1)
         )
-
+    
     def forward(self, x):
         return self.net(x)
 
-# --- Training Utilities ---
-def set_seed(seed):
+# --------------------------------------------------------------------------
+# Training Utilities
+# --------------------------------------------------------------------------
+
+def set_seed(seed: int = 42):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
-def collate_fn(batch):
-    """Custom collate to stack features and targets."""
-    features, targets = zip(*batch)
-    return torch.stack(features), torch.stack(targets)
-
-def train_epoch(model, dataloader, criterion, optimizer, device):
+def train_epoch(model: nn.Module, loader: DataLoader, optimizer: optim.Optimizer, criterion: nn.Module, device: torch.device):
     model.train()
     total_loss = 0.0
-    for batch_features, batch_targets in dataloader:
-        batch_features = batch_features.to(device)
-        batch_targets = batch_targets.to(device)
-
-        optimizer.zero_grad()
-        outputs = model(batch_features)
-        # Flatten outputs if needed (B, 1) -> (B,)
-        outputs = outputs.squeeze(1)
-        loss = criterion(outputs, batch_targets)
+    correct = 0
+    total = 0
+    
+    for x, y in loader:
+        x, y = x.to(device), y.to(device)
         
+        optimizer.zero_grad()
+        logits = model(x).squeeze()
+        loss = criterion(logits, y)
         loss.backward()
         optimizer.step()
+        
         total_loss += loss.item()
+        preds = (torch.sigmoid(logits) > 0.5).float()
+        correct += (preds == y).sum().item()
+        total += y.size(0)
     
-    return total_loss / len(dataloader)
+    return total_loss / len(loader), correct / total
 
-def evaluate(model, dataloader, criterion, device):
+def evaluate(model: nn.Module, loader: DataLoader, criterion: nn.Module, device: torch.device) -> Tuple[float, float]:
     model.eval()
     total_loss = 0.0
     correct = 0
     total = 0
     
     with torch.no_grad():
-        for batch_features, batch_targets in dataloader:
-            batch_features = batch_features.to(device)
-            batch_targets = batch_targets.to(device)
+        for x, y in loader:
+            x, y = x.to(device), y.to(device)
+            logits = model(x).squeeze()
+            loss = criterion(logits, y)
             
-            outputs = model(batch_features).squeeze(1)
-            loss = criterion(outputs, batch_targets)
             total_loss += loss.item()
-            
-            # Calculate accuracy
-            predicted = (torch.sigmoid(outputs) > 0.5).float()
-            total += batch_targets.size(0)
-            correct += (predicted == batch_targets).sum().item()
+            preds = (torch.sigmoid(logits) > 0.5).float()
+            correct += (preds == y).sum().item()
+            total += y.size(0)
     
-    avg_loss = total_loss / len(dataloader)
-    accuracy = correct / total
-    return avg_loss, accuracy
+    return total_loss / len(loader), correct / total
+
+# --------------------------------------------------------------------------
+# Main
+# --------------------------------------------------------------------------
 
 def main():
-    print(f"Starting Geometry-Only Baseline Training...")
-    print(f"Device: {DEVICE}")
+    # Configuration
+    config = load_config()
+    data_path = config.get('data', {}).get('processed_train', 'data/processed/train.parquet')
+    output_path = config.get('data', {}).get('processed_baseline_model', 'data/processed/baseline_model.pt')
     
-    # Set timeout for safety (e.g., 2 hours)
-    set_timeout(7200)
-
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    print(f"Loading data from: {data_path}")
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Training data not found at {data_path}. Run T016c first.")
+    
+    # Setup
+    set_seed(42)
+    device = torch.device("cpu")  # CPU-only constraint
+    print(f"Using device: {device}")
+    
+    # Dataset & Loader
+    dataset = GeometryOnlyDataset(data_path)
+    loader = DataLoader(dataset, batch_size=64, shuffle=True, collate_fn=collate_fn)
+    
+    # Model
+    model = GeometryBaselineModel(input_dim=6, hidden_dim=32).to(device)
+    param_count = sum(p.numel() for p in model.parameters())
+    print(f"Model parameters: {param_count}")
+    
+    # Training setup
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    criterion = nn.BCEWithLogitsLoss()
+    
+    epochs = config.get('training', {}).get('epochs', 50)
+    timeout_seconds = config.get('training', {}).get('timeout_seconds', 3600)
+    
+    print(f"Training for {epochs} epochs...")
+    
     try:
-        # 1. Load Data
-        if not os.path.exists(TRAIN_PATH):
-            raise FileNotFoundError(f"Training data not found at {TRAIN_PATH}. Run T016c first.")
-        
-        print(f"Loading training data from {TRAIN_PATH}...")
-        train_dataset = GeometryOnlyDataset(TRAIN_PATH)
-        
-        # Optional: Load test data for validation
-        if os.path.exists(TEST_PATH):
-            print(f"Loading test data from {TEST_PATH}...")
-            test_dataset = GeometryOnlyDataset(TEST_PATH)
-        else:
-            test_dataset = None
-            print("Warning: Test data not found. Skipping validation metrics.")
-
-        # 2. Create DataLoaders
-        train_loader = DataLoader(
-            train_dataset, 
-            batch_size=BATCH_SIZE, 
-            shuffle=True, 
-            collate_fn=collate_fn,
-            num_workers=0 # Keep it simple for CPU
-        )
-        
-        test_loader = None
-        if test_dataset:
-            test_loader = DataLoader(
-                test_dataset,
-                batch_size=BATCH_SIZE,
-                shuffle=False,
-                collate_fn=collate_fn,
-                num_workers=0
-            )
-
-        # 3. Initialize Model
-        model = GeometryBaselineModel(input_dim=6, hidden_dim=32).to(DEVICE)
-        total_params = sum(p.numel() for p in model.parameters())
-        print(f"Model Parameters: {total_params:,}")
-
-        # 4. Loss and Optimizer
-        criterion = nn.BCEWithLogitsLoss()
-        optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-
-        # 5. Training Loop
-        print(f"Training for {EPOCHS} epochs...")
-        best_test_acc = 0.0
-        
-        for epoch in range(EPOCHS):
-            train_loss = train_epoch(model, train_loader, criterion, optimizer, DEVICE)
+        set_timeout(timeout_seconds)
+        best_acc = 0.0
+        for epoch in range(epochs):
+            train_loss, train_acc = train_epoch(model, loader, optimizer, criterion, device)
+            val_loss, val_acc = evaluate(model, loader, criterion, device)
             
-            if test_loader:
-                test_loss, test_acc = evaluate(model, test_loader, criterion, DEVICE)
-                print(f"Epoch {epoch+1}/{EPOCHS} | Train Loss: {train_loss:.4f} | Test Loss: {test_loss:.4f} | Test Acc: {test_acc:.4f}")
-                if test_acc > best_test_acc:
-                    best_test_acc = test_acc
-            else:
-                print(f"Epoch {epoch+1}/{EPOCHS} | Train Loss: {train_loss:.4f}")
-
-        # 6. Save Model
-        os.makedirs(os.path.dirname(OUTPUT_MODEL_PATH), exist_ok=True)
-        torch.save({
-            'model_state_dict': model.state_dict(),
-            'total_params': total_params,
-            'input_dim': 6,
-            'best_test_acc': best_test_acc if test_loader else None
-        }, OUTPUT_MODEL_PATH)
+            if val_acc > best_acc:
+                best_acc = val_acc
+                # Save best model
+                torch.save({
+                    'model_state_dict': model.state_dict(),
+                    'param_count': param_count,
+                    'epoch': epoch,
+                    'accuracy': val_acc
+                }, output_path)
+            
+            if (epoch + 1) % 10 == 0:
+                print(f"Epoch {epoch+1}/{epochs} - Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}")
         
-        print(f"Model saved to {OUTPUT_MODEL_PATH}")
-        print(f"Best Test Accuracy: {best_test_acc:.4f}" if test_loader else "No test accuracy recorded.")
-
-    except TimeoutError:
-        print("ERROR: Training timed out.")
+        reset_timeout()
+        print(f"Training complete. Best validation accuracy: {best_acc:.4f}")
+        print(f"Model saved to: {output_path}")
+        
+        # Verify file exists and has content
+        if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+            print("SUCCESS: Baseline model saved and verified.")
+        else:
+            raise RuntimeError("Model file was not saved correctly.")
+            
+    except TimeoutError as e:
+        print(f"TRAINING TIMEOUT: {e}")
+        reset_timeout()
         sys.exit(1)
     except Exception as e:
-        print(f"ERROR: Training failed with exception: {e}")
-        raise
-    finally:
-        reset_timeout()
-        gc.collect()
+        print(f"TRAINING FAILED: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    set_seed(RANDOM_SEED)
     main()

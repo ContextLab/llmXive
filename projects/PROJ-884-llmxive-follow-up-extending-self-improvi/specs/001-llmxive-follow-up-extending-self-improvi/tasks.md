@@ -113,7 +113,7 @@
 
 - [X] T016 [P] [US2] Unit test for `code/symbolic/planner.py` with edge cases (non-linear constraints, impossible goals) in `tests/unit/test_symbolic_planner.py::test_planner_handles_nonlinear_constraints`
 
-- [ ] T017 [US2] Integration test for the BES loop with a small population in `tests/integration/test_bes_loop.py::test_bes_loop_executes_symbolic_backward_step`. **Note**: Written first (TDD) but executes after T024. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T017 [US2] Integration test for the BES loop with a small population in `tests/integration/test_bes_loop.py::test_bes_loop_executes_symbolic_backward_step`. **Note**: Written first (TDD) but executes after T024. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
@@ -127,7 +127,7 @@
 
 - [X] T021 [US2] Implement `code/bes/forward_step.py` to perform trajectory recombination guided by symbolic sub-goals. **Constraint**: Must use `optimum` CPU-optimized inference flags (`device='cpu'`, `torch.no_grad`) and specify exact Hugging Face model ID with pinned `revision` hash for reproducibility. <!-- FAILED: unspecified -->
 
-- [ ] T022 [US2] Implement `code/bes/population.py` to manage the evolutionary population, ensuring memory usage stays under a manageable threshold. **Note**: Must be implemented before T023 if T023 updates population state.
+- [X] T022 [US2] Implement `code/bes/population.py` to manage the evolutionary population, ensuring memory usage stays under a manageable threshold. **Note**: Must be implemented before T023 if T023 updates population state.
 
 - [X] T023 [US2] Implement `code/bes/backward_step.py` to integrate the symbolic planner output into the evolutionary loop, replacing the neural verifier
 
@@ -157,7 +157,7 @@
 
 - [ ] T029 [US3] Implement scalability analysis in `code/analysis/metrics.py` to derive the formal **complexity class (Big-O)** via **log-log linear regression** on problem size vs. time. **Requirement**: Must implement classification logic to compare regression slope to thresholds (e.g., ~1 for O(n), ~2 for O(n^2)) to output a discrete `complexity_class` column. Output must be saved to `data/processed/scaling_analysis.csv`. **Note**: Depends on T024 (BES loop) and T026 (metrics).
 
-- [ ] T030 [US3] Create `code/main.py` entry point to run the full experiment (Symbolic vs. Neural Baseline) and output results to `data/processed/`
+- [X] T030 [US3] Create `code/main.py` entry point to run the full experiment (Symbolic vs. Neural Baseline) and output results to `data/processed/`
 
 - [ ] T031 [US3] Generate final report in `data/processed/final_report.md` (Markdown format) containing sections: Success Rate Comparison, Cost Comparison, Complexity Analysis, and Statistical Significance (p-values)
 

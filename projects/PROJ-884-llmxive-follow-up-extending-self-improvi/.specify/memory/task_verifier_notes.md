@@ -9,5 +9,7 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004** — No evidence of the required `data/raw/` and `data/processed/` directories is provided; the claim lacks any tangible artifact showing the directory structure was created. The task remains undone.
 - **T013** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T014** — The claim provides no code, script, configuration, or documentation that adds checksum validation for files in `data/raw/`. There is no evidence of a checksum generation step, a verification routine, or tests confirming integrity checks, so the required artifact is missing.
-- **T017** — declared artifact(s) missing/empty/invalid: tests/integration/test_bes_loop.py
-- **T022** — declared artifact(s) missing/empty/invalid: code/bes/population.py
+- **T029** — The `perform_scaling_analysis` function is truncated and does not show the actual regression, slope‑to‑class mapping, or CSV writing logic, and the required output file `data/processed/scaling_analysis.csv` is missing from the repository. The task’s core deliverable – a completed scaling analysis that produces the CSV with a `complexity_class` column – is therefore not present.
+- **T031** — declared artifact(s) missing/empty/invalid: data/processed/final_report.md
+- **T032** — No `README.md` content or any documentation artifact was presented; therefore we cannot confirm that the required updates detailing how to run the BES loop and interpret results actually exist. The implementer must supply the updated README file with the specified instructions.
+- **T033** — No cleaned or refactored source files for the `code/bes/` and `code/symbolic/` modules are present; the claim provides only a high‑level feature description without any actual code changes, diff, or commit evidence. The required artifact—a set of updated, lint‑clean, and refactored Python modules—is missing.

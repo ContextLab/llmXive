@@ -21,7 +21,7 @@ sdist/
 var/
 wheels/
 *.egg-info/
-.installed.cfg
+installed-files.txt
 *.egg
 
 # PyInstaller
@@ -34,58 +34,37 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
-.tox/
 .coverage
 .coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
 .hypothesis/
-.pytest_cache/
+.tox/
+.nox/
 
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
+# Virtual environments
 venv/
 ENV/
 env/
 .venv/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-
-# OS generated files
-.DS_Store
-.DS_Store?
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Project specific
-data/raw/
-!data/raw/.gitkeep
-data/processed/
-!data/processed/.gitkeep
-logs/
-*.log
-.gitkeep
-
-# Config / Secrets
-.env.local
-.env.*.local
-secrets.json
-credentials.json
+.project
+.settings/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Environment variables
+.env
+.env.local
+.env.*.local
 
 # mypy
 .mypy_cache/
@@ -94,3 +73,22 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Project specific
+data/raw/*.tmp
+data/processed/*.tmp
+data/processed/*.log
+data/processed/scaling_analysis.csv
+data/processed/final_report.md
+results/
+figures/
+*.log

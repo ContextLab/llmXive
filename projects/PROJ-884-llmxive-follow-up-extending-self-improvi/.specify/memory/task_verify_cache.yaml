@@ -1,37 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/...`
-    directory tree is provided; without a listing or screenshot confirming the folders
-    were created, we cannot confirm the task was actually performed. The implementer
-    must supply proof (e.g., a directory tree dump) that the specified structure exists.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No repository initialization or `.gitignore` file is presented in the provided\
-    \ evidence; the claim lacks any tangible artifact confirming that a git repo was\
-    \ created and a basic Python\u2011oriented `.gitignore` was added."
-T002a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a Python\u202F3.11 virtual environment (e.g., a `venv/` folder\
-    \ with activation scripts, `pyproject.toml`, or `requirements.txt`) exists in\
-    \ the specified `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/`\
-    \ path. The task\u2019s core deliverable is missing."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a high\u2011level feature specification for dataset\
-    \ verification and evolutionary search; there is no evidence of any linting or\
-    \ formatting configuration (e.g., a `pyproject.toml`, `.flake8`, or `black` settings\
-    \ file) nor any scripts invoking flake8/black. Consequently, the required artifact\
-    \ for task T003 is missing."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw/` and `data/processed/` directories is
-    provided; the claim lacks any tangible artifact showing the directory structure
-    was created. The task remains undone.
 T005:
   c: true
   h: c0a342b830cefc5b1fe70b28d49521e3ec6a3892eb2aecec8974d66aebe97e59
@@ -46,3 +12,26 @@ T014:
     checksum validation for files in `data/raw/`. There is no evidence of a checksum
     generation step, a verification routine, or tests confirming integrity checks,
     so the required artifact is missing.
+T029:
+  c: false
+  h: 04a553199a3f3ef34fe38038d1e523f410ef705dc153ef43bcf56b6164c4cc91
+  r: "The `perform_scaling_analysis` function is truncated and does not show the actual\
+    \ regression, slope\u2011to\u2011class mapping, or CSV writing logic, and the\
+    \ required output file `data/processed/scaling_analysis.csv` is missing from the\
+    \ repository. The task\u2019s core deliverable \u2013 a completed scaling analysis\
+    \ that produces the CSV with a `complexity_class` column \u2013 is therefore not\
+    \ present."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `README.md` content or any documentation artifact was presented; therefore
+    we cannot confirm that the required updates detailing how to run the BES loop
+    and interpret results actually exist. The implementer must supply the updated
+    README file with the specified instructions.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No cleaned or refactored source files for the `code/bes/` and `code/symbolic/`\
+    \ modules are present; the claim provides only a high\u2011level feature description\
+    \ without any actual code changes, diff, or commit evidence. The required artifact\u2014\
+    a set of updated, lint\u2011clean, and refactored Python modules\u2014is missing."

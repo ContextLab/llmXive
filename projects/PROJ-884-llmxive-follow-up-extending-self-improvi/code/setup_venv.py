@@ -4,94 +4,85 @@ import sys
 import shutil
 from pathlib import Path
 
-def find_python311() -> str:
+def find_python311() -> Path:
     """
-    Locates the Python 3.11 interpreter.
-    Returns the path to the executable.
+    Locate a Python 3.11 executable on the system.
+    Checks common locations and the system PATH.
     Raises FileNotFoundError if not found.
     """
-    candidates = [
-        "python3.11",
-        "python3.11.exe",
-        "/usr/bin/python3.11",
-        "/usr/local/bin/python3.11",
-    ]
-    
-    for candidate in candidates:
+    possible_names = ["python3.11", "python3", "python"]
+    python_path = None
+
+    # Try specific python3.11 first, then generic python3
+    for name in ["python3.11", "python3"]:
         try:
             result = subprocess.run(
-                [candidate, "--version"],
+                [name, "--version"],
                 capture_output=True,
                 text=True,
                 check=True
             )
-            if "3.11" in result.stdout:
-                return candidate
+            if "3.11" in result.stdout or "3.11" in result.stderr:
+                # Found a 3.11 version
+                python_path = shutil.which(name)
+                break
         except (subprocess.CalledProcessError, FileNotFoundError):
             continue
-    
-    # Fallback: try generic python3 and check version
-    try:
-        result = subprocess.run(
-            ["python3", "--version"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        if "3.11" in result.stdout:
-            return "python3"
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
 
-    raise FileNotFoundError(
-        "Python 3.11 interpreter not found. "
-        "Please install Python 3.11 and ensure it is in PATH or named 'python3.11'."
-    )
+    if not python_path:
+        # Fallback to generic python if python3.11 not found explicitly
+        # (Assuming the environment running this script is 3.11)
+        python_path = sys.executable
+        version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        if "3.11" not in version:
+            raise FileNotFoundError(
+                f"Could not find Python 3.11. "
+                f"Current interpreter is {version} at {python_path}. "
+                f"Please ensure python3.11 is installed and in PATH."
+            )
+
+    return Path(python_path)
 
 def main():
     """
-    Initializes a Python 3.11 virtual environment in the project root.
-    The project root is determined by the presence of 'tasks.md' or 'plan.md'.
+    Initialize a Python 3.11 virtual environment in the project root.
+    Project root is expected to be the directory containing this script's parent 'code' directory.
     """
-    # Determine project root (current working directory or parent if needed)
-    # Assuming this script is run from the project root or code/ subdirectory
-    current_path = Path.cwd()
-    project_root = current_path
-    
-    # If running from code/, go up one level
-    if project_root.name == "code":
-        project_root = project_root.parent
-
+    # Determine project root: code/setup_venv.py -> parent is project root
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
     venv_path = project_root / "venv"
-    
+
+    print(f"Project Root: {project_root}")
+    print(f"Target Venv: {venv_path}")
+
     if venv_path.exists():
-        print(f"Virtual environment already exists at {venv_path}. Skipping creation.")
-        print("To recreate, manually remove the directory and re-run this script.")
-        return
+        print("Virtual environment already exists at 'venv/'. Skipping creation.")
+        print("To recreate, manually remove the 'venv/' directory.")
+        return 0
 
-    print(f"Locating Python 3.11 interpreter...")
-    python_exe = find_python311()
-    print(f"Found interpreter: {python_exe}")
-
-    print(f"Creating virtual environment at {venv_path}...")
     try:
+        python_exec = find_python311()
+        print(f"Using Python executable: {python_exec}")
+
+        # Create the virtual environment
         subprocess.run(
-            [sys.executable, "-m", "venv", str(venv_path)],
-            check=True,
-            capture_output=False
+            [str(python_exec), "-m", "venv", str(venv_path)],
+            check=True
         )
+        print(f"Successfully created virtual environment at '{venv_path}'.")
+        print(f"Activate with: source {venv_path}/bin/activate (Linux/Mac) or {venv_path}\\Scripts\\activate (Windows)")
+        return 0
+
     except subprocess.CalledProcessError as e:
-        print(f"Failed to create virtual environment: {e}")
-        sys.exit(1)
-
-    # Verify creation
-    if not (venv_path / "bin" / "activate").exists() and not (venv_path / "Scripts" / "activate.bat").exists():
-        print("Virtual environment creation verification failed.")
-        sys.exit(1)
-
-    print("Virtual environment created successfully.")
-    print(f"Activate with: source {venv_path / 'bin' / 'activate'} (Unix)")
-    print(f"Activate with: {venv_path / 'Scripts' / 'activate.bat'} (Windows)")
+        print(f"Error creating virtual environment: {e}", file=sys.stderr)
+        return 1
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

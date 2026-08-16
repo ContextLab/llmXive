@@ -1,49 +1,11 @@
-T014:
-  c: false
-  h: 268c2cb21670d14295a8a59e333375174741279266537bd1e67cedb0d3e4dd39
-  r: The repository lacks the required `config.yaml` file, so thresholds cannot be
-    loaded, and the provided `generate_data.py` (truncated) does not show any implemented
-    logic that assigns a binary stability label based on those thresholds. Both the
-    configuration source and the labeling implementation are missing.
-T016:
-  c: false
-  h: b72ed6a8387e12c56c20e580315ac1d791f7ab20e1f2a4e32c6202c17254cfcf
-  r: The required file `data/raw/synthetic_episodes.parquet` does not exist, so the
-    dataset was not actually saved. Although `data/checksums.json` contains a placeholder
-    entry for the missing file, the artifact itself is absent, violating the task
-    requirement. The implementer must generate the dataset and place the Parquet file
-    at the specified path, then update the checksum file accordingly.
-T016c:
-  c: false
-  h: 96350bee09b19480420b7690ee9bb1c4688171d712af71e3aa50fc232a1a367e
-  r: "The repository contains a `code/generate_data.py` file, but it is truncated\
-    \ and does not include any logic that performs a geometry\u2011disjoint train/test\
-    \ split or writes `train.parquet`/`test.parquet`. Moreover, the expected output\
-    \ files `data/processed/train.parquet` and `data/processed/test.parquet` are absent\
-    \ from the project. The required split and saved artifacts are therefore missing."
-T018:
-  c: false
-  h: 268c2cb21670d14295a8a59e333375174741279266537bd1e67cedb0d3e4dd39
-  r: "The repository lacks a `config.yaml` file, so custom thresholds cannot be read,\
-    \ and the shown `generate_data.py` does not contain a function that recomputes\
-    \ labels on the raw `synthetic_episodes.parquet` and re\u2011runs the geometry\u2011\
-    disjoint split logic as required. Both the configuration source and the new processing\
-    \ function are missing."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer did not provide any model summary output or any file showing
-    the total parameter count. No artifact demonstrating that the model has fewer
-    than 10,000,000 parameters before saving is present, so the task requirement is
-    not satisfied.
 T027b:
   c: false
-  h: 038ef12079db4944f7d3049d96840327c3a058a653b5b116e4f0edbf755bdfd5
-  r: The provided `code/train_baseline.py` is truncated (e.g., `__getitem__` ends
-    with `return torch.tensor` and no model definition, training loop, or saving logic)
-    and the required output file `data/processed/baseline_model.pt` does not exist.
-    Consequently the baseline model is not actually trained or saved, so the task
-    requirements are unmet.
+  h: cf8ceb4df6c13310bfc9c8bb4aea43a8e474ebafc954904ddb68077c1b15baef
+  r: "The repository contains a `code/train_baseline.py` file, but it is truncated\
+    \ and does not include any training loop or model\u2011saving logic, and the required\
+    \ output file `data/processed/baseline_model.pt` is absent. Consequently the baseline\
+    \ model is neither trained nor persisted, so the task\u2019s requirement is not\
+    \ met."
 T027c:
   c: false
   h: 8d98adc483f02296c73b14a12f7530a8c2b8758fe2fb15e421eb2f574d17332f

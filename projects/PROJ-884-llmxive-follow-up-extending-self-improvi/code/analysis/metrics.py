@@ -1,234 +1,185 @@
-"""
-Metrics calculation module for US3.
-Calculates success rates, wall-clock time, and energy consumption from execution logs.
-"""
 import json
 import os
+import math
+import csv
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, asdict
-import csv
-
-# Constants for energy estimation (approximate TDP based power draw)
-# These are rough estimates for CPU-bound inference on a standard server node
-# Adjust based on actual hardware profiling if available
-DEFAULT_CPU_POWER_WATTS = 65.0  # Watts
-DEFAULT_GPU_POWER_WATTS = 0.0   # Not used in CPU-only mode per constraints
 
 @dataclass
 class ExperimentMetrics:
-    """Container for calculated experiment metrics."""
     experiment_id: str
-    total_runs: int
-    successful_runs: int
-    success_rate: float
-    avg_wall_clock_seconds: float
-    total_wall_clock_seconds: float
-    avg_energy_joules: float
-    total_energy_joules: float
-    method: str  # 'symbolic' or 'neural'
-    
-def load_experiment_logs(log_dir: str) -> List[Dict[str, Any]]:
+    problem_size: int
+    success: bool
+    wall_clock_time: float
+    energy_joules: float
+    complexity_class: Optional[str] = None
+
+def load_experiment_logs(log_path: Path) -> List[Dict[str, Any]]:
     """
-    Load all JSON log files from the specified directory.
-    
-    Args:
-        log_dir: Path to the directory containing experiment logs.
-        
-    Returns:
-        List of log entries as dictionaries.
+    Load experiment logs from a JSON file.
+    Expects a list of log entries or a JSON object with a 'logs' key.
     """
-    log_path = Path(log_dir)
     if not log_path.exists():
-        raise FileNotFoundError(f"Log directory not found: {log_dir}")
-        
-    logs = []
-    for file_path in log_path.glob("*.json"):
+        raise FileNotFoundError(f"Log file not found: {log_path}")
+    
+    with open(log_path, 'r') as f:
+        data = json.load(f)
+    
+    if isinstance(data, list):
+        return data
+    elif isinstance(data, dict) and 'logs' in data:
+        return data['logs']
+    else:
+        # Try to parse as a single log entry wrapped in a list
+        return [data]
+
+def calculate_metrics_from_logs(logs: List[Dict[str, Any]]) -> List[ExperimentMetrics]:
+    """
+    Extract metrics from raw log entries.
+    Assumes logs contain: problem_size, success, wall_clock_time, energy_joules
+    """
+    metrics = []
+    for log in logs:
         try:
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-                # Handle both single-entry files and list-of-entries files
-                if isinstance(data, list):
-                    logs.extend(data)
-                else:
-                    logs.append(data)
-        except (json.JSONDecodeError, IOError) as e:
-            print(f"Warning: Could not parse {file_path}: {e}")
-            
-    return logs
+            metric = ExperimentMetrics(
+                experiment_id=log.get('experiment_id', 'unknown'),
+                problem_size=int(log.get('problem_size', 0)),
+                success=bool(log.get('success', False)),
+                wall_clock_time=float(log.get('wall_clock_time', 0.0)),
+                energy_joules=float(log.get('energy_joules', 0.0))
+            )
+            metrics.append(metric)
+        except (ValueError, TypeError) as e:
+            # Skip malformed entries
+            continue
+    return metrics
 
-def calculate_metrics_from_logs(
-    logs: List[Dict[str, Any]], 
-    method: str = "symbolic"
-) -> ExperimentMetrics:
-    """
-    Calculate aggregate metrics from a list of log entries.
+def save_metrics_to_csv(metrics: List[ExperimentMetrics], output_path: Path) -> None:
+    """Save metrics to a CSV file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    Args:
-        logs: List of log entries (dictionaries).
-        method: Label for the method used ('symbolic' or 'neural').
-        
-    Returns:
-        ExperimentMetrics object with calculated values.
-    """
-    if not logs:
-        return ExperimentMetrics(
-            experiment_id="unknown",
-            total_runs=0,
-            successful_runs=0,
-            success_rate=0.0,
-            avg_wall_clock_seconds=0.0,
-            total_wall_clock_seconds=0.0,
-            avg_energy_joules=0.0,
-            total_energy_joules=0.0,
-            method=method
-        )
-
-    total_runs = len(logs)
-    successful_runs = 0
-    total_wall_clock = 0.0
-    total_energy = 0.0
-
-    for entry in logs:
-        # Determine success
-        # Log format typically includes 'success', 'status', or 'result'
-        is_success = False
-        if 'success' in entry:
-            is_success = bool(entry['success'])
-        elif 'status' in entry:
-            is_success = entry['status'] == 'success'
-        elif 'result' in entry:
-            is_success = entry['result'].get('valid', False)
-        
-        if is_success:
-            successful_runs += 1
-
-        # Accumulate wall-clock time
-        # Look for 'wall_clock', 'duration', or 'time' fields
-        wall_clock = 0.0
-        if 'wall_clock' in entry:
-            wall_clock = float(entry['wall_clock'])
-        elif 'duration' in entry:
-            wall_clock = float(entry['duration'])
-        elif 'time' in entry:
-            wall_clock = float(entry['time'])
-        
-        total_wall_clock += wall_clock
-
-        # Accumulate energy (if available in logs)
-        # If not directly available, estimate based on wall-clock and power
-        energy = 0.0
-        if 'energy_joules' in entry:
-            energy = float(entry['energy_joules'])
-        elif wall_clock > 0:
-            # Estimate energy: Power (Watts) * Time (Seconds) = Energy (Joules)
-            # Using a conservative CPU power estimate for the active period
-            power_watts = DEFAULT_CPU_POWER_WATTS
-            energy = wall_clock * power_watts
-        
-        total_energy += energy
-
-    success_rate = successful_runs / total_runs if total_runs > 0 else 0.0
-    avg_wall_clock = total_wall_clock / total_runs if total_runs > 0 else 0.0
-    avg_energy = total_energy / total_runs if total_runs > 0 else 0.0
-
-    # Extract experiment ID if available, otherwise generate one
-    exp_id = logs[0].get('experiment_id', 'unknown') if logs else 'unknown'
-
-    return ExperimentMetrics(
-        experiment_id=exp_id,
-        total_runs=total_runs,
-        successful_runs=successful_runs,
-        success_rate=success_rate,
-        avg_wall_clock_seconds=avg_wall_clock,
-        total_wall_clock_seconds=total_wall_clock,
-        avg_energy_joules=avg_energy,
-        total_energy_joules=total_energy,
-        method=method
-    )
-
-def save_metrics_to_csv(metrics_list: List[ExperimentMetrics], output_path: str) -> None:
-    """
-    Save a list of metrics to a CSV file.
+    fieldnames = [
+        'experiment_id', 'problem_size', 'success', 
+        'wall_clock_time', 'energy_joules', 'complexity_class'
+    ]
     
-    Args:
-        metrics_list: List of ExperimentMetrics objects.
-        output_path: Path to the output CSV file.
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for m in metrics:
+            writer.writerow(asdict(m))
+
+def perform_scaling_analysis(metrics: List[ExperimentMetrics], output_path: Path) -> None:
     """
-    if not metrics_list:
+    Perform log-log linear regression to determine complexity class.
+    
+    Steps:
+    1. Filter successful runs (optional, but typical for complexity analysis).
+    2. Log-transform problem_size and wall_clock_time.
+    3. Perform linear regression: log(time) = m * log(size) + c.
+    4. Classify complexity based on slope 'm':
+       - m ~ 1.0 -> O(n)
+       - m ~ 2.0 -> O(n^2)
+       - m ~ 3.0 -> O(n^3)
+       - m > 10.0 -> Exponential (approx)
+       - else -> Unknown
+    5. Save results to CSV with 'complexity_class' column.
+    """
+    if not metrics:
+        raise ValueError("No metrics provided for scaling analysis.")
+
+    # Filter for successful runs to analyze performance complexity
+    successful_metrics = [m for m in metrics if m.success]
+    
+    if len(successful_metrics) < 2:
+        # Not enough data points for regression
+        # Fallback to marking all as 'Unknown' or just copy without classification
+        for m in successful_metrics:
+            m.complexity_class = "Unknown"
+        save_metrics_to_csv(successful_metrics, output_path)
         return
 
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Prepare data for regression
+    x_vals = [] # log(problem_size)
+    y_vals = [] # log(wall_clock_time)
+    
+    valid_points = []
+    
+    for m in successful_metrics:
+        if m.problem_size > 0 and m.wall_clock_time > 0:
+            x_vals.append(math.log(m.problem_size))
+            y_vals.append(math.log(m.wall_clock_time))
+            valid_points.append(m)
+    
+    if len(valid_points) < 2:
+        for m in valid_points:
+            m.complexity_class = "Unknown"
+        save_metrics_to_csv(valid_points, output_path)
+        return
 
-    fieldnames = [
-        'experiment_id', 'method', 'total_runs', 'successful_runs', 
-        'success_rate', 'avg_wall_clock_seconds', 'total_wall_clock_seconds',
-        'avg_energy_joules', 'total_energy_joules'
-    ]
-
-    with open(output_file, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for metrics in metrics_list:
-            writer.writerow(asdict(metrics))
+    # Linear Regression: y = mx + c
+    n = len(x_vals)
+    sum_x = sum(x_vals)
+    sum_y = sum(y_vals)
+    sum_xy = sum(x * y for x, y in zip(x_vals, y_vals))
+    sum_x2 = sum(x * x for x in x_vals)
+    
+    denominator = n * sum_x2 - sum_x * sum_x
+    if denominator == 0:
+        slope = 0.0
+    else:
+        slope = (n * sum_xy - sum_x * sum_y) / denominator
+    
+    # Classify complexity based on slope
+    # Thresholds: |slope - 1| < 0.2 -> O(n), |slope - 2| < 0.2 -> O(n^2), etc.
+    complexity_class = "Unknown"
+    
+    if abs(slope - 1.0) < 0.25:
+        complexity_class = "O(n)"
+    elif abs(slope - 2.0) < 0.25:
+        complexity_class = "O(n^2)"
+    elif abs(slope - 3.0) < 0.25:
+        complexity_class = "O(n^3)"
+    elif slope > 5.0:
+        complexity_class = "Exponential"
+    elif slope < 0.5:
+        complexity_class = "O(1)"
+    else:
+        # Fallback to nearest integer power if within reasonable range
+        nearest_power = round(slope)
+        if nearest_power > 0:
+            complexity_class = f"O(n^{nearest_power})"
+    
+    # Assign class to all valid points
+    for m in valid_points:
+        m.complexity_class = complexity_class
+    
+    # Sort by problem size for cleaner output
+    valid_points.sort(key=lambda x: x.problem_size)
+    
+    save_metrics_to_csv(valid_points, output_path)
 
 def main():
     """
-    Main entry point to calculate and save metrics from experiment logs.
-    Reads from data/processed/experiment.log (JSON lines) or directory.
-    Outputs to data/processed/metrics_summary.csv.
+    Main entry point for scaling analysis.
+    Reads logs, performs regression, and saves results to data/processed/scaling_analysis.csv
     """
-    # Default paths based on project structure
-    log_dir = "data/processed"
-    output_path = "data/processed/metrics_summary.csv"
+    log_path = Path("data/processed/experiment.log")
+    output_path = Path("data/processed/scaling_analysis.csv")
     
-    # Check for specific log file or directory
-    log_file = Path(log_dir) / "experiment.log"
-    if log_file.exists():
-        # If it's a single JSON lines file or a single JSON object
-        try:
-            with open(log_file, 'r') as f:
-                content = f.read().strip()
-                if content.startswith('['):
-                    logs = json.loads(content)
-                else:
-                    # Assume JSON lines or single object
-                    logs = [json.loads(line) for line in content.split('\n') if line.strip()]
-        except json.JSONDecodeError:
-            # Fallback to treating it as a directory or error
-            print(f"Error parsing {log_file}, trying directory scan...")
-            logs = load_experiment_logs(log_dir)
-    else:
-        logs = load_experiment_logs(log_dir)
-
-    if not logs:
-        print("No valid logs found to process.")
+    if not log_path.exists():
+        print(f"Error: Log file not found at {log_path}")
         return
-
-    # Group logs by method if possible, or process all as one
-    # Assuming logs have a 'method' or 'type' field, or we infer from filename/path
-    # For simplicity, we'll calculate metrics for the whole batch if method isn't explicit
-    # or split if we detect multiple methods in the data.
     
-    # Simple heuristic: if logs have 'method' field, group by it.
-    # Otherwise, assume all are 'symbolic' (default for this project phase)
-    grouped_logs = {}
-    for log in logs:
-        method = log.get('method', 'symbolic') # Default to symbolic if missing
-        if method not in grouped_logs:
-            grouped_logs[method] = []
-        grouped_logs[method].append(log)
-
-    metrics_list = []
-    for method, method_logs in grouped_logs.items():
-        metrics = calculate_metrics_from_logs(method_logs, method=method)
-        metrics_list.append(metrics)
-        print(f"Calculated metrics for {method}: Success Rate={metrics.success_rate:.2%}, "
-              f"Avg Time={metrics.avg_wall_clock_seconds:.2f}s, Avg Energy={metrics.avg_energy_joules:.2f}J")
-
-    save_metrics_to_csv(metrics_list, output_path)
-    print(f"Metrics saved to {output_path}")
+    try:
+        logs = load_experiment_logs(log_path)
+        metrics = calculate_metrics_from_logs(logs)
+        perform_scaling_analysis(metrics, output_path)
+        print(f"Scaling analysis complete. Results saved to {output_path}")
+    except Exception as e:
+        print(f"Error during scaling analysis: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

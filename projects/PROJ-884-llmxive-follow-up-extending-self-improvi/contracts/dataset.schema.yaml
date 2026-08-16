@@ -1,43 +1,40 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: Logic Puzzle Dataset Schema
-description: |
-  Schema for the curated dataset of logic/arithmetic puzzles.
-  Each puzzle instance contains the problem definition, constraints,
-  and metadata required for the BES pipeline.
+description: Schema for logic and arithmetic puzzles generated for the llmXive project.
 type: object
 required:
-  - version
-  - generated_at
+  - metadata
   - puzzles
 properties:
-  version:
-    type: string
-    description: Schema version identifier
-    pattern: '^\\d+\\.\\d+\\.\\d+$'
-  generated_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of generation
   metadata:
     type: object
-    description: Global metadata about the dataset generation
+    required:
+      - version
+      - generated_at
+      - generator_version
+      - total_count
+      - checksum
     properties:
+      version:
+        type: string
+        description: Schema version
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
       generator_version:
         type: string
-      seed:
-        type: integer
+        description: Version of the generator script
       total_count:
         type: integer
-      difficulty_distribution:
-        type: object
-        additionalProperties:
-          type: integer
+        description: Total number of puzzles in the dataset
+      checksum:
+        type: string
+        description: SHA-256 checksum of the puzzles array
   puzzles:
     type: array
-    description: List of puzzle instances
-    minItems: 1
     items:
-      $ref: '#/definitions/PuzzleInstance'
+      $ref: "#/definitions/PuzzleInstance"
 definitions:
   PuzzleInstance:
     type: object
@@ -45,76 +42,52 @@ definitions:
       - id
       - type
       - difficulty
-      - problem
+      - parameters
       - constraints
-      - solution_hint
-      - checksum
+      - solution_path
+      - metadata
     properties:
       id:
         type: string
         description: Unique identifier for the puzzle
-        pattern: '^puzzle-\\d{8}-[a-f0-9]{8}$'
       type:
         type: string
         enum:
           - sudoku_variant
           - constrained_pathfinding
           - arithmetic_grid
-          - logic_grid
-        description: Category of the puzzle
+        description: Type of puzzle
       difficulty:
-        type: integer
-        minimum: 1
-        maximum: 5
-        description: Difficulty rating (1=easy, 5=hard)
-      problem:
+        type: string
+        enum:
+          - easy
+          - medium
+          - hard
+        description: Difficulty level
+      parameters:
         type: object
-        description: The core problem definition (structure varies by type)
+        description: Puzzle-specific parameters (e.g., grid size, constraints)
         additionalProperties: true
       constraints:
         type: array
-        description: List of constraint definitions
         items:
-          type: object
-          required:
-            - type
-            - description
-          properties:
-            type:
-              type: string
-              description: Type of constraint (e.g., 'row_unique', 'path_valid')
-            description:
-              type: string
-              description: Human-readable description
-            parameters:
-              type: object
-              additionalProperties: true
-              description: Constraint-specific parameters
-      solution_hint:
-        type: object
-        description: Optional hint for the solution path (not the full solution)
-        additionalProperties: true
+          type: string
+        description: List of textual constraints defining the puzzle
       solution_path:
         type: array
-        description: The ground-truth solution path (for verification)
         items:
           type: object
           additionalProperties: true
-      checksum:
-        type: string
-        description: SHA-256 checksum of the problem and constraints
-        pattern: '^[a-f0-9]{64}$'
-      created_at:
-        type: string
-        format: date-time
-      complexity_metrics:
+        description: The correct solution path (steps to solve)
+      metadata:
         type: object
-        description: Metrics derived from the puzzle structure
+        required:
+          - complexity_score
+          - generation_time_ms
         properties:
-          variable_count:
-            type: integer
-          constraint_count:
-            type: integer
-          search_space_estimate:
+          complexity_score:
             type: number
-            format: float
+            description: Calculated complexity score
+          generation_time_ms:
+            type: number
+            description: Time taken to generate this puzzle

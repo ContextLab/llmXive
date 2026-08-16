@@ -1,21 +1,43 @@
-# Configuration for stability thresholds
-# These values are used to label episodes as stable (1) or unstable (0)
-thresholds:
-  tipping_angle_threshold: 0.15  # radians (approx 8.6 degrees)
-  slippage_distance_threshold: 0.05  # meters (5 cm)
+# Configuration for llmXive Physics Simulation and Stability Labeling
+# This file defines thresholds for stability metrics used in labeling.
+# All units are SI (meters, Newtons, degrees).
 
-# Simulation parameters
+# Physics Metrics Thresholds (Claim c_6db7769b)
+# Used to determine if an episode is stable (1) or unstable (0).
+physics_metrics:
+  tipping_angle_threshold: 15.0  # Degrees: max allowable tilt before tipping
+  slippage_distance_threshold: 0.02  # Meters: max allowable slip before instability
+
+# Simulation Parameters
 simulation:
-  time_step: 0.004166666666666667  # 1/240 seconds
-  max_steps: 100
-  gravity: -9.81
-
-# Data generation parameters
-data_generation:
+  gravity: 9.81
+  time_step: 0.01
+  max_steps_per_episode: 500
   num_episodes: 5000
-  noise_scale: 1.0
 
-# Sensitivity analysis parameters (for T018)
+# Data Generation Parameters
+data_generation:
+  object_geometries:
+    - "box_small"
+    - "box_medium"
+    - "box_large"
+    - "cylinder_small"
+    - "cylinder_large"
+    - "sphere_small"
+    - "sphere_large"
+  noise_amplitude: 0.005  # Meters: Gaussian noise on wrist translation
+
+# Paths
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  raw_file: "synthetic_episodes.parquet"
+  train_file: "train.parquet"
+  test_file: "test.parquet"
+  checksum_file: "data/checksums.json"
+  model_dir: "data/processed"
+
+# Sensitivity Analysis Configuration
 sensitivity:
-  threshold_sweep_range: 0.05  # 5% variation
-  num_sweeps: 10
+  enabled: true
+  threshold_variation_percent: 5.0  # ±5% variation for robustness checks

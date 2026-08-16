@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T15:04:04.724414Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-401-the-influence-of-emoji-use-on-perceived-
-last_run_id: 4ab058ad-8ecf-4a7f-80ee-60a3ec7677da
+last_run_id: 987bf545-edc8-4b56-953a-1132ef037d73
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-401-the-influence-of-emoji-use-on-perceived-/specs/001-the-influence-of-emoji-use-on-perceived
 title: The Influence of Emoji Use on Perceived Emotional Intensity in Text
-updated_at: '2026-08-14T15:55:20.617313Z'
+updated_at: '2026-08-16T10:03:23.010196Z'

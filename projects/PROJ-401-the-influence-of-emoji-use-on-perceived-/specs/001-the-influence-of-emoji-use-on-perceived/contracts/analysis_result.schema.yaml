@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the output of statistical tests (correlation, regression)."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum:
+      - "Pearson"
+      - "Spearman"
+      - "Regression"
+    description: "Type of statistical test performed."
+  variable:
+    type: "string"
+    description: "Name of the variable tested (e.g., 'emoji_count')."
+  coefficient:
+    type: "number"
+    description: "Correlation coefficient (r) or Standardized Regression Beta."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  adjusted_p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-corrected p-value."
+  effect_size_label:
+    type: "string"
+    enum:
+      - "Small"
+      - "Medium"
+      - "Large"
+      - "Negligible"
+    description: "Interpretation of the effect size based on Beta benchmarks."
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of observations used in the test."
+required:
+  - test_type
+  - variable
+  - coefficient
+  - p_value
+  - adjusted_p_value
+  - effect_size_label
+  - sample_size
+additionalProperties: false
