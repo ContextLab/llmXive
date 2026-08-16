@@ -1,5 +1,6 @@
 """
 Model loading utilities for sentiment analysis and lexicons.
+Handles CPU-optimized RoBERTa and the Rosenberg self-esteem lexicon.
 """
 import os
 from pathlib import Path
@@ -56,6 +57,9 @@ def get_rosenberg_lexicon() -> Set[str]:
     """
     Loads the Rosenberg self-esteem lexicon from data/raw/lexicons/rosenberg_words.txt.
     Caches the set in memory.
+    
+    Raises:
+        FileNotFoundError: If the lexicon file does not exist.
     """
     global _rosenberg_lexicon
     if _rosenberg_lexicon is not None:
@@ -65,18 +69,18 @@ def get_rosenberg_lexicon() -> Set[str]:
         if _rosenberg_lexicon is not None:
             return _rosenberg_lexicon
 
-    lexicon_path = DATA_RAW_DIR / "lexicons" / "rosenberg_words.txt"
-    if not lexicon_path.exists():
-        raise FileNotFoundError(f"Lexicon file not found: {lexicon_path}")
+        lexicon_path = DATA_RAW_DIR / "lexicons" / "rosenberg_words.txt"
+        if not lexicon_path.exists():
+            raise FileNotFoundError(f"Lexicon file not found: {lexicon_path}")
 
-    _rosenberg_lexicon = set()
-    with open(lexicon_path, "r", encoding="utf-8") as f:
-        for line in f:
-            word = line.strip().lower()
-            if word and not word.startswith("#"):
-                _rosenberg_lexicon.add(word)
+        _rosenberg_lexicon = set()
+        with open(lexicon_path, "r", encoding="utf-8") as f:
+            for line in f:
+                word = line.strip().lower()
+                if word and not word.startswith("#"):
+                    _rosenberg_lexicon.add(word)
 
-    return _rosenberg_lexicon
+        return _rosenberg_lexicon
 
 def clear_cache():
     """Clears the model cache."""

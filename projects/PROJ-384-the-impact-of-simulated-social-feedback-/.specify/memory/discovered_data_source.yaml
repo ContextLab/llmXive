@@ -1,12 +1,13 @@
 status: none
-intent: download LOST dataset from arXiv repository python package dataset
+intent: download LOST social interaction dataset arXiv python package dataset
 required_fields:
 - post_id
+- user_id
 - post_text
 - reply_id
 - reply_text
-- post_timestamp
-- reply_timestamp
-cache_key: 4d51b8f03663b09dc64a931db2bb1c6d1038f652f999dea6ba933869eaba6826
-searched_at: '2026-07-20T12:07:00.565445+00:00'
+- timestamp
+- valence_score
+cache_key: 8ad0518f549834c1c89574847ac316824aeadf881144418cbc5f9fcc1c2e3172
+searched_at: '2026-08-16T01:56:51.372616+00:00'
 retry_count: 1

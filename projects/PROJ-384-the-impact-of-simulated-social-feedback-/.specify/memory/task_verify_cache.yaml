@@ -12,14 +12,6 @@ T008:
     \ is missing, so the loader cannot fulfill its purpose of loading the Rosenberg\
     \ self\u2011esteem lexicon. Add the lexicon file (with the expected word list)\
     \ to complete the task."
-T015:
-  c: false
-  h: 30a408dc1e0101684625ef02b53e26e9dc8f7c9d9702f131b6389c212a2e1dad
-  r: "The required schema file `contracts/interaction_schema.schema.yaml` is missing,\
-    \ and the provided `code/01_ingest.py` does not show any call to `validate_dataframe`\
-    \ (or similar) that would raise on invalid data. Consequently the ingestion script\
-    \ does not actually perform the hard\u2011gate validation against the specified\
-    \ schema."
 T016:
   c: false
   h: 44032301468328d20148662deeef678ec0e18d6e71af3215784f2c5158edf9de
@@ -28,12 +20,14 @@ T016:
     \ Consequently the task\u2019s core deliverable is absent."
 T018:
   c: false
-  h: 7a2e34d4074da78ee0ba3247ce61b1391c8c91712183addb5be1c129ed4cfa31
-  r: The repository contains a `code/01_ingest.py` file, but its content is truncated
-    and does not show a complete implementation that groups by `user_id`/`timestamp`,
-    sorts chronologically, and writes the required CSV. Moreover, the expected output
-    file `data/processed/valence_sequence.csv` is absent. Both the functional script
-    and the required output artifact are missing, so the task is not satisfied.
+  h: 536bcd097ef6490c6e0e8ff3f35417cbbcbe199390a694a4beac016f0ec34af0
+  r: "The required output file `data/processed/valence_sequence.csv` does not exist,\
+    \ so the script\u2019s primary deliverable is missing. Consequently the verification\
+    \ of columns and null\u2011value constraints cannot be performed. Additionally,\
+    \ the provided `code/01_ingest.py` excerpt shows only loading and validation logic\
+    \ and does not demonstrate the grouping, sorting, or CSV writing steps required\
+    \ by the task. The implementer must create the CSV with the specified columns\
+    \ and ensure the script performs the described processing."
 T024:
   c: false
   h: 2abf1973519fcf28fde3d7c70d90587eca604c1740c00322c57da7c444662d06
