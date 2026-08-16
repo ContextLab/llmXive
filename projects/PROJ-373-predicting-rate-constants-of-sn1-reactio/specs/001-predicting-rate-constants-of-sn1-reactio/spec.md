@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
 
-The system MUST ingest public SN1 kinetic datasets from HuggingFace (specifically `DTS-SN1-15-01-2024` and `SN18-All-20240204`), parse SMILES strings into molecular graphs using RDKit, and compute electronic descriptors (Gasteiger partial charges, topological indices) to produce a clean, stratified dataset ready for modeling. The system MUST verify the presence of explicit 'temperature' and 'solvent' columns in the source metadata *before* ingestion. If these columns are missing, the dataset MUST be excluded entirely. The system MUST also verify that explicit 'substrate class' (secondary/tertiary) labels exist in the source data; if missing, the dataset MUST be excluded entirely (no derivation allowed).
+The system MUST ingest public SN kinetic datasets from HuggingFace (specifically `DTS-SN1-15-01-2024` and `SN18-All-20240204`), parse SMILES strings into molecular graphs using RDKit, and compute electronic descriptors (Gasteiger partial charges, topological indices) to produce a clean, stratified dataset ready for modeling. The system MUST verify the presence of explicit 'temperature' and 'solvent' columns in the source metadata *before* ingestion. If these columns are missing, the dataset MUST be excluded entirely. The system MUST also verify that explicit 'substrate class' (secondary/tertiary) labels exist in the source data; if missing, the dataset MUST be excluded entirely (no derivation allowed).
 
 **Why this priority**: Without a validated, reproducible dataset containing the required structural and kinetic variables, no modeling can occur. This is the foundational step that determines data quality and variable availability.
 
