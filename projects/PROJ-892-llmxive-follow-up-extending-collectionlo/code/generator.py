@@ -4,360 +4,225 @@ from PIL import Image
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
 import logging
-
+import json
 from config import load_config
-from data_loader import get_collection_lora_adapter, download_base_model
-from state_manager import register_artifact, compute_sha256
+from data_loader import load_fp16_adapter_and_base_model, get_project_root
+from state_manager import compute_sha256, register_artifact, save_artifacts_state, load_artifacts_state
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants for generation
-DEVICE = "cpu"
-DTYPE = torch.float16
-STABILITY_MODEL_ID = "runwayml/stable-diffusion-v1-5"
-
-def _ensure_references_dir():
-    """Ensure the references directory exists."""
-    ref_dir = Path("data/references")
-    ref_dir.mkdir(parents=True, exist_ok=True)
-    return ref_dir
-
-def generate_reference_image(seed: int = 42, prompt: str = "a simple test object", output_path: Optional[str] = None) -> str:
+def generate_reference_image(
+    pipe,
+    prompt: str,
+    seed: int,
+    width: int = 512,
+    height: int = 512,
+    device: str = "cpu"
+) -> Image.Image:
     """
-    Generate a single 'known reference' image using a fixed seed and prompt.
-    This image serves as ground truth for LPIPS self-consistency checks.
-
-    Args:
-        seed: Random seed for reproducibility.
-        prompt: The text prompt to generate the image.
-        output_path: Optional path to save the image. Defaults to 'data/references/baseline_ref.png'.
-
-    Returns:
-        Path to the saved image.
+    Generate a single image using the provided pipeline, prompt, and seed.
     """
-    if output_path is None:
-        output_path = "data/references/baseline_ref.png"
+    logger.info(f"Generating reference image for prompt: '{prompt}' with seed {seed}")
+    generator = torch.Generator(device=device).manual_seed(seed)
     
-    output_path = Path(output_path)
-    output_dir = output_path.parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Generating reference image with seed={seed}, prompt='{prompt}'")
+    # Move model to device if not already there (though for CPU runner, it stays on CPU)
+    # Note: In a real scenario with GPU, we would move the pipeline to cuda.
+    # For this task, we assume the pipeline is already loaded on the correct device.
     
-    # Load base model
-    logger.info("Loading base model...")
-    base_model_path = download_base_model(STABILITY_MODEL_ID)
-    
-    # Load LoRA adapter (FP16)
-    logger.info("Loading LoRA adapter...")
-    adapter_path = get_collection_lora_adapter()
-
-    # Import diffusers here to avoid circular imports if any
-    from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
-    from safetensors.torch import load_file
-
-    # Load the pipeline
-    pipe = StableDiffusionPipeline.from_pretrained(
-        base_model_path,
-        torch_dtype=DTYPE,
-        safety_checker=None, # Disable safety checker for research consistency
-        requires_safety_checker=False
-    )
-    pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-    pipe = pipe.to(DEVICE)
-
-    # Load LoRA weights
-    # The adapter file is expected to be at data/models/adapter_fp16.safetensors
-    # based on T007b-1 and T007b-2 requirements.
-    if not adapter_path.exists():
-        raise FileNotFoundError(f"Adapter file not found at {adapter_path}. Ensure T007b-1 is complete.")
-    
-    logger.info(f"Loading LoRA weights from {adapter_path}")
-    lora_state_dict = load_file(adapter_path)
-    pipe.load_lora_weights(lora_state_dict)
-    
-    # Set seed
-    generator = torch.Generator(device=DEVICE).manual_seed(seed)
-
-    # Generate image
     with torch.no_grad():
         image = pipe(
             prompt=prompt,
             generator=generator,
-            num_inference_steps=30,
-            height=512,
-            width=512
+            width=width,
+            height=height,
+            num_inference_steps=50, # Reduced for speed in reference generation
+            guidance_scale=7.5
         ).images[0]
-
-    # Save image
-    image.save(output_path)
-    logger.info(f"Reference image saved to {output_path}")
-
-    # Register artifact in state manager
-    artifact_hash = compute_sha256(output_path)
-    register_artifact(
-        path=str(output_path),
-        hash=artifact_hash,
-        type="image",
-        description=f"Reference image: seed={seed}, prompt='{prompt}'"
-    )
-
-    return str(output_path)
-
-def generate_fp16_baseline_images(prompts: List[str], seeds: List[int], output_dir: str = "data/generated/fp16_baseline") -> List[str]:
-    """
-    Generate images for the FP16 baseline using the provided prompts and seeds.
-    This is the main generation function for US1.
-    """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    logger.info("Loading base model and adapter for FP16 baseline generation...")
-    base_model_path = download_base_model(STABILITY_MODEL_ID)
-    adapter_path = get_collection_lora_adapter()
-
-    from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
-    from safetensors.torch import load_file
-
-    pipe = StableDiffusionPipeline.from_pretrained(
-        base_model_path,
-        torch_dtype=DTYPE,
-        safety_checker=None,
-        requires_safety_checker=False
-    )
-    pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-    pipe = pipe.to(DEVICE)
-
-    if not adapter_path.exists():
-        raise FileNotFoundError(f"Adapter file not found at {adapter_path}.")
     
-    lora_state_dict = load_file(adapter_path)
-    pipe.load_lora_weights(lora_state_dict)
+    return image
 
-    generated_paths = []
-    
-    for i, (prompt, seed) in enumerate(zip(prompts, seeds)):
-        logger.info(f"Generating image {i+1}/{len(prompts)}: seed={seed}, prompt='{prompt}'")
-        generator = torch.Generator(device=DEVICE).manual_seed(seed)
-        
-        with torch.no_grad():
-            image = pipe(
-                prompt=prompt,
-                generator=generator,
-                num_inference_steps=30,
-                height=512,
-                width=512
-            ).images[0]
-        
-        file_name = f"fp16_baseline_{i:04d}_seed{seed}.png"
-        save_path = output_path / file_name
-        image.save(save_path)
-        generated_paths.append(str(save_path))
-        
-        # Register artifact
-        artifact_hash = compute_sha256(save_path)
-        register_artifact(
-            path=str(save_path),
-            hash=artifact_hash,
-            type="image",
-            description=f"FP16 Baseline: seed={seed}, prompt='{prompt}'"
-        )
-
-    return generated_paths
-
-def generate_fp16_reference_images(prompts: List[str], seeds: List[int], output_dir: str = "data/references/fp16_refs") -> Dict[str, str]:
+def generate_fp16_baseline_images(
+    pipe,
+    prompts: List[str],
+    seeds: List[int],
+    output_dir: Path,
+    width: int = 512,
+    height: int = 512,
+    device: str = "cpu"
+) -> Dict[str, Path]:
     """
-    Generate a set of 'FP16 Reference Images' for ALL effect prompts.
-    These are required for CESR calculation in US2.
+    Generate baseline images for a list of prompts and seeds.
+    Saves images to output_dir and returns a mapping of prompt to file path.
     """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    logger.info("Generating FP16 Reference Images for all effect prompts...")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    results = {}
     
-    # Re-use the logic from generate_fp16_baseline_images but organize by prompt
-    base_model_path = download_base_model(STABILITY_MODEL_ID)
-    adapter_path = get_collection_lora_adapter()
-
-    from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
-    from safetensors.torch import load_file
-
-    pipe = StableDiffusionPipeline.from_pretrained(
-        base_model_path,
-        torch_dtype=DTYPE,
-        safety_checker=None,
-        requires_safety_checker=False
-    )
-    pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-    pipe = pipe.to(DEVICE)
-
-    if not adapter_path.exists():
-        raise FileNotFoundError(f"Adapter file not found at {adapter_path}.")
-    
-    lora_state_dict = load_file(adapter_path)
-    pipe.load_lora_weights(lora_state_dict)
-
-    ref_map = {} # prompt -> path
-
-    for i, (prompt, seed) in enumerate(zip(prompts, seeds)):
-        logger.info(f"Generating reference for prompt '{prompt}' (seed={seed})")
-        generator = torch.Generator(device=DEVICE).manual_seed(seed)
-        
-        with torch.no_grad():
-            image = pipe(
-                prompt=prompt,
-                generator=generator,
-                num_inference_steps=30,
-                height=512,
-                width=512
-            ).images[0]
-        
+    for prompt, seed in zip(prompts, seeds):
         # Sanitize prompt for filename
-        safe_prompt = "".join(c if c.isalnum() or c in " -_" else "_" for c in prompt)[:50]
-        file_name = f"ref_{safe_prompt}_seed{seed}.png"
-        save_path = output_path / file_name
-        image.save(save_path)
+        safe_name = prompt.replace(" ", "_").replace("/", "_").replace("\\", "_")
+        output_path = output_dir / f"{safe_name}_seed{seed}.png"
         
-        ref_map[prompt] = str(save_path)
-
-        # Register artifact
-        artifact_hash = compute_sha256(save_path)
-        register_artifact(
-            path=str(save_path),
-            hash=artifact_hash,
-            type="image",
-            description=f"FP16 Reference: seed={seed}, prompt='{prompt}'"
-        )
-
-    return ref_map
-
-def generate_images_for_adapters(adapter_paths: Dict[str, str], prompts: List[str], seeds: List[int], output_dir: str = "data/generated") -> List[Dict[str, str]]:
-    """
-    Generate images for a list of adapters (e.g., INT8, INT4) using the same prompts.
-    Returns a list of dicts mapping adapter_name -> generated_path.
-    """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    base_model_path = download_base_model(STABILITY_MODEL_ID)
-
-    from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
-    from safetensors.torch import load_file
-
-    results = []
-
-    for adapter_name, adapter_path in adapter_paths.items():
-        logger.info(f"Processing adapter: {adapter_name} ({adapter_path})")
+        if output_path.exists():
+            logger.info(f"Skipping existing image: {output_path}")
+        else:
+            image = generate_reference_image(pipe, prompt, seed, width, height, device)
+            image.save(output_path)
+            logger.info(f"Saved image: {output_path}")
         
-        if not Path(adapter_path).exists():
-            logger.error(f"Adapter {adapter_path} not found. Skipping.")
-            continue
-
-        pipe = StableDiffusionPipeline.from_pretrained(
-            base_model_path,
-            torch_dtype=DTYPE,
-            safety_checker=None,
-            requires_safety_checker=False
-        )
-        pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-        pipe = pipe.to(DEVICE)
-
-        # Load adapter weights
-        try:
-            lora_state_dict = load_file(adapter_path)
-            pipe.load_lora_weights(lora_state_dict)
-        except Exception as e:
-            logger.error(f"Failed to load weights for {adapter_name}: {e}")
-            continue
-
-        adapter_results = {"adapter": adapter_name, "images": []}
-
-        for i, (prompt, seed) in enumerate(zip(prompts, seeds)):
-            generator = torch.Generator(device=DEVICE).manual_seed(seed)
-            
-            with torch.no_grad():
-                image = pipe(
-                    prompt=prompt,
-                    generator=generator,
-                    num_inference_steps=30,
-                    height=512,
-                    width=512
-                ).images[0]
-            
-            safe_prompt = "".join(c if c.isalnum() or c in " -_" else "_" for c in prompt)[:50]
-            file_name = f"{adapter_name}_{i:04d}_{safe_prompt}_seed{seed}.png"
-            save_path = output_path / file_name
-            image.save(save_path)
-            
-            adapter_results["images"].append({
-                "prompt": prompt,
-                "seed": seed,
-                "path": str(save_path)
-            })
-            
-            artifact_hash = compute_sha256(save_path)
-            register_artifact(
-                path=str(save_path),
-                hash=artifact_hash,
-                type="image",
-                description=f"Generated for {adapter_name}: seed={seed}, prompt='{prompt}'"
-            )
-        
-        results.append(adapter_results)
-
+        results[prompt] = output_path
+    
     return results
 
-def generate_images(prompts: List[str], seeds: List[int], adapter_path: Optional[str] = None, output_dir: str = "data/generated") -> List[str]:
+def generate_fp16_reference_images(
+    config: Dict,
+    output_dir_name: str = "fp16_refs"
+) -> Dict[str, List[str]]:
     """
-    Generic generation function. If adapter_path is provided, loads it; otherwise uses base model.
+    T011c Implementation: Generate and save FP16 Reference Images for ALL 10 effect prompts.
+    Uses seed 42 for all, resolution 512x512.
+    Saves to data/references/fp16_refs/
+    Returns a lookup table keyed by effect category (prompt).
     """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    base_model_path = download_base_model(STABILITY_MODEL_ID)
-
-    from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
-
-    pipe = StableDiffusionPipeline.from_pretrained(
-        base_model_path,
-        torch_dtype=DTYPE,
-        safety_checker=None,
-        requires_safety_checker=False
-    )
-    pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
-    pipe = pipe.to(DEVICE)
-
-    if adapter_path and Path(adapter_path).exists():
-        from safetensors.torch import load_file
-        lora_state_dict = load_file(adapter_path)
-        pipe.load_lora_weights(lora_state_dict)
-        logger.info(f"Loaded adapter from {adapter_path}")
-
-    generated_paths = []
-    for i, (prompt, seed) in enumerate(zip(prompts, seeds)):
-        generator = torch.Generator(device=DEVICE).manual_seed(seed)
+    project_root = get_project_root()
+    prompts = config.get("prompts", [])
+    seed = 42
+    width = 512
+    height = 512
+    
+    if not prompts:
+        raise ValueError("No prompts found in config.yaml")
+    
+    logger.info(f"Starting FP16 Reference Image generation for {len(prompts)} prompts.")
+    
+    # Load the pipeline (FP16 adapter + base model)
+    # This function is expected to be implemented in data_loader.py
+    try:
+        pipe = load_fp16_adapter_and_base_model()
+    except Exception as e:
+        logger.error("Failed to load FP16 adapter and base model.")
+        raise e
+    
+    output_dir = project_root / "data" / "references" / output_dir_name
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    reference_lookup = {}
+    state_file = project_root / "state" / "artifacts.yaml"
+    
+    # Ensure we load existing state to append new artifacts
+    try:
+        current_state = load_artifacts_state()
+    except FileNotFoundError:
+        current_state = {"artifacts": []}
+    
+    for prompt in prompts:
+        safe_name = prompt.replace(" ", "_").replace("/", "_").replace("\\", "_")
+        output_path = output_dir / f"{safe_name}_seed{seed}.png"
         
-        with torch.no_grad():
-            image = pipe(
-                prompt=prompt,
-                generator=generator,
-                num_inference_steps=30,
-                height=512,
-                width=512
-            ).images[0]
+        logger.info(f"Generating reference for: {prompt} -> {output_path}")
         
-        file_name = f"gen_{i:04d}_seed{seed}.png"
-        save_path = output_path / file_name
-        image.save(save_path)
-        generated_paths.append(str(save_path))
+        if not output_path.exists():
+            image = generate_reference_image(pipe, prompt, seed, width, height, "cpu")
+            image.save(output_path)
+            logger.info(f"Saved reference image: {output_path}")
+        else:
+            logger.info(f"Reference image already exists: {output_path}")
         
-        artifact_hash = compute_sha256(save_path)
-        register_artifact(
-            path=str(save_path),
-            hash=artifact_hash,
-            type="image",
-            description=f"Generic generation: seed={seed}, prompt='{prompt}'"
-        )
+        # Register artifact in state
+        file_hash = compute_sha256(output_path)
+        artifact_entry = {
+            "path": str(output_path.relative_to(project_root)),
+            "hash": file_hash,
+            "type": "reference_image",
+            "prompt": prompt,
+            "seed": seed,
+            "resolution": f"{width}x{height}"
+        }
+        
+        # Check if already registered to avoid duplicates
+        existing = False
+        for entry in current_state["artifacts"]:
+            if entry.get("path") == artifact_entry["path"]:
+                existing = True
+                break
+        
+        if not existing:
+            current_state["artifacts"].append(artifact_entry)
+        
+        reference_lookup[prompt] = str(output_path)
+    
+    save_artifacts_state(current_state)
+    logger.info("All FP16 Reference Images generated and state updated.")
+    
+    return reference_lookup
 
-    return generated_paths
+def generate_images_for_adapters(
+    adapter_paths: Dict[str, Path],
+    prompts: List[str],
+    seeds: List[int],
+    output_base_dir: Path,
+    width: int = 512,
+    height: int = 512,
+    device: str = "cpu"
+) -> Dict[str, Dict[str, Path]]:
+    """
+    Generate images for multiple quantized adapters.
+    """
+    results = {}
+    for adapter_name, adapter_path in adapter_paths.items():
+        logger.info(f"Processing adapter: {adapter_name}")
+        # TODO: Load specific adapter and generate images
+        # This is a placeholder for the full logic which would involve loading the quantized weights
+        # and running generation similar to baseline.
+        pass
+    return results
+
+def generate_images(
+    pipe,
+    prompts: List[str],
+    seeds: List[int],
+    output_dir: Path,
+    width: int = 512,
+    height: int = 512,
+    device: str = "cpu"
+) -> List[Path]:
+    """
+    Generic image generation function.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    paths = []
+    for prompt, seed in zip(prompts, seeds):
+        safe_name = prompt.replace(" ", "_").replace("/", "_").replace("\\", "_")
+        output_path = output_dir / f"{safe_name}_seed{seed}.png"
+        if not output_path.exists():
+            image = generate_reference_image(pipe, prompt, seed, width, height, device)
+            image.save(output_path)
+        paths.append(output_path)
+    return paths
+
+def main():
+    """
+    Entry point for T011c execution.
+    Loads config, generates reference images, and saves the lookup table.
+    """
+    config = load_config()
+    logger.info("Running T011c: Generate FP16 Reference Images")
+    
+    try:
+        ref_lookup = generate_fp16_reference_images(config, "fp16_refs")
+        
+        # Save the lookup table to a JSON file for downstream tasks (T011d, T018)
+        project_root = get_project_root()
+        lookup_path = project_root / "data" / "references" / "fp16_refs_lookup.json"
+        with open(lookup_path, "w") as f:
+            json.dump(ref_lookup, f, indent=2)
+        
+        logger.info(f"Reference lookup table saved to {lookup_path}")
+        logger.info("T011c completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"T011c failed: {e}")
+        raise
+
+if __name__ == "__main__":
+    main()

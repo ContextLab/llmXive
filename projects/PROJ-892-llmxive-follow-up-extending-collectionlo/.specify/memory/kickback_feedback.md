@@ -4,9 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T011` (rejected 1x): The repository lacks the required `config.yaml` file that should contain the fixed list of seeds and prompts, and the provided `code/generator.py` only defines a single `generate_reference_image` helper (truncated) without any implementation that reads a prompt list from `config.yaml` and generates images for each entry using the FP16 LoRA adapter. Both essential artifacts are missing or incomplete.
-- `T011b` (rejected 1x): The `data/references/baseline_ref.png` file does not exist, and the provided `code/generator.py` is truncated before the image generation completes, so the function cannot actually produce and save the required reference image. The task’s core output is missing.
-- `T013` (rejected 1x): The repository lacks the required `data/references/baseline_ref.png` file, and `code/metrics.py` does not contain a function that iterates over the generated FP16 images and the full set of FP16 reference images to compute LPIPS distances as specified (only a single‑image `compute_lpips_distance` is shown). These missing artifacts prevent the task from being fulfilled.
+- `T009a` (rejected 1x): The required adapter file `data/models/adapter_fp16.safetensors` is absent, and the provided `code/data_loader.py` is truncated and does not contain the specified logic for extracting LoRA subspace rank, regex grouping, SVD computation, and buffering of rank data. Both essential artifacts are missing or incomplete.
+- `T016` (rejected 1x): The provided `code/data_loader.py` does not contain any function that performs zero‑shot post‑training quantization of LoRA adapters, nor does it save `adapter_int8.safetensors` or `adapter_int4.safetensors`. Both expected output files are absent from `data/quantized/`. Consequently, the required functionality and artifacts are missing.
+- `T010b` (rejected 1x): The required `data/models/adapter_fp16.safetensors` file is absent, so the loader cannot actually load the verified FP16 adapter. Moreover, the provided `code/data_loader.py` is truncated and does not contain a complete function that loads both the adapter and the base model into CPU memory. Both the artifact and the implementation are missing/incomplete.
+- `T014` (rejected 1x): The provided `code/main.py` is incomplete (truncated mid‑function, missing the rest of the logic for processing images, computing metrics, and saving results). Additionally, the required `data/results.csv` file does not exist. Both the script and the results CSV are essential for the task, so the implementation is not finished.
 
 ## Required change
 

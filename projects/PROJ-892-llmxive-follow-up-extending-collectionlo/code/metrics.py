@@ -5,199 +5,230 @@ from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 import logging
 import lpips
-import torchvision.transforms as transforms
+from torchvision import transforms
 
-# Initialize LPIPS model (runs on CPU for this project context)
-_lpips_vgg = None
+# Initialize LPIPS model once at module level to avoid repeated loading overhead
+_lpips_model = None
+_lpips_device = None
 
-def _get_lpips_model():
-    """Lazy initialization of the LPIPS model."""
-    global _lpips_vgg
-    if _lpips_vgg is None:
-        logging.info("Initializing LPIPS model (this may take a moment)...")
-        # net_type='vgg' is the standard for perceptual similarity
-        _lpips_vgg = lpips.LPIPS(net='vgg', verbose=False)
-        _lpips_vgg.eval()
-        _lpips_vgg.to('cpu')
-    return _lpips_vgg
+def _get_lpips_model(device: str = "cpu"):
+    """
+    Lazy initialization of the LPIPS model.
+    Uses 'alex' network which is standard for LPIPS.
+    """
+    global _lpips_model, _lpips_device
+    if _lpips_model is None or _lpips_device != device:
+        logging.info(f"Initializing LPIPS model on {device}...")
+        # lpips.LPIPS handles download of pretrained weights on first call
+        _lpips_model = lpips.LPIPS(net='alex').to(device)
+        _lpips_model.eval()
+        _lpips_device = device
+        logging.info("LPIPS model initialized.")
+    return _lpips_model
 
-def extract_clip_image_embedding(image: Image.Image, device: str = 'cpu') -> torch.Tensor:
+def extract_clip_image_embedding(image: Image.Image, clip_model, clip_preprocess) -> torch.Tensor:
     """
     Extract CLIP image embedding.
-    Requires 'clip' package to be installed.
     """
-    try:
-        import clip
-    except ImportError:
-        raise ImportError("The 'clip' package is required for this function. Install it via 'pip install git+https://github.com/openai/CLIP.git'")
-
-    model, _ = clip.load("ViT-B/32", device=device, download_root=str(Path.home() / ".cache/clip"))
-    model.eval()
-
-    preprocess = transforms.Compose([
-        transforms.Resize(224),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
-    ])
-
-    image_tensor = preprocess(image).unsqueeze(0).to(device)
+    input_image = clip_preprocess(image).unsqueeze(0).to(clip_model.device)
     with torch.no_grad():
-        embedding = model.encode_image(image_tensor)
+        embedding = clip_model.encode_image(input_image)
         embedding = embedding / embedding.norm(dim=-1, keepdim=True)
     return embedding
 
-def extract_clip_text_embedding(text: str, device: str = 'cpu') -> torch.Tensor:
+def extract_clip_text_embedding(text: str, clip_model, clip_preprocess) -> torch.Tensor:
     """
     Extract CLIP text embedding.
     """
-    try:
-        import clip
-    except ImportError:
-        raise ImportError("The 'clip' package is required for this function.")
-
-    model, _ = clip.load("ViT-B/32", device=device, download_root=str(Path.home() / ".cache/clip"))
-    model.eval()
-
-    tokens = clip.tokenize([text]).to(device)
+    input_text = clip_preprocess(text).to(clip_model.device)
     with torch.no_grad():
-        embedding = model.encode_text(tokens)
+        embedding = clip_model.encode_text(input_text)
         embedding = embedding / embedding.norm(dim=-1, keepdim=True)
     return embedding
 
-def compute_cosine_similarity(embedding1: torch.Tensor, embedding2: torch.Tensor) -> float:
-    """Compute cosine similarity between two embeddings."""
-    if embedding1.dim() == 1:
-        embedding1 = embedding1.unsqueeze(0)
-    if embedding2.dim() == 1:
-        embedding2 = embedding2.unsqueeze(0)
-    
-    sim = torch.nn.functional.cosine_similarity(embedding1, embedding2)
-    return sim.item()
+def compute_cosine_similarity(emb1: torch.Tensor, emb2: torch.Tensor) -> float:
+    """
+    Compute cosine similarity between two embeddings.
+    """
+    if emb1.dim() == 1 and emb2.dim() == 1:
+        return float(torch.dot(emb1, emb2).item())
+    elif emb1.dim() == 2 and emb2.dim() == 2:
+        # Batch similarity (dot product of normalized vectors)
+        return float(torch.dot(emb1.flatten(), emb2.flatten()).item())
+    else:
+        raise ValueError("Embeddings must be 1D or 2D tensors.")
 
-def compute_lpips_distance(image1: Image.Image, image2: Image.Image, device: str = 'cpu') -> float:
+def compute_image_text_similarity(image: Image.Image, text: str, clip_model, clip_preprocess) -> float:
+    """
+    Compute similarity between an image and a text prompt.
+    """
+    img_emb = extract_clip_image_embedding(image, clip_model, clip_preprocess)
+    txt_emb = extract_clip_text_embedding(text, clip_model, clip_preprocess)
+    return compute_cosine_similarity(img_emb, txt_emb)
+
+def batch_compute_image_text_similarity(images: List[Image.Image], texts: List[str], clip_model, clip_preprocess) -> List[float]:
+    """
+    Compute similarity for a batch of images and texts.
+    """
+    if len(images) != len(texts):
+        raise ValueError("Images and texts lists must be of equal length.")
+    
+    similarities = []
+    for img, txt in zip(images, texts):
+        sim = compute_image_text_similarity(img, txt, clip_model, clip_preprocess)
+        similarities.append(sim)
+    return similarities
+
+def compute_lpips_distance(image1: Image.Image, image2: Image.Image, device: str = "cpu") -> float:
     """
     Compute LPIPS distance between two PIL Images.
     
-    Args:
-        image1: First PIL Image.
-        image2: Second PIL Image.
-        device: Device to run the model on (default 'cpu').
-        
-    Returns:
-        float: The LPIPS distance (lower is more similar).
-        
-    Note:
-        This function assumes images are RGB. If grayscale, it will be converted.
-        The function uses the pre-trained VGG network from the lpips library.
-    """
-    lpips_model = _get_lpips_model()
+    FR-005: Computes the Learned Perceptual Image Patch Similarity (LPIPS)
+    distance between a generated FP16 image and its corresponding ReferenceImage.
     
-    # Ensure images are RGB
+    Args:
+        image1: The first image (e.g., generated baseline).
+        image2: The second image (e.g., reference).
+        device: Device to run the LPIPS model on (default: "cpu" for safety).
+    
+    Returns:
+        A float representing the LPIPS distance (0 = identical, higher = more different).
+    
+    Raises:
+        RuntimeError: If images cannot be converted to tensors properly.
+    """
     if image1.mode != 'RGB':
         image1 = image1.convert('RGB')
     if image2.mode != 'RGB':
         image2 = image2.convert('RGB')
-        
-    # Transform to tensors and normalize to [-1, 1] as required by LPIPS
+
+    # Ensure images are resized to a common resolution if necessary (LPIPS expects specific sizes usually, 
+    # but the model handles resizing internally or we can standardize to 256x256 or similar).
+    # Standard practice for LPIPS is to resize to 256x256 if not already, though the model is robust.
+    # We will resize to 256x256 to ensure consistency with typical evaluation pipelines.
+    target_size = (256, 256)
+    image1 = image1.resize(target_size, Image.LANCZOS)
+    image2 = image2.resize(target_size, Image.LANCZOS)
+
+    lpips_model = _get_lpips_model(device)
+
+    # Define transform: normalize to [-1, 1]
     transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
     ])
-    
-    img1_tensor = transform(image1).unsqueeze(0).to(device)
-    img2_tensor = transform(image2).unsqueeze(0).to(device)
-    
-    with torch.no_grad():
-        # LPIPS returns a distance tensor
-        distance = lpips_model(img1_tensor, img2_tensor, normalize=True)
+
+    try:
+        img1_tensor = transform(image1).unsqueeze(0).to(device)
+        img2_tensor = transform(image2).unsqueeze(0).to(device)
         
-    return float(distance.item())
+        with torch.no_grad():
+            # lpips_model returns a tensor of shape (1, 1, H, W) or (1, 1) depending on version
+            # We take the mean to get a single scalar score per image pair
+            score = lpips_model(img1_tensor, img2_tensor)
+            return float(score.mean().item())
+    except Exception as e:
+        logging.error(f"Error computing LPIPS distance: {e}")
+        raise
 
-def compute_image_text_similarity(image: Image.Image, text: str, device: str = 'cpu') -> float:
-    """Compute cosine similarity between an image and text using CLIP."""
-    img_emb = extract_clip_image_embedding(image, device)
-    txt_emb = extract_clip_text_embedding(text, device)
-    return compute_cosine_similarity(img_emb, txt_emb)
-
-def batch_compute_image_text_similarity(images: List[Image.Image], texts: List[str], device: str = 'cpu') -> List[float]:
-    """Compute similarity for a batch of image-text pairs."""
-    results = []
-    for img, txt in zip(images, texts):
-        results.append(compute_image_text_similarity(img, txt, device))
-    return results
-
-def compute_cesr_score(quantized_images: List[Image.Image], 
-                       target_prompt: str, 
-                       reference_images: Dict[str, List[Image.Image]], 
-                       device: str = 'cpu') -> float:
+def compute_cesr_score(target_embedding: torch.Tensor, reference_embeddings: List[torch.Tensor]) -> float:
     """
     Compute Cross-Effect Similarity Ratio (CESR).
     
-    Compares quantized output embeddings against the FP16 ReferenceImages 
-    for *other* effect prompts (excluding the target prompt) to detect concept bleeding.
+    FR-011: Measures how much a generated image (target) resembles *other* effects
+    compared to its own effect (handled by excluding self in the caller).
     
     Args:
-        quantized_images: List of generated images for the target prompt using quantized adapter.
-        target_prompt: The prompt used to generate the quantized_images.
-        reference_images: Dict mapping effect prompt -> list of FP16 reference images for that prompt.
-        device: Device for computation.
-        
+        target_embedding: The embedding of the target generated image.
+        reference_embeddings: List of embeddings from other effect references.
+    
     Returns:
-        float: The mean CESR score. Lower indicates less bleeding (better separation).
+        The average cosine similarity between target and the reference set.
     """
-    if not quantized_images:
-        raise ValueError("quantized_images list is empty.")
-        
-    # Get embeddings for the quantized images (target)
-    target_embeddings = []
-    for img in quantized_images:
-        emb = extract_clip_image_embedding(img, device)
-        target_embeddings.append(emb)
-    target_emb_avg = torch.mean(torch.stack(target_embeddings), dim=0)
-    
-    # Collect reference embeddings for NON-target prompts
-    other_prompts = [p for p in reference_images.keys() if p != target_prompt]
-    if not other_prompts:
-        logging.warning(f"No other prompts found in reference_images to compute CESR for target '{target_prompt}'.")
+    if not reference_embeddings:
         return 0.0
-        
-    other_embeddings = []
-    for prompt, imgs in reference_images.items():
-        for img in imgs:
-            emb = extract_clip_image_embedding(img, device)
-            other_embeddings.append(emb)
-            
-    if not other_embeddings:
-        return 0.0
-        
-    other_emb_avg = torch.mean(torch.stack(other_embeddings), dim=0)
     
-    # Compute similarity between target average and other average
-    # CESR typically measures how much the target looks like "others".
-    # High similarity = High bleeding.
-    similarity = compute_cosine_similarity(target_emb_avg.unsqueeze(0), other_emb_avg.unsqueeze(0))
+    similarities = []
+    for ref_emb in reference_embeddings:
+        sim = compute_cosine_similarity(target_embedding, ref_emb)
+        similarities.append(sim)
     
-    return float(similarity)
+    return float(np.mean(similarities))
 
-def compute_lpips_matrix(image_list: List[Image.Image], device: str = 'cpu') -> np.ndarray:
+def compute_lpips_matrix(image_paths: List[Path], device: str = "cpu") -> np.ndarray:
     """
-    Compute a pairwise LPIPS distance matrix for a list of images.
+    Compute a pairwise LPIPS distance matrix for a list of image paths.
     
     Args:
-        image_list: List of PIL Images.
+        image_paths: List of paths to images.
         device: Device for computation.
-        
+    
     Returns:
-        np.ndarray: Square matrix of shape (N, N) where N is len(image_list).
+        A square numpy array where [i, j] is the LPIPS distance between image i and j.
     """
-    n = len(image_list)
+    n = len(image_paths)
     matrix = np.zeros((n, n))
     
     for i in range(n):
+        img_i = Image.open(image_paths[i])
         for j in range(i + 1, n):
-            dist = compute_lpips_distance(image_list[i], image_list[j], device)
+            img_j = Image.open(image_paths[j])
+            dist = compute_lpips_distance(img_i, img_j, device)
             matrix[i, j] = dist
             matrix[j, i] = dist
-            
+    
     return matrix
+
+def compute_lpips_distance_from_paths(path1: str, path2: str, device: str = "cpu") -> float:
+    """
+    Compute LPIPS distance directly from file paths.
+    
+    Args:
+        path1: Path to first image.
+        path2: Path to second image.
+        device: Device for computation.
+    
+    Returns:
+        LPIPS distance as a float.
+    """
+    img1 = Image.open(path1)
+    img2 = Image.open(path2)
+    return compute_lpips_distance(img1, img2, device)
+
+def compute_lpips_batch(generated_images: List[Image.Image], reference_images: List[Image.Image], device: str = "cpu") -> List[float]:
+    """
+    Compute LPIPS distances for a batch of generated vs reference images.
+    
+    Args:
+        generated_images: List of generated images.
+        reference_images: List of corresponding reference images.
+        device: Device for computation.
+    
+    Returns:
+        List of LPIPS distances.
+    """
+    if len(generated_images) != len(reference_images):
+        raise ValueError("Generated and reference image lists must be of equal length.")
+    
+    distances = []
+    for gen, ref in zip(generated_images, reference_images):
+        dist = compute_lpips_distance(gen, ref, device)
+        distances.append(dist)
+    
+    return distances
+
+def compute_lpips_distance_for_task(generated_image_path: str, reference_image_path: str, device: str = "cpu") -> float:
+    """
+    Specific wrapper for T013 to compute LPIPS between a generated FP16 image
+    and its FP16 ReferenceImage.
+    
+    Args:
+        generated_image_path: Path to the generated image (from T011).
+        reference_image_path: Path to the reference image (from T011c).
+        device: Device for computation.
+    
+    Returns:
+        LPIPS distance.
+    """
+    logging.info(f"Computing LPIPS distance between:\n  Generated: {generated_image_path}\n  Reference: {reference_image_path}")
+    return compute_lpips_distance_from_paths(generated_image_path, reference_image_path, device)
