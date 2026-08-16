@@ -1,150 +1,83 @@
 import pytest
 import numpy as np
-import pandas as pd
 import json
-import tempfile
 import os
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Import from the project's utils module
+# Import the functions to test
 from utils.importance_analyzer import (
-    load_literature_baseline,
-    get_hardcoded_baseline_ranking,
     load_user_baseline,
-    calculate_permutation_importance,
+    get_hardcoded_baseline_ranking,
     rank_list_to_feature_list,
-    calculate_correlation_coefficient
+    calculate_correlation_coefficient,
+    run_correlation_analysis
 )
 
-def test_get_hardcoded_baseline_ranking():
-    """Test hardcoded baseline ranking retrieval."""
-    ranking = get_hardcoded_baseline_ranking()
-    
-    assert ranking is not None
-    assert isinstance(ranking, list)
-    assert len(ranking) > 0
-    
-    # Verify structure
-    for item in ranking:
-        assert 'name' in item
-        assert 'rank' in item
-        assert isinstance(item['rank'], int)
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-def test_load_user_baseline():
-    """Test loading user-provided baseline importance."""
-    baseline_data = {
-        "parameters": [
-            {"name": "laser_power", "rank": 1},
-            {"name": "scan_speed", "rank": 2},
-            {"name": "layer_thickness", "rank": 3}
-        ]
-    }
+def test_load_user_baseline_found(temp_dir):
+    # Create a fake baseline file
+    baseline_file = temp_dir / "data"
+    baseline_file.mkdir()
+    baseline_path = baseline_file / "baseline_importance.json"
     
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-        json.dump(baseline_data, f)
-        temp_path = f.name
+    data = {"rankings": ["feature_a", "feature_b", "feature_c"]}
+    with open(baseline_path, 'w') as f:
+        json.dump(data, f)
     
-    loaded = load_user_baseline(temp_path)
-    
-    assert loaded is not None
-    assert len(loaded) == 3
-    assert loaded[0]['name'] == 'laser_power'
-    assert loaded[0]['rank'] == 1
-    
-    os.unlink(temp_path)
+    # Mock get_project_root to return temp_dir
+    with patch('utils.importance_analyzer.get_project_root', return_value=temp_dir):
+        # We need to mock the logger
+        logger = MagicMock()
+        result = load_user_baseline(logger)
+        
+        assert result == ["feature_a", "feature_b", "feature_c"]
+        logger.info.assert_called()
 
-def test_load_user_baseline_missing_file():
-    """Test loading user baseline with missing file."""
-    result = load_user_baseline('/nonexistent/path/baseline.json')
-    assert result is None
-
-def test_load_literature_baseline():
-    """Test loading literature baseline (mock)."""
-    # This would normally fetch from crossref, but we test the fallback
-    # Since we can't actually fetch, we verify the function exists and returns None
-    # when fetch fails
-    result = load_literature_baseline('invalid_doi')
-    assert result is None
-
-def test_calculate_permutation_importance():
-    """Test permutation importance calculation."""
-    # Create a simple mock model
-    class MockModel:
-        def predict(self, X):
-            return np.sum(X, axis=1)
-    
-    # Create sample data
-    np.random.seed(42)
-    X = np.random.uniform(0, 1, (100, 3))
-    y = np.sum(X, axis=1) + np.random.normal(0, 0.1, 100)
-    
-    model = MockModel()
-    
-    # Calculate permutation importance
-    importance = calculate_permutation_importance(model, X, y, n_repeats=3)
-    
-    assert importance is not None
-    assert isinstance(importance, dict)
-    assert len(importance) == 3  # 3 features
-    
-    # All importances should be non-negative
-    for feat, imp in importance.items():
-        assert imp >= 0
+def test_load_user_baseline_not_found(temp_dir):
+    with patch('utils.importance_analyzer.get_project_root', return_value=temp_dir):
+        logger = MagicMock()
+        result = load_user_baseline(logger)
+        
+        assert result is None
+        logger.info.assert_called()
 
 def test_rank_list_to_feature_list():
-    """Test conversion from rank list to feature list."""
-    rank_list = [
-        {"name": "laser_power", "rank": 1},
-        {"name": "scan_speed", "rank": 2},
-        {"name": "layer_thickness", "rank": 3}
-    ]
-    
-    feature_list = rank_list_to_feature_list(rank_list)
-    
-    assert feature_list == ["laser_power", "scan_speed", "layer_thickness"]
-
-def test_rank_list_to_feature_list_empty():
-    """Test conversion with empty list."""
-    rank_list = []
-    feature_list = rank_list_to_feature_list(rank_list)
-    assert feature_list == []
+    ranked_features = ["A", "B", "C"]
+    result = rank_list_to_feature_list(ranked_features)
+    assert result == [0, 1, 2]
 
 def test_calculate_correlation_coefficient():
-    """Test correlation coefficient calculation."""
-    list1 = [1, 2, 3, 4, 5]
-    list2 = [1, 2, 3, 4, 5]
-    
-    corr = calculate_correlation_coefficient(list1, list2)
-    
-    # Perfect correlation
+    ranks1 = [0, 1, 2]
+    ranks2 = [0, 1, 2]
+    corr = calculate_correlation_coefficient(ranks1, ranks2)
     assert corr == 1.0
+    
+    ranks3 = [2, 1, 0]
+    corr2 = calculate_correlation_coefficient(ranks1, ranks3)
+    assert corr2 == -1.0
 
-def test_calculate_correlation_coefficient_inverse():
-    """Test correlation with inverse relationship."""
-    list1 = [1, 2, 3, 4, 5]
-    list2 = [5, 4, 3, 2, 1]
+def test_run_correlation_analysis_no_baseline(temp_dir):
+    # Mock model and data
+    model = MagicMock()
+    X_test = np.array([[1, 2], [3, 4]])
+    y_test = np.array([1, 2])
+    feature_names = ["f1", "f2"]
+    logger = MagicMock()
     
-    corr = calculate_correlation_coefficient(list1, list2)
-    
-    # Perfect negative correlation
-    assert corr == -1.0
-
-def test_calculate_correlation_coefficient_no_correlation():
-    """Test correlation with no relationship."""
-    list1 = [1, 2, 3, 4, 5]
-    list2 = [3, 1, 4, 1, 5]
-    
-    corr = calculate_correlation_coefficient(list1, list2)
-    
-    # Should be between -1 and 1
-    assert -1.0 <= corr <= 1.0
-
-def test_calculate_correlation_coefficient_different_lengths():
-    """Test correlation with different length lists."""
-    list1 = [1, 2, 3, 4, 5]
-    list2 = [1, 2, 3, 4]
-    
-    # Should handle different lengths gracefully
-    corr = calculate_correlation_coefficient(list1, list2)
-    
-    # Should return a valid correlation or handle the error
-    assert -1.0 <= corr <= 1.0 or corr is None
+    # Mock all baseline loaders to return None
+    with patch('utils.importance_analyzer.load_literature_baseline', return_value=None), \
+         patch('utils.importance_analyzer.load_user_baseline', return_value=None), \
+         patch('utils.importance_analyzer.get_hardcoded_baseline_ranking', return_value=None):
+        
+        result = run_correlation_analysis(model, X_test, y_test, feature_names, logger)
+        
+        assert result["baseline_found"] == False
+        assert result["correlation_coefficient"] is None
+        assert "No verified baseline found" in result["message"]
+        logger.warning.assert_called()

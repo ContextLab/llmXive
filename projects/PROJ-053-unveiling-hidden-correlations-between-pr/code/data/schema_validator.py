@@ -6,7 +6,7 @@ import logging
 import pandas as pd
 from pathlib import Path
 
-from config import get_project_root, get_logs_dir
+from config import get_project_root, get_logs_dir, get_contracts_dir
 
 logger = logging.getLogger(__name__)
 
@@ -113,30 +113,40 @@ def main():
     setup_logger()
     logger.info("Schema validator module loaded.")
     
-    # Example usage for testing
-    try:
-        # Get the schema path relative to project root
-        project_root = get_project_root()
-        schema_path = os.path.join(project_root, 'contracts', 'dataset.schema.yaml')
-        
-        if os.path.exists(schema_path):
-            logger.info(f"Schema loaded from: {schema_path}")
-            # Create a dummy dataframe for demonstration
-            dummy_df = pd.DataFrame({
-                'laser_power': [100, 200],
-                'scan_speed': [500, 600],
-                'layer_thickness': [0.03, 0.04],
-                'yield_strength': [300, 400],
-                'ductility': [10, 15]
-            })
+    # Get the schema path relative to project root
+    project_root = get_project_root()
+    contracts_dir = get_contracts_dir()
+    if not contracts_dir:
+        contracts_dir = os.path.join(project_root, 'contracts')
+    
+    schema_path = os.path.join(contracts_dir, 'dataset.schema.yaml')
+    
+    if os.path.exists(schema_path):
+        logger.info(f"Schema loaded from: {schema_path}")
+        # Create a dummy dataframe for demonstration if no real data exists yet
+        # In production, this would load from data/raw/
+        try:
+            raw_data_path = os.path.join(project_root, 'data', 'raw', 'am_data.csv')
+            if os.path.exists(raw_data_path):
+                dummy_df = pd.read_csv(raw_data_path)
+                logger.info(f"Loaded real data from: {raw_data_path} for validation")
+            else:
+                # Fallback to dummy data only if no real data exists (for testing purposes)
+                dummy_df = pd.DataFrame({
+                    'laser_power': [100, 200],
+                    'scan_speed': [500, 600],
+                    'layer_thickness': [0.03, 0.04],
+                    'yield_strength': [300, 400],
+                    'ductility': [10, 15]
+                })
+                logger.warning("No real data found. Using dummy data for demonstration.")
             
             result = validate_csv_schema(dummy_df, schema_path)
             logger.info(f"Validation result: {result}")
-        else:
-            logger.warning(f"Schema file not found at: {schema_path}")
-            
-    except Exception as e:
-        logger.error(f"Error during validation: {e}")
+        except Exception as e:
+            logger.error(f"Error during validation: {e}")
+    else:
+        logger.error(f"Schema file not found at: {schema_path}")
 
 if __name__ == "__main__":
     main()

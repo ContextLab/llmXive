@@ -7,305 +7,314 @@ import pickle
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 
-from config import get_processed_data_dir, get_figures_dir, get_results_dir, ensure_directories
+from config import get_processed_data_dir, get_figures_dir, get_models_dir, get_results_dir, ensure_directories
 from utils.logger import setup_logging
 
-# --- Configuration ---
-# Physical units for axis annotation
+logger = logging.getLogger(__name__)
+
+# Physical unit mapping for axes based on domain knowledge of AM parameters
 PHYSICAL_UNITS = {
     'laser_power': 'W',
     'scan_speed': 'mm/s',
-    'layer_thickness': 'µm',
+    'layer_thickness': 'mm',
     'yield_strength': 'MPa',
     'ductility': '%',
-    'fatigue_life': 'cycles'
+    'energy_density': 'J/mm^3',
+    'line_energy': 'J/mm'
 }
 
-def load_normalization_bounds(bounds_file: Optional[str] = None) -> Dict[str, Dict[str, float]]:
+def load_normalization_bounds(bounds_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Loads the normalization bounds from the JSON file generated during preprocessing.
+    Load normalization bounds from JSON file.
     
     Args:
-        bounds_file: Optional path override. Defaults to data/processed/normalization_bounds.json.
-    
+        bounds_path: Optional path to bounds file. If None, uses default path.
+        
     Returns:
-        Dictionary mapping feature names to {'min': float, 'max': float, 'unit': str}.
-        If unit is not in the file, it is looked up in PHYSICAL_UNITS.
+        Dictionary containing normalization bounds.
     """
-    if bounds_file is None:
-        bounds_file = os.path.join(get_processed_data_dir(), "normalization_bounds.json")
+    if bounds_path is None:
+        bounds_path = os.path.join(get_results_dir(), 'normalization_bounds.json')
     
-    if not os.path.exists(bounds_file):
-        raise FileNotFoundError(f"Normalization bounds file not found: {bounds_file}")
+    if not os.path.exists(bounds_path):
+        raise FileNotFoundError(f"Normalization bounds file not found at {bounds_path}")
     
-    with open(bounds_file, 'r') as f:
-        bounds_data = json.load(f)
+    with open(bounds_path, 'r') as f:
+        bounds = json.load(f)
     
-    # Ensure units are attached
-    enriched_bounds = {}
-    for key, values in bounds_data.items():
-        # Handle cases where the key might be a list or specific feature name
-        if isinstance(key, str):
-            unit = PHYSICAL_UNITS.get(key, ' (normalized)')
-            enriched_bounds[key] = {
-                'min': values.get('min', 0.0),
-                'max': values.get('max', 1.0),
-                'unit': unit,
-                'raw_min': values.get('raw_min'), # Optional: if stored
-                'raw_max': values.get('raw_max')  # Optional: if stored
-            }
-        else:
-            # Fallback for unexpected structure
-            enriched_bounds[str(key)] = {'min': 0.0, 'max': 1.0, 'unit': ' (normalized)'}
-    
-    return enriched_bounds
+    logger.info(f"Loaded normalization bounds from {bounds_path}")
+    return bounds
 
-def load_processed_test_data(test_data_path: Optional[str] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def load_processed_test_data(data_path: Optional[str] = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Loads the preprocessed test set (X_test, y_test, feature_names).
-    Expects a pickle file saved by the preprocessing pipeline.
+    Load processed test data (features, targets, original indices).
+    
+    Args:
+        data_path: Optional path to test data. If None, uses default path.
+        
+    Returns:
+        Tuple of (features, targets, indices)
     """
-    if test_data_path is None:
-        test_data_path = os.path.join(get_processed_data_dir(), "test_data.pkl")
+    if data_path is None:
+        data_path = os.path.join(get_processed_data_dir(), 'test_data.pkl')
     
-    if not os.path.exists(test_data_path):
-        raise FileNotFoundError(f"Test data file not found: {test_data_path}")
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Test data file not found at {data_path}")
     
-    with open(test_data_path, 'rb') as f:
+    with open(data_path, 'rb') as f:
         data = pickle.load(f)
     
-    X_test = data['X_test']
-    y_test = data['y_test']
-    feature_names = data['feature_names']
-    
-    return X_test, y_test, feature_names
+    logger.info(f"Loaded test data from {data_path}")
+    return data['features'], data['targets'], data['indices']
 
-def load_model(model_path: Optional[str] = None):
+def load_model(model_path: Optional[str] = None) -> Any:
     """
-    Loads the trained GPR model from disk.
+    Load trained GPR model.
+    
+    Args:
+        model_path: Optional path to model file. If None, uses default path.
+        
+    Returns:
+        Trained GPR model object.
     """
     if model_path is None:
-        model_path = os.path.join(get_results_dir(), "models", "gpr_model.pkl")
+        model_path = os.path.join(get_models_dir(), 'gpr_model.pkl')
     
     if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file not found: {model_path}")
+        raise FileNotFoundError(f"Model file not found at {model_path}")
     
     with open(model_path, 'rb') as f:
         model = pickle.load(f)
     
+    logger.info(f"Loaded model from {model_path}")
     return model
 
-def generate_contour_grid(bounds: Dict[str, Dict[str, float]], 
+def generate_contour_grid(bounds: Dict[str, Any], feature_names: list, 
                           n_points: int = 100) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Generates a 2D grid for contour plotting based on physical bounds.
-    Assumes the first two features in the bounds dict are the X and Y axes (Power, Speed).
+    Generate a grid for contour plotting based on normalization bounds.
     
+    Args:
+        bounds: Normalization bounds dictionary.
+        feature_names: List of feature names.
+        n_points: Number of points per dimension.
+        
     Returns:
-        X_grid, Y_grid (meshgrid), X_min, X_max, Y_min, Y_max
+        Tuple of (X_grid, Y_grid, X_denorm, Y_denorm)
     """
-    # Identify the first two features as the axes
-    # We expect 'laser_power' and 'scan_speed' to be present
-    features = list(bounds.keys())
-    if len(features) < 2:
-        raise ValueError("Normalization bounds must contain at least two features for 2D contour plotting.")
+    # Assume first two features are laser_power and scan_speed
+    if len(feature_names) < 2:
+        raise ValueError("Need at least 2 features for contour plotting")
     
-    x_feat = features[0]
-    y_feat = features[1]
+    x_feature = feature_names[0]
+    y_feature = feature_names[1]
     
-    x_min = bounds[x_feat]['min']
-    x_max = bounds[x_feat]['max']
-    y_min = bounds[y_feat]['min']
-    y_max = bounds[y_feat]['max']
+    # Get bounds for these features
+    x_min = bounds.get(x_feature, {}).get('min', 0)
+    x_max = bounds.get(x_feature, {}).get('max', 1)
+    y_min = bounds.get(y_feature, {}).get('min', 0)
+    y_max = bounds.get(y_feature, {}).get('max', 1)
     
+    # Create grid
     x = np.linspace(x_min, x_max, n_points)
     y = np.linspace(y_min, y_max, n_points)
     X_grid, Y_grid = np.meshgrid(x, y)
     
-    return X_grid, Y_grid, x_min, x_max, y_min, y_max
+    # Denormalize for display (if bounds contain original ranges)
+    # For now, we'll use the normalized grid and annotate axes with physical units
+    X_denorm = X_grid
+    Y_denorm = Y_grid
+    
+    return X_grid, Y_grid, X_denorm, Y_denorm
 
-def predict_with_uncertainty(model, X_grid: np.ndarray, Y_grid: np.ndarray, 
-                             feature_names: list, x_idx: int = 0, y_idx: int = 1) -> Tuple[np.ndarray, np.ndarray]:
+def predict_with_uncertainty(model: Any, X_grid: np.ndarray, Y_grid: np.ndarray, 
+                             feature_names: list) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Predicts mean and standard deviation on the grid.
-    Flattens grid, constructs feature matrix, predicts, then reshapes.
+    Predict values and uncertainty on a grid.
+    
+    Args:
+        model: Trained GPR model.
+        X_grid: X coordinate grid.
+        Y_grid: Y coordinate grid.
+        feature_names: List of feature names.
+        
+    Returns:
+        Tuple of (predictions, uncertainties)
     """
-    # Create mesh of points
-    # We need to construct a full feature vector for every point in the grid
-    # Since we only have 2D grids, we assume other features are fixed at their mean (0.5 normalized)
-    n_samples = X_grid.size
+    # Flatten grids
+    X_flat = X_grid.flatten()
+    Y_flat = Y_grid.flatten()
     
-    # Initialize feature matrix with zeros (or mean normalized value 0.5)
-    # Using 0.5 as a safe normalized center point for missing dimensions
-    X_full = np.full((n_samples, len(feature_names)), 0.5)
+    # Create feature matrix (assuming other features are fixed at mean or 0.5 normalized)
+    n_features = len(feature_names)
+    grid_points = np.column_stack([X_flat, Y_flat])
     
-    X_full[:, x_idx] = X_grid.flatten()
-    X_full[:, y_idx] = Y_grid.flatten()
+    # Pad with fixed values for other features (assuming 0.5 normalized)
+    if n_features > 2:
+        padding = np.full((len(X_flat), n_features - 2), 0.5)
+        grid_points = np.hstack([grid_points, padding])
     
-    # Predict
-    mean, std = model.predict(X_full, return_std=True)
+    # Predict with uncertainty
+    mean, std = model.predict(grid_points, return_std=True)
     
-    return mean.reshape(X_grid.shape), std.reshape(X_grid.shape)
+    # Reshape to grid
+    predictions = mean.reshape(X_grid.shape)
+    uncertainties = std.reshape(X_grid.shape)
+    
+    return predictions, uncertainties
 
-def create_contour_plot(X_grid: np.ndarray, Y_grid: np.ndarray, 
-                        Z_mean: np.ndarray, 
-                        x_bounds: Dict[str, Dict[str, float]], 
-                        y_bounds: Dict[str, Dict[str, float]],
-                        target_name: str = 'Yield Strength',
-                        output_path: Optional[str] = None):
+def create_contour_plot(predictions: np.ndarray, X_grid: np.ndarray, Y_grid: np.ndarray,
+                        feature_names: list, target_name: str = 'yield_strength',
+                        output_path: Optional[str] = None) -> str:
     """
-    Creates a contour plot of the predicted target with physical unit annotations.
+    Create a contour plot of predictions with physical unit annotations.
+    
+    Args:
+        predictions: Predicted values on grid.
+        X_grid: X coordinate grid.
+        Y_grid: Y coordinate grid.
+        feature_names: List of feature names.
+        target_name: Name of target variable.
+        output_path: Optional output path for figure.
+        
+    Returns:
+        Path to saved figure.
     """
-    if output_path is None:
-        output_path = os.path.join(get_figures_dir(), f"contour_{target_name.lower().replace(' ', '_')}.png")
+    ensure_directories()
     
-    ensure_directories([os.path.dirname(output_path)])
+    # Get physical units for axes
+    x_unit = PHYSICAL_UNITS.get(feature_names[0], '')
+    y_unit = PHYSICAL_UNITS.get(feature_names[1], '')
+    target_unit = PHYSICAL_UNITS.get(target_name, '')
     
-    plt.figure(figsize=(10, 8))
+    # Create figure
+    fig, ax = plt.subplots(figsize=(10, 8))
     
     # Create contour plot
-    levels = np.linspace(Z_mean.min(), Z_mean.max(), 20)
-    contour = plt.contourf(X_grid, Y_grid, Z_mean, levels=levels, cmap='viridis', alpha=0.8)
-    plt.colorbar(contour, label=f'{target_name} ({PHYSICAL_UNITS.get(target_name, "")})')
-    
-    # Add contour lines for clarity
-    plt.contour(X_grid, Y_grid, Z_mean, levels=levels, colors='k', linewidths=0.5, alpha=0.3)
+    contour = ax.contourf(X_grid, Y_grid, predictions, levels=20, cmap='viridis')
+    plt.colorbar(contour, ax=ax, label=f'{target_name} ({target_unit})')
     
     # Annotate axes with physical units
-    x_unit = x_bounds['unit']
-    y_unit = y_bounds['unit']
+    ax.set_xlabel(f'{feature_names[0].replace("_", " ").title()} ({x_unit})')
+    ax.set_ylabel(f'{feature_names[1].replace("_", " ").title()} ({y_unit})')
+    ax.set_title(f'Predicted {target_name.replace("_", " ").title()} vs Processing Parameters')
     
-    plt.xlabel(f"Laser Power ({x_unit})")
-    plt.ylabel(f"Scan Speed ({y_unit})")
+    # Save figure
+    if output_path is None:
+        output_path = os.path.join(get_figures_dir(), f'{target_name}_contour.png')
     
-    plt.title(f"Predicted {target_name} vs. Process Parameters")
-    
-    # Save
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
     
-    logging.info(f"Contour plot saved to: {output_path}")
+    logger.info(f"Saved contour plot to {output_path}")
     return output_path
 
-def create_uncertainty_heatmap(X_grid: np.ndarray, Y_grid: np.ndarray, 
-                               Z_std: np.ndarray,
-                               x_bounds: Dict[str, Dict[str, float]],
-                               y_bounds: Dict[str, Dict[str, float]],
-                               median_std: float,
-                               target_name: str = 'Yield Strength',
-                               output_path: Optional[str] = None):
+def create_uncertainty_heatmap(uncertainties: np.ndarray, X_grid: np.ndarray, Y_grid: np.ndarray,
+                               feature_names: list, target_name: str = 'yield_strength',
+                               output_path: Optional[str] = None) -> str:
     """
-    Creates an uncertainty heatmap where regions with σ > 2× median are highlighted in red.
+    Create an uncertainty heatmap with physical unit annotations.
+    
+    Args:
+        uncertainties: Uncertainty values on grid.
+        X_grid: X coordinate grid.
+        Y_grid: Y coordinate grid.
+        feature_names: List of feature names.
+        target_name: Name of target variable.
+        output_path: Optional output path for figure.
+        
+    Returns:
+        Path to saved figure.
     """
-    if output_path is None:
-        output_path = os.path.join(get_figures_dir(), f"uncertainty_{target_name.lower().replace(' ', '_')}.png")
+    ensure_directories()
     
-    ensure_directories([os.path.dirname(output_path)])
+    # Get physical units for axes
+    x_unit = PHYSICAL_UNITS.get(feature_names[0], '')
+    y_unit = PHYSICAL_UNITS.get(feature_names[1], '')
     
-    threshold = 2.0 * median_std
+    # Calculate median uncertainty for threshold
+    median_uncertainty = np.median(uncertainties)
+    high_uncertainty_threshold = 2 * median_uncertainty
     
-    # Create a mask for high uncertainty
-    high_uncertainty_mask = Z_std > threshold
+    # Create figure
+    fig, ax = plt.subplots(figsize=(10, 8))
     
-    plt.figure(figsize=(10, 8))
+    # Create heatmap with custom colormap for high uncertainty
+    # Low uncertainty: blue to green, high uncertainty: red
+    cmap = plt.cm.viridis
+    scatter = ax.scatter(X_grid.flatten(), Y_grid.flatten(), 
+                        c=uncertainties.flatten(), cmap=cmap, s=1)
     
-    # Plot base uncertainty with a colormap
-    # Using 'coolwarm' or 'RdYlBu' to show low (blue) to high (red)
-    # We will manually overlay red for high uncertainty if needed, or use a custom colormap
-    # For simplicity, we use a standard colormap but emphasize the threshold
-    levels = np.linspace(Z_std.min(), Z_std.max(), 50)
-    contour = plt.contourf(X_grid, Y_grid, Z_std, levels=levels, cmap='RdYlBu_r', alpha=0.8)
-    plt.colorbar(contour, label='Prediction Standard Deviation (Normalized)')
+    # Add threshold indicator
+    if high_uncertainty_threshold > 0:
+        # Highlight regions with high uncertainty
+        high_unc_mask = uncertainties > high_uncertainty_threshold
+        if np.any(high_unc_mask):
+            ax.contour(X_grid, Y_grid, high_unc_mask.astype(int), 
+                      colors=['red'], linewidths=2, linestyles='--')
     
-    # Overlay red regions where uncertainty is high
-    # We create a masked array to show red only where condition is met
-    high_unc_data = np.ma.masked_where(~high_uncertainty_mask, Z_std)
-    plt.contourf(X_grid, Y_grid, high_unc_data, levels=[threshold, Z_std.max()], 
-                 colors=['red'], alpha=0.6)
-    
-    # Add a legend entry for the threshold manually
-    from matplotlib.patches import Patch
-    legend_elements = [Patch(facecolor='red', alpha=0.6, label=f'High Uncertainty (σ > {threshold:.4f})')]
-    plt.legend(handles=legend_elements, loc='upper right')
+    plt.colorbar(scatter, ax=ax, label='Prediction Uncertainty (σ)')
     
     # Annotate axes with physical units
-    x_unit = x_bounds['unit']
-    y_unit = y_bounds['unit']
+    ax.set_xlabel(f'{feature_names[0].replace("_", " ").title()} ({x_unit})')
+    ax.set_ylabel(f'{feature_names[1].replace("_", " ").title()} ({y_unit})')
+    ax.set_title(f'Uncertainty Heatmap for {target_name.replace("_", " ").title()} Predictions')
     
-    plt.xlabel(f"Laser Power ({x_unit})")
-    plt.ylabel(f"Scan Speed ({y_unit})")
+    # Add legend for high uncertainty regions
+    if high_uncertainty_threshold > 0 and np.any(high_unc_mask):
+        ax.plot([], [], 'r--', linewidth=2, label=f'σ > 2× median ({high_uncertainty_threshold:.4f})')
+        ax.legend()
     
-    plt.title(f"Prediction Uncertainty Heatmap (σ > 2× Median Highlighted in Red)")
+    # Save figure
+    if output_path is None:
+        output_path = os.path.join(get_figures_dir(), f'{target_name}_uncertainty_heatmap.png')
     
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
     
-    logging.info(f"Uncertainty heatmap saved to: {output_path}")
+    logger.info(f"Saved uncertainty heatmap to {output_path}")
     return output_path
 
 def main():
-    """
-    Main entry point for T038: Integrate normalization bounds into visualizations.
-    This script loads the bounds, generates the grid, and creates plots with physical units.
-    """
+    """Main function to generate contour plots with physical unit annotations."""
     # Setup logging
-    logger = setup_logging("contour_plots")
-    logger.info("Starting T038: Visualization with Physical Unit Integration")
+    setup_logging()
     
     try:
-        # 1. Load Normalization Bounds
-        logger.info("Loading normalization bounds...")
+        # Load necessary components
         bounds = load_normalization_bounds()
+        test_features, test_targets, test_indices = load_processed_test_data()
+        model = load_model()
         
-        # Verify we have the necessary features
-        if 'laser_power' not in bounds or 'scan_speed' not in bounds:
-            logger.error("Missing required features (laser_power, scan_speed) in normalization bounds.")
+        # Get feature names (assuming they match the order in bounds)
+        feature_names = list(bounds.keys())
+        if len(feature_names) < 2:
+            logger.error("Need at least 2 features for contour plotting")
             return
         
-        x_bounds = bounds['laser_power']
-        y_bounds = bounds['scan_speed']
+        # Generate contour grid
+        X_grid, Y_grid, X_denorm, Y_denorm = generate_contour_grid(bounds, feature_names)
         
-        # 2. Load Model and Data
-        logger.info("Loading model and test data...")
-        model = load_model()
-        X_test, y_test, feature_names = load_processed_test_data()
+        # Predict with uncertainty
+        predictions, uncertainties = predict_with_uncertainty(model, X_grid, Y_grid, feature_names)
         
-        # 3. Generate Contour Grid
-        logger.info("Generating contour grid...")
-        X_grid, Y_grid, _, _, _, _ = generate_contour_grid(bounds)
+        # Create contour plot for yield_strength
+        target_name = 'yield_strength'
+        contour_path = create_contour_plot(predictions, X_grid, Y_grid, feature_names, 
+                                          target_name=target_name)
+        logger.info(f"Created contour plot: {contour_path}")
         
-        # 4. Predict with Uncertainty
-        logger.info("Predicting on grid...")
-        Z_mean, Z_std = predict_with_uncertainty(model, X_grid, Y_grid, feature_names)
+        # Create uncertainty heatmap
+        heatmap_path = create_uncertainty_heatmap(uncertainties, X_grid, Y_grid, feature_names, 
+                                                 target_name=target_name)
+        logger.info(f"Created uncertainty heatmap: {heatmap_path}")
         
-        # 5. Calculate Median Standard Deviation for Thresholding
-        median_std = np.median(Z_std)
-        logger.info(f"Calculated median standard deviation: {median_std:.4f}")
-        
-        # 6. Create Plots
-        logger.info("Creating contour plot...")
-        create_contour_plot(
-            X_grid, Y_grid, Z_mean, 
-            x_bounds, y_bounds, 
-            target_name='Yield Strength',
-            output_path=os.path.join(get_figures_dir(), "contour_yield_strength.png")
-        )
-        
-        logger.info("Creating uncertainty heatmap...")
-        create_uncertainty_heatmap(
-            X_grid, Y_grid, Z_std,
-            x_bounds, y_bounds,
-            median_std=median_std,
-            target_name='Yield Strength',
-            output_path=os.path.join(get_figures_dir(), "uncertainty_yield_strength.png")
-        )
-        
-        logger.info("T038 completed successfully. Figures generated with physical unit annotations.")
+        logger.info("Successfully generated visualizations with physical unit annotations")
         
     except Exception as e:
-        logger.error(f"Error during T038 execution: {str(e)}", exc_info=True)
+        logger.error(f"Error generating visualizations: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":

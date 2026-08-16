@@ -1,5 +1,10 @@
-# Dataset Schema for Additive Manufacturing Alloy Properties
-# Defines required and optional columns for validation
+# Dataset Schema for Additive Manufacturing Alloy Analysis
+# Project: PROJ-053-unveiling-hidden-correlations-between-pr
+# Version: 1.0
+
+description: >
+  Schema for the Additive Manufacturing Alloy Dataset.
+  Defines required processing parameters and mechanical properties.
 
 required_columns:
   - laser_power
@@ -19,7 +24,9 @@ column_types:
   ductility: numeric
   fatigue_life: numeric
 
-description: |
-  This schema defines the expected structure for the AM alloy dataset.
-  Required columns must be present for validation to pass.
-  Optional columns are allowed but not required.
+notes: >
+  - All numeric columns must be parseable as floats.
+  - Categorical columns (e.g., alloy_type) are handled via preprocessing
+    and are not part of this core schema definition.
+  - Missing values in required columns will be imputed during preprocessing.
+  - Missing values in optional columns may be dropped or handled separately.

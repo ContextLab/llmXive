@@ -171,7 +171,7 @@ projects/PROJ-053-unveiling-hidden-correlations-between-pr/
 - **Action**: Generate uncertainty heatmaps (σ > 2× median flagged in red).
 
 **Task 3.2: Partial Dependence Plots**
-- **Action**: Generate PDPs for top 3 influential parameters.
+- **Action**: Generate PDPs for top influential parameters.
 
 **Task 3.3: Runtime Instrumentation (SC-005)**
 - **Action**: Measure total runtime (preprocessing + training + viz).

@@ -147,3 +147,183 @@
   source_type: external
   status: verified
   updated_at: '2026-08-15T13:36:34Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Zenodo ID 4685643 contains Additive Manufacturing Alloy Dataset
+  claim_id: c_fc448f20
+  context: 'Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643. Explicit Sources: Zenodo ID 4685643 (Additive Manufacturing
+    Alloy Dataset).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zenodo ID 4685643 (Additive Manufacturing Alloy Dataset)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:19:16Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Time limit set to 21600 seconds or 6 hours
+  claim_id: c_9bae3791
+  context: Define TIME_LIMIT_SECONDS = 21600 (6 hours) in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TIME_LIMIT_SECONDS = 21600 (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:19:58Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Crossref metadata lacks rankings data
+  claim_id: c_087133ba
+  context: 'Verify Literature Source: Query crossref API... Note: Crossref metadata
+    does NOT contain ''rankings''. This step is only to confirm the paper''s existence.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Crossref_metadata_lacks_rankings_data
+  kind: entity_fact
+  raw_text: Crossref metadata does NOT contain 'rankings'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:20:45Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Zenodo ID 10.5281/zenodo.4685643 is the Additive Manufacturing Alloy
+    Dataset
+  claim_id: c_88a5b35f
+  context: 'Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643. Explicit Sources: Zenodo ID 4685643 (Additive Manufacturing
+    Alloy Dataset).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:21:27Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Pipeline time limit is 21600 seconds
+  claim_id: c_83154be7
+  context: Define TIME_LIMIT_SECONDS = 21600 (6 hours) in code/config.py. Log total_runtime_seconds
+    to results/metrics.json unconditionally.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define TIME_LIMIT_SECONDS = 21600 (6 hours) in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:22:22Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Optimized memory usage target is less than 7000 MB
+  claim_id: c_c8d7313b
+  context: Optimize memory usage in preprocess.py (chunked processing, dtype conversion)
+    if max_memory_mb >= 7000. Verify optimized memory usage is < 7000 MB by re-running
+    T047A.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimized_memory_usage_target_is_less_than_7000_MB
+  kind: magnitude
+  raw_text: Verify optimized memory usage is < 7000 MB by re-running T047A.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:22:59Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Stratified analysis by alloy_type assesses confounder sensitivity
+  claim_id: c_a1f38e62
+  context: Implement stratified analysis by alloy_type in code/models/stratified_analysis.py
+    to assess confounder sensitivity (Plan Task 2.4). This task consumes the processed
+    CSV from T016/T017A and performs grouping/analysis WITHOUT requiring the GPR model
+    (T026).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified analysis by alloy_type in code/models/stratified_analysis.py
+    to assess confounder sensitivity (Plan Task 2.4).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:23:29Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Download from Zenodo ID 10.5281/zenodo.4685643
+  claim_id: c_0ee16d7b
+  context: 'Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline. Task
+    T014A specifies the automated download source for the Additive Manufacturing Alloy
+    Dataset.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:29:43Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Runtime limit set to 21600 seconds
+  claim_id: c_decc70f3
+  context: 'Phase 5: User Story 3 - Uncertainty Quantification and Visualization.
+    Task T040 specifies a critical runtime limit for the pipeline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define TIME_LIMIT_SECONDS = 21600 (6 hours) in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:29:43Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Dataset available at Zenodo ID 10.5281/zenodo.4685643
+  claim_id: c_6b613d99
+  context: 'Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643. Explicit Sources: Zenodo ID 4685643 (Additive Manufacturing
+    Alloy Dataset).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Attempt automated download from Zenodo ID 10.5281/zenodo.4685643.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:35:01Z'
