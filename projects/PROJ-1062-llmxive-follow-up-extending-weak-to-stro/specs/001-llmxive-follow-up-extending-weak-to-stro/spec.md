@@ -55,9 +55,9 @@
 ### Edge Cases
 
 - **What happens when** the implicit reward signal is numerically unstable (e.g., log of zero probability) for certain tokens in the MoE/SSM vocabularies?
-  - *Handling*: The system must implement a epsilon-smoothing mechanism (e.g., adding $1e^{-9}$) to probabilities before log-ratio computation to prevent NaN errors, ensuring the training loop does not crash.
+  - *Handling*: The system must implement an epsilon-smoothing mechanism (e.g., adding a small positive constant) to probabilities before log-ratio computation to prevent NaN errors, ensuring the training loop does not crash.
 - **How does the system handle** memory overflow if the MoE/SSM model batch size is too large for the 7GB RAM limit of the free-tier runner?
-  - *Handling*: The system must enforce a maximum batch size constraint of or 2 with gradient accumulation to simulate larger batches without exceeding physical memory limits. If dynamic reduction is triggered, it must fall back to this hard limit.
+  - *Handling*: The system must enforce a maximum batch size constraint with gradient accumulation to simulate larger batches without exceeding physical memory limits. If dynamic reduction is triggered, it must fall back to this hard limit.
 - **What happens when** the SSM model's architecture prevents standard attention-based probability alignment?
   - *Handling*: The system must verify that the probability output dimensions match the reward calculation logic; if the output dimension mismatch > 0 or log-probability variance < 1e-9, it must report a specific architecture incompatibility error and halt the process.
 

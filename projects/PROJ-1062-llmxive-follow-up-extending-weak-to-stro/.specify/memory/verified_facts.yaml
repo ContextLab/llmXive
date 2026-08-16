@@ -1,4 +1,4 @@
-'|batch floor hard size training':
+'|batch size training used':
   quote: We find that small batch sizes (1) train stably, (2) are consistently more
     robust to
   source_id: '2507.07101'

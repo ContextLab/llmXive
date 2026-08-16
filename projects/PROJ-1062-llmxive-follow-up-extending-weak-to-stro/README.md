@@ -1,24 +1,60 @@
 # llmXive Follow-up: Extending Weak-to-Strong Generalization
 
-Research pipeline for validating cross-architecture signal transfer via Direct On-Policy Distillation.
+## Project Setup
 
-## Setup
+This project requires Python 3.11+ and uses `pip` for dependency management.
 
-1. Ensure Python 3.11 is installed.
+### Prerequisites
+
+- Python 3.11 or higher
+- pip (>= 23.0)
+
+### Installation
+
+1. Create a virtual environment (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
 2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
-3. Run data download scripts in `code/data/`.
-4. Execute training scripts in `code/scripts/`.
 
-## Structure
+3. Verify installation:
+ ```bash
+ python -m pytest code/tests/test_environment.py -v
+ ```
 
-- `code/`: Source code
- - `core/`: Training, evaluation, memory monitoring
- - `data/`: Data loading and preprocessing
- - `models/`: Model loaders
- - `scripts/`: Experiment runners
- - `tests/`: Test suite
-- `data/`: Raw and processed data (generated at runtime)
-- `projects/`: Project-specific configuration and structure
+### Development Tools
+
+The project includes `ruff` for linting and `black` for formatting.
+
+- Run linter: `python -m code.scripts.run_lint`
+- Run formatter: `python -m code.scripts.run_format`
+
+### Project Structure
+
+```
+.
+├── code/ # Source code
+│ ├── core/ # Core utilities (trainer, evaluator, etc.)
+│ ├── data/ # Data loading and preprocessing
+│ ├── models/ # Model loaders (MoE, SSM, Teacher)
+│ ├── scripts/ # Utility scripts
+│ └── tests/ # Test suite
+├── data/ # Data directory (raw, processed, results)
+├── docs/ # Documentation
+├── requirements.txt # Python dependencies
+├── pyproject.toml # Project configuration (ruff, black, pytest)
+└── README.md
+```
+
+## Running Experiments
+
+Refer to `tasks.md` for the execution order of specific experiments (MoE, SSM).
+
+## License
+
+Research use only.

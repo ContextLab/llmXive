@@ -1,3 +1,3 @@
 """
-Model loading and architecture utilities.
+Model loading and architecture package
 """

@@ -1,3 +1,3 @@
 """
-Execution scripts and experiment runners.
+Scripts package
 """

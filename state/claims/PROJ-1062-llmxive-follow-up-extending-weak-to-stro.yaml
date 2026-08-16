@@ -1205,3 +1205,704 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T05:34:57Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME dataset subset from HuggingFaceH4/aime_2024
+  claim_id: c_57d605e9
+  context: Implement code/data/download_aime.py to fetch the AIME dataset subset from
+    HuggingFace dataset ID HuggingFaceH4/aime_2024 with checksum validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AIME_dataset_subset_from_HuggingFaceH4/aime_2024
+  kind: entity_fact
+  raw_text: fetch the AIME dataset subset from HuggingFace dataset ID HuggingFaceH4/aime_2024
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:31:19Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: load mistralai/Mixtral-Instruct-v0.1 MoE model
+  claim_id: c_76504023
+  context: Implement code/models/moe_student.py to load mistralai/Mixtral-Instruct-v0.1
+    (MoE, large parameter count with active experts) with 4-bit quantization.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: distinguishedLLMs,namelyMixtral-8x7b-Instruct-v0.1,GPT-3.5-Turbo-
+      source_id: '2405.17249'
+      url: https://arxiv.org/abs/2405.17249
+      value: Mixtral-8x7b-Instruct-v0.1
+    filled: true
+  kind: numeric
+  raw_text: load mistralai/Mixtral-Instruct-v0.1 (MoE, large parameter count with
+    active experts)
+  resolved_value: Mixtral-8x7b-Instruct-v0.1
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T05:31:41Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: load B SSM student model from state-spaces/mamba-1.3b-hf
+  claim_id: c_6be13f7a
+  context: Implement code/models/ssm_student.py to load a B SSM student model from
+    the state-spaces/mamba-1.3b-hf repository in int8 precision.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: load a B SSM student model from the state-spaces/mamba-1.3b-hf repository
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:32:09Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mamba model parameter count 1.3B and size < 7GB RAM
+  claim_id: c_5be03ae1
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count 1.3B, and size < 7GB RAM before loading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: confirm model ID, parameter count 1.3B, and size < 7GB RAM before loading
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:33:23Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch_size=1 seed=42 gradient_accumulation_steps=4
+  claim_id: c_7f48e68f
+  context: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed42.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:33:52Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch_size=1 seed=43 gradient_accumulation_steps=4
+  claim_id: c_3c12d11c
+  context: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=43, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed43.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=43, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:34:23Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch_size=1 seed=44 gradient_accumulation_steps=4
+  claim_id: c_b30e7b73
+  context: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=44, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed44.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=44, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:34:57Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch_size=1 seed=45 gradient_accumulation_steps=4
+  claim_id: c_2bde66ad
+  context: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=45, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed45.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=45, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:35:27Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment 500 steps batch_size=1 seed=46 gradient_accumulation_steps=4
+  claim_id: c_4f7def32
+  context: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=46, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed46.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=46, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:36:00Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch_size=1 seed=42 gradient_accumulation_steps=4
+  claim_id: c_f751253b
+  context: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed42.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:36:31Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch_size=1 seed=43 gradient_accumulation_steps=4
+  claim_id: c_242ad9c5
+  context: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=43, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed43.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=43, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:36:52Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch_size=1 seed=44 gradient_accumulation_steps=4
+  claim_id: c_7d264dd3
+  context: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=44, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed44.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=44, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:37:23Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch_size=1 seed=45 gradient_accumulation_steps=4
+  claim_id: c_bd691b84
+  context: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=45, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed45.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=45, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:38:01Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment 500 steps batch_size=1 seed=46 gradient_accumulation_steps=4
+  claim_id: c_d24f03c1
+  context: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=46, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed46.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=46, and gradient_accumulation_steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:38:34Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Sample size n=5 used to fit 6-hour time limit
+  claim_id: c_4a65bca5
+  context: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit. Wilcoxon
+    test is used due to small n.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:38:59Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 0
+  canonical: AIME dataset source is HuggingFaceH4/aime_2024
+  claim_id: c_c6ab7097
+  context: Implement code/data/download_aime.py to fetch the AIME dataset subset from
+    HuggingFace dataset ID HuggingFaceH4/aime_2024
+  evidence:
+    entailment_evidence: AIME dataset ID HuggingFaceH4/aime 2024
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/AIME_dataset_ID_HuggingFaceH4/aime_2024
+  kind: entity_fact
+  raw_text: The AIME dataset subset is fetched from HuggingFace dataset ID HuggingFaceH4/aime_2024
+  resolved_value: AIME dataset ID HuggingFaceH4/aime_2024
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T05:40:14Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model is mistralai/Mixtral-Instruct-v0.1
+  claim_id: c_927555c4
+  context: Implement code/models/moe_student.py to load mistralai/Mixtral-Instruct-v0.1
+    (MoE, large parameter count with active experts) with 4-bit quantization
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE student model is mistralai/Mixtral-Instruct-v0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:40:52Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM student model is state-spaces/mamba-1.3b-hf
+  claim_id: c_6f81fcc9
+  context: Implement code/models/ssm_student.py to load a B SSM student model from
+    the state-spaces/mamba-1.3b-hf repository
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SSM student model is state-spaces/mamba-1.3b-hf
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:41:09Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Experiment sample size is 5 seeds (42-46)
+  claim_id: c_e59b306d
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiments use a sample size of n=5 seeds (42-46)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:42:16Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Training duration is 500 steps
+  claim_id: c_b17c4194
+  context: Run MoE experiment on AIME subset for 500 training steps with batch_size=1
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE and SSM experiments run for 500 training steps
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:42:52Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Training batch size is 1
+  claim_id: c_7aa8ca08
+  context: Run MoE experiment on AIME subset for 500 training steps with batch_size=1
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We find that small batch sizes (1) train stably, (2) are consistently
+        more robust to
+      source_id: '2507.07101'
+      url: https://arxiv.org/abs/2507.07101
+      value: '1'
+    filled: true
+  kind: numeric
+  raw_text: The batch size used for training is 1
+  resolved_value: '1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T05:43:36Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Execution time limit is 6 hours
+  claim_id: c_0d1ab4de
+  context: Instrument code/main.py with runtime timer and log execution time to data/results/moe_results.json
+    and data/results/ssm_results.json under key execution_time_ms to verify SC-003
+    (6-hour limit).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The execution time limit for the experiments is 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:44:06Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE model quantization is 4-bit
+  claim_id: c_4d6d2dca
+  context: Implement code/models/moe_student.py to load mistralai/Mixtral-Instruct-v0.1
+    ... with 4-bit quantization (load_in_4bit=True)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE model uses 4-bit quantization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:45:07Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM model precision is int8
+  claim_id: c_4b72d12d
+  context: Implement code/models/ssm_student.py to load a B SSM student model from
+    the state-spaces/mamba-1.3b-hf repository in int8 precision
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SSM_model_precision_is_int8
+  kind: entity_fact
+  raw_text: The SSM model uses int8 precision
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:45:48Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Teacher model precision is int8
+  claim_id: c_d155e9ae
+  context: Implement code/models/teacher_loader.py to load dense Transformer teacher
+    (pre-RL and post-RL) in int8 precision
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Teacher_model_precision_is_int8
+  kind: entity_fact
+  raw_text: The teacher model is loaded in int8 precision
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:46:17Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: RAM constraint is 7GB
+  claim_id: c_5c96d0ca
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_constraint_is_7GB
+  kind: entity_fact
+  raw_text: The RAM constraint for the runner is 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:46:59Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Validation source is AIME 2024
+  claim_id: c_23b166b9
+  context: The val set serves as the held-out, human-verified evaluation set to satisfy
+    FR-009 and SC-006
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation set is derived from the AIME 2024 dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:47:36Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 'MoE experiment: 500 steps, batch_size=1, seed=43, gradient_accumulation_steps=4'
+  claim_id: c_c2a135d4
+  context: "Phase 3: User Story 1 - Cross-Architecture Signal Transfer Validation\
+    \ (MoE) (Priority: P1) \U0001F3AF MVP"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=43, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed43.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:50:09Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 'MoE experiment: 500 steps, batch_size=1, seed=44, gradient_accumulation_steps=4'
+  claim_id: c_996e2731
+  context: "Phase 3: User Story 1 - Cross-Architecture Signal Transfer Validation\
+    \ (MoE) (Priority: P1) \U0001F3AF MVP"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=44, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed44.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:50:37Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 'MoE experiment: 500 steps, batch_size=1, seed=45, gradient_accumulation_steps=4'
+  claim_id: c_fa112400
+  context: "Phase 3: User Story 1 - Cross-Architecture Signal Transfer Validation\
+    \ (MoE) (Priority: P1) \U0001F3AF MVP"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=45, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed45.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:51:20Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 'MoE experiment: 500 steps, batch_size=1, seed=46, gradient_accumulation_steps=4'
+  claim_id: c_c1ef007b
+  context: "Phase 3: User Story 1 - Cross-Architecture Signal Transfer Validation\
+    \ (MoE) (Priority: P1) \U0001F3AF MVP"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=46, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed46.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:51:43Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 'SSM experiment: 500 steps, batch_size=1, seed=42, gradient_accumulation_steps=4'
+  claim_id: c_3ba5f2ed
+  context: 'Phase 4: User Story 2 - State-Space Model (SSM) Signal Transfer Validation
+    (Priority: P2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed42.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:52:10Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 'SSM experiment: 500 steps, batch_size=1, seed=43, gradient_accumulation_steps=4'
+  claim_id: c_54024fbe
+  context: 'Phase 4: User Story 2 - State-Space Model (SSM) Signal Transfer Validation
+    (Priority: P2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=43, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed43.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:52:47Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 'SSM experiment: 500 steps, batch_size=1, seed=44, gradient_accumulation_steps=4'
+  claim_id: c_a71697e4
+  context: 'Phase 4: User Story 2 - State-Space Model (SSM) Signal Transfer Validation
+    (Priority: P2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=44, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed44.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:53:22Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 'SSM experiment: 500 steps, batch_size=1, seed=45, gradient_accumulation_steps=4'
+  claim_id: c_d72f207c
+  context: 'Phase 4: User Story 2 - State-Space Model (SSM) Signal Transfer Validation
+    (Priority: P2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=45, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed45.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:53:45Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 'SSM experiment: 500 steps, batch_size=1, seed=46, gradient_accumulation_steps=4'
+  claim_id: c_fb3fcfbb
+  context: 'Phase 4: User Story 2 - State-Space Model (SSM) Signal Transfer Validation
+    (Priority: P2)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run SSM experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=46, and gradient_accumulation_steps=4 and save results to data/results/ssm_results_seed46.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:54:13Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Sample size n=5 (seeds 42-46) used for 6-hour time limit
+  claim_id: c_0d435ad0
+  context: Notes section under Statistical Note
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:54:13Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test used due to small sample size
+  claim_id: c_8cab451d
+  context: Notes section under Statistical Note
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_test_used_due_to_small_sample_size
+  kind: entity_fact
+  raw_text: Wilcoxon test is used due to small n.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:54:57Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: "Training runs on CPU-only runner with \u22647GB RAM"
+  claim_id: c_b84dc121
+  context: Notes section under Critical Constraint
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_runs_on_CPU-only_runner_with_%E2%89%A47GB_RAM
+  kind: entity_fact
+  raw_text: "All training must run on CPU-only runner with \u22647GB RAM."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:55:42Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: 4-bit quantization for MoE (Mixtral-8x7B), int8 for SSM (Mamba-1.3B)
+  claim_id: c_f92f7b1d
+  context: Notes section under Critical Constraint
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 4-bit quantization for MoE (Mixtral-8x7B) and int8 for SSM (Mamba-1.3B).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:56:09Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 2
+  canonical: 'MoE experiment: 500 steps, batch_size=1, seed=42, gradient_accumulation_steps=4'
+  claim_id: c_bd084ded
+  context: "Phase 3: User Story 1 - Cross-Architecture Signal Transfer Validation\
+    \ (MoE) (Priority: P1) \U0001F3AF MVP"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MoE experiment on AIME subset for 500 training steps with batch_size=1,
+    seed=42, and gradient_accumulation_steps=4 and save results to data/results/moe_results_seed42.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T05:56:10Z'

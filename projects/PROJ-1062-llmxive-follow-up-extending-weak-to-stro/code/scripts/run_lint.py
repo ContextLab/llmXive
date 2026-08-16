@@ -1,26 +1,33 @@
+"""
+Script to run Ruff linter on the project codebase.
+"""
 import subprocess
 import sys
 import os
 
 def main():
-    """Run ruff linter on the codebase."""
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    code_dir = os.path.join(project_root, "code")
-    
-    print(f"Running ruff on {code_dir}...")
-    
+    """Run ruff linter on the code directory."""
+    print("Running Ruff linter...")
     try:
+        # Run ruff check on the code directory
         result = subprocess.run(
-            ["ruff", "check", code_dir, "--config", os.path.join(code_dir, ".ruff.toml")],
-            check=False,
-            capture_output=False
+            [sys.executable, "-m", "ruff", "check", "code/", "tests/"],
+            check=True,
+            capture_output=False,
+            text=True
         )
-        sys.exit(result.returncode)
+        if result.returncode == 0:
+            print("Linting passed successfully.")
+        else:
+            print(f"Linting found issues (exit code {result.returncode}).")
+            # Do not exit with error code here to allow CI to handle the specific failure logic if needed,
+            # but typically we want to fail the build on lint errors.
+            sys.exit(result.returncode)
+    except subprocess.CalledProcessError as e:
+        # Ruff prints errors to stderr/stdout, so we just propagate the exit code.
+        sys.exit(e.returncode)
     except FileNotFoundError:
-        print("Error: 'ruff' is not installed. Please install it via 'pip install ruff'.")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Error running ruff: {e}")
+        print("Error: ruff is not installed. Please install it via 'pip install ruff'.")
         sys.exit(1)
 
 if __name__ == "__main__":
