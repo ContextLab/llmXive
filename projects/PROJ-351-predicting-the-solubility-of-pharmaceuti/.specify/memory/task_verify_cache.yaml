@@ -1,0 +1,27 @@
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided showing that RDKit parsing failures\
+    \ are caught, counted, logged, and excluded from the dataset as required by task\
+    \ T016. The implementer\u2019s claim cannot be verified without concrete artifacts."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, log files, or documentation showing that logging for baseline training
+    operations and exclusion counts was added were provided; the only evidence is
+    the task description itself, which does not demonstrate the required implementation.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No training script, runtime logs, or result files were provided to demonstrate\
+    \ that a GNN model was trained and finished within 6\u202Fhours on a 2\u2011core\
+    \ CPU runner. The required artifacts (e.g., the MPNN training code, execution\
+    \ timing evidence, and the JSON evaluation report) are missing, so the task\u2019\
+    s requirement cannot be verified."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No comparison script, function, or report that computes the RMSE delta between
+    the Random Forest baseline and the GNN model is provided. The required artifact
+    (code or output showing the delta calculation without a pass/fail flag) is missing,
+    so the task is not satisfied.

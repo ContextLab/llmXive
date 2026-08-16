@@ -82,9 +82,9 @@
 - [ ] T012.1 [US1] (Depends: T012) Sub-task: Implement variable completeness calculation and `data/completeness_report.json` generation in `code/ingest.py`. **MUST wait for T012 calculation results** and **MUST raise `DataAvailabilityError` with specific message if completeness < 90%**, halting execution (Enforces SC-003)
 - [X] T013 [US1] Implement `RealDataLoader` in `code/ingest.py`: Parse MD snapshots, extract species/coordinates, check for key `thermal_conductivity_W_m_K`, and **raise `DataAvailabilityError` with specific message if missing** (Constitution Principle III) <!-- FAILED: unspecified -->
 - [X] T014 [US1] Implement `SyntheticDataGenerator` in `code/synthetic.py`: Generate a statistically significant set of independent snapshots using Lennard-Jones potentials (`ase`) with unique random seeds and NVT thermalization steps
-- [ ] T015 [US1] Implement `ThermalConductivityEstimator` in `code/synthetic.py`: Estimate conductivity via Callaway phonon-scattering model (based on defect density/mass diff, NOT graph metrics) to avoid tautology
-- [ ] T016 [US1] Implement `DefectGraphBuilder` in `code/ingest.py`: Use `scipy.spatial.Voronoi` with explicit periodic boundary condition handling to define nearest neighbors; draw edges ONLY between mismatched species
-- [ ] T017 [US1] Add validation logic to `code/ingest.py`: Verify edge existence constraints and log specific file errors for corrupted data
+- [X] T015 [US1] Implement `ThermalConductivityEstimator` in `code/synthetic.py`: Estimate conductivity via Callaway phonon-scattering model (based on defect density/mass diff, NOT graph metrics) to avoid tautology
+- [X] T016 [US1] Implement `DefectGraphBuilder` in `code/ingest.py`: Use `scipy.spatial.Voronoi` with explicit periodic boundary condition handling to define nearest neighbors; draw edges ONLY between mismatched species
+- [X] T017 [US1] Add validation logic to `code/ingest.py`: Verify edge existence constraints and log specific file errors for corrupted data
 - [ ] T018 [US1] Add logging for data ingestion and graph construction operations
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Real or Synthetic mode)
@@ -99,16 +99,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for metric calculation on known graph topologies in `tests/unit/test_metric_accuracy.py`
+- [X] T019 [P] [US2] Unit test for metric calculation on known graph topologies in `tests/unit/test_metric_accuracy.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `MetricCalculator` class in `code/metrics.py`
-- [ ] T021 [US2] Implement calculation for Clustering Coefficient and Mean Degree in `code/metrics.py`
-- [ ] T022 [US2] Implement calculation for Degree Distribution Moments (mean, variance) in `code/metrics.py`
-- [ ] T023 [US2] Implement Percolation Threshold calculation in `code/metrics.py`: Handle disconnected graphs by calculating on largest component; return NaN with warning if undefined
-- [ ] T024 [US2] Integrate metric extraction into the main pipeline in `code/main.py` (Prerequisite: T021-T023 output available; acts as integration checkpoint)
-- [ ] T025 [US2] Implement explicit verification of Bonferroni-corrected p-values in `code/metrics.py`: Ensure the family-wise error rate is controlled and flag any instance where an uncorrected p < 0.05 but the corrected p > 0.05, directly enforcing FR-006 requirements.
+- [X] T020 [P] [US2] Implement `MetricCalculator` class in `code/metrics.py`
+- [X] T021 [US2] Implement calculation for Clustering Coefficient and Mean Degree in `code/metrics.py`
+- [X] T022 [US2] Implement calculation for Degree Distribution Moments (mean, variance) in `code/metrics.py`
+- [X] T023 [US2] Implement Percolation Threshold calculation in `code/metrics.py`: Handle disconnected graphs by calculating on largest component; return NaN with warning if undefined
+- [X] T024 [US2] Integrate metric extraction into the main pipeline in `code/main.py` (Prerequisite: T021-T023 output available; acts as integration checkpoint)
+- [X] T025 [US2] Implement explicit verification of Bonferroni-corrected p-values in `code/metrics.py`: Ensure the family-wise error rate is controlled and flag any instance where an uncorrected p < 0.05 but the corrected p > 0.05, directly enforcing FR-006 requirements.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -122,7 +122,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for correlation calculation and p-value accuracy in `tests/unit/test_correlation_stats.py`
+- [X] T026 [P] [US3] Unit test for correlation calculation and p-value accuracy in `tests/unit/test_correlation_stats.py`
 
 ### Implementation for User Story 3
 

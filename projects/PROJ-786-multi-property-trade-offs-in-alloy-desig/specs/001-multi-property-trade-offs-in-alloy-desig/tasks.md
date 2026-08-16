@@ -93,15 +93,15 @@ expected alphabetic or numeric character, but found '*'
 - [X] T013 [P] [US1] Implement `code/feature_encoder.py` to encode compositions using elemental fractions and periodic descriptors (atomic radius, electronegativity) fetched via `pymatgen` or `mendeleev` for all elements present (FR-002)
 - [X] T014 [US1] Add logic in `code/data_ingestion.py` to log "Insufficient data for statistical analysis (N < 500)" and exit with code 0 if valid entries < 500 (US-1 Acceptance 1)
 - [ ] T015 [US1] Implement `code/main.py` orchestration step to run ingestion and encoding, saving results to `data/processed/encoded_alloys.csv`
-- [~] T016 [US1] Add validation to ensure feature vectors include at least two periodic descriptors per element
-- [~] T017 [US1] Add logging for data ingestion counts (total fetched, filtered, encoded)
+- [ ] T016 [US1] Add validation to ensure feature vectors include at least two periodic descriptors per element
+- [ ] T017 [US1] Add logging for data ingestion counts (total fetched, filtered, encoded)
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_data_schema.py`: Assert that when input has < 500 rows, the script logs the specific warning and exits with code 0 (Graceful Failure). Assert that when input has >= 500 rows, no warning is logged and exit code is 0.
-- [~] T011 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_pipeline.py`: assert `data/processed/encoded_alloys.csv` exists and has correct columns
+- [X] T011 [P] [US1] Integration test for full ingestion pipeline in `tests/integration/test_ingestion_pipeline.py`: assert `data/processed/encoded_alloys.csv` exists and has correct columns
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -118,16 +118,16 @@ expected alphabetic or numeric character, but found '*'
 - [X] T020 [P] [US2] Implement `code/model_training.py` to train separate GradientBoostingRegressor models for Bulk and Shear moduli using `n_jobs=2` and `max_memory=7GB` constraints (FR-003)
 - [X] T021 [US2] Implement Leave-One-System-Out Cross-Validation (LOSO-CV) in `code/model_training.py` to validate generalizability (FR-008)
 - [X] T022 [US2] Implement uncertainty calculation (cross-validation variance) in `code/model_training.py` and flag regions exceeding threshold (FR-006)
-- [~] T022b [US2] Implement logic to explicitly link LOSO-CV results (T021) to the uncertainty metrics (FR-006), ensuring FR-008 coverage is integrated with uncertainty flagging
+- [ ] T022b [US2] Implement logic to explicitly link LOSO-CV results (T021) to the uncertainty metrics (FR-006), ensuring FR-008 coverage is integrated with uncertainty flagging
 - [X] T023 [US2] Implement NSGA-II logic in `code/pareto_optimization.py` using `deap` with population=100, generations=50, cx_prob=0.9, mut_prob=0.1, objectives=[Bulk, Shear]. **Note**: This task includes generating synthetic points within the convex hull and evaluating them (FR-004).
-- [~] T025 [US2] Add logic to clamp predictions to physical limits (e.g., moduli > 0) and flag extrapolated points (Edge Case)
+- [ ] T025 [US2] Add logic to clamp predictions to physical limits (e.g., moduli > 0) and flag extrapolated points (Edge Case)
 - [~] T026 [US2] Implement metric calculation: % of test points dominated by frontier and % of frontier dominating empirical set against **Rule of Mixtures for Bulk/Shear** (SC-001)
 - [~] T027 [US2] Add convergence timeout handling to NSGA-II, logging a warning if incomplete (Edge Case)
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
 - [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`: assert R² > 0.6, assert Pareto points are non-dominated
-- [ ] T019 [P] [US2] Integration test for Pareto generation in `tests/integration/test_pareto_generation.py`: assert synthetic points are within convex hull
+- [X] T019 [P] [US2] Integration test for Pareto generation in `tests/integration/test_pareto_generation.py`: assert synthetic points are within convex hull
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -141,11 +141,11 @@ expected alphabetic or numeric character, but found '*'
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/cluster_analysis.py` to perform K-Means clustering on elemental fractions with k=5 (determined via Elbow Method) (FR-005)
-- [ ] T031 [US3] Implement correlation calculation between Bulk and Shear Moduli for each cluster to find the minimum correlation region (FR-005)
-- [ ] T030b [US3] Identify the specific cluster with the minimum correlation (Decoupled Region) based on the output of T031 (FR-005)
-- [ ] T034 [US3] Implement logic to flag regions where prediction variance exceeds the configured threshold (FR-006)
-- [ ] T032 [US3] Implement sensitivity analysis in `code/cluster_analysis.py` to sweep **decoupling threshold (correlation cutoff)** values across a representative range. and output a CSV mapping cutoff to identified decoupled region size (FR-007)
+- [X] T030 [US3] Implement `code/cluster_analysis.py` to perform K-Means clustering on elemental fractions with k=5 (determined via Elbow Method) (FR-005)
+- [~] T031 [US3] Implement correlation calculation between Bulk and Shear Moduli for each cluster to find the minimum correlation region (FR-005)
+- [~] T030b [US3] Identify the specific cluster with the minimum correlation (Decoupled Region) based on the output of T031 (FR-005)
+- [~] T034 [US3] Implement logic to flag regions where prediction variance exceeds the configured threshold (FR-006)
+- [X] T032 [US3] Implement sensitivity analysis in `code/cluster_analysis.py` to sweep **decoupling threshold (correlation cutoff)** values across a representative range. and output a CSV mapping cutoff to identified decoupled region size (FR-007)
 - [ ] T033 [US3] Implement `code/visualization.py` to generate a 2D plot showing compositional space, decoupled regions, and Pareto frontier (US-3)
 - [ ] T035 [US3] Implement calculation of global vs. local correlation coefficients for SC-002
 - [ ] T035b [US3] Implement logic to explicitly calculate the delta/ratio between local and global correlation coefficients to satisfy SC-002 measurement requirement

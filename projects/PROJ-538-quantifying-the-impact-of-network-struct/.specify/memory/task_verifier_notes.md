@@ -7,3 +7,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004** — No evidence of a `data/` directory (with `raw/`, `processed/`, and `contracts/` subfolders) is provided; the only artifacts shown are textual specifications and user stories, not the required filesystem structure. The implementer must create and show the actual directory hierarchy.
 - **T008** — declared artifact(s) missing/empty/invalid: data/audit_log.json
 - **T009** — No pytest configuration files (e.g., `pytest.ini`, `pyproject.toml` with `pytest-cov` settings) or a `tests/` directory with test cases are present in the provided evidence, so the required framework setup cannot be verified.
+- **T018** — No logging code, configuration, or documentation was provided to demonstrate that data ingestion and graph construction now emit logs. The claim lacks any artifact (e.g., modified scripts, log output examples, or test results) showing the required logging functionality.

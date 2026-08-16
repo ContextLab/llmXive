@@ -1,0 +1,45 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EvolutionResultsRecord
+type: object
+description: Record for the evolution results CSV.
+required:
+  - policy_id
+  - seed
+  - condition
+  - cyclomatic_complexity
+  - branch_count
+  - generalization_score
+  - pre_shift_score
+  - post_shift_score
+  - drop_rate
+properties:
+  policy_id:
+    type: string
+    description: Unique ID for the evolved policy.
+  seed:
+    type: integer
+    description: Random seed used.
+  condition:
+    type: string
+    enum:
+      - "baseline"
+      - "counterfactual"
+    description: Experimental condition.
+  cyclomatic_complexity:
+    type: integer
+    description: Cyclomatic complexity from radon.
+  branch_count:
+    type: integer
+    description: Number of if/else branches.
+  generalization_score:
+    type: number
+    description: Score on the dynamic shift test set.
+  pre_shift_score:
+    type: number
+    description: Score before the dynamic shift.
+  post_shift_score:
+    type: number
+    description: Score after the dynamic shift.
+  drop_rate:
+    type: number
+    description: (pre_shift_score - post_shift_score) / pre_shift_score.

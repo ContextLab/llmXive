@@ -1,56 +1,85 @@
 # Data Model: llmXive follow-up: extending "EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En"
 
-## 1. Overview
+## Overview
 
-This document defines the data artifacts produced and consumed by the `001-llmxive-counterfactual-extension` feature. All data is stored in `projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/data/` and is checksummed.
+This document defines the data structures, schemas, and storage formats used in the project. All data is stored in `data/` with raw, processed, and final subdirectories.
 
-## 2. Data Entities
+## Key Entities
 
-### 2.1 DynamicShiftEnvironment Config
-Defines the parameters for the environment shift.
-*   **Purpose**: Configuration for the 16 extended environments.
-*   **Format**: JSON/YAML.
-* **Key Fields**: `env_id`, `shift_step` (default [deferred]), `shift_type` (reward/transition), `shift_params`.
+### 1. DynamicShiftEnvironment Configuration
+Defines the parameters for the dynamic shift in an environment.
 
-### 2.2 Trajectory Log
-Records of agent-environment interactions.
-*   **Purpose**: Input for counterfactual generation and performance analysis.
-*   **Format**: CSV (one row per step).
-*   **Key Fields**: `run_id`, `step`, `state`, `action`, `reward`, `shifted` (bool), `rule_violated` (optional).
+| Field | Type | Description |
+|-------|------|-------------|
+| `env_id` | string | Unique identifier for the environment (e.g., "CartPole-v1"). |
+| `shift_threshold` | float | Fraction of total steps at which the shift occurs (default 0.5). |
+| `shift_config` | object | Configuration for the change (e.g., `{"reward_inversion": true}`). |
+| `rules` | list[object] | List of ground-truth rules for this environment (masked for LLM). |
 
-### 2.3 Counterfactual Explanation
-Generated feedback for agent failures.
-*   **Purpose**: Training signal for the counterfactual condition.
-*   **Format**: JSON (one entry per failure).
-*   **Key Fields**: `run_id`, `trajectory_id`, `explanation_text`, `rule_id`, `corrective_action`, `generation_time_ms`, `fallback_used` (bool).
+### 2. Trajectory Log
+Record of a single agent-environment interaction episode.
 
-### 2.4 Evolved Policy
-The Python source code of the evolved agent.
-*   **Purpose**: Artifact for complexity analysis and final evaluation.
-*   **Format**: `.py` file.
-*   **Metadata**: Stored in a manifest CSV (see 2.5).
+| Field | Type | Description |
+|-------|------|-------------|
+| `episode_id` | string | Unique ID (UUID). |
+| `seed` | int | Random seed used. |
+| `condition` | string | "baseline" or "counterfactual". |
+| `steps` | list[object] | List of steps: `{step, state, action, reward, is_shifted}`. |
+| `total_reward` | float | Sum of rewards. |
+| `pre_shift_reward` | float | Sum of rewards before shift. |
+| `post_shift_reward` | float | Sum of rewards after shift. |
+| `failed` | boolean | Whether the episode ended in failure. |
 
-### 2.5 Evolution Metrics
-Aggregated results for each evolutionary run.
-*   **Purpose**: Input for statistical analysis.
-*   **Format**: CSV (one row per run).
-*   **Key Fields**: `run_id`, `seed`, `condition`, `env_id`, `pre_shift_score`, `post_shift_score`, `generalization_score`, `complexity_cyclomatic`, `complexity_branches`, `explanation_success_rate`.
+### 3. Counterfactual Explanation
+Generated explanation for a failure.
 
-## 3. Data Flow
+| Field | Type | Description |
+|-------|------|-------------|
+| `episode_id` | string | Link to the trajectory. |
+| `rule_id` | string | ID of the violated rule (selected by LLM). |
+| `explanation_text` | string | Natural language explanation. |
+| `suggested_action` | string | The action retrieved from ground-truth lookup. |
+| `generation_method` | string | "llm" or "fallback". |
+| `valid` | boolean | Whether the output passed schema validation. |
 
-1.  **Config Generation**: `code/utils/config.py` generates `dynamic_shift_config.json`.
-2.  **Simulation**: `code/agents/evolutionary_harness.py` runs the loop:
-    *   Generates `trajectory_logs/run_<id>.csv`.
-    *   Calls `code/explanation/generator.py` -> `explanation_logs/run_<id>.json`.
-    *   Saves `policies/run_<id>.py`.
-3.  **Analysis**: `code/analysis/stats.py` reads logs and policies:
-    *   Computes complexity via `radon`.
-    *   Aggregates metrics into `metrics/evolution_summary.csv`.
-    *   Outputs `results/statistical_test_results.json`.
+### 4. Evolved Policy Metrics
+Static analysis results for a generated policy.
 
-## 4. Data Hygiene & Reproducibility
+| Field | Type | Description |
+|-------|------|-------------|
+| `policy_id` | string | Unique ID for the policy. |
+| `seed` | int | Seed used for evolution. |
+| `condition` | string | "baseline" or "counterfactual". |
+| `cyclomatic_complexity` | int | Result from `radon`. |
+| `branch_count` | int | Number of if/else branches. |
+| `code_length` | int | Lines of code. |
+| `generalization_score` | float | Score on the dynamic shift test set. |
 
-*   **Checksums**: Every file in `data/` is checksummed (SHA-256) and recorded in `state/...yaml`.
-*   **Immutability**: Raw logs are never modified. Derived metrics are written to new files.
-*   **Seeding**: All random seeds are logged in the `run_id` and `seed` columns.
-*   **Versioning**: The `requirements.txt` used for generation is recorded in the metadata.
+### 5. Statistical Results
+Aggregated results from the mixed-effects model.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_id` | string | Unique ID for the analysis run. |
+| `p_value` | float | p-value from the mixed-effects model. |
+| `effect_size` | float | Cohen's d or similar. |
+| `significant` | boolean | True if p < 0.05 (one-tailed) and effect > 0. |
+| `complexity_coefficient` | float | Coefficient for complexity covariate. |
+| `random_effect_variance` | float | Variance attributed to seeds. |
+| `explanation_success_rate` | float | Rate of successful explanation generations (valid text / total failures). |
+
+## Storage Formats
+
+*   **Raw Data**: JSONL (JSON Lines) for trajectory logs and explanations to support streaming writes.
+*   **Processed Data**: CSV for `evolution_results.csv` and `complexity_metrics.csv`.
+*   **Final Results**: JSON for `stats_results.json`.
+*   **Schemas**: YAML (`contracts/*.schema.yaml`) for validation of counterfactual outputs.
+
+## Data Flow
+
+1.  **Generation**: `DynamicShiftEnvironment` produces trajectories -> `data/raw/trajectories/*.jsonl`.
+2.  **Feedback**: `CounterfactualGenerator` reads trajectories -> writes `data/raw/explanations.jsonl`.
+3.  **Evolution**: `EvolutionaryHarness` evolves policies -> writes `data/raw/policies/*.py`.
+4.  **Analysis**: `ComplexityAnalyzer` reads policies -> `data/processed/complexity_metrics.csv`.
+5.  **Aggregation**: `StatsRunner` reads metrics + scores -> `data/final/stats_results.json`.
+6.  **Fallback Aggregation**: `AggregationRunner` parses `data/processed/fallbacks.log` -> updates `data/final/stats_results.json` with success rate.

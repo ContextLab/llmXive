@@ -3,62 +3,83 @@
 ## Prerequisites
 
 *   Python 3.11+
-*   `pip` (or `uv`)
-*   Access to the `EvoPolicyGym` base code (assumed to be in `../EvoPolicyGym` or installed via `pip`).
+*   Git
+*   Access to the `gymnasium` repository (public URL).
 
 ## Installation
 
-1.  **Clone and Setup Environment**:
+1.  **Clone the Project**:
     ```bash
-    cd projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-    pip install -r requirements.txt
+    git clone <repo-url>
+    cd <repo-name>
     ```
 
-2.  **Verify Dependencies**:
-    Ensure `radon`, `statsmodels`, and `transformers` are installed:
+2.  **Create Virtual Environment**:
     ```bash
-    python -c "import radon, statsmodels, transformers; print('Dependencies OK')"
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-## Running the Simulation
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins `transformers`, `gymnasium`, `statsmodels`, `radon`, `pandas`.*
 
-### 1. Run a Single Test (Unit Test)
-Verify the dynamic shift logic works:
+## Configuration
+
+Edit `code/utils/config.yaml` to set:
+*   `seeds`: List of random seeds (e.g., `[42, 123, 456, 789, 1011]`).
+*   `runs_per_seed`: Number of evolutionary runs per seed.
+*   `condition`: "baseline" or "counterfactual" (or run both).
+*   `shift_threshold`: Default 0.5.
+*   `llm_model`: Model name (e.g., "microsoft/phi-2" for CPU).
+
+## Running the Pipeline
+
+### 1. Run the Full Evolutionary Harness
+Execute the main CLI entry point:
 ```bash
-pytest tests/test_env_shift.py -v
+python code/main.py --run-evolution --seeds 42,123,456,789,1011 --runs 5 --envs all --conditions baseline,counterfactual
 ```
+*   This will:
+    *   Initialize the discovered environments (targeting up to 16).
+    *   Run the evolutionary algorithm for both conditions.
+    *   Generate counterfactual explanations (with fallbacks).
+    *   Save raw trajectories and policies to `data/raw/`.
 
-### 2. Run the Full Evolutionary Harness
-Execute the comparison between Baseline and Counterfactual conditions:
+### 2. Analyze Results
+Once the evolution is complete, run the analysis pipeline:
 ```bash
-python main.py --mode full --runs-per-condition 5 --seed 42
+python code/main.py --analyze --input data/raw --output data/final
 ```
-*   `--runs-per-condition`: Number of evolutionary runs per condition (default 5).
-*   `--seed`: Global random seed for reproducibility.
+*   This will:
+    *   Calculate complexity metrics using `radon`.
+    *   Compute generalization scores.
+    *   Parse `fallbacks.log` for success rates.
+    *   Run the mixed-effects model.
+    *   Output `data/final/stats_results.json`.
 
-### 3. Run Statistical Analysis
-After the simulation completes, run the analysis pipeline:
-```bash
-python main.py --mode analyze
-```
-This will:
-1.  Parse all policy files for complexity.
-2.  Aggregate metrics from logs.
-3.  Fit the mixed-effects model.
-4.  Output `results/statistical_test_results.json` and `figures/generalization_plot.png`.
-
-## Expected Outputs
-
-*   `data/trajectory_logs/`: CSV files for every run.
-*   `data/explanation_logs/`: JSON files with generated feedback.
-*   `data/policies/`: Python source code for evolved agents.
-*   `results/evolution_summary.csv`: Aggregated metrics.
-*   `results/statistical_test_results.json`: P-values and effect sizes.
+### 3. Verify Outputs
+Check the generated artifacts:
+*   `data/processed/evolution_results.csv`: Contains scores and complexity metrics.
+*   `data/final/stats_results.json`: Contains the p-value, effect size, and explanation success rate.
 
 ## Troubleshooting
 
-*   **LLM Timeout**: If the explanation generator times out, the system automatically falls back to a template. Check `explanation_logs/run_<id>.json` for `fallback_used: true`.
-*   **Memory Error**: If the simulation runs out of RAM, reduce `--runs-per-condition` or the number of steps per episode in `code/utils/config.py`.
-*   **Syntax Error in Policy**: If an evolved policy fails to load, it is logged as a "generation error" and excluded from the complexity analysis.
+*   **LLM Timeout**: If the LLM fails to generate an explanation within 30s, the system will automatically use the fallback template. Check `data/processed/fallbacks.log` for counts.
+*   **Memory Error**: If running on the GitHub Actions runner, ensure the LLM is loaded in 8-bit mode. If it still fails, the system will switch to the `TinyLlama-1.1B` fallback or template fallback.
+*   **Environment Count Mismatch**: If the upstream `gymnasium` repo count changes, the script will log a warning but proceed (no hard fail) to ensure robustness.
+
+## Expected Output
+
+*   `data/final/stats_results.json`:
+    ```json
+    {
+      "p_value": 0.032,
+      "effect_size": 0.45,
+      "significant": true,
+      "explanation_success_rate": 0.92,
+      "method": "mixed_effects"
+    }
+    ```

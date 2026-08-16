@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-alloy-design"
+version = "0.1.0"
+description = "Multi-Property Trade-Offs in Alloy Design"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "numpy",
+    "scipy",
+    "deap",
+    "matplotlib",
+    "seaborn",
+    "requests",
+    "pyyaml",
+    "pyarrow",
+    "pymatgen",
+    "mendeleev",
+    "pydantic",
+    "datasets"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+)/
+'''
+
+[tool.ruff]
+# Same as Black
+line-length = 88
+target-version = "py311"
+
+# Exclude generated data and build artifacts
+extend-exclude = [
+    "data",
+    "build",
+    "dist",
+    ".venv",
+    ".tox",
+    ".mypy_cache"
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "W", "I", "N", "UP"]
+ignore = [
+    "E501", # Line too long (black handles this)
+    "N806", # Variable in function should be lowercase (allowing some flexibility)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow asserts in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "tests"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

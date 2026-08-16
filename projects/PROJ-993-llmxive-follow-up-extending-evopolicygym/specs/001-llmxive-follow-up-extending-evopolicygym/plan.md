@@ -1,36 +1,39 @@
 # Implementation Plan: llmXive follow-up: extending "EvoPolicyGym: Evaluating Autonomous Policy Evolution in Interactive En"
 
-**Branch**: `001-llmxive-counterfactual-extension` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-counterfactual-extension/spec.md`
+**Branch**: `001-llmxive-counterfactual-extension` | **Date**: 2026-08-04 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/001-llmxive-counterfactual-extension/spec.md`
 
 ## Summary
 
-This feature extends the `EvoPolicyGym` suite to test the hypothesis that **counterfactual failure explanations** improve the discovery of robust policies under **dynamic environmental shifts**. The implementation involves three core phases: () extending the 16 existing environments to support "dynamic-shift" modes where reward/transition functions change at a substantial portion of the interaction budget; (2) implementing a CPU-tractable counterfactual explanation generator that maps trajectory failures to specific Rule IDs and *heuristic* corrective actions (not ground-truth optimal actions); and (3) executing an evolutionary harness comparing a scalar-reward baseline against a counterfactual-feedback condition, followed by a mixed-effects statistical analysis of generalization scores (measured on a held-out test set) while controlling for policy complexity.
+This project extends the **Gymnasium** suite (the verified, open-source base for EvoPolicyGym) to test the hypothesis that **counterfactual failure explanations** (natural language reasoning about structural flaws) improve robust policy discovery under **dynamic shifts** (mid-task changes in environment rules/rewards). The plan involves: (1) dynamically discovering and extending a subset of standard Gymnasium environments (targeting up to 16) with a configurable "dynamic-shift" mode; (2) implementing a lightweight, CPU-tractable counterfactual generation module that performs **Diagnostic Selection** on a *masked* rule schema (without pre-supplying the logical definition); (3) running an evolutionary harness comparing a scalar-reward baseline against a counterfactual-feedback condition; and (4) performing a mixed-effects statistical analysis to measure generalization retention and control for policy complexity.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `gymnasium` (or `EvoPolicyGym` base), `transformers` (CPU-quantized), `scikit-learn`, `statsmodels`, `radon`, `pandas`, `numpy`, `pyyaml`.  
-**Storage**: Local filesystem for logs, policies, and intermediate CSVs; no external database.  
-**Testing**: `pytest` for unit tests (environment shift logic, explanation validation); integration tests for the full evolution loop.  
-**Target Platform**: GitHub Actions free-tier runner (limited CPU cores, moderate RAM, no GPU).  
-**Project Type**: Research simulation pipeline / CLI tool.  
-**Performance Goals**: Complete multiple evolutionary runs per condition (baseline vs. counterfactual) within the CI job time limit.; LLM inference must complete within 30s per failure (fallback to template on timeout).  
-**Constraints**: Must run entirely on CPU; no access to gated datasets; all random seeds must be pinned for reproducibility.  
-**Scale/Scope**: environments extended; A sufficient number of evolutionary runs total (Multiple runs × multiple environments × 2 conditions); A large number of trajectory steps simulated.
+**Primary Dependencies**: `gymnasium` (verified source: https://github.com/Farama-Foundation/Gymnasium), `transformers` (CPU-quantized), `scikit-learn`, `statsmodels`, `radon`, `pandas`, `numpy`, `pyyaml`  
+**Storage**: Local filesystem (`data/`, `code/`); JSON schemas for rules; CSV for results  
+**Testing**: `pytest` (unit/integration), `conftest.py` for seed pinning  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, ~7GB RAM)  
+**Project Type**: Research simulation framework / CLI tool  
+**Performance Goals**: Full evolutionary run (Multiple seeds x Multiple runs) within 6 hours on CPU; LLM inference <30s per failure with fallback.  
+**Constraints**: No local GPU; CPU-first inference (-bit/4-bit quantized models); strict reproducibility (seeds).  
+**Scale/Scope**: A variable number of environments (dynamic discovery, select up to 16).
 
-> **Deferred Values**: Exact number of evolutionary generations per run, specific LLM model name (to be selected based on CPU feasibility), and exact power calculations are determined in the research phase.
+The research question, method, and references remain unchanged as per the planning document requirements.; A substantial number of evolutionary runs will be conducted.; A substantial number of counterfactual generations.
+
+> **Deferred Empiricals**: Exact interaction budget counts, specific model weights (will be selected from verified list), and final p-values are determined at runtime.
 
 ## Constitution Check
 
-| Principle | Status | Implementation Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`. `requirements.txt` pins versions. CI runs fresh. |
-| **II. Verified Accuracy** | **PASS** | Citations to `EvoPolicyGym` (arXiv) and statistical methods will be validated by the Reference-Validator Agent **as a required CI/CD gate** before results are accepted. |
-| **III. Data Hygiene** | **PASS** | Raw trajectory logs and evolved policies stored in `data/` with checksums. No in-place edits. |
-| **IV. Single Source of Truth** | **PASS** | All metrics (p-values, effect sizes) derived programmatically from `data/` CSVs, not hand-typed. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked in `state/` YAML. |
-| **VI. Counterfactual Feedback Fidelity** | **PASS** | Explanation generator uses **deterministic rule mapping** (see `code/explanation/generator.py`) + lightweight LLM; fallback to templates ensures validity. |
-| **VII. Dynamic-Shift Validation Independence** | **PASS** | Test set dynamics (shift point) are fixed and unknown to the agent during evolution; evaluation uses a separate, fixed test set with a *different* shift configuration to prevent circularity. |
+*GATE: Must pass before Phase 0 research.*
+
+1.  **Reproducibility (I)**: Plan mandates pinned seeds in `code/` and deterministic environment initialization. All data artifacts (CSVs, logs) will be checksummed.
+2.  **Verified Accuracy (II)**: Citations for Gymnasium and statistical methods will be validated against primary sources (GitHub/Papers) before execution.
+3.  **Data Hygiene (III)**: Raw trajectory logs and rule schemas will be stored in `data/raw/`; derived metrics (complexity, scores) in `data/processed/`. No in-place modification.
+4.  **Single Source of Truth (IV)**: All statistics in the final report will be generated programmatically from `data/stats_results.json` (generated by T036, which depends on T032b), not hand-typed.
+5.  **Versioning (V)**: Content hashes for `plan.md`, `research.md`, and `data-model.md` will be recorded in the project state YAML.
+6.  **Counterfactual Feedback Fidelity (VI)**: The plan explicitly rejects "pre-supplying" the correct action to the LLM. Instead, the LLM performs **Diagnostic Selection**: it analyzes the trajectory log and a *masked* rule schema (where logical definitions are hidden) to *select* the most likely violated Rule ID. The `corrective_action` is then retrieved from a deterministic ground-truth lookup table *after* the selection. This ensures the LLM's reasoning (selection) is tested without bypassing it with the full solution.
+7.  **Dynamic-Shift Validation Independence (VII)**: The test set for evaluation will be fixed and unknown to the agent during evolution. The shift point is fixed, but the specific rule change is part of the environment definition. The feedback (Rule ID selection) is based on the *pre-shift* trajectory, ensuring the validation target (post-shift performance) is independent of the feedback mechanism.
 
 ## Project Structure
 
@@ -42,48 +45,89 @@ specs/001-llmxive-counterfactual-extension/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dynamic_shift_env.schema.yaml
-    ├── counterfactual_explanation.schema.yaml
-    └── evolution_metrics.schema.yaml
+├── contracts/           # Phase 1 output (Single canonical schema)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/code/
+code/
 ├── __init__.py
-├── main.py              # Entry point for CLI
+├── main.py              # CLI entry point (--run-evolution, --seeds, etc.)
 ├── envs/
 │   ├── __init__.py
-│   ├── base_env.py      # Original EvoPolicyGym wrapper
-│   └── dynamic_shift_env.py # Extended environment with shift logic
+│   └── dynamic_shift_env.py  # Extension of Gymnasium with shift logic
 ├── agents/
 │   ├── __init__.py
-│   ├── evolutionary_harness.py # Main evolution loop
-│   └── policy_parser.py # Radon integration for complexity
-├── explanation/
+│   ├── base_agent.py
+│   └── evolutionary_harness.py
+├── feedback/
 │   ├── __init__.py
-│   ├── generator.py     # LLM + Template logic (Deterministic mapping)
-│   └── validator.py     # Schema validation
+│   ├── counterfactual_gen.py # LLM inference + schema validation (Canonical)
+│   └── fallback.py           # Template-based fallback
 ├── analysis/
 │   ├── __init__.py
-│   └── stats.py         # Mixed-effects model & visualization
+│   ├── complexity.py         # Radon wrapper
+│   ├── stats.py              # Mixed-effects model runner
+│   └── aggregation.py        # SC-004: Fallback log parser
 ├── utils/
-│   ├── config.py        # Seed management, hyperparameters
-│   └── logging.py       # Structured logging
-└── tests/
-    ├── test_env_shift.py
-    ├── test_explanation.py
-    └── test_stats.py
+│   ├── logging.py
+│   └── config.py
+└── requirements.txt
+
+data/
+├── raw/
+│   ├── rules_schema.json
+│   ├── masked_rules_schema.json  # Generated by MaskedSchemaGenerator
+│   └── trajectories/
+├── processed/
+│   ├── evolution_results.csv     # Generated by T032b
+│   ├── complexity_metrics.csv
+│   └── fallbacks.log
+└── final/
+    └── stats_results.json        # Generated by T036
+
+tests/
+├── unit/
+│   ├── test_dynamic_shift.py
+│   └── test_counterfactual_gen.py
+├── integration/
+│   └── test_harness.py
+└── conftest.py
 ```
 
-**Structure Decision**: Single project structure chosen. The feature is a research pipeline tightly coupled to the existing `EvoPolicyGym` codebase, requiring direct modification of environment logic and a unified analysis script. Separating into microservices would introduce unnecessary overhead for a CPU-bound simulation.
+**Structure Decision**: Single project structure selected to maintain tight coupling between environment modification, agent evolution, and analysis. This minimizes I/O overhead on the constrained CI runner.
+
+## Deliverables Mapping
+
+| Requirement | Plan Element | Description |
+|-------------|--------------|-------------|
+| **FR-001** (Extend envs) | **Phase 1: Environment Extension** | Dynamically discover Gymnasium envs, select up to 16, inject dynamic shift logic. |
+| **FR-002** (Counterfactual Gen) | **Phase 2: Counterfactual Generation** | LLM **Diagnostic Selection** with masked rules, schema validation, fallback logic. |
+| **FR-003** (Evolutionary Harness) | **Phase 3: Evolutionary Harness** | Run baseline vs. counterfactual conditions with fixed seeds. |
+| **FR-004** (Complexity Metrics) | **Phase 4.1: Complexity Analysis** | Parse policy code with `radon` for cyclomatic complexity (as covariate). |
+| **FR-005** (Statistical Analysis) | **Phase 4.2: Statistical Analysis** | Mixed-effects model on `evolution_results.csv` (T032b output). |
+| **FR-006** (Fallback) | **Phase 2** | Timeout/OOM fallback to template explanations. |
+| **SC-001** (Generalization Diff) | **Phase 4.2** | Measured as coefficient in mixed-effects model. |
+| **SC-002** (Complexity Control) | **Phase 4.1** | Measured as covariate in mixed-effects model. |
+| **SC-003** (Stat Significance) | **Phase 4.2** | p-value and effect size output (T036). |
+| **SC-004** (Success Rate) | **Phase 4.3: Metric Aggregation** | Parse `fallbacks.log` to calculate success rate (T038). |
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Mixed-Effects Model** | Required by FR-005 to handle nested data (runs within seeds) and control for complexity. | Simple t-test would violate statistical assumptions due to non-independence of runs within the same seed. |
-| **CPU-Quantized LLM** | Required for FR-002 to generate explanations without GPU access. | Using a cloud API would introduce latency variability and cost; a synthetic "mock" generator would violate FR-002's requirement for natural language output. |
-| **Template Fallback** | Required by FR-006 to prevent pipeline crashes on LLM timeout. | Running without a fallback would cause the entire evolutionary run to abort on a single generation error, wasting compute. |
+| Decision | Why Needed | Simpler Alternative Rejected Because |
+|----------|------------|-------------------------------------|
+| Mixed-Effects Model | Required by SC-003 to handle nested data (runs within seeds) and control for complexity. | A simple t-test would violate statistical assumptions regarding non-independence of runs within seeds, leading to inflated Type I errors. |
+| Dynamic Shift Extension | Required by FR-001 to test OOD generalization. | Static environments cannot test the core hypothesis regarding robustness to dynamic changes. |
+| Counterfactual Fallback | Required by FR-006 to prevent pipeline crashes on LLM timeout. | A hard crash would invalidate the entire evolutionary run, wasting compute and preventing statistical power. |
+| Dynamic Env Discovery (Up to 16) | Required to handle upstream Gymnasium version drift. | Hard-coding "exactly 16" creates a brittle pipeline that fails if the upstream repo changes. The plan now targets "up to 16" with a warning. |
+| Diagnostic Selection (LLM) | Required by FR-002 to test reasoning. | Pre-supplying the `correct_action` would bypass the LLM's reasoning, invalidating the hypothesis test. |
+| Complexity as Covariate | Required to control for structural differences in LLM-generated code. | Using complexity as a direct proxy for robustness would conflate code verbosity with policy quality; it is used only as a control variable. |
+
+## Canonical Schema Definition
+
+The **single source of truth** for counterfactual output validation is:
+`contracts/counterfactual_explanation.schema.yaml`
+
+All other schema files (JSON or YAML) in the `contracts/` directory are deprecated and will be ignored by the implementation. The LLM prompt will be strictly constrained to generate output matching this YAML schema.

@@ -21,3 +21,29 @@
   verification_status: mismatch
   verified_against_url: https://github.com/evopolicygym/evopolicygym.git@v1.2.0
   verified_at: '2026-08-08T09:26:20.011742Z'
+- artifact_hash: 962b60f1f8419280b913b0e6e111193dc200a264284a6ce158bcc0f17af0888d
+  artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - Farama-Foundation/Gymnasium: A standard API for single-agent\
+    \ reinforcement learning environments, with popular reference environments and\
+    \ related utilities (formerly Gym) \xB7 GitHub"
+  kind: url
+  value: https://github.com/Farama-Foundation/Gymnasium
+  verification_status: pending
+  verified_against_url: https://github.com/Farama-Foundation/Gymnasium
+  verified_at: '2026-08-16T07:17:16.543765Z'
+- artifact_hash: 24059cce886408790cad7a11e7b1b8ed83ddc4ee32ff621b1724dcf88084a68b
+  artifact_path: projects/PROJ-993-llmxive-follow-up-extending-evopolicygym/specs/001-llmxive-follow-up-extending-evopolicygym/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - Farama-Foundation/Gymnasium: A standard API for single-agent\
+    \ reinforcement learning environments, with popular reference environments and\
+    \ related utilities (formerly Gym) \xB7 GitHub"
+  kind: url
+  value: https://github.com/Farama-Foundation/Gymnasium
+  verification_status: pending
+  verified_against_url: https://github.com/Farama-Foundation/Gymnasium
+  verified_at: '2026-08-16T07:17:22.824906Z'

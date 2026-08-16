@@ -1,1 +1,3 @@
-# Placeholder to ensure directory exists in version control
+# Placeholder to ensure the project root directory is tracked in version control.
+# This directory serves as the root for the Multi-Property Trade-Offs in Alloy Design project.
+# All sub-projects, data, code, and documentation for PROJ-786 reside here.

@@ -24,3 +24,10 @@ T009:
   r: No pytest configuration files (e.g., `pytest.ini`, `pyproject.toml` with `pytest-cov`
     settings) or a `tests/` directory with test cases are present in the provided
     evidence, so the required framework setup cannot be verified.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging code, configuration, or documentation was provided to demonstrate
+    that data ingestion and graph construction now emit logs. The claim lacks any
+    artifact (e.g., modified scripts, log output examples, or test results) showing
+    the required logging functionality.

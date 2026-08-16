@@ -76,17 +76,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for SMILES validation logic in `tests/unit/test_preprocess.py`
-- [ ] T011 [P] [US1] Unit test for quantile binning split logic in `tests/unit/test_split.py`
-- [ ] T012 [P] [US1] Integration test for full RF baseline pipeline in `tests/integration/test_baseline_pipeline.py`
+- [X] T010 [P] [US1] Unit test for SMILES validation logic in `tests/unit/test_preprocess.py`
+- [X] T011 [P] [US1] Unit test for quantile binning split logic in `tests/unit/test_split.py`
+- [X] T012 [P] [US1] Integration test for full RF baseline pipeline in `tests/integration/test_baseline_pipeline.py`
 
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement Random Forest baseline training in `code/models/baseline_rf.py` using Morgan fingerprints (radius=2, 2048 bits)
 - [ ] T014 [US1] Implement `code/training/train_baseline.py` to train RF on training set, evaluate on test set, and save model to `models/`
-- [ ] T015 [US1] Implement logging of R-squared and RMSE to `results/baseline_metrics.json` within 10 minutes of CPU time
-- [~] T016 [US1] Add error handling for RDKit parsing failures (log invalid count, exclude from dataset)
-- [~] T017 [US1] Add logging for baseline training operations and exclusion counts
+- [X] T015 [US1] Implement logging of R-squared and RMSE to `results/baseline_metrics.json` within 10 minutes of CPU time
+- [ ] T016 [US1] Add error handling for RDKit parsing failures (log invalid count, exclude from dataset)
+- [ ] T017 [US1] Add logging for baseline training operations and exclusion counts
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,16 +101,16 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Unit test for MPNN architecture (CPU-only verification) in `tests/unit/test_gnn_arch.py`
-- [ ] T019 [P] [US2] Integration test for GNN training loop with early stopping in `tests/integration/test_gnn_training.py` <!-- ATOMIZE: requested -->
+- [X] T019 [P] [US2] Integration test for GNN training loop with early stopping in `tests/integration/test_gnn_training.py` <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 2
 
 - [X] T020 [US2] Implement Message Passing Neural Network (MPNN) in `code/models/gnn_mpnn.py` using PyTorch Geometric, ensuring NO CUDA/GPU calls
 - [X] T021 [US2] Implement `code/training/train_gnn.py` to train MPNN with early stopping on validation loss
-- [~] T022 [US2] Ensure GNN training completes within 6 hours on 2-core CPU runner (simplify architecture if needed: fewer layers, smaller hidden dims)
+- [ ] T022 [US2] Ensure GNN training completes within 6 hours on 2-core CPU runner (simplify architecture if needed: fewer layers, smaller hidden dims)
 - [X] T023 [US2] Implement evaluation script in `code/evaluation/metrics.py` to calculate RMSE and R-squared for GNN on test set
 - [ ] T024 [US2] Save GNN predictions and metrics to `results/gnn_metrics.json`
-- [~] T025 [US2] Implement comparison logic to calculate RMSE delta between Baseline and GNN without arbitrary pass/fail flags
+- [ ] T025 [US2] Implement comparison logic to calculate RMSE delta between Baseline and GNN without arbitrary pass/fail flags
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

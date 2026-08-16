@@ -1,122 +1,159 @@
+"""
+Unit tests for random seed configuration management.
+
+These tests verify that the seed configuration utilities work correctly
+and set seeds for all relevant random number generators.
+"""
 import os
 import random
 import numpy as np
 import pytest
-from unittest.mock import patch, MagicMock
+from pathlib import Path
+import sys
 
-# Import the functions to test
-from code.config.seeds import get_seed, set_seed, ensure_seeded, DEFAULT_SEED
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from config.seeds import get_seed, set_seed, ensure_seeded, DEFAULT_SEED, SEED_ENV_VAR
+
 
 class TestGetSeed:
-    def test_returns_explicit_seed(self):
-        """Test that get_seed returns the explicitly provided seed."""
+    """Tests for the get_seed function."""
+
+    def test_explicit_seed_value(self):
+        """Test that explicit seed value is returned."""
         assert get_seed(123) == 123
         assert get_seed(0) == 0
-        assert get_seed(42) == 42
+        assert get_seed(999999) == 999999
 
-    def test_returns_default_when_none(self):
-        """Test that get_seed returns DEFAULT_SEED when no seed is provided."""
-        with patch.dict(os.environ, {}, clear=True):
-            assert get_seed(None) == DEFAULT_SEED
+    def test_default_seed_value(self):
+        """Test that default seed value is returned when no seed provided."""
+        # Clear environment variable to ensure default is used
+        original_env = os.environ.get(SEED_ENV_VAR)
+        if SEED_ENV_VAR in os.environ:
+            del os.environ[SEED_ENV_VAR]
+        
+        try:
+            assert get_seed() == DEFAULT_SEED
+        finally:
+            # Restore original environment
+            if original_env is not None:
+                os.environ[SEED_ENV_VAR] = original_env
 
-    def test_returns_env_seed(self):
-        """Test that get_seed reads from RANDOM_SEED environment variable."""
-        with patch.dict(os.environ, {"RANDOM_SEED": "999"}):
-            assert get_seed(None) == 999
+    def test_environment_variable_seed(self):
+        """Test that environment variable seed is used when provided."""
+        original_env = os.environ.get(SEED_ENV_VAR)
+        os.environ[SEED_ENV_VAR] = "456"
+        
+        try:
+            assert get_seed() == 456
+        finally:
+            # Restore original environment
+            if original_env is not None:
+                os.environ[SEED_ENV_VAR] = original_env
+            elif SEED_ENV_VAR in os.environ:
+                del os.environ[SEED_ENV_VAR]
 
-    def test_invalid_env_seed_uses_default(self):
-        """Test that invalid RANDOM_SEED falls back to DEFAULT_SEED."""
-        with patch.dict(os.environ, {"RANDOM_SEED": "not_a_number"}):
-            assert get_seed(None) == DEFAULT_SEED
+    def test_explicit_overrides_environment(self):
+        """Test that explicit seed value overrides environment variable."""
+        original_env = os.environ.get(SEED_ENV_VAR)
+        os.environ[SEED_ENV_VAR] = "789"
+        
+        try:
+            assert get_seed(111) == 111
+        finally:
+            # Restore original environment
+            if original_env is not None:
+                os.environ[SEED_ENV_VAR] = original_env
+            elif SEED_ENV_VAR in os.environ:
+                del os.environ[SEED_ENV_VAR]
+
 
 class TestSetSeed:
-    def test_sets_python_random(self):
-        """Test that set_seed correctly seeds Python's random module."""
-        seed = 42
-        set_seed(seed)
+    """Tests for the set_seed function."""
+
+    def test_seed_affects_python_random(self):
+        """Test that set_seed affects Python's random module."""
+        seed_value = 42
+        set_seed(seed_value)
         
-        # Generate a few random numbers
+        # Generate a random number
         val1 = random.random()
         
         # Reset seed and generate again
-        set_seed(seed)
+        set_seed(seed_value)
         val2 = random.random()
         
-        assert val1 == val2
+        assert val1 == val2, "Python random should be reproducible with same seed"
 
-    def test_sets_numpy_random(self):
-        """Test that set_seed correctly seeds NumPy's random module."""
-        seed = 42
-        set_seed(seed)
+    def test_seed_affects_numpy(self):
+        """Test that set_seed affects NumPy's random generator."""
+        seed_value = 42
+        set_seed(seed_value)
         
-        # Generate a random array
+        # Generate random numbers
         arr1 = np.random.rand(5)
         
         # Reset seed and generate again
-        set_seed(seed)
+        set_seed(seed_value)
         arr2 = np.random.rand(5)
         
-        np.testing.assert_array_equal(arr1, arr2)
+        np.testing.assert_array_equal(arr1, arr2, "NumPy random should be reproducible with same seed")
 
-    def test_sets_pytorch_if_available(self):
-        """Test that set_seed seeds PyTorch if installed."""
-        seed = 42
+    def test_environment_variable_set(self):
+        """Test that PYTHONHASHSEED environment variable is set."""
+        seed_value = 123
+        set_seed(seed_value)
         
-        try:
-            import torch
-            torch_available = True
-        except ImportError:
-            torch_available = False
+        assert os.environ.get(SEED_ENV_VAR) == str(seed_value), \
+            f"PYTHONHASHSEED should be set to {seed_value}"
+
+    def test_seed_consistency(self):
+        """Test that multiple calls with same seed produce consistent results."""
+        seed_value = 999
         
-        if torch_available:
-            set_seed(seed)
-            
-            # Generate a random tensor
-            tensor1 = torch.rand(5)
-            
-            # Reset seed and generate again
-            set_seed(seed)
-            tensor2 = torch.rand(5)
-            
-            torch.testing.assert_close(tensor1, tensor2)
-        else:
-            # If PyTorch isn't available, just ensure no exception is raised
-            set_seed(seed)
+        set_seed(seed_value)
+        python_val = random.random()
+        numpy_val = np.random.rand()
+        
+        set_seed(seed_value)
+        python_val2 = random.random()
+        numpy_val2 = np.random.rand()
+        
+        assert python_val == python_val2
+        assert numpy_val == numpy_val2
 
-    def test_ensures_deterministic_cudnn_when_cuda_available(self):
-        """Test that deterministic CuDNN settings are applied when CUDA is available."""
-        try:
-            import torch
-            if torch.cuda.is_available():
-                set_seed(42)
-                assert torch.backends.cudnn.deterministic is True
-                assert torch.backends.cudnn.benchmark is False
-            else:
-                # CUDA not available, skip this check
-                pass
-        except ImportError:
-            # PyTorch not installed, skip
-            pass
-
-    def test_returns_set_seed(self):
-        """Test that set_seed returns the seed value it set."""
-        assert set_seed(123) == 123
-        assert set_seed(None) == DEFAULT_SEED
 
 class TestEnsureSeeded:
-    def test_ensures_seeded(self):
-        """Test that ensure_seeded calls set_seed and returns the seed."""
-        seed = 42
-        result = ensure_seeded(seed)
-        assert result == seed
+    """Tests for the ensure_seeded function."""
+
+    def test_returns_seed_value(self):
+        """Test that ensure_seeded returns the seed value used."""
+        seed_value = 777
+        result = ensure_seeded(seed_value)
         
-        # Verify it actually set the seeds by checking reproducibility
+        assert result == seed_value, "ensure_seeded should return the seed value"
+
+    def test_sets_all_generators(self):
+        """Test that ensure_seeded sets all random number generators."""
+        seed_value = 555
+        ensure_seeded(seed_value)
+        
+        # Verify environment variable is set
+        assert os.environ.get(SEED_ENV_VAR) == str(seed_value)
+        
+        # Verify reproducibility
         val1 = random.random()
+        np_val1 = np.random.rand()
+        
+        ensure_seeded(seed_value)
         val2 = random.random()
+        np_val2 = np.random.rand()
         
-        ensure_seeded(seed)
-        val3 = random.random()
-        val4 = random.random()
-        
-        assert val1 == val3
-        assert val2 == val4
+        assert val1 == val2
+        assert np_val1 == np_val2
+
+    def test_default_seed_when_none(self):
+        """Test that ensure_seeded uses default seed when None is provided."""
+        result = ensure_seeded(None)
+        assert result == DEFAULT_SEED

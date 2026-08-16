@@ -1,18 +1,13 @@
 # PROJ-538: Quantifying the Impact of Network Structure on Heat Transport in Disordered Alloys
 
-## Overview
-This project investigates the relationship between the topological structure of defect networks in disordered alloys and their thermal conductivity.
-
-## Setup
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run the pipeline: `python -m code.main`
+## Project Overview
+This project investigates the relationship between atomic-scale network topology (defect graphs) and thermal conductivity in disordered alloys (Cu-Ni, Au-Ag).
 
 ## Structure
-- `code/`: Source code
-- `data/`: Data storage (raw, processed, figures)
-- `tests/`: Unit tests
+- `code/`: Python source modules (ingestion, metrics, stats, viz)
+- `data/`: Raw and processed data artifacts
+- `tests/`: Unit and integration tests
+- `specs/`: Design documents and user stories
 
-## Usage
-```bash
-python -m code.main
-```
+## Execution
+Run the pipeline via `python -m code.main` after ensuring dependencies in `requirements.txt` are installed.

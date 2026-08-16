@@ -1,61 +1,69 @@
 """
-Directory structure setup utility for the alloy design project.
-Creates the required directory hierarchy and placeholder files.
+Script to create the required directory structure for the project.
+This script ensures that code/, data/, tests/, and docs/ subdirectories exist.
 """
 import os
 from pathlib import Path
 
-
-def create_directory_structure(base_path: str = ".") -> None:
-    """
-    Create the required directory structure for the project.
-    
-    Args:
-        base_path: The root directory where structure will be created.
-    """
-    root = Path(base_path)
-    
-    # Define all required directories
-    directories = [
+def create_directory_structure():
+    """Create the base directory structure if it doesn't exist."""
+    base_dirs = [
         "code",
         "data",
-        "data/raw",
-        "data/processed",
         "tests",
+        "docs"
+    ]
+
+    for dir_name in base_dirs:
+        dir_path = Path(dir_name)
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+        else:
+            print(f"Directory already exists: {dir_path}")
+
+    # Create subdirectories for data
+    data_subdirs = [
+        "data/raw",
+        "data/processed"
+    ]
+    for dir_name in data_subdirs:
+        dir_path = Path(dir_name)
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+
+    # Create subdirectories for tests
+    test_subdirs = [
         "tests/contract",
         "tests/integration",
-        "tests/unit",
-        "docs",
-        "figures",
-        "specs",
-        "specs/001-multi-property-trade-offs",
+        "tests/unit"
     ]
-    
-    # Create directories
-    created_dirs = []
-    for dir_path in directories:
-        full_path = root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(full_path))
-    
-    # Create .gitkeep files in all directories to ensure they are tracked by git
-    gitkeep_files = []
-    for dir_path in directories:
-        full_path = root / dir_path
-        gitkeep_path = full_path / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.touch()
-            gitkeep_files.append(str(gitkeep_path))
-    
-    # Log results
-    print(f"Created {len(created_dirs)} directories:")
-    for d in created_dirs:
-        print(f"  - {d}")
-    
-    print(f"\nCreated {len(gitkeep_files)} .gitkeep placeholder files:")
-    for f in gitkeep_files:
-        print(f"  - {f}")
+    for dir_name in test_subdirs:
+        dir_path = Path(dir_name)
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
 
+    # Create __init__.py files to make directories Python packages
+    init_files = [
+        "code/__init__.py",
+        "data/__init__.py",
+        "tests/__init__.py",
+        "docs/__init__.py",
+        "tests/contract/__init__.py",
+        "tests/integration/__init__.py",
+        "tests/unit/__init__.py"
+    ]
+
+    for file_path in init_files:
+        path = Path(file_path)
+        if not path.exists():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.touch()
+            print(f"Created init file: {file_path}")
+
+    print("Directory structure setup complete.")
 
 if __name__ == "__main__":
     create_directory_structure()

@@ -1,31 +1,41 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "DynamicShiftEnvironmentConfig"
-description: "Configuration for extending EvoPolicyGym environments with dynamic shift modes."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: DynamicShiftEnvironmentConfig
+type: object
+description: Configuration for the dynamic shift environment extension.
 required:
   - env_id
-  - shift_step
-  - shift_type
+  - shift_threshold
+  - shift_config
+  - rules
 properties:
   env_id:
-    type: "string"
-    description: "Unique identifier for the base environment (e.g., 'env-01')."
-  shift_step:
-    type: "integer"
- description: "The step number (or percentage of total budget) at which the shift occurs. Default is [deferred]."
-    minimum: 0
-  shift_type:
-    type: "string"
-    enum:
-      - "reward_change"
-      - "transition_change"
-      - "both"
-    description: "Type of dynamic shift to inject."
-  shift_params:
-    type: "object"
-    description: "Parameters specific to the shift type (e.g., new reward function coefficients)."
+    type: string
+    description: Unique identifier for the environment.
+  shift_threshold:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Fraction of total steps at which the shift occurs.
+  shift_config:
+    type: object
+    description: Configuration for the change (e.g., reward inversion).
     additionalProperties: true
-  seed:
-    type: "integer"
-    description: "Random seed for the shift generation if stochastic."
-    default: 42
+  rules:
+    type: array
+    description: List of ground-truth rules for the environment.
+    items:
+      type: object
+      required:
+        - rule_id
+        - description
+        - violation_condition
+      properties:
+        rule_id:
+          type: string
+          description: Unique ID for the rule.
+        description:
+          type: string
+          description: Human-readable description of the rule.
+        violation_condition:
+          type: string
+          description: Condition that triggers a violation (e.g., "action == 'left'").

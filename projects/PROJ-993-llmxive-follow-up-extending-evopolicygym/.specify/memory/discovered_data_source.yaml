@@ -1,14 +1,13 @@
 status: none
-intent: EvoPolicyGym dynamic shift environments download python package dataset Gymnasium
+intent: EvoPolicyGym environment definitions dynamic shift python package dataset
 required_fields:
-- environment_id
+- environment_name
 - observation_space
 - action_space
 - reward_function
 - transition_probabilities
-- shift_step
+- shift_point
 - shift_configuration
-- metadata
-cache_key: 553ee0470853e7a66c86120cbd4b5b89b71490eab8db07f1e93ba00db5fa586d
-searched_at: '2026-08-08T08:30:10.984090+00:00'
+cache_key: ebce1de00c445738d9a699b6b8e3c8d3eb1d198c0ed2a90f9d3a8b87c290086a
+searched_at: '2026-08-16T06:18:43.042882+00:00'
 retry_count: 1

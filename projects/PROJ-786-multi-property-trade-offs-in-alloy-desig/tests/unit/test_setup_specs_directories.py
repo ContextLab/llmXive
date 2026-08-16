@@ -1,103 +1,68 @@
 import os
 import pytest
 from pathlib import Path
-import tempfile
 import shutil
+import tempfile
+import sys
 
-# We need to add the code directory to the path to import the module
-# In a real test run, this would be handled by pytest configuration or sys.path
+# Add the code directory to the path for imports
 code_dir = Path(__file__).parent.parent.parent / "code"
-if str(code_dir) not in os.sys.path:
-    os.sys.path.insert(0, str(code_dir))
+sys.path.insert(0, str(code_dir))
 
-from setup_specs_directories import create_specs_directory_structure
+from setup_specs_directories import create_specs_directories
 
-def test_specs_structure_created():
-    """
-    Test that the specs directory structure is created correctly.
-    """
-    # Create a temporary directory to simulate project root
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        
-        # Temporarily change the working directory to simulate project root
-        original_cwd = os.getcwd()
-        os.chdir(tmp_path)
-        
-        try:
-            # Mock the Path(__file__).parent.parent logic by patching or 
-            # by running the function in a context where __file__ points to the temp dir
-            # However, since the function uses __file__ relative to the script location,
-            # we need to adjust our approach. 
-            # Instead, let's directly test the logic by creating the structure manually
-            # and verifying it matches expectations.
-            
-            # Recreate the logic locally for testing independence
-            project_root = tmp_path
-            specs_base = project_root / "specs"
-            feature_dir = specs_base / "001-multi-property-trade-offs"
-            
-            expected_dirs = [
-                specs_base,
-                feature_dir,
-                feature_dir / "data",
-                feature_dir / "docs",
-                feature_dir / "analysis",
-                feature_dir / "models",
-            ]
-            
-            # Run the creation logic (simulated here for the test context)
-            for dir_path in expected_dirs:
-                dir_path.mkdir(parents=True, exist_ok=True)
-            
-            # Check gitkeep
-            gitkeep = feature_dir / ".gitkeep"
-            gitkeep.touch()
-            
-            # Assertions
-            assert specs_base.exists(), "specs directory not created"
-            assert feature_dir.exists(), "001-multi-property-trade-offs directory not created"
-            assert (feature_dir / "data").exists(), "data subdirectory not created"
-            assert (feature_dir / "docs").exists(), "docs subdirectory not created"
-            assert (feature_dir / "analysis").exists(), "analysis subdirectory not created"
-            assert (feature_dir / "models").exists(), "models subdirectory not created"
-            assert gitkeep.exists(), ".gitkeep file not created"
-            
-        finally:
-            os.chdir(original_cwd)
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to simulate the project root."""
+    temp_dir = tempfile.mkdtemp()
+    yield temp_dir
+    # Cleanup after test
+    shutil.rmtree(temp_dir)
 
-def test_function_returns_correct_paths():
+def test_creates_specs_directory_structure(temp_project_root):
     """
-    Test that the function returns the list of created paths.
+    Test that create_specs_directories creates the required directory structure
+    and a .gitkeep file within it.
     """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        original_cwd = os.getcwd()
-        os.chdir(tmp_path)
+    # Change to the temp directory to simulate project root
+    original_cwd = os.getcwd()
+    os.chdir(temp_project_root)
+
+    try:
+        # Run the function
+        result = create_specs_directories()
         
-        # We need to simulate the script being inside a 'code' directory
-        # to match the __file__ logic in the function.
-        # Since we can't easily change __file__, we will just verify the 
-        # existence of the directories after running the function 
-        # assuming the script is at tmp_path/code/setup_specs_directories.py
+        assert result is True, "Function should return True on success"
+
+        # Verify the path exists
+        expected_path = Path(temp_project_root) / "projects" / "PROJ-786-multi-property-trade-offs-in-alloy-desig" / "specs" / "001-multi-property-trade-offs"
+        assert expected_path.exists(), f"Directory {expected_path} was not created"
+        assert expected_path.is_dir(), f"{expected_path} exists but is not a directory"
+
+        # Verify .gitkeep exists inside
+        gitkeep_path = expected_path / ".gitkeep"
+        assert gitkeep_path.exists(), f".gitkeep file was not created at {gitkeep_path}"
+        assert gitkeep_path.is_file(), f".gitkeep exists but is not a file"
+
+    finally:
+        os.chdir(original_cwd)
+
+def test_idempotent(temp_project_root):
+    """
+    Test that running the function twice does not raise an error (exist_ok=True).
+    """
+    original_cwd = os.getcwd()
+    os.chdir(temp_project_root)
+
+    try:
+        # Run twice
+        create_specs_directories()
+        result_second = create_specs_directories()
         
-        code_dir = tmp_path / "code"
-        code_dir.mkdir()
+        assert result_second is True, "Second run should also return True"
         
-        # Move the actual script logic here or mock it
-        # For this test, we assume the function works as designed if 
-        # the directory structure is correct.
+        expected_path = Path(temp_project_root) / "projects" / "PROJ-786-multi-property-trade-offs-in-alloy-desig" / "specs" / "001-multi-property-trade-offs"
+        assert expected_path.exists()
         
-        # Let's just verify the structure exists if we run the logic manually
-        specs_base = tmp_path / "specs"
-        feature_dir = specs_base / "001-multi-property-trade-offs"
-        
-        # Run the logic
-        create_specs_directory_structure() # This will run relative to the actual script location
-        
-        # Since we can't easily change __file__, we verify the structure manually
-        # by checking if the directories exist in the temp root
-        assert (tmp_path / "specs").exists()
-        assert (tmp_path / "specs" / "001-multi-property-trade-offs").exists()
-        
+    finally:
         os.chdir(original_cwd)

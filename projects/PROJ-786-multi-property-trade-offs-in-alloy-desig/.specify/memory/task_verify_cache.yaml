@@ -1,44 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/`
-    directory (or any files within it) is provided; the response contains only a specification
-    description, not the required filesystem artifact. The task remains undone.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the required `code/`, `data/`, `tests/`, and `docs/`
-    subdirectories actually exist in the repository; the response contains only the
-    task description and no file listings or directory structures. The implementer
-    must create and show these four directories (with at least placeholder files)
-    to satisfy the task.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the `data/raw/` and `data/processed/` directories
-    actually exist; the response contains only the task description and specifications,
-    with no file listings, screenshots, or code creating those folders. The implementer
-    must create the directories (or provide proof they exist) to satisfy the requirement.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the `tests/contract/`, `tests/integration/`,
-    or `tests/unit/` directories actually exist in the repository; the response contains
-    no file listings or screenshots confirming their creation. The implementer must
-    add these subdirectories (with at least placeholder files) and provide proof they
-    are present.
-T001e:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/specs/001-multi-property-trade-offs/`
-    directory (or any files within it) was provided; without confirming the directory
-    exists and contains the expected structure, the task cannot be considered completed.
-T001f:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitkeep` files or directory listings were provided, so there is no evidence
-    that empty directories now contain the required placeholder files. The implementer
-    must add the missing `.gitkeep` files to every empty folder in the repository.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -73,10 +32,48 @@ T008:
   r: No code, configuration files, or documentation for error handling or structured
     logging were provided; the claim cannot be verified against any tangible artifact.
     The required logging infrastructure is missing.
+T011:
+  c: true
+  h: b9a2b336210f604e76bf6a9a43ad2a50409c55d81448b4739772ab4e44b2af5a
+  r: "The `tests/integration/test_ingestion_pipeline.py` file is present (5\u202F\
+    KB) and contains code that loads mock data, runs the ingestion and encoding pipeline,\
+    \ and includes assertions that `data/processed/encoded_alloys.csv` exists and\
+    \ that it has the required columns. This satisfies the task\u2019s requirement\
+    \ for an integration test that checks the CSV\u2019s existence and schema."
 T015:
   c: false
-  h: 8e2bb7a9818b5727ec1ce3a282e7c344c4b0baa17c7fd3037e92de8c5adc7e04
-  r: The `code/main.py` file exists but the provided excerpt is truncated and does
-    not show a complete orchestration that calls the encoding step and writes `data/processed/encoded_alloys.csv`.
-    Moreover, the required output file `data/processed/encoded_alloys.csv` is missing
-    from the repository. The task therefore is not fully satisfied.
+  h: 8a9fea7c9f048bc422f6f13acda996ba6c7b137721d1958b7c5151cc33927d18
+  r: The repository lacks the required `data/processed/encoded_alloys.csv` file, and
+    the provided `code/main.py` is truncated and does not show any logic that runs
+    the encoding step or writes to that specific CSV path. Consequently the orchestration
+    step does not demonstrably produce the required output.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were provided that adds validation to ensure
+    feature vectors contain at least two periodic descriptors per element. The required
+    artifact (e.g., a function/module with the validation logic and corresponding
+    unit tests) is missing, so the task is not satisfied.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration file, or log output showing the required logging of total\
+    \ fetched, filtered, and encoded record counts was provided. The task demands\
+    \ an implementation that records these three metrics during data ingestion, but\
+    \ no artifact demonstrating such logging exists. The implementer must add the\
+    \ logging statements (e.g., using Python\u2019s logging module) and supply the\
+    \ updated script or module as evidence."
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, documentation, or test results were provided that implement\
+    \ the required logic to link LOSO\u2011CV results (T021) to the uncertainty metrics\
+    \ (FR\u2011006) and integrate FR\u2011008 coverage with uncertainty flagging.\
+    \ The claim lacks any tangible artifact demonstrating the implementation, so the\
+    \ task is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were provided showing that predictions are clamped
+    to physical limits or that extrapolated points are flagged; the artifact list
+    is empty, so the required logic cannot be verified.

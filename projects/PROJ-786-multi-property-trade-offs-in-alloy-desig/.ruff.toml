@@ -1,0 +1,9 @@
+# Extends pyproject.toml settings for specific IDE compatibility if needed
+# or acts as a standalone config if pyproject.toml is not preferred by some tools.
+# Primary config remains in pyproject.toml.
+
+extend = "pyproject.toml"
+
+[lint]
+# Ensure we don't duplicate ignores if the tool merges configs
+ignore = []
