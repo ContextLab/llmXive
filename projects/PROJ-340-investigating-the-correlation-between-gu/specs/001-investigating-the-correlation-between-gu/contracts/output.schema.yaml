@@ -17,6 +17,8 @@ definitions:
       - p_value_adjusted
       - is_significant
       - method_used
+      - direction
+      - effect_size_category
     properties:
       taxon:
         type: string

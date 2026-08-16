@@ -1,63 +1,64 @@
-# Quickstart: Investigating the Correlation Between Gut Microbiome Composition and Sleep Architecture
+# Quickstart: Gut Microbiome-Sleep Architecture
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Access to a GitHub Actions runner (for CI validation) or a local environment with 7GB+ RAM.
+- Git
+- GitHub Account (for CI execution)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-340-investigating-the-correlation-between-gu
-   ```
+1.  **Clone the Repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-340-investigating-the-correlation-between-gu
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Running the Pipeline
 
-Since no verified real-world dataset is available in the provided list, the pipeline defaults to generating a **synthetic dataset** for validation.
+### Option 1: Synthetic Data (Default)
+Run the pipeline with generated data to validate the implementation.
+```bash
+python code/main.py --mode synthetic
+```
+- **Expected Output**: `data/results/correlation_results.csv`, `data/results/vif_report.json`, `data/results/sensitivity_analysis.json`.
+- **Duration**: < 5 minutes.
 
-1. **Generate Synthetic Data** (Optional, for testing):
-   ```bash
-   python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv
-   ```
-
-2. **Run the Full Analysis**:
-   ```bash
-   python code/main.py --input data/raw/synthetic_data.csv --output data/results/
-   ```
-
-   *Note: If you have a real dataset, replace `--input` with the path to your CSV.*
-
-## Expected Output
-
-- `data/results/correlation_results.json`: The main correlation matrix.
-- `data/results/diagnostics.json`: VIF, Power, and Sensitivity analysis.
-- `data/results/report.txt`: Human-readable summary (associational framing only).
+### Option 2: Real Data (If Available)
+Place a valid CSV file at `data/raw/real_data.csv` and run:
+```bash
+python code/main.py --mode real
+```
+- **Note**: If `data/raw/real_data.csv` is missing, the pipeline will abort with a "RealDataFetchError" (per T081/T082).
 
 ## Verification
 
-To verify the pipeline on a CI runner:
-```bash
-# This command runs the test suite which includes the data ingestion check
-# and the full pipeline execution time limit check.
-pytest tests/integration/test_pipeline.py -v
-```
+1.  **Check Timing**: Ensure `data/results/timing_evidence.json` shows execution time < 6 hours.
+2.  **Check Validation**: Ensure `data/results/validation_failure_report.json` does not exist (indicating success).
+3.  **Check Results**: Open `data/results/correlation_matrix.json` to verify `p_value_adjusted` and `is_significant` columns.
+4.  **Check Causality**: Ensure all reports contain "Associational Finding:" and no causal language.
+
+## CI/CD Execution
+
+The pipeline runs automatically on `ubuntu-latest` via GitHub Actions:
+1.  Push changes to `001-gut-microbiome-sleep-architecture`.
+2.  Wait for the `analysis.yml` workflow to complete.
+3.  Check "Actions" tab for logs and artifacts.
 
 ## Troubleshooting
 
-- **Error: "Dataset-variable fit check failed"**: Ensure your input CSV contains all required sleep metrics (e.g., `rem_duration_min`, `sws_duration_min`).
-- **Error: "Memory Limit Exceeded"**: Reduce the number of taxa in the input data. The pipeline is optimized for < 500 taxa.
-- **Warning: "Underpowered"**: The sample size `N` is too small to detect an effect of `r=0.3` with [deferred] power. The pipeline will still run but will flag this limitation.
+- **"Missing Variable" Error**: Check `data/raw/synthetic_data.csv` (or real data) for required columns defined in `contracts/dataset_schema.yaml`.
+- **"Power Limitation" Warning**: The sample size (N) is too small to detect the target effect size (r=0.3). Increase N in the synthetic generator or acknowledge the limitation in the report.
+- **"Perfect Multicollinearity"**: Two predictors are linearly dependent. The system will flag this and exclude one from VIF calculation.
+- **"CLR Transformation Failed"**: Ensure the data sum constraint is valid (no zero-sum rows).

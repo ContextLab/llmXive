@@ -1,22 +1,40 @@
 {
   "citations": [
     {
-      "id": "gut-sleep-001",
-      "source": "https://doi.org/10.1038/s41591-023-02234-4",
-      "title": "Gut Microbiome Composition and Sleep Architecture: A Cross-Sectional Study",
-      "year": 2023,
-      "authors": ["Johnson, A.", "Lee, B.", "Chen, C."],
-      "doi": "10.1038/s41591-023-02234-4",
+      "id": "benjamini-hochberg-1995",
+      "source": "https://doi.org/10.2307/2346101",
+      "title": "Controlling the False Discovery Rate: A Practical and Powerful Approach to Multiple Testing",
+      "year": 1995,
+      "authors": ["Benjamini, Y.", "Hochberg, Y."],
+      "doi": "10.2307/2346101",
       "type": "paper"
     },
     {
-      "id": "microbiome-dataset-001",
-      "source": "https://figshare.com/articles/dataset/Gut_Microbiome_Sleep_Data/12345678",
-      "title": "Gut Microbiome and Sleep Metrics Dataset",
-      "year": 2022,
-      "authors": ["Smith, D.", "Williams, E."],
-      "doi": "10.6084/m9.figshare.12345678",
-      "type": "dataset"
+      "id": "zinb-lambert-1992",
+      "source": "https://doi.org/10.1080/10618600.1992.10474562",
+      "title": "Zero-Inflated Poisson Regression, with an Application to Defects in Manufacturing",
+      "year": 1992,
+      "authors": ["Lambert, D."],
+      "doi": "10.1080/10618600.1992.10474562",
+      "type": "paper"
+    },
+    {
+      "id": "vif-fox-1992",
+      "source": "https://doi.org/10.1080/01621459.1992.10475190",
+      "title": "Generalized Collinearity Diagnostics",
+      "year": 1992,
+      "authors": ["Fox, J.", "Monette, G."],
+      "doi": "10.1080/01621459.1992.10475190",
+      "type": "paper"
+    },
+    {
+      "id": "coda-aitchison-1986",
+      "source": "https://doi.org/10.1007/978-94-009-4654-3",
+      "title": "The Statistical Analysis of Compositional Data",
+      "year": 1986,
+      "authors": ["Aitchison, J."],
+      "doi": "10.1007/978-94-009-4654-3",
+      "type": "book"
     }
   ]
 }

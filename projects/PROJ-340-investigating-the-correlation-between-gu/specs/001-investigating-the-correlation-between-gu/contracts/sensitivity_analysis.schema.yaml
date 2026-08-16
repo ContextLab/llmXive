@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SensitivityAnalysisSchema"
+description: "Schema for the sensitivity analysis of significance thresholds."
+type: object
+properties:
+  baseline_threshold:
+    type: number
+    description: "Baseline significance threshold (e.g., 0.05)."
+  baseline_count:
+    type: integer
+    description: "Number of significant findings at baseline."
+  thresholds_tested:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+          description: "Threshold tested (e.g., 0.01, 0.10)."
+        significant_count:
+          type: integer
+          description: "Number of significant findings at this threshold."
+        change_percentage:
+          type: number
+          description: "Percentage change from baseline."
+      required: ["threshold", "significant_count", "change_percentage"]
+  stability_score:
+    type: number
+    description: "Coefficient of variation of significant counts across thresholds."
+required: ["baseline_threshold", "baseline_count", "thresholds_tested", "stability_score"]
+additionalProperties: false

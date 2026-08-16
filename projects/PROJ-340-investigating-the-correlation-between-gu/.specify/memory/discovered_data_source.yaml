@@ -1,14 +1,15 @@
 status: none
-intent: Human Microbiome Project and Sleep Heart Health Study combined dataset metagenomic
-  sleep metrics python package dataset
+intent: gut microbiome polysomnography dataset Zenodo download python package dataset
 required_fields:
 - subject_id
-- taxon
+- taxon_name
 - taxon_count
-- relative_abundance
-- REM_duration
-- SWS_duration
-- total_sleep_time
-cache_key: 2340ab9599f86a9dd38c9790c9895654ac08c82f977d71e3530ae88aca094bfc
-searched_at: '2026-07-31T16:51:12.352055+00:00'
+- taxon_relative_abundance
+- REM_duration_minutes
+- SWS_duration_minutes
+- total_sleep_time_minutes
+- actigraphy_total_sleep_time
+- actigraphy_sleep_efficiency
+cache_key: e9e3ef8b4f261888d1e68ef37ea4989f8d0e48f651487d071afc8810de948bce
+searched_at: '2026-08-16T03:12:32.272097+00:00'
 retry_count: 1
