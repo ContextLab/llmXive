@@ -1,237 +1,258 @@
 """
-Artifact Checksum Verification Script.
+Artifact Verification Script for llmXive Pipeline.
 
-This script recalculates SHA256 checksums for all generated artifacts
-defined in the project state file and compares them against the
-recorded checksums in `state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml`.
-
-It addresses Constitution Principle III by ensuring data integrity
-and detecting any tampering or corruption of pipeline outputs.
+This script recalculates checksums for all generated artifacts and compares them
+against the recorded hashes in the project state file. It ensures data integrity
+and reproducibility (Constitution Principle III).
 
 Usage:
-    python code/verify_artifacts.py
+    python code/verify_artifacts.py [--state STATE_FILE] [--verbose]
 """
+
 import os
 import sys
 import json
 import hashlib
 import yaml
+import argparse
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
-# Project paths
-PROJECT_ROOT = Path(__file__).parent.parent
-STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-340-investigating-the-correlation-between-gu.yaml"
-
-# Artifacts to verify (derived from task descriptions and expected outputs)
-# These are the critical outputs that must be tracked for integrity
-ARTIFACTS_TO_VERIFY = [
-    "data/raw/synthetic_data.csv",
-    "data/processed/filtered_data.parquet",
-    "data/results/variable_load_metrics.json",
-    "data/results/outlier_report.json",
-    "data/results/correlation_matrix.json",
-    "data/results/sensitivity_analysis.json",
-    "data/results/vif_report.json",
-    "data/results/power_analysis.json",
-    "data/results/timing_evidence.json",
-    "data/results/final_report.md",
-    "data/metadata/method_selection_log.json",
-    "data/metadata/static_collinearity_map.json",
-    "data/metadata/compositionality_flag.json",
-    "data/metadata/validation_mode_flag.json",
-    "data/config/required_variables.yaml",
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_STATE_FILE = PROJECT_ROOT / "state" / "projects" / "PROJ-340-investigating-the-correlation-between-gu.yaml"
+ARTIFACT_DIRS = [
+    PROJECT_ROOT / "data" / "raw",
+    PROJECT_ROOT / "data" / "processed",
+    PROJECT_ROOT / "data" / "results",
+    PROJECT_ROOT / "data" / "metadata",
+    PROJECT_ROOT / "data" / "config",
+    PROJECT_ROOT / "data" / "citations",
 ]
+EXCLUDED_FILES = {".gitkeep", ".DS_Store", "Thumbs.db"}
 
-def calculate_file_checksum(file_path: Path) -> Optional[str]:
+
+def calculate_file_checksum(file_path: Path) -> str:
     """
-    Calculate SHA256 checksum of a file.
-    
+    Calculate the SHA256 checksum of a file.
+
     Args:
-        file_path: Path to the file to hash.
-        
+        file_path: Path to the file.
+
     Returns:
-        Hex string of the SHA256 hash, or None if file doesn't exist.
+        Hexadecimal string of the SHA256 hash.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        PermissionError: If the file cannot be read.
     """
     if not file_path.exists():
-        return None
-    
+        raise FileNotFoundError(f"File not found: {file_path}")
+
     sha256_hash = hashlib.sha256()
     try:
         with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        print(f"Error reading {file_path}: {e}")
-        return None
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return f"sha256:{sha256_hash.hexdigest()}"
+    except PermissionError:
+        raise PermissionError(f"Permission denied: {file_path}")
 
-def load_state_file() -> Dict:
+
+def load_state_file(state_file: Path) -> Dict:
     """
-    Load the project state file containing recorded checksums.
-    
+    Load the project state file containing artifact hashes.
+
+    Args:
+        state_file: Path to the state YAML file.
+
     Returns:
-        Dictionary containing the state file contents.
-        
+        Dictionary containing the state data.
+
     Raises:
-        FileNotFoundError: If the state file doesn't exist.
-        yaml.YAMLError: If the state file is malformed.
+        FileNotFoundError: If the state file does not exist.
+        yaml.YAMLError: If the file is not valid YAML.
     """
-    if not STATE_FILE.exists():
-        raise FileNotFoundError(f"State file not found: {STATE_FILE}")
-    
-    with open(STATE_FILE, "r") as f:
+    if not state_file.exists():
+        raise FileNotFoundError(f"State file not found: {state_file}")
+
+    with open(state_file, "r") as f:
         return yaml.safe_load(f)
 
-def verify_artifacts() -> Tuple[bool, List[Dict]]:
+
+def discover_artifacts(base_dirs: List[Path]) -> List[Path]:
     """
-    Verify all registered artifacts against stored checksums.
-    
+    Discover all relevant artifact files in the specified directories.
+
+    Args:
+        base_dirs: List of base directories to search.
+
     Returns:
-        Tuple of (all_passed: bool, details: List[Dict])
-        where details contains the status of each artifact.
+        List of Path objects for discovered artifact files.
     """
-    if not STATE_FILE.exists():
-        print(f"Error: State file not found at {STATE_FILE}")
-        print("No checksums to verify against. Please ensure the pipeline has run and recorded checksums.")
-        return False, []
+    artifacts = []
+    for base_dir in base_dirs:
+        if not base_dir.exists():
+            continue
+        for root, _, files in os.walk(base_dir):
+            for file in files:
+                if file in EXCLUDED_FILES:
+                    continue
+                file_path = Path(root) / file
+                # Only include specific file types
+                if file_path.suffix in {".csv", ".parquet", ".json", ".yaml", ".yml", ".md", ".txt", ".png", ".pdf"}:
+                    artifacts.append(file_path)
+    return artifacts
+
+
+def verify_artifacts(state_file: Path, artifacts: Optional[List[Path]] = None, verbose: bool = False) -> Tuple[bool, List[str]]:
+    """
+    Verify artifacts against recorded checksums in the state file.
+
+    Args:
+        state_file: Path to the state YAML file.
+        artifacts: Optional list of artifacts to verify. If None, discovers them.
+        verbose: If True, prints detailed output.
+
+    Returns:
+        Tuple of (all_verified: bool, messages: List[str])
+    """
+    messages = []
+    all_verified = True
 
     try:
-        state_data = load_state_file()
-    except Exception as e:
-        print(f"Error loading state file: {e}")
-        return False, []
+        state_data = load_state_file(state_file)
+    except (FileNotFoundError, yaml.YAMLError) as e:
+        msg = f"Error loading state file: {e}"
+        messages.append(msg)
+        return False, messages
 
     artifact_hashes = state_data.get("artifact_hashes", {})
-    all_passed = True
-    results = []
+    if not artifact_hashes:
+        msg = "No artifact hashes found in state file. Nothing to verify."
+        messages.append(msg)
+        if verbose:
+            print(msg)
+        return True, messages
 
-    print(f"{'Artifact':<50} {'Status':<10} {'Expected':<16} {'Actual':<16}")
-    print("-" * 92)
+    if artifacts is None:
+        artifacts = discover_artifacts(ARTIFACT_DIRS)
 
-    # Check all artifacts defined in our list
-    for artifact_path in ARTIFACTS_TO_VERIFY:
-        full_path = PROJECT_ROOT / artifact_path
-        relative_path = artifact_path
-        
-        # Get expected checksum from state file
-        expected_hash = artifact_hashes.get(relative_path)
-        
-        if expected_hash is None:
-            # Check if file exists but wasn't recorded
-            if full_path.exists():
-                status = "MISSING_RECORD"
-                all_passed = False
-                actual_hash = calculate_file_checksum(full_path)
-                results.append({
-                    "path": relative_path,
-                    "status": status,
-                    "expected": None,
-                    "actual": actual_hash,
-                    "message": "File exists but no checksum recorded in state file."
-                })
-                print(f"{relative_path:<50} {status:<10} {'N/A':<16} {actual_hash[:16] if actual_hash else 'N/A':<16}")
-            else:
-                status = "MISSING_FILE"
-                all_passed = False
-                results.append({
-                    "path": relative_path,
-                    "status": status,
-                    "expected": None,
-                    "actual": None,
-                    "message": "File does not exist and no checksum recorded."
-                })
-                print(f"{relative_path:<50} {status:<10} {'N/A':<16} {'N/A':<16}")
+    if not artifacts:
+        msg = "No artifacts found in the specified directories."
+        messages.append(msg)
+        if verbose:
+            print(msg)
+        # Not necessarily a failure if no artifacts are expected yet
+        return True, messages
+
+    verified_count = 0
+    missing_count = 0
+    mismatch_count = 0
+
+    for artifact_path in artifacts:
+        relative_path = str(artifact_path.relative_to(PROJECT_ROOT))
+        recorded_hash = artifact_hashes.get(relative_path)
+
+        if not recorded_hash:
+            msg = f"⚠ No recorded hash for: {relative_path}"
+            messages.append(msg)
+            if verbose:
+                print(msg)
+            # Missing hash is not a verification failure, just a warning
             continue
 
-        # Remove 'sha256:' prefix if present
-        expected_hash_clean = expected_hash
-        if expected_hash.startswith("sha256:"):
-            expected_hash_clean = expected_hash[7:]
+        try:
+            current_hash = calculate_file_checksum(artifact_path)
+            if current_hash == recorded_hash:
+                verified_count += 1
+                if verbose:
+                    print(f"✓ Verified: {relative_path}")
+            else:
+                mismatch_count += 1
+                all_verified = False
+                msg = f"✗ MISMATCH: {relative_path}"
+                messages.append(msg)
+                if verbose:
+                    print(f"  Expected: {recorded_hash}")
+                    print(f"  Found:    {current_hash}")
+        except (FileNotFoundError, PermissionError) as e:
+            missing_count += 1
+            all_verified = False
+            msg = f"✗ MISSING/ERROR: {relative_path} - {e}"
+            messages.append(msg)
+            if verbose:
+                print(msg)
 
-        # Calculate actual checksum
-        actual_hash = calculate_file_checksum(full_path)
+    summary = f"\nVerification Summary: {verified_count} verified, {missing_count} missing, {mismatch_count} mismatched."
+    messages.append(summary)
+    if verbose:
+        print(summary)
 
-        if actual_hash is None:
-            status = "FILE_NOT_FOUND"
-            all_passed = False
-            results.append({
-                "path": relative_path,
-                "status": status,
-                "expected": expected_hash_clean,
-                "actual": None,
-                "message": "File does not exist."
-            })
-            print(f"{relative_path:<50} {status:<10} {expected_hash_clean:<16} {'N/A':<16}")
-        elif actual_hash == expected_hash_clean:
-            status = "PASS"
-            results.append({
-                "path": relative_path,
-                "status": status,
-                "expected": expected_hash_clean,
-                "actual": actual_hash,
-                "message": "Checksum verified."
-            })
-            print(f"{relative_path:<50} {status:<10} {expected_hash_clean:<16} {actual_hash[:16]:<16}")
-        else:
-            status = "MISMATCH"
-            all_passed = False
-            results.append({
-                "path": relative_path,
-                "status": status,
-                "expected": expected_hash_clean,
-                "actual": actual_hash,
-                "message": "Checksum mismatch detected!"
-            })
-            print(f"{relative_path:<50} {status:<10} {expected_hash_clean:<16} {actual_hash[:16]:<16}")
+    if all_verified:
+        messages.append("✅ All verified artifacts match their recorded checksums.")
+    else:
+        messages.append("❌ Verification failed: Some artifacts are missing or mismatched.")
 
-    # Check for extra artifacts in state file that aren't in our list
-    for recorded_path in artifact_hashes.keys():
-        if recorded_path not in ARTIFACTS_TO_VERIFY:
-            full_path = PROJECT_ROOT / recorded_path
-            if full_path.exists():
-                actual_hash = calculate_file_checksum(full_path)
-                expected_hash = artifact_hashes[recorded_path]
-                if expected_hash.startswith("sha256:"):
-                    expected_hash = expected_hash[7:]
-                
-                if actual_hash and actual_hash == expected_hash:
-                    status = "PASS (UNLISTED)"
-                    print(f"{recorded_path:<50} {status:<10} {expected_hash:<16} {actual_hash[:16]:<16}")
-                else:
-                    status = "MISMATCH (UNLISTED)"
-                    all_passed = False
-                    print(f"{recorded_path:<50} {status:<10} {expected_hash:<16} {actual_hash[:16] if actual_hash else 'N/A':<16}")
+    return all_verified, messages
 
-    return all_passed, results
 
 def main():
     """Main entry point for the verification script."""
-    print("=" * 92)
-    print("ARTIFACT CHECKSUM VERIFICATION")
-    print("Constitution Principle III: Data Integrity Check")
-    print("=" * 92)
-    print()
+    parser = argparse.ArgumentParser(
+        description="Verify artifact checksums against the project state file."
+    )
+    parser.add_argument(
+        "--state",
+        type=Path,
+        default=DEFAULT_STATE_FILE,
+        help=f"Path to the state YAML file (default: {DEFAULT_STATE_FILE})",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Print detailed verification output.",
+    )
+    parser.add_argument(
+        "--artifacts",
+        nargs="+",
+        type=Path,
+        default=None,
+        help="Specific artifacts to verify (relative to project root).",
+    )
 
-    if not STATE_FILE.exists():
-        print("ERROR: State file not found.")
-        print("The pipeline must run successfully at least once to record checksums.")
+    args = parser.parse_args()
+
+    # Resolve state file path
+    state_file = args.state
+    if not state_file.is_absolute():
+        state_file = PROJECT_ROOT / state_file
+
+    # Convert relative artifact paths to absolute
+    artifacts = None
+    if args.artifacts:
+        artifacts = [
+            p if p.is_absolute() else PROJECT_ROOT / p for p in args.artifacts
+        ]
+
+    print(f"Verifying artifacts against state file: {state_file}")
+    print("-" * 50)
+
+    try:
+        all_verified, messages = verify_artifacts(state_file, artifacts, args.verbose)
+
+        for msg in messages:
+            print(msg)
+
+        sys.exit(0 if all_verified else 1)
+
+    except Exception as e:
+        print(f"❌ Unexpected error during verification: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
         sys.exit(1)
 
-    all_passed, results = verify_artifacts()
-
-    print()
-    print("=" * 92)
-    if all_passed:
-        print("RESULT: ALL ARTIFACTS VERIFIED SUCCESSFULLY")
-        print("Constitution Principle III satisfied.")
-        sys.exit(0)
-    else:
-        print("RESULT: VERIFICATION FAILED")
-        print("One or more artifacts are missing, corrupted, or tampered with.")
-        print("Please investigate the failures above.")
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()

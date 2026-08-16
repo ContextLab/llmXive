@@ -1,252 +1,248 @@
-"""
-Data Ingestion and Validation Module.
-Handles loading, schema validation, variable checking, and outlier detection.
-"""
 import os
 import sys
 import json
 import logging
 import hashlib
 import argparse
-import pandas as pd
-import numpy as np
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import List, Dict, Any, Optional
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger("ingest")
+logger = logging.getLogger('ingest')
 
 class RealDataFetchError(Exception):
-    """Raised when real data fetch fails or is not authorized."""
-    pass
+    """Raised when real data fetch fails."""
+    def __init__(self, source_id, message):
+        super().__init__(f"RealDataFetchError: Source {source_id} not found. {message}")
 
-def setup_paths():
-    """Ensure required directory structures exist."""
-    dirs = [
-        "data/raw", "data/processed", "data/results", "data/config",
-        "data/metadata", "data/citations", "state/projects"
-    ]
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
-    # Create __init__.py files to make them packages
-    for d in dirs:
-        init_path = Path(d) / "__init__.py"
-        if not init_path.exists():
-            init_path.touch()
+def setup_paths(project_root=None):
+    """Setup standard paths for the project."""
+    if project_root is None:
+        project_root = Path(__file__).parent.parent
+    return {
+        'raw': project_root / 'data' / 'raw',
+        'processed': project_root / 'data' / 'processed',
+        'results': project_root / 'data' / 'results',
+        'metadata': project_root / 'data' / 'metadata',
+        'config': project_root / 'data' / 'config',
+        'state': project_root / 'state' / 'projects'
+    }
 
-def load_schema(schema_path: str) -> Dict:
-    """Load a YAML schema definition."""
+def load_schema(schema_path):
+    """Load schema from YAML file."""
     import yaml
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def load_required_variables(config_path: str = "data/config/required_variables.yaml") -> Tuple[List[str], List[str]]:
-    """
-    Load required predictors and outcomes from config.
-    Returns (predictors, outcomes) lists.
-    """
+def load_required_variables(config_path='data/config/required_variables.yaml'):
+    """Load required variables from config."""
     if not os.path.exists(config_path):
-        logger.warning(f"Config file {config_path} not found. Returning empty lists.")
-        return [], []
-    
+        logger.warning(f"Required variables config not found: {config_path}")
+        return {'required_predictors': [], 'required_outcomes': []}
+
     with open(config_path, 'r') as f:
-        config = json.load(f)
-    
-    predictors = config.get("required_predictors", [])
-    outcomes = config.get("required_outcomes", [])
-    logger.info(f"Loaded {len(predictors)} predictors and {len(outcomes)} outcomes from config.")
-    return predictors, outcomes
+        config = yaml.safe_load(f)
+    return config
 
-def validate_variables(df: pd.DataFrame, predictors: List[str], outcomes: List[str]) -> Dict:
+def validate_variables(df, required_predictors, required_outcomes):
     """
-    Check for required predictors and outcomes in the dataframe.
-    Returns a validation report dict.
+    Validate that required variables are present in the dataframe.
+    Returns validation status and metrics.
     """
-    missing_predictors = [p for p in predictors if p not in df.columns]
-    missing_outcomes = [o for o in outcomes if o not in df.columns]
+    missing_predictors = [p for p in required_predictors if p not in df.columns]
+    missing_outcomes = [o for o in required_outcomes if o not in df.columns]
     missing_all = missing_predictors + missing_outcomes
-    
-    total_required = len(predictors) + len(outcomes)
-    missing_count = len(missing_all)
-    percentage_loaded = ((total_required - missing_count) / total_required * 100) if total_required > 0 else 100.0
-    
-    status = "PASS" if missing_count == 0 else "FAIL"
-    
-    report = {
-        "status": status,
-        "percentage_loaded": round(percentage_loaded, 2),
-        "missing_variables": missing_all,
-        "total_required": total_required,
-        "missing_predictors": missing_predictors,
-        "missing_outcomes": missing_outcomes
+
+    total_required = len(required_predictors) + len(required_outcomes)
+    found = total_required - len(missing_all)
+    percentage = (found / total_required * 100) if total_required > 0 else 0.0
+
+    status = "PASS" if len(missing_all) == 0 else "FAIL"
+
+    metrics = {
+        'status': status,
+        'percentage_loaded': percentage,
+        'missing_variables': missing_all,
+        'total_required': total_required,
+        'missing_predictors': missing_predictors,
+        'missing_outcomes': missing_outcomes
     }
-    
-    # ALWAYS write the metrics file
-    metrics_path = Path("data/results/variable_load_metrics.json")
-    with open(metrics_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    logger.info(f"Variable load metrics written to {metrics_path}")
-    
-    return report
 
-def fetch_real_data() -> pd.DataFrame:
+    return status, metrics
+
+def fetch_real_data(sources_config='data/config/real_data_sources.yaml'):
     """
-    Attempt to fetch real data from verified sources.
-    Raises RealDataFetchError if no source is configured or fetch fails.
+    Fetch real data from verified sources.
+    Raises RealDataFetchError if sources are missing or invalid.
     """
-    sources_file = Path("data/config/real_data_sources.yaml")
-    if not sources_file.exists():
-        raise RealDataFetchError("No real data sources configured. Please populate data/config/real_data_sources.yaml.")
-    
-    import yaml
-    with open(sources_file, 'r') as f:
+    if not os.path.exists(sources_config):
+        raise RealDataFetchError("none", "No real data sources configured")
+
+    with open(sources_config, 'r') as f:
         sources = yaml.safe_load(f)
-    
-    if not sources or not sources.get("sources"):
-        raise RealDataFetchError("Real data sources list is empty. Please provide a verified dataset ID.")
-    
-    # Placeholder for actual fetch logic (e.g., using requests or specific API)
-    # For now, if no real source is found, we raise.
-    # In a real implementation, this would download from NCBI/Zenodo.
-    raise RealDataFetchError("Real data fetch not implemented in this stub. Please use synthetic mode or implement fetch logic.")
 
-def load_data(input_path: Optional[str] = None, mode: str = "real") -> pd.DataFrame:
-    """
-    Load data from file or fetch real data.
-    Validates variables immediately. Halts if validation fails.
-    """
-    setup_paths()
-    predictors, outcomes = load_required_variables()
-    
-    df = None
-    if mode == "synthetic":
-        if not input_path:
-            input_path = "data/raw/synthetic_data.csv"
-        if not os.path.exists(input_path):
-            logger.error(f"Synthetic data file {input_path} not found. Run generator first.")
-            sys.exit(1)
-        df = pd.read_csv(input_path)
-    elif mode == "real":
-        try:
-            df = fetch_real_data()
-        except RealDataFetchError as e:
-            logger.error(f"Real data fetch failed: {e}")
-            sys.exit(1)
-    else:
-        if not input_path:
-            raise ValueError("Input path required for file-based mode")
-        if not os.path.exists(input_path):
-            raise FileNotFoundError(f"Input file {input_path} not found")
-        df = pd.read_csv(input_path)
-    
-    # Validate variables
-    report = validate_variables(df, predictors, outcomes)
-    
-    if report["status"] == "FAIL":
-        # Write structured failure report
-        failure_report_path = Path("data/results/validation_failure_report.json")
-        with open(failure_report_path, 'w') as f:
-            json.dump({
-                "error": "Variable validation failed",
-                "missing_variables": report["missing_variables"],
-                "timestamp": pd.Timestamp.now().isoformat()
-            }, f, indent=2)
-        logger.error(f"Validation failed. Missing: {report['missing_variables']}")
-        logger.error(f"Failure report written to {failure_report_path}")
-        sys.exit(1)
-    
-    return df
+    if not sources or not sources.get('sources'):
+        raise RealDataFetchError("none", "No valid sources found in configuration")
 
-def detect_outliers_iqr(df: pd.DataFrame, columns: List[str]) -> List[int]:
+    # In a real implementation, this would download from the specified URLs/IDs
+    # For now, we raise an error if no real data file exists
+    raise RealDataFetchError("none", "Real data fetch not implemented - no verified source available")
+
+def detect_outliers_iqr(df, columns=None):
     """
-    Detect outliers using IQR method (>1.5x IQR above Q3 or <1.5x IQR below Q1).
-    Returns list of row indices to exclude.
+    Detect outliers using IQR method.
+    Returns dict of column -> list of outlier indices.
     """
-    excluded_indices = set()
+    outliers = {}
+    if columns is None:
+        columns = df.select_dtypes(include=[np.number]).columns
+
     for col in columns:
         if col not in df.columns:
             continue
-        Q1 = df[col].quantile(0.25)
-        Q3 = df[col].quantile(0.75)
-        IQR = Q3 - Q1
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        mask = (df[col] < lower_bound) | (df[col] > upper_bound)
-        excluded_indices.update(df[mask].index.tolist())
-    return list(excluded_indices)
+        data = df[col]
+        q1 = data.quantile(0.25)
+        q3 = data.quantile(0.75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
 
-def save_outlier_report(excluded_indices: List[int], output_path: str = "data/results/outlier_report.json"):
-    """Save outlier report to JSON."""
+        outlier_mask = (data < lower_bound) | (data > upper_bound)
+        outlier_indices = df.index[outlier_mask].tolist()
+        if outlier_indices:
+            outliers[col] = outlier_indices
+
+    return outliers
+
+def save_outlier_report(outliers, output_path='data/results/outlier_report.json'):
+    """Save outlier report to disk."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # Flatten all outlier indices
+    all_indices = []
+    for col, indices in outliers.items():
+        all_indices.extend(indices)
+    all_indices = sorted(list(set(all_indices)))
+
     report = {
-        "count": len(excluded_indices),
-        "excluded_indices": excluded_indices
+        'count': len(all_indices),
+        'excluded_indices': all_indices,
+        'per_column': outliers
     }
+
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
-    logger.info(f"Outlier report saved to {output_path}")
 
-def filter_outliers(df: pd.DataFrame, excluded_indices: List[int]) -> pd.DataFrame:
-    """Remove rows with excluded indices."""
-    return df.drop(index=excluded_indices).reset_index(drop=True)
+    return report
 
-def save_filtered_data(df: pd.DataFrame, output_path: str = "data/processed/filtered_data.parquet"):
-    """Save filtered data to Parquet."""
+def filter_outliers(df, outliers):
+    """Filter outliers from dataframe."""
+    all_indices = []
+    for col, indices in outliers.items():
+        all_indices.extend(indices)
+    all_indices = list(set(all_indices))
+
+    filtered_df = df.drop(index=all_indices)
+    return filtered_df
+
+def save_filtered_data(df, output_path='data/processed/filtered_data.parquet'):
+    """Save filtered data to parquet."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_parquet(output_path, index=False)
-    logger.info(f"Filtered data saved to {output_path}")
 
-def calculate_checksum(file_path: str) -> str:
-    """Calculate SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return f"sha256:{sha256_hash.hexdigest()}"
-
-def record_checksum(file_path: str, state_file: str = "state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml"):
-    """Record artifact checksum in state file."""
+def record_artifact_checksum(file_path, state_file):
+    """Record checksum of an artifact in state file."""
     import yaml
-    checksum = calculate_checksum(file_path)
-    
-    state_path = Path(state_file)
-    if state_path.exists():
-        with open(state_path, 'r') as f:
+    if not os.path.exists(file_path):
+        return
+
+    with open(file_path, 'rb') as f:
+        content = f.read()
+    checksum = hashlib.sha256(content).hexdigest()
+
+    state = {}
+    if os.path.exists(state_file):
+        with open(state_file, 'r') as f:
             state = yaml.safe_load(f) or {}
-    else:
-        state = {"artifact_hashes": {}}
-    
-    if "artifact_hashes" not in state:
-        state["artifact_hashes"] = {}
-    
-    state["artifact_hashes"][file_path] = checksum
-    
-    with open(state_path, 'w') as f:
-        yaml.dump(state, f, default_flow_style=False)
-    logger.info(f"Checksum recorded for {file_path}")
+
+    if 'artifact_hashes' not in state:
+        state['artifact_hashes'] = {}
+
+    state['artifact_hashes'][str(file_path)] = f"sha256:{checksum}"
+
+    with open(state_file, 'w') as f:
+        yaml.dump(state, f)
+
+def load_data(data_path, mode='real'):
+    """
+    Load data from file, validating variables first.
+    """
+    df = pd.read_csv(data_path)
+
+    # Load required variables
+    required_config = load_required_variables()
+    required_predictors = required_config.get('required_predictors', [])
+    required_outcomes = required_config.get('required_outcomes', [])
+
+    # Validate
+    status, metrics = validate_variables(df, required_predictors, required_outcomes)
+
+    # Always write metrics
+    metrics_path = 'data/results/variable_load_metrics.json'
+    os.makedirs(os.path.dirname(metrics_path), exist_ok=True)
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+
+    if status == "FAIL":
+        # Write failure report
+        failure_report = {
+            'status': 'FAIL',
+            'error_code': 'MISSING_VARIABLES',
+            'missing_variables': metrics['missing_variables'],
+            'timestamp': datetime.now().isoformat(),
+            'message': f"Missing required variables: {', '.join(metrics['missing_variables'])}"
+        }
+        failure_path = 'data/results/validation_failure_report.json'
+        with open(failure_path, 'w') as f:
+            json.dump(failure_report, f, indent=2)
+        logger.error(failure_report['message'])
+        sys.exit(1)
+
+    return df
 
 def main():
-    parser = argparse.ArgumentParser(description="Data Ingestion and Validation")
-    parser.add_argument("--input", type=str, help="Input file path")
-    parser.add_argument("--mode", type=str, default="real", choices=["real", "synthetic", "file"], help="Data mode")
-    parser.add_argument("--output", type=str, help="Output path for filtered data")
+    """Main entry point for ingestion."""
+    parser = argparse.ArgumentParser(description='Data ingestion and validation')
+    parser.add_argument('--input', type=str, required=True, help='Input CSV file')
+    parser.add_argument('--output', type=str, required=True, help='Output directory')
+    parser.add_argument('--mode', type=str, default='real', help='Data mode: real or synthetic')
     args = parser.parse_args()
-    
-    setup_paths()
-    df = load_data(args.input, args.mode)
-    
-    # Detect outliers
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    excluded = detect_outliers_iqr(df, numeric_cols)
-    save_outlier_report(excluded)
-    
-    # Filter and save
-    df_clean = filter_outliers(df, excluded)
-    output_path = args.output if args.output else "data/processed/filtered_data.parquet"
-    save_filtered_data(df_clean, output_path)
-    
-    # Record checksum
-    record_checksum(output_path)
-    logger.info("Ingestion and validation complete.")
 
-if __name__ == "__main__":
+    paths = setup_paths()
+    os.makedirs(paths['raw'], exist_ok=True)
+    os.makedirs(paths['processed'], exist_ok=True)
+    os.makedirs(paths['results'], exist_ok=True)
+    os.makedirs(paths['metadata'], exist_ok=True)
+
+    # Load and validate
+    df = load_data(args.input, mode=args.mode)
+
+    # Detect and filter outliers
+    outliers = detect_outliers_iqr(df)
+    save_outlier_report(outliers)
+
+    filtered_df = filter_outliers(df, outliers)
+    save_filtered_data(filtered_df)
+
+    # Record checksum
+    state_file = paths['state'] / 'PROJ-340-investigating-the-correlation-between-gu.yaml'
+    record_artifact_checksum(str(paths['processed'] / 'filtered_data.parquet'), str(state_file))
+
+    logger.info(f"Ingestion complete. Filtered data saved to {paths['processed'] / 'filtered_data.parquet'}")
+
+if __name__ == '__main__':
+    import pandas as pd
+    from datetime import datetime
+    import numpy as np
     main()

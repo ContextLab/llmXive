@@ -1,1 +1,2 @@
-# Placeholder for configuration files
+# This directory holds configuration files for the pipeline.
+# Files like required_variables.yaml and real_data_sources.yaml are stored here.

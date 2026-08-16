@@ -1,8 +1,3 @@
-"""
-Pipeline Orchestration Script.
-Sequences ingestion, validation, analysis, and diagnostics.
-Implements the Real-Data Gate (T082) and timing evidence (T016).
-"""
 import sys
 import os
 import json
@@ -10,128 +5,132 @@ import time
 import argparse
 import logging
 from pathlib import Path
+from datetime import datetime
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger("main")
+logger = logging.getLogger('main')
 
-def setup_paths():
-    """Ensure directory structure exists."""
-    dirs = ["data/raw", "data/processed", "data/results", "data/config", "data/metadata"]
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
+def setup_paths(project_root=None):
+    """Setup standard paths."""
+    if project_root is None:
+        project_root = Path(__file__).parent.parent
+    return {
+        'raw': project_root / 'data' / 'raw',
+        'processed': project_root / 'data' / 'processed',
+        'results': project_root / 'data' / 'results',
+        'metadata': project_root / 'data' / 'metadata',
+        'config': project_root / 'data' / 'config',
+        'state': project_root / 'state' / 'projects'
+    }
 
-def estimate_ram_usage(df_size_mb: float) -> str:
-    """Estimate RAM usage based on data size."""
-    return "low" if df_size_mb < 100 else "medium" if df_size_mb < 1000 else "high"
+def estimate_ram_usage(df):
+    """Estimate RAM usage of dataframe."""
+    return df.memory_usage(deep=True).sum()
 
-def determine_compute_strategy(ram_level: str) -> str:
-    """Determine compute strategy based on RAM level."""
-    return "streaming" if ram_level == "high" else "standard"
+def determine_compute_strategy(df):
+    """Determine compute strategy based on data size."""
+    ram_bytes = estimate_ram_usage(df)
+    ram_gb = ram_bytes / (1024 ** 3)
 
-def save_compute_strategy(strategy: str, output_path: str = "data/metadata/compute_strategy.json"):
-    """Save compute strategy to file."""
+    if ram_gb < 4:
+        return {'strategy': 'local', 'ram_gb': ram_gb, 'parallel': False}
+    elif ram_gb < 16:
+        return {'strategy': 'local', 'ram_gb': ram_gb, 'parallel': True}
+    else:
+        return {'strategy': 'distributed', 'ram_gb': ram_gb, 'parallel': True}
+
+def save_compute_strategy(strategy, output_path='data/metadata/compute_strategy.json'):
+    """Save compute strategy to disk."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump({"strategy": strategy}, f, indent=2)
+        json.dump(strategy, f, indent=2)
 
 def check_validation_mode():
-    """
-    Check if the pipeline is running in synthetic validation mode.
-    Returns True if validation_mode_flag.json exists and 'active' is True.
-    """
-    flag_path = "data/metadata/validation_mode_flag.json"
-    if not os.path.exists(flag_path):
-        return False
-    try:
+    """Check if validation mode (synthetic) is active."""
+    flag_path = 'data/metadata/validation_mode_flag.json'
+    if os.path.exists(flag_path):
         with open(flag_path, 'r') as f:
-            data = json.load(f)
-            return data.get("active", False)
-    except (json.JSONDecodeError, IOError) as e:
-        logger.warning(f"Could not read validation mode flag: {e}")
-        return False
+            config = json.load(f)
+        return config.get('active', False)
+    return False
 
-def run_ingestion_and_validation(input_path: str, mode: str):
+def run_ingestion_and_validation(input_path, output_dir):
     """Run ingestion and validation steps."""
-    from ingest import load_data, save_filtered_data, record_checksum, save_outlier_report
-    
-    logger.info("Starting ingestion and validation...")
-    df = load_data(input_path, mode)
-    
-    # Ensure filtered data exists (side effect of load_data in ingest.py)
-    filtered_path = "data/processed/filtered_data.parquet"
-    if not os.path.exists(filtered_path):
-        logger.warning(f"Filtered data not found at {filtered_path}. Ingestion may have failed to write it.")
-    
-    logger.info("Ingestion and validation complete.")
+    from ingest import main as ingest_main
+    import sys
 
-def run_analysis():
-    """Run correlation analysis."""
+    # Prepare args for ingest
+    sys.argv = ['ingest', '--input', input_path, '--output', output_dir, '--mode', 'synthetic' if check_validation_mode() else 'real']
+    ingest_main()
+
+def run_analysis(input_path, output_dir):
+    """Run analysis steps."""
     from analysis import main as analysis_main
-    logger.info("Starting analysis...")
-    analysis_main()
-    logger.info("Analysis complete.")
+    import sys
 
-def run_diagnostics():
-    """Run diagnostics (VIF, Power, etc.)."""
+    sys.argv = ['analysis', '--input', input_path, '--output', output_dir]
+    analysis_main()
+
+def run_diagnostics(input_path, output_dir):
+    """Run diagnostics steps."""
     from diagnostics import main as diagnostics_main
-    logger.info("Starting diagnostics...")
+    import sys
+
+    sys.argv = ['diagnostics', '--input', input_path, '--output', output_dir]
     diagnostics_main()
-    logger.info("Diagnostics complete.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Pipeline Orchestration")
-    parser.add_argument("--input", type=str, help="Input data file")
-    parser.add_argument("--mode", type=str, default="real", choices=["real", "synthetic"], help="Data mode")
-    parser.add_argument("--output", type=str, default="data/results/", help="Output directory")
+    """Main pipeline orchestration."""
+    parser = argparse.ArgumentParser(description='Run the full analysis pipeline')
+    parser.add_argument('--input', type=str, required=True, help='Input data file')
+    parser.add_argument('--output', type=str, required=True, help='Output directory')
+    parser.add_argument('--mode', type=str, default='auto', help='Pipeline mode')
     args = parser.parse_args()
-    
-    setup_paths()
-    
+
     start_time = time.time()
-    
-    # T082: IMPLEMENT REAL-DATA GATE IN ORCHESTRATION
-    # Check for real data existence before proceeding.
-    real_data_path = "data/raw/real_data.csv"
-    if not os.path.exists(real_data_path):
-        is_validation_mode = check_validation_mode()
-        if not is_validation_mode:
-            logger.error("Real data not found. Aborting pipeline. Please provide a verified real dataset.")
-            logger.error("If this is a validation run, ensure 'data/metadata/validation_mode_flag.json' has 'active': true.")
-            sys.exit(1)
-        else:
-            logger.info("Real data not found, but validation mode is active. Proceeding with synthetic data generation.")
-            # Trigger synthetic data generation if in validation mode and real data is missing
-            from synthetic_data import main as synthetic_main
-            synthetic_main()
-            # Update input path to the generated synthetic data for subsequent steps
-            args.input = "data/raw/synthetic_data.csv"
-            logger.info(f"Synthetic data generated at {args.input}. Resuming pipeline.")
-    else:
-        logger.info("Real data found. Proceeding with real data pipeline.")
+    paths = setup_paths()
 
-    # 1. Ingestion & Validation
-    run_ingestion_and_validation(args.input, args.mode)
-    
-    # 2. Analysis
-    run_analysis()
-    
-    # 3. Diagnostics
-    run_diagnostics()
-    
+    # Ensure directories exist
+    os.makedirs(paths['results'], exist_ok=True)
+    os.makedirs(paths['metadata'], exist_ok=True)
+
+    logger.info(f"Starting pipeline at {datetime.now().isoformat()}")
+    logger.info(f"Input: {args.input}, Output: {args.output}")
+
+    # Run ingestion
+    logger.info("Running ingestion and validation...")
+    run_ingestion_and_validation(args.input, str(paths['processed']))
+
+    # Run analysis
+    logger.info("Running analysis...")
+    run_analysis(args.input, str(paths['results']))
+
+    # Run diagnostics
+    logger.info("Running diagnostics...")
+    run_diagnostics(args.input, str(paths['results']))
+
     end_time = time.time()
-    duration = end_time - start_time
-    
-    # Timing Evidence (T016)
-    timing_report = {
-        "start_time": start_time,
-        "end_time": end_time,
-        "duration_seconds": duration,
-        "status": "PASS" if duration < 6 * 3600 else "FAIL"
-    }
-    with open("data/results/timing_evidence.json", 'w') as f:
-        json.dump(timing_report, f, indent=2)
-    
-    logger.info(f"Pipeline complete. Duration: {duration:.2f}s")
+    duration_hours = (end_time - start_time) / 3600
 
-if __name__ == "__main__":
+    # Check timing constraint
+    timing_evidence = {
+        'start_time': datetime.fromtimestamp(start_time).isoformat(),
+        'end_time': datetime.fromtimestamp(end_time).isoformat(),
+        'duration_hours': duration_hours,
+        'status': 'PASS' if duration_hours < 6.0 else 'FAIL',
+        'limit_hours': 6.0
+    }
+
+    timing_path = os.path.join(paths['results'], 'timing_evidence.json')
+    with open(timing_path, 'w') as f:
+        json.dump(timing_evidence, f, indent=2)
+
+    logger.info(f"Pipeline completed in {duration_hours:.2f} hours")
+    if duration_hours >= 6.0:
+        logger.error("Pipeline exceeded 6-hour time limit")
+        sys.exit(1)
+
+    logger.info("Pipeline execution successful")
+
+if __name__ == '__main__':
     main()
