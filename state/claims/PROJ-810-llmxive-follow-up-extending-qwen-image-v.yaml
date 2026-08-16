@@ -2641,3 +2641,2095 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T06:34:03Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.1
+  claim_id: c_307ef8da
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: pandas==2.2.1'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: pandas==2.2.1
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T21:14:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pillow version 10.2.0
+  claim_id: c_41fe9679
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: pillow==10.2.0'
+  evidence:
+    asserted: '10.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pillow==10.2.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T21:15:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Qwen-Image-VAE-2.0 model reference
+  claim_id: c_bebc75e0
+  context: Resolve specific subset ID from Qwen-Image-VAE-2.0 report reference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen-Image-VAE-2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:16:09Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OmniDoc-TokenBench dataset name
+  claim_id: c_67f76ff6
+  context: Implement projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/data/download.py
+    to fetch AND PARSE the OmniDoc-TokenBench dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OmniDoc-TokenBench_dataset_name
+  kind: entity_fact
+  raw_text: OmniDoc-TokenBench
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:16:32Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: runtime threshold 21600 seconds
+  claim_id: c_d80126f2
+  context: If cumulative runtime exceeds threshold_seconds=21600, raise RuntimeExceededError
+    to halt the pipeline immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold_seconds=21600
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:16:53Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: effect size 0.8 for power analysis
+  claim_id: c_ce0e1d01
+  context: Use effect_size d=0.8 as defined in spec.md Assumptions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: effect_size d=0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:17:21Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: power threshold less than 0.8
+  claim_id: c_39e41a3c
+  context: MUST include logic to check power < 0.8 and set status=INCONCLUSIVE in
+    the output JSON.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_threshold_less_than_0.8
+  kind: magnitude
+  raw_text: power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:17:49Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Masked SSIM threshold 0.85
+  claim_id: c_ac652f0b
+  context: "Compare ssim against SC-002 threshold (\u2265 0.85)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold >= 0.85
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:18:14Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Keypoint Score threshold 0.80
+  claim_id: c_ad188bcf
+  context: "Compare keypoint_score against SC-002 threshold (\u2265 0.80)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold >= 0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:18:15Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OCR accuracy threshold 95%
+  claim_id: c_2ef5ff83
+  context: Run PaddleOCR. If accuracy < 95%, generate verification_queue.csv with
+    a random sample of failed samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OCR accuracy < 95%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:18:15Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OCR density heuristic threshold 0.05
+  claim_id: c_61a6f67b
+  context: Derive text/image labels using OCR density (char_count / (bbox_width *
+    bbox_height) > 0.05) and aspect ratio (width / height > 2.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: char_count / (bbox_width * bbox_height) > 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:18:15Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: aspect ratio heuristic threshold 2.0
+  claim_id: c_e8b6b881
+  context: Derive text/image labels using OCR density (char_count / (bbox_width *
+    bbox_height) > 0.05) and aspect ratio (width / height > 2.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: width / height > 2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:18:16Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.0 cpu
+  claim_id: c_bbddbc88
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.2.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:14Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: transformers version 4.40.0
+  claim_id: c_05b7584d
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.40.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:14Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: datasets version 2.18.0
+  claim_id: c_70567a99
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.18.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:15Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_de1788ce
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:15Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: opencv-python-headless version 4.9.0.80
+  claim_id: c_1bf3280e
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opencv-python-headless==4.9.0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:16Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: paddleocr version 2.7.3
+  claim_id: c_1e7a944a
+  context: Requirements.txt content listing specific package versions and constraint
+    to rely on this version for reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: paddleocr==2.7.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:16Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_00e5015a
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:17Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.3
+  claim_id: c_8a7cc7c8
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:17Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.13.2
+  claim_id: c_6c11bca0
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn==0.13.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:18Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pytest version 8.1.1
+  claim_id: c_5d7490d6
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==8.1.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:18Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pytest-cov version 5.0.0
+  claim_id: c_4e9debe3
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest-cov==5.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:19Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_0184ad9d
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:19Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_4e287030
+  context: Requirements.txt content listing specific package versions for the project.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:20Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: peak RAM threshold 7 GB for VAE OCR classifier
+  claim_id: c_fa607a60
+  context: Logic for T002-impl to estimate peak RAM and configure chunk size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure chunk size or fallback to smaller N if peak RAM for VAE + OCR
+    + Classifier exceeds 7GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:46Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: minimum sample size for power 0.8 effect size 0.8
+  claim_id: c_9b626fd4
+  context: Logic for T000-impl to perform power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate minimum N required for power (d > 0.8) using statsmodels.stats.power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:21:47Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: effect size 0.8
+  claim_id: c_82626a0c
+  context: Input parameter for the power analysis calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use effect_size d=0.8 as defined in spec.md Assumptions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:23:34Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: estimated runtime six hours
+  claim_id: c_34f31237
+  context: Logic for T002b-run to determine fallback sample size based on runtime.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Estimated_runtime_six_hours
+  kind: entity_fact
+  raw_text: Reduce N to N_fallback if N_required exceeds estimated runtime of approximately
+    six hours.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:24:31Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: runtime threshold 21600 seconds
+  claim_id: c_9159165a
+  context: Constraint for T042b-impl to halt the pipeline if cumulative runtime exceeds
+    this value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold for runtime monitoring is 21600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:24:51Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: runtime threshold 6 hours
+  claim_id: c_f3ec61e4
+  context: Constraint for T042-impl to measure total execution time against a predefined
+    time threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold for runtime monitoring is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:25:12Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OCR accuracy threshold 95 percent
+  claim_id: c_453ca474
+  context: Logic for T032 to generate a verification queue if accuracy falls below
+    this percentage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold for OCR validation accuracy is 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:25:13Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: keypoint score threshold 0.80
+  claim_id: c_4fa60b3f
+  context: Constraint for T031b-impl and T031d-impl requiring the score to be greater
+    than or equal to this value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold for Keypoint Matching Score is 0.80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:25:37Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: masked SSIM threshold 0.85
+  claim_id: c_b50119ec
+  context: Constraint for T030b-impl requiring the SSIM score to be greater than or
+    equal to this value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold for Masked SSIM is 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:25:51Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: family-wise error rate 0.05
+  claim_id: c_43817408
+  context: Constraint for T035-impl to apply Bonferroni or Holm-Bonferroni correction.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "when\u03B1is small (e.g.,0.05). This is provably more powerful than\
+        \ the closure of"
+      source_id: '2501.09015'
+      url: https://arxiv.org/abs/2501.09015
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Target family-wise error rate for Bonferroni correction is alpha <= 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T21:26:18Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: statistical power 0.8
+  claim_id: c_955cea73
+  context: Constraint for T000-impl and T021b-check to halt or flag if power is less
+    than this value.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: Target statistical power for analysis is 0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T21:26:28Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: random sampling seed 42
+  claim_id: c_5cfc761d
+  context: Logic for T032 to generate a random sample of failed samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random sampling seed=42 for the verification queue.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:26:52Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: random sampling seed 42
+  claim_id: c_5df951dc
+  context: Logic for T010-impl to randomly sample regions from heuristic labels.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random sampling seed=42 for the audit logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:27:11Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: data split 20 percent
+  claim_id: c_b2037b64
+  context: Logic for T021-impl to split latent vectors into train and eval sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a 20 percent split for data splitting.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:27:37Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: data split seed 42
+  claim_id: c_5d3226f2
+  context: Logic for T021-impl to split latent vectors into train and eval sets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random sampling seed=42 for the data split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:28:06Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OCR density threshold 0.05
+  claim_id: c_3f15668a
+  context: Logic for T008b-impl to derive labels using char_count divided by area.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OCR_density_threshold_0.05
+  kind: magnitude
+  raw_text: Derive text labels using OCR density greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:28:38Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: aspect ratio threshold 2.0
+  claim_id: c_f8127f30
+  context: Logic for T008b-impl to derive labels using width divided by height.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aspect_ratio_threshold_2.0
+  kind: magnitude
+  raw_text: Derive text labels using aspect ratio greater than 2.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:29:04Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: US1 accuracy target 90 percent
+  claim_id: c_ac8de0b4
+  context: Goal statement for User Story 1 regarding linear separability verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/US1_accuracy_target_90_percent
+  kind: magnitude
+  raw_text: Independent test goal for User Story 1 is accuracy greater than or equal
+    to 90 percent.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:29:42Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: US1 F1 target 0.90
+  claim_id: c_687918b9
+  context: Goal statement for User Story 1 regarding linear separability verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/US1_F1_target_0.90
+  kind: magnitude
+  raw_text: Independent test goal for User Story 1 is F1 greater than or equal to
+    0.90.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:30:11Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: US2 Masked SSIM target 0.85
+  claim_id: c_90ebac2c
+  context: Goal statement for User Story 2 regarding zero-shot semantic editing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/US2_Masked_SSIM_target_0.85
+  kind: magnitude
+  raw_text: Independent test goal for User Story 2 is Masked SSIM greater than or
+    equal to 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:30:36Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: US2 Keypoint Score target 0.80
+  claim_id: c_f59f5c91
+  context: Goal statement for User Story 2 regarding zero-shot semantic editing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/US2_Keypoint_Score_target_0.80
+  kind: magnitude
+  raw_text: Independent test goal for User Story 2 is Keypoint Score greater than
+    or equal to 0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:31:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.0+cpu
+  claim_id: c_1d857609
+  context: requirements.txt file content listing dependencies including torch==2.2.0+cpu,
+    transformers==4.40.0, and datasets==2.18.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.2.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:32:57Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: transformers version 4.40.0
+  claim_id: c_e6b5f3c1
+  context: requirements.txt file content listing dependencies including torch==2.2.0+cpu,
+    transformers==4.40.0, and datasets==2.18.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.40.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:32:58Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: datasets version 2.18.0
+  claim_id: c_28c9b59d
+  context: requirements.txt file content listing dependencies including torch==2.2.0+cpu,
+    transformers==4.40.0, and datasets==2.18.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.18.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:32:58Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_43101e08
+  context: requirements.txt file content listing dependencies including scikit-learn==1.4.0
+    and opencv-python-headless==4.9.0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:32:59Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: opencv-python-headless version 4.9.0.80
+  claim_id: c_d0f82d26
+  context: requirements.txt file content listing dependencies including scikit-learn==1.4.0
+    and opencv-python-headless==4.9.0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opencv-python-headless==4.9.0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:32:59Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: paddleocr version 2.7.3
+  claim_id: c_84d1fa3c
+  context: requirements.txt file content listing dependencies including paddleocr==2.7.3
+    and pyyaml==6.0.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: paddleocr==2.7.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_f15d7ec5
+  context: requirements.txt file content listing dependencies including pyyaml==6.0.1
+    and numpy==1.26.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_0c625e09
+  context: requirements.txt file content listing dependencies including numpy==1.26.4
+    and matplotlib==3.8.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:01Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.3
+  claim_id: c_806d949b
+  context: requirements.txt file content listing dependencies including matplotlib==3.8.3
+    and seaborn==0.13.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:02Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.13.2
+  claim_id: c_98e3ffe0
+  context: requirements.txt file content listing dependencies including seaborn==0.13.2
+    and pytest==8.1.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn==0.13.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:02Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pytest version 8.1.1
+  claim_id: c_ceeb6d51
+  context: requirements.txt file content listing dependencies including pytest==8.1.1
+    and pytest-cov==5.0.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==8.1.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:03Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pytest-cov version 5.0.0
+  claim_id: c_444a98aa
+  context: requirements.txt file content listing dependencies including pytest-cov==5.0.0
+    and statsmodels==0.14.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest-cov==5.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:03Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_3e7620a1
+  context: requirements.txt file content listing dependencies including statsmodels==0.14.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:04Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: effect size d equals 0.8
+  claim_id: c_948f0a4d
+  context: Power Analysis logic uses effect_size d=0.8 as defined in spec.md Assumptions
+    to calculate minimum N required for power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: effect_size d=0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:04Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: power less than 0.8
+  claim_id: c_a46f58a9
+  context: Constraint logic checks if power < 0.8 and sets status='INCONCLUSIVE' in
+    the output JSON to satisfy SC-001/US-01.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_less_than_0.8
+  kind: magnitude
+  raw_text: power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:07Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: memory budget exceeds 7 gigabytes
+  claim_id: c_3e5cb0e9
+  context: Memory Budget Check configures chunk size or falls back to smaller N if
+    estimated peak RAM exceeds 7GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: memory limit > 7GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:07Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: estimated runtime equals six hours
+  claim_id: c_ebde6c12
+  context: Runtime Fallback Logic reduces N if N_required exceeds estimated runtime
+    of approximately six hours or max_samples.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Estimated_runtime_equals_six_hours
+  kind: entity_fact
+  raw_text: estimated runtime of approximately six hours
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:28Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OCR density greater than 0.05
+  claim_id: c_329f00c4
+  context: Heuristic Label Derivation uses OCR density (char_count / (bbox_width *
+    bbox_height) > 0.05) to derive text/image labels.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OCR_density_greater_than_0.05
+  kind: magnitude
+  raw_text: OCR density > 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:34:06Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: aspect ratio greater than 2.0
+  claim_id: c_59fb765c
+  context: Heuristic Label Derivation uses aspect ratio (width / height > 2.0) to
+    derive text/image labels.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aspect_ratio_greater_than_2.0
+  kind: magnitude
+  raw_text: aspect ratio > 2.0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:34:42Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: runtime threshold equals 21600 seconds
+  claim_id: c_7ce246b8
+  context: Runtime Monitoring halts the pipeline if cumulative runtime exceeds threshold_seconds=21600.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold_seconds=21600
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:34:42Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: accuracy greater than or equal to 90 percent
+  claim_id: c_9f155104
+  context: "Independent Test for User Story 1 requires reporting accuracy \u2265 90%\
+    \ and F1 \u2265 0.90 against ground-truth labels."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Accuracy_greater_than_or_equal_to_90_percent
+  kind: magnitude
+  raw_text: "accuracy \u2265 90%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:35:03Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: p-value less than 0.05
+  claim_id: c_8e6c663e
+  context: Permutation Test is configured for iterations to achieve a p-value < 0.05
+    for Task 2.4.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P-value_less_than_0.05
+  kind: magnitude
+  raw_text: p-value < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:35:29Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Masked SSIM greater than or equal to 0.85
+  claim_id: c_76c02a57
+  context: "Independent Test for User Story 2 requires verifying text change with\
+    \ Masked SSIM \u2265 0.85 and Keypoint Score \u2265 0.80."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Masked_SSIM_greater_than_or_equal_to_0.85
+  kind: magnitude
+  raw_text: "Masked SSIM \u2265 0.85"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:36:02Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Keypoint Score greater than or equal to 0.80
+  claim_id: c_342ccb0a
+  context: "Independent Test for User Story 2 requires verifying text change with\
+    \ Masked SSIM \u2265 0.85 and Keypoint Score \u2265 0.80."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Keypoint_Score_greater_than_or_equal_to_0.80
+  kind: magnitude
+  raw_text: "Keypoint Score \u2265 0.80"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:36:23Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OCR accuracy less than 95 percent
+  claim_id: c_e737a669
+  context: OCR validation generates a verification queue if accuracy < 95%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OCR_accuracy_less_than_95_percent
+  kind: magnitude
+  raw_text: accuracy < 95%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:36:26Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: family-wise error rate alpha less than or equal to 0.05
+  claim_id: c_7dc36528
+  context: "Bonferroni correction is applied to control family-wise error rate at\
+    \ \u03B1 \u2264 0.05."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: FWER under 0.01, 0.05 or 0.1. As a general procedure to control k-FWER
+        (the probability of making
+      source_id: '2310.09493'
+      url: https://arxiv.org/abs/2310.09493
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: "family-wise error rate at \u03B1 \u2264 0.05"
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T21:37:07Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: runtime threshold equals 21600 seconds or 6 hours
+  claim_id: c_f0e14d6e
+  context: End-to-End Runtime measurement compares total execution time against a
+    threshold set to 21600 seconds (6 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold_seconds=21600 (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:37:07Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: paddleocr version 2.7.3
+  claim_id: c_d4bb5590
+  context: 'Constraint: MUST rely on `paddleocr==2.7.3 ` as defined in `requirements.txt`
+    (T004) for reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: paddleocr==2.7.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:32Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.0+cpu
+  claim_id: c_d398d16a
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: torch==2.2.0+cpu'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.2.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:33Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: transformers version 4.40.0
+  claim_id: c_12855ee5
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: transformers==4.40.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.40.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:33Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: datasets version 2.18.0
+  claim_id: c_e4a28816
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.18.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:34Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_d85c3d5c
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: scikit-learn==1.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:34Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: opencv-python-headless version 4.9.0.80
+  claim_id: c_a5459e6c
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: opencv-python-headless==4.9.0.80'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opencv-python-headless==4.9.0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:35Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_7a8cdb87
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:36Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_fba595e7
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: numpy==1.26.4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:36Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: matplotlib version 3.8.3
+  claim_id: c_025284b9
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: matplotlib==3.8.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:37Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: seaborn version 0.13.2
+  claim_id: c_df04b48e
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: seaborn==0.13.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn==0.13.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:37Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pytest version 8.1.1
+  claim_id: c_00951845
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: pytest==8.1.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==8.1.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:38Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: pytest-cov version 5.0.0
+  claim_id: c_522f0956
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: pytest-cov==5.0.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest-cov==5.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:38Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_ef9ddcc6
+  context: 'Create file `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt`
+    with the following content: statsmodels==0.14.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:39Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: runtime threshold 21600 seconds
+  claim_id: c_04d257f1
+  context: 'Constraint: If cumulative runtime exceeds `threshold_seconds=21600 `,
+    **raise `RuntimeExceededError`** to halt the pipeline immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold_seconds=21600
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:40Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: effect size d equals 0.8
+  claim_id: c_30098b87
+  context: '**Input**: Use effect_size `d=0.8` as defined in spec.md Assumptions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: effect_size d=0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:40Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: power less than 0.8
+  claim_id: c_4d27b60e
+  context: '**Constraint**: MUST include logic to check `power < 0.8 ` and set `status=\"INCONCLUSIVE\"`
+    in the output JSON to satisfy SC-001/US-01.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_less_than_0.8
+  kind: magnitude
+  raw_text: power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:43Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: accuracy greater than or equal to 90 percent
+  claim_id: c_88fcfd44
+  context: "**Independent Test**: Run encoding and classification on a sampled subset;\
+    \ report accuracy \u2265 90% and F1 \u2265 0.90 against ground-truth labels."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Accuracy_greater_than_or_equal_to_90_percent
+  kind: magnitude
+  raw_text: "accuracy \u2265 90%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:45Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Masked SSIM greater than or equal to 0.85
+  claim_id: c_84a86a1d
+  context: "**Independent Test**: Compute $z_{new} = z_{doc} - \\mu_{text\\_old} +\
+    \ \\mu_{text\\_new}$, decode, and verify text change with Masked SSIM \u2265 0.85\
+    \ and Keypoint Score \u2265 0.80."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Masked_SSIM_greater_than_or_equal_to_0.85
+  kind: magnitude
+  raw_text: "Masked SSIM \u2265 0.85"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:47Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Keypoint Score greater than or equal to 0.80
+  claim_id: c_36f03cf4
+  context: "**Independent Test**: Compute $z_{new} = z_{doc} - \\mu_{text\\_old} +\
+    \ \\mu_{text\\_new}$, decode, and verify text change with Masked SSIM \u2265 0.85\
+    \ and Keypoint Score \u2265 0.80."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Keypoint_Score_greater_than_or_equal_to_0.80
+  kind: magnitude
+  raw_text: "Keypoint Score \u2265 0.80"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:38:50Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OCR accuracy less than 95 percent
+  claim_id: c_280ec929
+  context: 'Logic: Run PaddleOCR. If accuracy < 95%, generate `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/data/manual/verification_queue.csv`
+    with a **random sample of [deferred] of failed samples (seed=42)**.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OCR_accuracy_less_than_95_percent
+  kind: magnitude
+  raw_text: OCR accuracy < 95%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:39:21Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OCR density threshold 0.05
+  claim_id: c_5d14e6b7
+  context: 'Logic: Derive \"text\"/\"image\" labels using OCR density (`char_count
+    / (bbox_width * bbox_height) > 0.05 `) and aspect ratio (`width / height > 2.0
+    `) from **ground-truth bounding box fields**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: char_count / (bbox_width * bbox_height) > 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:39:21Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: aspect ratio threshold 2.0
+  claim_id: c_1a40cdc7
+  context: 'Logic: Derive \"text\"/\"image\" labels using OCR density (`char_count
+    / (bbox_width * bbox_height) > 0.05 `) and aspect ratio (`width / height > 2.0
+    `) from **ground-truth bounding box fields**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: width / height > 2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:39:22Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: runtime threshold 21600 seconds or 6 hours
+  claim_id: c_926b7598
+  context: The threshold MUST be set to `threshold_seconds=21600 ` (6 hours) to capture
+    extended temporal patterns without introducing excessive noise, as per SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: threshold_seconds=21600 (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:39:22Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: p-value less than 0.05
+  claim_id: c_3803d73f
+  context: Implement `projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/analysis/separability.py`
+    -> Permutation Test (iterations) for p-value < 0.05 (Task 2.4).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P-value_less_than_0.05
+  kind: magnitude
+  raw_text: p-value < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:39:25Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction using statsmodels.stats.multitest
+  claim_id: c_712dcacc
+  context: '**Correction**: Apply Bonferroni or Holm-Bonferroni correction using `statsmodels.stats.multitest`
+    to control {{claim:c_7dc36528}} (2310.09493, https://arxiv.org/abs/2310.09493).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_using_statsmodels.stats.multitest
+  kind: entity_fact
+  raw_text: Bonferroni correction using statsmodels.stats.multitest
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:39:44Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OmniDoc-TokenBench dataset referenced in Qwen-Image-VAE-2.0 report
+  claim_id: c_7070c803
+  context: 'Logic: Resolve specific subset ID from Qwen-Image-VAE-2.0 report reference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The OmniDoc-TokenBench dataset is referenced in the Qwen-Image-VAE-2.0
+    report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:43:33Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Qwen-Image-VAE-2.0 model available at Qwen/Qwen-Image-VAE-2.0
+  claim_id: c_174593de
+  context: Implement CPU-only loading logic for 'Qwen/Qwen-Image-VAE-2.0' ensuring
+    no CUDA/GPU dependencies are invoked.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Qwen-Image-VAE-2.0 model is available as 'Qwen/Qwen-Image-VAE-2.0'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:44:00Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OmniDoc-TokenBench columns bbox_x_min, bbox_y_min, bbox_width, bbox_height,
+    modality_label
+  claim_id: c_72fc801d
+  context: Extract 'text'/'image' labels directly from OmniDoc-TokenBench ground-truth
+    bounding box annotations using columns bbox_x_min, bbox_y_min, bbox_width, bbox_height,
+    modality_label.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OmniDoc-TokenBench_columns_bbox_x_min,_bbox_y_min,_bbox_widt
+  kind: entity_fact
+  raw_text: The OmniDoc-TokenBench dataset contains columns 'bbox_x_min', 'bbox_y_min',
+    'bbox_width', 'bbox_height', and 'modality_label'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:44:18Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Heuristic label derivation OCR density threshold 0.05
+  claim_id: c_b679b995
+  context: Derive 'text'/'image' labels using OCR density (char_count / (bbox_width
+    * bbox_height) > 0.05) and aspect ratio (width / height > 2.0) from ground-truth
+    bounding box fields.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The heuristic label derivation uses an OCR density threshold of 'char_count
+    / (bbox_width * bbox_height) > 0.05'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:44:19Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Heuristic label derivation aspect ratio threshold 2.0
+  claim_id: c_4a0d0488
+  context: Derive 'text'/'image' labels using OCR density (char_count / (bbox_width
+    * bbox_height) > 0.05) and aspect ratio (width / height > 2.0) from ground-truth
+    bounding box fields.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The heuristic label derivation uses an aspect ratio threshold of 'width
+    / height > 2.0'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:44:19Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Power analysis effect size d greater than 0.8
+  claim_id: c_c67976d1
+  context: 'Calculate minimum N required for power (d > 0.8) using statsmodels.stats.power.
+    Input: Use effect_size d=0.8 as defined in spec.md Assumptions.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_effect_size_d_greater_than_0.8
+  kind: magnitude
+  raw_text: The power analysis requires an effect size (d) greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:46:18Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Power analysis power threshold 0.8
+  claim_id: c_92f8f633
+  context: 'Calculate minimum N required for power (d > 0.8) using statsmodels.stats.power.
+    Constraint: MUST include logic to check power < 0.8 and set status=''INCONCLUSIVE''
+    in the output JSON.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_power_threshold_0.8
+  kind: magnitude
+  raw_text: The power analysis requires a statistical power greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:47:08Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Runtime fallback threshold six hours
+  claim_id: c_ebbf1bbe
+  context: If N_required (from T000-run) exceeds estimated runtime of approximately
+    six hours or max_samples (from T002-impl), reduce N to N_fallback and flag runtime_inconclusive
+    status.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Runtime_fallback_threshold_six_hours
+  kind: entity_fact
+  raw_text: The runtime fallback logic uses an estimated runtime threshold of approximately
+    six hours.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:47:32Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Data split ratio 20 percent
+  claim_id: c_d5143f65
+  context: 'Split Logic: /20 split, seed=42. CRITICAL: Ensure train_features.parquet
+    contains ONLY latent vectors (X) and NO label columns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data split for User Story 1 uses a 20% split ratio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:47:59Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Data split random seed 42
+  claim_id: c_eceb571c
+  context: 'Split Logic: /20 split, seed=42. CRITICAL: Ensure train_features.parquet
+    contains ONLY latent vectors (X) and NO label columns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data split for User Story 1 uses a random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:48:37Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction reference arXiv 2310.09493
+  claim_id: c_ed9dc2b9
+  context: Apply Bonferroni or Holm-Bonferroni correction using statsmodels.stats.multitest
+    to control {{claim:c_7dc36528}} (2310.09493, https://arxiv.org/abs/2310.09493).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction reference is the paper with arXiv ID 2310.09493.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:48:48Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime threshold 6 hours
+  claim_id: c_47738469
+  context: The threshold MUST be set to threshold_seconds=21600 (6 hours) to capture
+    extended temporal patterns without introducing excessive noise, as per SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime threshold for the full pipeline is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:49:10Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: OCR validation fallback threshold 95 percent
+  claim_id: c_68de1abd
+  context: Run PaddleOCR. If accuracy < 95%, generate projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/data/manual/verification_queue.csv
+    with a random sample of [deferred] of failed samples (seed=42).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OCR_validation_fallback_threshold_95_percent
+  kind: magnitude
+  raw_text: The OCR validation for User Story 2 triggers a manual verification fallback
+    if accuracy is less than 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:06Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 1
+  canonical: Manual verification sampling seed 42
+  claim_id: c_6d9bcc79
+  context: Run PaddleOCR. If accuracy < 95%, generate projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/data/manual/verification_queue.csv
+    with a random sample of [deferred] of failed samples (seed=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual verification queue sampling uses a random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:26Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: torch version 2.2.0+cpu
+  claim_id: c_94887a03
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: torch==2.2.0+cpu'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.2.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:27Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: transformers version 4.40.0
+  claim_id: c_b5053209
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: transformers==4.40.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.40.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:27Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: datasets version 2.18.0
+  claim_id: c_df8a4978
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: datasets==2.18.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:28Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_c72f49a7
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: scikit-learn==1.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:29Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: opencv-python-headless version 4.9.0.80
+  claim_id: c_ec068f36
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: opencv-python-headless==4.9.0.80'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opencv-python-headless==4.9.0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:29Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: paddleocr version 2.7.3
+  claim_id: c_a9b7c8cc
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: paddleocr==2.7.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: paddleocr==2.7.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:30Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: pyyaml version 6.0.1
+  claim_id: c_45b285e1
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:31Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: numpy version 1.26.4
+  claim_id: c_b767ca2c
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: numpy==1.26.4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:31Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: matplotlib version 3.8.3
+  claim_id: c_ecb1a2cd
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: matplotlib==3.8.3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: matplotlib==3.8.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:32Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: seaborn version 0.13.2
+  claim_id: c_49da2921
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: seaborn==0.13.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seaborn==0.13.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:32Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: pytest version 8.1.1
+  claim_id: c_93de0804
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: pytest==8.1.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==8.1.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:33Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: pytest-cov version 5.0.0
+  claim_id: c_0d6e1f7e
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: pytest-cov==5.0.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest-cov==5.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:34Z'
+- artifact_path: projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/specs/001-llmxive-follow-up-extending-qwen-image-v/tasks.md
+  attempts: 2
+  canonical: statsmodels version 0.14.1
+  claim_id: c_e40489e3
+  context: 'Create file projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/requirements.txt
+    with the following content: statsmodels==0.14.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:34Z'

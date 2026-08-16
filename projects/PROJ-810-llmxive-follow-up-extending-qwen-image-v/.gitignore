@@ -2,112 +2,69 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Environments
-.env
-.venv
+# Virtual environments
 env/
 venv/
 ENV/
-env.bak/
-venv.bak/
+.venv/
+*.egg-info/
+dist/
+build/
 
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# IDE / Editor
+# IDE and Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-.DS_Store
+.project
+.classpath
 
-# Project specific data directories (generated artifacts)
+# OS generated files
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Project specific data artifacts (Raw, Interim, Processed)
+# These are large binary files and should not be committed to git
 data/raw/
 data/interim/
 data/processed/
 data/results/
 data/manual/
+!data/manual/.gitkeep
+
+# Cache directories
 code/data/cache/
+.cache/
 
 # Logs
 *.log
 logs/
 
-# Model weights and large binaries (if stored locally)
-*.pth
-*.pt
-*.bin
-models/
+# Environment variables
+.env
+.env.local
 
-# Temporary files
-tmp/
-temp/
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Testing
+.pytest_cache/
+coverage.xml
+htmlcov/
+.coverage
+.coverage.*
+
+# Misc
+*.bak
 *.tmp
+.coverage
+.mypy_cache/
+.ruff_cache/

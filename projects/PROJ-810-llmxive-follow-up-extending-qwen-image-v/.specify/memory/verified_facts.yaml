@@ -1,4 +1,4 @@
-'|alpha controlled error family less rate than wise':
+'|error family rate wise':
   quote: FWER under 0.01, 0.05 or 0.1. As a general procedure to control k-FWER (the
     probability of making
   source_id: '2310.09493'

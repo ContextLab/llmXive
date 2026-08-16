@@ -17,6 +17,19 @@ T001:
     \ PCA visualisation, permutation test statistics, or zero\u2011shot editing evaluation)\
     \ is present. The claim of completion lacks any tangible evidence, so the task\
     \ requirements are not satisfied."
+T003c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file content was provided; the conversation contains only the
+    task description and project specifications, with no artifact showing the required
+    ignore rules for Python/ML files. The required file is missing.
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration artifacts (e.g., `pyproject.toml` with\
+    \ Black and Ruff settings, `.flake8` file, or CI integration scripts) are present.\
+    \ The evidence provided only contains a high\u2011level feature specification\
+    \ unrelated to configuring ruff/flake8/black, so the required setup is missing."
 T006:
   c: false
   h: 6bc126c018eed9f03a3e8176ae2a528e353fd4bc8e017141b655638e575794cb

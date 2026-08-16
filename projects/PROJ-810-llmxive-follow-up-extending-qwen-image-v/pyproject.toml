@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,7 @@ name = "llmxive-follow-up"
 version = "0.1.0"
 description = "llmXive follow-up: extending Qwen-Image-VAE-2.0 Technical Report"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.8"
 dependencies = [
     "torch==2.2.0+cpu",
     "transformers==4.40.0",
@@ -16,30 +16,25 @@ dependencies = [
     "opencv-python-headless==4.9.0.80",
     "paddleocr==2.7.3",
     "pyyaml==6.0.1",
-    "pandas==2.2.1",
+    "pi",
     "numpy==1.26.4",
     "matplotlib==3.8.3",
     "seaborn==0.13.2",
-    "pillow==10.2.0",
     "pytest==8.1.1",
     "pytest-cov==5.0.0",
     "statsmodels==0.14.1",
-    "scipy",
-    "ruff",
-    "black",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest",
-    "pytest-cov",
-    "ruff",
-    "black",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "flake8>=6.0.0",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ['py38', 'py39', 'py310']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -57,18 +52,17 @@ exclude = '''
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py38"
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
+    "E501", # line too long (black handles this)
     "C901", # too complex
 ]
 
@@ -77,5 +71,5 @@ ignore = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["code"]
-addopts = "-v --cov=code --cov-report=term-missing --cov-report=html"
+python_files = ["test_*.py"]
+addopts = "-v --cov=code --cov-report=term-missing"
