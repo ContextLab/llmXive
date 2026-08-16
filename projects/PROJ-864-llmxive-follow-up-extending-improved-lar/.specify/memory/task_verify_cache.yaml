@@ -34,10 +34,58 @@ T013:
     \ and no code or evidence of the required streaming download, tokenization, token\u2011\
     count cutoff, or error handling is provided. The task\u2019s core artifact is\
     \ missing, so the requirement is not satisfied."
-T024:
+T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `callbacks.py` file (or its contents) was presented for the path `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`,\
-    \ and therefore there is no evidence that epoch, train_loss, val_loss, gap, time,\
-    \ and RAM are being logged as required. The implementer must supply a non\u2011\
-    empty `callbacks.py` implementing the specified logging."
+  r: "No `split_data.py` file (or its contents) was provided for the path `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/data/`,\
+    \ so we cannot confirm that the micro\u2011corpus was split into train/test with\
+    \ the required ratio and no overlap. The required artifact is missing."
+T026:
+  c: false
+  h: c1ae34d2c5f32ff7bf65e48208aaddd73820f699467e55448946b9f881ded8a1
+  r: "The required `verify_params.py` script is not shown, and the expected output\
+    \ file `data/artifacts/parameter_validation.json` does not exist, so the parameter\u2011\
+    count verification and JSON report are missing."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `compute_metrics.py` file (or any other script) is present in the indicated
+    `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/analysis/` directory,
+    and no evidence of loading `human_eval_results.json` or computing a Pearson correlation
+    is provided. The required artifact is missing, so the task is not satisfied.
+T037a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code artifact (e.g., an updated `train_loop.py` containing the required try/except\
+    \ block, logging, batch\u2011size reduction logic, and fatal\u2011error raise)\
+    \ was provided or referenced, so we cannot confirm that the OOM handling was actually\
+    \ implemented. The task remains unverified."
+T037b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `train_loop.py` file or of any refactoring that uses a context\
+    \ manager for model loading was provided; without the actual code artifact we\
+    \ cannot confirm the required change was made. The implementer must supply the\
+    \ updated `train_loop.py` showing the context\u2011manager\u2011based model loading."
+T038a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `train_loop.py` containing the described dynamic\u2011\
+    batch\u2011size logic (starting from `max_batch_size`, halving on OOM, stopping\
+    \ at <\u202F4, and logging the final batch size) was provided. The required code\
+    \ artifact is missing, so the task cannot be confirmed as completed."
+T038b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No monitoring script (`utils/monitor.py`) or modifications to `run_experiment.py`\
+    \ are provided, nor any log or measurement showing that peak RAM usage stays below\
+    \ 6.5\u202FGB. The required artifact and proof of the RAM bound are missing."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated versions of `download_micro_corpus.py` or `split_data.py` are provided,\
+    \ nor any diff, test, or description showing that input validation and path sanitization\
+    \ were added. The evidence consists only of a high\u2011level feature specification,\
+    \ which does not demonstrate that the required security hardening was implemented.\
+    \ The implementer must supply the modified scripts (or a clear patch) that include\
+    \ the new validation and sanitization logic."

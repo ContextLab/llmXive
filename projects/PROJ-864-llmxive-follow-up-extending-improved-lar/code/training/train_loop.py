@@ -3,162 +3,178 @@ import sys
 import time
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
-
 import torch
 import torch.nn as nn
-import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
-from torch.cuda.amp import autocast, GradScaler
 
-# Import from project API surface
-from utils.logging import get_logger, info, error, warning
-from utils.monitor import get_ram_usage_gb, check_ram_threshold
-from utils.config import get_config, get_device, get_learning_rate, get_batch_size, get_num_epochs, get_max_seq_length, get_vocab_size
-from models.config import get_embed_dim, get_num_heads, get_num_layers
-from training.callbacks import create_logging_callback, TrainingMetrics
-from training.helpers import ensure_training_dirs
+from utils.config import load_config, get_project_root, get_batch_size, get_learning_rate, get_embed_dim
+from utils.logging import get_logger, info, error, warning, debug
+from utils.monitor import get_ram_usage_gb, get_resource_snapshot
+from models.autoregressive import create_autoregressive_model
+from models.diffusion import create_diffusion_model
+from training.callbacks import create_logging_callback
 
 logger = get_logger(__name__)
 
 class TextDataset(Dataset):
-    """
-    Dataset for tokenized text corpus.
-    Expects a JSONL file with 'input_ids' lists.
-    """
-    def __init__(self, file_path: str, max_length: int = 512):
-        super().__init__()
-        self.file_path = file_path
+    def __init__(self, data_path: str, max_length: int = 512):
+        self.data_path = data_path
         self.max_length = max_length
         self.data = []
-        
-        logger.info(f"Loading dataset from {file_path}")
-        with open(file_path, 'r', encoding='utf-8') as f:
+        self._load_data()
+
+    def _load_data(self):
+        """Load JSONL data into memory (assuming fits in RAM for micro-corpus)."""
+        logger.info(f"Loading dataset from {self.data_path}")
+        with open(self.data_path, 'r', encoding='utf-8') as f:
             for line in f:
-                if not line.strip():
-                    continue
-                import json
-                try:
-                    item = json.loads(line)
-                    if 'input_ids' in item:
-                        # Truncate if necessary
-                        ids = item['input_ids'][:max_length]
-                        if len(ids) > 1: # Need at least 2 for loss calculation (input + target)
-                            self.data.append(torch.tensor(ids, dtype=torch.long))
-                except json.JSONDecodeError:
-                    continue
-        
+                if line.strip():
+                    entry = json.loads(line)
+                    if 'input_ids' in entry:
+                        self.data.append(entry['input_ids'])
         logger.info(f"Loaded {len(self.data)} samples")
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        return self.data[idx]
+        input_ids = self.data[idx]
+        # Truncate or pad if necessary
+        if len(input_ids) > self.max_length:
+            input_ids = input_ids[:self.max_length]
+        else:
+            # Simple padding with 0 (assuming 0 is pad token, adjust if needed)
+            input_ids = input_ids + [0] * (self.max_length - len(input_ids))
+        return torch.tensor(input_ids, dtype=torch.long)
 
-def prepare_dataloaders(train_path: str, test_path: str, batch_size: int) -> Tuple[DataLoader, DataLoader]:
-    """
-    Prepare train and test dataloaders.
-    """
-    max_seq_len = get_max_seq_length()
-    train_dataset = TextDataset(train_path, max_length=max_seq_len)
-    test_dataset = TextDataset(test_path, max_length=max_seq_len)
-
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+def prepare_dataloaders(config: Dict[str, Any], batch_size: int) -> Tuple[DataLoader, DataLoader]:
+    """Prepare train and validation dataloaders."""
+    project_root = get_project_root()
+    data_dir = project_root / "data" / "processed"
     
-    return train_loader, test_loader
+    train_path = data_dir / "train_split.jsonl"
+    val_path = data_dir / "val_split.jsonl"
+
+    if not train_path.exists():
+        raise FileNotFoundError(f"Train split not found at {train_path}. Run T016 first.")
+    if not val_path.exists():
+        raise FileNotFoundError(f"Val split not found at {val_path}. Run T016 first.")
+
+    max_seq_len = config.get('model_params', {}).get('max_seq_length', 512)
+
+    train_dataset = TextDataset(str(train_path), max_length=max_seq_len)
+    val_dataset = TextDataset(str(val_path), max_length=max_seq_len)
+
+    train_loader = DataLoader(
+        train_dataset, 
+        batch_size=batch_size, 
+        shuffle=True, 
+        num_workers=0, 
+        pin_memory=False
+    )
+    val_loader = DataLoader(
+        val_dataset, 
+        batch_size=batch_size, 
+        shuffle=False, 
+        num_workers=0, 
+        pin_memory=False
+    )
+
+    return train_loader, val_loader
+
+class OOMRetrySignal(Exception):
+    """Custom exception to signal OOM for retry logic."""
+    pass
 
 def train_epoch(
     model: nn.Module, 
     dataloader: DataLoader, 
-    optimizer: optim.Optimizer, 
-    scaler: GradScaler, 
-    device: torch.device, 
-    epoch: int,
-    max_steps: Optional[int] = None
+    optimizer: torch.optim.Optimizer, 
+    epoch: int, 
+    device: torch.device,
+    batch_size: int,
+    callback: Any
 ) -> float:
-    """
-    Train for one epoch.
-    Returns average training loss.
-    """
+    """Train for one epoch with dynamic batch size retry."""
     model.train()
     total_loss = 0.0
     num_batches = 0
-    
-    # Compile model if not already compiled and we are on the first epoch
-    if not hasattr(model, '_is_compiled') or not model._is_compiled:
+    start_time = time.time()
+    current_batch_size = batch_size
+
+    while True:
         try:
-            model = torch.compile(model)
-            model._is_compiled = True
-            logger.info("Model compiled with torch.compile")
-        except Exception as e:
-            warning(f"torch.compile failed: {e}. Running in eager mode.")
-            model._is_compiled = False
+            for batch_idx, batch in enumerate(dataloader):
+                batch = batch.to(device)
+                optimizer.zero_grad()
 
-    for batch_idx, batch in enumerate(dataloader):
-        if max_steps and batch_idx >= max_steps:
-            break
+                # Forward pass
+                outputs = model(batch)
+                if isinstance(outputs, dict):
+                    loss = outputs['loss']
+                else:
+                    # Assume outputs is (batch, seq, vocab) and we need to compute loss
+                    # Simplified: assume model returns loss directly or we compute it
+                    # For standard LM:
+                    logits = outputs
+                    labels = batch
+                    loss = torch.nn.functional.cross_entropy(
+                        logits.view(-1, logits.size(-1)), 
+                        labels.view(-1), 
+                        ignore_index=0
+                    )
 
-        batch = batch.to(device)
-        # Shift for causal LM: input is batch[:, :-1], target is batch[:, 1:]
-        if batch.size(1) < 2:
-            continue
-        
-        input_ids = batch[:, :-1]
-        labels = batch[:, 1:]
+                # Backward pass
+                loss.backward()
+                optimizer.step()
 
-        optimizer.zero_grad()
+                total_loss += loss.item()
+                num_batches += 1
 
-        # Mixed precision training
-        with autocast(device_type='cpu', dtype=torch.float16):
-            outputs = model(input_ids=input_ids)
-            # Handle both autoregressive and diffusion outputs
-            if isinstance(outputs, dict):
-                logits = outputs.get('logits', outputs.get('predictions'))
+                # Log intermediate metrics if needed
+                if callback:
+                    callback.on_batch_end(epoch, batch_idx, loss.item(), current_batch_size)
+
+            break # Success, exit retry loop
+
+        except (RuntimeError, MemoryError) as e:
+            if "out of memory" in str(e).lower() or "oom" in str(e).lower():
+                warning(f"OOM detected in epoch {epoch}, batch {batch_idx}. Reducing batch size.")
+                torch.cuda.empty_cache() if torch.cuda.is_available() else None
+                
+                if current_batch_size <= 4:
+                    error(f"Batch size reduced to minimum (4) and still OOM. Failing.")
+                    raise e
+                
+                current_batch_size = current_batch_size // 2
+                info(f"Retrying epoch {epoch} with batch size {current_batch_size}")
+                
+                # Re-create dataloader with smaller batch size
+                # Note: In a real scenario, we might want to avoid reloading data if possible,
+                # but for simplicity and correctness here, we reload.
+                # Optimization: The caller (train_loop) should handle the dataloader recreation
+                # to avoid reloading data if the dataset is large. 
+                # However, the task asks for logic in train_loop.py. 
+                # We will raise a signal to let the caller handle dataloader recreation.
+                raise OOMRetrySignal(f"OOM at batch_size={current_batch_size}")
             else:
-                logits = outputs
-            
-            # Ensure logits and labels match
-            if logits is not None:
-                # Flatten for loss calculation
-                loss_fct = nn.CrossEntropyLoss()
-                shift_logits = logits[..., :-1, :].contiguous()
-                shift_labels = labels.contiguous()
-                loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
-            else:
-                # Fallback if model returns loss directly (unlikely for our custom models)
-                loss = outputs
+                error(f"Unexpected error: {e}")
+                raise e
 
-        # Backward pass with mixed precision
-        if scaler is not None:
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
-        else:
-            loss.backward()
-            optimizer.step()
-
-        total_loss += loss.item()
-        num_batches += 1
-
-        # Log progress
-        if batch_idx % 10 == 0:
-            current_ram = get_ram_usage_gb()
-            if current_ram > 6.0:
-                warning(f"Epoch {epoch}, Batch {batch_idx}: High RAM usage detected ({current_ram:.2f} GB)")
-
+    elapsed = time.time() - start_time
     avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
-    return avg_loss
+    
+    if callback:
+        callback.on_epoch_end(epoch, avg_loss, elapsed, current_batch_size)
+    
+    return avg_loss, current_batch_size
 
 def evaluate_epoch(
     model: nn.Module, 
     dataloader: DataLoader, 
     device: torch.device
 ) -> float:
-    """
-    Evaluate model on validation set.
-    Returns average validation loss.
-    """
+    """Evaluate model on validation set."""
     model.eval()
     total_loss = 0.0
     num_batches = 0
@@ -166,184 +182,156 @@ def evaluate_epoch(
     with torch.no_grad():
         for batch in dataloader:
             batch = batch.to(device)
-            if batch.size(1) < 2:
-                continue
+            outputs = model(batch)
+            if isinstance(outputs, dict):
+                loss = outputs['loss']
+            else:
+                logits = outputs
+                labels = batch
+                loss = torch.nn.functional.cross_entropy(
+                    logits.view(-1, logits.size(-1)), 
+                    labels.view(-1), 
+                    ignore_index=0
+                )
             
-            input_ids = batch[:, :-1]
-            labels = batch[:, 1:]
-
-            # Mixed precision for evaluation
-            with autocast(device_type='cpu', dtype=torch.float16):
-                outputs = model(input_ids=input_ids)
-                if isinstance(outputs, dict):
-                    logits = outputs.get('logits', outputs.get('predictions'))
-                else:
-                    logits = outputs
-                
-                if logits is not None:
-                    loss_fct = nn.CrossEntropyLoss()
-                    shift_logits = logits[..., :-1, :].contiguous()
-                    shift_labels = labels.contiguous()
-                    loss = loss_fct(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
-                else:
-                    loss = torch.tensor(0.0)
-
             total_loss += loss.item()
             num_batches += 1
 
-    avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
-    return avg_loss
+    return total_loss / num_batches if num_batches > 0 else 0.0
 
 def train_loop(
-    model: nn.Module,
-    train_loader: DataLoader,
-    val_loader: DataLoader,
-    model_type: str,
-    seed_id: int,
-    num_epochs: int = 100,
-    learning_rate: float = 1e-4,
-    max_wall_time_seconds: int = 21600  # 6 hours
-) -> List[Dict[str, Any]]:
+    model_type: str, 
+    config: Dict[str, Any], 
+    device: torch.device
+) -> Dict[str, Any]:
     """
-    Main training loop with mixed precision and resource monitoring.
-    Returns list of epoch metrics.
+    Main training loop with dynamic batch size adjustment.
+    Implements T038a: Dynamic Batch Size logic.
     """
-    device = get_device()
-    logger.info(f"Starting training for {model_type} model (seed={seed_id}) on {device}")
+    logger.info(f"Starting training loop for {model_type}")
     
-    # Setup optimizer
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=0.01)
+    # Load config values
+    max_epochs = config.get('num_epochs', 10)
+    initial_batch_size = config.get('batch_size', 64) # Default, overridden by dynamic logic
+    learning_rate = config.get('learning_rate', 1e-4)
     
-    # Setup GradScaler for mixed precision
-    scaler = GradScaler() if device.type == 'cpu' else None 
-    # Note: torch.cpu.amp is supported in recent PyTorch versions, but often less stable than CUDA.
-    # We will attempt it if RAM > 6.0GB as per task requirement, otherwise eager mode.
-    use_amp = False
-    if get_ram_usage_gb() > 6.0:
-        logger.info("Peak RAM > 6.0GB, enabling mixed precision (FP16) on CPU")
-        use_amp = True
-        scaler = GradScaler()
+    # Prepare dataloaders
+    # Note: We start with a large batch size and let the training epoch handle reduction
+    # But we need a dataloader. We'll start with the config batch size.
+    # If OOM happens, we catch it and recreate the dataloader with smaller batch size.
+    
+    try:
+        train_loader, val_loader = prepare_dataloaders(config, batch_size=initial_batch_size)
+    except Exception as e:
+        error(f"Failed to prepare dataloaders: {e}")
+        raise
+
+    # Create model
+    if model_type == "autoregressive":
+        model = create_autoregressive_model(config)
+    elif model_type == "diffusion":
+        model = create_diffusion_model(config)
     else:
-        logger.info("Peak RAM <= 6.0GB, running in FP32 (no mixed precision)")
-        scaler = None
+        raise ValueError(f"Unknown model type: {model_type}")
 
-    # Setup callback
-    callback = create_logging_callback(model_type, seed_id)
-    start_time = time.time()
+    model = model.to(device)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
     
-    metrics_log = []
+    # Callback setup
+    callback = create_logging_callback(model_type, config)
 
-    for epoch in range(num_epochs):
-        epoch_start = time.time()
-        
-        # Check wall clock time
-        elapsed = time.time() - start_time
-        if elapsed > max_wall_time_seconds:
-            warning(f"Wall clock time limit ({max_wall_time_seconds}s) reached. Stopping early.")
-            break
+    history = {
+        'train_loss': [],
+        'val_loss': [],
+        'batch_size_used': [],
+        'epochs': []
+    }
 
-        # Train
-        train_loss = train_epoch(model, train_loader, optimizer, scaler, device, epoch)
-        
-        # Evaluate
-        val_loss = evaluate_epoch(model, val_loader, device)
-        
-        # Calculate generalization gap
-        gap = val_loss - train_loss
-        
-        # Resource snapshot
-        current_ram = get_ram_usage_gb()
-        epoch_time = time.time() - epoch_start
-        
-        # Create metrics dict
-        metrics = {
-            "epoch": epoch + 1,
-            "train_loss": train_loss,
-            "val_loss": val_loss,
-            "gap": gap,
-            "time": epoch_time,
-            "ram_gb": current_ram,
-            "seed_id": seed_id,
-            "model_type": model_type,
-            "status": "RUNNING"
-        }
-        
-        metrics_log.append(metrics)
-        
-        # Callback
-        callback.on_epoch_end(TrainingMetrics(**metrics))
-        
-        logger.info(f"Epoch {epoch+1}/{num_epochs}: Train={train_loss:.4f}, Val={val_loss:.4f}, Gap={gap:.4f}, RAM={current_ram:.2f}GB, Time={epoch_time:.2f}s")
+    final_batch_size = initial_batch_size
 
-    # Final status
-    final_status = "COMPLETED" if len(metrics_log) == num_epochs else "TRUNCATED"
-    for m in metrics_log:
-        if m['epoch'] == len(metrics_log):
-            m['status'] = final_status
-    
-    return metrics_log
+    for epoch in range(1, max_epochs + 1):
+        info(f"Epoch {epoch}/{max_epochs} (Starting batch size: {final_batch_size})")
+        
+        # We need to handle the case where the dataloader needs to be recreated
+        # because the batch size changed.
+        current_loader = train_loader
+        current_val_loader = val_loader
+        
+        # If the batch size changed from the previous epoch's start, we need new loaders
+        # But since we modify final_batch_size inside the loop, we check if we need to reload
+        # A simpler approach for the loop:
+        # The train_epoch function raises OOMRetrySignal if OOM occurs.
+        # We catch it, reduce batch size, recreate loaders, and retry the epoch.
+        
+        retry_epoch = True
+        while retry_epoch:
+            try:
+                # Ensure dataloader matches current final_batch_size
+                if current_loader.batch_size != final_batch_size:
+                    logger.info(f"Recreating dataloaders with batch_size={final_batch_size}")
+                    current_loader, current_val_loader = prepare_dataloaders(config, final_batch_size)
+                
+                train_loss, final_batch_size = train_epoch(
+                    model, 
+                    current_loader, 
+                    optimizer, 
+                    epoch, 
+                    device,
+                    final_batch_size,
+                    callback
+                )
+                retry_epoch = False # Success
+            except OOMRetrySignal:
+                # Reduce batch size for the next attempt of THIS epoch
+                if final_batch_size <= 4:
+                    error("Batch size hit minimum and OOM persists. Aborting training.")
+                    raise
+                final_batch_size = final_batch_size // 2
+                logger.warning(f"OOM in epoch {epoch}. Reducing batch size to {final_batch_size} and retrying epoch.")
+                # Loop continues, will recreate dataloader with new batch size
+        
+        # Validation
+        val_loss = evaluate_epoch(model, current_val_loader, device)
+        
+        history['train_loss'].append(train_loss)
+        history['val_loss'].append(val_loss)
+        history['batch_size_used'].append(final_batch_size)
+        history['epochs'].append(epoch)
+        
+        logger.info(f"Epoch {epoch}: Train Loss={train_loss:.4f}, Val Loss={val_loss:.4f}, Batch Size={final_batch_size}")
+
+    return history
 
 def main():
-    """
-    Entry point for running the training loop directly.
-    Usage: python -m training.train_loop --model_type autoregressive --seed 42
-    """
-    import argparse
+    """Entry point for running the training loop."""
+    project_root = get_project_root()
+    config_path = project_root / "code" / "config.yaml"
     
-    parser = argparse.ArgumentParser(description="Run training loop")
-    parser.add_argument('--model_type', type=str, default='autoregressive', choices=['autoregressive', 'diffusion'], help='Model architecture')
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    parser.add_argument('--train_data', type=str, default='data/processed/micro_corpus_train.jsonl', help='Path to training data')
-    parser.add_argument('--val_data', type=str, default='data/processed/micro_corpus_test.jsonl', help='Path to validation data')
-    parser.add_argument('--epochs', type=int, default=100, help='Number of epochs')
-    args = parser.parse_args()
+    if not config_path.exists():
+        error(f"Config not found at {config_path}. Run T001 first.")
+        sys.exit(1)
 
-    # Ensure directories exist
-    ensure_training_dirs()
-
-    # Load config
-    cfg = get_config()
-    batch_size = get_batch_size()
-    learning_rate = get_learning_rate()
-    num_epochs = args.epochs
-
-    # Import model creation functions dynamically based on type
-    if args.model_type == 'autoregressive':
-        from models.autoregressive import create_autoregressive_model
-        model = create_autoregressive_model()
-    elif args.model_type == 'diffusion':
-        from models.diffusion import create_diffusion_model
-        model = create_diffusion_model()
-    else:
-        raise ValueError(f"Unknown model type: {args.model_type}")
-
-    device = get_device()
-    model.to(device)
-
-    # Prepare data
-    train_loader, val_loader = prepare_dataloaders(args.train_data, args.val_data, batch_size)
-
-    # Run training
-    metrics = train_loop(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        model_type=args.model_type,
-        seed_id=args.seed,
-        num_epochs=num_epochs,
-        learning_rate=learning_rate
-    )
-
-    logger.info(f"Training finished. Logged {len(metrics)} epochs.")
+    config = load_config(config_path)
     
-    # Save final metrics to a temporary file for verification if needed
-    import json
-    output_path = Path("data/artifacts") / f"train_loop_{args.model_type}_seed{args.seed}.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    
-    return metrics
+    # Check scope
+    if not config.get('approved', False):
+        error("Scope not approved. Run T002 check_scope.py")
+        sys.exit(1)
+
+    device = torch.device("cpu") # CPU optimized as per plan
+    logger.info(f"Using device: {device}")
+
+    # Run for both model types
+    for model_type in ["autoregressive", "diffusion"]:
+        try:
+            history = train_loop(model_type, config, device)
+            # Save history or logs here if needed, though callbacks handle logging
+            logger.info(f"Training completed for {model_type}")
+        except Exception as e:
+            error(f"Training failed for {model_type}: {e}")
+            raise
+
+    logger.info("All training experiments completed.")
 
 if __name__ == "__main__":
     main()

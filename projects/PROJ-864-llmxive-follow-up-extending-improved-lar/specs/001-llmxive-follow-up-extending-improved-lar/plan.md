@@ -38,7 +38,7 @@ The implementation constructs the strict "Micro-Corpus", trains 10 models (5 AR,
 | **IV. Single Source of Truth** | **PASS** | All metrics (loss, gap, p-values) will be derived from `data/training_logs.csv` and `data/statistical_results.json`. |
 | **V. Versioning Discipline** | **PASS** | **Mechanism**: A dedicated step in Phase 0 and Phase 4 will compute SHA-256 hashes of all artifacts and update `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/state/projects/PROJ-864-llmxive-follow-up-extending-improved-lar.yaml` `updated_at` and `artifact_hashes` fields. |
 | **VI. Overfitting Trajectory Isolation** | **PASS** | Plan enforces identical embedding dims/heads for AR and MDM. Micro-Corpus strictly limited to 1M tokens. HumanEval excluded from training. |
-| **VII. CPU-Feasibility Constraint** | **PASS** | Training loops designed for `torch.compile` on CPU. Model size (scaled to fit 7GB RAM / 6h limit) and data size (1M) selected to fit 7GB RAM / 6h limit. |
+| **VII. CPU-Feasibility Constraint** | **PASS** | Training loops designed for `torch.compile` on CPU. Model size (scaled to fit available RAM / time limit) and data size (scaled to fit available RAM / time limit) selected to fit available RAM / time limit. |
 
 ## Project Structure
 
@@ -111,7 +111,7 @@ No violations found. The single-project structure minimizes overhead and aligns 
 **Goal**: Confirm dataset availability, statistical power, and state file mechanism.
 1.  **FR-001 / SC-001**: Identify and verify open-source datasets (Project Gutenberg, The Stack) with programmatic access. Confirm token counts and domain balance.
 2.  **FR-009 / SC-005**: Perform a priori power analysis. Calculate required sample size (seeds) to detect interaction effect with power ≥ 0.8. *Design: 5 seeds per group.*
-3.  **FR-002 / SC-002**: Verify that a model architecture of the intended scale fits in 7GB RAM (using `torch.compile` and mixed precision if necessary).
+3.  **FR-002 / SC-002**: Verify that a model architecture of the intended scale fits in available RAM (using `torch.compile` and mixed precision if necessary).
 4.  **Constitution V**: Define the script to update `state` file with content hashes.
 5.  **Deliverable**: `research.md` containing dataset strategy, power analysis, and architecture feasibility confirmation.
 
@@ -160,5 +160,5 @@ No violations found. The single-project structure minimizes overhead and aligns 
 | **Timeout (>6h)** | High | Monitor wall-clock time per epoch. If trend indicates timeout, abort and log partial results (status=TRUNCATED). |
 | **Dataset Bias** | Medium | Verify text distribution (code vs. prose) in `research.md`. If skewed, rebalance sources before tokenization. |
 | **Null Result** | Low | Plan explicitly handles null hypothesis (no interaction). A non-significant p-value is a valid scientific finding. |
-| **Spec Conflict (10M vs 1M)** | High | The spec mandates a large token corpus, but this is computationally infeasible on the 6h CPU budget. This plan implements the feasible 1M regime and flags the spec conflict for future revision. |
+| **Spec Conflict (10M vs 1M)** | High | The spec mandates a large token corpus, but this is computationally infeasible on a limited CPU budget. This plan implements the feasible 1M regime and flags the spec conflict for future revision. |
 

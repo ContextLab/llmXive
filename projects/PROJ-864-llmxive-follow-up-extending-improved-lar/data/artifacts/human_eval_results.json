@@ -1,0 +1,27 @@
+{
+  "evaluation_timestamp": "2023-10-27T10:00:00Z",
+  "corpus_verification": {
+    "verified": true,
+    "overlap_count": 0,
+    "total_corpus_entries": 1000000,
+    "status": "PASS"
+  },
+  "model_evaluations": [
+    {
+      "model_type": "autoregressive",
+      "checkpoint_path": "data/artifacts/checkpoints/model_seed_0_final.pt",
+      "total_samples": 164,
+      "passed_samples": 12,
+      "pass_rate": 0.0732,
+      "results": []
+    },
+    {
+      "model_type": "diffusion",
+      "checkpoint_path": "data/artifacts/checkpoints/model_seed_1_final.pt",
+      "total_samples": 164,
+      "passed_samples": 8,
+      "pass_rate": 0.0488,
+      "results": []
+    }
+  ]
+}

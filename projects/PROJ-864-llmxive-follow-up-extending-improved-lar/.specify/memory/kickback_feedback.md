@@ -4,11 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T010` (rejected 1x): declared artifact(s) missing/empty/invalid: projects/PROJ-864-llmxive-follow-up-extending-improved-lar/state/projects/PROJ-864-llmxive-follow-up-extending-improved-lar.yaml
-- `T016` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/micro_corpus_train.jsonl, data/processed/micro_corpus_test.jsonl
-- `T021` (rejected 1x): No `autoregressive.py` file (or any non‑empty implementation) was presented in the evidence, and there is no code content to verify that a causal LM model was implemented. The required artifact is missing, so the task is not satisfied.
-- `T022` (rejected 1x): No `diffusion.py` file (or any code) was presented for the specified path, and there is no evidence that the required bidirectional MDM implementation with large‑scale parameters and matching embedding/heads exists. The task’s core artifact is missing.
-- `T023` (rejected 1x): No `train_loop.py` file (or any code) is presented in the provided evidence, and there is no indication that an implementation using `torch.compile` on CPU exists in the specified directory. The required artifact is missing, so the task is not satisfied.
+- `T014` (rejected 1x): The required output file `data/processed/micro_corpus_full.jsonl` does not exist, and there is no evidence that `tokenize_and_stream.py` was created or executed to produce it. Without the generated JSONL corpus (or the script that creates it), the task’s core requirement is unmet.
+- `T024` (rejected 1x): No `callbacks.py` file (or its contents) was presented for the path `projects/PROJ-864-llmxive-follow-up-extending-improved-lar/code/training/`, and therefore there is no evidence that epoch, train_loss, val_loss, gap, time, and RAM are being logged as required. The implementer must supply a non‑empty `callbacks.py` implementing the specified logging.
 
 ## Required change
 

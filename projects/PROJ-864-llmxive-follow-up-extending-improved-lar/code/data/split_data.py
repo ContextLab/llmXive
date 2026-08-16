@@ -2,182 +2,158 @@ import json
 import os
 import random
 import sys
+import re
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
+import hashlib
 
-# Add project root to path to allow imports from sibling modules if needed
-# However, this script primarily uses standard library and local file I/O.
-# We ensure the path is set relative to the project root.
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-def load_jsonl(file_path: Path) -> List[Dict[str, Any]]:
-    """
-    Load a JSONL file into a list of dictionaries.
+from utils.config import load_config, get_project_root, get_processed_dir, get_data_dir
+from utils.logging import setup_logging, get_logger, info, error, warning
+
+def sanitize_filename(filename: str) -> str:
+    """Sanitize filename to prevent path traversal and invalid characters."""
+    # Remove path separators and control characters
+    filename = re.sub(r'[<>:"/\\|?*]', '', filename)
+    # Prevent path traversal
+    filename = filename.replace('..', '')
+    # Limit length
+    if len(filename) > 255:
+        base, ext = os.path.splitext(filename)
+        filename = base[:255-len(ext)] + ext
+    return filename
+
+def validate_path(path: Path, base_dir: Path, description: str = "path") -> Path:
+    """Validate that a path is within the allowed base directory."""
+    try:
+        resolved = path.resolve()
+        base_resolved = base_dir.resolve()
+        if not str(resolved).startswith(str(base_resolved)):
+            raise ValueError(f"Security Error: {description} path '{path}' is outside allowed directory '{base_dir}'")
+        return resolved
+    except (ValueError, OSError) as e:
+        error(f"Path validation failed for {description}: {e}")
+        raise
+
+def load_jsonl(input_path: Path) -> List[Dict[str, Any]]:
+    """Load a JSONL file with path validation and content sanitization."""
+    processed_dir = get_processed_dir()
+    safe_input_path = validate_path(input_path, processed_dir, "input file")
     
-    Args:
-        file_path: Path to the JSONL file.
-        
-    Returns:
-        List of dictionaries representing the lines in the file.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        json.JSONDecodeError: If a line is not valid JSON.
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(f"Input file not found: {file_path}")
+    if not safe_input_path.exists():
+        error(f"Input file not found: {safe_input_path}")
+        raise FileNotFoundError(f"Input file not found: {safe_input_path}")
     
     data = []
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(safe_input_path, 'r', encoding='utf-8') as f:
         for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
                 continue
             try:
-                data.append(json.loads(line))
+                entry = json.loads(line)
+                # Sanitize text content
+                if "text" in entry and isinstance(entry["text"], str):
+                    entry["text"] = re.sub(r'[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]', '', entry["text"])
+                # Sanitize any filename fields
+                if "filename" in entry:
+                    entry["filename"] = sanitize_filename(str(entry["filename"]))
+                data.append(entry)
             except json.JSONDecodeError as e:
-                raise json.JSONDecodeError(
-                    f"Invalid JSON at line {line_num} in {file_path}: {e.msg}",
-                    e.doc, e.pos
-                )
+                warning(f"Skipping invalid JSON at line {line_num}: {e}")
+                continue
+    
+    info(f"Loaded {len(data)} entries from {safe_input_path}")
     return data
 
-def save_jsonl(data: List[Dict[str, Any]], file_path: Path) -> None:
-    """
-    Save a list of dictionaries to a JSONL file.
+def save_jsonl(data: List[Dict[str, Any]], output_path: Path):
+    """Save data to a JSONL file with path validation."""
+    processed_dir = get_processed_dir()
+    safe_output_path = validate_path(output_path, processed_dir, "output file")
     
-    Args:
-        data: List of dictionaries to save.
-        file_path: Path to the output JSONL file.
-    """
-    # Ensure directory exists
-    file_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure parent directory exists
+    safe_output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(file_path, 'w', encoding='utf-8') as f:
-        for item in data:
-            f.write(json.dumps(item, ensure_ascii=False) + '\n')
+    with open(safe_output_path, 'w', encoding='utf-8') as f:
+        for entry in data:
+            f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+    
+    info(f"Saved {len(data)} entries to {safe_output_path}")
 
-def split_data(
-    input_file: Path, 
-    train_output: Path, 
-    test_output: Path, 
-    test_ratio: float = 0.2, 
-    seed: int = 42
-) -> Tuple[int, int]:
-    """
-    Split the input JSONL corpus into training and test sets.
+def split_data(input_path: Path, train_ratio: float = 0.8, seed: int = 42) -> Tuple[Path, Path]:
+    """Split JSONL data into train and test sets with path validation."""
+    # Validate input path
+    processed_dir = get_processed_dir()
+    safe_input_path = validate_path(input_path, processed_dir, "input file")
     
-    This function reads the entire corpus, shuffles it deterministically,
-    splits it according to the test_ratio, and writes the two parts to
-    separate files. It ensures no overlap between the sets.
-    
-    Args:
-        input_file: Path to the input JSONL file (e.g., micro_corpus_full.jsonl).
-        train_output: Path for the training set output.
-        test_output: Path for the test set output.
-        test_ratio: Fraction of data to use for testing (default 0.2).
-        seed: Random seed for reproducibility.
-        
-    Returns:
-        A tuple (train_count, test_count).
-        
-    Raises:
-        ValueError: If test_ratio is not between 0 and 1.
-        FileNotFoundError: If input_file does not exist.
-    """
-    if not 0.0 <= test_ratio <= 1.0:
-        raise ValueError(f"test_ratio must be between 0 and 1, got {test_ratio}")
-    
-    if not input_file.exists():
-        raise FileNotFoundError(f"Input corpus file not found: {input_file}")
-    
-    # Set random seed for reproducibility
-    random.seed(seed)
+    if not safe_input_path.exists():
+        error(f"Input file not found: {safe_input_path}")
+        raise FileNotFoundError(f"Input file not found: {safe_input_path}")
     
     # Load data
-    print(f"Loading data from {input_file}...")
-    data = load_jsonl(input_file)
-    total_count = len(data)
+    data = load_jsonl(safe_input_path)
     
-    if total_count == 0:
-        raise ValueError("Input corpus is empty. Cannot split.")
+    if len(data) == 0:
+        error("No data to split")
+        raise ValueError("No data to split")
+    
+    # Set seed for reproducibility
+    random.seed(seed)
     
     # Shuffle data
     random.shuffle(data)
     
     # Calculate split index
-    test_count = int(total_count * test_ratio)
-    train_count = total_count - test_count
+    split_idx = int(len(data) * train_ratio)
     
-    if test_count == 0:
-        print("Warning: test_ratio resulted in 0 test samples. Adjust ratio or data size.")
+    train_data = data[:split_idx]
+    test_data = data[split_idx:]
     
-    train_data = data[:train_count]
-    test_data = data[train_count:]
+    # Define output paths
+    train_path = processed_dir / "micro_corpus_train.jsonl"
+    test_path = processed_dir / "micro_corpus_test.jsonl"
     
-    # Ensure no overlap (sanity check)
-    assert len(set(id(x) for x in train_data)) == len(train_data), "Duplicate references in train"
-    assert len(set(id(x) for x in test_data)) == len(test_data), "Duplicate references in test"
+    # Validate output paths
+    train_path = validate_path(train_path, processed_dir, "train output")
+    test_path = validate_path(test_path, processed_dir, "test output")
     
-    # Save outputs
-    print(f"Saving {train_count} samples to {train_output}...")
-    save_jsonl(train_data, train_output)
+    # Save splits
+    save_jsonl(train_data, train_path)
+    save_jsonl(test_data, test_path)
     
-    print(f"Saving {test_count} samples to {test_output}...")
-    save_jsonl(test_data, test_output)
+    info(f"Split complete: Train={len(train_data)}, Test={len(test_data)}")
+    info(f"Train ratio: {len(train_data)/len(data):.2%}, Test ratio: {len(test_data)/len(data):.2%}")
     
-    return train_count, test_count
+    return train_path, test_path
 
 def main():
-    """
-    Main entry point for splitting the micro-corpus.
-    
-    Expects the input file at: data/processed/micro_corpus_full.jsonl
-    Outputs to:
-        data/processed/micro_corpus_train.jsonl
-        data/processed/micro_corpus_test.jsonl
-    """
-    input_path = DATA_PROCESSED_DIR / "micro_corpus_full.jsonl"
-    train_path = DATA_PROCESSED_DIR / "micro_corpus_train.jsonl"
-    test_path = DATA_PROCESSED_DIR / "micro_corpus_test.jsonl"
-    
-    # Default split: 80% train, 20% test
-    TEST_RATIO = 0.2
-    SEED = 42
-    
-    print(f"Starting data split for project: {PROJECT_ROOT}")
-    print(f"Input: {input_path}")
-    print(f"Output Train: {train_path}")
-    print(f"Output Test: {test_path}")
+    """Main entry point for data splitting."""
+    logger = setup_logging()
     
     try:
-        train_count, test_count = split_data(
-            input_file=input_path,
-            train_output=train_path,
-            test_output=test_path,
-            test_ratio=TEST_RATIO,
-            seed=SEED
-        )
-        print(f"Split complete.")
-        print(f"  Training samples: {train_count}")
-        print(f"  Test samples: {test_count}")
-        print(f"  Total: {train_count + test_count}")
+        config = load_config()
+        train_ratio = config.get("train_split_ratio", 0.8)
         
-        # Verify outputs exist and are non-empty
-        if not train_path.exists() or train_path.stat().st_size == 0:
-            raise RuntimeError("Training file was not created or is empty.")
-        if not test_path.exists() or test_path.stat().st_size == 0:
-            raise RuntimeError("Test file was not created or is empty.")
-            
-        print("Verification passed: Output files exist and are non-empty.")
+        # Validate config
+        if not isinstance(train_ratio, (int, float)) or not 0 < train_ratio < 1:
+            error(f"Invalid train_split_ratio in config: {train_ratio}")
+            sys.exit(1)
         
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        print("Ensure that T014 (tokenize_and_stream.py) has completed successfully and generated micro_corpus_full.jsonl.", file=sys.stderr)
-        sys.exit(1)
+        input_path = get_processed_dir() / "micro_corpus_full.jsonl"
+        
+        info(f"Starting data split with train ratio: {train_ratio}")
+        train_path, test_path = split_data(input_path, train_ratio)
+        
+        info(f"Data split completed successfully")
+        info(f"Train file: {train_path}")
+        info(f"Test file: {test_path}")
+        
     except Exception as e:
-        print(f"Error during split: {e}", file=sys.stderr)
+        error(f"Fatal error in split_data: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

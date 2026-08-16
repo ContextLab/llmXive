@@ -1,261 +1,208 @@
-"""
-Metrics computation module for User Story 3.
-
-Implements T031: Calculate Pearson correlation between gap slope and HumanEval score.
-"""
-
 import json
 import sys
+import math
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
 import numpy as np
-from scipy.stats import pearsonr, linregress
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    return Path(__file__).resolve().parent.parent.parent
 
-from utils.logging import get_logger, info, error, warning
-from utils.config import get_artifacts_dir
-
-logger = get_logger(__name__)
-
-
-def load_training_logs(logs_path: Optional[str] = None) -> pd.DataFrame:
+def load_training_logs(logs_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load training logs from CSV file.
-    
-    Args:
-        logs_path: Path to training_logs.csv
-        
-    Returns:
-        DataFrame with training metrics
+    Load training logs from CSV.
+    Expected columns: seed_id, model_type, epoch, train_loss, val_loss, gap, time, ram
     """
     if logs_path is None:
-        logs_path = str(get_artifacts_dir() / "training_logs.csv")
+        project_root = get_project_root()
+        logs_path = project_root / "data" / "artifacts" / "training_logs.csv"
     
-    logs_path = Path(logs_path)
     if not logs_path.exists():
         raise FileNotFoundError(f"Training logs not found at {logs_path}")
     
     df = pd.read_csv(logs_path)
     return df
 
-
-def compute_gap_slope(df: pd.DataFrame, seed_id: str, model_type: str, 
-                     early_window: int = 10) -> float:
+def compute_gap_slope(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute linear regression slope of Generalization Gap over early training window.
+    Compute the slope of the generalization gap over epochs for each seed.
+    Uses linear regression on (epoch, gap) for each (seed_id, model_type) group.
+    """
+    results = []
     
-    Args:
-        df: DataFrame with training logs
-        seed_id: Seed identifier
-        model_type: Model type (autoregressive or diffusion)
-        early_window: Number of initial epochs to consider for slope calculation
+    # Group by seed_id and model_type
+    grouped = df.groupby(['seed_id', 'model_type'])
+    
+    for (seed_id, model_type), group in grouped:
+        epochs = group['epoch'].values
+        gaps = group['gap'].values
         
-    Returns:
-        Slope of gap over time
-    """
-    subset = df[
-        (df['seed_id'] == seed_id) & 
-        (df['model_type'] == model_type)
-    ].copy()
-    
-    subset = subset.sort_values('epoch').head(early_window)
-    
-    if len(subset) < 2:
-        logger.warning(f"Insufficient data points for slope calculation: {len(subset)}")
-        return 0.0
-    
-    # Compute gap
-    subset['gap'] = subset['val_loss'] - subset['train_loss']
-    
-    # Linear regression
-    epochs = subset['epoch'].values
-    gaps = subset['gap'].values
-    
-    slope, intercept, r_value, p_value, std_err = linregress(epochs, gaps)
-    
-    return float(slope)
-
-
-def load_human_eval_results(results_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Load HumanEval benchmark results.
-    
-    Args:
-        results_path: Path to human_eval_results.json
+        # Perform simple linear regression: gap = slope * epoch + intercept
+        # Using numpy's polyfit for slope calculation
+        if len(epochs) < 2:
+            slope = 0.0
+        else:
+            slope, _ = np.polyfit(epochs, gaps, 1)
         
-    Returns:
-        Dictionary with HumanEval results
+        results.append({
+            'seed_id': seed_id,
+            'model_type': model_type,
+            'gap_slope': slope
+        })
+    
+    return pd.DataFrame(results)
+
+def load_human_eval_results(results_path: Optional[Path] = None) -> Dict[str, Any]:
+    """
+    Load HumanEval results from JSON.
+    Expected structure: {
+        "results": [
+            {
+                "seed_id": int,
+                "model_type": str,
+                "pass@1": float,
+                ...
+            },
+            ...
+        ]
+    }
     """
     if results_path is None:
-        results_path = str(get_artifacts_dir() / "human_eval_results.json")
+        project_root = get_project_root()
+        results_path = project_root / "data" / "artifacts" / "human_eval_results.json"
     
-    results_path = Path(results_path)
     if not results_path.exists():
         raise FileNotFoundError(f"HumanEval results not found at {results_path}")
     
     with open(results_path, 'r') as f:
-        return json.load(f)
+        data = json.load(f)
+    
+    return data
 
-
-def map_seed_to_human_eval_score(
-    human_eval_results: Dict[str, Any],
-    model_type: str
-) -> Dict[str, float]:
+def map_seed_to_human_eval_score(human_eval_data: Dict[str, Any]) -> pd.DataFrame:
     """
-    Map seed identifiers to HumanEval scores.
-    
-    Args:
-        human_eval_results: HumanEval results dictionary
-        model_type: Model type to filter by
-        
-    Returns:
-        Dictionary mapping seed_id to HumanEval score
+    Map seed_id and model_type to HumanEval pass@1 score.
+    Returns a DataFrame with columns: seed_id, model_type, human_eval_score
     """
-    # This is a simplified mapping - in full implementation, this would
-    # extract actual scores from model_results for each seed
-    seed_scores = {}
+    results = []
     
-    # For now, use placeholder structure
-    # In practice, each model checkpoint would have an associated seed_id and score
-    model_results = human_eval_results.get('model_results', [])
+    if 'results' in human_eval_data:
+        for entry in human_eval_data['results']:
+            results.append({
+                'seed_id': entry.get('seed_id'),
+                'model_type': entry.get('model_type'),
+                'human_eval_score': entry.get('pass@1', 0.0)
+            })
+    elif isinstance(human_eval_data, list):
+        # Handle case where results are directly in a list
+        for entry in human_eval_data:
+            results.append({
+                'seed_id': entry.get('seed_id'),
+                'model_type': entry.get('model_type'),
+                'human_eval_score': entry.get('pass@1', 0.0)
+            })
     
-    for result in model_results:
-        seed_id = result.get('seed_id')
-        score = result.get('human_eval_score', 0.0)
-        if seed_id and result.get('model_type') == model_type:
-            seed_scores[seed_id] = score
-    
-    return seed_scores
+    return pd.DataFrame(results)
 
-
-def compute_gap_correlation(
-    logs_path: Optional[str] = None,
-    human_eval_path: Optional[str] = None,
-    early_window: int = 10,
-    output_path: Optional[str] = None
-) -> Dict[str, Any]:
+def compute_gap_correlation(gap_slope_df: pd.DataFrame, human_eval_df: pd.DataFrame) -> Dict[str, Any]:
     """
     Calculate Pearson correlation between gap slope and HumanEval score.
-    
-    Implements T031: Correlation analysis for overfitting trajectories.
-    
-    Args:
-        logs_path: Path to training logs
-        human_eval_path: Path to HumanEval results
-        early_window: Epochs to use for slope calculation
-        output_path: Path to save results
-        
-    Returns:
-        Dictionary with correlation results
+    Returns a dictionary with correlation coefficient, p-value, and metadata.
     """
-    logger.info("Computing gap slope vs HumanEval score correlation")
+    # Merge the two DataFrames on seed_id and model_type
+    merged = pd.merge(
+        gap_slope_df, 
+        human_eval_df, 
+        on=['seed_id', 'model_type'], 
+        how='inner'
+    )
     
-    # Load data
-    df = load_training_logs(logs_path)
-    human_eval_results = load_human_eval_results(human_eval_path)
+    if len(merged) == 0:
+        raise ValueError("No matching seeds found between gap slopes and HumanEval results")
     
-    # Collect (slope, score) pairs
-    correlations_data = []
+    if len(merged) < 2:
+        raise ValueError("Need at least 2 data points to compute correlation")
     
-    model_types = df['model_type'].unique()
+    gap_slopes = merged['gap_slope'].values
+    human_eval_scores = merged['human_eval_score'].values
     
-    for model_type in model_types:
-        seeds = df[df['model_type'] == model_type]['seed_id'].unique()
-        
-        for seed_id in seeds:
-            try:
-                slope = compute_gap_slope(df, seed_id, model_type, early_window)
-                
-                # Get corresponding HumanEval score
-                # In full implementation, this would map seed to actual score
-                # For now, use a placeholder or skip if not available
-                score = None  # Placeholder - would be extracted from human_eval_results
-                
-                if score is not None:
-                    correlations_data.append({
-                        'seed_id': seed_id,
-                        'model_type': model_type,
-                        'gap_slope': slope,
-                        'human_eval_score': score
-                    })
-                
-            except Exception as e:
-                warning(f"Failed to compute slope for seed {seed_id}: {str(e)}")
+    # Calculate Pearson correlation
+    correlation_matrix = np.corrcoef(gap_slopes, human_eval_scores)
+    correlation = correlation_matrix[0, 1]
     
-    if len(correlations_data) < 2:
-        warning("Insufficient data points for correlation analysis")
-        results = {
-            "method": "Pearson correlation",
-            "data_points": len(correlations_data),
-            "correlation": None,
-            "p_value": None,
-            "threshold_met": False,
-            "r": None,
-            "note": "Insufficient data for correlation calculation"
-        }
+    # Calculate p-value using t-distribution
+    n = len(gap_slopes)
+    if abs(correlation) >= 1.0:
+        p_value = 0.0
     else:
-        slopes = [d['gap_slope'] for d in correlations_data]
-        scores = [d['human_eval_score'] for d in correlations_data]
-        
-        r, p_value = pearsonr(slopes, scores)
-        
-        results = {
-            "method": "Pearson correlation",
-            "data_points": len(correlations_data),
-            "correlation": float(r),
-            "p_value": float(p_value),
-            "threshold_met": abs(r) >= 0.5,
-            "r": float(r),
-            "early_window_epochs": early_window,
-            "samples": correlations_data
-        }
+        t_stat = correlation * math.sqrt((n - 2) / (1 - correlation ** 2))
+        # Two-tailed p-value approximation using scipy if available, else manual
+        try:
+            from scipy import stats
+            p_value = 2 * stats.t.sf(abs(t_stat), n - 2)
+        except ImportError:
+            # Fallback: rough approximation using error function
+            # This is a simplified version; scipy is preferred
+            p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(t_stat) / math.sqrt(2))))
     
-    # Save results
-    if output_path is None:
-        output_path = str(get_artifacts_dir() / "correlation_results.json")
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    info(f"Correlation results saved to {output_path}")
-    info(f"Correlation coefficient: {results.get('r', 'N/A')}")
-    info(f"Threshold (|r| >= 0.5) met: {results.get('threshold_met', False)}")
-    
-    return results
-
+    return {
+        'correlation': float(correlation),
+        'p_value': float(p_value),
+        'n_samples': int(n),
+        'threshold_met': abs(correlation) >= 0.5,
+        'correlation_strength': 'strong' if abs(correlation) >= 0.5 else 'weak',
+        'correlation_direction': 'positive' if correlation > 0 else 'negative',
+        'seed_ids': merged['seed_id'].tolist(),
+        'model_types': merged['model_type'].unique().tolist()
+    }
 
 def main():
-    """Main entry point for metrics computation script."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Compute gap slope vs HumanEval correlation")
-    parser.add_argument("--logs", type=str, help="Path to training_logs.csv")
-    parser.add_argument("--human-eval", type=str, help="Path to human_eval_results.json")
-    parser.add_argument("--window", type=int, default=10, help="Early training window size")
-    parser.add_argument("--output", type=str, help="Path to output JSON file")
-    
-    args = parser.parse_args()
+    """Main entry point for computing correlation metrics."""
+    project_root = get_project_root()
+    output_dir = project_root / "data" / "artifacts"
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     try:
-        results = compute_gap_correlation(
-            logs_path=args.logs,
-            human_eval_path=args.human_eval,
-            early_window=args.window,
-            output_path=args.output
-        )
+        # Load training logs
+        print("Loading training logs...")
+        logs_df = load_training_logs()
+        print(f"Loaded {len(logs_df)} log entries")
         
-        info("Correlation analysis completed")
+        # Compute gap slopes
+        print("Computing gap slopes...")
+        gap_slope_df = compute_gap_slope(logs_df)
+        print(f"Computed slopes for {len(gap_slope_df)} seed-model combinations")
+        
+        # Load HumanEval results
+        print("Loading HumanEval results...")
+        human_eval_data = load_human_eval_results()
+        
+        # Map to scores
+        print("Mapping HumanEval scores...")
+        human_eval_df = map_seed_to_human_eval_score(human_eval_data)
+        print(f"Loaded {len(human_eval_df)} HumanEval results")
+        
+        # Compute correlation
+        print("Computing Pearson correlation...")
+        correlation_results = compute_gap_correlation(gap_slope_df, human_eval_df)
+        
+        # Save results
+        output_path = output_dir / "correlation_results.json"
+        with open(output_path, 'w') as f:
+            json.dump(correlation_results, f, indent=2)
+        
+        print(f"Correlation results saved to {output_path}")
+        print(f"Correlation coefficient: {correlation_results['correlation']:.4f}")
+        print(f"P-value: {correlation_results['p_value']:.4f}")
+        print(f"Threshold met (|r| >= 0.5): {correlation_results['threshold_met']}")
+        
+        return correlation_results
         
     except Exception as e:
-        error(f"Correlation analysis failed: {str(e)}")
-        sys.exit(1)
-
+        print(f"Error computing correlation: {e}", file=sys.stderr)
+        raise
 
 if __name__ == "__main__":
     main()
