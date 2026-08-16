@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-08-16T15:53:58.098241+00:00"
+    "audited_at": "2026-08-16T16:19:24.337876+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-689-searchswarm-towards-delegation-intellige",
-  "updated_at": "2026-08-16T15:53:58.098258+00:00"
+  "updated_at": "2026-08-16T16:19:24.337890+00:00"
 }
