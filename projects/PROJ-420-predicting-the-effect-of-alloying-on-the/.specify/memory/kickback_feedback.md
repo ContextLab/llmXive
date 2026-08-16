@@ -4,9 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T014` (rejected 1x): The `clean.py` file shows no code that checks for a missing `measurement_method`, attempts inference, or calls the T016 logging utility; the file is truncated before any such logic could appear. Additionally, the required `data/logs/exclusion_log.txt` does not exist, so exclusions cannot be recorded. The task’s core functionality is therefore not implemented.
-- `T015` (rejected 1x): The repository contains a partially shown `code/data/clean.py` that ends abruptly and does not demonstrate the required final orchestration (reading the exclusion log, counting rows, halting on <50, and writing the parquet file). Moreover, the expected output files `data/logs/exclusion_log.txt` and `data/processed/alloys_clean.parquet` are absent. The task’s core requirements are therefore not satisfied.
-- `T046` (rejected 1x): The `code/cli/clean_cli.py` script exists and correctly defines the required flags, but the expected output artifact `data/processed/alloys_clean.parquet` is missing, so the task’s requirement of producing that Parquet file is not satisfied. The implementer must provide the generated Parquet file (or a valid placeholder) at the specified location.
+- `T024` (rejected 1x): The provided `code/modeling.py` does not contain any logic that creates the `models/` directory or calls `joblib.dump(model, ..., compress=3, protocol=3)` to write `rf_model.pkl`, and the expected output file `models/rf_model.pkl` is absent from the repository. Consequently the task’s serialization requirement is not satisfied.
+- `T023c` (rejected 1x): The provided `code/modeling.py` does not contain any logic that computes `cv_mae`, compares it to 0.05, sets a `mae_flag`, logs the required warning, or writes the specified JSON file. Moreover, `data/processed/model_metrics.json` is absent from the repository. Both the flagging implementation and the required output artifact are missing.
+- `T025b` (rejected 1x): The required `data/processed/model_metrics.json` file does not exist, and the provided `code/modeling.py` excerpt shows no implementation that writes a JSON with the specified schema (`cv_mae`, `test_mae`, `std_dev`, `mae_flag`, `threshold`). Consequently the task’s logging requirement is not satisfied.
 
 ## Required change
 

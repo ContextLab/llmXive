@@ -1,3 +1,19 @@
+T014:
+  c: false
+  h: 0e60aaefe86c90ac8eef2cc21946c7639f1bf00b6cbca7fde07f1b82ab39bfb5
+  r: "The provided `clean.py` does not contain any logic that checks for a missing\
+    \ or null `measurement_method`, flags such records, or logs an exclusion with\
+    \ the reason `'missing_measurement_method'`. It also never uses the `VALID_MEASUREMENT_METHODS`\
+    \ regex from `config.py`. Moreover, the required `data/logs/exclusion_log.txt`\
+    \ file is absent. The task\u2019s core requirement is therefore not satisfied."
+T015:
+  c: false
+  h: 200ac67e32f5b17cd898cb8eddc703411ed39e3635d39fd300d7a9cde18f3b4d
+  r: The repository lacks the required `data/logs/exclusion_log.txt` and the resulting
+    `data/processed/alloys_clean.parquet` files, and the provided `code/data/clean.py`
+    does not contain the final orchestration (reading the log, checking row count,
+    halting on <50, and saving the parquet). These essential outputs and logic are
+    missing.
 T016:
   c: true
   h: eaafccad8ad32f1cc7b1cefe53c0b134cca9c771fc3100e4e980f7bc34c696ef
@@ -5,44 +21,20 @@ T016:
     \ function that writes (or creates) `exclusion_log.txt` in the logs directory,\
     \ adding a CSV header if needed and appending rows in the required `step,count,reason`\
     \ format. No placeholder or stub code is present, satisfying the task\u2019s specification."
-T018:
+T019b:
   c: false
-  h: 0898ad9ccc6832c86260b967c3d3bab79758aa2e66cc436f6e2457577f45568e
-  r: "The script lacks the required handling for <\u202F50 valid entries (no warning\
-    \ log or `max_depth=5` adjustment) and the expected output file `data/processed/alloys_clean.parquet`\
-    \ is missing, indicating the pipeline did not produce the required artifact. Additionally,\
-    \ the final generic exception block is incomplete."
-T023c:
-  c: false
-  h: d6577bdb14cfef5ad26061412536d484212685ab047e94c30a07dac9ca1af1b2
-  r: The provided `code/modeling.py` snippet computes `cv_mae` but does not contain
-    any conditional check, warning log, or code to write a flag to `data/processed/model_metrics.json`.
-    Moreover, the required `data/processed/model_metrics.json` file is absent. Both
-    the flagging behavior and the output artifact are missing.
-T024:
-  c: false
-  h: 4b40af452d619f87692da7b01ab4393b0e920c0eccd1eef7349b61f758041f4e
-  r: "The provided `code/modeling.py` does not contain any logic that creates the\
-    \ `models/` directory or calls `joblib.dump` to save a trained model, and the\
-    \ expected output file `models/rf_model.pkl` is absent from the repository. Consequently,\
-    \ the task\u2019s serialization requirement is not satisfied."
-T025b:
-  c: false
-  h: d6577bdb14cfef5ad26061412536d484212685ab047e94c30a07dac9ca1af1b2
+  h: 285e3d549c1962bebebfff93a3c97c4a990abbb8149d79579515e58e1c042a0a
   r: "The repository lacks the required `data/processed/model_metrics.json` file,\
-    \ and the shown portion of `code/modeling.py` does not contain any logic that\
-    \ writes a JSON file with the schema `{'cv_mae': float, 'test_mae': float, 'std_dev':\
-    \ float, 'mae_flag': bool}`. Consequently, the task\u2019s output artifact and\
-    \ logging behavior are missing."
+    \ and the provided excerpt of `code/modeling.py` does not show any implementation\
+    \ that computes a test\u2011set MAE and appends it to that JSON file. Both the\
+    \ output artifact and the necessary code behavior are missing."
 T027a:
   c: false
-  h: f3c94604e8898753205112e51645b2061ad3d15b5dc941c4bb6ffa0e05f95606
-  r: "The repository contains a `run_permutation_importance` function, but it writes\
-    \ results to `results/permutation_importance.json`, not to `results/feature_importance.json`\
-    \ as required, and the expected `results/feature_importance.json` file is missing.\
-    \ Additionally, there is no implementation or documentation of the SHAP\u2011\
-    based back\u2011transformation mentioned in the task. The required artifact (ILR\u2011\
-    space permutation importance saved to `results/feature_importance.json`) is absent."
+  h: 0501cba41e69dc2ce0adabaf4d54c53368720550fd84181a4d3c34847ecd3292
+  r: "The required output file `results/feature_importance.json` does not exist, and\
+    \ the shown portion of `code/analysis.py` does not demonstrate that the saved\
+    \ JSON includes the mandated schema (`element_importance`, `shap_summary`, `deviation_record`).\
+    \ The implementation therefore fails to meet the task\u2019s output requirement."
 T027b:
   c: false
   h: a9b037a9e5efb3c1402c381348a67da10e8670358e3fb5accd874eb351dd68fa
@@ -69,3 +61,10 @@ T045:
     Additionally, `docs/quickstart.md` does not reference this CLI entry point, contradicting
     the requirement that it be callable as documented. The missing `_download_logic.py`
     file and incorrect import prevent the task from being genuinely completed.
+T046:
+  c: false
+  h: 3edd0279006420d2ece35aa54d04cbcc311866f5c30dc30fa2b0e23eb6d372db
+  r: The `code/cli/clean_cli.py` script is present and correctly defines the required
+    argparse flags, but the expected output artifact `data/processed/alloys_clean.parquet`
+    does not exist on disk. The task is not satisfied until the cleaning pipeline
+    actually generates this Parquet file at the specified location.

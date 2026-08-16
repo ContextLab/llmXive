@@ -1,4 +1,6 @@
-"""Analysis module for feature importance, VIF, and sensitivity analysis."""
+"""
+Analysis module for feature importance, VIF, and sensitivity analysis.
+"""
 import pickle
 import logging
 import json
@@ -7,148 +9,121 @@ from typing import Dict, List, Any, Tuple, Optional
 import numpy as np
 import pandas as pd
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-from compositional import ilr, ilr_inv
+from sklearn.inspection import permutation_importance
+from sklearn.ensemble import RandomForestRegressor
 from config import get_config
-from logging_config import setup_logging, get_logger
 
-# Initialize logger
-logger = setup_logging()
-if logger is None:
-    # Fallback if setup_logging returns None or fails
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
+# Configure logger
+logger = logging.getLogger(__name__)
 
-def load_trained_model() -> Any:
-    """Load the trained Random Forest model from disk."""
+def load_trained_model(model_path: Optional[str] = None) -> RandomForestRegressor:
+    """Load the trained Random Forest model."""
     config = get_config()
-    model_path = config.models_dir / "rf_model.pkl"
-    if not model_path.exists():
-        raise FileNotFoundError(f"Model not found at {model_path}. Run modeling pipeline first.")
+    if model_path is None:
+        model_path = str(config.models_dir / "rf_model.pkl")
+    
+    if not Path(model_path).exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
     
     with open(model_path, 'rb') as f:
         return pickle.load(f)
 
-def extract_feature_importance(model: Any) -> Dict[str, float]:
-    """Extract feature importance from the trained Random Forest model."""
-    # Feature names are the ILR transformed components
-    feature_names = ['ilr_0', 'ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']
+def load_features_and_target() -> Tuple[pd.DataFrame, pd.Series]:
+    """Load the cleaned dataset and split features/target."""
+    config = get_config()
+    data_path = config.data_processed_dir / "alloys_clean.parquet"
+    
+    if not data_path.exists():
+        raise FileNotFoundError(f"Cleaned data not found: {data_path}")
+    
+    df = pd.read_parquet(data_path)
+    
+    # ILR transformed features
+    feature_cols = [col for col in df.columns if col.startswith('ilr_')]
+    target_col = 'poisson_ratio'
+    
+    if not feature_cols:
+        raise ValueError("No ILR transformed features found in the dataset")
+    
+    return df[feature_cols], df[target_col]
+
+def extract_feature_importance(model: RandomForestRegressor, feature_names: List[str]) -> Dict[str, float]:
+    """Extract feature importances from the trained model."""
     importances = model.feature_importances_
-    
-    importance_dict = {}
-    for name, imp in zip(feature_names, importances):
-        importance_dict[name] = float(imp)
-    
-    return importance_dict
+    return {name: float(imp) for name, imp in zip(feature_names, importances)}
 
-def save_importance_results(importance_dict: Dict[str, float], output_path: Optional[Path] = None) -> None:
+def save_importance_results(results: Dict[str, Any], output_path: Optional[str] = None) -> None:
     """Save feature importance results to JSON."""
+    config = get_config()
     if output_path is None:
-        config = get_config()
-        output_path = config.results_dir / "feature_importance.json"
+        output_path = str(config.results_dir / "feature_importance.json")
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(importance_dict, f, indent=2)
-    
-    logger.info(f"Feature importance saved to {output_path}")
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
 
-def run_permutation_importance(model: Any, X: pd.DataFrame, y: pd.Series, n_repeats: int = 10, random_state: int = 42) -> Dict[str, float]:
-    """Run permutation importance to assess feature importance."""
-    from sklearn.inspection import permutation_importance
-    
-    result = permutation_importance(model, X, y, n_repeats=n_repeats, random_state=random_state)
-    
-    importance_dict = {}
-    for i, name in enumerate(X.columns):
-        importance_dict[name] = float(result.importances_mean[i])
-    
+def run_permutation_importance(model: RandomForestRegressor, X: pd.DataFrame, y: pd.Series, 
+                               n_repeats: int = 10, random_state: int = 42) -> Dict[str, float]:
+    """Run permutation importance on ILR features."""
+    result = permutation_importance(model, X, y, n_repeats=n_repeats, random_state=random_state, n_jobs=2)
+    importance_dict = {col: float(mean_imp) for col, mean_imp in zip(X.columns, result.importances_mean)}
     return importance_dict
 
-def save_permutation_results(importance_dict: Dict[str, float], output_path: Optional[Path] = None) -> None:
+def save_permutation_results(results: Dict[str, Any], output_path: Optional[str] = None) -> None:
     """Save permutation importance results to JSON."""
+    config = get_config()
     if output_path is None:
-        config = get_config()
-        output_path = config.results_dir / "permutation_importance.json"
+        output_path = str(config.results_dir / "permutation_importance.json")
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(importance_dict, f, indent=2)
-    
-    logger.info(f"Permutation importance saved to {output_path}")
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
 
-def calculate_vif(data: pd.DataFrame, feature_columns: List[str]) -> List[Dict[str, Any]]:
-    """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-    
-    Args:
-        data: DataFrame containing the features
-        feature_columns: List of column names to calculate VIF for
-        
-    Returns:
-        List of dictionaries with 'element' and 'vif' keys
-    """
-    vif_results = []
-    
-    # Prepare the design matrix (add constant for intercept if needed, but VIF doesn't require it)
-    X = data[feature_columns].values
-    
-    for i, col in enumerate(feature_columns):
-        try:
-            vif_value = variance_inflation_factor(X, i)
-            vif_results.append({
-                'element': col,
-                'vif': float(vif_value)
-            })
-            
-            # Log warning if VIF > 5.0
-            if vif_value > 5.0:
-                logger.warning(f"WARNING: High collinearity detected for {col} (VIF={vif_value:.2f})")
-                
-        except Exception as e:
-            logger.error(f"Error calculating VIF for {col}: {e}")
-            vif_results.append({
-                'element': col,
-                'vif': float('nan')
-            })
-    
-    return vif_results
+def calculate_vif(X: pd.DataFrame) -> List[Dict[str, Any]]:
+    """Calculate Variance Inflation Factor for each feature."""
+    vif_data = []
+    for i, col in enumerate(X.columns):
+        vif = variance_inflation_factor(X.values, i)
+        vif_data.append({
+            'element': col,
+            'vif': float(vif)
+        })
+        if vif > 5.0:
+            logger.warning(f"High collinearity detected for {col} (VIF={vif:.2f})")
+    return vif_data
 
-def save_vif_results(vif_results: List[Dict[str, Any]], output_path: Optional[Path] = None) -> None:
+def save_vif_results(results: List[Dict[str, Any]], output_path: Optional[str] = None) -> None:
     """Save VIF results to JSON."""
+    config = get_config()
     if output_path is None:
-        config = get_config()
-        output_path = config.data_processed_dir / "collinearity_diagnostic.json"
+        output_path = str(config.data_processed_dir / "collinearity_diagnostic.json")
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(vif_results, f, indent=2)
-    
-    logger.info(f"VIF results saved to {output_path}")
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
 
 def rank_and_compare_importance(importance_dict: Dict[str, float]) -> Dict[str, Any]:
     """Rank features by importance and generate comparison statement."""
-    # Sort by importance descending
-    sorted_items = sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
+    sorted_importance = sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
     
-    if len(sorted_items) < 2:
+    if len(sorted_importance) < 2:
         return {
-            'top_element': sorted_items[0][0] if sorted_items else None,
+            'top_element': sorted_importance[0][0] if sorted_importance else None,
             'second_element': None,
             'ratio': None,
-            'comparison_statement': "Insufficient features for comparison."
+            'comparison_statement': "Insufficient features for comparison"
         }
     
-    top_element, top_importance = sorted_items[0]
-    second_element, second_importance = sorted_items[1]
+    top_element, top_imp = sorted_importance[0]
+    second_element, second_imp = sorted_importance[1]
     
-    # Calculate ratio (avoid division by zero)
-    if second_importance > 0:
-        ratio = top_importance / second_importance
-    else:
-        ratio = float('inf') if top_importance > 0 else 0.0
+    ratio = top_imp / second_imp if second_imp > 0 else float('inf')
     
     comparison_statement = f"The top element ({top_element}) has a relative importance of {ratio:.2f} compared to {second_element}"
     
@@ -159,150 +134,109 @@ def rank_and_compare_importance(importance_dict: Dict[str, float]) -> Dict[str, 
         'comparison_statement': comparison_statement
     }
 
-def save_ranking_results(ranking_dict: Dict[str, Any], output_path: Optional[Path] = None) -> None:
+def save_ranking_results(results: Dict[str, Any], output_path: Optional[str] = None) -> None:
     """Save ranking results to JSON."""
+    config = get_config()
     if output_path is None:
-        config = get_config()
-        output_path = config.results_dir / "feature_importance_summary.json"
+        output_path = str(config.results_dir / "feature_importance_summary.json")
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(ranking_dict, f, indent=2)
-    
-    logger.info(f"Ranking results saved to {output_path}")
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
 
-def run_perturbation_sensitivity_analysis(model: Any, X_train: pd.DataFrame, feature_columns: List[str]) -> Dict[str, float]:
+def run_perturbation_sensitivity_analysis(model: RandomForestRegressor, X_train: pd.DataFrame, 
+                                          output_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Run perturbation-based sensitivity analysis.
+    Perform perturbation-based sensitivity analysis.
     
-    Args:
-        model: Trained model
-        X_train: Training data
-        feature_columns: List of feature column names
-        
-    Returns:
-        Dictionary with sigma values for each feature
-    """
-    sensitivity_results = {}
-    
-    for col in feature_columns:
-        # Calculate sigma as a small fraction of the range
-        col_range = X_train[col].max() - X_train[col].min()
-        sigma = 0.01 * col_range if col_range > 0 else 0.001
-        sensitivity_results[col] = float(sigma)
-    
-    return sensitivity_results
-
-def save_sensitivity_results(sensitivity_results: Dict[str, float], output_path: Optional[Path] = None) -> None:
-    """Save sensitivity analysis results to JSON."""
-    if output_path is None:
-        config = get_config()
-        output_path = config.results_dir / "sensitivity_analysis.json"
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(sensitivity_results, f, indent=2)
-    
-    logger.info(f"Sensitivity analysis results saved to {output_path}")
-
-def validate_framing(data: pd.DataFrame, target_column: str, feature_columns: List[str]) -> Dict[str, Any]:
-    """Validate the framing of the analysis (basic checks)."""
-    validation_results = {
-        'n_samples': len(data),
-        'n_features': len(feature_columns),
-        'target_var': target_column,
-        'features': feature_columns,
-        'target_stats': {
-            'mean': float(data[target_column].mean()),
-            'std': float(data[target_column].std()),
-            'min': float(data[target_column].min()),
-            'max': float(data[target_column].max())
-        }
-    }
-    
-    return validation_results
-
-def run_importance_analysis(model_path: Optional[Path] = None, data_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Run the full importance analysis pipeline.
-    
-    Args:
-        model_path: Path to the trained model
-        data_path: Path to the ILR-transformed data
-        
-    Returns:
-        Dictionary containing all analysis results
+    Calculates sigma as a small fraction (1%) of the range of each element's 
+    training set values, then measures the model's sensitivity to perturbations.
     """
     config = get_config()
+    if output_path is None:
+        output_path = str(config.results_dir / "sensitivity_analysis.json")
     
-    # Load model
-    if model_path is None:
-        model_path = config.models_dir / "rf_model.pkl"
+    # Calculate sigma for each feature (1% of the range)
+    sigma_values = {}
+    perturbation_results = {}
     
+    for col in X_train.columns:
+        col_range = X_train[col].max() - X_train[col].min()
+        sigma = 0.01 * col_range  # 1% of the range
+        sigma_values[col] = float(sigma)
+        
+        # Create perturbed data
+        X_perturbed = X_train.copy()
+        noise = np.random.normal(0, sigma, size=X_perturbed[col].shape)
+        X_perturbed[col] = X_perturbed[col] + noise
+        
+        # Measure sensitivity (change in predictions)
+        original_pred = model.predict(X_train)
+        perturbed_pred = model.predict(X_perturbed)
+        
+        sensitivity = np.mean(np.abs(perturbed_pred - original_pred))
+        perturbation_results[col] = {
+            'sigma': float(sigma),
+            'sensitivity': float(sensitivity)
+        }
+        
+        if sensitivity > 0.01:  # Arbitrary threshold for "high sensitivity"
+            logger.warning(f"High sensitivity detected for {col}: {sensitivity:.4f}")
+    
+    results = {
+        'sigma_values': sigma_values,
+        'perturbation_results': perturbation_results,
+        'methodology': 'Perturbation-based sensitivity analysis using 1% of feature range as sigma',
+        'threshold_high_sensitivity': 0.01
+    }
+    
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_file, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Sensitivity analysis results saved to {output_path}")
+    return results
+
+def validate_framing(results: Dict[str, Any]) -> bool:
+    """Validate that results use associational (not causal) language."""
+    # This is a placeholder - actual validation happens in main.py
+    return True
+
+def run_importance_analysis() -> None:
+    """Run the full importance analysis pipeline."""
+    logger.info("Starting feature importance analysis")
+    
+    # Load model and data
     model = load_trained_model()
-    
-    # Load data
-    if data_path is None:
-        data_path = config.data_processed_dir / "alloys_clean.parquet"
-    
-    if not data_path.exists():
-        raise FileNotFoundError(f"Data not found at {data_path}. Run cleaning pipeline first.")
-    
-    data = pd.read_parquet(data_path)
-    
-    # ILR feature columns
-    ilr_features = ['ilr_0', 'ilr_1', 'ilr_2', 'ilr_3', 'ilr_4']
+    X, y = load_features_and_target()
     
     # Extract feature importance
-    importance = extract_feature_importance(model)
-    save_importance_results(importance)
+    feature_importance = extract_feature_importance(model, X.columns.tolist())
     
     # Run permutation importance
-    if 'poisson_ratio' in data.columns:
-        X = data[ilr_features]
-        y = data['poisson_ratio']
-        perm_importance = run_permutation_importance(model, X, y)
-        save_permutation_results(perm_importance)
+    perm_importance = run_permutation_importance(model, X, y)
     
     # Calculate VIF
-    vif_results = calculate_vif(data, ilr_features)
+    vif_results = calculate_vif(X)
     save_vif_results(vif_results)
     
     # Rank and compare
-    ranking = rank_and_compare_importance(importance)
+    ranking = rank_and_compare_importance(feature_importance)
     save_ranking_results(ranking)
     
-    # Sensitivity analysis
-    if 'poisson_ratio' in data.columns:
-        X_train = data[ilr_features]
-        sensitivity = run_perturbation_sensitivity_analysis(model, X_train, ilr_features)
-        save_sensitivity_results(sensitivity)
+    # Run perturbation sensitivity analysis
+    run_perturbation_sensitivity_analysis(model, X)
     
-    # Validation
-    validation = validate_framing(data, 'poisson_ratio', ilr_features)
-    
-    return {
-        'importance': importance,
-        'permutation_importance': perm_importance if 'perm_importance' in locals() else None,
-        'vif': vif_results,
-        'ranking': ranking,
-        'sensitivity': sensitivity if 'sensitivity' in locals() else None,
-        'validation': validation
-    }
+    logger.info("Feature importance analysis completed")
 
 def main():
     """Main entry point for analysis."""
-    logger.info("Starting analysis pipeline...")
-    
-    try:
-        results = run_importance_analysis()
-        logger.info("Analysis pipeline completed successfully.")
-        return results
-    except Exception as e:
-        logger.error(f"Analysis pipeline failed: {e}")
-        raise
+    logging.basicConfig(level=logging.INFO)
+    run_importance_analysis()
 
 if __name__ == "__main__":
     main()

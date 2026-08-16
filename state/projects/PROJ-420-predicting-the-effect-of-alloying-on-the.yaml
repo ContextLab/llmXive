@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-420-predicting-the-effect-of-alloying-on-the
-last_run_id: f57ec778-1142-44db-b071-c5606a8b2ba2
+last_run_id: 546de219-600b-4f3d-8096-8378004ef07f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the
 title: Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys
-updated_at: '2026-08-14T04:46:47.164589Z'
+updated_at: '2026-08-16T04:53:07.372027Z'

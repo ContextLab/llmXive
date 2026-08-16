@@ -164,7 +164,7 @@ projects/PROJ-420-predicting-the-effect-of-alloying-on-the/
 3.  **T2.3: Evaluate Model** (`code/modeling.py`)
     *   Compute test-set MAE.
     *   **Metric**: Compare MAE to standard deviation of target (SC-002).
-    *   **Note**: No arbitrary 0.05 threshold is used.
+    *   **Note**: No arbitrary significance threshold is used.
     *   Output: `data/processed/model_metrics.json`.
 4.  **T2.4: Feature Importance** (`code/analysis.py`)
     *   Compute Permutation Importance in ILR space.

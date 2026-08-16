@@ -20,23 +20,23 @@ def main():
     
     # Setup logging
     logger = setup_logging(level=args.log_level)
-    logger.info("Starting cleaning CLI")
+    logger.log("cleaning_cli_start", level=args.log_level)
     
     input_path = Path(args.input)
     output_path = Path(args.output)
     
     if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
+        logger.log("input_not_found", path=str(input_path))
         sys.exit(1)
     
     try:
         run_cleaning_pipeline(input_path, output_path)
-        logger.info("Cleaning pipeline completed successfully")
+        logger.log("cleaning_pipeline_completed", output=str(output_path))
     except SystemExit as e:
         if e.code != 0:
             sys.exit(e.code)
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        logger.log("pipeline_failed", error=str(e))
         sys.exit(1)
 
 if __name__ == "__main__":

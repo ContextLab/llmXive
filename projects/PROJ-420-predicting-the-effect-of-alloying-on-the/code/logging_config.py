@@ -3,11 +3,10 @@ from __future__ import annotations
 
 import functools
 import json
-import logging
-import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
+
 
 @dataclass
 class LogEntry:
@@ -30,8 +29,6 @@ class ReproducibilityLogger:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
-        # Store the raw level argument if passed
-        self.level = kwargs.get("level", "INFO")
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
@@ -75,55 +72,18 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
 
-
-class JSONFormatter(logging.Formatter):
-    def format(self, record):
-        return json.dumps({
-            "level": record.levelname,
-            "message": record.getMessage(),
-            "timestamp": datetime.utcnow().isoformat()
-        })
-
-
-def setup_logging(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Setup logging. Accepts any signature used by callers:
-       - setup_logging()
-       - setup_logging(level="INFO")
-       - setup_logging(config)
-       - setup_logging(log_level="INFO")
-    Returns a ReproducibilityLogger.
+def setup_logging(*args: Any, level: Any = None, log_level: Any = None, **kwargs: Any) -> ReproducibilityLogger:
     """
-    global _GLOBAL_LOGGER
-    
-    # Extract level from various possible argument names
-    level = None
-    if 'level' in kwargs:
-        level = kwargs['level']
-    elif 'log_level' in kwargs:
-        level = kwargs['log_level']
-    elif args and isinstance(args[0], str):
-        level = args[0]
-    elif args and hasattr(args[0], 'level'):
-        level = args[0].level
-    
-    if level is None:
-        level = "INFO"
-    
-    if _GLOBAL_LOGGER is None:
-        _GLOBAL_LOGGER = ReproducibilityLogger(level=level)
-    
-    # Configure the standard logging module if needed for file output
-    root_logger = logging.getLogger()
-    if not root_logger.handlers:
-        handler = logging.StreamHandler()
-        handler.setFormatter(JSONFormatter())
-        root_logger.addHandler(handler)
-        root_logger.setLevel(level)
-    
-    return _GLOBAL_LOGGER
+    Setup logging. Tolerant of various call signatures.
+    Accepts:
+      - setup_logging()
+      - setup_logging(level="INFO")
+      - setup_logging(log_level="INFO")
+      - setup_logging(config)
+    """
+    logger = get_logger(*args, **kwargs)
+    return logger
 
-
-def log_with_extra(msg: str, **kwargs: Any) -> None:
-    """Log a message with extra context."""
-    logger = get_logger()
-    logger.log(msg, **kwargs)
+def log_with_extra(*args: Any, **kwargs: Any) -> None:
+    """Tolerant logging with extra parameters."""
+    log_operation(*args, **kwargs)
