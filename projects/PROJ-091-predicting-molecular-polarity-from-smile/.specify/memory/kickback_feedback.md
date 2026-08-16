@@ -4,11 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T018` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/descriptors.parquet
-- `T019` (rejected 1x): The `code/main.py` only defines the validation functions and the file ends abruptly (e.g., `missing = r`), so the runtime assertions are not fully implemented nor invoked. Moreover, the required `data/processed/descriptors.parquet` file is absent, so the validation of its existence and contents cannot succeed. The task’s requirement is therefore not satisfied.
-- `T032` (rejected 1x): The `code/models/interpret.py` file is present but its content is cut off (ends mid‑line) and thus does not constitute a complete implementation. Moreover, the required input `data/processed/descriptors.parquet` is missing entirely, so the module cannot perform the intended Cluster‑Aware SHAP analysis. Both the script and the necessary data artifact need to be provided/fixed.
-- `T034a` (rejected 1x): No artifact (e.g., script, notebook, data file, or result table) showing the computed Jaccard similarity of top feature clusters across multiple bootstrap resamples is present; the claim provides only a description without any concrete output. The required evidence is missing.
-- `T034b` (rejected 1x): The submission provides no code, data, or results showing that Jaccard similarity of top SHAP features across bootstrap resamples was computed; there is no artifact (script, output file, or figure) demonstrating compliance with spec SC‑003. Consequently the required deliverable is missing.
+- `T035` (rejected 1x): No stability report, Jaccard scores, or log files are present in the provided evidence; the implementer supplied no artifact demonstrating that Jaccard ≥ 0.7 was verified or that failures would be logged for either cluster or individual metrics. The required output is missing.
+- `T036` (rejected 1x): No SHAP summary plot, feature‑importance report, or any files distinguishing collinear clusters were supplied. The implementer’s response contains only the task description and project context, without the required visual or data artifacts, so the requirement is not met.
+- `T037` (rejected 1x): No files, plots, reports, or SHAP value outputs were presented, and there is no evidence that anything was saved to `data/processed/analysis/`. The required analysis artifacts are missing, so the task is not satisfied.
+- `T038a` (rejected 1x): No updated README.md file was presented; the claim provides no evidence of added usage examples or installation instructions, so the required artifact is missing.
 
 ## Required change
 

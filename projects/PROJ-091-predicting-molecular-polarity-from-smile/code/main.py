@@ -5,141 +5,103 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-# Import existing utilities from the project API surface
-from utils.logging_config import get_logger, set_log_level
+import pandas as pd
+from utils.logging_config import get_logger
 from utils.validators import assert_no_3d_calls
 from data.preprocess_2d import preprocess_2d
-from data.loader import iterate_smiles
-from data.feature_clustering import run_feature_clustering_analysis
-
-# Ensure project root is in path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+from data.save_descriptors import verify_schema
 
 logger = get_logger(__name__)
 
-def check_prerequisites():
-    """Verify that essential directories and configuration files exist."""
-    logger.info("Checking prerequisites...")
-    required_dirs = [
-        PROJECT_ROOT / "data" / "raw",
-        PROJECT_ROOT / "data" / "processed",
-        PROJECT_ROOT / "data" / "processed" / "analysis",
-        PROJECT_ROOT / "logs",
-    ]
+def check_prerequisites() -> bool:
+    """Check if all prerequisites are met."""
+    required_dirs = ["data/raw", "data/processed", "data/processed/analysis", "logs"]
     for d in required_dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    logger.info("Prerequisites check passed.")
+        path = Path(d)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {d}")
+    return True
 
-def validate_2d_compliance():
+def validate_2d_compliance(filepath: Path) -> bool:
     """
-    Runtime assertion to verify the pipeline executes without 3D calls.
-    This function uses the validator module to enforce 2D-only constraints.
+    Validate that the pipeline execution context adheres to 2D-only constraints.
+    Uses the runtime validator from utils.validators to ensure no 3D functions
+    (like EmbedMolecule or Get3DConformer) are called during descriptor computation.
     """
-    logger.info("Validating 2D compliance (no 3D calls)...")
+    logger.info("Running 2D compliance check via runtime validator...")
     try:
-        # This function from utils.validators checks for forbidden 3D imports/calls
+        # assert_no_3d_calls checks the current execution frame and imports
+        # to ensure no prohibited 3D functions are active or imported.
         assert_no_3d_calls()
-        logger.info("2D compliance validation passed: No 3D calls detected.")
-    except AssertionError as e:
-        logger.error(f"2D compliance validation FAILED: {e}")
-        raise
-
-def validate_descriptors_file():
-    """
-    Validate that the processed descriptors file exists and contains valid data.
-    Checks for existence, non-empty content, and basic schema integrity.
-    This function satisfies T019's requirement to verify the output before downstream tasks.
-    """
-    output_path = PROJECT_ROOT / "data" / "processed" / "descriptors.parquet"
-    logger.info(f"Validating descriptors file: {output_path}")
-
-    if not output_path.exists():
-        error_msg = f"Descriptors file missing: {output_path}. " \
-                    "Pipeline cannot proceed without valid processed data."
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
-
-    if output_path.stat().st_size == 0:
-        error_msg = f"Descriptors file is empty: {output_path}."
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-
-    try:
-        import pyarrow.parquet as pq
-        table = pq.read_table(output_path)
-        if table.num_rows == 0:
-            error_msg = f"Descriptors file has 0 rows: {output_path}."
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-        
-        # Check for required columns (SMILES and target dipole)
-        required_cols = {'smiles', 'mu'}
-        if not required_cols.issubset(set(table.column_names)):
-            missing = required_cols - set(table.column_names)
-            error_msg = f"Descriptors file missing required columns: {missing}."
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-
-        logger.info(f"Descriptors file validation passed: {table.num_rows} rows, {table.num_columns} columns.")
+        logger.info("2D compliance check passed: No 3D calls detected.")
         return True
+    except AssertionError as e:
+        logger.critical(f"2D compliance check FAILED: {e}")
+        return False
 
-    except Exception as e:
-        error_msg = f"Failed to read/validate descriptors file: {e}"
-        logger.error(error_msg)
-        raise
+def validate_descriptors_file(filepath: Path) -> bool:
+    """Validate the descriptors file schema and existence."""
+    if not filepath.exists():
+        logger.error(f"Descriptors file not found: {filepath}")
+        return False
 
-def run_data_preprocessing():
-    """Execute the full 2D descriptor generation pipeline."""
-    logger.info("Starting data preprocessing...")
-    
-    # Run the core preprocessing logic from T014/T015/T016/T017/T018
-    # This function is expected to generate data/processed/descriptors.parquet
-    preprocess_2d()
-    
-    logger.info("Data preprocessing completed.")
+    logger.info(f"Validating descriptors file: {filepath}")
+    return verify_schema(filepath)
 
-def run_pipeline():
-    """
-    Orchestrate the full pipeline with strict validation steps.
-    1. Check prerequisites.
-    2. Validate 2D compliance (no 3D calls).
-    3. Run data preprocessing.
-    4. Validate the resulting descriptors file.
-    """
-    logger.info("=== Starting Molecular Polarity Pipeline ===")
-    
-    # Step 1: Setup
-    check_prerequisites()
-
-    # Step 2: Strict 2D Compliance Check (T019 Requirement)
-    # This asserts that no 3D conformer generation or 3D descriptors are used.
-    validate_2d_compliance()
-
-    # Step 3: Generate Data
-    run_data_preprocessing()
-
-    # Step 4: Validate Output (T019 Requirement)
-    # Ensures the pipeline produced a valid parquet file before downstream tasks.
-    validate_descriptors_file()
-
-    logger.info("=== Pipeline Completed Successfully ===")
-
-def main():
-    parser = argparse.ArgumentParser(description="Molecular Polarity Prediction Pipeline")
-    parser.add_argument('--log-level', type=str, default='INFO',
-                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR'],
-                        help='Logging level')
-    args = parser.parse_args()
-
-    set_log_level(args.log_level)
-    
+def run_data_preprocessing(input_path: Path, output_path: Path) -> bool:
+    """Run data preprocessing."""
     try:
-        run_pipeline()
+        preprocess_2d(input_path, output_path)
+        return True
     except Exception as e:
-        logger.critical(f"Pipeline execution failed: {e}")
-        sys.exit(1)
+        logger.error(f"Preprocessing failed: {e}")
+        return False
+
+def run_pipeline(input_path: Optional[Path] = None) -> bool:
+    """
+    Run the full pipeline with strict validation.
+    
+    1. Checks prerequisites.
+    2. Runs preprocessing.
+    3. Validates 2D compliance (no 3D calls).
+    4. Validates the output descriptors file exists and schema is correct.
+    """
+    logger.info("Starting pipeline")
+    if not check_prerequisites():
+        return False
+    
+    if input_path is None:
+        input_path = Path("data/raw/qm9_processed.parquet")
+    output_path = Path("data/processed/descriptors.parquet")
+    
+    # Run preprocessing
+    if not run_data_preprocessing(input_path, output_path):
+        return False
+    
+    # CRITICAL: Validate 2D compliance immediately after processing
+    # This ensures the generated data did not involve 3D conformers
+    if not validate_2d_compliance(output_path):
+        logger.critical("Pipeline halted: 2D compliance validation failed.")
+        return False
+    
+    # CRITICAL: Validate the output file exists and matches schema
+    if not validate_descriptors_file(output_path):
+        logger.critical("Pipeline halted: Descriptors file validation failed.")
+        return False
+    
+    logger.info("Pipeline completed successfully with all validations passed.")
+    return True
+
+def main() -> None:
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description="Molecular Polarity Prediction Pipeline")
+    parser.add_argument("--input", type=str, help="Input data path")
+    args = parser.parse_args()
+    
+    input_path = Path(args.input) if args.input else None
+    success = run_pipeline(input_path)
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

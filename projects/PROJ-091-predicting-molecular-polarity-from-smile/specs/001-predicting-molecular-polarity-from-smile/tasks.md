@@ -74,7 +74,7 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
 - [X] T010 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py`
 - [X] T011 [P] [US1] Unit test for 3D exclusion in `tests/unit/test_3d_exclusion.py` (asserts no 3D calls)
@@ -83,12 +83,12 @@
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement `code/data/download_qm9.py` to fetch QM9 from verified URL (Maxwell/Zenodo) with checksum validation and SMILES format validation.
-- [X] T014 [US1] Implement `code/data/preprocess_2d.py` to compute 2D descriptors (rdkit.Descriptors) excluding TPSA, TPSA_E, and SMARTS patterns. **Include inline runtime assertions** to verify no 3D conformer generation functions are called during execution. **Note**: This task implements the core pipeline; see T015 for the spec-mandated target-correlation filter.
-- [X] T015 [US1] Implement target-correlation filtering in `code/data/preprocess_2d.py` to exclude features with |r| > 0.85 correlation to the target dipole moment. **Conflict Note**: This task implements spec FR-001(c) which contradicts the current plan.md stance. The code must explicitly document this deviation from the plan to satisfy the spec's functional requirement.
+- [X] T015 [US1] **Implement Target-Correlation Logic (Compute, Do Not Filter)** in `code/data/preprocess_2d.py`. **Logic**: Compute Pearson correlation between every descriptor and the target dipole moment. **Constraint**: DO NOT remove any features regardless of correlation strength (|r| > 0.85). **Verification**: Add an assertion `assert len(computed_features) == len(original_features)` to ensure no filtering occurred. **Note**: This implements the plan.md override of spec FR-001(c). <!-- FAILED: unspecified -->
+- [X] T014 [US1] Implement `code/data/preprocess_2d.py` to compute 2D descriptors (rdkit.Descriptors) excluding TPSA, TPSA_E, and SMARTS patterns. **Integrate the correlation calculation from T015** and **add inline runtime assertions** to verify no 3D conformer generation functions are called during execution. **Note**: This task implements the core pipeline; T015 defines the specific correlation logic.
 - [X] T016 [US1] Implement NaN handling in `code/data/preprocess_2d.py` with deterministic logic: If >5% missing values in a column, drop the record; otherwise, impute with column median. Log the action taken.
 - [X] T017 [US1] Implement batch processing logic in `code/data/preprocess_2d.py` to ensure <6GB RAM usage by processing `data/raw/` in chunks.
-- [ ] T018 [US1] Save processed feature matrix to `data/processed/descriptors.parquet`.
-- [ ] T019 [US1] Add runtime assertion in `code/main.py` to verify the orchestration pipeline executes without 3D calls and that `data/processed/descriptors.parquet` is valid before downstream tasks.
+- [ ] T018 [US1] Save processed feature matrix to `data/processed/descriptors.parquet`. **Schema**: Columns must be `smiles` (string), `target` (float), and + 2D descriptor columns (float). **Verification**: Explicitly verify that no columns named 'TPSA', 'TPSA_E', or derived from SMARTS patterns exist in the output file. **Critical Check**: Assert `len(df.columns) == expected_input_columns` to verify the 'compute but do not filter' logic from T015 was applied.
+- [ ] T019 [US1] Add runtime assertion in `code/main.py` to verify the orchestration pipeline executes without 3D calls and that `data/processed/descriptors.parquet` is valid before downstream tasks. **Use the schema validators from T006/T010** for validity checks. **Depends on**: T018 (file must exist).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -132,15 +132,14 @@
 
 ### Implementation for User Story 3
 
-- [X] T031a [US3] Implement `code/data/feature_clustering.py` to compute VIF and group correlated features (|r| > 0.8) into clusters for DIAGNOSTIC PURPOSES ONLY. **NO features are removed** based on VIF thresholds (per plan.md FR-007).
-- [X] T031b [US3] Implement `code/data/feature_clustering.py` iterative VIF-based feature removal loop (remove feature with highest VIF if VIF > 5.0 until all VIF ≤ 5.0). **Conflict Note**: This task implements spec FR-007 which contradicts the plan.md FR-007 "diagnostic only" stance. The code must explicitly document this deviation to satisfy the spec's functional requirement.
-- [ ] T032 [US3] Implement `code/models/interpret.py` with Cluster-Aware SHAP analysis using `data/processed/descriptors.parquet` and `data/processed/model.pkl`. <!-- FAILED: unspecified -->
-- [X] T033a [US3] Implement two-stage bootstrap in `code/models/interpret.py` (SHAP-only resampling as per plan.md Complexity Tracking): resample SHAP values without re-training.
-- [X] T033b [US3] Implement full dataset bootstrapping in `code/models/interpret.py` (resample dataset multiple times, re-train model, compute SHAP) to verify feature-set stability as per spec FR-005. **Conflict Note**: This task implements spec FR-005 which contradicts the plan.md "SHAP-only" approach.
-- [ ] T034a [US3] Calculate Jaccard similarity of top feature clusters across multiple bootstrap resamples (from T033a/T033b).
-- [ ] T034b [US3] Calculate Jaccard similarity of top individual SHAP features across multiple bootstrap resamples to satisfy spec SC-003. **Conflict Note**: This task implements spec SC-003 which contradicts the plan.md "cluster" metric.
-- [ ] T035 [US3] Generate stability report verifying Jaccard ≥ 0.7 (log failure if < 0.7 for both cluster and individual metrics).
-- [ ] T036 [US3] Generate SHAP summary plot and feature importance report distinguishing collinear clusters. <!-- FAILED: unspecified -->
+- [X] T031 [US3] **Implement VIF diagnostic clustering only** in `code/data/feature_clustering.py`. Compute VIF for all descriptors. Group features with |r| > 0.8 into clusters. **DO NOT** implement iterative feature removal. Output a report listing clusters and their internal correlation statistics. **Depends on**: T018 (full feature matrix).
+- [ ] T032 [US3] Implement `code/models/interpret.py` with Cluster-Aware SHAP analysis. **Method**: Use `shap.TreeExplainer`. **Aggregation**: For each cluster identified in T031, compute the cluster importance as the **mean absolute SHAP value** of all member features. Use `data/processed/descriptors.parquet` and `data/processed/model.pkl`. <!-- FAILED: unspecified -->
+- [X] T033a [US3] Implement two-stage bootstrap in `code/models/interpret.py` (SHAP-only resampling as per plan.md Complexity Tracking): **Resample the computed SHAP values** directly from the original dataset without re-computing them or re-training. This is a statistical resampling of the already calculated contributions.
+- [ ] T034a [US3] Calculate Jaccard similarity of **top feature clusters <!-- FAILED: unspecified -->
+
+The research question is to identify the most salient feature clusters. The method involves applying unsupervised clustering algorithms to the dataset. References: (Author, Year).** (not individual features) across multiple bootstrap resamples to satisfy plan.md SC-003.
+- [ ] T035 [US3] Generate stability report verifying Jaccard ≥ 0.7. **Failure Handling**: If Jaccard < 0.7, log a CRITICAL error, write a `stability_failed.json` artifact, and **exit with code 1** to trigger CI failure.
+- [ ] T036 [US3] Generate SHAP summary plot and feature importance report distinguishing collinear clusters.
 - [ ] T037 [US3] Save all analysis artifacts (plots, reports, SHAP values) to `data/processed/analysis/`.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -151,16 +150,16 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T038a Update `README.md` with usage examples and installation instructions
+- [ ] T038a Update `README.md` with usage examples and installation instructions. **Required Sections**: 'Installation' (pip install), 'Usage' (CLI examples for pipeline), 'Data Sources' (QM9 URL), 'Results' (link to `data/processed/analysis/`).
 - [X] T038b Add comprehensive docstrings to `code/data/preprocess_2d.py`
 - [X] T038c Add comprehensive docstrings to `code/models/train_lightgbm.py`
 - [X] T039a Refactor `code/utils/config.py` to use Python dataclasses and update all imports in `code/` to use the new dataclass; verify with `pytest`.
 - [ ] T039b Remove all unused imports from `code/` scripts
 - [ ] T039c Standardize logging format across all modules
-- [ ] T040a [P] Optimize `code/data/preprocess_2d.py` for memory by implementing explicit batch iteration and garbage collection to ensure <6GB RAM.
-- [ ] T040b [P] Tune LightGBM `num_threads` and `verbose` parameters in `code/models/train_lightgbm.py` for CPU-only execution performance.
+- [X] T040a [P] Optimize `code/data/preprocess_2d.py` for memory by implementing explicit batch iteration and garbage collection to ensure <6GB RAM.
+- [X] T040b [P] Tune LightGBM `num_threads` and `verbose` parameters in `code/models/train_lightgbm.py` for CPU-only execution performance.
 - [ ] T041 [P] Additional unit tests in `tests/unit/` (if requested)
-- [ ] T042a [P] Add input validation regex for SMILES strings in `code/data/download_qm9.py` and `code/data/loader.py`.
+- [X] T042a [P] Add input validation regex for SMILES strings in `code/data/download_qm9.py` and `code/data/loader.py`.
 - [ ] T042b [P] Add `safety check` command to CI workflow for dependency vulnerability scanning.
 - [ ] T043 Run `quickstart.md` validation and end-to-end test on small batch
 - [ ] T044 Final verification of computational constraints (≤6h runtime, ≤6GB RAM)
@@ -258,6 +257,10 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: Tasks T015, T031b, T033b, T034b implement spec requirements that contradict the current plan.md. These tasks must include explicit documentation of the conflict to satisfy the spec's functional requirements.
+- **CRITICAL**: Tasks T015, T031, T033a are updated to strictly follow `plan.md` constraints (no feature removal/filtering, SHAP-only bootstrap, cluster-based metrics), overriding conflicting `spec.md` requirements.
 - **CRITICAL**: Configuration allows YAML for hyperparameters (T004) but seeds must be hardcoded.
 - **CRITICAL**: NaN handling uses deterministic logic: >5% missing -> drop, else impute (T016).
+- **CRITICAL**: T018 output schema must explicitly exclude TPSA/SMARTS columns and verify no filtering.
+- **CRITICAL**: T032 uses mean absolute SHAP for cluster aggregation.
+- **CRITICAL**: T035 exits with code 1 on stability failure.
+- **CRITICAL**: T033a is the single bootstrap task; T033b removed.

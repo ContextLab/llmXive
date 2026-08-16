@@ -1,41 +1,23 @@
 # Predicting Molecular Polarity from SMILES Strings with Machine Learning
 
-This project implements a machine learning pipeline to predict molecular polarity (dipole moment) from SMILES strings using 2D topological descriptors. It adheres to strict constraints: **no 3D conformer generation**, **no TPSA/SMARTS features**, and **deterministic NaN handling**.
+This project implements an automated pipeline to predict molecular polarity (dipole moment) from 2D SMILES strings using machine learning. It leverages the QM9 dataset, generates topological descriptors using RDKit, trains a LightGBM regression model, and performs interpretability analysis using SHAP.
 
-## Project Structure
+## Features
 
-```
-.
-├── code/
-│ ├── data/ # Data loading, preprocessing, and descriptor generation
-│ ├── models/ # Model training, evaluation, and interpretation
-│ ├── utils/ # Configuration, logging, and validation utilities
-│ ├── main.py # Orchestration script for the full pipeline
-│ └── requirements.txt # Python dependencies
-├── data/
-│ ├── raw/ # Raw QM9 dataset (downloaded)
-│ └── processed/ # Processed features, splits, and model artifacts
-├── tests/ # Unit, integration, and contract tests
-├── logs/ # Application logs
-└── README.md # This file
-```
-
-## Prerequisites
-
-- Python 3.9+
-- pip (Python package installer)
-- ~6GB RAM (for full dataset processing)
-- ~14GB disk space (for raw and processed data)
+- **2D Descriptor Generation**: Computes >200 topological descriptors from SMILES strings without 3D conformer generation. [UNRESOLVED-CLAIM: c_88d21f12 — status=not_enough_info]
+- **Machine Learning**: Trains a LightGBM regressor with hyperparameter tuning and cross-validation.
+- **Interpretability**: Cluster-aware SHAP analysis and bootstrap stability testing for feature importance.
+- **Reproducibility**: Hardcoded random seeds and strict 2D-only constraints.
 
 ## Installation
 
 1. **Clone the repository**:
  ```bash
  git clone <repository-url>
- cd <project-directory>
+ cd PROJ-091-predicting-molecular-polarity
  ```
 
-2. **Create a virtual environment**:
+2. **Create a virtual environment** (recommended):
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
@@ -46,128 +28,87 @@ This project implements a machine learning pipeline to predict molecular polarit
  pip install -r code/requirements.txt
  ```
 
-4. **Verify installation**:
- ```bash
- python -c "import rdkit; import lightgbm; import pandas; print('Dependencies OK')"
- ```
+## Data Sources
+
+This project uses the **QM9** dataset, which contains 134k small organic molecules with quantum mechanical properties.
+
+- **Source**: Maxwell et al. (2016) / Zenodo
+- **Download URL**: `
+- **Local Path**: `data/raw/gdb9.sdf.gz` (automatically downloaded by `code/data/download_qm9.py`)
+
+The pipeline automatically downloads and validates the dataset on first run if `data/raw/` is empty.
 
 ## Usage
 
-### Quick Start (Full Pipeline)
+### Running the Full Pipeline
 
-Run the entire pipeline from data download to analysis artifacts:
+Execute the main orchestration script to run the complete pipeline from data download to analysis:
 
 ```bash
-cd code
-python main.py
+python code/main.py
 ```
 
 This will:
-1. Download and validate the QM9 dataset
-2. Compute 2D descriptors and filter high-correlation features
-3. Split data into train/test sets
-4. Train a LightGBM model with hyperparameter tuning
-5. Evaluate model performance (R², RMSE)
-6. Generate SHAP analysis and stability reports
-7. Save all artifacts to `data/processed/`
+1. Download and validate QM9 data (if missing).
+2. Generate 2D descriptors.
+3. Split data and train the LightGBM model.
+4. Perform SHAP analysis and stability checks.
+5. Save all artifacts to `data/processed/`.
 
-### Step-by-Step Execution
+### Individual Steps
 
-#### 1. Download Data
+You can also run specific stages of the pipeline:
+
+**Download Data**:
 ```bash
 python code/data/download_qm9.py
 ```
-- Fetches QM9 from verified URL
-- Validates SMILES format and file checksum
-- Output: `data/raw/qm9_smiles.csv`
 
-#### 2. Preprocess Descriptors
+**Preprocess Descriptors**:
 ```bash
 python code/data/preprocess_2d.py
 ```
-- Computes 2D topological descriptors (RDKit)
-- Filters features with |r| > 0.85 correlation to target
-- Handles NaNs (drop >5% missing, impute with median otherwise)
-- Output: `data/processed/descriptors.parquet`
 
-#### 3. Split Data
-```bash
-python code/data/split_data.py
-```
-- Random train/test split (no target stratification)
-- Output: `data/processed/splits.csv`
-
-#### 4. Train Model
+**Train Model**:
 ```bash
 python code/models/train_lightgbm.py
 ```
-- 5-fold cross-validation for hyperparameter tuning
-- Trains final model on full training set
-- Outputs: `data/processed/model.pkl`, `code/config.yaml` (updated params)
 
-#### 5. Evaluate Model
-```bash
-python code/models/evaluate.py
-```
-- Computes R², RMSE vs. null model (R²=0)
-- Output: `data/processed/evaluation.json`
-
-#### 6. Interpret Model (SHAP Analysis)
+**Run Interpretability Analysis**:
 ```bash
 python code/models/interpret.py
 ```
-- Cluster-aware SHAP analysis
-- Bootstrap stability analysis (Jaccard similarity)
-- Outputs: `data/processed/analysis/shap_summary.png`, `data/processed/analysis/stability_report.json`
 
-### Running Tests
+### Configuration
+
+Hyperparameters can be configured in `code/config.yaml`. Random seeds are hardcoded in `code/utils/config.py` for reproducibility.
+
+## Results
+
+Upon successful completion, analysis artifacts are saved in `data/processed/analysis/`:
+
+- **SHAP Summary Plot**: `shap_summary.png`
+- **Feature Importance Report**: `feature_importance.json`
+- **Cluster Stability Report**: `stability_report.json`
+- **Processed Descriptors**: `data/processed/descriptors.parquet`
+- **Trained Model**: `data/processed/model.pkl`
+
+If the stability analysis fails (Jaccard similarity < 0.7), a `stability_failed.json` file will be generated, and the process will exit with code 1.
+
+## Testing
+
+Run the test suite using pytest:
 
 ```bash
-cd code
-pytest../tests/ -v
+pytest tests/ -v
 ```
 
-Specific test categories:
-- **Contract Tests**: `tests/contract/` (schema validation)
-- **Unit Tests**: `tests/unit/` (3D exclusion, NaN handling, SHAP stability)
-- **Integration Tests**: `tests/integration/` (full pipeline)
+## Constraints & Compliance
 
-## Configuration
-
-- **Hyperparameters**: Loaded from `code/config.yaml` (see `utils/config.py`)
-- **Random Seeds**: Hardcoded in `utils/config.py` for reproducibility
-- **Logging**: Configured via `utils/logging_config.py` (JSON format, `logs/app.log`)
-
-## Data Constraints
-
-- **2D-Only**: No 3D conformer generation (`EmbedMolecule`, `Get3DConformer` excluded)
-- **No TPSA/SMARTS**: Topological descriptors only (RDKit `Descriptors` module)
-- **NaN Handling**: Deterministic logic (drop >5% missing, impute with median otherwise)
-- **Memory**: Batch processing ensures <6GB RAM usage
-
-## Output Artifacts
-
-| File | Description |
-|------|-------------|
-| `data/raw/qm9_smiles.csv` | Raw QM9 dataset with SMILES and dipole moments |
-| `data/processed/descriptors.parquet` | 2D descriptor matrix (filtered) |
-| `data/processed/splits.csv` | Train/test split indices |
-| `data/processed/model.pkl` | Trained LightGBM model |
-| `data/processed/evaluation.json` | Model performance metrics |
-| `data/processed/analysis/shap_summary.png` | SHAP summary plot |
-| `data/processed/analysis/stability_report.json` | Bootstrap stability analysis |
-
-## Troubleshooting
-
-- **Missing Dependencies**: Ensure `requirements.txt` is installed in the active virtual environment.
-- **Memory Errors**: The pipeline processes data in batches; reduce `batch_size` in `code/data/preprocess_2d.py` if needed.
-- **3D Function Calls**: The pipeline enforces 2D-only constraints via `utils/validators.py`; check logs for violations.
-- **Data Download Failures**: Verify internet connectivity and checksum validation in `code/data/download_qm9.py`.
+- **2D Only**: The pipeline strictly excludes 3D conformer generation (`EmbedMolecule`, `Get3DConformer`) and TPSA/SMARTS-based descriptors.
+- **Memory**: Batch processing ensures <6GB RAM usage.
+- **Reproducibility**: All random seeds are fixed in code.
 
 ## License
 
-[Insert License Here]
-
-## Contributors
-
-[List of Contributors]
+MIT License
