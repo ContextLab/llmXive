@@ -1,99 +1,132 @@
-"""
-Unit tests for T029b: Power Analysis Module.
-"""
 import os
 import sys
 import json
 import pytest
-from pathlib import Path
-import tempfile
 import pandas as pd
 import numpy as np
+from pathlib import Path
+import tempfile
+import shutil
 
-# Add project root
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from data.power_analysis import (
+from data.generate_power_analysis import (
+    load_pilot_data,
     estimate_variance,
-    calculate_tost_sample_size,
-    calculate_minimum_detectable_effect,
-    run_power_analysis
+    calculate_min_sample_size,
+    run_power_analysis,
+    update_state_yaml,
+    write_fail_log
 )
 
-def test_estimate_variance():
-    """Test variance estimation from a simple dataframe."""
-    data = pd.DataFrame({'latent_delta_magnitude': [1.0, 2.0, 3.0, 4.0, 5.0]})
-    var = estimate_variance(data)
-    # Variance of [1,2,3,4,5] is 2.5
-    assert np.isclose(var, 2.5), f"Expected 2.5, got {var}"
+@pytest.fixture
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    shutil.rmtree(temp_dir)
 
-def test_calculate_tost_sample_size():
+@pytest.fixture
+def sample_parquet(temp_data_dir):
+    """Create a sample parquet file for testing."""
+    data = {
+        'timestamp': pd.date_range(start='2023-01-01', periods=1000, freq='s'),
+        'latent_delta_magnitude': np.random.normal(loc=0.5, scale=2.0, size=1000),
+        'semantic_feature': np.random.rand(1000),
+        'turn_label': np.random.choice([0, 1], size=1000)
+    }
+    df = pd.DataFrame(data)
+    output_path = temp_data_dir / "raw_extract.parquet"
+    df.to_parquet(output_path)
+    return output_path
+
+def test_load_pilot_data_success(sample_parquet, temp_data_dir, monkeypatch):
+    """Test successful loading of parquet data."""
+    monkeypatch.setattr("data.generate_power_analysis.POWER_ANALYSIS_INPUT_PATH", sample_parquet)
+    df = load_pilot_data()
+    assert df is not None
+    assert 'latent_delta_magnitude' in df.columns
+    assert len(df) == 1000
+
+def test_load_pilot_data_missing_file(monkeypatch):
+    """Test loading when file is missing."""
+    monkeypatch.setattr("data.generate_power_analysis.POWER_ANALYSIS_INPUT_PATH", Path("/nonexistent/path.parquet"))
+    df = load_pilot_data()
+    assert df is None
+
+def test_load_pilot_data_empty_file(temp_data_dir, monkeypatch):
+    """Test loading when file is empty."""
+    empty_df = pd.DataFrame(columns=['timestamp', 'latent_delta_magnitude'])
+    output_path = temp_data_dir / "empty.parquet"
+    empty_df.to_parquet(output_path)
+    monkeypatch.setattr("data.generate_power_analysis.POWER_ANALYSIS_INPUT_PATH", output_path)
+    df = load_pilot_data()
+    assert df is None
+
+def test_load_pilot_data_missing_column(temp_data_dir, monkeypatch):
+    """Test loading when required column is missing."""
+    data = {
+        'timestamp': pd.date_range(start='2023-01-01', periods=100, freq='s'),
+        'other_col': np.random.rand(100)
+    }
+    df = pd.DataFrame(data)
+    output_path = temp_data_dir / "missing_col.parquet"
+    df.to_parquet(output_path)
+    monkeypatch.setattr("data.generate_power_analysis.POWER_ANALYSIS_INPUT_PATH", output_path)
+    result = load_pilot_data()
+    assert result is None
+
+def test_estimate_variance(sample_parquet, temp_data_dir, monkeypatch):
+    """Test variance estimation."""
+    monkeypatch.setattr("data.generate_power_analysis.POWER_ANALYSIS_INPUT_PATH", sample_parquet)
+    df = load_pilot_data()
+    variance, std_dev = estimate_variance(df)
+    assert variance > 0
+    assert std_dev > 0
+    assert np.isclose(std_dev ** 2, variance)
+
+def test_calculate_min_sample_size():
     """Test sample size calculation logic."""
-    variance = 1.0
-    delta = 0.5
-    alpha = 0.05
-    power = 0.80
-    
-    result = calculate_tost_sample_size(variance, delta, alpha, power)
-    
-    assert result['estimated_variance'] == variance
-    assert result['equivalence_margin_delta'] == delta
-    assert result['required_sample_size'] > 0
-    assert 'z_alpha' in result
-    assert 'z_beta' in result
+    variance = 4.0 # std_dev = 2
+    # Assuming effect_size_d = 0.2 (default)
+    # n = 2 * ((1.96 + 0.84) / 0.2)^2 = 2 * (14)^2 = 2 * 196 = 392
+    n = calculate_min_sample_size(variance, effect_size_d=0.2)
+    assert n > 0
+    assert isinstance(n, int)
 
-def test_calculate_mdes():
-    """Test MDES calculation."""
-    n = 100
-    variance = 1.0
-    alpha = 0.05
-    power = 0.80
+def test_run_power_analysis(sample_parquet, temp_data_dir, monkeypatch):
+    """Test full power analysis run."""
+    monkeypatch.setattr("data.generate_power_analysis.POWER_ANALYSIS_INPUT_PATH", sample_parquet)
+    df = load_pilot_data()
+    results = run_power_analysis(df)
     
-    mdes = calculate_minimum_detectable_effect(n, variance, alpha, power)
-    assert mdes > 0
-    # If n increases, MDES should decrease
-    mdes_large_n = calculate_minimum_detectable_effect(400, variance, alpha, power)
-    assert mdes_large_n < mdes
+    assert 'expected_variance' in results
+    assert 'min_sample_size' in results
+    assert 'status' in results
+    assert results['status'] == 'success'
+    assert results['min_sample_size'] > 0
+    assert results['expected_variance'] > 0
 
-def test_run_power_analysis_integration(tmp_path):
-    """Integration test for the full run_power_analysis function."""
-    # Create a temporary mock data file
-    mock_data_dir = tmp_path / "data" / "processed"
-    mock_data_dir.mkdir(parents=True)
-    
-    mock_df = pd.DataFrame({
-        'latent_delta_magnitude': np.random.normal(0, 1, 1000)
-    })
-    mock_file = mock_data_dir / "latents_raw.parquet"
-    mock_df.to_parquet(mock_file)
-    
-    # Temporarily patch the load_pilot_data function or the path logic
-    # Since load_pilot_data looks in project_root/data/processed, 
-    # we need to ensure the test environment mimics the project structure 
-    # or we mock the function.
-    # For this test, we will mock the load_pilot_data function to return our mock_df.
-    
-    import data.power_analysis as power_module
-    
-    original_load = power_module.load_pilot_data
-    
-    def mock_load():
-        return mock_df
-    
-    power_module.load_pilot_data = mock_load
-    
-    output_file = tmp_path / "power_analysis.json"
-    
-    try:
-        results = run_power_analysis(output_path=output_file)
-        
-        assert output_file.exists()
-        with open(output_file) as f:
-            saved_data = json.load(f)
-        
-        assert saved_data['analysis_type'] == 'a_priori_power_analysis_tost'
-        assert 'required_sample_size' in saved_data['recommendations']
-        assert saved_data['pilot_sample_size'] == 1000
-    finally:
-        power_module.load_pilot_data = original_load
+def test_write_fail_log(temp_data_dir, monkeypatch):
+    """Test failure log writing."""
+    log_path = temp_data_dir / "fail.log"
+    monkeypatch.setattr("data.generate_power_analysis.POWER_ANALYSIS_FAIL_LOG_PATH", log_path)
+    write_fail_log("Test reason")
+    assert log_path.exists()
+    with open(log_path, 'r') as f:
+        content = f.read()
+    assert "Test reason" in content
+
+def test_update_state_yaml(temp_data_dir, monkeypatch):
+    """Test state.yaml update."""
+    state_path = temp_data_dir / "state.yaml"
+    monkeypatch.setattr("data.generate_power_analysis.STATE_YAML_PATH", state_path)
+    update_state_yaml("completed")
+    assert state_path.exists()
+    import yaml
+    with open(state_path, 'r') as f:
+        data = yaml.safe_load(f)
+    assert 'projects' in data
+    assert 'PROJ-964-llmxive-follow-up-extending-wan-streamer' in data['projects']
+    assert data['projects']['PROJ-964-llmxive-follow-up-extending-wan-streamer']['power_analysis_status'] == 'completed'

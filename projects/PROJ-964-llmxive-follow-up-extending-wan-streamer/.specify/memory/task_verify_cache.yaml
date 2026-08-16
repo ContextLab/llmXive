@@ -20,14 +20,30 @@ T012:
   r: "The required integration test file `tests/integration/test_data_extraction.py`\
     \ does not exist in the repository, so the artifact is missing and the task\u2019\
     s deliverable is not provided."
+T012b:
+  c: false
+  h: 013e2446314699870ab5bdb88ee436d5ef501d5ba0a4c706389f02c3dfb29657
+  r: "The required `data/processed/raw_extract.parquet` file is missing, so no binary\u2011\
+    search calibration could have been performed. The `code/config/detection_thresholds.yaml`\
+    \ still shows the placeholder values (`audio_energy_db: -30.0`, `calibration_status:\
+    \ pending`, `calibration_actual_events: 0`) and contains no log entry confirming\
+    \ \u2265\u202F500 detected events. Consequently the task\u2019s core requirement\
+    \ is not satisfied."
 T013:
   c: false
-  h: fc5aef25093c11e1882c90a20e9766d5ad0a694adda3af02461909d95f7ffdd7
-  r: "The required script `code/data/extract_latents.py` does not exist, so no parsing,\
-    \ latent extraction, or event\u2011detection logic is provided. Consequently the\
-    \ configurable thresholds and detection algorithm referenced in the task are absent.\
-    \ The implementer must add the missing `extract_latents.py` file with the specified\
-    \ functionality."
+  h: 6a6ba42b038ed4e726490e06977b8d014f4e0f7578206154307e1af6414fb55b
+  r: "The required output file `data/processed/raw_extract.parquet` does not exist,\
+    \ and the script\u2019s configured output path (`data/processed/latents_raw.parquet`)\
+    \ does not match the task\u2019s specified filename. Consequently the verification\
+    \ step cannot succeed and the task\u2019s core requirement is unmet."
+T014:
+  c: false
+  h: b8c15a1953e3a70d43aa7a2f52de7d0440fcb6469457b76d041c45a30096b23b
+  r: The repository lacks the required `data/metrics/power_analysis.json` and the
+    output `data/processed/sampled_dataset.parquet`. Moreover, `code/data/preprocess.py`
+    is truncated and does not contain the full logic for calibrated filtering, stratified
+    sampling, priority labeling, count logging, or column validation required by the
+    task. These missing pieces must be added for the task to be considered complete.
 T019:
   c: false
   h: 49834b4bef9355a6e39528e1c12b70d510370b4bd554ac0518128b9b7becdefc
@@ -50,12 +66,13 @@ T029:
   r: "The required integration test file `tests/integration/test_hybrid_simulation.py`\
     \ does not exist in the repository, so the artifact is missing entirely. Without\
     \ this test, the end\u2011to\u2011end simulation and metrics cannot be verified."
-T029c:
+T029b:
   c: false
-  h: 7824fd6c102f28bdd4c35ee7de9cc6fb30f34bdca9aa20fb98f6c657012ff736
-  r: "The required artifact `data/metrics/power_analysis.json` does not exist, so\
-    \ no literature\u2011derived variance or effect\u2011size values were recorded.\
-    \ The task\u2019s core deliverable is missing."
+  h: f9b73e808280139be321741a5a71645802b117e355149b54cb9952ec553b6e10
+  r: The required `data/processed/raw_extract.parquet` file is missing, and consequently
+    no `power_analysis_fail.log` or `data/metrics/power_analysis.json` was created,
+    nor was `state.yaml` updated with a `power_analysis_status`. The implementer did
+    not perform the power analysis or the required failure handling.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

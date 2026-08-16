@@ -605,3 +605,990 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T08:40:16Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Test tasks are optional and included only if explicitly requested
+  claim_id: c_c9bbd12a
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_tasks_are_optional_and_included_only_if_explicitly_requ
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:23:50Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Sampled dataset contains at least 10,000 frames including interruption/pause
+    events
+  claim_id: c_49436a60
+  context: "Independent Test: Verify that extract_latents.py and preprocess.py produce\
+    \ a Parquet file \u2264 1 GB with valid columns... and at least 10,000 sampled\
+    \ frames including interruption/pause events."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sampled_dataset_contains_at_least_10,000_frames_including_in
+  kind: magnitude
+  raw_text: Output data/processed/sampled_dataset.parquet with at least 10,000 sampled
+    frames including interruption/pause events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:24:10Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Threshold calibration stops when event count is at least 500
+  claim_id: c_99775f55
+  context: 'Logic: 1. Load raw_extract.parquet. 2. Iterate thresholds (e.g., -2dB
+    steps). 3. Stop when event count >= 500.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Threshold_calibration_stops_when_event_count_is_at_least_500
+  kind: magnitude
+  raw_text: Stop when event count >= 500 during threshold calibration.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:25:42Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Model training completes within 6 hours
+  claim_id: c_5e4dacbe
+  context: "Independent Test: Verify that gru_estimator.py and trainer.py complete\
+    \ training within 6 hours, use \u2264 7 GB RAM..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Complete training within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:26:02Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Hybrid inference reduces latency by at least 20% with FID degradation
+    at most 5%
+  claim_id: c_24d1a147
+  context: "Independent Test: Verify that hybrid_engine.py and simulator.py reduce\
+    \ latency by \u2265 20% while keeping FID degradation \u2264 5% and passing TOST\
+    \ equivalence tests (\u0394=0.05)."
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 20.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Hybrid_inference_reduces_latency_by_at_least_20%25_with_FID_de
+  kind: magnitude
+  raw_text: "Verify that hybrid_engine.py and simulator.py reduce latency by \u2265\
+    \ 20% while keeping FID degradation \u2264 5%."
+  resolved_value: Hybrid inference reduces latency by at least 20% with FID degradation
+    at most 5%
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T12:26:53Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Hybrid inference keeps FID degradation at most 5%
+  claim_id: c_b26ff7c5
+  context: "Independent Test: Verify that hybrid_engine.py and simulator.py reduce\
+    \ latency by \u2265 20% while keeping FID degradation \u2264 5% and passing TOST\
+    \ equivalence tests (\u0394=0.05)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hybrid_inference_keeps_FID_degradation_at_most_5%25
+  kind: magnitude
+  raw_text: "Verify that hybrid_engine.py and simulator.py keep FID degradation \u2264\
+    \ 5%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:27:17Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST equivalence tests use delta of 0.05
+  claim_id: c_c653676d
+  context: "Independent Test: Verify that hybrid_engine.py and simulator.py reduce\
+    \ latency by \u2265 20% while keeping FID degradation \u2264 5% and passing TOST\
+    \ equivalence tests (\u0394=0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify TOST equivalence tests with \u0394=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:27:29Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Randomized counterfactual intervention overrides deterministic fallback
+  claim_id: c_58c4f047
+  context: Implement code/inference/fallback_handler.py to trigger full solver when
+    uncertainty > 0.8 or delta magnitude is high, explicitly enforcing the precedence
+    rule (FR-017) where the randomized counterfactual intervention (T047) overrides
+    the deterministic fallback for frames in the randomized subset (FR-006, FR-009,
+    FR-017)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Randomized_counterfactual_intervention_overrides_determinist
+  kind: entity_fact
+  raw_text: Explicitly enforce the precedence rule where the randomized counterfactual
+    intervention overrides the deterministic fallback for frames in the randomized
+    subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:27:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Pearson correlation computed between proxy MOS and human ratings
+  claim_id: c_e0bc1e7a
+  context: Add logic to calculate Pearson correlation between proxy MOS and human
+    ratings (if available) to validate proxy (FR-012, FR-013, SC-007).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_computed_between_proxy_MOS_and_human_rat
+  kind: entity_fact
+  raw_text: Compute Pearson correlation between proxy MOS and human ratings (if available)
+    to validate proxy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:28:16Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: State validation status set to validated if correlation is at least 0.7
+  claim_id: c_b86d53c0
+  context: 'If correlation >= 0.7, update state.yaml to validation_status: ''validated'';
+    if < 0.7, update state.yaml to validation_status: ''invalidated'' and log ''FID
+    STABILITY CORRELATION FAILED: r < 0.7''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/State_validation_status_set_to_validated_if_correlation_is_a
+  kind: magnitude
+  raw_text: 'If correlation >= 0.7, update state.yaml to validation_status: ''validated''.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:28:38Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST equivalence tests yield p-value less than 0.05
+  claim_id: c_e8224e40
+  context: "Implement Two One-Sided Tests (TOST) equivalence tests (\u0394=0.05) for\
+    \ quality metrics; output data/metrics/tost_results.csv and verify p-value < 0.05\
+    \ (FR-005, US-3, Constitution Principle VI)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/TOST_equivalence_tests_yield_p-value_less_than_0.05
+  kind: magnitude
+  raw_text: "Verify p-value < 0.05 for Two One-Sided Tests (TOST) equivalence tests\
+    \ (\u0394=0.05)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:29:16Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: TOST equivalence tests use statsmodels.stats.weightstats.ttost_ind
+  claim_id: c_162cf25d
+  context: 'Logic: Use statsmodels.stats.weightstats.ttost_ind. Read data_source from
+    code/config and switch baseline calculation method if necessary.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TOST_equivalence_tests_use_statsmodels.stats.weightstats.tto
+  kind: entity_fact
+  raw_text: Use statsmodels.stats.weightstats.ttost_ind for TOST equivalence tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:29:45Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Latency reduction validation uses stratified bootstrap with propensity-score
+    matching via sklearn and statsmodels
+  claim_id: c_3dac78a6
+  context: Implement stratified bootstrap with propensity-score matching for latency
+    reduction validation using independent covariates (frame timestamp and audio energy,
+    excluding estimator prediction) via sklearn.linear_model.LogisticRegression and
+    statsmodels.stats.weightstats.ttest_ind...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Latency_reduction_validation_uses_stratified_bootstrap_with
+  kind: entity_fact
+  raw_text: Implement stratified bootstrap with propensity-score matching for latency
+    reduction validation using independent covariates (frame timestamp and audio energy,
+    excluding estimator prediction) via sklearn.linear_model.LogisticRegression and
+    statsmodels.stats.weightstats.ttest_ind.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:30:12Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Full solver triggered when uncertainty exceeds 0.8 or delta magnitude
+    is high
+  claim_id: c_36ffa82a
+  context: Implement code/inference/fallback_handler.py to trigger full solver when
+    uncertainty > 0.8 or delta magnitude is high, explicitly enforcing the precedence
+    rule (FR-017)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Trigger full solver when uncertainty > 0.8 or delta magnitude is high.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:30:12Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Model output tensor has first column as delta magnitude and second as
+    uncertainty score between 0.0 and 1.0
+  claim_id: c_0542594e
+  context: Ensure the model outputs a tensor of shape [batch, N], where N represents
+    the number of target classes, with the first column representing the predicted
+    delta magnitude and the second column representing the UncertaintyScore (0.0-1.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model outputs a tensor of shape [batch, N], where N represents the
+    number of target classes, with the first column representing the predicted delta
+    magnitude and the second column representing the UncertaintyScore (0.0-1.0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:30:53Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Binary search adjusts audio energy threshold until at least 500 events
+    are detected
+  claim_id: c_77c2ae49
+  context: Perform a binary search on the actual data/processed/raw_extract.parquet
+    (produced by T013) to adjust audio_energy_threshold until at least 500 events
+    are detected.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Binary_search_adjusts_audio_energy_threshold_until_at_least
+  kind: magnitude
+  raw_text: Perform a binary search on the actual data/processed/raw_extract.parquet
+    to adjust audio_energy_threshold until at least 500 events are detected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:31:37Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Literature search conducted on arXiv, Google Scholar, and IEEE Xplore
+    for audio-visual latent delta variance and turn-taking effect size
+  claim_id: c_cb2e1c39
+  context: Search arXiv, Google Scholar, and IEEE Xplore for 'audio-visual latent
+    delta variance' and 'turn-taking effect size'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Literature_search_conducted_on_arXiv,_Google_Scholar,_and_IE
+  kind: entity_fact
+  raw_text: Search arXiv, Google Scholar, and IEEE Xplore for 'audio-visual latent
+    delta variance' and 'turn-taking effect size'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:32:07Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Literature search results contain at least 3 relevant citations
+  claim_id: c_7145f2d2
+  context: Output data/metrics/literature_search_results.txt with at least 3 relevant
+    citations and extracted numeric estimates.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Literature_search_results_contain_at_least_3_relevant_citati
+  kind: magnitude
+  raw_text: Output data/metrics/literature_search_results.txt with at least 3 relevant
+    citations and extracted numeric estimates.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:32:29Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Linear interpolation baseline used for FID degradation metrics with VoxCeleb2
+    data source
+  claim_id: c_6396c905
+  context: If data_source == 'voxceleb2', use linear interpolation baseline for FID
+    degradation metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_interpolation_baseline_used_for_FID_degradation_metri
+  kind: entity_fact
+  raw_text: Use linear interpolation baseline for FID degradation metrics if data_source
+    == 'voxceleb2'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:32:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Parquet file size is at most 1 GB
+  claim_id: c_34f726f7
+  context: "Independent Test: Verify that extract_latents.py and preprocess.py produce\
+    \ a Parquet file \u2264 1 GB with valid columns..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Parquet_file_size_is_at_most_1_GB
+  kind: magnitude
+  raw_text: "Verify that extract_latents.py and preprocess.py produce a Parquet file\
+    \ \u2264 1 GB."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:33:42Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Variance of latent_delta_magnitude and effect size computed from sample
+  claim_id: c_43dc3439
+  context: If data exists, compute variance of latent_delta_magnitude and effect size
+    from the sample.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variance_of_latent_delta_magnitude_and_effect_size_computed
+  kind: entity_fact
+  raw_text: Compute variance of latent_delta_magnitude and effect size from the sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:34:27Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Power analysis JSON output includes min_sample_size, expected_variance,
+    and effect_size
+  claim_id: c_bf7afd5a
+  context: Output data/metrics/power_analysis.json with min_sample_size, expected_variance,
+    effect_size.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_JSON_output_includes_min_sample_size,_expecte
+  kind: entity_fact
+  raw_text: Output data/metrics/power_analysis.json with min_sample_size, expected_variance,
+    effect_size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:35:11Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Power analysis fails and logs specific error message if data file is
+    empty or missing
+  claim_id: c_8ee7eadd
+  context: 'If file is empty or missing, FAIL and log ''POWER ANALYSIS FAILED: NO
+    DATA'' to data/logs/power_analysis_fail.log and update state.yaml with power_analysis_status:
+    ''failed''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_fails_and_logs_specific_error_message_if_data
+  kind: entity_fact
+  raw_text: 'If file is empty or missing, FAIL and log ''POWER ANALYSIS FAILED: NO
+    DATA'' to data/logs/power_analysis_fail.log.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:35:40Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: 'Requirements file includes CPU-only dependencies: torch, scikit-learn,
+    pandas, numpy, datasets, scipy, pyyaml, videomae'
+  claim_id: c_3c77d3c4
+  context: Create code/requirements.txt with CPU-only dependencies (torch, scikit-learn,
+    pandas, numpy, datasets, scipy, pyyaml, videomae).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requirements_file_includes_CPU-only_dependencies:_torch,_sci
+  kind: entity_fact
+  raw_text: Create code/requirements.txt with CPU-only dependencies (torch, scikit-learn,
+    pandas, numpy, datasets, scipy, pyyaml, videomae).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:35:59Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Detection thresholds YAML defines algorithm and default parameters including
+    audio_energy_threshold of 20 dB
+  claim_id: c_d04477ed
+  context: 'Create code/config/detection_thresholds.yaml to explicitly define the
+    algorithm and default parameters for classifying ''interruption'' and ''pause''
+    events (e.g., audio_energy_threshold: 20 dB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create code/config/detection_thresholds.yaml to explicitly define the
+    algorithm and default parameters for classifying ''interruption'' and ''pause''
+    events (e.g., audio_energy_threshold: 20 dB).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:36:20Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Binary search iterates thresholds in 2 dB steps
+  claim_id: c_9026e042
+  context: 'Logic: 1. Load raw_extract.parquet. 2. Iterate thresholds (e.g., -2dB
+    steps). 3. Stop when event count >= 500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate thresholds (e.g., -2dB steps) during binary search.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:36:41Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Dataset reduced to at most 1 GB preserving distribution using power analysis
+    parameters
+  claim_id: c_ae00d6c3
+  context: "(2) perform stratified sampling to reduce dataset to \u2264 1 GB while\
+    \ preserving distribution using parameters from data/metrics/power_analysis.json\
+    \ (FR-015, US-1)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_reduced_to_at_most_1_GB_preserving_distribution_usin
+  kind: magnitude
+  raw_text: "Reduce dataset to \u2264 1 GB while preserving distribution using parameters\
+    \ from data/metrics/power_analysis.json."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:37:01Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Events labeled as high-priority or low-priority with counts logged
+  claim_id: c_1dc365fd
+  context: (3) label events as 'high-priority' or 'low-priority' with counts logged
+    (FR-001, US-1)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Events_labeled_as_high-priority_or_low-priority_with_counts
+  kind: entity_fact
+  raw_text: Label events as 'high-priority' or 'low-priority' with counts logged.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:37:29Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Required columns validated as non-null and correctly typed
+  claim_id: c_37eee112
+  context: (4) validate all required columns are non-null and correctly typed (FR-001,
+    US-1).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Required_columns_validated_as_non-null_and_correctly_typed
+  kind: entity_fact
+  raw_text: Validate all required columns are non-null and correctly typed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:37:52Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Training uses at most 7 GB RAM
+  claim_id: c_7fe82986
+  context: "Independent Test: Verify that gru_estimator.py and trainer.py complete\
+    \ training within 6 hours, use \u2264 7 GB RAM..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_uses_at_most_7_GB_RAM
+  kind: magnitude
+  raw_text: "Verify that gru_estimator.py and trainer.py use \u2264 7 GB RAM."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:38:16Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Model achieves MSE lower than zero-delta baseline on validation set
+  claim_id: c_24c72894
+  context: "Independent Test: Verify that gru_estimator.py and trainer.py complete\
+    \ training within 6 hours, use \u2264 7 GB RAM, and achieve MSE [deferred] lower\
+    \ than a zero-delta baseline on a held-out validation set..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_achieves_MSE_lower_than_zero-delta_baseline_on_validat
+  kind: entity_fact
+  raw_text: Achieve MSE [deferred] lower than a zero-delta baseline on a held-out
+    validation set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:38:52Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Baseline comparison outputs MSE values and p-values
+  claim_id: c_ae6e56b6
+  context: Implement baseline comparison logic (zero-delta predictor) to validate
+    MSE improvement on the prediction task; output data/metrics/baseline_comparison.json
+    with MSE values and p-values...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_comparison_outputs_MSE_values_and_p-values
+  kind: entity_fact
+  raw_text: Implement baseline comparison logic (zero-delta predictor) to validate
+    MSE improvement on the prediction task; output data/metrics/baseline_comparison.json
+    with MSE values and p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:39:28Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Pending checkpoint saved with pending_validation flag set to True
+  claim_id: c_b6813ca6
+  context: 'Output: Save the checkpoint to data/models/estimator_checkpoint_pending.pt
+    with checkpoint[''pending_validation''] = True explicitly set in the dictionary.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pending_checkpoint_saved_with_pending_validation_flag_set_to
+  kind: entity_fact
+  raw_text: Save the checkpoint to data/models/estimator_checkpoint_pending.pt with
+    checkpoint['pending_validation'] = True explicitly set in the dictionary.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:39:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Calibration fails and logs error if correlation is less than 0.7
+  claim_id: c_d5ea367a
+  context: 'If correlation < 0.7, write data/logs/uncertainty_calibration_failed.log
+    with the error details and update state.yaml with calibration_status: ''failed''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_fails_and_logs_error_if_correlation_is_less_than
+  kind: magnitude
+  raw_text: 'If correlation < 0.7, write data/logs/uncertainty_calibration_failed.log
+    with the error details and update state.yaml with calibration_status: ''failed''.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:40:27Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Calibration passes and finalizes checkpoint if correlation is at least
+    0.7
+  claim_id: c_42208bb5
+  context: 'If >= 0.7, copy/rename the file to data/models/estimator_checkpoint_final.pt
+    and update state.yaml with calibration_status: ''passed'' (FR-002, SC-006, Constitution
+    Principle VI).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_passes_and_finalizes_checkpoint_if_correlation_i
+  kind: magnitude
+  raw_text: 'If >= 0.7, copy/rename the file to data/models/estimator_checkpoint_final.pt
+    and update state.yaml with calibration_status: ''passed''.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:41:03Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: HybridOutput artifact generated for FID/MOS calculation
+  claim_id: c_15195621
+  context: generate the HybridOutput artifact data/processed/hybrid_output.parquet
+    required for FID/MOS calculation (FR-003, US-3, FR-008).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HybridOutput_artifact_generated_for_FID/MOS_calculation
+  kind: entity_fact
+  raw_text: Generate the HybridOutput artifact data/processed/hybrid_output.parquet
+    required for FID/MOS calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:41:35Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Hybrid output schema includes frame_id, latency, fid_score, and skip_flag
+  claim_id: c_bb82ef1c
+  context: 'Output Schema: frame_id (int64), latency (float64), fid_score (float64),
+    skip_flag (bool).'
+  evidence:
+    entailment_evidence: Hybrid output schema includes frame id, latency, fid score,
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Hybrid_output_schema_includes_frame_id,_latency,_fid_score,
+  kind: entity_fact
+  raw_text: 'Output Schema: frame_id (int64), latency (float64), fid_score (float64),
+    skip_flag (bool).'
+  resolved_value: Hybrid output schema includes frame_id, latency, fid_score, and
+    skip_flag
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T12:41:37Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Wan-Streamer baseline used when data source is wan-streamer
+  claim_id: c_1674b37e
+  context: If data_source == 'wan-streamer', use Wan-Streamer baseline. If data_source
+    == 'voxceleb2', use linear interpolation baseline for FID degradation metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wan-Streamer_baseline_used_when_data_source_is_wan-streamer
+  kind: entity_fact
+  raw_text: If data_source == 'wan-streamer', use Wan-Streamer baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:42:05Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 2
+  canonical: Forced skip artifact contains at least 5% of total frames using seed
+    42
+  claim_id: c_96695d4d
+  context: "Generate and log the specific 'forced skip' ground truth artifact data/processed/counterfactual_indices.parquet\
+    \ containing frame indices for the randomized subset (\u2265 5% of total) forced\
+    \ to be skipped, using a fixed seed SEED=42."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Forced_skip_artifact_contains_at_least_5%25_of_total_frames_us
+  kind: magnitude
+  raw_text: "Generate the specific 'forced skip' ground truth artifact containing\
+    \ frame indices for the randomized subset (\u2265 5% of total) forced to be skipped,\
+    \ using a fixed seed SEED=42."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:42:07Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: 5% threshold calculated for forced skip frames
+  claim_id: c_864dc920
+  context: 3. Calculate 5% threshold. 4. Generate indices using numpy.random.default_rng(42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate 5% threshold for forced skip frames.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:42:07Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Indices generated using numpy random seed 42
+  claim_id: c_45a480bf
+  context: 4. Generate indices using numpy.random.default_rng(42). 5. Write to parquet
+    with schema frame_id (int64).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate indices using numpy.random.default_rng(42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:42:24Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Counterfactual indices length is at least 5% of total frames
+  claim_id: c_1e111b49
+  context: 'Verification: Assert len(counterfactual_indices) >= 0.05 * total_frames
+    and schema validation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Counterfactual_indices_length_is_at_least_5%25_of_total_frames
+  kind: magnitude
+  raw_text: Assert len(counterfactual_indices) >= 0.05 * total_frames.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:42:38Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Metrics module computes FID and proxy MOS
+  claim_id: c_28d791aa
+  context: Implement code/evaluation/metrics.py to compute FID and proxy MOS.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metrics_module_computes_FID_and_proxy_MOS
+  kind: entity_fact
+  raw_text: Implement code/evaluation/metrics.py to compute FID and proxy MOS.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:43:28Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Check for existence of human ratings JSON file
+  claim_id: c_8425d8c2
+  context: Implement logic to check for the existence of data/raw/human_ratings.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Check_for_existence_of_human_ratings_JSON_file
+  kind: entity_fact
+  raw_text: Check for the existence of data/raw/human_ratings.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:43:54Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Human data status JSON written with status and reason keys
+  claim_id: c_8d9c7a6b
+  context: Write data/metrics/human_data_status.json with keys status ('present' or
+    'missing') and reason.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Human_data_status_JSON_written_with_status_and_reason_keys
+  kind: entity_fact
+  raw_text: Write data/metrics/human_data_status.json with keys status ('present'
+    or 'missing') and reason.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:44:16Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Assumption validated and logged if human data is missing
+  claim_id: c_5620a7fd
+  context: 'If status == ''missing'', log ''Assumption Validated (No Human Data Available)''
+    to data/logs/mos_assumption_validated.log and update state.yaml with mos_validation:
+    ''assumption_validated''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Assumption_validated_and_logged_if_human_data_is_missing
+  kind: entity_fact
+  raw_text: 'If status == ''missing'', log ''Assumption Validated (No Human Data Available)''
+    to data/logs/mos_assumption_validated.log and update state.yaml with mos_validation:
+    ''assumption_validated''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:44:37Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Validation status updated based on correlation threshold of 0.7
+  claim_id: c_cd145865
+  context: 'If correlation >= 0.7, update state.yaml to validation_status: ''validated'';
+    if < 0.7, update state.yaml to validation_status: ''invalidated'' and log ''FID
+    STABILITY CORRELATION FAILED: r < 0.7''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If correlation >= 0.7, update state.yaml to validation_status: ''validated'';
+    if < 0.7, update state.yaml to validation_status: ''invalidated'' and log ''FID
+    STABILITY CORRELATION FAILED: r < 0.7''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:45:04Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Propensity-score matching uses statsmodels.stats.weightstats.ttest_ind
+  claim_id: c_304fe3f3
+  context: Implement stratified bootstrap with propensity-score matching for latency
+    reduction validation using independent covariates (frame timestamp and audio energy,
+    excluding estimator prediction) via sklearn.linear_model.LogisticRegression and
+    statsmodels.stats.weightstats.ttest_ind...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Propensity-score_matching_uses_statsmodels.stats.weightstats
+  kind: entity_fact
+  raw_text: Use statsmodels.stats.weightstats.ttest_ind for propensity-score matching
+    validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:45:31Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Propensity-score matching uses sklearn.linear_model.LogisticRegression
+  claim_id: c_e92de653
+  context: Implement stratified bootstrap with propensity-score matching for latency
+    reduction validation using independent covariates (frame timestamp and audio energy,
+    excluding estimator prediction) via sklearn.linear_model.LogisticRegression and
+    statsmodels.stats.weightstats.ttest_ind...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Propensity-score_matching_uses_sklearn.linear_model.Logistic
+  kind: entity_fact
+  raw_text: Use sklearn.linear_model.LogisticRegression for propensity-score matching
+    validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:45:52Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Documentation files quickstart.md and research.md created with initial
+    content
+  claim_id: c_3d9d6a85
+  context: Create docs/quickstart.md and docs/research.md with initial content.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Documentation_files_quickstart.md_and_research.md_created_wi
+  kind: entity_fact
+  raw_text: Create docs/quickstart.md and docs/research.md with initial content.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:46:22Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-wan-streamer/specs/001-llmxive-follow-up-extending-wan-streamer/tasks.md
+  attempts: 1
+  canonical: Documentation contains explicit references to contracts schema files
+  claim_id: c_60253485
+  context: 'Verification: Assert that docs/quickstart.md and docs/data-model.md contain
+    explicit references to contracts/ schema files.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Documentation_contains_explicit_references_to_contracts_sche
+  kind: entity_fact
+  raw_text: Assert that docs/quickstart.md and docs/data-model.md contain explicit
+    references to contracts/ schema files.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:46:39Z'
