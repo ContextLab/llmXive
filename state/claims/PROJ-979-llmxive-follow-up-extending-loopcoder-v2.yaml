@@ -1796,3 +1796,107 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T15:58:42Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Use of HumanEval and MBPP datasets
+  claim_id: c_ece8dcc2
+  context: 'T004a [P] Implement code/src/data_loader.py function fetch_datasets():
+    Fetch HumanEval and MBPP via datasets.load_dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_HumanEval_and_MBPP_datasets
+  kind: entity_fact
+  raw_text: The project uses HumanEval and MBPP datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T04:30:17Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Use of CodeLlama instruct model
+  claim_id: c_0d9d6afa
+  context: T000-model [D] Verify the existence of a CodeLlama instruct model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_CodeLlama_instruct_model
+  kind: entity_fact
+  raw_text: The project utilizes a CodeLlama instruct model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T04:31:04Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Use of lifelines library for survival analysis
+  claim_id: c_e421bf50
+  context: T015-survival [US1] Use lifelines.KaplanMeierFitter to estimate survival
+    function and lifelines.CoxPHFitter to estimate hazard ratio.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_lifelines_library_for_survival_analysis
+  kind: entity_fact
+  raw_text: The project uses the lifelines library for survival analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T04:31:37Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Use of statsmodels library for statistical tests
+  claim_id: c_c076eddf
+  context: T021b-test [US2] Perform TOST (e.g., using statsmodels.stats.weightstats.ttost_ind).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_statsmodels_library_for_statistical_tests
+  kind: entity_fact
+  raw_text: The project uses the statsmodels library for statistical tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T04:32:14Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Use of scikit-learn library for logistic regression
+  claim_id: c_a8260434
+  context: T019 [US2] Train on entropy proxies using sklearn.linear_model.LogisticRegression.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_scikit-learn_library_for_logistic_regression
+  kind: entity_fact
+  raw_text: The project uses the scikit-learn library for logistic regression.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T04:32:55Z'
+- artifact_path: projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/specs/001-llmxive-follow-up-extending-loopcoder-v2/tasks.md
+  attempts: 1
+  canonical: Use of psutil library for resource monitoring
+  claim_id: c_214ac33a
+  context: T005e [P] Use psutil for CPU/RAM monitoring.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_psutil_library_for_resource_monitoring
+  kind: entity_fact
+  raw_text: The project uses the psutil library for resource monitoring.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T04:33:25Z'

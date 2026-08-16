@@ -1,337 +1,300 @@
-"""
-Inference module for running convergence analysis on code generation tasks.
-Implements iterative inference (k=1..K) with stateful tracking and Docker sandbox execution.
-"""
 import os
 import sys
 import json
 import logging
 import tempfile
 import shutil
-import argparse
-import ast
-import hashlib
+import subprocess
+import time
+import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-import pandas as pd
+
 import torch
-import random
-import numpy as np
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import yaml
 
-# Import from project modules
-from src.data_loader import load_config, load_filtered_splits
+from src.config import load_config
+from src.models import InputProblem, ConvergenceTrajectory
 from src.utils import set_global_seed
-from scripts.execute import execute_code
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-
-@dataclass
 class SandboxResult:
-    """Result of executing code in the sandbox."""
-    success: bool
-    output: str
-    error: Optional[str] = None
-    execution_time: Optional[float] = None
+    def __init__(self, success: bool, output: str, error: str = ""):
+        self.success = success
+        self.output = output
+        self.error = error
 
-
-def load_model(model_path: str, device: str = "cpu"):
-    """
-    Load the CodeLlama model from the specified path.
-    
-    Args:
-        model_path: Path to the model (from env var or config)
-        device: Device to load model to ('cpu' or 'cuda')
-        
-    Returns:
-        Loaded model and tokenizer
-    """
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-    
+def load_model(model_path: str, device: str = "cpu") -> Tuple[Any, Any]:
+    """Load model and tokenizer."""
     logger.info(f"Loading model from {model_path} on {device}")
-    
     try:
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
+        
         model = AutoModelForCausalLM.from_pretrained(
-            model_path,
+            model_path, 
             torch_dtype=torch.float32 if device == "cpu" else torch.float16,
-            device_map="auto" if device == "cuda" else None
+            device_map=device,
+            trust_remote_code=True
         )
-        
-        if device == "cpu":
-            model = model.to("cpu")
-        
-        logger.info("Model loaded successfully")
+        model.eval()
         return model, tokenizer
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         raise
 
-
-def generate_solution(prompt: str, model, tokenizer, k: int, max_new_tokens: int = 512) -> str:
-    """
-    Generate a code solution for the given prompt.
-    
-    Args:
-        prompt: The problem prompt
-        model: Loaded model
-        tokenizer: Loaded tokenizer
-        k: Number of samples to generate (for this implementation, generates one sample per call)
-        max_new_tokens: Maximum tokens to generate
-        
-    Returns:
-        Generated code solution
-    """
+def generate_solution(prompt: str, model: Any, tokenizer: Any, k: int, temperature: float = 0.7, top_p: float = 0.95) -> List[str]:
+    """Generate k solutions for a given prompt."""
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    
-    # Generate with some randomness for diversity
-    outputs = model.generate(
+    generated_ids = model.generate(
         **inputs,
-        max_new_tokens=max_new_tokens,
-        temperature=0.7,
-        top_p=0.95,
+        max_new_tokens=512,
         do_sample=True,
-        num_return_sequences=1
+        temperature=temperature,
+        top_p=top_p,
+        pad_token_id=tokenizer.pad_token_id,
+        num_return_sequences=k
     )
     
-    generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    # Extract code block if present
-    if "```python" in generated:
-        start = generated.find("```python") + len("```python")
-        end = generated.find("```", start)
-        if end == -1:
-            end = len(generated)
-        code = generated[start:end].strip()
-    else:
-        code = generated.strip()
-        
-    return code
+    solutions = []
+    for i in range(k):
+        output_ids = generated_ids[i][inputs['input_ids'].shape[1]:]
+        solution = tokenizer.decode(output_ids, skip_special_tokens=True)
+        solutions.append(solution)
+    return solutions
 
-
-def execute_code_in_sandbox(code: str, test_case: str, timeout: int = 30) -> SandboxResult:
-    """
-    Execute generated code against test cases in a sandbox.
-    
-    Args:
-        code: Generated code to execute
-        test_case: Test case string to run
-        timeout: Execution timeout in seconds
+def execute_code_in_sandbox(code: str, test_code: str, docker_image: str = "entropy-sandbox:latest") -> SandboxResult:
+    """Execute code in a Docker sandbox and return the result."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        code_file = os.path.join(tmpdir, "solution.py")
+        test_file = os.path.join(tmpdir, "test.py")
         
-    Returns:
-        SandboxResult with execution status
-    """
-    try:
-        # Create temporary directory for execution
-        with tempfile.TemporaryDirectory() as tmpdir:
-            code_file = os.path.join(tmpdir, "solution.py")
-            
-            # Write code to file
-            with open(code_file, "w") as f:
-                f.write(code)
-            
-            # Prepare test execution
-            test_code = f"""
+        with open(code_file, "w") as f:
+            f.write(code)
+        with open(test_file, "w") as f:
+            f.write(test_code)
+        
+        # Create a simple test runner script
+        runner_script = os.path.join(tmpdir, "run_test.py")
+        with open(runner_script, "w") as f:
+            f.write(f"""
 import sys
 import os
-sys.path.insert(0, '{tmpdir}')
-{code}
-{test_case}
-"""
-            test_file = os.path.join(tmpdir, "test_runner.py")
-            with open(test_file, "w") as f:
-                f.write(test_code)
-            
-            # Execute using the project's execute_code function
-            result = execute_code(
-                code_path=test_file,
-                timeout=timeout,
-                use_docker=False  # Disable docker for CPU validation
-            )
-            
-            return SandboxResult(
-                success=result.get("success", False),
-                output=result.get("output", ""),
-                error=result.get("error", None),
-                execution_time=result.get("execution_time", None)
-            )
-    except Exception as e:
-        logger.error(f"Sandbox execution failed: {e}")
-        return SandboxResult(
-            success=False,
-            output="",
-            error=str(e)
-        )
+import importlib.util
 
+# Add current directory to path
+sys.path.insert(0, '.')
 
-def detect_convergence(results: List[Dict], k_current: int) -> Tuple[bool, Optional[int]]:
-    """
-    Detect if the model has converged to a correct solution.
-    
-    Args:
-        results: List of previous results for this task_id
-        k_current: Current k value
+# Load solution
+spec = importlib.util.spec_from_file_location("solution", "{code_file}")
+solution_module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(solution_module)
+
+# Load test
+try:
+    with open("{test_file}", "r") as f:
+  test_code = f.read()
+    exec(test_code, solution_module.__dict__)
+    print("PASS")
+    sys.exit(0)
+except Exception as e:
+    print(f"FAIL: {{e}}")
+    sys.exit(1)
+""")
         
-    Returns:
-        Tuple of (converged, first_correct_step)
-    """
-    for i, result in enumerate(results):
-        if result.get("is_correct", False):
-            return True, i + 1  # 1-indexed step
+        try:
+            result = subprocess.run(
+                ["docker", "run", "--rm", "-v", f"{tmpdir}:/workspace", "-w", "/workspace", docker_image, "python", "run_test.py"],
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if result.returncode == 0:
+                return SandboxResult(success=True, output="PASS")
+            else:
+                return SandboxResult(success=False, output=result.stdout, error=result.stderr)
+        except subprocess.TimeoutExpired:
+            return SandboxResult(success=False, output="", error="Execution timeout")
+        except Exception as e:
+            return SandboxResult(success=False, output="", error=str(e))
+
+def detect_convergence(results: List[Dict[str, Any]], k_current: int) -> Tuple[bool, Optional[int]]:
+    """Detect if convergence has occurred at the current step."""
+    for i, res in enumerate(results):
+        if res.get("is_correct", False):
+            return True, i + 1  # Return 1-based index
     return False, None
 
-
-def save_convergence_results(results: List[Dict], output_path: str):
-    """
-    Save convergence results to CSV.
+def save_convergence_results(results: List[Dict[str, Any]], output_path: str):
+    """Save convergence results to CSV."""
+    if not results:
+        logger.warning("No results to save")
+        return
     
-    Args:
-        results: List of convergence result dictionaries
-        output_path: Path to save CSV file
-    """
-    df = pd.DataFrame(results)
-    df.to_csv(output_path, index=False)
+    fieldnames = ["task_id", "k", "output", "is_correct", "converged", "first_correct_step", "censored", "time_to_event"]
+    with open(output_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
     logger.info(f"Saved {len(results)} results to {output_path}")
 
-
-def load_input_problems(input_path: str) -> List[Dict]:
-    """
-    Load input problems from JSON file.
-    
-    Args:
-        input_path: Path to JSON file
-        
-    Returns:
-        List of input problem dictionaries
-    """
-    with open(input_path, "r") as f:
+def load_input_problem(file_path: str) -> List[Dict[str, Any]]:
+    """Load input problems from JSON file."""
+    with open(file_path, "r") as f:
         data = json.load(f)
     
-    # Return test set for convergence analysis
-    return data.get("test", data.get("train", []))
-
+    # Combine train and test splits if both exist
+    problems = []
+    if "train" in data:
+        problems.extend(data["train"])
+    if "test" in data:
+        problems.extend(data["test"])
+    
+    return problems
 
 def run_iterative_inference(
-    problems: List[Dict],
-    model,
-    tokenizer,
+    problems: List[Dict[str, Any]],
+    model: Any,
+    tokenizer: Any,
     k_range: List[int],
+    config: Dict[str, Any],
     output_path: str
-) -> List[Dict]:
-    """
-    Run iterative inference for k=1..K on all problems.
-    
-    Args:
-        problems: List of input problems
-        model: Loaded model
-        tokenizer: Loaded tokenizer
-        k_range: List of k values to test
-        output_path: Path to save results
-        
-    Returns:
-        List of all convergence results
-    """
+) -> List[Dict[str, Any]]:
+    """Run iterative inference for k=1..max(k_range) and track convergence."""
     all_results = []
+    docker_image = "entropy-sandbox:latest"
+    
+    # Sampling parameters from config
+    temperature = config.get("model_temperature", 0.7)
+    top_p = config.get("model_top_p", 0.95)
     
     for problem in problems:
-        task_id = problem.get("task_id", "unknown")
-        prompt = problem.get("prompt", "")
-        test_case = problem.get("test", "")
+        task_id = problem["task_id"]
+        prompt = problem["prompt"]
+        test_code = problem["test"]
         
-        logger.info(f"Processing task {task_id}")
+        logger.info(f"Processing {task_id}")
         
-        # State tracking for this problem
-        problem_results = []
-        first_correct_step = None
-        converged = False
+        # Stateful tracking for this problem
+        state = {
+            "converged": False,
+            "first_correct_step": None,
+            "censored": False
+        }
+        
+        # Track all outputs for this task_id
+        task_results = []
         
         for k in k_range:
-            # Generate solution
-            solution = generate_solution(prompt, model, tokenizer, k)
+            start_time = time.perf_counter()
             
-            # Execute in sandbox
-            sandbox_result = execute_code_in_sandbox(solution, test_case)
+            # Generate k fresh samples for this k value
+            samples = generate_solution(prompt, model, tokenizer, k, temperature, top_p)
             
-            is_correct = sandbox_result.success
+            for sample_idx, sample in enumerate(samples):
+                # Execute in sandbox
+                sandbox_result = execute_code_in_sandbox(sample, test_code, docker_image)
+                
+                is_correct = sandbox_result.success
+                elapsed = time.perf_counter() - start_time
+                
+                # Determine convergence status
+                converged = False
+                first_correct_step = None
+                censored = False
+                
+                if state["converged"]:
+                    # Already converged at an earlier step
+                    converged = False
+                    first_correct_step = state["first_correct_step"]
+                else:
+                    if is_correct:
+                        # First correct step found
+                        converged = True
+                        first_correct_step = k
+                        state["converged"] = True
+                        state["first_correct_step"] = k
+                    elif k == max(k_range):
+                        # Reached max k without convergence
+                        censored = True
+                        state["censored"] = True
+                
+                result_entry = {
+                    "task_id": task_id,
+                    "k": k,
+                    "output": sample[:200] + "..." if len(sample) > 200 else sample,  # Truncate for CSV
+                    "is_correct": is_correct,
+                    "converged": converged,
+                    "first_correct_step": first_correct_step,
+                    "censored": censored,
+                    "time_to_event": int(elapsed * 1000)  # ms
+                }
+                
+                task_results.append(result_entry)
+                all_results.append(result_entry)
+                
+                # If we found a correct solution, we could break early for this k,
+                # but the spec says run k=1,2,3 sequentially with fresh samples each time.
+                # We continue to generate all samples for the current k.
             
-            # Update convergence state
-            if is_correct and first_correct_step is None:
-                first_correct_step = k
-                converged = True
-            
-            # Determine censored status
-            censored = False
-            if k == k_range[-1] and first_correct_step is None:
-                censored = True
-            
-            result = {
-                "task_id": task_id,
-                "k": k,
-                "output": solution[:500] if len(solution) > 500 else solution,  # Truncate for storage
-                "is_correct": is_correct,
-                "converged": (k == first_correct_step) if first_correct_step else False,
-                "first_correct_step": first_correct_step,
-                "censored": censored
-            }
-            
-            problem_results.append(result)
-            all_results.append(result)
-            
-            logger.info(f"  k={k}: correct={is_correct}, converged={result['converged']}")
-    
-    # Save results
-    save_convergence_results(all_results, output_path)
+            # If converged at this k, we still continue to next k to fill the table,
+            # but subsequent entries will be marked as not converged (already found).
+        
+        logger.info(f"Completed {task_id}")
     
     return all_results
 
-
 def main():
     """Main entry point for convergence inference."""
-    parser = argparse.ArgumentParser(description="Run convergence inference analysis")
-    parser.add_argument("--input", required=True, help="Path to input splits JSON")
-    parser.add_argument("--output", required=True, help="Path to output CSV file")
-    parser.add_argument("--k_range", type=str, default="[1,2,3]", help="K values to test (e.g., [1,2,3])")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    import argparse
     
+    parser = argparse.ArgumentParser(description="Run convergence inference pipeline")
+    parser.add_argument("--input", type=str, required=True, help="Path to input splits JSON")
+    parser.add_argument("--output", type=str, required=True, help="Path to output CSV")
+    parser.add_argument("--k_range", type=str, default="[1,2,3]", help="Comma-separated or JSON list of k values")
+    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file")
     args = parser.parse_args()
     
-    # Set global seed
-    set_global_seed(args.seed)
-    
     # Parse k_range
-    k_range = json.loads(args.k_range)
+    if args.k_range.startswith("[") and args.k_range.endswith("]"):
+        k_range = json.loads(args.k_range)
+    else:
+        k_range = [int(x.strip()) for x in args.k_range.split(",")]
+    k_range = sorted(k_range)
     
-    # Load configuration
-    config = load_config()
-    model_path = os.environ.get("CODELLAMA_CPU_PATH", config.get("CODELLAMA_CPU_PATH"))
+    # Load config
+    config = load_config(args.config)
     
-    if not model_path or model_path == "NOT_SET":
-        logger.error("Model path not set. Please set CODELLAMA_CPU_PATH environment variable.")
-        sys.exit(1)
+    # Set global seed
+    set_global_seed(config.get("seed", 42))
+    
+    # Determine model path
+    model_path = os.environ.get("CODELLAMA_CPU_PATH") or os.environ.get("CODELLAMA_GPU_PATH")
+    if not model_path:
+        raise ValueError("Model path not set via CODELLAMA_CPU_PATH or CODELLAMA_GPU_PATH environment variable")
+    
+    # Determine device
+    device = "cuda" if os.environ.get("CODELLAMA_GPU_PATH") and torch.cuda.is_available() else "cpu"
     
     # Load model
-    model, tokenizer = load_model(model_path, device="cpu")
+    model, tokenizer = load_model(model_path, device)
     
     # Load input problems
-    problems = load_input_problems(args.input)
+    problems = load_input_problem(args.input)
     logger.info(f"Loaded {len(problems)} problems")
     
     # Run inference
-    results = run_iterative_inference(
-        problems=problems,
-        model=model,
-        tokenizer=tokenizer,
-        k_range=k_range,
-        output_path=args.output
-    )
+    results = run_iterative_inference(problems, model, tokenizer, k_range, config, args.output)
     
-    logger.info(f"Convergence inference complete. Results saved to {args.output}")
-
+    # Save results
+    save_convergence_results(results, args.output)
+    
+    logger.info("Convergence inference completed successfully")
 
 if __name__ == "__main__":
     main()

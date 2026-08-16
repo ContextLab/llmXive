@@ -42,52 +42,24 @@ T008b:
     nor shown, and no content with the three required sections (Hypothesis, Pilot
     Results, Rationale) is provided. Without this document, the pilot comparison and
     baseline hypothesis are not documented.
-T012a:
+T013a:
   c: false
-  h: 8747a3d97257a2f37288210bb793b8710f72aabc149ccbc617305f1022022c8f
-  r: The required data files `data/processed/unseen_validation_set.csv`, `exclusion_log.json`,
-    and the final output `entropy_results.csv` are missing, and thus the pipeline
-    cannot be verified as fully implemented or producing the specified artifact.
-T013b:
-  c: false
-  h: b703044fd5152219e26e3f23a2ecf19ed3ed8b9d3572bc48315ffa8b19289122
-  r: The required output file `data/processed/convergence_results_sensitivity.csv`
-    does not exist, and the provided `code/src/inference.py` snippet does not show
-    the specific stateful logic (handling `first_correct_step`, `converged`, `censored`
-    for k=4 and writing the results to the CSV) that the task demands. Both the artifact
-    and the precise implementation are missing.
-T019:
-  c: false
-  h: 891bf53175b1549806306b8e177bf1ef25402d1625a026adb010e54f2846ee73
-  r: "The repository lacks the required input CSVs (`entropy_results.csv`, `convergence_results_core.csv`)\
-    \ and the output artifacts (`router_model.pkl`, `router_metrics.json`). Moreover,\
-    \ the provided `analysis.py` does not contain the logistic\u2011regression training,\
-    \ cross\u2011validation, baseline comparison, or statistical\u2011significance\
-    \ code mandated by the task. These essential components are missing, so the task\
-    \ is not genuinely completed."
-T019b:
-  c: false
-  h: 313c3c8c2c5a02d0c0076b39c1be5232dc8389949efca746333e80db9aeabb19
-  r: "The required files `data/processed/router_model.pkl`, `entropy_results.csv`,\
-    \ `convergence_results_core.csv`, and the output `router_results.csv` are all\
-    \ missing, so the router predictions and evaluation could not be performed. The\
-    \ task\u2019s core artifact is absent."
-T025a:
-  c: false
-  h: f1a43f8a748463e438698e4bac5bbb58c646c27ff51dcc97a4083f9f6beba269
-  r: "The repository lacks the required input data files (`entropy_results.csv`, `convergence_results_core.csv`,\
-    \ `strata_log.json`) and the expected output file `stratum_pvalues.json`. Moreover,\
-    \ the provided `robustness.py` is truncated and does not contain a function that\
-    \ computes per\u2011stratum Spearman correlations or writes the JSON output. The\
-    \ task is therefore not fulfilled."
+  h: 2d8756d33512c4964a2c19ecd80533cbac51df510bd36614083e22a50ea43b15
+  r: "The repository contains `code/src/inference.py`, but the file only defines model\
+    \ loading, generation, and sandbox execution utilities; it does not implement\
+    \ the required sequential loop over inputs, fresh sampling for each k, stateful\
+    \ tracking, convergence/censoring logic, or direct writing to `data/processed/convergence_results_core.csv`.\
+    \ Moreover, the required output file `data/processed/convergence_results_core.csv`\
+    \ is absent. These missing components mean the task\u2019s core requirements are\
+    \ not satisfied."
 T025b:
   c: false
-  h: fc01410f0b45ceda8c3cad8a62f7e9223f5e3853e01aa95c8e6579c0f6900fad
-  r: "The repository lacks the required `data/processed/stratum_pvalues.json`, `data/processed/strata_log.json`,\
-    \ and the output `data/processed/adjusted_pvalues.json`. Moreover, the provided\
-    \ `code/src/robustness.py` does not contain any implementation of grouping p\u2011\
-    values by strata, filtering underpowered strata, or applying Holm\u2011Bonferroni\
-    \ correction, so the task\u2019s core functionality is absent."
+  h: 5c7426b85f582598146828b40fb1e8d92549a6aa510db07f9145f1cb5fb9853c
+  r: "The repository lacks `data/processed/stratum_pvalues.json` and the required\
+    \ `data/processed/adjusted_pvalues.json`. The provided `code/src/robustness.py`\
+    \ does not contain any implementation of Holm\u2011Bonferroni correction or grouping\
+    \ by strata, and `code/config.yaml` does not define the needed `alpha: 0.05`.\
+    \ Consequently the task\u2019s specifications are not met."
 T025d:
   c: false
   h: ddf3eb338a1457807e24a27639d07c0e761936d11f9d8e5be58b1fb1b4ef946c
@@ -97,16 +69,19 @@ T025d:
     \ `convergence_results_core.csv`, `full_splits.json`) and the output `mixed_effects_results.json`\
     \ are missing, so the logic cannot be executed nor the results produced. The task\
     \ is therefore not fulfilled."
-T035:
+T026:
   c: false
-  h: 66833a840eb08ed4915993fa8c1fba1a1c63a23f866c8b20a3356f949e085817
-  r: "The required artifact `data/processed/entropy_results.csv` is missing, and there\
-    \ is no evidence that the `entropy.py` script was executed successfully (no exit\u2011\
-    code log or generated file). The implementer must run the pipeline and produce\
-    \ the CSV file at the specified path."
-T036:
+  h: c5359c31c645db45ec86536a0c6e069f81312576762bb3ab2d62978e491f209d
+  r: "The repository lacks the required `data/processed/convergence_results_merged.csv`\
+    \ and `data/processed/sensitivity_sweep.json` files, and `code/src/robustness.py`\
+    \ does not contain the sensitivity\u2011analysis loop, baseline Spearman calculations,\
+    \ or JSON output logic (the shown function is truncated, never writes the merged\
+    \ CSV, and contains a typo). The task\u2019s core functionality and output artifacts\
+    \ are therefore missing."
+T037:
   c: false
-  h: 60e55d34cd9365e30cd87d15c2dadefc2674353b4dc2102c44530820f21ae838
-  r: "The required output file `data/processed/convergence_results_core.csv` is absent,\
-    \ and there is no evidence that the inference script was run successfully (no\
-    \ logs, exit code, or generated file). The task\u2019s core deliverable is missing."
+  h: d2008daf05acfed87c06e292986c2132e36f711c361a64a29fbb1052c8a996fd
+  r: The required input file `data/processed/correlation_results.json` does not exist,
+    and consequently the expected output `data/processed/correlation_results_final.json`
+    is also missing; there is no evidence that the survival analysis script was run
+    successfully or that it produced the artifact.
