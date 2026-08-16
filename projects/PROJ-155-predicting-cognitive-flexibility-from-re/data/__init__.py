@@ -1,2 +1,3 @@
-# Data module initialization
-pass
+"""
+Data loading and processing utilities.
+"""

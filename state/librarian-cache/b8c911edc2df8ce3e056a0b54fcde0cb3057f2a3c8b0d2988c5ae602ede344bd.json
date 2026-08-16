@@ -1,0 +1,568 @@
+{
+  "fetched_at": "2026-08-16T22:23:45Z",
+  "field": "linguistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "linguistics",
+      "idea_body_excerpt": "llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive Agents on Real-World\"",
+      "target_n": 5
+    },
+    "duration_seconds": 47.271,
+    "ended_at": "2026-08-16T22:23:45Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "proactive language agents real-world benchmarks"
+        ],
+        [
+          2,
+          "UniClawBench evaluation metrics"
+        ],
+        [
+          3,
+          "autonomous agents linguistic capabilities"
+        ],
+        [
+          4,
+          "large language model proactive planning"
+        ],
+        [
+          5,
+          "real-world task benchmarking for LLMs"
+        ],
+        [
+          6,
+          "multi-step reasoning in language agents"
+        ],
+        [
+          7,
+          "agent-based benchmarking frameworks"
+        ],
+        [
+          8,
+          "proactive behavior in generative AI"
+        ],
+        [
+          9,
+          "linguistic evaluation of autonomous agents"
+        ],
+        [
+          10,
+          "universal benchmarks for AI agents"
+        ],
+        [
+          11,
+          "LLM real-world interaction assessment"
+        ],
+        [
+          12,
+          "agentic workflows in natural language processing"
+        ],
+        [
+          13,
+          "proactive decision making in language models"
+        ],
+        [
+          14,
+          "benchmarking LLMs for complex real-world tasks"
+        ],
+        [
+          15,
+          "autonomous linguistic agents evaluation"
+        ],
+        [
+          16,
+          "LLM proactive task execution"
+        ],
+        [
+          17,
+          "cross-domain agent benchmarking"
+        ],
+        [
+          18,
+          "natural language understanding for proactive agents"
+        ],
+        [
+          19,
+          "real-world scenario testing for LLMs"
+        ],
+        [
+          20,
+          "agent performance metrics in linguistics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive Agents on Real-World\" linguistics": 0,
+        "proactive language agents real-world benchmarks": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "proactive language agent task planning",
+      "UniClawBench benchmark evaluation protocol",
+      "goal-directed instruction following LLM",
+      "agent trajectory success rate metric",
+      "real-world task decomposition linguistics"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2406.12639"
+      ]
+    },
+    "per_query_hit_count": {
+      "UniClawBench benchmark evaluation protocol": 3,
+      "agent trajectory success rate metric": 3,
+      "goal-directed instruction following LLM": 3,
+      "llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive Agents on Real-World\" linguistics": 3,
+      "proactive language agent task planning": 3,
+      "real-world task decomposition linguistics": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2503.17966",
+          "rationale": "The paper focuses on computer vision (remote sensing image dehazing) and lacks any connection to the user's domain of Large Language Models (LLMs), proactive agents, or linguistics. It fails all inclusion criteria (a-f) as it addresses a distinct construct in an entirely different field, satisfying only the rejection rule for \"off-domain entirely.\"",
+          "title": "Real-World Remote Sensing Image Dehazing: Benchmark and Baseline"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-16T22:22:57Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"uniclawbench: a universal benchmark for proactive agents on real-world\" linguistics",
+      "raw": "llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive Agents on Real-World\" linguistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide an introductory review of Bayesian data analytical methods, with a focus on applications for linguistics, psychology, psycholinguistics, and cognitive science. The empirically oriented researcher will benefit from making Bayesian methods part of their statistical toolkit due to the many advantages of this framework, among them easier interpretation of results relative to research hypotheses, and flexible model specification. We present an informal introduction to the foundational ideas behind Bayesian data analysis, using, as an example, a linear mixed models analysis of data from a typical psycholinguistics experiment. We discuss hypothesis testing using the Bayes factor, and model selection using cross-validation. We close with some examples illustrating the flexibility of model specification in the Bayesian framework. Suggestions for further reading are also provided.",
+          "claimed_authors": [
+            "Bruno Nicenboim",
+            "Shravan Vasishth"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part II",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.00245"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part II')",
+        "failed_at": "2026-08-16T22:23:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the fundamental ideas underlying statistical hypothesis testing using the frequentist framework. We begin with a simple example that builds up the one-sample t-test from the beginning, explaining important concepts such as the sampling distribution of the sample mean, and the iid assumption. Then we examine the p-value in detail, and discuss several important misconceptions about what a p-value does and does not tell us. This leads to a discussion of Type I, II error and power, and Type S and M error. An important conclusion from this discussion is that one should aim to carry out appropriately powered studies. Next, we discuss two common issues we have encountered in psycholinguistics and linguistics: running experiments until significance is reached, and the \"garden-of-forking-paths\" problem discussed by Gelman and others, whereby the researcher attempts to find statistical significance by analyzing the data in different ways. The best way to use frequentist methods is to run appropriately powered studies, check model assumptions, clearly separate exploratory data analysis from confirmatory hypothesis testing, and always attempt to replicate results.",
+          "claimed_authors": [
+            "Shravan Vasishth",
+            "Bruno Nicenboim"
+          ],
+          "claimed_title": "Statistical methods for linguistic research: Foundational Ideas - Part I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1601.01126"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='Statistical methods for linguistic research: Foundational Ideas - Part I')",
+        "failed_at": "2026-08-16T22:23:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Linguistics olympiad problems (LOPs) are a category of self-sufficient puzzles consisting of a scaled-down corpus representative of certain linguistic phenomena, from which the solver must deduce a primitive set of rules of the language and then translate a new set of elements. The linguistics olympiads (LOs) have become a worldwide phenomenon with 43 different territories taking part in the International Linguistics Olympiad (IOL) 2025. While the typology and solving strategies of LOPs have been analysed, their scientific facet and connections to academic linguistics have yet to be explored. LOPs are directly connected to many linguistic fields, e.g., linguistic typology, linguistic relativity, and linguistics fieldwork. Recently, LOPs have become a research focus as benchmarks for large language models, thus highlighting their usefulness in computational linguistics. Nevertheless, they have not yet been integrated into mainstream linguistics research. This paper attempts to open new directions of including this particular type of puzzle in academic research by offering a structured evaluation of LOPs as linguistic data sources and proposes criteria for their responsible use in academic research. Starting from a set of over 1800 LOPs, this study critically examines the potential of LOPs as a novel corpus for linguistics research by discussing their strengths and limitations as tools, as well as the areas of linguistics into which these problems could fit. This work forms the foundation for a broader initiative aimed at bridging the gap between LOs and academic linguistics, by establishing a robust theoretical framework for LOPs.",
+          "claimed_authors": [
+            "Vlad A. Neacsu"
+          ],
+          "claimed_title": "The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.14257"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='The Linguistics Olympiads: Towards a New Corpus for Linguistics Research?')",
+        "failed_at": "2026-08-16T22:23:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have shown remarkable performance in various basic natural language tasks. For completing the complex task, we still need a plan for the task to guide LLMs to generate the specific solutions step by step. LLMs can directly generate task plans, but these plans may still contain factual errors or are incomplete. A high-quality task plan contains correct step-by-step solutions for solving all situations and behavioral instructions for avoiding mistakes. To obtain it, we propose the Learning to Plan method, which involves two phases: (1) In the first learning task plan phase, it iteratively updates the task plan with new step-by-step solutions and behavioral instructions, which are obtained by prompting LLMs to derive from training error feedback. (2) In the subsequent test phase, the LLM uses the learned task plan to guide the inference of LLM on the test set. We demonstrate the effectiveness of our method on the five different reasoning type tasks (8 datasets). Further, our analysis experiment shows that the task plan learned by one LLM can directly guide another LLM to improve its performance, which reveals a new transfer learning paradigm. We release the code at \\url{https://github.com/Eureka6174/LearnNLPlan}",
+          "claimed_authors": [
+            "Yiduo Guo",
+            "Yaobo Liang",
+            "Chenfei Wu",
+            "Wenshan Wu",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "Learning to Plan with Natural Language",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.10464"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='Learning to Plan with Natural Language')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Model-based agents have garnered significant attention and are becoming increasingly popular. Furthermore, planning ability is a crucial component of an LLM-based agent, which generally entails achieving a desired goal from an initial state. This paper investigates enhancing the planning abilities of LLMs through instruction tuning, referred to as agent training. Recent studies have demonstrated that utilizing expert-level trajectory for instruction-tuning LLMs effectively enhances their planning capabilities. However, existing work primarily focuses on synthesizing trajectories from manually designed planning tasks and environments. The labor-intensive nature of creating these environments and tasks impedes the generation of sufficiently varied and extensive trajectories. To address this limitation, this paper explores the automated synthesis of diverse environments and a gradual range of planning tasks, from easy to difficult. We introduce a framework, AgentGen, that leverages LLMs first to generate environments and subsequently generate planning tasks conditioned on these environments. Specifically, to improve environmental diversity, we propose using an inspiration corpus composed of various domain-specific text segments as the context for synthesizing environments. Moreover, to increase the difficulty diversity of generated planning tasks, we propose a bidirectional evolution method, Bi-Evol, that evolves planning tasks from easier and harder directions to synthesize a task set with a smoother difficulty curve. The evaluation results derived from AgentBoard show that AgentGen greatly improves LLMs' planning ability, e.g., the AgentGen instruction-tuned Llama-3.1-8B surpasses GPT-3.5 in overall performance. Moreover, the AgentGen-tuned Llama-3.1-70B model achieves state-of-the-art results in planning tasks. Project page: https://agent-gen.github.io/.",
+          "claimed_authors": [
+            "Mengkang Hu",
+            "Pu Zhao",
+            "Can Xu",
+            "Qingfeng Sun",
+            "Jianguang Lou",
+            "Qingwei Lin",
+            "Ping Luo",
+            "Saravan Rajmohan"
+          ],
+          "claimed_title": "AgentGen: Enhancing Planning Abilities for Large Language Model based Agent via Environment and Task Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.00764"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='AgentGen: Enhancing Planning Abilities for Large Language Model based Agent via Environment and Task Generation')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Today, SIP is a protocol par Excellence in the field of communication over Internet. But, the fact that it belongs to the application layer constitutes a weakness vis-a-vis the NAT traversal. This weakness is due to the way in which the server replies to the requests of clients on the one hand. On the other, it is caused by the dynamic allocation of UDP ports for emission and reception of packets RTP/RTCP. The TURN Protocol may face this weakness. However, its use requires a certain number of exchanges between the clients and a TURN server before establishing the multimedia sessions and this increase the latent time. In this article, we propose to adapt TURN protocol for applications based on SIP protocol such as telephony over Internet, conference video, etc. This adaptation optimises the establishment of multimedia sessions by integrating a manager of TCP connections and multimedia flow controller into SIP Proxy server.",
+          "claimed_authors": [
+            "Mustapha Guezouri",
+            "Ahmed Blaha",
+            "Mokhtar Keche"
+          ],
+          "claimed_title": "Adaptation of TURN protocol to SIP protocol",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.1178"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='Adaptation of TURN protocol to SIP protocol')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite widespread deployment of Large Language Models, systematic evaluation of instruction-following capabilities remains challenging. While comprehensive benchmarks exist, focused assessments that quickly diagnose specific instruction adherence patterns are valuable. As newer models may be trained on existing benchmarks, novel evaluation approaches are needed to assess genuine capabilities rather than memorized performance. This paper presents a streamlined evaluation framework using twenty carefully designed prompts to assess LLM instruction-following across diverse task categories. We demonstrate this framework through a large-scale empirical study conducted on October 14, 2025, testing 256 verified working models from 331 available via OpenRouter. To ensure methodological rigor and prevent selection bias, we first verified each model's basic functionality before inclusion. Unlike large-scale benchmarks requiring extensive computational resources, our approach offers a practical diagnostic tool researchers and practitioners can readily apply. Our methodology builds upon verifiable instructions while introducing a compact test suite balancing comprehensiveness with efficiency. Each prompt targets distinct aspects of instruction following, including format compliance, content constraints, logical sequencing, and multi-step task execution. We evaluate models from major providers (OpenAI, Anthropic, Google, Meta, Mistral) and emerging implementations (Qwen, DeepSeek, community models), providing comparative performance analysis. Our findings reveal consistent failure modes and identify specific instruction types posing particular challenges. This work contributes both a practical evaluation tool and one of the most comprehensive empirical analyses of instruction-following capabilities across the contemporary LLM landscape.",
+          "claimed_authors": [
+            "Richard J. Young",
+            "Brandon Gillins",
+            "Alice M. Matthews"
+          ],
+          "claimed_title": "When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.18892"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title=\"When Models Can't Follow: Testing Instruction Adherence Across 256 LLMs\")",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In-context learning (ICL) allows LLMs to learn from examples without changing their weights: this is a particularly promising capability for long-context LLMs that can potentially learn from many examples. Recently, Lin et al. (2024) proposed URIAL, a method using only three in-context examples to align base LLMs, achieving non-trivial instruction following performance. In this work, we show that, while effective, ICL alignment with URIAL still underperforms compared to instruction fine-tuning on the established benchmark MT-Bench, especially with more capable base LLMs. We then uncover the most relevant elements for successful in-context alignment, finding the crucial role of the decoding parameters. Based on these insights, we show that the approach of URIAL can indeed be improved by adding high-quality, potentially carefully selected via greedy search, demonstrations in context, getting closer to the performance of instruct models. Finally, we provide the first, to our knowledge, systematic comparison of ICL and instruction fine-tuning (IFT) for instruction following in the low data regime, where ICL can be a viable alternative to IFT. Overall, our work advances the understanding of ICL as an alignment technique and its relationship to IFT. We provide our code at https://github.com/tml-epfl/icl-alignment.",
+          "claimed_authors": [
+            "Hao Zhao",
+            "Maksym Andriushchenko",
+            "Francesco Croce",
+            "Nicolas Flammarion"
+          ],
+          "claimed_title": "Is In-Context Learning Sufficient for Instruction Following in LLMs?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19874"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='Is In-Context Learning Sufficient for Instruction Following in LLMs?')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper proposes a metric for sets of trajectories to evaluate multi-object tracking algorithms that includes time-weighted costs for localisation errors of properly detected targets, for false targets, missed targets and track switches. The proposed metric extends the metric in [1] by including weights to the costs associated to different time steps. The time-weighted costs increase the flexibility of the metric [1] to fit more applications and user preferences. We first introduce a metric based on multi-dimensional assignments, and then its linear programming relaxation, which is computable in polynomial time and is also a metric. The metrics can also be extended to metrics on random finite sets of trajectories to evaluate and rank algorithms across different scenarios, each with a ground truth set of trajectories.",
+          "claimed_authors": [
+            "Ángel F. García-Fernández",
+            "Abu Sajana Rahmathullah",
+            "Lennart Svensson"
+          ],
+          "claimed_title": "A time-weighted metric for sets of trajectories to assess multi-object tracking algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13444"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='A time-weighted metric for sets of trajectories to assess multi-object tracking algorithms')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The increasing deployment of Large Language Model (LLM) agents for complex software engineering tasks has created a need to understand their problem-solving behaviours beyond simple success metrics. While these agents demonstrate impressive capabilities in automated issue resolution, their decision-making processes remain largely opaque. This paper presents an empirical study of agent trajectories, namely the execution traces capturing the steps agents take when attempting to resolve software issues. We analyse trajectories from three state-of-the-art code agents (OpenHands, SWE-agent, and Prometheus) on the SWE-Bench benchmark, examining both successful and failed attempts. Our investigation reveals several key insights into agent behaviour. First, we identify how distinct problem-solving strategies, such as defensive programming and context gathering, enable success in different scenarios. Second, we find that failed trajectories are consistently longer and exhibit higher variance than successful ones, with failure patterns differing significantly between agents. Third, our fault localisation analysis shows that while most trajectories correctly identify problematic files (72-81\\% even in failures), success depends more on achieving approximate rather than exact code modifications. These and other findings unveiled by our study, provide a foundation for understanding agent behaviour through trajectory analysis, contributing to the development of more robust and interpretable autonomous software engineering systems.",
+          "claimed_authors": [
+            "Oorja Majgaonkar",
+            "Zhiwei Fei",
+            "Xiang Li",
+            "Federica Sarro",
+            "He Ye"
+          ],
+          "claimed_title": "Understanding Code Agent Behaviour: An Empirical Study of Success and Failure Trajectories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.00197"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='Understanding Code Agent Behaviour: An Empirical Study of Success and Failure Trajectories')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evolutionary algorithms offer great promise for the automatic design of robot bodies, tailoring them to specific environments or tasks. Most research is done on simplified models or virtual robots in physics simulators, which do not capture the natural noise and richness of the real world. Very few of these virtual robots are built as physical robots, and the few that are will rarely be further improved in the actual environment they operate in, limiting the effectiveness of the automatic design process. We utilize our shape-shifting quadruped robot, which allows us to optimize the design in its real-world environment. The robot is able to change the length of its legs during operation, and is robust enough for complex experiments and tasks. We have co-evolved control and morphology in several different scenarios, and have seen that the algorithm is able to exploit the dynamic morphology solely through real-world experiments.",
+          "claimed_authors": [
+            "Tonnes F. Nygaard",
+            "David Howard",
+            "Kyrre Glette"
+          ],
+          "claimed_title": "Real World Morphological Evolution is Feasible",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.09288"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='Real World Morphological Evolution is Feasible')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote Sensing Image Dehazing (RSID) poses significant challenges in real-world scenarios due to the complex atmospheric conditions and severe color distortions that degrade image quality. The scarcity of real-world remote sensing hazy image pairs has compelled existing methods to rely primarily on synthetic datasets. However, these methods struggle with real-world applications due to the inherent domain gap between synthetic and real data. To address this, we introduce Real-World Remote Sensing Hazy Image Dataset (RRSHID), the first large-scale dataset featuring real-world hazy and dehazed image pairs across diverse atmospheric conditions. Based on this, we propose MCAF-Net, a novel framework tailored for real-world RSID. Its effectiveness arises from three innovative components: Multi-branch Feature Integration Block Aggregator (MFIBA), which enables robust feature extraction through cascaded integration blocks and parallel multi-branch processing; Color-Calibrated Self-Supervised Attention Module (CSAM), which mitigates complex color distortions via self-supervised learning and attention-guided refinement; and Multi-Scale Feature Adaptive Fusion Module (MFAFM), which integrates features effectively while preserving local details and global context. Extensive experiments validate that MCAF-Net demonstrates state-of-the-art performance in real-world RSID, while maintaining competitive performance on synthetic datasets. The introduction of RRSHID and MCAF-Net sets new benchmarks for real-world RSID research, advancing practical solutions for this complex task. The code and dataset are publicly available at https://github.com/lwCVer/RRSHID.",
+          "claimed_authors": [
+            "Zeng-Hui Zhu",
+            "Wei Lu",
+            "Si-Bao Chen",
+            "Chris H. Q. Ding",
+            "Jin Tang",
+            "Bin Luo"
+          ],
+          "claimed_title": "Real-World Remote Sensing Image Dehazing: Benchmark and Baseline",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.17966"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"UniClawBench: A Universal Benchmark for Proactive ', candidate_title='Real-World Remote Sensing Image Dehazing: Benchmark and Baseline')",
+        "failed_at": "2026-08-16T22:23:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xuan Zhang",
+            "Yang Deng",
+            "Zifeng Ren",
+            "See-Kiong Ng",
+            "Tat-Seng Chua"
+          ],
+          "title": "Ask-before-Plan: Proactive Language Agents for Real-World Planning",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.12639",
+        "summary": "The evolution of large language models (LLMs) has enhanced the planning capabilities of language agents in diverse real-world scenarios. Despite these advancements, the potential of LLM-powered agents to comprehend ambiguous user instructions for reasoning and decision-making is still under exploration. In this work, we introduce a new task, Proactive Agent Planning, which requires language agents to predict clarification needs based on user-agent conversation and agent-environment interaction, invoke external tools to collect valid information, and generate a plan to fulfill the user's demands. To study this practical problem, we establish a new benchmark dataset, Ask-before-Plan. To tackle the deficiency of LLMs in proactive planning, we propose a novel multi-agent framework, Clarification-Execution-Planning (\\texttt{CEP}), which consists of three agents specialized in clarification, execution, and planning. We introduce the trajectory tuning scheme for the clarification agent and static execution agent, as well as the memory recollection mechanism for the dynamic execution agent. Extensive evaluations and comprehensive analyses conducted on the Ask-before-Plan dataset validate the effectiveness of our proposed framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.12639",
+          "http_status": 200,
+          "pdf_sample_score": 0.2302,
+          "query_relevance_score": 0.4545,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-16T22:23:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhekai Chen",
+            "Chengqi Duan",
+            "Kaiyue Sun",
+            "Bohao Li",
+            "Yuqing Wang",
+            "Manyuan Zhang",
+            "Xihui Liu"
+          ],
+          "title": "UniClawBench: A Universal Benchmark for Proactive Agents on Real-World Tasks",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.08768",
+        "summary": "The rapid development of large language models and multimodal large language models has accelerated the emergence of proactive agents capable of operating everyday tools and assisting users in real-world environments. However, existing benchmarks struggle to evaluate such agents effectively, as they often rely on sandboxed environments and single-turn evaluation paradigms. Moreover, their scenario-based task taxonomies mix multiple model capabilities within the same task category, making it difficult to identify the root causes of agent failures. To address these limitations, we introduce UniClawBench, the first capability-driven benchmark designed to evaluate proactive agents in dynamic, real-world settings. UniClawBench is built around five foundational model capabilities: Skill Usage, Exploration, Long-Context Reasoning, Multimodal Understanding, and Cross-Platform Coordination. Based on these capabilities, we design 400 bilingual real-world tasks. Unlike previous benchmarks that rely on static, pre-recorded answers, our benchmark evaluates agents in live Docker containers using fine-grained, step-by-step completion checkpoints. Furthermore, we design a closed-loop evaluation strategy comprising an executor agent, a hidden supervisor agent, and a user agent to simulate realistic multi-turn human feedback without leaking grading criteria. To disentangle base model capabilities from framework-level design choices, we evaluate state-of-the-art models under multiple agent frameworks. Through comprehensive comparisons across both models and frameworks, we show how base model capabilities and agent framework designs jointly shape performance in real-world environments. To facilitate future research, we make our benchmark and code publicly available at https://github.com/HKU-MMLab/UniClawBench.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.08768",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6364,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-16T22:23:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Theodore R. Sumers",
+            "Shunyu Yao",
+            "Karthik Narasimhan",
+            "Thomas L. Griffiths"
+          ],
+          "title": "Cognitive Architectures for Language Agents",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.02427",
+        "summary": "Recent efforts have augmented large language models (LLMs) with external resources (e.g., the Internet) or internal control flows (e.g., prompt chaining) for tasks requiring grounding or reasoning, leading to a new class of language agents. While these agents have achieved substantial empirical success, we lack a systematic framework to organize existing agents and plan future developments. In this paper, we draw on the rich history of cognitive science and symbolic artificial intelligence to propose Cognitive Architectures for Language Agents (CoALA). CoALA describes a language agent with modular memory components, a structured action space to interact with internal memory and external environments, and a generalized decision-making process to choose actions. We use CoALA to retrospectively survey and organize a large body of recent work, and prospectively identify actionable directions towards more capable agents. Taken together, CoALA contextualizes today's language agents within the broader history of AI and outlines a path towards language-based general intelligence.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.02427",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-16T22:23:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jian Xie",
+            "Kai Zhang",
+            "Jiangjie Chen",
+            "Tinghui Zhu",
+            "Renze Lou",
+            "Yuandong Tian",
+            "Yanghua Xiao",
+            "Yu Su"
+          ],
+          "title": "TravelPlanner: A Benchmark for Real-World Planning with Language Agents",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.01622",
+        "summary": "Planning has been part of the core pursuit for artificial intelligence since its conception, but earlier AI agents mostly focused on constrained settings because many of the cognitive substrates necessary for human-level planning have been lacking. Recently, language agents powered by large language models (LLMs) have shown interesting capabilities such as tool use and reasoning. Are these language agents capable of planning in more complex settings that are out of the reach of prior AI agents? To advance this investigation, we propose TravelPlanner, a new planning benchmark that focuses on travel planning, a common real-world planning scenario. It provides a rich sandbox environment, various tools for accessing nearly four million data records, and 1,225 meticulously curated planning intents and reference plans. Comprehensive evaluations show that the current language agents are not yet capable of handling such complex planning tasks-even GPT-4 only achieves a success rate of 0.6%. Language agents struggle to stay on task, use the right tools to collect information, or keep track of multiple constraints. However, we note that the mere possibility for language agents to tackle such a complex problem is in itself non-trivial progress. TravelPlanner provides a challenging yet meaningful testbed for future language agents.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.01622",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-16T22:23:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"uniclawbench: a universal benchmark for proactive agents on real-world\" linguistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

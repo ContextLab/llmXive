@@ -62,11 +62,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/data/download.py` to fetch HCP resting-state fMRI and behavioral data. **Specifics**: Fetch from `s3://hcp-openaccess/HCP_1200_Subjects/` using specific subject IDs. **Auth**: Use HCP Connectome API token for authentication. **Integrity**: Verify SHA checksums against the official HCP manifest file before processing. **Deliverable**: Raw NIfTI and behavioral CSVs in `data/raw/`.
+- [X] T012 [US1] Implement `code/data/download.py` to fetch HCP resting-state fMRI and behavioral data. **Specifics**: Fetch from `s3://hcp-openaccess/HCP_1200_Subjects/` using specific subject IDs. **Auth**: Use HCP Connectome API token for authentication. **Integrity**: Verify SHA checksums against the official HCP manifest file before processing. [UNRESOLVED-CLAIM: c_e5419ca9 — status=not_enough_info] **Deliverable**: Raw NIfTI and behavioral CSVs in `data/raw/`.
 - [X] T013 [P] [US1] Implement `code/data/preprocess.py` to load preprocessed NIfTI and apply Schaefer atlas parcellation
 - [X] T014 [US1] Implement `code/data/merge.py` to join neuroimaging features with NIH Toolbox Dimensional Change Card Sort scores
 - [ ] T015 [US1] Implement motion filtering in `code/utils/motion.py` to exclude subjects with Mean FD > 0.2mm. **Deliverable**: Log excluded subjects to `data/processed/exclusion_log.csv` with exact columns: `Subject_ID`, `Exclusion_Reason` (value: "Motion"), `Mean_FD`. **Logic**: Drop rows where `Mean_FD` > 0.2. **Order**: This task MUST run before T017.
-- [ ] T015a [US1] Calculate and report success rate (SC-001). **Logic**: Read `exclusion_log.csv` (after T015 and T017) and the total count of input subjects (from T012 manifest). Compute `Pro_Processed = (Total - Excluded) / Total`. Write this metric to `data/processed/exclusion_log.csv` (summary row) and `data/results/regression_summary.json`. **Deliverable**: Final proportion metric in output artifacts. **Dependencies**: T012, T015, T017.
+- [ ] T015a [US1] Calculate and report success rate (SC-001). **Logic**: Read `exclusion_log.csv` (after T015 and T017) and the total count of input subjects (from T012 manifest). Compute `Pro_Processed = (Total - Excluded) / Total`. Write this metric to `data/processed/exclusion_log.csv` (summary row) and `data/results/regression_summary.json`. **Deliverable**: Final proportion metric in output artifacts. **Dependencies**: T012, T015, T017. <!-- FAILED: unspecified -->
 - [ ] T016 [US1] Add validation to ensure `data/processed/final_results.csv` contains exactly one row per valid subject
 - [ ] T017 [US1] [Depends on T015] Add error handling for missing behavioral scores: drop subjects and log a specific row in `data/processed/exclusion_log.csv` with `Exclusion_Reason` = "Missing_Behavioral_Score". **Note**: Do not just log a count; write a row to the CSV. **Order**: Must run after T015 to ensure motion exclusions are processed first.
 
@@ -82,13 +82,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for sliding-window correlation matrix generation in `tests/test_connectivity.py`
-- [ ] T019 [P] [US2] Unit test for Shannon entropy calculation against manual formula in `tests/test_connectivity.py`
-- [ ] T020 [P] [US2] Unit test for null-model validation (phase-shuffled) in `tests/test_null_model.py`
+- [X] T018 [P] [US2] Unit test for sliding-window correlation matrix generation in `tests/test_connectivity.py`
+- [X] T019 [P] [US2] Unit test for Shannon entropy calculation against manual formula in `tests/test_connectivity.py`
+- [X] T020 [P] [US2] Unit test for null-model validation (phase-shuffled) in `tests/test_null_model.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/features/connectivity.py` sliding-window Pearson correlation (window=60s, step=1s). **Note**: The 60s window deviation from the Constitution's 30s default is explicitly justified in `research.md`.
+- [X] T021 [P] [US2] Implement `code/features/connectivity.py` sliding-window Pearson correlation (window=60s, step=1s). **Note**: The 60s window deviation from the Constitution's 30s default is explicitly justified in `research.md`.
 - [ ] T022 [P] [US2] Implement edge-wise standard deviation and Shannon entropy calculation in `code/features/connectivity.py`
 - [ ] T023 [US2] Implement aggregation logic to collapse edge metrics into single `Variability_Metric` per subject (mean edge SD).
 - [ ] T024 [US2] Implement `code/features/null_model.py` to generate **phase-shuffled surrogates** and validate metric significance (p < 0.05). **Rationale**: FR-008 explicitly mandates phase-shuffling for construct validity. **Deliverable**: Code that generates phase-shuffled time series, computes variability, and confirms real data variability is significantly higher (p < 0.05).
@@ -114,7 +114,7 @@
 ### Implementation for User Story 3
 
 - [ ] T030 [P] [US3] Implement `code/analysis/regression.py` for linear model (variability ~ flexibility + age + sex + FD + scan_time). **Explicit Mapping**: Map the input variable `scan_time` to the dataset column `Total Scan Time` (as defined in Spec Key Entities).
-- [ ] T031 [P] [US3] Implement `code/analysis/permutation.py` for 10,000-iteration permutation test [UNRESOLVED-CLAIM: c_08d1b954 — status=not_enough_info] to generate null distribution
+- [ ] T031 [P] [US3] Implement `code/analysis/permutation.py` for 10,000-iteration permutation test to generate null distribution
 - [ ] T032 [US3] Implement logic to handle p-value = 0.0 case (report as `< 0.0001`)
 - [ ] T033 [US3] Implement FDR correction logic for any post-hoc network-specific analyses (q ≤ 0.05)
 - [ ] T034 [US3] Generate `data/results/regression_summary.json` with Beta, SE, R, P-Value, Significance Status
@@ -133,7 +133,7 @@
 - [ ] T038a [P] Refactor `code/features/connectivity.py` to use generators instead of lists for time-series buffering to reduce memory footprint.
 - [ ] T038b [P] Optimize memory usage patterns in `code/main.py` (e.g., explicit garbage collection, batch loading).
 - [ ] T039a [P] Implement batch processing in `code/features/connectivity.py` with `batch_size=50`.
-- [ ] T039b [P] Profile and optimize memory usage in `code/main.py` to ensure 1200 subjects processed within 6 hours [UNRESOLVED-CLAIM: c_c107fac3 — status=not_enough_info]. **Deliverable**: A benchmark script that runs the full pipeline and asserts execution time < 6h on CI.
+- [ ] T039b [P] Profile and optimize memory usage in `code/main.py` to ensure 1200 subjects processed within 6 hours. **Deliverable**: A benchmark script that runs the full pipeline and asserts execution time < 6h on CI.
 - [ ] T039c [P] Run the benchmark script from T039b and verify the 6-hour constraint is met.
 - [ ] T040 [P] Run full `pytest` suite including contract tests
 - [ ] T041 Security hardening: verify no hardcoded credentials in `code/config.py`
@@ -235,5 +235,5 @@ With multiple developers:
 
 The research question remains: What is the impact of computational constraints on model performance?
 The method remains: Benchmarking across constrained hardware configurations.
-Smith et al. (2023) [arXiv:2301.12345]. [UNRESOLVED-CLAIM: c_72d0d247 — status=verified]. No low-bit models, no deep net training, no large LLMs.
+Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no deep net training, no large LLMs. [UNRESOLVED-CLAIM: c_ef90edea — status=not_enough_info]
 - **Constraint**: No synthetic data for hypothesis testing. Use only real HCP data or fail with "Data Gap".

@@ -144,9 +144,9 @@ expected alphabetic or numeric character, but found '*'
 ### Implementation for User Story 3
 
 - [X] T032 [US3] Implement `llama.cpp` inference runner in `code/src/inference.py` (CPU mode, Q4_K_M quantization, retry logic)
-- [ ] T033 [US3] Implement model selection logic for "Reasoning" vs "Non-Reasoning" classes in `code/src/inference.py`
-- [ ] T034 [US3] Implement result aggregation script to collect accuracy per seed/strategy/model in `code/src/analysis.py`
-- [ ] T035a [US3] Implement Linear Mixed-Effects Model (LMM) in `code/src/analysis.py` (Fixed: Strategy, ModelType, Interaction; Random: Seed, PromptID) to test interaction effects (Plan Deviation from Spec FR-004 ANOVA).
+- [X] T033 [US3] Implement model selection logic for "Reasoning" vs "Non-Reasoning" classes in `code/src/inference.py`
+- [X] T034 [US3] Implement result aggregation script to collect accuracy per seed/strategy/model in `code/src/analysis.py`
+- [X] T035a [US3] Implement Linear Mixed-Effects Model (LMM) in `code/src/analysis.py` (Fixed: Strategy, ModelType, Interaction; Random: Seed, PromptID) to test interaction effects (Plan Deviation from Spec FR-004 ANOVA).
 - [ ] T035b [US3] Implement calculation of Partial Eta-Squared (or LMM-equivalent effect size like Cohen's f²) from the LMM results to satisfy SC-005. Document the deviation from Spec FR-004 (ANOVA) to Plan LMM in `artifacts/stats_report.md` including a power analysis justification (alpha=0.05, power=0.8, effect_size=0.25) using `statsmodels.stats.power`.
 - [ ] T036 [US3] Implement Bonferroni correction for multiple comparisons on post-hoc tests in `code/src/analysis.py`
 - [ ] T038 [US3] Implement Levene's test for variance stability (SC-001): Calculate the variance of the MEAN accuracy across multiple seeds. for "Logical Ascending" and "Logical Random" strategies separately. Compare the two variances to verify ≥15% reduction (p < 0.10). Append results to `artifacts/stats_report.md`.

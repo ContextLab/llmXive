@@ -1,2 +1,3 @@
-# Utils module initialization
-pass
+"""
+Utility functions for motion, logging, and noise filtering.
+"""

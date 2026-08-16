@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.01622",
+  "judged_at": "2026-08-16T22:23:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"uniclawbench: a universal benchmark for proactive agents on real-world\" linguistics",
+  "rationale": "This paper satisfies criteria (b) and (d) as it provides a canonical empirical baseline and a foundational benchmark for \"real-world planning\" with language agents, which is the specific domain and mechanism the user's question (extending UniClawBench for proactive agents) seeks to investigate. Although the user mentions \"linguistics,\" the core of their query is about the benchmarking of proactive agents in real-world scenarios, making TravelPlanner a direct and essential prior work for any lite",
+  "relevant": true
+}

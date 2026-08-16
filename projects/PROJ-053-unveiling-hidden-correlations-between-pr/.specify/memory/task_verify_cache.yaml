@@ -1,21 +1,3 @@
-T006:
-  c: false
-  h: 3e35899a3948295129cdd53d6d3fd14487e8e7bd5e7b603c831869d8c5dfd832
-  r: "The `code/data/schema_validator.py` file exists and implements the required\
-    \ validation logic, but the referenced schema file (`contracts/dataset.schema.yaml`\
-    \ \u2013 shown as missing `schema.yaml`) is absent, so the validator cannot actually\
-    \ perform the required checks. Provide the correct YAML schema file (or ensure\
-    \ the path points to an existing schema) to satisfy the task."
-T016:
-  c: false
-  h: 2bca80d738e0dc9f38d0bd45bedc94d2143233ad7543d1562a6b2b651309c84b
-  r: "The repository lacks the required `data/processed/excluded_columns.yaml` file,\
-    \ so the script cannot read the exclusion list, and no `data/processed/preprocessing.log`\
-    \ is present to record the scope\u2011reduction message. Moreover, the provided\
-    \ `preprocess.py` is truncated and does not show implementation of schema validation,\
-    \ fatigue_life presence check with the exact log format, train/test splitting,\
-    \ or MinMaxScaler fitting on the training set. These essential pieces are missing,\
-    \ so the task is not genuinely completed."
 T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -23,13 +5,6 @@ T019:
     \ or content showing that the required JSON with min/max values for each numeric\
     \ feature was created and saved under `data/processed/`. Without the actual file,\
     \ the task\u2019s requirement is not satisfied."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, data files, or result outputs for the \u201Cpermutation importance\
-    \ correlation analysis\u201D were provided. The claim lacks any artifact (e.g.,\
-    \ script computing permutation importance, correlation plots, or a report) that\
-    \ could be inspected to confirm the analysis was performed."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

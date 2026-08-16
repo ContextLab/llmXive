@@ -215,6 +215,10 @@
     "classified_at": "2026-07-24T13:23:16Z",
     "verdict": false
   },
+  "PROJ-1042-llmxive-follow-up-extending-uniclawbench::1.6.0": {
+    "classified_at": "2026-08-16T22:23:25Z",
+    "verdict": false
+  },
   "PROJ-1050-llmxive-follow-up-extending-trust-region::1.6.0": {
     "classified_at": "2026-08-03T13:15:53Z",
     "verdict": false

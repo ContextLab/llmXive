@@ -1,80 +1,166 @@
 """
-Inference runner for User Story 3.
-Uses llama.cpp in CPU mode with Q4_K_M quantization.
-Implements retry logic for transient failures.
+Inference runner for llmXive pipeline.
+Handles CPU-only inference via llama.cpp and model selection logic.
 """
 import subprocess
 import json
 import time
 import os
-from typing import List, Dict, Any, Optional
 import logging
+from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
+
+from code.src.config import get_config
 
 logger = logging.getLogger(__name__)
 
+# Model Class Definitions
+MODEL_CLASS_REASONING = "reasoning"
+MODEL_CLASS_NON_REASONING = "non_reasoning"
+
+# Default model mappings (can be overridden by config)
+DEFAULT_MODEL_MAP = {
+    MODEL_CLASS_REASONING: [
+        "meta-llama/Llama-3.1-8B-Instruct",
+        "Qwen/Qwen2.5-7B-Instruct",
+        "mistralai/Mistral-7B-Instruct-v0.3"
+    ],
+    MODEL_CLASS_NON_REASONING: [
+        "meta-llama/Llama-3.1-8B",
+        "Qwen/Qwen2.5-7B",
+        "mistralai/Mistral-7B-v0.3"
+    ]
+}
+
 class InferenceRunner:
-    """Handles CPU-only inference via llama.cpp with retry logic."""
+    """
+    Manages CPU-only inference using llama.cpp.
+    Supports model selection based on 'reasoning' vs 'non-reasoning' classes.
+    """
 
-    def __init__(
-        self,
-        model_path: str,
-        max_tokens: int = 512,
-        threads: int = 4,
-        retry_count: int = 3,
-        retry_delay: float = 2.0,
-        timeout: int = 300
-    ):
-        """
-        Initialize the inference runner.
-
-        Args:
-            model_path: Path to the Q4_K_M quantized model file.
-            max_tokens: Maximum number of tokens to generate.
-            threads: Number of CPU threads to use.
-            retry_count: Number of retry attempts on failure.
-            retry_delay: Delay in seconds between retries.
-            timeout: Timeout in seconds for the subprocess.
-        """
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"Model file not found: {model_path}")
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or get_config().to_dict()
+        self.llama_cpp_path = self.config.get("llama_cpp_path", "llama-cli")
+        self.quantization = self.config.get("quantization", "Q4_K_M")
+        self.max_tokens = self.config.get("max_tokens", 1024)
+        self.temperature = self.config.get("temperature", 0.0)
+        self.timeout = self.config.get("inference_timeout", 300)
         
-        self.model_path = model_path
-        self.max_tokens = max_tokens
-        self.threads = threads
-        self.retry_count = retry_count
-        self.retry_delay = retry_delay
-        self.timeout = timeout
+        # Model selection configuration
+        self.model_class_map = self.config.get("model_class_map", DEFAULT_MODEL_MAP)
+        self.selected_models = self._load_selected_models()
 
-    def _run_single_inference(self, prompt: str) -> Dict[str, Any]:
+    def _load_selected_models(self) -> Dict[str, List[str]]:
         """
-        Executes the llama-cli command for a single prompt.
+        Loads the list of models for each class from config or uses defaults.
+        Validates that at least one model is defined for each class if needed.
+        """
+        loaded_map = {}
+        for cls_name, models in self.model_class_map.items():
+            if not isinstance(models, list) or len(models) == 0:
+                logger.warning(f"No models defined for class {cls_name}, using defaults.")
+                loaded_map[cls_name] = DEFAULT_MODEL_MAP.get(cls_name, [])
+            else:
+                loaded_map[cls_name] = models
+        return loaded_map
+
+    def get_models_for_class(self, model_class: str) -> List[str]:
+        """
+        Retrieves the list of models assigned to a specific class.
         
         Args:
-            prompt: The full prompt string including few-shot examples.
+            model_class: Either 'reasoning' or 'non_reasoning'.
         
         Returns:
-            Dictionary containing completion, latency, and status.
+            List of model identifiers/paths.
         
         Raises:
-            subprocess.TimeoutExpired: If the inference exceeds the timeout.
-            subprocess.CalledProcessError: If the inference process fails.
+            ValueError: If the model_class is unknown.
         """
-        start_time = time.time()
+        if model_class not in self.model_class_map:
+            raise ValueError(f"Unknown model class: {model_class}. "
+                             f"Valid classes: {list(self.model_class_map.keys())}")
+        return self.model_class_map[model_class]
+
+    def select_model(self, model_class: str, seed: Optional[int] = None) -> str:
+        """
+        Selects a specific model instance for inference based on the class.
         
-        # Construct command for llama-cli
-        # Using CPU-only flags and Q4_K_M quantization (assumed by model_path)
+        Logic:
+        - If only one model exists for the class, return it.
+        - If multiple models exist, select one deterministically based on seed 
+          (modulo the list length) to ensure reproducibility across seeds.
+        
+        Args:
+            model_class: The class of model to select ('reasoning' or 'non_reasoning').
+            seed: Optional seed for deterministic selection if multiple models exist.
+        
+        Returns:
+            The selected model identifier/path.
+        """
+        models = self.get_models_for_class(model_class)
+        
+        if not models:
+            raise RuntimeError(f"No models available for class '{model_class}'. "
+                               "Please update config.yaml with valid model paths.")
+        
+        if len(models) == 1:
+            return models[0]
+        
+        # Deterministic selection based on seed
+        if seed is None:
+            # Fallback: pick the first one if no seed provided
+            return models[0]
+        
+        index = seed % len(models)
+        selected = models[index]
+        logger.debug(f"Seed {seed} selected model index {index}: {selected} from class {model_class}")
+        return selected
+
+    def _build_command(self, model_path: str, prompt: str, output_path: Optional[str] = None) -> List[str]:
+        """
+        Constructs the llama-cli command line arguments.
+        """
         cmd = [
-            "llama-cli",
-            "-m", self.model_path,
+            self.llama_cpp_path,
+            "-m", model_path,
             "-p", prompt,
             "-n", str(self.max_tokens),
-            "--color", "0",
-            "-t", str(self.threads),
-            "--temp", "0.0",  # Deterministic decoding for evaluation
-            "--no-display-prefix"
+            "-t", str(os.cpu_count() or 4),  # Use all available cores
+            "--temp", str(self.temperature),
+            "--batch_size", "2048",
+            "--ubatch_size", "512",
+            "-ngl", "0",  # Force CPU (no GPU layers)
+            "--color", "0" # Disable colors for parsing
         ]
+        
+        # Add quantization flag if supported by the binary version
+        # Note: Modern llama.cpp usually handles Q4_K_M via the model file name,
+        # but we ensure no GPU offloading is requested.
+        
+        if output_path:
+            cmd.extend(["-o", str(output_path)])
+        
+        return cmd
 
+    def run_inference(self, prompt: str, model_path: str, output_path: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Executes a single inference run.
+        
+        Args:
+            prompt: The full prompt string.
+            model_path: Path to the quantized model file.
+            output_path: Optional path to save raw output.
+        
+        Returns:
+            Dictionary containing 'output_text', 'success', 'duration', 'error'.
+        """
+        start_time = time.time()
+        cmd = self._build_command(model_path, prompt, output_path)
+        
+        logger.info(f"Running inference with model: {model_path}")
+        logger.debug(f"Command: {' '.join(cmd)}")
+        
         try:
             result = subprocess.run(
                 cmd,
@@ -82,144 +168,133 @@ class InferenceRunner:
                 text=True,
                 timeout=self.timeout
             )
-
-            if result.returncode != 0:
-                raise RuntimeError(
-                    f"llama-cli failed with code {result.returncode}: {result.stderr}"
-                )
-
-            # llama-cli typically outputs the prompt first, then the completion.
-            # We need to extract the generated part.
-            # Standard behavior: The output contains the prompt, then the completion.
-            # We'll assume the completion starts after the last occurrence of the prompt
-            # or simply take the tail if the prompt is not repeated.
-            # For robustness, we split by the last known prompt occurrence if possible,
-            # but often the simplest approach is to return the full stdout and let
-            # the analyzer handle extraction if the prompt is consistent.
-            # However, to be precise, we look for the prompt in the output.
-            output_text = result.stdout.strip()
             
-            completion = output_text
-            if prompt in output_text:
-                # Split on the last occurrence of the prompt to get the completion
-                parts = output_text.rsplit(prompt, 1)
-                if len(parts) > 1:
-                    completion = parts[1].strip()
+            duration = time.time() - start_time
             
-            # Remove any trailing "Answer:" or similar prefixes if the model repeats them
-            # (Optional cleanup, keeping it raw for now as per spec "completion")
-            
+            if result.returncode == 0:
+                # Extract output from stdout (llama-cli prints prompt + response)
+                # We need to be careful to extract just the completion if possible,
+                # but for now we return the full stdout if no output file is used.
+                output_text = result.stdout
+                
+                return {
+                    "success": True,
+                    "output_text": output_text,
+                    "duration": duration,
+                    "error": None
+                }
+            else:
+                return {
+                    "success": False,
+                    "output_text": "",
+                    "duration": duration,
+                    "error": result.stderr
+                }
+                
+        except subprocess.TimeoutExpired:
+            duration = time.time() - start_time
             return {
-                "status": "success",
-                "completion": completion,
-                "latency": time.time() - start_time,
-                "raw_output": output_text
+                "success": False,
+                "output_text": "",
+                "duration": duration,
+                "error": f"Inference timed out after {self.timeout}s"
+            }
+        except Exception as e:
+            duration = time.time() - start_time
+            return {
+                "success": False,
+                "output_text": "",
+                "duration": duration,
+                "error": str(e)
             }
 
-        except subprocess.TimeoutExpired:
-            logger.warning(f"Inference timed out after {self.timeout}s")
-            raise
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Process failed: {e.stderr}")
-            raise
-
-    def run_inference(self, prompt: str) -> Dict[str, Any]:
+    def run_batch(self, prompts: List[str], model_class: str, seed: int, output_dir: Optional[Path] = None) -> List[Dict[str, Any]]:
         """
-        Runs inference on a single prompt with retry logic.
-        
-        Args:
-            prompt: The full prompt string.
-        
-        Returns:
-            Dictionary with status, completion, latency, and error (if failed).
-        """
-        last_error = None
-        
-        for attempt in range(1, self.retry_count + 1):
-            try:
-                logger.info(f"Running inference (attempt {attempt}/{self.retry_count})")
-                result = self._run_single_inference(prompt)
-                return result
-            except Exception as e:
-                last_error = e
-                logger.warning(
-                    f"Attempt {attempt} failed: {e}. "
-                    f"Retrying in {self.retry_delay}s..."
-                )
-                if attempt < self.retry_count:
-                    time.sleep(self.retry_delay)
-        
-        logger.error(f"All {self.retry_count} attempts failed.")
-        return {
-            "status": "failed",
-            "error": str(last_error),
-            "latency": 0.0,
-            "completion": ""
-        }
-
-    def run_batch(self, prompts: List[str]) -> List[Dict]:
-        """
-        Runs inference on a batch of prompts sequentially.
+        Runs inference for a batch of prompts using a model selected for the given class.
         
         Args:
             prompts: List of prompt strings.
+            model_class: 'reasoning' or 'non_reasoning'.
+            seed: Seed for model selection determinism.
+            output_dir: Directory to save individual output files.
         
         Returns:
             List of result dictionaries.
         """
+        model_path = self.select_model(model_class, seed)
         results = []
-        for i, p in enumerate(prompts):
-            logger.info(f"Processing batch item {i+1}/{len(prompts)}")
-            result = self.run_inference(p)
-            results.append(result)
+        
+        if output_dir:
+            output_dir.mkdir(parents=True, exist_ok=True)
+        
+        for i, prompt in enumerate(prompts):
+            if output_dir:
+                out_file = output_dir / f"seed_{seed}_model_{model_class}_idx_{i}.txt"
+            else:
+                out_file = None
+            
+            res = self.run_inference(prompt, model_path, out_file)
+            res["prompt_index"] = i
+            res["model_class"] = model_class
+            res["model_path"] = model_path
+            results.append(res)
+            
+            if not res["success"]:
+                logger.error(f"Batch item {i} failed: {res['error']}")
+        
         return results
 
 def main():
     """
-    Entry point for running inference when executed as a script.
-    Expects arguments: --model, --prompt-file, --output-file.
+    CLI entry point for running inference.
+    Usage: python -m code.src.inference --model-class reasoning --seed 42
     """
     import argparse
     
-    parser = argparse.ArgumentParser(description="Run llama.cpp inference")
-    parser.add_argument("--model", required=True, help="Path to model file")
-    parser.add_argument("--prompt-file", required=True, help="Path to JSON file with prompts")
-    parser.add_argument("--output-file", required=True, help="Path to save results JSON")
-    parser.add_argument("--threads", type=int, default=4, help="CPU threads")
-    parser.add_argument("--max-tokens", type=int, default=512, help="Max tokens")
+    parser = argparse.ArgumentParser(description="Run inference with model selection logic.")
+    parser.add_argument("--model-class", type=str, required=True, 
+                        choices=["reasoning", "non_reasoning"],
+                        help="Class of model to use (reasoning or non_reasoning).")
+    parser.add_argument("--seed", type=int, default=42, 
+                        help="Seed for deterministic model selection.")
+    parser.add_argument("--prompt-file", type=str, default=None,
+                        help="Path to a JSON file containing a list of prompts.")
+    parser.add_argument("--output-dir", type=str, default=None,
+                        help="Directory to save inference outputs.")
     
     args = parser.parse_args()
     
-    # Load prompts
-    prompts_dir = Path(args.prompt_file)
-    if not prompts_dir.exists():
-        raise FileNotFoundError(f"Prompt file not found: {args.prompt_file}")
+    logging.basicConfig(level=logging.INFO)
+    runner = InferenceRunner()
     
-    with open(args.prompt_file, 'r') as f:
-        data = json.load(f)
+    prompts = []
+    if args.prompt_file:
+        with open(args.prompt_file, 'r') as f:
+            prompts = json.load(f)
+    else:
+        # Demo prompt
+        prompts = [
+            "What is the capital of France?"
+        ]
     
-    prompts = data.get("prompts", [])
-    if not prompts:
-        logger.warning("No prompts found in input file.")
-        prompts = []
+    output_dir = Path(args.output_dir) if args.output_dir else None
     
-    runner = InferenceRunner(
-        model_path=args.model,
-        threads=args.threads,
-        max_tokens=args.max_tokens
+    results = runner.run_batch(
+        prompts=prompts,
+        model_class=args.model_class,
+        seed=args.seed,
+        output_dir=output_dir
     )
     
-    results = runner.run_batch(prompts)
+    # Print summary
+    successes = sum(1 for r in results if r["success"])
+    logger.info(f"Completed {len(results)} runs. Successes: {successes}")
     
-    # Save results
-    output_path = Path(args.output_file)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Results saved to {output_path}")
+    if output_dir:
+        summary_path = output_dir / "inference_summary.json"
+        with open(summary_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        logger.info(f"Summary saved to {summary_path}")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

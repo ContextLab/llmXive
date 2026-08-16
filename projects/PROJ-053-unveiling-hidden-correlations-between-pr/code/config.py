@@ -3,93 +3,93 @@ import logging
 from pathlib import Path
 from typing import Optional, List
 
-# Project root
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Project Root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PROJECT_NAME = "PROJ-053-unveiling-hidden-correlations-between-pr"
 
-# Directories
-_DATA_DIR = _PROJECT_ROOT / "data"
-_RAW_DATA_DIR = _DATA_DIR / "raw"
-_PROCESSED_DATA_DIR = _DATA_DIR / "processed"
-_RESULTS_DIR = _PROJECT_ROOT / "results"
-_MODELS_DIR = _PROJECT_ROOT / "models"
-_FIGURES_DIR = _PROJECT_ROOT / "figures"
-_DOCS_DIR = _PROJECT_ROOT / "docs"
-_STATE_DIR = _PROJECT_ROOT / "state"
-_LOGS_DIR = _PROJECT_ROOT / "logs"
-_CONTRACTS_DIR = _PROJECT_ROOT / "contracts"
+# Directory Paths
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DATA_DIR = DATA_DIR / "raw"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+RESULTS_DIR = PROJECT_ROOT / "results"
+MODELS_DIR = PROJECT_ROOT / "models"
+FIGURES_DIR = PROJECT_ROOT / "figures"
+DOCS_DIR = PROJECT_ROOT / "docs"
+STATE_DIR = PROJECT_ROOT / "state"
+LOGS_DIR = PROJECT_ROOT / "logs"
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
 # Configuration
-_RANDOM_SEED = 42
-_TIME_LIMIT_SECONDS = 21600  # 6 hours
-_HARDCODED_BASELINE_RANKING = ["laser_power", "scan_speed", "layer_thickness"]
+RANDOM_SEED = 42
+TIME_LIMIT_SECONDS = 21600
 
-# Manual data paths
-MANUAL_DATA_PATHS = {
-    "raw": _RAW_DATA_DIR / "am_data.csv"
+# Hardcoded Baseline for T031 (Literature Baseline)
+# This is the fallback if no user-provided baseline exists.
+HARDCODED_BASELINE_RANKING = {
+    "rankings": {
+        "laser_power": 1,
+        "scan_speed": 2,
+        "layer_thickness": 3
+    }
 }
 
 def get_project_root() -> Path:
-    return _PROJECT_ROOT
+    return PROJECT_ROOT
 
 def get_data_dir() -> Path:
-    return _DATA_DIR
+    return DATA_DIR
 
 def get_raw_data_dir() -> Path:
-    return _RAW_DATA_DIR
+    return RAW_DATA_DIR
 
 def get_processed_data_dir() -> Path:
-    return _PROCESSED_DATA_DIR
+    return PROCESSED_DATA_DIR
 
 def get_results_dir() -> Path:
-    return _RESULTS_DIR
+    return RESULTS_DIR
 
 def get_models_dir() -> Path:
-    return _MODELS_DIR
+    return MODELS_DIR
 
 def get_figures_dir() -> Path:
-    return _FIGURES_DIR
+    return FIGURES_DIR
 
 def get_docs_dir() -> Path:
-    return _DOCS_DIR
+    return DOCS_DIR
 
 def get_state_dir() -> Path:
-    return _STATE_DIR
+    return STATE_DIR
 
 def get_logs_dir() -> Path:
-    return _LOGS_DIR
+    return LOGS_DIR
 
 def get_contracts_dir() -> Path:
-    return _CONTRACTS_DIR
+    return CONTRACTS_DIR
 
 def get_random_seed() -> int:
-    return _RANDOM_SEED
+    return RANDOM_SEED
 
 def get_time_limit_seconds() -> int:
-    return _TIME_LIMIT_SECONDS
+    return TIME_LIMIT_SECONDS
 
-def get_hardcoded_baseline_ranking() -> List[str]:
-    return _HARDCODED_BASELINE_RANKING
+def get_hardcoded_baseline_ranking() -> dict:
+    return HARDCODED_BASELINE_RANKING
 
-def ensure_directories() -> None:
-    """Create all required directories if they don't exist."""
+def ensure_directories():
+    """Create all required directories if they do not exist."""
     dirs = [
-        _DATA_DIR, _RAW_DATA_DIR, _PROCESSED_DATA_DIR, _RESULTS_DIR,
-        _MODELS_DIR, _FIGURES_DIR, _DOCS_DIR, _STATE_DIR, _LOGS_DIR,
-        _CONTRACTS_DIR
+        DATA_DIR, RAW_DATA_DIR, PROCESSED_DATA_DIR, RESULTS_DIR,
+        MODELS_DIR, FIGURES_DIR, DOCS_DIR, STATE_DIR, LOGS_DIR, CONTRACTS_DIR
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
 
-def get_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
-    """Get a logger instance."""
+def get_logger(name: str = "pipeline") -> logging.Logger:
     logger = logging.getLogger(name)
     if not logger.handlers:
         logger.setLevel(logging.INFO)
-        if log_file:
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(logging.INFO)
-            logger.addHandler(fh)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-        logger.addHandler(ch)
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     return logger

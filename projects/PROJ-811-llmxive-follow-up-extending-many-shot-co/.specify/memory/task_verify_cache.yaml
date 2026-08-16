@@ -5,21 +5,12 @@ T017:
     or exclusion logic can be verified. Without the manifest file, the task of removing
     invalid traces and preventing their inclusion downstream is not demonstrated.
     The implementer must create the manifest file with the appropriate filtered content.
-T026:
+T035b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No batch\u2011runner script or generated prompt files are present in `data/processed/prompts/`;\
-    \ the claim provides no code, configuration, or output artifacts to demonstrate\
-    \ that prompts for multiple seeds and three strategies were actually created.\
-    \ The required files must be added and verified."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides only a high\u2011level description of the feature and no\
-    \ concrete artifact (e.g., source code changes, unit tests, or documentation)\
-    \ that implements or verifies the \u201Cno duplicate orderings within a strategy\
-    \ group across seeds\u201D validation. Without any code, test suite, or evidence\
-    \ of the validation logic, the requirement is not satisfied. The next implementer\
-    \ must add the actual validation implementation (e.g., in the ordering generation\
-    \ module) and include tests demonstrating that duplicate orderings are detected\
-    \ and prevented across different random seeds."
+  r: "No evidence of the required artifacts was provided: there is no code implementing\
+    \ partial eta\u2011squared (or an LMM\u2011equivalent effect size) from the mixed\u2011\
+    effects model, and the file `artifacts/stats_report.md` is absent (or empty) and\
+    \ does not contain the documented deviation from Spec FR\u2011004 nor the power\u2011\
+    analysis justification using `statsmodels.stats.power`. The task therefore remains\
+    \ unfinished."

@@ -16,8 +16,16 @@ T003:
     passing without errors).
 T015:
   c: false
-  h: a8c702534aa2b0d03ac68d7c64e33a5c332f2e4a16201189d08f58dc6cdbc586
-  r: The `code/utils/motion.py` file is truncated and does not contain the logic to
-    filter subjects or write entries to `data/processed/exclusion_log.csv`. Moreover,
-    the required `exclusion_log.csv` file is absent from the repository. Both the
-    implementation and the deliverable log are missing.
+  h: 6505e8866c343882113a9dc90d5fd671fb846ea6fc9cc6114590b30f394c2382
+  r: "The repository contains `code/utils/motion.py`, but the shown code only defines\
+    \ helper functions and does not include any logic that filters subjects by Mean\
+    \ FD\u202F>\u202F0.2\u202Fmm or writes entries to `data/processed/exclusion_log.csv`.\
+    \ Moreover, the required `exclusion_log.csv` file is absent from the project.\
+    \ The task\u2019s deliverable (logging excluded subjects with the specified columns)\
+    \ is therefore not present."
+T017:
+  c: false
+  h: 90a5015989878b93676b1c47be5856475f8098eb4c76f5651608f9f8157aaeae
+  r: "The required `data/processed/exclusion_log.csv` file does not exist, so no row\
+    \ logging the missing behavioral scores was created. The task\u2019s core output\
+    \ is missing, indicating the implementation is incomplete."

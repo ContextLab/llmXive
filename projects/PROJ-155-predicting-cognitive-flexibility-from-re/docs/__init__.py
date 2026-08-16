@@ -1,2 +1,3 @@
-# Documentation module initialization
-pass
+"""
+Documentation and specification files.
+"""

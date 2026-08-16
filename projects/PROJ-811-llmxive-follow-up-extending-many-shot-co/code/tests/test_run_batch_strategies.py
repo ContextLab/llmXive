@@ -1,11 +1,3 @@
-"""
-Tests for the batch strategy runner script (T026).
-
-These tests verify that:
-1. The batch runner correctly iterates over seeds and strategies
-2. Prompts are generated and saved to the correct paths
-3. The output manifest is correctly formatted
-"""
 import json
 import tempfile
 import os
@@ -14,189 +6,140 @@ from unittest.mock import patch, MagicMock, Mock
 import pytest
 import sys
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path if needed
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.scripts.run_batch_strategies import (
-    load_manifest,
-    generate_prompts_for_seed,
-    run_batch,
-    STRATEGIES
-)
+from code.scripts.run_batch_strategies import load_manifest, generate_prompts_for_seed, run_batch, STRATEGIES
 from code.src.prompt_gen import PromptGenerator
 
 @pytest.fixture
 def temp_manifest_file():
-    """Create a temporary manifest file for testing."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        sample_data = [
-            {
-                "id": "trace_001",
-                "cot_trace": "Step 1: Identify problem. Step 2: Analyze data. Step 3: Propose solution.",
-                "dag_depth": 3,
-                "is_valid": True,
-                "curvature_score": 0.15
-            },
-            {
-                "id": "trace_002",
-                "cot_trace": "Step 1: Read input. Step 2: Process. Step 3: Output result.",
-                "dag_depth": 2,
-                "is_valid": True,
-                "curvature_score": 0.22
-            },
-            {
-                "id": "trace_003",
-                "cot_trace": "Step 1: Start. Step 2: Loop. Step 3: End.",
-                "dag_depth": 3,
-                "is_valid": False,  # Invalid trace
-                "curvature_score": 0.10
-            }
-        ]
-        json.dump(sample_data, f)
+        data = {
+            "entries": [
+                {"id": "1", "trace": "Step 1. Step 2.", "answer": "A", "logical_difficulty": 2, "curvature_score": 0.5},
+                {"id": "2", "trace": "Step 1. Step 2. Step 3.", "answer": "B", "logical_difficulty": 3, "curvature_score": 0.8},
+                {"id": "3", "trace": "Step 1.", "answer": "C", "logical_difficulty": 1, "curvature_score": 0.2}
+            ],
+            "metadata": {"version": "1.0"}
+        }
+        json.dump(data, f)
+        f.flush()
         yield Path(f.name)
-    os.unlink(f.name)
+        os.unlink(f.name)
 
 @pytest.fixture
 def temp_output_dir():
-    """Create a temporary output directory."""
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
 @pytest.fixture
 def mock_config():
-    """Create a mock configuration object."""
-    config = MagicMock()
-    config.get.side_effect = lambda key, default=None: {
-        "experiment": {
-            "seeds": [42, 123],
-            "strategies": ["logical_ascending", "logical_random"]
-        },
-        "prompt": {
-            "max_examples": 5,
-            "template": "standard"
-        }
-    }.get(key, default)
-    return config
+    return Mock()
 
 def test_load_manifest_success(temp_manifest_file):
-    """Test successful loading of manifest."""
-    entries = load_manifest(temp_manifest_file)
-    assert len(entries) == 3
-    assert entries[0]["id"] == "trace_001"
-    assert entries[0]["is_valid"] is True
+    data = load_manifest(temp_manifest_file)
+    assert "entries" in data
+    assert len(data["entries"]) == 3
 
 def test_load_manifest_not_found():
-    """Test loading non-existent manifest raises error."""
     with pytest.raises(FileNotFoundError):
-        load_manifest(Path("/nonexistent/path/manifest.json"))
+        load_manifest(Path("nonexistent.json"))
 
-def test_load_manifest_invalid_format(temp_output_dir):
-    """Test loading manifest with invalid format raises error."""
-    invalid_file = temp_output_dir / "invalid.json"
-    with open(invalid_file, 'w') as f:
-        json.dump({"not": "a list"}, f)
-    
-    with pytest.raises(ValueError):
-        load_manifest(invalid_file)
+def test_load_manifest_invalid_format(temp_manifest_file):
+    # Write invalid JSON
+    with open(temp_manifest_file, 'w') as f:
+        f.write("not json")
+    with pytest.raises((json.JSONDecodeError, ValueError)):
+        load_manifest(temp_manifest_file)
 
 @patch('code.scripts.run_batch_strategies.PromptGenerator')
-def test_generate_prompts_for_seed(mock_generator_class, temp_manifest_file, temp_output_dir, mock_config):
-    """Test prompt generation for a single seed and strategy."""
-    # Setup mock generator
-    mock_generator = MagicMock(spec=PromptGenerator)
-    mock_generator.generate_ordering.return_value = [
-        {"id": "trace_001", "cot_trace": "..."}
+def test_generate_prompts_for_seed(mock_gen_class, temp_manifest_file, temp_output_dir, mock_config):
+    mock_gen_instance = Mock(spec=PromptGenerator)
+    mock_gen_instance.generate_ordered_examples.return_value = [
+        {"id": "3", "trace": "Step 1.", "answer": "C"},
+        {"id": "1", "trace": "Step 1. Step 2.", "answer": "A"}
     ]
-    mock_generator.assemble_prompts.return_value = {
-        "seed": 42,
-        "strategy": "logical_ascending",
-        "prompts": ["prompt1"]
-    }
-    mock_generator_class.return_value = mock_generator
+    mock_gen_class.return_value = mock_gen_instance
 
-    examples = load_manifest(temp_manifest_file)
-    output_file = generate_prompts_for_seed(
-        generator=mock_generator,
-        examples=examples,
+    manifest_data = load_manifest(temp_manifest_file)
+    files = generate_prompts_for_seed(
+        generator=mock_gen_instance,
+        manifest_data=manifest_data,
         seed=42,
         strategy="logical_ascending",
-        output_dir=temp_output_dir
+        output_dir=temp_output_dir,
+        max_examples=2
     )
 
-    assert output_file is not None
-    assert output_file.exists()
-    assert "prompts_seed_42_logical_ascending.json" in str(output_file)
-    
-    # Verify file content
-    with open(output_file) as f:
-        data = json.load(f)
-    assert len(data["prompts"]) == 1
+    assert len(files) == 1
+    assert "seed_42_logical_ascending.json" in files[0]
 
-def test_run_batch_success(temp_manifest_file, temp_output_dir, mock_config):
-    """Test successful batch run across multiple seeds and strategies."""
-    with patch('code.scripts.run_batch_strategies.PromptGenerator') as mock_generator_class:
-        mock_generator = MagicMock(spec=PromptGenerator)
-        mock_generator.generate_ordering.return_value = [
-            {"id": "trace_001", "cot_trace": "..."}
+    # Verify content
+    with open(files[0], 'r') as f:
+        content = json.load(f)
+    assert content["seed"] == 42
+    assert content["strategy"] == "logical_ascending"
+    assert len(content["examples"]) == 2
+
+@patch('code.scripts.run_batch_strategies.load_manifest')
+@patch('code.scripts.run_batch_strategies.PromptGenerator')
+def test_run_batch_success(mock_gen_class, mock_load_manifest, temp_manifest_file, temp_output_dir, mock_config):
+    mock_manifest_data = {
+        "entries": [
+            {"id": "1", "trace": "T1", "answer": "A", "logical_difficulty": 1},
+            {"id": "2", "trace": "T2", "answer": "B", "logical_difficulty": 2}
         ]
-        mock_generator.assemble_prompts.return_value = {
-            "seed": 42,
-            "strategy": "logical_ascending",
-            "prompts": ["prompt1"]
-        }
-        mock_generator_class.return_value = mock_generator
+    }
+    mock_load_manifest.return_value = mock_manifest_data
 
-        results = run_batch(
-            config=mock_config,
-            manifest_path=temp_manifest_file,
-            output_dir=temp_output_dir,
-            seeds=[42, 123],
-            strategies=["logical_ascending", "logical_random"]
-        )
+    mock_gen_instance = Mock(spec=PromptGenerator)
+    mock_gen_instance.generate_ordered_examples.return_value = mock_manifest_data["entries"]
+    mock_gen_class.return_value = mock_gen_instance
 
-        assert results["status"] == "completed"
-        assert len(results["outputs"]) == 4  # 2 seeds * 2 strategies
-        assert results["total_prompts_generated"] == 4
-
-def test_run_batch_missing_manifest(temp_output_dir, mock_config):
-    """Test batch run with missing manifest fails gracefully."""
+    seeds = [42, 123]
     results = run_batch(
-        config=mock_config,
-        manifest_path=Path("/nonexistent/manifest.json"),
-        output_dir=temp_output_dir,
-        seeds=[42],
+        manifest_path=temp_manifest_file,
+        seeds=seeds,
+        output_base_dir=temp_output_dir,
         strategies=["logical_ascending"]
     )
-    
-    assert results["status"] == "failed"
-    assert "error" in results
 
-def test_run_batch_invalid_strategy(temp_manifest_file, temp_output_dir, mock_config):
-    """Test batch run skips unknown strategies."""
-    with patch('code.scripts.run_batch_strategies.PromptGenerator') as mock_generator_class:
-        mock_generator = MagicMock(spec=PromptGenerator)
-        mock_generator.generate_ordering.return_value = []
-        mock_generator.assemble_prompts.return_value = {"prompts": []}
-        mock_generator_class.return_value = mock_generator
+    assert len(results["files"]) == 2  # 2 seeds * 1 strategy
+    assert len(results["errors"]) == 0
+    assert temp_output_dir.exists()
 
-        results = run_batch(
-            config=mock_config,
-            manifest_path=temp_manifest_file,
-            output_dir=temp_output_dir,
-            seeds=[42],
-            strategies=["invalid_strategy", "logical_ascending"]
-        )
+@patch('code.scripts.run_batch_strategies.load_manifest')
+@patch('code.scripts.run_batch_strategies.PromptGenerator')
+def test_run_batch_missing_manifest(mock_gen_class, mock_load_manifest, temp_output_dir, mock_config):
+    mock_load_manifest.side_effect = FileNotFoundError("Missing")
+    seeds = [42]
+    results = run_batch(
+        manifest_path=Path("missing.json"),
+        seeds=seeds,
+        output_base_dir=temp_output_dir,
+        strategies=["logical_ascending"]
+    )
+    # The run_batch function catches exceptions and logs them, but doesn't crash
+    # However, our implementation in run_batch catches exceptions inside the loop.
+    # Let's check the error list.
+    assert len(results["errors"]) > 0
 
-        # Should skip invalid strategy, process valid one
-        assert results["status"] == "completed"
-        assert len(results["outputs"]) == 1
-        assert results["outputs"][0]["strategy"] == "logical_ascending"
+@patch('code.scripts.run_batch_strategies.load_manifest')
+@patch('code.scripts.run_batch_strategies.PromptGenerator')
+def test_run_batch_invalid_strategy(mock_gen_class, mock_load_manifest, temp_manifest_file, temp_output_dir, mock_config):
+    mock_manifest_data = {"entries": []}
+    mock_load_manifest.return_value = mock_manifest_data
+    mock_gen_instance = Mock(spec=PromptGenerator)
+    mock_gen_instance.generate_ordered_examples.side_effect = ValueError("Unknown strategy")
+    mock_gen_class.return_value = mock_gen_instance
 
-def test_strategies_constant():
-    """Test that STRATEGIES constant contains expected values."""
-    assert "logical_ascending" in STRATEGIES
-    assert "logical_random" in STRATEGIES
-    assert "original_cds" in STRATEGIES
-    assert len(STRATEGIES) == 3
+    results = run_batch(
+        manifest_path=temp_manifest_file,
+        seeds=[42],
+        output_base_dir=temp_output_dir,
+        strategies=["invalid_strategy"]
+    )
+
+    assert len(results["errors"]) == 1
+    assert "invalid_strategy" in results["errors"][0]

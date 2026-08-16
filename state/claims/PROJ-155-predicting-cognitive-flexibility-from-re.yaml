@@ -493,26 +493,6 @@
   status: refuted
   updated_at: '2026-08-08T12:37:57Z'
 - artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
-  attempts: 3
-  canonical: 60s window deviation from 30s default justified in research.md
-  claim_id: c_9b71e3e7
-  context: 'Create code/config.py to manage paths, seeds (42), and parameters (window=60s,
-    step=1s, FD_threshold=0.2). Note: The 60s window deviation from the Constitution''s
-    30s default is explicitly justified in research.md.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/60s_window_deviation_from_30s_default_justified_in_research.
-  kind: entity_fact
-  raw_text: The 60s window deviation from the Constitution's 30s default is explicitly
-    justified in research.md.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-08T12:38:19Z'
-- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
   attempts: 1
   canonical: 60s window deviation from 30s default justified in research.md
   claim_id: c_84b90b76
@@ -664,3 +644,139 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-08T12:47:11Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345
+  claim_id: c_5b12e561
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no
+    deep net training, no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T22:12:31Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345
+  claim_id: c_63d63181
+  context: 'The method remains: Benchmarking across constrained hardware configurations.
+    Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no deep net training,
+    no large LLMs.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T22:14:49Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 4
+  canonical: 60s window deviation from 30s default justified in research.md
+  claim_id: c_9b71e3e7
+  context: 'Create code/config.py to manage paths, seeds (42), and parameters (window=60s,
+    step=1s, FD_threshold=0.2). Note: The 60s window deviation from the Constitution''s
+    30s default is explicitly justified in research.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/60s_window_deviation_from_30s_default_justified_in_research.
+  kind: entity_fact
+  raw_text: The 60s window deviation from the Constitution's 30s default is explicitly
+    justified in research.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T22:15:16Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 2
+  canonical: Smith et al. 2023 arXiv:2301.12345 findings on low-bit models and deep
+    net training
+  claim_id: c_253c3e96
+  context: 'The research question remains: What is the impact of computational constraints
+    on model performance? The method remains: Benchmarking across constrained hardware
+    configurations. Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no
+    deep net training, no large LLMs.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T22:19:54Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Fetch HCP resting-state fMRI data from s3://hcp-openaccess/HCP_1200_Subjects/
+  claim_id: c_456530b1
+  context: 'T012 [US1] Implement code/data/download.py to fetch HCP resting-state
+    fMRI and behavioral data. Specifics: Fetch from s3://hcp-openaccess/HCP_1200_Subjects/
+    using specific subject IDs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HCP_resting-state_fMRI_data_from_s3://hcp-openaccess/H
+  kind: entity_fact
+  raw_text: Fetch from s3://hcp-openaccess/HCP_1200_Subjects/ using specific subject
+    IDs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T22:22:33Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Verify SHA checksums against official HCP manifest file
+  claim_id: c_e5419ca9
+  context: 'T012 [US1] Implement code/data/download.py... Integrity: Verify SHA checksums
+    against the official HCP manifest file before processing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_SHA_checksums_against_official_HCP_manifest_file
+  kind: entity_fact
+  raw_text: Verify SHA checksums against the official HCP manifest file before processing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T22:22:49Z'
+- artifact_path: projects/PROJ-155-predicting-cognitive-flexibility-from-re/specs/001-predicting-cognitive-flexibility-from-re/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv:2301.12345 excludes low-bit models deep net training
+    and large LLMs
+  claim_id: c_ef90edea
+  context: Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no deep net
+    training, no large LLMs.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Smith et al. (2023) [arXiv:2301.12345].. No low-bit models, no deep net
+    training, no large LLMs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T22:22:51Z'

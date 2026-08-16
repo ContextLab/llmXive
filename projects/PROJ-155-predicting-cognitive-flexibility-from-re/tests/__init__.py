@@ -1,2 +1,3 @@
-# Tests module initialization
-pass
+"""
+Test suite for the research pipeline.
+"""

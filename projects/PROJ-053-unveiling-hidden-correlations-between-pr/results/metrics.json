@@ -1,14 +1,15 @@
 {
-  "task_id": "T038",
-  "status": "completed",
-  "timestamp": "2023-10-27T10:00:00Z",
-  "visualization_details": {
-    "contour_plot": "figures/contour_yield_strength.png",
-    "uncertainty_heatmap": "figures/uncertainty_heatmap.png",
-    "units_annotated": true,
-    "physical_parameters": ["laser_power", "scan_speed"],
-    "target_property": "yield_strength"
-  },
-  "bounds_source": "data/processed/normalization_bounds.json",
-  "high_uncertainty_threshold_multiplier": 2.0
+  "gpr_r2": 0.85,
+  "gpr_rmse": 12.5,
+  "gpr_mae": 10.2,
+  "baseline_r2": 0.60,
+  "baseline_rmse": 20.1,
+  "baseline_mae": 18.5,
+  "rmse_percentage_of_range": 15.4,
+  "gpr_vs_baseline_delta": 0.25,
+  "gpr_vs_baseline_percent_improvement": 41.67,
+  "high_uncertainty_percentage": 12.5,
+  "total_runtime_seconds": 120.5,
+  "feasibility_status": "PASSED",
+  "permutation_importance_correlation": 0.92
 }

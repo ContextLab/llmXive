@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.12639",
+  "judged_at": "2026-08-16T22:23:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"uniclawbench: a universal benchmark for proactive agents on real-world\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly addresses the core mechanism of \"proactive agents\" and the specific domain of \"real-world planning\" mentioned in the user's question, providing the canonical benchmark (Ask-before-Plan) and framework (CEP) that define the state of the art for this research area.",
+  "relevant": true
+}
