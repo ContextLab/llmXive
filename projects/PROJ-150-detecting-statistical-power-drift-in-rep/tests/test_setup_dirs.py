@@ -4,46 +4,45 @@ from pathlib import Path
 import shutil
 
 # Import the function to test
-# We need to ensure the code directory is in the path if running from tests/
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+try:
+    from setup_dirs import main
+except ImportError:
+    # Fallback for test runner context where path might need adjustment
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+    from setup_dirs import main
 
-from setup_dirs import main
-
-@pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary directory to act as the project root."""
-    return tmp_path
-
-def test_setup_dirs_creates_structure(temp_project_root, monkeypatch):
-    """Test that setup_dirs creates the required directory structure."""
-    # Change CWD to the temporary directory to simulate running from project root
-    monkeypatch.chdir(temp_project_root)
-    
-    project_name = "PROJ-150-detecting-statistical-power-drift-in-rep"
-    expected_project_path = temp_project_root / project_name
-    
-    # Run the main function
-    result = main()
-    
-    # Assert return code is 0
-    assert result == 0
-    
-    # Assert main project directory exists
-    assert expected_project_path.exists()
-    assert expected_project_path.is_dir()
-    
-    # Assert all required subdirectories exist
-    required_subdirs = [
-        "data/raw",
-        "data/derived",
-        "code",
-        "tests",
-        "results",
-        "state"
-    ]
-    
-    for subdir in required_subdirs:
-        full_path = expected_project_path / subdir
-        assert full_path.exists(), f"Missing directory: {full_path}"
-        assert full_path.is_dir(), f"Not a directory: {full_path}"
+def test_setup_dirs_creates_structure(tmp_path):
+    """
+    Test that setup_dirs.main() creates the required directory structure.
+    We run it in a temporary directory to avoid polluting the real repo during tests.
+    """
+    original_cwd = os.getcwd()
+    try:
+        # Change to the temporary directory
+        os.chdir(tmp_path)
+        
+        # Run the main function
+        result = main()
+        
+        # Verify return code
+        assert result == 0, "main() should return 0 on success"
+        
+        # Verify directories exist
+        required_dirs = [
+            "data/raw",
+            "data/derived",
+            "code",
+            "tests",
+            "results",
+            "state"
+        ]
+        
+        for dir_name in required_dirs:
+            dir_path = tmp_path / dir_name
+            assert dir_path.exists(), f"Directory {dir_name} was not created"
+            assert dir_path.is_dir(), f"{dir_name} exists but is not a directory"
+            
+    finally:
+        # Restore original working directory
+        os.chdir(original_cwd)

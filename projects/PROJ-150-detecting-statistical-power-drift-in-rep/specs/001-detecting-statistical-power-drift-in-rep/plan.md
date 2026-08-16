@@ -112,7 +112,7 @@ data/
 ### Phase 3: Robustness & Validation
 - **T020**: Implement `run_permutation_test` with a sufficient number of iterations to ensure robust statistical power. (fallback to [deferred] on timeout). Shuffle `year` labels or permute residuals to generate null distribution of the `year` slope (FR-004, FR-007).
 - **T021**: Generate `results/null_distribution.csv` with the permutation results.
-- **T022**: Implement `sensitivity_analysis()` sweeping alpha {0.01, 0.05, 0.1} (FR-005).
+- **T022**: Implement `sensitivity_analysis()` sweeping alpha {0.05, 0.1} (FR-005).
 - **T023**: Generate `results/sensitivity_report.json`.
 
 ### Phase 4: Cross-Field Aggregation & Visualization

@@ -4,9 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
+- `T014` (rejected 1x): No code, script, or log output was provided showing that rows with missing `effect_size` or `sample_size` are skipped, that zero‑variance fields are detected, or that warnings of the form `WARNING: Skipping row {index} due to {reason}` are emitted. The required error‑handling implementation and its logs are absent.
 - `T015` (rejected 1x): The submission contains only the task description and project specifications; there is no code, script, log file, or any other artifact demonstrating that missing‑data rows are skipped, warnings are logged in the required format, or zero‑variance fields are handled. Consequently, the required error‑handling implementation and logging behavior are not evidenced.
-- `T014` (rejected 1x): The repository contains a `code/visualize.py` file, but it does not include any logic that creates and saves the required scatter plot (the file ends with a stub and the plot‑generation code is absent). Moreover, the expected output file `results/power_drift_scatter.png` is not present. The task’s core requirement—producing and saving the residual‑power‑vs‑year plot with regression line and confidence intervals—is therefore unmet.
-- `T016` (rejected 1x): No code, configuration, or log output files were provided showing that logging was added to the User Story 1 analysis pipeline or to the data‑filtering steps. The required artifact—a set of logging statements (e.g., using Python’s logging module) and/or a log file demonstrating recorded operation details—is missing, so the task is not satisfied.
+- `T020` (rejected 1x): The provided `code/robustness.py` is truncated and the `run_permutation_test` function is not fully implemented (it ends abruptly with “required”). Moreover, the required output file `results/permutation_pvalue.json` and the input `results/lmm_final_summary.json` are absent, so the permutation test cannot be executed nor produce the specified JSON with `iterations_run` and `status`. The task therefore remains unfinished.
+- `T023` (rejected 1x): No code, documentation, or test output was provided showing added logic to detect permutation convergence failures or to flag results as “approximate.” Without any artifact demonstrating this edge‑case handling, the task requirement is unmet.
 
 ## Required change
 

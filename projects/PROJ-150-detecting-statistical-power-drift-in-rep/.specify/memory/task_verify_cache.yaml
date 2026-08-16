@@ -1,17 +1,18 @@
 T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that the directory `projects/PROJ-150-detecting-statistical-power-drift-in-rep/`\
-    \ with the subfolders `data/raw`, `data/derived`, `code`, `tests`, `results`,\
-    \ and `state` actually exists; the claim is unsubstantiated. The implementer must\
-    \ provide a file\u2011system listing or similar proof that the required folders\
-    \ have been created."
+  r: "No evidence of the required `projects/PROJ-150-detecting-statistical-power-drift-in-rep/`\
+    \ directory (or its subfolders `data/raw`, `data/derived`, `code`, `tests`, `results`,\
+    \ `state`) was presented; the claim is unsupported by any visible artifact. The\
+    \ implementer must provide a listing or screenshot confirming the directories\
+    \ exist and are non\u2011empty."
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file or its contents were provided; without an actual file containing
-    the required exclusions (`data/raw`, `data/derived`, `__pycache__`, `.env`), the
-    task is not satisfied. The implementer must add a `.gitignore` with those patterns.
+  r: No `.gitignore` file was presented, and there is no evidence that a file containing
+    the required exclusions (`data/raw`, `data/derived`, `__pycache__`, `.env`) exists
+    in the repository. The implementer therefore has not satisfied the task of initializing
+    the `.gitignore` for the Python data project.
 T011:
   c: false
   h: b8e93d066fbae223db472f45caba8f6de148ac7ace7d148b52e7489130d4cfb1
@@ -20,55 +21,41 @@ T011:
     this artifact, the task is not satisfied.
 T011a:
   c: false
-  h: f85e82476316187dd22069f3e51ca914c6bc803adb1d4089ba23d43961b21977
-  r: "The repository lacks the required input `data/raw/data.csv` and the generated\
-    \ output `data/derived/power_estimates.csv`. Moreover, `code/power_calc.py` is\
-    \ incomplete: the `calculate_power_cohen_d` function never returns a value, and\
-    \ the `main` routine is truncated and does not write the results to the expected\
-    \ CSV. These missing artifacts and code gaps mean the task\u2019s specifications\
-    \ are not satisfied."
-T012a:
+  h: cf136fc8626ca8dcb5d11600f580fdcd8b520ed8ed9fd61b76d2441f491167e3
+  r: "The repository lacks the required output file `data/derived/cleaned_data.csv`,\
+    \ and the shown portion of `code/preprocess.py` does not contain any logic that\
+    \ filters rows with missing `year`, `effect_size`, or `sample_size` nor logs warnings\
+    \ for such rows. Consequently the task\u2019s core requirement is not satisfied."
+T011b:
   c: false
-  h: 906958f244f6e8c029da3a6f3a6880d6274df61ca31cfaf14a43866a6fea3021
-  r: "The required input file `data/derived/power_estimates.csv` does not exist, and\
-    \ the expected output files `data/derived/input_trends_models.pkl` and `data/derived/input_trends_raw.pkl`\
-    \ are missing. Moreover, `code/compute_trends.py` is truncated and does not contain\
-    \ a complete implementation that fits a mixed\u2011effects model with random intercepts\
-    \ for both `field` and `original_study_id`. The task therefore remains unfinished."
-T012b:
+  h: 68642a0cbea1231eab05b236e17e8efa350c271feb7a3191c8a16f7cfff3537c
+  r: "The repository contains `code/preprocess.py` with a `validate_grouping_variables`\
+    \ function, but it only checks the number of unique levels and never evaluates\
+    \ variance of the target variable as required. Moreover, the expected output file\
+    \ `data/derived/grouping_validation.json` is absent, so the task\u2019s verification\
+    \ condition is not met."
+T021:
   c: false
-  h: 2eaa7132818c72dde8de97dc62c88d2b2b32d54a559ac8f4c95e3cd477940091
-  r: "The repository lacks the required `data/derived/lmm_summary.csv` file, and the\
-    \ shown portion of `code/compute_trends.py` does not contain any logic that extracts\
-    \ the year slope, computes its standard error, confidence intervals, p\u2011value,\
-    \ writes those values to the CSV, or asserts the hypothesis test. The implementation\
-    \ is therefore incomplete."
-T013:
+  h: f0cd90bf284542669c90b3a68a43d2296d0c3fa80c348f3df905734cc3dd04ce
+  r: "The `results/sensitivity_report.json` file does not exist, and the provided\
+    \ `code/robustness.py` contains only placeholders and truncated code with no implemented\
+    \ function that sweeps \u03B1\u202F=\u202F0.01,\u202F0.05,\u202F0.1 and writes\
+    \ the drift significance rates. The required output and functionality are therefore\
+    \ missing."
+T026:
   c: false
-  h: c8bc49f080075c327ee3755931c3bbbeb72bcb9a3518fb76ad5d172ed75add6b
-  r: "The provided `code/analyze_drift.py` is truncated and does not contain the full\
-    \ implementation (e.g., the `fit_reduced_model` function ends abruptly, no LRT\
-    \ computation, and no code to write `lrt_results.json`). Moreover, the required\
-    \ output file `data/derived/lrt_results.json` is missing. The task\u2019s core\
-    \ requirements are therefore not met."
-T013a:
+  h: 2585e7cbdbda17a7734b722df695b1c3cda0e18c7360876ff172d1c8f8521c89
+  r: "The repository lacks the required `results/lmm_final_summary.json`, `results/aggregated_drift.json`,\
+    \ and `results/comparison_aggregated_vs_lmm.json` files, and `code/robustness.py`\
+    \ contains placeholder functions (`compute_field_specific_slopes`, `dersimonian_laird_weights`,\
+    \ `run_aggregation`) that do not implement the inverse\u2011variance weighting\
+    \ or DerSimonian\u2011Laird aggregation. The task\u2019s core functionality and\
+    \ output artifacts are therefore missing."
+T027:
   c: false
-  h: 44ccfbb2206ae57c5f873a283d6627b6e688e0bdd628a8e4e094d1a9e81ffa85
-  r: The `code/analyze_drift.py` script is incomplete (truncated and ends with an
-    unfinished assignment `result = `), and the required output file `data/derived/reduced_model.pkl`
-    does not exist. Consequently the reduced model is never fitted or saved, so the
-    task requirements are not met.
-T020:
-  c: false
-  h: 61a15b21531b994aea5c1c01870ec14233a53833eb20082f5c3d23949155c32e
-  r: "The repository lacks the required `results/permutation_pvalue.json` file, and\
-    \ the provided `code/robustness.py` is incomplete (truncated) with no implementation\
-    \ of the non\u2011parametric permutation test, fallback logic, or status flagging.\
-    \ Consequently the task\u2019s output and verification criteria are not satisfied."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, documentation, or test output was provided showing added logic to detect\
-    \ permutation convergence failures or to flag results as \u201Capproximate.\u201D\
-    \ Without any artifact demonstrating this edge\u2011case handling, the task requirement\
-    \ is unmet."
+  h: 632014231a582a3d17d1821f88dedd8b34e63c688a4540c73387c563d0385181
+  r: "The `code/robustness.py` file ends abruptly inside `run_permutation_test` (truncated\
+    \ and contains placeholder text), so the permutation logic and CSV generation\
+    \ are not implemented. Additionally, the required output file `results/null_distribution_implied_power.csv`\
+    \ does not exist. Consequently, the task\u2019s functional and output requirements\
+    \ are unmet."

@@ -4,25 +4,14 @@ from pathlib import Path
 
 def main():
     """
-    Creates the directory structure for the project.
+    Creates the required directory structure for the project.
     Specifically creates: data/raw, data/derived, code, tests, results, state
-    relative to the project root.
     """
-    # Define the project root based on the script location or current working directory
-    # The task implies running from the project root, but we ensure paths are relative to the script's parent if needed.
-    # However, standard practice for these pipelines is to run from the repo root.
     project_root = Path.cwd()
     
-    # Define the specific project directory name as per task T001a
-    project_name = "PROJ-150-detecting-statistical-power-drift-in-rep"
-    project_path = project_root / project_name
-
-    # Create the main project directory if it doesn't exist
-    project_path.mkdir(parents=True, exist_ok=True)
-    print(f"Created project directory: {project_path}")
-
-    # Define subdirectories to create
-    subdirs = [
+    # Define the directories to create relative to the project root
+    # Note: 'code' and 'tests' are often already present, but we ensure they exist.
+    dirs_to_create = [
         "data/raw",
         "data/derived",
         "code",
@@ -31,14 +20,17 @@ def main():
         "state"
     ]
 
-    created_dirs = []
-    for subdir in subdirs:
-        full_path = project_path / subdir
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(full_path))
-        print(f"Created directory: {full_path}")
-
-    print(f"Directory structure for {project_name} is ready.")
+    created_count = 0
+    for dir_name in dirs_to_create:
+        target_path = project_root / dir_name
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {target_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {target_path}")
+    
+    print(f"Directory setup complete. {created_count} new directories created.")
     return 0
 
 if __name__ == "__main__":
