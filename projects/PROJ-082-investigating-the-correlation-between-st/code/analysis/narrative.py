@@ -1,6 +1,17 @@
 """
-Narrative synthesis module for generating structured text summaries when
-quantitative meta-analysis is not feasible (N < 10).
+code/analysis/narrative.py
+
+Implements the final step of the Narrative Synthesis pipeline (T015c).
+Generates the structured text summary (data/derived/narrative_summary.md)
+based on the content produced by the Narrative Engine (T015b) and the
+methodology configuration.
+
+Handles the specific structure requirements:
+- JSON Metadata Block at the top.
+- Section 1: Study Overview.
+- Section 2: Qualitative Themes.
+- Section 3: Limitations.
+- Zero-Studies Handling.
 """
 import json
 import os
@@ -9,324 +20,258 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Import from local utils to ensure project consistency
+# Import shared utilities
+from utils.config import get_project_root, ensure_directory
 from utils.logger import get_logger
-from utils.config import get_project_root
 
 logger = get_logger(__name__)
 
-
-def load_methodology_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+def load_methodology_config(methodology_path: Path) -> Dict[str, Any]:
     """
-    Load the narrative methodology configuration from YAML.
-
-    Args:
-        config_path: Path to the methodology YAML file. Defaults to
-                     data/config/narrative_methodology.yaml.
-
-    Returns:
-        Dictionary containing the coding scheme.
+    Load the narrative methodology configuration (YAML/JSON).
+    Falls back to empty dict if file is missing or invalid.
     """
-    root = get_project_root()
-    if config_path is None:
-        config_path = root / "data" / "config" / "narrative_methodology.yaml"
-    else:
-        config_path = Path(config_path)
+    if not methodology_path.exists():
+        logger.warning(f"Methodology config not found at {methodology_path}. Using defaults.")
+        return {
+            "keywords": [],
+            "sentiment_rules": {"positive": [], "negative": []},
+            "exclusion_criteria": []
+        }
+    
+    try:
+        import yaml
+        with open(methodology_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+            return config if isinstance(config, dict) else {}
+    except Exception as e:
+        logger.error(f"Failed to load methodology config: {e}")
+        return {}
 
-    if not config_path.exists():
-        raise FileNotFoundError(f"Methodology config not found at {config_path}")
-
-    import yaml
-    with open(config_path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
-
-def load_qualitative_notes(input_path: Optional[str] = None) -> List[Dict[str, Any]]:
+def load_qualitative_notes(extracted_csv_path: Path) -> List[Dict[str, Any]]:
     """
-    Load extracted qualitative descriptors from the processed CSV.
-
-    Args:
-        input_path: Path to extracted_studies.csv. Defaults to
-                    data/processed/extracted_studies.csv.
-
-    Returns:
-        List of dictionaries containing study metadata and qualitative descriptions.
+    Load the qualitative descriptors from the extracted studies CSV.
+    Returns a list of dictionaries containing 'author', 'year', 'tract', 'qualitative_desc'.
     """
-    root = get_project_root()
-    if input_path is None:
-        input_path = root / "data" / "processed" / "extracted_studies.csv"
-    else:
-        input_path = Path(input_path)
-
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input CSV not found at {input_path}")
-
     studies = []
-    with open(input_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            # Only include studies that have a qualitative description and are in the narrative pool
-            if row.get('narrative_pool', 'False') == 'True' and row.get('qualitative_desc'):
-                studies.append({
-                    'author': row.get('author', 'Unknown'),
-                    'year': row.get('year', 'n.d.'),
-                    'tract': row.get('tract', 'Unknown'),
-                    'qualitative_desc': row.get('qualitative_desc', ''),
-                    'qualitative_desc': row['qualitative_desc'].strip()
-                })
+    if not extracted_csv_path.exists():
+        logger.warning(f"Extracted studies CSV not found at {extracted_csv_path}.")
+        return studies
+
+    try:
+        with open(extracted_csv_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Only include studies that have a qualitative description
+                # or are marked for narrative pool
+                desc = row.get('qualitative_desc', '').strip()
+                if desc and desc != "no_descriptor_found":
+                    studies.append({
+                        "author": row.get('author', 'Unknown'),
+                        "year": row.get('year', 'N/A'),
+                        "tract": row.get('tract', 'Unknown'),
+                        "qualitative_desc": desc
+                    })
+    except Exception as e:
+        logger.error(f"Failed to read extracted studies CSV: {e}")
+    
     return studies
 
-
-def load_study_count(count_path: Optional[str] = None) -> int:
+def load_study_count(count_json_path: Path) -> int:
     """
     Load the study count from the study_count.json file.
-
-    Args:
-        count_path: Path to study_count.json. Defaults to
-                    data/processed/study_count.json.
-
-    Returns:
-        The integer study count N.
+    Returns 0 if file is missing or invalid.
     """
-    root = get_project_root()
-    if count_path is None:
-        count_path = root / "data" / "processed" / "study_count.json"
-    else:
-        count_path = Path(count_path)
-
-    if not count_path.exists():
-        raise FileNotFoundError(f"Study count file not found at {count_path}")
-
-    with open(count_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    return int(data.get('N', 0))
-
-
-def load_themes_json(themes_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Load the pre-computed narrative themes from JSON.
-
-    Args:
-        themes_path: Path to narrative_themes.json. Defaults to
-                     data/derived/narrative_themes.json.
-
-    Returns:
-        Dictionary of themes and their frequencies.
-    """
-    root = get_project_root()
-    if themes_path is None:
-        themes_path = root / "data" / "derived" / "narrative_themes.json"
-    else:
-        themes_path = Path(themes_path)
-
-    if not themes_path.exists():
-        logger.warning(f"Themes file not found at {themes_path}, generating empty themes.")
-        return {"themes": [], "total_studies": 0}
-
-    with open(themes_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-
-def extract_themes(studies: List[Dict], methodology: Dict) -> Dict[str, Any]:
-    """
-    Extract and categorize themes based on the methodology config.
-    This is a fallback if the themes JSON is missing, but T015a should have generated it.
-    """
-    themes = defaultdict(list)
-    keywords = methodology.get('keywords', [])
+    if not count_json_path.exists():
+        logger.warning(f"Study count JSON not found at {count_json_path}.")
+        return 0
     
-    for study in studies:
-        desc = study['qualitative_desc'].lower()
-        matched_themes = []
-        for kw in keywords:
-            if kw.lower() in desc:
-                matched_themes.append(kw)
-        
-        if not matched_themes:
-            matched_themes.append("General Connectivity")
-        
-        for theme in matched_themes:
-            themes[theme].append(study)
+    try:
+        with open(count_json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return int(data.get('N', 0))
+    except Exception as e:
+        logger.error(f"Failed to read study count JSON: {e}")
+        return 0
 
-    return {
-        "themes": [{"name": k, "count": len(v), "studies": v} for k, v in themes.items()],
-        "total_studies": len(studies)
-    }
-
-
-def generate_overview(study_count: int, timestamp: str) -> str:
+def load_themes_json(themes_json_path: Path) -> Dict[str, Any]:
     """
-    Generate the Study Overview section.
+    Load the themes JSON generated by T015a.
     """
-    return f"""## Study Overview
+    if not themes_json_path.exists():
+        logger.warning(f"Themes JSON not found at {themes_json_path}.")
+        return {"themes": []}
+    
+    try:
+        with open(themes_json_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to read themes JSON: {e}")
+        return {"themes": []}
 
-**Methodology**: Systematic Review Fallback (Narrative Synthesis)
-**Study Count**: {study_count}
-**Timestamp**: {timestamp}
-
-This summary is generated using a narrative synthesis approach because the number of eligible studies ({study_count}) is below the threshold required for quantitative meta-analysis (N < 10). The analysis follows the coding scheme defined in `data/config/narrative_methodology.yaml`.
-
-### References
-The following studies were included in the qualitative pool:
-"""
-
-
-def generate_themes(themes_data: Dict[str, Any]) -> str:
+def extract_themes(themes_data: Dict[str, Any]) -> str:
     """
-    Generate the Qualitative Themes section.
+    Format the themes data into a readable string for the report.
     """
     if not themes_data.get('themes'):
-        return "\n## Qualitative Themes\n\nNo specific themes identified in the available literature.\n"
-
-    lines = ["## Qualitative Themes\n"]
+        return "No specific themes were identified in the qualitative analysis."
     
+    lines = []
     for theme in themes_data['themes']:
-        name = theme['name']
-        count = theme['count']
-        lines.append(f"\n### {name} ({count} studies)")
-        lines.append("")
-        
-        # List studies contributing to this theme
-        for study in theme['studies']:
-            author = study['author']
-            year = study['year']
-            tract = study['tract']
-            desc = study['qualitative_desc']
-            lines.append(f"- **{author} ({year})**: {tract} - {desc}")
-        
-        lines.append("")
-
+        theme_name = theme.get('name', 'Unnamed Theme')
+        count = theme.get('count', 0)
+        description = theme.get('description', '')
+        lines.append(f"- **{theme_name}**: {description} (Frequency: {count})")
+    
     return "\n".join(lines)
 
-
-def generate_limitations(study_count: int) -> str:
+def generate_overview(studies: List[Dict[str, Any]], methodology: Dict[str, Any]) -> str:
     """
-    Generate the Limitations section, explicitly stating the N < 10 constraint.
+    Generate the 'Study Overview' section.
     """
-    return f"""## Limitations
+    lines = []
+    lines.append("### Methodology")
+    lines.append("This narrative synthesis was conducted based on the thematic coding scheme defined in the project configuration.")
+    
+    keywords = methodology.get('keywords', [])
+    if keywords:
+        lines.append(f"Key search terms included: {', '.join(keywords)}")
+    
+    exclusion = methodology.get('exclusion_criteria', [])
+    if exclusion:
+        lines.append(f"Studies were excluded based on the following criteria: {', '.join(exclusion)}")
+    
+    lines.append("")
+    lines.append("### References")
+    if not studies:
+        lines.append("No studies were available for synthesis.")
+    else:
+        # Deduplicate by author-year
+        seen = set()
+        for s in studies:
+            ref = f"{s['author']} ({s['year']})"
+            if ref not in seen:
+                lines.append(f"- {ref}")
+                seen.add(ref)
+    
+    return "\n".join(lines)
 
-**Data Insufficient for Quantitative Synthesis**: This review is based on only {study_count} studies, which is below the minimum threshold (N >= 10) required to perform a random-effects meta-analysis. Consequently:
-
-1. **Statistical Power**: The ability to detect a true effect size is significantly reduced.
-2. **Heterogeneity Assessment**: Metrics such as I² and Egger's regression test cannot be reliably calculated or interpreted with this sample size.
-3. **Generalizability**: Findings are preliminary and should be interpreted with caution. Further research with larger sample sizes is required to confirm these associations.
-
-**Systematic Review Fallback**: As per Constitution Principle VII, this narrative summary serves as a fallback to ensure that no data is discarded, even when quantitative aggregation is not feasible.
-"""
-
-
-def generate_narrative_summary(
-    study_count: int,
-    themes_data: Dict[str, Any],
-    output_path: Optional[str] = None
-) -> str:
+def generate_themes(themes_content: str) -> str:
     """
-    Generate the full structured text summary (Markdown).
+    Generate the 'Qualitative Themes' section.
+    """
+    return themes_content
 
-    Args:
-        study_count: Total number of studies (N).
-        themes_data: Dictionary containing theme analysis.
-        output_path: Path for the output MD file. Defaults to
-                     data/derived/narrative_summary.md.
+def generate_limitations(n: int) -> str:
+    """
+    Generate the 'Limitations' section.
+    Explicitly states the N < 10 constraint as per T015c requirements.
+    """
+    lines = []
+    lines.append("### Limitations")
+    lines.append(f"**Data Insufficiency**: The quantitative meta-analysis was not performed because the number of eligible studies (N={n}) was below the required threshold of 10.")
+    lines.append("Consequently, the results presented here are a qualitative narrative synthesis and should be interpreted with caution.")
+    lines.append("The small sample size limits the statistical power to detect robust correlations and increases the risk of publication bias remaining undetected.")
+    lines.append("")
+    lines.append("### Systematic Review Fallback")
+    lines.append("Due to the insufficient data for quantitative pooling, this report serves as a systematic review fallback, prioritizing the aggregation of qualitative findings and directional trends over statistical effect size estimation.")
+    
+    return "\n".join(lines)
 
-    Returns:
-        The generated markdown string.
+def generate_narrative_summary(n: int, studies: List[Dict[str, Any]], themes_data: Dict[str, Any], methodology: Dict[str, Any]) -> str:
+    """
+    Assemble the full Markdown content for the narrative summary.
     """
     timestamp = datetime.now().isoformat()
     
-    # Construct metadata block
+    # JSON Metadata Block
     metadata = {
-        "study_count": study_count,
+        "study_count": n,
         "synthesis_mode": "narrative",
         "timestamp": timestamp
     }
     
-    # Handle Zero-Studies Edge Case
-    if study_count == 0:
+    # Handle Zero Studies Edge Case
+    if n == 0:
         header = "# No studies found"
-        content = f"""
-## Study Overview
-
-**Methodology**: Systematic Review Fallback (Narrative Synthesis)
-**Study Count**: 0
-**Timestamp**: {timestamp}
-
-No studies were found that met the inclusion criteria or contained qualitative descriptors.
-
-## Limitations
-
-**Data Insufficient**: No data was available for synthesis.
-"""
+        body = """
+        No eligible studies were found to perform a narrative synthesis.
+        The pipeline has pivoted to this fallback mode due to a complete lack of data.
+        """
+        footer = generate_limitations(0)
     else:
-        header = "# Correlation Between Structural Brain Connectivity and Music Preferences: Narrative Summary"
-        overview = generate_overview(study_count, timestamp)
-        themes_section = generate_themes(themes_data)
-        limitations = generate_limitations(study_count)
+        header = "# Narrative Synthesis: Structural Brain Connectivity and Music Preferences"
+        overview = generate_overview(studies, methodology)
+        themes_content = extract_themes(themes_data)
+        themes_section = generate_themes(themes_content)
+        footer = generate_limitations(n)
         
-        content = f"""
-{overview}
+        body = f"""
+        ## Study Overview
 
-{themes_section}
-{limitations}
-"""
+        {overview}
 
-    full_md = f"""```json
-{json.dumps(metadata, indent=2)}
-```
+        ## Qualitative Themes
 
-{header}
-{content}
-"""
+        {themes_section}
+        """
+    
+    # Construct final document
+    doc = f"""---
+    {json.dumps(metadata, indent=2)}
+    ---
 
-    root = get_project_root()
-    if output_path is None:
-        output_path = root / "data" / "derived" / "narrative_summary.md"
-    else:
-        output_path = Path(output_path)
+    {header}
 
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    {body}
 
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(full_md)
-
-    logger.info(f"Narrative summary generated at {output_path}")
-    return full_md
-
+    {footer}
+    """
+    return doc
 
 def main():
     """
-    Main entry point for the narrative generation task.
-    Orchestrates loading data and generating the summary.
+    Entry point for T015c.
+    Reads inputs, generates the summary, and writes to data/derived/narrative_summary.md.
     """
-    try:
-        # 1. Load Study Count
-        logger.info("Loading study count...")
-        study_count = load_study_count()
-        logger.info(f"Study count: {study_count}")
-
-        # 2. Load Themes (from T015a output)
-        logger.info("Loading narrative themes...")
-        try:
-            themes_data = load_themes_json()
-        except FileNotFoundError:
-            # Fallback: Load raw studies and re-extract if themes file missing
-            logger.warning("Themes file missing. Loading raw studies and re-extracting.")
-            methodology = load_methodology_config()
-            studies = load_qualitative_notes()
-            themes_data = extract_themes(studies, methodology)
-
-        # 3. Generate Summary
-        logger.info("Generating narrative summary...")
-        generate_narrative_summary(study_count, themes_data)
-        
-        logger.info("Narrative generation completed successfully.")
-        return 0
-
-    except Exception as e:
-        logger.error(f"Narrative generation failed: {e}", exc_info=True)
-        return 1
-
+    project_root = get_project_root()
+    
+    # Define paths
+    methodology_path = project_root / "data" / "config" / "narrative_methodology.yaml"
+    extracted_studies_path = project_root / "data" / "processed" / "extracted_studies.csv"
+    study_count_path = project_root / "data" / "processed" / "study_count.json"
+    themes_path = project_root / "data" / "derived" / "narrative_themes.json"
+    output_path = project_root / "data" / "derived" / "narrative_summary.md"
+    
+    # Ensure output directory exists
+    ensure_directory(output_path)
+    
+    logger.info("Starting Narrative Summary Generation (T015c)...")
+    
+    # Load Inputs
+    logger.info(f"Loading methodology from {methodology_path}")
+    methodology = load_methodology_config(methodology_path)
+    
+    logger.info(f"Loading study count from {study_count_path}")
+    n = load_study_count(study_count_path)
+    
+    logger.info(f"Loading qualitative notes from {extracted_studies_path}")
+    studies = load_qualitative_notes(extracted_studies_path)
+    
+    logger.info(f"Loading themes from {themes_path}")
+    themes_data = load_themes_json(themes_path)
+    
+    # Generate Content
+    logger.info("Generating narrative summary content...")
+    content = generate_narrative_summary(n, studies, themes_data, methodology)
+    
+    # Write Output
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    logger.info(f"Successfully wrote narrative summary to {output_path}")
+    return 0
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

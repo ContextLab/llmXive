@@ -1,130 +1,131 @@
 """
-Unit tests for T015a: Narrative Logic
+Unit tests for T015a: narrative_logic.py
 """
 import json
 import os
 import tempfile
-import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pytest
+import yaml
 
-# Import the module to test
-from code.analysis.narrative_logic import (
+# Ensure we can import from code/
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from analysis.narrative_logic import (
     load_methodology_config,
     load_extracted_studies,
     extract_themes,
+    generate_themes_json,
     run_narrative_logic
 )
-from code.utils.config import get_project_root
 
-@pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
 
-def test_extract_themes_basic(temp_dir):
-    """Test basic theme extraction with keywords."""
-    # Mock data
-    studies = [
-        {"author": "Smith", "year": 2020, "tract": "Arcuate", "qualitative_desc": "Increased connectivity in the arcuate fasciculus"},
-        {"author": "Jones", "year": 2021, "tract": "Uncinate", "qualitative_desc": "Decreased volume in uncinate fasciculus associated with depression"},
-        {"author": "Doe", "year": 2022, "tract": "Cingulum", "qualitative_desc": "No significant findings in cingulum bundle"},
-    ]
-    
-    # Methodology with specific keywords
-    methodology = {
-        "keywords": ["arcuate", "uncinate", "depression"],
-        "sentiment_rules": {},
-        "exclusion_criteria": []
+def test_extract_themes_positive():
+    """Test extraction of positive themes."""
+    keywords = ["auditory", "reward"]
+    sentiment_rules = {
+        "positive": ["increased", "enhanced"],
+        "negative": ["decreased"]
     }
     
-    result = extract_themes(studies, methodology)
+    text = "Increased auditory connectivity to the reward pathway."
+    themes = extract_themes(text, keywords, sentiment_rules)
     
-    assert result["total_studies_processed"] == 3
-    assert "themes" in result
-    
-    # Check specific theme counts
-    # "arcuate" should match study 1
-    assert "arcuate" in result["themes"]
-    assert result["themes"]["arcuate"]["count"] == 1
-    
-    # "uncinate" should match study 2
-    assert "uncinate" in result["themes"]
-    assert result["themes"]["uncinate"]["count"] == 1
-    
-    # "depression" should match study 2
-    assert "depression" in result["themes"]
-    assert result["themes"]["depression"]["count"] == 1
-    
-    # "uncategorized" should match study 3 (no keywords found)
-    assert "uncategorized" in result["themes"]
-    assert result["themes"]["uncategorized"]["count"] == 1
+    assert len(themes) > 0
+    assert any(t["theme"] == "auditory" for t in themes)
+    assert any(t["sentiment"] == "positive" for t in themes)
 
-def test_extract_themes_empty_input():
-    """Test extraction with empty study list."""
-    studies = []
-    methodology = {"keywords": ["test"], "sentiment_rules": {}, "exclusion_criteria": []}
-    
-    result = extract_themes(studies, methodology)
-    
-    assert result["total_studies_processed"] == 0
-    assert len(result["themes"]) == 0
 
-def test_extract_themes_missing_desc():
-    """Test extraction when qualitative_desc is missing or empty."""
+def test_extract_themes_negative():
+    """Test extraction of negative themes."""
+    keywords = ["frontal"]
+    sentiment_rules = {
+        "positive": ["increased"],
+        "negative": ["decreased"]
+    }
+    
+    text = "Decreased frontal connectivity."
+    themes = extract_themes(text, keywords, sentiment_rules)
+    
+    assert len(themes) > 0
+    assert themes[0]["sentiment"] == "negative"
+
+
+def test_extract_themes_no_match():
+    """Test when no keywords match."""
+    keywords = ["nonexistent"]
+    sentiment_rules = {}
+    
+    text = "Some random text."
+    themes = extract_themes(text, keywords, sentiment_rules)
+    
+    assert len(themes) == 0
+
+
+def test_generate_themes_json():
+    """Test aggregation logic."""
     studies = [
-        {"author": "Test", "year": 2020, "tract": "Test", "qualitative_desc": ""},
-        {"author": "Test2", "year": 2020, "tract": "Test", "qualitative_desc": None},
+        {"qualitative_desc": "Increased auditory connectivity."},
+        {"qualitative_desc": "Increased auditory connectivity."},
+        {"qualitative_desc": "Decreased frontal connectivity."}
     ]
-    methodology = {"keywords": ["test"], "sentiment_rules": {}, "exclusion_criteria": []}
     
-    result = extract_themes(studies, methodology)
+    methodology = {
+        "keywords": ["auditory", "frontal"],
+        "sentiment_rules": {
+            "positive": ["increased"],
+            "negative": ["decreased"]
+        }
+    }
     
-    # Both should be skipped or counted as uncategorized? 
-    # Implementation skips if not desc or not string.
-    # If implementation skips, count is 0. If it adds to uncategorized, count is 2.
-    # Based on code: `if not desc or not isinstance(desc, str): continue`
-    # So they are skipped.
-    assert result["total_studies_processed"] == 2
-    assert len(result["themes"]) == 0
+    result = generate_themes_json(studies, methodology)
+    
+    assert "themes" in result
+    assert result["themes"]["auditory"]["count"] == 2
+    assert result["themes"]["auditory"]["sentiment_breakdown"]["positive"] == 2
+    assert result["themes"]["frontal"]["count"] == 1
+    assert result["themes"]["frontal"]["sentiment_breakdown"]["negative"] == 1
 
-def test_load_extracted_studies_file_not_found(temp_dir):
-    """Test that load_extracted_studies raises error if file missing."""
-    fake_path = temp_dir / "nonexistent.csv"
-    with pytest.raises(FileNotFoundError):
-        load_extracted_studies(fake_path)
 
-def test_run_narrative_logic_integration(temp_dir):
-    """Integration test for the full run_narrative_logic flow with mocked paths."""
-    # Create mock files
-    csv_path = temp_dir / "extracted_studies.csv"
-    yaml_path = temp_dir / "methodology.yaml"
-    output_path = temp_dir / "narrative_themes.json"
-    
-    # Write mock CSV
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=["author", "year", "tract", "qualitative_desc"])
-        writer.writeheader()
-        writer.writerow({"author": "A", "year": 2020, "tract": "X", "qualitative_desc": "Positive correlation in arcuate"})
-    
-    # Write mock YAML
-    with open(yaml_path, 'w') as f:
-        f.write("keywords:\n  - arcuate\n  - positive\n")
-    
-    # Mock the global paths in the module
-    with patch('code.analysis.narrative_logic.EXTRACTED_STUDIES_PATH', csv_path), \
-         patch('code.analysis.narrative_logic.METHODOLOGY_CONFIG_PATH', yaml_path), \
-         patch('code.analysis.narrative_logic.OUTPUT_PATH', output_path):
+def test_run_narrative_logic_integration():
+    """Test full pipeline execution with temporary files."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
         
-        result = run_narrative_logic()
+        # 1. Create Config
+        config_data = {
+            "keywords": ["test"],
+            "sentiment_rules": {"positive": ["good"], "negative": ["bad"]}
+        }
+        config_file = tmp_path / "methodology.yaml"
+        with open(config_file, 'w') as f:
+            yaml.dump(config_data, f)
         
-        # Verify output file exists
-        assert output_path.exists()
+        # 2. Create Input CSV
+        csv_file = tmp_path / "extracted.csv"
+        with open(csv_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=["qualitative_desc"])
+            writer.writeheader()
+            writer.writerow({"qualitative_desc": "Good test result"})
+            writer.writerow({"qualitative_desc": "Bad test result"})
         
-        # Verify content
-        with open(output_path, 'r') as f:
-            saved_data = json.load(f)
+        # 3. Run Logic
+        output_file = tmp_path / "themes.json"
+        result = run_narrative_logic(
+            csv_path=csv_file,
+            config_path=config_file,
+            output_path=output_file
+        )
         
-        assert saved_data["total_studies_processed"] == 1
-        assert "arcuate" in saved_data["themes"]
-        assert "positive" in saved_data["themes"]
+        # 4. Verify Output File Exists
+        assert output_file.exists()
+        
+        # 5. Verify Content
+        with open(output_file, 'r') as f:
+            json_result = json.load(f)
+        
+        assert json_result["total_studies_processed"] == 2
+        assert "test" in json_result["themes"]
+        assert json_result["themes"]["test"]["count"] == 2

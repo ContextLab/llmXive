@@ -1384,25 +1384,6 @@
   updated_at: '2026-08-14T13:47:25Z'
 - artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
   attempts: 1
-  canonical: verify axis labels and font sizes are greater than 8pt
-  claim_id: c_6f5dc144
-  context: 'Readability Check: After regeneration, verify that axis labels and font
-    sizes are > 8pt to ensure scientific clarity.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_axis_labels_and_font_sizes_are_greater_than_8pt
-  kind: magnitude
-  raw_text: Verify that axis labels and font sizes are > 8pt to ensure scientific
-    clarity.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-14T13:53:36Z'
-- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
-  attempts: 1
   canonical: verify generated pngs are less than 5mb
   claim_id: c_0909bb88
   context: 'Implement file size validation logic in code/utils/validator.py: Add a
@@ -1498,3 +1479,282 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T13:58:11Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: generate mock data fallback with N=5 containing author year tract r n
+    and qualitative_desc columns
+  claim_id: c_163049c0
+  context: 'T000-gen [S] [US1] Generate mock data for Fallback Testing (N=5): Create
+    code/data/generate_mock_data.py to produce data/raw/mock_studies_fallback.csv
+    with synthetic studies containing author, year, tract, r, n, and qualitative_desc
+    columns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create code/data/generate_mock_data.py to produce data/raw/mock_studies_fallback.csv
+    with synthetic studies containing author, year, tract, r, n, and qualitative_desc
+    columns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:46:48Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: use random seed 42 to generate n between 10 and 30
+  claim_id: c_c3fa2725
+  context: 'Logic: Read the random seed from code/config/config.yaml (default 42)
+    and use it to generate random r values within a small, non-zero range and n between
+    10 and 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Read the random seed from code/config/config.yaml (default 42) and use
+    it to generate random r values within a small, non-zero range and n between 10
+    and 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:47:07Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: generate mock data quantitative with N=15 containing author year tract
+    r n and qualitative_desc columns
+  claim_id: c_97581e86
+  context: 'T000b-gen [S] [US1] Generate mock data for Quantitative Testing (N=15):
+    Create code/data/generate_mock_data.py to produce data/raw/mock_studies_quant.csv
+    with a set of synthetic studies containing author, year, tract, r, n, and qualitative_desc
+    columns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create code/data/generate_mock_data.py to produce data/raw/mock_studies_quant.csv
+    with a set of synthetic studies containing author, year, tract, r, n, and qualitative_desc
+    columns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:47:07Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: use random seed 43 to generate n between 20 and 100
+  claim_id: c_7c3c3d9f
+  context: 'Logic: Read the random seed from code/config/config.yaml (default 43)
+    and use it to generate random r values within a plausible positive range and n
+    between 20 and 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Read the random seed from code/config/config.yaml (default 43) and use
+    it to generate random r values within a plausible positive range and n between
+    20 and 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:47:25Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: specify python version 3.11 or higher
+  claim_id: c_0faa24f2
+  context: 'Create code/requirements.txt with pinned versions for pandas, numpy, scipy,
+    statsmodels, matplotlib, seaborn, pyyaml, pytest, ruff, black. Output: code/requirements.txt.
+    Constraint: Must specify python>=3.11.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must specify python>=3.11 in requirements.txt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:47:41Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: tract lexicon includes arcuate fasciculus cingulum bundle uncinate fasciculus
+    inferior longitudinal fasciculus auditory cortex ventral striatum
+  claim_id: c_ef32e657
+  context: 'Create code/config/generate_lexicon.py to produce data/config/tract_lexicon.yaml.
+    Content: Must include specific tract names (arcuate fasciculus, cingulum bundle,
+    uncinate fasciculus, inferior longitudinal fasciculus, auditory cortex, ventral
+    striatum) and directional verbs (increased, decreased, correlated, associated
+    with).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tract_lexicon_includes_arcuate_fasciculus_cingulum_bundle_un
+  kind: entity_fact
+  raw_text: Include specific tract names arcuate fasciculus, cingulum bundle, uncinate
+    fasciculus, inferior longitudinal fasciculus, auditory cortex, ventral striatum
+    and directional verbs increased, decreased, correlated, associated with in data/config/tract_lexicon.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:48:01Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: report I squared statistic with exactly two decimal places
+  claim_id: c_69bae354
+  context: "T021b [S] [US2] Implement code/analysis/heterogeneity.py I\xB2 calculation.\
+    \ Precision Requirement: The output MUST report the I\xB2 statistic with exactly\
+    \ two decimal places (e.g., a precise numerical value) as mandated by SC-002 and\
+    \ FR-002."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_I_squared_statistic_with_exactly_two_decimal_places
+  kind: entity_fact
+  raw_text: "The output MUST report the I\xB2 statistic with exactly two decimal places."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:48:20Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: inject limitations note acknowledging Bonferroni conservatism
+  claim_id: c_4d12550d
+  context: 'Output Requirement: Generate and inject a mandatory ''Limitations'' note
+    into the final data/derived/results.json acknowledging Bonferroni conservatism.
+    Report the adjusted significance threshold value in the output report. Exact Text:
+    ''Limitations: Bonferroni correction is conservative due to potential non-independence
+    of tract measurements.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inject_limitations_note_acknowledging_Bonferroni_conservatis
+  kind: entity_fact
+  raw_text: Generate and inject a mandatory Limitations note into the final data/derived/results.json
+    acknowledging Bonferroni conservatism.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:48:36Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: exact limitations text for Bonferroni correction
+  claim_id: c_83ebe753
+  context: 'Output Requirement: Generate and inject a mandatory ''Limitations'' note
+    into the final data/derived/results.json acknowledging Bonferroni conservatism.
+    Report the adjusted significance threshold value in the output report. Exact Text:
+    ''Limitations: Bonferroni correction is conservative due to potential non-independence
+    of tract measurements.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exact_limitations_text_for_Bonferroni_correction
+  kind: entity_fact
+  raw_text: 'Exact Text for limitations note: Limitations: Bonferroni correction is
+    conservative due to potential non-independence of tract measurements.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:48:58Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: return exit code 2 on validation failure to trigger retry
+  claim_id: c_02ec22d2
+  context: 'Constraint: If validation fails, write overall_status: ''fail'' to data/derived/validation_report.json
+    and return exit code 2 (non-fatal) to allow the orchestrator (T027e) to invoke
+    T027d for retry logic. If validation passes, return a successful exit code.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If validation fails, write overall_status: fail to data/derived/validation_report.json
+    and return exit code 2 to allow the orchestrator to invoke T027d for retry logic.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:49:16Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 2
+  canonical: verify axis labels and font sizes are greater than 8pt
+  claim_id: c_6f5dc144
+  context: 'Readability Check: After regeneration, verify that axis labels and font
+    sizes are > 8pt to ensure scientific clarity.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_axis_labels_and_font_sizes_are_greater_than_8pt
+  kind: magnitude
+  raw_text: Verify that axis labels and font sizes are > 8pt to ensure scientific
+    clarity.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:49:37Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: verify weighted mean within 0.001 tolerance
+  claim_id: c_5ceba63a
+  context: T011 [P] [US1] Unit test for meta-analysis calculation in tests/unit/test_meta_analysis.py
+    (verify weighted mean within 0.001 tolerance).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test for meta-analysis calculation verify weighted mean within 0.001
+    tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:49:52Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: verify egger_skipped_reason exact string output
+  claim_id: c_d3fb5923
+  context: 'T020 [P] [US2] Unit test for Egger''s regression in tests/unit/test_bias.py
+    (verify p-value calculation and N < 10 skip logic; verify egger_skipped_reason
+    output matches exact string: ''Skipped: Insufficient studies (N < 10) for Egger''s
+    regression'')'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Unit test for Egger''s regression verify p-value calculation and N <
+    10 skip logic; verify egger_skipped_reason output matches exact string: Skipped:
+    Insufficient studies (N < 10) for Egger''s regression.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:49:52Z'
+- artifact_path: projects/PROJ-082-investigating-the-correlation-between-st/specs/001-investigating-the-correlation-between-st/tasks.md
+  attempts: 1
+  canonical: verify plot file size less than 5MB and peak memory less than 6GB
+  claim_id: c_3eae84a9
+  context: T025 [P] [US3] Integration test for plot generation in tests/integration/test_plots.py
+    (verify file existence, size < 5MB, peak memory < 6GB using tracemalloc, and correct
+    axis labels).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_plot_file_size_less_than_5MB_and_peak_memory_less_tha
+  kind: magnitude
+  raw_text: Integration test for plot generation verify file existence, size < 5MB,
+    peak memory < 6GB using tracemalloc, and correct axis labels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T12:50:09Z'

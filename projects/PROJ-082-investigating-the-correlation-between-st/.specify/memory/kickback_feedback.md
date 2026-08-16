@@ -4,7 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T015a` (rejected 1x): The provided `code/analysis/narrative_logic.py` is truncated and does not contain a complete implementation (it ends abruptly with “ret”). Moreover, the required input files `data/processed/extracted_studies.csv` and `data/config/narrative_methodology.yaml` are absent, and the expected output `data/derived/narrative_themes.json` was never created. The task’s core functionality cannot be verified or executed.
+- `T013` (rejected 1x): The required `data/config/tract_lexicon.yaml` file is missing, causing the parser’s pre‑flight check to fail, and the expected output files `data/logs/exclusion_log.csv` and `data/processed/extracted_studies.csv` have not been created. Additionally, the provided `parser.py` is truncated and does not demonstrably implement the full extraction, narrative‑pool handling, and CSV generation described in the task.
+- `T008c` (rejected 1x): The provided `code/analysis/tract_counting.py` is truncated (e.g., the `run_tract_counting` function ends abruptly and lacks a proper return or execution guard), so it cannot reliably read the CSV, apply harmonization, count tracts, and write `data/processed/tract_count.json`. Additionally, the required input CSV and output JSON files are absent, indicating the script has not been demonstrated to work end‑to‑end. The implementation must be completed and verified with the expected files.
+- `T014` (rejected 1x): The required `data/processed/study_count.json` file is missing, so the script cannot read the mandatory `N` value at runtime. Without this file the implementation cannot satisfy the gate‑logic requirement, regardless of the code present in `meta_analysis.py`.
 
 ## Required change
 

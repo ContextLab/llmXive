@@ -22,48 +22,64 @@ T007c:
     the required tract names and verbs, but the required output file `data/config/tract_lexicon.yaml`
     does not exist on disk. The task demands that this YAML file be generated; its
     absence means the requirement is not satisfied.
-T008c:
-  c: false
-  h: 2a19bcfcb7b0ba8889c22f28b4f855e520080835c33e0fb795edae0cc1384c01
-  r: "The provided `code/analysis/tract_counting.py` is truncated (e.g., the `run_tract_counting`\
-    \ function ends abruptly and lacks a proper return or execution guard), so it\
-    \ cannot reliably read the CSV, apply harmonization, count tracts, and write `data/processed/tract_count.json`.\
-    \ Additionally, the required input CSV and output JSON files are absent, indicating\
-    \ the script has not been demonstrated to work end\u2011to\u2011end. The implementation\
-    \ must be completed and verified with the expected files."
-T013:
-  c: false
-  h: b7b9a436b7ce3382b99cd5a935ff5e3528529c6ef146b157f321c5fcce5080f7
-  r: "The required `data/config/tract_lexicon.yaml` file is missing, causing the parser\u2019\
-    s pre\u2011flight check to fail, and the expected output files `data/logs/exclusion_log.csv`\
-    \ and `data/processed/extracted_studies.csv` have not been created. Additionally,\
-    \ the provided `parser.py` is truncated and does not demonstrably implement the\
-    \ full extraction, narrative\u2011pool handling, and CSV generation described\
-    \ in the task."
-T014:
-  c: false
-  h: b1368108ae621d7eee95a2f7b660db147f307e4d88822ff7dc6c4cde6f56a5fe
-  r: "The `meta_analysis.py` file exists but the required `data/processed/study_count.json`\
-    \ is missing, so the script cannot read\u202FN at runtime. Moreover, the provided\
-    \ code is truncated before the core random\u2011effects implementation and does\
-    \ not show the required convergence\u2011failure fallback to a fixed\u2011effects\
-    \ model. Both the necessary data file and the complete fallback logic are absent."
 T014a:
+  c: true
+  h: 6c6d215c00d61651e593c49cd8e92b1495031893442cbc7f4f5d3c8b056ee046
+  r: "The repository contains a non\u2011empty `code/analysis/study_counter.py` that\
+    \ defines functions to load `extracted_studies.csv`, count unique (Author, Year)\
+    \ pairs, and write the result as `{\"N\": \u2026}` to `study_count.json`. The\
+    \ missing CSV and JSON files are expected runtime inputs/outputs, not required\
+    \ artifacts for the implementation task."
+T015a:
   c: false
-  h: c088b8732a7cee8f98b352bddde5a63156a93944e563fa755eae3e83afea52c4
-  r: "The `study_counter.py` file is present but its implementation is truncated (e.g.,\
-    \ `run_study_counter` is incomplete) and there is no `extracted_studies.csv` input\
-    \ nor the expected `study_count.json` output on disk. Without a complete script\
-    \ and the required data files, the task\u2019s specification is not satisfied."
-T015:
+  h: 5151f1a028c03c85381f0ad8ee510c4ecc42f991d82e1eb3c399092069c0208f
+  r: "The repository contains a partially\u2011implemented `code/analysis/narrative_logic.py`\
+    \ that is truncated and does not finish the theme extraction or write the JSON\
+    \ output. The required input file `data/processed/extracted_studies.csv` and the\
+    \ expected output `data/derived/narrative_themes.json` are both absent, so the\
+    \ script cannot be run or verified. The task therefore remains unfinished."
+T015b:
   c: false
-  h: e2e5b758bcfa7303f5afe12709bac666fc29bf2c2fd394eb3150c4c050b84fff
-  r: The repository lacks the required input data files (`data/processed/study_count.json`,
-    `data/derived/narrative_themes.json`, `data/config/narrative_methodology.yaml`)
-    and the expected output file (`data/derived/narrative_summary.md`). Moreover,
-    `code/analysis/narrative.py` is truncated and does not contain a complete implementation
-    that reads those inputs and writes the summary. These missing artifacts prevent
-    the task from being considered fulfilled.
+  h: 2d0b0a7ac188405e16f94deae2e99af25f50c582a9bb0d0ba578295238dfd964
+  r: "The repository contains `code/analysis/narrative_engine.py`, but the required\
+    \ input files `data/derived/narrative_themes.json` and `data/processed/study_count.json`\
+    \ are absent, and the expected output `data/derived/narrative_content.md` was\
+    \ not generated. Without these files the engine cannot run, so the task\u2019\
+    s core pivot and text\u2011assembly functionality is not demonstrably completed."
+T015c:
+  c: false
+  h: f00b5f0044b1d6b74269a7ac3e96d5089943b34732ade7782a0cb307b41235ac
+  r: "The required input `data/derived/narrative_content.md` is missing, and the expected\
+    \ output `data/derived/narrative_summary.md` was not created. Moreover, the provided\
+    \ `code/analysis/narrative.py` does not appear to read `narrative_content.md`\
+    \ or write the structured summary, so the task\u2019s core requirement is unmet."
+T016:
+  c: false
+  h: 78721342888a59a710b32cb1aef4c2b397a6bf9d93086d5ee5570f1c6eb1b9c6
+  r: "The repository contains `code/main.py`, but it only loads `study_count.json`\
+    \ (and the snippet is truncated before any loading of `meta_status.json` or `bonferroni_status.json`).\
+    \ Moreover, the three required JSON files (`data/processed/study_count.json`,\
+    \ `data/processed/meta_status.json`, `data/derived/bonferroni_status.json`) are\
+    \ absent from the project, so the gate\u2011logic cannot actually load them. The\
+    \ task\u2019s core requirement is therefore unmet."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or output artifacts (e.g., extraction script, synthesis module,\
+    \ JSON results, or validation logic) are present to demonstrate that the required\
+    \ meta\u2011analysis extraction, weighted\u2011mean calculation, heterogeneity,\
+    \ or bias assessment functionality exists. The claim that the logic was merged\
+    \ into another task provides no tangible evidence, so the task\u2019s deliverables\
+    \ are missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation artifact was provided to demonstrate that T015c\
+    \ now explicitly handles an empty\u2011input (zero\u2011studies) case. Without\
+    \ concrete evidence (e.g., updated module code, unit test for empty CSV, or a\
+    \ changelog entry), we cannot verify the edge\u2011case handling was actually\
+    \ implemented. The implementer must supply the relevant artifact showing the zero\u2011\
+    studies logic and its verification."
 T040:
   c: false
   h: 5321985311e7b4dcc173f179f6e7c9b2fd190fb069716594c6400fb0da79720b
