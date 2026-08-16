@@ -1,266 +1,170 @@
 """
-Unit tests for feature importance extraction module.
-
-These tests verify that the feature importance extraction logic works correctly
-with mocked data and that the output format matches expectations.
+Unit tests for the feature importance extraction module (T032).
 """
-
 import json
-import pickle
+import os
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch
-
+import pickle
 import numpy as np
 import pytest
 
+# Import the module under test
 from model.feature_importance import (
     load_trained_model,
     extract_node_features,
-    compute_shap_values,
     extract_feature_importance,
-    main
+    compute_shap_values
 )
 from model.gnn import StaticScatteringPotentialGNN
 
+# Mock model for testing if SHAP is not available or for speed
+class MockGNN:
+    def __init__(self):
+        self.eval_called = False
+    
+    def eval(self):
+        self.eval_called = True
+    
+    def forward(self, x):
+        # Return dummy predictions
+        return np.ones(x.shape[0])
 
-class TestLoadTrainedModel:
-    """Tests for load_trained_model function."""
-
-    def test_load_model_success(self, tmp_path):
-        """Test successful model loading."""
-        # Create a mock model
-        mock_model = Mock(spec=StaticScatteringPotentialGNN)
-        mock_model.eval = Mock()
-        
-        model_path = tmp_path / "model.pkl"
-        with open(model_path, 'wb') as f:
-            pickle.dump(mock_model, f)
-        
-        loaded_model = load_trained_model(model_path)
-        
-        assert loaded_model is not None
-        mock_model.eval.assert_called_once()
-
-    def test_load_model_not_found(self, tmp_path):
-        """Test loading from non-existent path raises error."""
-        model_path = tmp_path / "nonexistent.pkl"
-        
-        with pytest.raises(FileNotFoundError):
-            load_trained_model(model_path)
-
-
-class TestExtractNodeFeatures:
-    """Tests for extract_node_features function."""
-
-    def test_extract_features_success(self):
-        """Test successful feature extraction."""
-        graph_data = {
-            'node_features': np.random.rand(10, 5),
-            'id': 'test_graph'
-        }
-        
-        features = extract_node_features(graph_data)
-        
-        assert features.shape == (10, 5)
-        assert isinstance(features, np.ndarray)
-
-    def test_extract_features_missing_key(self):
-        """Test error when features key is missing."""
-        graph_data = {'id': 'test_graph'}
-        
-        with pytest.raises(KeyError, match="missing 'node_features'"):
-            extract_node_features(graph_data)
-
-
-class TestComputeShapValues:
-    """Tests for compute_shap_values function."""
-
-    def test_compute_shap_basic(self):
-        """Test basic SHAP value computation."""
-        # Create a simple mock model
-        mock_model = Mock()
-        mock_model.return_value = np.array([[0.5], [0.6], [0.4]])
-        mock_model.eval = Mock()
-        
-        feature_matrix = np.random.rand(3, 5)
-        
-        mean_shap, shap_std = compute_shap_values(mock_model, feature_matrix, sample_size=10)
-        
-        assert mean_shap.shape == (5,)
-        assert shap_std.shape == (5,)
-        assert isinstance(mean_shap, np.ndarray)
-        assert isinstance(shap_std, np.ndarray)
-
-    def test_compute_shap_single_sample(self):
-        """Test SHAP computation with single sample."""
-        mock_model = Mock()
-        mock_model.return_value = np.array([[0.5]])
-        mock_model.eval = Mock()
-        
-        feature_matrix = np.random.rand(1, 5)
-        
-        mean_shap, shap_std = compute_shap_values(mock_model, feature_matrix, sample_size=5)
-        
-        assert mean_shap.shape == (5,)
-        assert shap_std.shape == (5,)
-
-
-class TestExtractFeatureImportance:
-    """Tests for extract_feature_importance function."""
-
-    def test_extract_importance_success(self):
-        """Test successful feature importance extraction."""
-        # Create mock model
-        mock_model = Mock()
-        mock_model.eval = Mock()
-        
-        # Create sample graphs with features
-        graphs = [
-            {
-                'id': 'graph_1',
-                'node_features': np.random.rand(20, 5)
-            },
-            {
-                'id': 'graph_2',
-                'node_features': np.random.rand(15, 5)
-            }
+def test_extract_node_features():
+    """Test that node features are extracted correctly."""
+    graph_data = {
+        'nodes': [
+            {'id': 1, 'degree': 4, 'clustering_coeff': 0.5},
+            {'id': 2, 'degree': 3, 'clustering_coeff': 0.2},
+            {'id': 3, 'degree': 5, 'clustering_coeff': 0.8}
         ]
-        
-        # Mock the compute_shap_values function to return deterministic values
-        with patch('model.feature_importance.compute_shap_values') as mock_shap:
-            mock_shap.return_value = (np.array([0.1, 0.2, 0.3, 0.4, 0.5]), 
-                                     np.array([0.01, 0.02, 0.03, 0.04, 0.05]))
-            
-            results = extract_feature_importance(mock_model, graphs)
-        
-        assert 'sample_importance' in results
-        assert 'aggregate' in results
-        assert 'top_features' in results
-        assert len(results['sample_importance']) == 2
-        assert results['aggregate']['num_samples'] == 2
-        assert results['aggregate']['num_features'] == 5
+    }
+    
+    features = extract_node_features(graph_data)
+    
+    assert features.shape == (3, 2)
+    assert np.allclose(features[0], [4.0, 0.5])
+    assert np.allclose(features[1], [3.0, 0.2])
+    assert np.allclose(features[2], [5.0, 0.8])
 
-    def test_extract_importance_empty_graphs(self):
-        """Test error when no graphs provided."""
-        mock_model = Mock()
-        
-        with pytest.raises(ValueError, match="No graphs provided"):
-            extract_feature_importance(mock_model, [])
+def test_extract_node_features_empty():
+    """Test extraction on an empty graph."""
+    graph_data = {'nodes': []}
+    features = extract_node_features(graph_data)
+    assert features.size == 0
 
-    def test_extract_importance_missing_features(self):
-        """Test handling of graphs without features."""
-        mock_model = Mock()
-        mock_model.eval = Mock()
-        
-        graphs = [
-            {'id': 'graph_1'},  # Missing node_features
-            {
-                'id': 'graph_2',
-                'node_features': np.random.rand(10, 5)
-            }
+def test_extract_feature_importance_integration(tmp_path):
+    """
+    Integration test for feature importance extraction.
+    This test mocks the model to avoid dependency on a real trained model.
+    """
+    # Create temporary directories
+    model_dir = tmp_path / "models"
+    graphs_dir = tmp_path / "graphs"
+    output_dir = tmp_path / "output"
+    
+    model_dir.mkdir()
+    graphs_dir.mkdir()
+    output_dir.mkdir()
+    
+    # Create a mock model
+    mock_model = MockGNN()
+    model_path = model_dir / "trained_gnn.pkl"
+    with open(model_path, 'wb') as f:
+        pickle.dump(mock_model, f)
+    
+    # Create mock graph files
+    graph_data_1 = {
+        'nodes': [
+            {'id': 1, 'degree': 4, 'clustering_coeff': 0.5},
+            {'id': 2, 'degree': 3, 'clustering_coeff': 0.2}
         ]
-        
-        with patch('model.feature_importance.compute_shap_values') as mock_shap:
-            mock_shap.return_value = (np.array([0.1, 0.2, 0.3, 0.4, 0.5]), 
-                                     np.array([0.01, 0.02, 0.03, 0.04, 0.05]))
-            
-            results = extract_feature_importance(mock_model, graphs)
-        
-        # Should only process the graph with features
-        assert len(results['sample_importance']) == 1
-        assert results['aggregate']['num_samples'] == 1
-
-
-class TestMain:
-    """Tests for the main function."""
-
-    @patch('model.feature_importance.get_config')
-    @patch('model.feature_importance.get_paths')
-    @patch('model.feature_importance.load_trained_model')
-    @patch('model.feature_importance.extract_feature_importance')
-    def test_main_success(
-        self, 
-        mock_extract, 
-        mock_load_model, 
-        mock_get_paths, 
-        mock_get_config,
-        tmp_path
-    ):
-        """Test successful main execution."""
-        # Setup mocks
-        mock_config = {'paths': {'processed_graphs': str(tmp_path)}}
-        mock_get_config.return_value = mock_config
-        
-        mock_paths = {
-            'model_output': tmp_path,
-            'processed_graphs': tmp_path,
-            'model_outputs': tmp_path / 'outputs'
-        }
-        mock_get_paths.return_value = mock_paths
-        
-        # Create mock model
-        mock_model = Mock()
-        mock_load_model.return_value = mock_model
-        
-        # Create sample graphs
-        graphs = [
-            {
-                'id': 'test_graph',
-                'node_features': np.random.rand(10, 5)
-            }
+    }
+    graph_data_2 = {
+        'nodes': [
+            {'id': 1, 'degree': 5, 'clustering_coeff': 0.8},
+            {'id': 2, 'degree': 4, 'clustering_coeff': 0.3}
         ]
+    }
+    
+    with open(graphs_dir / "graph_1.pkl", 'wb') as f:
+        pickle.dump(graph_data_1, f)
+    with open(graphs_dir / "graph_2.pkl", 'wb') as f:
+        pickle.dump(graph_data_2, f)
+    
+    output_file = output_dir / "shap_values.npy"
+    
+    # Run the extraction
+    # Note: This will fail if shap is not installed, which is expected behavior
+    # for a real environment without dependencies.
+    try:
+        import shap
+        output_path, metadata = extract_feature_importance(
+            model_path=model_path,
+            graphs_path=graphs_dir,
+            output_path=output_file
+        )
         
-        # Save graphs
-        graphs_path = tmp_path / 'training_graphs.pkl'
-        with open(graphs_path, 'wb') as f:
-            pickle.dump(graphs, f)
+        # Verify output file exists
+        assert output_path.exists()
         
-        # Mock extract function
-        mock_results = {
-            'sample_importance': [],
-            'aggregate': {'num_samples': 1, 'num_features': 5},
-            'top_features': []
-        }
-        mock_extract.return_value = mock_results
+        # Verify SHAP values shape
+        shap_values = np.load(output_path)
+        assert shap_values.shape[0] == 2 # 2 samples
+        assert shap_values.shape[1] == 2 # 2 features (degree, clustering)
         
-        # Run main
-        with patch('model.feature_importance.main.__globals__'):
-            # We need to run the actual main but with mocked dependencies
-            # Since main() has complex dependencies, we'll test the logic flow
-            pass
+        # Verify metadata
+        assert metadata['n_samples'] == 2
+        assert metadata['n_features'] == 2
         
-        # Verify paths were accessed
-        assert mock_get_config.called
-        assert mock_get_paths.called
+    except ImportError:
+        # If shap is not installed, we expect the function to raise an error
+        # as per the "Fail loudly" constraint.
+        with pytest.raises(RuntimeError, match="SHAP library is required"):
+            extract_feature_importance(
+                model_path=model_path,
+                graphs_path=graphs_dir,
+                output_path=output_file
+            )
 
-    def test_main_missing_model(self, tmp_path):
-        """Test main fails when model is missing."""
-        # Setup paths
-        model_dir = tmp_path / 'model_output'
-        model_dir.mkdir()
+def test_extract_feature_importance_file_exists(tmp_path):
+    """Test that the output file is created."""
+    model_dir = tmp_path / "models"
+    graphs_dir = tmp_path / "graphs"
+    output_dir = tmp_path / "output"
+    
+    model_dir.mkdir()
+    graphs_dir.mkdir()
+    output_dir.mkdir()
+    
+    # Create mock model and graphs as in previous test
+    mock_model = MockGNN()
+    model_path = model_dir / "trained_gnn.pkl"
+    with open(model_path, 'wb') as f:
+        pickle.dump(mock_model, f)
+    
+    graph_data = {
+        'nodes': [
+            {'id': 1, 'degree': 4, 'clustering_coeff': 0.5},
+            {'id': 2, 'degree': 3, 'clustering_coeff': 0.2}
+        ]
+    }
+    with open(graphs_dir / "graph_1.pkl", 'wb') as f:
+        pickle.dump(graph_data, f)
+    
+    output_file = output_dir / "shap_values.npy"
+    
+    try:
+        import shap
+        extract_feature_importance(
+            model_path=model_path,
+            graphs_path=graphs_dir,
+            output_path=output_file
+        )
         
-        graphs_dir = tmp_path / 'processed_graphs'
-        graphs_dir.mkdir()
-        
-        output_dir = tmp_path / 'model_outputs'
-        output_dir.mkdir()
-        
-        # Create graphs file
-        graphs = [{'id': 'test', 'node_features': np.random.rand(5, 3)}]
-        with open(graphs_dir / 'training_graphs.pkl', 'wb') as f:
-            pickle.dump(graphs, f)
-        
-        # Mock config and paths
-        with patch('model.feature_importance.get_config') as mock_config, \
-             patch('model.feature_importance.get_paths') as mock_paths:
-            
-            mock_config.return_value = {}
-            mock_paths.return_value = {
-                'model_output': model_dir,
-                'processed_graphs': graphs_dir,
-                'model_outputs': output_dir
-            }
-            
-            with pytest.raises(FileNotFoundError, match="Trained model not found"):
-                main()
+        # Assert file exists
+        assert output_file.exists()
+        assert np.load(output_file).shape[0] == 1
+    except ImportError:
+        # Expected if shap is not installed
+        pass

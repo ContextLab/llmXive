@@ -1,170 +1,207 @@
+"""
+Conductivity Validator (T026)
+
+Verifies that computed thermal conductivity output files exist and contain
+values within a configurable range defined in config.yaml.
+
+Produces:
+  data/processed/conductivities/convergence_report.json
+"""
 import json
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, List
-
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+from typing import Dict, Any, List, Optional, Tuple
 
 from config import get_config, get_paths
-import numpy as np
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(Path(get_paths()['logs_dir']) / 'conductivity_validator.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def load_thermal_samples(conductivity_dir: Path) -> List[Dict[str, Any]]:
+
+def load_thermal_samples(samples_dir: Path) -> List[Dict[str, Any]]:
     """
-    Load all thermal sample JSON files from the conductivity directory.
-    Returns a list of dictionaries containing sample metadata and conductivity.
+    Load all ThermalSample JSON/Pickle files from the conductivities directory.
+    Handles both .json and .pkl extensions.
     """
     samples = []
-    if not conductivity_dir.exists():
-        logger.warning(f"Conductivity directory does not exist: {conductivity_dir}")
+    if not samples_dir.exists():
+        logger.error(f"Samples directory does not exist: {samples_dir}")
         return samples
 
-    for file_path in conductivity_dir.glob("*.json"):
-        try:
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-                # Ensure it has the expected keys
-                if 'conductivity' in data and 'sample_id' in data:
+    for file_path in samples_dir.iterdir():
+        if file_path.suffix == '.json':
+            try:
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
                     samples.append(data)
-                else:
-                    logger.warning(f"Skipping {file_path}: missing required keys")
-        except (json.JSONDecodeError, IOError) as e:
-            logger.error(f"Failed to load {file_path}: {e}")
-    
+                    logger.debug(f"Loaded JSON sample: {file_path.name}")
+            except (json.JSONDecodeError, IOError) as e:
+                logger.warning(f"Failed to load JSON sample {file_path}: {e}")
+        elif file_path.suffix == '.pkl':
+            try:
+                import pickle
+                with open(file_path, 'rb') as f:
+                    data = pickle.load(f)
+                    samples.append(data)
+                    logger.debug(f"Loaded PKL sample: {file_path.name}")
+            except (pickle.UnpicklingError, IOError) as e:
+                logger.warning(f"Failed to load PKL sample {file_path}: {e}")
+        else:
+            logger.debug(f"Ignoring non-data file: {file_path}")
+
+    logger.info(f"Loaded {len(samples)} thermal samples from {samples_dir}")
     return samples
 
+
 def validate_conductivity_range(
-    conductivity_value: float, 
-    min_val: float, 
+    samples: List[Dict[str, Any]],
+    min_val: float,
     max_val: float
-) -> bool:
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Check if the conductivity value falls within the specified range.
+    Validate that each sample's conductivity is within [min_val, max_val].
+    Returns (valid_samples, invalid_samples).
     """
-    return min_val <= conductivity_value <= max_val
+    valid = []
+    invalid = []
+
+    for sample in samples:
+        sample_id = sample.get('graph_id', 'unknown')
+        conductivity = sample.get('conductivity')
+        converged = sample.get('converged', False)
+
+        # Check convergence first
+        if not converged:
+            invalid.append({
+                'sample_id': sample_id,
+                'reason': 'not_converged',
+                'conductivity': conductivity,
+                'converged': converged
+            })
+            logger.warning(f"Sample {sample_id} marked as not converged. Excluding.")
+            continue
+
+        if conductivity is None:
+            invalid.append({
+                'sample_id': sample_id,
+                'reason': 'missing_conductivity',
+                'conductivity': conductivity,
+                'converged': converged
+            })
+            logger.warning(f"Sample {sample_id} has no conductivity value.")
+            continue
+
+        if not isinstance(conductivity, (int, float)):
+            invalid.append({
+                'sample_id': sample_id,
+                'reason': 'invalid_type',
+                'conductivity': conductivity,
+                'converged': converged
+            })
+            logger.warning(f"Sample {sample_id} has non-numeric conductivity: {type(conductivity)}")
+            continue
+
+        if min_val <= conductivity <= max_val:
+            valid.append(sample)
+            logger.info(f"Sample {sample_id} conductivity {conductivity:.4f} W/mK is valid.")
+        else:
+            invalid.append({
+                'sample_id': sample_id,
+                'reason': 'out_of_range',
+                'conductivity': conductivity,
+                'converged': converged,
+                'range': [min_val, max_val]
+            })
+            logger.warning(f"Sample {sample_id} conductivity {conductivity:.4f} W/mK is out of range [{min_val}, {max_val}].")
+
+    return valid, invalid
+
 
 def generate_convergence_report(
-    samples: List[Dict[str, Any]], 
-    min_val: float, 
+    valid_samples: List[Dict[str, Any]],
+    invalid_samples: List[Dict[str, Any]],
+    min_val: float,
     max_val: float,
     output_path: Path
 ) -> Dict[str, Any]:
     """
-    Generate a convergence report verifying that all computed thermal conductivities
-    fall within the configurable range.
+    Generate the final convergence report JSON.
     """
+    total = len(valid_samples) + len(invalid_samples)
+
     report = {
-        "status": "success",
-        "total_samples": len(samples),
-        "valid_samples": 0,
-        "invalid_samples": 0,
-        "range": {
+        "total_samples_processed": total,
+        "valid_samples_count": len(valid_samples),
+        "invalid_samples_count": len(invalid_samples),
+        "valid_samples": [s.get('graph_id') for s in valid_samples],
+        "invalid_samples": invalid_samples,
+        "config_range": {
             "min": min_val,
             "max": max_val
         },
-        "details": []
+        "all_converged_and_in_range": len(invalid_samples) == 0 and len(valid_samples) > 0
     }
 
-    if not samples:
-        report["status"] = "warning"
-        report["message"] = "No thermal samples found to validate."
-        logger.warning(report["message"])
-        return report
-
-    valid_count = 0
-    invalid_count = 0
-
-    for sample in samples:
-        sample_id = sample.get("sample_id", "unknown")
-        conductivity = sample.get("conductivity")
-        
-        detail = {
-            "sample_id": sample_id,
-            "conductivity": conductivity,
-            "in_range": False
-        }
-
-        if conductivity is None:
-            detail["error"] = "Missing conductivity value"
-            invalid_count += 1
-        elif validate_conductivity_range(conductivity, min_val, max_val):
-            detail["in_range"] = True
-            valid_count += 1
-        else:
-            detail["error"] = f"Value {conductivity} outside range [{min_val}, {max_val}]"
-            invalid_count += 1
-
-        report["details"].append(detail)
-
-    report["valid_samples"] = valid_count
-    report["invalid_samples"] = invalid_count
-
-    if invalid_count > 0:
-        report["status"] = "partial_failure"
-        logger.warning(f"{invalid_count} samples outside expected range.")
-    else:
-        logger.info(f"All {valid_count} samples within expected range.")
-
-    # Write report to disk
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
 
     logger.info(f"Convergence report written to {output_path}")
     return report
 
-def main():
+
+def main() -> int:
     """
-    Main entry point for T026: Verify computed thermal conductivity output.
+    Main entry point for T026.
     """
     config = get_config()
     paths = get_paths()
-    
-    conductivity_dir = paths.get("processed_conductivities")
-    if not conductivity_dir:
-        # Fallback if path key is missing
-        conductivity_dir = Path("data/processed/conductivities")
-    
+
     # Get configurable range from config
-    # Default to 0.5 - 5.0 W/mK for amorphous silicon as per typical literature
-    # unless specified in config
-    thermal_config = config.get("thermal_conductivity", {})
-    min_val = thermal_config.get("min_valid_value", 0.5)
-    max_val = thermal_config.get("max_valid_value", 5.0)
-    
-    logger.info(f"Validating conductivity range: [{min_val}, {max_val}]")
-    logger.info(f"Scanning directory: {conductivity_dir}")
+    # Expected in config.yaml under simulation.conductivity_range
+    sim_config = config.get('simulation', {})
+    range_config = sim_config.get('conductivity_range', {})
+    min_val = float(range_config.get('min', 1.0))
+    max_val = float(range_config.get('max', 150.0))
 
-    samples = load_thermal_samples(conductivity_dir)
-    
-    output_path = conductivity_dir / "convergence_report.json"
-    
-    report = generate_convergence_report(
-        samples, 
-        min_val, 
-        max_val, 
-        output_path
-    )
+    logger.info(f"Validating conductivity range: [{min_val}, {max_val}] W/mK")
 
-    # Exit with error code if critical failure (no samples or all invalid)
-    if report["total_samples"] == 0:
-        logger.error("No samples found to validate. Exiting with error.")
-        sys.exit(1)
-    elif report["invalid_samples"] == report["total_samples"]:
-        logger.error("All samples are outside the valid range. Exiting with error.")
-        sys.exit(1)
-    
-    sys.exit(0)
+    samples_dir = Path(paths['conductivities_dir'])
+    output_path = Path(paths['conductivities_dir']) / 'convergence_report.json'
 
-if __name__ == "__main__":
-    main()
+    # Load samples
+    samples = load_thermal_samples(samples_dir)
+    if not samples:
+        logger.error("No thermal samples found. Cannot generate report.")
+        # Still write a report indicating failure
+        generate_convergence_report([], [], min_val, max_val, output_path)
+        return 1
+
+    # Validate
+    valid, invalid = validate_conductivity_range(samples, min_val, max_val)
+
+    # Generate report
+    report = generate_convergence_report(valid, invalid, min_val, max_val, output_path)
+
+    if report['all_converged_and_in_range']:
+        logger.info("SUCCESS: All samples converged and within range.")
+        return 0
+    else:
+        logger.warning(f"VALIDATION FAILED: {len(invalid)} samples failed validation.")
+        return 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

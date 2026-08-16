@@ -1,106 +1,74 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AtomicGraph
-description: >
-  Schema for an atomic graph representing an amorphous silicon configuration.
-  Nodes are atoms, edges are bonds defined by a cutoff distance (default 3.0 Å).
+# Atomic Graph Schema
+# Defines the structure for atomic graphs constructed from XYZ files
+# Used by T007 and T012
+
 type: object
 required:
-  - graph_id
-  - atom_count
-  - bond_count
-  - cutoff_distance
   - nodes
   - edges
-  - metadata
+  - graph_id
+  - cutoff
+
 properties:
   graph_id:
     type: string
-    description: Unique identifier for the graph (derived from source file hash or name).
-  atom_count:
-    type: integer
-    minimum: 1
-    description: Total number of atoms (nodes) in the graph.
-  bond_count:
-    type: integer
-    minimum: 0
-    description: Total number of bonds (edges) in the graph.
-  cutoff_distance:
-    type: number
-    minimum: 0
-    description: Bond cutoff distance in Angstroms used for construction.
+    description: Unique identifier for the graph
+
   nodes:
     type: array
-    description: List of atomic node data.
+    description: List of atomic nodes
     items:
       type: object
       required:
-        - atom_id
-        - element
-        - position
+        - id
+        - coords
         - degree
+        - clustering_coeff
       properties:
-        atom_id:
+        id:
           type: integer
-          description: Unique integer ID for the atom within this graph.
-        element:
-          type: string
-          const: "Si"
-          description: Chemical element symbol.
-        position:
+          description: Unique node identifier
+        coords:
           type: array
-          description: Cartesian coordinates [x, y, z] in Angstroms.
+          description: Cartesian coordinates [x, y, z]
           items:
             type: number
           minItems: 3
           maxItems: 3
         degree:
           type: integer
+          description: Node degree (number of bonds)
           minimum: 0
-          description: Node degree (number of bonds).
-        properties:
-          type: object
-          description: Optional per-atom properties (e.g., forces, energy).
-          additionalProperties: true
+        clustering_coeff:
+          type: number
+          description: Local clustering coefficient
+          minimum: 0.0
+          maximum: 1.0
+
   edges:
     type: array
-    description: List of bond connections.
+    description: List of edges as pairs of node indices
     items:
-      type: object
-      required:
-        - source
-        - target
-        - distance
-      properties:
-        source:
-          type: integer
-          description: ID of the source atom.
-        target:
-          type: integer
-          description: ID of the target atom.
-        distance:
-          type: number
-          minimum: 0
-          description: Bond length in Angstroms.
+      type: array
+      items:
+        type: integer
+      minItems: 2
+      maxItems: 2
+
+  cutoff:
+    type: number
+    description: Bond cutoff distance in Å
+    minimum: 0.0
+
   metadata:
     type: object
-    description: Additional metadata about the graph construction.
+    description: Additional graph metadata
     properties:
       source_file:
         type: string
-        description: Path to the original XYZ file.
-      creation_timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of graph creation.
-      builder_version:
-        type: string
-        description: Version of the graph builder script.
-      box_dimensions:
-        type: array
-        description: Simulation box dimensions [Lx, Ly, Lz] if periodic.
-        items:
-          type: number
-        minItems: 3
-        maxItems: 3
-    additionalProperties: true
+      atom_count:
+        type: integer
+      edge_count:
+        type: integer
+
 additionalProperties: false

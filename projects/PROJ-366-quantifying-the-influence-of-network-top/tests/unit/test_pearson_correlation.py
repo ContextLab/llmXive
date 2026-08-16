@@ -1,172 +1,139 @@
 """
-Unit Tests for Pearson Correlation Analysis (T033a)
-
-Tests:
-  - load_feature_importance_data
-  - load_thermal_conductivity_data
-  - align_data
-  - compute_pearson_correlation
-  - generate_correlation_report
-  - save_results
+Unit tests for Pearson Correlation Analysis (T033a).
 """
 import json
-import pickle
+import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-import pytest
 import numpy as np
+import pytest
 
 # Import the module under test
+# Note: We assume the test is run from the project root or code is in PYTHONPATH
 from analysis.pearson_correlation import (
     load_feature_importance_data,
     load_thermal_conductivity_data,
     align_data,
     compute_pearson_correlation,
     generate_correlation_report,
-    save_results,
-    main
+    save_results
 )
 
+@pytest.fixture
+def temp_dirs():
+    """Create temporary directories for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        yield tmp_path
 
-class TestLoadFeatureImportanceData:
-    def test_load_existing_file(self):
-        """Test loading an existing feature importance file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            data = {
-                "sample_1": {"feat1": 0.5, "feat2": 0.3},
-                "sample_2": {"feat1": 0.2, "feat2": 0.8}
-            }
-            file_path = tmpdir / "feature_importance.json"
-            with open(file_path, 'w') as f:
-                json.dump(data, f)
+def test_load_feature_importance_data(temp_dirs):
+    """Test loading SHAP values from a numpy file."""
+    shap_path = temp_dirs / "shap_values.npy"
+    
+    # Create dummy data: 10 samples, 5 features
+    dummy_shap = np.random.rand(10, 5)
+    np.save(shap_path, dummy_shap)
+    
+    # Create dummy feature names
+    meta_path = temp_dirs / "shap_values.json"
+    with open(meta_path, 'w') as f:
+        json.dump({'feature_names': ['f1', 'f2', 'f3', 'f4', 'f5']}, f)
+    
+    values, names = load_feature_importance_data(shap_path)
+    
+    assert values.shape == (10, 5)
+    assert names == ['f1', 'f2', 'f3', 'f4', 'f5']
 
-            result = load_feature_importance_data(tmpdir)
-            assert result == data
-
-    def test_missing_file_raises_error(self):
-        """Test that missing file raises FileNotFoundError."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with pytest.raises(FileNotFoundError):
-                load_feature_importance_data(Path(tmpdir))
-
-
-class TestLoadThermalConductivityData:
-    def test_load_pickle_files(self):
-        """Test loading conductivity from pickle files."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            # Create sample pickle files
-            for i in range(3):
-                sample = {
-                    "sample_id": f"sample_{i}",
-                    "thermal_conductivity": 1.0 + i * 0.5
-                }
-                file_path = tmpdir / f"sample_{i}.pkl"
-                with open(file_path, 'wb') as f:
-                    pickle.dump(sample, f)
-
-            result = load_thermal_conductivity_data(tmpdir)
-            assert len(result) == 3
-            assert result["sample_0"] == 1.0
-            assert result["sample_1"] == 1.5
-            assert result["sample_2"] == 2.0
-
-    def test_missing_directory_raises_error(self):
-        """Test that missing directory raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            load_thermal_conductivity_data(Path("/nonexistent"))
-
-
-class TestAlignData:
-    def test_align_common_samples(self):
-        """Test aligning data with common sample IDs."""
-        feature_imp = {
-            "s1": {"f1": 0.5},
-            "s2": {"f1": 0.3},
-            "s3": {"f1": 0.2}
+def test_load_thermal_conductivity_data(temp_dirs):
+    """Test loading conductivity from JSON files."""
+    # Create sample JSON files
+    for i in range(3):
+        sample_data = {
+            'graph_id': f'sample_{i}',
+            'conductivity': 1.5 + i * 0.1,
+            'converged': True
         }
-        conductivity = {
-            "s1": 1.0,
-            "s2": 2.0,
-            "s4": 3.0  # s4 not in feature_imp
-        }
+        with open(temp_dirs / f'sample_{i}.json', 'w') as f:
+            json.dump(sample_data, f)
+    
+    conductivity_map = load_thermal_conductivity_data(temp_dirs)
+    
+    assert len(conductivity_map) == 3
+    assert 'sample_0' in conductivity_map
+    assert abs(conductivity_map['sample_0'] - 1.5) < 1e-6
 
-        x, y, ids = align_data(feature_imp, conductivity)
+def test_align_data(temp_dirs):
+    """Test aligning SHAP and conductivity data."""
+    # 5 samples, 3 features
+    shap_vals = np.random.rand(5, 3)
+    feature_names = ['a', 'b', 'c']
+    
+    # Conductivity for 3 of the 5 samples
+    conductivity_map = {
+        's1': 1.0,
+        's2': 2.0,
+        's3': 3.0
+    }
+    
+    # Sample IDs corresponding to shap_vals rows
+    sample_ids = ['s1', 's2', 's4', 's3', 's5']
+    
+    aligned_shap, aligned_cond, valid_indices = align_data(
+        shap_vals, feature_names, conductivity_map, sample_ids
+    )
+    
+    # Should have 3 valid samples (s1, s2, s3)
+    assert len(valid_indices) == 3
+    assert aligned_shap.shape == (3, 3)
+    assert len(aligned_cond) == 3
 
-        assert set(ids) == {"s1", "s2"}
-        assert len(x) == 2
-        assert len(y) == 2
-        # Check values (mean of abs)
-        assert x[0] == 0.5  # s1
-        assert y[0] == 1.0
-        assert x[1] == 0.3  # s2
-        assert y[1] == 2.0
+def test_compute_pearson_correlation():
+    """Test Pearson correlation calculation."""
+    # Perfect positive correlation
+    x = np.array([1, 2, 3, 4, 5])
+    y = np.array([2, 4, 6, 8, 10])
+    
+    shap_vals = x.reshape(1, -1) # 1 sample, 5 features? No, need N samples.
+    # Reshape to N samples, 1 feature for simplicity in this test
+    shap_vals = x.reshape(-1, 1)
+    cond = y.reshape(-1)
+    
+    results = compute_pearson_correlation(shap_vals, cond)
+    
+    assert 0 in results
+    assert abs(results[0]['r']) > 0.99
+    assert results[0]['p_value'] < 0.05
 
-    def test_no_common_samples_raises_error(self):
-        """Test that no common samples raises ValueError."""
-        feature_imp = {"s1": {"f1": 0.5}}
-        conductivity = {"s2": 1.0}
+def test_generate_correlation_report():
+    """Test report generation."""
+    results = {
+        0: {'r': 0.9, 'p_value': 0.01, 'n': 10},
+        1: {'r': -0.5, 'p_value': 0.05, 'n': 10}
+    }
+    feature_names = ['feat_a', 'feat_b']
+    
+    report = generate_correlation_report(results, feature_names, 10)
+    
+    assert report['method'] == 'pearson'
+    assert report['n_samples'] == 10
+    assert len(report['results']) == 2
+    # Check sorting (absolute value)
+    assert report['results'][0]['feature'] == 'feat_a'
 
-        with pytest.raises(ValueError):
-            align_data(feature_imp, conductivity)
-
-
-class TestComputePearsonCorrelation:
-    def test_perfect_correlation(self):
-        """Test with perfectly correlated data."""
-        x = [1.0, 2.0, 3.0, 4.0]
-        y = [2.0, 4.0, 6.0, 8.0]
-        r, p = compute_pearson_correlation(x, y)
-        assert np.isclose(r, 1.0)
-        assert p < 0.05
-
-    def test_no_correlation(self):
-        """Test with uncorrelated data (small sample)."""
-        # Use data that is known to have low correlation
-        x = [1.0, 2.0, 3.0, 4.0]
-        y = [4.0, 1.0, 3.0, 2.0]
-        r, p = compute_pearson_correlation(x, y)
-        # r should be small
-        assert abs(r) < 0.5
-
-    def test_insufficient_samples_raises_error(self):
-        """Test that < 2 samples raises ValueError."""
-        with pytest.raises(ValueError):
-            compute_pearson_correlation([1.0], [2.0])
-
-
-class TestGenerateCorrelationReport:
-    def test_report_structure(self):
-        """Test that the report contains expected keys."""
-        report = generate_correlation_report(
-            r=0.85,
-            p_value=0.01,
-            sample_ids=["s1", "s2"],
-            n_samples=2
-        )
-
-        assert report["analysis_type"] == "Pearson Correlation"
-        assert report["spec_reference"] == "FR-005"
-        assert report["task_id"] == "T033a"
-        assert report["n_samples"] == 2
-        assert report["correlation_coefficient"] == 0.85
-        assert report["p_value"] == 0.01
-        assert "interpretation" in report
-
-class TestSaveResults:
-    def test_save_to_file(self):
-        """Test saving report to a JSON file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            report = {"test": "value"}
-            output_path = tmpdir / "result.json"
-
-            save_results(report, output_path)
-
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                loaded = json.load(f)
-            assert loaded == report
+def test_save_results(temp_dirs):
+    """Test saving results to JSON."""
+    report = {
+        'method': 'pearson',
+        'n_samples': 10,
+        'results': []
+    }
+    output_path = temp_dirs / 'test_corr.json'
+    
+    save_results(report, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        loaded = json.load(f)
+    assert loaded['method'] == 'pearson'

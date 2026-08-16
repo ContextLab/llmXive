@@ -1,119 +1,44 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: GNNOutput
-description: >
-  Schema for the output of the GNN model training and inference, including
-  predictions, feature importance, and loss history.
+# GNN Output Schema
+# Defines the structure for GNN model outputs
+# Used by T007 and T030
+
 type: object
 required:
-  - model_id
-  - architecture
-  - predictions
-  - feature_importance
-  - loss_history
-  - metrics
+  - predicted_flux
+  - loss
+  - epoch
+
 properties:
-  model_id:
+  predicted_flux:
+    type: array
+    description: Predicted local heat flux for each atom
+    items:
+      type: number
+    minItems: 1
+
+  loss:
+    type: number
+    description: Training loss value
+    minimum: 0.0
+
+  epoch:
+    type: integer
+    description: Training epoch number
+    minimum: 0
+
+  model_checkpoint:
     type: string
-    description: Unique identifier for the trained model instance.
-  architecture:
+    description: Path to saved model checkpoint
+
+  training_metrics:
     type: object
-    description: Details of the GNN architecture used.
-    required:
-      - num_layers
-      - hidden_dim
-      - num_params
+    description: Additional training metrics
     properties:
-      num_layers:
-        type: integer
-        minimum: 1
-      hidden_dim:
-        type: integer
-        minimum: 1
-      num_params:
-        type: integer
-        minimum: 1
-      activation:
-        type: string
-      pooling:
-        type: string
-  predictions:
-    type: array
-    description: List of predictions per sample (Static Scattering Potential proxy).
-    items:
-      type: object
-      required:
-        - sample_id
-        - true_value
-        - predicted_value
-      properties:
-        sample_id:
-          type: string
-        true_value:
-          type: number
-        predicted_value:
-          type: number
-        error:
-          type: number
-          description: Absolute error |true - predicted|.
-  feature_importance:
-    type: array
-    description: List of feature importance scores (e.g., from SHAP).
-    items:
-      type: object
-      required:
-        - feature_name
-        - mean_abs_shap_value
-      properties:
-        feature_name:
-          type: string
-        mean_abs_shap_value:
-          type: number
-          minimum: 0
-        shap_values:
-          type: array
-          items:
-            type: number
-          description: Raw SHAP values if available.
-  loss_history:
-    type: array
-    description: Training loss per epoch.
-    items:
-      type: object
-      required:
-        - epoch
-        - loss
-      properties:
-        epoch:
-          type: integer
-          minimum: 0
-        loss:
-          type: number
-          minimum: 0
-        val_loss:
-          type: number
-          minimum: 0
-  metrics:
-    type: object
-    description: Overall model performance metrics.
-    required:
-      - final_train_loss
-      - final_val_loss
-      - convergence_achieved
-    properties:
-      final_train_loss:
-        type: number
-      final_val_loss:
-        type: number
-      convergence_achieved:
-        type: boolean
-      convergence_epoch:
-        type: integer
-      r2_score:
-        type: number
       mse:
         type: number
-  training_config:
-    type: object
-    description: Hyperparameters used for training.
-    additionalProperties: true
+      rmse:
+        type: number
+      r2_score:
+        type: number
+
 additionalProperties: false

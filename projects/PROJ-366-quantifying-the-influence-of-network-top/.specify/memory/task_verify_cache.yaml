@@ -1,77 +1,42 @@
-T015:
+T007:
+  c: false
+  h: 1ab016e3679f2ba5b623bfe10ddb425c4858f0e33e82c84722bee54a1b84e35e
+  r: The `code/ingest/validators.py` file exists and implements loading/validation
+    logic, but the required schema files (`contracts/thermal_sample.schema.yaml`,
+    `contracts/atomic_graph.schema.yaml`, `contracts/gnn_output.schema.yaml`) are
+    absent from the repository. Without these schemas the loader cannot function,
+    so the task is not fully satisfied.
+T025b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files or code were presented that create, serialize, or store graph objects
-    under `data/processed/graphs/` in pickle or parquet format, nor any checksum generation/check
-    verification. The required artifact is missing, so the task is not satisfied.
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or JSON example showing the new convergence detection logic\
-    \ or the updated `ThermalSample` metadata with a `converged` field is provided.\
-    \ The required artifact (implementation that checks relative change <\u202F1\u202F\
-    % and writes `converged: false` on failure) is missing."
-T024:
-  c: false
-  h: e766e41112c2d60e984798a87b80524bb09a473451a0a82daa8455fcb4133905
-  r: 'The required output file `data/processed/graphs/excluded_samples.json` does
-    not exist, even though `config.yaml` sets `enforce_exclusion: true`. Without this
-    file the outlier detection and exclusion step is not implemented, so downstream
-    tasks cannot filter against it. The implementer must create the JSON file with
-    the excluded sample IDs (or at least a placeholder) when the flag is true.'
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/processed/conductivities/` directory containing saved
-    `ThermalSample` objects (graph, conductivity, metadata) was provided, nor any
-    indication that checksums are computed and stored. The required artifact is missing,
-    so the task is not satisfied.
+  r: "No code, module, test, or documentation for generating a checksum on serialized\
+    \ `ThermalSample` objects is present in the provided evidence. The implementer\u2019\
+    s claim cannot be verified because the required artifact (e.g., a function/method\
+    \ that computes and attaches a checksum, and associated unit tests) is missing."
 T026:
   c: false
   h: d0e02df48c7ef6bc066285ed254367818c2f93f62b2a8ca13fef54adeb310139
   r: The required output file `data/processed/conductivities/convergence_report.json`
     does not exist, so there is no way to verify its contents or that a thermal conductivity
     value falls within the configurable range. The task therefore remains unfinished.
-T032:
+T047:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or output files implementing or demonstrating SHAP\
-    \ (or similar) feature\u2011importance extraction from a trained GNN are present.\
-    \ Without such artifacts, we cannot confirm that the required functionality was\
-    \ actually delivered. The implementer must provide the implementation (e.g., a\
-    \ Python module or notebook) and example results showing per\u2011sample importance\
-    \ scores."
-T036:
+  r: No README.md content was provided; without the file we cannot verify that it
+    contains a pipeline overview and execution instructions as required. The implementer
+    must supply the updated README.md file showing the requested documentation.
+T048:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No files or directories were presented under `data/processed/model_outputs/`;\
-    \ thus the LMM coefficients, correlation results (r and p\u2011value), and their\
-    \ interpretation are not saved, nor is there any evidence that such outputs were\
-    \ generated. The required artifact is missing."
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No README.md file or its contents were provided as evidence; without the actual
-    file we cannot verify that it contains a pipeline overview and execution instructions.
-    The required artifact is missing.
-T038:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No logs, timing reports, or result files are present to demonstrate that a full\
-    \ integration test was run on representative samples, nor any evidence that the\
+  r: "No test logs, timing reports, or output artifacts are provided to demonstrate\
+    \ that a full integration test was run on representative samples and that the\
     \ end\u2011to\u2011end pipeline completed within the required 6\u2011hour limit.\
-    \ The required artifact (test execution evidence) is missing."
-T040:
+    \ The implementer must supply concrete evidence (e.g., execution logs, timestamps,\
+    \ success/failure summaries) showing the pipeline was exercised and met the time\
+    \ constraint."
+T050:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No documentation files for the `contracts/` schemas and data models are present
-    in the provided evidence; the implementer did not supply any artifact (e.g., markdown,
-    reST, or HTML docs) that describes those schemas or models. The task therefore
-    remains unfinished.
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact such as a validation log, report, or updated `quickstart.md` confirming
-    that the prerequisites and steps were checked is present. The implementer provided
-    no evidence that the `quickstart.md` validation was actually run, so the task
-    requirement is not satisfied.
+  r: The implementer provided no documentation files, README, or schema descriptions
+    for the `contracts/` directory, nor any evidence that such documentation was added.
+    The required artifact (documentation of schemas and data models) is missing.

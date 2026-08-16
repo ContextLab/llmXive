@@ -1,0 +1,360 @@
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: 15 samples generated with 4500 total atoms
+  claim_id: c_f2354d7b
+  context: Aggregated statistics of atomic coordination numbers across all samples
+    show a sample_count of 15 and total_atoms of 4500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline generated 15 samples with a total of 4500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:11:08Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: mean atomic coordination number 4.02
+  claim_id: c_a7261503
+  context: Aggregated statistics of atomic coordination numbers across all samples
+    show a mean of 4.02 and a standard deviation of 0.85.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean atomic coordination number across all samples is 4.02.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:11:38Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: standard deviation of atomic coordination numbers 0.85
+  claim_id: c_abf5d013
+  context: Aggregated statistics of atomic coordination numbers across all samples
+    show a mean of 4.02 and a standard deviation of 0.85.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The standard deviation of atomic coordination numbers is 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:19:32Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: mode of atomic coordination numbers 4
+  claim_id: c_fc43c9b1
+  context: Aggregated statistics of atomic coordination numbers across all samples
+    show a mode of 4.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mode_of_atomic_coordination_numbers_4
+  kind: magnitude
+  raw_text: The most frequent atomic coordination number (mode) is 4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:21:28Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: samples sample_05 and sample_09 excluded due to topological defects
+  claim_id: c_91b65137
+  context: List of sample IDs excluded due to topological defects (>15% atoms with
+    coordination <3 or >6) includes sample_05 and sample_09.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Samples_sample_05_and_sample_09_excluded_due_to_topological
+  kind: entity_fact
+  raw_text: Samples sample_05 and sample_09 were excluded due to topological defects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:21:54Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: Pearson correlation coefficient 0.65
+  claim_id: c_be7f4390
+  context: Pearson correlation coefficients and p-values with Bonferroni correction
+    show an r value of 0.65.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Pearson correlation coefficient between predicted and actual values
+    is 0.65.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:22:24Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: p-value for Pearson correlation 0.012
+  claim_id: c_2eb7081c
+  context: Pearson correlation coefficients and p-values with Bonferroni correction
+    show a p_value of 0.012.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the Pearson correlation is 0.012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:22:58Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: Bonferroni corrected p-value 0.036
+  claim_id: c_97999dc6
+  context: Pearson correlation coefficients and p-values with Bonferroni correction
+    show a corrected_p_value of 0.036.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni corrected p-value is 0.036.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:23:17Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: Pearson correlation result statistically significant
+  claim_id: c_d43ef817
+  context: Pearson correlation coefficients and p-values with Bonferroni correction
+    indicate the result is significant.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_result_statistically_significant
+  kind: entity_fact
+  raw_text: The Pearson correlation result is statistically significant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:23:46Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: correlation analysis performed on 15 samples
+  claim_id: c_09649fe6
+  context: Pearson correlation coefficients and p-values with Bonferroni correction
+    show n_samples of 15.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation analysis was performed on 15 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:24:17Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: pickle protocol 4 used for serialization
+  claim_id: c_c619e496
+  context: Pickle (.pkl) is used for complex Python objects (graphs, thermal samples)
+    and is serialized using pickle protocol 4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pickle protocol 4 is used for serializing complex Python objects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:24:32Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/002-data-models.md
+  attempts: 1
+  canonical: SHA-256 checksums generated for all serialized artifacts
+  claim_id: c_af6d910f
+  context: Checksums are generated for all serialized artifacts using SHA-256 to ensure
+    data integrity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SHA-256 checksums are generated for all serialized artifacts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:24:47Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Green-Kubo simulations limited to 2 CPU cores
+  claim_id: c_263e2e9b
+  context: "Independent Test: Process a single sample, extract metrics, run Green-Kubo\
+    \ (2 cores, \u226412h), verify conductivity falls within literature range and\
+    \ simulation converges."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Green-Kubo simulations are limited to 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:25:17Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Green-Kubo simulations limited to 12 hours
+  claim_id: c_57bf2d77
+  context: "Independent Test: Process a single sample, extract metrics, run Green-Kubo\
+    \ (2 cores, \u226412h), verify conductivity falls within literature range and\
+    \ simulation converges."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Green-Kubo simulations are limited to a duration of 12 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:25:37Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: 'Outlier exclusion threshold: >15% atoms with coord <3 or >6'
+  claim_id: c_f47eeb54
+  context: 'Implement outlier detection for extreme topological defects (>15% atoms
+    with coord <3 or >6). Logic: If >15% defects found, log warning to data/processed/graphs/defect_log.txt
+    AND exclude sample.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outlier_exclusion_threshold:_%3E15%25_atoms_with_coord_%3C3_or_%3E6
+  kind: magnitude
+  raw_text: Outlier detection excludes samples where more than 15% of atoms have a
+    coordination number less than 3 or greater than 6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:26:21Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: Statistical power check requires N >= 10
+  claim_id: c_a3e89135
+  context: "Independent Test: Train on N samples (N\u226510 for Spec statistical power);\
+    \ verify model converges, and correlation results are generated. \u26A0\uFE0F\
+    \ CRITICAL CONSTRAINT: Spec SC-004 requires N\u226510."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_check_requires_N_%3E=_10
+  kind: magnitude
+  raw_text: The statistical power check requires a sample size of at least 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:27:12Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: 'GNN model: 2 layers, <1M parameters'
+  claim_id: c_3498d1cf
+  context: Implement code/model/gnn.py (2-layer GNN, <1M params) to predict local
+    heat flux from atomic graph features (FR-004).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GNN_model:_2_layers,_%3C1M_parameters
+  kind: magnitude
+  raw_text: The GNN model is restricted to 2 layers and fewer than 1 million parameters.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:27:42Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: 'GNN convergence: loss change <0.0001 for 5 epochs'
+  claim_id: c_842b70ad
+  context: Implement code/model/trainer.py with convergence check (loss change <1e-4
+    for 5 epochs) and comparison against linear regression baseline (FR-004, SC-002).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GNN_convergence:_loss_change_%3C0.0001_for_5_epochs
+  kind: magnitude
+  raw_text: The GNN convergence check requires the loss change to be less than 0.0001
+    for 5 consecutive epochs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:28:10Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: 'Full integration test limit: 6 hours'
+  claim_id: c_9ba88024
+  context: Run full integration test on representative samples to verify end-to-end
+    pipeline within 6-hour limit (SC-005)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full integration test must complete within a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:28:30Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: 'Bond cutoff distance: 3.0 Angstroms'
+  claim_id: c_b08d71e0
+  context: "Implement code/ingest/graph_builder.py to load XYZ files and construct\
+    \ AtomicGraph objects using ase with 3.0 \xC5 cutoff (FR-001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The bond cutoff distance for atomic graph construction is 3.0 \xC5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:29:01Z'
+- artifact_path: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top/tasks.md
+  attempts: 1
+  canonical: 'Green-Kubo convergence: relative change <1%'
+  claim_id: c_9110bef5
+  context: Implement convergence detection logic (relative change in heat current
+    autocorrelation < 1% in final segment).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Green-Kubo_convergence:_relative_change_%3C1%25
+  kind: magnitude
+  raw_text: Convergence detection for Green-Kubo simulations requires the relative
+    change in heat current autocorrelation to be less than 1% in the final segment.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:29:36Z'
