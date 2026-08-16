@@ -1,440 +1,499 @@
-"""
-Statistical Analysis Pipeline for LLM Code Completion Study
-Implements GLMM, ZINB models, VIF checks, Bonferroni correction, and sensitivity analysis.
-"""
 import os
 import json
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
+import random
 import statsmodels.api as sm
-import statsmodels.formula.api as smf
 from statsmodels.genmod.generalized_linear_model import GLM
-from statsmodels.genmod.families import NegativeBinomial, Binomial
+from statsmodels.genmod.generalized_estimating_equations import GEE
+from statsmodels.genmod.cov_struct import Exchangeable
+from statsmodels.discrete.discrete_model import NegativeBinomial
+from statsmodels.tools import add_constant
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from scipy import stats
-import warnings
-warnings.filterwarnings('ignore')
+import argparse
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_master_dataset(path: str = None) -> pd.DataFrame:
+# Configuration paths
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+DERIVED_DIR = DATA_DIR / "derived"
+MASTER_DATASET_PATH = DERIVED_DIR / "master_dataset.csv"
+ANALYSIS_RESULTS_PATH = DERIVED_DIR / "analysis_results.json"
+SENSITIVITY_ANALYSIS_PATH = DERIVED_DIR / "sensitivity_analysis.json"
+STRATIFIED_RESULTS_PATH = DERIVED_DIR / "stratified_results.json"
+
+def load_master_dataset(seed: int = 42) -> pd.DataFrame:
     """
-    Load the master dataset from CSV.
+    Load the master dataset from the derived directory.
     
     Args:
-        path: Path to the CSV file. Defaults to config value.
+        seed: Random seed for reproducibility (used if any sampling occurs)
         
     Returns:
-        pd.DataFrame: The loaded dataset
+        DataFrame containing the master dataset
+        
+    Raises:
+        FileNotFoundError: If the master dataset does not exist
+        ValueError: If required columns are missing
     """
-    if path is None:
-        from utils.config import get_config
-        config = get_config()
-        path = config['paths']['derived_dir'] + '/master_dataset.csv'
+    if not MASTER_DATASET_PATH.exists():
+        raise FileNotFoundError(
+            f"Master dataset not found at {MASTER_DATASET_PATH}. "
+            "Please run code/ingest.py first to generate the dataset."
+        )
     
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Master dataset not found at {path}")
+    df = pd.read_csv(MASTER_DATASET_PATH)
     
-    df = pd.read_csv(path)
+    # Validate required columns
+    required_columns = [
+        'repository_id', 'llm_adoption_flag', 'iteration_count',
+        'avg_comment_length', 'review_thread_depth', 'revert_frequency',
+        'loc', 'contributors', 'domain_complexity', 'diff_complexity_score',
+        'ai_noise_flag'
+    ]
+    
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    if missing_cols:
+        raise ValueError(
+            f"Missing required columns in master dataset: {missing_cols}"
+        )
+    
+    # Convert flags to numeric
+    df['llm_adoption_flag'] = df['llm_adoption_flag'].astype(int)
+    df['ai_noise_flag'] = df['ai_noise_flag'].astype(int)
+    
+    # Set random seed for reproducibility
+    random.seed(seed)
+    np.random.seed(seed)
+    
     logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns")
     return df
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Clean and preprocess the dataset for analysis.
+    Clean the dataset by handling missing values and outliers.
     
     Args:
         df: Input DataFrame
         
     Returns:
-        pd.DataFrame: Cleaned DataFrame
+        Cleaned DataFrame
     """
-    logger.info("Starting data cleaning")
+    logger.info("Cleaning data...")
     
-    # Drop rows with missing critical variables
-    critical_cols = ['iteration_count', 'llm_adoption_flag', 'repository_id']
-    df = df.dropna(subset=critical_cols)
+    # Drop rows with missing values in key columns
+    key_cols = ['iteration_count', 'llm_adoption_flag', 'diff_complexity_score', 'loc']
+    df_clean = df.dropna(subset=key_cols)
     
-    # Convert binary flag to numeric
-    if 'llm_adoption_flag' in df.columns:
-        df['llm_adoption_flag'] = df['llm_adoption_flag'].astype(int)
+    # Handle infinite values
+    df_clean = df_clean.replace([np.inf, -np.inf], np.nan)
+    df_clean = df_clean.dropna(subset=key_cols)
     
-    # Log-transform skewed variables
-    for col in ['iteration_count', 'avg_comment_length', 'review_thread_depth']:
-        if col in df.columns and df[col].nunique() > 1:
-            df[f'{col}_log'] = np.log1p(df[col])
+    # Log cleaning results
+    logger.info(f"Cleaned dataset: {len(df)} -> {len(df_clean)} rows")
     
-    logger.info(f"Cleaned dataset: {len(df)} rows remaining")
-    return df
+    return df_clean
 
-def calculate_vif(df: pd.DataFrame, formula: str) -> Tuple[pd.DataFrame, Dict[str, float]]:
+def calculate_vif(df: pd.DataFrame, features: list) -> pd.Series:
     """
-    Calculate Variance Inflation Factor for predictors.
+    Calculate Variance Inflation Factor for each feature.
     
     Args:
-        df: DataFrame with variables
-        formula: Model formula string
+        df: DataFrame containing features
+        features: List of feature column names
         
     Returns:
-        Tuple of (VIF DataFrame, dict of VIF values)
+        Series of VIF values indexed by feature name
     """
-    # Extract variables from formula
-    from patsy import dmatrices
-    y, X = dmatrices(formula, df, return_type='dataframe')
+    # Add constant for intercept
+    X = df[features].copy()
+    X = add_constant(X)
     
-    # Add intercept column for VIF calculation
-    X['intercept'] = 1
+    vif_data = {}
+    for i, col in enumerate(features):
+        if col in df.columns:
+            vif_data[col] = variance_inflation_factor(X.values, i + 1)  # +1 because of constant
     
-    # Calculate VIF for each variable
-    vif_data = pd.DataFrame()
-    vif_data["variable"] = X.columns
-    vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
-    
-    # Convert to dict for easy access
-    vif_dict = dict(zip(vif_data["variable"], vif_data["VIF"]))
-    
-    logger.info(f"VIF calculated for {len(vif_data)} variables")
-    return vif_data, vif_dict
+    return pd.Series(vif_data)
 
-def flag_high_vif(vif_dict: Dict[str, float], threshold: float = 5.0) -> List[str]:
+def flag_high_vif(vif_series: pd.Series, threshold: float = 5.0) -> dict:
     """
-    Flag variables with high VIF.
+    Flag features with VIF above threshold.
     
     Args:
-        vif_dict: Dictionary of variable names to VIF values
+        vif_series: Series of VIF values
         threshold: VIF threshold for flagging
         
     Returns:
-        List of flagged variable names
+        Dictionary with flag status and details
     """
-    flagged = [var for var, vif in vif_dict.items() if vif > threshold]
-    if flagged:
-        logger.warning(f"High VIF detected for: {flagged}")
-    return flagged
+    high_vif = vif_series[vif_series > threshold]
+    return {
+        'high_vif_features': high_vif.to_dict(),
+        'count': len(high_vif),
+        'threshold': threshold
+    }
 
-def run_glmm(df: pd.DataFrame, formula: str, random_effect: str = 'repository_id') -> Dict[str, Any]:
+def run_glmm(df: pd.DataFrame) -> dict:
     """
-    Run Generalized Linear Mixed Model.
+    Run Mixed-Effects Model (GLMM) with random intercepts for repositories.
+    
+    Formula: iteration_count ~ llm_adoption_flag + diff_complexity_score + loc + contributors + domain_complexity + (1|repository_id)
     
     Args:
-        df: Input DataFrame
-        formula: Model formula
-        random_effect: Name of random effect variable
+        df: Cleaned DataFrame
         
     Returns:
         Dictionary with model results
     """
-    logger.info(f"Running GLMM with formula: {formula}")
+    logger.info("Running GLMM...")
     
-    try:
-        # Use MixedLM from statsmodels
-        # Note: For iteration_count (count data), we might use Poisson or Negative Binomial
-        # But MixedLM in statsmodels is for continuous outcomes
-        # For count data with random effects, we use GLMM from other libraries or approximate
-        
-        # For now, use GLM with robust SEs as approximation
-        model = smf.glm(formula=formula, data=df, family=sm.families.Gaussian())
-        result = model.fit()
-        
-        # Extract fixed effects
-        fixed_effects = {}
-        for param in result.params.index:
-            fixed_effects[param] = {
-                'coef': float(result.params[param]),
-                'std_err': float(result.bse[param]),
-                'pval': float(result.pvalues[param])
-            }
-        
-        return {
-            'type': 'GLMM',
-            'formula': formula,
-            'fixed_effects': fixed_effects,
-            'fit_stats': {
-                'aic': float(result.aic),
-                'bic': float(result.bic),
-                'log_likelihood': float(result.llf)
-            }
-        }
-    except Exception as e:
-        logger.error(f"GLMM failed: {str(e)}")
-        return {'type': 'GLMM', 'formula': formula, 'error': str(e)}
+    # Prepare features
+    features = ['llm_adoption_flag', 'diff_complexity_score', 'loc', 'contributors', 'domain_complexity']
+    X = df[features].copy()
+    y = df['iteration_count'].copy()
+    
+    # Add constant
+    X = add_constant(X)
+    
+    # Group by repository_id
+    groups = df['repository_id']
+    
+    # Run GEE as approximation for GLMM (statsmodels doesn't have full GLMM support)
+    # Using Gaussian family with log link for count data
+    model = GEE(y, X, groups=groups, family=sm.families.Gaussian(), cov_struct=Exchangeable())
+    result = model.fit()
+    
+    # Extract results
+    coefficients = result.params.to_dict()
+    standard_errors = result.bse.to_dict()
+    p_values = result.pvalues.to_dict()
+    
+    # Calculate confidence intervals
+    conf_int = result.conf_int()
+    confidence_intervals = {}
+    for i, col in enumerate(X.columns):
+        confidence_intervals[col] = [conf_int.iloc[i, 0], conf_int.iloc[i, 1]]
+    
+    return {
+        'model_type': 'GLMM (GEE approximation)',
+        'formula': 'iteration_count ~ llm_adoption_flag + diff_complexity_score + loc + contributors + domain_complexity + (1|repository_id)',
+        'coefficients': coefficients,
+        'standard_errors': standard_errors,
+        'p_values': p_values,
+        'confidence_intervals': confidence_intervals,
+        'aic': result.aic,
+        'bic': result.bic
+    }
 
-def run_zinb_model(df: pd.DataFrame, count_formula: str, zero_formula: str) -> Dict[str, Any]:
+def run_zinb_model(df: pd.DataFrame) -> dict:
     """
-    Run Zero-Inflated Negative Binomial model.
+    Run Zero-Inflated Negative Binomial model for zero-inflated outcomes.
     
     Args:
-        df: Input DataFrame
-        count_formula: Formula for count part
-        zero_formula: Formula for zero-inflation part
+        df: Cleaned DataFrame
         
     Returns:
         Dictionary with model results
     """
-    logger.info("Running Zero-Inflated Negative Binomial model")
+    logger.info("Running ZINB model...")
     
+    # Prepare features for count model
+    count_features = ['llm_adoption_flag', 'diff_complexity_score', 'loc', 'contributors', 'domain_complexity']
+    X_count = df[count_features].copy()
+    y = df['iteration_count'].copy()
+    
+    # Prepare features for inflation model (using same features for simplicity)
+    X_infl = df[count_features].copy()
+    
+    # Add constant
+    X_count = add_constant(X_count)
+    X_infl = add_constant(X_infl)
+    
+    # Fit Negative Binomial model (simplified ZINB without explicit inflation model in statsmodels)
+    # Using NegativeBinomial as approximation
     try:
-        # statsmodels doesn't have built-in ZINB, so we use a workaround
-        # or implement a simple version
-        
-        # For now, run a Negative Binomial as approximation
-        model = smf.glm(formula=count_formula, data=df, family=sm.families.NegativeBinomial())
+        model = NegativeBinomial(y, X_count)
         result = model.fit()
         
-        fixed_effects = {}
-        for param in result.params.index:
-            fixed_effects[param] = {
-                'coef': float(result.params[param]),
-                'std_err': float(result.bse[param]),
-                'pval': float(result.pvalues[param])
-            }
+        coefficients = result.params.to_dict()
+        standard_errors = result.bse.to_dict()
+        p_values = result.pvalues.to_dict()
+        
+        # Calculate confidence intervals
+        conf_int = result.conf_int()
+        confidence_intervals = {}
+        for i, col in enumerate(X_count.columns):
+            confidence_intervals[col] = [conf_int.iloc[i, 0], conf_int.iloc[i, 1]]
         
         return {
-            'type': 'ZINB',
-            'count_formula': count_formula,
-            'zero_formula': zero_formula,
-            'fixed_effects': fixed_effects,
-            'fit_stats': {
-                'aic': float(result.aic),
-                'bic': float(result.bic)
-            }
+            'model_type': 'Negative Binomial (ZINB approximation)',
+            'formula': 'iteration_count ~ llm_adoption_flag + diff_complexity_score + loc + contributors + domain_complexity',
+            'coefficients': coefficients,
+            'standard_errors': standard_errors,
+            'p_values': p_values,
+            'confidence_intervals': confidence_intervals,
+            'aic': result.aic,
+            'bic': result.bic
         }
     except Exception as e:
-        logger.error(f"ZINB failed: {str(e)}")
-        return {'type': 'ZINB', 'error': str(e)}
+        logger.warning(f"ZINB model failed: {e}. Returning empty results.")
+        return {
+            'model_type': 'Negative Binomial (ZINB approximation)',
+            'formula': 'iteration_count ~ llm_adoption_flag + diff_complexity_score + loc + contributors + domain_complexity',
+            'coefficients': {},
+            'standard_errors': {},
+            'p_values': {},
+            'confidence_intervals': {},
+            'error': str(e)
+        }
 
-def apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, Any]:
+def apply_bonferroni_correction(p_values: dict, alpha: float = 0.05) -> dict:
     """
     Apply Bonferroni correction for multiple comparisons.
     
     Args:
-        p_values: List of p-values
+        p_values: Dictionary of p-values
         alpha: Significance level
         
     Returns:
         Dictionary with adjusted p-values and significance flags
     """
+    logger.info("Applying Bonferroni correction...")
+    
     n_tests = len(p_values)
-    adjusted_p = [min(p * n_tests, 1.0) for p in p_values]
-    significant = [p < alpha for p in adjusted_p]
+    adjusted_alpha = alpha / n_tests if n_tests > 0 else alpha
+    
+    adjusted_p_values = {}
+    significant = {}
+    
+    for key, p_val in p_values.items():
+        adjusted_p = min(p_val * n_tests, 1.0)
+        adjusted_p_values[key] = adjusted_p
+        significant[key] = adjusted_p < alpha
     
     return {
-        'original_p_values': p_values,
-        'adjusted_p_values': adjusted_p,
-        'significance_threshold': alpha / n_tests if n_tests > 0 else alpha,
-        'is_significant': significant,
+        'adjusted_p_values': adjusted_p_values,
+        'significant': significant,
+        'original_alpha': alpha,
+        'adjusted_alpha': adjusted_alpha,
         'n_tests': n_tests
     }
 
-def run_sensitivity_analysis(df: pd.DataFrame, base_formula: str, 
-                             thresholds: List[int] = [5, 10, 15, 20]) -> Dict[str, Any]:
+def run_sensitivity_analysis(df: pd.DataFrame) -> list:
     """
-    Run sensitivity analysis by varying iteration_count threshold.
+    Run sensitivity analysis by sweeping iteration_count threshold.
     
     Args:
-        df: Input DataFrame
-        base_formula: Base model formula
-        thresholds: List of threshold values to test
+        df: Cleaned DataFrame
         
     Returns:
-        Dictionary with sensitivity results
+        List of dictionaries with sensitivity analysis results
     """
-    logger.info(f"Running sensitivity analysis with thresholds: {thresholds}")
+    logger.info("Running sensitivity analysis...")
     
     results = []
-    for threshold in thresholds:
-        # Filter data based on threshold
+    
+    # Sweep threshold from 1 to 10
+    for threshold in range(1, 11):
+        # Filter data
         df_filtered = df[df['iteration_count'] >= threshold].copy()
         
         if len(df_filtered) < 10:
             logger.warning(f"Not enough data for threshold {threshold}, skipping")
             continue
         
-        # Run model
+        # Run simple linear regression for effect size
+        features = ['llm_adoption_flag', 'diff_complexity_score', 'loc', 'contributors', 'domain_complexity']
+        X = add_constant(df_filtered[features])
+        y = df_filtered['iteration_count']
+        
         try:
-            model = smf.glm(formula=base_formula, data=df_filtered, family=sm.families.Gaussian())
-            result = model.fit()
-            
-            # Extract coefficient for llm_adoption_flag
-            coef = result.params.get('llm_adoption_flag', 0)
-            std_err = result.bse.get('llm_adoption_flag', 0)
-            p_val = result.pvalues.get('llm_adoption_flag', 1.0)
+            model = sm.OLS(y, X).fit()
+            llm_coef = model.params['llm_adoption_flag']
+            llm_pval = model.pvalues['llm_adoption_flag']
             
             results.append({
                 'threshold': threshold,
-                'n_observations': len(df_filtered),
-                'llm_adoption_coef': float(coef),
-                'std_err': float(std_err),
-                'p_value': float(p_val),
-                'significant': float(p_val) < 0.05
+                'effect_size': float(llm_coef),
+                'p_value': float(llm_pval),
+                'n_samples': len(df_filtered)
             })
         except Exception as e:
-            logger.error(f"Error at threshold {threshold}: {str(e)}")
-            results.append({
-                'threshold': threshold,
-                'n_observations': len(df_filtered),
-                'error': str(e)
-            })
+            logger.warning(f"Error at threshold {threshold}: {e}")
+            continue
     
-    return {
-        'thresholds_tested': thresholds,
-        'results': results
-    }
+    return results
 
-def run_stratified_analysis(df: pd.DataFrame, base_formula: str, 
-                            stratify_col: str = 'ai_noise_flag') -> Dict[str, Any]:
+def run_stratified_analysis(df: pd.DataFrame) -> dict:
     """
-    Run stratified analysis by splitting data into high/low AI noise groups.
+    Run stratified analysis comparing High vs Low AI-Noise groups.
     
     Args:
-        df: Input DataFrame
-        base_formula: Base model formula
-        stratify_col: Column to stratify by
+        df: Cleaned DataFrame
         
     Returns:
         Dictionary with stratified results
     """
-    logger.info(f"Running stratified analysis by {stratify_col}")
+    logger.info("Running stratified analysis...")
     
-    if stratify_col not in df.columns:
-        logger.warning(f"{stratify_col} not in dataframe, using llm_adoption_flag")
-        stratify_col = 'llm_adoption_flag'
+    # Split by AI noise flag
+    df_high_noise = df[df['ai_noise_flag'] == 1].copy()
+    df_low_noise = df[df['ai_noise_flag'] == 0].copy()
     
-    results = {}
-    for group in df[stratify_col].unique():
-        df_group = df[df[stratify_col] == group].copy()
-        
-        if len(df_group) < 10:
-            logger.warning(f"Not enough data for group {group}, skipping")
-            continue
+    results = {
+        'high_noise_group': {},
+        'low_noise_group': {},
+        'comparison': {}
+    }
+    
+    features = ['llm_adoption_flag', 'diff_complexity_score', 'loc', 'contributors', 'domain_complexity']
+    
+    # Analyze high noise group
+    if len(df_high_noise) >= 5:
+        X_high = add_constant(df_high_noise[features])
+        y_high = df_high_noise['iteration_count']
         
         try:
-            model = smf.glm(formula=base_formula, data=df_group, family=sm.families.Gaussian())
-            result = model.fit()
-            
-            coef = result.params.get('llm_adoption_flag', 0)
-            std_err = result.bse.get('llm_adoption_flag', 0)
-            p_val = result.pvalues.get('llm_adoption_flag', 1.0)
-            
-            results[f'group_{group}'] = {
-                'n_observations': len(df_group),
-                'llm_adoption_coef': float(coef),
-                'std_err': float(std_err),
-                'p_value': float(p_val),
-                'significant': float(p_val) < 0.05
+            model_high = sm.OLS(y_high, X_high).fit()
+            results['high_noise_group'] = {
+                'n_samples': len(df_high_noise),
+                'llm_effect_size': float(model_high.params['llm_adoption_flag']),
+                'llm_p_value': float(model_high.pvalues['llm_adoption_flag']),
+                'r_squared': float(model_high.rsquared)
             }
         except Exception as e:
-            logger.error(f"Error for group {group}: {str(e)}")
-            results[f'group_{group}'] = {'error': str(e)}
+            results['high_noise_group'] = {'error': str(e), 'n_samples': len(df_high_noise)}
+    else:
+        results['high_noise_group'] = {'n_samples': len(df_high_noise), 'error': 'Insufficient data'}
+    
+    # Analyze low noise group
+    if len(df_low_noise) >= 5:
+        X_low = add_constant(df_low_noise[features])
+        y_low = df_low_noise['iteration_count']
+        
+        try:
+            model_low = sm.OLS(y_low, X_low).fit()
+            results['low_noise_group'] = {
+                'n_samples': len(df_low_noise),
+                'llm_effect_size': float(model_low.params['llm_adoption_flag']),
+                'llm_p_value': float(model_low.pvalues['llm_adoption_flag']),
+                'r_squared': float(model_low.rsquared)
+            }
+        except Exception as e:
+            results['low_noise_group'] = {'error': str(e), 'n_samples': len(df_low_noise)}
+    else:
+        results['low_noise_group'] = {'n_samples': len(df_low_noise), 'error': 'Insufficient data'}
+    
+    # Compare effect sizes
+    if 'llm_effect_size' in results['high_noise_group'] and 'llm_effect_size' in results['low_noise_group']:
+        diff = results['high_noise_group']['llm_effect_size'] - results['low_noise_group']['llm_effect_size']
+        results['comparison'] = {
+            'effect_size_difference': diff,
+            'interpretation': 'High AI-Noise group has different LLM effect' if abs(diff) > 0.1 else 'Similar effects'
+        }
     
     return results
 
-def write_results(results: Dict[str, Any], output_path: str) -> bool:
+def write_results(results: dict, output_path: Path):
     """
     Write analysis results to JSON file.
     
     Args:
-        results: Results dictionary
+        results: Dictionary of results to write
         output_path: Path to output file
-        
-    Returns:
-        bool: True if successful
     """
-    try:
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        logger.info(f"Results written to {output_path}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to write results: {str(e)}")
-        return False
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+    logger.info(f"Results written to {output_path}")
 
-def run_analysis() -> Dict[str, Any]:
+def run_analysis(seed: int = 42):
     """
     Run the full analysis pipeline.
     
-    Returns:
-        Dictionary with all analysis results
+    Args:
+        seed: Random seed for reproducibility
     """
     logger.info("Starting analysis pipeline")
     
-    # Load and clean data
-    df = load_master_dataset()
-    df = clean_data(df)
-    
-    # Define base formula
-    base_formula = 'iteration_count ~ llm_adoption_flag + diff_complexity_score + loc + contributors + domain_complexity'
-    
-    results = {
-        'glmm': None,
-        'zinb': None,
-        'vif': None,
-        'sensitivity': None,
-        'stratified': None,
-        'bonferroni': None,
-        'metadata': {
-            'n_observations': len(df),
-            'n_variables': len(df.columns)
+    try:
+        # Load and clean data
+        df = load_master_dataset(seed=seed)
+        df_clean = clean_data(df)
+        
+        if len(df_clean) == 0:
+            logger.error("No data remaining after cleaning. Cannot proceed with analysis.")
+            return
+        
+        # Calculate VIF
+        features = ['llm_adoption_flag', 'diff_complexity_score', 'loc', 'contributors', 'domain_complexity']
+        vif_results = calculate_vif(df_clean, features)
+        vif_flags = flag_high_vif(vif_results)
+        
+        # Run GLMM
+        glmm_results = run_glmm(df_clean)
+        
+        # Run ZINB
+        zinb_results = run_zinb_model(df_clean)
+        
+        # Apply Bonferroni correction
+        bonferroni_results = apply_bonferroni_correction(glmm_results.get('p_values', {}))
+        
+        # Run sensitivity analysis
+        sensitivity_results = run_sensitivity_analysis(df_clean)
+        
+        # Run stratified analysis
+        stratified_results = run_stratified_analysis(df_clean)
+        
+        # Compile all results
+        all_results = {
+            'vif_analysis': vif_flags,
+            'glmm': glmm_results,
+            'zinb': zinb_results,
+            'bonferroni_correction': bonferroni_results,
+            'sensitivity_analysis': sensitivity_results,
+            'stratified_analysis': stratified_results,
+            'metadata': {
+                'n_samples': len(df_clean),
+                'n_features': len(features),
+                'seed': seed
+            }
         }
-    }
-    
-    # Run GLMM
-    results['glmm'] = run_glmm(df, base_formula)
-    
-    # Run ZINB
-    count_formula = 'iteration_count ~ llm_adoption_flag + diff_complexity_score + loc + contributors + domain_complexity'
-    zero_formula = 'iteration_count ~ llm_adoption_flag + domain_complexity'
-    results['zinb'] = run_zinb_model(df, count_formula, zero_formula)
-    
-    # Calculate VIF
-    vif_data, vif_dict = calculate_vif(df, base_formula)
-    flagged = flag_high_vif(vif_dict)
-    results['vif'] = {
-        'data': vif_data.to_dict(),
-        'flagged_variables': flagged
-    }
-    
-    # Run sensitivity analysis
-    results['sensitivity'] = run_sensitivity_analysis(df, base_formula)
-    
-    # Run stratified analysis
-    results['stratified'] = run_stratified_analysis(df, base_formula, 'diff_complexity_score')
-    
-    # Collect p-values for Bonferroni
-    p_values = []
-    if results['glmm'] and 'fixed_effects' in results['glmm']:
-        p_values.extend([v['pval'] for v in results['glmm']['fixed_effects'].values()])
-    
-    if p_values:
-        results['bonferroni'] = apply_bonferroni_correction(p_values)
-    
-    logger.info("Analysis pipeline completed")
-    return results
+        
+        # Write results
+        write_results(all_results, ANALYSIS_RESULTS_PATH)
+        
+        # Write sensitivity analysis separately
+        write_results({
+            'thresholds': sensitivity_results
+        }, SENSITIVITY_ANALYSIS_PATH)
+        
+        # Write stratified results separately
+        write_results(stratified_results, STRATIFIED_RESULTS_PATH)
+        
+        logger.info("Analysis pipeline completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Analysis failed: {e}")
+        raise
 
 def main():
-    """Main entry point."""
-    try:
-        results = run_analysis()
-        
-        # Write results to file
-        from utils.config import get_config
-        config = get_config()
-        output_path = Path(config['paths']['derived_dir']) / 'analysis_results_temp.json'
-        
-        write_results(results, str(output_path))
-        
-        # Note: The final analysis_results.json is written by derive_analysis_results.py
-        # This script writes a temporary file for the derivation step
-        
-        return 0
-    except Exception as e:
-        logger.error(f"Analysis failed: {str(e)}")
-        return 1
+    """Main entry point for the analysis script."""
+    parser = argparse.ArgumentParser(description='Run statistical analysis on master dataset')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed for reproducibility')
+    args = parser.parse_args()
+    
+    run_analysis(seed=args.seed)
 
 if __name__ == '__main__':
-    exit(main())
+    main()

@@ -4,7 +4,13 @@ Integration tests for GitHub API client.
 import pytest
 import time
 from unittest.mock import patch, MagicMock
-from utils.github_client import GitHubClient
+import sys
+import os
+
+# Ensure the project root is in the path for imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from code.utils.github_client import GitHubClient
 
 @pytest.mark.skip(reason="Requires real API key and network access")
 def test_github_client_fetch_repo():
@@ -24,7 +30,7 @@ def test_github_client_retry_logic_on_failure():
     client = GitHubClient(api_key="test_key", max_retries=3, retry_delay=0.1)
     
     # Mock the requests.get method to simulate a persistent 503 error
-    with patch('utils.github_client.requests.get') as mock_get:
+    with patch('code.utils.github_client.requests.get') as mock_get:
         mock_response = MagicMock()
         mock_response.status_code = 503
         mock_get.return_value = mock_response
@@ -58,7 +64,7 @@ def test_github_client_succeeds_after_retry():
             mock_response.raise_for_status = MagicMock()
         return mock_response
 
-    with patch('utils.github_client.requests.get', side_effect=side_effect):
+    with patch('code.utils.github_client.requests.get', side_effect=side_effect):
         result = client._request("GET", "https://api.github.com/repos/test")
         assert result.status_code == 200
         assert result.json() == {"name": "test-repo"}
@@ -71,7 +77,7 @@ def test_github_client_no_retry_on_404():
     """
     client = GitHubClient(api_key="test_key", max_retries=3, retry_delay=0.1)
     
-    with patch('utils.github_client.requests.get') as mock_get:
+    with patch('code.utils.github_client.requests.get') as mock_get:
         mock_response = MagicMock()
         mock_response.status_code = 404
         mock_get.return_value = mock_response

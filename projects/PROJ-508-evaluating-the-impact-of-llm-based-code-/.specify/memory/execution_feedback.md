@@ -1,53 +1,32 @@
 # Execution failures — fix these before the analysis can run
 
+## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+
+Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+
+1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
+2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
+3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
+4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+
+- data/derived/master_dataset.csv: column(s) ai_noise_flag are EMPTY in every one of 5 rows — that measure was never recorded
+- every produced artifact is gitignored (data/derived/master_dataset.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 3 command(s) failed: python code/ingest.py (rc=1); python code/analyze.py (rc=1); python code/report.py (rc=1); 3 declared deliverable(s) absent: data/derived/analysis_results.json; data/derived/master_dataset.csv; data/derived/sensitivity_analysis.json
+**Summary**: 1 hollow-result signal(s) — the analysis ran but computed nothing: data/derived/master_dataset.csv: column(s) ai_noise_flag are EMPTY in every one of 5 rows — that measure was never recorded; every produced artifact is gitignored (data/derived/master_dataset.csv) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/analyze.py (rc=1); 3 declared deliverable(s) absent: data/derived/analysis_results.json; data/derived/sensitivity_analysis.json; data/manifest.json
 
 ## Failing / missing run-book commands
 
-- python code/ingest.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/ingest.py", line 312, in <module>
-    run_ingestion()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/ingest.py", line 275, in run_ingestion
-    github_client = GitHubClient(
-                    ^^^^^^^^^^^^^
-TypeError: GitHubClient.__init__() got an unexpected keyword argument 'base_url'
 - python code/analyze.py -> rc=1
-    INFO:__main__:Starting Analysis Pipeline
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/analyze.py", line 328, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/analyze.py", line 316, in main
-    results = run_analysis()
-              ^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/analyze.py", line 282, in run_analysis
-    df = load_master_dataset()
-         ^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/analyze.py", line 21, in load_master_dataset
-    raise FileNotFoundError(f"Master dataset not found at {path}")
-FileNotFoundError: Master dataset not found at data/derived/master_dataset.csv
-- python code/report.py -> rc=1
-    WARNING:root:reportlab not installed. PDF generation will be skipped; Markdown report generated instead.
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/report.py", line 339, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/report.py", line 336, in main
-    run_report_pipeline()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/report.py", line 296, in run_report_pipeline
-    output_dir, figures_dir = ensure_directories()
-                              ^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/code/report.py", line 36, in ensure_directories
-    output_dir = Path(config['paths']['output_dir'])
-                      ~~~~~~^^^^^^^^^
-TypeError: 'Config' object is not subscriptable
+    2026-08-16 17:34:37,935 - INFO - Starting analysis pipeline
+2026-08-16 17:34:37,935 - ERROR - Analysis failed: 'derived_dir'
 
 ## Declared deliverables still missing
 
 - data/derived/analysis_results.json
-- data/derived/master_dataset.csv
 - data/derived/sensitivity_analysis.json
+- data/manifest.json
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -80,38 +59,21 @@ Whichever you choose, every call site of `GitHubClient` across the codebase must
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
 - `data/derived/analysis_results.json` is declared but was NOT written. Scripts referencing it:
-    - `code/report_analysis.py` — NOT invoked by the run-book
     - `code/report.py` — IS a run-book command
-    - `code/validate_quickstart.py` — NOT invoked by the run-book
-    - `code/generate_manifest.py` — NOT invoked by the run-book
     - `code/derive_analysis_results.py` — NOT invoked by the run-book
-    - `code/analyze.py` — IS a run-book command
+    - `code/validate_quickstart.py` — NOT invoked by the run-book
+    - `code/report_analysis.py` — NOT invoked by the run-book
     - `code/optimize_performance.py` — NOT invoked by the run-book
+    - `code/analyze.py` — IS a run-book command
+    - `code/generate_manifest.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/derived/analysis_results.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/derived/master_dataset.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/report_analysis.py` — NOT invoked by the run-book
-    - `code/validate_quickstart.py` — NOT invoked by the run-book
-    - `code/generate_manifest.py` — NOT invoked by the run-book
-    - `code/generate_master_dataset.py` — NOT invoked by the run-book
-    - `code/derive_analysis_results.py` — NOT invoked by the run-book
-    - `code/analyze.py` — IS a run-book command
-    - `code/ingest.py` — IS a run-book command
-    - `code/optimize_performance.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/derived/master_dataset.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/derived/sensitivity_analysis.json` is declared but was NOT written. Scripts referencing it:
-    - `code/derive_sensitivity_analysis.py` — NOT invoked by the run-book
     - `code/report.py` — IS a run-book command
     - `code/validate_quickstart.py` — NOT invoked by the run-book
+    - `code/derive_sensitivity_analysis.py` — NOT invoked by the run-book
     - `code/analyze.py` — IS a run-book command
   Make ONE of these WRITE `data/derived/sensitivity_analysis.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-
-## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
-
-One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
-
-**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
-
-### `data/derived/master_dataset.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/report_analysis.py`, `code/generate_manifest.py`, `code/generate_master_dataset.py`, `code/derive_analysis_results.py`, `code/analyze.py`, `code/ingest.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/derived/master_dataset.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/report_analysis.py`, `code/validate_quickstart.py`, `code/generate_manifest.py`, `code/generate_master_dataset.py`, `code/derive_analysis_results.py`, `code/analyze.py`, `code/ingest.py`.
+- `data/manifest.json` is declared but was NOT written. Scripts referencing it:
+    - `code/ingest.py` — IS a run-book command
+    - `code/generate_manifest.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/manifest.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

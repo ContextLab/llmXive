@@ -75,3 +75,69 @@ class TestExtractPRMetrics:
         }
         metrics = extract_pr_metrics(pr_data)
         assert metrics['revert_frequency'] == 3.0
+
+    def test_copilot_frequency_calculation(self):
+        """Test that commit message 'Copilot' frequency is calculated correctly.
+        
+        This test specifically validates the frequency calculation logic required
+        by T019: count occurrences of 'Copilot' in commit messages and calculate
+        the percentage relative to total commits.
+        """
+        pr_data = {
+            'review_threads': [],
+            'commits': [
+                {'commit': {'message': 'Fix bug'}},
+                {'commit': {'message': 'Add feature with Copilot assistance'}},
+                {'commit': {'message': 'Refactor code'}},
+                {'commit': {'message': 'Update docs'}},
+                {'commit': {'message': 'Copilot suggested this fix'}}
+            ]
+        }
+        # Total commits: 5
+        # Commits with 'Copilot': 2 (indices 1 and 4)
+        # Expected frequency: 2/5 = 0.4
+        metrics = extract_pr_metrics(pr_data)
+        assert 'copilot_frequency' in metrics
+        assert abs(metrics['copilot_frequency'] - 0.4) < 0.001
+
+    def test_copilot_frequency_zero(self):
+        """Test that Copilot frequency is 0 when no Copilot mentions exist."""
+        pr_data = {
+            'review_threads': [],
+            'commits': [
+                {'commit': {'message': 'Fix bug'}},
+                {'commit': {'message': 'Add feature'}},
+                {'commit': {'message': 'Refactor code'}}
+            ]
+        }
+        metrics = extract_pr_metrics(pr_data)
+        assert 'copilot_frequency' in metrics
+        assert metrics['copilot_frequency'] == 0.0
+
+    def test_copilot_frequency_one(self):
+        """Test that Copilot frequency is 1.0 when all commits mention Copilot."""
+        pr_data = {
+            'review_threads': [],
+            'commits': [
+                {'commit': {'message': 'Copilot fix bug'}},
+                {'commit': {'message': 'Copilot add feature'}},
+                {'commit': {'message': 'Copilot refactor'}}
+            ]
+        }
+        metrics = extract_pr_metrics(pr_data)
+        assert 'copilot_frequency' in metrics
+        assert metrics['copilot_frequency'] == 1.0
+
+    def test_copilot_case_insensitive(self):
+        """Test that Copilot detection is case-insensitive."""
+        pr_data = {
+            'review_threads': [],
+            'commits': [
+                {'commit': {'message': 'COPILOT fix bug'}},
+                {'commit': {'message': 'copilot add feature'}},
+                {'commit': {'message': 'Copilot refactor'}}
+            ]
+        }
+        metrics = extract_pr_metrics(pr_data)
+        assert 'copilot_frequency' in metrics
+        assert metrics['copilot_frequency'] == 1.0
