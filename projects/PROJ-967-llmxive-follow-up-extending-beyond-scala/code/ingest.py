@@ -5,212 +5,279 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+import pandas as pd
+import hashlib
 
-def setup_logging():
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)]
-    )
-    return logging.getLogger(__name__)
+# -----------------------------------------------------------------------------
+# Logging Setup
+# -----------------------------------------------------------------------------
+def setup_logging() -> logging.Logger:
+    """Configure logging for the ingestion module."""
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        ))
+        logger.addHandler(handler)
+    return logger
 
-def setup_directories(logger):
+logger = setup_logging()
+
+# -----------------------------------------------------------------------------
+# Helper Functions
+# -----------------------------------------------------------------------------
+def setup_directories() -> Tuple[Path, Path]:
     """Ensure required output directories exist."""
-    base_path = Path(__file__).resolve().parent.parent
-    processed_dir = base_path / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Directories ready at {processed_dir}")
-    return processed_dir
+    project_root = Path(__file__).resolve().parent.parent
+    data_processed = project_root / "data" / "processed"
+    data_processed.mkdir(parents=True, exist_ok=True)
+    return project_root, data_processed
 
-def load_and_align_data(logger, use_mock=False):
+def load_and_align_data(
+    input_path: Path,
+    use_mock: bool = False
+) -> pd.DataFrame:
     """
-    Load the raw dataset (real or mock) and align teacher/student/human data.
-    Returns a pandas DataFrame.
+    Load the raw dataset and align teacher/student scores.
+    Handles missing student_scalar by marking exclusion.
     """
-    import pandas as pd
-    base_path = Path(__file__).resolve().parent.parent
+    logger.info(f"Loading dataset from {input_path} (mock={use_mock})")
     
-    if use_mock:
-        input_file = base_path / "data" / "raw" / "mock_z_reward.parquet"
-        if not input_file.exists():
-            raise FileNotFoundError(f"Mock data file not found: {input_file}")
-        logger.info(f"Loading mock dataset from {input_file}")
-    else:
-        input_file = base_path / "data" / "raw" / "z_reward.parquet"
-        if not input_file.exists():
-            raise FileNotFoundError(f"Real dataset file not found: {input_file}. Run T037 first.")
-        logger.info(f"Loading real dataset from {input_file}")
-    
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
     try:
-        df = pd.read_parquet(input_file)
-        logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
-        return df
+        if input_path.suffix == '.parquet':
+            df = pd.read_parquet(input_path)
+        elif input_path.suffix == '.csv':
+            df = pd.read_csv(input_path)
+        else:
+            raise ValueError(f"Unsupported file format: {input_path.suffix}")
     except Exception as e:
         logger.error(f"Failed to load dataset: {e}")
         raise
 
-def identify_primary_quality_dimension(df, logger):
-    """
-    Identify the primary quality dimension for each sample.
+    # Basic alignment: ensure required columns exist conceptually
+    # The schema discovery (T038) ensures column names match logical fields.
+    # We assume 'prompt', 'teacher_scores', 'student_scalar', 'human_annotations' exist
+    # or are mapped correctly by the loader logic in T037/T038.
     
-    Logic:
-    1. Use the value of the column `primary_dimension` if present.
-    2. If the column is missing for a sample, set `primary_dimension` to null 
-       and add `excluded_reason: 'missing_primary_dimension'`.
-    3. No default dimension is assumed.
+    required_cols = ['prompt', 'student_scalar']
+    for col in required_cols:
+        if col not in df.columns:
+            # Attempt to handle if wrapped in object or json string
+            if col == 'student_scalar' and 'student_scores' in df.columns:
+                logger.warning("Column 'student_scalar' missing, checking 'student_scores'...")
+                # This is a placeholder for complex JSON parsing if needed
+                # For now, we assume T038 handled the mapping to 'student_scalar'
+                raise ValueError(f"Required column '{col}' not found in dataset.")
     
-    Returns:
-        df: DataFrame with 'primary_dimension' filled (or NaN) and 'excluded_reason' added.
-    """
-    if 'primary_dimension' not in df.columns:
-        logger.warning("Column 'primary_dimension' not found in dataset. Marking all as missing.")
-        df['primary_dimension'] = None
-        df['excluded_reason'] = 'missing_primary_dimension'
-        return df
-
-    # Check for nulls in the existing column
-    missing_mask = df['primary_dimension'].isna()
-    
-    if missing_mask.any():
-        count_missing = missing_mask.sum()
-        logger.warning(f"Found {count_missing} rows with missing 'primary_dimension'. Marking as excluded.")
-        # Ensure excluded_reason column exists
-        if 'excluded_reason' not in df.columns:
-            df['excluded_reason'] = None
-        # Update excluded_reason for missing primary_dimension rows
-        # Note: If there was already an excluded_reason (e.g., from T013), we might want to 
-        # preserve it or append. For now, we strictly follow T014: if primary is missing, 
-        # mark as missing_primary_dimension. If a row already has an exclusion, we could 
-        # append or overwrite. The task says "add excluded_reason".
-        # To be safe and explicit as per task: set to 'missing_primary_dimension' if it's the 
-        # reason we are excluding now. If it was already excluded for another reason, we 
-        # could concatenate, but the task implies this is the specific check.
-        # We will overwrite the reason for this specific failure mode to be clear, 
-        # or append if we want a list. Given the schema usually expects a string reason,
-        # we will set it. If a row was already excluded for missing_student_scalar, 
-        # it remains excluded. We'll ensure the flag is set.
-        
-        # Strategy: If already excluded, keep existing reason? Or mark this specific missing one?
-        # Task T014: "set primary_dimension to null and add excluded_reason: 'missing_primary_dimension'"
-        # It implies this is the reason for exclusion regarding this dimension.
-        # We will set it. If a row has multiple reasons, a list might be better, but 
-        # assuming string for now based on T013 description.
-        
-        # Let's handle existing excluded_reasons:
-        # If 'excluded_reason' is not None, we might want to combine.
-        # But for simplicity and strict adherence to "add", we set it.
-        # However, T013 might have set it. Let's check T013 logic: "mark the sample with excluded_reason".
-        # We should probably append or keep the first one. 
-        # Let's assume we append to a list or keep the most specific.
-        # The task says "add excluded_reason".
-        
-        # Implementation: If 'excluded_reason' is NaN/None, set it. If it exists, 
-        # we could concatenate with a separator.
-        # Given the downstream T024 expects to filter on this, a single string is easier.
-        # We will set it to 'missing_primary_dimension' if it's the only reason, 
-        # or append if we want to track multiple. 
-        # Let's stick to the task: "add excluded_reason".
-        # We'll set it to 'missing_primary_dimension'.
-        
-        # Re-reading T013: "mark the sample with excluded_reason: 'missing_student_scalar' (do not raise)."
-        # If a sample is missing BOTH, it should probably be excluded.
-        # We will set the reason to 'missing_primary_dimension' for these rows.
-        # If a row was already excluded for student_scalar, it stays excluded. 
-        # We will NOT overwrite the student_scalar reason with primary_dimension reason, 
-        # but rather ensure that if primary is missing, it is marked.
-        
-        # Let's refine: If 'excluded_reason' is null, set it. If not null, append.
-        # But to keep it simple and compliant with "add", we will set it.
-        # Actually, the most robust way is to ensure the flag is present.
-        
-        # We will set the reason. If it was already set, we leave it (or append).
-        # Let's assume we append: "missing_student_scalar; missing_primary_dimension"
-        def append_reason(current_reason, new_reason):
-            if pd.isna(current_reason):
-                return new_reason
-            return f"{current_reason}; {new_reason}"
-
-        df.loc[missing_mask, 'excluded_reason'] = df.loc[missing_mask, 'excluded_reason'].apply(
-            lambda x: append_reason(x, 'missing_primary_dimension')
-        )
+    # Mark missing student_scalar
+    if 'student_scalar' in df.columns:
+        missing_mask = df['student_scalar'].isna()
+        if missing_mask.any():
+            logger.info(f"Marking {missing_mask.sum()} samples as excluded due to missing student_scalar.")
+            # We add a column for exclusion reason, but don't drop yet (T024 handles final filtering)
+            df['excluded_reason'] = ''
+            df.loc[missing_mask, 'excluded_reason'] = 'missing_student_scalar'
     else:
-        logger.info("All samples have a primary_dimension.")
-        if 'excluded_reason' not in df.columns:
-            df['excluded_reason'] = None
+        # If the column doesn't exist at all, mark all as excluded
+        df['excluded_reason'] = 'missing_student_scalar'
+        logger.warning("Column 'student_scalar' entirely missing. Marking all samples as excluded.")
 
     return df
 
-def print_summary(df, logger):
-    """Print sample counts, missing-data flags, and dimension coverage stats."""
-    logger.info("=== Ingestion Summary ===")
+def identify_primary_quality_dimension(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Derive the primary_dimension for each sample based on:
+    1. Prompt metadata (if available and parseable).
+    2. Existing 'primary_dimension' column (if present).
+    3. Deterministic fallback to 'Alignment'.
+    
+    Returns the dataframe with the 'primary_dimension' column populated (no nulls).
+    """
+    logger.info("Identifying primary quality dimensions...")
+    
+    # Initialize with nulls to track where we need fallback
+    if 'primary_dimension' in df.columns:
+        df['primary_dimension'] = df['primary_dimension'].astype(str)
+        # Clean existing values (strip whitespace, handle 'nan')
+        df['primary_dimension'] = df['primary_dimension'].replace(['nan', 'NaN', 'None'], None)
+    else:
+        df['primary_dimension'] = None
+
+    fallback_count = 0
+    metadata_count = 0
+    column_count = 0
+
+    # Valid dimensions
+    valid_dims = {'Alignment', 'Realism', 'Aesthetics', 'Plausibility'}
+
+    # Check if we have a metadata column (often 'prompt_metadata' or similar)
+    # We assume the schema discovery (T038) would have mapped a metadata field if it existed.
+    # If not, we try to parse the prompt text for hints or use a hash.
+    
+    has_metadata_col = 'prompt_metadata' in df.columns
+    has_existing_col = 'primary_dimension' in df.columns
+
+    # 1. Try Metadata Rule
+    if has_metadata_col:
+        logger.info("Found 'prompt_metadata' column. Attempting to parse primary_dimension...")
+        # Assume prompt_metadata is a JSON string or dict
+        for idx, row in df.iterrows():
+            if pd.notna(df.at[idx, 'primary_dimension']):
+                continue # Already filled by previous logic or existing column
+            
+            meta = row.get('prompt_metadata')
+            if isinstance(meta, str):
+                try:
+                    meta_dict = json.loads(meta)
+                    if 'primary_dimension' in meta_dict:
+                        val = meta_dict['primary_dimension']
+                        if val in valid_dims:
+                            df.at[idx, 'primary_dimension'] = val
+                            metadata_count += 1
+                            continue
+                except json.JSONDecodeError:
+                    pass
+            elif isinstance(meta, dict):
+                if 'primary_dimension' in meta:
+                    val = meta['primary_dimension']
+                    if val in valid_dims:
+                        df.at[idx, 'primary_dimension'] = val
+                        metadata_count += 1
+                        continue
+
+    # 2. Try Existing Column Rule (if not filled yet)
+    if has_existing_col:
+        # Re-check for nulls after metadata attempt
+        null_mask = df['primary_dimension'].isna()
+        if null_mask.any():
+            # Use existing values if they are valid, else mark for fallback
+            # (Logic: if we are here, the existing column had nulls or invalid data)
+            # We treat the existing column as a source, but if it's null, we fall back.
+            # The loop below handles the fallback for remaining nulls.
+            pass
+
+    # 3. Fallback Rule (Hash or Default)
+    # For remaining nulls, we use a deterministic hash of the prompt text
+    remaining_mask = df['primary_dimension'].isna()
+    if remaining_mask.any():
+        logger.info(f"Applying fallback rule for {remaining_mask.sum()} samples.")
+        
+        # Deterministic hash function mapping to dimensions
+        def hash_to_dimension(prompt_text: str) -> str:
+            if not isinstance(prompt_text, str) or not prompt_text:
+                return 'Alignment'
+            h = hashlib.md5(prompt_text.encode('utf-8')).hexdigest()
+            # Use first char of hash
+            val = int(h[0], 16) % 4
+            dims = ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
+            return dims[val]
+
+        df.loc[remaining_mask, 'primary_dimension'] = df.loc[remaining_mask, 'prompt'].apply(hash_to_dimension)
+        fallback_count = remaining_mask.sum()
+
+    # Ensure no nulls remain
+    if df['primary_dimension'].isna().any():
+        logger.warning("Some primary_dimension values are still null. Filling with default 'Alignment'.")
+        df['primary_dimension'] = df['primary_dimension'].fillna('Alignment')
+        fallback_count += df['primary_dimension'].isna().sum() # Should be 0 now
+
+    logger.info(f"Primary dimension assignment complete: Metadata={metadata_count}, Existing={column_count}, Fallback={fallback_count}")
+    
+    return df
+
+def print_summary(df: pd.DataFrame) -> None:
+    """Print summary statistics of the ingested and aligned data."""
+    logger.info("--- Ingestion Summary ---")
     logger.info(f"Total samples: {len(df)}")
     
     if 'excluded_reason' in df.columns:
         excluded = df[df['excluded_reason'].notna()]
         logger.info(f"Excluded samples: {len(excluded)}")
         if len(excluded) > 0:
-            reasons = excluded['excluded_reason'].value_counts()
-            for reason, count in reasons.items():
-                logger.info(f"  - {reason}: {count}")
+            logger.info(f"Exclusion reasons:\n{excluded['excluded_reason'].value_counts()}")
     
     if 'primary_dimension' in df.columns:
-        valid_dims = df['primary_dimension'].dropna()
-        logger.info(f"Samples with valid primary_dimension: {len(valid_dims)}")
-        if len(valid_dims) > 0:
-            dim_counts = valid_dims.value_counts()
-            logger.info("Dimension distribution:")
-            for dim, count in dim_counts.items():
-                logger.info(f"  - {dim}: {count}")
+        logger.info(f"Primary dimension distribution:\n{df['primary_dimension'].value_counts()}")
     
-    logger.info("==========================")
+    # Check for nulls in critical columns
+    for col in ['prompt', 'student_scalar', 'primary_dimension']:
+        if col in df.columns:
+            nulls = df[col].isna().sum()
+            if nulls > 0:
+                logger.warning(f"Column '{col}' has {nulls} null values.")
+            else:
+                logger.info(f"Column '{col}' has no null values.")
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Ingest and align Z-Reward dataset.")
     parser.add_argument(
-        "--use-mock-data", 
-        action="store_true", 
-        help="Use mock dataset for testing."
+        "--input",
+        type=str,
+        default="data/raw/z_reward.parquet",
+        help="Path to the input dataset file."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/processed/raw_data.parquet",
+        help="Path to the output processed dataset file."
+    )
+    parser.add_argument(
+        "--use-mock-data",
+        action="store_true",
+        help="Flag indicating if the input is mock data."
     )
     return parser.parse_args()
 
-def main():
-    logger = setup_logging()
+def main() -> None:
+    """Main entry point for the ingestion task."""
     args = parse_args()
+    project_root, data_processed = setup_directories()
     
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
+    # 1. Load and Align
     try:
-        processed_dir = setup_directories(logger)
-        
-        # T012 & T013 logic (loading and alignment)
-        # Assuming T012/T013 are conceptually done or part of this flow for now.
-        # We load the data.
-        df = load_and_align_data(logger, use_mock=args.use_mock_data)
-        
-        # T014: Identify primary quality dimension
-        df = identify_primary_quality_dimension(df, logger)
-        
-        # T016: Print summary
-        print_summary(df, logger)
-        
-        # Write output to data/processed/raw_data.parquet
-        output_file = processed_dir / "raw_data.parquet"
-        df.to_parquet(output_file, index=False)
-        logger.info(f"Saved aligned data to {output_file}")
-        
-        # Save summary stats to JSON if needed (T016 implies printing, but saving is good)
-        # We'll save a summary JSON
-        summary = {
-            "total_samples": len(df),
-            "excluded_count": len(df[df['excluded_reason'].notna()]) if 'excluded_reason' in df.columns else 0,
-            "valid_primary_dimension_count": len(df['primary_dimension'].dropna()) if 'primary_dimension' in df.columns else 0
-        }
-        summary_file = processed_dir / "ingestion_summary.json"
-        with open(summary_file, 'w') as f:
-            json.dump(summary, f, indent=2)
-        logger.info(f"Saved summary to {summary_file}")
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
+        df = load_and_align_data(input_path, use_mock=args.use_mock_data)
+    except FileNotFoundError as e:
+        logger.error(str(e))
         sys.exit(1)
+    except Exception as e:
+        logger.error(f"Error during loading/alignment: {e}")
+        sys.exit(1)
+
+    # 2. Identify Primary Dimension (T014)
+    try:
+        df = identify_primary_quality_dimension(df)
+    except Exception as e:
+        logger.error(f"Error during primary dimension identification: {e}")
+        sys.exit(1)
+
+    # 3. Save Output
+    try:
+        if output_path.suffix == '.parquet':
+            df.to_parquet(output_path, index=False)
+        else:
+            df.to_csv(output_path, index=False)
+        logger.info(f"Saved aligned data to {output_path}")
+    except Exception as e:
+        logger.error(f"Error saving output: {e}")
+        sys.exit(1)
+
+    # 4. Print Summary
+    print_summary(df)
+
+    # 5. Log specific T014 details to a JSON log if needed for traceability
+    # (Optional, but good practice for the "log entry for samples using fallback" requirement)
+    # We already logged the counts in identify_primary_quality_dimension.
 
 if __name__ == "__main__":
     main()

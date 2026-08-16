@@ -1,13 +1,3 @@
-"""
-Global Covariance Matrix and Dominant Eigenvalue Calculation.
-
-Computes the 4x4 covariance matrix of teacher scores across the entire
-aligned dataset (before filtering) and extracts the dominant eigenvalue.
-
-Outputs:
-    results/covariance_matrix.json: The 4x4 covariance matrix.
-    results/dominant_eigenvalue.json: The largest eigenvalue.
-"""
 import argparse
 import json
 import logging
@@ -22,134 +12,125 @@ def setup_logging():
     """Configure basic logging."""
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)],
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     return logging.getLogger(__name__)
 
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Compute global covariance matrix and dominant eigenvalue."
+        description="Compute global covariance matrix and dominant eigenvalue from filtered dataset."
     )
     parser.add_argument(
         "--input-path",
         type=str,
-        default="data/processed/raw_data.parquet",
-        help="Path to the raw aligned dataset (parquet).",
+        default="data/processed/cleaned_data.parquet",
+        help="Path to the filtered dataset (output of T024)."
     )
     parser.add_argument(
-        "--output-dir",
+        "--output-covariance",
         type=str,
-        default="results",
-        help="Directory to write output JSON files.",
+        default="results/covariance_matrix.json",
+        help="Path to save the covariance matrix JSON."
+    )
+    parser.add_argument(
+        "--output-eigenvalue",
+        type=str,
+        default="results/dominant_eigenvalue.json",
+        help="Path to save the dominant eigenvalue JSON."
     )
     return parser.parse_args()
 
-def calculate_global_covariance_and_eigenvalue(df: pd.DataFrame, logger: logging.Logger) -> tuple:
+def load_cleaned_data(input_path: str, logger: logging.Logger) -> pd.DataFrame:
+    """Load the filtered dataset from parquet."""
+    logger.info(f"Loading cleaned data from {input_path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    df = pd.read_parquet(input_path)
+    logger.info(f"Loaded {len(df)} rows")
+    return df
+
+def extract_teacher_scores_matrix(df: pd.DataFrame, logger: logging.Logger) -> np.ndarray:
     """
-    Extract the N x 4 matrix of teacher scores and compute covariance/eigenvalue.
-    
-    Args:
-        df: DataFrame containing teacher scores.
-        logger: Logger instance.
-        
-    Returns:
-        tuple: (covariance_matrix (np.array), dominant_eigenvalue (float))
-        
-    Raises:
-        RuntimeError: If N < 4 or columns are missing.
+    Extract the N x 4 matrix of teacher scores.
+    Expects columns: Alignment, Realism, Aesthetics, Plausibility.
     """
-    required_dims = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-    
-    # Check for missing columns
-    missing_cols = [col for col in required_dims if col not in df.columns]
+    required_cols = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+    missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
         raise RuntimeError(f"Missing required teacher score columns: {missing_cols}")
-    
-    # Extract the matrix
-    teacher_matrix = df[required_dims].to_numpy()
-    n_samples = teacher_matrix.shape[0]
-    
-    logger.info(f"Extracted teacher scores matrix: {n_samples} samples x 4 dimensions.")
-    
+
+    matrix = df[required_cols].to_numpy(dtype=np.float64)
+    logger.info(f"Extracted teacher scores matrix: {matrix.shape}")
+    return matrix
+
+def calculate_global_covariance_and_eigenvalue(matrix: np.ndarray, logger: logging.Logger):
+    """
+    Compute the 4x4 covariance matrix and the dominant (largest) eigenvalue.
+    Returns (cov_matrix, dominant_eigenvalue).
+    """
+    n_samples, n_dims = matrix.shape
     if n_samples < 4:
         raise RuntimeError(
-            f"Insufficient data points for covariance calculation. "
-            f"Need at least 4 samples, got {n_samples}."
+            f"Insufficient samples for covariance estimation: N={n_samples}. "
+            "Requires at least 4 samples to compute a 4x4 covariance matrix."
         )
-    
+
     # Compute covariance matrix (rowvar=False means columns are variables)
-    # numpy.cov returns a float64 array
-    cov_matrix = np.cov(teacher_matrix, rowvar=False)
-    
-    if cov_matrix.ndim != 2 or cov_matrix.shape != (4, 4):
-        raise RuntimeError(f"Unexpected covariance matrix shape: {cov_matrix.shape}")
-    
+    cov_matrix = np.cov(matrix, rowvar=False)
+    logger.info(f"Computed covariance matrix: {cov_matrix.shape}")
+
     # Compute eigenvalues
-    eigenvalues = np.linalg.eigvalsh(cov_matrix) # eigvalsh for symmetric matrices
-    
-    if len(eigenvalues) != 4:
-        raise RuntimeError(f"Unexpected number of eigenvalues: {len(eigenvalues)}")
-    
+    eigenvalues, _ = np.linalg.eigh(cov_matrix)
     dominant_eigenvalue = float(np.max(eigenvalues))
-    
-    logger.info(f"Covariance matrix computed successfully.")
-    logger.info(f"Dominant eigenvalue: {dominant_eigenvalue:.6f}")
-    
+    logger.info(f"Dominant eigenvalue: {dominant_eigenvalue}")
+
     return cov_matrix, dominant_eigenvalue
 
-def save_covariance_matrix(cov_matrix: np.ndarray, output_path: Path, logger: logging.Logger):
-    """Save covariance matrix to JSON."""
-    # Convert numpy array to list of lists for JSON serialization
-    matrix_list = cov_matrix.tolist()
-    
+def save_covariance_matrix(cov_matrix: np.ndarray, output_path: str, logger: logging.Logger):
+    """Save the covariance matrix to a JSON file."""
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    data = {
+        "shape": list(cov_matrix.shape),
+        "values": cov_matrix.tolist()
+    }
     with open(output_path, "w") as f:
-        json.dump(matrix_list, f, indent=2)
-    
+        json.dump(data, f, indent=2)
     logger.info(f"Covariance matrix saved to {output_path}")
 
-def save_dominant_eigenvalue(eigenvalue: float, output_path: Path, logger: logging.Logger):
-    """Save dominant eigenvalue to JSON."""
+def save_dominant_eigenvalue(eigenvalue: float, output_path: str, logger: logging.Logger):
+    """Save the dominant eigenvalue to a JSON file."""
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    data = {
+        "dominant_eigenvalue": eigenvalue
+    }
     with open(output_path, "w") as f:
-        json.dump({"dominant_eigenvalue": eigenvalue}, f, indent=2)
-    
+        json.dump(data, f, indent=2)
     logger.info(f"Dominant eigenvalue saved to {output_path}")
 
 def main():
-    """Main entry point."""
-    args = parse_args()
+    """Main entry point for T022b."""
     logger = setup_logging()
-    
-    input_path = Path(args.input_path)
-    output_dir = Path(args.output_dir)
-    
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"Input file not found: {input_path}. "
-            f"Please ensure T012 (ingest) has run successfully."
-        )
-    
-    logger.info(f"Loading data from {input_path}...")
-    try:
-        df = pd.read_parquet(input_path)
-    except Exception as e:
-        raise RuntimeError(f"Failed to load parquet file: {e}")
-    
-    logger.info(f"Loaded {len(df)} rows.")
-    
-    cov_matrix, dominant_eigenvalue = calculate_global_covariance_and_eigenvalue(df, logger)
-    
-    cov_output_path = output_dir / "covariance_matrix.json"
-    eigen_output_path = output_dir / "dominant_eigenvalue.json"
-    
-    save_covariance_matrix(cov_matrix, cov_output_path, logger)
-    save_dominant_eigenvalue(dominant_eigenvalue, eigen_output_path, logger)
-    
-    logger.info("Task T022b completed successfully.")
+    args = parse_args()
+
+    logger.info("Starting Global Covariance Matrix computation (T022b)")
+
+    # 1. Load filtered data
+    df = load_cleaned_data(args.input_path, logger)
+
+    # 2. Extract teacher scores
+    matrix = extract_teacher_scores_matrix(df, logger)
+
+    # 3. Compute covariance and eigenvalue
+    cov_matrix, dominant_eig = calculate_global_covariance_and_eigenvalue(matrix, logger)
+
+    # 4. Save outputs
+    save_covariance_matrix(cov_matrix, args.output_covariance, logger)
+    save_dominant_eigenvalue(dominant_eig, args.output_eigenvalue, logger)
+
+    logger.info("T022b completed successfully")
 
 if __name__ == "__main__":
     main()

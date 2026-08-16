@@ -10,58 +10,61 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def ensure_directory(path: Path) -> None:
+def ensure_directory(path: Path) -> bool:
     """
-    Ensure a directory exists, creating it if necessary.
+    Ensures that the specified directory exists.
+    Creates it if it does not exist.
     
     Args:
-        path: Path object representing the directory to create
+        path (Path): The directory path to ensure exists.
+        
+    Returns:
+        bool: True if the directory exists or was created successfully, False otherwise.
     """
     try:
         path.mkdir(parents=True, exist_ok=True)
         logger.info(f"Directory ensured: {path}")
-    except PermissionError:
-        logger.error(f"Permission denied when creating directory: {path}")
-        raise
-    except Exception as e:
-        logger.error(f"Error creating directory {path}: {e}")
-        raise
+        return True
+    except OSError as e:
+        logger.error(f"Failed to create directory {path}: {e}")
+        return False
 
-def main() -> int:
+def main():
     """
-    Main function to create project directories for llmXive follow-up project.
-    
-    Returns:
-        int: 0 on success, 1 on failure
+    Main function to create the required data directories for the project.
     """
-    # Define the project root relative to repository root
-    project_root = Path("projects/PROJ-967-llmxive-follow-up-extending-beyond-scala")
+    # Define the project root relative to this script's location or current working directory
+    # Assuming the script is run from the project root or the path is relative to cwd
+    project_root = Path.cwd()
     
-    # Define required directories
-    required_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "code",
-        project_root / "tests",
-        project_root / "results"
+    # Define the specific directories required by T001a
+    # Path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/
+    # Since the task asks for paths relative to the repository root, and we are likely
+    # in the repo root, we construct the full path.
+    base_path = project_root / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala"
+    
+    directories_to_create = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "results"
     ]
     
-    logger.info(f"Creating project directories under: {project_root}")
+    logger.info(f"Starting directory creation for project: {base_path}")
     
-    success = True
-    for dir_path in required_dirs:
-        try:
-            ensure_directory(dir_path)
-        except Exception as e:
-            logger.error(f"Failed to create directory {dir_path}: {e}")
-            success = False
+    all_success = True
+    for dir_path in directories_to_create:
+        if not ensure_directory(dir_path):
+            all_success = False
+            logger.warning(f"Skipping subsequent directories due to failure at {dir_path}")
+            # Depending on strictness, we might break here. 
+            # The task requires creating these specific dirs.
+            break
     
-    if success:
-        logger.info("All project directories created successfully.")
-        return 0
+    if all_success:
+        logger.info("All required directories created successfully.")
     else:
-        logger.error("Some directories failed to create.")
-        return 1
+        logger.error("Some directories failed to be created.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

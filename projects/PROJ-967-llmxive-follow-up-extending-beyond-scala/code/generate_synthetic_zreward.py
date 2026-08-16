@@ -1,153 +1,141 @@
-"""
-Synthetic dataset generator for pipeline verification (T037b).
-Generates a mock Z-Reward dataset with independent noise structures for
-teacher scores and human annotations to test pipeline robustness.
-"""
 import argparse
 import json
 import logging
 import os
 import sys
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
 def setup_logging():
-    """Setup logging configuration."""
-    return logger
+    """Configure logging for the script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.StreamHandler(sys.stdout)]
+    )
+    return logging.getLogger(__name__)
 
-def generate_synthetic_dataset(
-    n_samples: int = 1000,
-    seed: int = 42,
-    output_path: str = "data/raw/mock_z_reward.parquet"
-) -> pd.DataFrame:
+def generate_synthetic_dataset(n_samples=10000, seed=42, output_dir="data/raw"):
     """
     Generate a synthetic Z-Reward dataset for pipeline verification.
 
+    This dataset mimics the schema of the real Z-Reward dataset but uses
+    random noise. It is intended for unit testing and pipeline verification
+    ONLY.
+
     Args:
-        n_samples: Number of samples to generate.
-        seed: Random seed for reproducibility.
-        output_path: Path to save the output parquet file.
+        n_samples (int): Number of samples to generate.
+        seed (int): Random seed for reproducibility.
+        output_dir (str): Directory to save the output parquet file.
 
     Returns:
-        Generated DataFrame.
+        pd.DataFrame: The generated synthetic dataset.
     """
-    logger.info(f"Generating synthetic dataset with {n_samples} samples (seed={seed})")
+    logger = logging.getLogger(__name__)
+    logger.info(f"Generating synthetic dataset with {n_samples} samples (seed={seed})...")
 
-    # Set random seed for reproducibility
     np.random.seed(seed)
 
-    # Generate prompts (simple text templates)
-    prompts = [
-        f"Describe the image of a {category} in a {style} style."
-        for _ in range(n_samples)
-    ]
-    categories = ["mountain", "ocean", "city", "forest", "desert"]
-    styles = ["realistic", "impressionist", "abstract", "minimalist", "surreal"]
-    prompts = [
-        f"Describe the image of a {np.random.choice(categories)} in a {np.random.choice(styles)} style."
-        for _ in range(n_samples)
-    ]
+    # Generate prompts and image URLs (mock strings)
+    prompts = [f"Sample prompt {i} for dimension {np.random.choice(['Alignment', 'Realism', 'Aesthetics', 'Plausibility'])}" for i in range(n_samples)]
+    image_urls = [f"https://example.com/image_{i}.jpg" for i in range(n_samples)]
 
-    # Generate image URLs (mock URLs)
-    image_urls = [f"https://example.com/images/{i}.jpg" for i in range(n_samples)]
-
-    # Generate teacher_scores with independent noise (seed 42)
-    # Using a separate seed context to ensure independence from human annotations
-    teacher_rng = np.random.RandomState(42)
+    # Generate teacher scores: 4 dimensions, independent noise
+    # Using different seeds for teacher and human to ensure independence
+    np.random.seed(seed)
     teacher_scores = {
-        "Alignment": teacher_rng.normal(loc=5.0, scale=2.0, size=n_samples),
-        "Realism": teacher_rng.normal(loc=5.0, scale=2.0, size=n_samples),
-        "Aesthetics": teacher_rng.normal(loc=5.0, scale=2.0, size=n_samples),
-        "Plausibility": teacher_rng.normal(loc=5.0, scale=2.0, size=n_samples)
+        "Alignment": np.random.normal(loc=5, scale=2, size=n_samples),
+        "Realism": np.random.normal(loc=5, scale=2, size=n_samples),
+        "Aesthetics": np.random.normal(loc=5, scale=2, size=n_samples),
+        "Plausibility": np.random.normal(loc=5, scale=2, size=n_samples),
     }
 
-    # Generate human_annotations with independent noise (different seed: 123)
-    # This guarantees independent noise structures as required
-    human_rng = np.random.RandomState(123)
+    # Generate student scalar
+    student_scalar = np.random.normal(loc=5, scale=2, size=n_samples)
+
+    # Generate human annotations: 4 dimensions, independent noise (different seed)
+    np.random.seed(seed + 1000)  # Different seed for independence
     human_annotations = {
-        "Alignment": human_rng.normal(loc=5.0, scale=2.0, size=n_samples),
-        "Realism": human_rng.normal(loc=5.0, scale=2.0, size=n_samples),
-        "Aesthetics": human_rng.normal(loc=5.0, scale=2.0, size=n_samples),
-        "Plausibility": human_rng.normal(loc=5.0, scale=2.0, size=n_samples)
+        "Alignment": np.random.normal(loc=5, scale=2, size=n_samples),
+        "Realism": np.random.normal(loc=5, scale=2, size=n_samples),
+        "Aesthetics": np.random.normal(loc=5, scale=2, size=n_samples),
+        "Plausibility": np.random.normal(loc=5, scale=2, size=n_samples),
     }
 
-    # Generate student_scalar (independent of teacher and human)
-    student_scalar = np.random.normal(loc=5.0, scale=2.0, size=n_samples)
+    # Determine primary dimension (randomly selected for simplicity)
+    primary_dimensions = np.random.choice(["Alignment", "Realism", "Aesthetics", "Plausibility"], size=n_samples)
 
-    # Generate primary_dimension (randomly selected from the four dimensions)
-    dimensions = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-    primary_dimension = np.random.choice(dimensions, size=n_samples)
-
-    # Create DataFrame
+    # Construct DataFrame
     df = pd.DataFrame({
         "prompt": prompts,
         "image_url": image_urls,
+        "teacher_scores": [
+            {k: teacher_scores[k][i] for k in teacher_scores} for i in range(n_samples)
+        ],
         "student_scalar": student_scalar,
-        "primary_dimension": primary_dimension
+        "human_annotations": [
+            {k: human_annotations[k][i] for k in human_annotations} for i in range(n_samples)
+        ],
+        "primary_dimension": primary_dimensions,
     })
 
-    # Add teacher_scores as nested dictionaries (pandas supports this in object columns)
-    df["teacher_scores"] = [
-        {k: v[i] for k, v in teacher_scores.items()}
-        for i in range(n_samples)
-    ]
-
-    # Add human_annotations as nested dictionaries
-    df["human_annotations"] = [
-        {k: v[i] for k, v in human_annotations.items()}
-        for i in range(n_samples)
-    ]
-
     # Ensure output directory exists
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
 
     # Save to parquet
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Synthetic dataset saved to {output_path}")
+    output_file = output_path / "mock_z_reward.parquet"
+    df.to_parquet(output_file, index=False)
+    logger.info(f"Saved synthetic dataset to {output_file}")
+
+    # Save configuration flag
+    config_file = output_path / "config.json"
+    config = {
+        "IS_MOCK_DATA": True,
+        "n_samples": n_samples,
+        "seed": seed,
+        "generated_at": str(pd.Timestamp.now()),
+        "source": "synthetic_generator_T037b"
+    }
+    with open(config_file, "w") as f:
+        json.dump(config, f, indent=2)
+    logger.info(f"Saved config to {config_file}")
 
     return df
 
-def save_config(output_dir: str = "data/processed", is_mock: bool = True):
+def save_config(output_dir="data/raw", is_mock=True):
     """
-    Save configuration flag indicating mock data usage.
+    Save the configuration flag indicating this is mock data.
 
     Args:
-        output_dir: Directory to save the config file.
-        is_mock: Boolean flag indicating if data is mock.
+        output_dir (str): Directory to save the config file.
+        is_mock (bool): Flag indicating if data is mock.
     """
-    config_path = Path(output_dir) / "config.json"
-    config_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    config_file = output_path / "config.json"
 
-    config = {
-        "IS_MOCK_DATA": is_mock,
-        "generated_by": "T037b_synthetic_generator",
-        "note": "This dataset is for unit testing only. Final results must use real data."
-    }
+    # Load existing config if present to preserve other keys, then update
+    config = {}
+    if config_file.exists():
+        with open(config_file, "r") as f:
+            config = json.load(f)
 
-    with open(config_path, "w") as f:
+    config["IS_MOCK_DATA"] = is_mock
+    config["generated_by"] = "T037b"
+
+    with open(config_file, "w") as f:
         json.dump(config, f, indent=2)
 
-    logger.info(f"Configuration saved to {config_path}")
-
 def parse_args():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description="Generate synthetic Z-Reward dataset for pipeline verification."
-    )
+    parser = argparse.ArgumentParser(description="Generate synthetic Z-Reward dataset for pipeline verification.")
     parser.add_argument(
         "--n-samples",
         type=int,
-        default=1000,
-        help="Number of samples to generate (default: 1000)"
+        default=10000,
+        help="Number of samples to generate (default: 10000)"
     )
     parser.add_argument(
         "--seed",
@@ -156,41 +144,27 @@ def parse_args():
         help="Random seed for reproducibility (default: 42)"
     )
     parser.add_argument(
-        "--output",
+        "--output-dir",
         type=str,
-        default="data/raw/mock_z_reward.parquet",
-        help="Output path for the synthetic dataset (default: data/raw/mock_z_reward.parquet)"
-    )
-    parser.add_argument(
-        "--config-dir",
-        type=str,
-        default="data/processed",
-        help="Directory to save the config file (default: data/processed)"
+        default="data/raw",
+        help="Output directory for the synthetic dataset (default: data/raw)"
     )
     return parser.parse_args()
 
 def main():
-    """Main entry point."""
+    logger = setup_logging()
     args = parse_args()
-    setup_logging()
 
     try:
-        # Generate synthetic dataset
         df = generate_synthetic_dataset(
             n_samples=args.n_samples,
             seed=args.seed,
-            output_path=args.output
+            output_dir=args.output_dir
         )
-
-        # Save configuration flag
-        save_config(output_dir=args.config_dir, is_mock=True)
-
+        save_config(output_dir=args.output_dir, is_mock=True)
         logger.info("Synthetic dataset generation completed successfully.")
-        logger.info(f"Total samples: {len(df)}")
-        logger.info(f"Columns: {list(df.columns)}")
-
     except Exception as e:
-        logger.error(f"Failed to generate synthetic dataset: {e}")
+        logger.error(f"Failed to generate synthetic dataset: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

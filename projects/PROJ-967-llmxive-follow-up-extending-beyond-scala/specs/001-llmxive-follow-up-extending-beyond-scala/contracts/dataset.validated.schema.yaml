@@ -6,19 +6,13 @@ fields:
   type: string
 - name: teacher_scores
   type: object
-  properties:
-    Alignment: float
-    Realism: float
-    Aesthetics: float
-    Plausibility: float
 - name: student_scalar
   type: float
 - name: human_annotations
   type: object
-  properties:
-    Alignment: float
-    Realism: float
-    Aesthetics: float
-    Plausibility: float
 - name: primary_dimension
   type: string
+discovery_notes:
+  type_mismatches: []
+  total_fields: 6
+  validated: true

@@ -1,19 +1,38 @@
-T000:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file was presented at the path `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-entanglement-analysis/`,
-    nor any excerpt showing a "Verified datasets" section with the dataset ID `z-reward/z-reward-v1`
-    and a checksum placeholder. The required artifact is missing, so the task is not
-    satisfied.
-T024:
+  r: No directory listings or other evidence were provided showing that `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw`,
+    `.../data/processed`, and `.../results` actually exist; without such proof the
+    requirement is not satisfied.
+T003:
+  c: false
+  h: 759528c1bea74d45c72d0a37b42f9a428908b75a5321a99d1e3bd188829cb52a
+  r: The repository lacks the required `.ruff.toml` file, and `requirements.txt` contains
+    version ranges (`>=`) instead of the exact `==` pins mandated by the task. Both
+    artifacts must be present and use exact version pinning for the task to be considered
+    complete.
+T022a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, data files, or output artifacts were provided for any of the\
-    \ three user stories (dataset ingestion, entanglement quantification, or predictive\
-    \ modeling). Without an ingestion script, feature\u2011engineering module, or\
-    \ trained model/evaluation results, the claim that \u201Cdimensional fidelity\
-    \ loss\u201D calculation has been implemented cannot be verified. The required\
-    \ artifacts are missing."
+  r: "No code, data files, or output artifacts (e.g., dataset ingestion script, per\u2011\
+    sample entanglement JSON, covariance matrix/eigenvalue results, or predictive\
+    \ model training script) are present to verify that the required functionality\
+    \ was implemented. The claim cannot be confirmed without these concrete artifacts."
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No covariance matrix (or any related output file, script, or data) was provided;
+    the claim contains only a textual description of the requirement without the actual
+    computed matrix or code to generate it. The required artifact is missing, so the
+    task is not satisfied.
+T022c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts (e.g., dataset ingestion script, JSON\
+    \ feature records, Mahalanobis distance calculations, or model training results)\
+    \ were provided. The required implementations for loading the Z\u2011Reward dataset,\
+    \ computing per\u2011sample entanglement metrics, and producing the conditional\
+    \ Mahalanobis distance outputs are missing."
 T025a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -30,28 +49,6 @@ T027a:
     \ this file triggers a `ValueError`, so the training setup cannot actually run\
     \ on real data. A non\u2011empty features JSON with the expected fields is needed\
     \ for the task to be genuinely complete."
-T027c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only a high\u2011level feature specification and no\
-    \ code, script, or model file that actually implements \u201Csaving a placeholder\
-    \ model when training is skipped (e.g., N\u202F<\u202F30)\u201D. There is no artifact\
-    \ on disk showing the placeholder\u2011model logic, nor any test or documentation\
-    \ confirming the behavior, so the requirement is unmet."
-T027d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, or output artifacts (e.g., ingestion script, JSON feature
-    records, Random Forest training results) are present to demonstrate that the dataset
-    was loaded, entanglement features were computed, or the predictive model was trained
-    and validated. The claim lacks any tangible evidence, so the required deliverables
-    are missing.
-T030a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, script, data files, or results for the permutation test (or the related
-    ingestion, feature engineering, and modeling steps) were presented. Without any
-    tangible artifact, the claim cannot be verified as meeting the task requirements.
 T030c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -86,18 +83,11 @@ T036:
     quickstart.md was executed and its reproducibility checks passed was provided.
     Without such evidence, the claim that the quickstart validation was run cannot
     be verified.
-T037:
+T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No dataset files, ingestion script, or verification logs were provided; the\
-    \ claim that the Z\u2011Reward evaluation dataset has been downloaded and verified\
-    \ cannot be confirmed from any existing artifact. The required concrete evidence\
-    \ (e.g., dataset files in the repository and a script that loads them and reports\
-    \ sample counts/missing dimensions) is missing."
-T037b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No synthetic dataset files, scripts, or documentation are present; the implementer
-    provided only the task description and user stories without any actual data artifacts
-    or code to generate the required dataset. Consequently, the core requirement of
-    producing a synthetic dataset for pipeline verification is not met.
+  r: "No ingestion script, feature\u2011engineering module, or predictive\u2011modeling\
+    \ code/data were provided; the repository contains no files that load the Z\u2011\
+    Reward dataset, compute entanglement statistics, or train a Random Forest as required\
+    \ by the three user stories. The implementer\u2019s claim lacks any concrete artifacts\
+    \ to verify the required functionality."

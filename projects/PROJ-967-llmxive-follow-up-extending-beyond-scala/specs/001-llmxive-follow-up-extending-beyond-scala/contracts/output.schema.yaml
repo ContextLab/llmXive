@@ -1,42 +1,33 @@
 schema_version: "1.0"
-description: "Schema for the processed features output file (data/processed/features.json)"
-type: object
-required:
-  - sample_id
-  - variance
-  - entropy
-  - skewness
-  - kurtosis
-  - mahalanobis_distance
-  - fidelity_loss
-properties:
-  sample_id:
+description: "Schema for the final processed features dataset (data/processed/features.json)"
+fields:
+  - name: sample_id
     type: string
     description: "Unique identifier for the sample"
-  variance:
-    type: number
-    description: "Variance of the teacher scores across the 4 dimensions"
-  entropy:
-    type: number
-    description: "Shannon entropy of the normalized teacher scores"
-  skewness:
-    type: number
-    description: "Skewness of the teacher score distribution"
-  kurtosis:
-    type: number
-    description: "Kurtosis of the teacher score distribution"
-  mahalanobis_distance:
-    type: number
-    nullable: true
-    description: "Mahalanobis distance from the global mean using the global covariance matrix. Null if not computed (e.g., Ridge model selected)."
-  fidelity_loss:
-    type: number
-    description: "Absolute error (MAE) between student scalar and human annotation for the primary dimension"
-  primary_dimension:
+  - name: variance
+    type: float
+    description: "Per-sample variance of the 4-dimensional teacher score vector"
+  - name: entropy
+    type: float
+    description: "Per-sample Shannon entropy of the normalized teacher score vector"
+  - name: skewness
+    type: float
+    description: "Per-sample skewness of the teacher score distribution"
+  - name: kurtosis
+    type: float
+    description: "Per-sample kurtosis of the teacher score distribution"
+  - name: mahalanobis_distance
+    type: float
+    description: "Per-sample Mahalanobis distance from the global teacher score mean (computed only if model_type == 'rf')"
+  - name: fidelity_loss
+    type: float
+    description: "MAE between student_scalar and human annotation for the primary_dimension"
+  - name: primary_dimension
     type: string
-    nullable: true
-    description: "The identified primary quality dimension for this sample"
-  excluded_reason:
-    type: string
-    nullable: true
-    description: "Reason for exclusion if the sample was filtered out (e.g., 'missing_student_scalar')"
+    description: "The quality dimension used for fidelity loss calculation"
+  - name: feature_status
+    type: object
+    properties:
+      mahalanobis_computed:
+        type: boolean
+        description: "True if Mahalanobis distance was computed, False if skipped (e.g., Ridge model selected)"

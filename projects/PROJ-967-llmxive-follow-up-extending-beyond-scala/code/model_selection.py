@@ -1,11 +1,3 @@
-"""
-Model Selection Task (T027d)
-
-Reads the cleaned dataset, counts samples, and selects the model type
-based on dataset size thresholds. Writes the decision to a JSON file.
-
-Execution Order: MUST run before T027a (Training Split) and T022c (Mahalanobis).
-"""
 import argparse
 import json
 import logging
@@ -16,132 +8,103 @@ from pathlib import Path
 import pandas as pd
 
 def setup_logging():
-    """Configure logging for the script."""
     logging.basicConfig(
         level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
     return logging.getLogger(__name__)
 
-def load_cleaned_data(logger, input_path):
-    """
-    Load the cleaned dataset from the specified Parquet file.
+def load_cleaned_data(logger, path: str) -> pd.DataFrame:
+    """Load the cleaned dataset produced by T024."""
+    logger.info(f"Loading cleaned data from {path}")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Cleaned data file not found: {path}")
     
-    Args:
-        logger: Logger instance
-        input_path: Path to the cleaned_data.parquet file
-        
-    Returns:
-        pd.DataFrame: The loaded dataset
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist
-        ValueError: If the file cannot be read
-    """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Cleaned data file not found: {input_path}")
-    
-    logger.info(f"Loading cleaned data from {input_path}")
     try:
-        df = pd.read_parquet(input_path)
-        logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns")
+        df = pd.read_parquet(path)
+        logger.info(f"Loaded {len(df)} rows from {path}")
         return df
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
+        logger.error(f"Failed to load cleaned data: {e}")
         raise
 
-def select_model_type(df, logger):
+def select_model_type(df: pd.DataFrame, logger: logging.Logger) -> str:
     """
-    Determine the model type based on the number of samples.
+    Determine the model type based on the sample count N.
     
     Rules:
-    - N < 30: model_type = "synthetic" (pipeline stops)
-    - 30 <= N < 300: model_type = "ridge" (Ridge Regression)
-    - N >= 300: model_type = "rf" (Random Forest)
-    
-    Args:
-        df: The cleaned dataset
-        logger: Logger instance
-        
-    Returns:
-        str: The selected model type
+    - If N < 30: model_type = "fail"
+    - If 30 <= N < 300: model_type = "ridge"
+    - If N >= 300: model_type = "rf"
     """
     n = len(df)
-    logger.info(f"Dataset size: N = {n}")
+    logger.info(f"Dataset sample count (N): {n}")
     
     if n < 30:
-        model_type = "synthetic"
-        logger.warning(f"N < 30 ({n}). Setting model_type to 'synthetic'. Pipeline will stop after reporting.")
+        model_type = "fail"
+        reason = "Critical Power Limitation: N < 30"
+        logger.warning(f"Model selection failed: {reason}")
     elif n < 300:
         model_type = "ridge"
-        logger.info(f"30 <= N < 300 ({n}). Setting model_type to 'ridge'.")
+        logger.info(f"Selected Ridge Regression (30 <= N < 300)")
     else:
         model_type = "rf"
-        logger.info(f"N >= 300 ({n}). Setting model_type to 'rf'. Mahalanobis distance will be computed (T022c).")
-    
+        logger.info(f"Selected Random Forest (N >= 300)")
+        
     return model_type
 
-def save_selection(model_type, n_samples, output_path, logger):
-    """
-    Save the model selection decision to a JSON file.
-    
-    Args:
-        model_type: The selected model type string
-        n_samples: The number of samples in the dataset
-        output_path: Path to the output JSON file
-        logger: Logger instance
-    """
+def save_selection(logger, model_type: str, reason: str | None, output_path: str):
+    """Save the model selection result to a JSON file."""
     result = {
+        "status": "success" if model_type != "fail" else "fail",
         "model_type": model_type,
-        "sample_count": n_samples,
-        "thresholds": {
-            "min_ridge": 30,
-            "min_rf": 300
-        },
-        "status": "completed"
     }
-    
-    # Ensure output directory exists
+    if reason:
+        result["reason"] = reason
+        
+    logger.info(f"Saving model selection to {output_path}")
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
     with open(output_path, "w") as f:
         json.dump(result, f, indent=2)
     
-    logger.info(f"Model selection saved to {output_path}")
-    logger.info(f"Selected model: {model_type}")
+    logger.info(f"Model selection saved: {model_type}")
 
 def parse_args():
-    """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Model Selection Task (T027d)")
     parser.add_argument(
         "--input-path",
         type=str,
-        default="data/processed/cleaned_data.parquet",
-        help="Path to the cleaned data Parquet file"
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/cleaned_data.parquet",
+        help="Path to the cleaned data parquet file",
     )
     parser.add_argument(
         "--output-path",
         type=str,
-        default="data/processed/model_selection.json",
-        help="Path to save the model selection JSON"
+        default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/model_selection.json",
+        help="Path to save the model selection JSON",
     )
     return parser.parse_args()
 
 def main():
-    """Main entry point for the model selection task."""
     logger = setup_logging()
     args = parse_args()
     
     try:
-        # Load cleaned data
+        # Load the cleaned dataset
         df = load_cleaned_data(logger, args.input_path)
         
-        # Select model type
+        # Select model type based on N
         model_type = select_model_type(df, logger)
         
-        # Save result
-        save_selection(model_type, len(df), args.output_path, logger)
+        # Determine reason if failed
+        reason = None
+        if model_type == "fail":
+            reason = "Critical Power Limitation: N < 30"
+        
+        # Save the selection
+        save_selection(logger, model_type, reason, args.output_path)
         
         logger.info("Model selection task completed successfully.")
         
@@ -149,7 +112,7 @@ def main():
         logger.error(f"File not found: {e}")
         sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during model selection: {e}")
+        logger.error(f"Error during model selection: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

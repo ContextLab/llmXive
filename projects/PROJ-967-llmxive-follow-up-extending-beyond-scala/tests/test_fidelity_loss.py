@@ -1,137 +1,178 @@
-import pytest
-import pandas as pd
-import numpy as np
 import json
 import os
 import tempfile
 from pathlib import Path
 
-# Import the functions to test
+import numpy as np
+import pandas as pd
+import pytest
+
 from code.fidelity_loss import (
-    load_raw_data,
     calculate_fidelity_loss,
+    load_raw_data,
     save_cleaned_data,
-    save_summary
+    save_summary,
 )
 
+
 @pytest.fixture
-def sample_raw_data():
-    """Create a minimal mock dataset matching the expected schema."""
+def sample_data():
+    """Create a sample dataframe matching the expected schema."""
     data = {
-        'prompt': ['p1', 'p2', 'p3', 'p4', 'p5'],
-        'image_url': ['u1', 'u2', 'u3', 'u4', 'u5'],
-        'teacher_scores': [
-            {'Alignment': 5.0, 'Realism': 4.0, 'Aesthetics': 3.0, 'Plausibility': 4.5},
-            {'Alignment': 6.0, 'Realism': 5.0, 'Aesthetics': 4.0, 'Plausibility': 5.0},
-            {'Alignment': 7.0, 'Realism': 6.0, 'Aesthetics': 5.0, 'Plausibility': 6.0},
-            {'Alignment': 8.0, 'Realism': 7.0, 'Aesthetics': 6.0, 'Plausibility': 7.0},
-            {'Alignment': 9.0, 'Realism': 8.0, 'Aesthetics': 7.0, 'Plausibility': 8.0}
+        "prompt": ["prompt1", "prompt2", "prompt3", "prompt4", "prompt5"],
+        "image_url": ["url1", "url2", "url3", "url4", "url5"],
+        "teacher_scores": [
+            {"Alignment": 4.5, "Realism": 3.0, "Aesthetics": 4.0, "Plausibility": 3.5},
+            {"Alignment": 5.0, "Realism": 4.5, "Aesthetics": 4.5, "Plausibility": 4.0},
+            {"Alignment": 3.0, "Realism": 3.0, "Aesthetics": 3.0, "Plausibility": 3.0},
+            {"Alignment": 4.0, "Realism": 4.0, "Aesthetics": 4.0, "Plausibility": 4.0},
+            {"Alignment": 5.0, "Realism": 5.0, "Aesthetics": 5.0, "Plausibility": 5.0},
         ],
-        'student_scalar': [5.5, 6.5, 7.5, 8.5, 9.5],
-        'human_annotations': [
-            {'Alignment': 5.0, 'Realism': 4.0, 'Aesthetics': 3.0, 'Plausibility': 4.5},
-            {'Alignment': 6.0, 'Realism': 5.0, 'Aesthetics': 4.0, 'Plausibility': 5.0},
-            {'Alignment': 7.0, 'Realism': 6.0, 'Aesthetics': 5.0, 'Plausibility': 6.0},
-            {'Alignment': 8.0, 'Realism': 7.0, 'Aesthetics': 6.0, 'Plausibility': 7.0},
-            {'Alignment': 9.0, 'Realism': 8.0, 'Aesthetics': 7.0, 'Plausibility': 8.0}
+        "student_scalar": [4.0, 4.8, 2.5, 3.5, 5.2],
+        "human_annotations": [
+            {"Alignment": 4.2, "Realism": 3.2, "Aesthetics": 4.1, "Plausibility": 3.6},
+            {"Alignment": 5.1, "Realism": 4.4, "Aesthetics": 4.6, "Plausibility": 4.1},
+            {"Alignment": 2.8, "Realism": 3.1, "Aesthetics": 2.9, "Plausibility": 3.2},
+            {"Alignment": 4.0, "Realism": 4.0, "Aesthetics": 4.0, "Plausibility": 4.0},
+            {"Alignment": 5.0, "Realism": 5.0, "Aesthetics": 5.0, "Plausibility": 5.0},
         ],
-        'primary_dimension': ['Alignment', 'Realism', None, 'Aesthetics', 'Plausibility'],
-        'excluded_reason': [None, None, 'missing_primary_dimension', None, None]
+        "primary_dimension": ["Alignment", "Alignment", "Realism", "Aesthetics", "Plausibility"],
+        "excluded_reason": [None, None, None, None, None],
     }
     return pd.DataFrame(data)
 
-def test_calculate_fidelity_loss_valid_samples(sample_raw_data):
-    """Test that valid samples are processed correctly and loss is calculated."""
-    df, summary = calculate_fidelity_loss(sample_raw_data)
+
+@pytest.fixture
+def sample_data_with_missing():
+    """Create sample data with missing values to test exclusion logic."""
+    data = {
+        "prompt": ["p1", "p2", "p3", "p4", "p5", "p6"],
+        "image_url": ["u1", "u2", "u3", "u4", "u5", "u6"],
+        "teacher_scores": [
+            {"Alignment": 4.0, "Realism": 3.0, "Aesthetics": 4.0, "Plausibility": 3.5},
+            {"Alignment": 5.0, "Realism": 4.5, "Aesthetics": 4.5, "Plausibility": 4.0},
+            {"Alignment": 3.0, "Realism": 3.0, "Aesthetics": 3.0, "Plausibility": 3.0},
+            {"Alignment": 4.0, "Realism": 4.0, "Aesthetics": 4.0, "Plausibility": 4.0},
+            {"Alignment": 5.0, "Realism": 5.0, "Aesthetics": 5.0, "Plausibility": 5.0},
+            {"Alignment": 4.0, "Realism": 4.0, "Aesthetics": 4.0, "Plausibility": 4.0},
+        ],
+        "student_scalar": [4.0, None, 2.5, 3.5, 5.2, 4.0],  # Missing student_scalar at index 1
+        "human_annotations": [
+            {"Alignment": 4.2, "Realism": 3.2, "Aesthetics": 4.1, "Plausibility": 3.6},
+            {"Alignment": 5.1, "Realism": 4.4, "Aesthetics": 4.6, "Plausibility": 4.1},
+            {"Alignment": 2.8, "Realism": 3.1, "Aesthetics": 2.9, "Plausibility": 3.2},
+            None,  # Missing human_annotations at index 3
+            {"Alignment": 5.0, "Realism": 5.0, "Aesthetics": 5.0, "Plausibility": 5.0},
+            {"Alignment": 4.0, "Realism": 4.0, "Aesthetics": 4.0, "Plausibility": 4.0},
+        ],
+        "primary_dimension": ["Alignment", "Alignment", "Realism", "Aesthetics", "Plausibility", "InvalidDim"],
+        "excluded_reason": [None, None, None, None, None, None],
+    }
+    return pd.DataFrame(data)
+
+
+@pytest.fixture
+def mock_logger():
+    """Create a mock logger for testing."""
+    import logging
+    logger = logging.getLogger("test_logger")
+    logger.setLevel(logging.INFO)
+    return logger
+
+
+def test_calculate_fidelity_loss_valid(sample_data, mock_logger):
+    """Test fidelity loss calculation on valid data."""
+    df, excluded = calculate_fidelity_loss(sample_data, mock_logger)
     
-    # Check count
-    assert summary['count'] == 4  # Row 2 (index 2) has None primary_dimension
-    assert summary['excluded_count'] == 1
-    
-    # Check that 'fidelity_loss' column exists in result
+    # Check that fidelity_loss column exists
     assert 'fidelity_loss' in df.columns
     
-    # Check specific loss values (absolute difference)
-    # Row 0: |5.5 - 5.0| = 0.5
-    # Row 1: |6.5 - 6.0| = 0.5
-    # Row 3: |8.5 - 6.0| = 2.5 (Aesthetics: student 8.5, human 6.0) -> Wait, primary is Aesthetics for row 3
-    # Row 3: primary='Aesthetics', student=8.5, human=Aesthetics=6.0 -> |8.5 - 6.0| = 2.5
-    # Row 4: primary='Plausibility', student=9.5, human=Plausibility=8.0 -> |9.5 - 8.0| = 1.5
+    # Check that no samples were excluded
+    assert len(excluded) == 0
     
-    losses = sorted(df['fidelity_loss'].tolist())
-    # Expected: 0.5, 0.5, 2.5, 1.5 -> sorted: 0.5, 0.5, 1.5, 2.5
-    expected_losses = [0.5, 0.5, 1.5, 2.5]
-    
-    assert len(losses) == 4
-    for i in range(4):
-        assert abs(losses[i] - expected_losses[i]) < 1e-6
+    # Check calculated values (MAE = |student - human|)
+    # Index 0: |4.0 - 4.2| = 0.2
+    assert abs(df.iloc[0]['fidelity_loss'] - 0.2) < 1e-6
+    # Index 1: |4.8 - 5.1| = 0.3
+    assert abs(df.iloc[1]['fidelity_loss'] - 0.3) < 1e-6
+    # Index 2: |2.5 - 2.8| = 0.3 (Realism dimension)
+    assert abs(df.iloc[2]['fidelity_loss'] - 0.3) < 1e-6
 
-def test_calculate_fidelity_loss_missing_primary_dimension(sample_raw_data):
-    """Test that samples with missing primary_dimension are excluded."""
-    df, summary = calculate_fidelity_loss(sample_raw_data)
-    
-    # Verify excluded reason is recorded
-    assert 'missing_primary_dimension' in summary['excluded_reasons']
-    
-    # Verify count matches expectation
-    assert summary['count'] == 4
 
-def test_calculate_fidelity_loss_missing_student_scalar():
-    """Test behavior when student_scalar is missing."""
-    data = {
-        'prompt': ['p1'],
-        'image_url': ['u1'],
-        'teacher_scores': [{'Alignment': 5.0}],
-        'student_scalar': [np.nan],
-        'human_annotations': [{'Alignment': 5.0}],
-        'primary_dimension': ['Alignment']
-    }
-    df = pd.DataFrame(data)
+def test_calculate_fidelity_loss_missing_values(sample_data_with_missing, mock_logger):
+    """Test fidelity loss calculation with missing values."""
+    df, excluded = calculate_fidelity_loss(sample_data_with_missing, mock_logger)
     
-    _, summary = calculate_fidelity_loss(df)
+    # Check that fidelity_loss column exists
+    assert 'fidelity_loss' in df.columns
     
-    assert summary['count'] == 0
-    assert summary['excluded_count'] == 1
-    assert 'missing_student_scalar' in summary['excluded_reasons']
+    # Check exclusion counts
+    assert len(excluded) == 3  # Missing student_scalar, missing human_annotations, invalid dimension
+    
+    # Check exclusion reasons
+    reasons = [exc['reason'] for exc in excluded]
+    assert 'missing_student_scalar' in reasons
+    assert 'missing_human_annotations' in reasons
+    assert 'invalid_primary_dimension' in reasons
+    
+    # Check that valid samples have fidelity_loss
+    valid_indices = [0, 4, 5]  # These should be valid
+    for idx in valid_indices:
+        assert pd.notna(df.iloc[idx]['fidelity_loss'])
 
-def test_calculate_fidelity_loss_missing_human_annotation():
-    """Test behavior when human annotation for primary dimension is missing."""
-    data = {
-        'prompt': ['p1'],
-        'image_url': ['u1'],
-        'teacher_scores': [{'Alignment': 5.0}],
-        'student_scalar': [5.0],
-        'human_annotations': [{'Realism': 4.0}], # Missing Alignment
-        'primary_dimension': ['Alignment']
-    }
-    df = pd.DataFrame(data)
-    
-    _, summary = calculate_fidelity_loss(df)
-    
-    assert summary['count'] == 0
-    assert summary['excluded_count'] == 1
-    assert any('missing_human_annotation_Alignment' in r for r in summary['excluded_reasons'])
 
-def test_save_cleaned_data(tmp_path):
-    """Test saving the cleaned dataframe."""
-    df = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
-    output_path = tmp_path / "test_output.parquet"
+def test_save_cleaned_data(sample_data, mock_logger):
+    """Test saving cleaned data to parquet."""
+    df, _ = calculate_fidelity_loss(sample_data, mock_logger)
     
-    save_cleaned_data(df, str(output_path))
-    
-    assert output_path.exists()
-    loaded = pd.read_parquet(output_path)
-    assert len(loaded) == 2
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / "test_cleaned.parquet"
+        save_cleaned_data(df, output_path, mock_logger)
+        
+        assert output_path.exists()
+        
+        # Verify we can load it back
+        loaded_df = pd.read_parquet(output_path)
+        assert len(loaded_df) == len(df)
+        assert 'fidelity_loss' in loaded_df.columns
 
-def test_save_summary(tmp_path):
-    """Test saving summary JSON."""
-    summary = {"mean": 1.5, "count": 10, "excluded_count": 2}
-    output_path = tmp_path / "test_summary.json"
+
+def test_save_summary(sample_data, mock_logger):
+    """Test saving summary statistics."""
+    df, excluded = calculate_fidelity_loss(sample_data, mock_logger)
     
-    save_summary(summary, str(output_path))
-    
-    assert output_path.exists()
-    with open(output_path, 'r') as f:
-        loaded = json.load(f)
-    assert loaded['mean'] == 1.5
-    assert loaded['count'] == 10
+    with tempfile.TemporaryDirectory() as tmpdir:
+        summary_path = Path(tmpdir) / "test_summary.json"
+        save_summary(excluded, df, summary_path, mock_logger)
+        
+        assert summary_path.exists()
+        
+        with open(summary_path, 'r') as f:
+            summary = json.load(f)
+        
+        assert 'mean' in summary
+        assert 'median' in summary
+        assert 'count' in summary
+        assert 'excluded_count' in summary
+        assert summary['count'] == 5
+        assert summary['excluded_count'] == 0
+
+
+def test_load_raw_data_missing_file(mock_logger):
+    """Test loading data from a non-existent file."""
+    with pytest.raises(FileNotFoundError):
+        load_raw_data(mock_logger, Path("non_existent_file.parquet"))
+
+
+def test_load_raw_data_missing_columns(mock_logger):
+    """Test loading data with missing required columns."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create a parquet with missing columns
+        df = pd.DataFrame({"only_one_column": [1, 2, 3]})
+        temp_path = Path(tmpdir) / "bad_data.parquet"
+        df.to_parquet(temp_path)
+        
+        with pytest.raises(ValueError) as exc_info:
+            load_raw_data(mock_logger, temp_path)
+        
+        assert "Missing required columns" in str(exc_info.value)
