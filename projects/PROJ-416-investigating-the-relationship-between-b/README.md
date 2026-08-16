@@ -1,10 +1,8 @@
-# llmXive Research Pipeline: Investigating the Relationship Between Brain Network Dynamics and VR Therapy Response
+# PROJ-416: Investigating the Relationship Between Brain Network Dynamics and VR Therapy Response
 
-## Project Overview
-This project implements an automated scientific pipeline to investigate the relationship between brain network dynamics (functional connectivity, modularity, efficiency) and response to VR-based therapy for anxiety disorders. The pipeline processes resting-state fMRI data, computes network metrics, and performs statistical analysis to identify associations.
+This project implements an automated science pipeline to analyze the relationship between functional brain network metrics (modularity, efficiency) and clinical outcomes in Virtual Reality (VR) therapy for anxiety.
 
-## Quickstart
-See `docs/quickstart.md` for detailed execution instructions.
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -12,47 +10,83 @@ pip install -r requirements.txt
 
 # Run the full pipeline (N=10 subset for CI)
 python code/main.py --stage download
-python code/main.py --stage validate
 python code/main.py --stage preprocess
 python code/main.py --stage compute
 python code/main.py --stage analyze
 python code/main.py --stage report
 ```
 
+See `docs/quickstart.md` for detailed instructions and troubleshooting.
+
+## Project Structure
+
+- `code/`: Source code for the pipeline
+ - `data/`: Download, validation, and preprocessing scripts
+ - `analysis/`: Network metric computation and statistical analysis
+ - `utils/`: Logging and configuration utilities
+- `data/`: Input and output data
+ - `raw/`: Original downloaded datasets
+ - `processed/`: Preprocessed NIfTI files
+ - `metrics/`: QC metrics, network metrics, and statistical results
+- `reports/`: Final analysis reports and visualizations
+- `tests/`: Unit and integration tests
+- `docs/`: Documentation
+
 ## Known Limitations
 
-### 1. Underpowered Hypothesis Testing (SC-004)
-The pipeline includes a mandatory power analysis (Task T031) using `statsmodels.stats.power.FTestPower`.
-- **HALT Condition**: If the number of subjects (N) is less than 5, the pipeline halts immediately with the error: "Insufficient Power: N < 5".
-- **Exploratory Mode**: If 5 ≤ N < `min_N_required` (calculated for power=0.8, alpha=0.05, effect_size=0.15), the pipeline does not halt but flags a warning: "WARNING: Underpowered for hypothesis testing (Power < 0.8)". In this mode, the analysis switches to **Exploratory Mode**, reporting effect sizes and confidence intervals but **without claiming statistical significance** via p-values.
-- **Minimum N**: The calculated `min_N_required` is saved to `data/metrics/power_analysis.json` and explicitly referenced in `reports/results.md`. Users should verify this value against their actual sample size before interpreting results.
+This section documents critical methodological constraints and known limitations of the analysis pipeline, as mandated by the project specification (SC-004, FR-008).
+
+### 1. Power Analysis and "Underpowered" Warning (SC-004)
+
+The pipeline performs a formal power analysis using `statsmodels.stats.power.FTestPower` with a fixed effect size of `f2=0.15` (Cohen's medium).
+- **HALT Condition**: If the number of included subjects (N) is less than 5, the pipeline halts immediately with the error: `"Insufficient Power: N < 5"`.
+- **Underpowered Warning**: If 5 ≤ N < `min_N_required` (calculated for 80% power at α=0.05), the pipeline proceeds but flags the results as **"Exploratory Mode"**. In this mode:
+ - Effect sizes are reported.
+ - **No p-value claims** are made for hypothesis testing.
+ - The report explicitly states: `"WARNING: Underpowered for hypothesis testing (Power < 0.8)"`.
+- Users should interpret findings from small samples (N < 20) with caution, acknowledging the reduced statistical power.
 
 ### 2. Associational Framing Constraint (FR-008, SC-005)
-The final report (`reports/results.md`) strictly enforces an "Associational" framing unless the input metadata explicitly confirms a randomized design.
-- **Logic**: The pipeline checks `metadata.study_design` for the string 'randomized' OR `metadata.randomized` for the boolean `true`.
-- **Default Behavior**: If these fields are missing, null, or do not match the criteria above, the report **must** state: "Findings are framed as ASSOCIATIONAL."
-- **Implication**: Even if a positive association is found, the results cannot be interpreted as causal evidence of VR therapy efficacy without verified randomized controlled trial metadata. This constraint prevents over-interpretation of observational data.
 
-### 3. Data Availability
-The pipeline relies on a verified public dataset containing paired pre/post fMRI scans and validated anxiety scores (GAD-7, HAM-A). If no such dataset is found during the multi-source aggregation phase (T001a), the pipeline halts with a fatal error: "BLOCKED: No verified dataset source found after multi-source aggregation. Project cannot proceed."
+The pipeline strictly adheres to an associational framing unless the dataset is explicitly randomized.
+- **Logic**: The final report checks `metadata.study_design` (string 'randomized') and `metadata.randomized` (boolean true).
+- **Default Behavior**: If neither field exists, or if the values do not explicitly confirm randomization, the report **defaults to ASSOCIATIONAL framing**.
+- **Output**: The `reports/results.md` will contain the explicit statement: `"Findings are framed as ASSOCIATIONAL"`.
+- **Implication**: Causal claims (e.g., "VR therapy causes changes in network X") are **not** supported by this analysis unless the input metadata confirms a randomized controlled trial design.
 
-### 4. Computational Constraints
-The pipeline is optimized for CPU execution (2 cores, 7GB RAM) and is designed to process a subset of N=10 subjects within 6 hours. Large-scale processing requires scaling up resources or adjusting the subset size in `code/config.py`.
+### 3. Collinearity Handling (FR-005, FR-012)
 
-### 5. Collinearity Handling
-If Variance Inflation Factor (VIF) > 5 is detected among network metrics, the pipeline automatically switches to Principal Component Analysis (PCA) to resolve collinearity. If PCA fails to reduce the dimensionality effectively (fewer than 2 components explaining >90% variance), the pipeline halts with "Collinearity Unresolvable". Ridge regression is explicitly forbidden per FR-005.
+- **Primary Path**: Univariate OLS regression is the primary analysis path.
+- **Collinearity Threshold**: If Variance Inflation Factor (VIF) > 5, the pipeline attempts to compute Principal Components (PCA) for visualization only.
+- **HALT Condition**: If PCA fails or fewer than 2 components explain >90% variance, the pipeline halts with `"Collinearity Unresolvable"`.
+- **Exploratory Mode**: If PCA succeeds but <90% variance is explained, the pipeline switches to "Exploratory Mode" (visualization only, no primary model replacement).
+- **Constraint**: PCA components are **never** used to replace the primary univariate predictors in the main ANCOVA model.
 
-## Directory Structure
-- `code/`: Source code for the pipeline
-- `data/raw/`: Downloaded raw data
-- `data/processed/`: Preprocessed NIfTI files
-- `data/metrics/`: QC metrics, network metrics, and statistical results
-- `reports/`: Final analysis reports and sensitivity analysis
-- `logs/`: Execution logs
-- `tests/`: Unit and integration tests
+### 4. Data Availability and "Data Unavailable" Halt
+
+The pipeline enforces a strict "Real Data Only" policy.
+- **Multi-Source Aggregation**: The pipeline attempts to verify a longitudinal VR therapy dataset across OpenNeuro, HCP, and secondary repositories.
+- **Halt Condition**: If no dataset meeting the criteria (pre/post fMRI + clinical scores + validated anxiety instrument) is found, the pipeline halts immediately with: `"Data Unavailable: No longitudinal dataset found"`.
+- **No Synthetic Fallback**: The pipeline does **not** generate synthetic data or fall back to placeholder datasets. A failure to find real data is a terminal error.
+
+### 5. Sensitivity Analysis Scope
+
+The sensitivity analysis (T032, T044) sweeps:
+- Motion thresholds: {2.0, 3.0} mm
+- P-values: {0.01, 0.05, 0.1}
+- Outcome definitions: {Change Score, Residual, Raw Post}
+
+Results are summarized in `reports/sensitivity_analysis.md`. Variations in significance counts and effect sizes across these thresholds should be interpreted as the stability of the findings.
 
 ## Dependencies
-See `requirements.txt` for the full list of dependencies, including `nilearn`, `networkx`, `bctpy`, `statsmodels`, and `scikit-learn`.
+
+- Python >= 3.10
+- See `requirements.txt` for the full list of dependencies (including `nilearn`, `networkx`, `bctpy`, `statsmodels`, `pandas`, `numpy`, `scikit-learn`).
+
+## Contributing
+
+See `docs/CONTRIBUTING.md` for guidelines on adding data sources, extending sensitivity analysis, and updating the anxiety instrument whitelist.
 
 ## License
-[Insert License Here]
+
+[Project License]

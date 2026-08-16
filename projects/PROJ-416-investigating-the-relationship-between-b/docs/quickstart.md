@@ -1,117 +1,203 @@
-# Quickstart Guide: Brain Network Dynamics and VR Therapy Response
+# Quickstart Guide
 
-This guide explains how to run the full analysis pipeline on a subset of N=10 subjects,
-ensuring the process completes within the CI constraints (2 CPU cores, 7GB RAM, 14GB disk, 6h).
+This guide walks you through setting up and running the Brain Network Dynamics and VR Therapy Response analysis pipeline.
 
 ## Prerequisites
 
 - Python 3.10+
-- Git
-- A verified OpenNeuro dataset ID (e.g., `ds004151` or similar as configured in `.env`)
+- pip (Python package manager)
+- 2 CPU cores, 7GB RAM, 14GB disk
+- Internet connection (for initial data download)
 
-## 1. Setup Environment
+## Installation
 
-Clone the repository and install dependencies:
+1. Clone the repository and navigate to the project directory:
+ ```bash
+ git clone <repository-url>
+ cd PROJ-416-investigating-the-relationship-between-b
+ ```
 
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+3. Configure environment variables (optional, for custom paths):
+ ```bash
+ cp.env.example.env
+ # Edit.env with your configuration
+ ```
+
+## Running the Pipeline
+
+The pipeline consists of several stages that must be run in order:
+
+1. **Verify Source**: Ensure the data source is valid
+ ```bash
+ python code/scripts/verify_gate.py
+ ```
+
+2. **Download**: Fetch data from OpenNeuro
+ ```bash
+ python code/main.py --stage download
+ ```
+
+3. **Validate**: Check data integrity and required variables
+ ```bash
+ python code/main.py --stage validate
+ ```
+
+4. **Preprocess**: Apply motion correction, slice timing, normalization
+ ```bash
+ python code/main.py --stage preprocess
+ ```
+
+5. **Compute Metrics**: Calculate network properties
+ ```bash
+ python code/main.py --stage compute
+ ```
+
+6. **Analyze**: Perform statistical analysis
+ ```bash
+ python code/main.py --stage analyze
+ ```
+
+7. **Generate Report**: Create final results report
+ ```bash
+ python code/main.py --stage report
+ ```
+
+8. **Full Validation**: Run end-to-end validation
+ ```bash
+ python code/scripts/run_quickstart_validation.py
+ ```
+
+## Troubleshooting
+
+### Data Unavailable Halt
+
+**Symptom**: Pipeline exits with "Data Unavailable: No longitudinal dataset found"
+
+**Cause**: The multi-source data aggregation (T001a) failed to find a dataset with:
+- Resting-state fMRI (NIfTI)
+- Paired pre/post clinical scores
+- Validated anxiety instrument (GAD-7, HAM-A, BAI)
+
+**Resolution**:
+1. Check `data/verified_sources.json` to see which sources were checked
+2. Verify the OpenNeuro ID is correct and the dataset exists
+3. Ensure the dataset contains the required variables (pre/post scores, anxiety instrument)
+4. If no suitable dataset exists, the pipeline must halt - do not proceed with non-VR data
+
+### Checking Verified Source File
+
+**Symptom**: "Missing verified dataset source" or "FatalError" during download
+
+**How to verify**:
 ```bash
-git clone <repository-url>
-cd llmXive-PROJ-416
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+cat data/verified_sources.json
 ```
 
-## 2. Configuration
-
-Create a `.env` file in the project root with the following variables:
-
-```env
-# OpenNeuro Dataset ID (Must be a real, accessible dataset)
-OPENNEURO_ID=ds004151
-
-# Paths (Defaults to project structure)
-DATA_RAW_DIR=data/raw
-DATA_PROCESSED_DIR=data/processed
-DATA_METRICS_DIR=data/metrics
-LOGS_DIR=logs
-
-# Execution constraints
-MAX_SUBJECTS=10
-MOTION_THRESHOLD_MM=3.0
-MOTION_THRESHOLD_DEG=3.0
-RANDOM_SEED=42
+**Expected schema**:
+```json
+{
+ "source_name": "OpenNeuro",
+ "dataset_id": "ds00XXXX",
+ "verified_date": "YYYY-MM-DD",
+ "notes": "Dataset contains resting-state fMRI and GAD-7 scores",
+ "has_pre_post": true,
+ "has_clinical_scores": true
+}
 ```
 
-> **Note**: If `OPENNEURO_ID` is missing or invalid, the pipeline will halt immediately with a fatal error as per FR-011.
+**Actions**:
+- If file is missing: Run T001a (multi-source aggregation) to populate it
+- If file is corrupted: Delete and re-run the aggregation script
+- If `dataset_id` is invalid: Check OpenNeuro for the correct ID
 
-## 3. Execution
+### Manual Verification of "Verified Source" Gate
 
-Run the main pipeline script. This will:
-1. Validate the dataset source.
-2. Download the necessary data (subject subset).
-3. Validate metadata (pre/post scores, anxiety scales).
-4. Preprocess fMRI data (motion correction, slice timing, normalization).
-5. Compute network metrics (Modularity, Global/Local Efficiency).
-6. Perform statistical analysis (ANCOVA, FDR correction).
-7. Generate the final report.
+**Purpose**: Ensure the gate correctly blocks invalid data sources
 
+**Steps**:
+1. Temporarily rename `data/verified_sources.json`:
+ ```bash
+ mv data/verified_sources.json data/verified_sources.json.bak
+ ```
+
+2. Attempt to run download stage:
+ ```bash
+ python code/main.py --stage download
+ ```
+
+3. Expected result: Pipeline exits with code 1 and message "Missing verified dataset source"
+
+4. Restore the file:
+ ```bash
+ mv data/verified_sources.json.bak data/verified_sources.json
+ ```
+
+5. Check logs for confirmation:
+ ```bash
+ grep "Verified Source Gate Active" logs/validation.log
+ ```
+
+### Underpowered Warning
+
+**Symptom**: "WARNING: Underpowered for hypothesis testing (Power < 0.8)" in reports
+
+**Cause**: Sample size (N) is below the minimum required for 80% power at effect size f²=0.15
+
+**Resolution**:
+1. Check `data/metrics/power_analysis.json` for the exact `min_N_required` value
+2. If N < 5: Pipeline will HALT with "Insufficient Power: N < 5"
+3. If 5 ≤ N < min_N_required: Results are in "Exploratory Mode" (effect sizes only, no p-value claims)
+4. To resolve: Collect more subjects or adjust effect size expectations
+
+**Note**: This is a methodological constraint, not a bug. The pipeline correctly identifies and reports power limitations.
+
+### Module Import Errors
+
+**Symptom**: `ModuleNotFoundError: No module named 'dotenv'` or similar
+
+**Resolution**:
 ```bash
-python code/main.py
+pip install python-dotenv
+pip install -r requirements.txt # Ensure all dependencies are installed
 ```
 
-### Running a Subset (N=10)
+### Missing Output Files
 
-The pipeline is configured via `MAX_SUBJECTS=10` in `.env` to ensure it fits within the
-CI resource limits. The `code/config.py` module enforces this limit during the download
-and preprocessing stages.
+**Symptom**: Declared deliverables (e.g., `data/metrics/statistical_results.csv`) are absent
 
-## 4. Expected Outputs
+**Resolution**:
+1. Check if previous stages completed successfully
+2. Review logs for errors: `tail -f logs/pipeline.log`
+3. Ensure the script that produces the file is invoked (check `quickstart.md` run-book)
+4. For `statistical_results.csv`: Run `python code/analysis/save_stats_results.py`
 
-Upon successful completion, the following artifacts will be generated:
+### Motion Exclusion
 
-- **Preprocessed Data**: `data/processed/` (NIfTI files for N=10 subjects)
-- **Network Metrics**: `data/metrics/network_metrics.csv`
-- **Statistical Results**: `data/metrics/statistical_results.csv`
-- **Subject Info**: `data/metrics/subject_info.json` (includes exclusion reasons)
-- **Plots**: `figures/` (Scatter plots, residual diagnostics)
-- **Final Report**: `reports/results.md`
+**Symptom**: Many subjects excluded due to motion (>3mm translation or >3° rotation)
 
-## 5. Troubleshooting
+**Resolution**:
+1. Check `data/metrics/qc_metrics.csv` for exclusion reasons
+2. Review preprocessing parameters in `code/data/preprocess.py`
+3. Consider if motion thresholds are appropriate for your dataset
+4. Log is in `logs/preprocessing.log`
 
-### "Missing verified dataset source"
-- Ensure `OPENNEURO_ID` is set in `.env` and points to a real OpenNeuro dataset.
-- The pipeline will not proceed with synthetic data.
+## Output Files
 
-### "Motion threshold exceeded"
-- Subjects with Framewise Displacement (FD) > 3.0mm or rotation > 3.0° are automatically
- excluded. Check `logs/preprocessing.log` for the list of excluded subjects.
+Key outputs are stored in:
 
-### "Power analysis: N < 5"
-- If the number of valid subjects after exclusion is less than 5, the pipeline will halt
- with a fatal error as per SC-004.
+- `data/processed/`: Preprocessed NIfTI files
+- `data/metrics/`: QC metrics, network metrics, statistical results
+- `reports/`: Final analysis report, sensitivity analysis
+- `logs/`: Pipeline execution logs
 
-### "Ridge regression rejected"
-- The pipeline uses Univariate models with FDR correction instead of Ridge regression,
- adhering to the project's methodological constraints.
+## Support
 
-## 6. Verification
-
-To verify the installation and data download:
-
-```bash
-# Check data integrity
-python code/data/checksum.py --verify
-
-# Run unit tests
-pytest tests/unit/ -v
-```
-
-## 7. Data Source
-
-This project uses real fMRI data from OpenNeuro. No synthetic or placeholder data is
-generated. If the specified dataset is unavailable, the pipeline will fail loudly to
-prevent fabrication of results.
-
-**Dataset**: OpenNeuro (ID specified in `.env`)
-**Modality**: Resting-state fMRI
-**Clinical Measures**: Pre/Post treatment anxiety scores (e.g., GAD-7, HAM-A)
+For issues not covered here, check:
+- `logs/pipeline.log` for detailed error messages
+- `docs/CONTRIBUTING.md` for development guidelines
+- Project README for known limitations

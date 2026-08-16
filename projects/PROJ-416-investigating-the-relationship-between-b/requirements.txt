@@ -9,4 +9,5 @@ scipy
 pytest
 python-dotenv
 statsmodels
+requests
 bctpy
