@@ -1,0 +1,5 @@
+- The "paired t-test" is assumed to be the appropriate statistical test for comparing the success rates of the approximation strategies against the baseline, as the same tasks are used for all methods.
+- The "Wilcoxon signed-rank test" is assumed to be the appropriate non-parametric alternative if the success rates are not normally distributed.
+- The "Benjamini-Hochberg correction" is assumed to be the appropriate multiple-comparison correction method for controlling the false discovery rate, mandated by FR-006 due to the multiple comparisons inherent in testing 3 strategies and sensitivity sweeps.
+- The "sensitivity analysis" for the top-$k$ value is assumed to be necessary to determine the robustness of the retrieval mechanism to the number of neighbors used.
+- The "power limitation" is assumed to be a potential issue if the number of held-out composite tasks is too small to detect a difference in success rates.

@@ -1,0 +1,70 @@
+# Feature Specification: llmXive follow-up: extending "LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills"
+
+**Feature Branch**: `001-lattentskill-retrieval-geometry`  
+**Created**: 2026-07-14  
+**Status**: Draft  
+**Input**: User description: "llmXive follow-up: extending 'LatentSkill: From In-Context Textual Skills to In-Weight Latent Skills'"
+
+## User Scenarios & Testing
+
+### User Story 1 - Constructing the Skill Vector Database (Priority: P1)
+
+The researcher MUST be able to ingest the pre-trained LoRA adapters (A and B matrices) from the original LatentSkill repository (ALFWorld and Search-QA benchmarks), flatten them into high-dimensional vectors, and generate a normalized "Skill Vector Database" index using only CPU-based operations.
+
+**Why this priority**: This is the foundational data artifact. Without a constructed, normalized vector index of the existing skill weights, no retrieval or interpolation experiments can occur. It is the prerequisite for all subsequent analysis.
+
+**Independent Test**: The system can be tested by successfully loading the raw LoRA weights, normalizing them, and outputting a static index file (e.g., `.npy` or `.npz`) containing the flattened vectors and their corresponding metadata (task description) without requiring GPU acceleration.
+
+**Acceptance Scenarios**:
+
+1. **Given** the original LatentSkill LoRA weight files and task descriptions are available, **When** the ingestion script runs on a CPU-only environment, **Then** a normalized vector index is generated containing all skill vectors with normalization applied.
+2. **Given** a raw LoRA weight file, **When** the flattening process is executed, **Then** the resulting vector dimensions match the theoretical product of the A and B matrix dimensions, and the data type remains compatible with standard CPU float32 operations.
+
+---
+
+### User Story 2 - Executing Retrieval and Interpolation Strategies (Priority: P2)
+
+The researcher MUST be able to query the Skill Vector Database using text embeddings (derived from frozen sentence-transformers) to retrieve the nearest-neighbor skill or compute a weighted average of the top-$k$ skills, producing a candidate LoRA adapter for a novel composite task. This includes two distinct strategies: (1) **Arithmetic Mean**: an unweighted average of the top-$k$ vectors (serving as a baseline that ignores similarity scores), and (2) **Cosine-Weighted Averaging**: a similarity-weighted average where weights are proportional to the cosine similarity between the query and each neighbor.
+
+**Why this priority**: This implements the core hypothesis: that the latent space is linear/dense enough for simple arithmetic or retrieval to replace the complex hypernetwork. This is the primary experimental mechanism.
+
+**Independent Test**: The system can be tested by providing a novel composite task description, executing the retrieval/interpolation logic (both unweighted and weighted), and outputting synthesized LoRA adapter files (or weight deltas) ready for application to a base model, entirely on CPU.
+
+**Acceptance Scenarios**:
+
+1. **Given** a novel composite task description and the Skill Vector Database, **When** the cosine similarity retrieval is executed, **Then** the system identifies the single nearest-neighbor skill vector and returns its corresponding LoRA weights.
+2. **Given** a composite task description and a set of top-$k$ retrieved vectors, **When** the unweighted arithmetic mean is executed, **Then** the system outputs a synthesized LoRA adapter representing the simple average of the retrieved weights.
+3. **Given** a composite task description and a set of top-$k$ retrieved vectors, **When** the cosine-similarity-weighted averaging is executed, **Then** the system outputs a synthesized LoRA adapter that represents the weighted interpolation of the retrieved skills.
+
+---
+
+### User Story 3 - Validating Performance via Environment Logic (Priority: P3)
+
+The researcher MUST be able to apply the retrieved or interpolated LoRA adapters to a held-out set of composite tasks using a frozen base LLM and evaluate success strictly based on the environment's internal logic (e.g., task completion flags), comparing these rates against a baseline. To account for stochasticity, the system MUST run each task multiple times to estimate a stable success probability.
+
+**Why this priority**: This provides the empirical evidence required to answer the research question. It validates whether the structural properties of the space (linearity/density) actually translate to functional performance.
+
+**Independent Test**: The system can be tested by running the evaluation pipeline on a small, held-out set of tasks, performing multiple runs per task, generating success/failure metrics, and outputting a statistical comparison (e.g., p-value) between the retrieval/interpolation methods and the baseline.
+
+**Acceptance Scenarios**:
+
+1. **Given** a synthesized LoRA adapter from User Story 2 and a composite task, **When** the adapter is applied to the frozen base LLM in the simulation environment for $N \ge $ runs, **Then** the system records a binary success/failure outcome for each run based solely on the environment's internal logic.
+2. **Given** success rates (probabilities) for retrieval, interpolation, and baseline methods derived from multiple runs, **When** the statistical test is run, **Then** the system outputs a p-value indicating whether the difference in performance is statistically significant ($p < 0.05$).
+
+### Edge Cases
+
+- What happens when the composite task description is semantically distant from any existing skill in the database (out-of-distribution query)?
+- How does the system handle cases where the top-$k$ retrieved vectors have near-identical cosine similarity scores? (Answer: The system applies the specific weighting logic of the chosen strategy—unweighted mean treats them equally; weighted averaging distributes weight proportionally to the exact similarity values).
+- What occurs if the flattened LoRA weight dimensions between different adapters are inconsistent (e.g., due to mismatched base model versions)?
+
+## Requirements
+
+### Functional Requirements
+
+- **FR-001**: System MUST ingest pre-trained LoRA adapters (A and B matrices) and flatten them into normalized high-dimensional vectors for index construction. (See US-1)
+- **FR-002**: System MUST generate query vectors from text descriptions using a frozen, CPU-friendly sentence-transformer (e.g., `all-MiniLM-L6-v2`). (See US-2)
+- **FR-003**: System MUST implement three approximation mechanisms: (1) single nearest-neighbor selection, (2) unweighted arithmetic mean of top-$k$ vectors, and (3) cosine-similarity-weighted averaging of top-$k$ vectors. (See US-2)
+- **FR-004**: System MUST apply the synthesized LoRA adapters to a frozen base LLM and evaluate task success using the environment's internal logic (independent of the selection mechanism). (See US-3)
+- **FR-005**: System MUST perform statistical testing (paired t-test or Wilcoxon signed-rank) to compare success rates of approximation strategies against the baseline with a significance threshold of $p < 0.05$. (See US-3)
+- **FR-006**: System MUST enforce the Benjamini-Hochberg procedure for multiple-comparison correction when evaluating the set of primary hypothesis tests (comparing the 3 approximation strategies against the baseline) and the sensitivity analysis sweeps defined in SC-004, to control the False Discovery Rate (FDR). (See US-3)
+- **FR-007**: System MUST validate the "text-weight alignment" assumption by calculating the Pearson correlation coefficient between text-space cosine distances and weight-space cosine distances for a held-out set of known task pairs; the correlation must be sufficiently strong for the retrieval mechanism to be considered valid. (See US-2)
