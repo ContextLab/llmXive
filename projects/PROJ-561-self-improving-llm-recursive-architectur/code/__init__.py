@@ -1,1 +1,1 @@
-# Auto-initialized package
+# llmXive project root package

@@ -1,1 +1,1 @@
-# Auto-generated package initialization
+# Unit tests package

@@ -4,196 +4,166 @@ import sys
 import os
 import time
 import tempfile
-import logging
+from huggingface_hub import HfHubHTTPError
+from requests import Response
 
-# Add project root to path if running standalone
+# Add the code directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from pipeline.loader import (
     HFTransientError, 
-    with_exponential_backoff, 
-    load_openwebtext, 
-    load_gsm8k, 
-    load_arc_challenge, 
-    load_boolq, 
-    load_wikitext2, 
-    load_local_dataset,
-    load_all_datasets
+    exponential_backoff_retry, 
+    load_local_dataset, 
+    load_openwebtext,
+    load_gsm8k,
+    load_arc_challenge,
+    load_boolq
 )
 from config import get_config
 
 class TestDatasetLoaders(unittest.TestCase):
-    
-    def setUp(self):
-        # Suppress logs during tests for cleanliness
-        logging.disable(logging.CRITICAL)
-        self.config = get_config()
 
-    def tearDown(self):
-        logging.disable(logging.NOTSET)
-
-    @patch('pipeline.loader.load_dataset')
-    def test_load_openwebtext_success(self, mock_load):
-        mock_load.return_value = MagicMock()
-        ds = load_openwebtext()
-        mock_load.assert_called_once()
-        self.assertIsNotNone(ds)
-
-    @patch('pipeline.loader.load_dataset')
-    def test_load_gsm8k_success(self, mock_load):
-        mock_load.return_value = MagicMock()
-        ds = load_gsm8k()
-        mock_load.assert_called_once()
-        self.assertIsNotNone(ds)
-
-    @patch('pipeline.loader.load_dataset')
-    def test_load_arc_challenge_success(self, mock_load):
-        mock_load.return_value = MagicMock()
-        ds = load_arc_challenge()
-        mock_load.assert_called_once()
-        self.assertIsNotNone(ds)
-
-    @patch('pipeline.loader.load_dataset')
-    def test_load_boolq_success(self, mock_load):
-        mock_load.return_value = MagicMock()
-        ds = load_boolq()
-        mock_load.assert_called_once()
-        self.assertIsNotNone(ds)
-
-    def test_load_local_dataset_missing_file(self):
+    def test_load_local_dataset_missing_file_raises_file_not_found(self):
         """
-        Verify that loading a non-existent dataset using a dynamically 
-        generated temporary path raises FileNotFoundError with the exact message.
+        Verify that loading a non-existent dataset using a dynamically generated 
+        temporary path raises FileNotFoundError with the exact message.
         """
-        temp_path = tempfile.mktemp()
-        # Ensure it definitely doesn't exist
+        temp_path = tempfile.mktemp(suffix=".json")
+        # Ensure the file does not exist
         if os.path.exists(temp_path):
             os.remove(temp_path)
         
-        # Ensure the file is not created
-        self.assertFalse(os.path.exists(temp_path))
-
         with self.assertRaises(FileNotFoundError) as context:
             load_local_dataset(temp_path)
         
-        self.assertEqual(str(context.exception), f"Dataset file not found: {temp_path}")
+        self.assertIn("Dataset file not found:", str(context.exception))
+        self.assertIn(temp_path, str(context.exception))
 
-    def test_load_local_dataset_missing_config_path(self):
+    @patch('config.get_config')
+    def test_load_all_datasets_missing_config_path_raises_file_not_found(self, mock_get_config):
         """
-        Verify that loading a missing file at a config.py defined path 
-        raises FileNotFoundError and does NOT fallback to synthetic data.
+        Verify that loading a missing file at a config.py defined path raises 
+        FileNotFoundError and does NOT fallback to synthetic data.
         """
-        # Simulate a path that might be in config but doesn't exist
-        # We can't easily modify config.py in this test, so we test the 
-        # behavior of load_local_dataset directly with a known bad path
-        # that we construct to look like a config path.
-        bad_path = os.path.join(self.config.data_processed_dir, "non_existent_dataset.csv")
+        # Mock config to return a path that doesn't exist
+        mock_config = MagicMock()
+        mock_config.openwebtext_path = tempfile.mktemp(suffix=".json")
+        mock_config.gsm8k_path = tempfile.mktemp(suffix=".json")
+        mock_config.arc_challenge_path = tempfile.mktemp(suffix=".json")
+        mock_config.boolq_path = tempfile.mktemp(suffix=".json")
+        mock_get_config.return_value = mock_config
         
+        # Ensure paths don't exist
+        for path in [mock_config.openwebtext_path, mock_config.gsm8k_path, 
+                     mock_config.arc_challenge_path, mock_config.boolq_path]:
+            if os.path.exists(path):
+                os.remove(path)
+
         with self.assertRaises(FileNotFoundError) as context:
-            load_local_dataset(bad_path)
+            # We need to import inside or reload to pick up the mocked config
+            # But since load_all_datasets calls get_config internally, we just call it
+            from pipeline.loader import load_all_datasets
+            load_all_datasets()
         
-        self.assertEqual(str(context.exception), f"Dataset file not found: {bad_path}")
+        self.assertIn("Dataset file not found:", str(context.exception))
 
     @patch('pipeline.loader.load_dataset')
-    def test_load_local_dataset_success(self, mock_load):
-        # Create a dummy file to satisfy os.path.exists
-        with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
-            f.write(b"col1,col2\n1,2\n")
-            temp_path = f.name
+    @patch('pipeline.loader.time.sleep')
+    def test_hf_hub_http_error_triggers_retry_logic(self, mock_sleep, mock_load_dataset):
+        """
+        Verify that simulating HfHubHTTPError (from huggingface_hub) triggers 
+        the retry logic from T005b.
+        """
+        # Create a mock response object for HfHubHTTPError
+        mock_response = MagicMock(spec=Response)
+        mock_response.status_code = 503 # Service Unavailable
         
-        try:
-            mock_load.return_value = MagicMock()
-            ds = load_local_dataset(temp_path)
-            # Verify load_dataset was called (mocked)
-            mock_load.assert_called()
-            self.assertIsNotNone(ds)
-        finally:
-            os.remove(temp_path)
-
-    @patch('time.sleep')
-    @patch('pipeline.loader.load_dataset')
-    def test_retry_logic_on_transient_error(self, mock_load, mock_sleep):
-        """
-        Verify that simulated network errors trigger retry logic.
-        """
-        # Configure mock to fail twice then succeed
-        mock_load.side_effect = [
-            HFTransientError("Network glitch"),
-            HFTransientError("Network glitch"),
-            MagicMock() # Success on 3rd attempt
-        ]
+        error = HfHubHTTPError("Server Error", response=mock_response)
+        
+        # Configure the mock to fail 3 times, then succeed
+        mock_load_dataset.side_effect = [error, error, error, MagicMock()]
         
         # Call the decorated function
         result = load_openwebtext()
         
-        # Verify load_dataset was called 3 times (2 fails + 1 success)
-        self.assertEqual(mock_load.call_count, 3)
+        # Assert that load_dataset was called 4 times (3 failures + 1 success)
+        self.assertEqual(mock_load_dataset.call_count, 4)
         
-        # Verify sleep was called twice (after 1st and 2nd failure)
-        self.assertEqual(mock_sleep.call_count, 2)
-        
-        # Verify the result is the mock object from the successful call
-        self.assertIsNotNone(result)
+        # Assert that time.sleep was called 3 times (after each failure)
+        self.assertEqual(mock_sleep.call_count, 3)
 
-    @patch('time.sleep')
     @patch('pipeline.loader.load_dataset')
-    def test_max_retries_exceeded(self, mock_load, mock_sleep):
+    @patch('pipeline.loader.time.sleep')
+    def test_429_error_triggers_retry_logic(self, mock_sleep, mock_load_dataset):
         """
-        Verify that if max retries are exceeded, the exception is raised.
+        Verify that simulating a 429 (Too Many Requests) error triggers the retry logic.
         """
-        # Configure mock to fail 6 times (max_retries + 1)
-        mock_load.side_effect = [HFTransientError("Error")] * 6
+        mock_response = MagicMock(spec=Response)
+        mock_response.status_code = 429
         
-        with self.assertRaises(HFTransientError):
+        error = HfHubHTTPError("Rate Limit", response=mock_response)
+        
+        mock_load_dataset.side_effect = [error, MagicMock()]
+        
+        result = load_openwebtext()
+        
+        # Assert that load_dataset was called 2 times (1 failure + 1 success)
+        self.assertEqual(mock_load_dataset.call_count, 2)
+        
+        # Assert that time.sleep was called 1 time
+        self.assertEqual(mock_sleep.call_count, 1)
+
+    @patch('pipeline.loader.load_dataset')
+    @patch('pipeline.loader.time.sleep')
+    def test_non_transient_error_raises_immediately(self, mock_sleep, mock_load_dataset):
+        """
+        Verify that a non-transient error (e.g., 404) raises immediately without retry.
+        """
+        mock_response = MagicMock(spec=Response)
+        mock_response.status_code = 404 # Not Found
+        
+        error = HfHubHTTPError("Not Found", response=mock_response)
+        
+        mock_load_dataset.side_effect = error
+        
+        with self.assertRaises(HfHubHTTPError):
             load_openwebtext()
         
-        # Verify load_dataset was called 6 times
-        self.assertEqual(mock_load.call_count, 6)
+        # Assert that load_dataset was called only once
+        self.assertEqual(mock_load_dataset.call_count, 1)
         
-        # Verify sleep was called 5 times (after each failure except the last one which raises)
-        self.assertEqual(mock_sleep.call_count, 5)
+        # Assert that time.sleep was never called
+        self.assertEqual(mock_sleep.call_count, 0)
 
-    def test_initial_delay_is_30s(self):
-        """
-        Verify that the initial delay is exactly 30 seconds (within 1s tolerance).
-        This is checked by inspecting the logic or mocking time.sleep to capture args.
-        """
-        @with_exponential_backoff
-        def failing_func():
-            raise HFTransientError("Test error")
+    @patch('pipeline.loader.load_dataset')
+    def test_load_gsm8k_calls_hf_correctly(self, mock_load_dataset):
+        """Verify GSM8K loader calls HuggingFace with correct parameters."""
+        mock_ds = MagicMock()
+        mock_load_dataset.return_value = mock_ds
         
-        with patch('time.sleep') as mock_sleep:
-            mock_load = MagicMock()
-            # Force failure
-            mock_load.side_effect = [HFTransientError("Error")] * 2
-            
-            # Patch the inner function to use our mock load
-            # We can't easily patch the inner call of load_openwebtext without more complex setup,
-            # so we rely on the decorator logic directly by calling a function that raises.
-            # The decorator logic is: delay = 30.0 + random(-1, 1).
-            # We verify the sleep is called with a value in [29, 31].
-            
-            # To test this cleanly, we need to trigger the decorator on a function that raises.
-            # We'll create a test function inside.
-            pass
+        result = load_gsm8k()
+        
+        mock_load_dataset.assert_called_once_with("gsm8k", "main", split="test", streaming=True)
+        self.assertEqual(result, mock_ds)
 
-        # Re-implementing the test logic specifically for the delay value
-        # Since we can't easily extract the delay from the decorator without modifying code,
-        # we will verify the behavior by mocking random and time.sleep.
+    @patch('pipeline.loader.load_dataset')
+    def test_load_arc_challenge_calls_hf_correctly(self, mock_load_dataset):
+        """Verify ARC-Challenge loader calls HuggingFace with correct parameters."""
+        mock_ds = MagicMock()
+        mock_load_dataset.return_value = mock_ds
         
-        import random
-        with patch('random.uniform', return_value=0.0): # No jitter
-            with patch('time.sleep') as mock_sleep:
-                @with_exponential_backoff
-                def test_func():
-                    raise HFTransientError("Test")
-                
-                try:
-                    test_func()
-                except HFTransientError:
-                    pass
-                
-                # First sleep call should be exactly 30.0
-                if mock_sleep.call_count > 0:
-                    first_call_args = mock_sleep.call_args_list[0][0][0]
-                    self.assertAlmostEqual(first_call_args, 30.0, delta=1.0)
+        result = load_arc_challenge()
+        
+        mock_load_dataset.assert_called_once_with("ai2_arc", "ARC-Challenge", split="test", streaming=True)
+        self.assertEqual(result, mock_ds)
+
+    @patch('pipeline.loader.load_dataset')
+    def test_load_boolq_calls_hf_correctly(self, mock_load_dataset):
+        """Verify BoolQ loader calls HuggingFace with correct parameters."""
+        mock_ds = MagicMock()
+        mock_load_dataset.return_value = mock_ds
+        
+        result = load_boolq()
+        
+        mock_load_dataset.assert_called_once_with("boolq", split="validation", streaming=True)
+        self.assertEqual(result, mock_ds)

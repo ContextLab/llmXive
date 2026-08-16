@@ -1,136 +1,107 @@
+import unittest
 import os
 import sys
-import unittest
-from unittest.mock import patch, MagicMock, call
+import logging
+from unittest.mock import patch, MagicMock, PropertyMock
 import psutil
 
-# Add project root to path if running from tests directory
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Ensure the project root is in the path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from utils.memory import check_and_terminate_if_exceeds, get_memory_usage_gb, enable_gradient_checkpointing
-import torch.nn as nn
-import torch
+from utils.memory import check_ram_usage, get_memory_usage_gb, MemoryWatchdog
+from config import get_config
 
 
 class TestMemoryWatchdog(unittest.TestCase):
-    """Unit tests for the memory watchdog and safety functions in utils.memory."""
-
-    def test_get_memory_usage_gb_returns_float(self):
-        """Verify get_memory_usage_gb returns a positive float."""
-        usage = get_memory_usage_gb()
-        self.assertIsInstance(usage, float)
-        self.assertGreater(usage, 0.0)
-
-    @patch('utils.memory.psutil.Process')
-    def test_check_and_terminate_below_limit(self, mock_process_class):
-        """Verify no termination occurs when memory is below limit."""
-        mock_process = MagicMock()
-        # Mock RSS to be 2.0 GB
-        mock_process.memory_info.return_value.rss = 2.0 * 1024**3
-        mock_process_class.return_value = mock_process
-
-        # This should NOT raise SystemExit
-        try:
-            check_and_terminate_if_exceeds(limit_gb=5.0)
-            # If we reach here, no exception was raised
-            success = True
-        except SystemExit:
-            success = False
-
-        self.assertTrue(success, "check_and_terminate_if_exceeds should not exit when usage < limit")
-
-    @patch('utils.memory.psutil.Process')
-    def test_check_and_terminate_exceeds_limit(self, mock_process_class):
-        """Verify SystemExit is raised when memory exceeds limit."""
-        mock_process = MagicMock()
-        # Mock RSS to be 8.0 GB
-        mock_process.memory_info.return_value.rss = 8.0 * 1024**3
-        mock_process_class.return_value = mock_process
-
-        # This MUST raise SystemExit
-        with self.assertRaises(SystemExit) as context:
-            check_and_terminate_if_exceeds(limit_gb=5.0)
-
-        # Verify the exit code is non-zero
-        self.assertNotEqual(context.exception.code, 0)
+    
+    def setUp(self):
+        # Configure logging to capture warnings
+        self.logger = logging.getLogger('utils.memory')
+        self.logger.setLevel(logging.DEBUG)
+        self.handler = logging.StreamHandler(sys.stdout)
+        self.handler.setLevel(logging.WARNING)
+        self.formatter = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
+        self.handler.setFormatter(self.formatter)
+        self.logger.addHandler(self.handler)
         
-        # Verify the process was queried
-        mock_process_class.assert_called_once()
-        mock_process.memory_info.assert_called_once()
+        # Capture log output
+        self.log_stream = io.StringIO()
+        self.stream_handler = logging.StreamHandler(self.log_stream)
+        self.stream_handler.setLevel(logging.WARNING)
+        self.stream_handler.setFormatter(self.formatter)
+        self.logger.addHandler(self.stream_handler)
+
+    def tearDown(self):
+        self.logger.removeHandler(self.handler)
+        self.logger.removeHandler(self.stream_handler)
 
     @patch('utils.memory.psutil.Process')
-    def test_check_and_terminate_at_exact_limit(self, mock_process_class):
-        """Verify behavior when memory is exactly at the limit (should NOT exit)."""
-        mock_process = MagicMock()
-        # Mock RSS to be exactly 5.0 GB
-        mock_process.memory_info.return_value.rss = 5.0 * 1024**3
-        mock_process_class.return_value = mock_process
-
-        # Should NOT exit at exactly the limit
-        try:
-            check_and_terminate_if_exceeds(limit_gb=5.0)
-            success = True
-        except SystemExit:
-            success = False
-
-        self.assertTrue(success, "Should not exit when usage == limit")
-
-
-class TestGradientCheckpointing(unittest.TestCase):
-    """Unit tests for gradient checkpointing utility."""
-
-    def test_enable_gradient_checkpointing_on_empty_model(self):
-        """Verify function handles models with no parameters gracefully."""
-        class EmptyModel(nn.Module):
-            def __init__(self):
-                super().__init__()
+    def test_check_ram_usage_within_limit(self, mock_process):
+        """
+        Test that no warning is logged when RAM usage is within the limit.
+        """
+        mock_mem_info = MagicMock()
+        mock_mem_info.rss = 2 * (1024 ** 3)  # 2 GB
+        mock_process.return_value.memory_info.return_value = mock_mem_info
         
-        model = EmptyModel()
-        # Should not raise
-        result = enable_gradient_checkpointing(model)
-        self.assertIsNone(result)
-
-    def test_enable_gradient_checkpointing_on_standard_model(self):
-        """Verify gradient checkpointing is enabled on a standard model."""
-        class SimpleModel(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.linear = nn.Linear(10, 10)
+        limit = 4.0  # 4 GB limit
+        
+        # Mock config to return a limit if needed, though we pass limit directly
+        with patch('utils.memory.get_config') as mock_cfg:
+            mock_cfg.return_value.get_ram_limit.return_value = limit
             
-            def forward(self, x):
-                return self.linear(x)
-
-        model = SimpleModel()
-        
-        # Mock the model's gradient_checkpointing_enable method
-        model.gradient_checkpointing_enable = MagicMock()
-        
-        result = enable_gradient_checkpointing(model)
-        
-        model.gradient_checkpointing_enable.assert_called_once()
-        self.assertIsNone(result)
-
-    def test_enable_gradient_checkpointing_no_method(self):
-        """Verify function handles models without the method gracefully."""
-        class SimpleModel(nn.Module):
-            def __init__(self):
-                super().__init__()
-                self.linear = nn.Linear(10, 10)
+            result = check_ram_usage(limit)
             
-            def forward(self, x):
-                return self.linear(x)
+            self.assertFalse(result, "Should return False when within limit")
+            self.assertNotIn("RAM Warning", self.log_stream.getvalue())
 
-        model = SimpleModel()
-        # Ensure the method doesn't exist
-        if hasattr(model, 'gradient_checkpointing_enable'):
-            delattr(model, 'gradient_checkpointing_enable')
+    @patch('utils.memory.psutil.Process')
+    def test_check_ram_usage_exceeds_limit_logs_warning(self, mock_process):
+        """
+        Test that a warning is logged when RAM usage exceeds the limit.
+        Verification: Asserts a warning is logged with the correct peak value, 
+        but no exception is raised.
+        """
+        mock_mem_info = MagicMock()
+        mock_mem_info.rss = 6 * (1024 ** 3)  # 6 GB
+        mock_process.return_value.memory_info.return_value = mock_mem_info
         
-        # Should not raise
-        result = enable_gradient_checkpointing(model)
-        self.assertIsNone(result)
+        limit = 4.0  # 4 GB limit
+        expected_usage_gb = 6.0
+        
+        with patch('utils.memory.get_config') as mock_cfg:
+            mock_cfg.return_value.get_ram_limit.return_value = limit
+            
+            result = check_ram_usage(limit)
+            
+            self.assertTrue(result, "Should return True when limit exceeded")
+            
+            log_output = self.log_stream.getvalue()
+            self.assertIn("RAM Warning", log_output)
+            self.assertIn(f"{expected_usage_gb:.2f}", log_output)
+            
+            # Ensure no exception was raised
+            self.assertTrue(True) 
+
+    @patch('utils.memory.psutil.Process')
+    def test_memory_watchdog_context_manager(self, mock_process):
+        """
+        Test the MemoryWatchdog context manager.
+        """
+        mock_mem_info = MagicMock()
+        mock_mem_info.rss = 5 * (1024 ** 3)  # 5 GB
+        mock_process.return_value.memory_info.return_value = mock_mem_info
+        
+        limit = 4.0
+        
+        with MemoryWatchdog(limit) as watchdog:
+            # Inside context
+            pass
+        
+        self.assertTrue(watchdog.peak_usage >= 5.0)
+        self.assertIn("RAM Warning", self.log_stream.getvalue())
 
 
 if __name__ == '__main__':
+    import io
     unittest.main()

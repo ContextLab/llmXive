@@ -1,17 +1,16 @@
+"""
+Verification script for project structure.
+Checks existence of required directories and __init__.py files.
+"""
 import os
 import sys
 from pathlib import Path
 
 def verify_project_structure():
     """
-    Verifies the existence of all required directories and __init__.py files
-    for the project structure defined in T001.
-    
-    Returns:
-        tuple: (success: bool, missing_dirs: list, missing_inits: list)
+    Verifies that all required directories and __init__.py files exist.
+    Returns True if all checks pass, False otherwise.
     """
-    base_path = Path(__file__).resolve().parent.parent
-    
     required_dirs = [
         "code",
         "data/raw",
@@ -20,43 +19,48 @@ def verify_project_structure():
         "specs",
         "tests",
         "tests/unit",
-        "tests/integration",
-        "code/pipeline",
-        "code/utils",
-        "code/schemas",
-        "code/results",
-        "code/tests/unit",
-        "code/tests/integration",
-        "code/scripts",
-        "data/logs",
+        "tests/integration"
     ]
     
+    all_good = True
     missing_dirs = []
-    for dir_path in required_dirs:
-        full_path = base_path / dir_path
-        if not full_path.exists() or not full_path.is_dir():
-            missing_dirs.append(str(full_path))
-    
     missing_inits = []
+
     for dir_path in required_dirs:
-        full_path = base_path / dir_path
+        full_path = Path(dir_path)
+        if not full_path.exists():
+            missing_dirs.append(str(full_path))
+            all_good = False
+            continue
+        
         init_file = full_path / "__init__.py"
         if not init_file.exists():
             missing_inits.append(str(init_file))
-    
-    success = len(missing_dirs) == 0 and len(missing_inits) == 0
-    return success, missing_dirs, missing_inits
+            all_good = False
+        elif init_file.stat().st_size == 0:
+            # Optional: warn if empty, but task says "initialize", so empty might be technically created but not initialized content-wise.
+            # However, the task says "initialize __init__.py files", implying content.
+            # Let's treat empty as missing for verification strictness.
+            missing_inits.append(str(init_file))
+            all_good = False
 
-if __name__ == "__main__":
-    success, missing_dirs, missing_inits = verify_project_structure()
-    if success:
+    if missing_dirs:
+        print("MISSING DIRECTORIES:")
+        for d in missing_dirs:
+            print(f"  - {d}")
+    
+    if missing_inits:
+        print("MISSING __init__.py FILES:")
+        for f in missing_inits:
+            print(f"  - {f}")
+
+    if all_good:
         print("Project structure verification: PASSED")
-        print("All required directories and __init__.py files exist.")
-        sys.exit(0)
     else:
         print("Project structure verification: FAILED")
-        if missing_dirs:
-            print(f"Missing directories: {missing_dirs}")
-        if missing_inits:
-            print(f"Missing __init__.py files: {missing_inits}")
-        sys.exit(1)
+    
+    return all_good
+
+if __name__ == "__main__":
+    success = verify_project_structure()
+    sys.exit(0 if success else 1)

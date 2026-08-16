@@ -1,3 +1,18 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory listing or `__init__.py` files were provided, so we cannot verify\
+    \ that the required folders (`code/`, `data/raw/`, `data/processed/`, `results/`,\
+    \ `specs/`, `tests/`, `tests/unit/`, `tests/integration/`) and their `__init__.py`\
+    \ files actually exist. The implementer must supply a file\u2011system view (e.g.,\
+    \ a tree dump or screenshots) showing these directories and files."
+T005a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `pipeline/loader.py` file or any code implementing the OpenWebText, GSM8K,\
+    \ ARC\u2011Challenge, and BoolQ loaders is present, nor are there tests that check\
+    \ the required `FileNotFoundError` messages or the exponential\u2011backoff retry\
+    \ behavior. The necessary artifacts are missing, so the task is not satisfied."
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,15 +20,6 @@ T006:
     \ code for loading a GPT checkpoint and performing CPU\u2011compatible weight\
     \ manipulation is missing. The task cannot be considered done without the actual\
     \ implementation artifact."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `config.py` file was presented in the evidence, and therefore there is nothing\
-    \ to load or check for the required hyperparameters, parameter\u2011increase constraint,\
-    \ or path definitions. The implementer must supply a non\u2011empty `config.py`\
-    \ that defines `lr=5e-5`, `bs=4`, a seed, enforces the \u226430\u202F% parameter\u2011\
-    increase limit, and includes the specified path variables, and it must load without\
-    \ error and assert the default values."
 T009:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

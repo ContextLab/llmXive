@@ -42,3 +42,25 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/google-research-datasets/boolq/resolve/main/boolq-test.jsonl
   verified_at: '2026-08-12T07:04:31.724792Z'
+- artifact_hash: 17e87a552cb6133d5bc4b3a19948412ff8320cd39615c93abe55d2d208bd4581
+  artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Bootstrapping - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Bootstrapping_
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
+  verified_at: '2026-08-16T21:57:45.291956Z'
+- artifact_hash: 17e87a552cb6133d5bc4b3a19948412ff8320cd39615c93abe55d2d208bd4581
+  artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Ordinary least squares - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Ordinary_least_squares
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Ordinary_least_squares
+  verified_at: '2026-08-16T21:57:45.291956Z'

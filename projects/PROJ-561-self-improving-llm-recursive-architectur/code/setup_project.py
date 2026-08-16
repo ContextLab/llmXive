@@ -1,39 +1,30 @@
 """
 Project Structure Initialization Script.
-
-This script creates the required directory structure and initializes
-__init__.py files for the llmXive automated science pipeline.
+Creates the directory hierarchy and __init__.py files as defined in T001.
 """
 import os
 import sys
 from pathlib import Path
 
-
 def create_project_structure():
     """
-    Create directories and __init__.py files as per implementation plan.
-
-    Required structure:
-    - code/
-    - data/raw/
-    - data/processed/
-    - results/
-    - specs/
-    - tests/
-    - tests/unit/
-    - tests/integration/
+    Creates the required project directories and initializes __init__.py files.
     """
-    # Define the base directory (project root)
-    base_dir = Path(__file__).resolve().parent.parent
-
-    # Define the directory structure relative to the project root
-    # Note: 'code' is the root for source files in this project structure
-    # so we create it relative to the script's location if needed,
-    # but typically scripts run from root. We assume script is in code/
-    # and we need to create structure relative to the repo root.
-    # Since the script is at code/setup_project.py, parent is project root.
-    root = base_dir
-
+    # Define the root directory (parent of this script's directory if in code/, or current)
+    # We assume this script is run from the project root or code/ root.
+    # Based on the task, we need to create these relative to the project root.
+    # Let's assume we are running from the project root, or we derive it.
+    
+    # If running as `python code/setup_project.py`, we need to go up one level or stay relative.
+    # The task specifies paths like `code/`, `data/raw/`.
+    # We will assume the script is run from the project root.
+    
+    base_path = Path.cwd()
+    
+    # If the script is located in code/, adjust base_path if necessary.
+    # But typically, project structure scripts are run from root.
+    # Let's define the directories relative to the current working directory.
+    
     directories = [
         "code",
         "data/raw",
@@ -42,33 +33,37 @@ def create_project_structure():
         "specs",
         "tests",
         "tests/unit",
-        "tests/integration",
+        "tests/integration"
     ]
-
-    created_dirs = []
-    created_files = []
-
+    
+    # Check if we are already inside 'code' and adjust if needed to avoid double nesting
+    # But the task says "Create directories code/...".
+    # We will create them relative to the current working directory.
+    
+    created_count = 0
     for dir_path in directories:
-        full_path = root / dir_path
+        full_path = base_path / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path.relative_to(root)))
-
-        # Create __init__.py if this is a Python package directory
-        # We initialize __init__.py in all directories to ensure they are treated as packages
-        # and to satisfy the verification requirement.
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
+        
+        # Create __init__.py in the leaf directories of the new structure
+        # The task asks to initialize __init__.py files.
+        # We should add them to the directories we create or ensure they exist.
+        # Specifically for: code/, data/raw, data/processed, results, specs, tests, tests/unit, tests/integration
+        
         init_file = full_path / "__init__.py"
         if not init_file.exists():
-            # Create an empty __init__.py or with a docstring
-            init_file.write_text("# Auto-generated package initialization\n")
-            created_files.append(str(init_file.relative_to(root)))
-
-    return created_dirs, created_files
-
+            init_file.touch()
+            print(f"Created __init__.py: {init_file}")
+            created_count += 1
+        else:
+            print(f"__init__.py already exists: {init_file}")
+    
+    print(f"Project structure setup complete. Created {created_count} new items.")
 
 if __name__ == "__main__":
-    print("Initializing project structure...")
-    created_dirs, created_files = create_project_structure()
-    print(f"Created directories: {created_dirs}")
-    print(f"Created __init__.py files: {created_files}")
-    print("Project structure initialization complete.")
+    create_project_structure()
