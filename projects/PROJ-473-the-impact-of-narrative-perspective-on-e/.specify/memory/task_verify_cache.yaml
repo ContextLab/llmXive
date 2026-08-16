@@ -1,12 +1,3 @@
-T016:
-  c: false
-  h: d81a78c02ea52143f06d3308e5684425382cdc78bfbca3be5897f809960bd10d
-  r: "The repository contains a `code/main.py` file, but the provided excerpt does\
-    \ not show the required CLI (`extract` subcommand with `--input-dir` and `--output`\
-    \ arguments) nor any logic that enforces the specified JSON schema or the \u201C\
-    skip and log\u201D behavior for short texts. Moreover, the expected output file\
-    \ `data/processed/perspective_features.json` is absent from the project. The task\u2019\
-    s core deliverables are therefore missing."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,14 +9,13 @@ T018:
     \ the corresponding artifact."
 T025:
   c: false
-  h: a1b2526541b913d468743be2e05f6555f31ab8926828ecc1c5282755b3c8c6bd
-  r: "The repository contains a `code/main.py` file, but the shown portion ends before\
-    \ the implementation of the `match` sub\u2011command (argument parsing, TF\u2011\
-    IDF building, threshold use, and JSON output) is visible. Moreover, the required\
-    \ output file `data/processed/matching_results.json` (and its input files) are\
-    \ absent, so we cannot verify that the script would produce the correct schema\
-    \ or avoid running regression analysis. The missing implementation details must\
-    \ be added and the command tested to generate the expected JSON file."
+  h: ff4a9de02d4fe9245b8b29dc512fe216426ec33137d82f8a751324a32a08c316
+  r: "The repository lacks the required `data/processed/perspective_features.json`\
+    \ and `data/processed/matching_results.json` files, and the provided `code/main.py`\
+    \ is truncated and only contains extraction logic\u2014not a `match` sub\u2011\
+    command that loads features, builds TF\u2011IDF vectors, applies the `PRIMARY_MATCHING_THRESHOLD`,\
+    \ and writes the specified schema. These essential artifacts and functionality\
+    \ are missing."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,21 +33,12 @@ T027:
     \ is therefore missing."
 T032:
   c: false
-  h: 80e6ff7573d8518bda35f1bf2b196512ccc99140979465c4f08ff3354823564b
+  h: db22158a27250a343a2e64baf0b909ceee794071a9cc06f8f60825f33062a67c
   r: "The repository lacks the required input files (`data/processed/perspective_features.json`,\
-    \ `data/processed/reader_response.csv`) and the output CSV (`data/processed/aligned_dataset.csv`).\
-    \ The `aggregate_reader_scores` implementation is truncated and does not fully\
-    \ perform the join, aggregation, or CSV writing, and no CLI entry for the `aggregate`\
-    \ command is present in `code/main.py`. Consequently the task\u2019s specifications\
-    \ are not met."
-T041:
-  c: false
-  h: 956a19780a4e44205ffcede944cca17a959cf4afb46b0c9281eb10f6ab16ec87
-  r: "The repository lacks the required output files (`data/processed/aligned_dataset.csv`\
-    \ and `data/processed/analysis_results.json`), and the provided `code/main.py`\
-    \ excerpt does not show an `analyze` sub\u2011command that reads the CSV and writes\
-    \ the JSON summary. The task\u2019s core deliverable \u2013 a CLI that runs the\
-    \ full analysis and produces the specified JSON file \u2013 is therefore not present."
+    \ `data/processed/reader_response.csv`) and the output file `data/processed/aligned_dataset.csv`.\
+    \ Moreover, `aggregate_reader_scores` is only partially implemented (no CSV writing\
+    \ logic) and the surrounding CLI in `code/main.py` does not invoke it. The task\u2019\
+    s core deliverable is therefore missing."
 T042:
   c: false
   h: c80ee2992351d8d23d719d343253a5187dcc977ac4001fdab20250148414eece

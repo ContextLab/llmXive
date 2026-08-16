@@ -1,13 +1,11 @@
-"""
-Narrative module for llmXive automated science pipeline.
+"""Narrative generation modules."""
+from .baseline import run_baseline_analysis, main as baseline_main
+from .flag_propagator import propagate_low_power_flag, write_propagated_report, main as flag_main
 
-This module contains components for generating, analyzing, and synthesizing
-data-driven narratives and counterfactual stories.
-
-Submodules:
-    - baseline: Generates primary narrative stories from baseline correlations.
-    - inspector: Implements the Counterfactual Inspector agent for alternative causal analysis.
-    - synthesizer: Merges baseline and counterfactual insights into cohesive stories.
-"""
-
-__all__ = []
+__all__ = [
+    'run_baseline_analysis',
+    'baseline_main',
+    'propagate_low_power_flag',
+    'write_propagated_report',
+    'flag_main'
+]

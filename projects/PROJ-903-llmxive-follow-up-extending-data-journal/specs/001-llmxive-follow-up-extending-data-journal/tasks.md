@@ -64,7 +64,7 @@
 - [ ] T002c [P] Configure linting (ruff) and formatting (black) tools
 - [X] T004a [P] Select and verify initial public policy datasets (California Housing, Crime and Communities) and record exact file paths and SHA256 checksums in `data/dataset_registry.yaml`. Verification criteria: Match checksum against known values in registry.
 - [X] T004b [P] Implement `code/data/validate_registry.py` to validate entries in `data/dataset_registry.yaml` and produce `validation_log.txt` in JSON-lines format.
-- [X] T005a [P] Implement `code/data/loader.py` to fetch datasets from UCI/Kaggle/HF URLs, validate numeric columns (≥5), checksum raw files, and **skip** datasets that exceed RAM limits (log error and proceed) per Plan Risk Mitigation
+- [X] T005a [P] Implement `code/data/loader.py` to fetch datasets from UCI/Kaggle/HF URLs, validate numeric columns (≥5) [UNRESOLVED-CLAIM: c_26cdddb5 — status=not_enough_info], checksum raw files, and **skip** datasets that exceed RAM limits (log error and proceed) per Plan Risk Mitigation
 - [X] T005b [P] **CRITICAL**: Implement dataset sample size validation in `code/data/loader.py` to detect if `n < 30`. If invalid, raise a specific `LowPowerError` and halt pipeline execution immediately, logging the report per FR-006. This task MUST precede any data processing.
 - [ ] T005d [P] Implement logic to propagate the "Low Power" flag from T005b into the final story structure and report (Edge Cases)
 - [X] T006a [P] Implement `code/data/processor.py` cleaning logic (missing value handling)
@@ -88,13 +88,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for baseline correlation detection in `tests/unit/test_baseline.py`
-- [ ] T011 [P] [US1] Integration test for full baseline pipeline on a sample CSV in `tests/integration/test_baseline_pipeline.py`
+- [X] T010 [P] [US1] Unit test for baseline correlation detection in `tests/unit/test_baseline.py`
+- [X] T011 [P] [US1] Integration test for full baseline pipeline on a sample CSV in `tests/integration/test_baseline_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/narrative/baseline.py` to compute pairwise correlations, identify the strongest statistically significant relationship, and output a JSON object. The JSON schema MUST include keys: `r_value`, `p_value`, `var_x`, `var_y`, `significance`, and `primary_narrative`. This task includes schema definition (merging T015) and logging (merging T016).
-- [ ] T013 [US1] Implement narrative generation logic in `code/narrative/baseline.py` using a lightweight LLM (or API) to summarize the top correlation into a textual story (depends on T012, T002, T007).
+- [X] T012 [US1] Implement `code/narrative/baseline.py` to compute pairwise correlations, identify the strongest statistically significant relationship, and output a JSON object. The JSON schema MUST include keys: `r_value`, `p_value`, `var_x`, `var_y`, `significance`, and `primary_narrative`. This task includes schema definition (merging T015) and logging (merging T016).
+- [X] T013 [US1] Implement narrative generation logic in `code/narrative/baseline.py` using a lightweight LLM (or API) to summarize the top correlation into a textual story (depends on T012, T002, T007).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,15 +108,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for partial correlation and confounder adjustment logic in `tests/unit/test_inspector.py`
-- [ ] T019 [P] [US2] Integration test for counterfactual query generation and execution in `tests/integration/test_inspector_pipeline.py`
+- [X] T018 [P] [US2] Unit test for partial correlation and confounder adjustment logic in `tests/unit/test_inspector.py`
+- [X] T019 [P] [US2] Integration test for counterfactual query generation and execution in `tests/integration/test_inspector_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020a [US2] Implement `code/narrative/inspector.py` with logic to compute partial correlations (depends on T012 for baseline drivers, T005b for validation).
-- [ ] T020b [US2] Implement `code/narrative/inspector.py` logic to adjust for confounders using `scipy`.
-- [ ] T020c [US2] Implement `code/narrative/inspector.py` logic to generate candidate confounders based on domain heuristics (time, location) and feed them to T021a and T024 (depends on T020a, T020b).
-- [ ] T021a [US2] Implement sensitivity analysis in `code/narrative/inspector.py`: **First**, compute partial correlation controlling for the top-2 baseline drivers for each candidate variable. **Then**, sweep p-value thresholds over a range of values (from a lower bound to an upper bound in incremental steps) and partial_r across a normalized range from negative to positive unity in fixed increments. Generate a JSON array of results. **Mandatory Schema**: Each object MUST contain `threshold_config` (string), `claim` (string or "NO_SIGNIFICANT_COUNTERFACTUAL"), `p_value` (float), and `partial_r` (float). Validity is strictly defined by `p_value < 0.05` AND `|partial_r| > 0.15`. (Depends on T012, T020a, T020b, T020c).
+- [X] T020a [US2] Implement `code/narrative/inspector.py` with logic to compute partial correlations (depends on T012 for baseline drivers, T005b for validation).
+- [X] T020b [US2] Implement `code/narrative/inspector.py` logic to adjust for confounders using `scipy`.
+- [X] T020c [US2] Implement `code/narrative/inspector.py` logic to generate candidate confounders based on domain heuristics (time, location) [UNRESOLVED-CLAIM: c_8b927c8a — status=not_enough_info] and feed them to T021a and T024 (depends on T020a, T020b).
+- [ ] T021a [US2] Implement sensitivity analysis in `code/narrative/inspector.py`: **First**, compute partial correlation controlling for the top-2 baseline drivers for each candidate variable. **Then**, sweep p-value thresholds over a range of values (from a lower bound to an upper bound in incremental steps) and partial_r across a normalized range from negative to positive unity in fixed increments [UNRESOLVED-CLAIM: c_a653a744 — status=not_enough_info]. Generate a JSON array of results. **Mandatory Schema**: Each object MUST contain `threshold_config` (string), `claim` (string or "NO_SIGNIFICANT_COUNTERFACTUAL"), `p_value` (float), and `partial_r` (float). Validity is strictly defined by `p_value < 0.05` AND `|partial_r| > 0.15`. (Depends on T012, T020a, T020b, T020c).
 - [ ] T023a [US2] Implement Bootstrap Stability Analysis in `code/narrative/inspector.py`: For each candidate, resample the dataset (e.g., multiple iterations), re-compute the partial correlation (consuming logic from T020a), and calculate `stability_score` (proportion of resamples passing FR-003 thresholds). (Depends on T020a, T020b).
 - [ ] T023b [US2] Implement logic to determine `validity_status`: "verified" if `stability_score >= 0.8` AND `original_p < 0.05`; "low_power" if n < 30; "confounded" if stability is low; "failed" otherwise. Output this status for T021b consumption. (Depends on T023a).
 - [ ] T023c [US2] **CRITICAL**: Define the output schema for T023a/T023b results to ensure `stability_score` and `validity_status` are explicitly included before being passed to T021b. (Depends on T023a, T023b).
@@ -153,7 +153,7 @@
 - [ ] T032a [US3] Implement metadata stripping logic in `code/evaluation/blinding.py` to remove source labels (Baseline/Inspector) from stories. **Generate** blinded story pairs from T029 output.
 - [ ] T032d [US3] Create `code/evaluation/run_kappa_check.py` and `code/evaluation/engage_4th_expert.py` scripts. Implement the logic to dispatch stories to experts (or the simulation interface).
 - [ ] T032b [US3] Implement a simulation script `code/evaluation/simulate_expert_panel.py` to generate "expert scores" for the blinded stories (satisfying Constitution Principle VII and SC-001). Run `run_kappa_check.py` on the scores. If Kappa < 0.6, trigger `engage_4th_expert.py`, re-calculate. If Kappa < 0.6 after 2 re-runs, halt with "Kappa Failure". (Depends on T032a, T032d).
-- [ ] T032c [US3] Implement blinded rubric scoring logic in `code/evaluation/rubric.py` for Narrative Depth (SC-001). Calculate arithmetic mean of valid expert scores. (Depends on T032b).
+- [ ] T032c [US3] Implement blinded rubric scoring logic in `code/evaluation/rubric.py` for Narrative Depth (SC-001). Calculate arithmetic mean of valid expert scores [UNRESOLVED-CLAIM: c_e2148610 — status=not_enough_info]. (Depends on T032b).
 
 **Checkpoint**: All user stories should now be independently functional
 

@@ -27,7 +27,7 @@
 - [X] T001 Create project structure: Execute the following commands to create the exact directory tree: `mkdir -p code data/raw data/processed data/artifacts tests artifacts docs`. **Verification**: Ensure `code/` is created as a top-level directory sibling to `data/`, and verify the tree exists via `tree` command or equivalent listing. Ensure all `data/` subdirectories are empty but present.
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (spaCy, scikit-learn, pandas, numpy, matplotlib, statsmodels, langdetect, pyyaml, requests, nltk, textstat)
 - [X] T003 [P] Configure linting: Create `pyproject.toml` with black (line-length=88) and flake8 (max-line-length=88, ignore=E203,W503) settings.
-- [X] T009 [P] Setup CI environment: Create `.github/workflows/ci.yml` with a job running on `ubuntu-20.04` (or `ubuntu-latest` without explicit resource blocks, as free-tier runners do not support `resources: { memory:... }` configuration). Ensure the workflow includes steps to install dependencies and run tests. **Note**: The free-tier runner has default constraints (approx. a few cores, 7GB RAM, 14GB disk); do not attempt to override these via YAML `resources` which are unsupported on GitHub-hosted free runners. Ensure the workflow is committed and verified.
+- [X] T009 [P] Setup CI environment: Create `.github/workflows/ci.yml` with a job running on `ubuntu-20.04` (or `ubuntu-latest` without explicit resource blocks, as free-tier runners do not support `resources: { memory:... }` configuration). Ensure the workflow includes steps to install dependencies and run tests. **Note**: The free-tier runner has default constraints (approx. a few cores, 7GB RAM, 14GB disk) [UNRESOLVED-CLAIM: c_e85c8395 — status=not_enough_info]; do not attempt to override these via YAML `resources` which are unsupported on GitHub-hosted free runners. Ensure the workflow is committed and verified.
 
 ---
 
@@ -105,11 +105,11 @@
 
 ### Implementation for User Story 4
 
-- [ ] T030 [US4] Implement `code/data_loader.py` function `fetch_reader_response_data()` to fetch a verified external reader-response dataset. **Data Source**: OSF dataset "Moral Judgement & Narrative" (URL must be valid and verified). **Schema**: The fetched dataset MUST contain columns `story_id`, `empathy_score`, `moral_judgement_score`, `participant_id`, and `scenario_description` (or `text_reflection`). **Logic**:
+- [X] T030 [US4] Implement `code/data_loader.py` function `fetch_reader_response_data()` to fetch a verified external reader-response dataset. **Data Source**: OSF dataset "Moral Judgement & Narrative" (URL must be valid and verified). **Schema**: The fetched dataset MUST contain columns `story_id`, `empathy_score`, `moral_judgement_score`, `participant_id`, and `scenario_description` (or `text_reflection`). **Logic**:
  1. Fetch the dataset from the verified OSF URL.
  2. Validate that the dataset contains `scenario_description` (or `text_reflection`) and `moral_judgement_score` columns. If missing, raise a `DataValidationError`.
  3. Compute a semantic similarity (TF-IDF or sentence-transformers) between the `scenario_description` in the external dataset and the `raw_text` (or summary) of the local Gutenberg corpus.
- 4. Match records where similarity score > 0.3.
+ 4. Match records where similarity score > 0.3 [UNRESOLVED-CLAIM: c_41d2cc95 — status=not_enough_info].
  5. If a match is not found, exclude the record and log a warning.
  6. Output `data/processed/reader_response.csv` with columns `story_id`, `empathy_score`, `moral_judgement_score`, `participant_id`, `text_reflection`.
  **Priority**: This mode is the ONLY automated path for the research question in CI.
@@ -135,10 +135,10 @@
 
 - [X] T037 [US3] Implement `code/analysis.py` function `run_regression_analysis(dataset_path)` (FR-003). **Logic**: Perform linear regression with `perspective_score` as predictor and `moral_judgement_score` as outcome. Report slope, intercept, p-value.
 - [X] T038 [US3] Implement `code/analysis.py` function `apply_bonferroni_correction(p_values)` (FR-004). **Logic**: Adjust p-values based on the number of hypothesis tests performed (α/k).
-- [X] T039 [US3] Implement `code/analysis.py` function `calculate_vif(dataset_path)` (FR-007). **Logic**: Calculate VIF for predictors. Warn if VIF > 5.0.
+- [X] T039 [US3] Implement `code/analysis.py` function `calculate_vif(dataset_path)` (FR-007). **Logic**: Calculate VIF for predictors. Warn if VIF > 5.0 [UNRESOLVED-CLAIM: c_6ee366f5 — status=not_enough_info].
 - [X] T040 [US3] Implement `code/visualization.py` function `generate_scatter_plot(dataset_path)` (FR-005). **Logic**: Create scatter plot with regression line and 95% CI ribbon. Save to `data/artifacts/regression_plot.png`.
 - [ ] T041 [US3] Create `code/main.py` sub-command to run full analysis and output `data/processed/analysis_results.json` with summary table. **CLI**: `python code/main.py analyze --input data/processed/aligned_dataset.csv --output data/processed/analysis_results.json`. **Schema Requirement**: Output JSON MUST contain the following keys: `slope`, `intercept`, `p_value`, `r_squared`, `bonferroni_adjusted_p`, `sample_size`, `vif_warning`.
-- [ ] T042 [US3] Integrate sensitivity analysis results (from T043) into the final report to verify stability of the *regression slope* (headline correlation coefficient) across the matching thresholds. **Logic**: Read `data/processed/sensitivity_report.json` (generated by T043) and report the variance in the slope coefficient across the tested thresholds.
+- [ ] T042 [US3] Integrate sensitivity analysis results (from T043) into the final report to verify stability of the *regression slope* (headline correlation coefficient) across the matching thresholds. **Logic**: Read `data/processed/sensitivity_report.json` (generated by T043) and report the variance in the slope coefficient across the tested thresholds. <!-- FAILED: unspecified -->
 - [X] T043 [US3] Implement `code/analysis.py` function `run_sensitivity_sweep(matching_results_path, thresholds_path, dataset_path)` (FR-006, SC-003). **Logic**:
  1. Load `matching_results.json` and `thresholds.json` (from T024).
  2. For each threshold in the list:
@@ -162,7 +162,7 @@
 
 **Purpose**: Ensure all success criteria are met and artifacts are ready for review.
 
-- [ ] T051 [P] Run end-to-end integration test: Execute `python code/main.py all` to run the full pipeline from raw data to final analysis. Verify all outputs exist.
+- [X] T051 [P] Run end-to-end integration test: Execute `python code/main.py all` to run the full pipeline from raw data to final analysis. Verify all outputs exist.
 - [X] T052 [P] Generate final report: Create `docs/final_report.md` summarizing the methodology, results (regression coefficients, p-values), and validation metrics (correlation with human annotations, matching precision).
 
 ---

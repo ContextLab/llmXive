@@ -1,0 +1,252 @@
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: Report no significant counterfactuals found when no valid alternative
+    correlations exist
+  claim_id: c_c3590eb2
+  context: T025 [US2] Implement logic to explicitly report 'No significant counterfactuals
+    found' when no valid alternative correlations exist, avoiding hallucination
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_no_significant_counterfactuals_found_when_no_valid_al
+  kind: entity_fact
+  raw_text: Implement logic to explicitly report 'No significant counterfactuals found'
+    when no valid alternative correlations exist, avoiding hallucination
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:42:45Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: generate candidate confounders based on time and location heuristics
+  claim_id: c_8b927c8a
+  context: Implement code/narrative/inspector.py logic to generate candidate confounders
+    based on domain heuristics (time, location) and feed them to T021a and T024
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_candidate_confounders_based_on_time_and_location_he
+  kind: entity_fact
+  raw_text: Implement `code/narrative/inspector.py` logic to generate candidate confounders
+    based on domain heuristics (time, location)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:47:45Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: sweep p-value thresholds and partial_r across normalized range from negative
+    to positive unity
+  claim_id: c_a653a744
+  context: Then, sweep p-value thresholds over a range of values (from a lower bound
+    to an upper bound in incremental steps) and partial_r across a normalized range
+    from negative to positive unity in fixed increments. Generate a JSON array of
+    results.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sweep_p-value_thresholds_and_partial_r_across_normalized_ran
+  kind: entity_fact
+  raw_text: sweep p-value thresholds over a range of values (from a lower bound to
+    an upper bound in incremental steps) and partial_r across a normalized range from
+    negative to positive unity in fixed increments
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:48:23Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: validity defined by p_value less than 0.05 and absolute partial_r greater
+    than 0.15
+  claim_id: c_4f62bbe6
+  context: 'Mandatory Schema: Each object MUST contain threshold_config (string),
+    claim (string or NO_SIGNIFICANT_COUNTERFACTUAL), p_value (float), and partial_r
+    (float). Validity is strictly defined by p_value < 0.05 AND |partial_r| > 0.15.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validity_defined_by_p_value_less_than_0.05_and_absolute_part
+  kind: magnitude
+  raw_text: validity is strictly defined by p_value < 0.05 AND |partial_r| > 0.15
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:48:56Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: validity_status is verified if stability_score is at least 0.8 and original_p
+    is less than 0.05
+  claim_id: c_e3344a26
+  context: 'Implement logic to determine validity_status: verified if stability_score
+    >= 0.8 AND original_p < 0.05'
+  evidence:
+    entailment_evidence: Validity status is verified if stability score is at least
+      0
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Validity_status_is_verified_if_stability_score_is_at_least_0
+  kind: magnitude
+  raw_text: validity_status is verified if stability_score >= 0.8 AND original_p <
+    0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-16T00:49:14Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: validity_status is low_power if sample size is less than 30
+  claim_id: c_9a273ea2
+  context: low_power if n < 30; confounded if stability is low; failed otherwise.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validity_status_is_low_power_if_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: validity_status is low_power if n < 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:49:30Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: halt with Kappa Failure if Kappa is less than 0.6 after 2 re-runs
+  claim_id: c_31304a83
+  context: If Kappa < 0.6, trigger engage_4th_expert.py, re-calculate. If Kappa <
+    0.6 after 2 re-runs, halt with Kappa Failure.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_Kappa_Failure_if_Kappa_is_less_than_0.6_after_2_re
+  kind: magnitude
+  raw_text: If Kappa < 0.6, trigger engage_4th_expert.py, re-calculate. If Kappa <
+    0.6 after 2 re-runs, halt with Kappa Failure
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:49:51Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: calculate arithmetic mean of valid expert scores
+  claim_id: c_e2148610
+  context: Calculate arithmetic mean of valid expert scores.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_arithmetic_mean_of_valid_expert_scores
+  kind: entity_fact
+  raw_text: Calculate arithmetic mean of valid expert scores
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:50:39Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: run full pipeline against all valid datasets in dataset registry
+  claim_id: c_24d7769a
+  context: Script to run the full pipeline against all valid datasets in data/dataset_registry.yaml
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_full_pipeline_against_all_valid_datasets_in_dataset_regi
+  kind: entity_fact
+  raw_text: run the full pipeline against all valid datasets in data/dataset_registry.yaml
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:51:06Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: valid means matching regex SELECT corr or pd.corr
+  claim_id: c_e0249b69
+  context: Valid means matching regex SELECT\s+corr\(.*\) or pd\.corr\(.*\).
+  evidence:
+    entailment_evidence: Valid means matching regex SELECT corr or pd.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Valid_means_matching_regex_SELECT_corr_or_pd.corr
+  kind: entity_fact
+  raw_text: Valid means matching regex SELECT corr(.* or pd.corr(.*
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-16T00:51:40Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: verify computational feasibility with runtime less than 6 hours and RAM
+    less than 7GB on GitHub Actions free-tier
+  claim_id: c_3f6beace
+  context: Verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub Actions
+    free-tier runner for the full batch
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_computational_feasibility_with_runtime_less_than_6_ho
+  kind: magnitude
+  raw_text: verify computational feasibility (runtime < 6h, RAM < 7GB) on GitHub Actions
+    free-tier runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:52:11Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: detect if sample size is less than 30 and raise LowPowerError
+  claim_id: c_f69900f4
+  context: Implement dataset sample size validation in code/data/loader.py to detect
+    if n < 30. If invalid, raise a specific LowPowerError and halt pipeline execution
+    immediately
+  evidence:
+    asserted: '30.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: detect if n < 30. If invalid, raise a specific LowPowerError and halt
+    pipeline execution immediately
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T00:52:11Z'
+- artifact_path: projects/PROJ-903-llmxive-follow-up-extending-data-journal/specs/001-llmxive-follow-up-extending-data-journal/tasks.md
+  attempts: 1
+  canonical: validate numeric columns greater than or equal to 5
+  claim_id: c_26cdddb5
+  context: "fetch datasets from UCI/Kaggle/HF URLs, validate numeric columns (\u2265\
+    5), checksum raw files"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_numeric_columns_greater_than_or_equal_to_5
+  kind: magnitude
+  raw_text: "validate numeric columns (\u22655)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:52:40Z'
