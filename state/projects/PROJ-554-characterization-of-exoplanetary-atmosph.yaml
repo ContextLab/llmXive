@@ -6,7 +6,7 @@ failed_stage: null
 field: astronomy
 human_escalation_reason: null
 id: PROJ-554-characterization-of-exoplanetary-atmosph
-last_run_id: 1905349f-3627-4423-8138-6756a1ea6f71
+last_run_id: 65332dcf-24b9-443a-b6d5-407d6aba30f6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-554-characterization-of-exoplanetary-atmosph/specs/001-characterization-of-exoplanetary-atmosph
 title: Characterization of Exoplanetary Atmospheres through Advanced Spectroscopic
-updated_at: '2026-08-14T04:15:07.075526Z'
+updated_at: '2026-08-16T01:28:27.172836Z'

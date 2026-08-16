@@ -1,120 +1,115 @@
-"""
-Unit tests for download.py functionality.
-"""
-
-import unittest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
-import tempfile
+import pytest
+import json
 import os
+import tempfile
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-from download import (
-    parse_spectrum_metadata, 
-    validate_parsed_metadata, 
-    process_download_metadata,
-    fetch_spectrum_data
-)
-from config import get_config
+# Import the function to test
+from download import validate_sample_size
 
-
-class TestDownload(unittest.TestCase):
-    
-    def setUp(self):
-        """Set up test fixtures."""
-        self.sample_raw_data = [
-            {
-                'pl_name': 'HD 209458 b',
-                'pl_eqt': '1450',
-                'st_met': '0.02',
-                'spec_res': '1000',
-                'hst_snr': '15.2',
-                'jwst_snr': '22.1',
-                'pl_type': 'Hot Jupiter'
-            },
-            {
-                'pl_name': 'Kepler-10 b',
-                'pl_eqt': '2400',
-                'st_met': '-0.15',
-                'spec_res': '500',
-                'hst_snr': '3.2',
-                'jwst_snr': '4.1',
-                'pl_type': 'Super Earth'
-            }
+class TestValidateSampleSize:
+    def test_sample_size_within_range(self, tmp_path):
+        """Test when sample size is within the acceptable range."""
+        mock_data = [
+            {'planet_name': f'Planet_{i}', 'temperature': 1000, 'metallicity': 0.1, 
+             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
+             'instrument': 'Test', 'wavelength_range': '1-2um'}
+            for i in range(35)
         ]
         
-    def test_parse_spectrum_metadata(self):
-        """Test parsing of raw metadata into structured format."""
-        parsed = parse_spectrum_metadata(self.sample_raw_data)
+        report_path = tmp_path / "sample_size_report.json"
         
-        self.assertEqual(len(parsed), 2)
-        self.assertEqual(parsed[0]['planet_name'], 'HD 209458 b')
-        self.assertEqual(parsed[0]['equilibrium_temp_k'], 1450.0)
-        self.assertEqual(parsed[0]['host_star_metallicity'], 0.02)
-        self.assertEqual(parsed[0]['spectral_resolution_r'], 1000.0)
-        self.assertEqual(parsed[0]['snr_hst'], 15.2)
-        self.assertEqual(parsed[0]['snr_jwst'], 22.1)
-        self.assertEqual(parsed[0]['category'], 'Hot Jupiter')
-        self.assertFalse(parsed[0]['censored'])
+        result = validate_sample_size(
+            data=mock_data,
+            min_threshold=30,
+            max_threshold=45,
+            output_path=str(report_path)
+        )
         
-        # Check censored data detection
-        self.assertTrue(parsed[1]['censored'])
-        self.assertEqual(parsed[1]['category'], 'Censored')
+        assert result['count'] == 35
+        assert result['validation_status'] == 'proceed'
+        assert report_path.exists()
         
-    def test_validate_parsed_metadata(self):
-        """Test validation of parsed metadata."""
-        # Valid data
-        valid_data = [
-            {
-                'planet_name': 'Test',
-                'equilibrium_temp_k': 1000.0,
-                'host_star_metallicity': 0.1,
-                'spectral_resolution_r': 500.0,
-                'snr_hst': 10.0,
-                'snr_jwst': 15.0,
-                'category': 'Hot Jupiter'
-            }
+        with open(report_path, 'r') as f:
+            saved_report = json.load(f)
+            assert saved_report['count'] == 35
+            assert saved_report['validation_status'] == 'proceed'
+
+    def test_sample_size_below_threshold(self, tmp_path, caplog):
+        """Test when sample size is below the minimum threshold."""
+        mock_data = [
+            {'planet_name': f'Planet_{i}', 'temperature': 1000, 'metallicity': 0.1, 
+             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
+             'instrument': 'Test', 'wavelength_range': '1-2um'}
+            for i in range(20)
         ]
-        self.assertTrue(validate_parsed_metadata(valid_data))
         
-        # Invalid data (missing field)
-        invalid_data = [
-            {
-                'planet_name': 'Test',
-                'equilibrium_temp_k': 1000.0,
-                # Missing other required fields
-            }
+        report_path = tmp_path / "sample_size_report.json"
+        
+        # Capture log output
+        with caplog.at_level("WARNING"):
+            result = validate_sample_size(
+                data=mock_data,
+                min_threshold=30,
+                max_threshold=45,
+                output_path=str(report_path)
+            )
+        
+        assert result['count'] == 20
+        assert result['validation_status'] == 'proceed'
+        assert "below" in result['message'].lower()
+        
+        # Verify log was written
+        assert any("below" in record.message.lower() for record in caplog.records)
+
+    def test_sample_size_above_threshold(self, tmp_path, caplog):
+        """Test when sample size exceeds the maximum threshold."""
+        mock_data = [
+            {'planet_name': f'Planet_{i}', 'temperature': 1000, 'metallicity': 0.1, 
+             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
+             'instrument': 'Test', 'wavelength_range': '1-2um'}
+            for i in range(50)
         ]
-        self.assertFalse(validate_parsed_metadata(invalid_data))
         
-    def test_process_download_metadata(self):
-        """Test saving metadata to CSV."""
-        with tempfile.TemporaryDirectory() as temp_dir:
-            output_path = Path(temp_dir) / "test_metadata.csv"
-            metadata = [
-                {
-                    'planet_name': 'Test',
-                    'equilibrium_temp_k': 1000.0,
-                    'host_star_metallicity': 0.1,
-                    'spectral_resolution_r': 500.0,
-                    'snr_hst': 10.0,
-                    'snr_jwst': 15.0,
-                    'category': 'Hot Jupiter'
-                }
-            ]
-            
-            process_download_metadata(metadata, output_path)
-            
-            self.assertTrue(output_path.exists())
-            with open(output_path, 'r') as f:
-                content = f.read()
-                self.assertIn('planet_name', content)
-                self.assertIn('Test', content)
-                
-    @patch('download.fetch_spectrum_data')
-    def test_fetch_spectrum_data(self, mock_fetch):
-        """Test fetch_spectrum_data function."""
-        mock_fetch.return_value = (Path('/tmp/raw'), [])
-        raw_dir, metadata = fetch_spectrum_data()
+        report_path = tmp_path / "sample_size_report.json"
         
-        self.assertIsInstance(raw_dir, Path)
-        self.assertIsInstance(metadata, list)
+        with caplog.at_level("WARNING"):
+            result = validate_sample_size(
+                data=mock_data,
+                min_threshold=30,
+                max_threshold=45,
+                output_path=str(report_path)
+            )
+        
+        assert result['count'] == 50
+        assert result['validation_status'] == 'proceed'
+        assert "exceeds" in result['message'].lower()
+        
+        assert any("exceeds" in record.message.lower() for record in caplog.records)
+
+    def test_unique_planet_counting(self, tmp_path):
+        """Test that unique planets are counted correctly even with duplicates."""
+        mock_data = [
+            {'planet_name': 'Planet_A', 'temperature': 1000, 'metallicity': 0.1, 
+             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
+             'instrument': 'Test', 'wavelength_range': '1-2um'},
+            {'planet_name': 'Planet_A', 'temperature': 1000, 'metallicity': 0.1, 
+             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
+             'instrument': 'Test', 'wavelength_range': '1-2um'}, # Duplicate
+            {'planet_name': 'Planet_B', 'temperature': 1000, 'metallicity': 0.1, 
+             'snr': 10, 'resolution': 100, 'planet_category': 'Other', 
+             'instrument': 'Test', 'wavelength_range': '1-2um'}
+        ]
+        
+        report_path = tmp_path / "sample_size_report.json"
+        
+        result = validate_sample_size(
+            data=mock_data,
+            min_threshold=1,
+            max_threshold=10,
+            output_path=str(report_path)
+        )
+        
+        # Should count 2 unique planets
+        assert result['count'] == 2

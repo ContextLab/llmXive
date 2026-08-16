@@ -1,16 +1,21 @@
+T013:
+  c: false
+  h: 73d88426b9e333274698890cc445ae2897982170b98c41709a433b82e30b3631
+  r: The repository lacks a `validate_sample_size` implementation in `code/download.py`
+    (no such function is present in the shown code) and the required output file `data/processed/sample_size_report.json`
+    does not exist. Both the core logic and the deliverable artifact are missing.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `logs/download.log` file was provided; the response contains
+    only the task description and specifications, with no actual log file or its contents
+    showing progress updates. The required artifact is missing.
 T017:
   c: false
   h: 041e4faa232dd6c5184ab3378ed983b3b5aad816c4fd5956be2172ba4d044dd7
   r: "The required artifact `tests/integration/test_retrieval.py` does not exist in\
     \ the repository, so the integration test for retrieval on a sample spectrum is\
     \ missing. Without this file, the task\u2019s deliverable is not provided."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or log files were provided that demonstrate the added\
-    \ error\u2011handling logic (logging failures, attempting upper\u2011limit derivation,\
-    \ and continuing execution). Without concrete artifacts, we cannot verify that\
-    \ the requirement has been implemented."
 T025c:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -58,20 +63,6 @@ T031:
     (the file shows other analysis utilities but no such implementation), and the
     required `results/quality_report.md` file is absent. Both the core code change
     and the generated report are missing.
-T035:
-  c: false
-  h: 1a607019b54225f5242aab284a19966875ec30e7336c5e6381d3a535b8810afb
-  r: The repository lacks a `calculate_detection_limit` function in `code/analysis.py`
-    (the shown code contains unrelated analysis utilities) and the required output
-    file `data/processed/detection_limits.csv` does not exist. Both the implementation
-    and the generated CSV are missing, so the task is not satisfied.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No figure named \u201CInstrumental Noise vs. Signal\u201D (or any plot) is present\
-    \ in the `results/plots/` directory, and no code or output showing the SNR distribution\
-    \ and threshold per SC-003 was supplied. The required artifact is missing, so\
-    \ the task is not satisfied."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -86,16 +77,9 @@ T039:
     \ are present; the only evidence provided concerns data acquisition and analysis\
     \ for exoplanet spectra, which does not satisfy the T039 cleanup task. The required\
     \ refactored code artifacts are missing."
-T040:
+T043:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No performance logs, benchmark results, or optimized code artifacts were provided\
-    \ to demonstrate that the entire pipeline now completes in under 6\u202Fhours.\
-    \ Without such evidence, the claim that the T040 performance optimization requirement\
-    \ is satisfied cannot be verified."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any files or code under a `tests/unit/` directory was provided;
-    thus the required additional unit tests are missing. The implementer must add
-    concrete test files in `tests/unit/` that exercise the new functionality.
+  r: No validation artifacts (e.g., logs, output files, or a report confirming that
+    quickstart.md was parsed and passed all checks) were provided; the claim lacks
+    any concrete evidence that the quickstart.md validation was actually performed.

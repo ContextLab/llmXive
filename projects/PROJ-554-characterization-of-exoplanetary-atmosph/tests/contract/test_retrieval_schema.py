@@ -1,174 +1,207 @@
 """
 Contract test for retrieval output schema.
 
-Validates that the retrieval results produced by code/retrieval.py
-conform to the expected schema defined in code/data_models.py.
+This test verifies that the retrieval output schema matches the specification
+defined in `code/retrieval_output_schema.py` and that the data produced by
+`code/retrieval_output.py` adheres to the required structure.
 
-This test ensures that:
-1. The output CSV contains all required columns.
-2. Data types match expectations (numeric for values, string for flags).
-3. Censorship status is valid (UpperLimit, Detected, or None).
-4. Water abundance values are within physically plausible bounds.
+The schema defines the following required fields for each retrieval result:
+- planet_name: str
+- water_mixing_ratio: float (log10 scale)
+- uncertainty: float
+- is_upper_limit: bool
+- detection_limit: float
+- min_detectable_concentration: float
 """
+
 import os
 import sys
-import pandas as pd
-import numpy as np
-from pathlib import Path
 import pytest
+import pandas as pd
+from pathlib import Path
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "code"))
 
-from data_models import RetrievalResult, CensorshipStatus, PlanetCategory
-from utils import CensoredDataError
-
-
-def validate_retrieval_schema(df: pd.DataFrame) -> None:
-    """
-    Validates the schema of a retrieval results DataFrame.
-    
-    Args:
-        df: DataFrame containing retrieval results.
-        
-    Raises:
-        AssertionError: If the schema is invalid.
-        ValueError: If data values are out of expected ranges.
-    """
-    required_columns = {
-        'planet_name',
-        'equilibrium_temp',
-        'host_star_metallicity',
-        'spectral_resolution',
-        'snr',
-        'log10_water_mixing_ratio',
-        'water_mixing_ratio_std',
-        'censorship_status',
-        'planet_category'
-    }
-    
-    # Check for required columns
-    missing_cols = required_columns - set(df.columns)
-    assert not missing_cols, f"Missing required columns: {missing_cols}"
-    
-    # Validate censorship_status values
-    valid_statuses = {status.value for status in CensorshipStatus} | {None}
-    invalid_statuses = set(df['censorship_status'].dropna().unique()) - valid_statuses
-    assert not invalid_statuses, f"Invalid censorship statuses found: {invalid_statuses}"
-    
-    # Validate planet_category values
-    valid_categories = {cat.value for cat in PlanetCategory} | {None}
-    invalid_categories = set(df['planet_category'].dropna().unique()) - valid_categories
-    assert not invalid_categories, f"Invalid planet categories found: {invalid_categories}"
-    
-    # Validate numeric columns
-    numeric_cols = [
-        'equilibrium_temp',
-        'host_star_metallicity',
-        'spectral_resolution',
-        'snr',
-        'log10_water_mixing_ratio',
-        'water_mixing_ratio_std'
-    ]
-    
-    for col in numeric_cols:
-        if col in df.columns:
-            non_numeric = df[col][~pd.to_numeric(df[col], errors='coerce').notna() & df[col].notna()]
-            assert len(non_numeric) == 0, f"Column {col} contains non-numeric values"
-            
-            # Check for plausible ranges
-            if col == 'equilibrium_temp':
-                assert df[col].min() >= 0, "Equilibrium temperature cannot be negative"
-                assert df[col].max() <= 5000, "Equilibrium temperature exceeds plausible range (>5000K)"
-                
-            if col == 'log10_water_mixing_ratio':
-                # Water mixing ratio typically between 1e-10 and 1e-2
-                assert df[col].min() >= -10, "Water mixing ratio too low (<1e-10)"
-                assert df[col].max() <= 0, "Water mixing ratio too high (>1)"
-                
-            if col == 'water_mixing_ratio_std':
-                assert df[col].min() >= 0, "Standard deviation cannot be negative"
-                
-            if col == 'spectral_resolution':
-                assert df[col].min() >= 1, "Spectral resolution must be at least 1"
-                
-            if col == 'snr':
-                assert df[col].min() >= 0, "SNR cannot be negative"
+from retrieval_output_schema import (
+    RetrievalOutputSchema,
+    get_schema_columns,
+    validate_schema_row,
+)
+from data_models import RetrievalResult, CensorshipStatus
 
 
-def test_retrieval_output_schema():
-    """
-    Contract test to verify retrieval output schema.
-    
-    This test loads the retrieval results CSV and validates its structure
-    against the expected schema.
-    """
-    results_path = project_root / 'data' / 'processed' / 'retrieval_results.csv'
-    
-    if not results_path.exists():
-        pytest.skip(f"Retrieval results file not found at {results_path}. "
-                   "Run retrieval pipeline first.")
-    
-    # Load the retrieval results
-    df = pd.read_csv(results_path)
-    
-    # Validate the schema
-    validate_retrieval_schema(df)
-    
-    # Additional checks for data integrity
-    assert len(df) > 0, "Retrieval results file is empty"
-    
-    # Check that we have a mix of detected and upper limit values
-    if 'censorship_status' in df.columns:
-        detected_count = len(df[df['censorship_status'] == CensorshipStatus.DETECTED.value])
-        upper_limit_count = len(df[df['censorship_status'] == CensorshipStatus.UPPER_LIMIT.value])
-        
-        # Log counts for debugging (not assertion)
-        print(f"Detected: {detected_count}, Upper Limits: {upper_limit_count}")
-        
-        # At least some results should exist (either detected or upper limits)
-        assert detected_count + upper_limit_count > 0, "No valid retrieval results found"
+class TestRetrievalOutputSchema:
+    """Contract tests for the retrieval output schema."""
 
+    @pytest.fixture
+    def expected_columns(self):
+        """Return the expected columns defined in the schema."""
+        return get_schema_columns()
 
-def test_retrieval_result_dataclass_compliance():
-    """
-    Test that the DataFrame rows can be instantiated as RetrievalResult dataclasses.
-    
-    This ensures the data conforms to the data model definition.
-    """
-    results_path = project_root / 'data' / 'processed' / 'retrieval_results.csv'
-    
-    if not results_path.exists():
-        pytest.skip(f"Retrieval results file not found at {results_path}. "
-                   "Run retrieval pipeline first.")
-    
-    df = pd.read_csv(results_path)
-    
-    # Try to instantiate each row as a RetrievalResult
-    for idx, row in df.iterrows():
-        try:
-            result = RetrievalResult(
-                planet_name=row['planet_name'],
-                equilibrium_temp=row['equilibrium_temp'],
-                host_star_metallicity=row['host_star_metallicity'],
-                spectral_resolution=row['spectral_resolution'],
-                snr=row['snr'],
-                log10_water_mixing_ratio=row['log10_water_mixing_ratio'],
-                water_mixing_ratio_std=row['water_mixing_ratio_std'],
-                censorship_status=CensorshipStatus(row['censorship_status']) if pd.notna(row['censorship_status']) else None,
-                planet_category=PlanetCategory(row['planet_category']) if pd.notna(row['planet_category']) else None
-            )
-            
-            # Verify the instantiated object has expected attributes
-            assert hasattr(result, 'planet_name')
-            assert hasattr(result, 'log10_water_mixing_ratio')
-            assert hasattr(result, 'censorship_status')
-            
-        except (ValueError, TypeError) as e:
-            pytest.fail(f"Row {idx} cannot be instantiated as RetrievalResult: {str(e)}")
+    def test_schema_columns_match_specification(self, expected_columns):
+        """Verify that the schema columns match the task specification."""
+        required_fields = {
+            "planet_name",
+            "water_mixing_ratio",
+            "uncertainty",
+            "is_upper_limit",
+            "detection_limit",
+            "min_detectable_concentration",
+        }
+        assert set(expected_columns) == required_fields, (
+            f"Schema columns {set(expected_columns)} do not match "
+            f"required fields {required_fields}"
+        )
 
+    def test_retrieval_result_mapping(self):
+        """Test that RetrievalResult dataclass maps correctly to schema."""
+        # Create a sample RetrievalResult with censored data
+        result = RetrievalResult(
+            planet_name="TestPlanet",
+            water_mixing_ratio=-5.0,
+            uncertainty=0.5,
+            censorship_status=CensorshipStatus.UPPER_LIMIT,
+            detection_limit=-4.0,
+            min_detectable_concentration=-4.5,
+        )
 
-if __name__ == '__main__':
-    # Run tests when executed directly
-    pytest.main([__file__, '-v'])
+        # Map to schema dictionary
+        schema_dict = RetrievalOutputSchema.map_from_result(result)
+
+        # Verify all required fields are present
+        for field in get_schema_columns():
+            assert field in schema_dict, f"Missing field: {field}"
+
+        # Verify types
+        assert isinstance(schema_dict["planet_name"], str)
+        assert isinstance(schema_dict["water_mixing_ratio"], float)
+        assert isinstance(schema_dict["uncertainty"], float)
+        assert isinstance(schema_dict["is_upper_limit"], bool)
+        assert isinstance(schema_dict["detection_limit"], float)
+        assert isinstance(schema_dict["min_detectable_concentration"], float)
+
+    def test_validate_schema_row_valid(self, expected_columns):
+        """Test validation of a valid schema row."""
+        valid_row = {
+            "planet_name": "WASP-12b",
+            "water_mixing_ratio": -3.5,
+            "uncertainty": 0.3,
+            "is_upper_limit": False,
+            "detection_limit": -4.0,
+            "min_detectable_concentration": -3.8,
+        }
+
+        is_valid, error_msg = validate_schema_row(valid_row, expected_columns)
+        assert is_valid, f"Valid row rejected: {error_msg}"
+
+    def test_validate_schema_row_missing_field(self, expected_columns):
+        """Test validation fails for missing required field."""
+        invalid_row = {
+            "planet_name": "WASP-12b",
+            "water_mixing_ratio": -3.5,
+            "uncertainty": 0.3,
+            # Missing is_upper_limit, detection_limit, min_detectable_concentration
+        }
+
+        is_valid, error_msg = validate_schema_row(invalid_row, expected_columns)
+        assert not is_valid
+        assert "missing" in error_msg.lower()
+
+    def test_validate_schema_row_wrong_type(self, expected_columns):
+        """Test validation fails for wrong data type."""
+        invalid_row = {
+            "planet_name": "WASP-12b",
+            "water_mixing_ratio": "not_a_float",  # Wrong type
+            "uncertainty": 0.3,
+            "is_upper_limit": False,
+            "detection_limit": -4.0,
+            "min_detectable_concentration": -3.8,
+        }
+
+        is_valid, error_msg = validate_schema_row(invalid_row, expected_columns)
+        assert not is_valid
+        assert "type" in error_msg.lower() or "float" in error_msg.lower()
+
+    def test_validate_schema_row_upper_limit_consistency(self, expected_columns):
+        """Test that upper limit flags are consistent with detection limits."""
+        # Case 1: Upper limit with detection_limit set
+        row1 = {
+            "planet_name": "TestPlanet1",
+            "water_mixing_ratio": -5.0,
+            "uncertainty": 0.5,
+            "is_upper_limit": True,
+            "detection_limit": -4.0,
+            "min_detectable_concentration": -4.5,
+        }
+        is_valid, _ = validate_schema_row(row1, expected_columns)
+        assert is_valid
+
+        # Case 2: Non-upper limit should have reasonable values
+        row2 = {
+            "planet_name": "TestPlanet2",
+            "water_mixing_ratio": -3.0,
+            "uncertainty": 0.2,
+            "is_upper_limit": False,
+            "detection_limit": -5.0,
+            "min_detectable_concentration": -4.8,
+        }
+        is_valid, _ = validate_schema_row(row2, expected_columns)
+        assert is_valid
+
+    def test_csv_output_schema_compliance(self, tmp_path, expected_columns):
+        """Test that CSV output matches the schema columns."""
+        # Create a sample DataFrame
+        df = pd.DataFrame(
+            [
+                {
+                    "planet_name": "PlanetA",
+                    "water_mixing_ratio": -4.0,
+                    "uncertainty": 0.4,
+                    "is_upper_limit": True,
+                    "detection_limit": -3.5,
+                    "min_detectable_concentration": -3.8,
+                },
+                {
+                    "planet_name": "PlanetB",
+                    "water_mixing_ratio": -2.5,
+                    "uncertainty": 0.2,
+                    "is_upper_limit": False,
+                    "detection_limit": -4.0,
+                    "min_detectable_concentration": -3.9,
+                },
+            ]
+        )
+
+        # Write to CSV
+        csv_path = tmp_path / "retrieval_results.csv"
+        df.to_csv(csv_path, index=False)
+
+        # Read back and validate
+        df_read = pd.read_csv(csv_path)
+        assert list(df_read.columns) == expected_columns, (
+            f"CSV columns {list(df_read.columns)} do not match schema {expected_columns}"
+        )
+
+        # Validate each row
+        for _, row in df_read.iterrows():
+            is_valid, error_msg = validate_schema_row(row.to_dict(), expected_columns)
+            assert is_valid, f"Row validation failed: {error_msg}"
+
+    def test_empty_dataframe_schema(self, expected_columns):
+        """Test that an empty DataFrame still has the correct schema."""
+        df = pd.DataFrame(columns=expected_columns)
+        assert list(df.columns) == expected_columns
+
+        # Validate empty row (should pass or handle gracefully)
+        if len(df) == 0:
+            # Empty DataFrame is valid as long as columns match
+            assert True
+        else:
+            for _, row in df.iterrows():
+                is_valid, _ = validate_schema_row(row.to_dict(), expected_columns)
+                assert is_valid
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

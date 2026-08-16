@@ -1,114 +1,95 @@
 import pytest
 import logging
-from unittest.mock import patch, MagicMock
+import tempfile
+import os
 from pathlib import Path
-import json
+import sys
 
-from download import fetch_spectrum_data, parse_spectrum_metadata, process_download_metadata
-from utils import DataFetchError
+# Add project root to path if needed, assuming standard structure
+# In real execution, this is handled by the runner
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-@pytest.fixture
-def mock_response():
-    """Mock a valid API response."""
-    data = {
-        "data": [
-            {
-                "pl_name": "HD 209458 b",
-                "pl_eqt": 1450.0,
-                "pl_met": 0.02,
-                "resolution": 100.0,
-                "snr": 50.0,
-                "pl_orbper": 3.52
-            }
-        ]
-    }
-    mock = MagicMock()
-    mock.json.return_value = data
-    mock.status_code = 200
-    mock.headers = {'Content-Type': 'application/json'}
-    return mock
+from code.download import setup_download_logging, fetch_spectrum_data
+from code.api_config import QUERY_PARAMS
 
-@pytest.fixture
-def temp_dir(tmp_path):
-    """Create a temporary directory for output."""
-    return tmp_path
+class TestDownloadLogging:
+    """
+    Unit tests for T014: Logging for download progress and API response handling.
+    """
 
-@patch('download.requests.get')
-def test_fetch_spectrum_data_logs_success(mock_get, mock_response, temp_dir, caplog):
-    """Test that fetch_spectrum_data logs success and saves file."""
-    mock_get.return_value = mock_response
-    planet = "HD 209458 b"
-    
-    with caplog.at_level(logging.INFO):
-        path, meta = fetch_spectrum_data(planet, temp_dir)
-    
-    assert path is not None
-    assert path.exists()
-    assert f"Fetching data for planet: {planet}" in caplog.text
-    assert f"Successfully retrieved metadata for {planet}" in caplog.text
-    assert f"Raw spectrum data saved to:" in caplog.text
+    def test_setup_download_logging_creates_file(self):
+        """Verifies that setup_download_logging creates the log file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "test_download.log"
+            logger = setup_download_logging(log_path)
+            
+            assert log_path.exists(), "Log file should be created"
+            assert logger.name != "", "Logger should be configured"
+            
+            # Check if handlers are added
+            assert len(logger.handlers) >= 1, "Logger should have at least one handler"
 
-@patch('download.requests.get')
-def test_fetch_spectrum_data_logs_timeout(mock_get, temp_dir, caplog):
-    """Test that fetch_spectrum_data logs timeout error."""
-    import requests
-    mock_get.side_effect = requests.exceptions.Timeout()
-    planet = "HD 209458 b"
-    
-    with pytest.raises(DataFetchError):
-        with caplog.at_level(logging.ERROR):
-            fetch_spectrum_data(planet, temp_dir)
-    
-    assert f"Timeout fetching data for {planet}" in caplog.text
+    def test_setup_download_logging_writes_info(self):
+        """Verifies that logging writes to the file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "test_download.log"
+            logger = setup_download_logging(log_path)
+            
+            test_msg = "Test log message for T014"
+            logger.info(test_msg)
+            
+            # Force flush
+            for handler in logger.handlers:
+                handler.flush()
+            
+            content = log_path.read_text()
+            assert test_msg in content, f"Log message '{test_msg}' should be in file"
+            assert "INFO" in content, "Log level INFO should be present"
 
-@patch('download.requests.get')
-def test_process_download_metadata_progress_logging(mock_get, temp_dir, caplog):
-    """Test that process_download_metadata logs progress for each planet."""
-    mock_response = MagicMock()
-    mock_response.json.return_value = {
-        "data": [{"pl_name": "P1", "pl_eqt": 1000, "pl_met": 0.1, "resolution": 50, "snr": 10}]
-    }
-    mock_response.status_code = 200
-    mock_response.headers = {}
-    
-    mock_get.return_value = mock_response
-    
-    planets = ["P1", "P2"]
-    
-    # Mock the second planet to return no data
-    def side_effect(url, params, **kwargs):
-        if params.get('cmd') and 'P2' in params.get('cmd'):
-            m = MagicMock()
-            m.json.return_value = {"data": []}
-            m.status_code = 200
-            return m
-        return mock_response
+    def test_fetch_spectrum_data_logs_request(self, mocker):
+        """Verifies that fetch_spectrum_data logs the request details."""
+        # Mock requests.get to avoid real network call
+        mock_response = mocker.Mock()
+        mock_response.status_code = 200
+        mock_response.text = "mock,data"
+        mock_response.headers = {"Content-Type": "text/csv"}
+        
+        mocker.patch('code.download.requests.get', return_value=mock_response)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "test_fetch.log"
+            logger = setup_download_logging(log_path)
+            
+            # Call the function
+            result = fetch_spectrum_data("test_planet")
+            
+            # Check logs
+            for handler in logger.handlers:
+                handler.flush()
+            
+            content = log_path.read_text()
+            assert "API Request" in content, "Should log API request completion"
+            assert "Status Code" in content, "Should log status code"
+            assert "200" in content, "Should log 200 status"
 
-    mock_get.side_effect = side_effect
-
-    with caplog.at_level(logging.INFO):
-        result = process_download_metadata(planets, temp_dir)
-    
-    assert len(result) == 1
-    assert f"Processing P1" in caplog.text
-    assert f"Processing P2" in caplog.text
-    assert f"Success: P1" in caplog.text
-    assert f"No data returned for P2" in caplog.text
-    assert "Batch download complete" in caplog.text
-
-def test_parse_spectrum_metadata_logs_parsing(caplog):
-    """Test that parse_spectrum_metadata logs parsed values."""
-    raw_meta = {
-        "pl_name": "Test b",
-        "pl_eqt": 1200.5,
-        "pl_met": -0.5,
-        "resolution": 200,
-        "snr": 30
-    }
-    
-    with caplog.at_level(logging.DEBUG):
-        parsed = parse_spectrum_metadata(raw_meta, "Test b")
-    
-    assert parsed['equilibrium_temperature'] == 1200.5
-    assert "Parsed equilibrium_temperature for Test b" in caplog.text
-    assert "Metadata parsed for Test b" in caplog.text
+    def test_fetch_spectrum_data_logs_error(self, mocker):
+        """Verifies that fetch_spectrum_data logs errors correctly."""
+        mock_response = mocker.Mock()
+        mock_response.status_code = 404
+        mock_response.text = "Not Found"
+        
+        mocker.patch('code.download.requests.get', return_value=mock_response)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            log_path = Path(tmpdir) / "test_error.log"
+            logger = setup_download_logging(log_path)
+            
+            with pytest.raises(Exception): # DataFetchError or similar
+                fetch_spectrum_data("test_planet")
+            
+            for handler in logger.handlers:
+                handler.flush()
+            
+            content = log_path.read_text()
+            assert "error" in content.lower(), "Should log error message"
+            assert "404" in content, "Should log 404 status"

@@ -1,0 +1,88 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Retrieval Output Schema
+description: >
+  Schema for atmospheric retrieval results derived from petitRADTRANS.
+  Defines the structure for water vapor mixing ratios, uncertainty estimates,
+  and censored data flags (upper limits) as required by US2.
+  Addresses reviewer concerns (Marie Curie, Rosalind Franklin) regarding
+  detection limits and signal-to-noise definitions.
+
+type: object
+required:
+  - planet_name
+  - log10_water_mixing_ratio
+  - standard_deviation
+  - is_upper_limit
+  - detection_limit_log10
+  - min_detectable_concentration
+
+properties:
+  planet_name:
+    type: string
+    description: Unique identifier for the exoplanet (e.g., "HD 209458 b").
+    minLength: 1
+
+  log10_water_mixing_ratio:
+    type: number
+    description: >
+      The base-10 logarithm of the water vapor mixing ratio (volume mixing ratio).
+      If is_upper_limit is true, this value represents the 3-sigma upper limit
+      derived from the noise floor (T019 logic).
+    minimum: -20
+    maximum: 0
+
+  standard_deviation:
+    type: number
+    description: >
+      The 1-sigma uncertainty interval (standard deviation) of the retrieved
+      log10 water mixing ratio. For upper limits, this represents the uncertainty
+      in the detection limit calculation.
+    minimum: 0
+
+  is_upper_limit:
+    type: boolean
+    description: >
+      Flag indicating if the value is a censored upper limit due to low SNR
+      (Signal-to-Noise Ratio < 3-sigma above noise floor).
+      True if the signal was not distinguishable from the instrumental noise floor.
+      False if a robust retrieval was performed.
+
+  detection_limit_log10:
+    type: number
+    description: >
+      The calculated detection limit (3-sigma) in log10 mixing ratio units.
+      Derived from the instrumental noise floor and spectral resolution.
+      Used when is_upper_limit is True.
+      This field satisfies the requirement to "define the detection limit for
+      water vapor lines before asserting a correlation" (Rosalind Franklin).
+
+  min_detectable_concentration:
+    type: number
+    description: >
+      The Minimum Detectable Concentration (MDC) in linear mixing ratio units.
+      Calculated as 10^(detection_limit_log10).
+      Represents the lowest concentration physically detectable given the
+      SNR and Resolution of the observation.
+      This addresses the "quantity of photons" and "detection limit" concerns
+      raised by Marie Curie.
+
+  retrieval_status:
+    type: string
+    enum: [converged, upper_limit, failed]
+    description: Status of the petitRADTRANS retrieval run.
+
+  snr_at_transmission:
+    type: number
+    description: The signal-to-noise ratio at the characteristic transmission wavelength.
+    minimum: 0
+
+  spectral_resolution:
+    type: integer
+    description: The spectral resolution (R) used for the retrieval.
+    minimum: 1
+
+  instrument:
+    type: string
+    description: Name of the instrument used for the observation (e.g., "HST/WFC3").
+
+additionalProperties: false
