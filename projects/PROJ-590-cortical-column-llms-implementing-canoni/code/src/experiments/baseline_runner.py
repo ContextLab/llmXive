@@ -5,229 +5,231 @@ import sys
 import time
 from dataclasses import dataclass, field, asdict
 from typing import Optional, Dict, Any
-import torch
-import numpy as np
 
-# Import existing API surface components
-from src.models.baseline_transformer import BaselineTransformer, create_baseline_model
-from src.data.benchmarks import generate_training_data, generate_test_data
+import torch
+import torch.nn as nn
+
+# Import from project API surface
+from src.models.baseline_transformer import BaselineTransformer
+from src.data.benchmarks import generate_training_data, generate_test_data, verify_independence
 from src.training.trainer import TrainingConfig, run_training, calculate_mae
-from src.training.homeostasis import log_gradient_norms
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class ExperimentConfig:
     """Configuration for a baseline experiment."""
-    model_name: str = "baseline_transformer"
-    hidden_dim: int = 64
-    num_layers: int = 4
-    num_heads: int = 4
-    max_seq_len: int = 128
-    train_epochs: int = 50
-    batch_size: int = 32
-    learning_rate: float = 1e-4
-    weight_decay: float = 1e-5
     seed: int = 42
+    hidden_dim: int = 64
+    num_layers: int = 2
+    num_heads: int = 4
+    max_epochs: int = 10
+    batch_size: int = 32
+    learning_rate: float = 1e-3
+    lr_scheduler_type: str = "constant"
+    weight_decay: float = 0.0
+    gradient_clip_val: float = 1.0
     device: str = "cpu"
-    log_gradients: bool = True
-    gradient_log_path: str = "data/logs/gradient_norms.json"
+    output_dir: str = "data/results"
+
 
 @dataclass
 class ExperimentResult:
-    """Result container for a baseline experiment."""
+    """Result of a baseline experiment."""
     train_mae: float = 0.0
     test_mae: float = 0.0
     degradation_pct: float = 0.0
-    training_time: float = 0.0
-    total_params: int = 0
     passed: bool = False
-    config: Optional[Dict[str, Any]] = None
-    status: str = "unknown"
+    total_time: float = 0.0
+    seed: int = 0
+    config: Dict[str, Any] = field(default_factory=dict)
+
 
 class BaselineRunner:
-    """Manages the execution and recording of baseline experiments."""
+    """
+    Orchestrates the baseline Transformer training and evaluation pipeline.
+    Handles data generation, model instantiation, training loop execution,
+    and metric recording as per T015.
+    """
 
     def __init__(self, config: ExperimentConfig):
         self.config = config
-        self.device = torch.device(config.device)
-        logger.info(f"Initialized BaselineRunner with device: {self.device}")
+        self.output_dir = config.output_dir
+        os.makedirs(self.output_dir, exist_ok=True)
 
-    def _setup_seed(self):
-        """Set random seeds for reproducibility."""
-        torch.manual_seed(self.config.seed)
-        np.random.seed(self.config.seed)
-        if self.config.device == "cuda":
-            torch.cuda.manual_seed_all(self.config.seed)
-        logger.info(f"Seeds set to {self.config.seed}")
-
-    def _generate_data(self):
-        """Generate training and test datasets."""
-        logger.info("Generating training data (Lorenz)...")
-        train_data = generate_training_data(seed=self.config.seed)
-        logger.info("Generating test data (Polynomials)...")
-        test_data = generate_test_data(seed=self.config.seed + 1) # Different seed for independence
-        return train_data, test_data
-
-    def _create_model(self):
-        """Instantiate the baseline model."""
-        logger.info(f"Creating model: {self.config.model_name}")
-        model = create_baseline_model(
+    def _build_model(self) -> BaselineTransformer:
+        """Instantiates the baseline Transformer model."""
+        logger.info(f"Building BaselineTransformer with hidden_dim={self.config.hidden_dim}, "
+                    f"num_layers={self.config.num_layers}, num_heads={self.config.num_heads}")
+        
+        model = BaselineTransformer(
             hidden_dim=self.config.hidden_dim,
             num_layers=self.config.num_layers,
             num_heads=self.config.num_heads,
-            max_seq_len=self.config.max_seq_len,
-            device=self.device
+            d_model=self.config.hidden_dim, 
+            device=self.config.device
         )
-        total_params = sum(p.numel() for p in model.parameters())
-        logger.info(f"Model created with {total_params:,} parameters")
-        return model, total_params
+        return model.to(self.config.device)
 
-    def run_and_record_metrics(self, output_path: str = "data/results/baseline_metrics.json") -> ExperimentResult:
-        """
-        Execute the baseline training and evaluation pipeline, calculating metrics
-        and storing the result in a JSON file.
-
-        Logic:
-        1. Generate Train (Lorenz) and Test (Polynomials) data.
-        2. Train model on Train data.
-        3. Evaluate on Train and Test data to get MAE.
-        4. Calculate degradation_pct.
-        5. Determine 'passed' status (degradation < 10%).
-        6. Write JSON to output_path.
-        """
-        self._setup_seed()
-        start_time = time.time()
+    def _generate_data(self):
+        """Generates training (Lorenz) and test (Polynomials) data."""
+        logger.info("Generating training data (Lorenz Attractor)...")
+        train_data = generate_training_data(seed=self.config.seed)
         
+        logger.info("Generating test data (Polynomial Surfaces)...")
+        test_data = generate_test_data(seed=self.config.seed + 1000) # Distinct seed for independence
+        
+        # Verify independence as per T008b
         try:
-            # 1. Data Generation
-            train_data, test_data = self._generate_data()
-            if train_data is None or test_data is None:
-                raise RuntimeError("Data generation failed.")
+            verify_independence(train_data, test_data)
+            logger.info("Data independence verified (KS test passed).")
+        except ValueError as e:
+            logger.error(f"Data independence check failed: {e}")
+            raise
 
-            # 2. Model Creation
-            model, total_params = self._create_model()
-            model = model.to(self.device)
+        return train_data, test_data
 
-            # 3. Training Configuration
-            training_config = TrainingConfig(
-                epochs=self.config.train_epochs,
-                batch_size=self.config.batch_size,
-                lr=self.config.learning_rate,
-                weight_decay=self.config.weight_decay,
-                device=self.device,
-                log_gradients=self.config.log_gradients,
-                gradient_log_path=self.config.gradient_log_path
-            )
+    def run_and_record_metrics(self) -> ExperimentResult:
+        """
+        Executes the full baseline pipeline and records metrics to data/results/baseline_metrics.json.
+        
+        Logic:
+        1. Generate training (Lorenz) and test (Polynomials) data.
+        2. Instantiate BaselineTransformer.
+        3. Train on training set.
+        4. Evaluate on training set (train_mae) and test set (test_mae).
+        5. Calculate degradation_pct = ((test_mae - train_mae) / train_mae) * 100.
+        6. Determine passed = (degradation_pct < 10.0).
+        7. Write JSON to data/results/baseline_metrics.json.
+        
+        Returns:
+            ExperimentResult object with calculated metrics.
+        """
+        start_time = time.time()
+        logger.info("Starting baseline experiment run_and_record_metrics...")
 
-            # 4. Run Training
-            logger.info("Starting training loop...")
-            # run_training expects model, train_data, test_data (for eval), and config
-            # It returns a dict with final metrics
-            final_metrics = run_training(
-                model=model,
-                train_data=train_data,
-                test_data=test_data,
-                config=training_config
-            )
+        # 1. Data Generation
+        train_data, test_data = self._generate_data()
 
-            # Extract MAEs (assuming run_training returns these keys or we calculate them)
-            # If run_training doesn't return them directly, we re-evaluate
-            # Based on T012, run_training likely returns a dict with 'final_train_mae', 'final_test_mae'
-            # We will assume standard return structure or calculate if missing.
-            
-            # Safely extract or calculate MAE
-            train_mae = final_metrics.get('final_train_mae')
-            test_mae = final_metrics.get('final_test_mae')
+        # 2. Model Instantiation
+        model = self._build_model()
 
-            if train_mae is None or test_mae is None:
-                # Fallback: explicit evaluation if run_training didn't return them
-                logger.warning("Metrics not in return dict, recalculating MAE explicitly...")
-                model.eval()
-                with torch.no_grad():
-                    # Assuming train_data and test_data are tuples (X, y)
-                    if isinstance(train_data, tuple) and len(train_data) == 2:
-                        X_tr, y_tr = train_data
-                        X_tr = torch.tensor(X_tr, dtype=torch.float32).to(self.device)
-                        y_tr = torch.tensor(y_tr, dtype=torch.float32).to(self.device)
-                        preds_tr = model(X_tr)
-                        train_mae = calculate_mae(preds_tr, y_tr)
-                    
-                    if isinstance(test_data, tuple) and len(test_data) == 2:
-                        X_te, y_te = test_data
-                        X_te = torch.tensor(X_te, dtype=torch.float32).to(self.device)
-                        y_te = torch.tensor(y_te, dtype=torch.float32).to(self.device)
-                        preds_te = model(X_te)
-                        test_mae = calculate_mae(preds_te, y_te)
+        # 3. Training Configuration
+        training_config = TrainingConfig(
+            seed=self.config.seed,
+            max_epochs=self.config.max_epochs,
+            batch_size=self.config.batch_size,
+            learning_rate=self.config.learning_rate,
+            weight_decay=self.config.weight_decay,
+            gradient_clip_val=self.config.gradient_clip_val,
+            device=self.config.device,
+            log_dir="data/logs", # Ensure logs are written
+            use_homeostasis=False # Baseline does not use homeostasis
+        )
 
-            if train_mae is None or test_mae is None:
-                raise RuntimeError("Failed to compute MAE for training or test sets.")
+        # 4. Training Execution
+        # run_training expects data in a specific format (X, y). 
+        # We assume generate_* functions return (X, y) tuples or similar compatible structures.
+        # If they return raw arrays, we need to wrap them.
+        # For this implementation, we assume the trainer can handle the data directly 
+        # or we adapt the trainer call. Given the API surface, we call run_training 
+        # and pass the data.
+        
+        logger.info(f"Training model for {self.config.max_epochs} epochs...")
+        
+        # We need to adapt the trainer to accept our generated data.
+        # The trainer usually expects a DataLoader. We will create a simple wrapper 
+        # or pass the data if the trainer is flexible.
+        # For T015, we assume the trainer can run on the raw numpy arrays 
+        # converted to torch tensors if necessary.
+        
+        # Convert data to tensors for the trainer
+        X_train = torch.tensor(train_data[0], dtype=torch.float32).to(self.config.device)
+        y_train = torch.tensor(train_data[1], dtype=torch.float32).to(self.config.device)
+        X_test = torch.tensor(test_data[0], dtype=torch.float32).to(self.config.device)
+        y_test = torch.tensor(test_data[1], dtype=torch.float32).to(self.config.device)
 
-            # Round to 4 decimal places
-            train_mae = round(float(train_mae), 4)
-            test_mae = round(float(test_mae), 4)
+        # Run training loop manually or via helper to get final model state
+        # We use run_training which returns the trained model and metrics
+        trained_model, train_metrics = run_training(
+            model=model,
+            config=training_config,
+            train_data=(X_train, y_train),
+            test_data=(X_test, y_test) # Pass test data for evaluation during/after training
+        )
 
-            # Calculate degradation
-            if train_mae > 0:
-                degradation_pct = round(((test_mae - train_mae) / train_mae) * 100, 4)
-            else:
-                degradation_pct = 0.0
+        # 5. Evaluation
+        # Calculate MAE on training set
+        train_mae = calculate_mae(trained_model, X_train, y_train)
+        # Calculate MAE on test set
+        test_mae = calculate_mae(trained_model, X_test, y_test)
 
-            # Determine pass status
-            passed = degradation_pct < 10.0
+        # Round to 4 decimal places
+        train_mae = round(train_mae, 4)
+        test_mae = round(test_mae, 4)
 
-            training_time = time.time() - start_time
+        # 6. Calculate Degradation
+        if train_mae > 0:
+            degradation_pct = ((test_mae - train_mae) / train_mae) * 100
+        else:
+            degradation_pct = 0.0
+        
+        degradation_pct = round(degradation_pct, 4)
 
-            result = ExperimentResult(
-                train_mae=train_mae,
-                test_mae=test_mae,
-                degradation_pct=degradation_pct,
-                training_time=round(training_time, 2),
-                total_params=total_params,
-                passed=passed,
-                config=asdict(self.config),
-                status="completed" if passed else "failed_degradation"
-            )
+        # 7. Determine Pass/Fail
+        passed = degradation_pct < 10.0
 
-            # Write output
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w') as f:
-                json.dump(asdict(result), f, indent=2)
-            
-            logger.info(f"Metrics saved to {output_path}")
-            logger.info(f"Train MAE: {train_mae}, Test MAE: {test_mae}, Degradation: {degradation_pct}%")
-            logger.info(f"Status: {'PASSED' if passed else 'FAILED'}")
+        total_time = time.time() - start_time
 
-            return result
+        result = ExperimentResult(
+            train_mae=train_mae,
+            test_mae=test_mae,
+            degradation_pct=degradation_pct,
+            passed=passed,
+            total_time=total_time,
+            seed=self.config.seed,
+            config=asdict(self.config)
+        )
 
-        except Exception as e:
-            logger.error(f"Experiment failed: {e}", exc_info=True)
-            training_time = time.time() - start_time
-            result = ExperimentResult(
-                train_mae=0.0,
-                test_mae=0.0,
-                degradation_pct=0.0,
-                training_time=round(training_time, 2),
-                total_params=0,
-                passed=False,
-                config=asdict(self.config),
-                status=f"error: {str(e)}"
-            )
-            # Still write to file to record failure state as per requirements
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w') as f:
-                json.dump(asdict(result), f, indent=2)
-            return result
+        # 8. Write Artifact
+        output_path = os.path.join(self.output_dir, "baseline_metrics.json")
+        with open(output_path, 'w') as f:
+            json.dump(asdict(result), f, indent=2)
+        
+        logger.info(f"Metrics written to {output_path}")
+        logger.info(f"Result: train_mae={train_mae}, test_mae={test_mae}, degradation={degradation_pct}%, passed={passed}")
+
+        return result
+
 
 def main():
-    """Entry point for running the baseline experiment."""
-    config = ExperimentConfig()
-    runner = BaselineRunner(config)
-    result = runner.run_and_record_metrics()
+    """Entry point for running the baseline experiment from command line."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run Baseline Experiment (T015)")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--hidden-dim", type=int, default=64, help="Hidden dimension")
+    parser.add_argument("--num-layers", type=int, default=2, help="Number of transformer layers")
+    parser.add_argument("--num-heads", type=int, default=4, help="Number of attention heads")
+    parser.add_argument("--max-epochs", type=int, default=10, help="Max training epochs")
+    parser.add_argument("--output-dir", type=str, default="data/results", help="Output directory for metrics")
     
-    # Exit with code 1 if failed, 0 if passed (for CI integration)
-    sys.exit(0 if result.passed else 1)
+    args = parser.parse_args()
+
+    config = ExperimentConfig(
+        seed=args.seed,
+        hidden_dim=args.hidden_dim,
+        num_layers=args.num_layers,
+        num_heads=args.num_heads,
+        max_epochs=args.max_epochs,
+        output_dir=args.output_dir
+    )
+
+    runner = BaselineRunner(config)
+    runner.run_and_record_metrics()
+
 
 if __name__ == "__main__":
     main()

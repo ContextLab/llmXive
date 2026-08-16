@@ -1,12 +1,8 @@
-# Python bytecode and cache
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Compiled C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,58 +20,38 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
-*.cover
-
-# Virtual environments
-env/
+# Virtual Environments
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+.venv/
 
-# IDEs and editors
-.idea/
+# IDEs
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
 
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
 # Logs
 *.log
+data/logs/
 
-# Data directory (general exclusion)
+# Data (General) - Excluded to save space
 data/
 
-# EXCEPTIONS: Track experiment metadata and results for Constitution Principle IV
+# EXPLICITLY INCLUDE Experiment Metadata and Results
+# Constitution Principle IV: Single Source of Truth
 !data/configs/
-!data/configs/**
 !data/results/
-!data/results/**
-!data/logs/gradient_norms.json
-!data/logs/gradient_norms_microcircuit.json
-!data/logs/ei_ratio_log.json
 
-# State directory (must be tracked for Constitution Principle V)
+# State (Versioning Discipline) - Explicitly tracked as per Constitution Principle V
 state/
+
+# Local overrides (optional)
+.env
+.local/

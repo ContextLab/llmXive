@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No evidence was provided that a `code/` directory exists in the repository (e.g., a directory listing or any files inside it). Without such artifact, the requirement “Create `code/` root directory” cannot be confirmed.
-- `T004` (rejected 1x): The provided artifacts only describe research user stories for KVarN static prior and contain no configuration files, scripts, or documentation for setting up ruff linting or black formatting (e.g., no `pyproject.toml`, `.ruff.toml`, or CI integration). Consequently, the required linting/formatting setup is missing.
+- `T031` (rejected 1x): declared artifact(s) missing/empty/invalid: data/simulation/real_data_pvalues.csv
+- `T032` (rejected 1x): declared artifact(s) missing/empty/invalid: data/simulation/real_data_power.json
+- `T034` (rejected 1x): declared artifact(s) missing/empty/invalid: data/simulation/validation_metrics.json
 
 ## Required change
 

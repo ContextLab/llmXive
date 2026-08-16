@@ -22,13 +22,28 @@ T003:
     artifact is missing from the evidence.
 T011b:
   c: false
-  h: 93271e50831df3530b6428c0322709f3d68e9a67ba109c10d0f357fbc8ef0a0a
-  r: The repository contains the integration test file, but the test code is truncated
-    and does not show that `log_gradient_norms` is actually enabled or that `gradient_norms.json`
-    is written. Moreover, the required `data/logs/gradient_norms.json` file is absent,
-    indicating the test does not currently produce the expected output. The implementer
-    must complete the test implementation and ensure it creates and populates the
-    JSON log.
+  h: ca854ed4e7138624f68194f68fd3173670ac8992ded09d644d4800d454bb5a18
+  r: The integration test file exists, but it writes logs to a temporary directory
+    and never creates the required `data/logs/gradient_norms.json`. That file is missing
+    from the repository, so the task of populating it is not satisfied.
+T011c:
+  c: false
+  h: 01c5aed4fce9d5f71e03d8e31e5e55fe37c3232086e585c64b701965e15df634
+  r: "The provided `tests/integration/test_microcircuit_training.py` exists, but it\
+    \ writes the gradient\u2011norm log to a temporary directory rather than the required\
+    \ `data/logs/gradient_norms_microcircuit.json`, and the expected JSON file is\
+    \ missing. Consequently the integration test does not demonstrably populate the\
+    \ specified artifact, so the task is not fulfilled."
+T011d:
+  c: false
+  h: 43738bd7529914c77e6e82c8d54a4a6f610234bfe425bdc9e5e8d62383159ed4
+  r: "The repository contains `src/experiments/microcircuit_runner.py`, but the provided\
+    \ excerpt does not show an implementation of a `run_with_logging` function, and\
+    \ the required output file `data/logs/gradient_norms_microcircuit.json` is missing.\
+    \ Without the function and the generated log file, the task\u2019s core requirement\
+    \ is not satisfied. The next implementer must add a `run_with_logging` that trains\
+    \ the model, calls `log_gradient_norms`, and ensures the JSON file is written\
+    \ to the specified path."
 T015:
   c: false
   h: 280b4054ce2c9ef2cc64ccf9f5e96500b4ba1349869786e4d4319a959693c5fd
@@ -45,3 +60,20 @@ T016:
     \ of the `run_and_record_metrics` method (the file is truncated before any such\
     \ function). Consequently the task\u2019s core functionality and output artifact\
     \ are missing."
+T025a:
+  c: false
+  h: 11e24d9cd6b1a4d6655a6f92dc049f098a4797a79065a8ef80906cbf28af139d
+  r: The `generate_ablation_configs` function creates four variants with flags named
+    `enable_*` (and includes a `no_homeostasis` variant), not the three required variants
+    with `remove_recurrence` / `remove_inhibition` flags. Moreover, the expected output
+    file `data/configs/ablation_configs.json` does not exist. The implementation must
+    be corrected to produce exactly the three specified variants, use the required
+    flag names, and write the JSON file.
+T025b:
+  c: false
+  h: aa8f320cd449d4310e32a3bbe76177da62c3a10797d5771bc9b622265fcef83a
+  r: The repository contains a partially implemented `src/experiments/ablation.py`
+    (no `run_ablation_study` function is present in the shown code) and the required
+    output file `data/results/ablation_results.json` does not exist. Consequently
+    the task of orchestrating the three variant trainings and writing the results
+    JSON is not fulfilled.

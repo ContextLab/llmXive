@@ -1,1 +1,3 @@
-"""Scripts package."""
+"""
+Executable scripts for running experiments and setup.
+"""

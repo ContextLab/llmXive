@@ -137555,23 +137555,6 @@
   updated_at: '2026-07-12T19:42:14Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
-  canonical: subgroup analysis Fisher exact test groups >= 10 summaries
-  claim_id: c_3c3e0d52
-  context: "T086 Verify SC\u2011032: Subgroup analysis produces Fisher's exact test\
-    \ results for groups with >= 10 summaries"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Subgroup analysis produces Fisher's exact test results for groups with
-    >= 10 summaries
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-12T19:43:02Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
   canonical: benchmark 5000 synthetic URLs <= 6 hours
   claim_id: c_1d6cd158
   context: "T093 Run full benchmark on 5,000 synthetic URLs; ensure \u2264 6 hours."
@@ -139701,21 +139684,6 @@
   updated_at: '2026-07-13T00:17:41Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
-  canonical: real-world validation precision 85% recall 75%
-  claim_id: c_60edd08e
-  context: "T071 Real-world validation precision \u2265 85% and recall \u2265 75%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Real-world validation precision \u2265 85% and recall \u2265 75%."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T00:18:32Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
   canonical: parsing error rate 5%
   claim_id: c_f404998c
   context: "Verify SC\u2011005: Parsings-error rate must be 5% or less."
@@ -139832,39 +139800,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T00:26:22Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 5
-  canonical: synthetic validation dataset precision 90% recall 80%
-  claim_id: c_3287fe18
-  context: "T084 Verify SC\u2011030: Synthetic validation Run the pipeline on the\
-    \ synthetic validation dataset and verify The synthetic validation dataset precision\
-    \ is \u2265 90% and recall is \u2265 80%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The synthetic validation dataset precision is \u2265 90% and recall is\
-    \ \u2265 80%."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T00:26:48Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 2
-  canonical: real-world validation precision 85% recall 75%
-  claim_id: c_8746bd2e
-  context: "T085 Real-world validation precision \u2265 85% and recall \u2265 75%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Real-world validation precision \u2265 85% and recall \u2265 75%."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T00:27:13Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: synthetic validation dataset precision >= 90% and recall >= 80%
@@ -140406,25 +140341,6 @@
   status: not_enough_info
   updated_at: '2026-07-13T01:57:05Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 1
-  canonical: sensitivity analysis variation less than 0.02
-  claim_id: c_e7fc527f
-  context: T078 The sensitivity analysis variation must be less than 0.02 across the
-    baseline range.
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_variation_less_than_0.02
-  kind: magnitude
-  raw_text: The sensitivity analysis variation must be less than 0.02 across the baseline
-    range.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T01:59:20Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 4
   canonical: Quickstart guide 30 URLs 30 minutes 2 vCPU 7 GB RAM
   claim_id: c_24d84754
@@ -140777,24 +140693,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T02:31:26Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 8
-  canonical: synthetic validation dataset precision 90% recall 80%
-  claim_id: c_19e6fc7f
-  context: "Independent Test: Run the pipeline on the synthetic validation dataset\
-    \ and verify Run the pipeline on the synthetic validation dataset and verify The\
-    \ synthetic validation dataset precision is \u2265 90% and recall is \u2265 80%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "The synthetic validation dataset precision is \u2265 90% and recall is\
-    \ \u2265 80%."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T03:10:48Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: synthetic dataset files contain 10000 records
@@ -145507,23 +145405,6 @@
   status: not_enough_info
   updated_at: '2026-07-13T11:40:19Z'
 - artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
-  attempts: 9
-  canonical: real-world validation precision 85% recall 75%
-  claim_id: c_0fbe951b
-  context: "Independent Test: Extracted real-world validation precision \u2265 85%\
-    \ and recall \u2265 75%."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Extracted real-world validation precision \u2265 85% and recall \u2265\
-    \ 75%."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-13T11:40:41Z'
-- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
   attempts: 1
   canonical: parsing error rate 5% or less
   claim_id: c_99912a46
@@ -148328,3 +148209,221 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-03T16:22:07Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 9
+  canonical: synthetic validation dataset precision 90% recall 80%
+  claim_id: c_19e6fc7f
+  context: "Independent Test: Run the pipeline on the synthetic validation dataset\
+    \ and verify Run the pipeline on the synthetic validation dataset and verify The\
+    \ synthetic validation dataset precision is \u2265 90% and recall is \u2265 80%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic validation dataset precision is \u2265 90% and recall is\
+    \ \u2265 80%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:44:28Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 6
+  canonical: synthetic validation dataset precision 90% recall 80%
+  claim_id: c_3287fe18
+  context: "T084 Verify SC\u2011030: Synthetic validation Run the pipeline on the\
+    \ synthetic validation dataset and verify The synthetic validation dataset precision\
+    \ is \u2265 90% and recall is \u2265 80%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic validation dataset precision is \u2265 90% and recall is\
+    \ \u2265 80%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:44:55Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 10
+  canonical: real-world validation precision 85% recall 75%
+  claim_id: c_0fbe951b
+  context: "Independent Test: Extracted real-world validation precision \u2265 85%\
+    \ and recall \u2265 75%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extracted real-world validation precision \u2265 85% and recall \u2265\
+    \ 75%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:45:22Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: real-world validation precision 85% recall 75%
+  claim_id: c_60edd08e
+  context: "T071 Real-world validation precision \u2265 85% and recall \u2265 75%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Real-world validation precision \u2265 85% and recall \u2265 75%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:45:49Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 3
+  canonical: real-world validation precision 85% recall 75%
+  claim_id: c_8746bd2e
+  context: "T085 Real-world validation precision \u2265 85% and recall \u2265 75%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Real-world validation precision \u2265 85% and recall \u2265 75%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:46:16Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: pipeline runs within 2 GB RAM 2 vCPU
+  claim_id: c_4ea12600
+  context: "Independent Test: Trigger the workflow on a sample corpus of a modest\
+    \ number of URLs and confirm successful completion, \u2264 2 GB RAM, \u2264 2\
+    \ vCPU."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full pipeline runs within GitHub Actions resource limits and logs\
+    \ usage, specifically \u2264 2 GB RAM, \u2264 2 vCPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:46:43Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: parsing error rate 5% or less
+  claim_id: c_22e7677b
+  context: "T074 Verify SC\u2011005: Parsings-error rate must be 5% or less."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parsings-error rate must be 5% or less.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:47:10Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: CI pipeline exit status 0 manifest 99% runs
+  claim_id: c_82d5be4b
+  context: "T076 Verify SC\u2011013: The CI pipeline must exit with status 0 and produce\
+    \ manifest.json in 99% of runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI pipeline must exit with status 0 and produce manifest.json in 99%
+    of runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:47:55Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: Quickstart audit 30 URLs 30 minutes 2 vCPU 7 GB RAM
+  claim_id: c_9c3ba761
+  context: "T083 Verify SC\u2011028: The Quickstart guide enables audit of 30 URLs\
+    \ in \u2264 30 minutes on default GitHub Actions runner (2 vCPU, 7 GB RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Quickstart guide enables audit of 30 URLs in \u2264 30 minutes on\
+    \ default GitHub Actions runner (2 vCPU, 7 GB RAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:48:33Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: subgroup analysis Fisher exact test groups >= 10 summaries
+  claim_id: c_3c3e0d52
+  context: "T086 Verify SC\u2011032: Subgroup analysis produces Fisher's exact test\
+    \ results for groups with >= 10 summaries"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subgroup analysis produces Fisher's exact test results for groups with
+    >= 10 summaries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:49:30Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: chunked processing RAM 1.5 GB large corpora
+  claim_id: c_cbf7bae2
+  context: "T090 Performance optimization: Replace in\u2011memory DataFrame joins\
+    \ with chunked processing to keep RAM \u2264 1.5 GB for large corpora."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Replace in\u2011memory DataFrame joins with chunked processing to keep\
+    \ RAM \u2264 1.5 GB for large corpora."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:49:57Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 1
+  canonical: benchmark 5000 synthetic URLs 6 hours
+  claim_id: c_995c75d8
+  context: "T093 Run full benchmark on 5,000 synthetic URLs; ensure \u2264 6 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run full benchmark on 5,000 synthetic URLs; ensure \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:51:09Z'
+- artifact_path: projects/PROJ-492-evaluating-the-statistical-validity-of-p/specs/001-evaluating-the-statistical-validity-of-p/tasks.md
+  attempts: 2
+  canonical: sensitivity analysis variation less than 0.02
+  claim_id: c_e7fc527f
+  context: T078 The sensitivity analysis variation must be less than 0.02 across the
+    baseline range.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_variation_less_than_0.02
+  kind: magnitude
+  raw_text: The sensitivity analysis variation must be less than 0.02 across the baseline
+    range.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T18:52:00Z'

@@ -52,7 +52,7 @@ The researcher needs to run a simulated autoregressive generation loop of [defer
 
 ### Edge Cases
 
-- What happens when the input attention matrix has near-zero variance (division by zero risk in normalization)? The system MUST handle this by applying a small epsilon floor (e.g., 1e-6) before computing moments.
+- What happens when the input attention matrix has near-zero variance (division by zero risk in normalization)? The system MUST handle this by applying a small epsilon floor before computing moments.
 - How does the system handle attention matrices with extreme outlier magnitudes not present in the training distribution? The static prior MUST either generalize or fail gracefully (e.g., fallback to KVarN) without crashing the simulation.
 - What if the Sinkhorn solver fails to converge for a specific synthetic matrix? The data generation step MUST skip or flag these instances rather than producing NaN labels.
 

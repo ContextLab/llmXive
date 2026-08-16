@@ -94,7 +94,7 @@ A researcher runs the full training and inference pipeline on a standard GitHub 
 
 ## Assumptions
 
-- The DragMesh dataset provides sufficient pure-geometry trajectories to serve as a valid base for generating the 30 novel object geometries.
+- The DragMesh dataset provides sufficient pure-geometry trajectories to serve as a valid base for generating novel object geometries.
 - The PyBullet physics engine (CPU backend) provides sufficient fidelity for torque and velocity derivatives to serve as a valid proxy for contact stiffness in the *sliding regime* (where object velocity is non-zero) for this specific dexterous manipulation context.
 - The heuristic scheduler's mapping of $k_{est}$ to reward weights does not require complex hyperparameter tuning beyond the community-standard defaults defined in the implementation.
 - The "success rate" metric is defined as the binary outcome of reaching the goal state within the simulation time limit, independent of the intermediate torque values.

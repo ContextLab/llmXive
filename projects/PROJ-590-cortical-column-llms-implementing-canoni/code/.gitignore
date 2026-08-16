@@ -20,8 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environments
-.venv/
+# Virtual environments
 venv/
 ENV/
 env/
@@ -33,28 +32,23 @@ env/
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Project specific data (EXCLUDE most data, but TRACK configs, results, and state)
-# T003 CRITICAL: Exclude data/ but explicitly include configs, results, and state
-data/
-!data/configs/
-!data/configs/**
-!data/results/
-!data/results/**
-!data/logs/
-!data/logs/**
-
-# State directory MUST be tracked for Constitution Principle V
-state/
-!state/*.yaml
-!state/**/*.yaml
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
 
 # Logs
 *.log
 
-# Temporary files
-*.tmp
-.tmp/
+# Data (EXCLUDE all data except specific tracked directories)
+data/
+!data/configs/
+!data/results/
+
+# State is tracked (Constitution Principle V) - DO NOT ignore
+# state/*.yaml is explicitly NOT ignored
+
+# OS
+.DS_Store
+Thumbs.db
