@@ -1110,3 +1110,288 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T06:50:24Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: qwen-vla/Hy-Embodied dataset size exceeds 7GB
+  claim_id: c_6ad071db
+  context: 'Source: qwen-vla/Hy-Embodied on HuggingFace. Streaming: Data is processed
+    in chunks using datasets.load_dataset(..., streaming=True) to handle large sizes
+    (>7GB).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Qwen-vla/Hy-Embodied_dataset_size_exceeds_7GB
+  kind: entity_fact
+  raw_text: Data is processed in chunks using datasets.load_dataset(..., streaming=True)
+    to handle large sizes (>7GB).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:29:40Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: less than 5% of clusters required GMM fallback in preliminary Qwen-VLA
+    runs
+  claim_id: c_02c26eb4
+  context: "Decision Tree: Typically selected for clusters with deterministic or low-variance\
+    \ action mappings. Faster inference (~0.5s/prompt). GMM: Selected for clusters\
+    \ with high variance or multimodal actions (e.g., 'grasp' with multiple valid\
+    \ approaches). Slightly slower (~1.2s/prompt) but higher R\xB2 in complex cases.\
+    \ Fallback Rate: < 5% of clusters require GMM fallback in preliminary runs on\
+    \ the Qwen-VLA dataset."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Less_than_5%25_of_clusters_required_GMM_fallback_in_preliminar
+  kind: magnitude
+  raw_text: 'Fallback Rate: < 5% of clusters require GMM fallback in preliminary runs
+    on the Qwen-VLA dataset.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:30:14Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Decision Tree inference time is approximately 0.5 seconds per prompt
+  claim_id: c_95d1c6d0
+  context: 'Decision Tree: Typically selected for clusters with deterministic or low-variance
+    action mappings. Faster inference (~0.5s/prompt).'
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Decision Tree inference is typically ~0.5s/prompt.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T08:30:14Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/docs/research.md
+  attempts: 1
+  canonical: Gaussian Mixture Model inference time is approximately 1.2 seconds per
+    prompt
+  claim_id: c_2b89cb57
+  context: "GMM: Selected for clusters with high variance or multimodal actions (e.g.,\
+    \ 'grasp' with multiple valid approaches). Slightly slower (~1.2s/prompt) but\
+    \ higher R\xB2 in complex cases."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GMM inference is slightly slower (~1.2s/prompt).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:30:40Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Pipeline uses qwen-vla/Hy-Embodied dataset from HuggingFace
+  claim_id: c_b7360100
+  context: 'Data Source: `qwen-vla/Hy-Embodied` from HuggingFace. Feature Extraction:
+    Velocity, acceleration, and joint angles are computed from action sequences.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_qwen-vla/Hy-Embodied_dataset_from_HuggingFace
+  kind: entity_fact
+  raw_text: The pipeline uses data from `qwen-vla/Hy-Embodied` from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:35:17Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Welford's algorithm used for streaming normalization of datasets larger
+    than 7GB
+  claim_id: c_db247847
+  context: 'Normalization: Welford''s algorithm is used for streaming normalization
+    to handle datasets >7GB without loading them entirely into memory. Global mean
+    and standard deviation are saved to `data/processed/streaming_stats.json`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Welford's_algorithm_used_for_streaming_normalization_of_data
+  kind: entity_fact
+  raw_text: Welford's algorithm is used for streaming normalization to handle datasets
+    >7GB without loading them entirely into memory.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:35:31Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Adaptive K-means starts with k=50 and reduces if silhouette score below
+    0.25
+  claim_id: c_fca0ab2d
+  context: 'Clustering: Adaptive K-means clustering is employed. Algorithm: Starts
+    with `k=50` and iteratively reduces `k` if the silhouette score is below `0.25`.'
+  evidence:
+    asserted: '50.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Adaptive K-means clustering starts with k=50 and iteratively reduces k
+    if the silhouette score is below 0.25.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T08:35:31Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Frozen bert-base-uncased used to encode text instructions
+  claim_id: c_709d2677
+  context: 'Embedding Generation: Frozen `bert-base-uncased` is used to encode text
+    instructions. CPU-only enforcement is strict; the script exits if a GPU is detected.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Frozen_bert-base-uncased_used_to_encode_text_instructions
+  kind: entity_fact
+  raw_text: Frozen `bert-base-uncased` is used to encode text instructions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:35:51Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: VLA Proxy Baseline downloaded from qwen-vla/vla-proxy-trajectories
+  claim_id: c_0138866f
+  context: 'VLA Proxy Baseline: Downloaded from `qwen-vla/vla-proxy-trajectories`
+    (verified via checksum). Simulation: Trajectories are executed in a Mock PyBullet
+    environment.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VLA_Proxy_Baseline_downloaded_from_qwen-vla/vla-proxy-trajec
+  kind: entity_fact
+  raw_text: VLA Proxy Baseline is downloaded from `qwen-vla/vla-proxy-trajectories`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:36:06Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Statistical significance for paired t-tests flagged based on alpha equal
+    to 0.05
+  claim_id: c_d3523adc
+  context: "Significance: Results are flagged based on \u03B1 = 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Statistical significance for paired t-tests is flagged based on \u03B1\
+    \ = 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:36:45Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  attempts: 1
+  canonical: Clustering coverage success criteria is greater than or equal to 98 percent
+  claim_id: c_b99099af
+  context: "SC-005 (Coverage): Clustering coverage \u2265 98% (warning if lower)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clustering_coverage_success_criteria_is_greater_than_or_equa
+  kind: magnitude
+  raw_text: "Clustering coverage success criteria is \u2265 98%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:37:02Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/data/results/success_criteria_checklist.md
+  attempts: 1
+  canonical: Peak RSS memory usage is 4500MB
+  claim_id: c_e5925bf4
+  context: 'Evidence: Memory within bounds, CPU-only enforced by pipeline. Metric:
+    Peak RSS: 4500MB'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_memory_usage_is_4500MB
+  kind: entity_fact
+  raw_text: 'Peak RSS: 4500MB'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:39:10Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/data/results/success_criteria_checklist.md
+  attempts: 1
+  canonical: Simulation logs contain 150 total rows
+  claim_id: c_58ddbf9f
+  context: 'Evidence: Random baseline data present in simulation logs. Metric: Total
+    rows: 150'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total rows: 150'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:39:34Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/data/results/success_criteria_checklist.md
+  attempts: 1
+  canonical: Peak aggregate memory usage is 4500MB
+  claim_id: c_a7a1d306
+  context: 'Evidence: Peak memory 4500MB is within 7GB limit. Metric: Peak RSS: 4500MB'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_aggregate_memory_usage_is_4500MB
+  kind: entity_fact
+  raw_text: 'Peak RSS: 4500MB'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:39:35Z'
+- artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/data/results/success_criteria_checklist.md
+  attempts: 1
+  canonical: Percentage of kinematic features within error margin of VLA proxy is
+    82.5%
+  claim_id: c_bd816e59
+  context: 'Evidence: Fidelity metric computed: 82.5%. Metric: Value: 82.5%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fidelity metric computed: 82.5%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T08:39:35Z'

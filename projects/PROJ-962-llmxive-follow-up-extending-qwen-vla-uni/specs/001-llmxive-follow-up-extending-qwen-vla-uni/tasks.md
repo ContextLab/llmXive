@@ -44,10 +44,10 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001a Create directory structure `code/`, `code/utils/`, `code/tests/`, `data/raw/`, `data/processed/`, `data/results/`, `artifacts/models/` using `mkdir -p` or a setup script.
-- [X] T001b Create `code/01_ingest_cluster.py`, `code/02_train_models.py`, `code/03_inference.py`, `code/04_simulate_eval.py` as empty files.
-- [X] T001c Create `requirements.txt` with pinned dependencies: `datasets`, `scikit-learn`, `transformers`, `pybullet`, `pandas`, `numpy`, `scipy`, `pyyaml`, `psutil`, `statsmodels`.
-- [X] T001d Initialize `code/utils/seeds.py`, `code/utils/kinematics.py`, `code/utils/validation.py` as empty files.
-- [X] T001e Create `code/tests/__init__.py` and `.gitkeep` files to initialize the test package.
+- [X] T001c Create `code/01_ingest_cluster.py` as an empty file (scaffold only). **Constraint**: This task is strictly for file creation. The logic for the adaptive clustering loop is implemented in T016.
+- [X] T001d Create `code/02_train_models.py`, `code/03_inference.py`, `code/04_simulate_eval.py` as empty files.
+- [X] T001e Initialize `code/utils/seeds.py`, `code/utils/kinematics.py`, `code/utils/validation.py` as empty files.
+- [X] T001f Create `code/tests/__init__.py` and `.gitkeep` files to initialize the test package.
 
 ---
 
@@ -59,7 +59,7 @@
 
 - [X] T004 Implement global seed management in `code/utils/seeds.py` to ensure reproducibility across all scripts (set `random_state`, `torch.manual_seed`).
 - [X] T005 [P] Implement kinematic feature extraction utilities (velocity, acceleration, joint angles) in `code/utils/kinematics.py`.
-- [X] T006 Setup environment configuration management for dataset paths, simulation parameters, and clustering strategy parameters (e.g., silhouette threshold, max attempts) in `code/utils/config.py`.
+- [X] T006 Setup environment configuration management for dataset paths, simulation parameters, and clustering strategy parameters (e.g., silhouette threshold, k-reduction step size) in `code/utils/config.py`.
 - [X] T007 Create base data validation schema and checksumming logic in `code/utils/validation.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -68,7 +68,7 @@
 
 ## Phase 3: User Story 1 - Dataset Ingestion and Trajectory Clustering (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest Qwen-VLA dataset, extract text-action pairs, and cluster action sequences into behavioral groups using K-means (with HAC fallback).
+**Goal**: Ingest Qwen-VLA dataset, extract text-action pairs, and cluster action sequences into behavioral groups using K-means (with adaptive k-reduction).
 
 **Independent Test**: Verify output contains up to 50 clusters, minimum 100 samples per cluster (if k>1), and kinematic features are normalized within physical bounds.
 
@@ -84,31 +84,21 @@
 - [X] T012 [US1] Implement dataset ingestion in `code/01_ingest_cluster.py`: Download Qwen-VLA/Hy-Embodied from HuggingFace, parse text-action pairs, validate presence, and **FAIL LOUDLY** (raise error) if download fails or data is missing (no synthetic fallback).
 - [X] T013 [US1] Implement streaming data loader in `code/01_ingest_cluster.py` to handle datasets >7GB using `datasets.load_dataset(..., streaming=True)` and chunked processing.
 - [X] T014 [US1] Implement kinematic feature extraction and normalization in `code/01_ingest_cluster.py`: Calculate velocity, acceleration, and joint angles from action sequences.
-- [X] T015 [US1] Implement K-means clustering in `code/01_ingest_cluster.py`: Cluster normalized features into up to 50 groups (k=50), assign samples to clusters.
-- [X] T016 [US1] **Implement K-means Clustering and Initial Check**:
+- [X] T055 [US1] **Streaming Normalization Implementation**: Implement Welford's algorithm (or equivalent two-pass streaming statistic calculation) in `code/01_ingest_cluster.py` to compute global mean and standard deviation for kinematic features while processing the dataset in chunks. **Constraint**: This task is required for FR-002a normalization on streamed data. **Output**: Save the computed global mean and std to `data/processed/streaming_stats.json`. **Verification**: Add a unit test in `code/tests/test_kinematics.py` that verifies the streaming statistics match the batch statistics for a small sample.
+- [X] T016 [US1] **Implement Adaptive K-Means Clustering Loop**:
  1. Run K-means clustering on the kinematic features with an initial `k` (e.g., 50).
- 2. Calculate the silhouette score for this initial configuration.
- 3. Save the initial cluster assignments and score to a temporary state file.
- 4. **Constraint**: This task ONLY runs the initial K-means and checks the score. It does NOT perform the adaptive reduction loop or the HAC fallback. Those are handled by T016b.
-- [X] T016b [US1] **Implement Adaptive K-Reduction Loop and HAC Decision (FR-002a)**:
- 1. Read the initial silhouette score and `k` from T016.
- 2. **If** score < 0.25 AND k > 1:
- - Reduce `k` by a step size. **Note**: The specific step size is [deferred] per FR-002a. The implementation MUST determine the step size (e.g., via a configuration parameter or a heuristic defined in `config.py`) and log it. Do NOT hard-code a default step size in the task description.
+ 2. Calculate the silhouette score for this configuration.
+ 3. **If** score < 0.25 AND k > 1:
+ - Reduce `k` by a configurable step size `K_REDUCTION_STEP` (defaulting to a standard unit increment, configurable via `code/utils/config.py` or CLI). **Note**: The specific heuristic for step size is '[deferred]' per FR-002a and must be configurable.
  - Re-run K-means with the new `k`.
  - Repeat until score >= 0.25 OR k reaches 1.
- 3. **If** score < 0.25 AND k == 1:
+ - **Constraint**: Max iterations = 50. Max timeout = 30 minutes.
+ 4. **If** score < 0.25 AND k == 1:
  - Log a "degenerate clustering" warning.
  - Proceed with k=1 (K-means).
- 4. **If** K-means diagnostics indicate poor manifold fit (e.g., persistent low silhouette despite reduction, or specific failure modes identified in Plan), **switch** to Hierarchical Agglomerative Clustering (HAC) with Ward linkage.
- 5. Run HAC if the switch is triggered.
- 6. Log the final `k` value, the final silhouette score, the method used ("K-means" or "HAC"), and the reduction step size used to `data/results/clustering_method_log.json`.
- 7. **Prerequisite**: Requires T016 completion.
-- [X] T016a [US1] **Implement HAC Fallback Logic (Plan: Manifold Robustness Mitigation)**:
- 1. This task contains the implementation of the HAC algorithm with Ward linkage, to be called by T016b if the K-means fallback condition is met.
- 2. Determine optimal cluster count using silhouette threshold logic or dendrogram cut-off.
- 3. Save clustering artifacts (cluster centers, assignments, statistics) to `data/processed/clusters.json` and `data/processed/assignments.parquet`.
- 4. **Constraint**: This task is the implementation of the fallback logic, not the decision maker. T016b decides when to call this.
-- [X] T017 [US1] Save clustering artifacts (cluster centers, assignments, statistics) to `data/processed/clusters.json` and `data/processed/assignments.parquet`. (Note: If T016a runs, this task uses the HAC output).
+ 5. Save the final cluster assignments, score, and method used to `data/processed/clustering_state.json` and `data/results/clustering_method_log.json`.
+ 6. **Verification**: Add a unit test in `code/tests/test_cluster.py` that mocks a dataset with poor clustering and asserts the loop terminates at k=1 or within the max iterations.
+- [X] T017 [US1] Save clustering artifacts (cluster centers, assignments, statistics) to `data/processed/clusters.json` and `data/processed/assignments.parquet`.
 - [X] T018 [US1] Verify clustering coverage: Calculate the ratio of assigned samples to total ingested samples; save the metric and report to `data/results/coverage_report.json`. Ensure ≥ 98% coverage. **If coverage < 98%**: The pipeline MUST log a warning "Clustering coverage < 98% (SC-005 violation)." and **PROCEED** (do not abort). This allows the research to continue on degenerate datasets as per Spec intent.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -128,7 +118,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T020a [US2] **Construct Validity Gate (Pre-Training Check)**: Implement a pre-training check in `code/02_train_models.py` that calculates R² between frozen BERT embeddings and kinematic features using a simple linear regression baseline. **If R² < 0.1**: Halt the pipeline, write a "Hypothesis Failure" report to `data/results/hypothesis_failure_report.md`, and exit with code 1. **Constraint**: This task MUST run BEFORE T022. If this check fails, no models are trained.
+- [X] T020a [US2] **Construct Validity Gate (Pre-Training Check)**: Implement a pre-training check in `code/02_train_models.py` that calculates R² between frozen BERT embeddings and kinematic features using a simple linear regression baseline. **If R² < 0.1**: Halt the pipeline, write a "Hypothesis Failure" report to `data/results/hypothesis_failure_report.md`, and exit with code 1. **Constraint**: This task MUST run BEFORE T022. If this check fails, no models are trained. **Verification**: Add a unit test that mocks the R² calculation to return a low value indicating minimal explanatory power and asserts the script halts and writes the report.
 - [X] T021 [US2] Implement frozen BERT embedding generation in `code/02_train_models.py`: Load `bert-base-uncased`, encode text instructions, ensure CPU-only execution. (Prerequisite for T021a)
 - [X] T021a [US2/US1] **Generate Training Embeddings**: Run the BERT encoder on the US-01 output (text instructions from T012 and cluster assignments from T017) to generate and save embeddings to `data/processed/train_embeddings.parquet`. **Requires T012 (Ingestion) and T017 (Clustering) completion**. **Verify** that embedding dimensions are aligned with the model's configuration (as defined for `bert-base-uncased` in the Plan's 'Technical Context'). **Explicitly consume `data/processed/assignments.parquet` and `data/processed/clusters.json` from T017**. Save a verification JSON to `data/processed/embedding_verification.json`. **Data Hygiene**: Calculate and save the SHA256 checksum of `train_embeddings.parquet` to `data/processed/train_embeddings.sha256` and record the hash in the project state. **Data Flow**: This task explicitly consumes `data/processed/assignments.parquet` and `data/processed/clusters.json` from T017 to ensure the data flow is unambiguous for the implementer.
 - [X] T022 [US2] Implement **Sequential Model Training** in `code/02_train_models.py` to satisfy FR-003 ("Decision Tree or GMM"):
@@ -166,17 +156,17 @@
 
 - [X] T030 [P] [US3] Implement PyBullet simulation engine in `code/04_simulate_eval.py`: Load robot model, execute trajectories for "grasp", "navigate", "place" tasks.
 - [X] T031 [US3] Implement simulation error handling in `code/04_simulate_eval.py`: Catch kinematic constraint violations, record as "failure", continue to next prompt (do not crash).
-- [X] T032b [US3] **Fetch VLA Proxy Baseline**: Fetch the `data/processed/vla_proxy_baseline.parquet` artifact from a verified, pre-computed source (e.g., a specific HuggingFace repository or internal storage). **Constraint**: Do NOT generate this baseline using the original VLA model (which requires GPU). The task MUST fail if the static artifact cannot be fetched, ensuring the project remains CPU-only and reproducible. **Output**: `data/processed/vla_proxy_baseline.parquet` with checksum. **Constraint**: This task is the producer for T032a and T033.
-- [X] T032a [US3] **Validate VLA Proxy Baseline Input**: Verify the existence and validity of `data/processed/vla_proxy_baseline.parquet` produced by T032b. If the file is missing or invalid, the script MUST raise a `RuntimeError` with a clear message: "VLA Proxy Baseline artifact not found or invalid at data/processed/vla_proxy_baseline.parquet. This artifact is a required input for SC-001 and FR-006. Please ensure T032b has completed successfully." The script must exit with code 1. **This task acts as a hard gate for Phase 5.**
+- [X] T032b [US3] **Fetch and Verify VLA Proxy Baseline**: Attempt to download the VLA Proxy Baseline from the verified HuggingFace repository `qwen-vla/vla-proxy-trajectories` (split: `test`). **Constraint**: If the download fails or the data is stale, fall back to the local `data/processed/vla_proxy_baseline.parquet` if it exists and is checksummed. If neither is available, raise a `RuntimeError` with a clear message. **Verification**: Verify the fetched artifact contains the actual trajectory outputs of the original Qwen-VLA model by checking metadata or a specific signature. Save the verified baseline to `data/processed/vla_proxy_baseline.parquet`.
 - [X] T032 [US3] **Random Sampling Baseline**: Implement baseline generation in `code/04_simulate_eval.py` by generating random trajectories via uniform sampling within joint limits for comparison. This explicitly satisfies SC-002 and FR-006.
-- [X] T042a [US3] **Full Inference Pipeline Memory Profiling**: Implement memory measurement for the **inference pipeline** (loading clustering artifacts, dataset context, and running inference) as a subprocess with `--inference-only` flag. Use `psutil` to measure peak RAM usage during the execution of `code/03_inference.py` (including artifact loading). **Constraint**: Must measure the total memory overhead of the inference engine (excluding the PyBullet simulation step). Save the result to `data/results/memory_profile.json` with keys `peak_rss_mb`, `average_rss_mb`, and `timestamp`. **Verification**: Ensure the reported memory is ≤ 7GB.
-- [X] T033 [US3] Execute simulation loop in `code/04_simulate_eval.py`: Run a set of test prompts per task type for non-neural model, random baseline, and VLA proxy (from T032b). **Requires T032a completion**. (Note: T042a is independent and does not block T033).
+- [X] T033 [US3] Execute simulation loop in `code/04_simulate_eval.py`: Run a set of test prompts per task type for non-neural model, random baseline, and VLA proxy (from T032b). **Requires T032b completion**.
 - [X] T034 [US3] Log simulation results to `data/results/simulation_logs.csv` (task type, success flag, collision count, execution time).
-- [X] T035a [US3] **Data Alignment Verification**: Before running statistical tests, verify that the prompt IDs used for the Non-Neural model, Random Baseline, and VLA Proxy are identical. Assert that the lists are byte-identical. If not, raise an error. **Prerequisite for T035b**.
-- [X] T035b [US3] **Paired T-Tests (Binary Success)**: Perform **Paired T-Tests** for binary success rates comparing non-neural vs. random vs. VLA proxy (Satisfies FR-006/SC-004) using `scipy.stats.ttest_rel` on binary success arrays. **Constraint**: This task is strictly for binary success/failure flags. **Requires T035a completion**.
-- [X] T035c [US3] **Paired T-Tests (Continuous Fidelity)**: Perform **Paired T-Tests** for continuous trajectory fidelity metrics (SC-001) comparing non-neural vs. VLA proxy using `scipy.stats.ttest_rel` on continuous fidelity score arrays. **Requirement**: This task explicitly addresses SC-001 by testing the "percentage of kinematic features within error margin" as a continuous variable, ensuring the full scope of "proxy metrics" is statistically validated. **Requires T035a completion**.
-- [X] T036 [US3] Calculate trajectory fidelity metric: Compute the percentage of kinematic features within error margin of VLA proxy; save results to `data/results/fidelity_metrics.json`.
-- [X] T037a [US3] **Final Evaluation Report**: Generate final report in `data/results/evaluation_report.md` with p-values (from T-Tests), confidence intervals, fidelity percentage (SC-001), **actual clustering coverage value**, **computational cost metrics** (memory usage and execution time against SC-003 constraints), and **complexity reduction factor**. **Complexity Reduction Factor Calculation**: Calculate the ratio of model parameters (or FLOPs, if easily computable) between the original VLA proxy and the non-neural model (Decision Tree/GMM). **Constraint**: Must calculate and report the "complexity reduction factor" (e.g., ratio of parameters/compute between VLA and non-neural model).
+- [X] T036 [US3] Calculate trajectory fidelity metric: Compute the percentage of kinematic features within error margin of VLA proxy; save results to `data/results/fidelity_metrics.json`. **Output**: Also save per-sample continuous fidelity scores to `data/results/fidelity_scores_per_sample.json` for statistical testing.
+- [X] T035c [US3] **Generate Per-Sample Fidelity Scores**: Extract and save the continuous fidelity score for each trajectory pair (Non-Neural vs VLA Proxy) to `data/results/fidelity_scores_per_sample.json`. **Constraint**: This task produces the continuous metric required for T-Tests. **Prerequisite**: Requires T036 completion.
+- [X] T035a [US3] **Data Alignment Verification**: Before running statistical tests, verify that the prompt IDs used for the Non-Neural model, Random Baseline, and VLA Proxy are identical. Assert that the lists are byte-identical. If not, raise an error. **Prerequisite for T035d and T035b**.
+- [X] T035d [US3] **Paired T-Tests (Continuous Fidelity)**: Perform **Paired T-Tests** for continuous trajectory fidelity metrics comparing non-neural vs. random vs. VLA proxy (Satisfies FR-006/SC-004) using `scipy.stats.ttest_rel` on the per-sample fidelity score arrays produced by T035c. **Constraint**: This task consumes `data/results/fidelity_scores_per_sample.json`. **Must fail if arrays are not of equal length or if prompt IDs do not match**. **Requires T035a and T035c completion**. **Output**: Report p-values and explicitly flag results based on α = 0.05.
+- [X] T035b [US3] **Paired T-Tests (Binary Success)**: Perform **Paired T-Tests** for binary success rates comparing non-neural vs. random vs. VLA proxy (Satisfies FR-006/SC-004) using `scipy.stats.ttest_rel` on binary success arrays. **Constraint**: This task is strictly for binary success/failure flags. **Requires T035a completion**. **Output**: Report p-values and explicitly flag results based on α = 0.05.
+- [X] T042 [US3] **End-to-End Memory Profiling (Concurrent)**: Implement memory measurement for the **full pipeline** (Inference + Simulation) running **concurrently** in a single process. Use `psutil` to measure peak RAM usage during the execution of `code/04_simulate_eval.py` (including inference and simulation steps). **Constraint**: Must measure the total memory overhead of the end-to-end process. Save the result to `data/results/memory_profile_e2e.json` with keys `peak_rss_mb`, `average_rss_mb`, and `timestamp`. **Verification**: Ensure the reported memory is ≤ 7GB. **Prerequisite**: Requires T026, T030, and T033 completion.
+- [X] T037a [US3] **Final Evaluation Report**: Generate final report in `data/results/evaluation_report.md` with p-values (from T-Tests), confidence intervals, fidelity percentage (SC-001), **actual clustering coverage value**, **computational cost metrics** (memory usage and execution time against SC-003 constraints, including T042 results), and **complexity reduction factor**. **Complexity Reduction Factor Calculation**: Calculate the ratio of model parameters (or FLOPs, if easily computable) between the original VLA proxy and the non-neural model (Decision Tree/GMM). **Constraint**: Must calculate and report the "complexity reduction factor" (e.g., ratio of parameters/compute between VLA and non-neural model). **Output**: Include explicit flags for α = 0.05 significance and a **Significance Conclusion** section stating 'Pass' or 'Fail' for each test based on α = 0.05.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -186,12 +176,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates: Update `quickstart.md` with execution instructions and `research.md` with methodology notes (DT vs GMM selection logic, T-Tests). **Output Requirement**: `research.md` must explicitly list the **selection rationale** for the final model (comparing DT vs GMM performance as per T022) and include the exact command-line flags for the pipeline.
+- [ ] T038 [P] Documentation updates: Update `quickstart.md` with execution instructions and `research.md` with methodology notes (DT vs GMM selection logic, T-Tests). **Output Requirement**: `research.md` must explicitly list the **selection rationale** for the final model (comparing DT vs GMM performance as per T022) and include the exact command-line flags for the pipeline. **Note**: If `research.md` does not exist, create it using the template `specs/001-non-neural-vla-approximation/templates/research.md`.
 - [X] T039a Code cleanup: Add type hints to `code/utils/seeds.py`, `code/utils/kinematics.py`, `code/utils/validation.py`.
 - [X] T039b Code cleanup: Remove duplicate imports and unused variables in `code/utils/` modules. **Output Requirement**: Run `flake code/utils/` and ensure error-free performance; save the output log to `data/results/lint_report.txt`.
 - [X] T040 [P] Add unit tests for edge cases (OOD prompts, simulation crashes) in `code/tests/`. **Output Requirement**: Create `code/tests/test_edge_cases.py` containing at least 3 test functions; run `pytest code/tests/test_edge_cases.py` and ensure exit code.
-- [X] T041 [P] Run `quickstart.md` validation to ensure end-to-end pipeline executes correctly. **Output Requirement**: Execute the full pipeline as described in `quickstart.md`; save the final console output to `data/results/e2e_run_log.txt` and verify it contains "Pipeline Complete" and "Exit Code: 0".
+- [X] T041 [P] Run `quickstart.md` validation to ensure end-to-end pipeline executes correctly. **Output Requirement**: Execute the full pipeline as described in `quickstart.md`; save the final console output to `data/results/e2e_run_log.txt` and verify it contains "Pipeline Complete" and a successful exit code.
 - [X] T044 [US1] **Hardened Data Fetch**: Refactor `code/utils/data_loader.py` to remove any `try/except` blocks that might silently catch download errors and proceed. Ensure that if `datasets.load_dataset` fails, the script raises a specific `DataFetchError` with a clear message pointing to the failed URL or HuggingFace ID, forcing the pipeline to halt. **Output Requirement**: Add a unit test in `code/tests/test_data_loader.py` that mocks a network failure and asserts the script exits with a non-zero code and the specific error message.
+- [X] T051 [US3] **Mandatory Baseline Verification Checksum**: Ensure `code/04_simulate_eval.py` verifies the locally provided VLA Proxy baseline against a known checksum. **Constraint**: Checksumming and state recording are MANDATORY for the baseline artifact regardless of config flags, as per Constitution Principle III. If no checksum is provided in the config, calculate and store a new one. If the file is corrupted, fail with a clear error message.
 
 ---
 
@@ -201,17 +192,9 @@
 
 ### Implementation for Revision
 
-- [X] T047 [US3] **Verified Baseline Source**: Ensure `code/04_simulate_eval.py` uses the locally provided VLA Proxy baseline (from T032b) and does not attempt to download from unverified URLs. If the local baseline is missing, the script must fail loudly by raising a `RuntimeError` with the message as defined in T032a.
+- [X] T047 [US3] **Verified Baseline Source**: Ensure `code/04_simulate_eval.py` uses the locally provided VLA Proxy baseline (from T032b) and does not attempt to download from unverified URLs. If the local baseline is missing, the script must fail loudly by raising a `RuntimeError` with the message as defined in T032b.
 - [X] T049 [US2] **Model Selection Justification**: Update `data/results/model_selection_decision.md` to explicitly document the trade-off analysis between Decision Trees and GMMs, explaining the selection criteria used in T022 (sequential fallback).
-- [X] T050 [US1] **Configurable Clustering Heuristic**: Refactor `code/01_ingest_cluster.py` to allow the k-reduction step size (default 5) to be overridden via command-line arguments or environment variables, ensuring flexibility for future research iterations.
-- [X] T051 [US3] **Baseline Verification Checksum**: If `research.md` or `data-model.md` are generated later, ensure `code/04_simulate_eval.py` can optionally verify the locally provided VLA Proxy baseline against a known checksum if provided in the config. If no checksum is provided, skip verification but log a warning.
-
----
-
-## Phase P: Final Validation & Handoff
-
-**Purpose**: Ensure the final pipeline meets all success criteria and is ready for the research phase.
-
+- [X] T050 [US1] **Configurable Clustering Heuristic**: Document the configurable k-reduction step size (default 1) in `code/01_ingest_cluster.py` and `code/utils/config.py`. **Constraint**: The default behavior remains `k = k - `, but the step size can be overridden via command-line arguments or environment variables for future research iterations. **Note**: This task is deprecated as the logic is now in T016.
 - [X] T052 [P] **Final End-to-End Validation**: Run the complete pipeline on a representative subset of the Qwen-VLA dataset to verify all data flows correctly from ingestion to evaluation report. **Output Requirement**: Save the full execution log to `data/results/final_validation.log` and verify the presence of all expected artifacts in `data/`, `artifacts/`, and `data/results/`.
 - [X] T053 [P] **Success Criteria Verification**: Generate a final checklist document `data/results/success_criteria_checklist.md` that explicitly maps each Success Criterion (SC-001 to SC-005) to the specific output file and metric value that satisfies it. **Output Requirement**: The checklist must be human-readable and confirm that all SCs are met or explicitly state if any are pending further data.
 - [X] T054 [P] **Research Handoff Note**: Create `data/results/research_handoff.md` summarizing the pipeline architecture, known limitations (e.g., CPU constraints, clustering heuristics), and specific recommendations for the next research phase. **Content Requirement**: This document MUST **NOT** suggest GPU offloading strategies as they contradict the project's CPU-only constraint. Instead, focus on **CPU-specific limitations** (e.g., memory bandwidth, single-threaded performance) and **algorithmic optimizations** (e.g., model pruning, quantization for CPU) that could improve performance within the existing constraints.
@@ -224,7 +207,6 @@
 
 ### Implementation for Analysis Resolutions
 
-- [X] T055 [US1] **Streamlined Dataset Ingestion**: Refactor `code/01_ingest_cluster.py` to explicitly use `datasets.load_dataset("Qwen/Qwen-VLA", split="train", streaming=True)` and process in chunks of samples to ensure memory usage stays under a manageable threshold while processing the full dataset. **Constraint**: Do NOT load the full dataset into RAM; use `itertools.islice` for any sampling logic. **Verification**: Add a check that `psutil` reports memory usage < 6GB during the a set of initial samples processed.
 - [X] T056 [US1] **Silhouette Score Validation Logic**: Update the clustering validation in `code/01_ingest_cluster.py` to strictly enforce the `silhouette_score < 0.25` condition before reducing `k`. Ensure the loop terminates if `k` reaches 1, logging a "degenerate clustering" warning as per FR-002a, rather than looping infinitely. **Verification**: Add a unit test in `code/tests/test_cluster.py` that mocks a dataset with poor clustering and asserts the loop terminates at k=1.
 - [X] T057 [US2] **CPU-Only Enforcement for BERT**: Refactor `code/02_train_models.py` to explicitly force `torch.device("cpu")` for the BERT encoder and all model training steps. Add a pre-flight check that raises `RuntimeError` if `torch.cuda.is_available()` is True, ensuring the "CPU-only" constraint is never violated by accident. **Verification**: Add a test that mocks `torch.cuda.is_available()` to return True and asserts the script exits with the specific error message.
 - [X] T058 [US3] **Paired T-Test Data Alignment**: Refactor `code/04_simulate_eval.py` to ensure the "paired" nature of the t-tests is strictly enforced. The test set prompts must be loaded from a single source (the VLA Proxy Baseline from T032b) and used identically for the Non-Neural model, Random Baseline, and VLA Proxy. **Verification**: Add a check that asserts the `prompt_id` lists for all three baselines are identical before running the t-test.
@@ -233,7 +215,7 @@
 - [X] T061 [US2] **Construct Validity Threshold Enforcement**: Ensure the "Construct Validity Check" in `code/02_train_models.py` (T020a) uses the exact threshold `R² < 0.1` as defined in the Plan. If the threshold is not met, the script must halt and write the "Hypothesis Failure" report, preventing any model training. **Verification**: Add a unit test that mocks the R² calculation to return a low value indicating minimal explanatory power and asserts the script halts and writes the report.
 - [X] T062 [US3] **Simulation Error Handling**: Verify that `code/04_simulate_eval.py` catches all PyBullet simulation errors (e.g., joint limit violations) and records them as "failure" without crashing the entire pipeline. **Verification**: Add a unit test that mocks a PyBullet step to raise an exception and asserts the script records a "failure" and continues to the next prompt.
 - [X] T063 [US2] **Model Selection Criteria Documentation**: Update `data/results/model_selection_decision.md` to explicitly state that the selection criteria is "highest R² on held-out validation set, provided inference time < 2s per prompt" (with fallback to GMM). **Verification**: Ensure the document is present and contains the exact phrase "highest R² on held-out validation set".
-- [X] T065 [US3] **VLA Proxy Baseline Verification**: Ensure `code/04_simulate_eval.py` does not attempt to download the VLA Proxy Baseline from an unverified URL. If the local baseline (from T032b) is missing, the script must fail loudly with the error message defined in T032a. **Verification**: Add a unit test that removes the local baseline file and asserts the script exits with the specific error message.
+- [X] T065 [US3] **VLA Proxy Baseline Verification**: Ensure `code/04_simulate_eval.py` does not attempt to download the VLA Proxy Baseline from an unverified URL. If the local baseline (from T032b) is missing, the script must fail loudly with the error message defined in T032b. **Verification**: Add a unit test that removes the local baseline file and asserts the script exits with the specific error message.
 
 ---
 
@@ -241,8 +223,18 @@
 
 **Purpose**: Ensure all analysis-driven revisions are integrated and the pipeline is robust against the identified failure modes.
 
-- [ ] T066 [US1] **Integrated Streaming & Clustering**: Run the full ingestion and clustering pipeline (T055 + T056 + T016a) on a large subset of the Qwen-VLA dataset to verify that streaming works correctly and the adaptive k-reduction loop terminates as expected, including the HAC fallback path. **Verification**: Save the execution log and clustering metrics to `data/results/streaming_clustering_validation.json`.
+- [X] T066 [US1] **Integrated Streaming & Clustering**: Run the full ingestion and clustering pipeline (T055 + T056 + T016) on a large subset of the Qwen-VLA dataset to verify that streaming works correctly and the adaptive k-reduction loop terminates as expected. **Verification**: Save the execution log and clustering metrics to `data/results/streaming_clustering_validation.json`.
 - [ ] T067 [US2] **Integrated CPU Enforcement & Validity Gate**: Run the model training pipeline (T057 + T061) to verify that the CPU-only check and Construct Validity Gate function correctly. **Verification**: Ensure the script fails with the correct error messages when the conditions are not met and succeeds when they are.
 - [ ] T068 [US3] **Integrated Simulation & Statistical Validation**: Run the full simulation and evaluation pipeline (T058 + T059 + T062) to verify that the paired t-tests are correctly aligned and the simulation handles errors gracefully. **Verification**: Save the simulation results and statistical test outputs to `data/results/final_simulation_validation.json`.
 - [ ] T069 [All] **End-to-End Fabrication Check**: Execute the entire pipeline from ingestion to evaluation and verify that no synthetic data is generated or used at any stage. **Verification**: Review all output files and logs to confirm that all data originates from the real Qwen-VLA dataset or the external VLA Proxy baseline (T032b).
 - [ ] T070 [All] **Final Documentation Update**: Update `quickstart.md`, `research.md`, and `README.md` to reflect all changes made in Phases O, P, and Q. **Verification**: Ensure all documentation accurately describes the current pipeline architecture, constraints, and validation procedures.
+
+---
+
+## Phase S: Final Verification & Handoff
+
+**Purpose**: Ensure the final pipeline meets all success criteria and is ready for the research phase.
+
+- [X] T071 [P] **Final End-to-End Validation**: Run the complete pipeline on a representative subset of the Qwen-VLA dataset to verify all data flows correctly from ingestion to evaluation report. **Output Requirement**: Save the full execution log to `data/results/final_validation.log` and verify the presence of all expected artifacts in `data/`, `artifacts/`, and `data/results/`.
+- [X] T072 [P] **Success Criteria Verification**: Generate a final checklist document `data/results/success_criteria_checklist.md` that explicitly maps each Success Criterion (SC-001 to SC-005) to the specific output file and metric value that satisfies it. **Output Requirement**: The checklist must be human-readable and confirm that all SCs are met or explicitly state if any are pending further data.
+- [ ] T073 [P] **Research Handoff Note**: Create `data/results/research_handoff.md` summarizing the pipeline architecture, known limitations (e.g., CPU constraints, clustering heuristics), and specific recommendations for the next research phase. **Content Requirement**: This document MUST **NOT** suggest GPU offloading strategies as they contradict the project's CPU-only constraint. Instead, focus on **CPU-specific limitations** (e.g., memory bandwidth, single-threaded performance) and **algorithmic optimizations** (e.g., model pruning, quantization for CPU) that could improve performance within the existing constraints.

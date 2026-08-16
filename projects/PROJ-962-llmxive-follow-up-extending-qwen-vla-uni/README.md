@@ -1,31 +1,64 @@
-# PROJ-962: Non-Neural Approximation of VLA Priors
+# llmXive: Non-Neural Approximation of VLA Priors
 
-## Project Goal
-To implement a CPU-only pipeline that approximates Vision-Language-Action (VLA) priors using non-neural models (Decision Trees, GMMs) derived from clustered kinematic data. The system validates its performance against a VLA proxy baseline using statistical tests.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Project Overview
+
+This project implements a CPU-only pipeline to approximate the behavior of the Qwen-VLA (Vision-Language-Action) model using lightweight, non-neural models (Decision Trees and Gaussian Mixture Models). The goal is to evaluate whether interpretable, efficient models can achieve comparable performance to large neural networks while adhering to strict hardware constraints.
 
 ## Key Features
-- **CPU-Only Execution**: Enforced via runtime checks; no GPU dependencies.
-- **Adaptive Clustering**: K-means with automatic `k` reduction and HAC fallback for robust behavior grouping.
-- **Sequential Model Selection**: Automatically chooses between Decision Trees and GMMs based on R² and inference time.
-- **Statistical Rigor**: Paired t-tests for binary success and continuous fidelity metrics.
-- **Data Integrity**: Strict "fail loudly" policy for data fetching; no synthetic fallbacks.
+
+- **CPU-Only Execution**: Strict enforcement of CPU-only constraints for all stages (ingestion, training, inference, simulation).
+- **Adaptive Clustering**: K-means clustering with adaptive k-reduction based on silhouette scores.
+- **Streaming Data Processing**: Handles large datasets (>7GB) using streaming and Welford's algorithm for normalization.
+- **Sequential Model Training**: Trains Decision Trees first, falling back to GMMs only if necessary to minimize computational cost.
+- **Statistical Rigor**: Paired t-tests for continuous fidelity and binary success rates against VLA and random baselines.
+- **No Synthetic Data**: All data is sourced from real datasets; the pipeline fails loudly if data cannot be fetched.
 
 ## Architecture
-1. **Ingestion (`code/01_ingest_cluster.py`)**: Streams Qwen-VLA data, extracts kinematic features, and performs clustering.
-2. **Training (`code/02_train_models.py`)**: Generates BERT embeddings and fits cluster-specific models.
-3. **Inference (`code/03_inference.py`)**: Predicts trajectories for new prompts.
-4. **Simulation (`code/04_simulate_eval.py`)**: Evaluates trajectories in PyBullet and runs statistical comparisons.
+
+The pipeline consists of three main user stories:
+
+1. **Dataset Ingestion and Clustering**: Ingests Qwen-VLA data, extracts kinematic features, and clusters trajectories.
+2. **Model Training**: Generates BERT embeddings and trains Decision Trees or GMMs per cluster.
+3. **Simulation and Evaluation**: Executes trajectories in simulation and performs statistical comparisons.
+
+See `quickstart.md` for detailed execution instructions.
+
+## Quick Start
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the full pipeline
+python code/09_run_final_validation.py --dataset qwen-vla/Hy-Embodied
+```
 
 ## Documentation
-- [Quick Start Guide](docs/quickstart.md): Installation and execution instructions.
-- [Research Methodology](docs/research.md): Detailed explanation of algorithms, selection criteria, and validation.
+
+- [Quickstart Guide](quickstart.md): Step-by-step execution instructions.
+- [Research Methodology](research.md): Detailed methodology, model selection rationale, and constraints.
+- [Task List](tasks.md): Complete list of implemented tasks and their status.
 
 ## Success Criteria
-- **SC-001**: Trajectory fidelity within error margin of VLA proxy.
-- **SC-002**: Random baseline comparison included.
-- **SC-003**: CPU-only execution (memory < 7GB).
-- **SC-004**: Paired t-tests performed.
+
+- **SC-001**: Trajectory fidelity ≥ 80% compared to VLA proxy.
+- **SC-002**: Random baseline implemented via uniform sampling.
+- **SC-003**: CPU-only execution (peak RAM ≤ 7GB).
+- **SC-004**: Statistical significance (p < 0.05) in paired t-tests.
 - **SC-005**: Clustering coverage ≥ 98%.
 
+## Constraints
+
+- **No GPU**: The pipeline is designed for CPU-only environments. GPU usage will cause the script to exit.
+- **No Synthetic Data**: All data must be fetched from real sources. No placeholder data is used.
+- **Memory Limits**: Streaming is used to handle large datasets within 7GB RAM constraints.
+
+## Contributing
+
+This is a research project. Contributions are welcome, but please adhere to the CPU-only and "no synthetic data" constraints.
+
 ## License
-llmXive Research Initiative.
+
+MIT License. See LICENSE file for details.

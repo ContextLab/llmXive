@@ -20,49 +20,25 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-08-04T10:54:34.668006Z'
-- artifact_hash: fb6495e2345f4556332af4a70c255d1f335e5a6d6d2d9838d6d91d72bd5214e0
-  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+- artifact_hash: 9a7e7ccdaa14a7126c337aba2b9371178b2280c16bef66b0f063ef9c3a3844b6
+  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/README.md
   cite_id: c-001
   cited_authors: []
-  cited_title: null
-  fetched_title: null
+  cited_title: '![License: MIT'
+  fetched_title: 'License: MIT'
   kind: url
-  value: https://huggingface.co/Qwen/Qwen-VLA
-  verification_status: pending
-  verified_against_url: https://huggingface.co/Qwen/Qwen-VLA
-  verified_at: '2026-08-14T06:41:59.720825Z'
-- artifact_hash: fb6495e2345f4556332af4a70c255d1f335e5a6d6d2d9838d6d91d72bd5214e0
-  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
+  value: https://img.shields.io/badge/License-MIT-yellow.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/License-MIT-yellow.svg
+  verified_at: '2026-08-16T08:37:02.506586Z'
+- artifact_hash: 9a7e7ccdaa14a7126c337aba2b9371178b2280c16bef66b0f063ef9c3a3844b6
+  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/README.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: 'scikit-learn: machine learning in Python &mdash; scikit-learn 0.16.1
-    documentation'
+  fetched_title: The MIT License &#8211; Open Source Initiative
   kind: url
-  value: https://scikit-learn.org
+  value: https://opensource.org/licenses/MIT
   verification_status: pending
-  verified_against_url: https://scikit-learn.org
-  verified_at: '2026-08-14T06:41:59.720825Z'
-- artifact_hash: fb6495e2345f4556332af4a70c255d1f335e5a6d6d2d9838d6d91d72bd5214e0
-  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: 'Bullet Real-Time Physics Simulation | Home of Bullet and PyBullet:
-    physics simulation for games, visual effects, robotics and reinforcement learning.'
-  kind: url
-  value: https://pybullet.org
-  verification_status: pending
-  verified_against_url: https://pybullet.org/wordpress/
-  verified_at: '2026-08-14T06:41:59.720825Z'
-- artifact_hash: fb6495e2345f4556332af4a70c255d1f335e5a6d6d2d9838d6d91d72bd5214e0
-  artifact_path: projects/PROJ-962-llmxive-follow-up-extending-qwen-vla-uni/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: "Datasets \xB7 Hugging Face"
-  kind: url
-  value: https://huggingface.co/docs/datasets
-  verification_status: pending
-  verified_against_url: https://huggingface.co/docs/datasets/index
-  verified_at: '2026-08-14T06:41:59.720825Z'
+  verified_against_url: https://opensource.org/license/MIT
+  verified_at: '2026-08-16T08:37:02.506586Z'

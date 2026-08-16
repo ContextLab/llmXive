@@ -1,112 +1,137 @@
-# Quick Start Guide: Non-Neural VLA Approximation Pipeline
+# Quickstart Guide: Non-Neural VLA Approximation Pipeline
 
-## Overview
-This project implements a CPU-only, non-neural approximation of Vision-Language-Action (VLA) priors. It ingests the Qwen-VLA dataset, clusters behavior into kinematic groups, fits lightweight probabilistic models (Decision Trees or GMMs), and evaluates performance against baselines using simulation and statistical tests.
+This guide provides instructions for running the full pipeline to approximate Qwen-VLA behavior using non-neural models (Decision Trees and Gaussian Mixture Models).
 
 ## Prerequisites
+
 - Python 3.9+
-- CPU-only environment (GPU detection will cause the pipeline to abort per SC-003)
-- ~14GB disk space for intermediate artifacts
-- ~7GB RAM available during execution
+- System RAM: ≥ 16GB (recommended) for full dataset processing
+- Disk Space: ≥ 20GB for datasets and artifacts
+- CPU-only execution is enforced (GPU detection will halt execution)
 
 ## Installation
 
-1. **Clone and Setup**
- ```bash
- git clone <repo-url>
- cd PROJ-962-llmxive-follow-up-extending-qwen-vla-uni
- ```
-
-2. **Create Environment**
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install Dependencies**
- ```bash
- pip install -r requirements.txt
- ```
- *Note: `requirements.txt` includes pinned versions for reproducibility.*
-
-## Execution Pipeline
-
-The pipeline is executed in stages. Each stage produces artifacts consumed by the next.
-
-### Step 1: Ingestion & Clustering (US1)
-Downloads Qwen-VLA data, extracts kinematic features, and performs adaptive clustering.
+1. Clone the repository and navigate to the project root.
+2. Install dependencies:
 
 ```bash
-python code/01_ingest_cluster.py --k_initial 50 --silhouette_threshold 0.25 --k_reduction_step 5
+pip install -r requirements.txt
 ```
 
-**Flags:**
-- `--k_initial`: Initial number of clusters (default: 50).
-- `--silhouette_threshold`: Minimum acceptable silhouette score (default: 0.25).
-- `--k_reduction_step`: Step size for adaptive k-reduction (default: 5).
+*Note: Ensure `requirements.txt` includes `datasets`, `transformers`, `scikit-learn`, `scipy`, `pandas`, `numpy`, `psutil`, and `pyyaml`.*
 
-**Outputs:**
-- `data/processed/clusters.json`: Cluster centers and metadata.
-- `data/processed/assignments.parquet`: Sample-to-cluster assignments.
-- `data/results/clustering_method_log.json`: Log of k-reduction steps and final method (K-means vs HAC).
+## Configuration
+
+Edit `code/utils/config.py` or use environment variables to customize:
+- `CLUSTERING_K_INITIAL`: Initial number of clusters (default: 50)
+- `SILHOUETTE_THRESHOLD`: Minimum silhouette score (default: 0.25)
+- `K_REDUCTION_STEP`: Step size for k-reduction (default: 1)
+- `R2_THRESHOLD`: Minimum R² for model selection (default: 0.6)
+- `CONSTRUCT_VALIDITY_THRESHOLD`: Minimum R² for hypothesis validity (default: 0.1)
+
+## Execution Instructions
+
+Run the pipeline stages sequentially using the provided scripts. Each stage produces artifacts required by the next.
+
+### Step 1: Ingestion and Clustering (US1)
+
+Downloads the Qwen-VLA dataset, extracts kinematic features, normalizes them via streaming, and performs adaptive k-means clustering.
+
+```bash
+python code/01_ingest_cluster.py \
+ --dataset "qwen-vla/Hy-Embodied" \
+ --output-dir "data/processed" \
+ --k-initial 50 \
+ --silhouette-threshold 0.25 \
+ --k-reduction-step 1 \
+ --max-iterations 50 \
+ --seed 42
+```
+
+**Outputs**:
+- `data/processed/streaming_stats.json`
+- `data/processed/clustering_state.json`
+- `data/processed/clusters.json`
+- `data/processed/assignments.parquet`
+- `data/results/coverage_report.json`
 
 ### Step 2: Model Training (US2)
-Generates BERT embeddings and trains Decision Trees or GMMs per cluster.
+
+Generates BERT embeddings and trains sequential Decision Tree / GMM models per cluster.
 
 ```bash
-python code/02_train_models.py --r2_threshold 0.6 --inference_time_limit 2.0
+python code/02_train_models.py \
+ --assignments "data/processed/assignments.parquet" \
+ --clusters "data/processed/clusters.json" \
+ --output-dir "artifacts/models" \
+ --bert-model "bert-base-uncased" \
+ --r2-threshold 0.6 \
+ --construct-validity-threshold 0.1 \
+ --seed 42
 ```
 
-**Flags:**
-- `--r2_threshold`: Minimum R² required for model selection (default: 0.6).
-- `--inference_time_limit`: Maximum allowed inference time in seconds (default: 2.0).
-
-**Outputs:**
-- `data/processed/train_embeddings.parquet`: Frozen BERT embeddings.
-- `artifacts/models/cluster_{id}_selected.pkl`: Trained model for each cluster.
-- `data/results/model_selection_decision.md`: Rationale for DT vs GMM selection per cluster.
+**Outputs**:
+- `data/processed/train_embeddings.parquet`
+- `data/processed/embedding_verification.json`
+- `artifacts/models/cluster_{id}_selected.pkl`
+- `artifacts/models/cluster_{id}_selection.json`
+- `data/results/model_selection_decision.md`
+- `data/results/hypothesis_failure_report.md` (if validity check fails)
 
 ### Step 3: Inference (US2)
-Generates trajectories for new prompts.
+
+Runs inference on new prompts to generate trajectories.
 
 ```bash
-python code/03_inference.py --prompt "pick up the red block" --output data/results/inference_sample.json
+python code/03_inference.py \
+ --models-dir "artifacts/models" \
+ --prompts-file "data/input/prompts.jsonl" \
+ --output-file "data/results/inferred_trajectories.parquet" \
+ --seed 42
 ```
 
-**Outputs:**
-- `data/results/inference_sample.json`: Generated trajectory.
+### Step 4: Simulation and Evaluation (US3)
 
-### Step 4: Simulation & Evaluation (US3)
-Executes trajectories in PyBullet, compares against baselines, and runs statistical tests.
+Executes trajectories in simulation, compares against baselines, and runs statistical tests.
 
 ```bash
-python code/04_simulate_eval.py --baseline vla_proxy --random_seed 42
+python code/04_simulate_eval.py \
+ --trajectories "data/results/inferred_trajectories.parquet" \
+ --vla-baseline "data/processed/vla_proxy_baseline.parquet" \
+ --random-seed 42 \
+ --output-dir "data/results"
 ```
 
-**Outputs:**
-- `data/results/simulation_logs.csv`: Success/collision metrics.
-- `data/results/fidelity_metrics.json`: Trajectory fidelity scores.
-- `data/results/evaluation_report.md`: Final report with p-values and complexity reduction factors.
+**Outputs**:
+- `data/results/simulation_logs.csv`
+- `data/results/fidelity_metrics.json`
+- `data/results/fidelity_scores_per_sample.json`
+- `data/results/memory_profile_e2e.json`
+- `data/results/evaluation_report.md`
 
-## Verification
+## Pipeline Validation
 
-Run the full validation suite to ensure all artifacts are present and valid:
+Run the end-to-end validation script to ensure all artifacts are generated correctly:
 
 ```bash
-python code/09_run_final_validation.py
+python code/09_run_final_validation.py \
+ --config "code/utils/config.yaml"
 ```
-
-This script checks:
-- Existence of all required data files.
-- Integrity of clustering coverage (>98%).
-- Validity of statistical test results.
-- Absence of synthetic data fabrication.
 
 ## Troubleshooting
 
-- **GPU Detected**: The pipeline enforces CPU-only execution. If `torch.cuda.is_available()` is True, the script will raise a `RuntimeError`. Ensure `CUDA_VISIBLE_DEVICES=""` is set if necessary.
-- **Low Silhouette Score**: If the initial clustering score is < 0.25, the pipeline automatically reduces `k` and retries. If `k` reaches 1, it logs a "degenerate clustering" warning and proceeds.
-- **Missing Baseline**: The VLA Proxy Baseline must be present at `data/processed/vla_proxy_baseline.parquet`. If missing, the simulation step will abort.
+- **GPU Detected**: The pipeline enforces CPU-only execution. Set `CUDA_VISIBLE_DEVICES=""` or ensure no CUDA devices are available.
+- **Data Fetch Errors**: If `datasets.load_dataset` fails, the script will raise `DataFetchError`. Verify network connectivity and dataset ID.
+- **Clustering Degeneracy**: If silhouette score remains < 0.25, the loop reduces k until 1. Check `data/processed/clustering_state.json` for the final k.
 
-## License
-This project is part of the llmXive research initiative.
+## Output Artifacts Summary
+
+| Artifact | Description |
+|----------|-------------|
+| `data/processed/clusters.json` | Cluster centers and metadata |
+| `data/processed/assignments.parquet` | Sample-to-cluster mapping |
+| `artifacts/models/` | Trained DT/GMM models per cluster |
+| `data/results/evaluation_report.md` | Final report with p-values and metrics |
+| `data/results/fidelity_scores_per_sample.json` | Continuous fidelity scores for t-tests |
+
+For detailed methodology, see `research.md`.
