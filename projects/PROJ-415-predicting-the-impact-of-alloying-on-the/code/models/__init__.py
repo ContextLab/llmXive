@@ -1,3 +1,1 @@
-"""
-Model training and inference modules.
-"""
+# Models module initialization

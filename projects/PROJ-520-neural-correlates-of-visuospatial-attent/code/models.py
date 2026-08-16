@@ -1,6 +1,6 @@
 """
-Data model entities for the neural correlates analysis pipeline.
-Defines core structures for Epochs, Features, and Classification results.
+Data model entities.
+Defines core data structures for the pipeline.
 """
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
@@ -8,81 +8,54 @@ import numpy as np
 
 @dataclass
 class Epoch:
-    """Represents a single EEG epoch."""
+    """Represents a single epoch of EEG data."""
     id: str
-    condition: str  # 'active' or 'passive'
-    data: np.ndarray  # Shape: (channels, time_points)
-    times: np.ndarray
-    events: Dict[str, Any] = field(default_factory=dict)
-
-    def get_power(self, freq_range: tuple) -> float:
-        """Calculate mean power within a specific frequency range using FFT.
-        
-        Args:
-            freq_range: Tuple of (low_freq, high_freq) in Hz.
-        
-        Returns:
-            Mean power value across all channels and time points for the given band.
-        """
-        if len(self.data.shape) != 2:
-            raise ValueError("Data must be 2D (channels, time_points) for FFT.")
-        
-        # Perform FFT on each channel
-        fft_data = np.fft.rfft(self.data, axis=1)
-        frequencies = np.fft.rfftfreq(self.data.shape[1], d=self.times[1] - self.times[0])
-        
-        # Identify indices within the frequency range
-        freq_mask = (frequencies >= freq_range[0]) & (frequencies < freq_range[1])
-        
-        if not np.any(freq_mask):
-            return 0.0
-        
-        # Calculate power (magnitude squared)
-        power_spectrum = np.abs(fft_data) ** 2
-        
-        # Average power across the selected frequency band and all channels/time
-        mean_power = np.mean(power_spectrum[:, freq_mask])
-        return float(mean_power)
+    condition: str
+    start_time: float
+    data: np.ndarray
+    info: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class Feature:
     """Represents a single extracted feature."""
     name: str
     value: float
-    electrode: str
-    frequency_band: str  # 'alpha', 'beta', etc.
-    epoch_id: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 @dataclass
 class ClassifierResult:
-    """Stores results from a classification run."""
+    """Stores classification metrics."""
     accuracy: float
     precision: float
     recall: float
     f1_score: float
     confusion_matrix: np.ndarray
-    cv_scores: List[float]
-    permutation_p_value: Optional[float] = None
-    is_significant: Optional[bool] = None
+    cross_val_scores: List[float] = field(default_factory=list)
 
 @dataclass
 class PreprocessingReport:
-    """Summary of preprocessing steps applied."""
-    raw_channels: int
-    cleaned_channels: int
-    rejected_components: List[int]
+    """Report on preprocessing steps."""
+    n_epochs_total: int
+    n_epochs_rejected: int
+    rejected_components: List[int] = field(default_factory=list)
     skipped_electrodes: List[str] = field(default_factory=list)
-    event_source: str = "markers"  # or "landmark_fallback"
-    epoch_count_active: int = 0
-    epoch_count_passive: int = 0
-    is_underpowered: bool = False
+    event_source: str = "direct" # or "landmark_fallback"
 
 @dataclass
 class FeatureMetadata:
-    """Metadata describing the feature matrix."""
+    """Metadata about the extracted feature matrix."""
     n_epochs: int
     n_features: int
     electrode_list: List[str]
     frequency_bands: List[str]
-    correlation_matrix: Optional[np.ndarray] = None
+    feature_names: List[str] = field(default_factory=list)
     fwe_corrected_p_values: Dict[str, float] = field(default_factory=dict)
+
+@dataclass
+class PermutationResult:
+    """Result of permutation testing."""
+    p_value: float
+    null_distribution: np.ndarray
+    observed_statistic: float
+    n_permutations: int
+    significant: bool

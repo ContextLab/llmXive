@@ -1,0 +1,15 @@
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, tests, or documentation were provided that demonstrate\
+    \ a sample\u2011size validation step (halting <50 epochs/condition, flagging <100\
+    \ epochs/condition). Without any artifact to inspect, we cannot confirm the requirement\
+    \ was implemented. The task remains unfulfilled."
+T018:
+  c: false
+  h: fe998ee71e5e1f59ae012f300777d1f96d5d8282686837dd50cf9fcc985b9f31
+  r: "The required input file `data/processed/epochs_cleaned.fif` does not exist,\
+    \ and the provided `code/feature_extraction.py` is truncated (ending mid\u2011\
+    function) with no visible logic that actually invokes the Morlet decomposition\
+    \ on the low\u2011frequency band. Both the essential data artifact and a complete\
+    \ implementation are missing."

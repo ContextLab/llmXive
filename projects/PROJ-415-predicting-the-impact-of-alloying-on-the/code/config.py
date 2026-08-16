@@ -1,38 +1,28 @@
-"""
-Global configuration constants for the project.
-"""
-
 import os
 from pathlib import Path
 from typing import Final
 
-# Project root is assumed to be the directory containing this file's parent
-# Adjust if the structure is different
-PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
+PROJECT_ROOT: Final = Path(__file__).resolve().parent.parent
+DATA_DIR: Final = PROJECT_ROOT / "data"
+LOG_DIR: Final = DATA_DIR / "logs"
+ERRORS_DIR: Final = PROJECT_ROOT / "errors"
+MODELS_DIR: Final = PROJECT_ROOT / "models"
+REPORTS_DIR: Final = PROJECT_ROOT / "reports"
 
-DATA_DIR: Final[Path] = PROJECT_ROOT / "data"
-LOG_DIR: Final[Path] = PROJECT_ROOT / "data" / "logs"
-MODELS_DIR: Final[Path] = PROJECT_ROOT / "models"
-REPORTS_DIR: Final[Path] = PROJECT_ROOT / "reports"
-ERRORS_DIR: Final[Path] = PROJECT_ROOT / "errors"
-
-# Random seed for reproducibility
-RANDOM_SEED: Final[int] = 42
+# Random seeds for reproducibility
+RANDOM_SEED: Final = 42
 
 def ensure_directories() -> None:
     """
     Ensure all required directories exist.
     """
-    directories = [
-        DATA_DIR,
-        LOG_DIR,
-        MODELS_DIR,
-        REPORTS_DIR,
-        ERRORS_DIR,
-        DATA_DIR / "raw",
-        DATA_DIR / "curated",
-        DATA_DIR / "artifacts",
-    ]
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
+    dirs = [DATA_DIR, LOG_DIR, ERRORS_DIR, MODELS_DIR, REPORTS_DIR]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+
+if __name__ == "__main__":
+    ensure_directories()
+    print(f"Project Root: {PROJECT_ROOT}")
+    print(f"Data Dir: {DATA_DIR}")
+    print(f"Log Dir: {LOG_DIR}")
+    print(f"Error Dir: {ERRORS_DIR}")

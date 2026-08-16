@@ -1,6 +1,6 @@
 """
-Script to run the manual curator pipeline.
-Invoked by quickstart.md to ensure data/raw/manual_curated.csv is produced.
+Script to run the Manual Curator pipeline.
+Ensures data/raw/manual_curated.csv is generated (or created empty if missing).
 """
 import logging
 import sys
@@ -9,16 +9,20 @@ from src.ingestion.manual_curator import main as run_pipeline
 from src.utils.logging_config import setup_logging
 
 def main():
-    setup_logging()
+    """Run the manual curator pipeline."""
+    setup_logging("run_manual_curator", level=logging.INFO)
     logger = logging.getLogger(__name__)
-    logger.info("Starting Manual Curator Pipeline...")
     
-    try:
-        run_pipeline()
-        logger.info("Manual Curator Pipeline completed successfully.")
-    except Exception as e:
-        logger.error(f"Manual Curator Pipeline failed: {e}")
-        sys.exit(1)
+    logger.info("Starting manual curator pipeline...")
+    df = run_pipeline()
+    
+    if df.empty:
+        logger.warning("Manual curator produced no data. Proceeding with empty dataset.")
+    else:
+        logger.info(f"Manual curator successfully processed {len(df)} entries.")
+    
+    logger.info("Manual curator pipeline complete.")
+    return df
 
 if __name__ == "__main__":
     main()

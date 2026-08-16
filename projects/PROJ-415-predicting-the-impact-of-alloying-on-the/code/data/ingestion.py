@@ -5,12 +5,14 @@ This module handles:
 - Loading CSV files
 - Filtering for FCC crystal structure and self-diffusion mode
 - Unit standardization to eV/atom
+- Edge case handling for single-host-metal datasets
 """
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Optional
 import logging
+from sklearn.model_selection import train_test_split
 
 from config import DATA_DIR
 from utils.logging import get_logger
@@ -153,6 +155,47 @@ def load_multiple_files(file_paths: list, output_dir: Optional[str] = None) -> p
         logger.info(f"Saved combined data to {output_path}")
     
     return combined_df
+
+def split_data_stratified(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42) -> tuple:
+    """
+    Split data into train/test sets with stratification by host metal.
+    
+    If the dataset contains only a single host metal, falls back to a random split
+    and logs a specific warning as required by edge case handling.
+    
+    Args:
+        df: Input DataFrame containing diffusion data
+        test_size: Proportion of data to include in the test split
+        random_state: Random seed for reproducibility
+    
+    Returns:
+        Tuple of (train_df, test_df)
+    """
+    if 'element' not in df.columns:
+        raise ValueError("Input DataFrame must contain 'element' column for stratification")
+    
+    unique_hosts = df['element'].nunique()
+    
+    if unique_hosts == 1:
+        # Edge case: Single-host-metal dataset
+        logger.warning("Stratification by host metal was not possible due to single-class data.")
+        # Fallback to random split
+        train_df, test_df = train_test_split(
+            df, 
+            test_size=test_size, 
+            random_state=random_state,
+            stratify=None # Cannot stratify on single class
+        )
+    else:
+        # Normal case: Multiple host metals available for stratification
+        train_df, test_df = train_test_split(
+            df,
+            test_size=test_size,
+            random_state=random_state,
+            stratify=df['element']
+        )
+    
+    return train_df, test_df
 
 if __name__ == "__main__":
     import sys

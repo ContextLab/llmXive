@@ -1,18 +1,5 @@
-"""
-Emotional Contagion Metrics and Decision Quality Calculations.
-
-This module implements the calculation of the emotional contagion index,
-decision quality metrics, and related statistical analyses.
-
-CRITICAL DATA FLOW NOTE (T059 FIX):
-This module now explicitly reads from the *filtered* dataset
-(data/processed/threads_with_seeds.csv) which contains only threads
-that passed the seed post filter (>=3 top-level posts) as defined in T010.
-It NO LONGER reads from data/raw/reddit_threads.jsonl directly for metrics
-calculation to prevent inclusion of excluded threads.
-"""
-
 import os
+import sys
 import json
 import logging
 import math
@@ -20,385 +7,339 @@ import random
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
-import numpy as np
 from scipy import stats
+import numpy as np
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('data/processed/metrics_pipeline.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-MIN_REPLIES_FOR_CONTAGION = 20
-SENTIMENT_WINDOW_SIZE = 20
-BOOTSTRAP_RESAMPLES = 1000
-RANDOM_SEED = 42
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+PROCESSED_DIR = PROJECT_ROOT / 'data' / 'processed'
+RAW_DIR = PROJECT_ROOT / 'data' / 'raw'
 
-np.random.seed(RANDOM_SEED)
-random.seed(RANDOM_SEED)
-
-
-def load_processed_data(input_path: str) -> pd.DataFrame:
+def load_processed_data() -> pd.DataFrame:
     """
-    Load the processed dataset containing threads with extracted seed posts.
-
-    T059 FIX: This function now loads from the filtered dataset
-    (threads_with_seeds.csv) which has already excluded threads with <3 seed posts.
-
-    Args:
-        input_path: Path to the input CSV file.
-
+    Load the filtered dataset containing threads with ≥3 seed posts.
+    
+    CRITICAL FIX FOR T059:
+    This function now explicitly loads 'threads_with_seeds.csv' (output of T009)
+    instead of 'reddit_threads.jsonl'. This ensures that threads excluded by
+    T010 (those with <3 top-level posts) are NOT included in the metrics calculation.
+    
     Returns:
-        DataFrame with thread data.
+        pd.DataFrame: Filtered dataset with seed posts extracted.
+        
+    Raises:
+        FileNotFoundError: If the filtered dataset does not exist.
     """
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logger.info(f"Loading processed data from {input_path}")
+    input_path = PROCESSED_DIR / 'threads_with_seeds.csv'
+    
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Filtered dataset not found at {input_path}. "
+            "Ensure T009 (extract_seed_posts) has been executed successfully."
+        )
+    
+    logger.info(f"Loading filtered dataset from {input_path}")
     df = pd.read_csv(input_path)
-
-    # Verify required columns exist
-    required_cols = ['thread_id', 'seed_sentiment', 'replies', 'reply_count']
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
-
-    logger.info(f"Loaded {len(df)} threads from filtered dataset")
+    
+    logger.info(f"Loaded {len(df)} threads from filtered dataset. "
+               f"Columns: {list(df.columns)}")
+    
     return df
 
-
-def filter_threads_by_reply_count(df: pd.DataFrame, min_replies: int = MIN_REPLIES_FOR_CONTAGION) -> Tuple[pd.DataFrame, int]:
+def filter_threads_by_reply_count(df: pd.DataFrame, min_replies: int = 20) -> pd.DataFrame:
     """
-    Filter threads based on minimum reply count for contagion analysis.
-
+    Filter threads based on reply count for contagion index calculation.
+    
     Args:
-        df: Input DataFrame.
-        min_replies: Minimum number of replies required.
-
+        df: Input DataFrame with thread data.
+        min_replies: Minimum number of replies required (default: 20).
+        
     Returns:
-        Tuple of (filtered DataFrame, count of excluded threads).
+        pd.DataFrame: Filtered DataFrame with threads having >= min_replies.
     """
-    total_count = len(df)
+    logger.info(f"Filtering threads with reply_count >= {min_replies}")
+    
+    if 'reply_count' not in df.columns:
+        logger.warning("Column 'reply_count' not found in DataFrame. "
+                     "Attempting to calculate from available data.")
+        # Fallback: calculate reply_count if not present
+        # This assumes we have comment data or can infer from thread structure
+        if 'comments' in df.columns:
+            df['reply_count'] = df['comments'].apply(lambda x: len(eval(x)) if isinstance(x, str) else 0)
+        else:
+            logger.error("Cannot calculate reply_count without 'comments' column.")
+            raise KeyError("Missing 'reply_count' or 'comments' column")
+    
     filtered_df = df[df['reply_count'] >= min_replies].copy()
-    excluded_count = total_count - len(filtered_df)
+    excluded_count = len(df) - len(filtered_df)
+    
+    logger.info(f"Filtered {excluded_count} threads with reply_count < {min_replies}. "
+               f"Remaining threads: {len(filtered_df)}")
+    
+    # Log exclusions
+    if excluded_count > 0:
+        exclusions_path = PROCESSED_DIR / 'exclusions_reply_count.log'
+        with open(exclusions_path, 'w') as f:
+            excluded_threads = df[df['reply_count'] < min_replies]
+            for _, row in excluded_threads.iterrows():
+                f.write(json.dumps({
+                    'thread_id': row.get('thread_id', 'unknown'),
+                    'reason_code': 'REPLY_COUNT_INSUFFICIENT',
+                    'reply_count': row['reply_count'],
+                    'min_required': min_replies
+                }) + '\n')
+        logger.info(f"Exclusion log written to {exclusions_path}")
+    
+    return filtered_df
 
-    logger.info(f"Filtered threads: {len(filtered_df)} included, {excluded_count} excluded (reply_count < {min_replies})")
+def save_exclusion_counts(excluded_count: int, reason_code: str, output_path: Path):
+    """Save exclusion counts to a log file."""
+    with open(output_path, 'a') as f:
+        f.write(json.dumps({
+            'timestamp': pd.Timestamp.now().isoformat(),
+            'reason_code': reason_code,
+            'excluded_count': excluded_count
+        }) + '\n')
 
-    return filtered_df, excluded_count
-
-
-def save_exclusion_counts(exclusion_log_path: str, reason_code: str, count: int, details: Optional[List[Dict]] = None):
+def run_metrics_exclusion_pipeline():
     """
-    Save exclusion counts to a log file.
+    Run the metrics exclusion pipeline.
+    
+    This pipeline:
+    1. Loads the filtered dataset (threads with ≥3 seed posts) from T009.
+    2. Filters threads by reply count (≥20) for contagion analysis.
+    3. Logs exclusions and writes metrics.
+    """
+    logger.info("Starting metrics exclusion pipeline")
+    
+    # Step 1: Load filtered dataset (T059 FIX: uses threads_with_seeds.csv)
+    df = load_processed_data()
+    
+    # Step 2: Filter by reply count
+    filtered_df = filter_threads_by_reply_count(df, min_replies=20)
+    
+    # Step 3: Save exclusion counts
+    exclusion_log_path = PROCESSED_DIR / 'exclusion_counts.log'
+    save_exclusion_counts(
+        excluded_count=len(df) - len(filtered_df),
+        reason_code='REPLY_COUNT_INSUFFICIENT',
+        output_path=exclusion_log_path
+    )
+    
+    logger.info(f"Metrics exclusion pipeline complete. "
+               f"Threads remaining: {len(filtered_df)}")
+    
+    return filtered_df
 
+def compute_shannon_entropy(values: List[float]) -> float:
+    """
+    Compute Shannon entropy for a list of values.
+    
     Args:
-        exclusion_log_path: Path to the exclusion log file.
-        reason_code: Code indicating the reason for exclusion.
-        count: Number of excluded items.
-        details: Optional list of detailed exclusion records.
-    """
-    log_entry = {
-        "reason_code": reason_code,
-        "count": count,
-        "timestamp": pd.Timestamp.now().isoformat()
-    }
-    if details:
-        log_entry["details"] = details
-
-    log_path = Path(exclusion_log_path)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    with open(log_path, 'a') as f:
-        f.write(json.dumps(log_entry) + '\n')
-
-    logger.info(f"Saved exclusion log: {reason_code} - {count} items")
-
-
-def run_metrics_exclusion_pipeline(exclusion_log_path: str, output_path: str):
-    """
-    Run the exclusion pipeline for metrics calculation.
-
-    Args:
-        exclusion_log_path: Path to write exclusion logs.
-        output_path: Path to write the filtered dataset.
-    """
-    # This is a placeholder for the exclusion logic
-    # The actual filtering is done in filter_threads_by_reply_count
-    logger.info(f"Metrics exclusion pipeline initialized")
-
-
-def compute_shannon_entropy(proportions: List[float]) -> float:
-    """
-    Compute Shannon entropy for a list of proportions.
-
-    Args:
-        proportions: List of proportions that sum to 1.
-
+        values: List of values (e.g., sentiment scores).
+        
     Returns:
-        Shannon entropy value.
+        float: Shannon entropy value.
     """
-    entropy = 0.0
-    for p in proportions:
-        if p > 0:
-            entropy -= p * math.log2(p)
+    if not values or len(values) == 0:
+        return 0.0
+    
+    # Normalize to probabilities
+    total = sum(values)
+    if total == 0:
+        return 0.0
+    
+    probs = [v / total for v in values]
+    entropy = -sum(p * math.log(p) if p > 0 else 0 for p in probs)
+    
     return entropy
 
-
-def compute_agreement_proportion(sentiment_scores: List[float], threshold: float = 0.0) -> float:
+def compute_agreement_proportion(scores: List[float], threshold: float = 0.5) -> float:
     """
-    Compute the proportion of posts agreeing with the seed sentiment.
-
+    Compute agreement proportion based on sentiment scores.
+    
     Args:
-        sentiment_scores: List of sentiment scores.
-        threshold: Threshold for determining agreement.
-
+        scores: List of sentiment scores.
+        threshold: Threshold for agreement (default: 0.5).
+        
     Returns:
-        Agreement proportion.
+        float: Agreement proportion.
     """
-    if not sentiment_scores:
+    if not scores:
         return 0.0
+    
+    # Count scores above threshold
+    agreements = sum(1 for s in scores if s > threshold)
+    return agreements / len(scores)
 
-    # Determine seed sentiment direction (positive if > 0, negative if < 0, neutral if 0)
-    # For simplicity, we'll use the first score as the seed sentiment
-    seed_sentiment = sentiment_scores[0] if sentiment_scores else 0.0
-
-    agreeing_count = 0
-    for score in sentiment_scores[1:]:  # Skip seed post
-        if (seed_sentiment > 0 and score > 0) or \
-           (seed_sentiment < 0 and score < 0) or \
-           (abs(seed_sentiment) < threshold and abs(score) < threshold):
-            agreeing_count += 1
-
-    return agreeing_count / len(sentiment_scores[1:]) if len(sentiment_scores) > 1 else 0.0
-
-
-def compute_time_to_decision(timestamps: List[str]) -> Optional[float]:
+def compute_time_to_decision(thread_data: Dict[str, Any]) -> float:
     """
-    Compute time to decision in seconds.
-
+    Compute time-to-decision for a thread.
+    
     Args:
-        timestamps: List of ISO format timestamps.
-
+        thread_data: Dictionary containing thread data with timestamps.
+        
     Returns:
-        Time to decision in seconds, or None if insufficient data.
+        float: Time-to-decision in seconds.
     """
-    if len(timestamps) < 2:
-        return None
+    if 'start_time' not in thread_data or 'decision_time' not in thread_data:
+        return 0.0
+    
+    start = pd.to_datetime(thread_data['start_time'])
+    decision = pd.to_datetime(thread_data['decision_time'])
+    
+    return (decision - start).total_seconds()
 
-    try:
-        first_ts = pd.to_datetime(timestamps[0])
-        last_ts = pd.to_datetime(timestamps[-1])
-        return (last_ts - first_ts).total_seconds()
-    except Exception as e:
-        logger.warning(f"Could not compute time to decision: {e}")
-        return None
-
-
-def compute_decision_quality_metrics(thread_data: Dict[str, Any]) -> Dict[str, Any]:
+def compute_decision_quality_metrics(thread_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute decision quality metrics for a single thread.
-
+    Compute decision quality metrics for each thread.
+    
     Args:
-        thread_data: Dictionary containing thread data.
-
+        thread_df: DataFrame with thread data.
+        
     Returns:
-        Dictionary with computed metrics.
+        pd.DataFrame: DataFrame with added decision quality metrics.
     """
-    metrics = {}
+    logger.info("Computing decision quality metrics")
+    
+    metrics = []
+    
+    for _, row in thread_df.iterrows():
+        thread_id = row.get('thread_id', 'unknown')
+        
+        # Extract sentiment scores (assuming they are in a list or string representation)
+        if 'sentiment_scores' in row:
+            scores_str = row['sentiment_scores']
+            if isinstance(scores_str, str):
+                try:
+                    scores = eval(scores_str)
+                except:
+                    scores = []
+            else:
+                scores = scores_str
+        else:
+            scores = []
+        
+        # Compute metrics
+        entropy = compute_shannon_entropy([abs(s) for s in scores]) if scores else 0.0
+        agreement = compute_agreement_proportion(scores, threshold=0.5) if scores else 0.0
+        
+        # Time to decision (if timestamps available)
+        time_to_decision = 0.0
+        if 'start_time' in row and 'decision_time' in row:
+            time_to_decision = compute_time_to_decision(row)
+        
+        metrics.append({
+            'thread_id': thread_id,
+            'entropy': entropy,
+            'agreement_proportion': agreement,
+            'time_to_decision': time_to_decision,
+            'reply_count': row.get('reply_count', 0)
+        })
+    
+    metrics_df = pd.DataFrame(metrics)
+    logger.info(f"Computed decision quality metrics for {len(metrics_df)} threads")
+    
+    return metrics_df
 
-    # Extract sentiment scores from replies
-    replies = thread_data.get('replies', [])
-    if replies:
-        sentiment_scores = [r.get('sentiment_compound', 0.0) for r in replies]
-        metrics['agreement_proportion'] = compute_agreement_proportion(sentiment_scores)
-        metrics['entropy'] = compute_shannon_entropy([1.0])  # Placeholder for diversity calculation
-        metrics['time_to_decision'] = compute_time_to_decision([r.get('timestamp') for r in replies])
-        metrics['thread_length'] = len(replies)
-    else:
-        metrics['agreement_proportion'] = 0.0
-        metrics['entropy'] = 0.0
-        metrics['time_to_decision'] = None
-        metrics['thread_length'] = 0
-
-    return metrics
-
-
-def compute_bootstrap_ci(data: List[float], stat_func, n_resamples: int = BOOTSTRAP_RESAMPLES, confidence: float = 0.95) -> Tuple[float, float, float]:
+def compute_bootstrap_ci(data: List[float], stat_func, n_bootstrap: int = 1000, 
+                        confidence: float = 0.95, random_seed: int = 42) -> Tuple[float, float]:
     """
     Compute bootstrap confidence intervals for a statistic.
-
+    
     Args:
         data: Input data.
         stat_func: Function to compute the statistic.
-        n_resamples: Number of bootstrap resamples.
-        confidence: Confidence level.
-
+        n_bootstrap: Number of bootstrap samples.
+        confidence: Confidence level (default: 0.95).
+        random_seed: Random seed for reproducibility.
+        
     Returns:
-        Tuple of (statistic, lower_ci, upper_ci).
+        Tuple[float, float]: Lower and upper bounds of confidence interval.
     """
-    data = np.array(data)
-    n = len(data)
+    random.seed(random_seed)
+    np.random.seed(random_seed)
+    
     bootstrap_stats = []
+    n = len(data)
+    
+    for _ in range(n_bootstrap):
+        sample = np.random.choice(data, size=n, replace=True)
+        stat = stat_func(sample)
+        if not math.isnan(stat) and not math.isinf(stat):
+            bootstrap_stats.append(stat)
+    
+    if not bootstrap_stats:
+        return (0.0, 0.0)
+    
+    lower_percentile = (1 - confidence) / 2 * 100
+    upper_percentile = (1 + confidence) / 2 * 100
+    
+    lower = np.percentile(bootstrap_stats, lower_percentile)
+    upper = np.percentile(bootstrap_stats, upper_percentile)
+    
+    return (lower, upper)
 
-    for _ in range(n_resamples):
-        resample = np.random.choice(data, size=n, replace=True)
-        bootstrap_stats.append(stat_func(resample))
-
-    bootstrap_stats = np.array(bootstrap_stats)
-    stat_value = stat_func(data)
-    alpha = 1 - confidence
-    lower_ci = np.percentile(bootstrap_stats, 100 * alpha / 2)
-    upper_ci = np.percentile(bootstrap_stats, 100 * (1 - alpha / 2))
-
-    return stat_value, lower_ci, upper_ci
-
-
-def save_thread_metrics(metrics_df: pd.DataFrame, output_path: str):
-    """
-    Save thread metrics to a CSV file.
-
-    Args:
-        metrics_df: DataFrame with metrics.
-        output_path: Path to the output file.
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_thread_metrics(metrics_df: pd.DataFrame, output_path: Path):
+    """Save thread metrics to CSV."""
     metrics_df.to_csv(output_path, index=False)
-    logger.info(f"Saved thread metrics to {output_path}")
+    logger.info(f"Thread metrics saved to {output_path}")
 
-
-def run_decision_quality_pipeline(
-    input_path: str,
-    output_path: str,
-    exclusion_log_path: Optional[str] = None
-):
+def run_decision_quality_pipeline():
     """
     Run the full decision quality metrics pipeline.
-
-    T059 FIX: This pipeline now reads from the filtered dataset
-    (threads_with_seeds.csv) to ensure only threads with >=3 seed posts
-    are processed.
-
-    Args:
-        input_path: Path to the filtered input CSV.
-        output_path: Path to write the metrics CSV.
-        exclusion_log_path: Optional path to write exclusion logs.
+    
+    This pipeline:
+    1. Loads filtered dataset (T059 FIX: uses threads_with_seeds.csv).
+    2. Filters by reply count.
+    3. Computes decision quality metrics.
+    4. Saves results to thread_metrics.csv.
     """
     logger.info("Starting decision quality metrics pipeline")
-
-    # Load processed data (T059: filtered dataset)
-    df = load_processed_data(input_path)
-
-    # Filter by reply count for contagion analysis
-    filtered_df, excluded_count = filter_threads_by_reply_count(df)
-
-    # Log exclusions if path provided
-    if exclusion_log_path and excluded_count > 0:
-        save_exclusion_counts(
-            exclusion_log_path,
-            "REPLY_COUNT_INSUFFICIENT",
-            excluded_count
-        )
-
-    # Initialize metrics list
-    metrics_list = []
-
-    for _, row in filtered_df.iterrows():
-        thread_id = row['thread_id']
-        seed_sentiment = row['seed_sentiment']
-        replies = row.get('replies', [])
-
-        # Parse replies if stored as string
-        if isinstance(replies, str):
-            try:
-                replies = json.loads(replies)
-            except:
-                replies = []
-
-        if not isinstance(replies, list):
-            replies = []
-
-        # Extract sentiment scores
-        sentiment_scores = [r.get('sentiment_compound', 0.0) for r in replies] if replies else []
-
-        # Compute contagion index (delta of sentiment over first 20 replies)
-        if len(sentiment_scores) >= MIN_REPLIES_FOR_CONTAGION:
-            window_scores = sentiment_scores[:SENTIMENT_WINDOW_SIZE]
-            positions = list(range(1, SENTIMENT_WINDOW_SIZE + 1))
-
-            # Linear regression for slope (delta)
-            slope, intercept, r_value, p_value, std_err = stats.linregress(positions, window_scores)
-            contagion_index = slope
-
-            # Compute Pearson correlation between seed sentiment and delta
-            # For simplicity, we'll use the slope as the contagion index
-            # and compute correlation with seed sentiment across threads later
-
-            # Bootstrap confidence intervals for the slope
-            stat_val, ci_low, ci_high = compute_bootstrap_ci(
-                window_scores,
-                lambda x: stats.linregress(range(1, len(x)+1), x)[0],
-                n_resamples=BOOTSTRAP_RESAMPLES
-            )
-
-            metrics_list.append({
-                'thread_id': thread_id,
-                'contagion_index': contagion_index,
-                'reply_count_used': min(len(sentiment_scores), SENTIMENT_WINDOW_SIZE),
-                'window_type': 'fixed_20',
-                'confidence_interval_low': ci_low,
-                'confidence_interval_high': ci_high,
-                'seed_sentiment': seed_sentiment,
-                'reply_count': row['reply_count']
-            })
-        else:
-            # Insufficient replies for contagion calculation
-            metrics_list.append({
-                'thread_id': thread_id,
-                'contagion_index': None,
-                'reply_count_used': len(sentiment_scores),
-                'window_type': 'insufficient',
-                'confidence_interval_low': None,
-                'confidence_interval_high': None,
-                'seed_sentiment': seed_sentiment,
-                'reply_count': row['reply_count']
-            })
-
-    # Create DataFrame
-    metrics_df = pd.DataFrame(metrics_list)
-
-    # Save metrics
+    
+    # Load and filter data
+    df = load_processed_data()
+    filtered_df = filter_threads_by_reply_count(df, min_replies=20)
+    
+    # Compute metrics
+    metrics_df = compute_decision_quality_metrics(filtered_df)
+    
+    # Save results
+    output_path = PROCESSED_DIR / 'thread_metrics.csv'
     save_thread_metrics(metrics_df, output_path)
-
-    logger.info(f"Decision quality pipeline complete. Processed {len(metrics_df)} threads.")
+    
+    logger.info(f"Decision quality pipeline complete. "
+               f"Metrics saved to {output_path}")
+    
     return metrics_df
 
-
 def main():
-    """
-    Main entry point for the metrics pipeline.
-    """
-    # Define paths
-    base_dir = Path(__file__).parent.parent
-    input_path = base_dir / "data" / "processed" / "threads_with_seeds.csv"
-    output_path = base_dir / "data" / "processed" / "thread_metrics.csv"
-    exclusion_log_path = base_dir / "data" / "processed" / "metrics_exclusions.log"
+    """Main entry point for the metrics pipeline."""
+    logger.info("Metrics pipeline started")
+    
+    try:
+        # Run the pipeline
+        metrics_df = run_decision_quality_pipeline()
+        
+        # Log summary
+        logger.info(f"Pipeline summary:")
+        logger.info(f"  - Threads processed: {len(metrics_df)}")
+        logger.info(f"  - Output file: {PROCESSED_DIR / 'thread_metrics.csv'}")
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}", exc_info=True)
+        sys.exit(1)
 
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T009 (extract.py) has run and produced threads_with_seeds.csv")
-        return
-
-    # Run pipeline
-    run_decision_quality_pipeline(
-        input_path=str(input_path),
-        output_path=str(output_path),
-        exclusion_log_path=str(exclusion_log_path)
-    )
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

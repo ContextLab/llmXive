@@ -1,236 +1,235 @@
-"""
-Data Curation Module for Diffusion Activation Energy Project.
-
-This module handles the exclusion of rows with missing critical data
-(solute concentration, atomic radii) and logs these exclusions.
-"""
-
 import os
 import pandas as pd
 import logging
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List, Dict, Any
+import csv
 
 from config import DATA_DIR, LOG_DIR, PROJECT_ROOT
-from utils.logging import get_logger
 from utils.constants import get_metallic_radius
+from utils.logging import get_logger
 
-# Initialize logger
+# Ensure logger is configured
 logger = get_logger(__name__)
 
 def load_curated_data() -> pd.DataFrame:
     """
-    Loads the filtered dataset from the ingestion step.
-    Expects: data/curated/filtered.csv
+    Load the filtered dataset from the ingestion step.
+    Expected path: data/curated/filtered.csv
     """
     input_path = DATA_DIR / "curated" / "filtered.csv"
     if not input_path.exists():
         raise FileNotFoundError(
             f"Input file not found: {input_path}. "
-            "Please run ingestion (T013) first to generate this file."
+            "Please ensure T013 (ingestion) has run successfully."
         )
-    logger.info(f"Loading curated data from {input_path}")
-    return pd.read_csv(input_path)
-
-def validate_atomic_radii(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Validates that rows have valid atomic radii for both solute and host.
-    Uses the get_metallic_radius helper from utils.constants.
     
-    Returns:
-        Tuple of (valid_df, invalid_df_with_reasons)
-    """
-    invalid_indices = []
-    reasons = []
+    logger.info(f"Loading curated data from {input_path}")
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    return df
 
-    # Ensure we have columns for host and solute
-    # Assuming standard naming from ingestion: 'host_element', 'solute_element'
-    # If columns differ, this might need adjustment based on actual schema
+def validate_atomic_radii(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
+    """
+    Validate that atomic radii exist for all solute and host elements.
+    Returns the cleaned dataframe and a list of exclusion records.
+    """
+    exclusions = []
+    valid_rows = []
+    missing_atomic_data = []
+
+    # Identify columns for host and solute elements
+    # Assuming standard column names from ingestion: 'host_element', 'solute_element'
+    # If column names differ, adjust here based on actual schema
     host_col = 'host_element'
     solute_col = 'solute_element'
 
     if host_col not in df.columns or solute_col not in df.columns:
-        # Fallback or error if columns are missing entirely
-        logger.error(f"Missing required columns '{host_col}' or '{solute_col}'")
-        # If columns are missing, we can't validate radii, so treat all as invalid?
-        # Or raise an error. Let's assume the schema is correct per T013.
-        return df, pd.DataFrame(columns=['row_id', 'reason_code', 'details'])
+        raise ValueError(f"DataFrame missing required columns: '{host_col}' or '{solute_col}'")
 
     for idx, row in df.iterrows():
-        host = row.get(host_col)
-        solute = row.get(solute_col)
-        
-        radius_host = None
-        radius_solute = None
-        reason = None
+        row_id = row.get('row_id', idx)
+        host = str(row[host_col]).strip()
+        solute = str(row[solute_col]).strip()
 
-        if pd.isna(host) or not isinstance(host, str):
-            reason = "INVALID_HOST_SYMBOL"
-        elif not get_metallic_radius(host):
-            reason = "MISSING_HOST_RADIUS"
-        
-        if not reason:
-            if pd.isna(solute) or not isinstance(solute, str):
-                reason = "INVALID_SOLUTE_SYMBOL"
-            elif not get_metallic_radius(solute):
-                reason = "MISSING_SOLUTE_RADIUS"
+        # Check if radii are available
+        host_r = get_metallic_radius(host)
+        solute_r = get_metallic_radius(solute)
 
-        if reason:
-            invalid_indices.append(idx)
-            reasons.append(reason)
+        if host_r is None:
+            exclusions.append({
+                'row_id': row_id,
+                'reason_code': 'MISSING_ATOMIC_RADIUS_HOST',
+                'element': host
+            })
+            missing_atomic_data.append({
+                'row_id': row_id,
+                'element': host,
+                'role': 'host'
+            })
+            continue
 
-    valid_df = df.drop(index=invalid_indices)
-    
-    if invalid_indices:
-        invalid_df = pd.DataFrame({
-            'row_id': invalid_indices,
-            'reason_code': reasons,
-            'details': [f"Host: {df.loc[i, host_col]}, Solute: {df.loc[i, solute_col]}" for i in invalid_indices]
-        })
-        logger.warning(f"Excluded {len(invalid_indices)} rows due to missing atomic radii.")
-    else:
-        invalid_df = pd.DataFrame(columns=['row_id', 'reason_code', 'details'])
-        logger.info("All rows have valid atomic radii.")
+        if solute_r is None:
+            exclusions.append({
+                'row_id': row_id,
+                'reason_code': 'MISSING_ATOMIC_RADIUS_SOLUTE',
+                'element': solute
+            })
+            missing_atomic_data.append({
+                'row_id': row_id,
+                'element': solute,
+                'role': 'solute'
+            })
+            continue
 
-    return valid_df, invalid_df
+        valid_rows.append(idx)
 
-def exclude_missing_concentration(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    cleaned_df = df.iloc[valid_rows].reset_index(drop=True)
+    return cleaned_df, exclusions, missing_atomic_data
+
+def exclude_missing_concentration(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Excludes rows where solute concentration is missing or invalid.
-    Assumes column 'concentration_at_percent' or similar.
-    Based on T013, we expect a concentration column. Let's assume 'concentration_at_percent' 
-    or check for common names if not present.
-    Actually, T013 filters for 'self' diffusion, but T014 mentions 'solute concentration'.
-    In self-diffusion, concentration is effectively 0 or N/A, but the task says 
-    "exclude rows with missing solute concentration". 
-    If it's self-diffusion, maybe the column is 'concentration' and should be 0?
-    Or perhaps the task implies general alloying data where concentration matters.
-    Let's assume the column is named 'concentration_at_percent' based on standard 
-    diffusion datasets, or 'solute_concentration'. 
-    Looking at T013 description: "filter ... diffusion_mode == 'self'". 
-    If it's self-diffusion, the 'solute' is the same as 'host', and concentration is 0.
-    However, the task T014 explicitly says "exclude rows with missing solute concentration".
-    This implies we are looking for a concentration column.
-    Let's check for 'concentration_at_percent' first, then 'solute_concentration', then 'concentration'.
+    Exclude rows where solute concentration is missing or invalid.
+    Returns the cleaned dataframe and a list of exclusion records.
     """
-    concentration_cols = ['concentration_at_percent', 'solute_concentration', 'concentration']
-    conc_col = None
-    for col in concentration_cols:
-        if col in df.columns:
-            conc_col = col
-            break
-    
-    if not conc_col:
-        logger.warning("No concentration column found. Assuming all rows are valid for concentration check.")
-        return df, pd.DataFrame(columns=['row_id', 'reason_code'])
+    exclusions = []
+    valid_rows = []
+    concentration_col = 'solute_concentration' # Adjust if column name differs
 
-    invalid_indices = []
-    reasons = []
+    if concentration_col not in df.columns:
+        # If column doesn't exist, we assume all rows are valid regarding concentration
+        # or we raise an error depending on strictness. Here we assume valid if missing.
+        logger.warning(f"Column '{concentration_col}' not found in dataframe. Skipping concentration check.")
+        return df, []
 
     for idx, row in df.iterrows():
-        val = row.get(conc_col)
-        if pd.isna(val):
-            invalid_indices.append(idx)
-            reasons.append('MISSING_CONCENTRATION')
-        elif not isinstance(val, (int, float)):
-            # Try to convert or mark invalid
-            try:
-                float(val)
-            except (ValueError, TypeError):
-                invalid_indices.append(idx)
-                reasons.append('MISSING_CONCENTRATION')
+        row_id = row.get('row_id', idx)
+        conc = row[concentration_col]
 
-    valid_df = df.drop(index=invalid_indices)
+        # Check for NaN, None, or empty string
+        if pd.isna(conc) or conc == '' or conc is None:
+            exclusions.append({
+                'row_id': row_id,
+                'reason_code': 'MISSING_CONCENTRATION'
+            })
+            continue
+        
+        # Optional: Check for negative values if applicable
+        try:
+            if float(conc) < 0:
+                exclusions.append({
+                    'row_id': row_id,
+                    'reason_code': 'INVALID_CONCENTRATION'
+                })
+                continue
+        except (ValueError, TypeError):
+            exclusions.append({
+                'row_id': row_id,
+                'reason_code': 'INVALID_CONCENTRATION'
+            })
+            continue
 
-    if invalid_indices:
-        invalid_df = pd.DataFrame({
-            'row_id': invalid_indices,
-            'reason_code': reasons
-        })
-        logger.warning(f"Excluded {len(invalid_indices)} rows due to missing concentration.")
-    else:
-        invalid_df = pd.DataFrame(columns=['row_id', 'reason_code'])
-        logger.info("All rows have valid concentration data.")
+        valid_rows.append(idx)
 
-    return valid_df, invalid_df
+    cleaned_df = df.iloc[valid_rows].reset_index(drop=True)
+    return cleaned_df, exclusions
 
-def log_exclusions(
-    total_excluded: int, 
-    concentration_exclusions: pd.DataFrame, 
-    atomic_exclusions: pd.DataFrame
-) -> None:
+def log_exclusions(exclusions: List[Dict[str, Any]], missing_atomic_data: List[Dict[str, Any]]) -> None:
     """
-    Logs exclusions to data/logs/exclusions.log and errors/missing_atomic_data.csv.
+    Log exclusions to data/logs/exclusions.log and atomic data errors to errors/missing_atomic_data.csv.
     
-    Format for exclusions.log:
-    Line 1: # EXCLUSION_COUNT: <count>
-    Subsequent lines: CSV format (row_id, reason_code)
+    The exclusions.log file MUST have the count of excluded rows as the first line:
+    # EXCLUSION_COUNT: <count>
+    Followed by CSV header and data.
     """
-    # Ensure log directory exists
-    log_dir = Path(LOG_DIR)
-    log_dir.mkdir(parents=True, exist_ok=True)
-    
-    exclusion_log_path = log_dir / "exclusions.log"
-    errors_dir = Path(PROJECT_ROOT) / "errors"
-    errors_dir.mkdir(parents=True, exist_ok=True)
-    atomic_errors_path = errors_dir / "missing_atomic_data.csv"
+    # Ensure directories exist
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    ERRORS_DIR = PROJECT_ROOT / "errors"
+    ERRORS_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Write exclusion log
-    with open(exclusion_log_path, 'w') as f:
+    exclusion_log_path = LOG_DIR / "exclusions.log"
+    atomic_errors_path = ERRORS_DIR / "missing_atomic_data.csv"
+
+    total_excluded = len(exclusions)
+
+    # Write exclusions log
+    logger.info(f"Writing {total_excluded} exclusions to {exclusion_log_path}")
+    with open(exclusion_log_path, 'w', newline='', encoding='utf-8') as f:
+        # First line: Count
         f.write(f"# EXCLUSION_COUNT: {total_excluded}\n")
         
-        # Write concentration exclusions
-        if not concentration_exclusions.empty:
-            for _, row in concentration_exclusions.iterrows():
-                f.write(f"{row['row_id']},{row['reason_code']}\n")
+        # CSV Header
+        writer = csv.DictWriter(f, fieldnames=['row_id', 'reason_code', 'element'])
+        writer.writeheader()
         
-        # Write atomic radius exclusions
-        if not atomic_exclusions.empty:
-            for _, row in atomic_exclusions.iterrows():
-                f.write(f"{row['row_id']},{row['reason_code']}\n")
+        for record in exclusions:
+            # Normalize record to ensure all fields exist
+            row = {
+                'row_id': record.get('row_id', ''),
+                'reason_code': record.get('reason_code', 'UNKNOWN'),
+                'element': record.get('element', '')
+            }
+            writer.writerow(row)
 
-    logger.info(f"Exclusion log written to {exclusion_log_path}")
+    # Write missing atomic data errors
+    logger.info(f"Writing {len(missing_atomic_data)} atomic data errors to {atomic_errors_path}")
+    with open(atomic_errors_path, 'w', newline='', encoding='utf-8') as f:
+        if missing_atomic_data:
+            writer = csv.DictWriter(f, fieldnames=['row_id', 'element', 'role'])
+            writer.writeheader()
+            writer.writerows(missing_atomic_data)
+        else:
+            # Write empty file with header if no errors
+            writer = csv.DictWriter(f, fieldnames=['row_id', 'element', 'role'])
+            writer.writeheader()
 
-    # Write atomic errors CSV
-    if not atomic_exclusions.empty:
-        atomic_exclusions.to_csv(atomic_errors_path, index=False)
-        logger.info(f"Atomic data errors written to {atomic_errors_path}")
-    else:
-        # Create empty file if none
-        atomic_exclusions.to_csv(atomic_errors_path, index=False)
-        logger.info(f"No atomic data errors to write, created empty {atomic_errors_path}")
+    logger.info(f"Exclusion logging complete. Total excluded: {total_excluded}")
 
 def run_curation() -> pd.DataFrame:
     """
-    Main entry point for the curation process.
-    1. Load curated data from ingestion.
+    Main orchestration function for data curation.
+    1. Load filtered data.
     2. Exclude rows with missing concentration.
-    3. Exclude rows with missing atomic radii.
+    3. Validate and exclude rows with missing atomic radii.
     4. Log all exclusions.
     5. Save the final curated dataset.
     """
+    logger.info("Starting data curation process (T014)")
+    
+    # Step 1: Load data
     df = load_curated_data()
-    original_count = len(df)
-    logger.info(f"Starting curation with {original_count} rows.")
-
-    # Step 1: Check concentration
-    df_conc_valid, conc_invalid = exclude_missing_concentration(df)
     
-    # Step 2: Check atomic radii on the concentration-valid set
-    df_radii_valid, radii_invalid = validate_atomic_radii(df_conc_valid)
-
-    # Calculate total excluded
-    total_excluded = original_count - len(df_radii_valid)
+    # Step 2: Exclude missing concentration
+    df_conc_clean, conc_exclusions = exclude_missing_concentration(df)
+    logger.info(f"Excluded {len(conc_exclusions)} rows due to missing concentration.")
     
-    # Log exclusions
-    log_exclusions(total_excluded, conc_invalid, radii_invalid)
-
-    # Save final curated data
-    output_path = DATA_DIR / "curated" / "filtered.csv"
-    df_radii_valid.to_csv(output_path, index=False)
-    logger.info(f"Final curated data saved to {output_path} ({len(df_radii_valid)} rows).")
-
-    return df_radii_valid
+    # Step 3: Validate atomic radii
+    df_radii_clean, radii_exclusions, missing_atomic_data = validate_atomic_radii(df_conc_clean)
+    logger.info(f"Excluded {len(radii_exclusions)} rows due to missing atomic radii.")
+    
+    # Combine all exclusions
+    all_exclusions = conc_exclusions + radii_exclusions
+    
+    # Step 4: Log exclusions
+    log_exclusions(all_exclusions, missing_atomic_data)
+    
+    # Step 5: Save final curated data
+    output_path = DATA_DIR / "curated" / "filtered.csv" # Overwrite or save to new file? 
+    # Spec implies we are curating the output of T013. Let's save to a new file to be safe, 
+    # or overwrite if that's the pipeline flow. T013 output is filtered.csv. 
+    # Let's save the final curated version to the same path or a new 'curated.csv' 
+    # to preserve the intermediate 'filtered.csv'. 
+    # Given T013 output is 'filtered.csv', we will overwrite it with the curated version 
+    # as per typical pipeline progression, or save to 'curated.csv'. 
+    # Let's save to 'curated.csv' to distinguish the curation step.
+    final_output_path = DATA_DIR / "curated" / "curated.csv"
+    
+    df_radii_clean.to_csv(final_output_path, index=False)
+    logger.info(f"Final curated dataset saved to {final_output_path} with {len(df_radii_clean)} rows.")
+    
+    return df_radii_clean
 
 if __name__ == "__main__":
+    # Setup basic logging for direct execution
+    logging.basicConfig(level=logging.INFO)
     run_curation()

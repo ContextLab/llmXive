@@ -1,3 +1,1 @@
-"""
-Utility modules: constants, logging, etc.
-"""
+# Utils module initialization

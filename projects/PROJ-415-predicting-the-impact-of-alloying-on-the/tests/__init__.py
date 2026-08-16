@@ -1,3 +1,1 @@
-"""
-Test suite for llmXive automated science pipeline.
-"""
+# Tests package initialization

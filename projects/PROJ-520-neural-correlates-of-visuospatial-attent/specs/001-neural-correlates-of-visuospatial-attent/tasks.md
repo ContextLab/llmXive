@@ -37,7 +37,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. **T005 is a hard gate**: Downstream tasks (T010+) cannot proceed if T005 fails, even if marked [P]. **T005 is NOT parallel-safe in execution; it must complete before any data-dependent tasks begin.**
 
 - [X] T004 [P] Setup data directories structure (`data/raw`, `data/processed`) to ensure T005 can write logs and verify artifacts.
-- [X] T005 [US1] Implement dataset verification script to validate OpenNeuro BIDS compliance and event markers [UNRESOLVED-CLAIM: c_b9870d78 — status=not_enough_info] in `code/verify_dataset.py`
+- [X] T005 [US1] Implement dataset verification script to validate OpenNeuro BIDS compliance and event markers in `code/verify_dataset.py`
  *Note: T004 must complete before T005 to ensure target directories exist.*
 - [X] T006 [P] Setup configuration management for random seeds and file paths in `code/config.py`
 - [X] T007 Create base data model entities (Epoch, Feature, ClassifierResult) in `code/models.py`
@@ -58,11 +58,11 @@
 
 - [X] T010 [US1] Implement dataset download and BIDS validation in `code/preprocessing.py` (verifies FR-001)
  *Checkpoint: Download Complete - T011-T017 depend on T010 output.*
-- [ ] T011 [US1] Implement bandpass filter (low-frequency cutoff) and notch filter (50/60 Hz) in `code/preprocessing.py` (addresses FR-002)
-- [ ] T012a [US1] Implement automatic ICA artifact rejection using `ica.find_bads_eog` and `ica.find_bads_ecg` in `code/preprocessing.py` (addresses FR-003 auto-part)
-- [ ] T012b [US1] Implement manual review capability: generate detailed log file of rejected components and visual inspection hints in `code/preprocessing.py` (addresses FR-003 manual-part)
-- [ ] T013 [US1] Implement epoch segmentation (2-second windows) centered on attention shift events in `code/preprocessing.py` (addresses FR-004)
-- [ ] T014 [US1] Implement sample size validation: halt if <50 epochs/condition; flag as underpowered if <100 epochs/condition [UNRESOLVED-CLAIM: c_207e5343 — status=not_enough_info] (addresses SC-005)
+- [X] T011 [US1] Implement bandpass filter (low-frequency cutoff) and notch filter (50/60 Hz) in `code/preprocessing.py` (addresses FR-002)
+- [X] T012a [US1] Implement automatic ICA artifact rejection using `ica.find_bads_eog` and `ica.find_bads_ecg` in `code/preprocessing.py` (addresses FR-003 auto-part)
+- [X] T012b [US1] Implement manual review capability: generate detailed log file of rejected components and visual inspection hints in `code/preprocessing.py` (addresses FR-003 manual-part)
+- [X] T013 [US1] Implement epoch segmentation (2-second windows) centered on attention shift events in `code/preprocessing.py` (addresses FR-004)
+- [ ] T014 [US1] Implement sample size validation: halt if <50 epochs/condition; flag as underpowered if <100 epochs/condition (addresses SC-005)
 - [ ] T015 [US1] Implement fallback logic for missing event markers (use landmark timestamps) and document substitution in 'assumptions' section of `data/processed/metadata.json` with key `event_source: landmark_fallback` (addresses Edge Cases)
 - [ ] T016 [US1] Handle missing electrode data: skip affected electrodes and log skipped electrodes in `data/processed/metadata.json` with key `skipped_electrodes` (addresses Edge Cases)
 - [ ] T017 [US1] Save preprocessed epochs to `data/processed/epochs_cleaned.fif`
@@ -80,11 +80,11 @@
 ### Implementation for User Story 2
 
 - [ ] T018 [US2] Implement Morlet wavelet time-frequency decomposition (low-frequency band) consuming `data/processed/epochs_cleaned.fif` in `code/feature_extraction.py` (addresses FR-005)
-- [ ] T019 [US2] Implement baseline normalization (pre-stimulus interval to stimulus onset) for dB conversion. in `code/feature_extraction.py`
-- [ ] T020 [US2] Extract mean alpha power for P, Pz, P4 electrodes from the normalized output of T019 in `code/feature_extraction.py` (addresses FR-006)
-- [ ] T021 [US2] Extract mean beta power (beta frequency band) for F3, Fz, F4 electrodes from the normalized output of T019 in `code/feature_extraction.py` (addresses FR-006)
+- [X] T019 [US2] Implement baseline normalization (pre-stimulus interval to stimulus onset) for dB conversion. in `code/feature_extraction.py`
+- [X] T020 [US2] Extract mean alpha power for P, Pz, P4 electrodes from the normalized output of T019 in `code/feature_extraction.py` (addresses FR-006)
+- [X] T021 [US2] Extract mean beta power (beta frequency band) for F3, Fz, F4 electrodes from the normalized output of T019 in `code/feature_extraction.py` (addresses FR-006)
 - [ ] T022 [US2] Implement feature validation: {{claim:c_c24bc9cf}} and log failures
-- [ ] T023 [US2] Save feature matrix to `data/processed/features_matrix.csv` with dimensions (epochs × multiple) [UNRESOLVED-CLAIM: c_2585e127 — status=refuted]
+- [ ] T023 [US2] Save feature matrix to `data/processed/features_matrix.csv` with dimensions (epochs × multiple)
 - [ ] T024 [US2] Document electrode collinearity and correlation structure in `data/processed/feature_metadata.json`
 
 **Checkpoint**: At this point, At this point, User Stories 1 AND 2 should both work independently
@@ -100,12 +100,12 @@
 ### Implementation for User Story 3
 
 - [ ] T025 [US3] Implement LDA classifier training with k-fold cross-validation consuming `data/processed/features_matrix.csv` in `code/classification.py` (addresses FR-007)
-- [ ] T026 [US3] Report accuracy, precision, recall with standard deviation across folds [UNRESOLVED-CLAIM: c_be0b3f2a — status=not_enough_info] in `code/classification.py`
-- [ ] T027 [US3] Implement permutation testing with a sufficient number of iterations to establish statistical significance [UNRESOLVED-CLAIM: c_b65c8a62 — status=not_enough_info] in `code/classification.py` (addresses FR-008)
-- [ ] T028 [US3] Report classifier p-value and null hypothesis rejection decision (α = 0.05) [UNRESOLVED-CLAIM: c_d0d8655e —status=not_enough_info] in `results.json`
+- [ ] T026 [US3] Report accuracy, precision, recall with standard deviation across folds in `code/classification.py`
+- [ ] T027 [US3] Implement permutation testing with a sufficient number of iterations to establish statistical significance in `code/classification.py` (addresses FR-008)
+- [ ] T028 [US3] Report classifier p-value and null hypothesis rejection decision (α = 0.05) in `results.json`
 - [ ] T028a [US3] Run univariate t-tests on features and save results to `data/processed/t_test_results.json` (producer for T029)
 - [ ] T029 [US3] Implement {{claim:c_147c0918}} (Wikidata Q858572, https://www.wikidata.org/wiki/Q858572) for univariate t-tests on alpha (low-frequency range) at P3/Pz/P4 and beta (13-30 Hz) at F3/Fz/F4; append `fwe_corrected_p_values` to `data/processed/feature_metadata.json` (addresses FR-009, clarifies scope)
-- [ ] T030 [US3] Implement sensitivity analysis: sweep classification threshold and report FP/FN variation [UNRESOLVED-CLAIM: c_26579e32 — status=not_enough_info] in `code/classification.py` (addresses FR-010)
+- [ ] T030 [US3] Implement sensitivity analysis: sweep classification threshold and report FP/FN variation in `code/classification.py` (addresses FR-010)
 - [ ] T031 [US3] Generate comprehensive `results.json` containing `participant_count`, `epoch_count`, `classification_results`, `statistical_corrections`, and `sensitivity_analysis`
 - [ ] T032 [US3] Validate success criteria: perform pass/fail gating check against benchmark (value deferred) and report `benchmark_status: deferred` in `results.json`; compare metrics against SC-001 through SC-006 thresholds (addresses SC-002, SC-005)
 - [ ] T033 [US3] Handle underpowered scenarios: halt if <50 epochs/condition; flag results as underpowered if <100 epochs/condition and adjust interpretation (aligns with SC-005)
@@ -219,7 +219,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All tasks must run on a limited number of CPU cores, limited RAM, NO GPU. [UNRESOLVED-CLAIM: c_b609d98d — status=not_enough_info] No 8-bit/4-bit quantization or CUDA-dependent libraries.
+- **CPU Constraint**: All tasks must run on a limited number of CPU cores, limited RAM, NO GPU. No 8-bit/4-bit quantization or CUDA-dependent libraries.
 - **Manual Review**: T012b ensures FR-003 compliance by providing a log-based manual review path.
 - **Deferred Benchmarks**: T032 handles '[deferred]' SC-002 values by reporting status while enforcing the pass/fail gating mechanism.
 - **FWE Scope**: T029 explicitly limits FWE correction to univariate tests on specific electrodes/bands (P3/Pz/P4 alpha, F3/Fz/F4 beta).

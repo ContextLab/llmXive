@@ -82,7 +82,7 @@
 
 - [X] T013 [P] [US1] Implement `code/data/ingestion.py` to load CSVs, filter `crystal_structure == "FCC"` and `diffusion_mode == "self"`, and convert units to eV/atom
 - [ ] T014 [US1] Implement `code/data/curation.py` to exclude rows with missing solute concentration or missing atomic radii; log exclusions to `data/logs/exclusions.log` (CSV format with `row_id`, `reason_code`) AND explicitly record the **count of excluded rows as the first line** of the log file (e.g., `# EXCLUSION_COUNT: 5`) to satisfy US-1 acceptance scenario 2; log concentration exclusions with reason code 'MISSING_CONCENTRATION' and atomic data errors to `errors/missing_atomic_data.csv`
-- [ ] T015 [US1] Implement edge case handling in `code/data/ingestion.py` for single-host-metal datasets: fallback to random split and log the specific warning: 'Stratification by host metal was not possible due to single-class data.'
+- [X] T015 [US1] Implement edge case handling in `code/data/ingestion.py` for single-host-metal datasets: fallback to random split and log the specific warning: 'Stratification by host metal was not possible due to single-class data.'
 - [ ] T016 [US1] Implement error logging for missing atomic radii in `code/data/curation.py` (output to `errors/missing_atomic_data.csv`)
 - [ ] T017 [US1] Add validation script `tests/unit/test_ingestion.py` to verify filtering logic on mixed-structure mock data
 

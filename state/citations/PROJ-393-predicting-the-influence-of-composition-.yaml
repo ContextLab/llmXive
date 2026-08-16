@@ -9,7 +9,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1016/j.actamat.2020.01.001
   verified_at: '2026-07-24T22:57:59.919685Z'
-- artifact_hash: a25872197b6cf62645f9703c9209c00a2eb05352ae45988da797689b653aa32a
+- artifact_hash: 0f0cbb887aebee127e1a8b14d50e959b56fd7b57a8c9ef181d21f90fe61e0fe2
   artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,8 +20,8 @@
   value: https://arxiv.org/abs/2604.27148
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2604.27148
-  verified_at: '2026-08-09T15:07:30.111705Z'
-- artifact_hash: a25872197b6cf62645f9703c9209c00a2eb05352ae45988da797689b653aa32a
+  verified_at: '2026-08-16T12:47:53.076444Z'
+- artifact_hash: 0f0cbb887aebee127e1a8b14d50e959b56fd7b57a8c9ef181d21f90fe61e0fe2
   artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -31,8 +31,8 @@
   value: https://arxiv.org/abs/2305.13486
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2305.13486
-  verified_at: '2026-08-09T15:07:30.111705Z'
-- artifact_hash: a25872197b6cf62645f9703c9209c00a2eb05352ae45988da797689b653aa32a
+  verified_at: '2026-08-16T12:47:53.076444Z'
+- artifact_hash: 0f0cbb887aebee127e1a8b14d50e959b56fd7b57a8c9ef181d21f90fe61e0fe2
   artifact_path: projects/PROJ-393-predicting-the-influence-of-composition-/specs/001-predicting-the-influence-of-composition/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -43,4 +43,4 @@
   value: https://arxiv.org/abs/2409.13466
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2409.13466
-  verified_at: '2026-08-09T15:07:30.111705Z'
+  verified_at: '2026-08-16T12:47:53.076444Z'

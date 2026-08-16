@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: DiffusionRecord
+description: Schema for diffusion data records in FCC metals.
+type: object
+required:
+  - element
+  - crystal_structure
+  - diffusion_mode
+  - activation_energy_eV
+  - pre_exponential_factor
+  - temperature_range_K
+properties:
+  element:
+    type: string
+    description: The solute element symbol.
+  crystal_structure:
+    type: string
+    description: The crystal structure of the host metal.
+    enum:
+      - FCC
+      - fcc
+      - Cubic
+  diffusion_mode:
+    type: string
+    description: The mode of diffusion (e.g., self, impurity).
+    enum:
+      - self
+      - Self
+      - impurity
+      - Impurity
+  activation_energy_eV:
+    type: number
+    description: Activation energy in electron-volts per atom.
+  pre_exponential_factor:
+    type: number
+    description: Pre-exponential factor (D0) in cm^2/s.
+  temperature_range_K:
+    type: string
+    description: Temperature range in Kelvin (e.g., "300-600").
+  host_element:
+    type: string
+    description: The host metal element symbol (optional).
+  source:
+    type: string
+    description: Source of the data (e.g., NIST, Materials Project).
+  notes:
+    type: string
+    description: Additional notes or comments.
+additionalProperties: false

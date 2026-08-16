@@ -1,59 +1,58 @@
-"""
-Constants and utility functions for periodic table data.
-"""
-
 from typing import Dict, Optional
 from dataclasses import dataclass
 
 @dataclass
 class ElementData:
-    """Data class for element properties."""
-    metallic_radius: float  # in Angstroms
-    electronegativity: float
-    atomic_number: int
-    symbol: str
+    metallic_radius: Optional[float]  # in Angstroms
+    electronegativity: Optional[float] # Pauling scale
 
-# Simplified periodic table data for testing and common elements
-# In a real scenario, this would be a larger dataset or loaded from a file
-PERIODIC_TABLE_DATA: Dict[str, ElementData] = {
-    "Cu": ElementData(metallic_radius=1.28, electronegativity=1.90, atomic_number=29, symbol="Cu"),
-    "Ni": ElementData(metallic_radius=1.24, electronegativity=1.91, atomic_number=28, symbol="Ni"),
-    "Ag": ElementData(metallic_radius=1.44, electronegativity=1.93, atomic_number=47, symbol="Ag"),
-    "Au": ElementData(metallic_radius=1.44, electronegativity=2.54, atomic_number=79, symbol="Au"),
-    "Zn": ElementData(metallic_radius=1.33, electronegativity=1.65, atomic_number=30, symbol="Zn"),
-    "Al": ElementData(metallic_radius=1.43, electronegativity=1.61, atomic_number=13, symbol="Al"),
-    "Fe": ElementData(metallic_radius=1.26, electronegativity=1.83, atomic_number=26, symbol="Fe"),
-    "Pb": ElementData(metallic_radius=1.75, electronegativity=2.33, atomic_number=82, symbol="Pb"),
-    "Mg": ElementData(metallic_radius=1.60, electronegativity=1.31, atomic_number=12, symbol="Mg"),
-    "Ca": ElementData(metallic_radius=1.97, electronegativity=1.00, atomic_number=20, symbol="Ca"),
+# Simplified periodic table data for common FCC metals and solutes
+# Source: Standard metallic radii tables (e.g., Kittel, Ashcroft & Mermin)
+# Note: This is a subset. In a real production system, this would be a full database.
+ELEMENT_DATA: Dict[str, ElementData] = {
+    # Host Metals (FCC)
+    "Cu": ElementData(metallic_radius=1.28, electronegativity=1.90),
+    "Al": ElementData(metallic_radius=1.43, electronegativity=1.61),
+    "Ni": ElementData(metallic_radius=1.24, electronegativity=1.91),
+    "Ag": ElementData(metallic_radius=1.44, electronegativity=1.93),
+    "Au": ElementData(metallic_radius=1.44, electronegativity=2.54),
+    "Pt": ElementData(metallic_radius=1.39, electronegativity=2.28),
+    "Pd": ElementData(metallic_radius=1.37, electronegativity=2.20),
+    "Pb": ElementData(metallic_radius=1.75, electronegativity=2.33),
+    "Ca": ElementData(metallic_radius=1.97, electronegativity=1.00),
+    
+    # Common Solutes
+    "Zn": ElementData(metallic_radius=1.33, electronegativity=1.65),
+    "Mg": ElementData(metallic_radius=1.60, electronegativity=1.31),
+    "Fe": ElementData(metallic_radius=1.24, electronegativity=1.83), # BCC usually, but can be FCC in alloys
+    "Cr": ElementData(metallic_radius=1.28, electronegativity=1.66),
+    "Mn": ElementData(metallic_radius=1.27, electronegativity=1.55),
+    "Si": ElementData(metallic_radius=1.17, electronegativity=1.90),
+    "Ti": ElementData(metallic_radius=1.47, electronegativity=1.54),
+    "V": ElementData(metallic_radius=1.34, electronegativity=1.63),
+    "Nb": ElementData(metallic_radius=1.46, electronegativity=1.60),
+    "Ta": ElementData(metallic_radius=1.46, electronegativity=1.50),
+    "Mo": ElementData(metallic_radius=1.39, electronegativity=2.16),
+    "W": ElementData(metallic_radius=1.39, electronegativity=2.36),
 }
 
-def get_metallic_radius(element_symbol: str) -> Optional[float]:
+def get_metallic_radius(element: str) -> Optional[float]:
     """
-    Get the metallic radius for a given element symbol.
-    
-    Args:
-        element_symbol: The chemical symbol of the element (e.g., 'Cu')
-        
-    Returns:
-        The metallic radius in Angstroms, or None if the element is not found.
+    Retrieve the metallic radius for a given element symbol.
+    Returns None if the element is not found in the database.
     """
-    element_symbol = element_symbol.strip().capitalize()
-    if element_symbol in PERIODIC_TABLE_DATA:
-        return PERIODIC_TABLE_DATA[element_symbol].metallic_radius
+    element = element.strip().title() # Normalize case
+    data = ELEMENT_DATA.get(element)
+    if data:
+        return data.metallic_radius
     return None
 
-def get_electronegativity(element_symbol: str) -> Optional[float]:
+def get_electronegativity(element: str) -> Optional[float]:
     """
-    Get the electronegativity for a given element symbol.
-    
-    Args:
-        element_symbol: The chemical symbol of the element (e.g., 'Cu')
-        
-    Returns:
-        The electronegativity value, or None if the element is not found.
+    Retrieve the electronegativity for a given element symbol.
     """
-    element_symbol = element_symbol.strip().capitalize()
-    if element_symbol in PERIODIC_TABLE_DATA:
-        return PERIODIC_TABLE_DATA[element_symbol].electronegativity
+    element = element.strip().title()
+    data = ELEMENT_DATA.get(element)
+    if data:
+        return data.electronegativity
     return None

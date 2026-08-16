@@ -1,36 +1,23 @@
-111 4|atomic electron electronegativity radii si valence:
-  quote: "Tetrahedral coordination is a major structural motif in silicon chemistry\
-    \ just as it is for carbon chemistry. However, the 3p subshell is rather more\
-    \ diffuse than the 2p subshell and does not hybridise so well with the 3s subshell.\
-    \ As a result, the chemistry of silicon and its heavier congeners shows significant\
-    \ differences from that of carbon, and thus octahedral coordination is also significant.\
-    \ For example, the electronegativity of silicon (1.90) is much less than that\
-    \ of carbon (2.55), because the valence electrons of silicon are further from\
-    \ the nucleus than those of carbon and hence experience smaller electrostatic\
-    \ forces of attraction from the nucleus. The poor overlap of 3p orbitals also\
-    \ results in a much lower tendency toward catenation (formation of Si\u2013Si\
-    \ bonds) for silicon than for carbon, due to the concomitant weakening of the\
-    \ Si\u2013Si bond compared to the C\u2013C bond: the average Si\u2013Si bond energy\
-    \ is approximately 226 kJ/mol, compared to a value of 356 kJ/mol for the C\u2013\
-    C bond. This results in multiply bonded silicon compounds generally being much\
-    \ less stable than their carbon counterparts, an example of the double bond rule.\
-    \ On the other hand, the presence of radial nodes in the 3p orbitals of silicon\
-    \ suggests the possibility of hypervalence, as seen in five and six-coordinate\
-    \ derivatives of silicon such as SiX\u22125 and SiF2\u22126. Lastly, because of\
-    \ the increasing energy gap between the valence s and p orbitals as the group\
-    \ is descended, the divalent state grows in importance from carbon to lead, so\
-    \ that a few unstable divalent compounds are known for silicon; this lowering\
-    \ of the main oxidation state, in tandem with increasing atomic radii, results\
-    \ in an increase of metallic character down the group. Silicon already shows some\
-    \ incipient metallic behavior, particularly in the behavior of its oxide compounds\
-    \ and its reaction with acids as well as bases (though this takes some effort),\
-    \ and is hence often referred to as a metalloid rather than a nonmetal. Germanium\
-    \ shows more, and tin is generally considered a metal."
-  source_id: Silicon
-  url: https://en.wikipedia.org/wiki/Silicon
-  value: '1.90'
-'|checksum file hashe project sha256 use':
-  quote: SHA-256
-  source_id: Q110651361
-  url: https://www.wikidata.org/wiki/Q110651361
-  value: SHA-256
+'|explicitly resample set':
+  quote: As an example, assume we are interested in the average (or mean) height of
+    people worldwide.  We cannot measure all the people in the global population,
+    so instead, we sample only a tiny part of it, and measure that.  Assume the sample
+    is of size N; that is, we measure the heights of N individuals.  From that single
+    sample, only one estimate of the mean can be obtained.  In order to reason about
+    the population, we need some sense of the variability of the mean that we have
+    computed. The simplest bootstrap method involves taking the original data set
+    of heights, and, using a computer, sampling from it to form a new sample (called
+    a 'resample' or bootstrap sample) that is also of size N.  The bootstrap sample
+    is taken from the original by using sampling with replacement (e.g. we might 'resample'
+    5 times from [1,2,3,4,5] and get [2,5,4,4,1]), so, assuming N is sufficiently
+    large, for all practical purposes there is virtually zero probability that it
+    will be identical to the original "real" sample.  This process is repeated a large
+    number of times (typically 1,000 or 10,000 times), and for each of these bootstrap
+    samples, we compute its mean (each of these is called a "bootstrap estimate").  We
+    now can create a histogram of bootstrap means.  This histogram provides an estimate
+    of the shape of the distribution of the sample mean from which we can answer questions
+    about how much the mean varies across samples.  (The method here, described for
+    the mean, can be applied to almost any other statistic or estimator.)
+  source_id: Bootstrapping (statistics)
+  url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+  value: '1000'

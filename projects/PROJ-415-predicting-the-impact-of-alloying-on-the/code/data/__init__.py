@@ -1,3 +1,1 @@
-"""
-Data acquisition, ingestion, and curation modules.
-"""
+# Data module initialization

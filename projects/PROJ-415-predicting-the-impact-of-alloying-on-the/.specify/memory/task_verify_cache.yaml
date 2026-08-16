@@ -18,17 +18,27 @@ T007:
     is present, nor any script or code implementing checksum generation/verification
     for files in those folders. The implementer provided only narrative text without
     the actual filesystem changes or checksum logic, so the task is not satisfied.
+T008:
+  c: false
+  h: bbd31bd7cdabade0ac8ee4580d3f873338fdfe666577cb763d65dc3dae133372
+  r: "The repository lacks the required output file `data/raw/fetched_diffusion.csv`,\
+    \ and the provided `code/data/acquisition.py` does not contain logic to write\
+    \ fetched data to that CSV nor to log the warning \u201CData Insufficiency: N\
+    \ < 50\u201D as specified. Consequently the task\u2019s core requirements are\
+    \ unmet."
 T009:
   c: false
-  h: 4fb8f35cce134371fca5082e519ca364ed3196463f6cfb10384cca2036d2caea
-  r: "The `tests/contract/test_schema.py` file exists, but it validates against a\
-    \ hard\u2011coded field list instead of the required `contracts/diffusion_record.schema.yaml`,\
-    \ and that schema file is missing from the repository. The task explicitly demanded\
-    \ validation against that schema, which is not satisfied."
+  h: 9ec97dfa14afdf3c077143462d78596ff64ccf1d8ca783671bc1484faa9fe93a
+  r: The `tests/contract/test_schema.py` file exists and contains validation logic,
+    but the referenced schema file `contracts/diffusion_record.schema.yaml` is missing,
+    so the test cannot actually validate anything. The required schema artifact must
+    be present for the task to be fulfilled.
 T014:
   c: false
-  h: 46f3499f192403d9d262ce8b84e822c7d1cb9bba5f6ac442ed98ac8f820e045d
-  r: "The provided `code/data/curation.py` only contains partial logic for atomic\u2011\
-    radius validation and does not show any handling of missing solute concentration,\
-    \ nor does it write to `data/logs/exclusions.log` (the file is absent) or to `errors/missing_atomic_data.csv`.\
-    \ Consequently the required logging behavior and count line are not present."
+  h: e2cd8467b59b20b640f9f9f0d950999fad442a549e3219b357ed5fc70224dbf4
+  r: "The repository contains a `code/data/curation.py` file, but it only defines\
+    \ helper functions and does not write any exclusion logs, nor does it create the\
+    \ required `data/logs/exclusions.log` (which is absent) or `errors/missing_atomic_data.csv`.\
+    \ Consequently, the task\u2019s core requirements\u2014excluding rows, logging\
+    \ exclusions with a count header, and recording atomic data errors\u2014are not\
+    \ fulfilled."

@@ -1,36 +1,46 @@
 """
-Configuration management for the pipeline.
-Handles loading YAML configs, merging defaults, and retrieving seeds/paths.
-Updated to include CI environment limits integration.
+Configuration management module.
+Handles loading of YAML config, seeds, and paths.
 """
 import os
 import yaml
 from pathlib import Path
 from typing import Any, Dict, Optional
-
-# Import CI limits module to integrate environment constraints
 from ci_limits import get_environment_report
 
-CONFIG_PATH = Path("code/config.yaml")
-
-DEFAULTS = {
+DEFAULT_CONFIG = {
     "random_seed": 42,
     "paths": {
-        "data_raw": "data/raw",
-        "data_processed": "data/processed",
-        "logs": "logs",
-        "figures": "figures"
+        "raw": "data/raw",
+        "processed": "data/processed",
+        "epochs": "epochs_cleaned.fif",
+        "features": "features_matrix.csv",
+        "results": "results.json"
     },
-    "processing": {
-        "cpu_limit": None,  # Will be overridden by CI detection
-        "ram_limit_gb": None
+    "preprocessing": {
+        "l_freq": 1.0,
+        "h_freq": 40.0,
+        "notch_freq": 50.0,
+        "ica_n_components": 0.95
+    },
+    "epoching": {
+        "tmin": -1.0,
+        "tmax": 1.0,
+        "baseline": (None, 0)
+    },
+    "feature_extraction": {
+        "fmin": 1.0,
+        "fmax": 40.0,
+        "n_freqs": 20
+    },
+    "classification": {
+        "n_folds": 5,
+        "n_permutations": 100
     }
 }
 
 def deep_merge(base: Dict, override: Dict) -> Dict:
-    """
-    Recursively merge override dict into base dict.
-    """
+    """Recursively merge two dictionaries."""
     result = base.copy()
     for key, value in override.items():
         if key in result and isinstance(result[key], dict) and isinstance(value, dict):
@@ -40,56 +50,54 @@ def deep_merge(base: Dict, override: Dict) -> Dict:
     return result
 
 def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Load configuration from YAML file and merge with defaults.
-    Integrates CI environment limits if not explicitly set in config.
-    """
-    path = config_path or CONFIG_PATH
-    config = DEFAULTS.copy()
+    """Load configuration from YAML file or return defaults."""
+    if config_path is None:
+        # Try common locations
+        possible_paths = [
+            Path("config.yaml"),
+            Path("config.yml"),
+            Path("specs") / "001-neural-correlates-of-visuospatial-attent" / "config.yaml"
+        ]
+        for p in possible_paths:
+            if p.exists():
+                config_path = p
+                break
     
-    if path.exists():
-        with open(path, 'r') as f:
-            user_config = yaml.safe_load(f) or {}
-            config = deep_merge(config, user_config)
+    config = DEFAULT_CONFIG.copy()
     
-    # If CPU/RAM limits are not set in config, detect from environment
-    if config["processing"]["cpu_limit"] is None:
-        env_report = get_environment_report()
-        config["processing"]["cpu_limit"] = env_report["cpu_limit"]
-        config["processing"]["ram_limit_gb"] = env_report["ram_limit_gb"]
+    if config_path and config_path.exists():
+        with open(config_path, 'r') as f:
+            user_config = yaml.safe_load(f)
+            if user_config:
+                config = deep_merge(config, user_config)
+    
+    # Ensure paths are Path objects
+    if "paths" in config:
+        for k, v in config["paths"].items():
+            if isinstance(v, str):
+                config["paths"][k] = Path(v)
     
     return config
 
 def get_seed(config: Dict[str, Any]) -> int:
-    """
-    Extract random seed from config.
-    """
-    return config.get("random_seed", DEFAULTS["random_seed"])
+    """Get random seed from config."""
+    return config.get("random_seed", 42)
 
 def get_paths(config: Dict[str, Any]) -> Dict[str, Path]:
-    """
-    Extract and resolve paths from config.
-    """
-    raw_paths = config.get("paths", DEFAULTS["paths"])
-    return {k: Path(v) for k, v in raw_paths.items()}
+    """Get path dictionary from config."""
+    paths = config.get("paths", {})
+    # Ensure root paths are absolute relative to project root if needed
+    # For now, assume they are relative to CWD
+    return paths
 
 def main():
-    """
-    CLI to dump current configuration.
-    """
-    import json
+    """CLI entry point for config validation."""
     config = load_config()
-    # Convert Path objects to strings for JSON serialization
-    serializable_config = {}
-    for k, v in config.items():
-        if isinstance(v, dict):
-            serializable_config[k] = {kk: str(vv) if isinstance(vv, Path) else vv for kk, vv in v.items()}
-        elif isinstance(v, Path):
-            serializable_config[k] = str(v)
-        else:
-            serializable_config[k] = v
-    
-    print(json.dumps(serializable_config, indent=2))
+    print("Configuration loaded successfully:")
+    print(f"  Seed: {config['random_seed']}")
+    print(f"  Paths: {config['paths']}")
+    env_report = get_environment_report()
+    print(f"  Environment: {env_report}")
 
 if __name__ == "__main__":
     main()

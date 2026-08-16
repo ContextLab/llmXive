@@ -94,7 +94,7 @@
  **Logic**:
  1. **Standard Test**: Run VADER against the built-in NLTK VADER test suite (bundled with the library) to ensure scores fall within the standard normalized range.
  2. **Human-Annotated Corpus**: Attempt to download a verified, small human-annotated sentiment corpus from HuggingFace (generic reference per Spec Assumption 1).
- 3. **Verification**: Compute Cohen's Kappa between VADER scores and human annotations on the sample.
+ 3. **Verification**: Compute Cohen's Kappa between VADER scores and human annotations on the sample. [UNRESOLVED-CLAIM: c_e36176cb — status=not_enough_info]
  4. **Fallback (Manual)**: If the external dataset is unavailable, use a pre-defined list of 5 specific sentences hardcoded in `code/data/sentiment.py` annotated by at least 2 human raters (simulated or pre-annotated) to calculate inter-rater reliability. **Risk**: If the external dataset cannot be found, the hardcoded fallback is used with a logged warning about potential bias.
  **Hardcoded Sentences for Fallback**:
  - "I love this product!" (Positive)
@@ -143,8 +143,8 @@
  **Output**: Write `data/processed/valid_threads.csv` (only 'valid' threads) and `data/processed/all_threads_classified.csv` (all threads with classification).
 
 - [X] T019a [S] [US1] **Depends on T009, T019**: Implement `code/data/validation.py` to **compute the external validation score** (accuracy of consensus vs. ground truth) for valid threads.
- **Logic**: Calculate accuracy of consensus (majority vote) against ground truth for valid threads. [UNRESOLVED-CLAIM: c_1554098d — status=not_enough_info]
- **Consensus Definition**: For Stack Exchange, consensus is the 'accepted_answer_id'. For Reddit, consensus is 'upvotes > downvotes'. [UNRESOLVED-CLAIM: c_bff6a0c3 — status=not_enough_info] If upvote/downvote data is missing, set `external_validation_score` to `null` and log the reason as 'Missing Data'. If upvotes == downvotes for a Reddit thread, set `external_validation_score` to `null` and log the reason as 'Inconclusive'.
+ **Logic**: Calculate accuracy of consensus (majority vote) against ground truth for valid threads.
+ **Consensus Definition**: For Stack Exchange, consensus is the 'accepted_answer_id'. For Reddit, consensus is 'upvotes > downvotes'. If upvote/downvote data is missing, set `external_validation_score` to `null` and log the reason as 'Missing Data'. If upvotes == downvotes for a Reddit thread, set `external_validation_score` to `null` and log the reason as 'Inconclusive'.
  **Input**: Merge data from T009 (seed posts) and T019 (ground truth classification). Iterate over ALL threads in `data/processed/all_threads_classified.csv` (which includes T010 filtering logic).
  **Output**: Append `external_validation_score` to `data/processed/valid_threads.csv` (for valid threads) and `data/processed/all_threads_classified.csv` (for all threads, setting null for 'valid_no_gt').
  **Constraint**: This task runs on the full classified dataset, explicitly handling 'valid_no_gt' threads by setting their score to null.

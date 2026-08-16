@@ -1,3 +1,1 @@
-"""
-llmXive automated science pipeline - code package.
-"""
+# Code package initialization

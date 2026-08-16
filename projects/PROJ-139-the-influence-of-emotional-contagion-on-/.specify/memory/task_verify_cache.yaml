@@ -73,14 +73,6 @@ T050:
     \ there is no `validation_details` map listing pass/fail status and reasons for\
     \ SC\u2011001 through SC\u2011006. The required artifact is missing, so the task\
     \ is not satisfied."
-T059:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, diff, test output, or documentation was provided to demonstrate that\
-    \ T015a was modified to read from the filtered dataset (threads with \u22653 seed\
-    \ posts) instead of the raw dataset. Evidence such as the updated script, a commit\
-    \ hash, or a test confirming that threads excluded by T010 are no longer processed\
-    \ is missing."
 T060:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

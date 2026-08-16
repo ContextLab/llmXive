@@ -1,21 +1,74 @@
 """
 Contract test for data schema validation against DiffusionRecord entity.
+Validates the fetched data against the YAML schema definition.
 """
 import pytest
-from pathlib import Path
+import yaml
 import csv
 import json
+from pathlib import Path
+from typing import Dict, Any, List, Set
 
-# Test data path
+# Paths
 TEST_DATA_PATH = Path("data/raw/fetched_diffusion.csv")
+SCHEMA_PATH = Path("contracts/diffusion_record.schema.yaml")
+
+def load_schema() -> Dict[str, Any]:
+    """Load and parse the YAML schema."""
+    if not SCHEMA_PATH.exists():
+        pytest.fail(f"Schema file not found at {SCHEMA_PATH}")
+    with open(SCHEMA_PATH, 'r') as f:
+        return yaml.safe_load(f)
+
+def validate_row(row: Dict[str, str], schema: Dict[str, Any], row_idx: int) -> None:
+    """Validate a single row against the schema."""
+    properties = schema.get("properties", {})
+    required = schema.get("required", [])
+    
+    # Check required fields
+    missing_fields = required - set(row.keys())
+    if missing_fields:
+        pytest.fail(f"Row {row_idx}: Missing required fields: {missing_fields}")
+    
+    # Validate types and constraints
+    for field, value in row.items():
+        if field not in properties:
+            # If schema says no additional properties, fail
+            if not schema.get("additionalProperties", True):
+                pytest.fail(f"Row {row_idx}: Unexpected field '{field}'")
+            continue
+        
+        field_schema = properties[field]
+        field_type = field_schema.get("type")
+        
+        if field_type == "number":
+            try:
+                float(value)
+            except ValueError:
+                pytest.fail(f"Row {row_idx}: Field '{field}' expected number, got '{value}'")
+        
+        elif field_type == "string":
+            if not isinstance(value, str):
+                pytest.fail(f"Row {row_idx}: Field '{field}' expected string")
+            
+            # Check enum constraints if present
+            if "enum" in field_schema:
+                if value not in field_schema["enum"]:
+                    pytest.fail(f"Row {row_idx}: Field '{field}' value '{value}' not in allowed values: {field_schema['enum']}")
 
 def test_schema_validation():
     """
-    Validates the structure of the fetched diffusion data against the expected schema.
+    Validates the structure of the fetched diffusion data against the DiffusionRecord schema.
     """
     if not TEST_DATA_PATH.exists():
         pytest.skip("Test data file not found. Run acquisition script first.")
     
+    if not SCHEMA_PATH.exists():
+        pytest.fail(f"Schema file missing at {SCHEMA_PATH}")
+
+    # Load schema
+    schema = load_schema()
+
     # Load data
     with open(TEST_DATA_PATH, 'r') as f:
         reader = csv.DictReader(f)
@@ -24,42 +77,11 @@ def test_schema_validation():
     if not rows:
         pytest.fail("No data rows found in test data file.")
     
-    # Define expected schema (simplified)
-    expected_fields = {
-        "element",
-        "crystal_structure",
-        "diffusion_mode",
-        "activation_energy_eV",
-        "pre_exponential_factor",
-        "temperature_range_K"
-    }
-    
-    # Check if all expected fields are present
-    actual_fields = set(rows[0].keys())
-    
-    missing_fields = expected_fields - actual_fields
-    if missing_fields:
-        pytest.fail(f"Missing fields in data: {missing_fields}")
-    
-    # Validate data types and values
+    # Validate each row
     for i, row in enumerate(rows):
-        try:
-            # Check crystal structure is FCC
-            if row.get("crystal_structure") not in ["FCC", "fcc", "Cubic"]:
-                pytest.fail(f"Row {i}: Invalid crystal_structure: {row.get('crystal_structure')}")
-            
-            # Check activation energy is numeric
-            float(row.get("activation_energy_eV", 0))
-            
-            # Check diffusion mode is self
-            if row.get("diffusion_mode") not in ["self", "Self"]:
-                # Allow other modes for now, but log
-                pass
-                
-        except ValueError as e:
-            pytest.fail(f"Row {i}: Data type error: {e}")
+        validate_row(row, schema, i)
     
-    print("Schema validation passed.")
+    print(f"Schema validation passed for {len(rows)} records.")
 
 if __name__ == "__main__":
     test_schema_validation()
