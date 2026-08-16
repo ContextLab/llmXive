@@ -99,5 +99,5 @@ The system must perform a Cumulative Link Mixed Models (CLMM) analysis on the co
 - The analysis will be conducted on CPU-only infrastructure; therefore, the dataset size and statistical methods are constrained to those tractable within 7 GB RAM and substantial compute time.
 - The visual salience manipulation (luminance contrast/brightness enhancement) is the primary mechanism of attentional capture, and other visual features (color, motion) are held constant.
 - The relationship between visual salience and blame ratings is causal, as the design is a controlled experiment with within-subject manipulation of the independent variable, provided confounds are controlled.
-- The Bonferroni correction is appropriate for controlling family-wise error rate given the small number of planned pairwise comparisons (3).
+- The Bonferroni correction is appropriate for controlling family-wise error rate given the small number of planned pairwise comparisons..
 - The human coding step (FR-008) is feasible and will yield a sufficient number of 'morally ambiguous' scenarios (≥20) from the Visual Genome candidate pool.

@@ -1,122 +1,143 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for the output of the statistical analysis pipeline (LMM results)."
+description: "Schema for statistical analysis outputs (CLMM) - Visual Salience Study"
 type: "object"
-required:
-  - "model_summary"
-  - "fixed_effects"
-  - "random_effects"
-  - "post_hoc_tests"
-  - "power_analysis"
 properties:
-  model_summary:
-    type: "object"
-    description: "Overall model fit statistics."
-    properties:
-      aic:
-        type: "number"
-        description: "Akaike Information Criterion."
-      bic:
-        type: "number"
-        description: "Bayesian Information Criterion."
-      log_likelihood:
-        type: "number"
-        description: "Log-likelihood of the model."
-      n_obs:
-        type: "integer"
-        description: "Number of observations."
-      n_groups:
-        type: "object"
-        description: "Number of random effect groups."
-        properties:
-          participant:
-            type: "integer"
-          scenario:
-            type: "integer"
+  model_type:
+    type: "string"
+    enum:
+      - "Cumulative_Link_Mixed_Model"
+      - "Linear_Mixed_Effects_Model"
+      - "Wilcoxon_Signed_Rank_Test"
+    description: "Type of model used."
   fixed_effects:
-    type: "array"
-    description: "Fixed effect estimates for salience levels."
-    items:
-      type: "object"
-      properties:
-        term:
-          type: "string"
-          description: "Name of the predictor (e.g., 'salience[Medium]')."
-        estimate:
-          type: "number"
-          description: "Coefficient estimate."
-        std_error:
-          type: "number"
-          description: "Standard error of the estimate."
-        t_statistic:
-          type: "number"
-          description: "T-statistic."
-        p_value:
-          type: "number"
-          description: "Uncorrected p-value."
-        p_value_bonferroni:
-          type: "number"
-          description: "Bonferroni-corrected p-value."
-        partial_eta_squared:
-          type: "number"
-          description: "Effect size (partial eta-squared)."
-        ci_lower:
-          type: "number"
-          description: "95% Confidence Interval Lower Bound."
-        ci_upper:
-          type: "number"
-          description: "95% Confidence Interval Upper Bound."
-  random_effects:
     type: "object"
-    description: "Variance components for random effects."
+    description: "Fixed effect coefficients."
+    additionalProperties:
+      type: "number"
+  random_effects_variance:
+    type: "object"
+    description: "Random effect variances."
+    additionalProperties:
+      type: "number"
+  p_value:
+    type: "number"
+    description: "Raw p-value for salience effect."
+    minimum: 0
+    maximum: 1
+  p_value_corrected:
+    type: "number"
+    description: "Bonferroni-corrected p-value."
+    minimum: 0
+    maximum: 1
+  effect_size:
+    type: "object"
     properties:
-      participant:
+      odds_ratio:
         type: "number"
-        description: "Variance of participant intercepts."
-      scenario:
+        description: "Odds ratio for the main effect."
+      ci_95_lower:
         type: "number"
-        description: "Variance of scenario intercepts."
-      residual:
+      ci_95_upper:
         type: "number"
-        description: "Residual variance."
+    required:
+      - "odds_ratio"
+      - "ci_95_lower"
+      - "ci_95_upper"
   post_hoc_tests:
     type: "array"
-    description: "Pairwise comparisons between salience levels."
     items:
       type: "object"
       properties:
-        contrast:
+        comparison:
           type: "string"
-          description: "Comparison label (e.g., 'Low vs Medium')."
-        estimate:
+        odds_ratio:
           type: "number"
-        p_value:
+        p_value_uncorrected:
           type: "number"
         p_value_bonferroni:
           type: "number"
+      required:
+        - "comparison"
+        - "odds_ratio"
+        - "p_value_uncorrected"
+        - "p_value_bonferroni"
+  exclusion_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+  sample_size:
+    type: "integer"
+    minimum: 1
+  convergence_status:
+    type: "string"
+    enum:
+      - "converged"
+      - "warning"
+      - "failed"
+  fallback_method:
+    type: "string"
+    description: "Method used if primary model failed (e.g., 'Wilcoxon_Signed_Rank_Test')."
+  wilcoxon_results:
+    type: "array"
+    description: "Results of the Wilcoxon signed-rank test fallback, if applicable."
+    items:
+      type: "object"
+      properties:
+        comparison:
+          type: "string"
+        statistic:
+          type: "number"
+        p_value_uncorrected:
+          type: "number"
+        p_value_bonferroni:
+          type: "number"
+      required:
+        - "comparison"
+        - "statistic"
+        - "p_value_uncorrected"
+        - "p_value_bonferroni"
   power_analysis:
     type: "object"
-    description: "Post-hoc power analysis results."
     properties:
-      observed_effect_size:
+      observed_power:
         type: "number"
-      achieved_power:
-        type: "number"
-        description: "Calculated power given N and effect size."
       power_flag:
-        type: "string"
-        enum: ["ADEQUATE", "LOW", "CRITICAL"]
-        description: "Status of power (>=0.80 is ADEQUATE)."
-  metadata:
-    type: "object"
-    properties:
-      seed:
-        type: "integer"
-        description: "Random seed used for reproducibility."
-      dataset_source:
-        type: "string"
-        description: "Source of the data (e.g., 'Synthetic Pilot', 'MME')."
-      timestamp:
-        type: "string"
-        format: "date-time"
-        description: "Time of analysis execution."
+        type: "boolean"
+        description: "True if observed_power < 0.80."
+      precision_check:
+        type: "object"
+        properties:
+          ci_width:
+            type: "number"
+          threshold:
+            type: "number"
+            description: "Pre-registered threshold (0.3)."
+          threshold_source:
+            type: "string"
+            description: "Source of the threshold (e.g., 'config/pre_registration.yaml')."
+          flag:
+            type: "boolean"
+            description: "True if ci_width > threshold."
+        required:
+          - "ci_width"
+          - "threshold"
+          - "threshold_source"
+          - "flag"
+    required:
+      - "observed_power"
+      - "power_flag"
+      - "precision_check"
+required:
+  - "model_type"
+  - "fixed_effects"
+  - "random_effects_variance"
+  - "p_value"
+  - "p_value_corrected"
+  - "effect_size"
+  - "post_hoc_tests"
+  - "exclusion_rate"
+  - "sample_size"
+  - "convergence_status"
+  - "power_analysis"
+additionalProperties: false

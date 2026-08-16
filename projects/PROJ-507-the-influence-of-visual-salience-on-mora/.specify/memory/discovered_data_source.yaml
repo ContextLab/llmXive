@@ -1,15 +1,14 @@
 status: none
-intent: download Visual Genome dataset images region descriptions objects relationships
-  python package dataset
+intent: download Visual Genome image dataset with python package
 required_fields:
 - image_id
 - image_url
+- width
+- height
+- objects
+- relationships
 - region_descriptions
-- object_names
-- object_bounding_boxes
-- relationship_triplets
-- scene_graph
-- metadata_tags
-cache_key: a85a423b7a9adbdfe7886b5c7b6fe3f3e1e533d3e26ac365a3a37cb70325ad9a
-searched_at: '2026-07-17T12:48:10.777194+00:00'
+- image_filename
+cache_key: a1323771aa52e4ba1d46387d65cb9a8a312423944d3f730a2dcb8b5621855780
+searched_at: '2026-08-16T01:41:56.415636+00:00'
 retry_count: 1

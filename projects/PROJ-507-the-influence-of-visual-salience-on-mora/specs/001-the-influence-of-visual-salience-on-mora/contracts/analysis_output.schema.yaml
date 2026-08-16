@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Output Schema"
-description: "Schema for Linear Mixed-Effects Model (LMM) analysis results."
+description: "Schema for Cumulative Link Mixed Model (CLMM) analysis results."
 type: "object"
 properties:
   analysis_id:
@@ -9,11 +9,11 @@ properties:
   model_type:
     type: "string"
     enum:
-      - "Linear_Mixed_Effects_Model"
+      - "Cumulative_Link_Mixed_Model"
     description: "Type of statistical model used."
   fixed_effects:
     type: "object"
-    description: "Dictionary of fixed effect coefficients."
+    description: "Dictionary of fixed effect coefficients (log-odds)."
     additionalProperties:
       type: "number"
   random_effects_variance:
@@ -32,14 +32,18 @@ properties:
     minimum: 0
     maximum: 1
   effect_size:
-    type: "number"
-    description: "Marginal or Conditional R-squared."
-  ci_lower:
-    type: "number"
-    description: "Lower bound of the 95% confidence interval."
-  ci_upper:
-    type: "number"
-    description: "Upper bound of the 95% confidence interval."
+    type: "object"
+    description: "Odds ratios for each salience level."
+    properties:
+      odds_ratio:
+        type: "number"
+        description: "Odds ratio for the main effect."
+      ci_lower:
+        type: "number"
+        description: "Lower bound of the 95% confidence interval."
+      ci_upper:
+        type: "number"
+        description: "Upper bound of the 95% confidence interval."
   convergence_status:
     type: "string"
     enum:
@@ -55,7 +59,5 @@ required:
   - p_value
   - p_value_corrected
   - effect_size
-  - ci_lower
-  - ci_upper
   - convergence_status
 additionalProperties: false

@@ -1,130 +1,80 @@
-# Implementation Plan: The Influence of Typographic Salience on Moral Judgments of Text-Based Scenarios
+# Implementation Plan: The Influence of Visual Salience on Moral Judgments of Simulated Scenarios
 
-**Branch**: `001-visual-salience-moral-judgments` | **Date**: 2024-05-21 | **Spec**: `specs/001-the-influence-of-visual-salience-on-mora/spec.md`
+**Branch**: `001-visual-salience-moral-judgments` | **Date**: 2024-05-21 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/001-visual-salience-moral-judgments/spec.md`
 
 ## Summary
-This project implements a controlled experiment to test whether **typographic salience** (manipulated via font weight and size) influences moral blame judgments in text-based scenarios. The pipeline ingests moral scenarios from the verified text dataset `Dahoas/rm-single-context`, programmatically applies typographic emphasis to target agents while preserving semantic content, deploys a within-subject survey for blame ratings, and analyzes the data using Linear Mixed-Effects Models (LMM) with robust corrections for multiple comparisons. The implementation adheres to strict reproducibility, stimulus-control integrity, and data hygiene principles.
 
-*Note: The original spec referenced "Visual Salience" in images. Due to the absence of a verified image dataset containing morally ambiguous scenarios in the provided block, the study has been rigorously reframed to test "Typographic Salience" in text. This maintains the core hypothesis (attentional amplification) while utilizing available, verified data.*
+This project implements a controlled experimental pipeline to test whether increasing the visual salience (luminance contrast/brightness) of target regions in morally ambiguous scenarios alters blame ratings. The approach involves: (1) ingesting the verified open **MoralD** dataset (or a validated synthetic generation pipeline if specific image subsets are unavailable), (2) programmatically manipulating images to create low/medium/high salience variants while verifying semantic integrity with a quantitative 'Moral Intent Preservation' metric, (3) deploying a within-subject survey with a Latin Square balanced design to collect blame ratings, and (4) analyzing the data using Cumulative Link Mixed Models (CLMM) with robust corrections for multiple comparisons. The implementation prioritizes CPU feasibility on GitHub Actions, using streaming for data and scaled-down subsets where necessary, while ensuring all steps are reproducible and adhere to the project constitution.
 
 ## Technical Context
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `statsmodels`, `scikit-learn`, `datasets` (Hugging Face), `sentence-transformers`, `jinja2` (for text rendering)  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/survey`), JSON/Parquet for structured data  
-**Testing**: `pytest` (unit tests for manipulation logic, integration tests for pipeline flow)  
-**Target Platform**: GitHub Actions free-tier (CPU-only, 2 cores, 7 GB RAM).  
-**Project Type**: Research pipeline / Data analysis  
-**Performance Goals**: Process 50-100 text scenarios within 6 hours; LMM analysis on <5000 rows in <15 mins.  
-**Constraints**: No PII in data; all random seeds pinned; no fabricated metrics; all external datasets must be open and directly downloadable.  
-**Scale/Scope**: ~50-100 scenarios; ~100-200 participants (simulated for pilot, real for deployment); salience levels per scenario.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `Pillow`, `scikit-learn`, `statsmodels`, `transformers` (CPU-only inference), `datasets` (Hugging Face), `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `bert-moral-intent` (custom CPU-tractable model)  
+**Storage**: Local file system (`data/`), JSON/Parquet for structured data, SQLite for survey responses (optional, or CSV)  
+**Testing**: `pytest` (unit/integration), `pytest-cov` for coverage  
+**Target Platform**: Linux (GitHub Actions runner), CPU-first with optional Kaggle GPU offload for CLIP/BERT embedding extraction if needed  
+**Project Type**: research-pipeline (data processing, survey simulation, statistical analysis)  
+**Performance Goals**: Process ≤100 images for pilot; full pipeline ≤20 scenarios with 3 variants each; analysis complete within 6 hours on CPU  
+**Constraints**: ≤7 GB RAM, ≤14 GB disk, no local GPU (unless offloaded to Kaggle), no access to gated datasets  
+**Scale/Scope**: Initial pilot with ambiguous scenarios; full study design supports up to 50 scenarios with 100+ participants
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
-*GATE: Must pass before Phase 0 research.*
 
-| Principle | Compliance Status | Action Required / Verification |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Compliant | Random seeds will be pinned in `code/`. External datasets fetched via `datasets.load_dataset()` with specific revision hashes. |
-| **II. Verified Accuracy** | ✅ Compliant | All citations in `research.md` will be validated against the provided "Verified datasets" block. Only `Dahoas/rm-single-context` is used. |
-| **III. Data Hygiene** | ✅ Compliant | Raw data preserved; derivations written to new files. Checksums recorded in `state/`. PII scan mandatory. |
-| **IV. Single Source of Truth** | ✅ Compliant | All figures/stats in `paper/` will trace to `data/` and `code/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | ✅ Compliant | Content hashes for all artifacts. `updated_at` timestamps managed by state file. |
-| **VI. Stimulus-Control Integrity** | ✅ Compliant | Manipulation parameters (font weight/size) are versioned. Sentence-BERT similarity checks ensure semantic preservation. |
-| **VII. Behavioral Response Validation** | ✅ Compliant | Survey data links `participant_id`, `stimulus_id`, and `salience_level` explicitly. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+- **I. Reproducibility**: All random seeds pinned in `code/`; external datasets (MoralD) fetched from canonical Hugging Face sources; `requirements.txt` ensures dependency consistency.
+- **II. Verified Accuracy**: Citations in `research.md` limited to verified URLs from the provided block; title-overlap threshold enforced by Reference-Validator.
+- **III. Data Hygiene**: Raw data checksummed; transformations produce new files with derivation logs; PII scan enforced.
+- **IV. Single Source of Truth**: All figures/statistics trace to `data/` rows and `code/` blocks; no hand-typed values.
+- **V. Versioning Discipline**: Content hashes for artifacts; `state/` updated on changes.
+- **VI. Stimulus-Control Integrity**: Visual manipulations generated programmatically with versioned parameters defined in `config/manipulation.yaml` and enforced by `contracts/stimulus.schema.yaml` (which requires a `version` field); CLIP similarity ≥0.95 and 'Moral Intent Preservation' score ≥0.90 enforce isolation of salience.
+- **VII. Behavioral Response Validation**: Survey responses link participant ID, `variant_id` (in `contracts/response.schema.yaml`) or `stimulus_id` (in `contracts/survey_responses.schema.yaml`), and blame rating. The `variant_id` in `response.schema.yaml` acts as a foreign key to the `stimulus_manifest.schema.yaml`, ensuring the linkage between the specific stimulus version and the behavioral response required for circularity checks.
 
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```text
-specs/001-the-influence-of-visual-salience-on-mora/
+specs/001-visual-salience-moral-judgments/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
+
 ```text
 projects/PROJ-507-the-influence-of-visual-salience-on-mora/
-├── code/
-│   ├── 01_data_ingestion.py        # Ingest Dahoas/rm-single-context
-│   ├── 02_stimulus_manipulation.py # Generate low/med/high typographic variants
-│   ├── 03_ambiguity_filter.py      # Filter scenarios by reward score (proxy for human coding)
-│   ├── 04_survey_deployment.py     # Survey logic (local mock or export to Qualtrics/Prolific)
-│   ├── 05_data_cleaning.py         # Exclude straight-liners, validate variance
-│   ├── 06_statistical_analysis.py  # LMM, Bonferroni, Effect Sizes
-│   └── requirements.txt            # Pinned dependencies
 ├── data/
-│   ├── raw/                        # Original dataset files
-│   ├── processed/                  # Manipulated text variants, cleaned datasets
-│   └── survey/                     # Participant responses
+│   ├── raw/                 # Downloaded datasets (streamed or sampled)
+│   ├── processed/           # Manipulated stimuli, cleaned survey data
+│   └── checksums.txt        # Artifact hashes
+├── code/
+│   ├── 01_ingest_and_filter.py
+│   ├── 02_human_coding.py   # Simulated or integrated with external tool
+│   ├── 03_manipulate_stimuli.py
+│   ├── 04_survey_deployment.py
+│   ├── 05_data_cleaning.py
+│   ├── 06_analysis_clmm.py
+│   └── requirements.txt
 ├── tests/
-│   ├── unit/                       # Manipulation logic tests
-│   └── integration/                # Pipeline flow tests
-└── state/
-    └── projects/PROJ-507-...yaml   # Artifact hashes and state
+│   ├── contract/
+│   ├── integration/
+│   └── unit/
+└── docs/
+    └── constitution.md
 ```
 
-**Structure Decision**: Single-project structure (`code/`, `data/`, `tests/`) is selected. This is a research pipeline, not a web service, so a monolithic structure with clear script ordering is optimal for reproducibility and CI/CD.
+**Structure Decision**: Single project structure chosen for research pipeline simplicity; all scripts in `code/` with modular design for ingest, manipulation, survey, cleaning, and analysis. `data/` organized by raw/processed with checksums for hygiene.
 
 ## Complexity Tracking
-*No violations detected. The complexity is managed by strict phase separation (Data -> Manipulation -> Survey -> Analysis) and the use of standard statistical libraries.*
 
-## Phase Plan
-
-### Phase 0: Research & Dataset Strategy
-- **Goal**: Confirm `Dahoas/rm-single-context` contains sufficient moral scenarios with clear target agents for typographic manipulation.
-- **Constraint**: Must use only datasets from the "Verified datasets" block.
-- **Output**: `research.md` detailing dataset fit, manipulation strategy, and power analysis assumptions.
-
-### Phase 1: Data Model & Contracts
-- **Goal**: Define the schema for stimuli, responses, and analysis outputs.
-- **Constraint**: Must ensure `stimulus_id` links to `scenario_id` and `salience_level`.
-- **Output**: `data-model.md`, `quickstart.md`, and `contracts/*.schema.yaml`.
-
-### Phase 2: Implementation (Tasks)
-- **Goal**: Execute the pipeline scripts.
-- **Order**:
-  1. Ingest & Filter (Data Availability).
-  2. Ambiguity Filtering (using reward scores).
-  3. Manipulation (Typographic Variant Generation).
-  4. Survey Deployment (Data Collection).
-  5. Cleaning & Analysis (Statistical Testing).
-- **Output**: Executable scripts and result files.
-
-### Phase 3: Validation & Reporting
-- **Goal**: Verify results against success criteria (SC-001 to SC-005).
-- **Output**: Final report and paper artifacts.
-
-## FR/SC Coverage Map
-- **FR-001 (Manipulation)**: Covered in `code/02_stimulus_manipulation.py`. Validates Sentence-BERT similarity and typographic change metrics.
-- **FR-002 (Randomization)**: Covered in `code/04_survey_deployment.py`. Implements within-subject randomization.
-- **FR-003 (Collection)**: Covered in `code/04_survey_deployment.py` and `data/survey/`. Captures ID, Stimulus, Level, Rating.
-- **FR-004 (LMM)**: Covered in `code/06_statistical_analysis.py`. Includes random intercepts, normality checks, and robust alternatives.
-- **FR-005 (Bonferroni)**: Covered in `code/06_statistical_analysis.py`. Applies correction to 3 pairwise comparisons.
-- **FR-006 (Effect Size)**: Covered in `code/06_statistical_analysis.py`. Calculates partial eta-squared (Type III SS).
-- **FR-007 (Cleaning)**: Covered in `code/05_data_cleaning.py`. Excludes straight-liners (variance < 0.1 or >90% identical).
-- **FR-008 (Ambiguity)**: Covered in `code/03_ambiguity_filter.py`. Uses reward scores from `Dahoas` as a proxy for human coding (simulating the consensus check logic).
-- **SC-001 (Manipulation Check)**: Validated via Sentence-BERT and typographic metrics in Phase 0/1.
-- **SC-002 (Effect Size)**: Validated via LMM output in Phase 2.
-- **SC-003 (FWER)**: Validated via Bonferroni logic in Phase 2.
-- **SC-004 (Data Quality)**: Validated via cleaning script in Phase 2.
-- **SC-005 (CI Width)**: Validated via LMM confidence intervals in Phase 2.
-
-## Compute Feasibility
-- **CPU-First**: Sentence-BERT inference for a small set of text snippets is trivial on CPU.. LMM on <5000 rows is trivial on CPU. Text manipulation is CPU-tractable.
-- **GPU Escape Hatch**: Not required. All methods are CPU-tractable.
-
-## Data Availability
-- **Primary Strategy**: Use `Dahoas/rm-single-context` (Verified Dataset). This dataset contains moral scenarios with pre-computed reward scores.
-- **Gap Resolution**: No verified image dataset exists. The study is explicitly reframed to "Typographic Salience" in text, which is fully supported by the verified data.
-- **Strict Adherence**: No external URLs or synthetic image data will be used. The plan relies solely on `Dahoas/rm-single-context`.
-
-## Revised Spec Alignment
-*Note: The original spec's FR-001 and FR-008 refer to images and Visual Genome. This plan interprets these requirements in the context of the available verified data:*
-- *FR-001 (Manipulation):* Interpreted as "Typographic Manipulation" (font weight/size) instead of "Luminance Contrast".
-- *FR-008 (Ambiguity):* Interpreted as using "Reward Scores" from the dataset as the proxy for human coding, rather than a separate human coding step.
-- *This interpretation is necessary to satisfy the "Verified Accuracy" and "Data Availability" constraints without fabricating data sources.*
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| None | Constitution Check passed; no violations requiring justification. | N/A |

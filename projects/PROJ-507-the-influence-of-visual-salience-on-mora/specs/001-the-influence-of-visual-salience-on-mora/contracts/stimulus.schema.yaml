@@ -1,6 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Stimulus Variant Schema"
-description: "Schema for validated stimulus variants with salience manipulation"
 type: "object"
 properties:
   variant_id:
@@ -10,47 +9,57 @@ properties:
     type: "string"
     description: "Foreign key to the parent scenario"
   salience_level:
-    type: string
+    type: "string"
     enum:
       - "low"
       - "medium"
       - "high"
-    description: "Salience manipulation level"
-  manipulated_image_path:
+    description: "Salience level of the variant"
+  manipulation_params:
+    type: "object"
+    properties:
+      contrast_adjustment:
+        type: "number"
+        description: "Luminance contrast adjustment value"
+      brightness_adjustment:
+        type: "number"
+        description: "Brightness adjustment value"
+      version:
+        type: "string"
+        description: "Version of the manipulation parameters (e.g., 'v1.0')"
+    required:
+      - contrast_adjustment
+      - brightness_adjustment
+      - version
+  clip_similarity:
+    type: "number"
+    minimum: 0.95
+    description: "Cosine similarity to original image (must be ≥0.95)"
+  rms_contrast_change:
+    type: "number"
+    minimum: 15.0
+    description: "Percentage change in RMS contrast in ROI (must be ≥15%)"
+  moral_intent_preservation_score:
+    type: "number"
+    minimum: 0.90
+    description: "Correlation between pre- and post-manipulation moral intent scores (must be ≥0.90)"
+  semantic_integrity:
     type: "string"
-    description: "Relative path to the manipulated image file"
-  semantic_similarity:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "CLIP cosine similarity between original and manipulated image"
-  ssim_score:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Structural Similarity Index Score for non-target regions"
-  is_valid:
-    type: "boolean"
-    description: "True if semantic_similarity >= 0.95 AND ssim_score >= 0.90"
-  contrast_change:
-    type: "number"
-    description: "Pixel-level contrast change percentage"
+    enum:
+      - "passed"
+      - "failed"
+    description: "Status of semantic integrity check"
+  image_path:
+    type: "string"
+    description: "Path to the manipulated image file"
 required:
-  - "variant_id"
-  - "scenario_id"
-  - "salience_level"
-  - "manipulated_image_path"
-  - "semantic_similarity"
-  - "ssim_score"
-  - "is_valid"
-  - "contrast_change"
+  - variant_id
+  - scenario_id
+  - salience_level
+  - manipulation_params
+  - clip_similarity
+  - rms_contrast_change
+  - moral_intent_preservation_score
+  - semantic_integrity
+  - image_path
 additionalProperties: false
-examples:
-  - variant_id: "STIM-001-M"
-    scenario_id: "SCEN-001"
-    salience_level: "medium"
-    manipulated_image_path: "data/processed/stimuli/SCEN-001-medium.png"
-    semantic_similarity: 0.97
-    ssim_score: 0.95
-    is_valid: true
-    contrast_change: 20.5
