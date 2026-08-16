@@ -1,0 +1,19 @@
+status: none
+intent: pysradb Ensembl Plants variant matrix meteostat weather data python package
+  dataset
+required_fields:
+- sample_id
+- species
+- sra_accession
+- variant_id
+- allele_frequency
+- latitude
+- longitude
+- collection_date
+- temperature
+- precipitation
+- humidity
+- imputed_flag
+cache_key: 0c3478e9607d1da244ae2d34d0ac4ab6c75f8bee3c35e3b1d3d98c278c4ed8f4
+searched_at: '2026-08-16T16:29:56.852113+00:00'
+retry_count: 1

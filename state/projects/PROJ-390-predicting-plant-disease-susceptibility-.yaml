@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T05:16:08.492628Z'
-current_stage: clarified
+current_stage: analyzed
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-390-predicting-plant-disease-susceptibility-
-last_run_id: 007f7ecb-7dfa-4a33-84e5-43ed0cb28d8d
+last_run_id: 6da8f44f-621f-46a7-91dd-03ad5f95b041
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-390-predicting-plant-disease-susceptibility-/specs/001-predicting-plant-disease-susceptibility
 title: Predicting Plant Disease Susceptibility from Publicly Available Genomic and
   Environmental Data
-updated_at: '2026-08-08T04:25:16.913940Z'
+updated_at: '2026-08-16T17:07:59.831088Z'

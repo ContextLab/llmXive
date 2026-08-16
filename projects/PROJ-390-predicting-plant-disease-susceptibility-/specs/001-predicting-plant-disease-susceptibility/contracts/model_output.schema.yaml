@@ -1,0 +1,133 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model performance metrics and predictions."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["RandomForest", "SVM"]
+    description: "Type of model trained."
+  performance_metrics:
+    type: "object"
+    properties:
+      auc_roc:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Area Under the ROC Curve."
+      auc_roc_ci_lower:
+        type: "number"
+        description: "Lower bound of 95% Confidence Interval for AUC-ROC."
+      auc_roc_ci_upper:
+        type: "number"
+        description: "Upper bound of 95% Confidence Interval for AUC-ROC."
+      precision_recall_auc:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Area Under the Precision-Recall Curve."
+      accuracy:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Overall accuracy on test set."
+    required:
+      - auc_roc
+      - auc_roc_ci_lower
+      - auc_roc_ci_upper
+      - precision_recall_auc
+      - accuracy
+  statistical_validation:
+    type: "object"
+    properties:
+      permutation_test:
+        type: "object"
+        properties:
+          p_value:
+            type: "number"
+            minimum: 0.0
+            maximum: 1.0
+            description: "P-value from 1000 permutations."
+          permutations_count:
+            type: "integer"
+            description: "Number of permutations performed."
+          seed:
+            type: "integer"
+            description: "Random seed used."
+          significant:
+            type: "boolean"
+            description: "True if p_value < 0.05."
+        required:
+          - p_value
+          - permutations_count
+          - seed
+          - significant
+      sensitivity_analysis:
+        type: "object"
+        properties:
+          thresholds:
+            type: "array"
+            items:
+              type: "number"
+            description: "List of thresholds tested (e.g., [0.45, 0.50, 0.55])."
+          fpr_variation:
+            type: "array"
+            items:
+              type: "number"
+            description: "False Positive Rate at each threshold."
+          fnr_variation:
+            type: "array"
+            items:
+              type: "number"
+            description: "False Negative Rate at each threshold."
+        required:
+          - thresholds
+          - fpr_variation
+          - fnr_variation
+    required:
+      - permutation_test
+      - sensitivity_analysis
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+          description: "Name of the feature."
+        importance_score:
+          type: "number"
+          description: "Importance score (e.g., Gini or coefficient)."
+        feature_type:
+          type: "string"
+          enum: ["Genomic", "Environmental"]
+          description: "Category of the feature."
+    description: "Top features ranked by importance."
+  variance_decomposition:
+    type: "object"
+    properties:
+      genomic_variance_explained:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Percentage of variance explained by genomic features (SC-003)."
+      environmental_variance_explained:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Percentage of variance explained by environmental features (SC-003)."
+      total_variance_explained:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Total variance explained by the model."
+    required:
+      - genomic_variance_explained
+      - environmental_variance_explained
+      - total_variance_explained
+required:
+  - model_type
+  - performance_metrics
+  - statistical_validation
+  - feature_importance
+  - variance_decomposition
