@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-967-llmxive-follow-up-extending-beyond-scala
-last_run_id: c832e962-34fb-431d-a5f1-27b66bcc3c43
+last_run_id: 60be4f31-5101-483b-9604-544c37c6b649
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala
 title: 'llmXive follow-up: extending "Beyond Scalar Rewards by Internalizing Reasoning
   into Score Distributi"'
-updated_at: '2026-08-15T18:08:54.204260Z'
+updated_at: '2026-08-16T04:04:55.430625Z'

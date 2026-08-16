@@ -1,66 +1,24 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Z-Reward Evaluation Dataset Schema"
-description: "Schema for the raw Z-Reward evaluation dataset containing prompts, teacher distributions, student scalars, and human annotations."
-type: "object"
-properties:
-  sample_id:
-    type: "string"
-    description: "Unique identifier for the sample."
-  prompt:
-    type: "string"
-    description: "The text prompt used for generation."
-  teacher_scores:
-    type: "array"
-    description: "Teacher model scores for [Alignment, Realism, Aesthetics, Plausibility]."
-    items:
-      type: "number"
-    minItems: 4
-    maxItems: 4
-  student_score:
-    type: "number"
-    description: "Scalar output from the student model."
-  human_annotations:
-    type: "object"
-    description: "Human scores for each dimension."
+schema_version: "1.0"
+fields:
+  - name: prompt
+    type: string
+  - name: image_url
+    type: string
+  - name: teacher_scores
+    type: object
     properties:
-      Alignment:
-        type: "number"
-        nullable: true
-      Realism:
-        type: "number"
-        nullable: true
-      Aesthetics:
-        type: "number"
-        nullable: true
-      Plausibility:
-        type: "number"
-        nullable: true
-    required:
-      - Alignment
-      - Realism
-      - Aesthetics
-      - Plausibility
-  metadata:
-    type: "object"
-    description: "Metadata including the primary quality dimension and checksum."
+      Alignment: float
+      Realism: float
+      Aesthetics: float
+      Plausibility: float
+  - name: student_scalar
+    type: float
+  - name: human_annotations
+    type: object
     properties:
-      primary_quality_dimension:
-        type: "string"
-        enum:
-          - "Alignment"
-          - "Realism"
-          - "Aesthetics"
-          - "Plausibility"
-        description: "The dimension used for fidelity loss calculation."
-      checksum_sha256:
-        type: "string"
-        description: "SHA-256 checksum of the raw data file."
-    required:
-      - primary_quality_dimension
-required:
-  - sample_id
-  - prompt
-  - teacher_scores
-  - student_score
-  - human_annotations
-  - metadata
+      Alignment: float
+      Realism: float
+      Aesthetics: float
+      Plausibility: float
+  - name: primary_dimension
+    type: string

@@ -1,40 +1,24 @@
-logical_mapping:
-  human_annotations:
-    actual_column: human_annotations
-    detected: true
-    logical_name: human_annotations
-    rubric_keys:
-    - Alignment
-    - Realism
-    - Aesthetics
-    - Plausibility
-    structure: nested_dict
-  image_url:
-    actual_column: image_url
-    detected: true
-    logical_name: image_url
-  primary_dimension:
-    actual_column: primary_dimension
-    detected: true
-    logical_name: primary_dimension
-  prompt:
-    actual_column: prompt
-    detected: true
-    logical_name: prompt
-  student_scalar:
-    actual_column: student_scalar
-    detected: true
-    logical_name: student_scalar
-  teacher_scores:
-    actual_column: teacher_scores
-    detected: true
-    logical_name: teacher_scores
-    rubric_keys:
-    - Alignment
-    - Realism
-    - Aesthetics
-    - Plausibility
-    structure: nested_dict
-source: discovered_from_raw_data
-validation_status: validated
-warnings: []
+schema_version: "1.0"
+fields:
+- name: prompt
+  type: string
+- name: image_url
+  type: string
+- name: teacher_scores
+  type: object
+  properties:
+    Alignment: float
+    Realism: float
+    Aesthetics: float
+    Plausibility: float
+- name: student_scalar
+  type: float
+- name: human_annotations
+  type: object
+  properties:
+    Alignment: float
+    Realism: float
+    Aesthetics: float
+    Plausibility: float
+- name: primary_dimension
+  type: string

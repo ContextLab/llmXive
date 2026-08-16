@@ -3,237 +3,236 @@ import logging
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
 import pandas as pd
 import yaml
-
-# Project root relative to this script's location (code/)
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-CONTRACTS_DIR = PROJECT_ROOT / "specs" / "001-llmxive-entanglement-analysis" / "contracts"
-
-# File paths
-PROVISIONAL_SCHEMA_PATH = CONTRACTS_DIR / "dataset.schema.yaml"
-VALIDATED_SCHEMA_PATH = CONTRACTS_DIR / "dataset.validated.schema.yaml"
-
-# Logical field mappings (what we expect vs what might be in the raw data)
-LOGICAL_FIELDS = {
-    "prompt": ["prompt", "text", "input", "question"],
-    "image_url": ["image_url", "image", "url", "img"],
-    "teacher_scores": ["teacher_scores", "teacher", "scores", "rubric"],
-    "student_scalar": ["student_scalar", "student_score", "student", "scalar"],
-    "human_annotations": ["human_annotations", "human", "annotations", "human_scores"],
-    "primary_dimension": ["primary_dimension", "primary", "dimension", "target_dimension"],
-}
-
-RUBRIC_DIMENSIONS = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
 
 def setup_logging() -> logging.Logger:
     logger = logging.getLogger("schema_discovery")
     logger.setLevel(logging.INFO)
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(
-        logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    )
+    handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
     logger.addHandler(handler)
     return logger
 
-def load_schema(path: Path) -> Dict[str, Any]:
-    """Load a YAML schema file."""
-    if not path.exists():
-        raise FileNotFoundError(f"Schema file not found: {path}")
-    with open(path, "r", encoding="utf-8") as f:
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load the provisional schema contract."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r") as f:
         return yaml.safe_load(f)
 
-def save_schema(schema: Dict[str, Any], path: Path) -> None:
-    """Save a schema to a YAML file."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
+def save_schema(schema: Dict[str, Any], output_path: Path) -> None:
+    """Save the validated schema to a YAML file."""
+    with open(output_path, "w") as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
 
-def load_dataset(raw_dir: Path) -> pd.DataFrame:
-    """
-    Load the raw dataset.
-    T037 should have placed the raw data file in data/raw/.
-    We expect a parquet or csv file.
-    """
-    if not raw_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
-
-    # Look for common file extensions
-    parquet_files = list(raw_dir.glob("*.parquet"))
-    csv_files = list(raw_dir.glob("*.csv"))
-
-    if parquet_files:
-        # Assume the first parquet file is the dataset
-        df = pd.read_parquet(parquet_files[0])
-        logging.info(f"Loaded dataset from Parquet: {parquet_files[0].name}")
-    elif csv_files:
-        df = pd.read_csv(csv_files[0])
-        logging.info(f"Loaded dataset from CSV: {csv_files[0].name}")
+def load_dataset(data_path: Path, is_mock: bool = False) -> pd.DataFrame:
+    """Load the dataset from the specified path."""
+    if not data_path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {data_path}")
+    logger.info(f"Loading dataset from {data_path}")
+    if data_path.suffix == ".parquet":
+        df = pd.read_parquet(data_path)
+    elif data_path.suffix == ".csv":
+        df = pd.read_csv(data_path)
     else:
-        raise FileNotFoundError(
-            f"No dataset file found in {raw_dir}. Expected .parquet or .csv"
-        )
-
+        raise ValueError(f"Unsupported file format: {data_path.suffix}")
     return df
 
-def discover_schema(df: pd.DataFrame, logger: logging.Logger) -> Dict[str, Any]:
-    """
-    Inspect the dataframe and map actual column names to logical fields.
-    Returns a schema description.
-    """
-    actual_columns = set(df.columns)
-    discovered = {}
-
-    for logical, candidates in LOGICAL_FIELDS.items():
-        matched = None
-        for candidate in candidates:
-            if candidate in actual_columns:
-                matched = candidate
-                break
-
-        if matched:
-            discovered[logical] = {
-                "matched_column": matched,
-                "detected": True,
-            }
-        else:
-            discovered[logical] = {
-                "matched_column": None,
-                "detected": False,
-                "missing": True,
-            }
-
-    # Special handling for nested structures (teacher_scores, human_annotations)
-    # We check if the matched column is a dict-like object or separate columns
-    for logical in ["teacher_scores", "human_annotations"]:
-        if discovered[logical]["detected"]:
-            col_name = discovered[logical]["matched_column"]
-            # Check the type of the first non-null entry
-            sample = df[col_name].dropna().iloc[0] if len(df[col_name].dropna()) > 0 else None
-            if isinstance(sample, dict):
-                discovered[logical]["structure"] = "nested_dict"
-                discovered[logical]["keys"] = list(sample.keys())
-            elif isinstance(sample, str):
-                # Might be JSON string, but we assume nested for now
-                discovered[logical]["structure"] = "unknown"
+def discover_schema(df: pd.DataFrame) -> Dict[str, Any]:
+    """Discover the actual schema from the dataframe."""
+    fields = []
+    for col in df.columns:
+        field_type = str(df[col].dtype)
+        # Map pandas types to logical types
+        if "float" in field_type:
+            logical_type = "float"
+        elif "int" in field_type:
+            logical_type = "integer"
+        elif "object" in field_type:
+            # Check if it might be a nested object (like teacher_scores)
+            sample_val = df[col].iloc[0] if len(df) > 0 else None
+            if isinstance(sample_val, dict):
+                logical_type = "object"
             else:
-                discovered[logical]["structure"] = "flat_columns" # Likely separate columns exist
+                logical_type = "string"
+        else:
+            logical_type = field_type
 
-    return discovered
+        field_info = {
+            "name": col,
+            "type": logical_type
+        }
 
-def validate_schema(discovered: Dict[str, Any], logger: logging.Logger) -> bool:
-    """
-    Validate that critical fields are present.
-    Critical: prompt, teacher_scores, student_scalar, human_annotations, primary_dimension
-    """
-    critical_fields = ["prompt", "teacher_scores", "student_scalar", "human_annotations", "primary_dimension"]
-    missing_critical = []
+        # Handle nested objects (e.g., teacher_scores, human_annotations)
+        if logical_type == "object" and isinstance(sample_val, dict):
+            properties = {}
+            for key, val in sample_val.items():
+                if isinstance(val, float):
+                    prop_type = "float"
+                elif isinstance(val, int):
+                    prop_type = "integer"
+                else:
+                    prop_type = "string"
+                properties[key] = {"type": prop_type}
+            field_info["properties"] = properties
 
-    for field in critical_fields:
-        if not discovered.get(field, {}).get("detected", False):
-            missing_critical.append(field)
+        fields.append(field_info)
 
-    if missing_critical:
-        logger.error(f"Critical fields missing: {missing_critical}")
-        return False
-
-    return True
-
-def update_contract(provisional_schema: Dict[str, Any], discovered: Dict[str, Any], validated_schema_path: Path, logger: logging.Logger) -> Dict[str, Any]:
-    """
-    Update the provisional schema to reflect the actual discovered schema.
-    Writes to dataset.validated.schema.yaml.
-    """
-    validated = {
-        "source": "discovered_from_raw_data",
-        "logical_mapping": {},
-        "validation_status": "validated",
-        "warnings": []
+    return {
+        "schema_version": "1.0",
+        "fields": fields,
+        "row_count": len(df),
+        "column_count": len(df.columns)
     }
 
-    # Reconstruct the schema structure based on discovery
-    for logical, details in discovered.items():
-        mapping_entry = {
-            "logical_name": logical,
-            "actual_column": details.get("matched_column"),
-            "detected": details.get("detected", False),
-        }
-        if "structure" in details:
-            mapping_entry["structure"] = details["structure"]
-        if "keys" in details:
-            mapping_entry["rubric_keys"] = details["keys"]
+def validate_schema(discovered: Dict[str, Any], provisional: Dict[str, Any]) -> Dict[str, Any]:
+    """Validate discovered schema against provisional template and report discrepancies."""
+    discrepancies = []
+    required_fields = {
+        "prompt", "image_url", "student_scalar", "primary_dimension"
+    }
+    required_nested = {
+        "teacher_scores": {"Alignment", "Realism", "Aesthetics", "Plausibility"},
+        "human_annotations": {"Alignment", "Realism", "Aesthetics", "Plausibility"}
+    }
 
-        validated["logical_mapping"][logical] = mapping_entry
+    discovered_map = {f["name"]: f for f in discovered["fields"]}
 
-        if not details.get("detected", False):
-            validated["warnings"].append(f"Field '{logical}' was not found in the raw dataset.")
+    # Check required top-level fields
+    for req in required_fields:
+        if req not in discovered_map:
+            discrepancies.append(f"Missing required field: {req}")
 
-    save_schema(validated, validated_schema_path)
-    logger.info(f"Validated schema written to: {validated_schema_path}")
-    return validated
+    # Check required nested fields
+    for nested_name, required_keys in required_nested.items():
+        if nested_name not in discovered_map:
+            discrepancies.append(f"Missing required nested field: {nested_name}")
+        else:
+            nested_props = discovered_map[nested_name].get("properties", {})
+            missing_keys = required_keys - set(nested_props.keys())
+            if missing_keys:
+                discrepancies.append(f"Missing keys in {nested_name}: {missing_keys}")
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Discover and validate dataset schema.")
+    # Compare types where both exist
+    for prov_field in provisional.get("fields", []):
+        prov_name = prov_field["name"]
+        if prov_name in discovered_map:
+            disc_field = discovered_map[prov_name]
+            if prov_field["type"] != disc_field["type"]:
+                discrepancies.append(
+                    f"Type mismatch for {prov_name}: "
+                    f"expected {prov_field['type']}, got {disc_field['type']}"
+                )
+
+    return {
+        "valid": len(discrepancies) == 0,
+        "discrepancies": discrepancies,
+        "discovered_schema": discovered
+    }
+
+def update_contract(discovered: Dict[str, Any], output_path: Path) -> None:
+    """Update the contract with the discovered schema."""
+    # We use the discovered schema as the validated schema
+    validated_schema = {
+        "schema_version": "1.0",
+        "fields": discovered["fields"],
+        "validated_at": "auto-discovered",
+        "row_count": discovered.get("row_count", 0),
+        "column_count": discovered.get("column_count", 0)
+    }
+    save_schema(validated_schema, output_path)
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Schema Discovery and Validation")
     parser.add_argument(
-        "--raw-dir",
+        "--input-data",
         type=str,
-        default=str(DATA_RAW_DIR),
-        help="Path to the raw data directory",
+        default="data/raw/z_reward.parquet",
+        help="Path to the raw dataset file"
     )
     parser.add_argument(
         "--provisional-schema",
         type=str,
-        default=str(PROVISIONAL_SCHEMA_PATH),
-        help="Path to the provisional schema YAML",
+        default="specs/001-llmxive-entanglement-analysis/contracts/dataset.schema.yaml",
+        help="Path to the provisional schema contract"
     )
     parser.add_argument(
-        "--validated-schema",
+        "--output-schema",
         type=str,
-        default=str(VALIDATED_SCHEMA_PATH),
-        help="Path to write the validated schema YAML",
+        default="specs/001-llmxive-entanglement-analysis/contracts/dataset.validated.schema.yaml",
+        help="Path to save the validated schema"
+    )
+    parser.add_argument(
+        "--use-mock-data",
+        action="store_true",
+        help="Use mock data path if real data not found"
     )
     return parser.parse_args()
 
 def main():
-    args = parse_args()
+    global logger
     logger = setup_logging()
+    args = parse_args()
 
-    logger.info("Starting Schema Discovery and Validation...")
+    data_path = Path(args.input_data)
+    provisional_path = Path(args.provisional_schema)
+    output_path = Path(args.output_schema)
 
-    try:
-        # 1. Load Provisional Schema
-        logger.info(f"Loading provisional schema from {args.provisional_schema}")
-        provisional_schema = load_schema(Path(args.provisional_schema))
-        logger.info("Provisional schema loaded.")
-
-        # 2. Load Raw Dataset
-        logger.info(f"Loading raw dataset from {args.raw_dir}")
-        df = load_dataset(Path(args.raw_dir))
-        logger.info(f"Dataset loaded with {len(df)} rows and {len(df.columns)} columns.")
-        logger.info(f"Columns: {list(df.columns)}")
-
-        # 3. Discover Schema
-        logger.info("Performing schema discovery...")
-        discovered = discover_schema(df, logger)
-
-        # 4. Validate Schema
-        logger.info("Validating schema against critical requirements...")
-        is_valid = validate_schema(discovered, logger)
-
-        if not is_valid:
-            logger.critical("Schema validation failed. Critical fields are missing.")
+    # Fallback to mock data if requested and real not found
+    if args.use_mock_data and not data_path.exists():
+        mock_path = Path("data/raw/mock_z_reward.parquet")
+        if mock_path.exists():
+            logger.info(f"Real data not found, using mock data: {mock_path}")
+            data_path = mock_path
+        else:
+            logger.error("Mock data also not found. Cannot proceed.")
             sys.exit(1)
 
-        # 5. Update Contract
-        logger.info("Updating contract with discovered schema...")
-        final_schema = update_contract(provisional_schema, discovered, Path(args.validated_schema), logger)
+    try:
+        # Load schema
+        provisional_schema = load_schema(provisional_path)
+        logger.info(f"Loaded provisional schema from {provisional_path}")
 
-        logger.info("Schema Discovery and Validation completed successfully.")
+        # Load dataset
+        df = load_dataset(data_path)
+        logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns")
 
+        # Discover schema
+        discovered_schema = discover_schema(df)
+        logger.info("Schema discovery completed")
+
+        # Validate
+        validation_result = validate_schema(discovered_schema, provisional_schema)
+
+        if validation_result["valid"]:
+            logger.info("Schema validation PASSED. No discrepancies found.")
+        else:
+            logger.warning("Schema validation found discrepancies:")
+            for disc in validation_result["discrepancies"]:
+                logger.warning(f"  - {disc}")
+
+            # Check for critical mismatches (missing rubric dimensions)
+            critical = [d for d in validation_result["discrepancies"] if "Missing" in d]
+            if critical:
+                logger.error("CRITICAL: Missing required fields or dimensions. Pipeline cannot proceed.")
+                sys.exit(1)
+
+        # Update contract
+        update_contract(discovered_schema, output_path)
+        logger.info(f"Validated schema saved to {output_path}")
+
+        # Print summary
+        logger.info("=== Schema Discovery Summary ===")
+        logger.info(f"Total fields discovered: {len(discovered_schema['fields'])}")
+        for field in discovered_schema["fields"]:
+            logger.info(f"  - {field['name']}: {field['type']}")
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.exception(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -6,11 +6,9 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+import zipfile
+import io
 
-import pandas as pd
-
-# Try to import datasets; if not available, we will handle it in main
 try:
     from datasets import load_dataset
     DATASETS_AVAILABLE = True
@@ -18,291 +16,338 @@ except ImportError:
     DATASETS_AVAILABLE = False
     load_dataset = None
 
-def setup_logging() -> logging.Logger:
-    """Configure logging for the download script."""
-    logger = logging.getLogger("download_zreward")
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
-    logger.addHandler(handler)
-    return logger
+import pandas as pd
 
-def calculate_sha256(file_path: str) -> str:
-    """Calculate SHA256 checksum of a file."""
+# Configure logging
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    return logging.getLogger(__name__)
+
+logger = setup_logging()
+
+def calculate_sha256(file_path):
+    """Calculate SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def save_checksum(file_path: str, checksum: str, checksum_file: str) -> None:
-    """Save checksum to a file."""
-    with open(checksum_file, "w") as f:
-        f.write(f"{checksum}  {os.path.basename(file_path)}\n")
+def save_checksum(checksum, output_path):
+    """Save checksum to a JSON file."""
+    with open(output_path, 'w') as f:
+        json.dump({'checksum': checksum}, f, indent=2)
+    logger.info(f"Checksum saved to {output_path}")
 
-def verify_checksum(file_path: str, expected_checksum: str) -> bool:
+def verify_checksum(file_path, expected_checksum):
     """Verify file checksum."""
     actual_checksum = calculate_sha256(file_path)
     return actual_checksum == expected_checksum
 
-def validate_columns(df: pd.DataFrame, required_columns: Dict[str, any]) -> Tuple[bool, List[str]]:
+def validate_columns(df, required_columns, required_properties):
     """
-    Validate that the dataframe contains the required columns.
-    required_columns is a dict mapping logical field names to expected types or nested structures.
-    Returns (is_valid, list_of_missing_or_mismatched_fields).
+    Validate that the dataframe contains required columns and properties.
+    
+    Args:
+        df: pandas DataFrame
+        required_columns: list of required top-level column names
+        required_properties: dict mapping column name to list of required nested keys
+    
+    Returns:
+        tuple: (is_valid, missing_items)
     """
-    missing = []
-    for field, expected in required_columns.items():
-        if field not in df.columns:
-            missing.append(field)
+    missing_items = []
+    
+    # Check top-level columns
+    for col in required_columns:
+        if col not in df.columns:
+            missing_items.append(f"Column: {col}")
+    
+    # Check nested properties
+    for col, props in required_properties.items():
+        if col in df.columns:
+            # Check if it's an object/dict column
+            if df[col].dtype == 'object':
+                # Check a few rows to see if properties exist
+                sample_valid = False
+                for idx, val in df[col].dropna().head(5).items():
+                    if isinstance(val, dict):
+                        if all(p in val for p in props):
+                            sample_valid = True
+                            break
+                if not sample_valid and len(df.dropna(subset=[col])) > 0:
+                    missing_items.append(f"Column {col} missing properties: {props}")
+            else:
+                missing_items.append(f"Column {col} is not an object type")
         else:
-            # If expected is a dict (e.g., teacher_scores keys), check inner keys
-            if isinstance(expected, dict):
-                if not isinstance(df[field].iloc[0], dict):
-                    missing.append(f"{field} (expected dict, got {type(df[field].iloc[0])})")
-                else:
-                    # Check keys in the first row (assuming uniform structure)
-                    sample_val = df[field].iloc[0]
-                    if not isinstance(sample_val, dict):
-                        missing.append(f"{field} (first row is not a dict)")
-                    else:
-                        missing_keys = [k for k in expected.keys() if k not in sample_val]
-                        if missing_keys:
-                            missing.append(f"{field} (missing keys: {missing_keys})")
-    return len(missing) == 0, missing
+            missing_items.append(f"Column: {col} (nested check skipped)")
+    
+    return len(missing_items) == 0, missing_items
 
-def download_dataset(logger: logging.Logger) -> Tuple[Optional[str], Optional[pd.DataFrame]]:
+def download_dataset(dataset_id, output_path):
     """
-    Attempt to download the Z-Reward dataset using the fallback chain.
-    Returns (source_id, dataframe) or (None, None) if all fail.
+    Download dataset from Hugging Face Datasets.
+    
+    Args:
+        dataset_id: Hugging Face dataset ID
+        output_path: Path to save the parquet file
+    
+    Returns:
+        pandas DataFrame or None
     """
     if not DATASETS_AVAILABLE:
-        logger.error("The 'datasets' library is not installed. Cannot load from Hugging Face.")
-        return None, None
-
-    sources = [
-        "z-reward/z-reward-v1",
-        "z-reward/z-reward-v2",
-    ]
-
-    for source_id in sources:
-        try:
-            logger.info(f"Attempting to load dataset from Hugging Face: {source_id}")
-            # Load the dataset (streaming=False to get a full dataset object for initial check)
-            # We use streaming=True to avoid downloading the full 7GB+ if not needed immediately,
-            # but for schema validation we might need to pull a sample.
-            # Let's try loading with streaming first to check existence, then materialize if needed.
-            # However, load_dataset with streaming returns a IterableDataset.
-            # To validate columns easily, we'll load a small slice.
-            ds = load_dataset(source_id, split="train", streaming=True)
-            
-            # Get first row to check structure
-            first_row = next(iter(ds))
-            
-            # Define expected structure based on task description
-            # prompt (string), image_url (string), teacher_scores (object), 
-            # student_scalar (float), human_annotations (object), primary_dimension (string)
-            # We perform a loose check here; T038 will do strict validation.
-            required_keys = ["prompt", "image_url", "student_scalar", "primary_dimension"]
-            missing_keys = [k for k in required_keys if k not in first_row]
-            
-            if missing_keys:
-                logger.warning(f"Source {source_id} missing keys in first row: {missing_keys}. Skipping.")
-                continue
-
-            # Check for teacher_scores and human_annotations as dicts
-            if "teacher_scores" not in first_row or not isinstance(first_row["teacher_scores"], dict):
-                logger.warning(f"Source {source_id} missing or invalid teacher_scores. Skipping.")
-                continue
-            if "human_annotations" not in first_row or not isinstance(first_row["human_annotations"], dict):
-                logger.warning(f"Source {source_id} missing or invalid human_annotations. Skipping.")
-                continue
-
-            # If we get here, the source seems valid. Load the full dataset (or a sample if too big)
-            # For now, we load the full dataset. If memory is an issue, we might need to stream and save chunks.
-            # Given the constraint of <7GB RAM, we should be careful. 
-            # Let's load the dataset but save it to parquet immediately to avoid holding it all in memory if possible.
-            # Actually, load_dataset returns a Dataset object which might be memory heavy if not streamed.
-            # We'll use streaming=True and iterate to write to CSV/Parquet.
-            
-            logger.info(f"Successfully connected to {source_id}. Downloading data...")
-            
-            # We will stream the data to a local file to avoid memory issues
-            output_file = "projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw/zreward_raw.parquet"
-            output_path = Path(output_file)
-            output_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            # Stream and save to parquet
-            # Note: Writing parquet from streaming dataset requires collecting batches
-            import pyarrow as pa
-            import pyarrow.parquet as pq
-            
-            batches = []
-            batch_size = 1000
-            count = 0
-            for batch in ds:
-                batches.append(batch)
-                count += 1
-                if count % batch_size == 0:
-                    # Convert batches to dataframe and write
-                    # We need to handle the dict columns carefully for parquet
-                    df_batch = pd.DataFrame(batch)
-                    if batches[0] is not batches[-1]: # Not the first batch
-                        # Append to existing
-                        existing = pq.read_table(output_path)
-                        combined = pa.concat_tables([existing, pa.Table.from_pandas(df_batch)])
-                        pq.write_table(combined, output_path)
-                    else:
-                        df_batch.to_parquet(output_path)
-                    batches = [] # Clear
-            
-            # Write remaining
-            if batches:
-                df_batch = pd.DataFrame(batches[0])
-                for b in batches[1:]:
-                    df_temp = pd.DataFrame(b)
-                    df_batch = pd.concat([df_batch, df_temp], ignore_index=True)
-                if Path(output_path).exists():
-                    existing = pq.read_table(output_path)
-                    combined = pa.concat_tables([existing, pa.Table.from_pandas(df_batch)])
-                    pq.write_table(combined, output_path)
-                else:
-                    df_batch.to_parquet(output_path)
-
-            logger.info(f"Dataset saved to {output_file}")
-            
-            # Return the path to the file and None for dataframe (since we saved to disk)
-            # The caller (T038) will read this file.
-            return source_id, None
-
-        except Exception as e:
-            logger.warning(f"Failed to load {source_id}: {e}")
-            continue
-
-    logger.error("All Hugging Face sources failed.")
-    return None, None
-
-def download_from_local_archive(logger: logging.Logger) -> Tuple[Optional[str], Optional[pd.DataFrame]]:
-    """
-    Attempt to load from a local archive specified by Z_REWARD_ARCHIVE_PATH.
-    """
-    archive_path = os.environ.get("Z_REWARD_ARCHIVE_PATH")
-    if not archive_path:
-        logger.info("Z_REWARD_ARCHIVE_PATH not set. Skipping local archive.")
-        return None, None
-
-    archive_path = Path(archive_path)
-    if not archive_path.exists():
-        logger.warning(f"Local archive not found at {archive_path}")
-        return None, None
-
+        logger.error("datasets library not installed. Cannot download from Hugging Face.")
+        return None
+    
     try:
-        logger.info(f"Loading dataset from local archive: {archive_path}")
+        logger.info(f"Attempting to load dataset: {dataset_id}")
+        ds = load_dataset(dataset_id, split="train", streaming=False)
+        df = ds.to_pandas()
         
-        # Determine file type
-        if archive_path.suffix == ".parquet":
-            df = pd.read_parquet(archive_path)
-        elif archive_path.suffix == ".csv":
-            df = pd.read_csv(archive_path)
-        elif archive_path.suffix == ".json" or archive_path.suffix == ".jsonl":
-            df = pd.read_json(archive_path, lines=True)
-        else:
-            logger.error(f"Unsupported archive format: {archive_path.suffix}")
-            return None, None
-
-        # Validate columns
-        required_columns = {
-            "prompt": str,
-            "image_url": str,
-            "teacher_scores": dict,
-            "student_scalar": float,
-            "human_annotations": dict,
-            "primary_dimension": str
-        }
+        # Save to parquet
+        df.to_parquet(output_path, index=False)
+        logger.info(f"Dataset saved to {output_path}")
+        logger.info(f"Dataset shape: {df.shape}")
+        logger.info(f"Columns: {list(df.columns)}")
         
-        # We can't strictly check types of nested dicts without loading all, 
-        # so we check existence and type of first row
-        is_valid, missing = validate_columns(df, required_columns)
-        
-        if not is_valid:
-            logger.warning(f"Local archive missing required columns: {missing}")
-            # We don't fail hard here, but we return the dataframe anyway for T038 to inspect
-            # However, the task says: "If the specific columns are missing, raise a RuntimeError"
-            # But we are in the fallback chain. The task says: "If ALL sources fail, raise RuntimeError"
-            # So we return the data, and T038 will validate strictly.
-            # Wait, the task says: "CRITICAL: If the specific columns are missing, raise a RuntimeError. DO NOT use local file fallbacks if the schema doesn't match."
-            # This implies if the local file doesn't match, we should treat it as a failure of this source and move to next (or fail if last).
-            # Since this is the last source, we should raise if it fails validation.
-            raise RuntimeError(f"Local archive schema mismatch: {missing}")
-
-        logger.info(f"Successfully loaded local archive. Rows: {len(df)}")
-        return "local_archive", df
-
+        return df
     except Exception as e:
-        logger.error(f"Failed to load local archive: {e}")
-        raise e
+        logger.error(f"Failed to load dataset {dataset_id}: {e}")
+        return None
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Download and validate Z-Reward dataset")
-    parser.add_argument("--output-dir", type=str, default="projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw",
-                        help="Directory to save the dataset")
-    parser.add_argument("--verify", action="store_true", help="Verify checksum if available")
+def download_from_local_archive(archive_path, output_path):
+    """
+    Download dataset from a local zip archive.
+    
+    Args:
+        archive_path: Path to the local zip file
+        output_path: Path to save the extracted parquet file
+    
+    Returns:
+        pandas DataFrame or None
+    """
+    try:
+        if not os.path.exists(archive_path):
+            logger.error(f"Archive not found: {archive_path}")
+            return None
+        
+        logger.info(f"Extracting dataset from local archive: {archive_path}")
+        
+        with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+            # Find parquet files in the archive
+            parquet_files = [f for f in zip_ref.namelist() if f.endswith('.parquet')]
+            
+            if not parquet_files:
+                logger.error("No parquet files found in archive")
+                return None
+            
+            # Extract first parquet file
+            first_parquet = parquet_files[0]
+            logger.info(f"Extracting: {first_parquet}")
+            
+            with zip_ref.open(first_parquet) as f:
+                df = pd.read_parquet(f)
+            
+            # Save to output path
+            df.to_parquet(output_path, index=False)
+            logger.info(f"Dataset saved to {output_path}")
+            logger.info(f"Dataset shape: {df.shape}")
+            logger.info(f"Columns: {list(df.columns)}")
+            
+            return df
+    except Exception as e:
+        logger.error(f"Failed to extract dataset from archive: {e}")
+        return None
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Download Z-Reward evaluation dataset")
+    parser.add_argument(
+        '--output-dir',
+        type=str,
+        default='data/raw',
+        help='Output directory for downloaded dataset'
+    )
+    parser.add_argument(
+        '--primary-id',
+        type=str,
+        default='z-reward/z-reward-v1',
+        help='Primary Hugging Face dataset ID'
+    )
+    parser.add_argument(
+        '--secondary-id',
+        type=str,
+        default='z-reward/z-reward-v2',
+        help='Secondary Hugging Face dataset ID'
+    )
+    parser.add_argument(
+        '--local-archive',
+        type=str,
+        default=None,
+        help='Path to local zip archive (via Z_REWARD_ARCHIVE_PATH env var)'
+    )
     return parser.parse_args()
 
 def main():
-    logger = setup_logging()
     args = parse_args()
     
     # Ensure output directory exists
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    logger.info("Starting Z-Reward dataset download process...")
+    parquet_path = output_dir / 'z_reward.parquet'
+    validation_log_path = output_dir / 'validation_log.json'
     
-    # 1. Try Hugging Face
-    source_id, _ = download_dataset(logger)
+    validation_log = {
+        'primary_id': args.primary_id,
+        'secondary_id': args.secondary_id,
+        'local_archive': args.local_archive,
+        'attempts': [],
+        'success': False,
+        'error': None
+    }
     
-    if source_id:
-        logger.info(f"Dataset successfully downloaded from {source_id}")
-        # The file is already saved to data/raw/zreward_raw.parquet by download_dataset
-        # We need to ensure the path is correct relative to the project root
-        # The function above hardcodes the path. Let's adjust to use args.output_dir
-        # Actually, the function above saved to a hardcoded path. 
-        # Let's assume the file is there.
-        # We will write a metadata file
-        metadata = {
-            "source": source_id,
-            "file": "zreward_raw.parquet",
-            "downloaded_at": str(pd.Timestamp.now())
+    # Required columns and properties based on schema
+    required_columns = [
+        'prompt', 
+        'image_url', 
+        'teacher_scores', 
+        'student_scalar', 
+        'human_annotations', 
+        'primary_dimension'
+    ]
+    
+    required_properties = {
+        'teacher_scores': ['Alignment', 'Realism', 'Aesthetics', 'Plausibility'],
+        'human_annotations': ['Alignment', 'Realism', 'Aesthetics', 'Plausibility']
+    }
+    
+    # Try Primary Source
+    logger.info(f"=== Attempt 1: Primary Dataset ID ===")
+    df = download_dataset(args.primary_id, str(parquet_path))
+    attempt_result = {
+        'source': 'primary',
+        'id': args.primary_id,
+        'success': False,
+        'error': None
+    }
+    
+    if df is not None:
+        is_valid, missing = validate_columns(df, required_columns, required_properties)
+        attempt_result['valid'] = is_valid
+        if not is_valid:
+            attempt_result['missing'] = missing
+            attempt_result['error'] = f"Schema validation failed: {missing}"
+            # Remove file if invalid
+            if parquet_path.exists():
+                parquet_path.unlink()
+            df = None
+        else:
+            attempt_result['success'] = True
+            attempt_result['shape'] = list(df.shape)
+            attempt_result['columns'] = list(df.columns)
+            validation_log['success'] = True
+    
+    validation_log['attempts'].append(attempt_result)
+    
+    # Try Secondary Source if Primary failed
+    if not validation_log['success']:
+        logger.info(f"=== Attempt 2: Secondary Dataset ID ===")
+        df = download_dataset(args.secondary_id, str(parquet_path))
+        attempt_result = {
+            'source': 'secondary',
+            'id': args.secondary_id,
+            'success': False,
+            'error': None
         }
-        with open(output_dir / "metadata.json", "w") as f:
-            json.dump(metadata, f, indent=2)
-        return
-
-    # 2. Try Local Archive
-    try:
-        source_id, df = download_from_local_archive(logger)
+        
         if df is not None:
-            # Save to parquet
-            output_file = output_dir / "zreward_raw.parquet"
-            df.to_parquet(output_file)
-            
-            metadata = {
-                "source": source_id,
-                "file": "zreward_raw.parquet",
-                "downloaded_at": str(pd.Timestamp.now())
-            }
-            with open(output_dir / "metadata.json", "w") as f:
-                json.dump(metadata, f, indent=2)
-            logger.info(f"Dataset successfully loaded from local archive and saved to {output_file}")
-            return
-    except RuntimeError as e:
-        logger.error(f"Local archive failed: {e}")
-        # Fall through to final error
+            is_valid, missing = validate_columns(df, required_columns, required_properties)
+            attempt_result['valid'] = is_valid
+            if not is_valid:
+                attempt_result['missing'] = missing
+                attempt_result['error'] = f"Schema validation failed: {missing}"
+                if parquet_path.exists():
+                    parquet_path.unlink()
+                df = None
+            else:
+                attempt_result['success'] = True
+                attempt_result['shape'] = list(df.shape)
+                attempt_result['columns'] = list(df.columns)
+                validation_log['success'] = True
+        
+        validation_log['attempts'].append(attempt_result)
     
-    # 3. All sources failed
-    logger.critical("All data sources failed. The pipeline cannot proceed without real data.")
-    raise RuntimeError("Failed to download or load Z-Reward dataset from any source.")
+    # Try Local Archive if both HF sources failed
+    if not validation_log['success']:
+        local_path = args.local_archive or os.environ.get('Z_REWARD_ARCHIVE_PATH')
+        if local_path:
+            logger.info(f"=== Attempt 3: Local Archive ===")
+            df = download_from_local_archive(local_path, str(parquet_path))
+            attempt_result = {
+                'source': 'local_archive',
+                'path': local_path,
+                'success': False,
+                'error': None
+            }
+            
+            if df is not None:
+                is_valid, missing = validate_columns(df, required_columns, required_properties)
+                attempt_result['valid'] = is_valid
+                if not is_valid:
+                    attempt_result['missing'] = missing
+                    attempt_result['error'] = f"Schema validation failed: {missing}"
+                    if parquet_path.exists():
+                        parquet_path.unlink()
+                    df = None
+                else:
+                    attempt_result['success'] = True
+                    attempt_result['shape'] = list(df.shape)
+                    attempt_result['columns'] = list(df.columns)
+                    validation_log['success'] = True
+            
+            validation_log['attempts'].append(attempt_result)
+        else:
+            validation_log['attempts'].append({
+                'source': 'local_archive',
+                'path': None,
+                'success': False,
+                'error': 'No local archive path provided'
+            })
+    
+    # Final Check
+    if not validation_log['success']:
+        validation_log['error'] = "Real dataset not found. Pipeline cannot proceed without real data for reproducibility."
+        logger.error(validation_log['error'])
+        
+        # Save validation log
+        with open(validation_log_path, 'w') as f:
+            json.dump(validation_log, f, indent=2)
+        
+        raise RuntimeError(validation_log['error'])
+    
+    # Save checksum
+    checksum = calculate_sha256(str(parquet_path))
+    checksum_path = output_dir / 'z_reward_checksum.json'
+    save_checksum(checksum, str(checksum_path))
+    
+    # Final summary
+    validation_log['final_shape'] = list(df.shape) if df is not None else None
+    validation_log['final_columns'] = list(df.columns) if df is not None else None
+    validation_log['checksum'] = checksum
+    
+    # Save validation log
+    with open(validation_log_path, 'w') as f:
+        json.dump(validation_log, f, indent=2)
+    
+    logger.info("=== Validation Complete ===")
+    logger.info(f"Dataset successfully loaded and validated.")
+    logger.info(f"Output saved to: {parquet_path}")
+    logger.info(f"Validation log saved to: {validation_log_path}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
