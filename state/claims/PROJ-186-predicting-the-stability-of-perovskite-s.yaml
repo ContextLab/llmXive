@@ -1,0 +1,647 @@
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: tolerance factor for BaTiO3 is approx 1.06
+  claim_id: c_df1be583
+  context: Task T010 and T014 specify implementing tests and verification for the
+    Goldschmidt tolerance factor calculation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify tolerance_factor for BaTiO3 is approx 1.06.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:44:24Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: fetch up to 10,000 entries from Materials Project API
+  claim_id: c_e87e88aa
+  context: Task T013 instructs to fetch up to 10,000 entries from Materials Project
+    API and fallback to OQMD if valid count is low.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch up to 10,000 entries from Materials Project API.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:44:45Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: trigger OQMD fetch if valid entry count is less than 5,000
+  claim_id: c_684fe83d
+  context: Task T013 specifies a fallback mechanism to OQMD if the Materials Project
+    fetch yields fewer than 5,000 valid entries.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_OQMD_fetch_if_valid_entry_count_is_less_than_5,000
+  kind: magnitude
+  raw_text: Trigger OQMD fetch if valid entry count is less than 5,000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:45:06Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: proceed if total count is less than 5,000
+  claim_id: c_8b22e53c
+  context: Task T013 states that if the combined total count is less than 5,000, a
+    warning should be logged and the process should continue.
+  evidence:
+    entailment_evidence: Proceed if total count is less than 5,000
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Proceed_if_total_count_is_less_than_5,000
+  kind: magnitude
+  raw_text: Proceed if total count is less than 5,000.
+  resolved_value: proceed if total count is less than 5,000
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T19:45:08Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: perform a stratified 80/20 split by target variable
+  claim_id: c_7985901c
+  context: Task T021 requires splitting the dataset into training and test sets using
+    a stratified 80/20 ratio.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a stratified 80/20 split by target variable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:45:27Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: run GridSearchCV with cv=5
+  claim_id: c_a6ec7a2d
+  context: Task T021 specifies using 5-fold cross-validation for the grid search hyperparameter
+    tuning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run GridSearchCV with cv=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:45:45Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: test set RMSE exceeds 0.20 eV/atom flags model as low confidence
+  claim_id: c_afca475d
+  context: Task T023 defines a validation check where an RMSE greater than 0.20 eV/atom
+    results in a low confidence flag.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test set RMSE exceeds 0.20 eV/atom flags the model as low confidence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:46:05Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: element sets A={K, Rb, Cs, Ba, Sr}, B={Ti, Zr, Hf, Sn, Ge}, X={F, Cl,
+    Br, I}
+  claim_id: c_7d846094
+  context: Phase 5 and Task T026 mandate the use of these specific element sets to
+    generate the combinatorial library.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/element_sets_A=%7BK,_Rb,_Cs,_Ba,_Sr%7D,_B=%7BTi,_Zr,_Hf,_Sn,_Ge%7D,_
+  kind: entity_fact
+  raw_text: Element sets A={K, Rb, Cs, Ba, Sr}, B={Ti, Zr, Hf, Sn, Ge}, X={F, Cl,
+    Br, I} are used.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:48:07Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: ensure >= 200 feasible candidates are generated
+  claim_id: c_f9712439
+  context: The Note on Element Sets and Task T031 state that the element set expansion
+    is mandated to ensure at least 200 feasible candidates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure >= 200 feasible candidates are generated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:48:26Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: filter for geometric feasibility with 0.8 <= t <= 1.1
+  claim_id: c_b3e00d74
+  context: Task T027 specifies the geometric feasibility filter range for the tolerance
+    factor (t).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Filter for geometric feasibility with 0.8 \u2264 t \u2264 1.1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:49:07Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: flag candidates with predicted energy below -0.1 eV/atom
+  claim_id: c_77bdf6a3
+  context: Task T030 defines the threshold for flagging stable candidates as those
+    with predicted energy less than -0.1 eV/atom.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag candidates with predicted energy below -0.1 eV/atom.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:49:33Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: verify the list contains at least 200 feasible candidates
+  claim_id: c_2ad9a9d1
+  context: Task T031 requires validation that the full ranked list contains a minimum
+    of 200 feasible candidates.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_the_list_contains_at_least_200_feasible_candidates
+  kind: magnitude
+  raw_text: Verify the list contains at least 200 feasible candidates.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:49:58Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: verify total pipeline runtime <= 6 hours
+  claim_id: c_f979f1e1
+  context: Task T036 sets a constraint to verify the total pipeline execution time
+    does not exceed 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify total pipeline runtime \u2264 6 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:49:58Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: verify memory usage <= 7 GB
+  claim_id: c_046dd0ba
+  context: Task T037 sets a constraint to verify the maximum memory usage (RSS) does
+    not exceed 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify memory usage \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:49:58Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: ensure results/metrics.json contains key dft_functional with value PBE
+  claim_id: c_d3b44467
+  context: Task T021 and T039 require the model metadata to explicitly state the DFT
+    functional used is PBE.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1813: PBE'
+      source_id: Q113230241
+      url: https://www.wikidata.org/wiki/Q113230241
+      value: PBE
+    filled: true
+  kind: entity_fact
+  raw_text: Ensure results/metrics.json contains key dft_functional with value PBE.
+  resolved_value: PBE
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T19:50:05Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: tolerance factor for BaTiO3 is approx 1.06
+  claim_id: c_418ab405
+  context: Task T010 specifies a unit test to assert the tolerance factor for BaTiO3
+    is approximately 1.06.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify tolerance_factor for BaTiO3 is approx 1.06.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:50:05Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: tolerance factor for BaTiO3 is 1.06
+  claim_id: c_ea655c31
+  context: 'Implement code/data/descriptors.py to calculate Goldschmidt tolerance
+    factor ($t$) and octahedral factor ($\mu$) using pymatgen. Deliverable: Append
+    columns tolerance_factor and octahedral_factor to the dataframe. Verification:
+    Verify tolerance_factor for BaTiO3 is approx 1.06.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify tolerance_factor for BaTiO3 is approx 1.06.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:51:45Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: fetch up to 10000 entries from Materials Project API
+  claim_id: c_c97f9ccd
+  context: 'Implement code/data/download.py to fetch up to 10,000 entries: (1) Fetch
+    from Materials Project API using code/utils/api_client.py; (2) If valid entry
+    count < 5,000, trigger OQMD fetch; (3) Merge datasets; (4) Filter strictly for
+    Space Group (Cubic) or (Rhombohedral); (5) If total count < 5,000, log a warning
+    and proceed with available data (do NOT raise a fatal error).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fetch up to 10,000 entries from Materials Project API.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:51:45Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: trigger OQMD fetch if Materials Project entries are less than 5000
+  claim_id: c_bff3dbbe
+  context: 'Implement code/data/download.py to fetch up to 10,000 entries: (1) Fetch
+    from Materials Project API using code/utils/api_client.py; (2) If valid entry
+    count < 5,000, trigger OQMD fetch; (3) Merge datasets; (4) Filter strictly for
+    Space Group (Cubic) or (Rhombohedral); (5) If total count < 5,000, log a warning
+    and proceed with available data (do NOT raise a fatal error).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_OQMD_fetch_if_Materials_Project_entries_are_less_tha
+  kind: magnitude
+  raw_text: Trigger OQMD fetch if valid entry count from Materials Project is less
+    than 5,000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:52:15Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: proceed with available data if total entries are less than 5000
+  claim_id: c_19300312
+  context: 'Implement code/data/download.py to fetch up to 10,000 entries: (1) Fetch
+    from Materials Project API using code/utils/api_client.py; (2) If valid entry
+    count < 5,000, trigger OQMD fetch; (3) Merge datasets; (4) Filter strictly for
+    Space Group (Cubic) or (Rhombohedral); (5) If total count < 5,000, log a warning
+    and proceed with available data (do NOT raise a fatal error).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_with_available_data_if_total_entries_are_less_than_5
+  kind: magnitude
+  raw_text: Proceed with available data if total entry count is less than 5,000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:52:54Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: stratified 80/20 split for train and test sets
+  claim_id: c_b3492955
+  context: 'Implement code/models/train.py as a single cohesive module: (1) Load data/processed/features.csv
+    (output of T017); (2) Perform a stratified 80/20 split by target variable with
+    random_state=42, allocating [deferred] to train_set and [deferred] to test_set;
+    (3) Run GridSearchCV with cv=5 on train_set only for max_depth {10, 15, 20} and
+    min_samples_leaf {1, 2, 4}; (4) Select best params; (5) Re-train on full train_set;
+    (6) Evaluate on test_set; (7) Log test RMSE; (8) Perform permutation importance
+    analysis (SC-002); (9) Save results/model.pkl, results/metrics.json (including
+    dft_functional: PBE, test_rmse, best_params), and results/feature-importance.png.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Allocate 80% of data to train_set and 20% to test_set using stratified
+    split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:52:55Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: random_state 42 for stratified split
+  claim_id: c_0026f34c
+  context: 'Implement code/models/train.py as a single cohesive module: (1) Load data/processed/features.csv
+    (output of T017); (2) Perform a stratified 80/20 split by target variable with
+    random_state=42, allocating [deferred] to train_set and [deferred] to test_set;
+    (3) Run GridSearchCV with cv=5 on train_set only for max_depth {10, 15, 20} and
+    min_samples_leaf {1, 2, 4}; (4) Select best params; (5) Re-train on full train_set;
+    (6) Evaluate on test_set; (7) Log test RMSE; (8) Perform permutation importance
+    analysis (SC-002); (9) Save results/model.pkl, results/metrics.json (including
+    dft_functional: PBE, test_rmse, best_params), and results/feature-importance.png.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random_state=42 for the stratified train/test split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:53:17Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: GridSearchCV with 5-fold cross-validation
+  claim_id: c_8b90afb6
+  context: 'Implement code/models/train.py as a single cohesive module: (1) Load data/processed/features.csv
+    (output of T017); (2) Perform a stratified 80/20 split by target variable with
+    random_state=42, allocating [deferred] to train_set and [deferred] to test_set;
+    (3) Run GridSearchCV with cv=5 on train_set only for max_depth {10, 15, 20} and
+    min_samples_leaf {1, 2, 4}; (4) Select best params; (5) Re-train on full train_set;
+    (6) Evaluate on test_set; (7) Log test RMSE; (8) Perform permutation importance
+    analysis (SC-002); (9) Save results/model.pkl, results/metrics.json (including
+    dft_functional: PBE, test_rmse, best_params), and results/feature-importance.png.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run GridSearchCV with 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:53:34Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: test max_depth values 10, 15, 20
+  claim_id: c_fee9a904
+  context: 'Implement code/models/train.py as a single cohesive module: (1) Load data/processed/features.csv
+    (output of T017); (2) Perform a stratified 80/20 split by target variable with
+    random_state=42, allocating [deferred] to train_set and [deferred] to test_set;
+    (3) Run GridSearchCV with cv=5 on train_set only for max_depth {10, 15, 20} and
+    min_samples_leaf {1, 2, 4}; (4) Select best params; (5) Re-train on full train_set;
+    (6) Evaluate on test_set; (7) Log test RMSE; (8) Perform permutation importance
+    analysis (SC-002); (9) Save results/model.pkl, results/metrics.json (including
+    dft_functional: PBE, test_rmse, best_params), and results/feature-importance.png.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test model hyperparameters max_depth values of 10, 15, and 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:53:54Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: test min_samples_leaf values 1, 2, 4
+  claim_id: c_b02cc09a
+  context: 'Implement code/models/train.py as a single cohesive module: (1) Load data/processed/features.csv
+    (output of T017); (2) Perform a stratified 80/20 split by target variable with
+    random_state=42, allocating [deferred] to train_set and [deferred] to test_set;
+    (3) Run GridSearchCV with cv=5 on train_set only for max_depth {10, 15, 20} and
+    min_samples_leaf {1, 2, 4}; (4) Select best params; (5) Re-train on full train_set;
+    (6) Evaluate on test_set; (7) Log test RMSE; (8) Perform permutation importance
+    analysis (SC-002); (9) Save results/model.pkl, results/metrics.json (including
+    dft_functional: PBE, test_rmse, best_params), and results/feature-importance.png.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test model hyperparameters min_samples_leaf values of 1, 2, and 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:54:12Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: flag model low confidence if RMSE exceeds 0.20 eV/atom
+  claim_id: c_46f94168
+  context: 'Add a validation check in code/models/train.py that flags the model as
+    ''low confidence'' if the test-set RMSE exceeds 0.20 eV/atom. Logic: if rmse >
+    0.20: log ''LOW CONFIDENCE: RMSE > 0.20 eV/atom''. Constraint: Do NOT halt execution;
+    instead, set a flag to prevent automatic candidate flagging in downstream tasks.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag model as low confidence if test-set RMSE exceeds 0.20 eV/atom.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:54:29Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: A-site set K Rb Cs Ba Sr
+  claim_id: c_b01239bb
+  context: This phase uses A-site set {K, Rb, Cs, Ba, Sr}, B-site set {Ti, Zr, Hf,
+    Sn, Ge}, and X-site set {F, Cl, Br, I}. This expansion is mandated by Plan.md
+    (Technical Context and Phase 3) to ensure >= 200 feasible candidates are generated,
+    superseding the smaller set in Spec FR-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/A-site_set_K_Rb_Cs_Ba_Sr
+  kind: entity_fact
+  raw_text: Use A-site set {K, Rb, Cs, Ba, Sr} for combinatorial library generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:56:05Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: B-site set Ti Zr Hf Sn Ge
+  claim_id: c_962c24ed
+  context: This phase uses A-site set {K, Rb, Cs, Ba, Sr}, B-site set {Ti, Zr, Hf,
+    Sn, Ge}, and X-site set {F, Cl, Br, I}. This expansion is mandated by Plan.md
+    (Technical Context and Phase 3) to ensure >= 200 feasible candidates are generated,
+    superseding the smaller set in Spec FR-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/B-site_set_Ti_Zr_Hf_Sn_Ge
+  kind: entity_fact
+  raw_text: Use B-site set {Ti, Zr, Hf, Sn, Ge} for combinatorial library generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:58:09Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: X-site set F Cl Br I
+  claim_id: c_4c84c78a
+  context: This phase uses A-site set {K, Rb, Cs, Ba, Sr}, B-site set {Ti, Zr, Hf,
+    Sn, Ge}, and X-site set {F, Cl, Br, I}. This expansion is mandated by Plan.md
+    (Technical Context and Phase 3) to ensure >= 200 feasible candidates are generated,
+    superseding the smaller set in Spec FR-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/X-site_set_F_Cl_Br_I
+  kind: entity_fact
+  raw_text: Use X-site set {F, Cl, Br, I} for combinatorial library generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:59:00Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: geometric feasibility filter 0.8 to 1.1
+  claim_id: c_8d52a872
+  context: "Implement geometric feasibility filter in code/models/predict.py (0.8\
+    \ \u2264 $t$ \u2264 1.1). Input: data/processed/hypothetical_library.csv. Output:\
+    \ data/processed/filtered_hypothetical_library.csv."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter for geometric feasibility using tolerance factor range 0.8 to 1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:59:23Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: flag candidates with predicted energy below -0.1 eV/atom
+  claim_id: c_330814b7
+  context: 'Implement threshold flagging for candidates with predicted energy below
+    -0.1 eV/atom. Logic: Flag candidates with predicted_energy < -0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag candidates with predicted energy below -0.1 eV/atom.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:59:23Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: ranked list contains at least 200 feasible candidates
+  claim_id: c_db6945bc
+  context: 'Save full ranked list to results/screening_full.csv. Validation: Ensure
+    the list contains at least 200 feasible candidates (Artifact: results/screening_full.csv).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ranked_list_contains_at_least_200_feasible_candidates
+  kind: magnitude
+  raw_text: Ensure the ranked list contains at least 200 feasible candidates.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T19:59:53Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: pipeline runtime less than 6 hours
+  claim_id: c_0b60f0dc
+  context: "Verify total pipeline runtime \u2264 6 hours: Parse results/runtime_log.txt\
+    \ (produced by T034) and assert duration < 6h."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify total pipeline runtime is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T20:00:13Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: memory usage less than 7 GB
+  claim_id: c_244647eb
+  context: "Verify memory usage \u2264 7 GB: Parse results/memory_profile.txt (produced\
+    \ by T035) and assert max RSS < 7GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: Verify memory usage is less than 7 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T20:00:31Z'
+- artifact_path: projects/PROJ-186-predicting-the-stability-of-perovskite-s/specs/001-predicting-the-stability-of-perovskite-s/tasks.md
+  attempts: 1
+  canonical: DFT functional PBE
+  claim_id: c_b58bc5fa
+  context: 'Verify DFT functional (PBE) is explicitly stated in model metadata: Ensure
+    results/metrics.json contains key dft_functional with value PBE.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFT_functional_PBE
+  kind: entity_fact
+  raw_text: Use PBE as the DFT functional in model metadata.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T20:00:49Z'

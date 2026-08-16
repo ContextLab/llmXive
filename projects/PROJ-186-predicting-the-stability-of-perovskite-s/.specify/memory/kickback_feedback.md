@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T024` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/hypothetical_library.csv
+- `T017` (rejected 1x): The repository contains `code/data/preprocess.py` implementing the cleaning logic, but the required output file `data/processed/features.csv` does not exist. Without this CSV artifact, the task’s primary deliverable is missing.
 
 ## Required change
 

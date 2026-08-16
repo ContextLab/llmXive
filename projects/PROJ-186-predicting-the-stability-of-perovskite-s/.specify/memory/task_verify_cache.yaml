@@ -12,21 +12,12 @@ T016:
   r: The repository contains a `code/data/preprocess.py` script, but the required
     output file `data/processed/features.csv` is absent, so the primary artifact the
     task demands does not exist. The task is therefore not fully satisfied.
-T017:
-  c: false
-  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
-  r: "The required artifact `data/processed/features.csv` does not exist, so there\
-    \ is no way to verify that the `decomposition_energy` column contains zero nulls.\
-    \ The implementer must provide the CSV file (non\u2011empty) and confirm the null\u2011\
-    value check."
 T018:
   c: false
-  h: 4899eedd24961e47ef8d6e41e659cb1a38262077da7f8caa46ab91accbbfc8c2
-  r: "The repository contains `code/data/preprocess.py`, but the script never writes\
-    \ a processed `features.csv` file (it only loads from a non\u2011existent path\
-    \ and defines split functions). Moreover, the required `data/processed/features.csv`\
-    \ is missing from the project. The task\u2019s core deliverable\u2014saving a\
-    \ cleaned features CSV\u2014is not present."
+  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
+  r: "The required artifact `data/processed/features.csv` does not exist, so the assertion\
+    \ cannot be run and the null\u2011check cannot be verified. The task therefore\
+    \ remains unfinished."
 T019:
   c: false
   h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09

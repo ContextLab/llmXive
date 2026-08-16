@@ -3,298 +3,346 @@ import logging
 from typing import Dict, Tuple, Optional, List, Any
 import pandas as pd
 import re
-
 from utils.logging_config import get_logger, log_exclusion_reason, log_pipeline_event
-from utils.config import ELEMENT_RADII, ELECTRONEGATIVITIES
+
+# Constants for oxidation states and ionic radii
+# Using standard oxidation states for perovskite A and B sites
+COMMON_OXIDATION_STATES = {
+    'A': {
+        'K': [1], 'Rb': [1], 'Cs': [1], 'Ba': [2], 'Sr': [2], 'Ca': [2], 'Na': [1], 'Li': [1]
+    },
+    'B': {
+        'Ti': [4], 'Zr': [4], 'Hf': [4], 'Sn': [4], 'Ge': [4], 'Nb': [5], 'Ta': [5],
+        'V': [5], 'Mn': [4], 'Fe': [3], 'Co': [3], 'Ni': [3], 'Cu': [3], 'Cr': [3],
+        'Al': [3], 'Ga': [3], 'In': [3], 'Sc': [3], 'Y': [3], 'La': [3], 'Ce': [3],
+        'Pr': [3], 'Nd': [3], 'Sm': [3], 'Eu': [3], 'Gd': [3], 'Tb': [3], 'Dy': [3],
+        'Ho': [3], 'Er': [3], 'Tm': [3], 'Yb': [3], 'Lu': [3]
+    },
+    'X': {
+        'F': [-1], 'Cl': [-1], 'Br': [-1], 'I': [-1], 'O': [-2], 'S': [-2]
+    }
+}
+
+# Ionic radii in Angstroms (Shannon radii for coordination number 12 for A, 6 for B, 6 for X)
+# Source: Shannon, R. D. (1976). Revised effective ionic radii and systematic studies of interatomic distances in halides and chalcogenides. Acta Crystallographica Section A: Crystal Physics, Diffraction, Theoretical and General Crystallography, 32(5), 751-767.
+IONIC_RADII = {
+    # A-site (CN=12)
+    'K': 1.64, 'Rb': 1.72, 'Cs': 1.88, 'Ba': 1.61, 'Sr': 1.44, 'Ca': 1.34, 'Na': 1.39, 'Li': 1.00,
+    # B-site (CN=6)
+    'Ti': 0.605, 'Zr': 0.72, 'Hf': 0.71, 'Sn': 0.69, 'Ge': 0.53, 'Nb': 0.64, 'Ta': 0.64,
+    'V': 0.54, 'Mn': 0.53, 'Fe': 0.645, 'Co': 0.61, 'Ni': 0.60, 'Cu': 0.73, 'Cr': 0.615,
+    'Al': 0.535, 'Ga': 0.62, 'In': 0.80, 'Sc': 0.745, 'Y': 0.90, 'La': 1.032, 'Ce': 1.01,
+    'Pr': 0.99, 'Nd': 0.983, 'Sm': 0.958, 'Eu': 0.947, 'Gd': 0.938, 'Tb': 0.923, 'Dy': 0.912,
+    'Ho': 0.901, 'Er': 0.89, 'Tm': 0.88, 'Yb': 0.868, 'Lu': 0.861,
+    # X-site (CN=6)
+    'F': 1.33, 'Cl': 1.81, 'Br': 1.96, 'I': 2.20, 'O': 1.40, 'S': 1.84
+}
+
+# Electronegativity (Pauling scale)
+ELECTRONEGATIVITY = {
+    'K': 0.82, 'Rb': 0.82, 'Cs': 0.79, 'Ba': 0.89, 'Sr': 0.95, 'Ca': 1.00, 'Na': 0.93, 'Li': 0.98,
+    'Ti': 1.54, 'Zr': 1.33, 'Hf': 1.30, 'Sn': 1.96, 'Ge': 2.01, 'Nb': 1.60, 'Ta': 1.50,
+    'V': 1.63, 'Mn': 1.55, 'Fe': 1.83, 'Co': 1.88, 'Ni': 1.91, 'Cu': 1.90, 'Cr': 1.66,
+    'Al': 1.61, 'Ga': 1.81, 'In': 1.78, 'Sc': 1.36, 'Y': 1.22, 'La': 1.10, 'Ce': 1.12,
+    'Pr': 1.13, 'Nd': 1.14, 'Sm': 1.17, 'Eu': 1.20, 'Gd': 1.20, 'Tb': 1.20, 'Dy': 1.22,
+    'Ho': 1.23, 'Er': 1.24, 'Tm': 1.25, 'Yb': 1.10, 'Lu': 1.27,
+    'F': 3.98, 'Cl': 3.16, 'Br': 2.96, 'I': 2.66, 'O': 3.44, 'S': 2.58
+}
 
 logger = get_logger(__name__)
 
-# Define standard oxidation states for common elements in perovskites
-# Key: Element symbol, Value: Set of common oxidation states
-COMMON_OXIDATION_STATES = {
-    'K': {1}, 'Rb': {1}, 'Cs': {1}, 'Ba': {2}, 'Sr': {2}, 'Ca': {2},
-    'Ti': {4}, 'Zr': {4}, 'Hf': {4}, 'Sn': {2, 4}, 'Ge': {2, 4},
-    'F': {-1}, 'Cl': {-1}, 'Br': {-1}, 'I': {-1}
-}
+def parse_formula(formula: str) -> Optional[Dict[str, int]]:
+    """
+    Parse a chemical formula string into a dictionary of elements and counts.
+    Handles simple formulas like 'ABX3' or 'BaTiO3'.
+    """
+    if not formula or not isinstance(formula, str):
+        return None
 
-def get_ionic_radius(element: str, oxidation_state: Optional[int] = None, coord_number: int = 6) -> Optional[float]:
-    """
-    Retrieve ionic radius for an element and oxidation state.
-    Falls back to common oxidation state if not provided but known.
-    
-    Args:
-        element: Element symbol (e.g., 'K', 'Ti')
-        oxidation_state: Expected oxidation state (e.g., +1, +4). If None, tries to infer.
-        coord_number: Coordination number (default 6 for octahedral B-site, 12 for A-site usually).
-                      This function assumes the radii in config are pre-mapped or uses a simple lookup.
-                      For this implementation, we assume ELEMENT_RADII is keyed by (Element, OxState, Coord)
-                      or (Element, OxState) if coord is standard.
-    
-    Returns:
-        Radius in Angstroms or None if not found.
-    """
-    # Normalize element
-    element = element.strip().capitalize()
-    
-    # Infer oxidation state if missing and we have a guess
-    if oxidation_state is None:
-        if element in COMMON_OXIDATION_STATES:
-            # If multiple, we can't be sure, return None to trigger exclusion
-            states = COMMON_OXIDATION_STATES[element]
-            if len(states) == 1:
-                oxidation_state = list(states)[0]
-            else:
-                logger.warning(f"Ambiguous oxidation state for {element}: {states}. Cannot determine radius.")
-                return None
+    # Remove whitespace and convert to uppercase
+    formula = formula.strip().upper()
+
+    # Simple regex to match element symbols and their counts
+    # Matches element (e.g., Ba, Ti, O) followed by optional number
+    pattern = r'([A-Z][a-z]?)(\d*)'
+    matches = re.findall(pattern, formula)
+
+    if not matches:
+        return None
+
+    result = {}
+    for element, count in matches:
+        count = int(count) if count else 1
+        if element in result:
+            result[element] += count
         else:
-            logger.warning(f"Unknown common oxidation state for {element}. Cannot determine radius.")
-            return None
+            result[element] = count
 
-    # Lookup in config
-    # Assume ELEMENT_RADII structure: { 'Element': { 'OxState': { 'Coord': radius } } }
-    # Or flat: { ('Element', 'OxState', 'Coord'): radius }
-    # Given the constraint to use existing API, we assume a structure that allows lookup.
-    # If ELEMENT_RADII is a flat dict of tuples:
-    if (element, oxidation_state, coord_number) in ELEMENT_RADII:
-        return ELEMENT_RADII[(element, oxidation_state, coord_number)]
-    
-    # Fallback: try without coord if standard (e.g. 6)
-    if (element, oxidation_state, 6) in ELEMENT_RADII:
-        return ELEMENT_RADII[(element, oxidation_state, 6)]
-        
-    # Try just element/ox if structure allows
-    if element in ELEMENT_RADII and oxidation_state in ELEMENT_RADII[element]:
-       # Handle nested structure
-       if coord_number in ELEMENT_RADII[element][oxidation_state]:
-           return ELEMENT_RADII[element][oxidation_state][coord_number]
-       elif 6 in ELEMENT_RADII[element][oxidation_state]:
-           return ELEMENT_RADII[element][oxidation_state][6]
+    return result
 
-    logger.debug(f"Radius not found for {element} (ox: {oxidation_state}, coord: {coord_number})")
+def get_ionic_radius(element: str, oxidation_state: Optional[int] = None) -> Optional[float]:
+    """
+    Get the ionic radius for an element.
+    Returns None if the element or oxidation state is not found.
+    """
+    if element not in IONIC_RADII:
+        return None
+    return IONIC_RADII[element]
+
+def get_element_electronegativity(element: str) -> Optional[float]:
+    """
+    Get the electronegativity for an element.
+    Returns None if the element is not found.
+    """
+    if element not in ELECTRONEGATIVITY:
+        return None
+    return ELECTRONEGATIVITY[element]
+
+def determine_oxidation_states(parsed_formula: Dict[str, int]) -> Optional[Dict[str, int]]:
+    """
+    Determine the oxidation states for elements in a perovskite ABX3 structure.
+    Returns None if oxidation states cannot be unambiguously determined.
+    """
+    if len(parsed_formula) != 3:
+        return None
+
+    # Identify A, B, and X sites based on stoichiometry
+    # ABX3: A has count 1, B has count 1, X has count 3
+    elements = list(parsed_formula.keys())
+    counts = list(parsed_formula.values())
+
+    # Find the element with count 3 (X site)
+    x_element = None
+    a_elements = []
+    b_elements = []
+
+    for elem, count in parsed_formula.items():
+        if count == 3:
+            x_element = elem
+        elif count == 1:
+            # Need to distinguish A and B
+            # A is typically alkali/alkaline earth, B is transition metal
+            if elem in COMMON_OXIDATION_STATES['A']:
+                a_elements.append(elem)
+            elif elem in COMMON_OXIDATION_STATES['B']:
+                b_elements.append(elem)
+            else:
+                # Check if it's in A or B lists
+                if elem in COMMON_OXIDATION_STATES.get('A', {}):
+                    a_elements.append(elem)
+                elif elem in COMMON_OXIDATION_STATES.get('B', {}):
+                    b_elements.append(elem)
+
+    if x_element is None or len(a_elements) != 1 or len(b_elements) != 1:
+        return None
+
+    a_element = a_elements[0]
+    b_element = b_elements[0]
+
+    # Determine oxidation states
+    # For perovskite: A is +1 or +2, B is +3, +4, or +5, X is -1 or -2
+    # Charge balance: A_ox + B_ox + 3*X_ox = 0
+
+    a_ox_options = COMMON_OXIDATION_STATES.get('A', {}).get(a_element, [])
+    b_ox_options = COMMON_OXIDATION_STATES.get('B', {}).get(b_element, [])
+    x_ox_options = COMMON_OXIDATION_STATES.get('X', {}).get(x_element, [])
+
+    if not a_ox_options or not b_ox_options or not x_ox_options:
+        return None
+
+    # Find valid combination
+    for a_ox in a_ox_options:
+        for b_ox in b_ox_options:
+            for x_ox in x_ox_options:
+                if a_ox + b_ox + 3 * x_ox == 0:
+                    return {a_element: a_ox, b_element: b_ox, x_element: x_ox}
+
     return None
 
 def calculate_tolerance_factor(r_a: float, r_b: float, r_x: float) -> float:
     """
-    Calculate Goldschmidt tolerance factor t = (r_A + r_X) / (sqrt(2) * (r_B + r_X))
+    Calculate the Goldschmidt tolerance factor (t).
+    t = (r_A + r_X) / (sqrt(2) * (r_B + r_X))
     """
     if r_b + r_x == 0:
-        return float('inf')
+        return float('nan')
     return (r_a + r_x) / (math.sqrt(2) * (r_b + r_x))
 
 def calculate_octahedral_factor(r_b: float, r_x: float) -> float:
     """
-    Calculate octahedral factor mu = r_B / (r_B + r_X)
+    Calculate the octahedral factor (μ).
+    μ = r_B / r_X
     """
-    if r_b + r_x == 0:
-        return 0.0
-    return r_b / (r_b + r_x)
+    if r_x == 0:
+        return float('nan')
+    return r_b / r_x
 
-def get_element_electronegativity(element: str) -> Optional[float]:
+def calculate_electronegativity_difference(parsed_formula: Dict[str, int], oxidation_states: Dict[str, int]) -> float:
     """
-    Get electronegativity from config.
+    Calculate the electronegativity difference between B and X sites.
     """
-    element = element.strip().capitalize()
-    return ELECTRONEGATIVITIES.get(element)
+    # Identify B and X elements
+    b_element = None
+    x_element = None
 
-def calculate_electronegativity_difference(en_a: float, en_b: float) -> float:
-    """
-    Calculate difference in electronegativity.
-    """
-    return abs(en_a - en_b)
+    for elem, count in parsed_formula.items():
+        if count == 1:
+            if elem in oxidation_states and oxidation_states[elem] > 0:
+                # Likely B site (higher oxidation state)
+                if elem not in ['K', 'Rb', 'Cs', 'Ba', 'Sr', 'Ca', 'Na', 'Li']:
+                    b_element = elem
+        elif count == 3:
+            x_element = elem
 
-def calculate_ionic_radius_mismatch(r_a: float, r_b: float) -> float:
+    if b_element is None or x_element is None:
+        return float('nan')
+
+    chi_b = get_element_electronegativity(b_element)
+    chi_x = get_element_electronegativity(x_element)
+
+    if chi_b is None or chi_x is None:
+        return float('nan')
+
+    return abs(chi_b - chi_x)
+
+def calculate_ionic_radius_mismatch(parsed_formula: Dict[str, int], oxidation_states: Dict[str, int]) -> float:
     """
-    Calculate ionic radius mismatch (simple difference or ratio based on context).
-    Using difference here as a proxy for strain.
+    Calculate the ionic radius mismatch between A and B sites.
     """
-    return abs(r_a - r_b)
+    # Identify A and B elements
+    a_element = None
+    b_element = None
 
-def _infer_oxidation_states(formula_str: str) -> Dict[str, Optional[int]]:
+    for elem, count in parsed_formula.items():
+        if count == 1:
+            if elem in oxidation_states:
+                ox = oxidation_states[elem]
+                if ox <= 2:
+                    a_element = elem
+                else:
+                    b_element = elem
+
+    if a_element is None or b_element is None:
+        return float('nan')
+
+    r_a = get_ionic_radius(a_element, oxidation_states.get(a_element))
+    r_b = get_ionic_radius(b_element, oxidation_states.get(b_element))
+
+    if r_a is None or r_b is None:
+        return float('nan')
+
+    # Simple mismatch metric: |r_A - r_B| / (r_A + r_B)
+    if r_a + r_b == 0:
+        return float('nan')
+
+    return abs(r_a - r_b) / (r_a + r_b)
+
+def calculate_all_descriptors(formula: str) -> Tuple[Optional[float], Optional[float], Optional[float], Optional[float], bool, str]:
     """
-    Attempt to infer oxidation states from a simple formula string like 'ABX3'.
-    Returns a dict mapping element -> inferred oxidation state, or None if ambiguous/unknown.
-    This is a simplified heuristic for the specific perovskite ABX3 case.
+    Calculate all descriptors for a given formula.
+    Returns: (tolerance_factor, octahedral_factor, ionic_radius_mismatch, electronegativity_diff, is_valid, exclusion_reason)
     """
-    # Very basic parser for ABX3 patterns
-    # In a real scenario, this might use pymatgen Composition
-    # We assume the input dataframe has 'formula' column in standard format
-    # and we need to split A, B, X.
-    # This is a placeholder logic to satisfy the "ambiguous" check requirement.
-    # If the formula is not standard ABX3 or elements are unknown, return None.
-    
-    # For this task, we assume the caller passes specific A, B, X columns or
-    # we parse the formula. Let's assume we are given elements A, B, X directly
-    # in the calling context or we parse.
-    # Since the function signature of calculate_all_descriptors takes a row with A, B, X elements,
-    # we rely on the caller to provide the elements.
-    # The "ambiguous" check here refers to the element's known oxidation states.
-    return {}
+    parsed = parse_formula(formula)
+    if parsed is None:
+        return None, None, None, None, False, "Failed to parse formula"
 
-def calculate_all_descriptors(row: pd.Series) -> Tuple[Optional[Dict[str, float]], List[str]]:
-    """
-    Calculate all descriptors for a single row.
-    Returns (descriptors_dict, exclusion_reasons).
-    If exclusion_reasons is not empty, descriptors should be considered invalid.
-    """
-    reasons = []
-    
-    # Extract elements (assuming columns 'A_element', 'B_element', 'X_element' exist)
-    # If columns are named differently, adjust here. Based on T012/T013, we expect formula breakdown.
-    # Let's assume the row has 'A', 'B', 'X' as element symbols.
-    # If the row has a 'formula' string, we must parse it.
-    # Given T012/T013 context, let's assume we have extracted A, B, X.
-    
-    # Fallback: Try to parse 'formula' if A, B, X columns missing
-    if 'A_element' in row.index:
-        el_a, el_b, el_x = row['A_element'], row['B_element'], row['X_element']
-    elif 'formula' in row.index:
-        # Simple regex for ABX3: e.g. "CsPbI3" -> A=Cs, B=Pb, X=I
-        # This is fragile. Assuming T012/T013 produced explicit columns.
-        # If not, we skip or error.
-        reasons.append("Missing explicit A, B, X element columns and formula parsing not implemented for this row.")
-        return None, reasons
-    else:
-        reasons.append("Could not identify A, B, X elements in row.")
-        return None, reasons
+    oxidation_states = determine_oxidation_states(parsed)
+    if oxidation_states is None:
+        return None, None, None, None, False, "Ambiguous oxidation states"
 
-    el_a = str(el_a).strip()
-    el_b = str(el_b).strip()
-    el_x = str(el_x).strip()
+    # Identify A, B, X elements
+    a_element = None
+    b_element = None
+    x_element = None
 
-    # 1. Check for ambiguous oxidation states
-    # We need to know the oxidation state to get the radius.
-    # If an element has multiple common states and we can't infer which one, it's ambiguous.
-    # We use the COMMON_OXIDATION_STATES map defined at top.
-    
-    def check_ambiguity(el: str, site: str) -> Optional[int]:
-        if el not in COMMON_OXIDATION_STATES:
-            reasons.append(f"Ambiguous/Unknown oxidation state for {el} at {site} site.")
-            return None
-        states = COMMON_OXIDATION_STATES[el]
-        if len(states) > 1:
-            reasons.append(f"Ambiguous oxidation state for {el} at {site} site: {states}. Cannot determine unique radius.")
-            return None
-        return list(states)[0]
+    for elem, count in parsed.items():
+        if count == 3:
+            x_element = elem
+        elif count == 1:
+            ox = oxidation_states[elem]
+            if ox <= 2:
+                a_element = elem
+            else:
+                b_element = elem
 
-    ox_a = check_ambiguity(el_a, 'A')
-    ox_b = check_ambiguity(el_b, 'B')
-    ox_x = check_ambiguity(el_x, 'X')
+    if a_element is None or b_element is None or x_element is None:
+        return None, None, None, None, False, "Could not identify A, B, X sites"
 
-    if not all([ox_a, ox_b, ox_x]):
-        return None, reasons
-
-    # 2. Get Ionic Radii
-    # Coordination: A=12, B=6, X=6 (usually)
-    r_a = get_ionic_radius(el_a, ox_a, coord_number=12)
-    r_b = get_ionic_radius(el_b, ox_b, coord_number=6)
-    r_x = get_ionic_radius(el_x, ox_x, coord_number=6)
+    # Get ionic radii
+    r_a = get_ionic_radius(a_element, oxidation_states.get(a_element))
+    r_b = get_ionic_radius(b_element, oxidation_states.get(b_element))
+    r_x = get_ionic_radius(x_element, oxidation_states.get(x_element))
 
     if r_a is None:
-        reasons.append(f"Missing ionic radius for A-site {el_a} ({ox_a}+).")
+        return None, None, None, None, False, f"Missing ionic radius for A-site element: {a_element}"
     if r_b is None:
-        reasons.append(f"Missing ionic radius for B-site {el_b} ({ox_b}+).")
+        return None, None, None, None, False, f"Missing ionic radius for B-site element: {b_element}"
     if r_x is None:
-        reasons.append(f"Missing ionic radius for X-site {el_x} ({ox_x}-).")
+        return None, None, None, None, False, f"Missing ionic radius for X-site element: {x_element}"
 
-    if any([r_a is None, r_b is None, r_x is None]):
-        return None, reasons
-
-    # 3. Get Electronegativity
-    en_a = get_element_electronegativity(el_a)
-    en_b = get_element_electronegativity(el_b)
-    en_x = get_element_electronegativity(el_x)
-
-    if en_a is None:
-        reasons.append(f"Missing electronegativity for {el_a}.")
-    if en_b is None:
-        reasons.append(f"Missing electronegativity for {el_b}.")
-    if en_x is None:
-        reasons.append(f"Missing electronegativity for {el_x}.")
-
-    if any([en_a is None, en_b is None, en_x is None]):
-        return None, reasons
-
-    # 4. Calculate Descriptors
+    # Calculate descriptors
     t = calculate_tolerance_factor(r_a, r_b, r_x)
     mu = calculate_octahedral_factor(r_b, r_x)
-    delta_en = calculate_electronegativity_difference(en_a, en_b) # Or A-X, B-X? Spec says "differences"
-    # Let's calculate A-X and B-X differences as well if needed, but spec says "electronegativity differences"
-    # We'll store one or a tuple. Let's store A-B and B-X.
-    delta_en_ab = abs(en_a - en_b)
-    delta_en_bx = abs(en_b - en_x)
-    
-    radius_mismatch = calculate_ionic_radius_mismatch(r_a, r_b)
+    mismatch = calculate_ionic_radius_mismatch(parsed, oxidation_states)
+    chi_diff = calculate_electronegativity_difference(parsed, oxidation_states)
 
-    descriptors = {
-        'tolerance_factor': t,
-        'octahedral_factor': mu,
-        'electronegativity_diff_AB': delta_en_ab,
-        'electronegativity_diff_BX': delta_en_bx,
-        'ionic_radius_mismatch': radius_mismatch,
-        'radius_A': r_a,
-        'radius_B': r_b,
-        'radius_X': r_x
-    }
+    return t, mu, mismatch, chi_diff, True, ""
 
-    return descriptors, []
-
-def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+def process_dataframe(df: pd.DataFrame, formula_col: str = 'formula') -> pd.DataFrame:
     """
-    Process the dataframe: calculate descriptors, filter out rows with missing data,
-    and log exclusion reasons.
-    
-    Returns:
-        DataFrame with new descriptor columns, filtered.
+    Process a dataframe to calculate descriptors for each formula.
+    Logs exclusion reasons for invalid formulas.
     """
-    logger.info(f"Starting descriptor calculation for {len(df)} rows.")
-    
     results = []
     excluded_count = 0
-    
-    # Prepare lists to collect data
-    valid_indices = []
-    valid_descriptors = []
-    exclusion_log_entries = []
 
     for idx, row in df.iterrows():
-        desc, reasons = calculate_all_descriptors(row)
-        
-        if desc:
-            valid_indices.append(idx)
-            valid_descriptors.append(desc)
+        formula = row[formula_col]
+        t, mu, mismatch, chi_diff, is_valid, reason = calculate_all_descriptors(formula)
+
+        if is_valid:
+            results.append({
+                'tolerance_factor': t,
+                'octahedral_factor': mu,
+                'ionic_radius_mismatch': mismatch,
+                'electronegativity_diff': chi_diff,
+                'excluded': False,
+                'exclusion_reason': ''
+            })
         else:
             excluded_count += 1
-            # Log each reason for this row
-            reason_str = "; ".join(reasons)
-            exclusion_log_entries.append({
-                'index': idx,
-                'formula': row.get('formula', 'Unknown'),
-                'reasons': reason_str
+            log_exclusion_reason(reason, formula)
+            results.append({
+                'tolerance_factor': None,
+                'octahedral_factor': None,
+                'ionic_radius_mismatch': None,
+                'electronegativity_diff': None,
+                'excluded': True,
+                'exclusion_reason': reason
             })
-            # Log to pipeline log
-            for reason in reasons:
-                log_exclusion_reason(f"Row {idx} ({row.get('formula', 'Unknown')}): {reason}")
 
-    # Log summary
-    log_pipeline_event(f"Descriptor Calculation: {len(valid_indices)} valid, {excluded_count} excluded.")
-    
-    if excluded_count > 0:
-        logger.warning(f"Excluded {excluded_count} rows due to missing radii or ambiguous oxidation states.")
-    
-    # Create new dataframe with descriptors
-    if not valid_descriptors:
-        logger.error("No valid rows found after descriptor calculation. Returning empty dataframe.")
-        return pd.DataFrame()
+    results_df = pd.DataFrame(results)
+    df_descriptors = pd.concat([df.reset_index(drop=True), results_df], axis=1)
 
-    df_valid = df.loc[valid_indices].copy()
-    df_desc = pd.DataFrame(valid_descriptors, index=valid_indices)
-    
-    # Merge
-    df_result = pd.concat([df_valid, df_desc], axis=1)
-    
-    logger.info(f"Descriptor calculation complete. Final shape: {df_result.shape}")
-    return df_result
+    logger.info(f"Processed {len(df)} formulas. Excluded: {excluded_count}, Valid: {len(df) - excluded_count}")
 
-# Re-exporting for compatibility if needed, though the file is the module
-# The API surface requires these names to be available at module level.
-# They are defined above.
+    return df_descriptors
+
+# Wrapper functions for compatibility with existing code
+def get_ionic_radius_wrapper(element: str, oxidation_state: Optional[int] = None) -> Optional[float]:
+    return get_ionic_radius(element, oxidation_state)
+
+def get_element_electronegativity_wrapper(element: str) -> Optional[float]:
+    return get_element_electronegativity(element)
+
+def calculate_tolerance_factor_wrapper(r_a: float, r_b: float, r_x: float) -> float:
+    return calculate_tolerance_factor(r_a, r_b, r_x)
+
+def calculate_octahedral_factor_wrapper(r_b: float, r_x: float) -> float:
+    return calculate_octahedral_factor(r_b, r_x)
+
+def calculate_electronegativity_difference_wrapper(parsed_formula: Dict[str, int], oxidation_states: Dict[str, int]) -> float:
+    return calculate_electronegativity_difference(parsed_formula, oxidation_states)
+
+def calculate_ionic_radius_mismatch_wrapper(parsed_formula: Dict[str, int], oxidation_states: Dict[str, int]) -> float:
+    return calculate_ionic_radius_mismatch(parsed_formula, oxidation_states)
