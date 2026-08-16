@@ -1,143 +1,222 @@
 """
-Unit tests for the quickstart_validation module.
+Unit tests for quickstart validation logic.
 """
-
-import pytest
-import os
 import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Import the module functions to test
-# We need to adjust the import path based on how tests are run
-# Assuming tests are run from project root or with proper PYTHONPATH
-try:
-    from code.quickstart_validation import run_step, verify_artifacts, validate_metrics_content
-except ImportError:
-    # Fallback for different execution contexts
-    from quickstart_validation import run_step, verify_artifacts, validate_metrics_content
+import pytest
 
+# Add project root to path
+import sys
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-class TestRunStep:
-    def test_run_step_success(self):
-        """Test run_step with a command that succeeds."""
-        # Use a simple command that should always succeed
-        with patch('subprocess.run') as mock_run:
-            mock_run.return_value = MagicMock(returncode=0, stdout="success", stderr="")
-            result = run_step("Test Step", ["echo", "hello"])
-            assert result is True
-            mock_run.assert_called_once()
-
-    def test_run_step_failure(self):
-        """Test run_step with a command that fails."""
-        with patch('subprocess.run') as mock_run:
-            mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="error")
-            result = run_step("Test Step", ["false"])
-            assert result is False
-
-    def test_run_step_file_not_found(self):
-        """Test run_step when command is not found."""
-        with patch('subprocess.run') as mock_run:
-            mock_run.side_effect = FileNotFoundError("Command not found")
-            result = run_step("Test Step", ["nonexistent_command"])
-            assert result is False
+from code.quickstart_validation import (
+    verify_artifacts,
+    validate_metrics_content,
+    run_step
+)
 
 
 class TestVerifyArtifacts:
-    def test_all_artifacts_present(self, tmp_path):
-        """Test verify_artifacts when all files exist."""
-        # Create dummy files
-        (tmp_path / "file1.txt").touch()
-        (tmp_path / "file2.txt").touch()
+    """Tests for verify_artifacts function."""
 
-        artifacts = {
-            "File 1": "file1.txt",
-            "File 2": "file2.txt"
-        }
+    def test_all_artifacts_exist(self, tmp_path):
+        """Test when all artifacts exist and are non-empty."""
+        # Create test artifacts
+        for artifact in ['artifact1.csv', 'artifact2.json']:
+            full_path = tmp_path / artifact
+            full_path.parent.mkdir(parents=True, exist_ok=True)
+            full_path.write_text("test content")
 
-        result = verify_artifacts(artifacts, tmp_path)
-        assert result is True
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            all_exist, missing = verify_artifacts(['artifact1.csv', 'artifact2.json'])
 
-    def test_missing_artifact(self, tmp_path):
-        """Test verify_artifacts when a file is missing."""
-        (tmp_path / "file1.txt").touch()
+        assert all_exist is True
+        assert len(missing) == 0
 
-        artifacts = {
-            "File 1": "file1.txt",
-            "File 2": "missing.txt"
-        }
+    def test_missing_artifacts(self, tmp_path):
+        """Test when some artifacts are missing."""
+        # Create only one artifact
+        full_path = tmp_path / 'artifact1.csv'
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        full_path.write_text("test content")
 
-        result = verify_artifacts(artifacts, tmp_path)
-        assert result is False
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            all_exist, missing = verify_artifacts(['artifact1.csv', 'artifact2.json'])
 
-    def test_empty_artifact(self, tmp_path):
-        """Test verify_artifacts when a file exists but is empty."""
-        # Create an empty file
-        (tmp_path / "file1.txt").touch()
-        # Create a non-empty file
-        (tmp_path / "file2.txt").write_text("content")
+        assert all_exist is False
+        assert 'artifact2.json' in missing
+        assert len(missing) == 1
 
-        artifacts = {
-            "File 1": "file1.txt",
-            "File 2": "file2.txt"
-        }
+    def test_empty_artifacts(self, tmp_path):
+        """Test when artifacts exist but are empty."""
+        # Create empty artifact
+        full_path = tmp_path / 'empty.csv'
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        full_path.write_text("")
 
-        # The function logs a warning but returns False for empty files
-        result = verify_artifacts(artifacts, tmp_path)
-        assert result is False
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            all_exist, missing = verify_artifacts(['empty.csv'])
+
+        assert all_exist is False
+        assert 'empty.csv' in missing
 
 
 class TestValidateMetricsContent:
-    def test_valid_metrics(self, tmp_path):
-        """Test validate_metrics_content with valid data."""
-        metrics_file = tmp_path / "model_metrics.json"
-        valid_data = {
-            "rf_r2": 0.85,
-            "gb_r2": 0.88,
-            "rf_mae": 0.1,
-            "gb_mae": 0.09,
-            "rf_rmse": 0.15,
-            "gb_rmse": 0.14
-        }
-        metrics_file.write_text(json.dumps(valid_data))
+    """Tests for validate_metrics_content function."""
 
-        result = validate_metrics_content(metrics_file)
+    def test_valid_metrics(self, tmp_path):
+        """Test with valid metrics content."""
+        metrics = {
+            'rf_r2': 0.75,
+            'rf_mae': 0.5,
+            'rf_rmse': 0.8,
+            'gb_r2': 0.78,
+            'gb_mae': 0.45,
+            'gb_rmse': 0.75,
+            'overfitting_ratio': 0.02,
+            'predictive_power': True,
+            'final_r2_source': 'holdout'
+        }
+
+        metrics_path = tmp_path / 'model_metrics.json'
+        with open(metrics_path, 'w') as f:
+            json.dump(metrics, f)
+
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            result = validate_metrics_content('model_metrics.json')
+
         assert result is True
 
-    def test_missing_keys(self, tmp_path):
-        """Test validate_metrics_content with missing keys."""
-        metrics_file = tmp_path / "model_metrics.json"
-        invalid_data = {
-            "rf_r2": 0.85,
-            "gb_r2": 0.88
-            # Missing other required keys
+    def test_missing_required_field(self, tmp_path):
+        """Test when a required field is missing."""
+        metrics = {
+            'rf_r2': 0.75,
+            'rf_mae': 0.5,
+            # Missing rf_rmse
+            'gb_r2': 0.78,
+            'gb_mae': 0.45,
+            'gb_rmse': 0.75,
+            'overfitting_ratio': 0.02,
+            'predictive_power': True,
+            'final_r2_source': 'holdout'
         }
-        metrics_file.write_text(json.dumps(invalid_data))
 
-        result = validate_metrics_content(metrics_file)
+        metrics_path = tmp_path / 'model_metrics.json'
+        with open(metrics_path, 'w') as f:
+            json.dump(metrics, f)
+
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            result = validate_metrics_content('model_metrics.json')
+
         assert result is False
 
-    def test_non_numeric_values(self, tmp_path):
-        """Test validate_metrics_content with non-numeric values."""
-        metrics_file = tmp_path / "model_metrics.json"
-        invalid_data = {
-            "rf_r2": "not_a_number",
-            "gb_r2": 0.88,
-            "rf_mae": 0.1,
-            "gb_mae": 0.09,
-            "rf_rmse": 0.15,
-            "gb_rmse": 0.14
+    def test_invalid_r2_value(self, tmp_path):
+        """Test when R² value is out of range."""
+        metrics = {
+            'rf_r2': 1.5,  # Invalid: > 1.0
+            'rf_mae': 0.5,
+            'rf_rmse': 0.8,
+            'gb_r2': 0.78,
+            'gb_mae': 0.45,
+            'gb_rmse': 0.75,
+            'overfitting_ratio': 0.02,
+            'predictive_power': True,
+            'final_r2_source': 'holdout'
         }
-        metrics_file.write_text(json.dumps(invalid_data))
 
-        result = validate_metrics_content(metrics_file)
+        metrics_path = tmp_path / 'model_metrics.json'
+        with open(metrics_path, 'w') as f:
+            json.dump(metrics, f)
+
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            result = validate_metrics_content('model_metrics.json')
+
+        assert result is False
+
+    def test_invalid_final_r2_source(self, tmp_path):
+        """Test when final_r2_source is not 'holdout'."""
+        metrics = {
+            'rf_r2': 0.75,
+            'rf_mae': 0.5,
+            'rf_rmse': 0.8,
+            'gb_r2': 0.78,
+            'gb_mae': 0.45,
+            'gb_rmse': 0.75,
+            'overfitting_ratio': 0.02,
+            'predictive_power': True,
+            'final_r2_source': 'cross_validation'  # Invalid
+        }
+
+        metrics_path = tmp_path / 'model_metrics.json'
+        with open(metrics_path, 'w') as f:
+            json.dump(metrics, f)
+
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            result = validate_metrics_content('model_metrics.json')
+
         assert result is False
 
     def test_invalid_json(self, tmp_path):
-        """Test validate_metrics_content with invalid JSON."""
-        metrics_file = tmp_path / "model_metrics.json"
-        metrics_file.write_text("{ invalid json }")
+        """Test when JSON is malformed."""
+        metrics_path = tmp_path / 'model_metrics.json'
+        metrics_path.write_text("invalid json {")
 
-        result = validate_metrics_content(metrics_file)
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            result = validate_metrics_content('model_metrics.json')
+
+        assert result is False
+
+
+class TestRunStep:
+    """Tests for run_step function."""
+
+    def test_successful_step(self, tmp_path):
+        """Test when step completes successfully."""
+        # Create a simple test script
+        test_script = tmp_path / 'test_script.py'
+        test_script.write_text("print('Success')\n")
+
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            result = run_step(
+                'test_step',
+                ['python', str(test_script)],
+                timeout=10
+            )
+
+        assert result is True
+
+    def test_failed_step(self, tmp_path):
+        """Test when step fails with non-zero return code."""
+        # Create a failing script
+        test_script = tmp_path / 'failing_script.py'
+        test_script.write_text("import sys; sys.exit(1)\n")
+
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            result = run_step(
+                'failing_step',
+                ['python', str(test_script)],
+                timeout=10
+            )
+
+        assert result is False
+
+    def test_timeout_step(self, tmp_path):
+        """Test when step times out."""
+        # Create a slow script
+        test_script = tmp_path / 'slow_script.py'
+        test_script.write_text("import time; time.sleep(5)\n")
+
+        with patch('code.quickstart_validation.PROJECT_ROOT', tmp_path):
+            result = run_step(
+                'timeout_step',
+                ['python', str(test_script)],
+                timeout=1  # 1 second timeout
+            )
+
         assert result is False

@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-509-evaluating-the-correlation-between-compo
-last_run_id: 9b63b36c-7a82-420c-9614-bd47c58cee04
+last_run_id: 6f4a2103-f132-4a99-bc08-c9dc2e392a57
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo
 title: Evaluating the Correlation Between Compositional Features and Predicted Formation
   Energy in Inorganic Materials
-updated_at: '2026-08-14T21:25:43.874273Z'
+updated_at: '2026-08-16T20:57:22.412020Z'

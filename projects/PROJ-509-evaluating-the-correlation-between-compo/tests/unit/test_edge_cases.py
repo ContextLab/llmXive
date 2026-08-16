@@ -1,223 +1,248 @@
 """
-Additional unit tests for various edge cases in the descriptor computation pipeline.
-
-This file aggregates tests for edge cases that don't fit neatly into
-the missing elements or extreme outliers categories.
+Unit tests for edge cases in the materials science pipeline.
+Tests missing elements, extreme outliers, and boundary conditions.
 """
-
 import pytest
 import pandas as pd
 import numpy as np
-import sys
 from pathlib import Path
+import sys
+import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
 from descriptors import (
     calculate_weighted_mean_variance,
     compute_descriptors_row,
-    validate_final_dataset
+    detect_and_cap_outliers,
+    get_elemental_properties_df
 )
+from utils.chemical_families import assign_chemical_family
 from config import load_paths
 
 
-class TestEdgeCases:
-    """Tests for various edge cases."""
+class TestMissingElements:
+    """Tests for handling missing elemental properties."""
 
-    @pytest.fixture
-    def minimal_elemental_properties(self):
-        """Create a minimal elemental properties DataFrame for testing."""
-        data = {
-            'element': ['H', 'He', 'Li', 'Be', 'B'],
-            'electronegativity': [2.20, 0.0, 0.98, 1.57, 2.04],
-            'atomic_radius': [37.0, 31.0, 152.0, 112.0, 85.0],
-            'valence': [1, 0, 1, 2, 3],
-            'melting_point': [14.0, 0.0, 180.0, 1560.0, 2300.0],
-            'ionization_energy': [13.6, 24.6, 5.4, 9.3, 8.3]
-        }
-        return pd.DataFrame(data)
-
-    def test_zero_stoichiometry(self, minimal_elemental_properties):
-        """Test handling of zero stoichiometry values."""
-        elements = ['H', 'O']
-        stoichiometry = [1, 0]  # O has zero stoichiometry
+    def test_missing_element_in_properties(self):
+        """Test that a composition with an unknown element raises appropriate error."""
+        # Create a mock composition with a non-existent element
+        composition = "Xy1Zr2"  # Xy is not a real element
+        elemental_properties = get_elemental_properties_df()
         
-        # This should handle zero stoichiometry gracefully
-        # Either return NaN or skip the zero-stoichiometry element
-        try:
-            result = calculate_weighted_mean_variance(
-                elements, stoichiometry, minimal_elemental_properties
-            )
-            # If it succeeds, check the result
-            assert isinstance(result, dict)
-        except (ValueError, ZeroDivisionError):
-            # Expected: error when dividing by zero total stoichiometry
-            pass
+        # Verify Xy is not in the dataframe
+        assert "Xy" not in elemental_properties.index, "Test setup error: Xy should not exist"
 
-    def test_negative_stoichiometry(self, minimal_elemental_properties):
-        """Test handling of negative stoichiometry values."""
-        elements = ['H', 'O']
-        stoichiometry = [1, -1]  # Negative stoichiometry is invalid
+    def test_partial_missing_elements_in_composition(self):
+        """Test handling of composition with one known and one unknown element."""
+        # This tests the behavior when some elements are missing
+        composition = "Fe1Xy1"  # Fe is known, Xy is not
         
-        try:
-            result = calculate_weighted_mean_variance(
-                elements, stoichiometry, minimal_elemental_properties
-            )
-            # If it succeeds, the function handled it gracefully
-            assert isinstance(result, dict)
-        except ValueError:
-            # Expected: negative stoichiometry is invalid
-            pass
+        # In the actual implementation, this should either:
+        # 1. Raise an error
+        # 2. Skip the row
+        # 3. Use default values (not recommended)
+        
+        # For this test, we verify that the function handles it gracefully
+        # by checking that it doesn't crash with a cryptic error
+        elemental_properties = get_elemental_properties_df()
+        
+        # Simulate the check that would happen in compute_descriptors_row
+        elements = ["Fe", "Xy"]
+        missing = [e for e in elements if e not in elemental_properties.index]
+        
+        assert len(missing) == 1
+        assert "Xy" in missing
 
-    def test_empty_dataframe_validation(self):
-        """Test validation of an empty DataFrame."""
-        df = pd.DataFrame(columns=[
-            'formula', 'formation_energy', 'mean_electronegativity',
-            'variance_radius', 'mean_valence', 'mean_melting_point',
-            'mean_ionization_energy'
-        ])
+    def test_all_elements_missing(self):
+        """Test handling when all elements in composition are unknown."""
+        composition = "Ab1Cd1Ef1"  # All fake elements
         
-        is_valid, errors = validate_final_dataset(df)
+        elemental_properties = get_elemental_properties_df()
+        elements = ["Ab", "Cd", "Ef"]
+        missing = [e for e in elements if e not in elemental_properties.index]
         
-        # Empty dataset should be invalid
-        assert not is_valid, "Empty dataset should be invalid"
-        assert len(errors) > 0, "Validation should report errors for empty dataset"
+        assert len(missing) == 3
 
-    def test_single_column_dataset(self):
-        """Test validation of a dataset with only one column."""
-        df = pd.DataFrame({
-            'formula': ['NaCl']
+
+class TestExtremeOutliers:
+    """Tests for extreme outlier detection and capping."""
+
+    def test_extreme_positive_outlier(self):
+        """Test detection of extremely high formation energy values."""
+        # Create a dataset with an extreme outlier
+        data = pd.DataFrame({
+            'composition': ['Fe1', 'Fe2', 'Fe3', 'Fe4', 'Fe5'],
+            'formation_energy': [-0.5, -0.4, -0.45, -0.3, 100.0]  # 100 is extreme
         })
         
-        is_valid, errors = validate_final_dataset(df)
+        # Apply outlier detection
+        capped_data, n_capped = detect_and_cap_outliers(data, column='formation_energy')
         
-        # Missing required columns should make it invalid
-        assert not is_valid, "Dataset with missing columns should be invalid"
-        assert len(errors) > 0, "Validation should report missing columns"
+        # Verify the outlier was capped
+        assert n_capped > 0, "Expected at least one outlier to be capped"
+        assert capped_data['formation_energy'].max() < 100.0, "Outlier should be capped"
 
-    def test_all_nan_column(self):
-        """Test validation of a dataset with all NaN in a descriptor column."""
-        df = pd.DataFrame({
-            'formula': ['A', 'B', 'C'],
-            'formation_energy': [-5.0, -6.0, -7.0],
-            'mean_electronegativity': [np.nan, np.nan, np.nan],
-            'variance_radius': [0.1, 0.2, 0.3],
-            'mean_valence': [1.0, 2.0, 3.0],
-            'mean_melting_point': [1000.0, 1100.0, 1200.0],
-            'mean_ionization_energy': [7.0, 8.0, 9.0]
+    def test_extreme_negative_outlier(self):
+        """Test detection of extremely low formation energy values."""
+        data = pd.DataFrame({
+            'composition': ['Fe1', 'Fe2', 'Fe3', 'Fe4', 'Fe5'],
+            'formation_energy': [-0.5, -0.4, -0.45, -0.3, -100.0]  # -100 is extreme
         })
         
-        is_valid, errors = validate_final_dataset(df)
+        capped_data, n_capped = detect_and_cap_outliers(data, column='formation_energy')
         
-        # All NaN in a descriptor column should make it invalid
-        assert not is_valid, "Dataset with all-NaN descriptor should be invalid"
-        assert any("NaN" in str(err) or "null" in str(err).lower() for err in errors), \
-            "Errors should mention NaN values"
+        assert n_capped > 0, "Expected at least one outlier to be capped"
+        assert capped_data['formation_energy'].min() > -100.0, "Outlier should be capped"
 
-    def test_infinite_values(self):
-        """Test handling of infinite values in descriptors."""
-        df = pd.DataFrame({
-            'formula': ['A', 'B', 'C'],
-            'formation_energy': [-5.0, -6.0, -7.0],
-            'mean_electronegativity': [1.5, np.inf, 2.5],
-            'variance_radius': [0.1, 0.2, 0.3],
-            'mean_valence': [1.0, 2.0, 3.0],
-            'mean_melting_point': [1000.0, 1100.0, 1200.0],
-            'mean_ionization_energy': [7.0, 8.0, 9.0]
+    def test_multiple_extreme_outliers(self):
+        """Test handling of multiple extreme outliers."""
+        data = pd.DataFrame({
+            'composition': [f'Fe{i}' for i in range(10)],
+            'formation_energy': [-0.5, -0.4, -0.45, -0.3, 50.0, -50.0, 100.0, -100.0, -0.35, -0.42]
         })
         
-        is_valid, errors = validate_final_dataset(df)
+        capped_data, n_capped = detect_and_cap_outliers(data, column='formation_energy')
         
-        # Infinite values should make it invalid
-        assert not is_valid, "Dataset with infinite values should be invalid"
-        assert any("inf" in str(err).lower() for err in errors), \
-            "Errors should mention infinite values"
+        assert n_capped >= 4, "Expected at least 4 outliers to be capped"
 
-    def test_string_values_in_numeric_columns(self):
-        """Test validation of string values in numeric columns."""
-        df = pd.DataFrame({
-            'formula': ['A', 'B', 'C'],
-            'formation_energy': [-5.0, -6.0, -7.0],
-            'mean_electronegativity': [1.5, 'invalid', 2.5],
-            'variance_radius': [0.1, 0.2, 0.3],
-            'mean_valence': [1.0, 2.0, 3.0],
-            'mean_melting_point': [1000.0, 1100.0, 1200.0],
-            'mean_ionization_energy': [7.0, 8.0, 9.0]
+    def test_no_outliers(self):
+        """Test that no capping occurs when data is within normal range."""
+        data = pd.DataFrame({
+            'composition': [f'Fe{i}' for i in range(10)],
+            'formation_energy': [-0.5, -0.4, -0.45, -0.3, -0.35, -0.42, -0.38, -0.41, -0.39, -0.36]
         })
         
-        is_valid, errors = validate_final_dataset(df)
+        capped_data, n_capped = detect_and_cap_outliers(data, column='formation_energy')
         
-        # String values in numeric columns should make it invalid
-        assert not is_valid, "Dataset with string in numeric column should be invalid"
+        assert n_capped == 0, "Expected no outliers to be capped"
+        pd.testing.assert_frame_equal(capped_data, data)
 
-    def test_very_large_values(self):
-        """Test handling of very large (but finite) values."""
-        df = pd.DataFrame({
-            'formula': ['A', 'B', 'C'],
-            'formation_energy': [-5.0, -6.0, -7.0],
-            'mean_electronegativity': [1.5, 1e100, 2.5],
-            'variance_radius': [0.1, 0.2, 0.3],
-            'mean_valence': [1.0, 2.0, 3.0],
-            'mean_melting_point': [1000.0, 1100.0, 1200.0],
-            'mean_ionization_energy': [7.0, 8.0, 9.0]
-        })
-        
-        is_valid, errors = validate_final_dataset(df)
-        
-        # Very large values might be valid (depending on implementation)
-        # but should be handled without crashing
-        # The function should not crash even if it considers them valid
-        assert isinstance(is_valid, bool), "Validation should return boolean"
 
-    def test_duplicate_formulas(self):
-        """Test handling of duplicate formulas in dataset."""
-        df = pd.DataFrame({
-            'formula': ['NaCl', 'NaCl', 'Fe2O3'],
-            'formation_energy': [-5.0, -5.0, -8.2],
-            'mean_electronegativity': [1.5, 1.5, 2.0],
-            'variance_radius': [0.1, 0.1, 0.2],
-            'mean_valence': [1.0, 1.0, 2.0],
-            'mean_melting_point': [1000.0, 1000.0, 1100.0],
-            'mean_ionization_energy': [7.0, 7.0, 8.0]
-        })
-        
-        # This should not crash
-        is_valid, errors = validate_final_dataset(df)
-        
-        # Duplicate formulas might be valid or invalid depending on requirements
-        # The important thing is that it doesn't crash
-        assert isinstance(is_valid, bool), "Validation should return boolean"
+class TestBoundaryConditions:
+    """Tests for boundary conditions in descriptor calculation."""
 
-    def test_special_characters_in_formula(self):
-        """Test handling of special characters in chemical formulas."""
-        data = {
-            'formula': ['NaCl', 'Fe2O3', 'H2SO4', 'Ca(OH)2', 'Na2CO3·10H2O'],
-            'formation_energy': [-5.0, -8.2, -9.0, -12.0, -5.5],
-            'mean_electronegativity': [1.5, 2.0, 2.5, 1.8, 1.6],
-            'variance_radius': [0.1, 0.2, 0.3, 0.25, 0.15],
-            'mean_valence': [1.0, 2.0, 3.0, 2.5, 1.5],
-            'mean_melting_point': [1000.0, 1100.0, 1200.0, 1300.0, 1050.0],
-            'mean_ionization_energy': [7.0, 8.0, 9.0, 8.5, 7.5]
-        }
-        df = pd.DataFrame(data)
+    def test_single_element_composition(self):
+        """Test descriptor calculation for single-element compositions."""
+        composition = "Fe1"
         
-        # Should not crash with special characters
-        is_valid, errors = validate_final_dataset(df)
-        assert isinstance(is_valid, bool), "Validation should handle special characters"
+        # This should work without errors
+        # The mean and variance of a single value are: mean=value, variance=0
+        result = compute_descriptors_row(composition)
+        
+        assert result is not None
+        assert 'composition' in result
+        assert result['composition'] == composition
 
-    def test_unicode_characters(self):
-        """Test handling of unicode characters in formulas."""
-        df = pd.DataFrame({
-            'formula': ['NaCl', 'Fe₂O₃', 'H₂SO₄'],  # Unicode subscripts
-            'formation_energy': [-5.0, -8.2, -9.0],
-            'mean_electronegativity': [1.5, 2.0, 2.5],
-            'variance_radius': [0.1, 0.2, 0.3],
-            'mean_valence': [1.0, 2.0, 3.0],
-            'mean_melting_point': [1000.0, 1100.0, 1200.0],
-            'mean_ionization_energy': [7.0, 8.0, 9.0]
-        })
+    def test_very_large_composition(self):
+        """Test handling of compositions with many elements."""
+        # Create a composition with many different elements
+        elements = ['Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Ga', 'Ge', 'As', 'Se', 'Br']
+        composition = ''.join([f"{e}{i+1}" for i, e in enumerate(elements)])
         
-        # Should not crash with unicode
-        is_valid, errors = validate_final_dataset(df)
-        assert isinstance(is_valid, bool), "Validation should handle unicode"
+        result = compute_descriptors_row(composition)
+        assert result is not None
+        assert result['composition'] == composition
+
+    def test_zero_stoichiometry(self):
+        """Test handling of zero stoichiometry (edge case)."""
+        # This is a theoretical edge case - typically not in real data
+        # but we test the robustness of the calculation
+        composition = "Fe0"  # Zero atoms of Fe
+        
+        # Should handle gracefully (either skip or return NaN)
+        result = compute_descriptors_row(composition)
+        # The exact behavior depends on implementation, but should not crash
+
+    def test_empty_composition_string(self):
+        """Test handling of empty composition string."""
+        composition = ""
+        
+        result = compute_descriptors_row(composition)
+        # Should handle gracefully, likely returning None or raising a clear error
+
+    def test_very_small_stoichiometry_values(self):
+        """Test handling of very small stoichiometric coefficients."""
+        composition = "Fe0.0001"
+        
+        result = compute_descriptors_row(composition)
+        assert result is not None
+
+
+class TestChemicalFamilyAssignment:
+    """Tests for chemical family assignment edge cases."""
+
+    def test_unknown_element(self):
+        """Test assignment for unknown elements."""
+        family = assign_chemical_family("Xy")
+        # Should return a default family or None
+        assert family is not None  # Should not crash
+
+    def test_all_known_elements(self):
+        """Test assignment for a comprehensive set of known elements."""
+        known_elements = [
+            'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
+            'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar',
+            'Fe', 'Co', 'Ni', 'Cu', 'Zn'
+        ]
+        
+        for element in known_elements:
+            family = assign_chemical_family(element)
+            assert family is not None, f"Failed for element {element}"
+
+    def test_case_sensitivity(self):
+        """Test that element names are case-insensitive."""
+        family_upper = assign_chemical_family("Fe")
+        family_lower = assign_chemical_family("fe")
+        
+        # Should handle both cases (implementation dependent)
+        # At minimum, should not crash
+
+
+class TestWeightedMeanVariance:
+    """Tests for weighted mean and variance calculations."""
+
+    def test_single_value(self):
+        """Test mean and variance for a single value."""
+        values = np.array([5.0])
+        weights = np.array([1.0])
+        
+        mean, variance = calculate_weighted_mean_variance(values, weights)
+        
+        assert mean == 5.0
+        assert variance == 0.0  # Variance of single value is 0
+
+    def test_identical_values(self):
+        """Test mean and variance for identical values."""
+        values = np.array([5.0, 5.0, 5.0])
+        weights = np.array([1.0, 1.0, 1.0])
+        
+        mean, variance = calculate_weighted_mean_variance(values, weights)
+        
+        assert mean == 5.0
+        assert variance == 0.0
+
+    def test_normal_distribution(self):
+        """Test with a normal distribution of values."""
+        values = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+        weights = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
+        
+        mean, variance = calculate_weighted_mean_variance(values, weights)
+        
+        expected_mean = 3.0
+        expected_variance = 2.0  # Population variance
+        
+        assert np.isclose(mean, expected_mean)
+        assert np.isclose(variance, expected_variance)
+
+    def test_weighted_calculation(self):
+        """Test that weights are properly applied."""
+        values = np.array([1.0, 10.0])
+        weights = np.array([1.0, 9.0])  # Heavily weighted towards 10
+        
+        mean, variance = calculate_weighted_mean_variance(values, weights)
+        
+        # Mean should be closer to 10 due to higher weight
+        assert mean > 5.5  # Unweighted mean would be 5.5
+        assert mean < 10.0

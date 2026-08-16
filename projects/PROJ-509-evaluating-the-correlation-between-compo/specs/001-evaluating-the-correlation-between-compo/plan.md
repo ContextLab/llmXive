@@ -5,7 +5,7 @@
 
 ## Summary
 
-This plan implements a CPU-first computational pipeline to evaluate the correlation between compositional descriptors (mean/variance of electronegativity, atomic radius, valence electrons, melting point, ionization energy) and predicted formation energy in inorganic materials. The approach involves downloading a verified subset of the Materials Project MP-2020 dataset via the MPDS API (with fallback to a checksummed local cache), computing descriptors using `pymatgen`/`matminer`, training Random Forest and Gradient Boosting regressors via `scikit-learn` on an 80/20 stratified split (by Chemical Family), and performing feature importance analysis including Conditional Permutation Importance, SHAP interactions, and Accumulated Local Effects (ALE) plots. The pipeline is designed to run within the GitHub Actions free-tier constraints (2 CPU, ~7 GB RAM, ≤6h) and strictly adheres to the project constitution regarding reproducibility and data hygiene.
+This plan implements a CPU-first computational pipeline to evaluate the correlation between compositional descriptors (mean/variance of electronegativity, atomic radius, valence electrons, melting point, ionization energy) and predicted formation energy in inorganic materials. The approach involves downloading a verified subset of the Materials Project MP-2020 dataset via the MPDS API (with fallback to a checksummed local cache), computing descriptors using `pymatgen`/`matminer`, training Random Forest and Gradient Boosting regressors via `scikit-learn` on an A stratified split by Chemical Family will be employed, with the training set comprising the majority of the data and the test set comprising the remainder., and performing feature importance analysis including Conditional Permutation Importance, SHAP interactions, and Accumulated Local Effects (ALE) plots. The pipeline is designed to run within the GitHub Actions free-tier constraints (2 CPU, ~7 GB RAM, ≤6h) and strictly adheres to the project constitution regarding reproducibility and data hygiene.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This plan implements a CPU-first computational pipeline to evaluate the correlat
 **Project Type**: Computational Research Pipeline  
 **Performance Goals**: Complete pipeline ≤ 6 hours; Memory usage < 6 GB; R² > 0.0 (baseline)  
 **Constraints**: CPU-only (no GPU); No external API calls during runtime (except dataset download); Strict reproducibility (fixed seeds); No synthetic data substitution.  
-**Scale/Scope**: ~12,500 inorganic compounds (verified subset); 10 descriptors per compound.
+**Scale/Scope**: A verified subset of inorganic compounds; 10 descriptors per compound.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

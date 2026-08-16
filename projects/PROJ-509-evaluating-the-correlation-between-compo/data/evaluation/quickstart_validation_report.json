@@ -1,0 +1,11 @@
+{
+  "status": "PASSED",
+  "artifacts_verified": 17,
+  "metrics_valid": true,
+  "feature_ranking_valid": true,
+  "vif_scores_valid": true,
+  "ale_metrics_valid": true,
+  "statistical_tests_valid": true,
+  "cv_scores_valid": true,
+  "permutation_importance_valid": true
+}

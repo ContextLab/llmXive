@@ -19,3 +19,9 @@ T047:
     \ to `data/evaluation/vif_scores.json`, and the expected JSON file is absent from\
     \ the repository. Consequently the multi\u2011collinearity check and required\
     \ output are not implemented."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file or any summary document is present in the provided evidence,
+    and therefore there are no metrics, VIF results, or references to ALE plot files
+    to verify. The required artifact is missing.

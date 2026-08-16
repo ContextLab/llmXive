@@ -2,33 +2,23 @@ import os
 from pathlib import Path
 from typing import Dict, Any
 
-
 def load_paths() -> Dict[str, Path]:
-    """Load and return all project paths as a dictionary."""
-    base = Path(__file__).parent.parent
+    """Loads project paths."""
+    project_root = Path(__file__).parent.parent.parent
     return {
-        "base": base,
-        "data": base / "data",
-        "code": base / "code",
-        "tests": base / "tests",
-        "data_raw": base / "data" / "raw",
-        "data_processed": base / "data" / "processed",
-        "data_evaluation": base / "data" / "evaluation",
-        "data_logs": base / "data" / "logs",
-        "data_elemental": base / "data" / "elemental_properties",
+        "data_raw": project_root / "data/raw",
+        "data_processed": project_root / "data/processed",
+        "data_evaluation": project_root / "data/evaluation",
+        "code_src": project_root / "code",
+        "tests_unit": project_root / "tests/unit",
+        "logs": project_root / "data/logs",
     }
 
+def load_env() -> Dict[str, Any]:
+    """Loads environment variables."""
+    return os.environ
 
-def load_env() -> Dict[str, str]:
-    """Load environment variables into a dictionary."""
-    return {
-        "MPDS_API_KEY": os.getenv("MPDS_API_KEY", ""),
-        "RANDOM_SEED": os.getenv("RANDOM_SEED", "42"),
-        "ROW_THRESHOLD": os.getenv("ROW_THRESHOLD", "100000"),
-        "CAP_OUTLIERS": os.getenv("CAP_OUTLIERS", "True"),
-    }
-
-
-ROW_THRESHOLD = int(load_env().get("ROW_THRESHOLD", "100000"))
-RANDOM_SEED = int(load_env().get("RANDOM_SEED", "42"))
-CAP_OUTLIERS = load_env().get("CAP_OUTLIERS", "True").lower() == "true"
+ROW_THRESHOLD = 100000
+MIN_ROWS = 1000
+RANDOM_SEED = 42
+CAP_OUTLIERS = True

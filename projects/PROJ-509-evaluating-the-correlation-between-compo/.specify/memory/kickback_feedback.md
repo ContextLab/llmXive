@@ -4,11 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T049a` (rejected 1x): No code artifacts, diff, or commit showing that `code/utils/` has been examined and unused imports removed are provided. Without any files or evidence of the refactor, the requirement cannot be verified as satisfied. The implementer must supply the updated `code/utils/` files (or a patch/diff) demonstrating that all unused imports have been eliminated.
-- `T049b` (rejected 1x): No code artifacts from the `code/` directory are provided, and there is no evidence (e.g., a diff, linter report, or updated files) showing that line lengths have been limited to < 88 characters. Without the actual refactored source files or a verification report, the requirement cannot be confirmed.
-- `T051` (rejected 1x): No evidence of any new unit test files or test cases under `tests/unit/` was provided; the claim of “additional unit tests for edge cases (missing elements, extreme outliers)” cannot be verified because the required test artifacts are missing. The next implementer must add concrete test files (e.g., `test_missing_elements.py`, `test_extreme_outliers.py`) that exercise the relevant functions and ensure they are present and non‑empty.
-- `T052` (rejected 1x): No artifacts such as a `quickstart.md` file, execution logs, or reproducibility reports are present to demonstrate that the quickstart validation was actually run. Consequently, there is no evidence that the end‑to‑end pipeline was executed and verified as required.
-- `T053` (rejected 1x): No `research.md` file is present, and there is no evidence of a summary containing the required metrics, VIF results, and ALE interpretations. The task’s deliverable is missing entirely.
+- `T049a` (rejected 1x): No evidence was provided that `autoflake --in-place --remove-all-unused-imports code/` was executed, nor any before‑and‑after view of the `code/utils/` files showing unused imports removed. The required artifact (the refactored code without unused imports) is missing.
+- `T049b` (rejected 1x): No artifact (e.g., a formatted code snapshot, a Black report, or a commit showing the `code/` directory with line lengths ≤ 88) was provided, so we cannot confirm that `black --line-length 88 code/` was actually executed and succeeded. The implementer must supply evidence that the `code/` files have been reformatted to meet the line‑length constraint.
+- `T051` (rejected 1x): No evidence of any new unit test files or test cases under `tests/unit/` was provided; the claim of “additional unit tests for edge cases (missing elements, extreme outliers)” cannot be verified. The required test artifacts are missing.
+- `T052` (rejected 1x): No evidence of a `quickstart.md` validation run, logs, or reproducibility report is present; the required artifact confirming end‑to‑end execution is missing.
 
 ## Required change
 

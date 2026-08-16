@@ -35,7 +35,7 @@ The system must log start and end times for each pipeline phase.
 ## Assumptions
 
 1. **Dataset Size**: The MP-2020.12.1 dataset contains a large-scale set of inorganic compound entries (expected > 100k rows).
-2. **Memory Constraints**: The dataset may exceed available RAM (~7GB), requiring chunked processing or stratified sampling.
+2. **Memory Constraints**: The dataset may exceed available RAM, requiring chunked processing or stratified sampling.
 3. **Stratification Strategy**: Stratified splitting by **Chemical Family** (based on the most abundant element) is sufficient to preserve statistical power and structural diversity in the validation set.
 4. **Descriptor Relevance**: Mean and variance of elemental properties are predictive of formation energy.
 5. **Model Performance**: Random Forest and Gradient Boosting models will achieve R² > 0.0 on the validation set.

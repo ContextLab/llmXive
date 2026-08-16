@@ -1,74 +1,71 @@
 # Quickstart Guide: Evaluating Compositional Features vs Formation Energy
 
-This guide validates the end-to-end reproducibility of the pipeline described in PROJ-509.
-It executes the full research workflow from data ingestion to final summary generation.
+This guide provides the steps to run the full pipeline end-to-end for reproducibility validation (Task T052).
 
 ## Prerequisites
 
-1. **Environment**: Python 3.9+
-2. **API Key**: Set `MPDS_API_KEY` in your environment variables if using the MPDS API directly.
- ```bash
- export MPDS_API_KEY="your_key_here"
- ```
-3. **Dependencies**: Install required packages.
+1. Ensure you have a valid `MPDS_API_KEY` set in your environment or `.env` file.
+2. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
 
 ## Execution Steps
 
-Run the main pipeline script which orchestrates all phases:
+Run the main pipeline script which orchestrates ingestion, descriptor computation, training, evaluation, and plotting.
 
 ```bash
-cd code
-python main.py
+python code/main.py
 ```
 
-Alternatively, run individual stages manually for debugging:
+Alternatively, run individual stages for debugging:
 
-### 1. Data Ingestion & Descriptor Computation
-```bash
-python ingest.py
-python descriptors.py
-```
-**Expected Output**: `data/processed/computed_descriptors.csv`
+1. **Ingest Data**:
+ ```bash
+ python code/ingest.py
+ ```
+ *Output*: `data/raw/mp-2020.12.1.csv`, `data/processed/sampled_raw_data.csv` (if sampling triggered)
 
-### 2. Model Training & Evaluation
-```bash
-python train.py
-python evaluate.py
-```
-**Expected Output**: `data/evaluation/model_rf.pkl`, `data/evaluation/model_metrics.json`
+2. **Compute Descriptors**:
+ ```bash
+ python code/descriptors.py
+ ```
+ *Output*: `data/processed/computed_descriptors.csv`
 
-### 3. Feature Importance & Plots
-```bash
-python importance.py
-python plots.py
-```
-**Expected Output**: `data/evaluation/feature_ranking.json`, `data/evaluation/ale_*.png`
+3. **Train & Evaluate Models**:
+ ```bash
+ python code/train.py
+ python code/evaluate.py
+ ```
+ *Output*: `data/evaluation/model_rf.pkl`, `data/evaluation/model_gb.pkl`, `data/evaluation/model_metrics.json`
 
-### 4. Research Summary
-```bash
-python generate_research_summary.py
-```
-**Expected Output**: `research.md`
+4. **Feature Importance & Plots**:
+ ```bash
+ python code/importance.py
+ python code/plots.py
+ ```
+ *Output*: `data/evaluation/feature_ranking.json`, `data/evaluation/ale_*.png`
+
+5. **Research Summary**:
+ ```bash
+ python code/generate_research_summary.py
+ ```
+ *Output*: `research.md`
 
 ## Validation
 
-To verify the entire pipeline ran correctly and produced valid artifacts:
+To verify end-to-end reproducibility, run the validation script:
 
 ```bash
-python quickstart_validation.py
+python code/quickstart_validation.py
 ```
 
-This script:
-1. Checks existence of all required output files.
-2. Validates JSON schemas for metrics and rankings.
-3. Confirms non-empty content in critical files.
-4. Logs the final status.
+This script checks for the existence of all critical artifacts and validates the schema of key JSON outputs.
 
-## Troubleshooting
+## Expected Artifacts
 
-- **Missing Data**: If `data/raw/` is empty, ensure `ingest.py` completed successfully or manually download the MP-2020 dataset.
-- **Memory Errors**: If the dataset is too large, check `code/config.py` for `ROW_THRESHOLD` and ensure `code/utils/io.py` chunked reading is active.
-- **API Failures**: If MPDS API is unreachable, the system will attempt to load from `data/raw/mp-2020.csv` if present.
+- `data/raw/mp-2020.12.1.csv`
+- `data/processed/computed_descriptors.csv`
+- `data/evaluation/model_metrics.json`
+- `data/evaluation/feature_ranking.json`
+- `research.md`
