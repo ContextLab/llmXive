@@ -1,74 +1,50 @@
+"""
+Statistical analysis utilities for the llmXive pipeline.
+Implements paired t-tests with Bonferroni correction for comparing
+baseline and proxy policy performance.
+"""
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
-
 import numpy as np
 from scipy import stats
+from dataclasses import dataclass, asdict
 
-from src.config.logging_config import setup_logger, ensure_log_dir
+logger = logging.getLogger(__name__)
 
-logger = setup_logger(__name__)
-
-
+@dataclass
 class TTestResult:
-    """Container for paired t-test results."""
-
-    def __init__(
-        self,
-        statistic: float,
-        p_value: float,
-        method: str = "bonferroni_corrected_t_test",
-        alpha: float = 0.05,
-    ):
-        self.statistic = statistic
-        self.p_value = p_value
-        self.method = method
-        self.alpha = alpha
-        self.adjusted_alpha = self._calculate_adjusted_alpha()
-        self.is_significant = self.p_value < self.adjusted_alpha
-
-    def _calculate_adjusted_alpha(self) -> float:
-        """Calculate Bonferroni-adjusted alpha for multiple comparisons."""
-        # We are comparing two metrics: acceptance_rate and reasoning_score
-        # So n_tests = 2
-        n_tests = 2
-        return self.alpha / n_tests
+    """Result container for a paired t-test."""
+    statistic: float
+    p_value: float
+    method: str
+    alternative: str
+    n_samples: int
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "statistic": self.statistic,
-            "p_value": self.p_value,
-            "method": self.method,
-            "alpha": self.alpha,
-            "adjusted_alpha": self.adjusted_alpha,
-            "is_significant": self.is_significant,
-        }
+        return asdict(self)
 
-
-def load_metrics_from_json(
-    file_path: Path, key: str
-) -> List[float]:
+def load_metrics_from_json(file_path: Path, key: str) -> List[float]:
     """
-    Load a list of metric values from a JSON file.
-
-    Expected JSON structure:
-    {
-        "acceptance_rate": [list of floats],
-        "reasoning_score": [list of floats]
-    }
+    Load a specific list of metrics from a JSON file.
 
     Args:
         file_path: Path to the JSON file
-        key: The key in the JSON to extract (e.g., "acceptance_rate")
+        key: The key in the JSON containing the list of values
 
     Returns:
         List of float values
+
+    Raises:
+        FileNotFoundError: If the file does not exist
+        KeyError: If the key is not found in the JSON
+        ValueError: If the value is not a list of numbers
     """
     if not file_path.exists():
         raise FileNotFoundError(f"Metrics file not found: {file_path}")
 
-    with open(file_path, "r") as f:
+    with open(file_path, 'r') as f:
         data = json.load(f)
 
     if key not in data:
@@ -76,53 +52,66 @@ def load_metrics_from_json(
 
     values = data[key]
     if not isinstance(values, list):
-        raise ValueError(f"Expected list for key '{key}' in {file_path}, got {type(values)}")
+        raise ValueError(f"Expected list for key '{key}', got {type(values)}")
 
-    return [float(v) for v in values]
-
+    try:
+        return [float(v) for v in values]
+    except (TypeError, ValueError) as e:
+        raise ValueError(f"Could not convert values to float: {e}")
 
 def perform_paired_ttest(
     baseline_values: List[float],
     proxy_values: List[float],
-    metric_name: str = "metric"
+    metric_name: str,
+    correction_factor: int = 2
 ) -> TTestResult:
     """
     Perform a paired t-test between baseline and proxy metrics.
 
     Args:
-        baseline_values: List of values from the baseline run
-        proxy_values: List of values from the proxy run
+        baseline_values: List of baseline metric values
+        proxy_values: List of proxy metric values
         metric_name: Name of the metric being tested (for logging)
+        correction_factor: Number of tests for Bonferroni correction (default 2 for acceptance_rate and reasoning_score)
 
     Returns:
-        TTestResult object containing statistic, p_value, and method
+        TTestResult object
+
+    Raises:
+        ValueError: If input lists have different lengths or insufficient samples
     """
     if len(baseline_values) != len(proxy_values):
         raise ValueError(
-            f"Length mismatch for {metric_name}: "
-            f"baseline={len(baseline_values)}, proxy={len(proxy_values)}"
+            f"Baseline and proxy lists have different lengths: "
+            f"{len(baseline_values)} vs {len(proxy_values)}"
         )
 
     if len(baseline_values) < 2:
         raise ValueError(
-            f"Insufficient samples for {metric_name} t-test: "
-            f"n={len(baseline_values)} (need at least 2)"
+            f"Insufficient samples for t-test (n={len(baseline_values)}). "
+            f"Need at least 2 samples."
         )
 
     # Perform paired t-test
     statistic, p_value = stats.ttest_rel(baseline_values, proxy_values)
 
+    # Apply Bonferroni correction
+    adjusted_p_value = p_value * correction_factor
+    # Cap at 1.0
+    adjusted_p_value = min(adjusted_p_value, 1.0)
+
     logger.info(
-        f"Paired t-test for {metric_name}: "
-        f"t-statistic={statistic:.4f}, p-value={p_value:.4e}"
+        f"T-test for {metric_name}: t-statistic={statistic:.4f}, "
+        f"raw p-value={p_value:.4f}, Bonferroni-adjusted p-value={adjusted_p_value:.4f}"
     )
 
     return TTestResult(
         statistic=float(statistic),
-        p_value=float(p_value),
-        method="bonferroni_corrected_t_test"
+        p_value=float(adjusted_p_value),
+        method="bonferroni_corrected_t_test",
+        alternative="two-sided",
+        n_samples=len(baseline_values)
     )
-
 
 def run_statistical_comparison(
     baseline_metrics_path: Path,
@@ -132,11 +121,8 @@ def run_statistical_comparison(
     """
     Run statistical comparison between baseline and proxy metrics.
 
-    Performs paired t-tests on:
-    1. acceptance_rate
-    2. reasoning_score
-
-    Applies Bonferroni correction for multiple comparisons.
+    Performs paired t-tests on both acceptance_rate and continuous_reasoning_score,
+    applies Bonferroni correction, and writes results to JSON.
 
     Args:
         baseline_metrics_path: Path to baseline_metrics.json
@@ -146,85 +132,101 @@ def run_statistical_comparison(
     Returns:
         Dictionary containing all test results
     """
-    ensure_log_dir(output_path)
-
+    # Load metrics
     logger.info(f"Loading baseline metrics from {baseline_metrics_path}")
+    baseline_acceptance = load_metrics_from_json(baseline_metrics_path, "acceptance_rates")
+    baseline_reasoning = load_metrics_from_json(baseline_metrics_path, "reasoning_scores")
+
     logger.info(f"Loading proxy metrics from {proxy_metrics_path}")
+    proxy_acceptance = load_metrics_from_json(proxy_metrics_path, "acceptance_rates")
+    proxy_reasoning = load_metrics_from_json(proxy_metrics_path, "reasoning_scores")
 
-    # Load data
-    baseline_acceptance = load_metrics_from_json(baseline_metrics_path, "acceptance_rate")
-    proxy_acceptance = load_metrics_from_json(proxy_metrics_path, "acceptance_rate")
-
-    baseline_reasoning = load_metrics_from_json(baseline_metrics_path, "reasoning_score")
-    proxy_reasoning = load_metrics_from_json(proxy_metrics_path, "reasoning_score")
-
-    # Perform t-tests
-    logger.info("Running paired t-test on acceptance rates...")
-    acceptance_result = perform_paired_ttest(
-        baseline_acceptance,
-        proxy_acceptance,
-        "acceptance_rate"
+    # Perform t-tests with Bonferroni correction
+    # We are testing 2 metrics, so correction factor is 2
+    test_acceptance = perform_paired_ttest(
+        baseline_acceptance, proxy_acceptance, "acceptance_rate", correction_factor=2
     )
 
-    logger.info("Running paired t-test on reasoning scores...")
-    reasoning_result = perform_paired_ttest(
-        baseline_reasoning,
-        proxy_reasoning,
-        "reasoning_score"
+    test_reasoning = perform_paired_ttest(
+        baseline_reasoning, proxy_reasoning, "reasoning_score", correction_factor=2
     )
 
-    # Aggregate results
+    # Compile results
     results = {
-        "acceptance_rate": acceptance_result.to_dict(),
-        "reasoning_score": reasoning_result.to_dict(),
+        "acceptance_rate": test_acceptance.to_dict(),
+        "reasoning_score": test_reasoning.to_dict(),
         "method": "bonferroni_corrected_t_test",
-        "bonferroni_correction": {
-            "n_tests": 2,
-            "original_alpha": 0.05,
-            "adjusted_alpha": acceptance_result.adjusted_alpha
-        }
+        "correction_factor": 2,
+        "n_samples": test_acceptance.n_samples
     }
 
-    # Write output
-    with open(output_path, "w") as f:
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write results to JSON
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
 
     logger.info(f"Statistical comparison results written to {output_path}")
-    logger.info(f"Acceptance rate significant: {acceptance_result.is_significant}")
-    logger.info(f"Reasoning score significant: {reasoning_result.is_significant}")
 
     return results
 
-
 def main():
-    """CLI entry point for T029."""
+    """Main entry point for statistical comparison."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run statistical comparison (T029)")
+    parser = argparse.ArgumentParser(description="Run statistical comparison between baseline and proxy metrics")
     parser.add_argument(
         "--baseline",
         type=Path,
-        default="data/processed/baseline_metrics.json",
-        help="Path to baseline metrics JSON"
+        default=Path("data/processed/baseline_metrics.json"),
+        help="Path to baseline metrics JSON file"
     )
     parser.add_argument(
         "--proxy",
         type=Path,
-        default="data/processed/proxy_metrics.json",
-        help="Path to proxy metrics JSON"
+        default=Path("data/processed/proxy_metrics.json"),
+        help="Path to proxy metrics JSON file"
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default="data/processed/t_test_results.json",
-        help="Path to output results JSON"
+        default=Path("data/processed/t_test_results.json"),
+        help="Path to output results JSON file"
+    )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging level"
     )
 
     args = parser.parse_args()
 
-    setup_logger("T029_stats")
-    run_statistical_comparison(args.baseline, args.proxy, args.output)
+    # Setup logging
+    logging.basicConfig(
+        level=getattr(logging, args.log_level),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
+    try:
+        results = run_statistical_comparison(args.baseline, args.proxy, args.output)
+        logger.info("Statistical comparison completed successfully")
+        logger.info(f"Acceptance rate p-value: {results['acceptance_rate']['p_value']:.4f}")
+        logger.info(f"Reasoning score p-value: {results['reasoning_score']['p_value']:.4f}")
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        raise
+    except KeyError as e:
+        logger.error(f"Missing key in metrics file: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Invalid metrics data: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during statistical comparison: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

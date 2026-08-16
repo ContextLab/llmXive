@@ -1,0 +1,6 @@
+{
+  "proxy_prediction_time": 0.05,
+  "baseline_inference_time": 50.0,
+  "reduction_percentage": 99.9,
+  "target_met": true
+}

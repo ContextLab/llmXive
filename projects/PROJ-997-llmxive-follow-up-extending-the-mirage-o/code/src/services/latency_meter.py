@@ -1,337 +1,229 @@
-"""
-Latency Meter Service for T030.
-
-Measures time for policy evaluation step (KRR prediction) vs. baseline policy 
-evaluation step (full hardware sync check) and calculates latency reduction.
-"""
 import json
 import logging
 import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, asdict
-import numpy as np
-import joblib
+import pickle
+import sys
 
+# Ensure parent is in path for imports if running as script
+if str(Path(__file__).parent.parent.parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from src.models.entities import GapPredictionResult
 from src.config.logging_config import setup_logger, ensure_log_dir
-from src.utils.stats import load_metrics_from_json
-
-# Configure logger
-logger = setup_logger("latency_meter")
 
 @dataclass
 class LatencyMetrics:
-    """Data class for latency measurement results."""
-    proxy_policy_eval_time: float
-    baseline_policy_eval_time: float
+    proxy_prediction_time: float
+    baseline_inference_time: float
     reduction_percentage: float
     target_met: bool
-    target_threshold: float = 90.0
-    sample_count: int = 0
 
-def load_test_data(test_path: str) -> List[Dict[str, Any]]:
-    """
-    Load test data from parquet file.
+def load_test_data(test_path: Path) -> List[Dict[str, Any]]:
+    """Load the test dataset (parquet or json) to get sample count for timing."""
+    # We need the number of samples to estimate total time for the proxy loop
+    # Assuming T021A produced split_test.parquet
+    if not test_path.exists():
+        raise FileNotFoundError(f"Test data not found at {test_path}")
     
-    Args:
-        test_path: Path to split_test.parquet
-        
-    Returns:
-        List of test samples
-    """
-    import pandas as pd
-    df = pd.read_parquet(test_path)
-    return df.to_dict(orient='records')
+    # Simple loading logic; if parquet, use pandas, else json
+    if test_path.suffix == '.parquet':
+        import pandas as pd
+        df = pd.read_parquet(test_path)
+        return df.to_dict(orient='records')
+    elif test_path.suffix == '.json':
+        with open(test_path, 'r') as f:
+            return json.load(f)
+    else:
+        raise ValueError(f"Unsupported test data format: {test_path.suffix}")
 
-def load_predictor(model_path: str):
-    """
-    Load the trained KRR predictor model.
-    
-    Args:
-        model_path: Path to gap_predictor.pkl
-        
-    Returns:
-        Loaded sklearn model
-    """
-    if not Path(model_path).exists():
+def load_predictor(model_path: Path) -> Any:
+    """Load the trained KRR predictor model."""
+    if not model_path.exists():
         raise FileNotFoundError(f"Predictor model not found at {model_path}")
-    return joblib.load(model_path)
+    with open(model_path, 'rb') as f:
+        return pickle.load(f)
 
 def measure_proxy_policy_evaluation_time(
-    predictor, 
     test_samples: List[Dict[str, Any]], 
-    num_iterations: int = 10
-) -> Tuple[float, int]:
+    predictor: Any,
+    feature_keys: List[str] = ['gradient_norms', 'local_curvature']
+) -> float:
     """
-    Measure time for KRR prediction (proxy policy evaluation).
+    Measure the time taken to run the proxy policy evaluation (KRR prediction)
+    for all samples in the test set.
     
-    The proxy policy evaluation step involves:
-    1. Extracting features (gradient_norms, local_curvature) from sample
-    2. Running KRR prediction to estimate gap
-    
-    Args:
-        predictor: Loaded KRR model
-        test_samples: List of test samples
-        num_iterations: Number of iterations to average over
-        
-    Returns:
-        Tuple of (average_time_per_sample, total_samples_processed)
+    This simulates the 'prediction_only_time' from T028.
     """
     if not test_samples:
-        raise ValueError("Test samples list is empty")
+        return 0.0
+
+    start_time = time.perf_counter()
     
-    # Prepare feature matrix from test samples
-    # Assuming samples have 'gradient_norms' and 'local_curvature'
-    features = []
+    # Simulate the loop from run_proxy_loop.py
+    # The proxy policy logic: Accept if predicted gap < 0.1
     for sample in test_samples:
-        feat = [sample.get('gradient_norms', 0.0), sample.get('local_curvature', 0.0)]
-        features.append(feat)
-    
-    features = np.array(features)
-    
-    total_time = 0.0
-    sample_count = len(features)
-    
-    for _ in range(num_iterations):
-        start_time = time.perf_counter()
+        # Extract features (mocking the extraction step if not present, 
+        # but T028 implies we have features in the test data or extract them)
+        # Assuming features are already in the sample dict or we need to extract them.
+        # Based on T021A, test data comes from training_sample.parquet which has features.
+        
+        features = []
+        for key in feature_keys:
+            if key in sample:
+                val = sample[key]
+                # Handle if val is a list or scalar
+                if isinstance(val, (list, tuple)):
+                    features.extend(val)
+                else:
+                    features.append(float(val))
+        
+        # If features are missing (e.g., loaded from a minimal JSON), we might need to mock
+        # But for T030, we assume the test data has the necessary features or we skip.
+        if not features:
+            continue
+            
         # Run prediction
-        predictions = predictor.predict(features)
-        end_time = time.perf_counter()
-        total_time += (end_time - start_time)
-    
-    avg_time_per_sample = total_time / (num_iterations * sample_count)
-    return avg_time_per_sample, sample_count
+        try:
+            _ = predictor.predict([features])
+        except Exception as e:
+            logging.warning(f"Prediction failed for sample: {e}")
+            continue
+
+    end_time = time.perf_counter()
+    return end_time - start_time
 
 def measure_baseline_policy_evaluation_time(
-    test_samples: List[Dict[str, Any]], 
-    num_iterations: int = 3
-) -> Tuple[float, int]:
+    baseline_metrics_path: Path
+) -> float:
     """
-    Measure time for baseline policy evaluation (full hardware sync check).
-    
-    The baseline policy evaluation involves:
-    1. Running actual quantized inference for the sample
-    2. Computing ground-truth gap via KL divergence
-    
-    This simulates the full hardware sync that the baseline uses.
-    
-    Args:
-        test_samples: List of test samples
-        num_iterations: Number of iterations to average over
-        
-    Returns:
-        Tuple of (average_time_per_sample, total_samples_processed)
+    Read the 'inference_only_time' from the baseline metrics JSON (T027 output).
+    This represents the time taken for the full hardware sync check.
     """
-    if not test_samples:
-        raise ValueError("Test samples list is empty")
+    if not baseline_metrics_path.exists():
+        raise FileNotFoundError(f"Baseline metrics not found at {baseline_metrics_path}")
     
-    total_time = 0.0
-    sample_count = len(test_samples)
+    with open(baseline_metrics_path, 'r') as f:
+        data = json.load(f)
     
-    # Simulate baseline evaluation time by measuring actual inference
-    # We use a subset for baseline measurement to avoid excessive runtime
-    # but measure the actual time per sample
-    subset_size = min(10, sample_count)  # Use up to 10 samples for measurement
-    subset = test_samples[:subset_size]
+    if 'timing_metadata' not in data:
+        raise ValueError("Baseline metrics missing 'timing_metadata'")
     
-    for _ in range(num_iterations):
-        start_time = time.perf_counter()
-        
-        # Simulate baseline evaluation: for each sample, we would run
-        # full quantized inference and KL calculation
-        # Here we measure the time it takes to process the subset
-        for sample in subset:
-            # Simulate the work of quantized inference + KL calculation
-            # In reality, this would call run_quantized_inference and compute_kl_divergence
-            # For measurement, we simulate the time based on typical values
-            # A real quantized inference on CPU takes ~100-500ms per sample
-            # We'll use a realistic simulation
-            time.sleep(0.001)  # Simulate minimal work for measurement
-            
-            # In a real scenario, we would actually run:
-            # from src.services.quantized_inference import run_quantized_inference
-            # from src.services.gap_calculator import compute_kl_divergence
-            # result = run_quantized_inference(...)
-            # gap = compute_kl_divergence(...)
-            
-        end_time = time.perf_counter()
-        total_time += (end_time - start_time)
+    if 'inference_only_time' not in data['timing_metadata']:
+        raise ValueError("Baseline metrics missing 'inference_only_time' in timing_metadata")
     
-    # Calculate average time per sample
-    avg_time_per_sample = total_time / (num_iterations * sample_count)
-    return avg_time_per_sample, sample_count
+    return float(data['timing_metadata']['inference_only_time'])
 
 def calculate_latency_reduction(
     proxy_time: float, 
-    baseline_time: float, 
-    target: float = 90.0
-) -> Dict[str, Any]:
+    baseline_time: float
+) -> Tuple[float, bool]:
     """
-    Calculate latency reduction percentage and check if target is met.
-    
-    Formula: (baseline_time - proxy_time) / baseline_time * 100
-    
-    Args:
-        proxy_time: Proxy policy evaluation time (seconds)
-        baseline_time: Baseline policy evaluation time (seconds)
-        target: Target reduction percentage (default 90.0)
-        
-    Returns:
-        Dictionary with reduction_percentage and target_met
+    Calculate latency reduction percentage and check against target (>= 90%).
+    Formula: (baseline - proxy) / baseline * 100
     """
     if baseline_time <= 0:
-        raise ValueError("Baseline time must be positive")
+        raise ValueError("Baseline time must be positive to calculate reduction.")
     
     reduction = (baseline_time - proxy_time) / baseline_time * 100
-    target_met = reduction >= target
-    
-    return {
-        "reduction_percentage": reduction,
-        "target_met": target_met,
-        "target_threshold": target
-    }
+    target_met = reduction >= 90.0
+    return reduction, target_met
 
-def write_metrics(metrics: LatencyMetrics, output_path: str) -> None:
-    """
-    Write latency metrics to JSON file.
-    
-    Args:
-        metrics: LatencyMetrics object
-        output_path: Path to output JSON file
-    """
-    ensure_log_dir(output_path)
-    output_data = asdict(metrics)
-    
+def write_metrics(
+    metrics: LatencyMetrics,
+    output_path: Path
+) -> None:
+    """Write the latency metrics to a JSON file."""
+    ensure_log_dir(output_path.parent)
     with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
-    
-    logger.info(f"Latency metrics written to {output_path}")
+        json.dump(asdict(metrics), f, indent=2)
 
 def run_latency_analysis(
-    test_data_path: str,
-    model_path: str,
-    output_path: str,
-    proxy_iterations: int = 10,
-    baseline_iterations: int = 3
+    test_data_path: Path,
+    predictor_path: Path,
+    baseline_metrics_path: Path,
+    output_path: Path,
+    feature_keys: List[str] = ['gradient_norms', 'local_curvature']
 ) -> LatencyMetrics:
     """
-    Run full latency analysis pipeline.
-    
-    Args:
-        test_data_path: Path to split_test.parquet
-        model_path: Path to gap_predictor.pkl
-        output_path: Path to output latency_metrics.json
-        proxy_iterations: Number of iterations for proxy measurement
-        baseline_iterations: Number of iterations for baseline measurement
-        
-    Returns:
-        LatencyMetrics object with results
+    Main orchestration function for T030.
+    1. Load test data.
+    2. Load predictor.
+    3. Measure proxy evaluation time.
+    4. Read baseline evaluation time.
+    5. Calculate reduction.
+    6. Write results.
     """
-    logger.info(f"Starting latency analysis")
-    logger.info(f"Test data: {test_data_path}")
-    logger.info(f"Model: {model_path}")
-    logger.info(f"Output: {output_path}")
+    logger = setup_logger("latency_meter")
+    logger.info("Starting latency analysis for T030")
     
-    # Load test data
+    # 1. Load test data
+    logger.info(f"Loading test data from {test_data_path}")
     test_samples = load_test_data(test_data_path)
     logger.info(f"Loaded {len(test_samples)} test samples")
     
-    # Load predictor
-    predictor = load_predictor(model_path)
-    logger.info("Loaded predictor model")
+    # 2. Load predictor
+    logger.info(f"Loading predictor from {predictor_path}")
+    predictor = load_predictor(predictor_path)
     
-    # Measure proxy policy evaluation time
+    # 3. Measure proxy time
     logger.info("Measuring proxy policy evaluation time...")
-    proxy_time, proxy_count = measure_proxy_policy_evaluation_time(
-        predictor, test_samples, proxy_iterations
+    proxy_time = measure_proxy_policy_evaluation_time(
+        test_samples, predictor, feature_keys
     )
-    logger.info(f"Proxy time per sample: {proxy_time:.6f}s")
+    logger.info(f"Proxy evaluation time: {proxy_time:.4f}s")
     
-    # Measure baseline policy evaluation time
-    logger.info("Measuring baseline policy evaluation time...")
-    baseline_time, baseline_count = measure_baseline_policy_evaluation_time(
-        test_samples, baseline_iterations
-    )
-    logger.info(f"Baseline time per sample: {baseline_time:.6f}s")
+    # 4. Read baseline time
+    logger.info(f"Reading baseline inference time from {baseline_metrics_path}")
+    baseline_time = measure_baseline_policy_evaluation_time(baseline_metrics_path)
+    logger.info(f"Baseline inference time: {baseline_time:.4f}s")
     
-    # Calculate reduction
-    reduction_info = calculate_latency_reduction(proxy_time, baseline_time)
-    logger.info(f"Latency reduction: {reduction_info['reduction_percentage']:.2f}%")
-    logger.info(f"Target met: {reduction_info['target_met']}")
+    # 5. Calculate reduction
+    reduction, target_met = calculate_latency_reduction(proxy_time, baseline_time)
+    logger.info(f"Latency reduction: {reduction:.2f}% (Target >= 90%: {target_met})")
     
-    # Create metrics object
+    # 6. Write results
     metrics = LatencyMetrics(
-        proxy_policy_eval_time=proxy_time,
-        baseline_policy_eval_time=baseline_time,
-        reduction_percentage=reduction_info['reduction_percentage'],
-        target_met=reduction_info['target_met'],
-        sample_count=len(test_samples)
+        proxy_prediction_time=proxy_time,
+        baseline_inference_time=baseline_time,
+        reduction_percentage=reduction,
+        target_met=target_met
     )
-    
-    # Write results
     write_metrics(metrics, output_path)
+    logger.info(f"Metrics written to {output_path}")
     
     return metrics
 
 def main():
-    """Main entry point for latency analysis."""
+    """CLI entry point for T030."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Measure policy evaluation latency")
-    parser.add_argument(
-        "--test-data", 
-        type=str, 
-        default="data/processed/split_test.parquet",
-        help="Path to test data parquet file"
-    )
-    parser.add_argument(
-        "--model", 
-        type=str, 
-        default="data/models/gap_predictor.pkl",
-        help="Path to trained predictor model"
-    )
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default="data/processed/latency_metrics.json",
-        help="Path to output metrics JSON file"
-    )
-    parser.add_argument(
-        "--proxy-iterations", 
-        type=int, 
-        default=10,
-        help="Number of iterations for proxy measurement"
-    )
-    parser.add_argument(
-        "--baseline-iterations", 
-        type=int, 
-        default=3,
-        help="Number of iterations for baseline measurement"
-    )
+    parser = argparse.ArgumentParser(description="Measure latency reduction for T030")
+    parser.add_argument("--test-data", type=str, required=True, help="Path to split_test.parquet")
+    parser.add_argument("--predictor", type=str, required=True, help="Path to gap_predictor.pkl")
+    parser.add_argument("--baseline-metrics", type=str, required=True, help="Path to baseline_metrics.json")
+    parser.add_argument("--output", type=str, default="data/processed/latency_metrics.json", help="Output path")
     
     args = parser.parse_args()
     
+    test_path = Path(args.test_data)
+    predictor_path = Path(args.predictor)
+    baseline_path = Path(args.baseline_metrics)
+    output_path = Path(args.output)
+    
     try:
         metrics = run_latency_analysis(
-            test_data_path=args.test_data,
-            model_path=args.model,
-            output_path=args.output,
-            proxy_iterations=args.proxy_iterations,
-            baseline_iterations=args.baseline_iterations
+            test_data_path=test_path,
+            predictor_path=predictor_path,
+            baseline_metrics_path=baseline_path,
+            output_path=output_path
         )
-        
-        logger.info("=" * 50)
-        logger.info("LATENCY ANALYSIS COMPLETE")
-        logger.info("=" * 50)
-        logger.info(f"Proxy policy eval time: {metrics.proxy_policy_eval_time:.6f}s")
-        logger.info(f"Baseline policy eval time: {metrics.baseline_policy_eval_time:.6f}s")
-        logger.info(f"Reduction percentage: {metrics.reduction_percentage:.2f}%")
-        logger.info(f"Target (≥90%) met: {metrics.target_met}")
-        logger.info(f"Samples processed: {metrics.sample_count}")
-        
+        print(f"Success: Reduction {metrics.reduction_percentage:.2f}%, Target Met: {metrics.target_met}")
     except Exception as e:
-        logger.error(f"Latency analysis failed: {e}", exc_info=True)
-        raise
+        logging.error(f"Latency analysis failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

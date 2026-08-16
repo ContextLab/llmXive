@@ -1,30 +1,73 @@
 [lint]
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # Pyflakes
-  "I",  # isort
-  "B",  # flake8-bugbear
-  "C4", # flake8-comprehensions
-  "UP", # pyupgrade
-  "N",  # pep8-naming
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
 ]
 ignore = [
-  "E501", # line too long (handled by black)
-  "B008", # do not perform function calls in argument defaults
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults (common in testing)
+]
+# Allow autofix for all enabled rules (if `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific directories that are not part of the core logic
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"tests/*" = ["S101", "D100", "D101", "D102", "D103"]
+# Per-file ignores
+# (Optional: specific ignores for specific files if needed)
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.per-file-ignores]
+# Ignore unused imports in __init__.py files
+"__init__.py" = ["F401"]
+# Ignore specific rules in tests if needed
+"tests/**/*.py" = ["ARG001", "S101"]
 
 [lint.isort]
-known-first-party = ["src", "tests", "scripts"]
-force-sort-within-sections = true
-combine-as-imports = true
+known-first-party = ["src", "scripts", "tests"]
+known-third-party = [
+    "transformers",
+    "llama_cpp",
+    "sklearn",
+    "datasets",
+    "pandas",
+    "numpy",
+    "torch",
+    "pytest",
+    "einops",
+    "seaborn",
+    "matplotlib",
+    "scipy",
+]
+force-single-line = false
+lines-after-imports = 2

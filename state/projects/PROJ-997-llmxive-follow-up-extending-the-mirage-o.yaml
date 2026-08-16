@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-997-llmxive-follow-up-extending-the-mirage-o
-last_run_id: 9f8733e1-2a82-4bd1-803f-31c281209297
+last_run_id: acf59a0c-1f89-4356-a4e5-806296ace5c8
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o
 title: 'llmXive follow-up: extending "The Mirage of Optimizing Training Policies:
   Monotonic Inference Polici"'
-updated_at: '2026-08-15T12:56:53.984924Z'
+updated_at: '2026-08-16T14:36:26.196968Z'

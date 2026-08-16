@@ -1,55 +1,71 @@
-"""
-Script to initialize the project data directory structure.
-Creates required directories for raw data, processed data, and model artifacts.
-"""
 import os
 from pathlib import Path
 import logging
 
-# Configure basic logging for this script
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
 
-def setup_data_directories(project_root: Path) -> None:
+def setup_data_directories(root_dir: str) -> None:
     """
-    Creates the standard data directory structure required by the project.
-    
-    Directories created:
-    - data/raw/        : For raw, unprocessed datasets
-    - data/processed/  : For processed, cleaned, and feature-engineered data
-    - data/models/     : For saved model artifacts and checkpoints
+    Create the required data directory structure:
+    - data/raw/
+    - data/processed/
+    - data/models/
     
     Args:
-        project_root: The root path of the project where data directories will be created.
+        root_dir: The project root directory path.
     """
-    data_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/models"
+    base_path = Path(root_dir)
+    data_path = base_path / "data"
+    
+    directories = [
+        data_path / "raw",
+        data_path / "processed",
+        data_path / "models"
     ]
     
-    created_count = 0
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created directory: {directory}")
+        
+    # Create __init__.py to ensure valid Python package structure if needed
+    # (Though data dirs are usually not packages, this aligns with T001)
+    init_file = data_path / "__init__.py"
+    if not init_file.exists():
+        init_file.touch()
+        logger.info(f"Created {init_file} to ensure package structure.")
+
+def create_init_files(root_dir: str) -> None:
+    """
+    Create __init__.py files in the data directories to ensure they are treated as packages.
+    """
+    base_path = Path(root_dir)
+    data_path = base_path / "data"
     
-    for dir_path in data_dirs:
-        full_path = project_root / dir_path
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {full_path}")
-            created_count += 1
-        except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            raise
+    sub_dirs = ["raw", "processed", "models"]
     
-    logger.info(f"Successfully created {created_count} data directories under {project_root}")
+    for sub_dir in sub_dirs:
+        dir_path = data_path / sub_dir
+        init_path = dir_path / "__init__.py"
+        if not init_path.exists():
+            init_path.touch()
+            logger.info(f"Created {init_path}")
+
+def main() -> None:
+    """
+    Entry point for the script. Creates data directories relative to the current working directory.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    
+    # Assume script runs from project root or we target the current working directory
+    root_dir = Path.cwd()
+    
+    logger.info(f"Setting up data directories in: {root_dir}")
+    setup_data_directories(root_dir)
+    create_init_files(root_dir)
+    logger.info("Data directory setup complete.")
 
 if __name__ == "__main__":
-    # Determine project root (assuming script is in code/scripts/)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent.parent
-    
-    logger.info(f"Project root detected at: {project_root}")
-    setup_data_directories(project_root)
-    logger.info("Data directory setup complete.")
+    main()

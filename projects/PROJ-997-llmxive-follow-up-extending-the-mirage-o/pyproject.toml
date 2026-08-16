@@ -7,7 +7,8 @@ name = "llmxive-follow-up"
 version = "0.1.0"
 description = "Extending 'The Mirage of Optimizing Training Policies: Monotonic Inference Policies'"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
+license = {text = "MIT"}
 dependencies = [
     "transformers>=4.30.0",
     "llama-cpp-python>=0.2.0",
@@ -31,28 +32,35 @@ dev = [
 
 [tool.black]
 line-length = 100
-target-version = ['py310']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
-[tool.ruff]
-line-length = 100
-target-version = "py310"
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+pythonpath = ["."]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+check_untyped_defs = true

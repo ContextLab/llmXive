@@ -9,7 +9,7 @@ This project implements a hardware-grounded validation framework to bound the "p
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3  
 **Primary Dependencies**: `transformers`, `datasets` (Hugging Face), `llama-cpp-python`, `scikit-learn`, `numpy`, `pandas`, `pytest`, `onnxruntime` (fallback)  
 **Storage**: Local file system (Parquet/CSV for datasets, JSON for metrics)  
 **Testing**: `pytest` (unit, integration, contract validation)  

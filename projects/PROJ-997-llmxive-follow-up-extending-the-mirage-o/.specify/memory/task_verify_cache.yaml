@@ -1,38 +1,38 @@
-T001:
+T021:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or `__init__.py` files were provided as evidence, so we cannot\
-    \ verify that the required `src/`, `tests/`, `data/...`, `docs/...`, and sub\u2011\
-    directories under `src/` actually exist and contain the necessary `__init__.py`\
-    \ files. The implementer must supply a listing or snapshot of the created project\
-    \ structure showing each folder and its `__init__.py`."
-T003:
+  h: 3018038941eb89c4c24fc0ad3391f419251a39f25be53aa3465181c193460731
+  r: The provided `src/cli/train_predictor.py` is incomplete (the `save_model` function
+    is truncated and never called) and the required output file `data/models/gap_predictor.pkl`
+    does not exist. Consequently the script does not actually save a trained KRR model
+    artifact as the task demands.
+T027:
   c: false
-  h: 122280bf88aaedb8f8507b97cb058ef704c2ba9edf7ff097953afc6e371162f7
-  r: "The `pyproject.toml` file correctly contains a `[tool.black]` section, but the\
-    \ required `.ruff.toml` file is missing entirely, so the linting configuration\
-    \ is not fully provided. The task is not satisfied until a non\u2011empty `.ruff.toml`\
-    \ with ruff settings is added."
-T004:
+  h: 6f1d506e17342dbcd53ec09592fc743841f7e60d90b0d2c9629e0dec33a79e8c
+  r: "The repository contains a partially shown `src/cli/run_baseline_sync.py` that\
+    \ is truncated and does not include logic to write `baseline_metrics.json`. Moreover,\
+    \ the required `data/processed/baseline_metrics.json` file is missing entirely.\
+    \ Hence the task\u2019s verification condition is not satisfied."
+T029:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings, screenshots, or code snippets showing the creation of
-    `data/raw/`, `data/processed/`, and `data/models/` were provided; therefore we
-    cannot confirm that the required folder structure exists or contains any files.
-    The implementer must supply concrete evidence (e.g., a file tree, `ls` output,
-    or a script that creates these directories).
-T015:
+  h: a37c111c4fbe4d258db0d040127454c848e65c804638f0ec9b386cffbfcd0ba3
+  r: "The provided `src/utils/stats.py` is truncated, does not show any Bonferroni\u2011\
+    corrected test logic nor code that writes `data/processed/t_test_results.json`.\
+    \ Moreover, the required `data/processed/t_test_results.json` file is absent.\
+    \ The task\u2019s core outputs are therefore missing."
+T030:
   c: false
-  h: c680c6ec1e1109a785700b4478e355f0220fe73d116004883ee4d32d3c9b79ec
-  r: "The repository contains `src/cli/generate_dataset.py`, but the required output\
-    \ file `data/processed/training_sample.parquet` is absent, so the pipeline\u2019\
-    s result cannot be verified and the task\u2019s core deliverable is missing. The\
-    \ next implementer must ensure the script actually creates the Parquet file with\
-    \ the specified schema and non\u2011zero KL divergence values."
-T017:
+  h: 3fa5e1d8b19273325b88e3caa1c62f7f97369403bbc755022b5bbb273c445c6a
+  r: "The provided `src/services/latency_meter.py` only contains helper functions\
+    \ for measuring latency and a `LatencyMetrics` dataclass that lacks the required\
+    \ `target_met` field; it never reads `baseline_metrics.json` or `proxy_metrics.json`,\
+    \ computes the reduction percentage, or writes `data/processed/latency_metrics.json`.\
+    \ Moreover, the expected output file `data/processed/latency_metrics.json` does\
+    \ not exist. The task\u2019s core requirements are therefore unmet."
+T032:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `logs/pipeline.log` file or any JSON\u2011lines logging output was presented,\
-    \ and there is no code snippet showing the required per\u2011sample logging with\
-    \ the specified keys. Consequently the task\u2019s logging requirement is not\
-    \ demonstrated."
+  h: 4461a85efb1ec0dbdfc661d7ed7bbb67cd9361a854ffb26535f6c3c835089741
+  r: "The `src/cli/aggregate_bound_results.py` script is present and appears to implement\
+    \ the aggregation logic, but the required output file `data/processed/aggregated_consistency_report.json`\
+    \ does not exist on disk, so the task\u2019s primary deliverable was not produced.\
+    \ The next implementer must run the script (or otherwise generate) to create the\
+    \ JSON report with the specified schema."

@@ -1,1 +1,1 @@
-# cli package
+# CLI package
