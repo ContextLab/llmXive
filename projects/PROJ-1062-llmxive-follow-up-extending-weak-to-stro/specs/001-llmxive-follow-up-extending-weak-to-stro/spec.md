@@ -55,9 +55,9 @@
 ### Edge Cases
 
 - **What happens when** the implicit reward signal is numerically unstable (e.g., log of zero probability) for certain tokens in the MoE/SSM vocabularies?
-  - *Handling*: The system must implement an epsilon-smoothing mechanism (e.g., adding a small positive constant) to probabilities before log-ratio computation to prevent NaN errors, ensuring the training loop does not crash.
+  - *Handling*: The system must implement an epsilon-smoothing mechanism (e.g., adding a small positive constant) to probabilities before log-ratio computation. to prevent NaN errors, ensuring the training loop does not crash.
 - **How does the system handle** memory overflow if the MoE/SSM model batch size is too large for the 7GB RAM limit of the free-tier runner?
-  - *Handling*: The system must enforce a maximum batch size constraint with gradient accumulation to simulate larger batches without exceeding physical memory limits. If dynamic reduction is triggered, it must fall back to this hard limit.
+  - *Handling*: The system must enforce a maximum batch size constraint or utilize gradient accumulation to simulate larger batches without exceeding physical memory limits. If dynamic reduction is triggered, it must fall back to this hard limit.
 - **What happens when** the SSM model's architecture prevents standard attention-based probability alignment?
   - *Handling*: The system must verify that the probability output dimensions match the reward calculation logic; if the output dimension mismatch > 0 or log-probability variance < 1e-9, it must report a specific architecture incompatibility error and halt the process.
 
@@ -67,7 +67,7 @@
 
 - **FR-001**: System MUST compute the implicit reward signal as the log-ratio of output probabilities between the post-RL and pre-RL checkpoints of the dense Transformer teacher for every token in the AIME 2024 subset (See US-1).
 - **FR-002**: System MUST initialize and load a 1B parameter MoE student and a B SSM student with pre-trained weights available on HuggingFace using int8 quantization and CPU offloading to fit within 7GB RAM (See US-1, US-2).
-- **FR-003**: System MUST execute an on-policy distillation training loop where the MoE and SSM students update parameters to maximize the computed implicit reward signal, restricted to CPU-only execution, generating max 64 tokens per prompt for a sufficient number of training steps (See US-1, US-2).
+- **FR-003**: System MUST execute an on-policy distillation training loop where the MoE and SSM students update parameters to maximize the computed implicit reward signal, restricted to CPU-only execution, generating a limited number of tokens per prompt for a sufficient number of training steps (See US-1, US-2).
 - **FR-004**: System MUST train a separate baseline for each student architecture using only the final output distribution of the teacher (standard distillation) without the implicit reward signal (See US-1, US-2).
 - **FR-005**: System MUST evaluate both Direct-OPD and Baseline models on the AIME subset by calculating the log-probability improvement of ground-truth reasoning steps (prefix-only) (See US-1, US-2, US-3).
 - **FR-006**: System MUST perform a statistical significance test (paired t-test or Wilcoxon signed-rank) comparing the performance gains of Direct-OPD vs. Baseline for each architecture, using cluster-robust standard errors and applying a multiple-comparison correction (e.g., Bonferroni) for the two tests (See US-3).
