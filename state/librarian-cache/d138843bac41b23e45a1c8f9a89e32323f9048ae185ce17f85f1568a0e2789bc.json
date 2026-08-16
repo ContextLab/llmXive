@@ -1,0 +1,624 @@
+{
+  "fetched_at": "2026-08-16T03:27:12Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigation Foundation Model\"",
+      "target_n": 5
+    },
+    "duration_seconds": 66.722,
+    "ended_at": "2026-08-16T03:27:12Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "visual language navigation foundation models"
+        ],
+        [
+          2,
+          "embodied AI vision-language agents"
+        ],
+        [
+          3,
+          "generalist navigation policies for embodied agents"
+        ],
+        [
+          4,
+          "large language models for robotic navigation"
+        ],
+        [
+          5,
+          "vision-language pretraining for navigation tasks"
+        ],
+        [
+          6,
+          "zero-shot visual language navigation"
+        ],
+        [
+          7,
+          "multi-modal foundation models for embodied AI"
+        ],
+        [
+          8,
+          "instruction following in simulated environments"
+        ],
+        [
+          9,
+          "hierarchical reinforcement learning for VLN"
+        ],
+        [
+          10,
+          "pre-trained vision-language transformers for robotics"
+        ],
+        [
+          11,
+          "generalizable navigation agents in diverse environments"
+        ],
+        [
+          12,
+          "language-conditioned visual navigation with foundation models"
+        ],
+        [
+          13,
+          "cross-modal representation learning for navigation"
+        ],
+        [
+          14,
+          "scalable visual language agents for long-horizon tasks"
+        ],
+        [
+          15,
+          "foundation model adaptation for embodied navigation"
+        ],
+        [
+          16,
+          "instruction-guided navigation using large language models"
+        ],
+        [
+          17,
+          "transfer learning in visual language navigation"
+        ],
+        [
+          18,
+          "unified vision-language models for robot control"
+        ],
+        [
+          19,
+          "autonomous navigation with natural language instructions"
+        ],
+        [
+          20,
+          "generative agents for visual language navigation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigation Foundation Model\" computer science": 0,
+        "visual language navigation foundation models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "embodied AI visual grounding navigation",
+      "ALFWorld Habitat R2R VLN benchmarks",
+      "homophily graph topology navigation policies",
+      "zero-shot generalization navigation success rate",
+      "data contamination instruction following leakage"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2407.07035"
+      ]
+    },
+    "per_query_hit_count": {
+      "ALFWorld Habitat R2R VLN benchmarks": 3,
+      "data contamination instruction following leakage": 3,
+      "embodied AI visual grounding navigation": 3,
+      "homophily graph topology navigation policies": 3,
+      "llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigation Foundation Model\" computer science": 3,
+      "zero-shot generalization navigation success rate": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2512.03307",
+          "rationale": "The paper focuses on \"Tabular Foundation Models\" for structured data, which is an entirely different domain from the user's question regarding \"Visual Language Navigation\" (VLN) and computer vision. While both involve foundation models, the data modalities (tables vs. visual/linguistic navigation) and the specific mechanisms studied (adversarial robustness on synthetic tabular data vs. visual navigation capabilities) are distinct, failing the \"off-domain entirely\" rejection criterion.",
+          "title": "Robust Tabular Foundation Models"
+        },
+        {
+          "primary_pointer": "2506.13817",
+          "rationale": "The paper focuses on applying agentic generative AI to single-cell RNA sequencing (biological data labeling), which is an entirely different domain and task from the user's question regarding visual language navigation foundation models. It fails all inclusion criteria as it shares no common mechanism, variables, or empirical population with visual navigation, and the shared term \"foundation models\" represents a distinct construct in a different field (omics vs. robotics/vision).",
+          "title": "DeepSeq: High-Throughput Single-Cell RNA Sequencing Data Labeling via Web Search-Augmented Agentic Generative AI Foundation Models"
+        },
+        {
+          "primary_pointer": "2408.13575",
+          "rationale": "The paper focuses on \"long-term point tracking\" and \"geometric correspondence\" in visual foundation models, which is a distinct computer vision task from \"Visual Language Navigation\" (VLN) that requires integrating language instructions with spatial reasoning for agent movement. While both involve visual foundation models, the paper does not measure the same mechanism, variables, or empirical setting (navigation vs. tracking) required for inclusion in a literature review specifically about exten",
+          "title": "Can Visual Foundation Models Achieve Long-term Point Tracking?"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-16T03:26:05Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"abot-n1: toward a general visual language navigation foundation model\" computer science",
+      "raw": "llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigation Foundation Model\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied Artificial Intelligence (Embodied AI) is crucial for achieving Artificial General Intelligence (AGI) and serves as a foundation for various applications (e.g., intelligent mechatronics systems, smart manufacturing) that bridge cyberspace and the physical world. Recently, the emergence of Multi-modal Large Models (MLMs) and World Models (WMs) have attracted significant attention due to their remarkable perception, interaction, and reasoning capabilities, making them a promising architecture for embodied agents. In this survey, we give a comprehensive exploration of the latest advancements in Embodied AI. Our analysis firstly navigates through the forefront of representative works of embodied robots and simulators, to fully understand the research focuses and their limitations. Then, we analyze four main research targets: 1) embodied perception, 2) embodied interaction, 3) embodied agent, and 4) sim-to-real adaptation, covering state-of-the-art methods, essential paradigms, and comprehensive datasets. Additionally, we explore the complexities of MLMs in virtual and real embodied agents, highlighting their significance in facilitating interactions in digital and physical environments. Finally, we summarize the challenges and limitations of embodied AI and discuss potential future directions. We hope this survey will serve as a foundational reference for the research community. The associated project can be found at https://github.com/HCPLab-SYSU/Embodied_AI_Paper_List.",
+          "claimed_authors": [
+            "Yang Liu",
+            "Weixing Chen",
+            "Yongjie Bai",
+            "Xiaodan Liang",
+            "Guanbin Li",
+            "Wen Gao",
+            "Liang Lin"
+          ],
+          "claimed_title": "Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.06886"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A core task in embodied intelligence is ego-centric 3D visual grounding. Existing methods typically adopt two-stage, heterogeneous pipelines that pair a detector with a separate grounding model. Incompatible decoders and box heads hinder the transfer of object-level priors, and the split training causes redundant re-optimization. To overcome these limitations, we present DEGround, a straight, elegant, and effective framework that centers on object-level sharing over detection and grounding. It employs a set of queries that serves as the common object representation for both detection and grounding, which is decoded by a shared transformer and bounding box head. Building on this homogeneous framework, we further introduce two task-specific plug-in modules to enhance fine-grained instruction grounding. The Regional Activation Grounding module improves spatial-textual alignment by highlighting instruction-relevant regions, while the Query-wise Modulation module applies sentence-conditioned affine modulation to generate instruction-aware queries at initialization. Extensive experiments demonstrate that DEGround achieves the best performance on multiple benchmarks. Remarkably, it significantly outperforms previous methods by 7.52% at overall precision on the EmbodiedScan dataset.",
+          "claimed_authors": [
+            "Yani Zhang",
+            "Dongming Wu",
+            "Hao Shi",
+            "Yingfei Liu",
+            "Tiancai Wang",
+            "Xingping Dong"
+          ],
+          "claimed_title": "DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05199"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This document reports the State of the Art of science and practice on three topics related to smart and healthy ageing at home: furniture and habitats, Information and Communication Technologies (ICT), and healthcare. The reports were prepared by the working groups of COST Action CA16226, Sheld-on. Sheld-on is a network of researchers, user representatives, industry members, and other stakeholders. The three domains covered in this report were the areas of interest for three working groups from the COST Action. The aim of each working group was to assess the State of the Art for disciplinary understanding, identification of advances in smart furniture and habitat, products, industries and success stories. The findings on these topics of all working groups are compiled here. Due to the different backgrounds of the members of each of the working groups, the document is divided in three separate parts that can be considered as separate State of the Art reports. The goal of this document is to be used as input in the fourth working group of Sheld-on COST Action: Solutions for Ageing Well at Home, in the Community, and at Work, where experts from the three different domains converge to a single working group in order to achieve the action objectives.",
+          "claimed_authors": [
+            "Birgitta Langhammer",
+            "Oscar Martinez Mozos",
+            "Ana Mendes",
+            "Joana Madureira",
+            "Lina Seduikyte",
+            "Martin Weigl",
+            "Heidi Salonen",
+            "Veronika Kotradyova",
+            "Ondrej Krejcar",
+            "Sarmite Mikulioniene",
+            "Willeke van Staalduinen",
+            "Carina Dantas",
+            "Petra Maresova",
+            "Willeke van Staalduinen",
+            "Carina Dantas",
+            "Barakovic Sabina",
+            "Barakovic Husic Jasmina",
+            "Jonathan Gomez-Raja"
+          ],
+          "claimed_title": "State of the Art Report for Smart Habitat for Older Persons -- Working Group 3 -- Healthcare",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.03255"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='State of the Art Report for Smart Habitat for Older Persons -- Working Group 3 -- Healthcare')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose a training-free framework for vision-and-language navigation (VLN). Existing zero-shot VLN methods are mainly designed for discrete environments or involve unsupervised training in continuous simulator environments, which makes it challenging to generalize and deploy them in real-world scenarios. To achieve a training-free framework in continuous environments, our framework formulates navigation guidance as graph constraint optimization by decomposing instructions into explicit spatial constraints. The constraint-driven paradigm decodes spatial semantics through constraint solving, enabling zero-shot adaptation to unseen environments. Specifically, we construct a spatial constraint library covering all types of spatial relationship mentioned in VLN instructions. The human instruction is decomposed into a directed acyclic graph, with waypoint nodes, object nodes and edges, which are used as queries to retrieve the library to build the graph constraints. The graph constraint optimization is solved by the constraint solver to determine the positions of waypoints, obtaining the robot's navigation path and final goal. To handle cases of no solution or multiple solutions, we construct a navigation tree and the backtracking mechanism. Extensive experiments on standard benchmarks demonstrate significant improvements in success rate and navigation efficiency compared to state-of-the-art zero-shot VLN methods. We further conduct real-world experiments to show that our framework can effectively generalize to new environments and instruction sets, paving the way for a more robust and autonomous navigation framework.",
+          "claimed_authors": [
+            "Hang Yin",
+            "Haoyu Wei",
+            "Xiuwei Xu",
+            "Wenxuan Guo",
+            "Jie Zhou",
+            "Jiwen Lu"
+          ],
+          "claimed_title": "GC-VLN: Instruction as Graph Constraints for Training-free Vision-and-Language Navigation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.10454"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='GC-VLN: Instruction as Graph Constraints for Training-free Vision-and-Language Navigation')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vision-and-Language Navigation (VLN) has been studied mainly in either discrete or continuous spaces, with little attention to dynamic, crowded environments. We present HA-VLN 2.0, a unified benchmark introducing explicit social-awareness constraints. Our contributions are: (i) a standardized task and metrics capturing both goal accuracy and personal-space adherence; (ii) HAPS 2.0 dataset and simulators modeling multi-human interactions, outdoor contexts, and finer language-motion alignment; (iii) benchmarks on 16,844 socially grounded instructions, revealing sharp performance drops of leading agents under human dynamics and partial observability; and (iv) real-world robot experiments validating sim-to-real transfer, with an open leaderboard enabling transparent comparison. Results show that explicit social modeling improves navigation robustness and reduces collisions, underscoring necessity of human-centric approaches. By releasing datasets, simulators, baselines, and protocols, HA-VLN 2.0 provides a strong foundation for safe, human-aware navigation research.",
+          "claimed_authors": [
+            "Yifei Dong",
+            "Fengyi Wu",
+            "Qi He",
+            "Lingdong Kong",
+            "Heng Li",
+            "Minghan Li",
+            "Zebang Cheng",
+            "Yuxuan Zhou",
+            "Jingdong Sun",
+            "Qi Dai",
+            "Alexander G Hauptmann",
+            "Zhi-Qi Cheng"
+          ],
+          "claimed_title": "HA-VLN 2.0: An Open Benchmark and Leaderboard for Human-Aware Navigation in Discrete and Continuous Environments with Dynamic Multi-Human Interactions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.14229"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='HA-VLN 2.0: An Open Benchmark and Leaderboard for Human-Aware Navigation in Discrete and Continuous Environments with Dynamic Multi-Human Interactions')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper is devoted to study the structure of Hawaiian groups of some topological spaces. We present some behaviors of Hawaiian groups with respect to product spaces, weak join spaces, cone spaces, covering spaces and locally trivial bundles. In particular, we determine the structure of the $n$-dimensional Hawaiian group of the $m$-dimensional Hawaiian earring space, for all $1\\leq m\\leq n$.",
+          "claimed_authors": [
+            "Ameneh Babaee",
+            "Behrooz Mashayekhy",
+            "Hanieh Mirebrahimi"
+          ],
+          "claimed_title": "On Hawaiian Groups of Some Topological Spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0731"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='On Hawaiian Groups of Some Topological Spaces')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In various applications of land vehicle navigation and automatic guidance systems, Global Navigation Satellite System/Inertial Measurement Unit (GNSS/IMU) positioning performance crucially depends on the attitude determination accuracy affected by gyro and accelerometer bias instabilities. Traditional bias estimation approaches based on the Kalman filter suffer from implementation complexity and require non-intuitive tuning procedures. In this paper we propose, as an alternative, a simple observer that estimates inertial sensor biases exclusively in terms of quantities with obvious geometrical meaning. By this, any multidimensional vector-matrix operations are avoided and observer tuning is substantially simplified. The observer has been successfully tested in a farming vehicle navigation system.",
+          "claimed_authors": [
+            "Vasiliy M. Tereshkov"
+          ],
+          "claimed_title": "A Simple Observer for Gyro and Accelerometer Biases in Land Navigation Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.06618"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='A Simple Observer for Gyro and Accelerometer Biases in Land Navigation Systems')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Imitation learning is a popular approach for training visual navigation policies. However, collecting expert demonstrations for legged robots is challenging as these robots can be hard to control, move slowly, and cannot operate continuously for a long time. Here, we propose a zero-shot imitation learning approach for training a visual navigation policy on legged robots from human (third-person perspective) demonstrations, enabling high-quality navigation and cost-effective data collection. However, imitation learning from third-person demonstrations raises unique challenges. First, these demonstrations are captured from different camera perspectives, which we address via a feature disentanglement network (FDN) that extracts perspective-invariant state features. Second, as transition dynamics vary across systems, we label missing actions by either building an inverse model of the robot's dynamics in the feature space and applying it to the human demonstrations or developing a Graphic User Interface(GUI) to label human demonstrations. To train a navigation policy we use a model-based imitation learning approach with FDN and labeled human demonstrations. We show that our framework can learn an effective policy for a legged robot, Laikago, from human demonstrations in both simulated and real-world environments. Our approach is zero-shot as the robot never navigates the same paths during training as those at testing time. We justify our framework by performing a comparative study.",
+          "claimed_authors": [
+            "Xinlei Pan",
+            "Tingnan Zhang",
+            "Brian Ichter",
+            "Aleksandra Faust",
+            "Jie Tan",
+            "Sehoon Ha"
+          ],
+          "claimed_title": "Zero-shot Imitation Learning from Demonstrations for Legged Robot Visual Navigation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.12971"
+        },
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Zero-shot Imitation Learning from Demonstrations for Legged Robot Visual Navigation')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
+          "claimed_authors": [
+            "Chunting Zhou",
+            "Junxian He",
+            "Xuezhe Ma",
+            "Taylor Berg-Kirkpatrick",
+            "Graham Neubig"
+          ],
+          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.00049"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
+          "claimed_authors": [
+            "Rob Grzywinski",
+            "Joshua D'Arcy",
+            "Rob Naidoff",
+            "Ashish Shukla",
+            "Alex Browne",
+            "Ren Gibbons",
+            "Brinnae Bent"
+          ],
+          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.16338"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"ABot-N1: Toward a General Visual Language Navigati', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
+        "failed_at": "2026-08-16T03:26:36Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ziyu Zhu",
+            "Xilin Wang",
+            "Yixuan Li",
+            "Zhuofan Zhang",
+            "Xiaojian Ma",
+            "Yixin Chen",
+            "Baoxiong Jia",
+            "Wei Liang",
+            "Qian Yu",
+            "Zhidong Deng",
+            "Siyuan Huang",
+            "Qing Li"
+          ],
+          "title": "Move to Understand a 3D Scene: Bridging Visual Grounding and Exploration for Efficient and Versatile Embodied Navigation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.04047",
+        "summary": "Embodied scene understanding requires not only comprehending visual-spatial information that has been observed but also determining where to explore next in the 3D physical world. Existing 3D Vision-Language (3D-VL) models primarily focus on grounding objects in static observations from 3D reconstruction, such as meshes and point clouds, but lack the ability to actively perceive and explore their environment. To address this limitation, we introduce \\underline{\\textbf{M}}ove \\underline{\\textbf{t}}o \\underline{\\textbf{U}}nderstand (\\textbf{\\model}), a unified framework that integrates active perception with \\underline{\\textbf{3D}} vision-language learning, enabling embodied agents to effectively explore and understand their environment. This is achieved by three key innovations: 1) Online query-based representation learning, enabling direct spatial memory construction from RGB-D frames, eliminating the need for explicit 3D reconstruction. 2) A unified objective for grounding and exploring, which represents unexplored locations as frontier queries and jointly optimizes object grounding and frontier selection. 3) End-to-end trajectory learning that combines \\textbf{V}ision-\\textbf{L}anguage-\\textbf{E}xploration pre-training over a million diverse trajectories collected from both simulated and real-world RGB-D sequences. Extensive evaluations across various embodied navigation and question-answering benchmarks show that MTU3D outperforms state-of-the-art reinforcement learning and modular navigation approaches by 14\\%, 23\\%, 9\\%, and 2\\% in success rate on HM3D-OVON, GOAT-Bench, SG3D, and A-EQA, respectively. \\model's versatility enables navigation using diverse input modalities, including categories, language descriptions, and reference images. These findings highlight the importance of bridging visual grounding and exploration for embodied intelligence.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2507.04047",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-16T03:26:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Changan Chen",
+            "Ziad Al-Halah",
+            "Kristen Grauman"
+          ],
+          "title": "Semantic Audio-Visual Navigation",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.11583",
+        "summary": "Recent work on audio-visual navigation assumes a constantly-sounding target and restricts the role of audio to signaling the target's position. We introduce semantic audio-visual navigation, where objects in the environment make sounds consistent with their semantic meaning (e.g., toilet flushing, door creaking) and acoustic events are sporadic or short in duration. We propose a transformer-based model to tackle this new semantic AudioGoal task, incorporating an inferred goal descriptor that captures both spatial and semantic properties of the target. Our model's persistent multimodal memory enables it to reach the goal even long after the acoustic event stops. In support of the new task, we also expand the SoundSpaces audio simulations to provide semantically grounded sounds for an array of objects in Matterport3D. Our method strongly outperforms existing audio-visual navigation methods by learning to associate semantic, acoustic, and visual cues.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.11583",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-16T03:26:43Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yue Zhang",
+            "Ziqiao Ma",
+            "Jialu Li",
+            "Yanyuan Qiao",
+            "Zun Wang",
+            "Joyce Chai",
+            "Qi Wu",
+            "Mohit Bansal",
+            "Parisa Kordjamshidi"
+          ],
+          "title": "Vision-and-Language Navigation Today and Tomorrow: A Survey in the Era of Foundation Models",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2407.07035",
+        "summary": "Vision-and-Language Navigation (VLN) has gained increasing attention over recent years and many approaches have emerged to advance their development. The remarkable achievements of foundation models have shaped the challenges and proposed methods for VLN research. In this survey, we provide a top-down review that adopts a principled framework for embodied planning and reasoning, and emphasizes the current methods and future opportunities leveraging foundation models to address VLN challenges. We hope our in-depth discussions could provide valuable resources and insights: on one hand, to milestone the progress and explore opportunities and potential roles for foundation models in this field, and on the other, to organize different challenges and solutions in VLN to foundation model researchers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2407.07035",
+          "http_status": 200,
+          "pdf_sample_score": 0.163,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-16T03:26:44Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"abot-n1: toward a general visual language navigation foundation model\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

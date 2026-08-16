@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.13817",
+  "judged_at": "2026-08-16T03:26:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"abot-n1: toward a general visual language navigation foundation model\" computer science",
+  "rationale": "The paper focuses on applying agentic generative AI to single-cell RNA sequencing (biological data labeling), which is an entirely different domain and task from the user's question regarding visual language navigation foundation models. It fails all inclusion criteria as it shares no common mechanism, variables, or empirical population with visual navigation, and the shared term \"foundation models\" represents a distinct construct in a different field (omics vs. robotics/vision).",
+  "relevant": false
+}

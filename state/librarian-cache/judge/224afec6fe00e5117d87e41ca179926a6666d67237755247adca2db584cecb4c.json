@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.07035",
+  "judged_at": "2026-08-16T03:27:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"abot-n1: toward a general visual language navigation foundation model\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the specific domain of Vision-and-Language Navigation (VLN) in the era of foundation models, which is the exact context of the user's follow-up research on \"ABot-N1.\" It provides the necessary literature review baseline for the field, covering the methods, challenges, and future directions that a researcher extending a VLN foundation model would be expected to cite.",
+  "relevant": true
+}
