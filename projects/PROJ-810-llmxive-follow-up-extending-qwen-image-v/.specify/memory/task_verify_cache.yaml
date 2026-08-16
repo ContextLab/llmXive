@@ -17,25 +17,6 @@ T001:
     \ PCA visualisation, permutation test statistics, or zero\u2011shot editing evaluation)\
     \ is present. The claim of completion lacks any tangible evidence, so the task\
     \ requirements are not satisfied."
-T003b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a Git repository (e.g., a `.git` directory, initialization script,
-    or commit log) is provided; the task required creating or confirming a repository,
-    but the artifacts are missing. The implementer must supply proof that the repository
-    has been initialized.
-T003c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `.gitignore` file content was provided; the evidence contains only the task
-    description and project specifications, with no actual artifact file present or
-    shown. The required file is missing, so the task is not satisfied.
-T005:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `ruff.toml`, `.flake8`) or any evidence of them being
-    set up are present. The task required actual tool configuration, which is missing.
 T006:
   c: false
   h: 6bc126c018eed9f03a3e8176ae2a528e353fd4bc8e017141b655638e575794cb

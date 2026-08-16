@@ -13,7 +13,7 @@ This project investigates the geometric structure of the Qwen-Image-VAE-2.0 late
 **Primary Dependencies**: `torch` (CPU wheel), `transformers`, `datasets`, `scikit-learn`, `opencv-python-headless`, `paddleocr`, `pyyaml`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pillow`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`) for parquet and image artifacts; no external database.  
 **Testing**: `pytest` with `pytest-cov` for unit tests; contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: A limited CPU allocation, 7 GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: A limited CPU allocation, limited RAM, no GPU).  
 **Project Type**: Computational Research / Data Analysis Pipeline  
 **Performance Goals**: Complete full analysis pipeline within 6 hours; single image edit < 60 seconds.  
 **Constraints**: No CUDA/GPU usage; no model fine-tuning; memory usage < 7 GB; strict adherence to ground-truth bounding boxes for region isolation.  

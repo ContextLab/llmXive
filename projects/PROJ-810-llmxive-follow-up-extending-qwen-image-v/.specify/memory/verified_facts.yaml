@@ -1,5 +1,6 @@
-'|alpha bonferroni controlled correction error family holm less rate than using wise':
-  quote: "average power\u03A0 3 while strictly controlling the FWER at\u03B1= 0.05."
-  source_id: '2512.14131'
-  url: https://arxiv.org/abs/2512.14131
+'|alpha controlled error family less rate than wise':
+  quote: FWER under 0.01, 0.05 or 0.1. As a general procedure to control k-FWER (the
+    probability of making
+  source_id: '2310.09493'
+  url: https://arxiv.org/abs/2310.09493
   value: '0.05'
