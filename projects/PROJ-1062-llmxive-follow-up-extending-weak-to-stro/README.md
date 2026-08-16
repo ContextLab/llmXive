@@ -1,60 +1,34 @@
-# llmXive Follow-up: Extending Weak-to-Strong Generalization
+# llmXive: Weak-to-Strong Generalization via Direct On-Policy Distillation
 
-## Project Setup
+## Project Overview
+This project implements the research pipeline for extending weak-to-strong
+generalization using Direct On-Policy Distillation (Direct-OPD) across
+different model architectures (Transformer, MoE, SSM).
 
-This project requires Python 3.11+ and uses `pip` for dependency management.
-
-### Prerequisites
-
-- Python 3.11 or higher
-- pip (>= 23.0)
-
-### Installation
-
-1. Create a virtual environment (recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-3. Verify installation:
- ```bash
- python -m pytest code/tests/test_environment.py -v
- ```
-
-### Development Tools
-
-The project includes `ruff` for linting and `black` for formatting.
-
-- Run linter: `python -m code.scripts.run_lint`
-- Run formatter: `python -m code.scripts.run_format`
-
-### Project Structure
-
+## Directory Structure
 ```
 .
 ├── code/ # Source code
-│ ├── core/ # Core utilities (trainer, evaluator, etc.)
+│ ├── core/ # Core logic (trainer, evaluator, rewards)
 │ ├── data/ # Data loading and preprocessing
-│ ├── models/ # Model loaders (MoE, SSM, Teacher)
-│ ├── scripts/ # Utility scripts
-│ └── tests/ # Test suite
-├── data/ # Data directory (raw, processed, results)
+│ ├── models/ # Model loaders (Teacher, MoE, SSM)
+│ ├── scripts/ # Executable scripts
+│ └── tests/ # Unit and integration tests
+├── data/ # Data storage
+│ ├── raw/ # Raw downloaded datasets
+│ └── processed/ # Preprocessed datasets
+├── tests/ # Test suite
+├── config/ # Configuration files
 ├── docs/ # Documentation
 ├── requirements.txt # Python dependencies
-├── pyproject.toml # Project configuration (ruff, black, pytest)
-└── README.md
+└── README.md # This file
 ```
 
-## Running Experiments
-
-Refer to `tasks.md` for the execution order of specific experiments (MoE, SSM).
+## Quick Start
+1. Install dependencies: `pip install -r requirements.txt`
+2. Download data: `python code/scripts/download_aime.py`
+3. Preprocess: `python code/scripts/preprocess.py`
+4. Run experiments: `python code/scripts/run_experiment.py`
 
 ## License
-
-Research use only.
+MIT License

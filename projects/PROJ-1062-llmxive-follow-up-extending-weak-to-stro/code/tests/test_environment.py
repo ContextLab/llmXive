@@ -2,74 +2,61 @@ import sys
 import importlib
 import subprocess
 import pytest
+import platform
+import pkg_resources
 
 def test_python_version():
-    """Verify Python 3.11+ is used."""
-    assert sys.version_info >= (3, 11), f"Python 3.11+ required, found {sys.version}"
+    """Verify Python 3.11 is used."""
+    assert sys.version_info.major == 3
+    assert sys.version_info.minor == 11, f"Expected Python 3.11, got {sys.version}"
 
 def test_required_packages_installed():
-    """Verify all required packages are importable."""
-    required_packages = [
+    """Verify all core dependencies are installed."""
+    required = [
         "torch",
         "transformers",
         "accelerate",
         "peft",
-        "bitsandbytes",
+        "scikit-learn",
+        "scipy",
         "pandas",
         "numpy",
-        "scipy",
-        "scikit-learn",
-        "huggingface_hub",
-        "yaml",
+        "datasets",
         "tqdm",
-        "matplotlib",
-        "seaborn",
+        "yaml",
     ]
-    missing = []
-    for pkg in required_packages:
+    for pkg in required:
         try:
             importlib.import_module(pkg)
         except ImportError:
-            missing.append(pkg)
-
-    if missing:
-        raise ImportError(f"Missing required packages: {missing}")
+            pytest.fail(f"Package '{pkg}' is not installed.")
 
 def test_package_versions():
     """Verify minimum versions for critical packages."""
-    import importlib.metadata
-
-    checks = [
-        ("torch", "2.1.0"),
-        ("transformers", "4.36.0"),
-        ("pandas", "2.1.0"),
-        ("numpy", "1.24.0"),
-        ("scipy", "1.11.0"),
-        ("scikit-learn", "1.3.0"),
-    ]
-
-    for pkg_name, min_ver in checks:
+    min_versions = {
+        "torch": "2.3.0",
+        "transformers": "4.40.0",
+        "scikit-learn": "1.4.0",
+        "pandas": "2.0.0",
+    }
+    for pkg, min_ver in min_versions.items():
         try:
-            version = importlib.metadata.version(pkg_name)
-            # Simple version comparison (assumes PEP 440 compatible)
-            from packaging.version import parse
-            if parse(version) < parse(min_ver):
-                raise AssertionError(
-                    f"{pkg_name} version {version} < required {min_ver}"
-                )
-        except importlib.metadata.PackageNotFoundError:
-            pytest.fail(f"{pkg_name} not installed")
+            dist = pkg_resources.get_distribution(pkg)
+            assert pkg_resources.parse_version(dist.version) >= pkg_resources.parse_version(min_ver), \
+                f"{pkg} version {dist.version} is below minimum {min_ver}"
+        except Exception as e:
+            pytest.fail(f"Could not verify version for {pkg}: {e}")
 
 def test_torch_cuda_available():
-    """Log CUDA availability (optional for CPU-only runner)."""
+    """Ensure CUDA is NOT available (CPU-only constraint)."""
     import torch
-    cuda_available = torch.cuda.is_available()
-    # Just log, don't fail if not available since we target CPU
-    print(f"PyTorch CUDA available: {cuda_available}")
+    assert not torch.cuda.is_available(), "CUDA is available, but this project requires CPU-only execution."
 
 def test_huggingface_hub():
-    """Verify huggingface_hub is functional."""
-    from huggingface_hub import hf_hub_download, HfApi
-    # Just verify import and basic attribute access
-    assert hasattr(HfApi, "list_repo_files")
-    print("huggingface_hub verified")
+    """Verify huggingface_hub is accessible."""
+    try:
+        from huggingface_hub import HfFolder
+        # Just checking import and basic class availability
+        assert HfFolder is not None
+    except ImportError:
+        pytest.fail("huggingface_hub is not properly installed or configured.")

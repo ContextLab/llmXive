@@ -1,12 +1,41 @@
+# Pre-commit hooks configuration
+# Ensures code is formatted and linted before commit
+
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.9
-    hooks:
-      - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
-      - id: ruff-format
+  # Black - The uncompromising Python code formatter
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 24.3.0
     hooks:
       - id: black
         language_version: python3.11
+        args: [--line-length=88]
+
+  # Ruff - An extremely fast Python linter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.4
+    hooks:
+      # Run the linter.
+      - id: ruff
+        args: [--fix]
+      # Run the formatter.
+      - id: ruff-format
+
+  # Check for common errors
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  # Security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.7
+    hooks:
+      - id: bandit
+        args: [-r, -c, .bandit.yml]
+        exclude: tests/

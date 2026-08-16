@@ -282,22 +282,6 @@
   updated_at: '2026-08-14T05:10:58Z'
 - artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
   attempts: 1
-  canonical: Python version 3.11
-  claim_id: c_8e2e11d2
-  context: Initialize Python 3.11 project with transformers, accelerate, peft, scikit-learn,
-    scipy, pandas, numpy dependencies.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project uses Python 3.11.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-14T05:11:32Z'
-- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
-  attempts: 1
   canonical: load mistralai/Mixtral-8x7B-v0.1 quantized to int8
   claim_id: c_9cc4daba
   context: Implement `code/models/moe_student.py` to load the specific MoE student
@@ -1906,3 +1890,1146 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-16T05:56:10Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Liang Zeger 1986 reference cluster-robust standard errors
+  claim_id: c_a09d287e
+  context: Validate statistical report against SC-002 (adjusted p-value < 0.05) and
+    SC-004 (multiple-comparison correction present) using Liang & Zeger, 1986 as the
+    primary reference for cluster-robust standard errors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Liang & Zeger, 1986 as the primary reference for cluster-robust standard
+    errors
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:06:21Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: mistralai Mixtral-8x7B-Instruct-v0.1 model
+  claim_id: c_14d18d88
+  context: Implement code/models/moe_student.py to load a verified Mixture-of-Experts
+    (MoE) student model (e.g., mistralai/Mixtral-8x7B-Instruct-v0.1 quantized to int8
+    or a smaller 1B MoE variant if available and fitting)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mistralai/Mixtral-8x7B-Instruct-v0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:06:31Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: mamba-1.3b SSM student model
+  claim_id: c_fa272ec9
+  context: Implement code/models/ssm_student.py to load the mamba-1.3b SSM student
+    model in low-precision format with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mamba-1.3b
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:06:41Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: HuggingFaceH4 aime_2024_verified dataset
+  claim_id: c_5421c01d
+  context: Implement code/data/download_aime.py to fetch HuggingFaceH4/aime_2024_verified
+    (or equivalent verified research repository) containing independent human-verified
+    reasoning traces.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFaceH4_aime_2024_verified_dataset
+  kind: entity_fact
+  raw_text: HuggingFaceH4/aime_2024_verified
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:06:51Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project dependencies transformers accelerate peft scikit-learn
+    scipy pandas numpy
+  claim_id: c_f4da3aa9
+  context: Initialize Python 3.11 project with transformers, accelerate, peft, scikit-learn,
+    scipy, pandas, numpy dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project with transformers, accelerate, peft, scikit-learn,
+    scipy, pandas, numpy dependencies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:06:59Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: torch index-url https://download.pytorch.org/whl/cpu
+  claim_id: c_36f7d6c6
+  context: Must explicitly install torch with --index-url https://download.pytorch.org/whl/cpu
+    and pin version to enforce CPU-only build and prevent GPU wheel fallback.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Torch_index-url_https://download.pytorch.org/whl/cpu
+  kind: entity_fact
+  raw_text: torch with --index-url https://download.pytorch.org/whl/cpu
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:07:11Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: sample size n=5 seeds 42-46 used to fit 6-hour time limit
+  claim_id: c_02937a31
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:08:28Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MDES reported to acknowledge power limitations
+  claim_id: c_2833946c
+  context: Wilcoxon test is used due to small n. MDES will be reported to acknowledge
+    power limitations.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MDES_reported_to_acknowledge_power_limitations
+  kind: entity_fact
+  raw_text: MDES will be reported to acknowledge power limitations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:08:42Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Sample size n=5 for seeds 42 to 46
+  claim_id: c_ba493d7a
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n. MDES will be reported to acknowledge
+    power limitations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:10:25Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Training CPU-only constraint 7GB RAM limit
+  claim_id: c_ad9ff9b0
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use 4-bit quantization for MoE (Mixtral-8x7B) and int8 for SSM (Mamba-1.3B),\
+    \ batch size 1 with gradient accumulation"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_CPU-only_constraint_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: "Training must run on CPU-only runner with \u22647GB RAM."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:10:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE Mixtral-8x7B 4-bit quantization
+  claim_id: c_68188974
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use 4-bit quantization for MoE (Mixtral-8x7B) and int8 for SSM (Mamba-1.3B),\
+    \ batch size 1 with gradient accumulation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 4-bit quantization for MoE (Mixtral-8x7B).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:10:49Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM Mamba-1.3B int8 precision
+  claim_id: c_1dc55280
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use 4-bit quantization for MoE (Mixtral-8x7B) and int8 for SSM (Mamba-1.3B),\
+    \ batch size 1 with gradient accumulation"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use int8 for SSM (Mamba-1.3B).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:10:57Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Experiment time limit 6 hours
+  claim_id: c_00a635d1
+  context: Run MoE experiment on AIME subset for dynamic training steps (calculated
+    by time_budget_enforcer to fit within 6 hours) with batch_size=1, seed=42, and
+    gradient_accumulation_steps=4
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Experiments must fit within a 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:11:09Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Liang and Zeger 1986 reference cluster-robust standard errors
+  claim_id: c_c0cf157e
+  context: Validate statistical report against SC-002 (adjusted p-value < 0.05) and
+    SC-004 (multiple-comparison correction present) using Liang & Zeger, 1986 as the
+    primary reference for cluster-robust standard errors
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Liang & Zeger, 1986 is the primary reference for cluster-robust standard
+    errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:11:09Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Held-out sample size N=200
+  claim_id: c_51df3c95
+  context: Implement validation logic in code/data/validate_split.py to confirm the
+    held-out set contains no problems with overlapping reasoning steps to the training
+    set, preventing data leakage in the small N=200 sample.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The held-out sample size is N=200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:11:22Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE parameter count 1B to 8B sparse
+  claim_id: c_3ad998b2
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B-8B (sparse), and size < 7GB RAM before loading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MoE_parameter_count_1B_to_8B_sparse
+  kind: entity_fact
+  raw_text: Model parameter count is approximately 1B to 8B (sparse) for MoE.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:11:36Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Model size less than 7GB RAM
+  claim_id: c_80e1f0ba
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B-8B (sparse), and size < 7GB RAM before loading.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_size_less_than_7GB_RAM
+  kind: magnitude
+  raw_text: Model size must be less than 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:11:50Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 2
+  canonical: sample size n=5 seeds 42-46
+  claim_id: c_2a93f6fe
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:13:44Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test used for small sample size
+  claim_id: c_d02cb9cc
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_test_used_for_small_sample_size
+  kind: entity_fact
+  raw_text: Wilcoxon test is used due to small n.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:13:59Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME dataset subset from HuggingFaceH4/aime_2024_verified
+  claim_id: c_c049bd43
+  context: Implement code/data/download_aime.py to fetch HuggingFaceH4/aime_2024_verified
+    containing independent human-verified reasoning traces.
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/AIME_dataset_subset_from_HuggingFaceH4/aime_2024_verified
+  kind: entity_fact
+  raw_text: The AIME dataset subset is fetched from HuggingFaceH4/aime_2024_verified.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-16T11:14:14Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model mistralai/Mixtral-8x7B-Instruct-v0.1 or 1B variant
+  claim_id: c_376edb48
+  context: Implement code/models/moe_student.py to load a verified Mixture-of-Experts
+    (MoE) student model (e.g., mistralai/Mixtral-8x7B-Instruct-v0.1 quantized to int8
+    or a smaller 1B MoE variant).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE student model is mistralai/Mixtral-8x7B-Instruct-v0.1 quantized
+    to int8 or a smaller 1B MoE variant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:14:22Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM student model mamba-1.3b
+  claim_id: c_12ffe576
+  context: Implement code/models/ssm_student.py to load the mamba-1.3b SSM student
+    model in low-precision format.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SSM student model is mamba-1.3b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:14:30Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: sample size n=5 seeds 42-46 used for 6-hour time limit
+  claim_id: c_dab1bb66
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:15:25Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 2
+  canonical: Liang & Zeger 1986 reference for cluster-robust standard errors
+  claim_id: c_8a1e8dec
+  context: Validate statistical report against SC-002 and SC-004 using Liang & Zeger,
+    1986 as the primary reference for cluster-robust standard errors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Liang & Zeger, 1986 is the primary reference for cluster-robust standard
+    errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:15:25Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: HuggingFaceH4/aime_2024_verified contains independent human-verified
+    reasoning traces
+  claim_id: c_c8336bf1
+  context: Implement code/data/download_aime.py to fetch HuggingFaceH4/aime_2024_verified
+    containing independent human-verified reasoning traces.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFaceH4/aime_2024_verified_contains_independent_human-
+  kind: entity_fact
+  raw_text: The verified source is HuggingFaceH4/aime_2024_verified containing independent
+    human-verified reasoning traces.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:15:35Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model parameter count 1B-8B
+  claim_id: c_91d3b8ad
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B-8B (sparse), and size < 7GB RAM before loading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MoE_student_model_parameter_count_1B-8B
+  kind: entity_fact
+  raw_text: The MoE student model parameter count is approximately 1B-8B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:15:51Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mamba student model version 1.3b
+  claim_id: c_494896d6
+  context: Implement code/models/ssm_student.py to load the mamba-1.3b SSM student
+    model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Mamba student model version is 1.3b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:16:05Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mixtral student model version Mistral-8x7B-Instruct-v0.1
+  claim_id: c_ce8bc216
+  context: Implement code/models/moe_student.py to load a verified Mixture-of-Experts
+    (MoE) student model (e.g., mistralai/Mixtral-8x7B-Instruct-v0.1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Mixtral student model version is Mistral-8x7B-Instruct-v0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:16:13Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: sample size of 5 seeds from 42 to 46 used for 6-hour time limit
+  claim_id: c_d200d949
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:17:04Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Liang and Zeger 1986 reference for cluster-robust standard errors
+  claim_id: c_ab6af425
+  context: Validate statistical report against SC-002 and SC-004 using Liang & Zeger,
+    1986 as the primary reference for cluster-robust standard errors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Liang & Zeger, 1986 as the primary reference for cluster-robust standard
+    errors
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:17:04Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Mixtral-8x7B parameter count between 1 billion and 8 billion
+  claim_id: c_f3db2aa6
+  context: Implement code/models/moe_student.py to load a verified Mixture-of-Experts
+    (MoE) student model (e.g., mistralai/Mixtral-8x7B-Instruct-v0.1) quantized to
+    int8... pre-load size verification to confirm model ID, parameter count ~1B-8B.
+  evidence:
+    asserted: '-8.0'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Mixture-of-Experts (MoE) student model (e.g., mistralai/Mixtral-8x7B-Instruct-v0.1)
+    parameter count ~1B-8B
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: 168727f253342cd6d7a7e4859b009712121ffc92cc0da1a4a534c44dcabfd9f1
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T11:17:05Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model size less than 7 gigabytes RAM
+  claim_id: c_403521df
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B-8B (sparse), and size < 7GB RAM before loading.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MoE_student_model_size_less_than_7_gigabytes_RAM
+  kind: magnitude
+  raw_text: Mixture-of-Experts (MoE) student model size < 7GB RAM
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:17:16Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM student model is mamba-1.3b
+  claim_id: c_49c30031
+  context: Implement code/models/ssm_student.py to load the mamba-1.3b SSM student
+    model in low-precision format with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SSM student model is mamba-1.3b
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:17:16Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME verified dataset is HuggingFaceH4/aime_2024_verified
+  claim_id: c_9ebb1dae
+  context: Implement code/data/download_aime.py to fetch HuggingFaceH4/aime_2024_verified
+    (or equivalent verified research repository) containing independent human-verified
+    reasoning traces.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AIME_verified_dataset_is_HuggingFaceH4/aime_2024_verified
+  kind: entity_fact
+  raw_text: AIME dataset subset is HuggingFaceH4/aime_2024_verified
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:17:28Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: sample size n=5 seeds 42-46 used to fit 6-hour time limit
+  claim_id: c_c95e46eb
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n. MDES will be reported to acknowledge
+    power limitations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:18:26Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model parameter count 1B-8B sparse
+  claim_id: c_f0a76e9a
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B-8B (sparse), and size < 7GB RAM before loading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MoE_student_model_parameter_count_1B-8B_sparse
+  kind: entity_fact
+  raw_text: The MoE student model parameter count is approximately 1B-8B (sparse).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:18:28Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model size less than 7GB RAM
+  claim_id: c_a4861367
+  context: Must include pre-load size verification to confirm model ID, parameter
+    count ~1B-8B (sparse), and size < 7GB RAM before loading.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MoE_student_model_size_less_than_7GB_RAM
+  kind: magnitude
+  raw_text: The MoE student model size must be less than 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:18:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM student model mamba-1.3b
+  claim_id: c_f7e273a0
+  context: Implement code/models/ssm_student.py to load the mamba-1.3b SSM student
+    model in low-precision format with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SSM student model is identified as mamba-1.3b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:18:48Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: AIME dataset subset aime_2024
+  claim_id: c_d2d41737
+  context: Implement code/data/download_aime.py to fetch the AIME dataset subset from
+    HuggingFace, ensuring checksum validation. Output to data/raw/aime_2024.jsonl.
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/AIME_dataset_subset_aime_2024
+  kind: entity_fact
+  raw_text: The AIME dataset subset is named aime_2024.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-16T11:19:04Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model example mistralai/Mixtral-8x7B-Instruct-v0.1
+  claim_id: c_7eb9fd83
+  context: Implement code/models/moe_student.py to load a verified Mixture-of-Experts
+    (MoE) student model (e.g., mistralai/Mixtral-8x7B-Instruct-v0.1 quantized to int8
+    or a smaller 1B MoE variant if available and fitting) in int8 precision with CPU
+    offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MoE student model example is mistralai/Mixtral-8x7B-Instruct-v0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:19:12Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: training time limit 6 hours
+  claim_id: c_dc608d2b
+  context: Run MoE experiment on AIME subset for dynamic training steps (calculated
+    by time_budget_enforcer to fit within 6 hours) with batch_size=1, seed=42, and
+    gradient_accumulation_steps=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training time limit is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:19:22Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: seed value 42
+  claim_id: c_17f6119b
+  context: Run MoE experiment on AIME subset for dynamic training steps (calculated
+    by time_budget_enforcer to fit within 6 hours) with batch_size=1, seed=42, and
+    gradient_accumulation_steps=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The seed value is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:19:33Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: gradient accumulation steps 4
+  claim_id: c_ef99d4fa
+  context: Run MoE experiment on AIME subset for dynamic training steps (calculated
+    by time_budget_enforcer to fit within 6 hours) with batch_size=1, seed=42, and
+    gradient_accumulation_steps=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gradient accumulation steps are 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:19:45Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: RAM usage threshold 90% triggers batch size reduction
+  claim_id: c_0b79ad68
+  context: Must trigger batch size reduction on OOM event or RAM usage > 90%, and
+    enforce hard floor batch_size=1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RAM usage threshold for triggering batch size reduction is 90%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:19:45Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: held-out sample size N=200
+  claim_id: c_efb5c8af
+  context: Implement validation logic in code/data/validate_split.py to confirm the
+    held-out set contains no problems with overlapping reasoning steps to the training
+    set, preventing data leakage in the small N=200 sample.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The held-out sample size is N=200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:19:46Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: statistical test Wilcoxon signed-rank test
+  claim_id: c_f1e41a5d
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n. MDES will be reported to acknowledge
+    power limitations.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: "Mann\u2013Whitney U test"
+      source_id: Q1424533
+      url: https://www.wikidata.org/wiki/Q1424533
+      value: "Mann\u2013Whitney U test"
+    filled: true
+  kind: entity_fact
+  raw_text: The statistical test used is the Wilcoxon signed-rank test.
+  resolved_value: "Mann\u2013Whitney U test"
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T11:19:54Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: reference cluster-robust standard errors Liang & Zeger 1986
+  claim_id: c_99cf6993
+  context: Validate statistical report against SC-002 (adjusted p-value < 0.05) and
+    SC-004 (multiple-comparison correction present) using Liang & Zeger, 1986 as the
+    primary reference for cluster-robust standard errors (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reference for cluster-robust standard errors is Liang & Zeger, 1986.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:20:03Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 2
+  canonical: Python version 3.11
+  claim_id: c_8e2e11d2
+  context: Initialize Python 3.11 project with transformers, accelerate, peft, scikit-learn,
+    scipy, pandas, numpy dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:20:13Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Sample size n=5 with seeds 42-46 for 6-hour time limit
+  claim_id: c_ed26acda
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:21:49Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Liang and Zeger 1986 reference for cluster-robust standard errors
+  claim_id: c_229c355b
+  context: Validate statistical report against SC-002 (adjusted p-value < 0.05) and
+    SC-004 (multiple-comparison correction present) using Liang & Zeger, 1986 as the
+    primary reference for cluster-robust standard errors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Liang & Zeger, 1986 as the primary reference for cluster-robust standard
+    errors
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:21:49Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Output AIME dataset to data/raw/aime_2024.jsonl
+  claim_id: c_e048c9b7
+  context: Implement code/data/download_aime.py to fetch the AIME dataset subset from
+    HuggingFace, ensuring checksum validation. Output to data/raw/aime_2024.jsonl.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_AIME_dataset_to_data/raw/aime_2024.jsonl
+  kind: entity_fact
+  raw_text: Output to data/raw/aime_2024.jsonl
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:22:05Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Output verified AIME dataset to data/raw/aime_2024_verified.jsonl with
+    human_verified_label field
+  claim_id: c_1490ae49
+  context: Implement code/data/download_aime.py to fetch HuggingFaceH4/aime_2024_verified
+    containing independent human-verified reasoning traces. Output to data/raw/aime_2024_verified.jsonl
+    with human_verified_label field.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_verified_AIME_dataset_to_data/raw/aime_2024_verified.
+  kind: entity_fact
+  raw_text: Output to data/raw/aime_2024_verified.jsonl with human_verified_label
+    field
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:22:20Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Save split AIME dataset to data/processed/aime_train.jsonl and data/processed/aime_holdout.jsonl
+  claim_id: c_f42fa33d
+  context: Implement code/data/split_aime.py to split the AIME dataset into training
+    and held-out sets. Save to data/processed/aime_train.jsonl and data/processed/aime_holdout.jsonl.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Save_split_AIME_dataset_to_data/processed/aime_train.jsonl_a
+  kind: entity_fact
+  raw_text: Save to data/processed/aime_train.jsonl and data/processed/aime_holdout.jsonl
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:22:33Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model parameter count between 1B and 8B
+  claim_id: c_1110c2f2
+  context: Implement code/models/moe_student.py to load a verified Mixture-of-Experts
+    (MoE) student model. Must include pre-load size verification to confirm model
+    ID, parameter count ~1B-8B (sparse), and size < 7GB RAM before loading.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MoE_student_model_parameter_count_between_1B_and_8B
+  kind: entity_fact
+  raw_text: Parameter count ~1B-8B (sparse) for MoE student model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:22:34Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model size less than 7GB RAM
+  claim_id: c_9e6c8ec4
+  context: Implement code/models/moe_student.py to load a verified Mixture-of-Experts
+    (MoE) student model. Must include pre-load size verification to confirm model
+    ID, parameter count ~1B-8B (sparse), and size < 7GB RAM before loading.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MoE_student_model_size_less_than_7GB_RAM
+  kind: magnitude
+  raw_text: Size < 7GB RAM for MoE student model
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:22:46Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE student model ID mistralai/Mixtral-8x7B-Instruct-v0.1
+  claim_id: c_bf3ace3e
+  context: Implement code/models/moe_student.py to load a verified Mixture-of-Experts
+    (MoE) student model (e.g., mistralai/Mixtral-8x7B-Instruct-v0.1 quantized to int8
+    or a smaller 1B MoE variant if available and fitting).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Model ID mistralai/Mixtral-8x7B-Instruct-v0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:22:54Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM student model ID mamba-1.3b
+  claim_id: c_cd0156dc
+  context: Implement code/models/ssm_student.py to load the mamba-1.3b SSM student
+    model in low-precision format with CPU offloading.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Model ID mamba-1.3b
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:23:04Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE experiment trained on AIME subset within 6 hours
+  claim_id: c_bc0c91aa
+  context: Run MoE experiment on AIME subset for dynamic training steps (calculated
+    by time_budget_enforcer to fit within 6 hours) with batch_size=1, seed=42, and
+    gradient_accumulation_steps=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train on AIME subset for dynamic training steps to fit within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:23:16Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM experiment trained on AIME subset within 6 hours
+  claim_id: c_abde707f
+  context: Run SSM experiment on AIME subset for dynamic training steps (calculated
+    by time_budget_enforcer to fit within 6 hours) with batch_size=1, seed=42, and
+    gradient_accumulation_steps=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train on AIME subset for dynamic training steps to fit within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:23:16Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Training runs on CPU with RAM usage less than or equal to 7GB
+  claim_id: c_d75f1770
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use 4-bit quantization for MoE (Mixtral-8x7B) and int8 for SSM (Mamba-1.3B),\
+    \ batch size 1 with gradient accumulation."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_runs_on_CPU_with_RAM_usage_less_than_or_equal_to_7G
+  kind: magnitude
+  raw_text: "RAM usage constraint \u22647GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:23:28Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test used for small sample size n
+  claim_id: c_44d455a4
+  context: 'Statistical Note: Sample size n=5 (seeds 42-46) is used to fit 6-hour
+    time limit. Wilcoxon test is used due to small n.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_test_used_for_small_sample_size_n
+  kind: entity_fact
+  raw_text: Wilcoxon test is used due to small n
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:23:30Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Gradient accumulation steps set to 4
+  claim_id: c_23bc5b99
+  context: Run MoE experiment on AIME subset for dynamic training steps (calculated
+    by time_budget_enforcer to fit within 6 hours) with batch_size=1, seed=42, and
+    gradient_accumulation_steps=4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gradient accumulation steps 4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:23:31Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: Batch size reduction triggered when RAM usage exceeds 90%
+  claim_id: c_3eec82f8
+  context: Add memory constraint enforcement logic to MoE training loop. Must trigger
+    batch size reduction on OOM event or RAM usage > 90%, and enforce hard floor batch_size=1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM usage > 90% triggers batch size reduction
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:23:31Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: SSM model Mamba-1.3B quantized to int8
+  claim_id: c_9ef982e1
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use 4-bit quantization for MoE (Mixtral-8x7B) and int8 for SSM (Mamba-1.3B),\
+    \ batch size 1 with gradient accumulation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Quantized to int8 for SSM (Mamba-1.3B)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:23:40Z'
+- artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  attempts: 1
+  canonical: MoE model Mixtral-8x7B uses 4-bit quantization
+  claim_id: c_3cfb8db3
+  context: "Critical Constraint: All training must run on CPU-only runner with \u2264\
+    7GB RAM; use 4-bit quantization for MoE (Mixtral-8x7B) and int8 for SSM (Mamba-1.3B),\
+    \ batch size 1 with gradient accumulation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4-bit quantization for MoE (Mixtral-8x7B)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T11:23:49Z'

@@ -1,84 +1,59 @@
-# Data Model: Cross-Architecture Distillation
+# Data Model: llmXive follow-up: extending "Weak-to-Strong Generalization via Direct On-Policy Distillation"
 
-## 1. Overview
+## Data Sources
 
-This document defines the data schemas, storage formats, and relationships for the `llmXive` cross-architecture distillation experiment. All data is stored in `projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/data/`.
+### 1. AIME 2024 Dataset
+*   **Source**: `MathArena/aime_2024` (HuggingFace)
+*   **Format**: Parquet
+*   **Fields**: `id`, `year`, `problem_number`, `question`, `answer`, `part`
+*   **Usage**: Training and evaluation prompts; ground-truth token extraction.
 
-## 2. Data Flow
+### 2. Teacher Checkpoints
+*   **Source**: HuggingFace Hub
+*   **Models**: `pre_rl_checkpoint`, `post_rl_checkpoint` (Dense Transformer)
+*   **Usage**: Computation of implicit reward signal.
 
-1.  **Ingestion**: Raw AIME dataset downloaded from HuggingFace.
-2.  **Preprocessing**: Prompts and ground-truth tokens extracted; teacher probabilities computed.
-3.  **Human Verification**: A subset of problems is manually verified and stored.
-4.  **Training**: Intermediate logs (loss, reward) stored per step.
-5.  **Evaluation**: Final metrics (log-prob, improvement) stored per problem.
-6.  **Aggregation**: Statistical results (p-values, effect sizes) stored.
+### 3. Student Checkpoints
+*   **Source**: HuggingFace Hub
+*   **Models**: `Qwen/Qwen1.5-MoE-A2.7B`, `state-spaces/mamba-1.3b`
+*   **Usage**: Initialization of training loops.
 
-## 3. Schema Definitions
+## Data Flow
 
-### 3.1 Raw Dataset (AIME)
-- **Source**: HuggingFace `MathArena/aime_2024`.
-- **Format**: Parquet / JSONL.
-- **Fields**:
-  - `problem_id`: Unique identifier.
-  - `problem_text`: The math problem string.
-  - `solution`: Full solution string (used to extract reasoning steps).
+1.  **Raw Data**: Downloaded from HuggingFace to `data/raw/aime_2024.parquet`.
+2.  **Processed Data**:
+    *   `data/processed/train_split.parquet`: Training subset (a representative set of problems).
+    *   `data/processed/held_out_split.parquet`: Held-out subset for evaluation.
+    *   `data/processed/reward_signals.parquet`: Contains `prompt`, `ground_truth_tokens`, `reward_scores`.
+    *   `data/processed/student_outputs.jsonl`: Contains `model_id`, `prompt`, `generated_tokens`, `log_probs`, `reward_accumulated`.
+3.  **Results**: `artifacts/results.yaml`: Aggregated metrics, p-values, and comparative summary.
 
-### 3.2 Human Verified Subset
-- **Location**: `data/raw/human_verified_subset.jsonl`
-- **Schema**:
-  - `problem_id`: String.
-  - `problem_text`: String.
-  - `ground_truth_tokens`: List of integers (Token IDs of the *human-verified* solution).
-  - `is_human_verified`: Boolean (Always `true`).
-  - `teacher_output_tokens`: List of integers (Token IDs of the teacher's output, for comparison).
-  - `notes`: String (Optional notes on correctness/ambiguity).
+## Schema Definitions
 
-### 3.3 Processed Training Data
-- **Location**: `data/processed/aime_processed.jsonl`
-- **Schema**:
-  - `problem_id`: String.
-  - `prompt`: String (Problem text).
-  - `ground_truth_tokens`: List of integers (Token IDs of the solution).
-  - `teacher_reward`: List of floats (Computed implicit reward per token).
-  - `teacher_baseline_prob`: List of floats (Baseline probability per token).
+### Dataset Schema
+*   **Source**: `data/raw/aime_2024.parquet`
+*   **Fields**:
+    *   `id`: string (unique identifier)
+    *   `question`: string (prompt text)
+    *   `answer`: string (ground truth solution)
+    *   `part`: string (optional part identifier)
 
-### 3.4 Training Logs
-- **Location**: `data/processed/training_logs/{student_arch}.jsonl`
-- **Schema**:
-  - `step`: Integer.
-  - `loss`: Float.
-  - `reward_mean`: Float.
-  - `gradient_norm`: Float.
-  - `timestamp`: ISO8601.
+### Reward Signal Schema
+*   **Source**: `data/processed/reward_signals.parquet`
+*   **Fields**:
+    *   `prompt_id`: string
+    *   `token_id`: integer
+    *   `log_prob_pre`: float
+    *   `log_prob_post`: float
+    *   `implicit_reward`: float (computed as `log_prob_post - log_prob_pre`)
 
-### 3.5 Evaluation Results
-- **Location**: `data/processed/eval_results.jsonl`
-- **Schema**:
-  - `problem_id`: String.
-  - `student_arch`: String (`MoE` or `SSM`).
-  - `training_method`: String (`Direct-OPD` or `Baseline`).
-  - `log_prob_improvement`: Float (Difference in log-prob of ground truth).
-  - `tokens_evaluated`: Integer.
-  - `is_human_verified_subset`: Boolean (True if from the 20 human-verified problems).
-
-### 3.6 Statistical Summary
-- **Location**: `data/processed/stats_summary.json`
-- **Schema**:
-  - `architecture`: String.
-  - `method`: String.
-  - `mean_improvement`: Float.
-  - `std_improvement`: Float.
-  - `p_value_raw`: Float.
-  - `p_value_adjusted`: Float.
-  - `significant`: Boolean.
-  - `m_des`: Float (Minimum Detectable Effect Size).
-
-## 4. Data Hygiene & Checksums
-
-- **Checksums**: Every file in `data/` will have a SHA-256 checksum recorded in `state/.../artifact_hashes`.
-- **Immutability**: Raw data is never modified. Derived data is written to new files.
-- **PII**: No PII expected in AIME math problems.
-
-## 5. Contract Validation
-
-The Implementer Agent must validate all output data against the schemas defined in `contracts/`.
+### Results Schema
+*   **Source**: `artifacts/results.yaml`
+*   **Fields**:
+    *   `experiment_id`: string
+    *   `architecture`: string (MoE, SSM)
+    *   `training_regime`: string (Direct-OPD, Baseline)
+    *   `avg_log_prob_improvement`: float
+    *   `p_value_raw`: float
+    *   `p_value_adjusted`: float
+    *   `significant`: boolean

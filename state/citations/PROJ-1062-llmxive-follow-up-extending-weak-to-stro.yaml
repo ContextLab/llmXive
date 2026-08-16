@@ -1,11 +1,33 @@
-- artifact_hash: 669927c03327d03ba85edda30c27c10cc8c1982711254b5e20d37703f9397e2c
+- artifact_hash: 8a5768be54b2aaeea7f73195137d8c36b78254aa5382bae4be1b09a6ab35bc0e
+  artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-08-16T11:17:57.327518Z'
+- artifact_hash: fc6188d8a3abf87cf55c8b1a0d7b436247952a0c0f86da83fb6ce9f8e75ee5d7
+  artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-08-16T11:26:54.978628Z'
+- artifact_hash: 1097ceb631ca2b26dcd4f4bb1bf87dfe866d6090aba9423fcddd325aedcc30a8
   artifact_path: projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/specs/001-llmxive-follow-up-extending-weak-to-stro/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/MathArena/aime_2024/resolve/main/data/train-00000-of-00001.parquet`
+  value: https://huggingface.co/datasets/MathArena/aime_2024`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/MathArena/aime_2024/resolve/main/data/train-00000-of-00001.parquet
-  verified_at: '2026-08-13T14:51:34.006707Z'
+  verified_against_url: https://huggingface.co/datasets/MathArena/aime_2024
+  verified_at: '2026-08-16T11:56:25.069524Z'

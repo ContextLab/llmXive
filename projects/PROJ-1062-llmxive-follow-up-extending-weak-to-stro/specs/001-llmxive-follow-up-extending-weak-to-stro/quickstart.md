@@ -1,65 +1,94 @@
-# Quickstart: Cross-Architecture Distillation
+# Quickstart: llmXive follow-up: extending "Weak-to-Strong Generalization via Direct On-Policy Distillation"
 
 ## Prerequisites
-
-- **Python**: 3.11+
-- **RAM**: 7GB+ (Free-tier runner limit).
-- **Disk**: 14GB+ (for model weights and data).
-- **Internet**: Access to HuggingFace Hub.
+*   Python 3.11+
+*   7GB+ RAM (CPU-only execution)
+*   HuggingFace CLI (`huggingface-cli`)
+*   Linting/Formatting tools: `ruff`, `black`
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd <repo-dir>
+    ```
+
+2.  **Create and activate virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
+
 3.  **Install dependencies**:
     ```bash
-    pip install -r projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/requirements.txt
+    pip install -r requirements.txt
     ```
+    *Note: `requirements.txt` includes `transformers`, `datasets`, `torch`, `bitsandbytes`, `scikit-learn`, `statsmodels`, `pyyaml`, `ruff`, `black`.*
 
-## Configuration
+4.  **Setup Linting & Formatting**:
+    ```bash
+    ruff check src/
+    black --check src/
+    ```
+    *Configuration files `.ruff.toml` and `pyproject.toml` define the rules.*
 
-Edit `projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/config/defaults.yaml` to set:
-- `teacher_pre_rl_path`: Path to pre-RL checkpoint (or synthetic base).
-- `teacher_post_rl_path`: Path to post-RL checkpoint (or synthetic fine-tuned).
-- `student_moe_path`: Path to MoE student weights.
-- `student_ssm_path`: Path to SSM student weights.
-- `batch_size`: Must be `1` for CPU.
-- `gradient_accumulation_steps`: Recommended `8`.
+5.  **Download the AIME dataset**:
+    ```bash
+    python src/data/loaders.py --download
+    ```
+    *This script uses `datasets` to download the verified AIME dataset to `data/raw/`.*
 
-## Running the Experiment
+## Running the Experiments
 
-### 1. Download Data
+### 1. Compute Implicit Reward
 ```bash
-python projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/data/download_aime.py
+python src/data/preprocessor.py --compute-reward
+```
+*Computes the log-ratio reward signal for the AIME subset using the teacher checkpoints.*
+
+### 2. Train MoE Student (Direct-OPD)
+```bash
+python src/models/moe_student.py --regime direct-opd
+```
+*Trains the MoE student to maximize the implicit reward. Uses batch size 1 and int8 quantization.*
+
+### 3. Train MoE Baseline
+```bash
+python src/models/moe_student.py --regime baseline
+```
+*Trains the MoE student using standard distillation (teacher distribution only).*
+
+### 4. Train SSM Student (Direct-OPD)
+```bash
+python src/models/ssm_student.py --regime direct-opd
+```
+*Trains the SSM student on CPU.*
+
+### 5. Train SSM Baseline
+```bash
+python src/models/ssm_student.py --regime baseline
 ```
 
-### 2. Preprocess Data (Compute Rewards)
+### 6. Run Statistical Analysis
 ```bash
-python projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/data/preprocess.py
+python src/analysis/stats_utils.py
 ```
-*Note: This step computes the implicit reward signal using the teacher checkpoints.*
+*Performs Wilcoxon signed-rank tests with Bonferroni correction and generates the comparative summary.*
 
-### 3. Run Training & Evaluation (MoE)
+### 7. Generate Report
 ```bash
-python projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/main.py --arch MoE
+python src/analysis/summary_generator.py
 ```
+*Outputs the final comparative summary text block to `artifacts/summary.md`.*
 
-### 4. Run Training & Evaluation (SSM)
-```bash
-python projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/main.py --arch SSM
-```
-
-### 5. Generate Statistical Report
-```bash
-python projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/main.py --aggregate
-```
+## Verification
+*   **Linting**: `ruff check src/`
+*   **Formatting**: `black src/`
+*   **Tests**: `pytest tests/`
+*   **Schema Validation**: `pytest tests/contract/`
 
 ## Troubleshooting
-
-- **OOM Error**: Reduce `batch_size` to 1 (default) and ensure `gradient_accumulation_steps` is high. Check `torch.cuda.is_available()` returns `False`.
-- **NaN Loss**: Check for epsilon smoothing in `reward_computation.py`.
-- **Slow Execution**: Ensure `int8` quantization is enabled. The experiment is designed for a duration of several hours.; if it exceeds, reduce training steps in `defaults.yaml`.
+*   **OOM Error**: The `memory_guard.py` module will automatically reduce batch size. If it reaches the floor (1), the run will halt with an error.
+*   **Missing Dataset**: Ensure `datasets` is installed and your HuggingFace token is configured.
+*   **Missing RL Checkpoint**: If the 'Post-RL' checkpoint is not found, the script will halt and report the missing artifact.

@@ -1,1 +1,1 @@
-# Data artifacts directory
+"""Data directory placeholder."""

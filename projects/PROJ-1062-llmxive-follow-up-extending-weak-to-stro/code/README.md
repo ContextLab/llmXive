@@ -1,49 +1,37 @@
 # llmXive Follow-up: Extending Weak-to-Strong Generalization
 
-This project implements the research pipeline for "Weak-to-Strong Generalization via Direct On-Policy Distillation".
+This project implements Direct On-Policy Distillation experiments comparing MoE and SSM student models against Transformer teachers.
 
-## Requirements
+## Prerequisites
 
-- Python 3.11+
-- PyTorch 2.1.0+
-- Transformers 4.36.0+
+- Python 3.11
+- CPU-only PyTorch environment (no GPU required)
 
 ## Installation
 
-1. Create a virtual environment:
+1. Ensure you are using Python 3.11:
  ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
+ python --version
  ```
 
-2. Install dependencies:
+2. Install dependencies. For CPU-only PyTorch, use the extra index URL:
  ```bash
- pip install -r code/requirements.txt
+ pip install -r code/requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+ ```
+
+3. Verify installation:
+ ```bash
+ cd code
+ python -m pytest tests/test_environment.py -v
  ```
 
 ## Project Structure
 
-```
-code/
-├── core/ # Core logic (trainer, evaluator, reward computation)
-├── data/ # Data loading and preprocessing
-├── models/ # Model loaders (Teacher, MoE Student, SSM Student)
-├── scripts/ # Utility scripts
-└── tests/ # Unit and integration tests
-```
+- `code/`: Source code modules
+- `data/`: Raw and processed datasets
+- `tests/`: Unit and integration tests
+- `specs/`: Design documents
 
-## Running Tests
+## Execution
 
-```bash
-python -m pytest code/tests/
-```
-
-## Linting and Formatting
-
-```bash
-# Lint
-python code/scripts/run_lint.py
-
-# Format
-python code/scripts/run_format.py
-```
+See `tasks.md` for the list of executable scripts and their dependencies.

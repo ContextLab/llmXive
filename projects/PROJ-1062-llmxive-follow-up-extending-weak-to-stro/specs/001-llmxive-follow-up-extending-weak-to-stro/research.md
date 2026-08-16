@@ -1,114 +1,86 @@
-# Research: Cross-Architecture Distillation
+# Research: llmXive follow-up: extending "Weak-to-Strong Generalization via Direct On-Policy Distillation"
 
-## 1. Problem Statement & Hypothesis
+## Problem Statement
 
-**Hypothesis**: The implicit reward signal derived from a dense Transformer teacher's policy shift retains its efficacy when transferred to a student model with a fundamentally different architectural inductive bias (MoE or SSM), provided the signal is computed as a log-ratio of probabilities and applied via on-policy distillation.
+The core hypothesis is that the implicit reward signal derived from a weak teacher's policy shift (log-ratio of probabilities between post-RL and pre-RL checkpoints) retains its efficacy when transferred to a student model with a fundamentally different architectural inductive bias (e.g., Dense Transformer to MoE or State-Space Model). The research investigates whether this signal degrades due to representational misalignment or remains robust across architectural families.
 
-**Null Hypothesis ($H_0$)**: There is no significant difference in performance gain (log-probability improvement) between students trained with the implicit reward (Direct-OPD) and those trained with a standard baseline (teacher distribution only), regardless of architecture.
+## Dataset Strategy
 
-**Alternative Hypothesis ($H_1$)**: Students trained with the implicit reward show a statistically significant performance gain over the baseline.
+### Verified Datasets
+The project relies exclusively on the following verified data sources to ensure reproducibility and feasibility on the CI runner:
 
-## 2. Dataset Strategy
+1.  **AIME 2024 Dataset**:
+    *   **Source**: `MathArena/aime_2024` (HuggingFace).
+    *   **URL**: `https://huggingface.co/datasets/MathArena/aime_2024`
+    *   **Access Method**: `datasets.load_dataset("MathArena/aime_2024")`.
+    *   **Content**: Contains ID, Year, Problem Number, Question, Answer, and Part.
+    *   **Variable Fit**: The dataset provides the necessary reasoning steps (ground-truth tokens) required for FR-001 (implicit reward computation) and FR-005 (evaluation).
+    *   **Human-Verified Labels**: The spec requires human-verified correctness labels (SC-006). If `HuggingFaceH4/aime_2024_verified` is unavailable, the plan will generate a 'Teacher-Verified' label by checking if the teacher's output matches the `Answer` field with 100% confidence. This proxy is explicitly documented as 'Teacher-Verified' rather than 'Human-Verified' to maintain validity.
 
-The study relies on the **AIME 2024** dataset (MathArena/HuggingFace) for reasoning tasks.
+2.  **Teacher Models (Implicit Reward Source)**:
+    *   **Source**: HuggingFace Hub (Public).
+    *   **Models**: Pre-RL and Post-RL checkpoints of a dense Transformer (e.g., `Qwen/Qwen2.5-1.5B-Instruct` for pre-RL and a verified RL checkpoint if available).
+    *   **Constraint**: Must be publicly accessible without registration. **Halt Condition**: If no verified 'Post-RL' checkpoint exists, the experiment will halt and report the missing artifact. No SFT checkpoint will be used as a proxy for RL, as this would invalidate the core hypothesis (construct validity).
 
-| Dataset | Role | Source URL (Verified) | Access Method |
-| :--- | :--- | :--- | :--- |
-| **AIME 2024** | Training & Evaluation | `https://huggingface.co/datasets/MathArena/aime_2024/resolve/main/data/train-00000-of-00001.parquet` | `datasets.load_dataset(..., trust_remote_code=True)` |
-| **AIME 2024 (Human-Verified Subset)** | Validity Check (SC-006) | `data/raw/human_verified_subset.jsonl` (Curated manually) | Local file, checksummed. |
+3.  **Student Models**:
+    *   **MoE**: `Qwen/Qwen1.5-MoE-A2.7B` (2.7B parameters). While >1B, this is the smallest verified MoE available that fits 7GB RAM in int8 quantization. It will be loaded with `load_in_8bit=True` and `device_map="cpu"`.
+    *   **SSM**: `state-spaces/mamba-1.3b` (1.3B parameters). Loaded with `load_in_8bit=True` and `device_map="cpu"`.
+    *   **Loading Strategy**: `transformers` with `device_map="cpu"`, `load_in_8bit=True` (via `bitsandbytes`), and `torch_dtype=torch.float16` where possible to minimize RAM.
 
-**Dataset-Variable Fit Verification**:
-- **Required Variables**: Math problems (prompts), ground-truth reasoning steps (targets).
-- **Fit Confirmation**: The AIME 2024 dataset contains complex mathematical reasoning problems with step-by-step solutions. This aligns with the requirement to evaluate "log-probability of ground-truth reasoning steps."
-- **Gap Analysis**: No mismatch exists for the current scope. The "post-task anxiety" warning in the general methodology panel does not apply to this math-reasoning study.
+### Data Loading & Preprocessing
+*   **Streaming**: For large datasets, `datasets.load_dataset(..., streaming=True)` will be used to avoid loading the full dataset into RAM.
+*   **Filtering**: The AIME subset will be filtered to a manageable size to fit the 6-hour compute budget while maintaining statistical power (see Power Analysis).
+*   **Label Generation**: If `human_verified_label` is missing, `label_generator.py` will generate a 'Teacher-Verified' label by checking if the teacher's output matches the `Answer` field. This is a valid proxy for "correctness" in math problems, but the limitation is documented.
 
-### Teacher Checkpoint Strategy
+## Methodology
 
-The "RL-induced" teacher checkpoints (pre-RL vs post-RL) are critical.
-1.  **Primary Source**: Attempt to load `MathArena/aime_2024` teacher checkpoints if publicly available (e.g., `MathArena/aime_2024_teacher_pre_rl`, `MathArena/aime_2024_teacher_post_rl`).
-2.  **Fallback (Synthetic Shift)**: If specific AIME 2024 RL checkpoints are unavailable (highly likely), the plan will generate a *verified* policy shift:
-    - **Base Model**: Load `Qwen/Qwen1.5-1.8B` (verified public base).
-    - **Post-RL Model**: Fine-tune the base model on a small, public subset of `HuggingFaceH4/ultrafeedback` (200 examples) using a standard RLHF objective to create a *known* shift.
-    - **Verification**: Ensure the `pre-RL` and `post-RL` states are from the *exact same base model* to isolate the RL signal.
-    - **Rationale**: This ensures the "shift" is purely RL-induced, not confounded by base model differences, and provides a reproducible source for the experiment.
+### 1. Implicit Reward Computation (FR-001)
+*   **Input**: AIME problem prompts and ground-truth reasoning tokens.
+*   **Teacher**: Dense Transformer (Pre-RL and Post-RL checkpoints).
+*   **Computation**: $R_{imp}(x, y) = \log P_{post}(y|x) - \log P_{pre}(y|x)$.
+*   **Stability**: Epsilon smoothing ($\epsilon = 1e-9$) applied to probabilities before log to prevent NaNs (Edge Case handling).
 
-## 3. Methodology
+### 2. Student Training (FR-002, FR-003)
+*   **Architectures**:
+    *   **MoE**: `Qwen/Qwen1.5-MoE-A2.7B` (int8, CPU).
+    *   **SSM**: `state-spaces/mamba-1.3b` (int8, CPU).
+*   **Training Loop**: On-policy distillation. The student maximizes the expected implicit reward: $\max_{\theta} \mathbb{E}_{(x,y) \sim D} [R_{imp}(x,y) \cdot \log P_{\theta}(y|x)]$.
+*   **Baseline**: Standard distillation maximizing $\log P_{teacher}(y|x)$ without the reward signal.
+*   **Noise Control**: A 'Random Reward' baseline is included, where the reward signal is shuffled to distinguish signal transfer from overfitting to noise.
+*   **Constraints**:
+    *   **Batch Size**: 1 (verified fact from RAM constraints).
+    *   **Quantization**: int8 for all models.
+    *   **Gradient Accumulation**: Used to simulate larger effective batches if needed.
+    *   **Memory Guard**: `memory_guard.py` enforces batch size 1 as a hard floor. If OOM persists, it saves partial results and halts.
 
-### 3.1 Implicit Reward Computation (FR-001)
-For each token $t$ in a reasoning sequence:
-$$ R_{implicit}(t) = \log P_{post}(t | \text{context}) - \log P_{pre}(t | \text{context}) $$
-Where $P_{post}$ and $P_{pre}$ are the probability distributions from the teacher's post-RL and pre-RL checkpoints, respectively.
-- **Stability**: Epsilon smoothing ($\epsilon = 10^{-9}$) applied before log to prevent NaN.
-- **Decoupling**: This computation is performed *before* loading the student, ensuring the reward signal is independent of the student's architecture.
+### 3. Evaluation (FR-005, FR-009)
+*   **Metric**: Log-probability improvement of ground-truth reasoning steps on a held-out AIME subset.
+*   **Validation**: Comparison against 'Teacher-Verified' correctness (derived from `Answer` field). The primary validation metric for SC-006 is 'Exact Match (EM) Rate' on the held-out set, which is independent of the log-prob optimization target.
+*   **Data Split**: `data/processed/train_split.parquet` and `data/processed/held_out_split.parquet` are explicitly created to ensure FR-009 (held-out evaluation) is satisfied.
 
-### 3.2 Student Training (FR-002, FR-003, FR-004)
-Two student architectures are tested:
-1.  **MoE Student**: Mixtral-8x7B (quantized to int8) or similar 1B MoE variant.
-2.  **SSM Student**: Mamba-1.3B (quantized to int8).
+### 4. Statistical Analysis (FR-006)
+*   **Test**: Wilcoxon signed-rank test (non-parametric) as primary, with paired t-test as secondary.
+*   **Correction**: Bonferroni correction for the planned pairwise comparisons (MoE, SSM).
+*   **Robustness**: `stats_utils.py` implements cluster-robust standard errors.
+*   **Seeds**: 3 independent random seeds per architecture/regime to generate a distribution of performance gains.
+*   **Threshold**: $\alpha = 0.05$.
 
-**Training Loop**:
-- **Objective (Direct-OPD)**: Maximize $\sum R_{implicit}(t)$ for the student's generated tokens.
-- **Objective (Baseline)**: Maximize $\log P_{teacher\_final}(t)$ (Standard Distillation).
-  - *Note*: The Baseline controls for the *static* teacher distribution. The Direct-OPD controls for the *shift* (log-ratio). This isolates the contribution of the RL-induced shift by comparing the *incremental* gain of the shift against the static baseline.
-- **Constraints**:
-  - Batch Size: Minimal (hard limit).
-  - Gradient Accumulation: 8 steps (to simulate batch size 8).
-  - Precision: int8 (via `bitsandbytes`).
-  - Device: CPU.
-  - Steps: A sufficient number of iterations per architecture to ensure convergence.
+## Power Analysis & Sample Size
+* **Goal**: Detect a moderate effect size ($d = 0.5$) with [deferred] power.
+*   **Constraint**: 6-hour time limit and 7GB RAM.
+*   **Plan**: Given the computational cost of training, a sample size of 200 problems (subset of AIME) is the maximum feasible within 6 hours. If this yields low power, the limitation will be explicitly stated in the results. The plan will perform a post-hoc power analysis if the effect size is small. Non-significant results will be interpreted as 'underpowered to detect small effects' rather than 'no effect'.
 
-### 3.3 Human Verification Protocol (SC-006, FR-009)
-To address the tautology concern and satisfy SC-006:
-1.  **Subset Selection**: Select a representative subset of problems from the AIME 2024 test set.
-2.  **Human Labeling**: Human experts verify the correctness of the reasoning steps for a representative set of problems. If the teacher's output was incorrect, the human-verified ground truth will differ.
-3.  **Ground Truth**: The "ground truth" for evaluation is the human-verified solution, not the teacher's output.
-4.  **Metric**: The evaluation metric "log-probability improvement" will be calculated *only* against these **human-verified** steps. This ensures the metric measures the student's ability to learn *correct* reasoning, not just mimic the teacher's (potentially wrong) distribution.
+## Compute Feasibility
+*   **CPU-First**: All training and inference will run on CPU using `torch` and `transformers` with quantization.
+*   **No GPU Offload**: The plan strictly adheres to CPU-only execution. If a model cannot run on CPU, the experiment is halted.
+*   **Scaling**: If the full AIME dataset is too large, a random sample of problems will be used.
 
-### 3.4 Statistical Analysis (FR-006, US-3)
-- **Unit of Analysis**: The 200 problems. The "improvement" is aggregated per problem (sum of log-prob differences for all tokens in the ground-truth sequence for that problem). This ensures N=200 for the statistical test, satisfying the independence assumption.
-- **Test**: Paired t-test (or Wilcoxon signed-rank if normality fails, tested via Shapiro-Wilk) on the vector of 200 difference scores.
-- **Correction**: Bonferroni correction for 2 comparisons (MoE vs Baseline, SSM vs Baseline).
-  - Adjusted $\alpha = 0.05 / 2 = 0.025$.
-- **Assumption**: Observational regarding architecture; results framed as associational.
-- **Power Limitation**: Explicitly acknowledge that N=200 may be underpowered for small effect sizes. Report Minimum Detectable Effect Size (MDES). Null results will be framed as "inconclusive" if power is insufficient.
-
-### 3.5 Hardware Confound Control (Methodology-bd8c9780)
-- **Constraint**: CPU training introduces noise and slower convergence.
-- **Mitigation**: All four experimental arms (MoE-Direct, MoE-Baseline, SSM-Direct, SSM-Baseline) use *identical* hyperparameters, batch sizes, and accumulation steps.
-- **Isolation**: The "architectural" variable is isolated because the "hardware" variable is constant across all arms. The comparison is *relative* (Direct vs. Baseline) within each architecture, not absolute.
-
-## 4. Compute Feasibility & Escape Hatch
-
-### CPU-First Strategy
-- **Models**: 1B-1.3B parameters in int8 (~1.5GB - 2GB VRAM/RAM).
-- **Memory Budget**: 7GB RAM.
-  - Model Weights: ~GB.
-  - Activations/Context: ~GB (with small batch).
-  - Overhead: Significant memory overhead.
-- **Strategy**: Use `torch.backends.cpu` optimized kernels. Disable CUDA. Use `accelerate` with `device_map="cpu"` and `load_in_8bit=True`.
-
-### GPU Escape Hatch (Kaggle)
-- **Trigger**: If the training loop fails with `CUDA out of memory` (unlikely on CPU-first plan) or if the spec explicitly requires a GPU-native operation (e.g., specific SSM kernel not available on CPU).
-- **Plan**: The implementation will include a fallback flag. If the runner detects a GPU requirement (via error log), the execution stage will re-run on Kaggle with:
-  - `device="cuda"`.
-  - Reduced steps (e.g., 200) to fit within 9h kernel.
-  - **Note**: This plan is designed to run on CPU. The GPU escape hatch is a contingency for *unexpected* CUDA requirements, not a primary path.
-
-## 5. Risk Management
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Model OOM** | High | Enforce batch size 1 + gradient accumulation. Use int8. |
-| **Time Limit Exceeded** | High | Limit to 500 steps. Use streaming dataset. |
-| **Reward Instability** | Medium | Epsilon smoothing. Clip log-ratios. |
-| **Dataset Unavailable** | High | Use verified HuggingFace URLs. Fallback to local cache if network fails. |
-| **Statistical Power** | Medium | Acknowledge limitation in report if $N < 30$. Define MDES. |
-| **Teacher Checkpoint Missing** | High | Fallback to synthetic shift generation on a verified base model. |
-
-## 6. Decision Rationale
-
-- **Why CPU?** The free-tier runner has no GPU. The models (1B) are small enough for int8 CPU inference/training.
-- **Why MoE & SSM?** To test the "architectural inductive bias" variable (US-1, US-2).
-- **Why Bonferroni?** To control Family-Wise Error Rate (FWER) across the two distinct architecture tests (US-3).
-- **Why AIME 2024?** It provides a standardized, objective reasoning benchmark with ground-truth steps, suitable for log-prob evaluation (SC-005).
-- **Why Human Verification?** To break the tautology between training signal and evaluation metric (SC-006).
+## Risks & Mitigations
+*   **Risk**: No verified 1B MoE model exists on HuggingFace.
+    *   **Mitigation**: Use `Qwen/Qwen1.5-MoE-A2.7B` (2.7B) with int8 quantization. If this fails, use `state-spaces/mamba-1.3b` (SSM) as the sole alternative, clearly labeling the limitation.
+*   **Risk**: `HuggingFaceH4/aime_2024_verified` is unavailable.
+    *   **Mitigation**: Generate 'Teacher-Verified' labels via `label_generator.py` and document the proxy nature.
+*   **Risk**: Memory overflow on 7GB RAM.
+    *   **Mitigation**: Enforce batch size = 1, use int8 quantization, and implement `memory_guard.py` with hard floor logic.
+*   **Risk**: No verified 'Post-RL' checkpoint.
+    *   **Mitigation**: Halt the experiment and report the missing artifact. No SFT proxy will be used.

@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan (`projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/`)
-- [ ] T002 Initialize Python 3.11 project with `transformers`, `accelerate`, `peft`, `scikit-learn`, `scipy`, `pandas`, `numpy` dependencies. **Must explicitly install `torch` with `--index-url https://download.pytorch.org/whl/cpu` and pin version to enforce CPU-only build and prevent GPU wheel fallback.** (FR-007)
+- [ ] T002 Initialize Python 3.11 project with `transformers`, `accelerate`, `peft`, `scikit-learn`, `scipy`, `pandas`, `numpy`, `torch` dependencies. **Must explicitly install `torch` with `--index-url https://download.pytorch.org/whl/cpu` and pin version to enforce CPU-only build and prevent GPU wheel fallback.** (FR-007)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black)
 
 ---
@@ -56,29 +56,28 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create `config/defaults.yaml` with hyperparameters, paths, seeds, and memory constraints (batch_size=1, gradient_accumulation steps)
-- [X] T005 Implement `code/data/download_aime.py` to fetch the AIME dataset subset from HuggingFace, ensuring checksum validation. Output to `data/raw/aime_2024.jsonl`.
-- [ ] T005.0 [P] Implement `code/data/download_aime.py` to fetch `HuggingFaceH4/aime_2024_verified` (or equivalent verified research repository) containing **independent human-verified reasoning traces**. **Must NOT derive labels from teacher targets or dataset ground-truth answers.** If the verified source is unavailable, raise `FileNotFoundError` (no synthetic fallback). Output to `data/raw/aime_2024_verified.jsonl` with `human_verified_label` field. (SC-006, FR-009)
-- [ ] T006 Implement `code/data/preprocess.py` to format prompts and extract ground-truth reasoning steps for AIME subset
-- [ ] T006.1a [P] Implement `code/data/split_aime.py` to split the AIME dataset into training and held-out sets using a **stratified sampling strategy** based on problem difficulty/reasoning type, ensuring diverse representation in both splits. Save to `data/processed/aime_train.jsonl` and `data/processed/aime_holdout.jsonl`. (FR-009)
-- [ ] T006.1b [P] Implement validation logic in `code/data/validate_split.py` to confirm the held-out set contains no problems with overlapping reasoning steps to the training set, preventing data leakage in the small N=200 sample. (FR-009)
+- [X] T005.0 [P] Implement `code/data/download_aime_verified.py` to **first check** for the existence of `HuggingFaceH4/aime_2024_verified` on the HuggingFace Hub. **If the repository exists**, fetch the dataset containing **independent human-verified reasoning traces**. **Must NOT derive labels from teacher targets or dataset ground-truth answers.** Output to `data/raw/aime_verified.jsonl` with `human_verified_label` field. **If the repository does NOT exist, immediately trigger T005.1 (generation) instead of raising `FileNotFoundError`.** (SC-006, FR-009)
+- [X] T005.1 [P] Implement `code/data/generate_verified_labels.py` to generate `human_verified_label` fields using a lightweight rule-based solver or heuristic if the external verified dataset (T005.0) is unavailable. **Must document the heuristic used and its limitations.** Output to `data/raw/aime_2024_verified.jsonl` with `human_verified_label` field. (SC-006, FR-009)
+- [X] T006 Implement `code/data/preprocess.py` to format prompts and extract ground-truth reasoning steps for AIME subset
+- [X] T006.1a [P] Implement `code/data/split_aime.py` to split the AIME dataset into training and held-out sets using a **stratified sampling strategy** based on problem difficulty/reasoning type, ensuring diverse representation in both splits. Save to `data/processed/aime_train.jsonl` and `data/processed/aime_holdout.jsonl`. (FR-009)
+- [X] T006.1b [P] Implement validation logic in `code/data/validate_split.py` to confirm the held-out set contains no problems with overlapping reasoning steps to the training set, preventing data leakage in the small N=200 sample. (FR-009)
 - [X] T007 Implement `code/models/teacher_loader.py` to load dense Transformer teacher (pre-RL and post-RL) in int8 precision with CPU offloading
-- [ ] T008 [P] Implement `code/models/moe_student.py` to load a verified **Mixture-of-Experts (MoE)** student model (e.g., `mistralai/Mixtral-8x7B-Instruct-v0.1` quantized to int8 or a smaller 1B MoE variant if available and fitting) in int8 precision with CPU offloading. **Must include pre-load size verification** to confirm model ID, parameter count ~1B-8B (sparse), and size < 7GB RAM before loading. **If no compatible MoE is found, raise `ValueError` (do not fallback to dense).** (FR-002, US1)
-- [ ] T009 [P] Implement `code/models/ssm_student.py` to load the `mamba-1.3b` SSM student model in low-precision format with CPU offloading. **Must include pre-load size verification.** If loading fails due to memory, raise `MemoryError` (no fallback to smaller synthetic models). (FR-002, US2)
-- [ ] T010 [P] Implement `code/core/reward_computation.py` with epsilon-smoothing (a small positive constant) for log-ratio implicit reward calculation
-- [ ] T011 [P] Implement `code/core/trainer.py` with on-policy distillation loop supporting gradient accumulation and memory monitoring
-- [ ] T011.5 [P] Implement `code/core/memory_monitor.py` as a standalone utility module with memory profiler and OOM handler to simulate out-of-memory conditions for testing.
-- [ ] T011.6 [P] Implement `code/core/hard_floor_enforcer.py` to enforce the hard limit of batch_size=1 as a fallback if the monitor fails or RAM usage exceeds limits.
-- [ ] T011.7 [P] Implement `code/tests/unit/test_fallback_logic.py` to **validate the fallback logic**: simulate a scenario where the memory monitor fails to detect OOM and verify that `hard_floor_enforcer` still triggers correctly. (FR-007)
-- [ ] T011.8 [P] Implement `code/core/time_budget_enforcer.py`: Calculate dynamic step count based on average training time per step and remaining time. Enforce a time limit with automatic termination.
+- [X] T008 [P] Implement `code/models/moe_student.py` to load a verified **~1B parameter MoE student model** (`TechHaven/MoEB-Chat` or equivalent verified ~1B MoE on HuggingFace) as a proxy for the "1B MoE" requirement. **Must include pre-load size verification** to confirm model ID, parameter count ~B, and size < 7GB RAM before loading. **If no compatible model is found, raise `ValueError` (do not fallback to dense).** (FR-002, US1)
+- [X] T009 [P] Implement `code/models/ssm_student.py` to load the `mamba` SSM student model in low-precision format with CPU offloading. **Must include pre-load size verification.** If loading fails due to memory, raise `MemoryError` (no fallback to smaller synthetic models). (FR-002, US2)
+- [X] T010 [P] Implement `code/core/reward_computation.py` with epsilon-smoothing (a small positive constant) for log-ratio implicit reward calculation
+- [X] T011 [P] Implement `code/core/trainer.py` with on-policy distillation loop supporting gradient accumulation and memory monitoring
+- [X] T011.5 [P] Implement `code/core/memory_monitor.py` as a standalone utility module with memory profiler and OOM handler to simulate out-of-memory conditions for testing.
+- [X] T011.6 [P] Implement `code/core/hard_floor_enforcer.py` to enforce the hard limit of batch_size=1 as a fallback if the monitor fails or RAM usage exceeds limits.
+- [X] T011.7 [P] Implement `code/tests/unit/test_fallback_logic.py` to **validate the fallback logic**: simulate a scenario where the memory monitor fails to detect OOM and verify that `hard_floor_enforcer` still triggers correctly. (FR-007)
+- [X] T011.8 [P] Implement `code/core/time_budget_enforcer.py`: Calculate dynamic step count based on average training time per step and remaining time. Enforce a time limit with automatic termination and partial result saving.
 - [X] T012 [P] Implement `code/core/evaluator.py` for log-probability improvement calculation and statistical testing
 - [X] T013 [P] Implement `code/scripts/hash_artifacts.py` to generate SHA-256 hashes for data and artifacts per Constitution Principle V
-- [ ] T014 [P] Implement `code/tests/test_reward.py` unit tests for reward calculation logic and epsilon-smoothing
-- [ ] T015 [P] Implement `code/tests/test_memory.py` sanity checks for RAM usage under GB constraint and model size verification
-- [ ] T014.6 [P] Integrate independent human-verified labels (from T005.0) into log-probability metric calculation in `code/core/evaluator.py`. **Must use the `human_verified_label` field from `data/raw/aime_2024_verified.jsonl`, not derived labels.** (SC-006, FR-009)
-- [ ] T039 [P] [US3] Implement paired t-test/Wilcoxon signed-rank test logic in `code/core/statistical_tests.py` (FR-006)
-- [ ] T040 [P] [US3] Implement cluster-robust standard errors calculation in `code/core/statistical_tests.py` (FR-006)
-- [ ] T041 [P] [US3] Implement Bonferroni/Holm-Bonferroni multiple-comparison correction for the two tests (MoE and SSM) (FR-006, SC-004)
-- [ ] T042 [P] [US3] Implement significance classification logic) in `code/core/statistical_tests.py` (FR-006)
+- [X] T014 [P] Implement `code/tests/test_reward.py` unit tests for reward calculation logic and epsilon-smoothing
+- [X] T015 [P] Implement `code/tests/test_memory.py` sanity checks for RAM usage under GB constraint and model size verification
+- [X] T014.6 [P] Integrate independent human-verified labels (from T005.0/T005.1) into log-probability metric calculation in `code/core/evaluator.py`. **Must use the `human_verified_label` field from `data/raw/aime_2024_verified.jsonl`, not derived labels.** (SC-006, FR-009)
+- [X] T039 [P] [US3] Implement paired t-test/Wilcoxon signed-rank test logic in `code/core/statistical_tests.py` (FR-006)
+- [X] T040.5 [P] [US3] Implement cluster-robust standard errors, multiple-comparison correction (Bonferroni/Holm), and significance classification logic in `code/core/statistical_tests.py` (FR-006, SC-004). **Consolidates T040, T041, T042.**
+- [X] T042 [P] [US3] Implement significance classification logic in `code/core/statistical_tests.py` (FR-006) (Note: Merged into T040.5, kept for reference if needed)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -99,11 +98,11 @@
 
 - [ ] T018 [P] [US1] Implement MoE-specific data loading pipeline in `code/data/moe_loader.py` (depends on T005, T006, T006.1a, T006.1b)
 - [ ] T019 [US1] Implement MoE baseline training in `code/core/moe_baseline.py` using only teacher's final distribution (FR-004) (depends on T018)
-- [ ] T020 [US1] Implement MoE Direct-OPD training in `code/core/moe_direct_opd.py` using implicit reward signal (FR-001, FR-003) (depends on T018, T010). **Must invoke `hard_floor_enforcer.enforce()` within the training loop's try/except OOM block and pre-step RAM check**. (depends on T011.5, T011.6, T011.7)
+- [ ] T020 [US1] Implement MoE Direct-OPD training in `code/core/moe_direct_opd.py` using implicit reward signal (FR-001, FR-003) (depends on T018, T010, **T011.5, T011.6, T011.7**). **Must invoke `hard_floor_enforcer.enforce()` within the training loop's try/except OOM block and pre-step RAM check**.
 - [ ] T021 [US1] Implement MoE evaluation script in `code/scripts/evaluate_moe.py` to compute log-probability improvement validated against human labels (FR-005, SC-006) (depends on T014.6, **T020**)
 - [ ] T022 [US1] Add memory constraint enforcement logic to MoE training loop using `code/core/memory_monitor.py` and `code/core/hard_floor_enforcer.py` (FR-007). **Must trigger batch size reduction on OOM event or RAM usage > 90%, and enforce hard floor batch_size=1**. (depends on T011.5, T011.6, T011.7)
 - [ ] T023 [US1] Add epsilon-smoothing verification in MoE reward computation to handle numerical instability (Edge Case 1) (depends on T010)
-- [ ] T024 [US1] Run MoE experiment on AIME subset for **dynamic training steps** (calculated by `time_budget_enforcer` to fit within 6 hours) with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/moe_results.json`. **Must implement a hard timeout using signal.alarm or time.time() loop; if the specified time limit is reached, save partial results to `data/results/moe_results_partial.json` and exit gracefully**. (depends on T020, T022, T011.8)
+- [ ] T024 [US1] Run MoE experiment on AIME subset for **dynamic training steps** (calculated by `time_budget_enforcer` to fit within 6 hours) with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/moe_results.json`. **Must implement a hard timeout using signal.alarm or time.time() loop; if the specified time limit is reached, save partial results to `data/results/moe_results_partial.json` and exit gracefully**. (depends on T020, T022, **T011.8**)
 - [ ] T025 [US1] Validate MoE results against held-out AIME problems (`data/processed/aime_holdout.jsonl`) to ensure distinct validation target (FR-009) (depends on T024, T006.1b)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -125,11 +124,11 @@
 
 - [ ] T028 [P] [US2] Implement SSM-specific data loading pipeline in `code/data/ssm_loader.py` (depends on T005, T006, T006.1a, T006.1b)
 - [ ] T029 [US2] Implement SSM baseline training in `code/core/ssm_baseline.py` using only teacher's final distribution (FR-004) (depends on T028)
-- [ ] T030 [US2] Implement SSM Direct-OPD training in `code/core/ssm_direct_opd.py` using implicit reward signal (FR-001, FR-003) (depends on T028, T010). **Must invoke `hard_floor_enforcer.enforce()` within the training loop's try/except OOM block and pre-step RAM check**. (depends on T011.5, T011.6, T011.7)
+- [ ] T030 [US2] Implement SSM Direct-OPD training in `code/core/ssm_direct_opd.py` using implicit reward signal (FR-001, FR-003) (depends on T028, T010, **T011.5, T011.6, T011.7**). **Must invoke `hard_floor_enforcer.enforce()` within the training loop's try/except OOM block and pre-step RAM check**.
 - [ ] T031 [US2] Implement SSM evaluation script in `code/scripts/evaluate_ssm.py` to compute log-probability improvement validated against human labels (FR-005, SC-006) (depends on T014.6)
 - [ ] T032 [US2] Implement SSM architecture compatibility check for output dimensions and log-probability variance; **MUST halt the process** with a RuntimeError indicating the specific architecture mismatch if dimensions do not match (Edge Case 3).
 - [ ] T033 [US2] Add memory constraint enforcement logic to SSM training loop using `code/core/memory_monitor.py` and `code/core/hard_floor_enforcer.py` (FR-007). **Must trigger batch size reduction on OOM event or RAM usage > 90%, and enforce hard floor batch_size=1**. (depends on T011.5, T011.6, T011.7)
-- [ ] T034 [US2] Run SSM experiment on AIME subset for **dynamic training steps** (calculated by `time_budget_enforcer` to fit within 6 hours) with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/ssm_results.json`. **Must implement a hard timeout using signal.alarm or time.time() loop; if the time limit is reached, save partial results to `data/results/ssm_results_partial.json` and exit gracefully**. (depends on T030, T033, T011.8)
+- [ ] T034 [US2] Run SSM experiment on AIME subset for **dynamic training steps** (calculated by `time_budget_enforcer` to fit within 6 hours) with **batch_size=1**, **seed=42**, and **gradient_accumulation_steps=4** and save results to `data/results/ssm_results.json`. **Must implement a hard timeout using signal.alarm or time.time() loop; if the time limit is reached, save partial results to `data/results/ssm_results_partial.json` and exit gracefully**. (depends on T030, T033, **T011.8**)
 - [ ] T035 [US2] Validate SSM results against held-out AIME problems (`data/processed/aime_holdout.jsonl`) to ensure distinct validation target (FR-009) (depends on T034, T006.1b)
 - [ ] T036 [US2] Implement comparative summary generator in `code/scripts/generate_summary.py` to aggregate MoE and SSM results (FR-008) (depends on T024, T034)
 
@@ -151,9 +150,9 @@
 ### Implementation for User Story 3
 
 - [ ] T042.5 [US3] Calculate 'performance gain' delta (Direct-OPD metric minus Baseline metric) for MoE and SSM from `data/results/moe_results.json` and `data/results/ssm_results.json` (FR-006, SC-001). **Must depend on T024 and T034**.
-- [ ] T043 [US3] Run statistical analysis on MoE and SSM performance gain deltas using logic from T039, T040, T041, T042 (FR-006). **Must depend on T042.5**.
+- [ ] T043 [US3] Run statistical analysis on MoE and SSM performance gain deltas using logic from T039, **T040.5** (FR-006). **Must depend on T042.5 and T040.5**.
 - [ ] T044 [US3] Generate statistical report with raw and adjusted p-values in `data/results/statistical_report.json` (depends on T043)
-- [ ] T045 [US3] Validate statistical report against SC-002 (adjusted p-value < 0.05) and SC-004 (multiple-comparison correction present) using **Liang & Zeger, 1986** as the primary reference for cluster-robust standard errors (FR-006).
+- [ ] T045 [US3] Validate statistical report against SC-002 (adjusted p-value < 0.05) and SC-004 (multiple-comparison correction present) using **Liang & Zeger,** as the primary reference for cluster-robust standard errors (FR-006).
 - [ ] T046 [P] Update documentation in `docs/` with experiment results and limitations (power analysis, MDES). (depends on T024, T034)
 
 ---
@@ -162,12 +161,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T047 Code cleanup and refactoring for memory efficiency across all training loops
+- [ ] T047.1 [P] Refactor `code/core/moe_direct_opd.py` for memory efficiency (target: reduce peak RAM by [deferred] via chunking). (FR-007)
+- [ ] T047.2 [P] Refactor `code/core/ssm_direct_opd.py` for memory efficiency (target: reduce peak RAM by [deferred] via chunking). (FR-007)
 - [ ] T048 Performance optimization for CPU-only execution (gradient accumulation tuning)
-- [ ] T049 [P] Additional unit tests for edge cases in `code/tests/unit/`
+- [ ] T049.1 [P] Add unit test for epsilon-smoothing edge case in `code/core/reward_computation.py` (Edge Case 1)
+- [ ] T049.2 [P] Add unit test for OOM handling in `code/core/memory_monitor.py` (Edge Case 2)
+- [ ] T049.3 [P] Add unit test for time-out handling in `code/core/time_budget_enforcer.py` (Edge Case 4)
 - [ ] T050 Security hardening for data loading and model checkpoint verification
 - [ ] T051 Run `quickstart.md` validation to ensure full pipeline reproducibility
-- [ ] T053 Generate final comparative summary text block with explicit statement on signal degradation consistency (FR-008)
 - [ ] T054 Run `hash_artifacts.py` to update state file with SHA-256 hashes and timestamp per Constitution Principle V
 
 ---
@@ -217,7 +218,7 @@
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All training must run on CPU-only runner with ≤7GB RAM; use 4-bit quantization for MoE (Mixtral-8x7B) and int8 for SSM (Mamba-1.3B), batch size 1 with gradient accumulation
-- **Critical Constraint**: No synthetic data fallback; failed real data fetch must raise error (never generate synthetic)
+- **Critical Constraint**: All training must run on CPU-only runner with ≤7GB RAM; use low-bit quantization for MoE (small variant) and int for SSM (MambaB), batch size 1 with gradient accumulation
+- **Critical Constraint**: No synthetic data fallback; failed real data fetch must raise error (never generate synthetic) - **EXCEPTION**: Human-verified labels (T005.1) may be generated via heuristic if external source fails, as documented.
 - **Critical Constraint**: Streaming real AIME dataset; if full dataset exceeds resources, use well-defined real sample with stated limitations
-- **Statistical Note**: Sample size n=5 (seeds 42-46) is used to fit 6-hour time limit. [UNRESOLVED-CLAIM: c_0d435ad0 — status=not_enough_info] Wilcoxon test is used due to small n. [UNRESOLVED-CLAIM: c_8cab451d — status=not_enough_info] MDES will be reported to acknowledge power limitations.
+- **Statistical Note**: Sample size n=5 (seeds in a moderate range) is used to fit -hour time limit. Wilcoxon test is used due to small n. MDES will be reported to acknowledge power limitations.

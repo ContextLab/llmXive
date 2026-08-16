@@ -1,3 +1,1 @@
-"""
-Experiment results and logs.
-"""
+"""Experiment results and statistical reports."""

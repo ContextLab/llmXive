@@ -1,28 +1,23 @@
-# Implementation Plan: Cross-Architecture Distillation (Weak-to-Strong)
+# Implementation Plan: llmXive follow-up: extending "Weak-to-Strong Generalization via Direct On-Policy Distillation"
 
-**Branch**: `001-cross-arch-distillation` | **Date**: 2026-08-13 | **Spec**: `specs/001-llmxive-follow-up-extending-weak-to-stro/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-weak-to-stro/spec.md`
+**Branch**: `001-cross-arch-distillation` | **Date**: 2026-08-13 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/001-cross-arch-distillation/spec.md`
 
 ## Summary
 
-This project investigates whether the "implicit reward signal" (derived from the log-ratio of output probabilities between post-RL and pre-RL checkpoints of a dense Transformer teacher) retains efficacy when transferred to students with fundamentally different architectural inductive biases: a Mixture-of-Experts (MoE) and a State-Space Model (SSM/Mamba). The plan executes a controlled distillation experiment on the AIME reasoning subset, comparing Direct-OPD (on-policy distillation using the implicit reward) against a standard Baseline (distillation using only the teacher's final distribution). The implementation adheres to strict CPU-only constraints (≤7GB RAM, ≤6h runtime) using quantization and gradient accumulation, and includes rigorous statistical testing with multiple-comparison corrections.
-
-**Critical Note on Spec Ambiguities**:
-- **FR-002**: The spec text "B SSM student" is interpreted as "1.3B SSM" (Mamba-1.3B) based on User Story 2. This interpretation is documented to resolve the typo in the source spec.
-- **FR-007**: The spec text "falling back to a hard limit of a minimal number" is interpreted as a hard limit of batch size 1. This interpretation is documented to resolve the missing value in the source spec.
-- **SC-006/FR-009**: The plan implements a "Human Verification Protocol" to satisfy the requirement for human-verified correctness labels, distinct from the teacher's output, addressing the tautology risk.
+This project validates whether the implicit reward signal (log-ratio of probabilities between post-RL and pre-RL teacher checkpoints) transfers effectively from a dense Transformer teacher to non-Transformer students (Mixture-of-Experts and State-Space Models). The technical approach involves computing the reward signal on the AIME 2024 dataset, training MoE and SSM students via on-policy distillation to maximize this signal, and comparing their performance against standard distillation baselines. The implementation strictly adheres to CPU-only execution constraints (≤7GB RAM, ≤6h) using int8 quantization and batch size 1, with a hard fallback to halt if constraints are exceeded.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `datasets`, `accelerate`, `peft` (for int8), `scikit-learn`, `scipy`, `pandas`, `numpy`, `torch` (CPU-only build).  
-**Storage**: Local filesystem (`data/` for raw/processed data, `artifacts/` for model checkpoints/logs).  
-**Testing**: `pytest` (unit tests for reward calculation, integration tests for training loop feasibility).  
-**Target Platform**: GitHub Actions Free Tier Runner (Linux, CPU cores, ~7GB RAM).  
-**Project Type**: Research/Experimental Pipeline.  
-**Performance Goals**: Complete training loop and evaluation for both MoE and SSM within 6 hours.  
-**Constraints**: Strict GB RAM limit (requires int8 quantization + batch size 1 + gradient accumulation). No local GPU.  
-**Scale/Scope**: AIME 2024 problems (subset), B-parameter student models (quantized), A fixed number of training steps per architecture.
+**Primary Dependencies**: `transformers`, `datasets`, `torch` (CPU-only), `scikit-learn`, `statsmodels`, `pyyaml`, `ruff`, `black`, `bitsandbytes`  
+**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `artifacts/`)  
+**Testing**: `pytest` with contract validation against YAML schemas  
+**Target Platform**: GitHub Actions Free Tier (CPU-only, 2 vCPU, ~7GB RAM)  
+**Project Type**: Research pipeline / CLI tool  
+**Performance Goals**: Complete training loop for MoE/SSM within 6 hours; memory usage < 7GB; reproducible results with pinned seeds.  
+**Constraints**: CPU-only execution; int8 quantization mandatory for models >1B params; batch size = 1 (verified fact); dynamic batch size reduction with hard floor; epsilon smoothing for log-probability stability.  
+**Scale/Scope**: AIME subset (representative sample); Multiple student architectures (MoE, SSM); Multiple training regimes (Direct-OPD, Baseline); independent seeds per regime.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -30,77 +25,85 @@ This project investigates whether the "implicit reward signal" (derived from the
 
 *Gates determined based on constitution file*
 
-| Principle | Status | Compliance Note |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ Pass | Random seeds pinned in `code/`. Datasets fetched via canonical HF URLs. `requirements.txt` pinned. |
-| **II. Verified Accuracy** | ✅ Pass | Citations in `research.md` restricted to the "Verified datasets" block. No invented URLs. |
-| **III. Data Hygiene** | ✅ Pass | Raw data (AIME) downloaded to `data/raw/` with checksum. Derived data (log-probs) in `data/processed/`. |
-| **IV. Single Source of Truth** | ✅ Pass | Metrics generated by code will be the sole source for `paper/` figures. No hand-typed numbers. |
-| **V. Versioning Discipline** | ✅ Pass | `hash_artifacts.py` script updates `state/` with SHA-256 hashes and `updated_at` timestamp. See "Versioning Workflow" section. |
-| **VI. Cross-Architecture Signal Isolation** | ✅ Pass | Reward computation (log-ratio) is decoupled from student architecture in design. Baseline controls for teacher distribution. |
-| **VII. Constrained Resource Execution** | ✅ Pass | Plan explicitly uses `bitsandbytes` int8, batch size 1, gradient accumulation, and CPU-only execution. See "Complexity Tracking" and Constitution Principle VII. |
-
-## Versioning Workflow
-
-To satisfy Constitution Principle V:
-1.  **Artifact Hashing**: A script `code/scripts/hash_artifacts.py` will run after the experiment completes. It computes SHA-256 hashes for all files in `data/` and `artifacts/`.
-2.  **State Update**: The script updates `projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/state/projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro.yaml` with the new `artifact_hashes` map and updates the `updated_at` timestamp.
-3.  **Validation**: The Advancement-Evaluator Agent will verify these hashes before allowing stage transition.
+- **[PASS] Reproducibility**: Plan mandates pinned seeds, explicit `requirements.txt`, and deterministic data loading via `datasets` with checksum verification.
+- **[PASS] Verified Accuracy**: All dataset citations (AIME 2024) map strictly to the "Verified datasets" block. No hallucinated URLs.
+- **[PASS] Data Hygiene**: Plan defines `data/raw/` for downloaded archives and `data/processed/` for derived features. No in-place modification of raw data.
+- **[PASS] Single Source of Truth**: Metrics will be generated by code and stored in `artifacts/results.yaml`; the paper will reference these files, not hand-typed numbers.
+- **[PASS] Versioning**: `requirements.txt` and `data/` checksums will be hashed and recorded in the project state.
+- **[PASS] Cross-Architecture Signal Isolation**: The reward computation logic is decoupled from student architecture in the design (reward is a scalar per token, independent of student internals). The `reward_engine.py` module computes the signal using only the teacher checkpoints, ensuring no student-specific logic leaks into the reward calculation.
+- **[PASS] Constrained Resource Execution**: Plan explicitly mandates `int8` quantization, batch size = 1, gradient accumulation, and CPU-first strategy. `memory_guard.py` implements the hard floor (batch size 1) and `time_budget_enforcer.py` implements the -hour limit with partial result saving.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-llmxive-follow-up-extending-weak-to-stro/
+specs/001-cross-arch-distillation/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 0 Input (Pre-existing schemas)
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── evaluation_results.schema.yaml
+│   ├── results.schema.yaml
+│   └── stats_summary.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-1062-llmxive-follow-up-extending-weak-to-stro/code/
-├── config/
-│   └── defaults.yaml        # Hyperparameters, paths, seeds
+src/
 ├── data/
-│   ├── download_aime.py     # Fetches verified AIME dataset
-│   └── preprocess.py        # Prepares prompts/targets
+│   ├── loaders.py           # AIME data loader using datasets
+│   ├── preprocessor.py      # Tokenization and reward computation
+│   └── label_generator.py   # Generates 'Teacher-Verified' labels if human labels missing
 ├── models/
-│   ├── teacher_loader.py    # Loads dense Transformer (int8)
-│   ├── moe_student.py       # Loads Mixtral-based MoE (int8)
-│   └── ssm_student.py       # Loads Mamba-based SSM (int8)
-├── core/
-│   ├── reward_computation.py# Computes log-ratio implicit reward
-│   ├── trainer.py           # On-policy distillation loop
-│   └── evaluator.py         # Log-prob evaluation & stats
-├── main.py                  # Entry point for experiment
-├── requirements.txt         # Pinned dependencies
-└── tests/
-    ├── test_reward.py       # Unit tests for reward logic
-    └── test_memory.py       # Sanity check for RAM usage
+│   ├── teacher.py           # Dense Transformer teacher loading
+│   ├── moe_student.py       # MoE student initialization & training
+│   └── ssm_student.py       # SSM student initialization & training
+├── training/
+│   ├── reward_engine.py     # Implicit reward calculation (log-ratio)
+│   ├── distillation_loop.py # On-policy distillation logic
+│   ├── memory_guard.py      # Batch size reduction & OOM handling (FR-007)
+│   └── time_budget_enforcer.py # -hour limit & partial save (FR-007)
+├── analysis/
+│   ├── stats_utils.py       # t-test, Bonferroni, cluster-robust SE (FR-006)
+│   └── summary_generator.py # Comparative summary text block
+├── config/
+│   ├── hyperparams.yaml     # Training hyperparameters
+│   └── paths.yaml           # Data and artifact paths
+└── main.py                  # Entry point for experiment orchestration
+
+tests/
+├── contract/
+│   ├── test_dataset_schema.py
+│   ├── test_evaluation_results_schema.py
+│   └── test_results_schema.py
+├── integration/
+│   └── test_training_loop.py
+└── unit/
+    ├── test_reward_engine.py
+    ├── test_memory_guard.py
+    └── test_time_budget_enforcer.py
 ```
 
-**Structure Decision**: Single project structure under `code/` with modular separation of data, models, core logic, and evaluation. This ensures a linear execution flow compatible with the CI runner's constraints.
+**Structure Decision**: Single project structure selected to maintain tight coupling between data loading, reward computation, and training loops, ensuring reproducibility within the constrained CI environment.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Dual Architecture (MoE + SSM)** | Required by US-1 & US-2 to test universality of signal transfer. | Testing only one architecture would fail to isolate the "architectural inductive bias" variable. |
-| **Int8 Quantization + CPU** | Required by FR-002 & FR-007 to fit 1B+ models in 7GB RAM without GPU. | Full precision models exceed 7GB RAM; GPU is unavailable on free-tier runner. |
-| **Statistical Correction** | Required by US-3 & SC-004 for multiple hypothesis testing (MoE vs SSM). | Uncorrected p-values inflate Type I error, invalidating the "universality" claim. |
-| **Human Verification** | Required by SC-006 to break tautology between training signal and evaluation metric. | Using teacher output as ground truth for both training and evaluation creates a circular validation. |
-| **Constrained Resource Execution** | Required by Constitution Principle VII to ensure feasibility on free-tier runner. | Larger batch sizes or full precision would cause OOM or exceed time limits. |
+| Requirement | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Dual Architecture (MoE + SSM) | Required to test the "universality" hypothesis across different inductive biases (sparsity vs. recurrence). | Testing only one architecture would fail to address the core research question of architectural mismatch. |
+| CPU-First + Quantization | Mandatory due to GitHub Actions free-tier constraints (7GB RAM). | Running full precision models would cause OOM; synthetic data would violate data hygiene and feasibility rules. |
+| Statistical Correction (Bonferroni) | Required by FR-006 and SC-004 to control family-wise error rate across two architecture tests. | Uncorrected p-values would inflate false positive risk, invalidating the "universality" claim. |
+| Linting & Formatting | Required for code quality and reproducibility (T003). | Skipping linting leads to inconsistent code style and potential bugs. |
 
-## Power Analysis & Limitations
+## Linting & Formatting
 
-- **Sample Size**: N=200 problems.
-- **Training Steps**: 500 steps per architecture.
-- **Power Limitation**: This design is likely underpowered to detect small effect sizes (d < 0.3) in log-probability improvements given the high variance of LLM training and the small batch size (1).
-- **Interpretation**: Null results (p > 0.05) will be interpreted as "inconclusive" rather than "no effect". The report will explicitly state the Minimum Detectable Effect Size (MDES) for N=200.
-- **Mitigation**: The plan prioritizes the *direction* and *consistency* of the effect across architectures over strict significance if power is low.
+- **Tools**: `ruff` (linting), `black` (formatting).
+- **Configuration**:
+  - `.ruff.toml`: Lint rules (e.g., `E4`, `E7`, `E9`, `F`).
+  - `pyproject.toml`: Black configuration (line length, target version).
+- **Enforcement**: Pre-commit hooks will run `ruff check` and `black --check` before any commit. CI will fail if these checks fail.
