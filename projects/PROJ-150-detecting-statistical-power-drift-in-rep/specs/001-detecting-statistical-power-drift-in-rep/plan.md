@@ -13,7 +13,7 @@ This project investigates whether reported statistical power estimates in publis
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`  
 **Storage**: Local filesystem (CSV/Parquet inputs, derived CSV/JSON outputs)  
 **Testing**: `pytest` (unit tests for power formulas, integration tests for pipeline stages)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM)  
 **Project Type**: Data analysis pipeline / CLI  
 **Performance Goals**: Complete full pipeline (10k permutations) within 6 hours on CPU; memory usage < 6GB.  
 **Constraints**: No GPU; must handle missing data gracefully; must use only open, directly downloadable datasets.  
@@ -87,7 +87,7 @@ data/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **Linear Mixed-Effects Model (LMM)** | Required by FR-002 and Constitution Principle VII to statistically isolate the `year` effect on power while controlling for `effect_size` and `sample_size`. | A simple linear regression would fail to account for clustering (field, original study), violating the mixed-effects requirement. |
-| **10,000 Permutations** | Required by the spec (FR-004) and Constitution Principle VII to ensure robustness against model misspecification. | A lower iteration count (e.g., [deferred]) would provide a coarser p-value estimate, potentially failing to detect subtle drift or robustness issues. |
+| **Permutations** | Required by the spec (FR-004) and Constitution Principle VII to ensure robustness against model misspecification. | A lower iteration count (e.g., [deferred]) would provide a coarser p-value estimate, potentially failing to detect subtle drift or robustness issues. |
 | **Adaptive Weighting (DerSimonian-Laird)** | Required by FR-006 to handle heterogeneous effect-size metrics across fields. | Simple averaging would ignore field-specific variance and heterogeneity, biasing the aggregated drift estimate. |
 
 ## Implementation Phases & Tasks

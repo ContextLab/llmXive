@@ -8,3 +8,4 @@ seaborn
 pyyaml
 pytest
 huggingface_hub
+osf

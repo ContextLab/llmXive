@@ -4,18 +4,24 @@ from pathlib import Path
 
 def main():
     """
-    Create the directory structure for project PROJ-150.
-    This script ensures that the required directories exist relative to the project root.
+    Creates the directory structure for the project.
+    Specifically creates: data/raw, data/derived, code, tests, results, state
+    relative to the project root.
     """
-    # Determine project root. Assuming this script is in code/, root is parent.
-    # If running as python code/setup_dirs.py, __file__ is code/setup_dirs.py
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-
+    # Define the project root based on the script location or current working directory
+    # The task implies running from the project root, but we ensure paths are relative to the script's parent if needed.
+    # However, standard practice for these pipelines is to run from the repo root.
+    project_root = Path.cwd()
+    
+    # Define the specific project directory name as per task T001a
     project_name = "PROJ-150-detecting-statistical-power-drift-in-rep"
-    project_dir = project_root / project_name
+    project_path = project_root / project_name
 
-    # Define subdirectories as per task requirement
+    # Create the main project directory if it doesn't exist
+    project_path.mkdir(parents=True, exist_ok=True)
+    print(f"Created project directory: {project_path}")
+
+    # Define subdirectories to create
     subdirs = [
         "data/raw",
         "data/derived",
@@ -27,29 +33,13 @@ def main():
 
     created_dirs = []
     for subdir in subdirs:
-        dir_path = project_dir / subdir
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(dir_path.relative_to(project_root)))
-        else:
-            print(f"Directory exists: {dir_path}")
+        full_path = project_path / subdir
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(str(full_path))
+        print(f"Created directory: {full_path}")
 
-    if created_dirs:
-        print(f"Created directories for {project_name}:")
-        for d in created_dirs:
-            print(f"  - {d}")
-    else:
-        print(f"All directories for {project_name} already exist.")
-
-    # Verify structure
-    print(f"\nVerifying structure at: {project_dir}")
-    for subdir in subdirs:
-        target = project_dir / subdir
-        if target.exists() and target.is_dir():
-            print(f"  [OK] {subdir}")
-        else:
-            print(f"  [FAIL] {subdir} missing")
-            sys.exit(1)
+    print(f"Directory structure for {project_name} is ready.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

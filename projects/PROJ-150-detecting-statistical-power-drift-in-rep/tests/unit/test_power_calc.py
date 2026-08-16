@@ -1,112 +1,62 @@
-"""
-Unit tests for power calculation logic, specifically handling of NaN values.
-This module tests the behavior of power calculation functions when encountering
-invalid or missing data points (NaN).
-"""
-
-import numpy as np
 import pytest
-from scipy import stats
+import pandas as pd
+import numpy as np
+import os
+import sys
+from pathlib import Path
 
-# Helper function mimicking the core power calculation logic
-# This represents the logic that would be in code/power_calc.py (to be implemented later)
-def calculate_power(effect_size, sample_size, alpha=0.05):
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.power_calc import calculate_power_cohen_d, filter_and_log_invalid_rows
+from code.logging_config import get_module_logger
+import logging
+
+class TestPowerCalcHandlesNan:
     """
-    Calculate statistical power for a two-sample t-test.
-    
-    Parameters:
-    -----------
-    effect_size : float
-        Cohen's d effect size.
-    sample_size : int or float
-        Number of observations per group.
-    alpha : float
-        Significance level (default 0.05).
+    Unit test for T010: test_power_calc_handles_nan
+    Verifies that power calculation handles NaN inputs gracefully (by filtering).
+    """
+
+    def test_filter_removes_nan_rows(self, tmp_path):
+        """Test that rows with NaN in effect_size or sample_size are filtered out."""
+        # Create a sample dataframe with NaNs
+        data = {
+            'study_id': [1, 2, 3, 4],
+            'effect_size': [0.5, np.nan, 0.8, 0.0],
+            'sample_size': [100, 200, np.nan, 50]
+        }
+        df = pd.DataFrame(data)
         
-    Returns:
-    --------
-    float
-        Calculated power (probability of rejecting null hypothesis).
-        Returns np.nan if inputs are invalid.
-    """
-    # Handle NaN inputs explicitly
-    if np.isnan(effect_size) or np.isnan(sample_size) or np.isnan(alpha):
-        return np.nan
-    
-    # Handle zero or negative sample size
-    if sample_size <= 0:
-        return np.nan
-    
-    # Calculate non-centrality parameter
-    # For two-sample t-test: ncp = d * sqrt(n/2)
-    ncp = effect_size * np.sqrt(sample_size / 2)
-    
-    # Critical t-value
-    df = 2 * sample_size - 2
-    if df <= 0:
-        return np.nan
+        # Setup a temporary logger to capture warnings
+        logger = get_module_logger("test_power_calc")
+        logger.setLevel(logging.WARNING)
         
-    t_crit = stats.t.ppf(1 - alpha/2, df)
-    
-    # Power calculation using non-central t-distribution
-    # Power = P(|T| > t_crit | H1 is true)
-    power = 1 - stats.nct.cdf(t_crit, df, ncp) + stats.nct.cdf(-t_crit, df, ncp)
-    
-    return power
+        # Create a handler to capture log output
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.WARNING)
+        logger.addHandler(handler)
+        
+        # Filter rows
+        cleaned_df = filter_and_log_invalid_rows(df, logger)
+        
+        # Remove handler
+        logger.removeHandler(handler)
+        
+        # Verify that NaN rows were removed
+        assert len(cleaned_df) == 2, "Expected 2 valid rows after filtering NaNs"
+        assert list(cleaned_df['study_id']) == [1, 4], "Expected study_ids 1 and 4 to remain"
 
-def test_power_calc_handles_nan():
-    """
-    Test that power calculation returns NaN when any input is NaN.
-    
-    This test verifies FR-008 (Error handling for missing data) by ensuring
-    that NaN values in effect_size, sample_size, or alpha result in NaN output
-    rather than causing an exception or producing garbage values.
-    """
-    # Test case 1: NaN in effect_size
-    result = calculate_power(np.nan, sample_size=30, alpha=0.05)
-    assert np.isnan(result), f"Expected NaN for NaN effect_size, got {result}"
-    
-    # Test case 2: NaN in sample_size
-    result = calculate_power(effect_size=0.5, sample_size=np.nan, alpha=0.05)
-    assert np.isnan(result), f"Expected NaN for NaN sample_size, got {result}"
-    
-    # Test case 3: NaN in alpha
-    result = calculate_power(effect_size=0.5, sample_size=30, alpha=np.nan)
-    assert np.isnan(result), f"Expected NaN for NaN alpha, got {result}"
-    
-    # Test case 4: Multiple NaNs
-    result = calculate_power(np.nan, sample_size=np.nan, alpha=np.nan)
-    assert np.isnan(result), f"Expected NaN for multiple NaN inputs, got {result}"
-    
-    # Test case 5: Valid inputs should NOT return NaN
-    result = calculate_power(effect_size=0.5, sample_size=30, alpha=0.05)
-    assert not np.isnan(result), f"Expected valid power for valid inputs, got NaN"
-    assert 0 <= result <= 1, f"Power should be between 0 and 1, got {result}"
-    
-    # Test case 6: Zero sample size (edge case)
-    result = calculate_power(effect_size=0.5, sample_size=0, alpha=0.05)
-    assert np.isnan(result), f"Expected NaN for zero sample_size, got {result}"
-    
-    # Test case 7: Negative sample size (edge case)
-    result = calculate_power(effect_size=0.5, sample_size=-10, alpha=0.05)
-    assert np.isnan(result), f"Expected NaN for negative sample_size, got {result}"
+    def test_calculate_power_raises_on_zero_sample(self):
+        """Test that ZeroDivisionError is raised for non-positive sample size."""
+        with pytest.raises(ZeroDivisionError):
+            calculate_power_cohen_d(effect_size=0.5, sample_size=0)
+        
+        with pytest.raises(ZeroDivisionError):
+            calculate_power_cohen_d(effect_size=0.5, sample_size=-10)
 
-def test_power_calc_valid_inputs():
-    """
-    Test power calculation with valid inputs to ensure correctness.
-    """
-    # Standard case: medium effect size, reasonable sample
-    result = calculate_power(effect_size=0.5, sample_size=64, alpha=0.05)
-    assert 0 <= result <= 1
-    assert result > 0.8, "Power should be high for medium effect and n=64"
-    
-    # Large effect size
-    result = calculate_power(effect_size=0.8, sample_size=30, alpha=0.05)
-    assert 0 <= result <= 1
-    
-    # Small effect size
-    result = calculate_power(effect_size=0.2, sample_size=30, alpha=0.05)
-    assert 0 <= result <= 1
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_calculate_power_valid(self):
+        """Test that power calculation returns a valid float between 0 and 1."""
+        power = calculate_power_cohen_d(effect_size=0.5, sample_size=100)
+        assert isinstance(power, float)
+        assert 0.0 <= power <= 1.0

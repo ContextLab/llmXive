@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-150-detecting-statistical-power-drift-in-rep
-last_run_id: e3c88171-272a-46fe-80f1-891d5fe0a4f1
+last_run_id: bd3ce3b6-da1b-47dc-8e12-792f9407afe9
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-150-detecting-statistical-power-drift-in-rep/specs/001-detecting-statistical-power-drift-in-rep
 title: Detecting Statistical Power Drift in Replicated Studies
-updated_at: '2026-08-14T18:18:08.815433Z'
+updated_at: '2026-08-16T16:05:15.263660Z'

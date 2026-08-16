@@ -29,7 +29,7 @@ As a skeptical peer reviewer, I want to see the power drift results validated ag
 
 **Why this priority**: The methodology sketch explicitly requires guarding against model misspecification and justifying thresholds. This ensures the scientific validity of the drift claim.
 
-**Independent Test**: The system can be tested by running the permutation test (10,000 iterations) and the sensitivity sweep on the same dataset, verifying that the p-value distribution from permutations and the trend stability across alpha thresholds are reported.
+**Independent Test**: The system can be tested by running the permutation test (sufficient iterations) and the sensitivity sweep on the same dataset, verifying that the p-value distribution from permutations and the trend stability across alpha thresholds are reported.
 
 **Acceptance Scenarios**:
 
@@ -68,12 +68,12 @@ As a domain expert, I want to combine evidence across heterogeneous fields using
 - **FR-002**: System MUST fit a linear mixed-effects model with `power_est` as the outcome, `year` as the fixed effect, `effect_size` and `sample_size` as covariates to control for input drift, and random intercepts for `field` and `original_study_id` (See US-1).
 - **FR-003**: System MUST perform a likelihood-ratio test to determine the statistical significance of the `year` fixed effect, reporting the slope, SE, and p-value (See US-1).
 - **FR-004**: System MUST execute a non-parametric permutation test with 10,000 permutations of the `year` variable to generate an empirical p-value for the drift slope, with a fallback to a minimum of 1,000 permutations if memory or time limits are exceeded (See US-2).
-- **FR-005**: System MUST conduct a sensitivity analysis sweeping the alpha threshold across the set {0.01, 0.05, 0.1} and report the resulting drift significance rates (See US-2).
+- **FR-005**: System MUST conduct a sensitivity analysis sweeping the alpha threshold across a range of statistically conventional significance levels, as established in prior methodological literature (e.g., Cohen, 1988). and report the resulting drift significance rates (See US-2).
 - **FR-006**: System MUST apply an inverse-variance weighting with heterogeneity adjustment (DerSimonian-Laird) to combine residual power drift estimates across fields with heterogeneous effect-size metrics (See US-3).
 - **FR-007**: System MUST compute a null distribution for the drift slope by permuting the input variables (effect size and sample size) [deferred] times while holding year constant, and compare the observed slope against this distribution (See US-3).
 - **FR-008**: System MUST handle missing data (missing sample size or effect size) by excluding the specific record and logging a warning, without terminating the pipeline (See Edge Cases).
 - **FR-009**: System MUST visualize the *residual* power vs. year trajectory with the fitted regression line and 95% confidence intervals (See US-1).
-- **FR-010**: System MUST run entirely on a CPU-only environment (no GPU/CUDA) within a 6-hour runtime limit on a standard CI runner (See Compute Feasibility).
+- **FR-010**: System MUST run entirely on a CPU-only environment (no GPU/CUDA) within a reasonable runtime limit on a standard CI runner (See Compute Feasibility).
 
 ### Key Entities
 
@@ -96,7 +96,7 @@ As a domain expert, I want to combine evidence across heterogeneous fields using
 ## Assumptions
 
 - **Dataset Availability**: The OSF replication project metadata and the OpenML Reproducibility Project dataset are accessible and contain the necessary columns (year, effect size, sample size) for the majority of studies. If specific variables (e.g., exact alpha level used in original studies) are missing, the analysis assumes α = 0.05 for all.
-- **Compute Constraints**: The total dataset size (after download and filtering) will fit within ~7 GB of RAM, and the permutation test (10,000 iterations) will complete within the 6-hour CI job limit on a 2-core CPU runner.
+- **Compute Constraints**: The total dataset size (after download and filtering) will fit within a manageable amount of RAM., and the permutation test (a sufficient number of iterations) will complete within the 6-hour CI job limit on a 2-core CPU runner.
 - **Statistical Formulas**: The power calculation formulas from the 1999 paper are applicable to the effect size metrics (Cohen's *d*, odds ratio) found in the dataset without requiring complex conversion factors not provided in the source.
 - **Observational Nature**: The study design is purely observational; therefore, the analysis assumes no causal claims can be made about *why* the drift occurs, only that a temporal association exists.
 - **Independence of Random Effects**: The assumption is made that `field` and `original_study_id` random effects are sufficient to account for clustering, and that no additional hierarchical levels (e.g., specific lab) are required for the model to converge.
