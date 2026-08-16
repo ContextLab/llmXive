@@ -1,3 +1,10 @@
+"""
+T015: Compute Relative Power Features
+======================================
+Calculates relative power (band_power / total_power) from raw PSD values.
+Input: data/interim/eeg_psd.csv
+Output: data/processed/features.csv
+"""
 import os
 import sys
 import argparse
@@ -5,200 +12,139 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-# Import shared config utilities
-from config import get_path, ensure_dirs, get_band_freqs
+# Add project root to path to allow config import
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-# Band definitions matching the pipeline
-BANDS = ['delta', 'theta', 'alpha', 'low-beta', 'high-beta', 'gamma']
+from config import get_path, get_band_freqs, get_all_band_names, bonferroni_correct, get_exclusion_params
+from utils.stats_helpers import bonferroni_correct as stats_bonferroni
 
 def load_raw_features(input_path: str) -> pd.DataFrame:
-    """
-    Load the raw EEG PSD features from the intermediate CSV.
-    Expects columns: participant_id, delta, theta, alpha, low-beta, high-beta, gamma
-    """
+    """Load the raw PSD features computed in T012."""
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
+        raise FileNotFoundError(f"Input file not found: {input_path}. "
+                                "Please ensure T012 (03_extract_features.py) has run successfully.")
     df = pd.read_csv(input_path)
-    
-    # Validate required columns
-    required_cols = ['participant_id'] + BANDS
+    required_cols = ['participant_id', 'delta', 'theta', 'alpha', 'low_beta', 'high_beta', 'gamma']
     missing = [c for c in required_cols if c not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns in {input_path}: {missing}")
-    
+        raise ValueError(f"Input file missing required columns: {missing}")
     return df
 
 def load_behavioral_metrics(input_path: str) -> pd.DataFrame:
-    """
-    Load behavioral metrics to merge with EEG features.
-    Expected to contain 'participant_id' and 'median_rt'.
-    """
+    """Load behavioral metrics to merge with features."""
     if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Behavioral metrics file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    
-    if 'participant_id' not in df.columns:
-        raise ValueError(f"Missing 'participant_id' in {input_path}")
-    
-    if 'median_rt' not in df.columns:
-        # If column is named differently, try to find it, but strict adherence is safer
-        # Assuming standard naming based on T013
-        raise ValueError(f"Missing 'median_rt' in {input_path}. Found columns: {df.columns.tolist()}")
-    
-    return df
+        raise FileNotFoundError(f"Behavioral metrics file not found: {input_path}. "
+                                "Please ensure T013 (04_extract_behavioral_metrics.py) has run successfully.")
+    return pd.read_csv(input_path)
 
-def compute_relative_power(df_raw: pd.DataFrame, epsilon: float = 1e-6) -> pd.DataFrame:
+def compute_relative_power(df_raw: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute relative power (band / total) and apply Centered Log-Ratio (CLR) transformation.
-    
-    1. Calculate Total Power = sum of all band powers.
-    2. Calculate Relative Power = band_power / total_power.
-    3. Add small constant (epsilon) to avoid log(0).
-    4. Apply CLR: log(x) - mean(log(x)) across bands for each participant.
-    
-    Args:
-        df_raw: DataFrame with raw power values.
-        epsilon: Small constant to prevent log(0).
-    
-    Returns:
-        DataFrame with participant_id, median_rt, and CLR-transformed relative powers.
+    Calculate relative power for each band: band_power / total_power.
+    Total power is the sum of all band powers (delta + theta + alpha + low_beta + high_beta + gamma).
+    Handles zero total power by adding a small epsilon to avoid division by zero.
     """
     df = df_raw.copy()
     
-    # 1. Calculate Total Power
-    df['total_power'] = df[BANDS].sum(axis=1)
+    # Define band columns
+    band_cols = ['delta', 'theta', 'alpha', 'low_beta', 'high_beta', 'gamma']
     
-    # Check for zero total power
-    zero_total = df[df['total_power'] == 0]
-    if not zero_total.empty:
-        raise ValueError(f"Found {len(zero_total)} participants with zero total power. Cannot compute relative power.")
+    # Calculate total power across all bands
+    # Use the sum of the specific bands as the proxy for total power in the 1-40Hz range
+    # as per FR-010 (band/total)
+    total_power = df[band_cols].sum(axis=1)
     
-    # 2. Calculate Relative Power
-    for band in BANDS:
-        df[f'rel_{band}'] = df[band] / df['total_power']
+    # Get epsilon from config to handle zero division
+    epsilon = get_exclusion_params().get('epsilon', 1e-10)
     
-    # 3. Add epsilon to avoid log(0)
-    # The task description explicitly asks for this step before log
-    for band in BANDS:
-        df[f'rel_{band}'] = df[f'rel_{band}'] + epsilon
+    # Calculate relative power
+    for band in band_cols:
+        relative_col = f'{band}_rel'
+        df[relative_col] = df[band] / (total_power + epsilon)
     
-    # 4. Apply CLR Transformation
-    # CLR(x_i) = log(x_i) - (1/D) * sum(log(x_j))
-    # where D is the number of components (bands)
-    
-    clr_cols = [f'rel_{band}' for band in BANDS]
-    log_cols = [f'log_{band}' for band in BANDS]
-    
-    # Compute log of relative powers
-    for col in clr_cols:
-        df[col] = np.log(df[col])
-    
-    # Compute the geometric mean (log of geometric mean is mean of logs)
-    # We subtract the mean of the logs across the bands for each row
-    row_mean_log = df[clr_cols].mean(axis=1)
-    
-    # CLR = log(x_i) - mean(log(x_j))
-    for col in clr_cols:
-        df[col] = df[col] - row_mean_log
-    
-    # Rename columns to final output format
-    output_cols = ['participant_id', 'median_rt']
-    for band in BANDS:
-        output_cols.append(f'clr_{band}')
-    
-    result_df = df[output_cols]
-    
-    return result_df
+    return df
 
-def validate_output(df: pd.DataFrame, output_path: str) -> bool:
-    """
-    Validate the output DataFrame against schema requirements.
-    - No nulls in feature columns
-    - Correct columns present
-    - Valid RT range (150ms to 1000ms as per T035a, though T013 says 100-2000 exclusion)
-    """
-    required_cols = ['participant_id', 'median_rt'] + [f'clr_{b}' for b in BANDS]
+def validate_output(df: pd.DataFrame) -> bool:
+    """Validate that the output file contains no nulls and correct columns."""
+    rel_cols = [f'{b}_rel' for b in ['delta', 'theta', 'alpha', 'low_beta', 'high_beta', 'gamma']]
     
-    if not all(col in df.columns for col in required_cols):
-        print(f"Validation Failed: Missing columns. Expected {required_cols}, got {df.columns.tolist()}")
-        return False
+    # Check for nulls in relative power columns
+    for col in rel_cols:
+        if col not in df.columns:
+            raise ValueError(f"Output missing relative column: {col}")
+        if df[col].isnull().any():
+            raise ValueError(f"Output contains nulls in column: {col}")
     
-    # Check for nulls in features
-    feature_cols = [f'clr_{b}' for b in BANDS]
-    if df[feature_cols].isnull().any().any():
-        print("Validation Failed: Null values found in feature columns.")
-        return False
-    
-    # Check RT range (T035a specifies 150ms to 1000ms for validation)
-    # T013 excluded <100 and >2000, so we check if remaining are in valid physiological range
-    # The task T035a says "valid RT range 150ms to 1000ms"
-    if 'median_rt' in df.columns:
-        invalid_rt = df[(df['median_rt'] < 150) | (df['median_rt'] > 1000)]
-        if not invalid_rt.empty:
-            print(f"Warning: {len(invalid_rt)} participants have RT outside 150-1000ms range.")
-            # Do not fail the task, just warn, as T013 might have been less strict or data is noisy
-    
-    # Ensure output directory exists
-    ensure_dirs(output_path)
+    # Check for valid range (0 to 1)
+    for col in rel_cols:
+        if (df[col] < 0).any() or (df[col] > 1).any():
+            # Allow small floating point errors, but warn if out of range significantly
+            if ((df[col] < -0.01) | (df[col] > 1.01)).any():
+                raise ValueError(f"Relative power values out of expected range [0, 1] in {col}")
     
     return True
 
 def main():
-    """
-    Main entry point for T015: Compute relative power and CLR transformation.
-    Inputs:
-        - data/interim/eeg_psd.csv
-        - data/interim/behavioral_metrics.csv
-    Output:
-        - data/processed/features.csv
-    """
-    parser = argparse.ArgumentParser(description="T015: Compute Relative Power and CLR Transformation")
-    parser.add_argument('--input-psd', type=str, default=None, help='Path to raw PSD CSV')
-    parser.add_argument('--input-beh', type=str, default=None, help='Path to behavioral metrics CSV')
-    parser.add_argument('--output', type=str, default=None, help='Path to output features CSV')
+    parser = argparse.ArgumentParser(description="Compute relative power features (T015)")
+    parser.add_argument('--input-psd', type=str, default=None,
+                        help="Path to raw PSD CSV (default: auto-detect)")
+    parser.add_argument('--input-behavioral', type=str, default=None,
+                        help="Path to behavioral metrics CSV (default: auto-detect)")
+    parser.add_argument('--output', type=str, default=None,
+                        help="Path to output features CSV (default: auto-detect)")
     args = parser.parse_args()
 
     # Resolve paths
-    input_psd = args.input_psd or get_path('interim', 'eeg_psd.csv')
-    input_beh = args.input_beh or get_path('interim', 'behavioral_metrics.csv')
-    output_path = args.output or get_path('processed', 'features.csv')
+    if args.input_psd is None:
+        input_psd = get_path('interim', 'eeg_psd.csv')
+    else:
+        input_psd = args.input_psd
 
-    print(f"Loading raw PSD from: {input_psd}")
+    if args.input_behavioral is None:
+        input_behavioral = get_path('interim', 'behavioral_metrics.csv')
+    else:
+        input_behavioral = args.input_behavioral
+
+    if args.output is None:
+        output_path = get_path('processed', 'features.csv')
+    else:
+        output_path = args.output
+
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    print(f"Loading raw PSD features from: {input_psd}")
     df_raw = load_raw_features(input_psd)
-    print(f"Loaded {len(df_raw)} participants from PSD.")
 
-    print(f"Loading behavioral metrics from: {input_beh}")
-    df_beh = load_behavioral_metrics(input_beh)
-    print(f"Loaded {len(df_beh)} participants from behavioral data.")
+    print(f"Loading behavioral metrics from: {input_behavioral}")
+    df_behav = load_behavioral_metrics(input_behavioral)
 
     # Merge on participant_id
-    if 'participant_id' in df_raw.columns and 'participant_id' in df_beh.columns:
-        df_merged = pd.merge(df_raw, df_beh[['participant_id', 'median_rt']], on='participant_id', how='inner')
-    else:
-        # Fallback if column names differ slightly, though spec says 'participant_id'
-        raise ValueError("participant_id column missing in one of the datasets.")
+    # Inner join to ensure we only have participants with both EEG and Behavioral data
+    if 'participant_id' not in df_behav.columns:
+        raise ValueError("Behavioral metrics file missing 'participant_id' column")
+    
+    df_merged = pd.merge(df_raw, df_behav[['participant_id', 'median_rt']], on='participant_id', how='inner')
+    
+    if df_merged.empty:
+        raise RuntimeError("No matching participants found between EEG PSD and Behavioral metrics.")
 
-    print(f"Merged dataset size: {len(df_merged)}")
+    print(f"Merged dataset size: {len(df_merged)} participants")
 
-    # Compute Relative Power and CLR
-    print("Computing relative power and CLR transformation...")
+    print("Computing relative power (band / total)...")
     df_features = compute_relative_power(df_merged)
 
-    # Validate
-    if not validate_output(df_features, output_path):
-        print("Validation failed. Exiting.")
-        sys.exit(1)
+    # Validate output
+    print("Validating output...")
+    validate_output(df_features)
 
-    # Save to disk
-    ensure_dirs(output_path)
+    # Save to CSV
+    print(f"Saving features to: {output_path}")
     df_features.to_csv(output_path, index=False)
-    print(f"Successfully wrote features to: {output_path}")
 
-    # Verify file exists
-    if not os.path.exists(output_path):
-        raise RuntimeError(f"Failed to write output file: {output_path}")
+    print("T015 completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

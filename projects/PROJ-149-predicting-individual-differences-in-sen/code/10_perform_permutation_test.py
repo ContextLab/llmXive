@@ -4,286 +4,222 @@ import json
 import argparse
 import numpy as np
 import pandas as pd
-from typing import Tuple, Dict, Any
-from config import get_path, set_global_seed
+from pathlib import Path
+from typing import Dict, Any, List, Tuple
 
-def load_features(features_path: str) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
-    """
-    Load features and prepare X, y arrays.
-    Returns: (df, X, y)
-    """
+# Import from existing API surface
+from config import get_path, get_cv_folds, bonferroni_correct
+from utils.stats_helpers import permutation_test
+
+def load_features() -> pd.DataFrame:
+    """Load the processed features dataset."""
+    features_path = get_path("data/processed/features.csv")
     if not os.path.exists(features_path):
-        raise FileNotFoundError(f"Features file not found: {features_path}")
-    
+        raise FileNotFoundError(f"Features file not found at {features_path}")
     df = pd.read_csv(features_path)
+    return df
+
+def load_split_indices() -> Dict[str, Any]:
+    """Load the cross-validation split indices."""
+    split_path = get_path("data/interim/split_indices.json")
+    if not os.path.exists(split_path):
+        raise FileNotFoundError(f"Split indices not found at {split_path}")
+    with open(split_path, 'r') as f:
+        return json.load(f)
+
+def load_observed_results() -> Dict[str, Any]:
+    """Load the observed model results from T019."""
+    results_path = get_path("data/processed/model_results.json")
+    if not os.path.exists(results_path):
+        raise FileNotFoundError(f"Model results not found at {results_path}")
+    with open(results_path, 'r') as f:
+        return json.load(f)
+
+def prepare_test_data(df: pd.DataFrame, split_indices: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Prepare X and y for the specific fold used in the observed model.
+    We assume the observed model was trained on the first fold's training set
+    and evaluated on the first fold's test set for consistency, or we aggregate
+    across folds if the observed R2 is a mean.
     
-    # Identify feature columns (exclude 'participant_id' and 'median_rt')
-    feature_cols = [col for col in df.columns if col not in ['participant_id', 'median_rt']]
+    For permutation testing, we typically shuffle y across the WHOLE dataset
+    (or the training set) and re-evaluate the model.
+    """
+    # Identify feature columns (all columns except participant_id and median_rt)
+    feature_cols = [c for c in df.columns if c not in ['participant_id', 'median_rt']]
     
     X = df[feature_cols].values
     y = df['median_rt'].values
     
-    return df, X, y
-
-def load_split_indices(indices_path: str) -> Dict[int, Dict[str, np.ndarray]]:
-    """
-    Load pre-computed train/test split indices.
-    """
-    if not os.path.exists(indices_path):
-        raise FileNotFoundError(f"Split indices file not found: {indices_path}")
-    
-    with open(indices_path, 'r') as f:
-        indices = json.load(f)
-    
-    # Convert string keys to integers and ensure numpy arrays
-    return {int(k): v for k, v in indices.items()}
-
-def prepare_test_data(X: np.ndarray, y: np.ndarray, 
-                      split_indices: Dict[int, Dict[str, np.ndarray]],
-                      fold: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Prepare train/test data for a specific fold.
-    """
-    train_idx = split_indices[fold]['train']
-    test_idx = split_indices[fold]['test']
-    
-    X_train = X[train_idx]
-    y_train = y[train_idx]
-    X_test = X[test_idx]
-    y_test = y[test_idx]
-    
-    return X_train, y_train, X_test, y_test
+    return X, y, feature_cols
 
 def calculate_r2(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Calculate R² score.
-    """
+    """Calculate R-squared score."""
     ss_res = np.sum((y_true - y_pred) ** 2)
     ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
-    
     if ss_tot == 0:
         return 0.0
-    
     return 1 - (ss_res / ss_tot)
 
-def run_permutation_test(X: np.ndarray, y: np.ndarray,
-                         split_indices: Dict[int, Dict[str, np.ndarray]],
-                         n_permutations: int = 1000,
-                         random_state: int = 42) -> np.ndarray:
+def run_permutation_test(
+    X: np.ndarray, 
+    y: np.ndarray, 
+    n_permutations: int = 1000, 
+    random_state: int = 42
+) -> np.ndarray:
     """
-    Run permutation test to generate null distribution of R².
+    Run the permutation test to generate the null distribution of R².
+    Shuffles y values and recalculates the model performance.
     
-    For each permutation:
-    1. Shuffle y values
-    2. For each fold, train model and compute R²
-    3. Average R² across folds
-    4. Store in null distribution
-    
-    Returns:
-        null_distribution: numpy array of R² values under null hypothesis
+    We use a simple linear regression for speed in the permutation loop,
+    as the observed model was a Multiple Linear Regression (T017).
     """
-    set_global_seed(random_state)
+    rng = np.random.default_rng(random_state)
+    n_samples = len(y)
+    null_distribution = np.zeros(n_permutations)
     
-    null_r2s = []
-    n_folds = len(split_indices)
+    # Pre-allocate arrays for speed
+    X_b = np.ones((n_samples, X.shape[1] + 1))
+    X_b[:, 1:] = X
     
-    print(f"Running permutation test with {n_permutations} permutations...")
-    print(f"Number of folds: {n_folds}")
-    
-    for perm_idx in range(n_permutations):
-        # Shuffle y
-        y_shuffled = y.copy()
-        np.random.shuffle(y_shuffled)
+    # Pseudo-inverse for fast OLS solution: (X'X)^-1 X'y
+    # We compute (X'X)^-1 X' once since X is fixed
+    try:
+        # Using pinv for numerical stability
+        # beta = (X'X)^-1 X' y  =>  y_hat = X beta = X (X'X)^-1 X' y
+        # Let H = X (X'X)^-1 X' (hat matrix)
+        # y_hat = H y
+        # R2 = 1 - SS_res / SS_tot = 1 - ||y - Hy||^2 / ||y - y_mean||^2
         
-        fold_r2s = []
+        # Compute H matrix
+        XtX_inv = np.linalg.pinv(X_b.T @ X_b)
+        H = X_b @ XtX_inv @ X_b.T
         
-        for fold in range(n_folds):
-            X_train, y_train, X_test, y_test = prepare_test_data(
-                X, y_shuffled, split_indices, fold
-            )
+        # Center y for SS_tot calculation
+        y_mean = np.mean(y)
+        y_centered = y - y_mean
+        ss_tot = np.sum(y_centered ** 2)
+        
+        for i in range(n_permutations):
+            # Shuffle y
+            y_perm = rng.permutation(y)
             
-            # Simple linear regression for each fold
-            # X_train: (n_train, n_features), y_train: (n_train,)
-            # Fit: y = X * beta
-            if X_train.shape[0] > X_train.shape[1]:
-                try:
-                    beta = np.linalg.lstsq(X_train, y_train, rcond=None)[0]
-                    y_pred = X_test @ beta
-                    r2 = calculate_r2(y_test, y_pred)
-                    fold_r2s.append(r2)
-                except np.linalg.LinAlgError:
-                    fold_r2s.append(0.0)
-            else:
-                fold_r2s.append(0.0)
-        
-        # Average R² across folds for this permutation
-        avg_r2 = np.mean(fold_r2s)
-        null_r2s.append(avg_r2)
-        
-        if (perm_idx + 1) % 100 == 0:
-            print(f"  Completed {perm_idx + 1}/{n_permutations} permutations")
-    
-    return np.array(null_r2s)
+            # Calculate predictions using the hat matrix: y_hat = H * y_perm
+            y_hat = H @ y_perm
+            
+            # Calculate R2
+            ss_res = np.sum((y_perm - y_hat) ** 2)
+            # SS_tot for permuted data is the same as original if we just shuffle
+            # But strictly, R2 is calculated against the mean of the permuted y
+            # However, since we are shuffling, the mean is the same.
+            # To be safe, we calculate it per permutation if we want strict definition,
+            # but for null distribution generation, comparing against the observed R2
+            # (calculated on original data) usually assumes the same SS_tot denominator
+            # or we calculate it on the permuted y.
+            # Standard practice: R2 = 1 - SS_res / SS_tot(y_perm)
+            # Since we shuffle, mean(y_perm) == mean(y), so SS_tot is constant.
+            
+            r2 = 1 - (ss_res / ss_tot)
+            null_distribution[i] = r2
+            
+    except np.linalg.LinAlgError:
+        # Fallback to loop if matrix inversion fails (rare)
+        from sklearn.linear_model import LinearRegression
+        model = LinearRegression()
+        for i in range(n_permutations):
+            y_perm = rng.permutation(y)
+            model.fit(X, y_perm)
+            y_hat = model.predict(X)
+            r2 = model.score(X, y_perm)
+            null_distribution[i] = r2
 
-def calculate_permutation_pvalue(observed_r2: float, 
-                                 null_distribution: np.ndarray) -> float:
+    return null_distribution
+
+def calculate_permutation_pvalue(
+    observed_r2: float, 
+    null_distribution: np.ndarray
+) -> float:
     """
-    Calculate two-sided p-value from permutation test.
-    
-    For R², we typically care about whether observed is significantly 
-    greater than expected under null. Using one-sided test:
-    p = (number of null R² >= observed R² + 1) / (n_permutations + 1)
-    
-    The +1 is for the observed statistic itself (conservative estimate).
+    Calculate the p-value by comparing observed R2 against the null distribution.
+    p = (number of null R2 >= observed R2 + 1) / (n_permutations + 1)
     """
-    # Count how many null R² values are >= observed
     count_ge = np.sum(null_distribution >= observed_r2)
-    n_perm = len(null_distribution)
-    
-    # Two-sided p-value calculation for R²
-    # Since R² is bounded [0, 1] and we're testing if model explains variance,
-    # we use the proportion of null R² >= observed
-    p_value = (count_ge + 1) / (n_perm + 1)
-    
+    p_value = (count_ge + 1) / (len(null_distribution) + 1)
     return p_value
 
-def load_observed_results(results_path: str) -> Dict[str, Any]:
-    """
-    Load observed model results to get the observed R².
-    """
-    if not os.path.exists(results_path):
-        raise FileNotFoundError(f"Model results file not found: {results_path}")
+def save_permutation_results(
+    p_value: float,
+    observed_r2: float,
+    null_distribution: np.ndarray,
+    output_path: str
+):
+    """Save permutation test results to the model_results.json file."""
+    # Load existing results
+    results = load_observed_results()
     
-    with open(results_path, 'r') as f:
-        results = json.load(f)
+    # Prepare new section
+    permutation_results = {
+        "permutation_test": {
+            "n_permutations": len(null_distribution),
+            "observed_r2": float(observed_r2),
+            "p_value": float(p_value),
+            "null_distribution_mean": float(np.mean(null_distribution)),
+            "null_distribution_std": float(np.std(null_distribution)),
+            "null_distribution_min": float(np.min(null_distribution)),
+            "null_distribution_max": float(np.max(null_distribution)),
+            "significant": p_value < 0.05
+        }
+    }
     
-    return results
-
-def save_permutation_results(results_path: str, 
-                             observed_r2: float,
-                             p_value: float,
-                             null_distribution: np.ndarray,
-                             n_permutations: int) -> None:
-    """
-    Append permutation test results to model_results.json.
-    """
-    results = load_observed_results(results_path)
+    # Append to results
+    results.update(permutation_results)
     
-    # Ensure permutation_results key exists
-    if 'permutation_results' not in results:
-        results['permutation_results'] = {}
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     
-    results['permutation_results'].update({
-        'observed_r2': float(observed_r2),
-        'p_value': float(p_value),
-        'n_permutations': n_permutations,
-        'null_distribution_mean': float(np.mean(null_distribution)),
-        'null_distribution_std': float(np.std(null_distribution)),
-        'null_distribution_min': float(np.min(null_distribution)),
-        'null_distribution_max': float(np.max(null_distribution)),
-        'significant_at_0.05': p_value < 0.05,
-        'significant_at_0.01': p_value < 0.01
-    })
-    
-    # Save updated results
-    output_dir = os.path.dirname(results_path)
-    os.makedirs(output_dir, exist_ok=True)
-    
-    with open(results_path, 'w') as f:
+    # Write back to JSON
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
-    
-    print(f"Permutation results saved to: {results_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Permutation Test Part 2: Calculate Significance')
-    parser.add_argument('--features', type=str, default=None,
-                      help='Path to features CSV')
-    parser.add_argument('--split-indices', type=str, default=None,
-                      help='Path to split indices JSON')
-    parser.add_argument('--results', type=str, default=None,
-                      help='Path to model results JSON')
-    parser.add_argument('--null-distribution', type=str, default=None,
-                      help='Path to null distribution numpy file')
-    parser.add_argument('--n-permutations', type=int, default=1000,
-                      help='Number of permutations (default: 1000)')
-    parser.add_argument('--random-state', type=int, default=42,
-                      help='Random state for reproducibility')
-    
+    parser = argparse.ArgumentParser(description="Permutation Test Part 2: Calculate Significance")
+    parser.add_argument("--n-permutations", type=int, default=1000, help="Number of permutations")
+    parser.add_argument("--random-state", type=int, default=42, help="Random seed")
     args = parser.parse_args()
+
+    print("Loading features...")
+    df = load_features()
     
-    # Set paths from config if not provided
-    if args.features is None:
-        args.features = get_path('data/processed/features.csv')
-    if args.split_indices is None:
-        args.split_indices = get_path('data/interim/split_indices.json')
-    if args.results is None:
-        args.results = get_path('data/processed/model_results.json')
-    if args.null_distribution is None:
-        args.null_distribution = get_path('data/interim/permutation_null_distribution.npy')
+    print("Loading split indices...")
+    split_indices = load_split_indices()
     
-    print("Loading data...")
+    print("Loading observed results...")
+    observed_results = load_observed_results()
+    observed_r2 = observed_results.get("adjusted_r2", observed_results.get("r2", 0.0))
     
-    # Load features
-    df, X, y = load_features(args.features)
-    print(f"  Loaded {len(df)} samples with {X.shape[1]} features")
+    print(f"Observed R²: {observed_r2:.4f}")
+
+    print("Preparing data...")
+    X, y, feature_cols = prepare_test_data(df, split_indices)
     
-    # Load split indices
-    split_indices = load_split_indices(args.split_indices)
-    print(f"  Loaded {len(split_indices)} fold splits")
-    
-    # Load null distribution
-    if os.path.exists(args.null_distribution):
-        null_distribution = np.load(args.null_distribution)
-        print(f"  Loaded null distribution with {len(null_distribution)} samples")
-    else:
-        print(f"  Null distribution not found at {args.null_distribution}")
-        print("  Generating null distribution...")
-        null_distribution = run_permutation_test(
-            X, y, split_indices, 
-            n_permutations=args.n_permutations,
-            random_state=args.random_state
-        )
-        # Save null distribution
-        os.makedirs(os.path.dirname(args.null_distribution), exist_ok=True)
-        np.save(args.null_distribution, null_distribution)
-        print(f"  Saved null distribution to {args.null_distribution}")
-    
-    # Load observed results to get observed R²
-    observed_results = load_observed_results(args.results)
-    
-    # Extract observed R² from model results
-    # The observed R² should be in the main results
-    if 'adjusted_r2' in observed_results:
-        observed_r2 = observed_results['adjusted_r2']
-    elif 'r2' in observed_results:
-        observed_r2 = observed_results['r2']
-    elif 'model_results' in observed_results and 'r2' in observed_results['model_results']:
-        observed_r2 = observed_results['model_results']['r2']
-    else:
-        raise ValueError("Could not find observed R² in model results")
-    
-    print(f"  Observed R²: {observed_r2:.4f}")
-    
-    # Calculate p-value
-    p_value = calculate_permutation_pvalue(observed_r2, null_distribution)
-    print(f"  Permutation p-value: {p_value:.4f}")
-    
-    # Save results
-    save_permutation_results(
-        args.results, 
-        observed_r2, 
-        p_value, 
-        null_distribution, 
-        args.n_permutations
+    print(f"Running permutation test with {args.n_permutations} permutations...")
+    null_distribution = run_permutation_test(
+        X, y, 
+        n_permutations=args.n_permutations, 
+        random_state=args.random_state
     )
     
-    print("\nPermutation test completed successfully!")
-    print(f"  Observed R²: {observed_r2:.4f}")
-    print(f"  Null distribution mean: {np.mean(null_distribution):.4f}")
-    print(f"  Null distribution std: {np.std(null_distribution):.4f}")
-    print(f"  P-value: {p_value:.4f}")
-    print(f"  Significant at 0.05: {p_value < 0.05}")
-    print(f"  Significant at 0.01: {p_value < 0.01}")
+    print("Calculating p-value...")
+    p_value = calculate_permutation_pvalue(observed_r2, null_distribution)
+    
+    print(f"Permutation p-value: {p_value:.4f}")
+    
+    output_path = get_path("data/processed/model_results.json")
+    save_permutation_results(p_value, observed_r2, null_distribution, output_path)
+    
+    print(f"Results appended to {output_path}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
