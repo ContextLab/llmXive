@@ -1,5 +1,14 @@
-057|chunk chunked permutation size t057a utility:
-  quote: const int DEFAULT_SIZE 1000 ;
-  source_id: '2101.00172'
-  url: https://arxiv.org/abs/2101.00172
-  value: '1000'
+'|degree grid resolution':
+  quote: "C-squares (acronym for the Concise Spatial QUery And REpresentation System)\
+    \ is a system of spatially unique, location-based identifiers (geocodes) for areas\
+    \ on the surface of the earth, represented as cells from a latitude- and longitude-based\
+    \ Discrete Global Grid at a hierarchical set of resolution steps, obtained by\
+    \ progressively subdividing 10\xD710 degree World Meteorological Organization\
+    \ squares; the term \"c-square\" is also available for use to designate any component\
+    \ cell of the grid. Individual cell identifiers incorporate literal values of\
+    \ latitude and longitude in an interleaved notation (producing grid resolutions\
+    \ of 10, 1, 0.1 degrees, etc.), together with additional digits that support intermediate\
+    \ grid resolutions of 5, 0.5, 0.05 degrees, etc."
+  source_id: C-squares
+  url: https://en.wikipedia.org/wiki/C-squares
+  value: '0.5'

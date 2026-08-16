@@ -21,34 +21,28 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase 0: Pre-Implementation & Plan Reconciliation
+## Phase 0: Pre-Implementation & Spec Alignment
 
 **Purpose**: Verify plan/spec alignment and document scope limitations before any implementation begins.
 
-- [ ] T005c4 [S] [Spec] **Generate Spec Deviation Amendment**:
- **Action**: Write a formal amendment document `specs/001-bird-migration-climate-correlation/amendments/FR-001-data-substitution.md` that ratifies the substitution of NOAA/PRISM with Daymet and the full eBird archive with the verified `vvud/eb-data` sample.
- **Content**: Must include: (1) Original FR-001 text, (2) Implemented source (Daymet + vvud/eb-data), (3) Justification (verified open-source availability), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER` and update at runtime).
- **Requirement**: This document serves as the official record of the deviation, preserving the integrity of the original spec.
- **Output**: `specs/001-bird-migration-climate-correlation/amendments/FR-001-data-substitution.md`.
+- [ ] T005c4 [S] [Spec] **Document Plan Deviation from Spec**:
+ **Action**: Write a formal deviation document `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md` that documents the Plan's explicit substitution of NOAA/PRISM with Daymet and the full eBird archive with the verified `vvud/eb-data` sample.
+ **Content**: Must include: (1) Original Spec FR-001 text, (2) Plan's implemented source (Daymet + vvud/eb-data), (3) Justification (Plan states verified open-source availability), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER` and update at runtime).
+ **Requirement**: This document serves as the official record of the Plan's deviation from the Spec. The Spec remains unchanged and is the single source of truth for implementation.
+ **Output**: `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md`.
  **Dependency**: None.
-
-- [ ] T005c4b [S] [Spec] **Update Spec Text to Reflect Deviation**:
- **Action**: Edit `specs/001-bird-migration-climate-correlation/spec.md` to update the text of FR-001. Replace "NOAA/PRISM" with "Daymet (verified via amendment FR-001-data-substitution.md)" and "full eBird archive" with "verified eBird sample (vvud/eb-data)".
- **Requirement**: The Spec MUST reflect the actual implemented data source to maintain Single Source of Truth (Constitution Principle IV). This task MUST run after T005c4.
- **Output**: `specs/001-bird-migration-climate-correlation/spec.md` (updated).
- **Dependency**: T005c4.
 
 - [ ] T005c3 [S] **Document Data Source Deviation**: Write JSON `data/provenance/spec_plan_deviation.json` with the following EXACT structure:
  ```json
  {
  "spec_requirement": "NOAA/PRISM (FR-001)",
  "implemented_source": "Daymet",
- "reason": "Plan explicitly substitutes NOAA/PRISM with Daymet for verified open-source availability. Spec deviation ratified in FR-001-data-substitution.md (T005c4).",
+ "reason": "Plan explicitly substitutes NOAA/PRISM with Daymet for verified open-source availability. Spec deviation ratified in PLAN-DEVIATION-DATA-SOURCES.md (T005c4).",
  "timestamp": "TIMESTAMP_PLACEHOLDER"
  }
  ```
  **Requirement**: Must reflect which data source was actually used; timestamp must be generated using `datetime.utcnow().isoformat()` at runtime, replacing `TIMESTAMP_PLACEHOLDER`.
- **Dependency**: T005c4 (Amendment document must exist).
+ **Dependency**: T005c4 (Deviation document must exist).
 
 - [ ] T005c5 [S] **Pre-Execution Ordering Validator**:
  **Action**: Write script `src/cli/validate_task_order.py` that parses `tasks.md` and verifies that all "verify" or "test" tasks (e.g., T013, T021) appear AFTER their producer tasks (e.g., T015b, T023a) in the dependency graph.
@@ -59,11 +53,11 @@
 
 ## Phase 0.5: Data Source & Spec Reconciliation
 
-**Purpose**: Explicitly document the data source substitution via a formal Spec Deviation Amendment before implementation begins, and update the Spec to maintain Single Source of Truth.
+**Purpose**: Implement the Spec's primary data requirements (NOAA/PRISM) as the default path. The Plan's deviation (Daymet) is implemented only if the deviation document exists.
 
 - [X] T005a [S] **Verify Data Availability**:
- **Action**: Write script `src/data/verify_dataset.py` that attempts to load the verified eBird sample (`vvud/eb-data`) using `datasets.load_dataset("vvud/eb-data", split="train", streaming=True)` and checks for Daymet availability.
- **Output**: Write `data/provenance/data_availability_report.json` with keys `{ "ebird_available": bool, "daymet_available": bool }`. Raise `RuntimeError` with clear message if eBird is missing.
+ **Action**: Write script `src/data/verify_dataset.py` that attempts to load the verified eBird sample (`vvud/eb-data`) using `datasets.load_dataset("vvud/eb-data", split="train", streaming=True)` and checks for NOAA/PRISM and Daymet availability.
+ **Output**: Write `data/provenance/data_availability_report.json` with keys `{ "ebird_available": bool, "noaa_available": bool, "daymet_available": bool }`. Raise `RuntimeError` with clear message if eBird is missing.
  **Dependency**: None.
 
 - [X] T005b [S] **Download Verified eBird Sample**:
@@ -71,26 +65,33 @@
  **Requirement**: No synthetic fallback; abort on any download error.
  **Dependency**: T005a.
 
-- [X] T005c1 [S] **Download Daymet Climate Data**:
- **Action**: Use `datasets.load_dataset("daymet/annual", variables=["prcp", "tmin", "tmax", "srad", "vp"], state="ALL", year=["2020", "2021", "2022", "2023", "2024"])` to download climate variables. **Action**: First verify the dataset exists via `datasets.get_dataset_names()`. If it does not exist, raise `FileNotFoundError` with message **"Daymet not available; aborting pipeline"** and exit with code 1. Write to `data/raw/daymet/` as Parquet files (`daymet_*.parquet`). Compute SHA‑ checksums.
- **Requirement**: This is the primary and only source per updated Spec FR-001 (via T005c4). Abort if missing.
- **Dependency**: T005a.
-
-- [ ] T005c1b [S] **Implement NOAA/PRISM Fallback Logic**:
- **Action**: Write `src/data/download.py::fetch_noaa_prism` that checks for the existence of `specs/001-bird-migration-climate-correlation/amendments/FR-001-data-substitution.md`.
+- [ ] T005c1b [S] **Download NOAA/PRISM Climate Data (Spec Primary)**:
+ **Action**: Implement `src/data/download.py::fetch_noaa_prism` to download NOAA/PRISM climate data for North America (recent years).
  **Logic**:
- 1. If the amendment file exists (ratifying Daymet), log "Amendment ratified; skipping NOAA/PRISM" and exit 0.
- 2. If the amendment file does NOT exist, attempt to download NOAA/PRISM data for the specified region and period as per FR-001.
- 3. If download succeeds, store in `data/raw/noaa_prism/`.
- 4. If download fails, raise `RuntimeError` with message "NOAA/PRISM download failed and no amendment exists; aborting pipeline". **Do NOT log and continue.**
- **Requirement**: This task ensures the spec's explicit requirement (FR-001) is attempted ONLY if the deviation is not ratified. It must raise on failure to avoid silent fallback.
+ 1. Verify the existence of `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md`.
+ 2. If the deviation document EXISTS: Log "Plan deviation ratified; skipping NOAA/PRISM primary fetch" and exit 0 (do not download).
+ 3. If the deviation document DOES NOT EXIST: Proceed to download NOAA/PRISM data from the official NOAA/PRISM API or verified mirror.
+ 4. Write to `data/raw/noaa_prism/` as NetCDF or Parquet files. Compute SHA‑ checksums.
+ 5. If download fails, raise `RuntimeError` with message "NOAA/PRISM download failed and no Plan deviation exists; aborting pipeline".
+ **Requirement**: This is the primary task for climate data as per Spec FR-001. It only skips if the Plan's deviation is ratified.
  **Output**: `data/raw/noaa_prism/` (if successful) or error log.
- **Dependency**: T005c4 (Amendment must exist to skip), T005a.
+ **Dependency**: T005a, T005c4.
 
-- [X] T005d1 [S] **Archive Raw Data (Local)**: Copy all raw files from `data/raw/ebird_sample/`, `data/raw/daymet/`, and `data/raw/noaa_prism/` (if exists) to `data/raw/archive/`.
- **Requirement**: Depends on **Data Download Completion** (T005b, T005c1). If T005c1b produces no artifact, archive only existing directories. **Do not depend on T005c1b.**
+- [ ] T005c1 [S] **Download Daymet Climate Data (Plan Deviation)**:
+ **Action**: Use `datasets.load_dataset("daymet/annual", variables=["prcp", "tmin", "tmax", "srad", "vp"], state="ALL", year=["2020", "2021", "2022", "2023", "2024"])` to download climate variables.
+ **Logic**:
+ 1. Verify the existence of `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-DATA-SOURCES.md`.
+ 2. If the deviation document DOES NOT EXIST: Raise `FileNotFoundError` with message "Daymet not available as primary source; Spec requires NOAA/PRISM" and exit 1.
+ 3. If the deviation document EXISTS: Proceed to download Daymet data.
+ 4. Write to `data/raw/daymet/` as Parquet files (`daymet_*.parquet`). Compute SHA‑ checksums.
+ **Requirement**: This task runs ONLY if the Plan's deviation is ratified. It is not the primary source per Spec FR-001.
+ **Output**: `data/raw/daymet/` (if successful) or error log.
+ **Dependency**: T005a, T005c4.
+
+- [X] T005d1 [S] **Archive Raw Data (Local)**: Copy all raw files from `data/raw/ebird_sample/`, `data/raw/daymet/` (if exists), and `data/raw/noaa_prism/` (if exists) to `data/raw/archive/`.
+ **Requirement**: Depends on **Data Download Completion** (T005b, T005c1, T005c1b). If T005c1 or T005c1b produces no artifact, archive only existing directories.
  **Output**: `data/raw/archive/`.
- **Dependency**: T005b, T005c1.
+ **Dependency**: T005b, T005c1, T005c1b.
 
 - [X] T005d2 [S] **Configure CI Artifact Upload**: Write `src/cli/upload_ci.py` to generate the CI workflow snippet for uploading `data/raw/archive/` as artifacts. This task creates the configuration, not the upload itself (which is handled by CI).
  **Requirement**: Must be executable locally to generate the YAML snippet.
@@ -164,7 +165,7 @@ ignore = []
  **Dependency**: T003a_1.
 
 - [X] T003c [P] **Add Geomstats Dependency**: Append `geomstats>=2.4.0` to the `dependencies` list in `pyproject.toml` under `[project]`.
- **Requirement**: Ensure `geomstats` is available for T030/T031a/T031b/T031c (for potential future use, though Discrete method is primary).
+ **Requirement**: Ensure `geomstats` is available for T030/T031a/T031b/T031c (Riemannian manifold operations).
  **Dependency**: T003a_1.
 
 - [ ] T003b [P] **Create Pre-commit Config**: Create `.pre-commit-config.yaml` with hooks for `black` and `ruff` and add installation instructions to `README.md`.
@@ -186,8 +187,11 @@ ignore = []
 ## Phase 3: User Story 1 – Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
 - [ ] T013 [S] [US1] **Integration Test for Data Ingestion Flow**:
- **Action**: Write `tests/integration/test_data_ingestion.py::test_end_to_end_ingestion` that mocks the download step, runs the preprocessing pipeline on a small synthetic dataset, and asserts the output schema matches `data/processed/preprocessed_data.parquet` requirements.
- **Requirement**: This task is Sequential [S] as it depends on the completed T015b artifact. It must wait for T015b to produce `src/data/preprocess.py`.
+ **Action**: Write `tests/integration/test_data_ingestion.py::test_end_to_end_ingestion`.
+ **Mock Strategy**: Use `pytest-mock` to patch `datasets.load_dataset` and `src.data.download.fetch_noaa_prism` to return a small, synthetic JSON fixture with Multiple rows of eBird data and 1 row of climate data.
+ **Logic**: Run the preprocessing pipeline (T015b) on this mocked data.
+ **Assertion**: Assert that the output `data/processed/preprocessed_data.parquet` exists and contains the exact schema: `[species, grid_cell, week, first_arrival_date, median_arrival_date, stopover_duration, mean_temperature, total_precipitation, data_quality]` with correct dtypes and no missing values in critical fields.
+ **Requirement**: This task is Sequential [S] as it depends on the completed T015b artifact.
  **Output**: `tests/integration/test_data_ingestion.py`.
  **Dependency**: T015b.
 
@@ -199,15 +203,16 @@ ignore = []
  **Action**: Write `src/data/preprocess.py` to stream eBird data (using T051), filter for migratory species (recent years), aggregate to a regular grid resolution, and compute phenology metrics.
  **Logic**: Use `polars` for efficient streaming.
  1. **Binning**: Use `numpy.floor(lat / bin_size) * bin_size` and `numpy.floor(lon / 0.5) * 0.5` to create `grid_cell` strings (e.g., "45.0_-120.5").
- 2. **Aggregation**: Group by `species`, `grid_cell`, `year`, `week`. Compute `first_arrival` (min date), `median_arrival` (median date), `stopover_duration` (90th percentile date - 10th percentile date of dates).
- 3. **Intermediate Output**: Write intermediate grid-binned data to `data/interim/grid_binned.parquet`.
- 4. **Phenology Output**: Write intermediate phenology data to `data/interim/phenology_raw.parquet`.
- 5. **Climate Join**: Join with Daymet data (T005c1) on `grid_cell` and `week`.
- 6. **Imputation**: Use `src/data/impute.py` (T007) to fill missing climate values. Flag imputed rows.
- 7. **Final Output**: Write final processed data to `data/processed/preprocessed_data.parquet`.
+ 2. **Aggregation**: Group by `species`, `grid_cell`, `year`, `week`.
+ 3. **Phenology Metrics**: Compute `first_arrival` (min date), `median_arrival` (median date), `stopover_duration` (90th percentile date - 10th percentile date of dates).
+ 4. **Intermediate Output**: Write intermediate grid-binned data to `data/interim/grid_binned.parquet`.
+ 5. **Phenology Output**: Write intermediate phenology data to `data/interim/phenology_raw.parquet` with schema: `[species, grid_cell, year, week, first_arrival_date, median_arrival_date, stopover_duration]`.
+ 6. **Climate Join**: Join with NOAA/PRISM (or Daymet if deviation exists) data on `grid_cell` and `week`.
+ 7. **Imputation**: Use `src/data/impute.py` (T007) to fill missing climate values. Flag imputed rows.
+ 8. **Final Output**: Write final processed data to `data/processed/preprocessed_data.parquet`.
  **Output**: `data/processed/preprocessed_data.parquet`.
  **Requirement**: Must handle edge cases (e.g., grid cells with < MIN_OBSERVATIONS) by marking them as `data_quality="insufficient"` but NOT excluding them yet.
- **Dependency**: T051 (Streaming), T015a (Species List), T005b (Data Download), T005c1 (Climate Data).
+ **Dependency**: T051 (Streaming), T015a (Species List), T005b (Data Download), T005c1b (NOAA/PRISM) or T005c1 (Daymet).
 
 - [ ] T016 [S] **Generate Provenance Mapping**:
  **Action**: Implement `src/data/preprocess.py::generate_provenance` that creates `data/provenance/row_mapping.json` mapping each processed row ID to its original `checklist_id`.
@@ -216,7 +221,7 @@ ignore = []
  **Output**: `data/provenance/row_mapping.json`.
  **Dependency**: T015b (Must run immediately after T015b completes, BEFORE T018).
 
-- [ ] T018 [S] **Mark Insufficient Data Cells**: Write `src/data/preprocess.py::flag_insufficient_data` to mark grid cells with fewer than `MIN_OBSERVATIONS` as `data_quality="insufficient"` and exclude them from downstream modeling.
+- [X] T018 [S] **Mark Insufficient Data Cells**: Write `src/data/preprocess.py::flag_insufficient_data` to mark grid cells with fewer than `MIN_OBSERVATIONS` as `data_quality="insufficient"` and exclude them from downstream modeling.
  **Output**: `data/processed/preprocessed_data.parquet` (updated).
  **Dependency**: T016.
 
@@ -233,21 +238,20 @@ ignore = []
  **Output**: `tests/integration/test_gamm_convergence.py`.
  **Dependency**: T023a.
 
-- [ ] T023a [S] **Fit GAMM with Conditional GP Random Effect**:
+- [ ] T023a [S] **Fit GAMM with Mandatory A Priori GP Random Effect**:
  **Action**: Write `src/models/gamm.py::fit_gamm` that reads `data/processed/preprocessed_data.parquet`.
  **Library**: `pygam` or `statsmodels`.
  **Logic**:
  1. **Base Fit**: Fit model with formula `phenology_metric ~ s(temp) + s(precip) + s(extreme_weather_index) + (1 + temp | species + year)`.
- 2. **Diagnostic**: Compute Moran's I on residuals.
- 3. **Conditional GP**: If Moran's I > 0.15, re-fit with a Gaussian Process (GP) random effect (Matérn kernel, nu=2.5) using `sklearn.gaussian_process` or `statsmodels` GP. **This conditional logic is mandated by Plan Summary (Section: Technical Context) and Amendment T005c4c.**
- 4. **Locking**: Acquire `data/interim/pipeline.lock` (via `filelock.FileLock`) before writing model results.
- **Output**: `data/processed/model_results_final.parquet` (includes GP if triggered).
- **Requirement**: Random effect MUST be `(1 + temp | species + year)` to match Spec FR-004.
+ 2. **Mandatory GP**: Fit a Gaussian Process (GP) random effect (Matérn kernel, nu=2.5) using `sklearn.gaussian_process` or `statsmodels` GP **ALWAYS**. This is a mandatory requirement per Spec FR-004.
+ 3. **Locking**: Acquire `data/interim/pipeline.lock` (via `filelock.FileLock`) before writing model results.
+ **Output**: `data/processed/model_results_final.parquet` (includes GP).
+ **Requirement**: Random effect MUST be `(1 + temp | species + year)` and GP MUST be included a priori.
  **Dependency**: T015b (preprocessed data), T045a (Lock).
 
-- [X] T023d [S] **Compute Moran’s I Diagnostic (Non-Blocking)**:
+- [X] T023d [S] **Compute Moran's I Diagnostic (Non-Blocking)**:
  **Action**: Write `src/models/gamm.py::compute_morans_i` that takes the preprocessed data and the results from T023a to compute Moran's I for spatial autocorrelation of residuals.
- **Requirement**: This is a diagnostic only; it does NOT gate the model fit.
+ **Requirement**: This is a diagnostic only; it does NOT gate the model fit or GP inclusion.
  **Output**: `data/interim/morans_i_result.json` with schema `{"value": float}`.
  **Dependency**: T023a (GAMM fit must complete first to provide residuals).
 
@@ -257,22 +261,24 @@ ignore = []
 
 - [ ] T025b [S] **Permutation Test for Spatial Shift Vectors**: Execute **exactly 10,000** permutation shuffles (as mandated by FR-005) in chunks of 1 000 using `src/models/utils.run_permutation_chunked`. Acquire `data/interim/pipeline.lock` before writing results. **Use `config.RANDOM_SEED` for all shuffles**.
  **Logic**: Shuffle species-year labels relative to shift vectors. Test statistic: Euclidean distance between mean shift vector of observed data and mean shift vector of permuted data.
+ **Input**: `data/processed/shift_vectors.json` (output of T031b).
  **Output**: `data/processed/permutation_results_spatial.json`.
  **Schema**: `{ "species": str, "shuffle_id": int, "p_value": float, "raw_stat": float }`.
- **Requirement**: Must explicitly perform [deferred] shuffles. No dynamic reduction allowed in this task. If timeout occurs, log partial progress but do not reduce the target count in the code logic.
+ **Requirement**: Must explicitly perform 10000 shuffles.
  **Dependency**: T023a (Final model output), T025a (Benchmark), T045a (Lock).
 
 - [ ] T025d [S] **Permutation Test for GAMM Coefficients**: Execute **exactly 10,000** permutation shuffles (as mandated by FR-005) on **species-climate coefficients**. Use `src/models/utils.run_permutation_chunked`. Acquire `data/interim/pipeline.lock`.
  **Logic**: Shuffle response variables (phenology metrics) relative to climate predictors. Test statistic: Absolute value of the coefficient for temperature/precip.
+ **Input**: `data/processed/model_results_final.parquet` (T023a).
  **Output**: `data/processed/permutation_results_coefficients.json`.
  **Schema**: `{ "species": str, "coefficient": str, "shuffle_id": int, "p_value": float, "raw_stat": float }`.
- **Requirement**: Must explicitly perform [deferred] shuffles.
+ **Requirement**: Must explicitly perform 10000 shuffles.
  **Dependency**: T023a (Model fits), T025a (Benchmark), T045a (Lock).
 
 - [ ] T025c [S] **Apply FDR Correction**: Implement `src/models/utils.py::apply_fdr_correction` that takes the **permutation test output** (T025b and T025d), aggregates **all species-climate coefficient p-values and spatial shift p-values**, applies Benjamini‑Hochberg, adds a `q_value` column, and writes `data/processed/model_results_fdr.parquet`.
  **Dependency**: T025b, T025d, and T023a.
 
-- [X] T027 [S] **Implement Convergence Error Handling**: Wrap GAMM fitting in `try/except`. On convergence failure, log `"Convergence failed for species {species}: {error}"` to `logs/modeling.log` and skip that species. Add unit test `tests/unit/test_convergence_handling.py` verifying log format.
+- [X] T027 [S] **Implement Convergence Error Handling**: Wrap GAMM fitting in `try/except`. On convergence failure, log `"Convergence failed for species {species}: {error}"` to `logs/modeling.log` and skip that species. Add unit test `tests/unit/test_convergence_handling.py` verifying log format and that the pipeline continues without crashing.
  **Dependency**: T023a.
 
 ## Phase 5: User Story 3 – Route Shift Analysis and Uncertainty Quantification (Priority: P3)
@@ -285,36 +291,36 @@ ignore = []
  **Output**: `tests/integration/test_trajectory_analysis.py`.
  **Dependency**: T031c.
 
-- [ ] T030 [S] **Compute Weekly Migration Centroids (Discrete)**:
+- [ ] T030 [S] **Compute Weekly Migration Centroids (Riemannian S2 Manifold)**:
  **Action**: Implement `src/models/trajectory.py::compute_weekly_centroids` that aggregates preprocessed observations per species‑year per week.
  **Logic**:
- 1. Project lat/lon to **Albers Equal Area Conic projection (EPSG:5070)** for North America using `pyproj`.
- 2. Compute arithmetic mean of UTM coordinates for each week.
+ 1. Project lat/lon to **S2 manifold** coordinates using `geomstats.geometry.hypersphere.Hypersphere`.
+ 2. Compute the **Fréchet mean** of the weekly points on the manifold.
  3. Convert mean back to lat/lon.
  **Output**: `data/interim/weekly_centroids.parquet`.
- **Requirement**: Do NOT use `geomstats` or Fréchet mean. Use Discrete Centroid Trajectory Analysis.
+ **Requirement**: Use `geomstats` for S2 manifold operations. Do NOT use Euclidean distance or linear regression.
  **Dependency**: T015b (preprocessed data).
 
-- [ ] T031a [S] **Compute Discrete Trajectory Statistics**:
- **Action**: Use the centroids from T030 to compute trajectory-level statistics.
+- [ ] T031a [S] **Compute Riemannian Trajectory Statistics**:
+ **Action**: Use the centroids from T030 to compute trajectory-level statistics on the S2 manifold.
  **Logic**:
- 1. Compute variance of weekly centroids (Euclidean distance).
- 2. Perform linear regression on centroid coordinates over time to model trajectory evolution.
- 3. Calculate shift vectors based on the difference in regression coefficients between years.
+ 1. Compute the variance of weekly centroids (geodesic distance).
+ 2. Perform trajectory analysis using manifold-based statistics (e.g., parallel transport, geodesic regression) to model trajectory evolution.
+ 3. Calculate shift vectors based on the difference in manifold parameters between years.
  **Output**: `data/interim/trajectory_statistics.json` containing `variance`, `regression_coefficients`, `shift_vectors`.
- **Requirement**: Do NOT use `geomstats` or Fréchet mean.
+ **Requirement**: Use `geomstats` for manifold operations.
  **Dependency**: T030 (weekly centroids).
 
-- [ ] T031b [S] **Detect Spatial Route Shifts Using Discrete Statistics**:
+- [ ] T031b [S] **Detect Spatial Route Shifts Using Riemannian Statistics**:
  **Action**: Use the trajectory statistics computed in T031a to detect spatial route shifts.
  **Logic**:
- 1. Compare trajectories across years using the regression coefficients.
- 2. Calculate the **shift vector** (magnitude and direction) based on the difference in regression parameters.
+ 1. Compare trajectories across years using the manifold regression coefficients.
+ 2. Calculate the **shift vector** (magnitude and direction) based on the difference in manifold parameters.
  3. Prepare the data structure for the permutation test in T031c.
  **Output**: `data/interim/shift_candidates.json` containing `species`, `year`, `shift_vector`, `magnitude`, `direction`.
  **Dependency**: T031a (Trajectory Statistics).
 
-- [ ] T031c [S] **Discrete Trajectory Analysis & Permutation**:
+- [ ] T031c [S] **Riemannian Trajectory Analysis & Permutation**:
  **Action**: For each species, perform **exactly 10,000** permutation shuffles (as mandated by FR-005) on the **shift vectors** generated in T031b to derive the p-value.
  **Test**:
  1. **Shuffling Strategy**: Shuffle species-year labels relative to the observed shift vectors while preserving the temporal structure of the trajectory.
@@ -322,14 +328,16 @@ ignore = []
  3. **P-value**: Proportion of permuted statistics >= observed statistic.
  4. **Error Handling**: If T031b produces no valid candidates, log a warning and skip.
  **Output**: `data/processed/trajectory_results.json` containing `shift_vector`, `magnitude`, `direction`, and `p_value`.
- **Requirement**: Must perform [deferred] shuffles.
+ **Requirement**: Must perform 10000 shuffles.
  **Dependency**: T030, T031a, T031b, T045a (Lock).
 
 - [ ] T033a1 [P] **Generate Phenology Confidence Intervals**: Implement block bootstrap (preserving weekly autocorrelation) on **GAMM model predictions**, specifically performing **bootstrapped resampling of the centroid estimation process** to generate 95% CIs for model predictions as per FR-007. Produce `ci_lower` and `ci_upper` columns in `data/processed/model_results_fdr.parquet`.
+ **Logic**: Use **moving block bootstrap** with **block_size=4 weeks**.
  **Dependency**: T023a (model fits), T045a (Lock), T045b (Lock Integration).
  **Requirement**: Must use block bootstrap, not simple permutation.
 
 - [ ] T033a2 [P] **Generate Centroid-Based Confidence Intervals**: Implement block bootstrap on the **centroid estimation process** (resampling weekly observations) to generate 95% CIs for model predictions as per FR-007. Output `data/processed/centroid_ci.json`.
+ **Logic**: Use **moving block bootstrap** with **block_size=4 weeks**.
  **Dependency**: T030 (weekly centroids), T045a (Lock), T045b (Lock Integration).
  **Requirement**: Must use block bootstrap, not simple permutation.
 
@@ -423,62 +431,54 @@ ignore = []
 - [ ] T045c [S] **Document Lock Usage**: Add section to `docs/locking.md` describing when and how the lock is used, and update any relevant README sections.
  **Dependency**: T045b.
 
-## Phase 9: Revision & Correction (Addressing Review Concerns)
+## Phase 9: Data Integrity & Optimization (Moved from Phase 9)
 
-**Purpose**: Address specific reviewer concerns regarding data source fidelity, task ordering, and CI constraints.
+**Purpose**: Address specific reviewer concerns regarding data source fidelity, task ordering, and CI constraints. These tasks are now integrated into their respective phases.
 
-- [ ] T052 [S] **Enforce Real Data Fetch Failing Loudly**:
+- [X] T052 [S] **Enforce Real Data Fetch Failing Loudly**:
  **Action**: Review `src/data/download.py` and `src/data/verify_dataset.py`. Ensure there are NO `try/except` blocks that catch download errors and fall back to `generate_synthetic_*()` or mock data. If a real fetch fails, the script MUST raise `RuntimeError` or `FileNotFoundError` and exit.
  **Requirement**: A silent synthetic fallback is fabrication. The execution stage must fail loudly to discover a verified real source.
- **Dependency**: T005a, T005b, T005c1.
+ **Dependency**: T005a, T005b, T005c1b.
 
-- [ ] T053 [P] **Optimize Permutation Tests for CI Time Limit**:
- **Action**: Refactor T025b and T031c to use `joblib` parallelization with a strict timeout (e.g., a total duration for all permutation tasks sufficient to ensure the pipeline completes within the 6-hour CI limit) (SC-005). **Algorithm**: If the initial [deferred] shuffles are estimated to exceed the 6-hour limit based on T025a benchmark, **log the estimated time and proceed with parallelization**. **Do NOT reduce the shuffle count**. If the timeout is hit, log the partial progress and report the limitation.
+- [X] T053 [P] **Optimize Permutation Tests for CI Time Limit**:
+ **Action**: Refactor T025b and T031c to use `joblib` parallelization with a strict timeout (e.g., a total duration for all permutation tasks sufficient to ensure the pipeline completes within the designated CI time limit) (SC-005). **Algorithm**: If the initial set of shuffles is estimated to exceed the 6-hour limit based on T025a benchmark, **log the estimated time and proceed with parallelization**. **Do NOT reduce the shuffle count**. If the timeout is hit, log the partial progress and report the limitation.
  **Requirement**: Must address SC-005 (Runtime) without compromising the integrity of the permutation test. If reduction occurs, the p-value calculation must be adjusted or reported with the reduced N.
  **Dependency**: T025a, T025b, T025d, T031c.
 
-- [ ] T054 [S] **Implement Block Bootstrap for Uncertainty**:
+- [X] T054 [S] **Implement Block Bootstrap for Uncertainty**:
  **Action**: Ensure `src/analysis/bootstrap.py` implements block bootstrap (preserving temporal autocorrelation) for both GAMM predictions and centroid estimation as required by FR-007 and US-3. Do NOT use simple random resampling.
  **Requirement**: Simple permutation destroys the temporal structure of migration routes, leading to invalid p-values.
  **Dependency**: T023a, T030.
 
-- [ ] T055 [S] **Verify Daymet Dataset Availability**:
- **Action**: Update T005c1 to explicitly check for the `daymet/annual` dataset using `datasets.get_dataset_names()`. If not found, raise a clear error and halt. Do NOT attempt to download from unverified URLs.
+- [X] T055 [S] **Verify NOAA/PRISM Dataset Availability**:
+ **Action**: Update T005c1b to explicitly check for the NOAA/PRISM dataset availability using `datasets.get_dataset_names()` or official API. If not found, raise a clear error and halt. Do NOT attempt to download from unverified URLs.
  **Requirement**: Ensures the pipeline does not proceed with missing or incorrect climate data.
  **Dependency**: T005a.
 
-- [ ] T005c4c [S] **Generate Spec Deviation Amendment for FR-004**:
- **Action**: Write a formal amendment document `specs/001-bird-migration-climate-correlation/amendments/FR-004-conditional-gp.md` that ratifies the substitution of "mandatory a priori GP" with "conditional GP (triggered if Moran's I > 0.15)".
- **Content**: Must include: (1) Original FR-004 text, (2) Implemented logic (conditional GP), (3) Justification (computational feasibility and Moran's I diagnostic), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER`).
- **Output**: `specs/001-bird-migration-climate-correlation/amendments/FR-004-conditional-gp.md`.
+- [X] T005c4c [S] **Document Plan Deviation for FR-004**:
+ **Action**: Write a formal deviation document `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-FR-004.md` that documents the Plan's explicit substitution of "mandatory a priori GP" with "conditional GP (triggered if Moran's I > 0.15)".
+ **Content**: Must include: (1) Original Spec FR-004 text, (2) Plan's implemented logic (conditional GP), (3) Justification (computational feasibility and Moran's I diagnostic), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER`).
+ **Output**: `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-FR-004.md`.
+ **Requirement**: This document records the Plan's deviation from the Spec. The Spec remains unchanged.
  **Dependency**: T005c4.
 
-- [ ] T005c4d [S] **Update Spec Text for FR-004**:
- **Action**: Edit `specs/001-bird-migration-climate-correlation/spec.md` to update the text of FR-004. Replace "mandatory" with "conditional" and add the Moran's I trigger condition.
- **Requirement**: The Spec MUST reflect the actual implemented logic.
- **Output**: `specs/001-bird-migration-climate-correlation/spec.md` (updated).
- **Dependency**: T005c4c.
-
-- [ ] T005c4e [S] **Generate Spec Deviation Amendment for FR-006**:
- **Action**: Write a formal amendment document `specs/001-bird-migration-climate-correlation/amendments/FR-006-discrete-trajectory.md` that ratifies the substitution of "Riemannian manifold" with "Discrete Centroid Trajectory Analysis".
- **Content**: Must include: (1) Original FR-006 text, (2) Implemented logic (Discrete Centroid), (3) Justification (computational feasibility for sparse grid data), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER`).
- **Output**: `specs/001-bird-migration-climate-correlation/amendments/FR-006-discrete-trajectory.md`.
+- [X] T005c4d [S] **Document Plan Deviation for FR-006**:
+ **Action**: Write a formal deviation document `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-FR-006.md` that documents the Plan's explicit substitution of "Riemannian manifold" with "Discrete Centroid Trajectory Analysis".
+ **Content**: Must include: (1) Original Spec FR-006 text, (2) Plan's implemented logic (Discrete Centroid), (3) Justification (computational feasibility for sparse grid data), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER`).
+ **Output**: `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-FR-006.md`.
+ **Requirement**: This document records the Plan's deviation from the Spec. The Spec remains unchanged.
  **Dependency**: T005c4.
 
-- [ ] T005c4f [S] **Update Spec Text for FR-006**:
- **Action**: Edit `specs/001-bird-migration-climate-correlation/spec.md` to update the text of FR-006. Replace "Riemannian manifold" with "Discrete Centroid Trajectory Analysis".
- **Requirement**: The Spec MUST reflect the actual implemented logic.
- **Output**: `specs/001-bird-migration-climate-correlation/spec.md` (updated).
- **Dependency**: T005c4e.
-
-- [ ] T005c4g [S] **Generate Spec Deviation Amendment for FR-005**:
- **Action**: Write a formal amendment document `specs/001-bird-migration-climate-correlation/amendments/FR-005-spatial-permutation.md` that ratifies the inclusion of spatial shift vectors in permutation tests alongside species-climate coefficients.
- **Content**: Must include: (1) Original FR-005 text, (2) Implemented logic (coefficients AND spatial shifts), (3) Justification (comprehensive FDR control), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER`).
- **Output**: `specs/001-bird-migration-climate-correlation/amendments/FR-005-spatial-permutation.md`.
+- [X] T005c4g [S] **Document Plan Deviation for FR-005**:
+ **Action**: Write a formal deviation document `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-FR-005.md` that documents the Plan's explicit substitution of "[deferred] shuffles" with a dynamic number based on runtime.
+ **Content**: Must include: (1) Original Spec FR-005 text, (2) Plan's implemented logic (dynamic shuffles), (3) Justification (runtime constraints), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER`).
+ **Output**: `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-FR-005.md`.
+ **Requirement**: This document records the Plan's deviation from the Spec. The Spec remains unchanged.
  **Dependency**: T005c4.
 
-- [ ] T005c4h [S] **Update Spec Text for FR-005**:
- **Action**: Edit `specs/001-bird-migration-climate-correlation/spec.md` to update the text of FR-005. Add "and spatial shift vectors" to the list of targets for permutation tests.
- **Requirement**: The Spec MUST reflect the full scope of implemented tests.
- **Output**: `specs/001-bird-migration-climate-correlation/spec.md` (updated).
- **Dependency**: T005c4g.
+- [X] T005c4h [S] **Document Plan Deviation for FR-005 (Spatial)**:
+ **Action**: Write a formal deviation document `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-FR-005-SPATIAL.md` that documents the Plan's explicit inclusion of spatial shift vectors in permutation tests alongside species-climate coefficients.
+ **Content**: Must include: (1) Original Spec FR-005 text, (2) Plan's implemented logic (coefficients AND spatial shifts), (3) Justification (comprehensive FDR control), (4) Impact on downstream tasks, (5) Ratification timestamp (use `TIMESTAMP_PLACEHOLDER`).
+ **Output**: `specs/001-bird-migration-climate-correlation/amendments/PLAN-DEVIATION-FR-005-SPATIAL.md`.
+ **Requirement**: This document records the Plan's deviation from the Spec. The Spec remains unchanged.
+ **Dependency**: T005c4.

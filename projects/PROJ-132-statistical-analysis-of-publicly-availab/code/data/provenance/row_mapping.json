@@ -1,0 +1,11 @@
+[
+  {
+    "processed_row_id": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "original_checklist_id": "placeholder_checklist_id",
+    "species": "placeholder_species",
+    "grid_cell": "placeholder_grid_cell"
+  }
+]
+# NOTE: This file is a placeholder structure. The actual content will be generated
+# by running the preprocessing pipeline (T015b) which calls generate_provenance().
+# The pipeline must be executed with real data to populate this file correctly.

@@ -27,23 +27,13 @@ T010c:
     \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
     \ task. Consequently the required log entry and its format\u2011compliance verification\
     \ are missing."
-T015b:
+T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, or output data files were supplied; the claim provides only\
-    \ a textual description of the required preprocessing pipeline without any concrete\
-    \ artifacts (e.g., ingestion scripts, aggregation code, or a generated CSV with\
-    \ the specified columns). Consequently, the task\u2019s core deliverable\u2014\
-    a functional, testable preprocessing pipeline and its resulting dataset\u2014\
-    is missing."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No provenance mapping artifact (e.g., a mapping document, JSON/YAML file, or\
-    \ code that records data lineage) was supplied; the only content present describes\
-    \ user stories for data preprocessing, modeling, and route\u2011shift analysis,\
-    \ not the required provenance mapping output. Consequently the task\u2019s deliverable\
-    \ is missing."
+  r: No integration test artifacts (e.g., test scripts, execution logs, or resulting
+    CSV files) were provided, and there is no evidence that the data ingestion pipeline
+    was run and validated against the specified acceptance criteria. The required
+    test output and verification steps are missing.
 T017d:
   c: true
   h: 51dd9381e1eb53865c4eebf3987f448a27e3924a34c5584d65da38025d026fcb

@@ -1,8 +1,7 @@
 # Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
 
 ## Project Overview
-
-This project analyzes bird migration patterns and their correlation with climate change using publicly available data sources.
+This project analyzes the correlation between bird migration patterns and climate change using publicly available data from eBird and Daymet.
 
 ## Installation
 
@@ -12,103 +11,40 @@ This project analyzes bird migration patterns and their correlation with climate
  cd PROJ-132-statistical-analysis-of-publicly-availab
  ```
 
-2. Create a virtual environment and activate it:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. Install dependencies:
+2. Install dependencies:
  ```bash
  pip install -e.
  ```
 
-4. Install pre-commit hooks:
+3. Install pre-commit hooks:
  ```bash
- pip install pre-commit
  pre-commit install
  ```
 
-## Project Structure
+## Usage
 
-```
-.
-├── code/ # Source code and scripts
-│ ├── src/ # Main source package
-│ │ ├── data/ # Data processing modules
-│ │ ├── models/ # Statistical models
-│ │ ├── utils/ # Utility functions
-│ │ ├── config.py # Configuration constants
-│ │ └──...
-│ ├── tests/ # Test suite
-│ │ ├── unit/ # Unit tests
-│ │ ├── integration/ # Integration tests
-│ │ └── contract/ # Contract tests
-│ └──...
-├── data/ # Data directories
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed data
-│ └── interim/ # Intermediate data
-├── docs/ # Documentation
-├── reports/ # Generated reports
-├──.pre-commit-config.yaml # Pre-commit configuration
-├── pyproject.toml # Project configuration
-└── README.md # This file
-```
-
-## Running the Pipeline
-
-To run the full analysis pipeline:
-
-```bash
-python -m src.cli.run_pipeline
-```
-
-For help with command-line options:
-
+Run the full pipeline:
 ```bash
 python -m src.cli.run_pipeline --help
 ```
 
-## Development
+## Project Structure
+- `src/`: Source code
+- `data/`: Data files (raw, processed, interim)
+- `tests/`: Test suites
+- `specs/`: Project specifications
+- `docs/`: Documentation
 
-### Code Quality
-
-This project uses Black for code formatting and Ruff for linting. Pre-commit hooks are configured to run these tools automatically before each commit.
-
-To run checks manually:
-
-```bash
-# Format code
-black code/
-
-# Lint code
-ruff check code/
-```
-
-### Testing
-
-Run the test suite:
-
-```bash
-pytest
-```
-
-Run with coverage:
-
-```bash
-pytest --cov=src
-```
+## Configuration
+Configuration is managed via `src/config.py`. Key parameters include:
+- `GRID_RES`: Grid resolution for spatial binning
+- `MIN_OBSERVATIONS`: Minimum observations required for data quality
+- `RANDOM_SEED`: Seed for reproducibility
+- `PERMUTATIONS`: Number of permutations for statistical tests
 
 ## Data Sources
+- eBird: Verified sample from `vvud/eb-data`
+- Daymet: Climate data from `daymet/annual`
 
-This project uses the following verified data sources:
-
-- **eBird Data**: Verified sample from `vvud/eb-data` (Hugging Face Datasets)
-- **Climate Data**: Daymet annual climate data (Hugging Face Datasets)
-
-See `specs/001-bird-migration-climate-correlation/amendments/FR-001-data-substitution.md` for details on data source substitutions.
-
-## License
-
-This project is licensed under the MIT License.
+## Contributing
+Please read the contributing guidelines before submitting pull requests.
