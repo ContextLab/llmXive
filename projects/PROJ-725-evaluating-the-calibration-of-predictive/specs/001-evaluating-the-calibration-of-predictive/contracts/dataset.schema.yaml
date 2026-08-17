@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Dataset Schema"
+description: "Schema for preprocessed regression datasets used in the calibration pipeline."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset (e.g., 'uci-shopper')."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "The verified Hugging Face URL used to download the data."
+  checksum_sha256:
+    type: "string"
+    description: "SHA256 hash of the raw downloaded file."
+  split_config:
+    type: "object"
+    properties:
+      train_ratio:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Ratio of training data (expected 0.7)."
+      test_ratio:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Ratio of test data (expected 0.3)."
+      random_seed:
+        type: "integer"
+        description: "Fixed seed used for reproducibility."
+  sample_counts:
+    type: "object"
+    properties:
+      total:
+        type: "integer"
+        minimum: 0
+      train:
+        type: "integer"
+        minimum: 0
+      test:
+        type: "integer"
+        minimum: 0
+      dropped_missing_target:
+        type: "integer"
+        minimum: 0
+        description: "Count of rows dropped due to missing target values."
+  feature_info:
+    type: "object"
+    properties:
+      numeric_features:
+        type: "integer"
+        minimum: 0
+      categorical_features:
+        type: "integer"
+        minimum: 0
+      target_name:
+        type: "string"
+        description: "Name of the target column."
+required:
+  - dataset_id
+  - source_url
+  - checksum_sha256
+  - split_config
+  - sample_counts
+  - feature_info

@@ -1,0 +1,21 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `code/`, `tests/`, or `specs/` directories (or any
+    files within them) was provided; the claim lacks any tangible artifact showing
+    the project structure was created.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `__init__.py` files are presented for any of the required directories (`code/`,\
+    \ `code/data/`, `code/models/`, `code/analysis/`, `code/utils/`, `tests/`). Without\
+    \ the actual files present (or their contents shown), the claim that they have\
+    \ been created cannot be verified. The implementer must add the missing `__init__.py`\
+    \ files (non\u2011empty or at least present) in each specified folder."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.flake8`, or `black` settings) or setup scripts are present in the evidence,
+    so the task of configuring ruff/flake8 and black has not been demonstrated. The
+    required artifacts are missing.

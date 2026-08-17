@@ -1,0 +1,14 @@
+# Existing dependencies
+scikit-learn
+statsmodels
+pandas
+numpy
+scipy
+datasets
+openml
+pyyaml
+pytest
+ruff
+black
+# No new dependencies added for T005
+# Logging and checksums use standard library only
