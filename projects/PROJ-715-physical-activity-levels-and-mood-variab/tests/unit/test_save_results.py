@@ -1,157 +1,146 @@
 import pytest
 import json
-import os
+import yaml
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import sys
+import os
 
-# Import the functions to test
-from save_results import save_results_to_json, validate_results_schema, load_schema
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
+from save_results import validate_results_schema, save_results_to_json
+from config import get_path
 
 @pytest.fixture
 def sample_results():
+    """Create a minimal valid results dictionary for testing."""
     return {
-        "metadata": {
-            "timestamp": "2023-10-27T10:00:00Z",
-            "version": "1.0",
-            "analysis_type": "associational",
-            "dataset_source": "StudentLife"
-        },
         "models": {
-            "mood_std_model": {
-                "formula": "log_mood_std ~ total_steps + sleep + C(day_of_week) + baseline_affect",
-                "outcome": "log_mood_std",
+            "mood_variability": {
+                "outcome": "log(mood_std + 0.01)",
                 "predictor": "total_steps",
-                "fixed_effects": [
-                    {
-                        "term": "Intercept",
-                        "estimate": 1.5,
-                        "std_err": 0.1,
-                        "p_value": 0.001,
-                        "ci_lower": 1.3,
-                        "ci_upper": 1.7
+                "fixed_effects": {
+                    "total_steps": {
+                        "estimate": -0.001,
+                        "std_error": 0.0005,
+                        "p_value": 0.04,
+                        "ci_lower_95": -0.002,
+                        "ci_upper_95": -0.0001
                     },
-                    {
-                        "term": "total_steps",
-                        "estimate": -0.002,
-                        "std_err": 0.0005,
-                        "p_value": 0.03,
-                        "ci_lower": -0.003,
-                        "ci_upper": -0.001
-                    }
-                ],
-                "convergence": True
+                    "sleep_duration": {"estimate": 0.5, "std_error": 0.1, "p_value": 0.01},
+                    "day_of_week": {"estimate": 0.2, "std_error": 0.1, "p_value": 0.05},
+                    "baseline_affect": {"estimate": 0.3, "std_error": 0.1, "p_value": 0.02}
+                },
+                "random_effects": {
+                    "participant_intercept_variance": 0.5,
+                    "residual_variance": 0.3
+                },
+                "convergence_status": True,
+                "type": "Linear Mixed Effects Model",
+                "association_type": "associational"
             },
-            "mean_mood_model": {
-                "formula": "mean_mood ~ total_steps + sleep + C(day_of_week) + baseline_affect",
+            "mean_mood": {
                 "outcome": "mean_mood",
                 "predictor": "total_steps",
-                "fixed_effects": [
-                    {
-                        "term": "Intercept",
-                        "estimate": 3.5,
-                        "std_err": 0.2,
-                        "p_value": 0.0001,
-                        "ci_lower": 3.1,
-                        "ci_upper": 3.9
+                "fixed_effects": {
+                    "total_steps": {
+                        "estimate": 0.0005,
+                        "std_error": 0.0002,
+                        "p_value": 0.01,
+                        "ci_lower_95": 0.0001,
+                        "ci_upper_95": 0.001
                     },
-                    {
-                        "term": "total_steps",
-                        "estimate": 0.0001,
-                        "std_err": 0.0001,
-                        "p_value": 0.4,
-                        "ci_lower": -0.0001,
-                        "ci_upper": 0.0003
-                    }
-                ],
-                "convergence": True
+                    "sleep_duration": {"estimate": 0.8, "std_error": 0.1, "p_value": 0.001},
+                    "day_of_week": {"estimate": 0.1, "std_error": 0.1, "p_value": 0.3},
+                    "baseline_affect": {"estimate": 0.4, "std_error": 0.1, "p_value": 0.005}
+                },
+                "random_effects": {
+                    "participant_intercept_variance": 0.4,
+                    "residual_variance": 0.2
+                },
+                "convergence_status": True,
+                "type": "Linear Mixed Effects Model",
+                "association_type": "associational"
             }
         },
-        "diagnostics": {
-            "residuals_vs_fitted_path": "figures/residuals.png",
-            "shapiro_wilk_pvalue": 0.2,
-            "breusch_pagan_pvalue": 0.5
-        }
-    }
-
-
-@pytest.fixture
-def valid_schema():
-    return {
-        "required": ["models", "diagnostics", "metadata"],
-        "properties": {
-            "models": {"type": "object"},
-            "diagnostics": {"type": "object"},
-            "metadata": {"type": "object", "properties": {"analysis_type": {"type": "string"}}}
-        }
-    }
-
-
-@pytest.fixture
-def invalid_schema_missing_key():
-    return {
-        "required": ["models", "diagnostics", "metadata", "missing_key"],
-        "properties": {}
-    }
-
-
-@pytest.fixture
-def invalid_schema_type_mismatch():
-    return {
-        "required": ["metadata"],
-        "properties": {
-            "metadata": {
-                "type": "object",
-                "properties": {
-                    "analysis_type": {"type": "number"}  # Expecting string, but data has string
+        "validation": {
+            "lopo": {
+                "sign_consistency": 0.95,
+                "average_rmse": 0.12,
+                "threshold_met": True
+            },
+            "sensitivity": {
+                "weekdays_only": {
+                    "coefficient_direction_match": True,
+                    "coefficient_difference_pct": 5.2
+                },
+                "single_rating_bootstrap": {
+                    "consistency_percentage": 85.0,
+                    "threshold_met": True
                 }
+            }
+        },
+        "metadata": {
+            "timestamp": "2023-10-27T10:00:00",
+            "version": "1.0.0",
+            "dataset_source": "OSF StudentLife",
+            "software_environment": {
+                "python_version": "3.9.0",
+                "pandas_version": "1.5.0",
+                "statsmodels_version": "0.13.0"
             }
         }
     }
 
+@pytest.fixture
+def schema_path():
+    """Return the path to the model results schema."""
+    return get_path('specs', '001-physical-activity-levels-and-mood-variability', 
+                   'contracts', 'model_results.schema.yaml')
+
+def test_validate_results_schema_valid(sample_results, schema_path):
+    """Test that a valid results dictionary passes validation."""
+    assert validate_results_schema(sample_results, schema_path) is True
+
+def test_validate_results_schema_missing_key(sample_results, schema_path):
+    """Test that validation fails when a required key is missing."""
+    invalid_results = sample_results.copy()
+    del invalid_results['models']
+    
+    with pytest.raises(ValueError, match="Missing required key"):
+        validate_results_schema(invalid_results, schema_path)
+
+def test_validate_results_schema_invalid_model_type(sample_results, schema_path):
+    """Test that validation fails if model data is not a dictionary."""
+    invalid_results = sample_results.copy()
+    invalid_results['models']['mood_variability'] = "string instead of dict"
+    
+    with pytest.raises(ValueError, match="must be a dictionary"):
+        validate_results_schema(invalid_results, schema_path)
 
 def test_save_results_to_json(tmp_path, sample_results):
+    """Test that results are saved correctly to JSON."""
     output_file = tmp_path / "test_results.json"
     save_results_to_json(sample_results, output_file)
-
+    
     assert output_file.exists()
-    with open(output_file, "r") as f:
-        loaded = json.load(f)
+    
+    with open(output_file, 'r') as f:
+        loaded_data = json.load(f)
+    
+    assert loaded_data == sample_results
+    assert loaded_data['metadata']['version'] == "1.0.0"
 
-    assert loaded == sample_results
-
-
-def test_validate_results_schema_valid(sample_results, valid_schema):
-    assert validate_results_schema(sample_results, valid_schema) is True
-
-
-def test_validate_results_schema_missing_required(sample_results, invalid_schema_missing_key):
-    assert validate_results_schema(sample_results, invalid_schema_missing_key) is False
-
-
-def test_validate_results_schema_type_mismatch(sample_results, invalid_schema_type_mismatch):
-    # The schema expects 'analysis_type' to be a number, but it is a string in sample_results
-    # Our validator should catch this if we check the specific property type
-    # Note: The current validator implementation checks if the value matches the schema type
-    # For 'analysis_type' (string), schema says 'number', so it should fail.
-    # However, our validator only checks the top level type of the property if it exists.
-    # Let's trace: metadata exists. properties.metadata.properties.analysis_type exists.
-    # expected_type = 'number'. results['metadata']['analysis_type'] is 'associational' (str).
-    # isinstance(str, (int, float)) is False. So it should return False.
-    assert validate_results_schema(sample_results, invalid_schema_type_mismatch) is False
-
-
-def test_load_schema(tmp_path):
-    schema_content = """
-    required:
-      - test
-    properties:
-      test:
-        type: string
-    """
-    schema_file = tmp_path / "test_schema.yaml"
-    schema_file.write_text(schema_content)
-
-    schema = load_schema(schema_file)
-    assert "required" in schema
-    assert schema["required"] == ["test"]
+def test_save_and_validate_integration(sample_results, schema_path, tmp_path):
+    """Integration test: save and then validate the saved file."""
+    output_file = tmp_path / "integration_test.json"
+    
+    # Save
+    save_results_to_json(sample_results, output_file)
+    
+    # Load back
+    with open(output_file, 'r') as f:
+        loaded_data = json.load(f)
+    
+    # Validate
+    assert validate_results_schema(loaded_data, schema_path) is True

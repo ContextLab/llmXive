@@ -1,6 +1,6 @@
 # Tasks: Physical Activity Levels and Mood Variability in Daily Life
 
-**Input**: Design documents from `/specs/001-physical-activity-mood-variability/`
+**Input**: Design documents from `/specs/001-physical-activity-levels-and-mood-variability/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -54,12 +54,29 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T002 Initialize Python project with dependencies (`pandas`, `statsmodels`, `scikit-learn`, `pyyaml`, `requests`, `numpy`) in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (flake8) and formatting (black) tools in `code/`
+- [X] T003a [P] Create `.flake8` configuration file in `code/` with `[flake8]` section, `max-line-length = 88`, and `ignore = E203, E266, W503` (Supports Constitution Principle I: Reproducibility)
+- [X] T003b [P] Create `pyproject.toml` in `code/` with `[tool.black]` section, `line-length = 88`, and `target-version = ['py311']` (Supports Constitution Principle I: Reproducibility)
 - [X] T004 [P] Create configuration module `code/config.py` defining paths, random seeds (a fixed value), constants (including `MISSINGNESS_THRESHOLD`), and the specific OSF DOI string for the dataset
-- [ ] T005 [P] Create schema definitions in `specs/001-physical-activity-mood-variability/contracts/`: `daily_aggregates.schema.yaml` and `model_results.schema.yaml`
+- [X] T005a [P] Create schema definition `daily_aggregates.schema.yaml` in `specs/001-physical-activity-levels-and-mood-variability/contracts/` with the following structure:
+  - `participant_id`: string, required
+  - `date`: date, required
+  - `total_steps`: integer, required, min=0
+  - `mean_mood`: float, required
+  - `mood_std`: float, required, min=0 (raw standard deviation, NO transformation applied here)
+  - `n_mood_ratings`: integer, required, min=2
+  - `sleep_duration`: float, nullable
+  - `baseline_affect`: float, nullable
+  - `day_of_week`: integer, required (0=Monday)
+- [X] T005b [P] Create schema definition `model_results.schema.yaml` in `specs/001-physical-activity-levels-and-mood-variability/contracts/` with the following structure:
+  - `model_type`: string, required (e.g., "LMM_mood_variability")
+  - `fixed_effects`: object, required (keys: predictor name, values: {estimate, std_err, p_value, ci_lower, ci_upper})
+  - `random_effects`: object, required (keys: variance components)
+  - `model_fit`: object, required (keys: aic, bic, log_likelihood)
+  - `validation`: object, required (keys: lopo_average_rmse, lopo_sign_consistency_pct)
+  - `sensitivity`: object, required (keys: weekdays_only_sign_consistent, active_minutes_sign_consistent, single_rating_bootstrap_consistency_pct)
 - [X] T006 [P] Create base test utilities in `tests/conftest.py` for schema validation and fixture data
-- [ ] T007 Implement `code/ingest.py` to download StudentLife dataset from OSF DOI `/...` (specific DOI string from config), verify cryptographic checksum, and convert to `data/raw/bronze.parquet`
-- [X] T008 Implement error handling for missing/corrupted files in `code/ingest.py` to fail gracefully with clear error messages
+- [X] T007 [P] Implement `code/ingest.py` to download StudentLife dataset from OSF DOI specified in `code/config.py`, verify cryptographic checksum, and convert to `data/raw/bronze.parquet`
+- [X] T008 [P] Implement error handling for missing/corrupted files in `code/ingest.py` to fail gracefully with clear error messages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,12 +98,12 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/preprocess.py` to load `data/raw/bronze.parquet` and parse raw step logs into daily totals
-- [X] T012 [US1] [Depends: T007] Implement `code/preprocess.py` logic to derive `sleep_duration` and `baseline_affect` from raw data if missing, using `config.MISSINGNESS_THRESHOLD` to decide between derivation and proceeding without them (per spec Assumptions); ensure derived columns are written to the output CSV
+- [X] T012 [US1] [Depends: T011] Implement `code/preprocess.py` logic to derive `sleep_duration` and `baseline_affect` from raw data if missing, using `config.MISSINGNESS_THRESHOLD` to decide between derivation and proceeding without them (per spec Assumptions); ensure derived columns are written to the output CSV
 - [X] T013 [US1] [Depends: T011] Implement `code/preprocess.py` logic to align EMA mood timestamps and exclude records with missing critical values
-- [X] T014 [US1] [Depends: T011] Implement `code/preprocess.py` logic to compute daily aggregates: `mean_mood` and `mood_std` (excluding days with < 2 valid ratings)
+- [X] T014 [US1] [Depends: T011] Implement `code/preprocess.py` logic to compute daily aggregates: `mean_mood` and `mood_std` (excluding days with < 2 valid ratings). **Include an explicit step to log the count of excluded days and write this summary to `data/processed/preprocess_stats.json` to satisfy verification requirements.**
 - [X] T015a [US1] [Depends: T011] Implement `code/preprocess.py` logic to handle days with zero steps: record `total_steps` as 0 (not null) to preserve the day for analysis
-- [X] T015b [US1] [Depends: T014] Implement `code/preprocess.py` logic to handle days with exactly 0 mood variability: apply log-transformation with a small epsilon offset to stabilize variance and handle zero values to the value *before* writing to `daily_aggregates.csv` to ensure the CSV contains the transformed outcome variable
-- [ ] T016 [US1] Write final output to `data/processed/daily_aggregates.csv` and validate against `daily_aggregates.schema.yaml`
+- [X] T015b [US1] [Depends: T014] Implement `code/preprocess.py` logic to handle days with exactly 0 mood variability: calculate raw `mood_std` (which will be 0) and **write this raw value to `daily_aggregates.csv` WITHOUT applying any log transformation**. Include an explicit verification step: assert no NaN/Inf values exist in the output column before writing. **Note: The raw `mood_std` must be preserved here for downstream analysis steps (e.g., T019a) to apply transformations dynamically.**
+- [X] T016 [US1] Write final output to `data/processed/daily_aggregates.csv` and validate against `daily_aggregates.schema.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,13 +122,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T019 [US2] Implement `code/analysis.py` to fit LMM with `log(mood_std + 0.01)` (read directly from the pre-transformed column in `daily_aggregates.csv`) as outcome and `total_steps` as predictor (random intercepts for participant)
-- [X] T020 [US2] Implement `code/analysis.py` to fit LMM with `mean_mood` as outcome and `total_steps` as predictor, ensuring the results are included in the final report with equal prominence to the variability model (no 'secondary' classification)
+- [X] T019a [US2] [Depends: T016] Implement `code/analysis.py` to load `daily_aggregates.csv` and **dynamically apply the log-transformation `np.log(mood_std + 0.01)`** to the outcome variable immediately before passing it to the model. **This transformation must NOT be written back to the CSV file.** Use `total_steps` as the predictor (random intercepts for participant).
+- [X] T019b [US2] [Depends: T019a] **Explicitly verify and document** that the raw `mood_std` column in `daily_aggregates.csv` remains unmodified and available for other analyses, ensuring compliance with FR-003's requirement to preserve the raw metric.
+- [X] T020 [US2] Implement `code/analysis.py` to fit LMM with `mean_mood` as outcome and `total_steps` as predictor, ensuring the results are included in the final report (hierarchy to be enforced in T032)
 - [X] T021 [US2] Implement `code/analysis.py` to include covariates (sleep duration, day-of-week, baseline_affect) from `daily_aggregates.csv` in both models
 - [X] T022 [US2] Implement `code/analysis.py` to extract fixed-effect coefficients, standard errors, p-values, and 95% CIs for `total_steps` and covariates
 - [X] T023 [US2] Implement `code/analysis.py` to perform model diagnostics (Shapiro-Wilk, Breusch-Pagan) and generate residual plots (specifically 'residuals vs. fitted')
-- [X] T024 [US2] Implement `code/analysis.py` to ensure all results are explicitly labeled as "associational" in internal data structures
-- [ ] T025 [US2] Save model results to `data/processed/model_results.json` and validate against `model_results.schema.yaml`
+- [X] T024a [US2] Implement `code/analysis.py` to ensure all results are explicitly labeled as "associational" in internal data structures
+- [X] T024b [US2] [Depends: T019a, T020, T022, T023, T028b, T030, T031c] **Generate and aggregate** the `model_results.json` artifact by consolidating all fixed effects, random effects, diagnostics, LOPO results, and sensitivity analysis results into a single JSON file.
+- [X] T025 [US2] [Depends: T024b] Save model results to `data/processed/model_results.json` and validate against `model_results.schema.yaml`. Ensure the file includes all required fields from the schema.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,14 +150,15 @@
 ### Implementation for User Story 3
 
 - [X] T028a [US3] Implement `code/analysis.py` LOPO loop: retrain model N times (N=participants), track `total_steps` coefficient sign stability
-- [X] T028b [US3] Implement `code/analysis.py` logic to calculate the percentage of folds where the `total_steps` coefficient sign matches, flag the result in `model_results.json` if <90%, and **continue execution** (do not raise an error) to allow report generation
+- [X] T028b [US3] [Depends: T028a] Implement `code/analysis.py` logic to calculate the percentage of folds where the `total_steps` coefficient sign matches, calculate the **average RMSE** across all LOPO folds, flag the result in `model_results.json` if sign consistency <90%, and **continue execution** (do not raise an error) to allow report generation. **Record average RMSE under key `validation.lopo_average_rmse`** in `model_results.json`.
 - [X] T029 [US3] Implement `code/analysis.py` sensitivity analysis: re-run primary model on "weekdays only" dataset and compare coefficients
 - [X] T030 [US3] Implement `code/analysis.py` sensitivity analysis: re-run model using "active minutes" instead of step counts and compare direction of effect
-- [X] T031a [US3] Implement `code/analysis.py` logic to exclude single-rating days from the dataset for the primary sensitivity branch
-- [X] T031b [US3] Implement `code/analysis.py` logic to impute single-rating days using the participant's median mood value for the secondary sensitivity branch
-- [X] T031c [US3] Implement `code/analysis.py` to execute a bootstrap sampling loop (1000 iterations, seed 42): for each iteration, fit the exclusion model (T031a logic) and the imputation model (T031b logic), **compare the coefficients of the two models within the iteration**, record whether the direction remains consistent, and verify the consistency of this comparison in ≥80% of the bootstrap samples
-- [X] T032 [US3] Implement `code/report.py` to generate PDF/HTML report containing effect sizes, CIs, diagnostic plots (including 'residuals vs. fitted' from T023), LOPO results, and sensitivity analysis summaries
-- [ ] T033 [US3] Ensure report explicitly states "associational" findings and avoids causal language
+- [X] T031a [US3] [Internal Step for T031c] Implement logic to exclude single-rating days from the dataset for the primary sensitivity branch
+- [X] T031b [US3] [Internal Step for T031c] Implement logic to impute single-rating days using the participant's median mood value for the secondary sensitivity branch
+- [X] T031c [US3] Implement `code/analysis.py` to execute a **bootstrap sampling loop with exactly 1000 iterations** (seed 42): for each iteration, fit the exclusion model (T031a logic) and the imputation model (T031b logic), **compare the coefficients of the two models within the iteration**, record whether the direction remains consistent, and calculate the final consistency percentage. **Record the consistency percentage in `model_results.json` under key `sensitivity.single_rating_bootstrap_consistency`** and verify whether the proportion of samples where the direction is consistent meets the ≥80% threshold. Explicitly report whether the ≥80% threshold is met.
+- [X] T032 [US3] [Depends: T025, T028b, T030, T031c] Implement `code/report.py` to generate PDF/HTML report containing effect sizes, CIs, diagnostic plots (including 'residuals vs. fitted' from T023), LOPO results, and sensitivity analysis summaries. **Use `jinja2` for templating and `weasyprint` for PDF generation.** Prioritize the `mood_variability` model results as the primary finding and ensure the `mean_mood` model is presented as secondary. **Explicitly inject the 'associational' disclaimer text required by FR-004 into the report header and conclusion sections.** **Include a validation step that programmatically checks the generated report content for the presence of the 'associational' disclaimer string before saving the file.** Verify that the report contains no causal language.
+- [X] T033 [US3] [Depends: T032] Verify that the generated report explicitly states 'associational' findings and contains no causal language. Mark complete only if the validation step in T032 confirms success.
+- [X] T037 [P] Additional unit tests for edge cases (single participant days, zero mood entries) in `tests/unit/`. **Specifically test: 1) dropping days with zero mood entries, 2) handling single participant days (fixed-effects fallback), 3) zero mood variability calculation.** **These tests must be written, executed, and passing before marking this task complete.**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,11 +168,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034a [P] Update `README.md` with specific sections: Installation, Usage, and Data Description
-- [ ] T034b [P] Update `docs/` with specific content: API documentation for `analysis.py` and Data Dictionary for `daily_aggregates.csv`
-- [ ] T036 Run full pipeline integration test in `tests/integration/test_full_pipeline.py` to verify end-to-end execution within 6 hours
-- [ ] T037 [P] Additional unit tests for edge cases (single participant days, zero variability) in `tests/unit/`
-- [ ] T038 Run `quickstart.md` validation to ensure all documentation is accurate
+- [X] T034a-1 [P] Update `README.md` with specific section: Installation (include pip install command `pip install -r code/requirements.txt`)
+- [X] T034a-2 [P] Update `README.md` with specific section: Usage (include CLI example `python code/main.py --input data/processed/daily_aggregates.csv`)
+- [X] T034b [P] Update `docs/` with specific content: API documentation for `analysis.py` and Data Dictionary for `daily_aggregates.csv`
+- [X] T036 [P] Run full pipeline integration test in `tests/integration/test_full_pipeline.py` to verify end-to-end execution within 6 hours
+- [X] T038 [P] [Depends: T034a-1, T034a-2] **Create a shell script `scripts/validate_quickstart.sh`** that executes the steps in `quickstart.md` and captures the exit code. **Run this script** and generate a validation log file `docs/quickstart_validation.log` confirming success. This mechanism ensures the documentation is runnable end-to-end.
 
 ---
 

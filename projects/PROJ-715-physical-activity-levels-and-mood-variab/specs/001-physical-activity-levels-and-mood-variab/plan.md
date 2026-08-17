@@ -17,7 +17,7 @@ This project implements a statistical analysis pipeline to investigate the assoc
 **Project Type**: Computational Research Pipeline (CLI/Data Processing)
 **Performance Goals**: Complete full pipeline (ingestion to report) within 6 hours on CPU-only runner.
 **Constraints**: No GPU usage; memory usage < 6GB; strict handling of missing data; explicit "associational" framing.
-**Scale/Scope**: Single dataset (StudentLife), ~100 participants, ~30-60 days per participant.
+**Scale/Scope**: Single dataset (StudentLife), a cohort of participants, ~30-60 days per participant.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

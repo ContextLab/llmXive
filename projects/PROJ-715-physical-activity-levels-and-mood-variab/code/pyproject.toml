@@ -15,10 +15,14 @@ exclude = '''
   | dist
 )/
 '''
-skip-string-normalization = false
-force-exclude = '''.(egg-info|build|dist|\.git|\.tox|\.mypy_cache|\.venv)'''
 
 [tool.isort]
 profile = "black"
 line_length = 88
-skip = ["venv", ".git", "build", "dist"]
+known_first_party = ["config", "ingest", "preprocess", "analysis", "report", "output_validator", "save_daily_aggregates", "save_results"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

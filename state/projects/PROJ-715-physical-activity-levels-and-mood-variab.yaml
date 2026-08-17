@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-17T08:10:46.521540Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-715-physical-activity-levels-and-mood-variab
-last_run_id: c8ae1ba3-50f3-42de-acb2-04e8f45983c2
+last_run_id: 02418597-ce02-4d2c-8081-ba7ad570e0c1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab
 title: Physical Activity Levels and Mood Variability in Daily Life
-updated_at: '2026-08-15T04:03:09.095888Z'
+updated_at: '2026-08-17T07:05:54.400824Z'

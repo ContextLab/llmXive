@@ -1,3 +1,10 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files (e.g., `.flake8`, `pyproject.toml`, `setup.cfg`, or a
+    `black` config) or scripts setting up flake8 and black in the `code/` directory
+    were presented. Without such artifacts, the linting and formatting tools have
+    not been demonstrably configured.
 T011:
   c: true
   h: 676d4003c1aee5be390878aa8c6c9a39171fc531b7db68994f26f7d496553150
@@ -5,3 +12,30 @@ T011:
     \ defines `load_bronze_data()` to read `data/raw/bronze.parquet` and `parse_step_logs()`\
     \ which converts raw timestamps and step counts into a `total_steps` daily aggregation,\
     \ fulfilling the stated requirement."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No report or document was provided showing that the results are framed as \u201C\
+    associational\u201D and that causal language is avoided; without the actual artifact\
+    \ we cannot verify the requirement was met. The implementer must supply the final\
+    \ report (or excerpt) containing the explicit associational statements and the\
+    \ absence of causal phrasing."
+T034b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` files were presented; there is no evidence that API documentation
+    for `analysis.py` or a Data Dictionary for `daily_aggregates.csv` were created
+    or updated. The required documentation artifacts are missing.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No new test files or code were presented in `tests/unit/`; the claim provides\
+    \ no evidence of additional unit tests covering the specified edge cases (single\u2011\
+    participant days, zero variability). The required artifact is missing, so the\
+    \ task is not satisfied."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `quickstart.md` validation run (e.g., logs, pass/fail report,
+    or updated documentation) is provided; the implementer did not supply any artifact
+    demonstrating that the documentation was checked and confirmed accurate.

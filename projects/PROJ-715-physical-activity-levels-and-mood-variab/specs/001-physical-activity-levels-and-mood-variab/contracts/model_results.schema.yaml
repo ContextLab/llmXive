@@ -1,132 +1,122 @@
-# Schema for model_results.json
-# Defines the expected structure for the output of the statistical modeling phase
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: Schema for the output of the statistical modeling pipeline (T025).
 type: object
 required:
-  - models
-  - diagnostics
-  - lopo_results
-  - sensitivity_analysis
   - metadata
+  - models
+  - validation
+  - sensitivity
 properties:
-  models:
-    type: array
-    description: List of fitted model results
-    items:
-      type: object
-      required:
-        - model_name
-        - outcome
-        - predictor
-        - fixed_effects
-        - converged
-      properties:
-        model_name:
-          type: string
-          description: Name of the model (e.g., 'mood_std_model', 'mean_mood_model')
-        outcome:
-          type: string
-          description: The dependent variable used
-        predictor:
-          type: string
-          description: The primary independent variable (total_steps)
-        fixed_effects:
-          type: object
-          description: Dictionary of fixed effect coefficients
-          additionalProperties:
-            type: object
-            required:
-              - estimate
-              - se
-              - p_value
-              - ci_lower
-              - ci_upper
-            properties:
-              estimate:
-                type: number
-              se:
-                type: number
-              p_value:
-                type: number
-              ci_lower:
-                type: number
-              ci_upper:
-                type: number
-        converged:
-          type: boolean
-          description: Whether the model optimization converged successfully
-        random_effects:
-          type: object
-          description: Random effects variance components (optional)
-          nullable: true
-  diagnostics:
+  metadata:
     type: object
-    description: Model diagnostic test results
     properties:
-      shapiro_wilk:
-        type: object
-        properties:
-          statistic:
-            type: number
-          p_value:
-            type: number
-      breusch_pagan:
-        type: object
-        properties:
-          statistic:
-            type: number
-          p_value:
-            type: number
-  lopo_results:
-    type: object
-    description: Leave-One-Participant-Out cross-validation results
+      version:
+        type: string
+      generated_at:
+        type: string
+        format: date-time
+      pipeline_task:
+        type: string
     required:
-      - sign_stability
-      - folds
-    properties:
-      sign_stability:
-        type: number
-        description: Percentage of folds where coefficient sign matched
-      folds:
-        type: integer
-        description: Number of participants/folds
-  sensitivity_analysis:
+      - version
+      - pipeline_task
+  models:
     type: object
-    description: Results from sensitivity analyses
+    required:
+      - mood_std
+      - mean_mood
+    properties:
+      mood_std:
+        type: object
+        description: Results for the model with log-transformed mood_std as outcome.
+        properties:
+          fixed_effects:
+            type: object
+            additionalProperties:
+              type: object
+              properties:
+                estimate:
+                  type: number
+                std_error:
+                  type: number
+                p_value:
+                  type: number
+                ci_lower:
+                  type: number
+                ci_upper:
+                  type: number
+              required:
+                - estimate
+                - p_value
+          convergence_status:
+            type: boolean
+          associational_label:
+            type: string
+            const: "associational"
+      mean_mood:
+        type: object
+        description: Results for the model with mean_mood as outcome.
+        properties:
+          fixed_effects:
+            type: object
+            additionalProperties:
+              type: object
+              properties:
+                estimate:
+                  type: number
+                std_error:
+                  type: number
+                p_value:
+                  type: number
+                ci_lower:
+                  type: number
+                ci_upper:
+                  type: number
+              required:
+                - estimate
+                - p_value
+          convergence_status:
+            type: boolean
+          associational_label:
+            type: string
+            const: "associational"
+  validation:
+    type: object
+    description: Leave-One-Participant-Out (LOPO) cross-validation results.
+    required:
+      - lopo_sign_consistency
+      - lopo_average_rmse
+    properties:
+      lopo_sign_consistency:
+        type: number
+        description: Percentage of folds where the total_steps coefficient sign matches the full model.
+        minimum: 0
+        maximum: 100
+      lopo_average_rmse:
+        type: number
+        description: Average RMSE across all LOPO folds.
+      threshold_met:
+        type: boolean
+        description: Whether sign consistency >= 90%.
+  sensitivity:
+    type: object
+    description: Sensitivity analysis results.
+    required:
+      - single_rating_bootstrap_consistency
     properties:
       weekdays_only:
         type: object
-        properties:
-          coefficient:
-            type: number
+        description: Results of re-running model on weekdays only.
       active_minutes:
         type: object
-        properties:
-          coefficient:
-            type: number
-      exclude_single_ratings:
-        type: object
-        properties:
-          coefficient:
-            type: number
-      impute_single_ratings:
-        type: object
-        properties:
-          coefficient:
-            type: number
-  metadata:
-    type: object
-    description: Pipeline execution metadata
-    required:
-      - timestamp
-      - pipeline_version
-    properties:
-      timestamp:
-        type: string
-        format: date-time
-      pipeline_version:
-        type: string
-      data_source:
-        type: string
-      sample_size:
-        type: integer
+        description: Results of re-running model with active minutes metric.
+      single_rating_bootstrap_consistency:
+        type: number
+        description: Percentage of bootstrap samples where direction is consistent between exclusion and imputation models.
+        minimum: 0
+        maximum: 100
+      threshold_met:
+        type: boolean
+        description: Whether consistency >= 80%.
 additionalProperties: false
