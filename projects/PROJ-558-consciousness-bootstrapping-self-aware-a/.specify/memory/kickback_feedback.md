@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No directory tree `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/` with the required subfolders (`data/raw`, `data/processed`, `code`, `tests`, `artifacts`, `artifacts/checkpoints`, `artifacts/results`) is provided or listed in the evidence. The claim is unsubstantiated, so the required artifact is missing.
+- `T001b` (rejected 1x): No __init__.py files for the specified directories are shown or referenced in the provided evidence; the claim lacks any concrete artifact confirming their creation. The next implementer must add the missing files and ensure they are non‑empty.
 
 ## Required change
 

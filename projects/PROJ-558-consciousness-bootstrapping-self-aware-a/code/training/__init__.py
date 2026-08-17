@@ -1,4 +1,3 @@
 """
-Training pipeline components for recursive self-attention models.
+Training pipelines, loss functions, and dataset handling for model bootstrapping.
 """
-from .train import run_training, train_epoch, save_checkpoint

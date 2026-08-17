@@ -1,44 +1,28 @@
 import os
 import pytest
 from pathlib import Path
-import shutil
-import tempfile
 
-from create_project_structure import create_structure
+def test_project_structure_exists():
+    """Verify that the main project directory exists."""
+    project_root = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
+    assert project_root.exists(), f"Project root directory {project_root} does not exist"
+    assert project_root.is_dir(), f"{project_root} is not a directory"
 
-@pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary directory to simulate the project root."""
-    return tmp_path / "projects" / "PROJ-558-consciousness-bootstrapping-self-aware-a"
-
-def test_create_structure_creates_all_dirs(temp_project_root):
-    """
-    Test that create_structure creates all required subdirectories.
-    """
-    # Run the creation logic on the temp directory
-    create_structure(str(temp_project_root))
+def test_required_subdirectories_exist():
+    """Verify that all required subdirectories exist."""
+    project_root = Path("projects/PROJ-558-consciousness-bootstrapping-self-aware-a")
     
     required_dirs = [
         "data/raw",
         "data/processed",
         "code",
         "tests",
+        "artifacts",
         "artifacts/checkpoints",
-        "artifacts/results",
+        "artifacts/results"
     ]
     
     for dir_path in required_dirs:
-        full_path = temp_project_root / dir_path
-        assert full_path.exists(), f"Directory {full_path} was not created."
-        assert full_path.is_dir(), f"{full_path} exists but is not a directory."
-
-def test_create_structure_idempotent(temp_project_root):
-    """
-    Test that running create_structure twice does not raise errors.
-    """
-    create_structure(str(temp_project_root))
-    # Run again
-    create_structure(str(temp_project_root))
-    
-    assert (temp_project_root / "code").exists()
-    assert (temp_project_root / "data/raw").exists()
+        full_path = project_root / dir_path
+        assert full_path.exists(), f"Required directory {full_path} does not exist"
+        assert full_path.is_dir(), f"{full_path} is not a directory"

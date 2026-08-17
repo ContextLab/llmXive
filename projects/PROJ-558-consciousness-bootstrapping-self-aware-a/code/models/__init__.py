@@ -1,6 +1,3 @@
 """
-Model definitions and wrappers for the consciousness bootstrapping pipeline.
+Model definitions and wrappers for recursive self-attention and baseline architectures.
 """
-from .base_llama import BaseLlamaWrapper
-from .recursive_llama import RecursiveLlamaWrapper, create_recursive_model
-from .checkpoint import ModelCheckpoint

@@ -1,30 +1,10 @@
-T001b:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No __init__.py files for the specified directories are shown or referenced in\
-    \ the provided evidence; the claim lacks any concrete artifact confirming their\
-    \ creation. The next implementer must add the missing files and ensure they are\
-    \ non\u2011empty."
-T003a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing a list of line numbers and surrounding context for the phrases\
-    \ \u201CTeacher-Student Distillation\u201D, \u201CPre-computed Teacher Labels\u201D\
-    , or \u201Cexternal truth\u201D in `plan.md` was provided. The implementer\u2019\
-    s claim lacks the required output."
-T003b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `patches/plan_correction.patch` file was presented, nor any diff content\
-    \ showing the required replacements and methodology updates. Without the actual\
-    \ patch artifact, the task\u2019s deliverable is missing."
-T003c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `plan.md` file with the generated patch applied or a commit
-    showing the correction is provided; the required artifact is missing. The implementer
-    must supply the updated `plan.md` (showing the applied changes) and evidence of
-    the commit.
+  r: "No evidence of the required `projects/PROJ-558-consciousness-bootstrapping-self-aware-a/`\
+    \ directory tree (with the specified subfolders) is presented; the implementer\
+    \ did not provide any file\u2011system listing or screenshots confirming its creation.\
+    \ The task remains undone until the full directory structure exists and is shown."
 T004b:
   c: false
   h: 0d6ae283c16684c17ac1a4309f3d841cb8fb4d8e09891f9a5d5745b929163979

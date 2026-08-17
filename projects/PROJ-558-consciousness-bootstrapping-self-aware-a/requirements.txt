@@ -1,9 +1,32 @@
-torch
-transformers
-datasets
-scikit-learn
-numpy
-scipy
-pytest
-ruff
-black
+# Core ML Frameworks
+# torch: CPU-only version to ensure compatibility with CI runners without GPU
+torch --index-url https://download.pytorch.org/whl/cpu
+
+# Transformer Models and Utilities
+transformers>=4.40.0
+
+# Dataset Loading and Processing
+datasets>=2.18.0
+
+# Machine Learning Utilities
+scikit-learn>=1.4.0
+
+# Data Handling
+pandas>=2.2.0
+numpy>=1.26.0
+
+# JSON and Data Serialization
+pyyaml>=6.0.1
+
+# Logging and Utilities
+tqdm>=4.66.0
+
+# Statistical Analysis
+scipy>=1.12.0
+
+# Linting and Formatting (for development)
+ruff>=0.3.0
+black>=24.3.0
+
+# Testing
+pytest>=8.1.0
