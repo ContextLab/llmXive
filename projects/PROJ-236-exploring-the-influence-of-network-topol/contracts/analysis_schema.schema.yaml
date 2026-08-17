@@ -1,13 +1,14 @@
+# JSON Schema for CorrelationAnalysis data model
+# This schema defines the structure of analysis results produced by
+# `code/analyze_correlations.py`. It can be used with any JSON/YAML validator
+# that supports Draft‑07 (or later) schemas.
 $schema: "http://json-schema.org/draft-07/schema#"
 title: CorrelationAnalysis
 description: |
-  JSON‑Schema definition for the CorrelationAnalysis data model used in the
-  analysis stage of the “Exploring the Influence of Network Topology on Heat
-  Transport in Disordered Materials” project.  The schema is deliberately
-  strict enough to be validated against a concrete sample instance while
-  remaining flexible for future extensions.
+  Results of a statistical correlation analysis between a network topological
+  metric and the thermal conductivity (kappa) of a disordered material.
+  All numeric fields are expressed in SI units where applicable.
 type: object
-additionalProperties: false
 required:
   - analysis_id
   - metric
@@ -18,69 +19,55 @@ required:
   - bootstrap_iterations
   - confidence_interval
   - corrected_p_value
-  - runtime_seconds
+  - timestamp
+additionalProperties: false
 properties:
   analysis_id:
     type: string
-    description: Unique identifier for the analysis run (e.g., UUID or descriptive tag).
+    description: Unique identifier for the analysis run (e.g., UUID).
   metric:
     type: string
-    description: Name of the network metric that was correlated with thermal conductivity (e.g., "clustering_coefficient").
+    description: Name of the topological metric (e.g., "clustering_coeff").
   correlation_coefficient:
     type: number
-    description: Pearson correlation coefficient (r) between the metric and κ.
+    description: Pearson correlation coefficient (r) between the metric and kappa.
     minimum: -1
     maximum: 1
   p_value:
     type: number
-    description: Two‑sided p‑value associated with the correlation.
-    minimum: 0
+    description: Two‑tailed p‑value associated with the correlation.
+    exclusiveMinimum: 0
     maximum: 1
   slope:
     type: number
-    description: Slope of the linear regression line (metric → κ).
+    description: Linear regression slope (Δkappa per unit metric).
   intercept:
     type: number
-    description: Intercept of the linear regression line.
+    description: Linear regression intercept.
   bootstrap_iterations:
     type: integer
-    description: Number of bootstrap resampling iterations used to estimate confidence intervals.
+    description: Number of bootstrap resampling iterations used.
     minimum: 1
   confidence_interval:
     type: object
-    description: Confidence interval for the correlation coefficient (or slope) obtained via bootstrap.
-    additionalProperties: false
+    description: 95 % confidence interval for the correlation coefficient.
     required:
       - lower
       - upper
+    additionalProperties: false
     properties:
       lower:
         type: number
+        description: Lower bound of the confidence interval.
       upper:
         type: number
+        description: Upper bound of the confidence interval.
   corrected_p_value:
     type: number
-    description: P‑value after multiple‑comparison correction (Bonferroni/FDR).
-    minimum: 0
+    description: P‑value after multiple‑comparison correction (e.g., Bonferroni or FDR).
+    exclusiveMinimum: 0
     maximum: 1
-  runtime_seconds:
-    type: number
-    description: Wall‑clock time taken to perform the analysis (seconds).
-    minimum: 0
-  notes:
+  timestamp:
     type: string
-    description: Optional free‑form notes or comments about the analysis run.
-examples:
-  - analysis_id: "analysis-2026-08-01-001"
-    metric: "clustering_coefficient"
-    correlation_coefficient: 0.42
-    p_value: 0.0123
-    slope: 1.85
-    intercept: 0.34
-    bootstrap_iterations: 1000
-    confidence_interval:
-      lower: 0.30
-      upper: 0.55
-    corrected_p_value: 0.018
-    runtime_seconds: 12.4
-    notes: "Bootstrap CI width = 0.25, passes SC‑004."
+    format: date-time
+    description: ISO‑8601 timestamp when the analysis was completed.

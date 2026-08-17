@@ -1,0 +1,19 @@
+# Standalone ruff configuration file for compatibility
+# This file mirrors the settings in pyproject.toml for tools that don't read pyproject.toml
+extend = "pyproject.toml"
+line-length = 88
+target-version = "py311"
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]

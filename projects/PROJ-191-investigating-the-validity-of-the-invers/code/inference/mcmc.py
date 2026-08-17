@@ -1,17 +1,9 @@
-"""
-MCMC Runner for Yukawa Model Inference.
-
-Implements the emcee runner with convergence checking (Gelman-Rubin)
-and batched execution to respect wall-clock limits while ensuring
-minimum step counts are met.
-"""
 import os
 import sys
 import time
 import logging
 import json
 from pathlib import Path
-from typing import Tuple, Optional, Dict, Any, List
 
 import numpy as np
 import emcee
@@ -20,296 +12,220 @@ from emcee.autocorr import AutocorrTimeError
 # Project imports based on API surface
 from config import get_logger, ProjectConfig
 from models.likelihood import YukawaLikelihood, load_covariance_matrix
-from data.loaders import HarmonizedDataset
-from data.state_manager import read_state, write_state
-
-# Ensure project root is in path for imports if run as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parents[1]
-    sys.path.insert(0, str(project_root))
+from data.state_manager import read_state
 
 logger = get_logger(__name__)
 
-# Configuration defaults
-DEFAULT_N_WALKERS = 100
-DEFAULT_MIN_STEPS = 5000
-DEFAULT_BATCH_SIZE = 1000
-DEFAULT_MAX_STEPS = 50000
-DEFAULT_GR_THRESHOLD = 1.01
-DEFAULT_RND_SEED = 42
-
-
-def compute_gelman_rubin(samples: np.ndarray) -> float:
+def compute_gelman_rubin(samples):
     """
-    Compute the Gelman-Rubin convergence statistic (R-hat).
+    Compute the Gelman-Rubin statistic (R-hat) for the chains.
     
     Args:
-        samples: Array of shape (n_walkers, n_steps, n_params)
-    
+        samples: Array of shape (nwalkers, nsteps, nparams)
+        
     Returns:
-        R-hat value. Returns np.inf if too few samples to compute.
+        float: The maximum Gelman-Rubin statistic across parameters.
+               Returns 1.0 if only one chain or insufficient data.
     """
-    n_walkers, n_steps, n_params = samples.shape
+    nwalkers, nsteps, nparams = samples.shape
     
-    if n_steps < 2:
-        return np.inf
-
-    # Calculate variance within chains
-    # Mean of each chain
-    chain_means = np.mean(samples, axis=1)  # (n_walkers, n_params)
+    if nwalkers < 2:
+        logger.warning("Gelman-Rubin requires at least 2 walkers.")
+        return 1.0
     
-    # Variance within chains (unbiased estimator)
-    # Sum of squared deviations from chain mean
-    within_var = np.var(samples, axis=1, ddof=1)  # (n_walkers, n_params)
-    W = np.mean(within_var, axis=0)  # (n_params,)
+    # Discard burn-in (last 1/3 of samples for simplicity in this context)
+    # Or use a fixed burn-in if known. Here we use the last 2/3 of the run.
+    burn_in = nsteps // 3
+    if burn_in == 0:
+        burn_in = 1
+    samples_post_burn = samples[:, burn_in:, :]
     
-    # Variance between chains
-    # Variance of chain means
-    B = n_steps * np.var(chain_means, axis=0, ddof=1)  # (n_params,)
+    n_post = samples_post_burn.shape[1]
+    if n_post < 2:
+        logger.warning("Not enough samples after burn-in for Gelman-Rubin.")
+        return 1.0
+    
+    # Calculate variance within chains (W)
+    chain_means = np.mean(samples_post_burn, axis=1) # (nwalkers, nparams)
+    overall_mean = np.mean(chain_means, axis=0) # (nparams,)
+    
+    # Within-chain variance
+    W = np.mean(np.var(samples_post_burn, axis=1), axis=0)
+    
+    # Between-chain variance
+    B = n_post * np.var(chain_means, axis=0)
     
     # Pooled variance estimate
-    # V = ((n_steps - 1)/n_steps) * W + (1/n_steps) * B
-    V = ((n_steps - 1) / n_steps) * W + (1 / n_steps) * B
+    sigma_sq = ((n_post - 1) / n_post) * W + (1 / n_post) * B
     
-    # R-hat
-    # R = sqrt(V / W)
+    # Potential scale reduction factor
     # Avoid division by zero
     with np.errstate(divide='ignore', invalid='ignore'):
-        R = np.sqrt(V / W)
+        R = np.sqrt(sigma_sq / W)
     
-    # Return the maximum R-hat across all parameters
+    # Handle cases where W is 0
+    R = np.where(W == 0, 1.0, R)
+    
     return float(np.max(R))
 
-
-def run_mcmc(
-    data: HarmonizedDataset,
-    cov_matrix: np.ndarray,
-    n_walkers: int = DEFAULT_N_WALKERS,
-    min_steps: int = DEFAULT_MIN_STEPS,
-    batch_size: int = DEFAULT_BATCH_SIZE,
-    max_steps: int = DEFAULT_MAX_STEPS,
-    gr_threshold: float = DEFAULT_GR_THRESHOLD,
-    seed: int = DEFAULT_RND_SEED,
-    output_dir: Optional[Path] = None
-) -> Dict[str, Any]:
+def run_mcmc(config: ProjectConfig, n_walkers: int = 32, min_steps: int = 5000, 
+             batch_size: int = 1000, max_steps: int = 50000, convergence_thresh: float = 1.01):
     """
     Run the emcee MCMC sampler for the Yukawa model.
     
-    Continues running in batches until Gelman-Rubin < threshold OR max_steps reached.
-    Ensures at least min_steps are run regardless of convergence.
-    
-    Args:
-        data: HarmonizedDataset containing separation and force data.
-        cov_matrix: Covariance matrix for likelihood calculation.
-        n_walkers: Number of MCMC walkers.
-        min_steps: Minimum number of steps to run.
-        batch_size: Number of steps to run per batch.
-        max_steps: Maximum total steps allowed.
-        gr_threshold: Convergence threshold for Gelman-Rubin statistic.
-        seed: Random seed for reproducibility.
-        output_dir: Directory to save results.
-    
-    Returns:
-        Dictionary containing samples, diagnostics, and metadata.
+    Logic:
+    1. Initialize walkers.
+    2. Run at least `min_steps`.
+    3. Continue in batches of `batch_size` until:
+       - Gelman-Rubin < `convergence_thresh`
+       - OR `max_steps` is reached.
+    4. Save results and convergence status.
     """
-    if output_dir is None:
-        output_dir = Path("data/results")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Starting MCMC run with {n_walkers} walkers.")
     
-    np.random.seed(seed)
+    # Load data and covariance
+    data_path = Path(config.data_dir) / "processed" / "harmonized_data.csv"
+    cov_path = Path(config.data_dir) / "processed" / "covariance_matrix.npy"
     
-    # Initialize likelihood
-    likelihood = YukawaLikelihood(data, cov_matrix)
+    if not data_path.exists():
+        raise FileNotFoundError(f"Harmonized data not found at {data_path}")
+    if not cov_path.exists():
+        raise FileNotFoundError(f"Covariance matrix not found at {cov_path}")
+        
+    # Load likelihood components
+    # We assume the likelihood class handles data loading internally or via init
+    # Based on API: YukawaLikelihood is available.
+    # We need to construct it. Assuming it takes data_path and cov_path or similar.
+    # If the class signature is different, we adapt based on standard patterns.
+    # Given the API surface: `from models.likelihood import YukawaLikelihood`
+    # We will assume it can be instantiated with the necessary paths.
     
-    # Define parameter bounds for initial positions
-    # Parameters: [log_alpha, log_lambda]
-    # alpha: strength (0 to ~10^10 relative to gravity, but we use log scale)
-    # lambda: range (1e-5 to 1e-2 meters, i.e., 10um to 10mm)
-    # We'll use log10 for numerical stability
-    # log10(alpha): -5 to 15
-    # log10(lambda): -5 to -2 (meters)
+    try:
+        likelihood = YukawaLikelihood(str(data_path), str(cov_path))
+    except Exception as e:
+        logger.error(f"Failed to initialize YukawaLikelihood: {e}")
+        raise
+
+    # Initial positions for walkers (around alpha=0, lambda=1e-4)
+    # alpha: strength (log scale usually, but let's try linear or log)
+    # lambda: range (log scale)
+    # Assuming 2 parameters: [alpha, log_lambda] or [alpha, lambda]
+    # Standard Yukawa: F = F_N * (1 + alpha * exp(-r/lambda))
+    # Let's assume parameters are [alpha, log_lambda] to ensure positive lambda.
     
-    ndim = 2
-    initial_positions = []
-    for _ in range(n_walkers):
-        # Random initial positions in log space
-        log_alpha = np.random.uniform(-5, 15)
-        log_lambda = np.random.uniform(-5, -2)
-        initial_positions.append([log_alpha, log_lambda])
-    initial_positions = np.array(initial_positions)
+    n_params = 2
+    p0 = np.zeros((n_walkers, n_params))
     
-    # Initialize sampler
-    sampler = emcee.EnsembleSampler(
-        n_walkers, ndim, likelihood.log_prob, 
-        backend=None,  # We manage state manually for batching
-        pool=None
-    )
+    # Center around alpha=0, log_lambda ~ -4 (100 microns)
+    # Add small random perturbation
+    for i in range(n_walkers):
+        p0[i, 0] = 0.0 + 0.01 * np.random.randn() # alpha
+        p0[i, 1] = -4.0 + 0.01 * np.random.randn() # log_lambda
+        
+    sampler = emcee.EnsembleSampler(n_walkers, n_params, likelihood.log_prob)
     
-    logger.info(f"Starting MCMC run with {n_walkers} walkers, {ndim} dimensions")
-    logger.info(f"Configuration: min_steps={min_steps}, max_steps={max_steps}, "
-               f"batch_size={batch_size}, gr_threshold={gr_threshold}")
-    
-    # Run in batches
+    # State tracking
     total_steps = 0
     converged = False
-    samples_history = []
-    gr_values = []
+    last_gr = 1.0
     
-    # Burn-in phase (first batch)
-    logger.info("Running burn-in phase...")
-    try:
-        sampler.run_mcmc(initial_positions, batch_size, progress=True)
-        total_steps += batch_size
+    logger.info(f"Running minimum {min_steps} steps...")
+    
+    # Run initial batch to meet min_steps
+    # We run in batches of batch_size, but ensure we hit min_steps
+    steps_to_run = min_steps
+    
+    for i in range(n_walkers):
+        sampler.run_mcmc(p0, steps_to_run, progress=True, skip_initial=True)
         
-        # Get samples for diagnostics
-        samples = sampler.get_chain()
-        gr = compute_gelman_rubin(samples)
-        gr_values.append(gr)
-        logger.info(f"Batch 1 complete. Steps: {total_steps}, R-hat: {gr:.4f}")
+    total_steps = steps_to_run
+    
+    # Check convergence
+    samples = sampler.get_chain()
+    last_gr = compute_gelman_rubin(samples)
+    logger.info(f"After {total_steps} steps: Gelman-Rubin = {last_gr:.4f}")
+    
+    # Continue if not converged and under max limit
+    while last_gr >= convergence_thresh and total_steps < max_steps:
+        logger.info(f"Convergence not met (GR={last_gr:.4f}). Running another batch of {batch_size} steps...")
         
-        # Check if we need more steps
-        while total_steps < max_steps:
-            # Check convergence conditions
-            # Must run at least min_steps
-            # Stop if converged AND total_steps >= min_steps
-            if total_steps >= min_steps and gr < gr_threshold:
-                converged = True
-                logger.info(f"Convergence achieved at step {total_steps} with R-hat={gr:.4f}")
-                break
+        try:
+            sampler.run_mcmc(None, batch_size, progress=True)
+            total_steps += batch_size
             
-            # Run next batch
-            logger.info(f"Running batch {len(gr_values) + 1}...")
-            try:
-                sampler.run_mcmc(None, batch_size, progress=True)
-                total_steps += batch_size
-            except Exception as e:
-                logger.warning(f"Batch execution interrupted: {e}")
-                break
-            
-            # Compute diagnostics
             samples = sampler.get_chain()
-            gr = compute_gelman_rubin(samples)
-            gr_values.append(gr)
-            logger.info(f"Batch complete. Steps: {total_steps}, R-hat: {gr:.4f}")
+            last_gr = compute_gelman_rubin(samples)
+            logger.info(f"After {total_steps} steps: Gelman-Rubin = {last_gr:.4f}")
             
-    except Exception as e:
-        logger.error(f"MCMC run failed: {e}")
-        raise
+        except AutocorrTimeError as e:
+            logger.warning(f"Autocorrelation time error (insufficient samples): {e}")
+            # Continue running anyway, just can't compute reliable GR yet
+            pass
+        except Exception as e:
+            logger.error(f"Error during MCMC batch run: {e}")
+            break
     
-    # Final diagnostics
-    samples = sampler.get_chain(discard=min_steps // 2)  # Discard half of min_steps as burn-in
-    final_samples = sampler.get_chain()
-    
-    # Compute final R-hat
-    if len(final_samples.shape) == 3:
-        final_gr = compute_gelman_rubin(final_samples)
+    # Final status
+    if last_gr < convergence_thresh:
+        status = "converged"
+        logger.info(f"MCMC converged after {total_steps} steps (GR={last_gr:.4f}).")
     else:
-        final_gr = np.inf
-    
-    # Compute autocorrelation time
-    try:
-        tau = sampler.get_autocorr_time(tol=0)
-        logger.info(f"Autocorrelation time: {tau}")
-    except (AutocorrTimeError, ValueError) as e:
-        logger.warning(f"Could not compute autocorrelation time: {e}")
-        tau = None
-    
-    # Prepare results
-    results = {
-        "samples": final_samples,
-        "log_alpha_samples": final_samples[:, :, 0],
-        "log_lambda_samples": final_samples[:, :, 1],
-        "total_steps": total_steps,
-        "converged": converged,
-        "gr_threshold": gr_threshold,
-        "final_gr_statistic": final_gr,
-        "gr_history": gr_values,
-        "autocorrelation_time": tau,
-        "n_walkers": n_walkers,
-        "n_params": ndim,
-        "seed": seed,
-        "status": "converged" if converged else ("max_steps_reached" if total_steps >= max_steps else "interrupted")
-    }
-    
+        status = "unreliable"
+        logger.warning(f"MCMC did not converge after {total_steps} steps (GR={last_gr:.4f}).")
+        
     # Save results
-    results_path = output_dir / "mcmc_results.json"
-    samples_path = output_dir / "mcmc_samples.npy"
+    output_dir = Path(config.results_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Convert numpy arrays to lists for JSON
-    json_results = {
-        k: (v.tolist() if isinstance(v, np.ndarray) else v) 
-        for k, v in results.items() 
-        if k not in ["samples", "log_alpha_samples", "log_lambda_samples"]
+    results = {
+        "total_steps": total_steps,
+        "converged": status == "converged",
+        "gelman_rubin": float(last_gr),
+        "max_steps_reached": total_steps >= max_steps,
+        "samples_shape": list(samples.shape),
+        "config": {
+            "n_walkers": n_walkers,
+            "min_steps": min_steps,
+            "batch_size": batch_size,
+            "max_steps": max_steps,
+            "convergence_thresh": convergence_thresh
+        }
     }
     
-    with open(results_path, 'w') as f:
-        json.dump(json_results, f, indent=2)
+    # Save samples
+    samples_path = output_dir / "mcmc_samples.npy"
+    np.save(str(samples_path), samples)
+    logger.info(f"Saved samples to {samples_path}")
     
-    np.save(samples_path, final_samples)
-    logger.info(f"Results saved to {results_path}")
-    logger.info(f"Samples saved to {samples_path}")
-    
-    # Update state file if needed
-    state_path = Path("data/processed/state.json")
-    if state_path.exists():
-        state = read_state()
-        state["mcmc_converged"] = converged
-        state["mcmc_total_steps"] = total_steps
-        write_state(state)
+    # Save metadata
+    metadata_path = output_dir / "mcmc_run_metadata.json"
+    with open(metadata_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Saved metadata to {metadata_path}")
     
     return results
 
-
 def main():
-    """
-    Main entry point for the MCMC runner.
-    Loads data and covariance matrix, then runs the sampler.
-    """
-    logger.info("Starting MCMC inference pipeline")
+    """Entry point for the MCMC runner."""
+    logger.info("Initializing MCMC Runner (T023)...")
     
-    try:
-        # Load configuration
-        config = ProjectConfig()
-        
-        # Load harmonized data
-        data_path = Path("data/processed/harmonized_data.npz")
-        if not data_path.exists():
-            raise FileNotFoundError(f"Harmonized data not found at {data_path}. "
-                                  "Please run data harmonization first.")
-        
-        data_dict = np.load(data_path, allow_pickle=True)
-        # Reconstruct HarmonizedDataset if needed, or pass raw arrays
-        # For simplicity, we'll pass the arrays directly to the likelihood
-        separation = data_dict['separation']
-        force = data_dict['force']
-        # Create a simple mock HarmonizedDataset or pass arrays
-        # Since HarmonizedDataset is a dataclass, we might need to reconstruct it
-        # But for now, let's assume we can pass the arrays
-        
-        # Load covariance matrix
-        cov_path = Path("data/processed/covariance_matrix.npy")
-        if not cov_path.exists():
-            raise FileNotFoundError(f"Covariance matrix not found at {cov_path}. "
-                                  "Please run covariance construction first.")
-        cov_matrix = np.load(cov_path)
-        
-        # Run MCMC
-        results = run_mcmc(
-            data={"separation": separation, "force": force},  # Simplified for now
-            cov_matrix=cov_matrix,
-            min_steps=DEFAULT_MIN_STEPS,
-            max_steps=DEFAULT_MAX_STEPS,
-            batch_size=DEFAULT_BATCH_SIZE,
-            gr_threshold=DEFAULT_GR_THRESHOLD
-        )
-        
-        logger.info(f"MCMC completed. Status: {results['status']}")
-        logger.info(f"Final Gelman-Rubin: {results['final_gr_statistic']:.4f}")
-        
-    except Exception as e:
-        logger.error(f"MCMC pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
-
+    # Load project config
+    config = ProjectConfig()
+    
+    # Run the sampler
+    # Parameters can be overridden via config or CLI in a full implementation
+    # Here we use defaults as per task spec
+    results = run_mcmc(
+        config, 
+        n_walkers=32, 
+        min_steps=5000, 
+        batch_size=1000, 
+        max_steps=50000,
+        convergence_thresh=1.01
+    )
+    
+    logger.info("MCMC Run Complete.")
+    return results
 
 if __name__ == "__main__":
     main()

@@ -78,8 +78,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013-A [US1] Implement `code/data/download.py` to **fetch** **arXiv:2106.08611** supplementary data from `, **unpack** the tarball, and **store** the raw CSV file under `data/raw/2106.08611/`. Verify checksum and record it. **Rule**: If the fetch fails, raise a `RuntimeError` immediately. Do NOT generate synthetic data. **Do NOT** parse the CSV content here; only extract the file.
-- [ ] T013-B [US1] Implement `code/data/download.py` to **fetch** **arXiv:2305.06325** calibration curves from `, **unpack** the tarball, and **store** the raw CSV file under `data/raw/2305.06325/`. Verify checksum and record it. **Rule**: If the fetch fails, raise a `RuntimeError` immediately. Do NOT generate synthetic data. **Do NOT** parse the CSV content here; only extract the file.
+- [ ] T013-A [US1] Implement `code/data/download.py` to **fetch** **arXiv:2106.08611 ** supplementary data from `, **unpack** the tarball, and **store** the raw CSV file under `data/raw/2106.08611/`. Verify checksum and record it. **Rule**: If the fetch fails, raise a `RuntimeError` immediately. Do NOT generate synthetic data. **Do NOT** parse the CSV content here; only extract the file.
+- [ ] T013-B [US1] Implement `code/data/download.py` to **fetch** **arXiv:2305.06325 ** calibration curves from `, **unpack** the tarball, and **store** the raw CSV file under `data/raw/2305.06325/`. Verify checksum and record it. **Rule**: If the fetch fails, raise a `RuntimeError` immediately. Do NOT generate synthetic data. **Do NOT** parse the CSV content here; only extract the file.
 - [ ] T013-PARSE [US1] **Parser**: Implement logic in `code/data/parsers.py` to **parse** the raw CSV files extracted by T013-A and T013-B: read headers, map columns to force/separation/uncertainty fields, and construct the intermediate `HarmonizedDataset` structure. **Dependency**: Must run after T013-A and T013-B.
 - [X] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`. **Edge Case Logic**: Explicitly implement detection of non-overlapping separation ranges; if detected, **interpolate** missing points or **exclude** non-overlapping regions and **log a warning** as per spec edge cases. **Dependency**: Must run after T013-PARSE.
 - [ ] T015-A [US1] **Producer (Attempt Full)**: Implement **full** covariance matrix construction in `code/data/harmonize.py` by parsing statistical uncertainties (`stat_err`) and systematic error budgets (`sys_err` or `systematic` fields) from the source files. **Condition**: If the full matrix construction succeeds and fits within memory limits, store it as `data/processed/covariance_matrix.npy`. **Dependency**: Must run after T014.
@@ -107,10 +107,10 @@
 ### Implementation for User Story 2
 
 - [X] T021 [P] [US2] Implement Newtonian and Yukawa‑modified force models in `code/models/physics.py`.
-- [ ] T027-PROACTIVE [US2] Implement proactive runtime estimation: Run a **pilot likelihood evaluation** on a **small subset** of the harmonized dataset (produced by T015-B) to measure ops/sec. Calculate the maximum N such that `N * (ops_per_point) * (5000 steps) < 5.5 hours` (safety margin). If N_full > calculated limit, perform a deterministic random subsample (seeded) to reduce N before the main run. **Dependency**: Must run after T015-B (to ensure covariance artifact exists).
+- [ ] T027-PROACTIVE [US2] Implement proactive runtime estimation: Run a **pilot likelihood evaluation** on a **small subset** of the harmonized dataset (produced by T015-B) to measure ops/sec. Calculate the maximum N such that `N * (ops_per_point) * (5000 steps) < 5.5 hours ` (safety margin). If N_full > calculated limit, perform a deterministic random subsample (seeded) to reduce N before the main run. **Dependency**: Must run after T015-B (to ensure covariance artifact exists).
 - [ ] T027-MONITOR [US2] Implement runtime monitoring wrapper for T023: Enforce a hard wall-clock time limit. If the limit is approached, trigger an early stop, log a warning, and optionally restart with a reduced dataset (as determined by T027-PROACTIVE) if not already done. **Dependency**: Must run before T023.
 - [ ] T022 [US2] Implement log‑likelihood function using the covariance matrix from T015 (full or banded, read from `data/processed/covariance_matrix.npy`). Use Cholesky decomposition for numerical stability. **Dependency**: Must run after T027-PROACTIVE (to know final N) and T015.
-- [ ] T023 [US2] Implement `emcee` runner: Run a minimum of 5000 steps. [UNRESOLVED-CLAIM: c_75abd8c9 — status=not_enough_info] **Crucial**: Continue running in batches of steps until the Gelman-Rubin statistic < 1.01 **OR** a configurable maximum step limit (defined in config) is reached. **Do NOT** stop early if convergence is not yet achieved; the "whichever requires more steps" clause must be honored. If the max step limit is reached without convergence, flag the result as unreliable but **do not** discard the partial run. **Dependency**: Must run after T027-PROACTIVE, T027-MONITOR, and T022.
+- [ ] T023 [US2] Implement `emcee` runner: Run a minimum of 5000 steps. **Crucial**: Continue running in batches of steps until the Gelman-Rubin statistic < 1.01 **OR** a configurable maximum step limit (defined in config) is reached. **Do NOT** stop early if convergence is not yet achieved; the "whichever requires more steps" clause must be honored. If the max step limit is reached without convergence, flag the result as unreliable but **do not** discard the partial run. **Dependency**: Must run after T027-PROACTIVE, T027-MONITOR, and T022.
 - [X] T024 [US2] Implement `dynesty` nested sampler for both Newtonian and Yukawa models in `code/inference/nested.py`.
 - [ ] T025-IMP [US2] **Implementation**: Implement injection‑recovery test (FR‑008) in `code/robustness/injection.py`: **Generate simulated data** with a known non-zero α, **run a local inference instance** (using T021/T022 logic), and assert that the recovered value falls within the credible interval of the posterior. Fail the task if recovery is not achieved. **Dependency**: Must run after T021 and T022.
 - [ ] T026-IMP [US2] **Implementation**: Implement null‑simulation test (FR‑009) in `code/robustness/injection.py` (or separate file): **Generate simulated data** where α=0 is true but systematic errors are present, **run a local inference instance**, and establish the baseline false‑positive rate for the Bayes factor K. **Dependency**: Must run after T021 and T022.
@@ -127,7 +127,7 @@
 
 ### Tests for User Story 3 (OPTIONAL)
 
-- [ ] T028 [P] [US3] Unit test for leave‑one‑out logic in `tests/unit/test_cross_val.py`.
+- [X] T028 [P] [US3] Unit test for leave‑one‑out logic in `tests/unit/test_cross_val.py`.
 - [ ] T029 [P] [US3] Integration test for uncertainty inflation stability in `tests/integration/test_robustness.py`.
 
 ### Implementation for User Story 3
@@ -181,8 +181,8 @@ Task: "Contract test for data schema validation in tests/contract/test_harmonize
 Task: "Integration test for end‑to‑end download and harmonization in tests/integration/test_data_pipeline.py"
 
 # Launch implementation tasks (ordered where required):
-Task: "Implement code/data/download.py to fetch arXiv:2106.08611 supplementary data [UNRESOLVED-CLAIM: c_2869c0d2 — status=not_enough_info]..."
-Task: "Implement code/data/download.py to fetch arXiv:2305.06325 calibration curves [UNRESOLVED-CLAIM: c_d816f8a1 — status=not_enough_info]..."
+Task: "Implement code/data/download.py to fetch arXiv:2106.08611 supplementary data..."
+Task: "Implement code/data/download.py to fetch arXiv:2305.06325 calibration curves..."
 Task: "Parse raw tarball contents into HarmonizedDataset (T013-PARSE)..."
 Task: "Validate downloaded files with Reference‑Validator..."
 Task: "Implement unit conversion and grid alignment in code/data/harmonize.py"

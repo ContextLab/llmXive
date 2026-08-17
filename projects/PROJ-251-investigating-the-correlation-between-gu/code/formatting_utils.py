@@ -5,11 +5,16 @@ from pathlib import Path
 from typing import Tuple, Optional
 import logging
 
-def run_command(cmd: list, cwd: Optional[Path] = None) -> Tuple[int, str, str]:
-    """Run a shell command and return (returncode, stdout, stderr)."""
+logger = logging.getLogger(__name__)
+
+def run_command(command: list, cwd: Optional[Path] = None) -> Tuple[int, str, str]:
+    """
+    Run a shell command and return exit code, stdout, and stderr.
+    """
+    logger.info(f"Running command: {' '.join(command)}")
     try:
         result = subprocess.run(
-            cmd,
+            command,
             cwd=cwd,
             capture_output=True,
             text=True,
@@ -17,87 +22,74 @@ def run_command(cmd: list, cwd: Optional[Path] = None) -> Tuple[int, str, str]:
         )
         return result.returncode, result.stdout, result.stderr
     except Exception as e:
-        logging.error(f"Command execution failed: {e}")
-        return 1, "", str(e)
+        logger.error(f"Error running command: {e}")
+        return -1, "", str(e)
 
-def run_ruff_check_and_fix(code_dir: Path) -> Tuple[int, str]:
-    """Run ruff check and fix on the code directory."""
-    logging.info(f"Running ruff check on {code_dir}")
+def run_ruff_check_and_fix(code_dir: Path) -> Tuple[int, str, str]:
+    """
+    Run ruff check and fix on the code directory.
+    Returns (exit_code, stdout, stderr).
+    """
+    logger.info(f"Running ruff check and fix on {code_dir}")
     
-    # First run ruff check to see issues
-    returncode, stdout, stderr = run_command(
-        [sys.executable, "-m", "ruff", "check", str(code_dir)],
-        cwd=code_dir.parent
-    )
+    # First run check to see issues
+    check_cmd = [sys.executable, "-m", "ruff", "check", str(code_dir), "--fix"]
+    exit_code, stdout, stderr = run_command(check_cmd, code_dir.parent)
     
-    if returncode != 0:
-        logging.info("Ruff found issues. Attempting to fix...")
-        # Run ruff fix
-        returncode, stdout, stderr = run_command(
-            [sys.executable, "-m", "ruff", "check", "--fix", str(code_dir)],
-            cwd=code_dir.parent
-        )
-        
-        if returncode != 0:
-            logging.error(f"Ruff check failed after fixes: {stderr}")
-            return returncode, f"Ruff check failed: {stderr}"
+    if exit_code != 0:
+        logger.warning(f"Ruff check/fix found issues or failed: {stderr}")
+    else:
+        logger.info("Ruff check and fix completed successfully.")
     
-    logging.info("Ruff check passed")
-    return 0, "Ruff check passed"
+    return exit_code, stdout, stderr
 
-def run_black_format(code_dir: Path) -> Tuple[int, str]:
-    """Run black format on the code directory."""
-    logging.info(f"Running black format on {code_dir}")
+def run_black_format(code_dir: Path) -> Tuple[int, str, str]:
+    """
+    Run black format on the code directory.
+    Returns (exit_code, stdout, stderr).
+    """
+    logger.info(f"Running black format on {code_dir}")
     
-    returncode, stdout, stderr = run_command(
-        [sys.executable, "-m", "black", str(code_dir)],
-        cwd=code_dir.parent
-    )
+    black_cmd = [sys.executable, "-m", "black", str(code_dir)]
+    exit_code, stdout, stderr = run_command(black_cmd, code_dir.parent)
     
-    if returncode != 0:
-        logging.error(f"Black formatting failed: {stderr}")
-        return returncode, f"Black formatting failed: {stderr}"
+    if exit_code != 0:
+        logger.warning(f"Black format failed or found issues: {stderr}")
+    else:
+        logger.info("Black format completed successfully.")
     
-    logging.info("Black formatting completed successfully")
-    return 0, "Black formatting completed successfully"
+    return exit_code, stdout, stderr
 
 def main():
-    """Main entry point for formatting script."""
+    """
+    Main entry point for running formatting tools on the code directory.
+    """
     logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
     
-    project_root = Path(__file__).parent.parent
+    project_root = Path(__file__).resolve().parent.parent
     code_dir = project_root / "code"
     
     if not code_dir.exists():
-        logger.error(f"Code directory not found: {code_dir}")
-        sys.exit(1)
+        logger.error(f"Code directory does not exist: {code_dir}")
+        return 1
     
     # Run ruff check and fix
-    ruff_code, ruff_msg = run_ruff_check_and_fix(code_dir)
-    if ruff_code != 0:
-        logger.error(ruff_msg)
-        sys.exit(1)
+    ruff_code, ruff_out, ruff_err = run_ruff_check_and_fix(code_dir)
     
     # Run black format
-    black_code, black_msg = run_black_format(code_dir)
-    if black_code != 0:
-        logger.error(black_msg)
-        sys.exit(1)
+    black_code, black_out, black_err = run_black_format(code_dir)
     
-    # Generate lint report
-    report_path = project_root / "data" / "results" / "lint_report.txt"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(report_path, "w") as f:
-        f.write(f"Exit code: 0\n")
-        f.write(f"Ruff check: PASSED\n")
-        f.write(f"Black format: PASSED\n")
-        f.write(f"Files processed: {len(list(code_dir.glob('**/*.py')))}\n")
-        f.write(f"All formatting issues resolved.\n")
-    
-    logger.info(f"Lint report written to {report_path}")
-    print(f"Formatting completed successfully. Report saved to {report_path}")
+    # Determine overall success
+    if ruff_code == 0 and black_code == 0:
+        logger.info("All formatting checks passed.")
+        return 0
+    else:
+        logger.error("Formatting checks failed.")
+        if ruff_code != 0:
+            logger.error(f"Ruff exit code: {ruff_code}")
+        if black_code != 0:
+            logger.error(f"Black exit code: {black_code}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

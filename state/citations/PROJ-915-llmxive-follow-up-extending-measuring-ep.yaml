@@ -54,7 +54,7 @@
   verification_status: pending
   verified_against_url: https://app.prolific.com/api
   verified_at: '2026-07-17T02:23:01.480322Z'
-- artifact_hash: a025dc466e10b6c03ef5f1dd33423a5a95aaa578f7be6a3b4338ae275b1d6c00
+- artifact_hash: 35333b9d61e5fb51880a0f63523f4e70d1b435b908641eedabbe6159c45b170b
   artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -64,8 +64,8 @@
   value: https://huggingface.co/datasets/medmisbench/supplementary`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/medmisbench/supplementary
-  verified_at: '2026-07-29T15:43:42.091467Z'
-- artifact_hash: a025dc466e10b6c03ef5f1dd33423a5a95aaa578f7be6a3b4338ae275b1d6c00
+  verified_at: '2026-08-17T00:48:00.215160Z'
+- artifact_hash: 35333b9d61e5fb51880a0f63523f4e70d1b435b908641eedabbe6159c45b170b
   artifact_path: projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/specs/001-llmxive-follow-up-extending-measuring-ep/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -75,4 +75,4 @@
   value: https://www.wikidata.org/wiki/Q107338558
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q107338558
-  verified_at: '2026-07-29T15:43:42.091467Z'
+  verified_at: '2026-08-17T00:48:00.215160Z'

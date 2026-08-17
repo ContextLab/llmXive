@@ -1,3 +1,7 @@
+"""
+Fallback logic module for handling cases with insufficient independent runs.
+Implements bootstrap resampling when fewer than 3 independent runs are detected.
+"""
 import logging
 import json
 import numpy as np
@@ -5,195 +9,164 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Tuple, Optional
 
-from config import get_logger, ProjectConfig
-from data.loaders import HarmonizedDataset
+from config import get_logger
+from data.state_manager import get_state_path, read_state, write_state, set_bootstrap_flag
 
 logger = get_logger(__name__)
 
-def detect_independent_runs(harmonized_data: HarmonizedDataset) -> int:
+
+def detect_independent_runs(harmonized_data_path: Path) -> int:
     """
     Detect the number of independent experimental runs in the harmonized dataset.
     
-    This function analyzes the 'source' or 'experiment_id' column in the dataset
-    to count unique independent runs. If the dataset is structured as a list of
-    DataFrames or has a metadata field tracking runs, it handles that logic.
-    
     Args:
-        harmonized_data: The harmonized dataset object.
+        harmonized_data_path: Path to the harmonized dataset CSV file
         
     Returns:
-        int: The count of independent runs detected.
+        Number of independent runs detected
     """
-    if not harmonized_data.data:
-        logger.warning("No data found in HarmonizedDataset.")
+    if not harmonized_data_path.exists():
+        logger.warning(f"Harmonized data file not found at {harmonized_data_path}")
         return 0
-    
-    # The harmonized_data.data is expected to be a DataFrame or a list of them.
-    # Based on typical harmonization, it's likely a single DataFrame with a 'source' column.
-    df = harmonized_data.data if isinstance(harmonized_data.data, pd.DataFrame) else pd.concat(harmonized_data.data, ignore_index=True)
-    
-    # Look for common columns indicating run identity
-    run_columns = ['source', 'experiment_id', 'run_id', 'dataset_id', 'arxiv_id']
-    run_col = None
-    
-    for col in run_columns:
-        if col in df.columns:
-            run_col = col
-            break
-    
-    if run_col is None:
-        # Fallback: if no explicit column, assume the whole dataset is one run
-        # or check if it's a multi-index
-        logger.warning(f"No standard run identifier column found in {df.columns}. Assuming 1 run.")
-        return 1
-    
-    unique_runs = df[run_col].nunique()
-    logger.info(f"Detected {unique_runs} independent runs via column '{run_col}'.")
-    return unique_runs
+        
+    try:
+        df = pd.read_csv(harmonized_data_path)
+        
+        # Check for run identifier columns
+        run_columns = [col for col in df.columns if 'run' in col.lower() or 'experiment' in col.lower()]
+        
+        if not run_columns:
+            # If no explicit run column, try to infer from unique combinations
+            # of other identifiers or assume single run
+            logger.info("No explicit run identifier found, assuming single run")
+            return 1
+            
+        # Count unique run identifiers
+        unique_runs = df[run_columns[0]].nunique()
+        logger.info(f"Detected {unique_runs} independent runs from column '{run_columns[0]}'")
+        return unique_runs
+        
+    except Exception as e:
+        logger.error(f"Error detecting independent runs: {e}")
+        return 0
 
-def bootstrap_resample_dataset(df: pd.DataFrame, n_bootstrap: int = 1000, seed: int = 42) -> List[pd.DataFrame]:
+
+def bootstrap_resample_dataset(
+    df: pd.DataFrame,
+    n_bootstrap: int = 1000,
+    random_seed: Optional[int] = None
+) -> List[pd.DataFrame]:
     """
     Generate bootstrap resamples of the dataset for statistical analysis.
     
     Args:
-        df: The original DataFrame.
-        n_bootstrap: Number of bootstrap samples to generate.
-        seed: Random seed for reproducibility.
+        df: Input dataframe to resample
+        n_bootstrap: Number of bootstrap samples to generate
+        random_seed: Random seed for reproducibility
         
     Returns:
-        List of resampled DataFrames.
+        List of bootstrap resampled dataframes
     """
-    rng = np.random.default_rng(seed)
-    resamples = []
-    n = len(df)
-    
-    for _ in range(n_bootstrap):
-        indices = rng.choice(n, size=n, replace=True)
-        resamples.append(df.iloc[indices].reset_index(drop=True))
+    if random_seed is not None:
+        np.random.seed(random_seed)
         
-    return resamples
+    bootstrap_samples = []
+    n_rows = len(df)
+    
+    for i in range(n_bootstrap):
+        # Sample with replacement
+        indices = np.random.choice(n_rows, size=n_rows, replace=True)
+        bootstrap_df = df.iloc[indices].reset_index(drop=True)
+        bootstrap_samples.append(bootstrap_df)
+        
+    logger.info(f"Generated {n_bootstrap} bootstrap samples")
+    return bootstrap_samples
 
-def prepare_analysis_dataset(harmonized_data: HarmonizedDataset, use_bootstrap: bool = False, n_bootstrap: int = 1000) -> Optional[List[pd.DataFrame]]:
+
+def prepare_analysis_dataset(
+    df: pd.DataFrame,
+    use_bootstrap: bool,
+    n_bootstrap: int = 1000,
+    random_seed: Optional[int] = None
+) -> Tuple[pd.DataFrame, bool]:
     """
-    Prepare the dataset for analysis, applying bootstrap resampling if requested.
+    Prepare the analysis dataset, applying bootstrap resampling if needed.
     
     Args:
-        harmonized_data: The input harmonized dataset.
-        use_bootstrap: If True, perform bootstrap resampling.
-        n_bootstrap: Number of bootstrap iterations.
+        df: Input dataframe
+        use_bootstrap: Whether to use bootstrap resampling
+        n_bootstrap: Number of bootstrap samples if using bootstrap
+        random_seed: Random seed for reproducibility
         
     Returns:
-        List of DataFrames to use for analysis, or None if bootstrap is not used.
+        Tuple of (prepared dataset, bootstrap flag)
     """
-    if not use_bootstrap:
-        return None
-        
-    df = harmonized_data.data if isinstance(harmonized_data.data, pd.DataFrame) else pd.concat(harmonized_data.data, ignore_index=True)
-    logger.info(f"Preparing {n_bootstrap} bootstrap resamples for analysis.")
-    return bootstrap_resample_dataset(df, n_bootstrap=n_bootstrap)
+    if use_bootstrap:
+        logger.info("Preparing bootstrap resampling for analysis")
+        bootstrap_samples = bootstrap_resample_dataset(df, n_bootstrap, random_seed)
+        # For analysis, we'll return the original df with a flag indicating
+        # that bootstrap should be used in downstream processing
+        logger.info(f"Bootstrap resampling will generate {n_bootstrap} samples during analysis")
+        return df, True
+    else:
+        logger.info("Using full dataset for analysis without bootstrap")
+        return df, False
+
 
 def main():
     """
-    Main entry point for T016: Implement fallback logic.
+    Main entry point for fallback logic execution.
     
-    This script:
-    1. Loads the harmonized dataset (assumed to be in data/processed/harmonized.csv or similar).
-    2. Detects the number of independent runs.
-    3. If fewer than 3 runs are detected, writes USE_BOOTSTRAP: true to data/processed/state.json.
-    4. Logs the decision.
+    This function:
+    1. Reads the harmonized dataset
+    2. Detects the number of independent runs
+    3. Writes the appropriate state flag (USE_BOOTSTRAP) to data/processed/state.json
     """
-    config = ProjectConfig()
-    logger.info("Starting T016: Fallback Logic Implementation")
+    logger.info("Starting fallback logic execution (T016)")
     
-    # Determine path to harmonized data
-    # Assuming the harmonized data is stored in data/processed/harmonized_data.csv or similar
-    # We need to find the actual file or load the object if it was serialized.
-    # Since T014/T015 produce the data, we look for the processed output.
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent.parent
+    harmonized_data_path = project_root / "data" / "processed" / "harmonized_data.csv"
+    state_path = project_root / "data" / "processed" / "state.json"
     
-    processed_dir = Path(config.data_dir) / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure state directory exists
+    state_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Try to load the harmonized dataset. 
-    # The exact file name might vary, but usually it's 'harmonized.csv' or 'harmonized_data.csv'
-    # or it might be a pickle. We'll try common extensions.
-    possible_files = [
-        processed_dir / "harmonized.csv",
-        processed_dir / "harmonized_data.csv",
-        processed_dir / "harmonized.parquet",
-        processed_dir / "harmonized.pkl",
-        processed_dir / "harmonized_dataset.json"
-    ]
+    # Detect independent runs
+    n_runs = detect_independent_runs(harmonized_data_path)
+    logger.info(f"Detected {n_runs} independent runs")
     
-    harmonized_data = None
-    found_file = None
+    # Determine if bootstrap is needed (fewer than 3 runs)
+    use_bootstrap = n_runs < 3
     
-    for f_path in possible_files:
-        if f_path.exists():
-            found_file = f_path
-            logger.info(f"Loading harmonized data from {f_path}")
-            if f_path.suffix == '.csv':
-                harmonized_data = pd.read_csv(f_path)
-            elif f_path.suffix == '.parquet':
-                harmonized_data = pd.read_parquet(f_path)
-            elif f_path.suffix == '.pkl':
-                import pickle
-                with open(f_path, 'rb') as f:
-                    harmonized_data = pickle.load(f)
-            elif f_path.suffix == '.json':
-                # Assuming it's a serialized dataset object or raw data
-                import json
-                with open(f_path, 'r') as f:
-                    raw = json.load(f)
-                    harmonized_data = pd.DataFrame(raw)
-            break
-    
-    if harmonized_data is None:
-        logger.error("Could not find harmonized dataset in processed directory.")
-        # If no data, we assume 0 runs, which triggers bootstrap? Or maybe we should fail.
-        # The task says "if fewer than three independent runs are detected".
-        # If no data, we can't detect, so we might default to bootstrap or raise.
-        # Let's assume 0 runs -> < 3 -> True.
-        run_count = 0
-        harmonized_data_obj = HarmonizedDataset(data=pd.DataFrame())
+    if use_bootstrap:
+        logger.warning(f"Only {n_runs} independent runs detected. Bootstrap resampling will be used.")
     else:
-        # Wrap in HarmonizedDataset if it's a raw DataFrame
-        if isinstance(harmonized_data, pd.DataFrame):
-            harmonized_data_obj = HarmonizedDataset(data=harmonized_data)
-        else:
-            harmonized_data_obj = harmonized_data
+        logger.info(f"{n_runs} independent runs detected. Standard analysis will be used.")
+    
+    # Write state flag to state.json
+    try:
+        # Read existing state if it exists
+        current_state = read_state(state_path) if state_path.exists() else {}
         
-        run_count = detect_independent_runs(harmonized_data_obj)
+        # Update with bootstrap flag
+        current_state["USE_BOOTSTRAP"] = use_bootstrap
+        current_state["detected_runs"] = n_runs
+        current_state["bootstrap_threshold"] = 3
+        
+        # Write updated state
+        write_state(state_path, current_state)
+        
+        logger.info(f"Successfully wrote state to {state_path}")
+        logger.info(f"USE_BOOTSTRAP flag set to: {use_bootstrap}")
+        
+    except Exception as e:
+        logger.error(f"Failed to write state file: {e}")
+        raise RuntimeError(f"Failed to write bootstrap state flag: {e}")
     
-    # Logic: if runs < 3, set USE_BOOTSTRAP = True
-    state_file = processed_dir / "state.json"
-    use_bootstrap = run_count < 3
-    
-    logger.info(f"Detected {run_count} independent runs. USE_BOOTSTRAP flag: {use_bootstrap}")
-    
-    # Read existing state if it exists, otherwise start fresh
-    state_data = {}
-    if state_file.exists():
-        try:
-            with open(state_file, 'r') as f:
-                state_data = json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not read existing state file: {e}. Starting fresh.")
-    
-    # Update state
-    state_data['USE_BOOTSTRAP'] = use_bootstrap
-    state_data['detected_runs'] = run_count
-    state_data['last_updated'] = str(pd.Timestamp.now())
-    
-    # Write atomically
-    temp_file = state_file.with_suffix('.tmp')
-    with open(temp_file, 'w') as f:
-        json.dump(state_data, f, indent=2)
-    
-    temp_file.replace(state_file)
-    
-    logger.info(f"State updated at {state_file}")
-    return 0
+    logger.info("Fallback logic execution completed successfully")
+    return use_bootstrap
+
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

@@ -7,65 +7,76 @@ from config import get_logger, setup_logging
 
 def ensure_data_directories(base_path: Path) -> List[Path]:
     """
-    Ensure that the required data directory structure exists.
-    Uses robust mkdir -p logic (exist_ok=True) to create directories
-    if they do not exist, and does not fail if they already exist.
-
+    Ensure that the standard data directory structure exists.
+    
+    Creates the following directories relative to base_path:
+    - data/raw
+    - data/processed
+    - data/results
+    
+    Uses robust mkdir -p logic (exist_ok=True) to avoid errors if
+    directories already exist.
+    
     Args:
-        base_path: The root path where data directories should be created.
-                   Typically the project root or a specific data root.
-
+        base_path: The root path where the 'data' directory should be created.
+        
     Returns:
-        A list of Path objects for the directories that were ensured.
+        A list of Path objects for the created/ensured directories.
+        
+    Raises:
+        RuntimeError: If any directory creation fails unexpectedly.
     """
     logger = get_logger()
-    directories = [
+    
+    data_dirs = [
         base_path / "data" / "raw",
         base_path / "data" / "processed",
         base_path / "data" / "results",
     ]
-
-    created_or_existing = []
-    for dir_path in directories:
+    
+    created_dirs = []
+    
+    for dir_path in data_dirs:
         try:
             dir_path.mkdir(parents=True, exist_ok=True)
-            created_or_existing.append(dir_path)
-            logger.info(f"Ensured directory: {dir_path}")
-        except PermissionError as e:
-            logger.error(f"Permission denied creating directory {dir_path}: {e}")
-            raise
+            created_dirs.append(dir_path)
+            logger.info(f"Ensured directory exists: {dir_path}")
         except OSError as e:
-            logger.error(f"Error creating directory {dir_path}: {e}")
-            raise
+            logger.error(f"Failed to create directory {dir_path}: {e}")
+            raise RuntimeError(f"Failed to create directory {dir_path}: {e}") from e
+    
+    return created_dirs
 
-    return created_or_existing
-
-def main():
+def main() -> None:
     """
-    Entry point for ensuring data directories when run as a script.
-    Assumes the script is run from the project root or code/ directory.
+    Entry point for script execution.
+    
+    Ensures the data directory structure exists relative to the project root.
+    Prints the paths of the ensured directories to stdout.
     """
     setup_logging()
     logger = get_logger()
     
-    # Determine project root. 
-    # If run as `python code/utils/directories.py`, cwd is likely project root.
-    # If run as `python -m code.utils.directories`, we need to handle module path.
-    # We assume the project root is the parent of the 'code' directory.
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
+    # Determine project root: assume script is at code/utils/directories.py
+    # Project root is two levels up from this file.
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent.parent
     
     logger.info(f"Project root detected at: {project_root}")
     
     try:
-        dirs = ensure_data_directories(project_root)
-        logger.info(f"Successfully ensured {len(dirs)} directories.")
-        for d in dirs:
-            print(f"OK: {d}")
-    except Exception as e:
-        logger.critical(f"Failed to ensure directories: {e}")
+        ensured_dirs = ensure_data_directories(project_root)
+        logger.info(f"Successfully ensured {len(ensured_dirs)} directories.")
+        
+        # Print paths to stdout for verification
+        for d in ensured_dirs:
+            print(str(d))
+            
+    except RuntimeError as e:
+        logger.critical(f"Directory setup failed: {e}")
         sys.exit(1)
+
+    logger.info("Directory structure verification complete.")
 
 if __name__ == "__main__":
     main()

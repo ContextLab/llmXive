@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: Schema for the preprocessed dataset.
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique sample identifier"
+  tumor_type:
+    type: string
+    description: "Cancer type"
+  response_label:
+    type: integer
+    description: "Response label (0 or 1)"
+  expression_vector:
+    type: array
+    items:
+      type: number
+    description: "Normalized gene expression values"
+  set_type:
+    type: string
+    description: "discovery, training, or validation"
+    enum:
+      - discovery
+      - training
+      - validation
+  source:
+    type: string
+    description: "Source dataset (TCGA or GEO)"
+required:
+  - sample_id
+  - tumor_type
+  - response_label
+  - expression_vector
+  - set_type
+  - source
+additionalProperties: false

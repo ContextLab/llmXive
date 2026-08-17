@@ -4,9 +4,9 @@ from pathlib import Path
 
 def create_directories():
     """
-    Create the required project directory structure.
+    Create the required project directory structure explicitly.
     
-    Directories created:
+    Creates:
     - code/
     - data/raw
     - data/processed
@@ -14,42 +14,32 @@ def create_directories():
     - specs/001-investigating-the-correlation-between-gu/contracts/
     
     Returns:
-        bool: True if all directories were created successfully, False otherwise.
+        list: List of created directory paths as strings
     """
-    base_dir = Path(__file__).resolve().parent.parent
+    base_path = Path(__file__).resolve().parent.parent
     
     directories = [
-        base_dir / "code",
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "data" / "results",
-        base_dir / "specs" / "001-investigating-the-correlation-between-gu" / "contracts",
+        base_path / "code",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+        base_path / "specs" / "001-investigating-the-correlation-between-gu" / "contracts"
     ]
     
-    created = []
-    failed = []
+    created_paths = []
+    for dir_path in directories:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(str(dir_path))
+        print(f"Created directory: {dir_path}")
     
-    for directory in directories:
-        try:
-            directory.mkdir(parents=True, exist_ok=True)
-            created.append(str(directory.relative_to(base_dir)))
-        except OSError as e:
-            failed.append(f"{str(directory.relative_to(base_dir))}: {e}")
-    
-    if failed:
-        print(f"Failed to create directories: {', '.join(failed)}")
-        return False
-    
-    print(f"Successfully created {len(created)} directories:")
-    for d in created:
-        print(f"  - {d}")
-    
-    return True
+    return created_paths
 
 def main():
-    """Entry point for directory creation script."""
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    """Main entry point for directory creation."""
+    print("Starting directory creation for PROJ-251...")
+    created = create_directories()
+    print(f"Successfully created {len(created)} directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

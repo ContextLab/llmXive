@@ -43,3 +43,16 @@ T020:
     \ code that loops over saved artifacts and validates their checksums, the verification\
     \ task is not satisfied. The implementer must supply the automated test implementation\
     \ and the relevant data files."
+T025:
+  c: false
+  h: 3c628da87066ef9fb713338892fc391cd6f739c4f94dbeb1e9095db9f1b79f1a
+  r: "The repository lacks the required `simulation_config.yaml` file, and the provided\
+    \ `code/generate_networks.py` does not show an ensemble\u2011generation loop,\
+    \ a cutoff\u2011sweep implementation, or any code that writes per\u2011realization\
+    \ `meta.json` logs. Consequently the task\u2019s core requirements are not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or CI test artifacts were presented that enforce a \u2265\
+    95\u202F% connectivity success rate, abort generation when the threshold is missed,\
+    \ or log failing IDs. The required implementation and verification steps are missing."

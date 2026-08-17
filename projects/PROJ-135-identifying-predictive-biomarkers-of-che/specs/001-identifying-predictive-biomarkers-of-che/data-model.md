@@ -1,49 +1,47 @@
-# Data Model: Identifying Predictive Biomarkers of Chemotherapy Response in Public Cancer Datasets
+# Data Model: Identifying Predictive Biomarkers of Chemotherapy Response
 
 ## Entities
 
 ### Sample
-Represents a patient tumor specimen.
--   `sample_id`: Unique identifier (string).
--   `tumor_type`: Cancer type (string, e.g., "BRCA", "LUAD").
--   `response_label`: Binary label (0=Non-responder, 1=Responder).
--   `expression_vector`: Array of gene expression values (float64).
--   `set_type`: "discovery" or "training" (string).
--   `dataset_source`: "TCGA" or "GEO" (string).
+Represents a single patient tumor specimen.
+- `sample_id` (string): Unique identifier (e.g., "TCGA-05-4244-01Z-00-DX1").
+- `tumor_type` (string): Cancer type (e.g., "LUAD", "OV").
+- `response_label` (integer): 1 for Responder, 0 for Non-Responder.
+- `expression_vector` (list[float]): Gene expression values (normalized).
+- `set_type` (string): "discovery" or "training" or "validation".
+- `source` (string): "TCGA" or "GEO".
 
-### GenePanel
-Represents the meta-analyzed biomarker set.
--   `gene_symbol`: HGNC gene symbol (string).
--   `meta_p_value`: Combined p-value from Stouffer's method (float).
--   `log2FC_mean`: Mean log2 fold change across studies (float).
--   `selected`: Boolean flag indicating inclusion in final panel.
--   `tumor_types`: List of tumor types where gene was significant (list of strings).
+### Gene
+Represents a single gene feature.
+- `gene_symbol` (string): HGNC symbol (e.g., "TP53").
+- `log2FC` (float): Log2 fold change from DE analysis.
+- `p_value` (float): Raw p-value from DE test.
+- `adj_p_value` (float): FDR-adjusted p-value.
+- `meta_p_value` (float): Combined p-value from Stouffer's method.
+- `selected` (boolean): True if included in final panel.
 
 ### Model
-Represents the trained elastic-net predictor.
--   `cancer_type`: Tumor type for which model was trained (string).
--   `alpha`: Elastic-net mixing parameter (float).
--   `lambda`: Regularization parameter (float).
--   `coefficients`: Dictionary of gene_symbol -> coefficient (dict).
--   `cross_val_auc`: Mean AUC from nested CV (float).
--   `validation_auc`: AUC on external validation set (float).
+Represents a trained predictive model.
+- `model_id` (string): Unique identifier.
+- `cancer_type` (string): Tumor type the model was trained on.
+- `alpha` (float): Elastic-net mixing parameter.
+- `lambda_` (float): Regularization strength.
+- `coefficients` (dict): {gene_symbol: coefficient}.
+- `cross_val_auc` (float): AUC from nested CV.
+- `external_auc` (float): AUC from external validation.
+
+## Relationships
+
+- **Sample** has **expression_vector** (1:1).
+- **Gene** is used in **Model** (N:M).
+- **Model** is trained on a subset of **Sample** (1:N).
+- **Sample** is part of a **GenePanel** (via selection).
 
 ## Data Flow
 
-1.  **Raw Data**: Downloaded to `data/raw/` (TCGA `.h5`, GEO `.zip`).
-2.  **Harmonized**: Gene IDs mapped to HGNC; low-expression filtered.
-3.  **Normalized**: VST transformation applied; batch correction (ComBat).
-4.  **Split**: Discovery (for DE) and Training (for modeling) sets created.
-5.  **DE Results**: Significant genes identified per tumor type.
-6.  **Meta-Analysis**: Genes intersected/unioned; p-values combined.
-7.  **Model Training**: Elastic-net trained on training set.
-8.  **Validation**: Model evaluated on LOO and external GEO data.
-9.  **Output**: `results/summary.md`, `results/meta_analysis/gene_panel.json`, `results/models/*.pkl`.
-
-## Constraints
-
--   **Gene Coverage**: ≥95% of genes must be harmonized to HGNC.
--   **Expression Filter**: Genes with CPM < 1 in >80% of samples removed.
--   **Sample Size**: Minimum 50 responders and 50 non-responders per tumor type (or report limitation).
--   **Panel Size**: ≤50 genes (fallback to union if intersection empty).
--   **Memory**: All intermediate matrices must fit in ≤7GB RAM (streaming/sampling used).
+1.  **Raw Data**: Downloaded to `data/raw/` (metadata + synthetic/real expression).
+2.  **Preprocessing**: Filtered, normalized, harmonized -> `data/processed/`.
+3.  **DE Analysis**: Generates `results/de_analysis/{tumor_type}.csv`.
+4.  **Meta Analysis**: Generates `results/meta_analysis/panel.csv`.
+5.  **Model Training**: Generates `results/models/{model_id}.pkl`.
+6.  **Validation**: Generates `results/validation/summary.csv`.

@@ -1,55 +1,40 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Output Schema"
-description: "Schema for the trained model and evaluation metrics."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for the trained model output and performance metrics.
+type: object
 properties:
-  model_info:
-    type: "object"
-    properties:
-      cancer_type:
-        type: "string"
-        description: "Tumor type or 'pan-cancer'"
-      alpha:
-        type: "number"
-        description: "Elastic-net mixing parameter"
-      lambda:
-        type: "number"
-        description: "Regularization parameter"
-      coefficients:
-        type: "object"
-        additionalProperties:
-          type: "number"
-        description: "Gene -> Coefficient mapping"
-    required:
-      - cancer_type
-      - alpha
-      - lambda
-      - coefficients
-  performance:
-    type: "object"
-    properties:
-      cross_val_auc:
-        type: "number"
-        description: "Internal nested CV AUC"
-      external_auc:
-        type: "number"
-        description: "External validation AUC"
-      calibration_error:
-        type: "number"
-        description: "Mean calibration error for deciles with N>=20"
-      delong_p_value:
-        type: "number"
-        description: "P-value from DeLong's test vs baseline"
-    required:
-      - cross_val_auc
-      - external_auc
-      - calibration_error
-      - delong_p_value
-  validation_status:
-    type: "string"
-    enum: ["passed", "failed", "underpowered"]
-    description: "Overall validation status"
+  model_id:
+    type: string
+    description: "Unique identifier for the model"
+  cancer_type:
+    type: string
+    description: "Tumor type the model was trained on"
+  alpha:
+    type: number
+    description: "Elastic-net mixing parameter"
+  lambda_:
+    type: number
+    description: "Regularization strength"
+  coefficients:
+    type: object
+    description: "Gene coefficients"
+    additionalProperties:
+      type: number
+  cross_val_auc:
+    type: number
+    description: "AUC from nested cross-validation"
+  external_auc:
+    type: number
+    description: "AUC from external validation"
+  calibration_error:
+    type: number
+    description: "Calibration error metric"
 required:
-  - model_info
-  - performance
-  - validation_status
+  - model_id
+  - cancer_type
+  - alpha
+  - lambda_
+  - coefficients
+  - cross_val_auc
+  - external_auc
+additionalProperties: false

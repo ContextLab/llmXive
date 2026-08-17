@@ -105,7 +105,7 @@
 
 ### Strategy A: Primary Data Fetch (NCBI SRA)
 
-- [ ] T011a [US1] Implement Strategy A: Fetch pre-processed OTU table and serology metadata for the SRP accession series.
+- [ ] T011a [US1] Implement Strategy A: Fetch pre-processed OTU table and serology metadata for the SRP accession series. <!-- FAILED: unspecified -->
  - *Method*: Use `config.SRA_ACCESSION` to determine the specific accession. Fetch pre-processed OTU tables and serology metadata. If the fetch fails (404 or timeout), raise `DataUnavailableError`.
  - *Output*: `data/raw/otutable.csv`, `data/raw/serology.csv`.
 
@@ -149,7 +149,7 @@
  - *Logic*: Calculate Shannon index for each subject. (Note: Shannon depends on taxa abundances, not log-titers).
  - *Output*: `data/processed/cleared_with_diversity.csv` (Append Shannon index column).
 
-- [ ] T021 [US2] **Log-Transform Titers & LOD Handling**: Implement log-transformation of raw antibody titers in `code/02_preprocess.py`.
+- [X] T021 [US2] **Log-Transform Titers & LOD Handling**: Implement log-transformation of raw antibody titers in `code/02_preprocess.py`.
  - *Input*: `data/processed/cleared_with_diversity.csv` (from T011d).
  - *Dependency*: T011d must complete first.
  - *Logic*:
@@ -158,7 +158,7 @@
  3. Add `log_titer` column to the dataset.
  - *Output*: `data/processed/cleared_with_diversity.csv` (updated with log-titers).
 
-- [ ] T020a [US2] Run CLR transformation with a default pseudocount (1e-6) in `code/02_preprocess.py`.
+- [X] T020a [US2] Run CLR transformation with a default pseudocount (1e-6) in `code/02_preprocess.py`.
  - *Input*: `data/processed/cleared_with_diversity.csv` (output of T019a).
  - *Dependency*: T019a must complete first.
  - *Logic*: Apply zero-replacement (pseudocount = 1e-6 or `config.CLR_PSEUDOCOUNT`) to all zero abundances, then CLR transformation.
@@ -168,8 +168,8 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T009 [P] [US1] Contract test for data schema validation in `code/tests/test_ingest.py`: Add function `test_validate_schema_loads_yaml`.
-- [ ] T010b [P] [US1] Integration test for data filtering logic in `code/tests/test_ingest.py`: Add function `test_filter_excludes_null_titers`.
+- [X] T009 [P] [US1] Contract test for data schema validation in `code/tests/test_ingest.py`: Add function `test_validate_schema_loads_yaml`.
+- [X] T010b [P] [US1] Integration test for data filtering logic in `code/tests/test_ingest.py`: Add function `test_filter_excludes_null_titers`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

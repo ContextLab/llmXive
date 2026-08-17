@@ -21,20 +21,6 @@ T007:
     \ that the `data/raw/`, `data/processed/`, and `data/results/` directories have\
     \ been created (or that `mkdir -p` logic is used). Consequently, the required\
     \ artifact demonstrating the directory structure is missing."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or function implementing a log\u2011likelihood using the banded\
-    \ approximation from T015\u2011TRANS is present in the provided artifacts. The\
-    \ required implementation and any associated tests or documentation are missing,\
-    \ so the task\u2019s requirement is not satisfied."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or output file implementing the `emcee` runner was provided;\
-    \ the evidence on disk contains no artifact that starts with 5\u202F000 steps,\
-    \ checks Gelman\u2011Rubin, and continues in 1\u202F000\u2011step batches. Consequently\
-    \ the required functionality is missing."
 T025#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

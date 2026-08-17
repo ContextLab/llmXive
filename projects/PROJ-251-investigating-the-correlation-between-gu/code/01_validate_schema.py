@@ -1,9 +1,3 @@
-"""
-T017: Validation Gate - Validate output against dataset schema.
-
-This script validates the filtered dataset (data/processed/filtered_data.csv)
-against the schema defined in specs/.../contracts/dataset.schema.yaml.
-"""
 import os
 import sys
 import logging
@@ -11,143 +5,144 @@ import json
 from pathlib import Path
 from typing import Dict, Any
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent))
-
-import pandas as pd
 import yaml
+import pandas as pd
 import jsonschema
+from jsonschema import validate, ValidationError
 
-from utils.config import get_processed_path, get_specs_path
 from utils.logging_config import get_logger, log_error_context
+from utils.config import get_processed_path, get_specs_path
 
-# Configure logger
 logger = get_logger(__name__)
 
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load the JSON schema from YAML file."""
+    """
+    Load a YAML schema file and return it as a dictionary.
+    """
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
 
     with open(schema_path, 'r', encoding='utf-8') as f:
-        # The schema is stored as YAML but represents a JSON schema
         schema = yaml.safe_load(f)
+    
+    logger.info(f"Loaded schema from {schema_path}")
     return schema
 
 
-def validate_csv_against_schema(data_path: Path, schema: Dict[str, Any]) -> bool:
+def validate_csv_against_schema(
+    csv_path: Path, 
+    schema: Dict[str, Any],
+    expected_min_rows: int = 0
+) -> bool:
     """
-    Validate the CSV data against the loaded schema.
-
-    The schema expects a structure like:
-    {
-      "metadata": {...},
-      "data": [ {...}, ... ]
-    }
-
-    We need to transform the CSV into this structure for validation.
+    Validate a CSV file against a JSON Schema (derived from YAML).
+    
+    The CSV is expected to be in 'long' format where each row is a subject.
+    The schema defines the structure of a single row (object).
+    
+    Returns True if valid, False otherwise.
     """
-    if not data_path.exists():
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-
-    df = pd.read_csv(data_path)
-
-    # Construct the document structure expected by the schema
-    # The schema expects 'data' to be a list of objects (rows)
-    # and 'metadata' to contain summary info.
-
-    rows = []
-    for _, row in df.iterrows():
-        # Convert row to dict
-        record = row.to_dict()
-
-        # Handle baseline_microbiome if it's a string representation of JSON
-        # The schema expects 'baseline_microbiome' to be an object (dict)
-        # If the CSV stores it as a string, we need to parse it or handle it.
-        # Assuming the CSV has separate columns for taxa or a JSON string.
-        # Based on the schema, 'baseline_microbiome' is an object.
-        # If the CSV has flattened columns (e.g., taxon_A, taxon_B),
-        # we might need to reconstruct it.
-        # However, standard CSVs don't nest objects well.
-        # Let's assume the CSV has a column 'baseline_microbiome' containing a JSON string
-        # or the schema validation is meant for a JSON output.
-        #
-        # Given the schema requires 'baseline_microbiome' as an object:
-        # If the CSV column exists as a stringified JSON, parse it.
-        if 'baseline_microbiome' in record:
-            val = record['baseline_microbiome']
-            if isinstance(val, str):
-                try:
-                    record['baseline_microbiome'] = json.loads(val)
-                except json.JSONDecodeError:
-                    # If it's not valid JSON, it might be a representation error
-                    # or the data structure is different.
-                    # For strict schema validation, we must ensure it's an object.
-                    # If it's just a string of taxa names, this might fail schema.
-                    # We'll let jsonschema raise the error if it's not a dict.
-                    pass
-
-        rows.append(record)
-
-    # Construct metadata from the file path or existing data if present
-    # If the CSV doesn't have metadata, we construct a minimal one.
-    document = {
-        "metadata": {
-            "source": "SRP053178", # Default source based on project context
-            "subjects_total": len(rows),
-            "timestamp": pd.Timestamp.now().isoformat()
-        },
-        "data": rows
-    }
-
-    # Validate
-    try:
-        jsonschema.validate(instance=document, schema=schema)
-        logger.info("Schema validation PASSED.")
-        return True
-    except jsonschema.ValidationError as e:
-        logger.error(f"Schema validation FAILED: {e.message}")
-        logger.error(f"Path: {e.absolute_path}")
-        return False
-
-
-def run_validation() -> bool:
-    """Main execution function for T017."""
-    schema_path = get_specs_path() / "contracts" / "dataset.schema.yaml"
-    data_path = get_processed_path() / "filtered_data.csv"
-
-    logger.info(f"Validating data at: {data_path}")
-    logger.info(f"Using schema at: {schema_path}")
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Data file not found: {csv_path}")
 
     try:
-        if not schema_path.exists():
-            raise FileNotFoundError(f"Schema file missing: {schema_path}")
-
-        schema = load_schema(schema_path)
-        is_valid = validate_csv_against_schema(data_path, schema)
-
-        # Log result
-        result_file = get_processed_path() / "schema_validation_result.json"
-        result_data = {
-            "status": "PASS" if is_valid else "FAIL",
-            "data_file": str(data_path),
-            "schema_file": str(schema_path),
-            "timestamp": pd.Timestamp.now().isoformat()
-        }
-
-        with open(result_file, 'w', encoding='utf-8') as f:
-            json.dump(result_data, f, indent=2)
-
-        logger.info(f"Validation result written to: {result_file}")
-
-        return is_valid
-
+        df = pd.read_csv(csv_path)
+        logger.info(f"Loaded data from {csv_path} with {len(df)} rows.")
     except Exception as e:
-        log_error_context(logger, "Validation failed", exception=e)
+        logger.error(f"Failed to load CSV: {e}")
         return False
+
+    if len(df) < expected_min_rows:
+        logger.warning(f"Data has {len(df)} rows, expected at least {expected_min_rows}")
+        # We might still validate schema, but log the warning
+    
+    # Check required columns from schema
+    required_fields = schema.get('required', [])
+    for field in required_fields:
+        if field not in df.columns:
+            logger.error(f"Missing required column: {field}")
+            return False
+
+    # Validate each row against the schema properties
+    # We construct a minimal schema for a single row based on the provided schema
+    # The provided schema is for an object. We apply it to each row (dict).
+    
+    row_schema = {
+        "type": "object",
+        "properties": schema.get('properties', {}),
+        "required": required_fields,
+        "additionalProperties": schema.get('additionalProperties', True)
+    }
+
+    errors = []
+    for idx, row in df.iterrows():
+        row_dict = row.to_dict()
+        try:
+            validate(instance=row_dict, schema=row_schema)
+        except ValidationError as e:
+            errors.append(f"Row {idx}: {e.message} (instance: {e.instance}, path: {list(e.path)})")
+            if len(errors) >= 5: # Limit log spam
+                errors.append("... (truncated)")
+                break
+
+    if errors:
+        logger.error(f"Validation failed for {csv_path}:")
+        for err in errors:
+            logger.error(f"  - {err}")
+        return False
+
+    logger.info(f"Validation successful for {csv_path}")
+    return True
+
+
+def run_validation():
+    """
+    Main entry point for schema validation.
+    Validates the processed dataset against the dataset.schema.yaml.
+    """
+    try:
+        # Paths
+        schema_path = get_specs_path() / "contracts" / "dataset.schema.yaml"
+        data_path = get_processed_path() / "cleared_with_diversity.csv"
+
+        logger.info(f"Starting schema validation for {data_path}")
+        
+        # Load Schema
+        schema = load_schema(schema_path)
+        
+        # Validate
+        is_valid = validate_csv_against_schema(
+            csv_path=data_path,
+            schema=schema,
+            expected_min_rows=50
+        )
+
+        if is_valid:
+            logger.info("Schema validation PASSED.")
+            return 0
+        else:
+            logger.error("Schema validation FAILED.")
+            return 1
+
+    except FileNotFoundError as e:
+        log_error_context(e)
+        return 1
+    except Exception as e:
+        log_error_context(e)
+        return 1
+
+
+def main():
+    """
+    CLI entry point.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    sys.exit(run_validation())
 
 
 if __name__ == "__main__":
-    success = run_validation()
-    sys.exit(0 if success else 1)
+    main()

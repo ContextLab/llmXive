@@ -13,4 +13,5 @@ pytest-cov
 ruff
 black
 mypy
-requests
+# Added for T025c
+# pandas is already listed; no new dependencies required.

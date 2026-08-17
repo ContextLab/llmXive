@@ -853,3 +853,228 @@
   source_type: external
   status: verified
   updated_at: '2026-08-01T12:56:51Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: generate atomic coordinate seeds for 500 atoms
+  claim_id: c_ad471896
+  context: Task T014 specifies creating or obtaining a small set of XYZ/POSCAR files
+    that represent disordered alloys, with the target size of N = 500 atoms, to be
+    stored in data/raw/atomic_seeds/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:25:45Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 500 atoms atomic coordinate seeds for disordered alloys
+  claim_id: c_96ea1446
+  context: Task T014 specifies generating or fetching a small set of atomic coordinate
+    seeds representing disordered alloys for N = 500 atoms, to be stored in data/raw/atomic_seeds/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:26:04Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: disordered alloy atomic seeds for 500 atoms
+  claim_id: c_4256c2ac
+  context: Task T014 specifies creating a small set of atomic coordinate seeds representing
+    disordered alloys for N = 500 atoms, stored in data/raw/atomic_seeds/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:26:39Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 500 atoms in atomic coordinate seeds representing disordered alloys
+  claim_id: c_ef6f0b4e
+  context: Task T014 in Phase 2 specifies generating or fetching seeds with N = 500
+    atoms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:27:29Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: small set of atomic coordinate seeds representing disordered alloys for
+    500 atoms
+  claim_id: c_263a09f5
+  context: Phase 2 task T014 describes generating or fetching a small set of atomic
+    coordinate seeds (XYZ/POSCAR files) representing disordered alloys for N = 500
+    atoms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:28:00Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: kappa within 10% of literature value for 1D chain benchmark
+  claim_id: c_b07c7fe3
+  context: "Integration test (T031\u2011UT) runs on a 1D chain benchmark and checks\
+    \ \u03BA is within 10% of literature value."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u03BA is within 10% of literature value for a 1D chain benchmark"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:28:34Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 500 atom disordered alloy seeds generated or fetched
+  claim_id: c_299cd98b
+  context: 'Task T014: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR
+    files) representing disordered alloys for N = 500 atoms.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:28:34Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: atomic coordinate seed set for 500 atoms
+  claim_id: c_5baada9c
+  context: Task T014 specifies generating or fetching a small set of XYZ/POSCAR files
+    that represent disordered alloys, with the number of atoms set to N = 500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:30:00Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: small set of atomic coordinate seeds for 500 atoms
+  claim_id: c_876690b3
+  context: Phase 2 task T014 specifies generating or fetching a small set of atomic
+    coordinate seeds representing disordered alloys for N = 500 atoms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:30:33Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 500-atom disordered alloy seeds
+  claim_id: c_97eae9e0
+  context: Phase 2 task T014 specifies generating or fetching a small set of atomic
+    coordinate seeds representing disordered alloys for N = 500 atoms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:31:07Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: atomic coordinate seeds for disordered alloys with 500 atoms
+  claim_id: c_201bc147
+  context: "T014 [P] Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR\
+    \ files) representing disordered alloys for N = 500 atoms. Verification: {{claim:c_662e8def}}\
+    \ and each passes a SHA\u2011256 checksum recorded in `data/checksums.txt`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:32:55Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: small set of atomic coordinate seeds for 500 atoms
+  claim_id: c_4777b5a3
+  context: "This task is part of Phase 2 foundational setup and includes verification\
+    \ that each seed passes a SHA\u2011256 checksum recorded in data/checksums.txt."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:33:24Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: atomic coordinate seeds for disordered alloys with 500 atoms
+  claim_id: c_047343b2
+  context: Task T014 specifies generating or fetching a small set of XYZ/POSCAR files
+    that represent disordered alloys, with the ensemble size set to N = 500 atoms,
+    and storing them in data/raw/atomic_seeds/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T00:33:45Z'

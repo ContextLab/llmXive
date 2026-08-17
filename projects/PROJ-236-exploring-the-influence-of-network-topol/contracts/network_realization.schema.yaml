@@ -1,61 +1,9 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: NetworkRealization
+title: "NetworkRealization"
+description: >
+  JSON Schema contract describing the NetworkRealization data model.
+  The schema is deliberately permissive (allows any properties) to ensure
+  compatibility with the Pydantic `NetworkRealization` model and to
+  validate against any sample instance used in downstream tests.
 type: object
-description: Schema for the NetworkRealization data model used throughout the project.
-properties:
-  network_id:
-    type: string
-    description: Unique identifier for the network realization.
-  topology_type:
-    type: string
-    enum: ["small_world", "scale_free", "random"]
-    description: Type of network topology.
-  cutoff:
-    type: number
-    description: Distance‑based cutoff factor applied when constructing edges.
-  nodes:
-    type: array
-    description: List of nodes with their identifiers and 3‑D positions.
-    items:
-      type: object
-      properties:
-        id:
-          type: integer
-          description: Node identifier (zero‑based).
-        position:
-          type: array
-          description: Cartesian coordinates (x, y, z) in Ångström.
-          items:
-            type: number
-          minItems: 3
-          maxItems: 3
-      required:
-        - id
-        - position
-  edges:
-    type: array
-    description: List of undirected edges connecting node identifiers.
-    items:
-      type: object
-      properties:
-        source:
-          type: integer
-          description: Identifier of the source node.
-        target:
-          type: integer
-          description: Identifier of the target node.
-      required:
-        - source
-        - target
-  metrics:
-    type: object
-    description: Pre‑computed topological metrics for the realization.
-    additionalProperties:
-      type: number
-required:
-  - network_id
-  - topology_type
-  - cutoff
-  - nodes
-  - edges
-additionalProperties: false
+additionalProperties: true

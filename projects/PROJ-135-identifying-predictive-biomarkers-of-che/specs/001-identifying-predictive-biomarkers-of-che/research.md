@@ -1,72 +1,79 @@
 # Research: Identifying Predictive Biomarkers of Chemotherapy Response in Public Cancer Datasets
 
-## Objective
-
-Identify gene-expression signatures that reliably predict chemotherapy response across multiple tumor types using public transcriptomic datasets (TCGA, GEO).
+## Overview
+This research phase validates the feasibility of the proposed pipeline, confirms data availability, and defines the statistical methodology. The primary goal is to ensure that the required datasets (TCGA RNA-seq, GEO microarray with response labels) are accessible via the official GDC API and GEOquery, and that the statistical methods (DESeq2, Stouffer's meta-analysis, Elastic-Net) are computationally feasible on the target hardware within a Dockerized R environment.
 
 ## Dataset Strategy
 
-| Dataset Type | Source/ID | Verified URL | Access Method | Status |
-|:--- |:--- |:--- |:--- |:--- |
-| **TCGA RNA-seq** | TCGA-BRCA (Cohort) | `https://huggingface.co/datasets/TCGA-BRCA-RNAseq/resolve/main/counts.h5` | `h5py` / `datasets` | Verified |
-| **TCGA RNA-seq** | TCGA-LUAD (Cohort) | `https://huggingface.co/datasets/TCGA-LUAD-RNAseq/resolve/main/counts.h5` | `h5py` / `datasets` | Verified |
-| **TCGA RNA-seq** | TCGA-OV (Cohort) | `https://huggingface.co/datasets/TCGA-OV-RNAseq/resolve/main/counts.h5` | `h5py` / `datasets` | Verified |
-| **GEO Microarray** | GEO-Bench (Response) | ` | `datasets.load_dataset` | Verified |
-| **GEO Microarray** | geoQuery (Response) | ` | `requests` / `zipfile` | Verified |
-| **Reference** | recount3 (Index) | ` | `json.load` | Reference Only |
+| Dataset Name | Purpose | Verified Source (URL) | Access Method | Notes |
+|--------------|---------|-----------------------|---------------|-------|
+| TCGA RNA-seq (Ovarian, LUAD, BRCA) | Discovery Cohort | Name or service not known)"))] (via TCGAbiolinks) | `TCGAbiolinks::GDCdownload()` | Official GDC API. Requires `TCGAbiolinks` R package. Data is RNA-seq HTSeq-Counts. |
+| GEO Microarray (GSE25055) | Validation Cohort 1 | | `GEOquery::getGEO()` | Official GEO. Contains expression data and chemotherapy response annotations. |
+| GEO Microarray (GSE42752) | Validation Cohort 2 | https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE42752 | `GEOquery::getGEO()` | Official GEO. Contains expression data and chemotherapy response annotations. |
 
-**Dataset Selection Rationale**:
-- **TCGA**: Provides large-scale, standardized RNA-seq data with clinical annotations. The verified HF sources allow programmatic access without API keys. **Cohort-level** data (hundreds of samples) is used to ensure statistical power (≥50 responders/non-responders).
-- **GEO**: Provides independent microarray datasets for external validation. The verified HF sources ensure reproducibility on CI.
-- **Response Label Verification**: The plan explicitly checks that proxy GEO datasets (GEO-bench, geoQuery) contain **chemotherapy response** labels (responder/non-responder). If a dataset only contains survival data, it will be skipped with a warning, and the analysis will proceed only if ≥2 datasets with response labels are available.
-- **Note on GSE25055/GSE42752**: The spec mentions these specific IDs, but if no verified source exists for them directly, the plan uses the verified `geoQuery` and `GEO-bench` datasets as proxies. If these proxies lack response labels, the analysis will explicitly state this limitation and reframe the question to use available verified GEO data.
+**Critical Feasibility Note**: The plan explicitly rejects the use of synthetic data or metadata-only HuggingFace files for the primary analysis. The spec (FR-001, FR-002) requires real RNA-seq count matrices and GEO microarray expression data.
+- **Resolution**: The pipeline will use the official GDC API (via `TCGAbiolinks`) and GEOquery to download real expression matrices. If a specific GEO dataset (e.g., GSE25055) is found to lack response annotations or expression data during the feasibility check, the pipeline will skip that dataset and log a warning. The pipeline will proceed only if at least 2 valid datasets with response labels are available (satisfying the "skip and warn" logic of T013).
+- **Data Volume**: The full TCGA datasets may exceed the available RAM limit. The plan will implement a "Small-Sample Real Data Mode" where a random subset of samples (e.g., 200 per tumor type) is used for the initial pipeline validation and model training, ensuring the -hour and 7 GB RAM limits are not breached while maintaining biological validity.
 
-**Data Availability & Feasibility**:
-- **Streaming**: TCGA RNA-seq files (`.h5`) will be streamed using `h5py` or `datasets` to avoid loading >7GB into RAM.
-- **Sampling**: If total data exceeds 14GB disk or 7GB RAM, a random sample (first 1000 samples per type) will be used, with power limitations noted.
-- **No Fabrication**: Only verified URLs above will be used. No synthetic data will be generated.
+**Dataset Variables Fit**:
+- **TCGA**: Metadata contains `tumor_type`, `sample_id`, `response_label` (if available in clinical data). Expression data (counts) is downloaded via GDC API.
+- **GEO**: Metadata contains `response_label`. Expression data (matrix) is downloaded via GEOquery.
+- **Action**: The `data_acquisition.py` script will:
+ 1. Download metadata and expression data from GDC/GEO.
+ 2. Verify the presence of response labels.
+ 3. If valid, proceed. If invalid, skip and log a warning.
+ 4. If the dataset is too large, sample a subset of samples for the "Small-Sample Real Data Mode".
 
-## Methodological Rigor
+## Statistical Methodology
 
-### Statistical Methods
-1. **Differential Expression**: DESeq2 Wald test (via `rpy2`).
- - **Thresholds**: FDR < 0.05, |log2FC| > 1.0.
- - **Multiple Testing**: Benjamini-Hochberg (FDR) for DE; Bonferroni for final panel significance (FR-010).
-2. **Meta-Analysis**: **DerSimonian-Laird Random-Effects Model**.
- - **Rationale**: Accounts for biological heterogeneity and technical batch effects across tumor types, avoiding the false-positive inflation of fixed-effect methods (Stouffer's) when independence is violated.
- - **Fallback**: If intersection is empty, use union of top 50 genes.
-3. **Predictive Modeling**: Elastic-net logistic regression.
- - **Validation**: **Nested Cross-Validation** (inner for tuning, outer for evaluation).
- - **External Validation**: **Nested LOO** (gene selection re-run on N-1 types) and independent GEO datasets.
-4. **Performance Metrics**: ROC-AUC, Precision-Recall, Calibration curves.
- - **Significance**: DeLong's test for AUC comparison; Bonferroni-adjusted p < 0.01.
+### Differential Expression (FR-005)
+- **Method**: DESeq2 Wald test (`DESeq2::DESeq()`).
+- **Implementation**: R package `DESeq2` within the Docker container.
+- **Thresholds**: FDR < 0.05 (Benjamini-Hochberg), |log2FC| > 1.0.
+- **Handling**: Real count data will be used. No synthetic data.
 
-### Causal & Validity Assumptions
-- **Observational**: No randomization; findings are associational.
-- **Measurement Validity**: Gene expression measured via standard RNA-seq/microarray protocols; response labels from clinical metadata (RECIST/equivalent).
-- **Collinearity**: If predictors are definitionally related (e.g., gene families), VIF diagnostics will be run; if VIF > 5, joint effects described descriptively.
-- **Power**: If sample size < 50 responders/non-responders, power limitation explicitly reported.
+### Meta-Analysis (FR-006)
+- **Method**: Stouffer's method (weighted Z-score combination) using `meta::metap()`.
+- **Fallback**: If intersection of significant genes is empty, use union of top-ranked genes ranked by meta p-value.
+- **Correction**: Bonferroni correction applied to the final gene panel significance (m = number of genes).
 
-### Compute Feasibility (CPU-First)
-- **Strategy**: All methods (DESeq2 via `rpy2`, Elastic-net via `scikit-learn`, DerSimonian-Laird via `statsmodels`) are CPU-tractable.
-- **GPU Escape Hatch**: Not required for this statistical workflow. If a CUDA dependency is inadvertently introduced (e.g., specific deep learning model), the plan will switch to a scaled-down 8-bit quantized model on Kaggle GPU, but the current plan avoids this.
-- **Resource Limits**: Streaming ensures RAM < 7GB; sampling ensures runtime < 6h.
+### Predictive Modeling (FR-007, FR-008)
+- **Algorithm**: Elastic-Net Logistic Regression (`glmnet` in R or `sklearn` in Python for the final model if R is not used for modeling).
+- **Validation**: Nested Cross-Validation (Inner: parameter tuning, Outer: performance estimation).
+- **External Validation**: Leave-One-Cancer-Type-Out (LOO) and external GEO datasets.
+- **Metrics**: ROC-AUC, Precision-Recall, Calibration (Hosmer-Lemeshow or decile-based), DeLong's test (`pROC::roc.test()`).
+- **Class Imbalance**: Stratified K-Fold; Cost-sensitive learning (class weights) if responder ratio < 20%.
 
-## Decision Rationale
+### Multiple Testing (FR-010)
+- **Correction**: Bonferroni.
+- **m**: Number of genes in the final panel (for gene-level significance) or number of model comparisons (for DeLong's test).
+- **Threshold**: Adjusted p < 0.01.
 
-| Decision | Rationale |
-|:--- |:--- |
-| **Random-Effects Meta-Analysis** | Biological heterogeneity across cancer types violates the independence assumption of fixed-effect methods (Stouffer's). Random-Effects (DerSimonian-Laird) is scientifically more robust. |
-| **Nested LOO Validation** | Prevents data leakage by re-running gene selection (DE + Meta) inside the LOO loop, ensuring the validation target is independent of the predictor selection. |
-| **Batch Correction with Covariate** | Including 'response' as a covariate in ComBat prevents the removal of biological signal associated with the outcome. |
-| **CPU-First** | DESeq2 and Elastic-net are efficient on CPU; no deep learning required. Avoids GPU complexity and cost. |
-| **Streaming Data** | TCGA files are large; streaming prevents OOM errors on GitHub Actions. |
-| **Verified URLs Only** | Adheres to Constitution Principle III (Data Hygiene) and prevents fabrication. |
+### Cross-Platform Normalization (FR-014)
+- **Method**: ComBat-seq (`sva::ComBat_seq()`) for RNA-seq and ComBat (`sva::ComBat()`) for microarray data, or quantile matching.
+- **Implementation**: R package `sva` within the Docker container.
+- **Goal**: Align TCGA (RNA-seq) and GEO (Microarray) data before model application.
 
-## Limitations & Risks
+## Compute Feasibility
 
-- **Data Gaps**: Specific GSE25055/GSE42752 datasets may not be available via verified URLs. Mitigation: Use verified GEO substitutes or reframe question.
-- **Power**: Small sample sizes in GEO may limit power for DE. Mitigation: Report power limitations explicitly.
-- **Batch Effects**: Microarray vs. RNA-seq normalization may introduce bias. Mitigation: ComBat with response covariate (FR-014).
-- **Observational Nature**: Cannot claim causality; only association.
-- **Spec Deviation**: The plan implements Random-Effects and Nested LOO (scientifically robust) instead of the spec's Stouffer's and simple LOO. This is a **Plan-Defined Protocol** to ensure scientific validity.
+- **CPU-First**: All statistical methods (DESeq2, Elastic-Net, Stouffer's) are computationally lightweight and will run easily on a limited number of CPU cores / 7 GB RAM when using a "Small-Sample Real Data Mode" (subset of samples).
+- **Data Volume**: The plan uses a subset of real data to fit within the 7 GB RAM limit. Full data streaming is not required for the initial validation run.
+- **GPU Escape Hatch**: Not required. No deep learning or large transformer models are used.
+- **Docker Overhead**: The Docker container adds minimal overhead to the CPU runtime and is well within the time limit for the subset of data.
+
+## Risks & Mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| **GDC/GEO download failure** | Retry logic with exponential backoff. Skip invalid datasets and log warnings. |
+| **R dependency failure** | Use a pre-built Docker container (e.g., `biocontainers/deseq2`) to ensure all R packages are available. |
+| **Class imbalance** | Use stratified CV and class weights. |
+| **Runtime > 6 hours** | Use "Small-Sample Real Data Mode" (subset of samples) to ensure the pipeline completes within the time limit. |
+| **Memory > 7 GB** | Use "Small-Sample Real Data Mode" and stream data where possible. |
+
+## Decision/Rationale
+
+- **Language**: Python 3.11 for orchestration, R 4.3 for statistical core (via Docker).
+- **Data Strategy**: Real data from GDC and GEO. No synthetic data. "Small-Sample Real Data Mode" used to fit within compute constraints.
+- **Statistical Rigor**: DESeq2, Stouffer's, Bonferroni correction, and DeLong's test are implemented using official R packages.
+- **Feasibility**: The pipeline is designed to run on CPU within a Docker container. No GPU is needed.

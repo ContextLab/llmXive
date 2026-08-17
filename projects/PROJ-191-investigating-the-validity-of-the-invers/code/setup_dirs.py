@@ -1,80 +1,100 @@
 """
-Project Directory Initialization Script.
+Project Directory Setup Script for PROJ-191.
 
-Creates the full project directory tree for PROJ-191 in a single atomic operation.
-This script is idempotent and safe to run multiple times.
+This script creates the full project directory tree required for the
+'Investigating the Validity of the Inverse-Square Law at Sub-Millimeter Scales'
+project. It ensures all necessary sub-directories exist under the project root.
 """
+
 import os
 import sys
 from pathlib import Path
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def main():
-    """Create the required directory structure for the project."""
-    # Define the project root relative to the script location or current working directory
-    # The task specifies the root as: projects/PROJ-191-investigating-the-validity-of-the-invers/
-    # We assume this script runs from the repository root or the project root context.
-    # To be safe and relative to the standard project layout described:
+    """
+    Creates the full project directory tree at the repository root.
     
-    # Base path assumption: The script is in code/, so we go up to root, then into projects/
-    # However, the task says "at the repository root: projects/PROJ-191..."
-    # Let's assume the script is run from the repository root.
-    # If the script is executed as `python code/setup_dirs.py`, CWD is usually the repo root.
-    
+    Target root: projects/PROJ-191-investigating-the-validity-of-the-invers/
+    Sub-directories include code/, tests/, data/, docs/, and specific
+    sub-structures for data processing, models, inference, etc.
+    """
+    # Define the project root relative to the script location or repository root
+    # Assuming the script runs from the repository root or code/
     repo_root = Path.cwd()
-    project_root = repo_root / "projects" / "PROJ-191-investigating-the-validity-of-the-invers"
     
-    directories = [
-        # Top level
+    # The specific project directory as defined in the task
+    project_name = "PROJ-191-investigating-the-validity-of-the-invers"
+    project_root = repo_root / "projects" / project_name
+    
+    # Define the required directory structure
+    # Base directories
+    base_dirs = [
         "code",
         "tests",
         "data",
-        "docs",
-        
-        # Code subdirectories
+        "docs"
+    ]
+    
+    # Specific sub-directories for code
+    code_subdirs = [
         "code/data",
         "code/models",
         "code/inference",
         "code/robustness",
-        "code/utils",
-        
-        # Data subdirectories
+        "code/utils"
+    ]
+    
+    # Specific sub-directories for data
+    data_subdirs = [
         "data/raw",
         "data/processed",
-        "data/results",
-        
-        # Test subdirectories
+        "data/results"
+    ]
+    
+    # Specific sub-directories for tests
+    tests_subdirs = [
         "tests/unit",
         "tests/contract",
-        "tests/integration",
+        "tests/integration"
     ]
+    
+    # Combine all directories to create
+    all_dirs = base_dirs + code_subdirs + data_subdirs + tests_subdirs
+    
+    logger.info(f"Ensuring project directory structure at: {project_root}")
     
     created_count = 0
     existing_count = 0
     
-    print(f"Initializing project structure at: {project_root}")
-    
-    for dir_name in directories:
+    for dir_name in all_dirs:
         full_path = project_root / dir_name
         
-        # Create parents if they don't exist (atomic mkdir -p behavior)
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            if full_path.exists() and full_path.is_dir():
+        if not full_path.exists():
+            try:
+                full_path.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created directory: {full_path}")
                 created_count += 1
-                print(f"  Created: {full_path}")
-            else:
-                print(f"  Warning: Could not create {full_path}")
-        except OSError as e:
-            print(f"  Error creating {full_path}: {e}")
-            sys.exit(1)
+            except OSError as e:
+                logger.error(f"Failed to create directory {full_path}: {e}")
+                sys.exit(1)
+        else:
+            existing_count += 1
     
-    # Verify the structure
-    print(f"\nSuccessfully created {created_count} directories.")
+    logger.info(f"Directory setup complete. Created: {created_count}, Existing: {existing_count}")
+    logger.info(f"Project root initialized at: {project_root}")
     
-    # List the structure for verification
-    print("\nDirectory structure created:")
-    for dir_name in sorted(directories):
-        print(f"  {project_root / dir_name}/")
+    # Verify the structure exists
+    if not project_root.exists():
+        logger.error("Project root was not created successfully.")
+        sys.exit(1)
         
     return 0
 

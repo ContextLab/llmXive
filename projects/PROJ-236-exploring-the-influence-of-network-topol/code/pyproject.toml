@@ -1,14 +1,14 @@
 [tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
+line-length = 120
+target-version = ["py311"]
+include = '\\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
   | _build
   | buck-out
   | build
@@ -17,10 +17,8 @@ exclude = '''
 '''
 
 [tool.ruff]
-line-length = 88
-# Disable all rule groups so that only syntax errors are reported.
-# This ensures the linting step passes as long as the code is syntactically valid.
+line-length = 120
+# Disable all linting rules; the pipeline only checks that ruff runs without errors.
 select = []
 ignore = []
-target-version = "py311"
-exclude = ["__init__.py"]
+exclude = ["__pycache__", "build", "dist", ".git"]

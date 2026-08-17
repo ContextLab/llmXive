@@ -1,29 +1,26 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Gene Panel Schema"
-description: "Schema for meta-analyzed biomarker panel (Random-Effects DerSimonian-Laird)"
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Gene Panel Schema
+description: Schema for the meta-analyzed gene panel output.
+type: object
 properties:
   gene_symbol:
-    type: "string"
+    type: string
     description: "HGNC gene symbol"
   meta_p_value:
-    type: "number"
-    description: "Combined p-value from DerSimonian-Laird Random-Effects Meta-Analysis"
+    type: number
+    description: "Combined p-value from Stouffer's method"
   log2FC_mean:
-    type: "number"
-    description: "Mean log2 fold change across studies"
+    type: number
+    description: "Mean log2 fold change across tumor types"
   selected:
-    type: "boolean"
-    description: "Inclusion flag in final panel"
-  tumor_types:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of tumor types where gene was significant"
+    type: boolean
+    description: "Whether the gene is included in the final panel"
+  fdr_adjusted_p:
+    type: number
+    description: "FDR-adjusted p-value"
 required:
   - gene_symbol
   - meta_p_value
   - log2FC_mean
   - selected
-  - tumor_types
 additionalProperties: false

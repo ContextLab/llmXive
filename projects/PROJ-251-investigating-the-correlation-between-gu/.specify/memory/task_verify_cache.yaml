@@ -13,6 +13,14 @@ T011d:
     the original specification without any ingestion script, validated CSV, correlation
     results, or modeling artifacts required by the user stories. Consequently, the
     required deliverables are missing.
+T020c:
+  c: false
+  h: dc7e450c6caf7975ca25579925d4656ca9e615bca44fafb2757c9687081d7dba
+  r: The required input file `data/processed/cleared_with_diversity.csv` does not
+    exist, and the provided `code/02_preprocess.py` contains no implementation that
+    computes the Shannon diversity index (the script only loads data and normalizes
+    it, with the Shannon column assumed to already be present). Both the necessary
+    data artifact and the core functionality are missing.
 T034d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

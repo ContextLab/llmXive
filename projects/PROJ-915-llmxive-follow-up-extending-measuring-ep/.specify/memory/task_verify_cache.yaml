@@ -28,12 +28,10 @@ T008:
     \ setup was implemented."
 T013:
   c: false
-  h: b0ab48cd8573481a2e382b77a3a3d121cda63450c25eea816ea086cbc2ad524e
-  r: "The repository lacks the required `data/raw/medmis_subset.csv` file, and `state/artifact_hashes.yaml`\
-    \ contains only a placeholder hash instead of a real SHA\u2011256 checksum. Moreover,\
-    \ the provided `code/ingestion.py` is truncated (ends mid\u2011function) and shows\
-    \ no logic for writing the CSV or recording the checksum, so the implementation\
-    \ does not fulfill the specified requirements."
+  h: 637c61ee8805aa3ce4b75aa42eac7a17e295e40d5c20d6e14ded88da0ea9e0c3
+  r: "The required output file `data/raw/medmis_subset.csv` does not exist, and `state/artifact_hashes.yaml`\
+    \ contains only a placeholder string instead of the actual SHA\u2011256 checksum.\
+    \ Without these artifacts the ingestion task is not genuinely fulfilled."
 T015:
   c: false
   h: dc1cff3a31d371dd63cf80897ef9c6abd59c279d6248233299156da19a4b69ea
@@ -44,12 +42,13 @@ T015:
     \ is therefore unmet."
 T017a:
   c: false
-  h: 84a6fb565ca53aed6026b51816eaaef17372738d93334175763e51154b9b8cf1
-  r: "The repository lacks the required `data/raw/medmis_subset.csv` input file and\
-    \ the expected output `data/raw/human_pilot_cached.csv`. Moreover, the provided\
-    \ `code/annotation.py` is truncated and does not show any logic that computes\
-    \ a deterministic `authority_density_score` or writes the required columns, so\
-    \ the task\u2019s core functionality is not demonstrated."
+  h: c2e5a3831b69912941a9468dd599384a4d845d544c62b255b873c4bfd7358996
+  r: "The repository lacks the required input `data/raw/medmis_subset.csv` and the\
+    \ expected output `data/raw/human_pilot_cached.csv`. Moreover, `code/annotation.py`\
+    \ is truncated and does not show a complete implementation of the deterministic\
+    \ pilot generation logic. The implementer must provide the missing CSV, finish\
+    \ the script to generate the 50\u2011row dataset with the specified columns, and\
+    \ ensure the file is created when absent."
 T017b:
   c: false
   h: cb76370acc2af84b4ea84e8bcadad416a2cacad8b47cc21ae45011b99323312d
@@ -80,10 +79,9 @@ T027:
     \ unmet."
 T027a:
   c: false
-  h: 6ff28eb918b8988577c2e6ea0d42596891822d95d50f269a8d0c8bdb75c0ce01
-  r: "The required `data/raw/medmis_subset.csv` is absent, so the script cannot read\
-    \ prompt IDs, and the expected output `data/interim/human_pilot_labels_mock.csv`\
-    \ was not created. Moreover, `code/annotation.py` is truncated (e.g., the `save_pilot_cache`\
-    \ function ends abruptly) and contains no visible logic that generates the 50\
-    \ deterministic mock labels and writes them to the specified CSV. The task\u2019\
-    s core requirements are therefore unmet."
+  h: 086a72a95b892c97db604fddddfbfe4a28dfba8cc371d5717fb633c070f8fbf3
+  r: The repository lacks the required `data/raw/medmis_subset.csv` input and does
+    not contain the generated `data/interim/human_pilot_labels_mock.csv` output. Moreover,
+    the `generate_deterministic_pilot` function in `code/annotation.py` is truncated,
+    so it does not demonstrably produce the deterministic mock labels. These essential
+    artifacts are missing, so the task is not satisfied.

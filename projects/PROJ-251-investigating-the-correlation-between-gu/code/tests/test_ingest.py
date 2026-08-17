@@ -57,10 +57,13 @@ class TestIngest(unittest.TestCase):
         
         This test checks that the merged dataset in cleared_with_diversity.csv
         contains no null values in the required titer columns.
+        
+        It validates the logic implemented in T011d (Merge Microbiome and Serology),
+        which explicitly filters out subjects where titer_baseline OR titer_post is null/missing.
         """
         if not self.sample_data_path.exists():
             self.skipTest(f"Sample data not found at {self.sample_data_path}. "
-                        "Run the ingestion pipeline first.")
+                        "Run the ingestion pipeline first (e.g., via code/main.py or code/01_merge_strategy_b.py).")
 
         # Load the processed dataset
         df = pd.read_csv(self.sample_data_path)
@@ -75,11 +78,11 @@ class TestIngest(unittest.TestCase):
 
         self.assertEqual(
             baseline_nulls, 0,
-            f"Found {baseline_nulls} null values in titer_baseline column"
+            f"Found {baseline_nulls} null values in titer_baseline column. Filtering logic failed to exclude nulls."
         )
         self.assertEqual(
             post_nulls, 0,
-            f"Found {post_nulls} null values in titer_post column"
+            f"Found {post_nulls} null values in titer_post column. Filtering logic failed to exclude nulls."
         )
 
     def test_schema_validation_against_data(self):

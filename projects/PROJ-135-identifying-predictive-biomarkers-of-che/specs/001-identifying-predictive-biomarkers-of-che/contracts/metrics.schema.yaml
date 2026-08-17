@@ -9,6 +9,7 @@ required:
   - precision_recall_curve
   - runtime_seconds
   - peak_memory_mb
+  - delongs_p_value
 properties:
   cancer_type:
     type: string
@@ -38,3 +39,9 @@ properties:
   peak_memory_mb:
     type: number
     description: "Peak memory usage in MB."
+  delongs_p_value:
+    type: number
+    description: "P-value from DeLong's test comparing the model against a clinical covariates-only baseline."
+  delongs_test_statistic:
+    type: number
+    description: "Test statistic from DeLong's test."
