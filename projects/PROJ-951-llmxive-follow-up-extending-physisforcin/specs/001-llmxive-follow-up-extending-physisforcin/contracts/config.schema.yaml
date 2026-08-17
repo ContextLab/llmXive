@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ProjectConfig"
+description: "Schema for the project configuration file (config.yaml)."
+type: "object"
+required:
+  - generation_batch_size
+  - filter_threshold
+  - training_epochs
+properties:
+  generation_batch_size:
+    type: "integer"
+    description: "Number of videos to generate per run."
+    minimum: 1
+    maximum: 1000
+  filter_threshold:
+    type: "number"
+    description: "Fixed absolute physics score threshold for filtering."
+    minimum: 0.0
+    maximum: 100.0
+    default: 60.0
+  training_epochs:
+    type: "integer"
+    description: "Number of epochs for diffusion training."
+    minimum: 1
+    maximum: 100
+  cpu_only:
+    type: "boolean"
+    description: "Force CPU execution (default true)."
+    default: true
+  kaggle_offload:
+    type: "boolean"
+    description: "Allow GPU offload to Kaggle if CPU fails."
+    default: true
+additionalProperties: false

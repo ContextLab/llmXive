@@ -1,55 +1,52 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "BenchmarkResult"
-description: "Schema for evaluation results on R-Bench and PAI-Bench."
+description: "Schema for evaluation metrics and statistical test results."
 type: "object"
+required:
+  - result_id
+  - model_id
+  - r_bench_score
+  - pai_bench_score
+  - tost_p_value
+  - equivalence_flag
+  - training_duration
 properties:
+  result_id:
+    type: "string"
+    description: "Unique ID for the result."
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
   model_id:
     type: "string"
-    description: "Identifier of the trained model."
-  benchmark_name:
-    type: "string"
-    enum: ["R-Bench", "PAI-Bench"]
-    description: "Name of the benchmark."
-  score:
+    description: "Reference to the TrainedModel."
+  r_bench_score:
     type: "number"
-    description: "Physical consistency score."
-  n_samples:
-    type: "integer"
-    description: "Number of samples evaluated."
-  p_value:
+    description: "Physical consistency score on R-Bench."
+    minimum: 0.0
+  pai_bench_score:
     type: "number"
-    description: "P-value from statistical comparison against baseline."
-  comparison_baseline:
-    type: "string"
-    description: "Name of the baseline model used for comparison."
-  is_comparable:
+    description: "Physical consistency score on PAI-Bench."
+    minimum: 0.0
+  downstream_success_rate:
+    type: "number"
+    description: "Success rate on a separate control task."
+    minimum: 0.0
+    maximum: 1.0
+  mujoco_correlation:
+    type: "number"
+    description: "Correlation with MuJoCo validator (if applicable)."
+    minimum: -1.0
+    maximum: 1.0
+    default: 0.0
+  tost_p_value:
+    type: "number"
+    description: "P-value from TOST equivalence test."
+    minimum: 0.0
+    maximum: 1.0
+  equivalence_flag:
     type: "boolean"
-    description: "True if gap ≤ 15% and p-value ≥ 0.05 (or corrected threshold)."
-  timestamp:
-    type: "string"
-    format: "date-time"
-    description: "ISO 801 timestamp of evaluation."
-  evaluation_engine:
-    type: "string"
-    enum: ["MuJoCo"]
-    description: "Physics engine used for evaluation (must be MuJoCo to avoid circularity)."
-  test_type:
-    type: "string"
-    enum: ["t-test", "mann-whitney-u"]
-    description: "Statistical test used."
-  test_statistic:
+    description: "True if equivalent within 15% margin."
+  training_duration:
     type: "number"
-    description: "The calculated test statistic (t or U)."
-required:
-  - model_id
-  - benchmark_name
-  - score
-  - n_samples
-  - p_value
-  - comparison_baseline
-  - is_comparable
-  - timestamp
-  - evaluation_engine
-  - test_type
-  - test_statistic
+    description: "Elapsed time in seconds."
+    minimum: 0.0
 additionalProperties: false

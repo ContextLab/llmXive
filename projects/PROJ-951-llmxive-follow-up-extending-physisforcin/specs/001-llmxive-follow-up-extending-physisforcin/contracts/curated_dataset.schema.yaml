@@ -9,12 +9,9 @@ properties:
   total_samples:
     type: "integer"
     description: "Total number of samples in the curated set."
-  discard_rate:
-    type: "number"
-    description: "Percentage of original samples discarded (e.g., 0.40)."
   threshold_score:
     type: "number"
-    description: "Minimum physics score required for inclusion."
+    description: "Fixed absolute physics score threshold (e.g., 60.0)."
   samples:
     type: "array"
     items:
@@ -49,7 +46,6 @@ definitions:
 required:
   - dataset_id
   - total_samples
-  - discard_rate
   - threshold_score
   - samples
   - created_at

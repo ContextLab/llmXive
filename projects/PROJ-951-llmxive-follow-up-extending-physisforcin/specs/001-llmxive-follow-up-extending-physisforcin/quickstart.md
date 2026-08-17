@@ -1,79 +1,80 @@
 # Quickstart: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
 
-## 1. Prerequisites
+## Prerequisites
 
-- **Python**: 3.11+
-- **System**: Linux (Ubuntu 22.04 recommended) or WSL2.
-- **Dependencies**: `git`, `ffmpeg` (for video processing), `libgl1-mesa-glx` (for PyBullet headless mode).
-- **GPU (Optional)**: For video generation (Kaggle GPU offload). If running generation locally, a CUDA-compatible GPU is required.
+- Python 3.11+
+- Access to a GitHub Actions runner (CPU) or Kaggle account (for GPU escape hatch).
+- HuggingFace CLI installed (`pip install huggingface_hub`).
 
-## 2. Installation
+## Installation
 
+1. **Clone and Setup**:
+   ```bash
+   cd projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+2. **Verify Environment**:
+   ```bash
+   python src/utils/verify_env.py
+   ```
+   *This script checks for PyBullet, CPU availability, and sufficient disk space.*
+
+3. **Configure**:
+   Edit `config.yaml` to set:
+   - `generation_batch_size`: Number of videos to generate per run.
+   - `filter_threshold`: Set to 60.0 (fixed absolute threshold).
+   - `training_epochs`: Number of epochs for diffusion training.
+
+## Running the Pipeline
+
+### Step 1: Generate & Filter (User Story 1)
+Generates videos and applies the physics filter.
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd projects/PROJ-951-llmxive-follow-up-extending-physisforcin/code/
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Verify environment
-python -c "import pybullet; print('PyBullet OK')"
-python -c "import torch; print('Torch OK')"
-python -c "import mujoco; print('MuJoCo OK')"
+python src/cli/main.py run-pipeline --stage generate-filter
 ```
+*Output*: `data/curated/curated_dataset.jsonl` and `data/raw/` (raw videos).
 
-## 3. Configuration
-
-Edit `config.yaml` to set:
-- `generation`: Number of videos to generate (default: 1000).
-- `filtering`: Discard percentage (default: 40).
-- `training`: Epochs (default: 10), Learning rate.
-- `benchmarks`: R-Bench and PAI-Bench thresholds.
-- `sample_size`: Target sample size for statistical power (default: 50).
-
-## 4. Running the Pipeline
-
-### Step 1: Generate Videos
+### Step 2: Power Analysis (Phase 2)
+Estimates variance and determines required sample size.
 ```bash
-# Note: If running on CPU, this will be extremely slow. 
-# For production, use the Kaggle offload script.
-python src/cli/main.py --stage generation
+python src/cli/main.py run-pipeline --stage power-analysis
 ```
+*Output*: `data/results/power_analysis.json`.
 
-### Step 2: Filter Videos & Create Control
+### Step 3: Augmentation (If Needed)
+Augments data if n < required.
 ```bash
-python src/cli/main.py --stage filtering
+python src/cli/main.py run-pipeline --stage augment
 ```
+*Output*: Updated `data/curated/curated_dataset.jsonl`.
 
-### Step 3: Validate Filter (MuJoCo)
+### Step 4: Train Model (User Story 2)
+Trains the distilled diffusion model on the curated data.
 ```bash
-python src/cli/main.py --stage validation
+python src/cli/main.py run-pipeline --stage train
 ```
+*Output*: `models/trained_model.pt` and `data/results/training_log.json`.
+*Note*: If CPU fails, the system will automatically attempt to offload to Kaggle (if configured) or raise a specific error.
 
-### Step 4: Train Models
+### Step 5: Evaluate (User Story 3)
+Runs benchmarks, downstream tasks, and TOST tests.
 ```bash
-python src/cli/main.py --stage training
+python src/cli/main.py run-pipeline --stage evaluate
 ```
+*Output*: `data/results/benchmark_results.json`.
 
-### Step 5: Evaluate & Benchmark
-```bash
-python src/cli/main.py --stage evaluation
-```
+## Verification
 
-## 5. Verification
+To verify the results:
+1. Check `data/results/benchmark_results.json` for `equivalence_flag: true`.
+2. Verify the `tost_p_value` is < 0.05.
+3. Ensure `data/` checksums match the recorded values in `state/`.
 
-Check `data/eval/results.json` for the benchmark scores and p-values.
-Check `data/validation/mujo_co_validation_result.json` for the filter validity.
-Run `pytest tests/` to verify unit and integration tests.
+## Troubleshooting
 
-## 6. Troubleshooting
-
-- **PyBullet Crash**: Ensure `libgl1-mesa-glx` is installed. Run in headless mode: `export PYBULLET_USE_NUMPY=1`.
-- **OOM Error**: Reduce `batch_size` in `config.yaml`.
-- **NaN Loss**: Reduce learning rate in `config.yaml`.
-- **MuJoCo Error**: Ensure MuJoCo license is set or use the free version.
+- **PyBullet Crash**: If a video crashes the filter, it is automatically assigned score 0. Check `logs/filter_errors.log`.
+- **OOM Error**: If training exceeds 6GB RAM, reduce `config.yaml` `batch_size` to 1.
+- **NaN Loss**: The training script will abort and retry with a lower learning rate (max 3 times).

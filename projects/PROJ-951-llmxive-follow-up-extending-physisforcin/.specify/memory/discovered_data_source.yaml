@@ -1,18 +1,16 @@
 status: none
-intent: RoboNet R-Bench robot manipulation video dataset download python package dataset
+intent: Wan2.1 prompts dataset pybullet simulation logs download python package dataset
 required_fields:
-- video_path
-- video_format
-- duration_seconds
-- frame_rate
-- robot_joint_positions
-- end_effector_pose
-- object_pose_trajectory
-- contact_events
-- task_label
-- camera_intrinsics
+- prompt_id
+- prompt_text
+- video_id
+- video_file_path
+- physics_score
+- trajectory_continuity_score
+- contact_conservation_score
+- simulation_status
+- simulation_log_path
 - timestamp
-- physics_consistency_score
-cache_key: f57e6607e094441603b4f414a04167831d7e8fce4350046e7ea4e367eca6a0b2
-searched_at: '2026-07-22T06:34:13.567450+00:00'
+cache_key: e0dd3b428353ac5bb4157095968c09d73c5d25c22641566f8b8d127d155512cb
+searched_at: '2026-08-17T10:40:46.786656+00:00'
 retry_count: 1
