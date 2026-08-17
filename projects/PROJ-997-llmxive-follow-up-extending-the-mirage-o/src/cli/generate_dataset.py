@@ -1,253 +1,210 @@
 """
-T015: Orchestrate streaming of GSM8K/Ultrachat prompts and generate the training dataset.
-
-This script executes the paired loop: for every sample, it extracts features (T012)
-and runs quantized inference (T013), then calculates the gap (T014) and logs progress (T017).
-It writes the final result to data/processed/training_sample.parquet.
+Wrapper task for generating the training dataset.
+Orchestrates T015a (streaming), T015b (core logic), and T015c (monitoring).
 """
-import os
-import sys
-import json
 import logging
 import time
-import base64
-import struct
+import json
+import signal
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional
 from dataclasses import dataclass, asdict
+import threading
 
-# Project imports
-from src.config.logging_config import setup_logger, log_sample_progress, ensure_log_dir
-from src.config.env_config import get_dataset_id, get_model_path
-from src.services.feature_extractor import extract_features_for_sample, load_dataset_streaming
-from src.services.quantized_inference import run_quantized_inference, load_quantized_model
-from src.services.gap_calculator import calculate_gap
+from src.cli.generate_dataset_stream import load_dataset_streaming
+from src.cli.generate_dataset_core import run_generation_pipeline, SampleResult
+from src.cli.monitor_runtime import RuntimeMonitor
+from src.config.logging_config import setup_logger, log_sample_progress
+from src.config.env_config import load_config
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class GenerationStats:
-    total_samples: int = 0
-    successful_samples: int = 0
-    skipped_samples: int = 0
-    total_time_seconds: float = 0.0
+    """Statistics from the generation run."""
+    total_samples: int
+    success_count: int
+    partial_count: int
+    failed_count: int
+    elapsed_time_seconds: float
+    output_path: str
+    levels_processed: Optional[Dict[str, int]] = None
 
-def encode_logits_to_base64(logits: List[float]) -> str:
-    """
-    Encodes a list of float32 values into a base64 string.
-    This ensures deterministic serialization and manageable file sizes.
-    """
-    if not logits:
-        return base64.b64encode(b'').decode('utf-8')
-    # Pack as float32 (4 bytes each)
-    packed = struct.pack(f'{len(logits)}f', *logits)
-    return base64.b64encode(packed).decode('utf-8')
+class GenerationOrchestrator:
+    """Orchestrates the dataset generation pipeline."""
+    
+    def __init__(
+        self,
+        output_path: str,
+        max_runtime_hours: float = 5.5,
+        min_sample_floor: int = 300,
+        quantization_levels: list = None
+    ):
+        """
+        Initialize the orchestrator.
+        
+        Args:
+            output_path: Path to save the output dataset.
+            max_runtime_hours: Maximum runtime in hours (reserving time for validation).
+            min_sample_floor: Minimum number of samples required before early stop.
+            quantization_levels: List of quantization levels to process.
+        """
+        self.output_path = output_path
+        self.max_runtime_hours = max_runtime_hours
+        self.min_sample_floor = min_sample_floor
+        self.quantization_levels = quantization_levels or ["INT4", "INT8", "FP8"]
+        self.monitor = RuntimeMonitor(max_runtime_hours=max_runtime_hours)
+        self.should_stop = False
+        self.sample_count = 0
+        
+        # Setup signal handlers for graceful shutdown
+        signal.signal(signal.SIGINT, self._signal_handler)
+        signal.signal(signal.SIGTERM, self._signal_handler)
+    
+    def _signal_handler(self, signum, frame):
+        """Handle interrupt signals."""
+        logger.warning(f"Received signal {signum}, initiating graceful shutdown...")
+        self.should_stop = True
+    
+    def run(self) -> GenerationStats:
+        """
+        Run the generation pipeline with monitoring.
+        
+        Returns:
+            GenerationStats object with run statistics.
+        """
+        logger.info("Starting dataset generation with runtime monitoring")
+        logger.info(f"Max runtime: {self.max_runtime_hours} hours")
+        logger.info(f"Minimum sample floor: {self.min_sample_floor}")
+        logger.info(f"Quantization levels: {self.quantization_levels}")
+        
+        start_time = time.time()
+        
+        # Check if runtime monitor should trigger early stop
+        def check_runtime():
+            while not self.should_stop:
+                if self.monitor.should_stop(self.sample_count, self.min_sample_floor):
+                    logger.info("Runtime limit approaching, initiating early stop...")
+                    self.should_stop = True
+                    break
+                time.sleep(60)  # Check every minute
+        
+        # Start runtime monitoring thread
+        monitor_thread = threading.Thread(target=check_runtime, daemon=True)
+        monitor_thread.start()
+        
+        try:
+            # Run the generation pipeline
+            stats = run_generation_pipeline(
+                output_path=self.output_path,
+                max_samples=None,  # We control stopping via monitor
+                quantization_levels=self.quantization_levels,
+                sample_size=None  # We control stopping via monitor
+            )
+            
+            # Update sample count from stats
+            self.sample_count = stats.get("total_samples", 0)
+            
+        except Exception as e:
+            logger.error(f"Generation pipeline failed: {e}")
+            raise
+        
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        
+        # Calculate per-level statistics if available
+        levels_processed = None
+        if self.output_path:
+            try:
+                import pandas as pd
+                df = pd.read_parquet(self.output_path)
+                if "quantization_levels" in df.columns:
+                    levels_processed = {}
+                    for level in self.quantization_levels:
+                        count = df["quantization_levels"].apply(lambda x: level in x if isinstance(x, list) else False).sum()
+                        levels_processed[level] = int(count)
+            except Exception as e:
+                logger.warning(f"Could not calculate per-level statistics: {e}")
+        
+        final_stats = GenerationStats(
+            total_samples=self.sample_count,
+            success_count=stats.get("success_count", 0),
+            partial_count=stats.get("partial_count", 0),
+            failed_count=stats.get("failed_count", 0),
+            elapsed_time_seconds=elapsed_time,
+            output_path=self.output_path,
+            levels_processed=levels_processed
+        )
+        
+        logger.info(f"Generation completed successfully")
+        logger.info(f"Final stats: {asdict(final_stats)}")
+        
+        return final_stats
 
 def run_generation_pipeline(
     output_path: str,
-    max_samples: Optional[int] = None,
-    quantization_levels: List[str] = None
+    max_runtime_hours: float = 5.5,
+    min_sample_floor: int = 300,
+    quantization_levels: list = None
 ) -> GenerationStats:
     """
-    Orchestrates the full generation pipeline.
-
+    Run the full generation pipeline with monitoring.
+    
     Args:
-        output_path: Path to the output parquet file.
-        max_samples: Optional limit on the number of samples to process.
-        quantization_levels: List of quantization levels to test (e.g., ['INT4', 'INT8', 'FP8']).
-
+        output_path: Path to save the output dataset.
+        max_runtime_hours: Maximum runtime in hours.
+        min_sample_floor: Minimum sample count before early stop.
+        quantization_levels: List of quantization levels to process.
+        
     Returns:
-        GenerationStats object with summary metrics.
+        GenerationStats object.
     """
-    logger = setup_logger("generate_dataset")
-    ensure_log_dir()
-
-    if quantization_levels is None:
-        quantization_levels = ["INT4", "INT8", "FP8"]
-
-    # Initialize data collection
-    records = []
-    stats = GenerationStats()
-    start_time = time.time()
-
-    # Load dataset stream
-    # Using 'gsm8k' as the primary dataset as per spec context.
-    # If 'ultrachat' is needed, it would be a separate stream or concatenated.
-    dataset_id = get_dataset_id() or "gsm8k"
-    logger.info(f"Starting streaming dataset: {dataset_id}")
-    
-    try:
-        dataset_stream = load_dataset_streaming(dataset_id, split="train")
-    except Exception as e:
-        logger.critical(f"Failed to load dataset stream: {e}")
-        raise RuntimeError(f"Dataset loading failed: {e}")
-
-    # Pre-load models if possible (optimization)
-    # Note: Feature extractor loads full-precision model internally.
-    # Quantized models are loaded per level or cached.
-
-    logger.info("Beginning paired loop for feature extraction and quantized inference...")
-
-    count = 0
-    for batch in dataset_stream:
-        # Handle max_samples constraint
-        if max_samples and count >= max_samples:
-            break
-
-        # The batch from streaming usually contains lists of items.
-        # We iterate row by row.
-        if isinstance(batch, dict):
-            # If it's a single row dict (unlikely in batched streaming but possible)
-            items = [batch]
-        else:
-            # Assume it's a list of dicts or similar iterable
-            items = batch if hasattr(batch, '__iter__') else [batch]
-
-        for sample in items:
-            if max_samples and count >= max_samples:
-                break
-
-            stats.total_samples += 1
-            sample_id = f"sample_{count}"
-            sample_prompt = sample.get("question", sample.get("prompt", ""))
-            
-            if not sample_prompt:
-                logger.warning(f"Skipping sample {sample_id} due to missing prompt.")
-                log_sample_progress(sample_id, "skipped", "MISSING_PROMPT")
-                stats.skipped_samples += 1
-                count += 1
-                continue
-
-            try:
-                # 1. Feature Extraction (T012)
-                # Returns gradient_norms (float) and local_curvature (float)
-                features = extract_features_for_sample(sample_prompt)
-                gradient_norms = features.gradient_norms
-                local_curvature = features.local_curvature
-
-                # 2. Quantized Inference (T013)
-                # We run for each level and aggregate or pick one. 
-                # The spec implies generating a dataset with these levels.
-                # We will iterate levels and create a record for each level-sample pair 
-                # OR create one record with the most relevant level. 
-                # Given the schema requires 'quantization_level' column, we likely create rows per level.
-                
-                for level in quantization_levels:
-                    try:
-                        # Run inference for this specific level
-                        # This function handles loading the engine and running inference
-                        inference_result = run_quantized_inference(
-                            prompt=sample_prompt,
-                            quantization_level=level
-                        )
-                        
-                        if inference_result.error:
-                            logger.warning(f"Sample {sample_id} skipped for level {level}: {inference_result.error}")
-                            log_sample_progress(sample_id, "skipped", f"INFERENCE_ERROR_{level}")
-                            stats.skipped_samples += 1
-                            continue
-
-                        # 3. Gap Calculation (T014)
-                        # We need full precision logits too. 
-                        # extract_features_for_sample might have computed them, or we call gap_calculator directly.
-                        # Assuming gap_calculator takes the raw logits or results.
-                        # Let's assume we need to re-run full precision for gap calc or it was cached.
-                        # For robustness, we pass the inference result and the prompt.
-                        # The gap calculator needs the full precision logits. 
-                        # Since T012 extracts features, it likely has the full precision logits.
-                        # If not, we must re-calculate.
-                        
-                        # Re-calculating gap using the helper which handles the full precision call internally
-                        # or expects the logits. Let's assume gap_calculator.calculate_gap takes:
-                        # prompt, quantized_logits, and optionally full_precision_logits.
-                        # If extract_features_for_sample didn't return full_precision_logits, we need to get them.
-                        # To be safe and aligned with T012/T014 separation, we assume T014 needs the full precision logits.
-                        # Let's assume extract_features_for_sample returns them or we fetch them again.
-                        # Given the "paired loop" constraint, we assume the full precision run is part of the feature extraction step.
-                        
-                        # Re-using the logic: gap_calculator.calculate_gap(prompt, quantized_logits, full_precision_logits)
-                        # If we don't have full_precision_logits here, we might need to extract them again.
-                        # However, T012 is supposed to extract gradient norms and curvature.
-                        # Let's assume the gap calculator can handle the full precision inference internally if not provided.
-                        
-                        gap_result = calculate_gap(
-                            prompt=sample_prompt,
-                            quantized_logits=inference_result.logits,
-                            quantization_level=level
-                        )
-                        
-                        calculated_kl_divergence = gap_result.kl_divergence
-                        full_precision_logits = gap_result.full_precision_logits # For reference if needed
-
-                        # Encode logits
-                        encoded_logits = encode_logits_to_base64(inference_result.logits)
-
-                        # Create record
-                        record = {
-                            "input_id": sample_id,
-                            "gradient_norms": gradient_norms,
-                            "local_curvature": local_curvature,
-                            "quantized_logits": encoded_logits,
-                            "calculated_kl_divergence": calculated_kl_divergence,
-                            "quantization_level": level
-                        }
-                        records.append(record)
-                        stats.successful_samples += 1
-                        log_sample_progress(sample_id, "success", None)
-
-                    except Exception as e:
-                        logger.error(f"Error processing sample {sample_id} for level {level}: {e}", exc_info=True)
-                        log_sample_progress(sample_id, "error", str(e))
-                        stats.skipped_samples += 1
-                        continue
-
-                count += 1
-
-            except Exception as e:
-                logger.error(f"Critical error in feature extraction for {sample_id}: {e}", exc_info=True)
-                log_sample_progress(sample_id, "error", f"FEATURE_EXTRACT_ERROR: {e}")
-                stats.skipped_samples += 1
-                continue
-
-    stats.total_time_seconds = time.time() - start_time
-
-    # Write to Parquet
-    if not records:
-        logger.critical("No records generated. Aborting write.")
-        raise RuntimeError("Generation pipeline produced no valid records.")
-
-    import pandas as pd
-    df = pd.DataFrame(records)
-    
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Successfully wrote {len(records)} records to {output_path}")
-    logger.info(f"Total time: {stats.total_time_seconds:.2f}s")
-
-    return stats
+    orchestrator = GenerationOrchestrator(
+        output_path=output_path,
+        max_runtime_hours=max_runtime_hours,
+        min_sample_floor=min_sample_floor,
+        quantization_levels=quantization_levels
+    )
+    return orchestrator.run()
 
 def main():
-    logger = setup_logger("generate_dataset_main")
+    """Main entry point for the script."""
+    import argparse
     
-    # Configuration
-    output_file = "data/processed/training_sample.parquet"
-    max_samples = int(os.environ.get("MAX_SAMPLES", "1000")) # Default to 1000 for initial run
-    levels = ["INT4", "INT8", "FP8"]
-
-    logger.info(f"Starting T015: Generating dataset to {output_file}")
-    logger.info(f"Max samples: {max_samples}")
-
+    parser = argparse.ArgumentParser(description="Generate training dataset with monitoring")
+    parser.add_argument("--output", type=str, default="data/processed/training_sample.parquet",
+                      help="Output path for the generated dataset")
+    parser.add_argument("--max-runtime-hours", type=float, default=5.5,
+                      help="Maximum runtime in hours")
+    parser.add_argument("--min-sample-floor", type=int, default=300,
+                      help="Minimum sample count before early stop")
+    parser.add_argument("--levels", type=str, nargs="+", default=["INT4", "INT8", "FP8"],
+                      help="Quantization levels to process")
+    
+    args = parser.parse_args()
+    
+    setup_logger()
+    
     try:
         stats = run_generation_pipeline(
-            output_path=output_file,
-            max_samples=max_samples,
-            quantization_levels=levels
+            output_path=args.output,
+            max_runtime_hours=args.max_runtime_hours,
+            min_sample_floor=args.min_sample_floor,
+            quantization_levels=args.levels
         )
-        logger.info(f"Pipeline completed. Stats: {stats}")
+        
+        print(f"Dataset generation complete.")
+        print(f"Total samples: {stats.total_samples}")
+        print(f"Success: {stats.success_count}, Partial: {stats.partial_count}, Failed: {stats.failed_count}")
+        print(f"Elapsed time: {stats.elapsed_time_seconds:.2f} seconds")
+        print(f"Output: {stats.output_path}")
+        
+        if stats.levels_processed:
+            print("Per-level counts:")
+            for level, count in stats.levels_processed.items():
+                print(f"  {level}: {count}")
+        
     except Exception as e:
-        logger.critical(f"Pipeline failed: {e}", exc_info=True)
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
+        logger.error(f"Dataset generation failed: {e}")
+        raise

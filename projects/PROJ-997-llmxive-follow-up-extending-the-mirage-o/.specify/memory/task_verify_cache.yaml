@@ -1,24 +1,3 @@
-T021:
-  c: false
-  h: 3018038941eb89c4c24fc0ad3391f419251a39f25be53aa3465181c193460731
-  r: The provided `src/cli/train_predictor.py` is incomplete (the `save_model` function
-    is truncated and never called) and the required output file `data/models/gap_predictor.pkl`
-    does not exist. Consequently the script does not actually save a trained KRR model
-    artifact as the task demands.
-T027:
-  c: false
-  h: 6f1d506e17342dbcd53ec09592fc743841f7e60d90b0d2c9629e0dec33a79e8c
-  r: "The repository contains a partially shown `src/cli/run_baseline_sync.py` that\
-    \ is truncated and does not include logic to write `baseline_metrics.json`. Moreover,\
-    \ the required `data/processed/baseline_metrics.json` file is missing entirely.\
-    \ Hence the task\u2019s verification condition is not satisfied."
-T029:
-  c: false
-  h: a37c111c4fbe4d258db0d040127454c848e65c804638f0ec9b386cffbfcd0ba3
-  r: "The provided `src/utils/stats.py` is truncated, does not show any Bonferroni\u2011\
-    corrected test logic nor code that writes `data/processed/t_test_results.json`.\
-    \ Moreover, the required `data/processed/t_test_results.json` file is absent.\
-    \ The task\u2019s core outputs are therefore missing."
 T030:
   c: false
   h: 3fa5e1d8b19273325b88e3caa1c62f7f97369403bbc755022b5bbb273c445c6a
