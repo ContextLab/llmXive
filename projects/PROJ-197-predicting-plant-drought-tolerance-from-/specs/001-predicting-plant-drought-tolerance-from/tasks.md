@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure with explicit directories: `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `docs/reports/` <!-- ATOMIZE: requested -->
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing `scikit-learn>=1.3.0`, `xgboost>=2.0.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`, `requests>=2.31.0`, `imblearn>=0.11.0`, `pyyaml>=6.0.0`, `joblib>=1.3.0`, `pytest>=7.4.0`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
+- [ ] T001 Create project directory structure with explicit directories: `code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `docs/reports/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `scikit-learn>=1.3.0`, `xgboost>=2.0.0`, `pandas>=2.0.0`, `numpy>=1.24.0`, `scipy>=1.11.0`, `requests>=2.31.0`, `imblearn>=0.11.0`, `pyyaml>=6.0.0`, `joblib>=1.3.0`, `pytest>=7.4.0`
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/utils/logging.py` to create `DataPipelineLog` with methods for recording source URLs, download status, imputation details, merge statistics, and **excluded species** (FR-007)
-- [ ] T005 [P] Create `code/utils/stats.py` implementing DeLong's test for paired AUCs and standard statistical utilities
+- [X] T004 Implement `code/utils/logging.py` to create `DataPipelineLog` with methods for recording source URLs, download status, imputation details, merge statistics, and **excluded species** (FR-007)
+- [X] T005 [P] Create `code/utils/stats.py` implementing DeLong's test for paired AUCs and standard statistical utilities
 - [X] T006 [P] Setup `code/config.py` to manage species lists, random seeds (), and synthetic data parameters
 - [X] T007 Create base data entities: `SpeciesRecord` (fields: `species_id`, `traits_dict`, `genomic_markers`, `label`) and `ModelResult` (fields: `model_name`, `metrics`, `hyperparameters`, `feature_importance`) in `code/models/entities.py`
-- [~] T016 [P] [Foundational] Implement `code/data/generate.py` to generate a **synthetic phylogenetic distance matrix** for the species list. **Logic**: Create N x N symmetric matrix (N=species count), zero diagonal, off-diagonal values uniformly distributed between a lower bound and an upper bound. Save to `data/processed/synthetic_phylo_matrix.npy`. (FR-009)
+- [ ] T016 [P] [Foundational] Implement `code/data/generate.py` to generate a **synthetic phylogenetic distance matrix** for the species list. **Logic**: Create N x N symmetric matrix (N=species count), zero diagonal, off-diagonal values uniformly distributed between a lower bound and an upper bound. Save to `data/processed/synthetic_phylo_matrix.npy`. (FR-009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,7 +74,7 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/data/download.py` to fetch TRY database CSVs with exponential backoff and checksum verification. (FR-001)
-- [~] T012 [US1] Implement `code/data/generate.py` to generate **synthetic genomic features** and **synthetic drought labels**. **Logic**: Use `random_state=42`. **Gene List (20)**: `NCED3`, `ABF3`, `P5CS`, `DREB2A`, `ERF1`, `ABI5`, `RD29A`, `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`, `GSTU`, `ZAT12`, `WRKY33`, `MYB96`. **Label Logic**: `label = 1` if `sum(genomic_markers) >= 12`, else `0`. Output to `data/processed/synthetic_genomics.csv`. (FR-001, Plan Validation Mode)
+- [ ] T012 [US1] Implement `code/data/generate.py` to generate **synthetic genomic features** and **synthetic drought labels**. **Logic**: Use `random_state=42`. **Gene List (20)**: `NCED3`, `ABF3`, `P5CS`, `DREB2A`, `ERF1`, `ABI5`, `RD29A`, `COR15A`, `LEA3`, `HSP70`, `SOD`, `APX1`, `CAT1`, `GPX1`, `MDHAR`, `DHAR`, `GSTU`, `ZAT12`, `WRKY33`, `MYB96`. **Label Logic**: `label = 1` if `sum(genomic_markers) >= 12`, else `0`. Output to `data/processed/synthetic_genomics.csv`. (FR-001, Plan Validation Mode)
 - [X] T013 [US1] Implement `code/data/ingest.py` to merge TRY traits (from T011) and synthetic genomic data (from T012) by species ID. **Explicitly detect species present in TRY but missing in genomic data, flag them with "no_genomic_data" or exclude them, and log the count.** (FR-002)
 - [X] T014a [US1] Implement `code/data/ingest.py` to apply **standard MICE** imputation for missing continuous traits using `sklearn.impute.IterativeImputer` (`max_iter=10`, `random_state=42`). (FR-002)
 - [X] T014b [US1] Implement logic in `code/data/ingest.py` to drop columns if imputation fails after max iterations. (FR-002)
@@ -85,7 +85,7 @@
 
 - [X] T008 [P] [US1] Unit test for TRY download retry logic with 404 simulation in `tests/unit/test_download.py`
 - [X] T009 [P] [US1] Unit test for synthetic genomic data generation consistency (seed 42) in `tests/unit/test_synthetic.py`
-- [ ] T010 [P] [US1] Integration test for full merge pipeline (TRY + Synthetic) producing valid DataFrame in `tests/integration/test_ingest.py`
+- [X] T010 [P] [US1] Integration test for full merge pipeline (TRY + Synthetic) producing valid DataFrame in `tests/integration/test_ingest.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. A clean `data/processed/merged_dataset.csv` should exist.
 
@@ -99,19 +99,19 @@
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Unit test for stratified split logic ensuring label balance in `tests/unit/test_split.py`
+- [X] T017 [P] [US2] Unit test for stratified split logic ensuring label balance in `tests/unit/test_split.py`
 - [ ] T018 [P] [US2] Integration test verifying RF and XGBoost train within 30 mins on 2-core CPU without GPU errors in `tests/integration/test_train.py`
 - [ ] T019 [P] [US2] Unit test for DeLong's test implementation against known synthetic AUC pairs in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020a [P] [US2] Implement `code/models/train.py` to train RandomForest using `joblib` for parallelism on 2 cores. (FR-004)
-- [ ] T020b [P] [US2] Implement `code/models/train.py` to train XGBoost using `joblib` for parallelism on 2 cores. (FR-004)
-- [ ] T020c [P] [US2] Implement `code/models/train.py` to perform `n_estimators` grid search across values {100, 200, 500} for both models. (FR-004)
-- [ ] T021 [P] [US2] Implement `code/models/train.py` to train KNN Baseline (K=5) using the **synthetic phylogenetic distance matrix** (from T016). (FR-009)
-- [ ] T022 [US2] Implement `code/models/evaluate.py` to calculate ROC-AUC on held-out test set and log best model. (FR-004)
-- [ ] T023 [US2] Implement `code/models/evaluate.py` to perform DeLong's test comparing best model AUC vs. Baseline AUC. **Verify p < 0.05 AND AUC diff > 0.05** as per SC-001. (FR-010, SC-001)
-- [ ] T024 [US2] Add error handling in `code/models/train.py` to catch OOM/GPU exceptions and fail gracefully with clear messages (Edge Case)
+- [X] T020a [P] [US2] Implement `code/models/train.py` to train RandomForest using `joblib` for parallelism on 2 cores. (FR-004) <!-- FAILED: unspecified -->
+- [X] T020b [P] [US2] Implement `code/models/train.py` to train XGBoost using `joblib` for parallelism on 2 cores. (FR-004)
+- [X] T020c [P] [US2] Implement `code/models/train.py` to perform `n_estimators` grid search across values {100, 200, 500} for both models. (FR-004)
+- [X] T021 [P] [US2] Implement `code/models/train.py` to train KNN Baseline (K=5) using the **synthetic phylogenetic distance matrix** (from T016). (FR-009)
+- [X] T022 [US2] Implement `code/models/evaluate.py` to calculate ROC-AUC on held-out test set and log best model. (FR-004)
+- [X] T023 [US2] Implement `code/models/evaluate.py` to perform DeLong's test comparing best model AUC vs. Baseline AUC. **Verify p < 0.05 AND AUC diff > 0.05** as per SC-001. (FR-010, SC-001)
+- [X] T024 [US2] Add error handling in `code/models/train.py` to catch OOM/GPU exceptions and fail gracefully with clear messages (Edge Case)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently. Models are trained and statistically compared.
 
@@ -125,7 +125,7 @@
 
 ### Tests for User Story 3
 
-- [ ] T025 [P] [US3] Unit test for paired t-test on synthetic CV score arrays in `tests/unit/test_compare.py`
+- [X] T025 [P] [US3] Unit test for paired t-test on synthetic CV score arrays in `tests/unit/test_compare.py`
 - [ ] T026 [P] [US3] Integration test verifying feature importance output matches top 10 expected synthetic features in `tests/integration/test_compare.py`
 
 ### Implementation for User Story 3

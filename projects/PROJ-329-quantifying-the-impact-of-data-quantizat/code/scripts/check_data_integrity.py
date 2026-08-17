@@ -1,113 +1,93 @@
 """
-CLI Script: Check Data Integrity
+Script to check data integrity for raw and processed directories.
 
-This script scans the data/raw and data/processed directories,
-computes checksums, and verifies them against the recorded state.
-It can also be used to record the current state.
+Usage:
+    python scripts/check_data_integrity.py
 """
 import argparse
 import logging
 from pathlib import Path
 import sys
-
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
 from src.data_hygiene import (
     get_data_directories,
-    compute_checksums_for_directory,
-    verify_data_integrity,
-    record_directory_state,
-    main as hygiene_main
+    verify_data_integrity
 )
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Data Integrity Checker for PROJ-329",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-        Examples:
-          # Compute and print checksums
-          python scripts/check_data_integrity.py --action compute
-          
-          # Verify data against stored state
-          python scripts/check_data_integrity.py --action verify
-          
-          # Record current state as the new baseline
-          python scripts/check_data_integrity.py --action record
-        """
+        description='Check data integrity for raw and processed directories.'
     )
     parser.add_argument(
-        "--action",
-        choices=["compute", "verify", "record"],
-        default="compute",
-        help="Action to perform"
+        '--dirs',
+        nargs='+',
+        choices=['raw', 'processed', 'results', 'all'],
+        default=['all'],
+        help='Directories to check (default: all)'
     )
     parser.add_argument(
-        "--project-root",
-        type=str,
+        '--state-file',
+        type=Path,
         default=None,
-        help="Path to project root. Defaults to script's parent directory."
+        help='Path to state.yaml (default: auto-detect)'
     )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
-    )
-
+    
     args = parser.parse_args()
-
-    if args.verbose:
-        logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
+    
+    # Determine project root
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    
+    data_dirs = get_data_directories()
+    
+    # Determine which directories to check
+    if 'all' in args.dirs:
+        dirs_to_check = list(data_dirs.items())
     else:
-        logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-
-    project_root = Path(args.project_root) if args.project_root else Path(__file__).resolve().parent.parent
+        dirs_to_check = [(d, data_dirs[d]) for d in args.dirs if d in data_dirs]
     
-    logger.info(f"Project root: {project_root}")
-    logger.info(f"Action: {args.action}")
-
-    raw_dir, processed_dir = get_data_directories(project_root)
+    if not dirs_to_check:
+        logger.error("No valid directories specified.")
+        sys.exit(1)
     
-    logger.info(f"Scanning {raw_dir}...")
-    raw_checksums = compute_checksums_for_directory(raw_dir)
-    logger.info(f"Scanning {processed_dir}...")
-    processed_checksums = compute_checksums_for_directory(processed_dir)
-
-    if args.action == "compute":
-        print(f"\n--- Checksums for {raw_dir} ---")
-        if not raw_checksums:
-            print("  (No files found)")
-        for path, hash_val in raw_checksums.items():
-            print(f"  {path}: {hash_val[:32]}...")
+    logger.info(f"Checking integrity for {len(dirs_to_check)} directories...")
+    
+    all_valid = True
+    
+    for dir_name, dir_path in dirs_to_check:
+        logger.info(f"Checking {dir_name} directory: {dir_path}")
         
-        print(f"\n--- Checksums for {processed_dir} ---")
-        if not processed_checksums:
-            print("  (No files found)")
-        for path, hash_val in processed_checksums.items():
-            print(f"  {path}: {hash_val[:32]}...")
-
-    elif args.action == "verify":
-        is_valid, errors = verify_data_integrity(raw_checksums, processed_checksums)
+        if not dir_path.exists():
+            logger.warning(f"Directory does not exist: {dir_path}")
+            all_valid = False
+            continue
+        
+        is_valid, details = verify_data_integrity(dir_path, args.state_file)
+        
         if is_valid:
-            print("\n✓ Data integrity verified successfully.")
-            sys.exit(0)
+            logger.info(f"  ✓ {dir_name} integrity PASSED")
         else:
-            print("\n✗ Data integrity check FAILED.")
-            for err in errors:
-                print(f"  - {err}")
-            sys.exit(1)
-
-    elif args.action == "record":
-        success = record_directory_state(raw_checksums, processed_checksums)
-        if success:
-            print("\n✓ Directory state recorded successfully.")
-            sys.exit(0)
-        else:
-            print("\n✗ Failed to record directory state.")
-            sys.exit(1)
+            logger.error(f"  ✗ {dir_name} integrity FAILED")
+            all_valid = False
+            if "missing" in details and details["missing"]:
+                logger.error(f"    Missing files: {details['missing']}")
+            if "modified" in details and details["modified"]:
+                logger.error(f"    Modified files: {details['modified']}")
+            if "error" in details:
+                logger.error(f"    Error: {details['error']}")
+    
+    if all_valid:
+        logger.info("All checks passed.")
+        sys.exit(0)
+    else:
+        logger.error("Some checks failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

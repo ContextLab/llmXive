@@ -273,11 +273,11 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI with a limited number of cores and memory. [UNRESOLVED-CLAIM: c_117e15ae — status=not_enough_info] No GPU, no 8-bit quantization, no deep learning.
+- **Constraint**: All tasks must run on CPU-only CI with a limited number of cores and memory. No GPU, no 8-bit quantization, no deep learning.
 - **Data**: Synthetic data generation must be deterministic and checksummed. No fake data for final metrics; use synthetic ground truth for validation.
 - **Ground Truth**: All ground-truth values MUST be saved to machine-readable artifacts (JSON/CSV) as per Constitution Principle IV.
 - **Saturation Range**: Concrete values (0.0-0.5, step 0.05) are defined in T037a and used in T021/T024.
 - **Real HST Validation**: T009 must be completed before T028/T031 to satisfy Constitution Principle VII (qualitative only).
-- **Power Analysis**: T030 must be executed after US1/US2 data collection to use observed effect size. **Blocking**: Pipeline fails if power < 80%. [UNRESOLVED-CLAIM: c_d5c1b05e — status=not_enough_info]
+- **Power Analysis**: T030 must be executed after US1/US2 data collection to use observed effect size. **Blocking**: Pipeline fails if power < 80%.
 - **CLI**: T046a/46b/46c define the single entry point; T015/T022/T029 implement functions within it.
 - **Review Resolution**: Tasks T051-T055 address specific reviewer concerns regarding data flow, edge cases, and statistical rigor with explicit deliverables.

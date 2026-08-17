@@ -147,3 +147,365 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-07T10:07:01Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: List of 20 genes used for synthetic genomic feature generation
+  claim_id: c_474c36ca
+  context: 'T012 Logic: Use random_state=42. Gene List (20): NCED3, ABF3, P5CS, DREB2A,
+    ERF1, ABI5, RD29A, COR15A, LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU,
+    ZAT12, WRKY33, MYB96.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Gene List (20): NCED3, ABF3, P5CS, DREB2A, ERF1, ABI5, RD29A, COR15A,
+    LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12, WRKY33, MYB96.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:21:19Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: List of 15 genes used for validation logic in final report
+  claim_id: c_51a6b5db
+  context: 'T029 Validation Logic: Use Validation Gene List (15): DREB2A, ERF1, ABI5,
+    RD29A, COR15A, LEA3, HSP70, SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Validation Gene List (15): DREB2A, ERF1, ABI5, RD29A, COR15A, LEA3, HSP70,
+    SOD, APX1, CAT1, GPX1, MDHAR, DHAR, GSTU, ZAT12.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:21:41Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for scikit-learn library
+  claim_id: c_9e7ce63e
+  context: T002 Initialize Python 3.11 project with requirements.txt containing scikit-learn>=1.3.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn version 1.3.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:22:30Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for xgboost library
+  claim_id: c_44b7ac95
+  context: T002 Initialize Python 3.11 project with requirements.txt containing xgboost>=2.0.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: xgboost version 2.0.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:23:08Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for pandas library
+  claim_id: c_21933428
+  context: T002 Initialize Python 3.11 project with requirements.txt containing pandas>=2.0.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas version 2.0.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:23:23Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for numpy library
+  claim_id: c_fa109be0
+  context: T002 Initialize Python 3.11 project with requirements.txt containing numpy>=1.24.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy version 1.24.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:23:55Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for scipy library
+  claim_id: c_8e48dfd4
+  context: T002 Initialize Python 3.11 project with requirements.txt containing scipy>=1.11.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scipy version 1.11.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:24:24Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for requests library
+  claim_id: c_f8bf3dfd
+  context: T002 Initialize Python 3.11 project with requirements.txt containing requests>=2.31.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests version 2.31.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:25:01Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for imblearn library
+  claim_id: c_75d2b837
+  context: T002 Initialize Python 3.11 project with requirements.txt containing imblearn>=0.11.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: imblearn version 0.11.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:25:42Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for pyyaml library
+  claim_id: c_5d0bff28
+  context: T002 Initialize Python 3.11 project with requirements.txt containing pyyaml>=6.0.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml version 6.0.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:26:05Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for joblib library
+  claim_id: c_7eb132e6
+  context: T002 Initialize Python 3.11 project with requirements.txt containing joblib>=1.3.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: joblib version 1.3.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:26:18Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Minimum required version for pytest library
+  claim_id: c_6997fcd9
+  context: T002 Initialize Python 3.11 project with requirements.txt containing pytest>=7.4.0
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest version 7.4.0 or higher
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:26:46Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Project uses Python version 3.11
+  claim_id: c_48a59829
+  context: T002 Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project initialization
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:27:25Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: K-nearest neighbors baseline model parameter K set to 5
+  claim_id: c_24f41d0b
+  context: T021 Implement code/models/train.py to train KNN Baseline (K=5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: KNN Baseline uses K=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:29:06Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: IterativeImputer max iterations set to 10
+  claim_id: c_1cd5616e
+  context: T014a Implement code/data/ingest.py to apply standard MICE imputation...
+    max_iter=10
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MICE imputation uses max_iter=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:29:38Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42 for synthetic data
+  claim_id: c_8d3358b1
+  context: 'T012 Logic: Use random_state=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random state 42 used for synthetic data generation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:30:02Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Random seed set to 42 for MICE imputation
+  claim_id: c_65b93afe
+  context: T014a... random_state=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random state 42 used for MICE imputation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:30:37Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Grid search for n_estimators includes values 100, 200, 500
+  claim_id: c_f6864ddb
+  context: T020c Implement code/models/train.py to perform n_estimators grid search
+    across values {100, 200, 500}
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_estimators grid search values are 100, 200, and 500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:31:12Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: RandomForest training uses 2 cores for parallelism
+  claim_id: c_4f7b44a0
+  context: T020a Implement code/models/train.py to train RandomForest using joblib
+    for parallelism on 2 cores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parallelism on 2 cores for RandomForest training
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:31:44Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: XGBoost training uses 2 cores for parallelism
+  claim_id: c_4dccfdbd
+  context: T020b Implement code/models/train.py to train XGBoost using joblib for
+    parallelism on 2 cores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parallelism on 2 cores for XGBoost training
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:32:25Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Model training time limit of 30 minutes on 2-core CPU
+  claim_id: c_6eefd87e
+  context: T018 Integration test verifying RF and XGBoost train within 30 mins on
+    2-core CPU
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Integration test requirement: RF and XGBoost train within 30 mins on
+    2-core CPU'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:32:51Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Validation threshold: at least 3 validation genes must appear in top
+    10 features'
+  claim_id: c_66529336
+  context: T029 Check if count of these genes in Top 10 features >= 3.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_threshold:_at_least_3_validation_genes_must_appea
+  kind: magnitude
+  raw_text: Validation logic requires count of validation genes in Top 10 features
+    >= 3
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:33:36Z'
+- artifact_path: projects/PROJ-197-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold for AUC difference greater than 0.05
+  claim_id: c_0c0606c0
+  context: T023 Verify p < 0.05 AND AUC diff > 0.05 as per SC-001.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_significance_threshold_for_AUC_difference_greate
+  kind: magnitude
+  raw_text: DeLong's test AUC difference threshold > 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T13:34:36Z'

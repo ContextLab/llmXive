@@ -37,3 +37,46 @@ T012:
   r: "The required artifact `tests/integration/test_injection.py` does not exist,\
     \ so no integration test verifying the SNR range [8,\u202F50] is present. The\
     \ task\u2019s core deliverable is missing."
+T013a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a report, script output, or data file) was provided that\
+    \ demonstrates the stratified bins (8\u201114, 14\u201120, 20\u201130, 30\u2011\
+    50) collectively cover the full [8,\u202F50] range, nor any evidence that each\
+    \ injected signal\u2019s SNR lies within \xB10.5 of its target. The claim lacks\
+    \ the required verification results or supporting files."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test output, or documentation was provided showing that a validation\
+    \ step was added to check that quantized signals contain no more than\u202F$2^{N}$\u202F\
+    unique levels (including clipping) and that the SNR is within \xB10.5 of the target.\
+    \ The claim lacks any concrete artifact (e.g., a function, unit test, or log)\
+    \ to verify the requirement."
+T018:
+  c: false
+  h: 00ebc7a5abd425607903027a8613d1eaa6a5d087930d9843120089250baff370
+  r: "The required artifact `tests/unit/test_metrics.py` is missing entirely, so no\
+    \ unit test exists to verify the MSE bias requirement. Without the file, the task\u2019\
+    s deliverable is not present."
+T019:
+  c: false
+  h: 3a93f07fa6edc2c02d5adb356518cb854cb0c90f763b251f533d9d642060a74f
+  r: "The required file `tests/integration/test_inference.py` is missing, so no integration\
+    \ test exists to verify convergence on an SNR\u202F>\u202F10 signal. Without this\
+    \ artifact, the task\u2019s core requirement is not satisfied."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and specification; no code,\
+    \ data files, computed MSE values, or any other artifact demonstrating the calculation\
+    \ of mean\u2011squared error between injected ground\u2011truth parameters and\
+    \ recovered posterior means is present. Consequently, the required output is missing."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No file `data/results/inference_pilot_{seed}.json` (or a CSV equivalent) was\
+    \ presented, nor any content showing saved inference results with 90\u202F% credible\
+    \ intervals. Without the required artifact, the claim cannot be verified. The\
+    \ implementer must provide the actual JSON/CSV file containing the inference outputs\
+    \ and credible interval data."

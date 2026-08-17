@@ -1,22 +1,40 @@
 T006:
   c: false
-  h: bc4c5b400ee4dcda7a004043882f80809c4cdd34c8465f785f39fc1f01e23918
-  r: "The provided `code/synthetic/generator.py` stops mid\u2011function and does\
-    \ not contain any code that iterates over\u202FN images, writes FITS files with\
-    \ the required `synth_{id:03d}.fits` naming, computes checksums, or creates the\
-    \ `gt_metadata.json` file. Moreover, the expected `data/synthetic/gt_metadata.json`\
-    \ is absent from the repository. Consequently the required artifacts are missing\
-    \ and the task is not fulfilled."
+  h: 8d3bd273e062999ef2fd113ad06074e69f449e6f27210e0bf1f678af7a2c097d
+  r: "The provided `code/synthetic/generator.py` is truncated and contains a syntax\
+    \ error (`return inte`), with no evidence that it writes FITS files or creates\
+    \ the required `gt_metadata.json`. Moreover, the `data/synthetic/gt_metadata.json`\
+    \ file is missing entirely. Consequently, the task\u2019s required artifacts are\
+    \ not present or functional."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `tests/unit/` directory, test files, or pytest configuration (e.g., `pytest.ini`
     or `conftest.py`) are present in the provided evidence, so the required test structure
     and setup have not been delivered.
+T015:
+  c: false
+  h: 955b6923b3069645f65ddf7dedf3192cb977de44bb81312a4a5e05681359c101
+  r: "The repository lacks the required `data/synthetic/gt_metadata.json` file, so\
+    \ the pipeline cannot load ground\u2011truth metadata. Moreover, the provided\
+    \ `code/main.py` excerpt does not show a `run_us1_pipeline` implementation that\
+    \ performs the specified steps (loading clean image, injecting noise, measuring\
+    \ ellipticity, computing bias, calling `run_noise_regression`, and logging). Both\
+    \ the essential data file and the function are missing, so the task is not genuinely\
+    \ completed."
+T016:
+  c: false
+  h: 41962b062a20c07f3b98c070657ad6f6c78b6de9337da446eb4fafa2c590c9b5
+  r: The repository contains a partially shown `run_noise_regression` implementation,
+    but the required output file `data/processed/noise_stats.csv` does not exist,
+    indicating the function either was not executed or does not write the expected
+    CSV with the specified schema. The code snippet is truncated, so we cannot verify
+    that the regression, Bonferroni correction, and CSV writing are fully implemented.
+    The missing output file must be generated for the task to be considered complete.
 T040:
   c: false
-  h: f3c3b6a9de519fe851aeb8512a7de41b519d49c5de46b54550f14a378217b42b
-  r: "The repository lacks the required `data/synthetic/gt_metadata.json` file, and\
-    \ the shown `code/main.py` does not contain any code that loads this ground\u2011\
-    truth metadata before computing asymmetry bias. Both the artifact and the necessary\
-    \ logic are missing."
+  h: 955b6923b3069645f65ddf7dedf3192cb977de44bb81312a4a5e05681359c101
+  r: The repository lacks the required `data/synthetic/gt_metadata.json` file, and
+    the shown portion of `code/main.py` does not contain (or demonstrate) a `run_us2_pipeline`
+    function that loads this metadata before computing asymmetry bias. Both the artifact
+    and the expected code change are absent.

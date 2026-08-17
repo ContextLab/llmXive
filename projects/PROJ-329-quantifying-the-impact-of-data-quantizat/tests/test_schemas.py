@@ -1,6 +1,6 @@
 """
-Unit tests for data schema definitions (T007).
-Validates that schema files exist, are valid YAML, and contain required fields.
+Unit tests for data schemas (waveform.schema.yaml, result.schema.yaml).
+Validates schema existence, syntax, and required fields.
 """
 import os
 import sys
@@ -9,81 +9,89 @@ import yaml
 import pytest
 from pathlib import Path
 
-# Project root for imports
+# Ensure project root is in path
 PROJECT_ROOT = Path(__file__).parent.parent
 CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
+
 def load_schema(filename: str) -> dict:
-    """Load a schema file from the contracts directory."""
-    schema_path = CONTRACTS_DIR / filename
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    with open(schema_path, "r") as f:
+    """Load a YAML schema from the contracts directory."""
+    filepath = CONTRACTS_DIR / filename
+    if not filepath.exists():
+        raise FileNotFoundError(f"Schema file not found: {filepath}")
+    with open(filepath, 'r') as f:
         return yaml.safe_load(f)
 
-class TestSchemaExistence:
+
+class TestWaveformSchema:
     def test_waveform_schema_exists(self):
         """Verify waveform.schema.yaml exists."""
         assert (CONTRACTS_DIR / "waveform.schema.yaml").exists()
 
-    def test_result_schema_exists(self):
-        """Verify result.schema.yaml exists."""
-        assert (CONTRACTS_DIR / "result.schema.yaml").exists()
-
-class TestSchemaSyntax:
     def test_waveform_schema_syntax(self):
         """Verify waveform schema is valid YAML."""
         schema = load_schema("waveform.schema.yaml")
         assert isinstance(schema, dict)
-        assert "$schema" in schema
-        assert "properties" in schema
+        assert "type" in schema
+        assert schema["type"] == "object"
+
+    def test_waveform_schema_required_fields(self):
+        """Verify required fields in waveform schema."""
+        schema = load_schema("waveform.schema.yaml")
+        # Check top-level required fields
+        assert "required" in schema
+        assert "metadata" in schema["required"]
+        assert "signals" in schema["required"]
+
+        # Check metadata required fields
+        metadata_props = schema["properties"]["metadata"]
+        assert "required" in metadata_props
+        required_meta = metadata_props["required"]
+        assert "version" in required_meta
+        assert "seed" in required_meta
+        assert "bit_depths" in required_meta
+
+        # Check signal item required fields
+        signals_items = schema["properties"]["signals"]["items"]
+        assert "required" in signals_items
+        required_sig = signals_items["required"]
+        assert "signal_id" in required_sig
+        assert "injection_params" in required_sig
+        assert "quantization_results" in required_sig
+
+
+class TestResultSchema:
+    def test_result_schema_exists(self):
+        """Verify result.schema.yaml exists."""
+        assert (CONTRACTS_DIR / "result.schema.yaml").exists()
 
     def test_result_schema_syntax(self):
         """Verify result schema is valid YAML."""
         schema = load_schema("result.schema.yaml")
         assert isinstance(schema, dict)
-        assert "$schema" in schema
-        assert "properties" in schema
-
-class TestRequiredFields:
-    def test_waveform_schema_required_fields(self):
-        """Verify waveform schema defines required top-level fields."""
-        schema = load_schema("waveform.schema.yaml")
-        required = schema.get("required", [])
-        assert "metadata" in required
-        assert "waveforms" in required
-
-        # Check metadata required fields
-        metadata_props = schema["properties"]["metadata"]["properties"]
-        metadata_required = schema["properties"]["metadata"].get("required", [])
-        assert "version" in metadata_required
-        assert "generated_at" in metadata_required
-        assert "seed" in metadata_required
-        assert "bit_depths" in metadata_required
-
-        # Check waveform item required fields
-        waveform_item = schema["properties"]["waveforms"]["items"]
-        item_required = waveform_item.get("required", [])
-        assert "signal_id" in item_required
-        assert "injection_params" in item_required
-        assert "quantization_params" in item_required
+        assert "type" in schema
+        assert schema["type"] == "object"
 
     def test_result_schema_required_fields(self):
-        """Verify result schema defines required top-level fields."""
+        """Verify required fields in result schema."""
         schema = load_schema("result.schema.yaml")
-        required = schema.get("required", [])
-        assert "metadata" in required
-        assert "results" in required
+        
+        # Check top-level required fields
+        assert "required" in schema
+        assert "metadata" in schema["required"]
+        assert "results" in schema["required"]
 
-        # Check metadata required fields
-        metadata_props = schema["properties"]["metadata"]["properties"]
-        metadata_required = schema["properties"]["metadata"].get("required", [])
-        assert "version" in metadata_required
-        assert "generated_at" in metadata_required
-
-        # Check result item required fields
-        result_item = schema["properties"]["results"]["items"]
-        item_required = result_item.get("required", [])
-        assert "signal_id" in item_required
-        assert "inference_status" in item_required
-        assert "posterior_summary" in item_required
+        # Check results item structure
+        results_items = schema["properties"]["results"]["items"]
+        assert "required" in results_items
+        required_res = results_items["required"]
+        assert "signal_id" in required_res
+        assert "status" in required_res
+        assert "posterior_samples" in required_res or "recovered_params" in required_res
+        
+        # Verify status enum
+        status_def = results_items["properties"]["status"]
+        assert "enum" in status_def
+        assert "converged" in status_def["enum"]
+        assert "failed" in status_def["enum"]
+        assert "non_detection" in status_def["enum"]
