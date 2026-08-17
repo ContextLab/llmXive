@@ -1,180 +1,189 @@
 """
-Pytest configuration and fixtures for PROJ-743.
+Pytest configuration and fixtures for the Ambient Temperature Influence on Moral Decision Speed project.
 
-Provides:
-- CPU-only execution enforcement
-- Stratified sampling fixtures for testing with limited data
-- Path utilities for data access
+This module configures:
+- CPU-only execution (disabling any potential GPU usage)
+- Stratified sampling utilities for memory-constrained environments
+- Custom markers for test categorization
+- Fixtures for common test data loading
 """
+
 import os
 import sys
-import logging
-import random
-from pathlib import Path
-from typing import List, Any, Dict, Optional
-from datetime import datetime
-
 import pytest
-import pandas as pd
+import random
 import numpy as np
+import pandas as pd
+from pathlib import Path
 
-# Project root detection
+# Force CPU-only execution
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # Suppress TensorFlow GPU warnings
+
+# Project root configuration
 PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-RAW_DIR = DATA_DIR / "raw"
-LOGS_DIR = PROJECT_ROOT / "results" / "logs"
+sys.path.insert(0, str(PROJECT_ROOT))
 
-# Ensure logging directory exists for test runs
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+# Stratified sampling configuration
+STRATIFIED_SAMPLE_SIZE = 1000  # Default sample size for stratified testing
+RANDOM_SEED = 42  # Fixed seed for reproducibility
 
-# Configure logging for tests
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOGS_DIR / f"test_run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
 
-# -----------------------------------------------------------------------------
-# CPU-Only Enforcement
-# -----------------------------------------------------------------------------
+def pytest_configure(config):
+    """Configure custom markers and environment settings."""
+    config.addinivalue_line(
+        "markers", "unit: mark test as a unit test"
+    )
+    config.addinivalue_line(
+        "markers", "integration: mark test as an integration test"
+    )
+    config.addinivalue_line(
+        "markers", "slow: mark test as slow running"
+    )
+    config.addinivalue_line(
+        "markers", "cpu_only: explicitly mark test as CPU-only (enforces no GPU)"
+    )
+    config.addinivalue_line(
+        "markers", "stratified: mark test to use stratified sampling on large datasets"
+    )
 
-@pytest.fixture(autouse=True)
+
+@pytest.fixture(scope="session", autouse=True)
 def enforce_cpu_only():
-    """
-    Fixture to ensure no GPU libraries are accidentally imported during tests.
-    This enforces the project constraint of CPU-only execution.
-    """
-    # Check for common GPU environment variables
-    if os.environ.get("CUDA_VISIBLE_DEVICES", "") != "":
-        pytest.skip("CUDA_VISIBLE_DEVICES is set; CPU-only tests require it to be empty.")
-    
-    # Check if torch/cuda is available and disable if so
-    try:
-        import torch
-        if torch.cuda.is_available():
-            # Force CPU for any torch operations in tests
-            torch.set_default_tensor_type(torch.DoubleTensor)
-            os.environ["CUDA_VISIBLE_DEVICES"] = ""
-            logging.info("Forcefully set torch to CPU mode.")
-    except ImportError:
-        pass  # torch not installed, which is fine for CPU-only
-
+    """Ensure all tests run on CPU only."""
+    # Double-check environment variables
+    assert os.environ.get("CUDA_VISIBLE_DEVICES") == "", "GPU devices must be disabled"
     yield
 
-# -----------------------------------------------------------------------------
-# Stratified Sampling Fixtures
-# -----------------------------------------------------------------------------
-
-def stratified_sample(df: pd.DataFrame, 
-                      strata_column: str, 
-                      sample_size: int, 
-                      random_seed: int = 42) -> pd.DataFrame:
-    """
-    Perform stratified sampling on a DataFrame.
-    
-    Args:
-        df: Input DataFrame
-        strata_column: Column name to stratify by
-        sample_size: Total number of samples to draw
-        random_seed: Random seed for reproducibility
-    
-    Returns:
-        DataFrame with stratified sample
-    """
-    random.seed(random_seed)
-    np.random.seed(random_seed)
-    
-    # Calculate sample size per stratum
-    strata_counts = df[strata_column].value_counts()
-    total_strata = len(strata_counts)
-    
-    # Ensure we don't sample more than available in any stratum
-    sample_per_stratum = max(1, sample_size // total_strata)
-    
-    sampled_dfs = []
-    for stratum, count in strata_counts.items():
-        n = min(sample_per_stratum, count)
-        stratum_df = df[df[strata_column] == stratum]
-        sampled = stratum_df.sample(n=n, random_state=random_seed)
-        sampled_dfs.append(sampled)
-    
-    return pd.concat(sampled_dfs, ignore_index=True)
 
 @pytest.fixture
-def sample_moral_machine_data():
+def stratified_sample_data(request, tmp_path):
     """
-    Fixture to provide a small, stratified sample of Moral Machine data
-    for testing ingestion and filtering logic without loading the full dataset.
+    Fixture to generate stratified sample data for testing.
     
-    Simulates the structure of the real dataset if the real file is unavailable
-    or too large, but strictly adheres to the schema expected by the ingestion module.
+    This fixture creates a synthetic dataset that mimics the structure of the
+    merged Moral Machine + ERA5 dataset, then applies stratified sampling.
+    
+    Usage:
+        def test_my_function(stratified_sample_data):
+            df = stratified_sample_data
+            # Run tests on stratified sample
     """
-    # Since we cannot load real data in a test environment without dependencies,
-    # we create a synthetic schema-compliant dataset for testing logic.
-    # In a real integration test, this would load from data/processed/merged_dataset.parquet
-    # or a specific test fixture file.
+    # Get sample size from request or use default
+    sample_size = request.param if hasattr(request, 'param') else STRATIFIED_SAMPLE_SIZE
     
-    n_samples = 500
-    np.random.seed(42)
+    # Create a realistic mock dataset structure
+    np.random.seed(RANDOM_SEED)
+    random.seed(RANDOM_SEED)
     
+    n_total = min(sample_size * 10, 5000)  # Create a larger dataset to sample from
+    
+    # Generate stratified data based on key variables
+    # Stratify by: temperature_range (cold, moderate, hot) and dilemma_complexity
+    temperatures = np.random.normal(20, 8, n_total)  # Mean 20°C, std 8°C
+    complexities = np.random.choice(['simple', 'complex'], n_total, p=[0.6, 0.4])
+    
+    # Create temperature ranges for stratification
+    def get_temp_range(temp):
+        if temp < 15:
+            return 'cold'
+        elif temp < 25:
+            return 'moderate'
+        else:
+            return 'hot'
+    
+    temp_ranges = [get_temp_range(t) for t in temperatures]
+    
+    # Generate response times (log-normal distribution to mimic real data)
+    response_times = np.random.lognormal(mean=4.5, sigma=0.8, size=n_total)
+    
+    # Generate other necessary columns
+    dilemma_choices = np.random.choice(['save_occupants', 'save_pedestrians'], n_total)
+    participant_ids = [f"participant_{i}" for i in range(n_total)]
+    country_codes = np.random.choice(['US', 'GB', 'DE', 'FR', 'JP', 'BR', 'IN'], n_total)
+    
+    # Create DataFrame
+    df = pd.DataFrame({
+        'participant_id': participant_ids,
+        'temperature_celsius': temperatures,
+        'response_time_ms': response_times,
+        'dilemma_complexity': complexities,
+        'dilemma_choice': dilemma_choices,
+        'country_code': country_codes,
+        'temp_range': temp_ranges
+    })
+    
+    # Apply stratified sampling
+    strata = ['temp_range', 'dilemma_complexity']
+    sample_df = df.groupby(strata, group_keys=False).apply(
+        lambda x: x.sample(n=min(int(sample_size / len(df.groupby(strata).groups)), len(x)), random_state=RANDOM_SEED)
+    ).reset_index(drop=True)
+    
+    # Ensure we have the requested sample size
+    if len(sample_df) > sample_size:
+        sample_df = sample_df.sample(n=sample_size, random_state=RANDOM_SEED)
+    
+    return sample_df
+
+
+@pytest.fixture
+def small_moral_machine_sample(tmp_path):
+    """
+    Fixture providing a small, known subset of Moral Machine data for testing.
+    
+    This creates a minimal CSV file that mimics the structure of the real Moral
+    Machine dataset, suitable for quick unit tests.
+    """
     data = {
-        'scenario_id': np.random.randint(1, 1000, n_samples),
-        'timestamp': pd.date_range('2016-01-01', periods=n_samples, freq='H'),
-        'latitude': np.random.uniform(-90, 90, n_samples),
-        'longitude': np.random.uniform(-180, 180, n_samples),
-        'response_time_ms': np.random.exponential(2000, n_samples).astype(int),
-        'age': np.random.choice(['<18', '18-25', '26-35', '36-45', '46-55', '55+'], n_samples),
-        'gender': np.random.choice(['Male', 'Female', 'Non-binary', 'Prefer not to say'], n_samples),
-        'country_code': np.random.choice(['US', 'UK', 'DE', 'FR', 'JP', 'CN', 'BR', 'IN'], n_samples),
-        'temperature_celsius': np.random.uniform(10, 35, n_samples),
-        'dilemma_choice': np.random.choice(['sideswipe', 'headon', 'swerve'], n_samples),
-        'is_valid_location': np.random.choice([True, False], n_samples, p=[0.95, 0.05]),
-        'match_quality': np.random.choice(['high', 'low'], n_samples, p=[0.9, 0.1])
+        'session_id': ['s1', 's2', 's3', 's4', 's5'],
+        'participant_id': ['p1', 'p2', 'p3', 'p4', 'p5'],
+        'timestamp': ['2016-03-15 10:30:00', '2016-03-15 11:45:00', '2016-03-16 09:15:00', '2016-03-16 14:20:00', '2016-03-17 16:50:00'],
+        'latitude': [51.5074, 48.8566, 52.5200, 35.6762, 40.7128],
+        'longitude': [-0.1278, 2.3522, 13.4050, 139.6503, -74.0060],
+        'response_time_ms': [2500, 3200, 1800, 4100, 2900],
+        'choice': ['save_occupants', 'save_pedestrians', 'save_occupants', 'save_pedestrians', 'save_occupants'],
+        'dilemma_type': ['pedestrians_vs_occupants', 'pedestrians_vs_occupants', 'pedestrians_vs_occupants', 'pedestrians_vs_occupants', 'pedestrians_vs_occupants'],
+        'country': ['GB', 'FR', 'DE', 'JP', 'US']
     }
     
     df = pd.DataFrame(data)
+    file_path = tmp_path / "moral_machine_sample.csv"
+    df.to_csv(file_path, index=False)
     
-    # Introduce some missing values to test filtering
-    df.loc[np.random.choice(df.index, 20), 'latitude'] = np.nan
-    df.loc[np.random.choice(df.index, 15), 'response_time_ms'] = 50  # Invalid < 100ms
-    df.loc[np.random.choice(df.index, 10), 'response_time_ms'] = 15000  # Invalid > 10000ms
-    
-    return df
+    return file_path
+
 
 @pytest.fixture
-def small_era5_sample():
+def small_era5_sample(tmp_path):
     """
-    Fixture for a small ERA5 temperature sample for geospatial matching tests.
+    Fixture providing a small ERA5 temperature sample for testing.
+    
+    This creates a minimal Parquet file mimicking the structure of ERA5 data.
     """
-    # Create a minimal grid of temperature data
-    lats = [40.0, 40.1, 40.2, 41.0, 41.1]
-    lons = [-74.0, -73.9, -73.8, -74.0, -73.9]
-    temps = [20.5, 21.0, 20.8, 19.5, 20.0]
+    import pandas as pd
+    import numpy as np
+    
+    dates = pd.date_range(start='2016-01-01', end='2016-01-07', freq='H')
+    n_hours = len(dates)
     
     data = {
-        'latitude': lats,
-        'longitude': lons,
-        'temperature_2m': temps,
-        'time': pd.date_range('2016-01-01', periods=len(lats), freq='1h')
+        'datetime': dates,
+        'latitude': [51.5074] * n_hours,
+        'longitude': [-0.1278] * n_hours,
+        'temperature_2m': [10.5 + np.sin(i / 24) * 3 for i in range(n_hours)]  # Simulate daily cycle
     }
-    return pd.DataFrame(data)
+    
+    df = pd.DataFrame(data)
+    file_path = tmp_path / "era5_sample.parquet"
+    df.to_parquet(file_path, index=False)
+    
+    return file_path
 
-# -----------------------------------------------------------------------------
-# Path Fixtures
-# -----------------------------------------------------------------------------
 
-@pytest.fixture
-def project_root():
-    return PROJECT_ROOT
-
-@pytest.fixture
-def data_dir():
-    return DATA_DIR
-
-@pytest.fixture
-def logs_dir():
-    return LOGS_DIR
+@pytest.fixture(autouse=True)
+def reset_random_seeds():
+    """Reset random seeds before each test for reproducibility."""
+    random.seed(RANDOM_SEED)
+    np.random.seed(RANDOM_SEED)
+    pd.random.seed(RANDOM_SEED) if hasattr(pd, 'random') else None
+    yield

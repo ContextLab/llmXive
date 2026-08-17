@@ -57,7 +57,7 @@ This project investigates the correlation between ambient temperature and the sp
 ### Efficient Spatial‑Temporal Matching (Addresses data_resources‑7cd66e3b)
 
 - ERA5 grid points are loaded into a **KD‑Tree** (via `scipy.spatial.cKDTree`).
-- Moral Machine data are processed in **1‑million‑row chunks**; each chunk queries the KD‑Tree for the nearest grid point, checks the temporal window (≤ 2 h), and records the match.
+- Moral Machine data are processed in **‑million‑row chunks**; each chunk queries the KD‑Tree for the nearest grid point, checks the temporal window (≤ 2 h), and records the match.
 - This chunked, indexed approach keeps peak memory < 5 GB.
 
 ### Verified Dataset URLs (Addresses data_resources‑9ee0b9aa & data_resources‑ea62ba82)

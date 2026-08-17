@@ -1,0 +1,11 @@
+# Development dependencies for testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+# Ensure pandas and numpy are present for data tests
+pandas>=1.5.0
+numpy>=1.23.0
+# Additional tools for code quality (optional but recommended)
+black>=22.0.0
+ruff>=0.0.280
+flake8>=6.0.0
+mypy>=1.0.0

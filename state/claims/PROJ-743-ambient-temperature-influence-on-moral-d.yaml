@@ -1,0 +1,194 @@
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: fetch full 2016-2019 ERA5 2m temperature dataset
+  claim_id: c_5f530157
+  context: Write a Python script fetch_era5_full.py to fetch the full 2016-2019 ERA5
+    2m temperature dataset required for the primary analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch the full 2016-2019 ERA5 2m temperature dataset required for the
+    primary analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:06:05Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: merge full ERA5 dataset with Moral Machine data
+  claim_id: c_b1b996b9
+  context: Execute the fetching logic from T018 to fetch the full dataset (using the
+    script from T002c) and merge it with Moral Machine data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Merge_full_ERA5_dataset_with_Moral_Machine_data
+  kind: entity_fact
+  raw_text: fetch the full dataset (using the script from T002c) and merge it with
+    Moral Machine data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:06:25Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: filter records with response times <100ms or >10000ms
+  claim_id: c_080180e2
+  context: Implement code/ingestion.py to load Moral Machine dataset and filter records
+    with missing location data or impossible response times (<100ms or >10,000ms)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter records with missing location data or impossible response times
+    (<100ms or >10,000ms)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:06:25Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: link Moral Machine records to ERA5 grid within 100km threshold
+  claim_id: c_25db86ba
+  context: Implement geospatial matching logic in code/ingestion.py to link Moral
+    Machine records to nearest ERA5 grid within 100km threshold.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Link_Moral_Machine_records_to_ERA5_grid_within_100km_thresho
+  kind: entity_fact
+  raw_text: link Moral Machine records to nearest ERA5 grid within 100km threshold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:06:43Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: apply linear interpolation if ERA5 gap is <= 2 hours
+  claim_id: c_2c57cba5
+  context: "Implement time-based interpolation for missing ERA5 hourly values in code/ingestion.py:\
+    \ apply linear interpolation ONLY if the gap is \u22642 hours"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "apply linear interpolation ONLY if the gap is \u22642 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:06:44Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: fetch country-level data from World Bank API for age and gender
+  claim_id: c_c682e737
+  context: 'If absent, fetch aggregate country-level data from the World Bank API
+    (Endpoint: https://api.worldbank.org/v2/country/{id}/indicator/SP.DYN.LE00.IN
+    for life expectancy as age proxy; SP.POP.TOTL for population).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_country-level_data_from_World_Bank_API_for_age_and_gen
+  kind: entity_fact
+  raw_text: fetch aggregate country-level data from the World Bank API
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:07:09Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: fetch World Bank data for years 2016-2019
+  claim_id: c_2d4f6f3c
+  context: 'Endpoint: https://api.worldbank.org/v2/country/{id}/indicator/SP.DYN.LE00.IN
+    for life expectancy as age proxy; SP.POP.TOTL for population). Years: 2016-2019.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Years: 2016-2019'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:07:38Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: perform Likelihood Ratio Test or AIC/BIC comparison between OLS and LMM
+    with alpha 0.05
+  claim_id: c_93e3bdfe
+  context: Perform a Likelihood Ratio Test (LRT) or AIC/BIC comparison between OLS
+    and LMM (alpha=0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a Likelihood Ratio Test (LRT) or AIC/BIC comparison between OLS
+    and LMM (alpha=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:08:01Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: fetch urban/rural data from jrc/ghsl dataset 2023_v1
+  claim_id: c_6807dcf7
+  context: 'Data Source: Fetch urban/rural data from datasets.load_dataset(''jrc/ghsl'',
+    ''2023_v1'') and use the GHSL_POP_GLO_2020V1.0.zip file.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_urban/rural_data_from_jrc/ghsl_dataset_2023_v1
+  kind: entity_fact
+  raw_text: Fetch urban/rural data from datasets.load_dataset('jrc/ghsl', '2023_v1')
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:08:27Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: bin participants into quartiles by country-level median response time
+  claim_id: c_b88e2253
+  context: Implement a stratified analysis in code/robustness.py that bins participants
+    into quartiles based on their country-level median response time (serving as an
+    external proxy for baseline speed, avoiding circularity).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bin_participants_into_quartiles_by_country-level_median_resp
+  kind: entity_fact
+  raw_text: bins participants into quartiles based on their country-level median response
+    time
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:08:50Z'
+- artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  attempts: 1
+  canonical: exclude countries with <30 responses from stratified analysis
+  claim_id: c_1e8a512e
+  context: 'Fallback: If a country has <30 responses, exclude that country from the
+    analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a country has <30 responses, exclude that country from the analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T10:08:50Z'

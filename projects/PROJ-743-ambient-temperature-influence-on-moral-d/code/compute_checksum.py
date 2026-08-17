@@ -5,134 +5,83 @@ import logging
 from datetime import datetime
 from pathlib import Path
 import yaml
+from typing import Optional, Dict, Any
 
 from config import get_path_env_override
+from utils import compute_sha256, update_state_file_with_checksums
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def compute_sha256(file_path: str) -> str:
-    """
-    Compute the SHA-256 checksum of a file.
-
-    Args:
-        file_path: Path to the file to checksum.
-
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
-    """
-    sha256_hash = hashlib.sha256()
-    path = Path(file_path)
-    
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    try:
-        with open(path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except IOError as e:
-        logger.error(f"Error reading file {file_path}: {e}")
-        raise
-
-def ensure_state_file_exists(state_file_path: str) -> Path:
-    """
-    Ensure the state YAML file exists. If not, create it with an empty structure.
-
-    Args:
-        state_file_path: Path to the state YAML file.
-
-    Returns:
-        Path object for the state file.
-    """
-    path = Path(state_file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    if not path.exists():
-        logger.info(f"Creating new state file at {state_file_path}")
+def ensure_state_file_exists(state_path: Path) -> None:
+    """Ensure the state YAML file exists and has the required structure."""
+    if not state_path.exists():
+        state_path.parent.mkdir(parents=True, exist_ok=True)
         initial_data = {
             "project_id": "PROJ-743-ambient-temperature-influence-on-moral-d",
-            "created_at": datetime.utcnow().isoformat(),
-            "checksums": {}
+            "artifact_hashes": {},
+            "updated_at": datetime.utcnow().isoformat()
         }
-        with open(path, 'w') as f:
-            yaml.dump(initial_data, f, default_flow_style=False)
+        with open(state_path, 'w') as f:
+            yaml.dump(initial_data, f)
+        logger.info(f"Created new state file: {state_path}")
     else:
-        logger.info(f"State file already exists at {state_file_path}")
+        logger.info(f"State file exists: {state_path}")
+
+def update_state_file(state_path: Path, key: str, value: str) -> None:
+    """Update the state file with a new checksum and timestamp."""
+    try:
+        with open(state_path, 'r') as f:
+            data = yaml.safe_load(f) or {}
         
-    return path
-
-def update_state_file(state_file_path: str, file_path: str, checksum: str) -> None:
-    """
-    Update the state YAML file with the new checksum entry.
-
-    Args:
-        state_file_path: Path to the state YAML file.
-        file_path: Path to the file whose checksum is being recorded.
-        checksum: The SHA-256 checksum string.
-    """
-    path = Path(state_file_path)
-    
-    with open(path, 'r') as f:
-        data = yaml.safe_load(f)
-    
-    if 'checksums' not in data:
-        data['checksums'] = {}
-    
-    # Store relative path for portability
-    relative_path = str(Path(file_path).relative_to(Path.cwd().parent)) if 'state' not in str(file_path) else str(file_path)
-    
-    data['checksums'][relative_path] = {
-        "algorithm": "sha256",
-        "value": checksum,
-        "recorded_at": datetime.utcnow().isoformat()
-    }
-    
-    with open(path, 'w') as f:
-        yaml.dump(data, f, default_flow_style=False)
-    
-    logger.info(f"Updated state file with checksum for {relative_path}")
+        if "artifact_hashes" not in data:
+            data["artifact_hashes"] = {}
+        
+        data["artifact_hashes"][key] = value
+        data["updated_at"] = datetime.utcnow().isoformat()
+        
+        with open(state_path, 'w') as f:
+            yaml.dump(data, f, default_flow_style=False)
+        
+        logger.info(f"Updated state file: {key} = {value}")
+    except Exception as e:
+        logger.error(f"Failed to update state file: {e}")
+        raise
 
 def main():
     """
-    Main entry point for the checksum computation task.
-    Computes the SHA-256 of the ERA5 sample file and updates the project state.
+    Main entry point for computing the checksum of the ERA5 sample file.
+    This function is designed to be called by run_compute_checksum_sample.py.
+    It targets `data/raw/era5_sample.h5` and updates the state file.
     """
-    # Define paths based on project structure
-    # Assuming standard project layout: root -> data/raw/era5_sample.h5
-    # and root -> state/projects/...
-    project_root = Path.cwd()
-    sample_file = project_root / "data" / "raw" / "era5_sample.h5"
-    state_file = project_root / "state" / "projects" / "PROJ-743-ambient-temperature-influence-on-moral-d.yaml"
+    # Define paths
+    project_root = Path(".")
+    sample_file_path = project_root / "data" / "raw" / "era5_sample.h5"
+    state_file_path = project_root / "state" / "projects" / "PROJ-743-ambient-temperature-influence-on-moral-d.yaml"
     
-    # Allow overrides via environment if needed, though task specifies exact paths
-    # Using the explicit paths from the task description
-    if sample_file.exists():
-        logger.info(f"Computing checksum for {sample_file}")
-        try:
-            checksum = compute_sha256(str(sample_file))
-            logger.info(f"SHA-256: {checksum}")
-            
-            ensure_state_file_exists(str(state_file))
-            update_state_file(str(state_file), str(sample_file), checksum)
-            
-            logger.info("Checksum computation and state update completed successfully.")
-        except Exception as e:
-            logger.error(f"Failed to compute or record checksum: {e}")
-            sys.exit(1)
-    else:
-        logger.error(f"Sample file not found at {sample_file}. "
-                     "Please ensure T002 (fetch_era5.py) has been run successfully.")
+    # Ensure state file exists
+    ensure_state_file_exists(state_file_path)
+    
+    # Check if sample file exists
+    if not sample_file_path.exists():
+        logger.error(f"Sample file not found: {sample_file_path}")
         sys.exit(1)
+    
+    # Compute checksum
+    try:
+        checksum = compute_sha256(sample_file_path)
+        logger.info(f"Computed SHA-256 for {sample_file_path}: {checksum}")
+    except Exception as e:
+        logger.error(f"Failed to compute checksum: {e}")
+        sys.exit(1)
+    
+    # Update state file
+    try:
+        update_state_file(state_file_path, "era5_sample", checksum)
+    except Exception as e:
+        logger.error(f"Failed to update state file: {e}")
+        sys.exit(1)
+    
+    logger.info("T003: Checksum computed and recorded successfully.")
 
 if __name__ == "__main__":
     main()

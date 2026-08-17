@@ -75,3 +75,14 @@
   verification_status: mismatch
   verified_against_url: https://cds.climate.copernicus.eu/api/v2
   verified_at: '2026-07-14T23:30:11.254526Z'
+- artifact_hash: fdeef8e255a9fa8057abdb346aa25295fd1f98ae66a9788f443503458acad80a
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: SP.DYN.LE00.IN
+  kind: url
+  value: https://api.worldbank.org/v2/country/{id}/indicator/SP.DYN.LE00.IN`
+  verification_status: pending
+  verified_against_url: https://api.worldbank.org/v2/country/%7Bid%7D/indicator/SP.DYN.LE00.IN
+  verified_at: '2026-08-17T10:08:50.347330Z'

@@ -1,87 +1,141 @@
 """
-Configuration and setup script for linting (ruff/flake8) and formatting (black) tools.
-This script ensures that the project has the necessary configuration files:
-- pyproject.toml (containing Black settings and ruff/flake8 configuration)
-- .ruff.toml (optional, for ruff-specific overrides if needed)
+Linting and Formatting Configuration Module.
 
-It also provides a main() entry point to execute the setup.
+This module provides functions to generate and ensure the existence of
+configuration files for Ruff (linting) and Black (formatting), as well
+as a pyproject.toml entry for Black settings.
 """
+
 import os
 import sys
 from pathlib import Path
 
+from config import get_path_env_override
+
+
 def ensure_pyproject_toml():
     """
-    Creates or updates the pyproject.toml file with configuration for
-    Black (formatter) and Ruff (linter) as per project standards.
-    
-    Returns:
-        Path: The path to the pyproject.toml file.
+    Ensure pyproject.toml exists and contains Black configuration.
+
+    Creates the file if missing, or appends the [tool.black] section
+    if it does not already exist.
     """
-    root = Path(__file__).resolve().parent.parent
+    root = get_path_env_override("PROJECT_ROOT", Path("."))
     pyproject_path = root / "pyproject.toml"
-    
-    # Define the configuration content
-    # We use a list of lines to ensure consistent formatting and indentation
-    config_lines = [
-        "[tool.black]",
-        "line-length = 88",
-        "target-version = ['py39', 'py310', 'py311']",
-        "include = '\\.pyi?$'",
-        "extend-exclude = '''",
-        "^/venv/",
-        "^/build/",
-        "^/.git/",
-        "'''",
-        "",
-        "[tool.ruff]",
-        "line-length = 88",
-        "target-version = 'py311'",
-        "select = [",
-        "    \"E\",  # pycodestyle errors",
-        "    \"W\",  # pycodestyle warnings",
-        "    \"F\",  # Pyflakes",
-        "    \"I\",  # isort",
-        "    \"B\",  # flake8-bugbear",
-        "    \"C4\", # flake8-comprehensions",
-        "]",
-        "ignore = [",
-        "    \"E501\", # line too long (handled by black)",
-        "    \"B008\", # do not perform function calls in argument defaults",
-        "]",
-        "",
-        "[tool.ruff.per-file-ignores]",
-        "\"__init__.py\" = [\"F401\"]",
-        "",
-        "[tool.ruff.isort]",
-        "known-first-party = [\"code\", \"tests\", \"results\", \"data\"]",
-        "",
-        "[tool.black]",
-        "skip-string-normalization = false",
-        ""
-    ]
-    
-    content = "\n".join(config_lines)
-    
-    # Write the file if it doesn't exist, or update it if it does (simple overwrite for this task)
-    # In a real scenario, we might want to merge, but for this task, we ensure the config exists.
-    pyproject_path.write_text(content)
-    
-    print(f"Successfully configured {pyproject_path} for Black and Ruff.")
-    return pyproject_path
+
+    black_section = """
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\\.pyi?$'
+exclude = '''
+/(
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+"""
+
+    if not pyproject_path.exists():
+        pyproject_path.write_text(
+            "[project]\nname = \"ambient-temp-moral-speed\"\nversion = \"0.1.0\"\n"
+            + black_section
+        )
+        return True
+
+    content = pyproject_path.read_text()
+    if "[tool.black]" not in content:
+        with open(pyproject_path, "a", encoding="utf-8") as f:
+            f.write(black_section)
+        return True
+
+    return False
+
+
+def ensure_ruff_config():
+    """
+    Ensure .ruff.toml exists with standard linting rules.
+    """
+    root = get_path_env_override("PROJECT_ROOT", Path("."))
+    ruff_path = root / ".ruff.toml"
+
+    config_content = """
+# Ruff configuration for ambient-temp-moral-speed
+target-version = "py39"
+line-length = 88
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[lint.isort]
+known-first-party = ["code"]
+"""
+
+    if not ruff_path.exists():
+        ruff_path.write_text(config_content)
+        return True
+    return False
+
+
+def ensure_flake8_config():
+    """
+    Ensure .flake8 exists (legacy fallback, though Ruff is preferred).
+    """
+    root = get_path_env_override("PROJECT_ROOT", Path("."))
+    flake8_path = root / ".flake8"
+
+    config_content = """
+[flake8]
+max-line-length = 88
+exclude = .git,__pycache__,build,dist
+ignore = E501,B008
+"""
+
+    if not flake8_path.exists():
+        flake8_path.write_text(config_content)
+        return True
+    return False
+
 
 def main():
     """
-    Main entry point for the linting configuration setup.
+    Main entry point to configure linting and formatting tools.
     """
-    print("Starting linting and formatting configuration setup...")
-    try:
-        ensure_pyproject_toml()
-        print("Configuration complete. Run 'black .' and 'ruff check .' to apply.")
-        return 0
-    except Exception as e:
-        print(f"Error during configuration: {e}", file=sys.stderr)
-        return 1
+    print("Configuring linting and formatting tools...")
+
+    created_pyproject = ensure_pyproject_toml()
+    created_ruff = ensure_ruff_config()
+    created_flake8 = ensure_flake8_config()
+
+    if created_pyproject:
+        print("Created/Updated pyproject.toml with Black configuration.")
+    if created_ruff:
+        print("Created .ruff.toml configuration.")
+    if created_flake8:
+        print("Created .flake8 configuration (legacy).")
+
+    print("Linting and formatting configuration complete.")
+    return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
