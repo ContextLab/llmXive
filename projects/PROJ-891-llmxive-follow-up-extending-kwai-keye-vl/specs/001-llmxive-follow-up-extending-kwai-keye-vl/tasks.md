@@ -61,8 +61,8 @@
 - [ ] T005 Create model cache directory: `models/`
 - [ ] T007a [P] Define `specs/001-extreme-aspect-ratio-robustness/contracts/dataset.schema.yaml` for synthetic video metadata
 - [ ] T007b [P] Define `specs/001-extreme-aspect-ratio-robustness/contracts/prediction.schema.yaml` for inference output
-- [~] T007c [P] Define `specs/001-extreme-aspect-ratio-robustness/contracts/metric.schema.yaml` for evaluation results
-- [~] T008 Setup environment configuration for memory limits (cgroups/ulimit wrappers) and time limits
+- [ ] T007c [P] Define `specs/001-extreme-aspect-ratio-robustness/contracts/metric.schema.yaml` for evaluation results
+- [ ] T008 Setup environment configuration for memory limits (cgroups/ulimit wrappers) and time limits
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -115,8 +115,8 @@ References: Smith et al. (2023); arXiv:2301.12345. Verify `data/raw/original/` c
 
 ### Tests for User Story 2 (TDD First) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for memory monitoring wrapper in `tests/unit/test_memory.py`
-- [ ] T019 [P] [US2] Integration test for model loading and single clip inference in `tests/integration/test_inference.py`
+- [X] T018 [P] [US2] Unit test for memory monitoring wrapper in `tests/unit/test_memory.py`
+- [X] T019 [P] [US2] Integration test for model loading and single clip inference in `tests/integration/test_inference.py`
 
 ### Implementation for User Story 2
 

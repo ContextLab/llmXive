@@ -1,57 +1,83 @@
+"""
+Configuration for the SN1 Rate Constant Prediction Project.
+"""
 import os
 from pathlib import Path
 from dataclasses import dataclass
 from typing import List
 
-PROJECT_ROOT = Path(__file__).parent.parent
-
-@dataclass
-class TrainingConfig:
-    """Configuration for model training."""
-    hidden_dim: int = 64
-    num_layers: int = 2
-    learning_rate: float = 0.001
-    batch_size: int = 32
-    epochs: int = 50
-    random_seed: int = 42
-    dropout: float = 0.1
-    weight_decay: float = 1e-5
+# Project root relative to this file
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 @dataclass
 class DataConfig:
-    """Configuration for data processing."""
-    train_split: float = 0.7
-    val_split: float = 0.15
-    test_split: float = 0.15
-    steric_threshold: float = 2.0
+    # Paths
+    raw_data_path: Path = BASE_DIR / "data" / "raw" / "sn1_raw.parquet"
+    intermediate_data_path: Path = BASE_DIR / "data" / "processed" / "intermediate_sn1.csv"
+    cleaned_data_path: Path = BASE_DIR / "data" / "processed" / "cleaned_intermediate.csv"
+    descriptors_path: Path = BASE_DIR / "data" / "processed" / "descriptors.csv"
+    final_data_path: Path = BASE_DIR / "data" / "processed" / "cleaned_sn1.csv"
+    
+    # Log paths
+    schema_check_log: Path = BASE_DIR / "data" / "processed" / "schema_check.log"
+    exclusion_raw_log: Path = BASE_DIR / "data" / "processed" / "exclusion_raw.log"
+    clean_log: Path = BASE_DIR / "data" / "processed" / "clean.log"
+    exclusion_report_path: Path = BASE_DIR / "data" / "processed" / "exclusion_report.csv"
+    
+    # Dataset names (HuggingFace)
+    dataset_name_1: str = "DTS-SN1-15-01-2024"
+    dataset_name_2: str = "SN18-All-20240204"
+
+@dataclass
+class TrainingConfig:
+    # Model hyperparameters
+    hidden_dim: int = 64
+    num_layers: int = 3
+    dropout: float = 0.1
+    learning_rate: float = 1e-3
+    batch_size: int = 32
+    epochs: int = 50
+    seed: int = 42
+    
+    # Paths
+    model_output_dir: Path = BASE_DIR / "artifacts"
+    best_model_path: Path = BASE_DIR / "artifacts" / "best_model.pt"
+    metrics_path: Path = BASE_DIR / "artifacts" / "metrics.json"
+    hyperparameter_log_path: Path = BASE_DIR / "artifacts" / "hyperparameter_search.csv"
 
 @dataclass
 class AnalysisConfig:
-    """Configuration for analysis tasks."""
-    shap_seeds: List[int] = None
-    sensitivity_thresholds: List[float] = None
+    # SHAP settings
+    shap_sample_size: int = 1000
+    
+    # Sensitivity settings
+    sensitivity_k_range: List[int] = None
     
     def __post_init__(self):
-        if self.shap_seeds is None:
-            self.shap_seeds = [42, 123, 456, 789, 1011]
-        if self.sensitivity_thresholds is None:
-            self.sensitivity_thresholds = [0.01, 0.02, 0.05, 0.1, 0.2]
+        if self.sensitivity_k_range is None:
+            self.sensitivity_k_range = list(range(1, 11))
 
-# Global configuration instances
-training_config = TrainingConfig()
+def ensure_dirs():
+    """Create necessary directories for data and artifacts."""
+    data_config = DataConfig()
+    training_config = TrainingConfig()
+    
+    dirs = [
+        data_config.raw_data_path.parent,
+        data_config.intermediate_data_path.parent,
+        data_config.cleaned_data_path.parent,
+        data_config.descriptors_path.parent,
+        data_config.final_data_path.parent,
+        data_config.schema_check_log.parent,
+        data_config.exclusion_raw_log.parent,
+        data_config.clean_log.parent,
+        training_config.model_output_dir,
+    ]
+    
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+
+# Instantiation for easy import
 data_config = DataConfig()
+training_config = TrainingConfig()
 analysis_config = AnalysisConfig()
-
-def ensure_dirs(*paths):
-    """Ensure directories exist."""
-    for path in paths:
-        path.mkdir(parents=True, exist_ok=True)
-
-# Paths
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
-FIGURES_DIR = ARTIFACTS_DIR / "figures"
-MODELS_DIR = ARTIFACTS_DIR / "models"
-
-ensure_dirs(DATA_DIR, PROCESSED_DIR, ARTIFACTS_DIR, FIGURES_DIR, MODELS_DIR)

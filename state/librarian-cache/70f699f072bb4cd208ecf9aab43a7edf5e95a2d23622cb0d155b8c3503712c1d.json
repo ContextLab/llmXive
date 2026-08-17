@@ -1,0 +1,403 @@
+{
+  "fetched_at": "2026-08-17T09:36:20Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Evaluating the Impact of Code Generation Models on Code Vulnerability Density",
+      "target_n": 5
+    },
+    "duration_seconds": 43.709,
+    "ended_at": "2026-08-17T09:36:20Z",
+    "expansion": null,
+    "extracted_queries": [
+      "memorization data contamination code generation",
+      "CodeXGLUE BigVul vulnerability detection LLM",
+      "security hallucination LLM code generation",
+      "static analysis CVE injection rate vulnerability density",
+      "training data leakage secure code synthesis"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2506.11022"
+      ]
+    },
+    "per_query_hit_count": {
+      "CodeXGLUE BigVul vulnerability detection LLM": 3,
+      "Evaluating the Impact of Code Generation Models on Code Vulnerability Density computer science": 3,
+      "memorization data contamination code generation": 3,
+      "security hallucination LLM code generation": 3,
+      "static analysis CVE injection rate vulnerability density": 3,
+      "training data leakage secure code synthesis": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 5,
+      "rejections": [
+        {
+          "primary_pointer": "2303.12869",
+          "rationale": "The paper focuses on improving the functional performance (state-of-the-art results) of a code generation model for Java, but it does not measure, analyze, or discuss code vulnerability density, security flaws, or the safety impact of generated code. It fails to satisfy any inclusion criteria (a-f) as it lacks the specific dependent variable (vulnerability) and the mechanism of security evaluation required by the user's question.",
+          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation"
+        },
+        {
+          "primary_pointer": "2402.12317",
+          "rationale": "The paper focuses on improving code generation accuracy and execution rates through retrieval-augmented generation (RAG) techniques, which is a distinct construct from the user's question regarding the impact of these models on code vulnerability density. While both topics involve code generation models, the paper does not measure, analyze, or establish a baseline for security vulnerabilities, failing to satisfy the criteria for same-mechanism evidence or variable overlap.",
+          "title": "EVOR: Evolving Retrieval for Code Generation"
+        },
+        {
+          "primary_pointer": "2212.10264",
+          "rationale": "The paper focuses on \"robustness\" (sensitivity to prompt perturbations) and semantic consistency, which is a distinct construct from \"code vulnerability density\" (security flaws in generated code). While both relate to code generation models, the paper does not measure security vulnerabilities, exploit density, or the specific safety mechanisms the user is asking about, failing to meet criteria (a) or (b) for inclusion in a literature review on vulnerability density.",
+          "title": "ReCode: Robustness Evaluation of Code Generation Models"
+        },
+        {
+          "primary_pointer": "2411.15497",
+          "rationale": "The paper focuses on generating synthetic data for remote sensing object detection to improve detection accuracy (mAP), which is an off-domain application of generative models compared to the user's question about code generation models and software vulnerability density. It does not measure code vulnerabilities, code generation mechanisms, or the specific domain of software security, failing all inclusion criteria (a-f) and triggering the \"off-domain entirely\" rejection rule.",
+          "title": "AeroGen: Enhancing Remote Sensing Object Detection with Diffusion-Driven Data Generation"
+        },
+        {
+          "primary_pointer": "2510.27675",
+          "rationale": "The paper focuses on the methodology of *detecting* vulnerabilities using LLMs (specifically few-shot example selection), whereas the user's question concerns the *generation* of vulnerabilities by code generation models and the resulting density of those vulnerabilities. While both involve LLMs and code security, the paper does not measure the independent variable (code generation models) or the dependent variable (vulnerability density) required for the user's specific research question, nor d",
+          "title": "On the Difficulty of Selecting Few-Shot Examples for Effective LLM-based Vulnerability Detection"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-17T09:35:36Z",
+    "term_input": {
+      "normalized": "evaluating the impact of code generation models on code vulnerability density computer science",
+      "raw": "Evaluating the Impact of Code Generation Models on Code Vulnerability Density computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CDD, or Contamination Detection via output Distribution, identifies data contamination by measuring the peakedness of a model's sampled outputs. We study the conditions under which this approach succeeds and fails on small language models ranging from 70M to 410M parameters. Using controlled contamination experiments on GSM8K, HumanEval, and MATH, we find that CDD's effectiveness depends critically on whether fine-tuning produces verbatim memorization. In the majority of conditions we test, CDD performs at chance level even when the data is verifiably contaminated and detectable by simpler methods. We show that probability-based methods, specifically perplexity and Min-k\\% Prob, outperform CDD in all conditions where any method exceeds chance, suggesting that CDD's peakedness-based approach is insufficient for contamination detection in small language models. Our code is available at https://github.com/Sela-Omer/Contamination-Detection-Small-LM",
+          "claimed_authors": [
+            "Omer Sela"
+          ],
+          "claimed_title": "No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03203"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models')",
+        "failed_at": "2026-08-17T09:36:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote sensing vision tasks require extensive labeled data across multiple, interconnected domains. However, current generative data augmentation frameworks are task-isolated, i.e., each vision task requires training an independent generative model, and ignores the modeling of geographical information and spatial constraints. To address these issues, we propose \\textbf{TerraGen}, a unified layout-to-image generation framework that enables flexible, spatially controllable synthesis of remote sensing imagery for various high-level vision tasks, e.g., detection, segmentation, and extraction. Specifically, TerraGen introduces a geographic-spatial layout encoder that unifies bounding box and segmentation mask inputs, combined with a multi-scale injection scheme and mask-weighted loss to explicitly encode spatial constraints, from global structures to fine details. Also, we construct the first large-scale multi-task remote sensing layout generation dataset containing 45k images and establish a standardized evaluation protocol for this task. Experimental results show that our TerraGen can achieve the best generation image quality across diverse tasks. Additionally, TerraGen can be used as a universal data-augmentation generator, enhancing downstream task performance significantly and demonstrating robust cross-task generalisation in both full-data and few-shot scenarios.",
+          "claimed_authors": [
+            "Datao Tang",
+            "Hao Wang",
+            "Yudeng Xin",
+            "Hui Qiao",
+            "Dongsheng Jiang",
+            "Yin Li",
+            "Zhiheng Yu",
+            "Xiangyong Cao"
+          ],
+          "claimed_title": "TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.21391"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation')",
+        "failed_at": "2026-08-17T09:36:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-08-17T09:36:06Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The rapid development of large language models (LLMs), like ChatGPT, has resulted in the widespread presence of LLM-generated content on social media platforms, raising concerns about misinformation, data biases, and privacy violations, which can undermine trust in online discourse. While detecting LLM-generated content is crucial for mitigating these risks, current methods often focus on binary classification, failing to address the complexities of real-world scenarios like human-LLM collaboration. To move beyond binary classification and address these challenges, we propose a new paradigm for detecting LLM-generated content. This approach introduces two novel tasks: LLM Role Recognition (LLM-RR), a multi-class classification task that identifies specific roles of LLM in content generation, and LLM Influence Measurement (LLM-IM), a regression task that quantifies the extent of LLM involvement in content creation. To support these tasks, we propose LLMDetect, a benchmark designed to evaluate detectors' performance on these new tasks. LLMDetect includes the Hybrid News Detection Corpus (HNDC) for training detectors, as well as DetectEval, a comprehensive evaluation suite that considers five distinct cross-context variations and two multi-intensity variations within the same LLM role. This allows for a thorough assessment of detectors' generalization and robustness across diverse contexts. Our empirical validation of 10 baseline detection methods demonstrates that fine-tuned PLM-based models consistently outperform others on both tasks, while advanced LLMs face challenges in accurately detecting their own generated content. Our experimental results and analysis offer insights for developing more effective detection models for LLM-generated content. This research enhances the understanding of LLM-generated content and establishes a foundation for more nuanced detection methodologies.",
+          "claimed_authors": [
+            "Zihao Cheng",
+            "Li Zhou",
+            "Feng Jiang",
+            "Benyou Wang",
+            "Haizhou Li"
+          ],
+          "claimed_title": "Beyond Binary: Towards Fine-Grained LLM-Generated Text Detection via Role Recognition and Involvement Measurement",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.14259"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='Beyond Binary: Towards Fine-Grained LLM-Generated Text Detection via Role Recognition and Involvement Measurement')",
+        "failed_at": "2026-08-17T09:36:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a new framework, named GPTAid, for automatic APSRs generation by analyzing API source code with LLM and detecting API misuse caused by incorrect parameter use. To validate the correctness of the LLM-generated APSRs, we propose an execution feedback-checking approach based on the observation that security-critical API misuse is often caused by APSRs violations, and most of them result in runtime errors. Specifically, GPTAid first uses LLM to generate raw APSRs and the Right calling code, and then generates Violation code for each raw APSR by modifying the Right calling code using LLM. Subsequently, GPTAid performs dynamic execution on each piece of Violation code and further filters out the incorrect APSRs based on runtime errors. To further generate concrete APSRs, GPTAid employs a code differential analysis to refine the filtered ones. Particularly, as the programming language is more precise than natural language, GPTAid identifies the key operations within Violation code by differential analysis, and then generates the corresponding concrete APSR based on the aforementioned operations. These concrete APSRs could be precisely interpreted into applicable detection code, which proven to be effective in API misuse detection. Implementing on the dataset containing 200 randomly selected APIs from eight popular libraries, GPTAid achieves a precision of 92.3%. Moreover, it generates 6 times more APSRs than state-of-the-art detectors on a comparison dataset of previously reported bugs and APSRs. We further evaluated GPTAid on 47 applications, 210 unknown security bugs were found potentially resulting in severe security issues (e.g., system crashes), 150 of which have been confirmed by developers after our reports.",
+          "claimed_authors": [
+            "Jinghua Liu",
+            "Yi Yang",
+            "Kai Chen",
+            "Miaoqian Lin"
+          ],
+          "claimed_title": "Generating API Parameter Security Rules with LLM for API Misuse Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.09288"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='Generating API Parameter Security Rules with LLM for API Misuse Detection')",
+        "failed_at": "2026-08-17T09:36:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM-integrated app systems extend the utility of Large Language Models (LLMs) with third-party apps that are invoked by a system LLM using interleaved planning and execution phases to answer user queries. These systems introduce new attack vectors where malicious apps can cause integrity violation of planning or execution, availability breakdown, or privacy compromise during execution.\n  In this work, we identify new attacks impacting the integrity of planning, as well as the integrity and availability of execution in LLM-integrated apps, and demonstrate them against IsolateGPT, a recent solution designed to mitigate attacks from malicious apps. We propose Abstract-Concrete-Execute (ACE), a new secure architecture for LLM-integrated app systems that provides security guarantees for system planning and execution. Specifically, ACE decouples planning into two phases by first creating an abstract execution plan using only trusted information, and then mapping the abstract plan to a concrete plan using installed system apps. We verify that the plans generated by our system satisfy user-specified secure information flow constraints via static analysis on the structured plan output. During execution, ACE enforces data and capability barriers between apps, and ensures that the execution is conducted according to the trusted abstract plan. We show experimentally that ACE is secure against attacks from the InjecAgent and Agent Security Bench benchmarks for indirect prompt injection, and our newly introduced attacks. We also evaluate the utility of ACE in realistic environments, using the Tool Usage suite from the LangChain benchmark. Our architecture represents a significant advancement towards hardening LLM-based systems using system security principles.",
+          "claimed_authors": [
+            "Evan Li",
+            "Tushin Mallick",
+            "Evan Rose",
+            "William Robertson",
+            "Alina Oprea",
+            "Cristina Nita-Rotaru"
+          ],
+          "claimed_title": "ACE: A Security Architecture for LLM-Integrated App Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20984"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='ACE: A Security Architecture for LLM-Integrated App Systems')",
+        "failed_at": "2026-08-17T09:36:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, a proliferation of cyber-security threats and diversity has been on the rise culminating in an increase in their reporting and analysis. To counter that, many non-profit organizations have emerged in this domain, such as MITRE and OSWAP, which have been actively tracking vulnerabilities, and publishing defense recommendations in standardized formats. As producing data in such formats manually is very time-consuming, there have been some proposals to automate the process. Unfortunately, a major obstacle to adopting supervised machine learning for this problem has been the lack of publicly available specialized datasets. Here, we aim to bridge this gap. In particular, we focus on mapping CVE records into MITRE CWE Weaknesses, and we release to the research community a manually annotated dataset of 4,012 records for this task. With a human-in-the-loop framework in mind, we approach the problem as a ranking task and aim to incorporate reinforced learning to make use of the human feedback in future work. Our experimental results using fine-tuned deep learning models, namely Sentence-BERT and rankT5, show sizable performance gains over BM25, BERT, and RoBERTa, which demonstrates the need for an architecture capable of good semantic understanding for this task.",
+          "claimed_authors": [
+            "Ashraf Haddad",
+            "Najwa Aaraj",
+            "Preslav Nakov",
+            "Septimiu Fabian Mare"
+          ],
+          "claimed_title": "Automated Mapping of CVE Vulnerability Records to MITRE CWE Weaknesses",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.11130"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='Automated Mapping of CVE Vulnerability Records to MITRE CWE Weaknesses')",
+        "failed_at": "2026-08-17T09:36:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we analyze the Common Platform Enumeration (CPE) dictionary and the Common Vulnerabilities and Exposures (CVE) feeds. These repositories are widely used in Vulnerability Management Systems (VMSs) to check for known vulnerabilities in software products. The analysis shows, among other issues, a lack of synchronization between both datasets that can lead to incorrect results output by VMSs relying on those datasets. To deal with these problems, we developed a method that recommends to a user a prioritized list of CPE identifiers for a given software product. The user can then assign (and, if necessary, adapt) the most suitable CPE identifier to the software so that regular (e.g., daily) checks can find known vulnerabilities for this software in the CVE feeds. Our evaluation of this method shows that this interaction is indeed necessary because a fully automated CPE assignment is prone to errors due to the CPE and CVE shortcomings. We implemented an open-source VMS that employs the proposed method and published it on GitHub.",
+          "claimed_authors": [
+            "Luis Alberto Benthin Sanguino",
+            "Rafael Uetz"
+          ],
+          "claimed_title": "Software Vulnerability Analysis Using CPE and CVE",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.05347"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='Software Vulnerability Analysis Using CPE and CVE')",
+        "failed_at": "2026-08-17T09:36:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Common Vulnerabilities and Exposures database (CVE) is one of the largest publicly available source of software and hardware vulnerability data and reports. In this work we analyze the CVE database in the context of IoT device and system vulnerabilities. We introduce a real-world based classification of IoT systems. Then, we employ a SVM algorithm on selected subset of CVE database to classify \"new\" vulnerability records in this framework. The subset of interest consists of records that describe vulnerabilities of potential IoT devices of different applications, such as: home, industry, mobile controllers, networking, etc. The purpose of the classification is to develop and test an automatic system for recognition of vulnerable IoT devices and to test completes, sufficiency and reliability of CVE data in this respect.",
+          "claimed_authors": [
+            "Grzegorz J. Blinowski",
+            "Paweł Piotrowski"
+          ],
+          "claimed_title": "CVE based classification of vulnerable IoT systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16640"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='CVE based classification of vulnerable IoT systems')",
+        "failed_at": "2026-08-17T09:36:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic training data has gained prominence in numerous learning tasks and scenarios, offering advantages such as dataset augmentation, generalization evaluation, and privacy preservation. Despite these benefits, the efficiency of synthetic data generated by current methodologies remains inferior when training advanced deep models exclusively, limiting its practical utility. To address this challenge, we analyze the principles underlying training data synthesis for supervised learning and elucidate a principled theoretical framework from the distribution-matching perspective that explicates the mechanisms governing synthesis efficacy. Through extensive experiments, we demonstrate the effectiveness of our synthetic data across diverse image classification tasks, both as a replacement for and augmentation to real datasets, while also benefits such as out-of-distribution generalization, privacy preservation, and scalability. Specifically, we achieve 70.9% top1 classification accuracy on ImageNet1K when training solely with synthetic data equivalent to 1 X the original real data size, which increases to 76.0% when scaling up to 10 X synthetic data.",
+          "claimed_authors": [
+            "Jianhao Yuan",
+            "Jie Zhang",
+            "Shuyang Sun",
+            "Philip Torr",
+            "Bo Zhao"
+          ],
+          "claimed_title": "Real-Fake: Effective Training Data Synthesis Through Distribution Matching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.10402"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='Real-Fake: Effective Training Data Synthesis Through Distribution Matching')",
+        "failed_at": "2026-08-17T09:36:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-08-17T09:36:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Evaluating the Impact of Code Generation Models on Code Vulnerability Density co', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-08-17T09:36:07Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shivani Shukla",
+            "Himanshu Joshi",
+            "Romilla Syed"
+          ],
+          "title": "Security Degradation in Iterative AI Code Generation -- A Systematic Analysis of the Paradox",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.11022",
+        "summary": "The rapid adoption of Large Language Models(LLMs) for code generation has transformed software development, yet little attention has been given to how security vulnerabilities evolve through iterative LLM feedback. This paper analyzes security degradation in AI-generated code through a controlled experiment with 400 code samples across 40 rounds of \"improvements\" using four distinct prompting strategies. Our findings show a 37.6% increase in critical vulnerabilities after just five iterations, with distinct vulnerability patterns emerging across different prompting approaches. This evidence challenges the assumption that iterative LLM refinement improves code security and highlights the essential role of human expertise in the loop. We propose practical guidelines for developers to mitigate these risks, emphasizing the need for robust human validation between LLM iterations to prevent the paradoxical introduction of new security issues during supposedly beneficial code \"improvements\".",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.11022",
+          "http_status": 200,
+          "pdf_sample_score": 0.22,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-17T09:36:07Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "evaluating the impact of code generation models on code vulnerability density computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

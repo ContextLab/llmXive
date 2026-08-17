@@ -40,3 +40,22 @@ T007a:
   r: The required file `specs/001-extreme-aspect-ratio-robustness/contracts/dataset.schema.yaml`
     does not exist on disk, so the schema definition for the synthetic video metadata
     is missing. The task is therefore not satisfied.
+T007c:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required file `specs/001-extreme-aspect-ratio-robustness/contracts/metric.schema.yaml`
+    is missing from the repository, so no schema definition is provided. Without this
+    artifact the task is not satisfied.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration scripts, Dockerfiles, cgroup/ulimit wrapper code, or documentation
+    were presented to demonstrate that memory and time limits have been set up. The
+    required artifacts for task T008 are missing, so the claim is not substantiated.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, tests, or documentation showing the added error\u2011\
+    handling logic for low\u2011frame\u2011rate videos or the detection/flagging of\
+    \ unresolvable 1\u2011pixel lines was provided. Consequently the required artifact\
+    \ is missing."

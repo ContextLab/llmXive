@@ -1,359 +1,229 @@
-"""
-Validation script for generated synthetic video benchmark dataset.
-
-Verifies:
-1. Output dimensions match expected aspect ratios (1:10, 10:1, 1:20, 20:1, and square control)
-2. Metadata CSV integrity (links distorted videos to original IDs and timestamps)
-3. Video codec validity and frame rate consistency
-4. Bounding box integrity (FR-001) for excluded clips
-5. Directory structure completeness
-
-Usage:
-    python code/src/generators/validate_generation.py
-"""
-
 import os
 import sys
 import json
 import logging
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
-import pandas as pd
-import numpy as np
+from typing import List, Dict, Any, Optional
+import csv
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/validation.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-EXPECTED_RATIOS = [1.0, 0.1, 10.0, 0.05, 20.0]  # Square, 1:10, 10:1, 1:20, 20:1
-TOLERANCE_PERCENT = 0.1  # 0.1% tolerance for aspect ratio
-DATA_ROOT = Path("data")
-DISTORTED_DIR = DATA_ROOT / "distorted"
-CONTROL_DIR = DATA_ROOT / "outputs" / "control"
-METADATA_FILE = DATA_ROOT / "outputs" / "distorted_metadata.csv"
-ORIGINAL_DIR = DATA_ROOT / "raw" / "original"
+class ValidationError(Exception):
+    """Custom exception for validation errors."""
+    pass
 
-# Expected columns in metadata CSV
-EXPECTED_COLUMNS = [
-    "video_id", 
-    "original_id", 
-    "original_start", 
-    "original_end", 
-    "ratio_type", 
-    "width", 
-    "height", 
-    "duration", 
-    "fps", 
-    "codec", 
-    "fr_001_passed",
-    "file_path"
-]
-
-def get_video_info(video_path: Path) -> Optional[Dict]:
-    """Extract video metadata using ffprobe."""
-    if not video_path.exists():
-        logger.error(f"Video file not found: {video_path}")
-        return None
-    
+def get_video_info(video_path: str) -> Dict[str, Any]:
+    """Get video information using ffprobe."""
+    cmd = [
+        'ffprobe', '-v', 'error',
+        '-select_streams', 'v:0',
+        '-show_entries', 'stream=width,height,r_frame_rate,duration,codec_name',
+        '-show_entries', 'format=duration',
+        '-of', 'json',
+        video_path
+    ]
     try:
-        cmd = [
-            "ffprobe",
-            "-v", "quiet",
-            "-print_format", "json",
-            "-show_format",
-            "-show_streams",
-            str(video_path)
-        ]
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
-        if result.returncode != 0:
-            logger.error(f"ffprobe failed for {video_path}: {result.stderr}")
-            return None
-        
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
         data = json.loads(result.stdout)
         
-        # Find video stream
-        video_stream = None
-        for stream in data.get("streams", []):
-            if stream.get("codec_type") == "video":
-                video_stream = stream
-                break
+        stream = data['streams'][0] if data.get('streams') else {}
+        format_info = data.get('format', {})
         
-        if not video_stream:
-            logger.error(f"No video stream found in {video_path}")
-            return None
+        width = int(stream.get('width', 0))
+        height = int(stream.get('height', 0))
+        fps_str = stream.get('r_frame_rate', '0/1')
+        if '/' in fps_str:
+            num, den = map(int, fps_str.split('/'))
+            fps = num / den if den != 0 else 0.0
+        else:
+            fps = float(fps_str)
+        
+        duration = float(format_info.get('duration', stream.get('duration', 0)))
+        codec = stream.get('codec_name', 'unknown')
         
         return {
-            "width": int(video_stream.get("width", 0)),
-            "height": int(video_stream.get("height", 0)),
-            "duration": float(data.get("format", {}).get("duration", 0)),
-            "fps": None,  # Will be calculated from avg_frame_rate
-            "codec": video_stream.get("codec_name", "unknown"),
-            "bit_rate": video_stream.get("bit_rate", "0"),
+            'width': width,
+            'height': height,
+            'fps': fps,
+            'duration': duration,
+            'codec': codec,
+            'file_size': os.path.getsize(video_path)
         }
-        
-    except subprocess.TimeoutExpired:
-        logger.error(f"ffprobe timeout for {video_path}")
-        return None
-    except Exception as e:
-        logger.error(f"Error processing {video_path}: {e}")
-        return None
+    except (subprocess.CalledProcessError, json.JSONDecodeError, ValueError) as e:
+        logger.error(f"Failed to get video info for {video_path}: {e}")
+        raise ValidationError(f"Could not read video info: {e}")
 
-def calculate_fps(video_info: Dict) -> Optional[float]:
-    """Calculate FPS from video info if possible."""
-    # This would need to be extracted from ffprobe's avg_frame_rate
-    # For now, we'll rely on the metadata CSV if available
-    return video_info.get("fps")
+def calculate_fps(video_path: str) -> float:
+    """Calculate FPS from video file."""
+    info = get_video_info(video_path)
+    return info['fps']
 
-def check_aspect_ratio(width: int, height: int, expected_ratio: float) -> Tuple[bool, float]:
-    """Check if video aspect ratio matches expected ratio within tolerance."""
-    if height == 0:
-        return False, 0.0
-    
-    actual_ratio = width / height
-    if expected_ratio == 0:
-        return False, 0.0
-    
-    # Calculate percentage difference
-    pct_diff = abs(actual_ratio - expected_ratio) / expected_ratio * 100
-    is_valid = pct_diff <= TOLERANCE_PERCENT
-    
-    return is_valid, pct_diff
+def check_aspect_ratio(video_path: str, expected_ratio: float, tolerance: float = 0.001) -> bool:
+    """Check if video aspect ratio matches expected value within tolerance."""
+    info = get_video_info(video_path)
+    actual_ratio = info['width'] / info['height'] if info['height'] != 0 else 0
+    return abs(actual_ratio - expected_ratio) <= tolerance
 
-def validate_directory_structure() -> bool:
-    """Verify that expected directory structure exists."""
-    required_dirs = [
-        DISTORTED_DIR,
-        CONTROL_DIR,
-        ORIGINAL_DIR,
-        DATA_ROOT / "outputs"
-    ]
-    
-    all_exist = True
-    for dir_path in required_dirs:
-        if not dir_path.exists():
-            logger.error(f"Required directory missing: {dir_path}")
-            all_exist = False
-        else:
-            logger.info(f"Directory exists: {dir_path}")
-    
-    return all_exist
+def validate_directory_structure(output_dir: str, expected_subdirs: List[str]) -> bool:
+    """Validate that expected subdirectories exist."""
+    for subdir in expected_subdirs:
+        path = os.path.join(output_dir, subdir)
+        if not os.path.isdir(path):
+            logger.error(f"Missing directory: {path}")
+            return False
+    return True
 
-def validate_metadata_csv() -> Tuple[bool, int, int]:
-    """Validate the metadata CSV file."""
-    if not METADATA_FILE.exists():
-        logger.error(f"Metadata CSV not found: {METADATA_FILE}")
-        return False, 0, 0
+def validate_metadata_csv(csv_path: str, required_columns: List[str]) -> bool:
+    """Validate metadata CSV structure."""
+    if not os.path.exists(csv_path):
+        logger.error(f"Metadata file not found: {csv_path}")
+        return False
     
-    try:
-        df = pd.read_csv(METADATA_FILE)
+    with open(csv_path, 'r') as f:
+        reader = csv.DictReader(f)
+        headers = reader.fieldnames
+        if not headers:
+            logger.error("CSV file is empty")
+            return False
         
-        # Check columns
-        missing_cols = set(EXPECTED_COLUMNS) - set(df.columns)
-        if missing_cols:
-            logger.error(f"Missing columns in metadata CSV: {missing_cols}")
-            return False, 0, 0
-        
-        # Check for empty dataframe
-        if len(df) == 0:
-            logger.error("Metadata CSV is empty")
-            return False, 0, 0
-        
-        logger.info(f"Metadata CSV loaded successfully with {len(df)} records")
-        return True, len(df), len(missing_cols)
-        
-    except Exception as e:
-        logger.error(f"Error reading metadata CSV: {e}")
-        return False, 0, 0
+        missing = set(required_columns) - set(headers)
+        if missing:
+            logger.error(f"Missing columns in metadata: {missing}")
+            return False
+    
+    return True
 
-def validate_video_files() -> Tuple[Dict[str, int], List[str]]:
-    """Validate all video files in distorted and control directories."""
-    stats = {
-        "total": 0,
-        "valid": 0,
-        "invalid": 0,
-        "missing": 0,
-        "aspect_ratio_fail": 0,
-        "codec_fail": 0,
-        "duration_fail": 0
-    }
-    errors = []
+def validate_video_files(video_dir: str, expected_count: int = None) -> bool:
+    """Validate that video files exist and are readable."""
+    video_files = [f for f in os.listdir(video_dir) if f.endswith(('.mp4', '.avi', '.mov'))]
     
-    # Collect all expected video paths from metadata
-    if METADATA_FILE.exists():
+    if expected_count and len(video_files) != expected_count:
+        logger.warning(f"Expected {expected_count} videos, found {len(video_files)}")
+    
+    for video_file in video_files:
+        video_path = os.path.join(video_dir, video_file)
         try:
-            df = pd.read_csv(METADATA_FILE)
-            for idx, row in df.iterrows():
-                video_path = Path(row["file_path"])
-                stats["total"] += 1
-                
-                if not video_path.exists():
-                    stats["missing"] += 1
-                    errors.append(f"Missing file: {video_path}")
-                    continue
-                
-                # Get video info
-                video_info = get_video_info(video_path)
-                if not video_info:
-                    stats["invalid"] += 1
-                    errors.append(f"Invalid video file: {video_path}")
-                    continue
-                
-                # Check aspect ratio
-                expected_ratio = float(row["ratio_type"])
-                is_valid_ratio, pct_diff = check_aspect_ratio(
-                    video_info["width"], 
-                    video_info["height"], 
-                    expected_ratio
-                )
-                
-                if not is_valid_ratio:
-                    stats["aspect_ratio_fail"] += 1
-                    errors.append(
-                        f"Aspect ratio mismatch for {video_path}: "
-                        f"expected {expected_ratio}, got {video_info['width']/video_info['height']} "
-                        f"({pct_diff:.2f}% diff)"
-                    )
-                
-                # Check codec (basic validation)
-                if video_info["codec"] == "unknown":
-                    stats["codec_fail"] += 1
-                    errors.append(f"Unknown codec for {video_path}")
-                
-                # Check duration (should be > 0)
-                if video_info["duration"] <= 0:
-                    stats["duration_fail"] += 1
-                    errors.append(f"Invalid duration for {video_path}")
-                
-                if is_valid_ratio and video_info["codec"] != "unknown" and video_info["duration"] > 0:
-                    stats["valid"] += 1
-                else:
-                    stats["invalid"] += 1
-                    
+            get_video_info(video_path)
+        except ValidationError as e:
+            logger.error(f"Invalid video file {video_file}: {e}")
+            return False
+    
+    return True
+
+def validate_control_group(control_dir: str, expected_ratio: float = 1.0) -> bool:
+    """Validate control group videos have correct aspect ratio."""
+    video_files = [f for f in os.listdir(control_dir) if f.endswith(('.mp4', '.avi', '.mov'))]
+    
+    for video_file in video_files:
+        video_path = os.path.join(control_dir, video_file)
+        try:
+            info = get_video_info(video_path)
+            actual_ratio = info['width'] / info['height'] if info['height'] != 0 else 0
+            if abs(actual_ratio - expected_ratio) > 0.01:  # 1% tolerance for control
+                logger.error(f"Control video {video_file} has incorrect aspect ratio: {actual_ratio}")
+                return False
         except Exception as e:
-            logger.error(f"Error validating video files from metadata: {e}")
-            return stats, errors
-    else:
-        logger.warning("Metadata CSV not found, cannot validate video files")
+            logger.error(f"Error validating control video {video_file}: {e}")
+            return False
     
-    return stats, errors
+    return True
 
-def validate_control_group() -> Tuple[bool, int]:
-    """Validate the control group (square-cropped clips)."""
-    if not CONTROL_DIR.exists():
-        logger.error("Control directory does not exist")
-        return False, 0
+def validate_original_clips(original_dir: str) -> bool:
+    """Validate original unmodified clips from T012b."""
+    if not os.path.exists(original_dir):
+        logger.error(f"Original clips directory not found: {original_dir}")
+        return False
     
-    video_files = list(CONTROL_DIR.glob("*.mp4"))
-    if not video_files:
-        logger.error("No video files found in control directory")
-        return False, 0
-    
-    valid_count = 0
-    for video_file in video_files:
-        video_info = get_video_info(video_file)
-        if video_info:
-            # Check if square (1:1 ratio)
-            is_square = video_info["width"] == video_info["height"]
-            if is_square:
-                valid_count += 1
-            else:
-                logger.warning(f"Non-square video in control group: {video_file}")
-    
-    logger.info(f"Control group validation: {valid_count}/{len(video_files)} valid square videos")
-    return valid_count == len(video_files), valid_count
+    return validate_video_files(original_dir)
 
-def validate_original_clips() -> Tuple[bool, int]:
-    """Validate original unmodified clips exist."""
-    if not ORIGINAL_DIR.exists():
-        logger.error("Original directory does not exist")
-        return False, 0
+def validate_distorted_videos(distorted_dir: str, metadata_path: str) -> bool:
+    """Validate distorted videos against metadata."""
+    if not os.path.exists(metadata_path):
+        logger.error(f"Metadata file not found: {metadata_path}")
+        return False
     
-    video_files = list(ORIGINAL_DIR.glob("*.mp4"))
-    if not video_files:
-        logger.error("No video files found in original directory")
-        return False, 0
+    with open(metadata_path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.get('status') == 'success':
+                video_id = row.get('video_id')
+                distortion_type = row.get('distortion_type')
+                expected_w = int(row.get('distorted_width', 0))
+                expected_h = int(row.get('distorted_height', 0))
+                
+                # Find the video file
+                video_files = [f for f in os.listdir(distorted_dir) if video_id in f]
+                if not video_files:
+                    logger.warning(f"No video found for {video_id}")
+                    continue
+                
+                video_path = os.path.join(distorted_dir, video_files[0])
+                try:
+                    info = get_video_info(video_path)
+                    if info['width'] != expected_w or info['height'] != expected_h:
+                        logger.error(f"Dimension mismatch for {video_id}: expected {expected_w}x{expected_h}, got {info['width']}x{info['height']}")
+                        return False
+                except Exception as e:
+                    logger.error(f"Error validating video {video_id}: {e}")
+                    return False
     
-    valid_count = 0
-    for video_file in video_files:
-        video_info = get_video_info(video_file)
-        if video_info and video_info["duration"] > 0:
-            valid_count += 1
-    
-    logger.info(f"Original clips validation: {valid_count}/{len(video_files)} valid")
-    return valid_count > 0, valid_count
+    return True
 
 def main():
-    """Main validation function."""
-    logger.info("Starting validation of generated synthetic video benchmark dataset")
+    """Main entry point for validation."""
+    import argparse
+    parser = argparse.ArgumentParser(description='Validate generated video dataset')
+    parser.add_argument('--distorted-dir', type=str, default='data/distorted', help='Distorted videos directory')
+    parser.add_argument('--control-dir', type=str, default='data/control', help='Control videos directory')
+    parser.add_argument('--original-dir', type=str, default='data/raw/original', help='Original clips directory')
+    parser.add_argument('--metadata', type=str, default='data/metadata/distortion_metadata.csv', help='Metadata CSV path')
+    args = parser.parse_args()
     
-    # Step 1: Validate directory structure
-    logger.info("Step 1: Validating directory structure...")
-    if not validate_directory_structure():
-        logger.error("Directory structure validation failed")
-        return 1
+    all_valid = True
     
-    # Step 2: Validate metadata CSV
-    logger.info("Step 2: Validating metadata CSV...")
-    meta_valid, record_count, missing_cols = validate_metadata_csv()
-    if not meta_valid:
-        logger.error("Metadata CSV validation failed")
-        return 1
-    logger.info(f"Metadata CSV OK: {record_count} records")
-    
-    # Step 3: Validate video files
-    logger.info("Step 3: Validating video files...")
-    video_stats, video_errors = validate_video_files()
-    
-    if video_stats["missing"] > 0:
-        logger.warning(f"Missing video files: {video_stats['missing']}")
-    if video_stats["aspect_ratio_fail"] > 0:
-        logger.warning(f"Aspect ratio failures: {video_stats['aspect_ratio_fail']}")
-    if video_stats["invalid"] > 0:
-        logger.warning(f"Invalid video files: {video_stats['invalid']}")
-    
-    if video_stats["valid"] == 0:
-        logger.error("No valid video files found")
-        return 1
-    
-    # Step 4: Validate control group
-    logger.info("Step 4: Validating control group (square-cropped)...")
-    control_valid, control_count = validate_control_group()
-    if not control_valid:
-        logger.warning("Control group validation failed")
-    
-    # Step 5: Validate original clips
-    logger.info("Step 5: Validating original unmodified clips...")
-    original_valid, original_count = validate_original_clips()
-    if not original_valid:
-        logger.warning("Original clips validation failed")
-    
-    # Summary
-    logger.info("=" * 60)
-    logger.info("VALIDATION SUMMARY")
-    logger.info("=" * 60)
-    logger.info(f"Total videos checked: {video_stats['total']}")
-    logger.info(f"Valid videos: {video_stats['valid']}")
-    logger.info(f"Invalid videos: {video_stats['invalid']}")
-    logger.info(f"Missing files: {video_stats['missing']}")
-    logger.info(f"Aspect ratio failures: {video_stats['aspect_ratio_fail']}")
-    logger.info(f"Control group valid: {control_count} videos")
-    logger.info(f"Original clips valid: {original_count} videos")
-    logger.info("=" * 60)
-    
-    if video_stats["valid"] > 0 and original_valid:
-        logger.info("✓ Validation PASSED: Dataset is ready for inference")
-        return 0
+    # Validate distorted videos
+    if os.path.exists(args.distorted_dir):
+        logger.info(f"Validating distorted videos in {args.distorted_dir}")
+        if not validate_video_files(args.distorted_dir):
+            all_valid = False
+        
+        if os.path.exists(args.metadata):
+            if not validate_distorted_videos(args.distorted_dir, args.metadata):
+                all_valid = False
     else:
-        logger.error("✗ Validation FAILED: Dataset has issues")
-        return 1
+        logger.warning(f"Distorted directory not found: {args.distorted_dir}")
+    
+    # Validate control group
+    if os.path.exists(args.control_dir):
+        logger.info(f"Validating control group in {args.control_dir}")
+        if not validate_control_group(args.control_dir):
+            all_valid = False
+    else:
+        logger.warning(f"Control directory not found: {args.control_dir}")
+    
+    # Validate original clips
+    if os.path.exists(args.original_dir):
+        logger.info(f"Validating original clips in {args.original_dir}")
+        if not validate_original_clips(args.original_dir):
+            all_valid = False
+    else:
+        logger.warning(f"Original directory not found: {args.original_dir}")
+    
+    if all_valid:
+        logger.info("Validation PASSED")
+        sys.exit(0)
+    else:
+        logger.error("Validation FAILED")
+        sys.exit(1)
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

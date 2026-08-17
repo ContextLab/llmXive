@@ -1,190 +1,207 @@
 """
-Fetch Original Unmodified ActivityNet Captions clips for the control group.
+Fetch original, unmodified ActivityNet Captions video clips for the control group.
 
 This script retrieves a representative subset of source clips from the
-ActivityNet Captions dataset using streaming to avoid loading the full
-dataset into memory. It saves the raw video files to `data/raw/original/`
-and generates a metadata CSV mapping video IDs to timestamps.
+ActivityNet Captions dataset using the Hugging Face datasets library.
+It saves the raw video files to `data/raw/original/` and generates a
+metadata CSV mapping video IDs to their original timestamps and URLs.
 
-Requirements:
-    - huggingface_hub
-    - requests (for video download)
-    - pandas
-    - tqdm
-
-Usage:
-    python code/src/generators/fetch_original.py
+CRITICAL: This loader fails loudly if the real data source is unavailable.
+It does NOT fall back to synthetic or mock data.
 """
+
 import os
 import sys
 import time
+import logging
 from pathlib import Path
+import json
 
 import pandas as pd
 import requests
-from huggingface_hub import load_dataset
-from tqdm import tqdm
+from datasets import load_dataset
 
-# Constants
-DATASET_ID = "ActivityNet/activitynet-captions"
-SPLIT = "train"
-MAX_SAMPLES = 100  # Representative subset size
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+# Configuration
+DATASET_NAME = "ActivityNet/activitynet-captions"
+DATASET_SPLIT = "train"
 OUTPUT_DIR = Path("data/raw/original")
-METADATA_CSV = OUTPUT_DIR / "metadata.csv"
-TIMEOUT_SECONDS = 600  # 10 minutes per video download attempt
+METADATA_FILE = OUTPUT_DIR / "original_clips_metadata.csv"
+MAX_CLIPS_TO_FETCH = 50  # Representative subset size for the control group
+TIMEOUT_SECONDS = 300    # Timeout per download request
 
-def ensure_output_dir():
+def ensure_output_dir(path: Path) -> None:
     """Create the output directory if it does not exist."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    path.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured output directory exists: {path}")
 
-def download_video(url, dest_path):
+def download_video(video_url: str, output_path: Path, timeout: int = TIMEOUT_SECONDS) -> bool:
     """
-    Download a video file from a URL to a local path.
+    Download a video file from a URL to the specified output path.
 
     Args:
-        url (str): The source URL.
-        dest_path (Path): The destination file path.
+        video_url: The URL of the video to download.
+        output_path: The local path where the video should be saved.
+        timeout: Request timeout in seconds.
 
     Returns:
-        bool: True if successful, False otherwise.
+        True if download was successful, False otherwise.
     """
-    try:
-        response = requests.get(url, stream=True, timeout=TIMEOUT_SECONDS)
-        response.raise_for_status()
-        
-        total_size = int(response.headers.get('content-length', 0))
-        block_size = 1024  # 1 Kibibyte
-
-        with open(dest_path, 'wb') as f, tqdm(
-            desc=dest_path.name,
-            total=total_size,
-            unit='B',
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as bar:
-            for chunk in response.iter_content(chunk_size=block_size):
-                if chunk:  # Filter out keep-alive chunks
-                    f.write(chunk)
-                    bar.update(len(chunk))
+    if output_path.exists():
+        logger.info(f"Video already exists, skipping: {output_path.name}")
         return True
-    except requests.exceptions.RequestException as e:
-        print(f"Error downloading {url}: {e}", file=sys.stderr)
-        return False
-    except Exception as e:
-        print(f"Unexpected error saving {dest_path}: {e}", file=sys.stderr)
-        return False
 
-def fetch_original_clips():
-    """
-    Main execution function to fetch original ActivityNet clips.
-    """
-    ensure_output_dir()
-
-    print(f"Loading dataset {DATASET_ID} (split={SPLIT}) in streaming mode...")
+    logger.info(f"Downloading: {video_url} -> {output_path}")
     try:
-        dataset = load_dataset(DATASET_ID, split=SPLIT, streaming=True)
+        response = requests.get(video_url, stream=True, timeout=timeout)
+        response.raise_for_status()
+
+        with open(output_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+
+        if os.path.getsize(output_path) == 0:
+            logger.error(f"Downloaded file is empty: {output_path}")
+            os.remove(output_path)
+            return False
+
+        logger.info(f"Successfully downloaded: {output_path.name}")
+        return True
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to download {video_url}: {e}")
+        return False
     except Exception as e:
-        print(f"Failed to load dataset from Hugging Face: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Unexpected error downloading {video_url}: {e}")
+        return False
 
-    print(f"Fetching up to {MAX_SAMPLES} original clips...")
-    
-    metadata_records = []
+def fetch_original_clips() -> pd.DataFrame:
+    """
+    Fetch original unmodified ActivityNet Captions clips.
+
+    This function:
+    1. Loads the ActivityNet Captions dataset in streaming mode.
+    2. Extracts unique video IDs and their associated timestamps/URLs.
+    3. Downloads a representative subset of videos to `data/raw/original/`.
+    4. Saves a metadata CSV mapping IDs to timestamps and file paths.
+
+    Returns:
+        A pandas DataFrame containing the metadata of fetched clips.
+    """
+    ensure_output_dir(OUTPUT_DIR)
+
+    logger.info(f"Loading dataset: {DATASET_NAME} (split={DATASET_SPLIT}, streaming=True)")
+    try:
+        dataset = load_dataset(DATASET_NAME, split=DATASET_SPLIT, streaming=True)
+    except Exception as e:
+        logger.critical(f"Failed to load dataset from Hugging Face: {e}")
+        raise RuntimeError("Failed to load real data source. Aborting.")
+
+    # ActivityNet Captions dataset structure typically includes:
+    # 'video_id', 'timestamps', 'sentences', 'url' (or similar)
+    # We need to extract unique video entries with their URLs and timestamps.
+    # Since the dataset is streaming, we iterate and collect unique video_ids.
+
+    video_data = {} # video_id -> {url, timestamps}
     count = 0
-    skipped = 0
-    failed_downloads = 0
 
+    logger.info("Iterating through dataset to collect unique video metadata...")
     for item in dataset:
-        if count >= MAX_SAMPLES:
+        if count >= MAX_CLIPS_TO_FETCH * 2: # Fetch slightly more to ensure we have enough unique ones
             break
 
-        video_id = item.get('video_id')
-        if not video_id:
-            skipped += 1
+        vid = item.get('video_id')
+        url = item.get('url')
+        timestamps = item.get('timestamps', []) # List of [start, end]
+
+        if not vid or not url:
             continue
 
-        # ActivityNet Captions format usually has 'url' or 'video_url'
-        # depending on the specific revision, but standard is 'url' for video
-        video_url = item.get('url') or item.get('video_url')
-        
-        if not video_url:
-            print(f"Skipping {video_id}: No video URL found.", file=sys.stderr)
-            skipped += 1
-            continue
-
-        # Determine file extension from URL or default to .mp4
-        ext = os.path.splitext(video_url)[1] or '.mp4'
-        filename = f"{video_id}{ext}"
-        dest_path = OUTPUT_DIR / filename
-
-        # Skip if already exists to avoid re-downloading
-        if dest_path.exists():
-            print(f"Skipping {video_id}: Already exists.")
-            # Still record metadata if not present, but for this logic we assume
-            # we are building the metadata from the successful download run.
-            # We will re-scan later or just add it now.
-            # To be safe and consistent with the "fetch" logic, we record it.
-            # Check timestamps in item
-            timestamps = item.get('timestamps', [])
-            # ActivityNet often has a list of timestamps for multiple events.
-            # We take the first one or the range if available.
-            if timestamps:
-                start_t = timestamps[0][0] if isinstance(timestamps[0], (list, tuple)) else timestamps[0]
-                end_t = timestamps[0][1] if isinstance(timestamps[0], (list, tuple)) else timestamps[1]
-            else:
-                start_t, end_t = 0.0, 0.0
-
-            metadata_records.append({
-                'video_id': video_id,
-                'filename': filename,
-                'start_time': start_t,
-                'end_time': end_t,
-                'source_url': video_url,
-                'status': 'exists'
-            })
+        # ActivityNet often has multiple entries per video (different captions)
+        # We want unique videos, so we take the first occurrence of the URL/ID pair
+        if vid not in video_data:
+            video_data[vid] = {
+                'url': url,
+                'timestamps': timestamps,
+                'video_id': vid
+            }
             count += 1
-            continue
 
-        print(f"Downloading: {video_id} ({video_url})")
-        success = download_video(video_url, dest_path)
+        if len(video_data) >= MAX_CLIPS_TO_FETCH:
+            break
+
+    if not video_data:
+        raise RuntimeError("No video data found in the dataset stream.")
+
+    logger.info(f"Collected {len(video_data)} unique video entries.")
+
+    # Download videos
+    downloaded_rows = []
+    failed_count = 0
+
+    for vid, info in video_data.items():
+        # Sanitize filename
+        safe_vid = "".join(c if c.isalnum() or c in ('_', '-') else '_' for c in vid)
+        filename = f"{safe_vid}.mp4"
+        output_path = OUTPUT_DIR / filename
+
+        success = download_video(info['url'], output_path)
 
         if success:
-            # Extract timestamps
-            timestamps = item.get('timestamps', [])
-            if timestamps:
-                # Handle list of [start, end] pairs
-                first_event = timestamps[0]
-                start_t = float(first_event[0])
-                end_t = float(first_event[1])
+            # Determine a representative timestamp range if multiple exist
+            # Usually the first caption's timestamp is a good representative for the clip
+            if info['timestamps']:
+                start_time = info['timestamps'][0][0]
+                end_time = info['timestamps'][0][1]
             else:
-                start_t, end_t = 0.0, 0.0
+                start_time = 0.0
+                end_time = 0.0 # Fallback, though rare
 
-            metadata_records.append({
-                'video_id': video_id,
-                'filename': filename,
-                'start_time': start_t,
-                'end_time': end_t,
-                'source_url': video_url,
-                'status': 'downloaded'
+            downloaded_rows.append({
+                'video_id': vid,
+                'original_filename': filename,
+                'start_time': start_time,
+                'end_time': end_time,
+                'duration': end_time - start_time,
+                'source_url': info['url'],
+                'local_path': str(output_path.resolve())
             })
-            count += 1
         else:
-            failed_downloads += 1
-            # Remove partial file if exists
-            if dest_path.exists():
-                dest_path.unlink()
+            failed_count += 1
 
-    if count == 0:
-        print("ERROR: No videos were successfully fetched.", file=sys.stderr)
-        sys.exit(1)
+    if failed_count > 0:
+        logger.warning(f"Failed to download {failed_count} videos.")
+
+    if not downloaded_rows:
+        raise RuntimeError("No videos were successfully downloaded. Check network and data source.")
+
+    # Create DataFrame
+    df = pd.DataFrame(downloaded_rows)
 
     # Save metadata
-    df = pd.DataFrame(metadata_records)
-    df.to_csv(METADATA_CSV, index=False)
-    print(f"\nSuccess! Processed {count} videos.")
-    print(f"Skipped (no URL): {skipped}")
-    print(f"Failed downloads: {failed_downloads}")
-    print(f"Metadata saved to: {METADATA_CSV}")
+    df.to_csv(METADATA_FILE, index=False)
+    logger.info(f"Saved metadata to {METADATA_FILE}")
+
+    return df
+
+def main():
+    """Entry point for the script."""
+    logger.info("Starting fetch_original.py")
+    try:
+        df = fetch_original_clips()
+        logger.info(f"Successfully fetched {len(df)} original clips.")
+        logger.info(f"Metadata saved to: {METADATA_FILE}")
+        logger.info("Fetch original clips completed.")
+    except Exception as e:
+        logger.critical(f"Fetch original clips failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    fetch_original_clips()
+    main()

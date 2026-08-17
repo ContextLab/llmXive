@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.27675",
+  "judged_at": "2026-08-17T09:36:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of code generation models on code vulnerability density computer science",
+  "rationale": "The paper focuses on the methodology of *detecting* vulnerabilities using LLMs (specifically few-shot example selection), whereas the user's question concerns the *generation* of vulnerabilities by code generation models and the resulting density of those vulnerabilities. While both involve LLMs and code security, the paper does not measure the independent variable (code generation models) or the dependent variable (vulnerability density) required for the user's specific research question, nor d",
+  "relevant": false
+}

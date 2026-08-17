@@ -1,7 +1,3 @@
-"""
-Descriptor computation for SN1 rate constant prediction.
-Computes Gasteiger partial charges and topological indices using RDKit.
-"""
 import os
 import sys
 import argparse
@@ -10,249 +6,207 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
 import pandas as pd
+import numpy as np
 from rdkit import Chem
 from rdkit.Chem import Descriptors, rdMolDescriptors, rdPartialCharges
 from rdkit import RDLogger
 
-# Suppress RDKit warnings for cleaner logs
+# Suppress RDKit warnings to keep logs clean, but keep errors
 RDLogger.DisableLog('rdApp.*')
 
-# Import logging setup from utils
-from utils.logger import setup_logging, get_logger
+from config import DataConfig, ensure_dirs
+from utils.logger import get_logger
 
-def compute_gasteiger_charges(mol: Chem.Mol) -> Tuple[Optional[float], Optional[float]]:
+def compute_gasteiger_charges(mol: Chem.Mol) -> Optional[List[float]]:
     """
-    Compute max and mean absolute Gasteiger partial charges for a molecule.
-    
-    Args:
-        mol: RDKit Mol object.
-        
-    Returns:
-        Tuple of (max_abs_charge, mean_abs_charge) or (None, None) on failure.
+    Compute Gasteiger partial charges for a molecule.
+    Returns a list of charges (one per atom) or None if computation fails.
     """
     try:
-        # Create a copy to avoid modifying the original
-        mol_copy = Chem.Mol(mol)
-        
-        # Add hydrogens
-        mol_copy = Chem.AddHs(mol_copy)
-        
-        # Compute Gasteiger charges
-        # This may fail for some molecules, so we wrap in try/except
-        rdPartialCharges.ComputeGasteigerCharges(mol_copy)
+        # Ensure the molecule has hydrogens added for charge calculation
+        mol_with_h = Chem.AddHs(mol)
+        rdPartialCharges.ComputeGasteigerCharges(mol_with_h)
         
         charges = []
-        for atom in mol_copy.GetAtoms():
-            charge_str = atom.GetProp('_GasteigerCharge')
-            try:
-                charge = float(charge_str)
-                charges.append(abs(charge))
-            except ValueError:
-                continue
+        for atom in mol_with_h.GetAtoms():
+            charge = atom.GetDoubleProp('_GasteigerCharge')
+            # Handle cases where RDKit returns NaN
+            if np.isnan(charge):
+                return None
+            charges.append(charge)
         
-        if not charges:
-            return None, None
-        
-        max_charge = max(charges)
-        mean_charge = sum(charges) / len(charges)
-        
-        return max_charge, mean_charge
+        return charges
     except Exception as e:
-        # Log the error but don't crash
         logging.warning(f"Gasteiger charge computation failed: {e}")
-        return None, None
+        return None
 
 def compute_topological_indices(mol: Chem.Mol) -> Dict[str, float]:
     """
-    Compute topological indices for a molecule.
-    
-    Args:
-        mol: RDKit Mol object.
-        
-    Returns:
-        Dictionary of topological indices.
+    Compute standard topological indices for a molecule.
+    Returns a dictionary of index names to values.
     """
     indices = {}
-    
     try:
-        # Wiener index
-        try:
-            indices['wiener_index'] = Descriptors.WienerIndex(mol)
-        except Exception:
-            indices['wiener_index'] = None
+        # Molecular weight
+        indices['molecular_weight'] = Descriptors.MolWt(mol)
         
-        # Balaban J index
-        try:
-            indices['balaban_j'] = Descriptors.BalabanJ(mol)
-        except Exception:
-            indices['balaban_j'] = None
+        # LogP (XLogP)
+        indices['logp'] = Descriptors.MolLogP(mol)
+        
+        # Topological polar surface area
+        indices['tpsa'] = Descriptors.TPSA(mol)
+        
+        # Number of heavy atoms
+        indices['heavy_atom_count'] = mol.GetNumHeavyAtoms()
         
         # Number of rotatable bonds
         indices['num_rotatable_bonds'] = rdMolDescriptors.CalcNumRotatableBonds(mol)
         
-        # Number of rings
-        indices['num_rings'] = rdMolDescriptors.CalcNumRings(mol)
-        
-        # Molecular weight
-        indices['molecular_weight'] = Descriptors.MolWt(mol)
-        
-        # LogP (Crippen)
-        try:
-            indices['logp'] = Descriptors.MolLogP(mol)
-        except Exception:
-            indices['logp'] = None
-        
-        # Topological polar surface area
-        try:
-            indices['tpsa'] = Descriptors.TPSA(mol)
-        except Exception:
-            indices['tpsa'] = None
-        
-        # Number of heavy atoms
-        indices['num_heavy_atoms'] = mol.GetNumHeavyAtoms()
-        
         # Number of aromatic rings
         indices['num_aromatic_rings'] = rdMolDescriptors.CalcNumAromaticRings(mol)
         
+        # Number of aliphatic rings
+        indices['num_aliphatic_rings'] = rdMolDescriptors.CalcNumAliphaticRings(mol)
+        
+        # Number of H-bond donors
+        indices['num_hbd'] = rdMolDescriptors.CalcNumHBD(mol)
+        
+        # Number of H-bond acceptors
+        indices['num_hba'] = rdMolDescriptors.CalcNumHBA(mol)
+        
+        # Bertz CT (complexity)
+        indices['bertz_ct'] = Descriptors.BertzCT(mol)
+        
+        # Kier alpha shape index (first order)
+        indices['kier_alpha'] = Descriptors.KierAlpha1(mol)
+        
+        return indices
     except Exception as e:
         logging.warning(f"Topological index computation failed: {e}")
-    
-    return indices
+        return {}
 
-def process_single_row(row: pd.Series, row_index: int, logger: logging.Logger) -> Optional[Dict[str, Any]]:
+def process_single_row(row: Dict[str, Any]) -> Tuple[Optional[Dict[str, Any]], Optional[str]]:
     """
-    Process a single row from the dataset.
-    
-    Args:
-        row: Pandas Series containing SMILES and other data.
-        row_index: Index of the row for logging.
-        logger: Logger instance.
-        
-    Returns:
-        Dictionary with computed descriptors or None on failure.
+    Process a single row from the dataset to compute descriptors.
+    Returns (descriptor_dict, error_reason).
+    If error_reason is not None, the row failed and should be logged.
     """
-    smiles = row.get('smiles', '')
-    
-    if not smiles or pd.isna(smiles):
-        logger.error(f"Row {row_index}: Empty or missing SMILES")
-        return None
-    
+    smiles = row.get('smiles')
+    if not smiles or not isinstance(smiles, str):
+        return None, 'invalid_smiles'
+
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            logger.error(f"Row {row_index}: Invalid SMILES - {smiles}")
-            return None
+            return None, 'rdkit_parse_fail'
         
         # Compute Gasteiger charges
-        max_charge, mean_charge = compute_gasteiger_charges(mol)
-        
-        if max_charge is None or mean_charge is None:
-            logger.warning(f"Row {row_index}: Gasteiger charge computation failed - {smiles}")
-            return None
+        charges = compute_gasteiger_charges(mol)
+        if charges is None:
+            return None, 'gasteiger_fail'
         
         # Compute topological indices
-        topological_indices = compute_topological_indices(mol)
+        topo_indices = compute_topological_indices(mol)
+        if not topo_indices:
+            return None, 'topo_indices_fail'
         
+        # Combine results
         result = {
-            'row_index': row_index,
             'smiles': smiles,
-            'gasteiger_max_charge': max_charge,
-            'gasteiger_mean_charge': mean_charge,
+            'gasteiger_charges': charges,
+            'charge_sum': sum(charges),
+            'charge_mean': np.mean(charges),
+            'charge_std': np.std(charges),
+            'charge_max': max(charges),
+            'charge_min': min(charges),
+            **topo_indices
         }
         
-        # Add topological indices
-        for key, value in topological_indices.items():
-            result[f'topo_{key}'] = value
-        
-        return result
+        return result, None
         
     except Exception as e:
-        logger.error(f"Row {row_index}: Exception processing SMILES - {smiles}: {e}")
-        return None
+        logging.warning(f"Unexpected error processing row {smiles[:20]}...: {e}")
+        return None, 'unexpected_error'
 
-def compute_descriptors_for_dataset(
-    input_path: str,
-    output_log_path: str,
-    output_csv_path: Optional[str] = None
-) -> None:
+def compute_descriptors_for_dataset(input_path: str, output_path: str, exclusion_log_path: str) -> None:
     """
-    Compute descriptors for the entire dataset.
-    
-    Args:
-        input_path: Path to input CSV file.
-        output_log_path: Path to write descriptor log file.
-        output_csv_path: Optional path to write processed CSV file.
+    Main function to compute descriptors for the entire dataset.
+    Reads from input_path, writes descriptors to output_path,
+    and logs failures to exclusion_log_path.
     """
     logger = get_logger('descriptors')
-    logger.info(f"Loading data from {input_path}")
+    logger.info(f"Starting descriptor computation for {input_path}")
     
+    # Ensure output directories exist
+    ensure_dirs([output_path, exclusion_log_path])
+    
+    # Load input data
     try:
         df = pd.read_csv(input_path)
+        logger.info(f"Loaded {len(df)} rows from {input_path}")
     except Exception as e:
         logger.error(f"Failed to load input data: {e}")
-        raise
+        raise ValueError(f"Input file missing or invalid: {input_path}")
     
-    logger.info(f"Loaded {len(df)} rows")
+    if df.empty:
+        logger.warning("Input dataframe is empty. No descriptors to compute.")
+        # Write empty output with headers
+        pd.DataFrame(columns=['smiles', 'gasteiger_charges', 'charge_sum', 'charge_mean', 
+                              'charge_std', 'charge_max', 'charge_min', 'molecular_weight', 
+                              'logp', 'tpsa', 'heavy_atom_count', 'num_rotatable_bonds', 
+                              'num_aromatic_rings', 'num_aliphatic_rings', 'num_hbd', 
+                              'num_hba', 'bertz_ct', 'kier_alpha']).to_csv(output_path, index=False)
+        return
     
     results = []
-    excluded_count = 0
+    failures = []
     
     for idx, row in df.iterrows():
-        result = process_single_row(row, idx, logger)
+        row_dict = row.to_dict()
+        result, error = process_single_row(row_dict)
+        
         if result is not None:
             results.append(result)
         else:
-            excluded_count += 1
+            failures.append({
+                'row_index': idx,
+                'smiles': row_dict.get('smiles', 'unknown'),
+                'reason': error
+            })
+            logger.debug(f"Row {idx} failed: {error}")
     
-    logger.info(f"Processed {len(results)} rows, excluded {excluded_count} rows")
+    # Write successful results
+    if results:
+        result_df = pd.DataFrame(results)
+        # Convert charge list to string for CSV storage
+        result_df['gasteiger_charges'] = result_df['gasteiger_charges'].apply(lambda x: str(x))
+        result_df.to_csv(output_path, index=False)
+        logger.info(f"Successfully computed descriptors for {len(results)} rows")
+    else:
+        logger.warning("No rows succeeded. Output file will be empty.")
+        pd.DataFrame(columns=['smiles', 'gasteiger_charges', 'charge_sum', 'charge_mean', 
+                              'charge_std', 'charge_max', 'charge_min', 'molecular_weight', 
+                              'logp', 'tpsa', 'heavy_atom_count', 'num_rotatable_bonds', 
+                              'num_aromatic_rings', 'num_aliphatic_rings', 'num_hbd', 
+                              'num_hba', 'bertz_ct', 'kier_alpha']).to_csv(output_path, index=False)
     
-    # Write descriptor log
-    log_dir = Path(output_log_path).parent
-    log_dir.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_log_path, 'w') as f:
-        f.write("# Descriptor Computation Log\n")
-        f.write(f"# Total rows processed: {len(df)}\n")
-        f.write(f"# Successful: {len(results)}\n")
-        f.write(f"# Excluded: {excluded_count}\n")
-        f.write("#\n")
-        f.write("# Format: row_index, smiles, status, message\n")
-        
-        for idx, row in df.iterrows():
-            smiles = row.get('smiles', '')
-            # Find if this row was successful
-            successful_row = next((r for r in results if r['row_index'] == idx), None)
-            if successful_row:
-                f.write(f"{idx},{smiles},SUCCESS,Descriptor computation completed\n")
-            else:
-                f.write(f"{idx},{smiles},FAILED,Descriptor computation failed\n")
-    
-    logger.info(f"Descriptor log written to {output_log_path}")
-    
-    # Optionally write CSV with descriptors
-    if output_csv_path and results:
-        results_df = pd.DataFrame(results)
-        results_csv_dir = Path(output_csv_path).parent
-        results_csv_dir.mkdir(parents=True, exist_ok=True)
-        results_df.to_csv(output_csv_path, index=False)
-        logger.info(f"Descriptor CSV written to {output_csv_path}")
+    # Write exclusion log
+    if failures:
+        failure_df = pd.DataFrame(failures)
+        failure_df.to_csv(exclusion_log_path, index=False, mode='a', header=not os.path.exists(exclusion_log_path))
+        logger.info(f"Logged {len(failures)} failures to {exclusion_log_path}")
+    else:
+        logger.info("No failures to log.")
 
 def main():
-    """Main entry point for descriptor computation."""
-    parser = argparse.ArgumentParser(description="Compute molecular descriptors")
-    parser.add_argument("--input", required=True, help="Input CSV file path")
-    parser.add_argument("--output", required=True, help="Output log file path")
-    parser.add_argument("--csv-output", help="Optional output CSV file path")
-    
+    """CLI entry point for descriptor computation."""
+    parser = argparse.ArgumentParser(description="Compute molecular descriptors for SN1 dataset")
+    parser.add_argument('--input', type=str, required=True, help="Path to input CSV")
+    parser.add_argument('--output', type=str, required=True, help="Path to output descriptors CSV")
+    parser.add_argument('--exclusion-log', type=str, required=True, help="Path to exclusion log CSV")
     args = parser.parse_args()
     
-    setup_logging()
-    
-    compute_descriptors_for_dataset(
-        input_path=args.input,
-        output_log_path=args.output,
-        output_csv_path=args.csv_output
-    )
+    compute_descriptors_for_dataset(args.input, args.output, args.exclusion_log)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

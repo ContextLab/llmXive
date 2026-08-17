@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T22:45:24.926874Z'
-current_stage: flesh_out_complete
+current_stage: flesh_out_in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-974-llmxive-follow-up-extending-lance-unifie
-last_run_id: e01d167b-4423-4a67-bc03-6ca65386e7b2
+last_run_id: fc95bce9-02cd-4d4c-a960-b2d2d0700fcc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "Lance: Unified Multimodal Modeling by Multi-Task
   Synergy"'
-updated_at: '2026-07-25T04:57:20.388025Z'
+updated_at: '2026-08-17T09:51:29.503055Z'

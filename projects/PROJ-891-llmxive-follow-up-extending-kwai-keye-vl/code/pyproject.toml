@@ -1,0 +1,46 @@
+[project]
+name = "llmxive-follow-up-extending-kwai-keye-vl"
+version = "0.1.0"
+description = "Automated science pipeline for Kwai Keye-VL robustness analysis"
+requires-python = ">=3.11"
+dependencies = [
+    "opencv-python>=4.8.0,<5.0.0",
+    "ffmpeg-python>=0.2.0,<0.3.0",
+    "transformers>=4.36.0,<5.0.0",
+    "optimum-intel>=1.15.0,<2.0.0",
+    "llama-cpp-python>=0.2.50,<0.3.0",
+    "pandas>=2.0.0,<3.0.0",
+    "scipy>=1.11.0,<2.0.0",
+    "numpy>=1.24.0,<2.0.0",
+    "requests>=2.31.0,<3.0.0",
+    "huggingface_hub>=0.20.0,<1.0.0",
+    "pytest>=7.4.0,<8.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0,<0.2.0",
+    "black>=23.0.0,<24.0.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

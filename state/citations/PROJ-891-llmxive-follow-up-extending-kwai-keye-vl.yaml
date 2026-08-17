@@ -9,7 +9,7 @@
   verification_status: mismatch
   verified_against_url: https://s3.amazonaws.com/amzn-activity-net/val_1.json
   verified_at: '2026-08-12T07:54:47.686446Z'
-- artifact_hash: 776c85bd059e596ff0d905f19f26a65d70ce3dbe43178abe587056b066d443e1
+- artifact_hash: 4562e1046069cc37ead6ee5647e87f364c42a611ed4d943d2fc23b0f5a3bdca6
   artifact_path: projects/PROJ-891-llmxive-follow-up-extending-kwai-keye-vl/specs/001-llmxive-follow-up-extending-kwai-keye-vl/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,4 +19,4 @@
   value: '2301.12345'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-08-12T08:21:42.812838Z'
+  verified_at: '2026-08-17T09:35:29.199495Z'
