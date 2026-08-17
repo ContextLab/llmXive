@@ -1,6 +1,6 @@
 torch
-torch-geometric
 rdkit
+torch-geometric
 scikit-learn
 pandas
 datasets
@@ -9,4 +9,4 @@ psutil
 pyyaml
 requests
 scipy
-numpy
+pytest

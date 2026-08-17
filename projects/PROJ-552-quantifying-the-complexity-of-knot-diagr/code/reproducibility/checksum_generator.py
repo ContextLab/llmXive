@@ -1,51 +1,51 @@
-"""Generate SHA-256 checksums for all files under the data directory.
+"""Generate SHA‑256 checksums for all files under the ``data`` directory.
 
-The script walks ``data/`` recursively, computes a SHA-256 hash for each
-regular file, and writes a markdown table to
-``docs/reproducibility/checksums.md``. The format is:
-
-| Relative Path | SHA-256 |
-|---|---|
-| data/raw/knot_atlas_raw.json | <hash> |
-
-This file is part of the reproducibility run‑book and must exist.
+The script writes a Markdown table to ``docs/reproducibility/checksums.md``.
+It is deliberately lightweight – it does not attempt to be incremental;
+it simply recomputes the checksums each time it is run.
 """
+from __future__ import annotations
+
 import hashlib
 from pathlib import Path
 
-def _sha256_of_file(path: Path) -> str:
-    """Return the hex SHA‑256 digest of *path*."""
+# Directories
+DATA_ROOT = Path(__file__).resolve().parents[2] / "data"
+DOCS_ROOT = Path(__file__).resolve().parents[2] / "docs" / "reproducibility"
+
+OUTPUT_MD = DOCS_ROOT / "checksums.md"
+
+
+def sha256_of_file(file_path: Path) -> str:
+    """Return the hex SHA‑256 digest of ``file_path``."""
     h = hashlib.sha256()
-    with path.open("rb") as f:
+    with file_path.open("rb") as f:
         for chunk in iter(lambda: f.read(8192), b""):
             h.update(chunk)
     return h.hexdigest()
 
 
-def main() -> None:
-    data_root = Path("data")
-    output_md = Path("docs/reproducibility/checksums.md")
-
-    if not data_root.is_dir():
-        raise FileNotFoundError(f"Data directory {data_root!s} does not exist")
-
-    rows = []
-    for file_path in data_root.rglob("*"):
+def generate_checksums() -> str:
+    """Create a markdown table with ``relative_path`` and ``sha256`` columns."""
+    lines = [
+        "# Checksums for data files",
+        "",
+        "| Relative Path | SHA‑256 |",
+        "|---------------|----------|",
+    ]
+    for file_path in sorted(DATA_ROOT.rglob("*")):
         if file_path.is_file():
-            rel = file_path.relative_to(Path.cwd())
-            checksum = _sha256_of_file(file_path)
-            rows.append((str(rel), checksum))
+            rel = file_path.relative_to(DATA_ROOT)
+            checksum = sha256_of_file(file_path)
+            lines.append(f"| {rel} | `{checksum}` |")
+    return "\n".join(lines) + "\n"
 
-    # Sort rows for reproducibility
-    rows.sort(key=lambda x: x[0])
 
-    with output_md.open("w", encoding="utf-8") as out:
-        out.write("| Relative Path | SHA-256 |\n")
-        out.write("|---|---|\n")
-        for rel, cs in rows:
-            out.write(f"| {rel} | {cs} |\n")
-
-    print(f"Wrote checksums for {len(rows)} files to {output_md}")
+def main() -> None:
+    DOCS_ROOT.mkdir(parents=True, exist_ok=True)
+    markdown = generate_checksums()
+    OUTPUT_MD.write_text(markdown, encoding="utf-8")
+    print(f"Wrote checksums to {OUTPUT_MD}")
 
 
 if __name__ == "__main__":

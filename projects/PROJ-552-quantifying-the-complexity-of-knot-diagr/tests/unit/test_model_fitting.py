@@ -42,4 +42,5 @@ def test_fit_polynomial(sample_df: pd.DataFrame) -> None:
 def test_fit_logarithmic(sample_df: pd.DataFrame) -> None:
     res = fit_logarithmic_model(sample_df)
     assert res.name == "Logarithmic"
+    # VIF should be a dict (even if empty) per the implementation contract
     assert isinstance(res.metrics.vif, dict)

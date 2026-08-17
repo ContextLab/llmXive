@@ -1,128 +1,176 @@
 """
-Task T010e: Verify checksum (SHA-256) of data/raw/kinetic_dataset_raw.csv.
+Task T010e: Verify checksum (SHA-256) of data/raw/kinetic_dataset_raw.csv
+against the hash stored in data/raw/checksums.json.
 
-This script validates the integrity of the downloaded kinetic dataset
-against the expected hash stored in data/raw/checksums.json.
-
-It relies on the existing infrastructure:
-- code/config.py for paths and configuration
-- code/utils/checksum_manager.py for calculation and verification logic
+This script validates the integrity of the curated kinetic dataset before
+ingestion into the assets directory.
 """
 import os
 import sys
 import json
+import hashlib
 import logging
 from typing import Dict, Optional
 
-# Add project root to path for imports if running as script
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import get_config
-from utils.checksum_manager import calculate_sha256, load_checksums
 
-def setup_script_logging():
-    """Configure logging for this verification script."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler(os.path.join(get_config()['paths']['logs'], 'verify_kinetic_checksum.log'))
-        ]
-    )
-    return logging.getLogger(__name__)
 
-def verify_kinetic_checksum(logger: logging.Logger) -> bool:
+def setup_script_logging() -> logging.Logger:
+    """Configure logging for the verification script."""
+    logger = logging.getLogger("verify_kinetic_checksum")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        )
+        logger.addHandler(handler)
+    return logger
+
+
+def calculate_sha256(file_path: str) -> str:
     """
-    Verify the SHA-256 checksum of the kinetic dataset.
+    Calculate the SHA-256 hash of a file.
+
+    Args:
+        file_path: Path to the file to hash.
 
     Returns:
-        bool: True if verification passes, False otherwise.
+        Hexadecimal string of the SHA-256 hash.
+    """
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
+
+
+def load_manifest(manifest_path: str) -> Dict[str, str]:
+    """
+    Load the checksums manifest.
+
+    Args:
+        manifest_path: Path to the checksums.json file.
+
+    Returns:
+        Dictionary mapping file paths to their expected SHA-256 hashes.
 
     Raises:
-        FileNotFoundError: If the raw kinetic dataset or checksums file is missing.
-        ValueError: If the checksums file is malformed.
+        FileNotFoundError: If manifest does not exist.
+        json.JSONDecodeError: If manifest is invalid JSON.
     """
-    config = get_config()
-    raw_dir = config['paths']['raw']
-    checksums_file = os.path.join(raw_dir, 'checksums.json')
-    target_file = os.path.join(raw_dir, 'kinetic_dataset_raw.csv')
+    if not os.path.exists(manifest_path):
+        raise FileNotFoundError(f"Checksum manifest not found at {manifest_path}")
 
-    # 1. Validate input files exist
-    if not os.path.exists(target_file):
-        error_msg = f"Target file not found: {target_file}. Ensure T010d (Download Kinetic Dataset) has completed successfully."
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-    if not os.path.exists(checksums_file):
-        error_msg = f"Checksums manifest not found: {checksums_file}. Ensure T010g/T010h (Checksums Setup) has completed successfully."
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
 
-    # 2. Load expected checksums
-    try:
-        expected_checksums = load_checksums(checksums_file)
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse checksums manifest: {e}")
-        raise ValueError(f"Invalid checksums manifest: {e}")
+def verify_checksum(
+    logger: logging.Logger,
+    file_path: str,
+    expected_hash: str,
+    relative_path_key: str
+) -> bool:
+    """
+    Verify the SHA-256 hash of a file against an expected value.
 
-    # 3. Identify the specific key for the kinetic dataset
-    # The schema defines 'kinetic_dataset' as the key for the local static asset file.
-    expected_key = 'kinetic_dataset'
-    if expected_key not in expected_checksums:
-        error_msg = f"Key '{expected_key}' not found in checksums manifest. Available keys: {list(expected_checksums.keys())}"
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+    Args:
+        logger: Logger instance.
+        file_path: Absolute path to the file to verify.
+        expected_hash: Expected SHA-256 hash string.
+        relative_path_key: Key used in the manifest for this file.
 
-    expected_hash = expected_checksums[expected_key]['hash']
-    source_info = expected_checksums[expected_key].get('source', 'Unknown')
-    version = expected_checksums[expected_key].get('version', 'Unknown')
+    Returns:
+        True if hashes match, False otherwise.
+    """
+    logger.info(f"Verifying checksum for: {file_path}")
+    logger.info(f"Expected hash ({relative_path_key}): {expected_hash}")
 
-    logger.info(f"Verifying integrity for: {os.path.basename(target_file)}")
-    logger.info(f"  Source: {source_info}")
-    logger.info(f"  Version: {version}")
-    logger.info(f"  Expected Hash: {expected_hash}")
-
-    # 4. Calculate actual hash
-    actual_hash = calculate_sha256(target_file)
-    logger.info(f"  Actual Hash:   {actual_hash}")
-
-    # 5. Compare
-    if actual_hash == expected_hash:
-        logger.info("SUCCESS: Checksum verification passed. Data integrity confirmed.")
-        return True
-    else:
-        error_msg = (
-            f"FAILURE: Checksum mismatch for {os.path.basename(target_file)}.\n"
-            f"  Expected: {expected_hash}\n"
-            f"  Actual:   {actual_hash}\n"
-            f"  Action: Re-run the download script (T010d) to ensure the file is not corrupted."
-        )
-        logger.error(error_msg)
+    if not os.path.exists(file_path):
+        logger.error(f"File not found: {file_path}")
         return False
 
-def main():
-    """Main entry point for the verification script."""
-    logger = setup_script_logging()
     try:
-        success = verify_kinetic_checksum(logger)
-        if success:
-            logger.info("Task T010e completed successfully.")
-            sys.exit(0)
-        else:
-            logger.error("Task T010e failed: Checksum mismatch.")
-            sys.exit(1)
-    except FileNotFoundError as e:
-        logger.error(f"Task T010e failed: Missing required file - {e}")
-        sys.exit(2)
-    except ValueError as e:
-        logger.error(f"Task T010e failed: Configuration error - {e}")
-        sys.exit(3)
-    except Exception as e:
-        logger.exception(f"Task T010e failed with unexpected error: {e}")
-        sys.exit(4)
+        actual_hash = calculate_sha256(file_path)
+        logger.info(f"Actual hash ({relative_path_key}):   {actual_hash}")
 
-if __name__ == '__main__':
+        if actual_hash == expected_hash:
+            logger.info(f"SUCCESS: Checksum verified for {relative_path_key}")
+            return True
+        else:
+            logger.error(f"FAILURE: Checksum mismatch for {relative_path_key}")
+            logger.error(f"  Expected: {expected_hash}")
+            logger.error(f"  Actual:   {actual_hash}")
+            return False
+    except Exception as e:
+        logger.error(f"ERROR calculating hash for {file_path}: {e}")
+        return False
+
+
+def verify_kinetic_checksum(logger: Optional[logging.Logger] = None) -> int:
+    """
+    Main verification logic for T010e.
+
+    Returns:
+        Exit code: 0 for success, 1 for failure.
+    """
+    if logger is None:
+        logger = setup_script_logging()
+
+    config = get_config()
+    base_dir = config.get("base_dir", ".")
+
+    # Define paths relative to base_dir
+    kinetic_file_rel = "data/raw/kinetic_dataset_raw.csv"
+    manifest_file_rel = "data/raw/checksums.json"
+
+    kinetic_file_path = os.path.join(base_dir, kinetic_file_rel)
+    manifest_file_path = os.path.join(base_dir, manifest_file_rel)
+
+    logger.info("Starting kinetic dataset checksum verification (T010e)")
+
+    # 1. Check if manifest exists
+    try:
+        manifest = load_manifest(manifest_file_path)
+        logger.info(f"Loaded manifest from {manifest_file_path}")
+    except FileNotFoundError as e:
+        logger.error(f"Manifest missing: {e}")
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid manifest JSON: {e}")
+        return 1
+
+    # 2. Check if the kinetic file is listed in manifest
+    if kinetic_file_rel not in manifest:
+        logger.error(f"File '{kinetic_file_rel}' not found in checksum manifest.")
+        logger.error("Please ensure T010h has been run to populate the manifest.")
+        return 1
+
+    expected_hash = manifest[kinetic_file_rel]
+
+    # 3. Verify the file hash
+    success = verify_checksum(logger, kinetic_file_path, expected_hash, kinetic_file_rel)
+
+    if success:
+        logger.info("Verification PASSED: data/raw/kinetic_dataset_raw.csv is valid.")
+        return 0
+    else:
+        logger.error("Verification FAILED: data/raw/kinetic_dataset_raw.csv is corrupted or modified.")
+        return 1
+
+
+def main():
+    """Entry point for the script."""
+    logger = setup_script_logging()
+    exit_code = verify_kinetic_checksum(logger)
+    sys.exit(exit_code)
+
+
+if __name__ == "__main__":
     main()

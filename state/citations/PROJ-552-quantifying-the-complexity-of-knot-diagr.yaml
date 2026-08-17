@@ -908,7 +908,7 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/quantifying-knot-complexity
   verified_at: '2026-07-26T07:38:37.452748Z'
-- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
+- artifact_hash: 1e713fbd56ecd78fb6bff99214f1f25f203dd8dd268cde4cbd63aacce9f21c6a
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -919,8 +919,8 @@
   value: https://arxiv.org/abs/2408.02911
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2408.02911
-  verified_at: '2026-08-07T09:53:39.824164Z'
-- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
+  verified_at: '2026-08-17T06:34:52.884230Z'
+- artifact_hash: 1e713fbd56ecd78fb6bff99214f1f25f203dd8dd268cde4cbd63aacce9f21c6a
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -930,8 +930,8 @@
   value: https://www.wikidata.org/wiki/Q19358049
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q19358049
-  verified_at: '2026-08-07T09:53:39.824164Z'
-- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
+  verified_at: '2026-08-17T06:34:52.884230Z'
+- artifact_hash: 1e713fbd56ecd78fb6bff99214f1f25f203dd8dd268cde4cbd63aacce9f21c6a
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -941,8 +941,8 @@
   value: https://en.wikipedia.org/wiki/Null_hypothesis
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Null_hypothesis
-  verified_at: '2026-08-07T09:53:39.824164Z'
-- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
+  verified_at: '2026-08-17T06:34:52.884230Z'
+- artifact_hash: 1e713fbd56ecd78fb6bff99214f1f25f203dd8dd268cde4cbd63aacce9f21c6a
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -952,8 +952,8 @@
   value: https://en.wikipedia.org/wiki/Knot_theory
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Knot_theory
-  verified_at: '2026-08-07T09:53:39.824164Z'
-- artifact_hash: 1bb3dfa10c153630b22f7c32a3a18539e2747193b38b90bb83d08ea26aca8823
+  verified_at: '2026-08-17T06:34:52.884230Z'
+- artifact_hash: 1e713fbd56ecd78fb6bff99214f1f25f203dd8dd268cde4cbd63aacce9f21c6a
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -963,4 +963,4 @@
   value: https://en.wikipedia.org/wiki/Universal_health_care_by_country
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Universal_health_care_by_country
-  verified_at: '2026-08-07T09:53:39.824164Z'
+  verified_at: '2026-08-17T06:34:52.884230Z'

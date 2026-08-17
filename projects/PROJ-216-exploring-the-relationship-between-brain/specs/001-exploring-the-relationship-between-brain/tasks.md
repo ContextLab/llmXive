@@ -61,7 +61,7 @@
  ## Overrides
  1. **FR-001 (Data Ingestion)**: The requirement to validate for "Musical Creativity (TTCT/AUT)" is AMENDED. The system MUST validate for "Fluid Intelligence" scores available in OpenNeuro ds000224. If no Fluid Intelligence scores are found, the system MUST halt with the error: 'No valid Fluid Intelligence data found'.
  2. **FR-005 (Statistical Correction)**: The requirement for "False Discovery Rate (FDR)" is AMENDED. The system MUST use "Bonferroni" correction per Constitution Principle VII.
- 3. **SC-001 & SC-005 (Success Criteria)**: The target N=50 is AMENDED to N=10 for CI feasibility. [UNRESOLVED-CLAIM: c_a94af891 — status=not_enough_info] Success criteria are measured against the N=10 run.
+ 3. **SC-001 & SC-005 (Success Criteria)**: The target N=50 is AMENDED to N=10 for CI feasibility. Success criteria are measured against the N=10 run.
 
  ## Authority
  This artifact is the single source of truth for the pivot to Fluid Intelligence and the N=10 baseline.

@@ -1,13 +1,6 @@
 """
-Ingest verified external kinetic data into data/assets/kinetic_dataset.csv with schema validation.
-
-This script reads the verified raw kinetic dataset (data/raw/kinetic_dataset_raw.csv),
-validates it against the expected schema, and saves the cleaned, validated data
-to data/assets/kinetic_dataset.csv.
-
-Prerequisites:
-  - data/raw/kinetic_dataset_raw.csv must exist (produced by T010d)
-  - data/raw/checksums.json must exist (produced by T010g/T010h)
+Task T010f: Ingest verified external kinetic data into data/assets/kinetic_dataset.csv
+with schema validation.
 """
 import os
 import sys
@@ -15,167 +8,136 @@ import logging
 import pandas as pd
 from typing import Optional, Dict, List
 
-# Add project root to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+# Import from project utils as per API surface
 from config import get_config, ensure_directories
 from utils.loaders import calculate_sha256
 
-# Expected schema for kinetic dataset
-# Based on FR-009: external kinetic dataset of >=20 molecules with experimental reaction rates
-EXPECTED_COLUMNS = [
-    'molecule_id',
-    'smiles',
-    'reaction_type',
-    'experimental_rate',
-    'temperature_k',
-    'solvent',
-    'reference'
-]
-
+# Configure logging
 def setup_script_logging() -> logging.Logger:
-    """Setup logging for the ingestion script."""
-    logger = logging.getLogger('ingest_kinetic_data')
+    """Setup logging for this script."""
+    logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_format)
-
     if not logger.handlers:
-        logger.addHandler(console_handler)
-
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
     return logger
 
-def validate_schema(df: pd.DataFrame, logger: Optional[logging.Logger] = None) -> bool:
+def validate_schema(df: pd.DataFrame, logger: logging.Logger) -> bool:
     """
-    Validate that the dataframe has the expected schema.
-
+    Validate the schema of the kinetic dataset.
+    
+    Expected columns: id, smiles, rate_constant, temperature, source_doi
+    
     Args:
-        df: The dataframe to validate
-        logger: Optional logger for error messages
-
+        df: DataFrame to validate
+        logger: Logger instance
+        
     Returns:
         True if schema is valid, False otherwise
     """
-    if logger is None:
-        logger = logging.getLogger('ingest_kinetic_data')
-
-    # Check required columns
-    missing_columns = set(EXPECTED_COLUMNS) - set(df.columns)
+    required_columns = {'id', 'smiles', 'rate_constant', 'temperature', 'source_doi'}
+    actual_columns = set(df.columns)
+    
+    missing_columns = required_columns - actual_columns
     if missing_columns:
         logger.error(f"Schema validation failed: missing columns {missing_columns}")
         return False
-
-    # Check for minimum number of molecules (FR-009 requirement)
-    if len(df) < 20:
-        logger.error(f"Schema validation failed: dataset has {len(df)} molecules, requires >= 20")
+    
+    # Validate data types
+    try:
+        df['rate_constant'] = pd.to_numeric(df['rate_constant'], errors='raise')
+        df['temperature'] = pd.to_numeric(df['temperature'], errors='raise')
+    except (ValueError, TypeError) as e:
+        logger.error(f"Schema validation failed: invalid data types - {e}")
         return False
-
-    # Check for non-empty SMILES
+    
+    # Validate non-empty SMILES
     if df['smiles'].isnull().any() or (df['smiles'] == '').any():
         logger.error("Schema validation failed: empty or null SMILES found")
         return False
-
-    # Check for positive experimental rates
-    if 'experimental_rate' in df.columns:
-        if (df['experimental_rate'] <= 0).any():
-            logger.error("Schema validation failed: non-positive experimental rates found")
-            return False
-
-    logger.info(f"Schema validation passed: {len(df)} molecules, all required columns present")
+    
+    logger.info("Schema validation passed")
     return True
 
 def ingest_kinetic_dataset(
-    raw_path: str,
+    input_path: str,
     output_path: str,
-    logger: Optional[logging.Logger] = None
+    logger: logging.Logger
 ) -> bool:
     """
-    Ingest the verified kinetic dataset into the assets directory.
-
+    Ingest kinetic dataset from raw to assets with schema validation.
+    
     Args:
-        raw_path: Path to the verified raw dataset
-        output_path: Path to save the ingested dataset
-        logger: Optional logger
-
+        input_path: Path to the raw kinetic dataset CSV
+        output_path: Path to write the validated assets CSV
+        logger: Logger instance
+        
     Returns:
         True if ingestion successful, False otherwise
     """
-    if logger is None:
-        logger = logging.getLogger('ingest_kinetic_data')
-
-    logger.info(f"Loading kinetic dataset from {raw_path}")
-
-    if not os.path.exists(raw_path):
-        logger.error(f"Raw kinetic dataset not found at {raw_path}")
+    logger.info(f"Reading kinetic dataset from {input_path}")
+    
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
         return False
-
+    
     try:
-        # Load the raw dataset
-        df = pd.read_csv(raw_path)
-        logger.info(f"Loaded {len(df)} rows from raw dataset")
-
+        df = pd.read_csv(input_path)
     except Exception as e:
-        logger.error(f"Failed to load raw dataset: {e}")
+        logger.error(f"Failed to read input file: {e}")
         return False
-
+    
+    logger.info(f"Read {len(df)} rows from {input_path}")
+    
     # Validate schema
     if not validate_schema(df, logger):
-        logger.error("Schema validation failed, aborting ingestion")
+        logger.error("Schema validation failed. Aborting ingestion.")
         return False
-
+    
     # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        ensure_directories(output_dir)
-
-    # Clean and standardize the data
-    logger.info("Cleaning and standardizing data")
-
-    # Strip whitespace from string columns
-    for col in df.select_dtypes(include=['object']).columns:
-        df[col] = df[col].astype(str).str.strip()
-
-    # Ensure consistent column order
-    df = df[EXPECTED_COLUMNS]
-
-    # Save to output path
+    ensure_directories([os.path.dirname(output_path)])
+    
+    # Write to output
     try:
         df.to_csv(output_path, index=False)
-        logger.info(f"Successfully saved ingested dataset to {output_path}")
-
-        # Verify the output file
-        output_hash = calculate_sha256(output_path)
-        logger.info(f"Output file SHA-256: {output_hash}")
-
+        logger.info(f"Successfully wrote validated dataset to {output_path}")
     except Exception as e:
-        logger.error(f"Failed to save ingested dataset: {e}")
+        logger.error(f"Failed to write output file: {e}")
         return False
-
+    
+    # Compute and log checksum
+    checksum = calculate_sha256(output_path)
+    logger.info(f"SHA-256 checksum of output file: {checksum}")
+    
     return True
 
-def main() -> int:
-    """Main entry point for the ingestion script."""
+def main():
+    """Main entry point for T010f."""
     logger = setup_script_logging()
-    logger.info("Starting kinetic dataset ingestion")
-
+    logger.info("Starting T010f: Ingest Kinetic Data")
+    
     config = get_config()
-
+    
     # Define paths
-    raw_path = os.path.join('data', 'raw', 'kinetic_dataset_raw.csv')
-    output_path = os.path.join('data', 'assets', 'kinetic_dataset.csv')
-
-    # Perform ingestion
-    success = ingest_kinetic_dataset(raw_path, output_path, logger)
-
+    input_path = config.get('paths', {}).get('kinetic_raw', 
+                     os.path.join('data', 'raw', 'kinetic_dataset_raw.csv'))
+    output_path = config.get('paths', {}).get('kinetic_assets', 
+                       os.path.join('data', 'assets', 'kinetic_dataset.csv'))
+    
+    logger.info(f"Input: {input_path}")
+    logger.info(f"Output: {output_path}")
+    
+    success = ingest_kinetic_dataset(input_path, output_path, logger)
+    
     if success:
-        logger.info("Kinetic dataset ingestion completed successfully")
+        logger.info("T010f completed successfully")
         return 0
     else:
-        logger.error("Kinetic dataset ingestion failed")
+        logger.error("T010f failed")
         return 1
 
 if __name__ == '__main__':

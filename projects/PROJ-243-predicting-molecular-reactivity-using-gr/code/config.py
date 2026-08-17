@@ -5,28 +5,30 @@ from typing import Optional, Dict, Any
 import numpy as np
 
 class Config:
-    """Central configuration for the project."""
-    def __init__(self):
-        self.project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        self.data_raw_dir = os.path.join(self.project_root, 'data', 'raw')
-        self.data_processed_dir = os.path.join(self.project_root, 'data', 'processed')
-        self.data_assets_dir = os.path.join(self.project_root, 'data', 'assets')
-        self.code_dir = os.path.join(self.project_root, 'code')
-        self.artifacts_dir = os.path.join(self.project_root, 'artifacts')
-        self.tests_dir = os.path.join(self.project_root, 'tests')
-        self.artifacts_logs_dir = os.path.join(self.artifacts_dir, 'logs')
-        self.artifacts_weights_dir = os.path.join(self.artifacts_dir, 'weights')
-        self.artifacts_figures_dir = os.path.join(self.artifacts_dir, 'figures')
-        
-        # Device configuration
-        self.device = 'cpu'
-        
-        # Random seed
+    """Configuration class for the project."""
+    
+    def __init__(self, project_root: Optional[str] = None):
+        self.project_root = project_root or os.getcwd()
         self.seed = 42
+        self.device = 'cpu'
+        self.log_level = logging.INFO
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return getattr(self, key, default)
+
+_config_instance: Optional[Config] = None
 
 def get_config() -> Config:
-    """Retrieve the global configuration instance."""
-    return Config()
+    """Return the global configuration instance."""
+    global _config_instance
+    if _config_instance is None:
+        _config_instance = Config()
+    return _config_instance
+
+def set_config(config: Config) -> None:
+    """Set the global configuration instance."""
+    global _config_instance
+    _config_instance = config
 
 def set_seed(seed: Optional[int] = None) -> None:
     """Set random seeds for reproducibility."""
@@ -34,40 +36,39 @@ def set_seed(seed: Optional[int] = None) -> None:
         seed = get_config().seed
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+    # Note: torch seed setting is handled in model scripts if torch is available
 
 def ensure_directories() -> None:
     """
-    Create all required project directories if they do not exist.
-    This ensures the directory structure is ready for data ingestion and artifact storage.
+    Ensure all necessary project directories exist based on the current config.
+    This is a helper for setup scripts.
     """
     config = get_config()
+    base = config.project_root
+    
+    # Define the directory structure required by the project
+    # This matches the paths in tasks.md (Phase 1)
     directories = [
-        config.data_raw_dir,
-        config.data_processed_dir,
-        config.data_assets_dir,
-        config.code_dir,
-        config.artifacts_dir,
-        config.tests_dir,
-        config.artifacts_logs_dir,
-        config.artifacts_weights_dir,
-        config.artifacts_figures_dir
+        "data/raw",
+        "data/processed",
+        "data/assets",
+        "code",
+        "artifacts",
+        "tests",
+        "artifacts/logs",
+        "artifacts/weights",
+        "figures"
     ]
     
-    for directory in directories:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-            logging.getLogger(__name__).info(f"Created directory: {directory}")
+    for dir_path in directories:
+        full_path = os.path.join(base, dir_path)
+        if not os.path.exists(full_path):
+            os.makedirs(full_path, exist_ok=True)
 
 def get_default_config() -> Dict[str, Any]:
     """Return a dictionary of default configuration values."""
-    config = get_config()
     return {
-        'device': config.device,
-        'seed': config.seed,
-        'data_raw_dir': config.data_raw_dir,
-        'data_processed_dir': config.data_processed_dir,
-        'data_assets_dir': config.data_assets_dir,
-        'artifacts_dir': config.artifacts_dir,
-        'artifacts_logs_dir': config.artifacts_logs_dir
+        "seed": 42,
+        "device": "cpu",
+        "log_level": logging.INFO
     }

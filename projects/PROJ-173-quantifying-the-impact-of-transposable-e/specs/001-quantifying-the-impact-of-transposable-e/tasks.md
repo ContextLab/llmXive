@@ -65,11 +65,11 @@
 - [ ] T006A [P] Implement `code/data_generator.py` function to simulate TE-Gene pairing logic and ensure ambiguous pairs are flagged in the generated metadata.
 - [ ] T006B [P] Implement `code/data_generator.py` function to simulate missing expression data for specific lines to test exclusion logic (FR-009).
 - [X] T007 [P] Implement `code/data_generator.py` function to generate Mock population structure PCs (PC1, PC2, PC3) derived from simulated genome-wide SNPs. These PCs must be independent of specific TE insertions to allow non-tautological validation. (FR-003)
-- [ ] T008 [P] Implement `code/data_generator.py` function to filter monomorphic TEs (freq < 5% or > 95%) in the generated dataset and log exclusions. Ensure the final output CSV only contains polymorphic TEs. (FR-008)
-- [ ] T009 [P] Implement `code/preprocessing.py` function to calculate Variance Inflation Factor (VIF) for TE presence vs PCs (for use in association testing).
-- [ ] T010 [P] Implement `code/association.py` skeleton for linear model fitting (`log2(expr) ~ TE + PC1 + PC2 + PC3`)
-- [ ] T011 [P] Implement `code/association.py` function to apply Benjamini-Hochberg correction and filter FDR < 0.05
-- [~] T012 [P] Implement `code/association.py` function to compute R² reduction with/without PCs for population structure control metric. **Must write the output table to `data/results/population_structure_control_metrics.csv` with columns: `r2_with_pcs`, `r2_without_pcs`, `reduction_percent`. Must handle the edge case where `r2_without_pcs` is 0 by setting `reduction_percent` to `0.0` to prevent division-by-zero errors.** (FR-012, SC-004)
+- [X] T008 [P] Implement `code/data_generator.py` function to filter monomorphic TEs (freq < 5% or > 95%) in the generated dataset and log exclusions. Ensure the final output CSV only contains polymorphic TEs. (FR-008)
+- [X] T009 [P] Implement `code/preprocessing.py` function to calculate Variance Inflation Factor (VIF) for TE presence vs PCs (for use in association testing).
+- [X] T010 [P] Implement `code/association.py` skeleton for linear model fitting (`log2(expr) ~ TE + PC1 + PC2 + PC3`)
+- [X] T011 [P] Implement `code/association.py` function to apply Benjamini-Hochberg correction and filter FDR < 0.05
+- [ ] T012 [P] Implement `code/association.py` function to compute R² reduction with/without PCs for population structure control metric. **Must write the output table to `data/results/population_structure_control_metrics.csv` with columns: `r2_with_pcs`, `r2_without_pcs`, `reduction_percent`. Must handle the edge case where `r2_without_pcs` is 0 by setting `reduction_percent` to `0.0` to prevent division-by-zero errors.** (FR-012, SC-004)
 - [X] T013 [P] Implement `code/permutation.py` skeleton for null distribution generation
 - [X] T014 [P] Implement `code/replication.py` skeleton for independent dataset validation logic
 
@@ -87,7 +87,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T015 [P] [US1] Unit test for TE-Gene pairing logic and monomorphic filtering in `tests/test_preprocessing.py` (verify distance calculation and frequency thresholding on mock data) <!-- FAILED: unspecified -->
+- [ ] T015 [P] [US1] Unit test for TE-Gene pairing logic and monomorphic filtering in `tests/test_preprocessing.py` (verify distance calculation and frequency thresholding on mock data) <!-- FAILED: unspecified -->
 - [ ] T015A [P] [US1] Unit test for missing data exclusion logic in `tests/test_preprocessing.py` (verify line exclusion per test)
 - [ ] T015B [P] [US1] Contract test for `quantification_method` flag in `tests/test_data_schema.py`. **Verify that the mock data metadata schema correctly declares `quantification_method: TEaware` as a simulated metadata field (not a tool usage flag) to satisfy Constitution Principle VII intent.**
 - [X] T016 [P] [US1] Integration test for full US1 pipeline on mock data in `tests/integration/test_us1_pipeline.py`
@@ -124,9 +124,9 @@
 - [X] T032 [US2] Implement `code/replication.py` to filter the set of significant pairs from US1 for testing on the replication dataset. **(Depends on T023 completion artifact)**
 - [X] T033 [US2] Implement `code/replication.py` to fit the same linear model on the replication data for the selected pairs (handling missing lines per FR-009).
 - [X] T034 [US2] Implement `code/replication.py` to calculate direction concordance and replication p-values.
-- [ ] T035 [US2] Implement `code/replication.py` to generate the comparison table (original effect, replication effect, concordance flag, rep p-value) (FR-010).
-- [ ] T036 [US2] Implement `code/replication.py` to compute replication concordance rate and perform binomial test against null hypothesis of equal probability (SC-002, FR-016).
-- [ ] T037 [US2] Write unit tests in `tests/test_replication.py` for concordance calculation and missing data exclusion logic.
+- [X] T035 [US2] Implement `code/replication.py` to generate the comparison table (original effect, replication effect, concordance flag, rep p-value) (FR-010).
+- [X] T036 [US2] Implement `code/replication.py` to compute replication concordance rate and perform binomial test against null hypothesis of equal probability (SC-002, FR-016).
+- [X] T037 [US2] Write unit tests in `tests/test_replication.py` for concordance calculation and missing data exclusion logic.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -140,12 +140,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T038 [P] [US3] Unit test for residual permutation logic in `tests/test_permutation.py` (verify null distribution generation)
-- [ ] T039 [P] [US3] Integration test for time-limit handling in `tests/integration/test_us3_permutation_timeout.py`
+- [X] T038 [P] [US3] Unit test for residual permutation logic in `tests/test_permutation.py` (verify null distribution generation)
+- [X] T039 [P] [US3] Integration test for time-limit handling in `tests/integration/test_us3_permutation_timeout.py`
 
 ### Implementation for User Story 3
 
-- [ ] T040 [US3] Implement `code/permutation.py` to perform **residual-based permutation** (shuffle residuals of the null model `gene_expression ~ PC1 + PC2 + PC3` while preserving PC structure) to generate a valid null distribution. **Explicitly do NOT shuffle TE labels directly.** (FR-006)
+- [X] T040 [US3] Implement `code/permutation.py` to perform **residual-based permutation** (shuffle residuals of the null model `gene_expression ~ PC1 + PC2 + PC3` while preserving PC structure) to generate a valid null distribution. **Explicitly do NOT shuffle TE labels directly.** (FR-006)
 - [ ] T041 [US3] Implement `code/permutation.py` to run **up to 1000 iterations** of the Freedman-Lane procedure with a **timeout-aware loop**. If the CI limit is approached, stop early, save intermediate results, and report the partial count. (FR-006, SC-005, Plan: Dynamic Fallback)
 - [ ] T042 [US3] Implement `code/permutation.py` to calculate a statistically significant percentile threshold of the null distribution and compare observed raw t-statistics against it (SC-005).
 - [ ] T043 [US3] Implement timeout handling in `code/permutation.py` to save intermediate results and report partial p-values if >6h (US-3 Acceptance Scenario 3).

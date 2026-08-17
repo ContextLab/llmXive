@@ -1,113 +1,170 @@
+"""
+Unit tests for logging utilities.
+"""
 import os
 import json
+import pytest
 import tempfile
 import shutil
-import pytest
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 
-# We need to mock the config to avoid dependency on full project setup for unit tests
-# But since T009 is about the infrastructure, we test the logic directly.
-
-# Import the module under test
-# We will patch the config to return a temporary directory for testing
-import code.utils.logging_utils as logging_utils
-from code.config import get_config
-
+# Mock config before importing logging_utils
 @pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test artifacts."""
-    tmp = tempfile.mkdtemp()
-    yield tmp
-    shutil.rmtree(tmp)
-
-@pytest.fixture
-def mock_config(temp_dir):
-    """Mock the config to use temporary directories."""
-    original_get_config = get_config
+def mock_config(tmp_path):
+    """Create a temporary directory structure for testing."""
+    # Create mock config directory structure
+    artifacts_dir = tmp_path / "artifacts"
+    logs_dir = artifacts_dir / "logs"
+    logs_dir.mkdir(parents=True)
     
-    def mock_config():
-        return {
-            'paths': {
-                'artifacts': temp_dir,
-                'data': os.path.join(temp_dir, 'data'),
-                'code': os.path.join(temp_dir, 'code'),
-                'tests': os.path.join(temp_dir, 'tests')
-            }
+    # Mock config data
+    mock_config_data = {
+        "paths": {
+            "artifacts": str(artifacts_dir),
+            "logs": str(logs_dir),
+            "data": str(tmp_path / "data"),
+            "code": str(tmp_path / "code")
         }
+    }
     
-    with patch('code.utils.logging_utils.get_config', mock_config):
-        with patch('code.utils.logging_utils.ensure_directories'):
-            yield mock_config
+    return mock_config_data
 
-def test_setup_logging_creates_files(mock_config, temp_dir):
-    """Test that setup_logging creates the log directory and initializes state."""
-    # Reset global state
-    logging_utils._metrics_buffer.clear()
-    logging_utils._metrics_file_path = None
-    logging_utils._logger_instance = None
+@pytest.fixture
+def setup_test_environment(mock_config):
+    """Setup test environment with mocked config."""
+    with patch('utils.logging_utils.get_config', return_value=mock_config), \
+         patch('utils.logging_utils.ensure_directories'):
+        yield mock_config
 
-    logger = logging_utils.setup_logging()
+def test_setup_logging_creates_files(setup_test_environment):
+    """Test that setup_logging creates necessary log and metrics files."""
+    from utils.logging_utils import setup_logging, get_logger, _metrics_file_path
     
+    logger = setup_logging()
     assert logger is not None
-    assert logging_utils._logger_instance is not None
-    assert logging_utils._metrics_file_path is not None
+    assert logger.level == 20  # INFO level
+    
+    # Check that metrics file was created
+    config = setup_test_environment
+    metrics_path = os.path.join(config["paths"]["artifacts"], "metrics.json")
+    assert os.path.exists(metrics_path)
     
     # Check log directory exists
-    log_dir = os.path.join(temp_dir, 'logs')
+    log_dir = os.path.join(config["paths"]["artifacts"], "logs")
     assert os.path.exists(log_dir)
 
-def test_log_metric_appends_to_buffer(mock_config, temp_dir):
-    """Test that log_metric adds entries to the buffer."""
-    logging_utils._metrics_buffer.clear()
-    logging_utils._logger_instance = None
+def test_log_metric(setup_test_environment):
+    """Test that log_metric correctly writes to metrics file."""
+    from utils.logging_utils import setup_logging, log_metric, get_metrics
     
-    # Force setup to set the file path
-    with patch('code.utils.logging_utils.ensure_directories'):
-        logging_utils.setup_logging()
+    setup_logging()
     
-    logging_utils.log_metric("test_key", 123)
-    logging_utils.log_metric("test_key_2", 456, step=1)
+    # Log a metric
+    log_metric("test_metric", 42.5, run_id="test_run")
     
-    assert len(logging_utils._metrics_buffer) == 2
-    assert logging_utils._metrics_buffer[0]['key'] == 'test_key'
-    assert logging_utils._metrics_buffer[0]['value'] == 123
-    assert logging_utils._metrics_buffer[1]['step'] == 1
-
-def test_flush_metrics_writes_file(mock_config, temp_dir):
-    """Test that flush_metrics writes the JSON file."""
-    logging_utils._metrics_buffer.clear()
-    logging_utils._logger_instance = None
-    logging_utils._metrics_file_path = os.path.join(temp_dir, 'metrics.json')
+    # Check metrics are stored in memory
+    metrics = get_metrics()
+    assert "test_metric" in metrics
+    assert metrics["test_metric"] == 42.5
     
-    with patch('code.utils.logging_utils.ensure_directories'):
-        logging_utils.setup_logging()
+    # Check metrics file was updated
+    config = setup_test_environment
+    metrics_path = os.path.join(config["paths"]["artifacts"], "metrics.json")
     
-    logging_utils.log_metric("flush_test", 999)
-    logging_utils.flush_metrics()
-    
-    assert os.path.exists(logging_utils._metrics_file_path)
-    
-    with open(logging_utils._metrics_file_path, 'r') as f:
+    with open(metrics_path, 'r') as f:
         data = json.load(f)
     
-    assert len(data) >= 1
-    assert any(item['key'] == 'flush_test' for item in data)
+    assert "metrics" in data
+    assert len(data["metrics"]) > 0
+    
+    # Find our metric
+    test_metrics = [m for m in data["metrics"] if m["name"] == "test_metric"]
+    assert len(test_metrics) == 1
+    assert test_metrics[0]["value"] == 42.5
 
-def test_get_metrics_returns_copy(mock_config, temp_dir):
-    """Test that get_metrics returns a copy, not the reference."""
-    logging_utils._metrics_buffer.clear()
-    logging_utils._logger_instance = None
+def test_flush_metrics(setup_test_environment):
+    """Test that flush_metrics persists all metrics."""
+    from utils.logging_utils import setup_logging, log_metric, flush_metrics, _metrics
     
-    with patch('code.utils.logging_utils.ensure_directories'):
-        logging_utils.setup_logging()
+    setup_logging()
     
-    logging_utils.log_metric("ref_test", 1)
-    retrieved = logging_utils.get_metrics()
+    # Log some metrics
+    log_metric("metric1", 100)
+    log_metric("metric2", 200)
     
-    # Modify retrieved list
-    retrieved.append({"fake": True})
+    # Flush
+    flush_metrics()
     
-    # Original buffer should be unchanged
-    assert len(logging_utils._metrics_buffer) == 1
-    assert len(retrieved) == 2
+    # Check file contains both metrics
+    config = setup_test_environment
+    metrics_path = os.path.join(config["paths"]["artifacts"], "metrics.json")
+    
+    with open(metrics_path, 'r') as f:
+        data = json.load(f)
+    
+    metric_names = [m["name"] for m in data["metrics"]]
+    assert "metric1" in metric_names
+    assert "metric2" in metric_names
+
+def test_get_metrics(setup_test_environment):
+    """Test that get_metrics returns current session metrics."""
+    from utils.logging_utils import setup_logging, log_metric, get_metrics
+    
+    setup_logging()
+    log_metric("session_metric", 999)
+    
+    metrics = get_metrics()
+    assert "session_metric" in metrics
+    assert metrics["session_metric"] == 999
+
+def test_log_execution_summary(setup_test_environment, caplog):
+    """Test that log_execution_summary creates summary file."""
+    from utils.logging_utils import setup_logging, log_execution_summary
+    
+    setup_logging()
+    
+    # Log a summary
+    log_execution_summary(
+        task_id="T009_TEST",
+        success=True,
+        duration_seconds=1.23,
+        metrics={"accuracy": 0.95}
+    )
+    
+    # Check summary file exists
+    config = setup_test_environment
+    summary_path = os.path.join(
+        config["paths"]["artifacts"], 
+        "logs", 
+        "execution_summary.json"
+    )
+    
+    assert os.path.exists(summary_path)
+    
+    with open(summary_path, 'r') as f:
+        data = json.load(f)
+    
+    assert "summaries" in data
+    assert len(data["summaries"]) > 0
+    
+    # Check our summary
+    test_summary = data["summaries"][-1]
+    assert test_summary["task_id"] == "T009_TEST"
+    assert test_summary["success"] is True
+    assert abs(test_summary["duration_seconds"] - 1.23) < 0.01
+
+def test_get_logger_raises_if_not_initialized():
+    """Test that get_logger raises RuntimeError if not initialized."""
+    from utils.logging_utils import get_logger, _logger
+    
+    # Temporarily set _logger to None
+    import utils.logging_utils as utils_module
+    original_logger = utils_module._logger
+    utils_module._logger = None
+    
+    try:
+        with pytest.raises(RuntimeError, match="Logging not initialized"):
+            get_logger()
+    finally:
+        utils_module._logger = original_logger

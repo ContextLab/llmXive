@@ -6,8 +6,10 @@ properties:
     type: string
   crossing_number:
     type: integer
+    minimum: 0
   braid_index:
     type: integer
+    minimum: 0
   volume:
     type:
       - number
@@ -20,14 +22,17 @@ properties:
     type:
       - integer
       - "null"
+    minimum: 0
   seifert_circle_count:
     type:
       - integer
       - "null"
+    minimum: 0
   bridge_number:
     type:
       - integer
       - "null"
+    minimum: 0
 required:
   - name
   - crossing_number

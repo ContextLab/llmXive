@@ -1,55 +1,58 @@
-# Preprocessing Contract: FSL/AFNI Pipeline
-# Defines the input and output schemas for the preprocessing phase (T017).
-# Enforces motion correction, normalization, and bandpass filtering.
-
 name: preprocess_contract
-version: 1.0.0
-description: Validates input preprocessed data paths and defines the schema for preprocessing statistics and motion exclusion logs.
+version: "1.0.0"
+description: Contract for fMRI preprocessing pipeline (motion correction, normalization, bandpass filtering).
 
 input:
   type: object
-  required:
-    - subject_paths
-    - output_dir
   properties:
-    subject_paths:
-      type: array
-      description: "List of paths to raw BIDS NIfTI files (output of download phase)."
-      items:
-        type: string
+    subject_path:
+      type: string
+      description: Path to the BIDS subject directory or raw NIfTI file.
     output_dir:
       type: string
-      description: "Directory path for preprocessed NIfTI and logs."
+      description: Directory where preprocessed data will be saved.
+    tools:
+      type: array
+      items:
+        type: string
+        enum:
+          - fsl_motion_correct
+          - fsl_regfilt
+          - fslmaths
+      description: List of tools to use for preprocessing steps.
+  required:
+    - subject_path
+    - output_dir
+    - tools
 
 output:
   type: object
-  description: "Schema for data/processed/preprocessing_stats.json and motion_exclusion_log.csv."
   properties:
-    preprocessing_stats:
+    preprocessed_nifti_path:
+      type: string
+      description: Path to the preprocessed NIfTI file (sub-{id}_preproc.nii.gz).
+    motion_metrics:
       type: object
       properties:
-        total_subjects:
-          type: integer
-        successful_subjects:
-          type: integer
-        success_rate_percentage:
+        translation_mm:
           type: number
-          format: float
-    motion_exclusion_log:
-      type: object
-      description: "CSV schema for motion exclusion."
-      columns:
-        - subject_id
+          description: Maximum translation in mm.
+        rotation_mm:
+          type: number
+          description: Maximum rotation in mm.
+      required:
         - translation_mm
         - rotation_mm
-        - excluded
-      item_types:
-        subject_id: string
-        translation_mm: number
-        rotation_mm: number
-        excluded: boolean
+    log_path:
+      type: string
+      description: Path to the preprocessing log file.
+  required:
+    - preprocessed_nifti_path
+    - motion_metrics
+    - log_path
 
 validation_rules:
-  - "Motion threshold: Translation > 3mm OR Rotation > 2mm results in exclusion."
-  - "If effective N becomes 0 after exclusion, the pipeline MUST halt."
-  - "Output NIfTI must have non-zero variance."
+  - FSL >= 6.0 and AFNI >= 21.0 must be available (verified via T014a).
+  - Output NIfTI must have non-zero variance.
+  - Motion metrics must be extracted from FSL mcflirt logs.
+  - Exclusion logic must trigger if translation > 3mm or rotation > 2mm.

@@ -779,26 +779,6 @@
   status: not_enough_info
   updated_at: '2026-08-10T14:19:55Z'
 - artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
-  attempts: 3
-  canonical: Table 2 from DOI 10.1038/s41597-020-00628-6 contains known reactive substructures
-  claim_id: c_35fec959
-  context: 'T010a-src [P] [FR-008] FETCH SOURCE DATA (REF): Fetch or download Table
-    2 from DOI 10.1038/s41597-020-00628-6 (Source: Nature Scientific Data) containing
-    known reactive substructures.'
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-    status: not_found
-  kind: citation
-  raw_text: 'Fetch or download Table 2 from DOI 10.1038/s41597-020-00628-6 (Source:
-    Nature Scientific Data) containing known reactive substructures.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-10T14:20:42Z'
-- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
   attempts: 1
   canonical: Table 3 contains experimental reaction rates
   claim_id: c_f3480188
@@ -871,3 +851,189 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-10T14:22:05Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Table 2 from DOI 10.1038/s41597-020-00628-6 contains known reactive substructures
+  claim_id: c_baf68cd6
+  context: 'Task T010a-src: Fetch or download Table 2 from DOI 10.1038/s41597-020-00628-6
+    (Source: Nature Scientific Data) containing known reactive substructures.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Fetch or download Table 2 from DOI 10.1038/s41597-020-00628-6 (Source:
+    Nature Scientific Data) containing known reactive substructures.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:57:51Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Target invalid SMILES exclusion rate is less than 0.1 percent
+  claim_id: c_ac49d083
+  context: 'Task T014b: Invalid SMILES handling: Log and exclude molecules; target
+    < 0.1% exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_invalid_SMILES_exclusion_rate_is_less_than_0.1_percen
+  kind: magnitude
+  raw_text: Target < 0.1% exclusion of invalid SMILES molecules.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:58:15Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Alignment score between attributed substructures and reference set is
+    greater than or equal to 0.7
+  claim_id: c_09d84a61
+  context: 'Task T030c: Write tests/contract/test_alignment_threshold.py to assert
+    that the score in artifacts/alignment_score.json is >= 0.7 (SC-003).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_between_attributed_substructures_and_referen
+  kind: magnitude
+  raw_text: Verify that the alignment score in artifacts/alignment_score.json is >=
+    0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:58:38Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime is less than or equal to 6 hours and memory is less
+    than or equal to 4 GB
+  claim_id: c_afd25a67
+  context: "Task T035: Performance optimization: Verify end-to-end runtime \u2264\
+    \ 6 hours and memory \u2264 4 GB on CI"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/End-to-end_runtime_is_less_than_or_equal_to_6_hours_and_memo
+  kind: magnitude
+  raw_text: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:58:59Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 4
+  canonical: Table 2 from DOI 10.1038/s41597-020-00628-6 contains known reactive substructures
+  claim_id: c_35fec959
+  context: 'T010a-src [P] [FR-008] FETCH SOURCE DATA (REF): Fetch or download Table
+    2 from DOI 10.1038/s41597-020-00628-6 (Source: Nature Scientific Data) containing
+    known reactive substructures.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: 'Fetch or download Table 2 from DOI 10.1038/s41597-020-00628-6 (Source:
+    Nature Scientific Data) containing known reactive substructures.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:03:57Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Invalid SMILES exclusion target is less than 0.1 percent
+  claim_id: c_d0d3510a
+  context: 'Invalid SMILES handling: Log and exclude molecules; target < 0.1% exclusion.
+    CRITICAL: Write exclusion count and list of excluded IDs to artifacts/exclusion_report.json'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Invalid_SMILES_exclusion_target_is_less_than_0.1_percent
+  kind: magnitude
+  raw_text: Target < 0.1% exclusion of invalid SMILES during batch processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:04:22Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha adjustment is 0.05 divided by 3
+  claim_id: c_1ed26f46
+  context: 'CRITICAL: Apply Bonferroni correction (alpha_adj = 0.05/3). CONDITIONAL
+    LOGIC: Perform a Post-Hoc Independence Check (T032 logic) on errors'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Bonferroni correction with alpha_adj = 0.05/3 for statistical tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:04:40Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Alignment score threshold is greater than or equal to 0.7
+  claim_id: c_c0ffbc50
+  context: Write tests/contract/test_alignment_threshold.py to assert that the score
+    in artifacts/alignment_score.json is >= 0.7 (SC-003).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alignment_score_threshold_is_greater_than_or_equal_to_0.7
+  kind: magnitude
+  raw_text: Verify that the alignment score between top attributed substructures and
+    the curated reference set is >= 0.7.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:05:30Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: End-to-end runtime limit is 6 hours and memory limit is 4 GB
+  claim_id: c_d9e2420c
+  context: "T035 Performance optimization: Verify end-to-end runtime \u2264 6 hours\
+    \ and memory \u2264 4 GB on CI"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify end-to-end runtime \u2264 6 hours and memory \u2264 4 GB on CI."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:05:30Z'
+- artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
+  attempts: 1
+  canonical: Kinetic dataset filtered to nucleophilic_attack, electrophilic_attack,
+    and pericyclic_reaction types
+  claim_id: c_2b942b20
+  context: 'CRITICAL: Filter the kinetic dataset to include ONLY reaction types where
+    the HOMO-LUMO gap is a known dominant predictor: ''nucleophilic_attack'', ''electrophilic_attack'',
+    ''pericyclic_reaction''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kinetic_dataset_filtered_to_nucleophilic_attack,_electrophil
+  kind: entity_fact
+  raw_text: 'Filter the kinetic dataset to include ONLY reaction types where the HOMO-LUMO
+    gap is a known dominant predictor: nucleophilic_attack, electrophilic_attack,
+    pericyclic_reaction.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:06:03Z'

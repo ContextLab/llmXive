@@ -84,26 +84,46 @@ def calculate_vif(v1: List[float], v2: List[float]) -> float:
     """
     Calculates Variance Inflation Factor (VIF) for two vectors.
     VIF = 1 / (1 - R^2)
+    where R^2 is the coefficient of determination from regressing v1 on v2.
+    
+    Args:
+        v1: First vector (e.g., TE presence)
+        v2: Second vector (e.g., PC1)
+        
+    Returns:
+        float: The Variance Inflation Factor. Returns 1.0 if v2 has no variance.
+               Returns float('inf') if perfect collinearity is detected.
     """
     if len(v1) != len(v2):
         raise PreprocessingError("Vectors must be of equal length")
     
     n = len(v1)
+    if n == 0:
+        return 1.0
+
     mean_v1 = sum(v1) / n
     mean_v2 = sum(v2) / n
     
+    # Calculate Sum of Squares
     ss_v1 = sum((x - mean_v1)**2 for x in v1)
     ss_v2 = sum((x - mean_v2)**2 for x in v2)
     
+    # Calculate Covariance
     cov = sum((v1[i] - mean_v1) * (v2[i] - mean_v2) for i in range(n))
     
+    # If either vector has zero variance, R^2 is undefined/0, VIF is 1
     if ss_v1 == 0 or ss_v2 == 0:
         return 1.0
     
+    # Calculate R-squared: (cov^2) / (ss_v1 * ss_v2)
+    # This is equivalent to the square of the Pearson correlation coefficient
     r_squared = (cov ** 2) / (ss_v1 * ss_v2)
     
+    # Clamp r_squared to [0, 1) to avoid division by zero or negative results due to float errors
     if r_squared >= 1.0:
         return float('inf')
+    if r_squared < 0:
+        r_squared = 0.0
     
     vif = 1.0 / (1.0 - r_squared)
     return vif
@@ -142,10 +162,11 @@ def generate_vif_report(pairs: List[Dict], te_file: str, pc_file: str) -> List[D
     report = []
     for pair in pairs:
         te_id = pair['te_id']
-        # Calculate VIF against PC1 as a proxy
+        # Calculate VIF against PC1 as a proxy for population structure collinearity
         try:
             vif = calculate_vif_from_csv(te_id, 'PC1', te_file, pc_file)
-        except PreprocessingError:
+        except PreprocessingError as e:
+            logger.warning(f"Could not calculate VIF for {te_id}: {e}")
             vif = 1.0 # Default if calculation fails
         
         pair['vif'] = vif

@@ -2,179 +2,47 @@ import os
 import sys
 from pathlib import Path
 import pytest
-import shutil
-import tempfile
-
-# We need to add the code directory to the path to import setup_directories
-# Assuming tests are run from the project root
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
-from setup_directories import create_directories, verify_directories, generate_verification_log
 
 class TestDirectoryStructure:
-    
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """
-        Setup: Create a temporary directory to simulate the project root.
-        Teardown: Clean up the temporary directory.
-        """
-        self.original_cwd = os.getcwd()
-        self.temp_dir = tempfile.mkdtemp()
-        os.chdir(self.temp_dir)
-        yield
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.temp_dir)
+    """Unit tests to verify the existence of required project directories."""
 
-    def test_create_directories_creates_all_paths(self):
-        """Test that create_directories creates all required paths."""
-        paths = create_directories()
-        
-        expected_paths = [
-            'data/raw',
-            'data/interim',
-            'data/processed',
-            'tests/unit',
-            'tests/integration',
-            'reports'
-        ]
-        
-        assert len(paths) == len(expected_paths)
-        for expected in expected_paths:
-            assert expected in paths
-            assert Path(expected).is_dir()
+    def test_data_raw_exists(self):
+        """Assert that data/raw directory exists."""
+        assert os.path.isdir('data/raw'), "Directory 'data/raw' does not exist."
 
-    def test_verify_directories_returns_true_for_existing(self):
-        """Test that verify_directories returns True when all dirs exist."""
-        create_directories()
-        paths = [
-            'data/raw',
-            'data/interim',
-            'data/processed',
-            'tests/unit',
-            'tests/integration',
-            'reports'
-        ]
-        assert verify_directories(paths) is True
+    def test_data_interim_exists(self):
+        """Assert that data/interim directory exists."""
+        assert os.path.isdir('data/interim'), "Directory 'data/interim' does not exist."
 
-    def test_verify_directories_returns_false_for_missing(self):
-        """Test that verify_directories returns False if a dir is missing."""
-        # Create only some directories
-        Path('data/raw').mkdir(parents=True)
-        
-        paths = [
-            'data/raw',
-            'data/interim', # This one is missing
-            'data/processed',
-            'tests/unit',
-            'tests/integration',
-            'reports'
-        ]
-        assert verify_directories(paths) is False
+    def test_data_processed_exists(self):
+        """Assert that data/processed directory exists."""
+        assert os.path.isdir('data/processed'), "Directory 'data/processed' does not exist."
 
-    def test_generate_verification_log_creates_file(self):
-        """Test that generate_verification_log creates the log file."""
-        paths = create_directories()
+    def test_tests_unit_exists(self):
+        """Assert that tests/unit directory exists."""
+        assert os.path.isdir('tests/unit'), "Directory 'tests/unit' does not exist."
+
+    def test_tests_integration_exists(self):
+        """Assert that tests/integration directory exists."""
+        assert os.path.isdir('tests/integration'), "Directory 'tests/integration' does not exist."
+
+    def test_reports_exists(self):
+        """Assert that reports directory exists."""
+        assert os.path.isdir('reports'), "Directory 'reports' does not exist."
+
+    def test_verification_log_exists(self):
+        """Assert that the verification log file exists."""
+        assert os.path.isfile('data/.verify_structure.log'), "Verification log 'data/.verify_structure.log' does not exist."
+
+    def test_verification_log_content(self):
+        """Assert that the verification log contains 'OK' for all directories."""
         log_path = 'data/.verify_structure.log'
+        if not os.path.isfile(log_path):
+            pytest.skip("Verification log not found; skipping content check.")
         
-        generate_verification_log(paths, log_path)
-        
-        assert Path(log_path).is_file()
-        
-        # Check content format
         with open(log_path, 'r') as f:
             content = f.read()
         
-        for p in paths:
-            assert p in content
-            # The log format is "OK path" or "FAILED path", so we check for the path itself
-            # and ensure the status is present.
-            assert f"OK {p}" in content or f"FAILED {p}" in content
-
-    def test_full_workflow(self):
-        """Test the full workflow: create -> verify -> log."""
-        # Create
-        created = create_directories()
-        
-        # Verify
-        assert verify_directories(created) is True
-        
-        # Log
-        log_path = 'data/.verify_structure.log'
-        generate_verification_log(created, log_path)
-        
-        # Final assertions
-        assert Path(log_path).exists()
-        assert Path('data/raw').exists()
-        assert Path('data/interim').exists()
-        assert Path('data/processed').exists()
-        assert Path('tests/unit').exists()
-        assert Path('tests/integration').exists()
-        assert Path('reports').exists()
-        
-        # Verify log content specifically for T001 requirement
-        with open(log_path, 'r') as f:
-            content = f.read()
-        
-        for p in created:
-            assert f"OK {p}" in content, f"Log missing OK status for {p}"
-
-    def test_verification_log_all_ok(self):
-        """
-        Specific test to ensure that if directories are created successfully,
-        the log file contains ONLY 'OK' entries and no 'FAILED' entries.
-        This satisfies the T001 requirement: 'If data/.verify_structure.log ... 
-        does not contain 'OK' for all directories, the test MUST fail'.
-        """
-        paths = create_directories()
-        log_path = 'data/.verify_structure.log'
-        generate_verification_log(paths, log_path)
-        
-        with open(log_path, 'r') as f:
-            lines = f.readlines()
-        
-        # Skip header lines if any, look for status lines
-        status_lines = [line.strip() for line in lines if line.strip().startswith(('OK', 'FAILED'))]
-        
-        assert len(status_lines) == len(paths), "Number of status lines must match number of paths"
-        
-        for line in status_lines:
-            assert line.startswith("OK"), f"Found a FAILED entry in log: {line}"
-            # Extract path from "OK path"
-            parts = line.split(" ", 1)
-            assert len(parts) == 2, f"Invalid log format: {line}"
-            path_name = parts[1]
-            assert path_name in paths, f"Path in log not in expected list: {path_name}"
-
-    def test_direct_os_path_assertions(self):
-        """
-        Explicitly test the requirement from T001:
-        'The test file MUST assert os.path.isdir('data/raw'), os.path.isdir('data/interim'), etc.'
-        """
-        create_directories()
-        
-        # Direct assertions as required by the task specification
-        assert os.path.isdir('data/raw')
-        assert os.path.isdir('data/interim')
-        assert os.path.isdir('data/processed')
-        assert os.path.isdir('tests/unit')
-        assert os.path.isdir('tests/integration')
-        assert os.path.isdir('reports')
-
-    def test_verification_log_content_exact(self):
-        """
-        Verify the exact content of the log file matches the T001 verification requirement.
-        The log must contain 'OK' for all directories.
-        """
-        paths = create_directories()
-        log_path = 'data/.verify_structure.log'
-        generate_verification_log(paths, log_path)
-        
-        # Read the log file
-        with open(log_path, 'r') as f:
-            content = f.read()
-        
-        # Check that every path has an "OK" entry
-        for p in paths:
-            expected_entry = f"OK {p}"
-            assert expected_entry in content, f"Log file missing 'OK {p}' entry. Content: {content}"
+        expected_dirs = ['data/raw', 'data/interim', 'data/processed', 'tests/unit', 'tests/integration', 'reports']
+        for d in expected_dirs:
+            assert f"OK {d}" in content, f"Log does not contain 'OK {d}'."

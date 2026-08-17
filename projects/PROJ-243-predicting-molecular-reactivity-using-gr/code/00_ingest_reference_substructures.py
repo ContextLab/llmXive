@@ -9,108 +9,133 @@ from utils.loaders import calculate_sha256
 from config import get_config, ensure_directories
 
 def setup_script_logging() -> logging.Logger:
-    """Configure logging for the ingestion script."""
+    """Initialize logging for the ingestion script."""
     logger = logging.getLogger(__name__)
     logger.setLevel(logging.INFO)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        handler.setFormatter(logging.Formatter(
+        formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
+        )
+        handler.setFormatter(formatter)
         logger.addHandler(handler)
     return logger
 
 def validate_schema(df: pd.DataFrame, logger: logging.Logger) -> bool:
     """
-    Validate that the dataframe contains the required columns for reference substructures.
-    Expected columns: 'substructure_id', 'smiles', 'source', 'reaction_type' (or similar).
-    Returns True if valid, False otherwise.
+    Validate that the DataFrame has the required columns and valid data types.
+    Required columns: id, smiles, source_doi, description
     """
-    required_columns = {'substructure_id', 'smiles', 'source'}
-    if not required_columns.issubset(df.columns):
-        missing = required_columns - set(df.columns)
-        logger.error(f"Schema validation failed. Missing columns: {missing}")
+    required_columns = ['id', 'smiles', 'source_doi', 'description']
+    
+    # Check for required columns
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    if missing_columns:
+        logger.error(f"Missing required columns: {missing_columns}")
         return False
     
-    # Check for empty dataframe
+    # Check for empty DataFrame
     if df.empty:
-        logger.warning("Input dataframe is empty.")
+        logger.error("DataFrame is empty after loading")
         return False
     
-    # Check for empty SMILES strings
-    if df['smiles'].astype(str).str.strip().eq('').all():
-        logger.error("All SMILES entries are empty.")
-        return False
-        
-    logger.info(f"Schema validation passed. Columns: {list(df.columns)}")
+    # Validate SMILES format (basic check: non-empty strings)
+    invalid_smiles = df[df['smiles'].isna() | (df['smiles'].astype(str).str.strip() == '')]
+    if not invalid_smiles.empty:
+        logger.warning(f"Found {len(invalid_smiles)} rows with invalid/empty SMILES. These will be excluded.")
+        df = df.dropna(subset=['smiles'])
+        df = df[df['smiles'].astype(str).str.strip() != '']
+    
+    # Ensure IDs are unique
+    if df['id'].duplicated().any():
+        logger.warning("Duplicate IDs found. Keeping first occurrence.")
+        df = df.drop_duplicates(subset=['id'], keep='first')
+    
+    logger.info(f"Schema validation passed. {len(df)} valid records.")
     return True
 
 def ingest_reference_substructures(
     input_path: str,
     output_path: str,
-    logger: logging.Logger
+    logger: Optional[logging.Logger] = None
 ) -> bool:
     """
-    Load the raw reference substructures, validate schema, and save to assets.
+    Ingest verified reference substructures from raw CSV to assets CSV with schema validation.
     
     Args:
-        input_path: Path to the raw CSV file (data/raw/reference_substructures_raw.csv)
-        output_path: Path for the processed CSV file (data/assets/reference_substructures.csv)
-        logger: Logger instance
-        
+        input_path: Path to the raw CSV file (e.g., data/raw/reference_substructures_raw.csv)
+        output_path: Path to the output CSV file (e.g., data/assets/reference_substructures.csv)
+        logger: Optional logger instance
+    
     Returns:
-        True if successful, False otherwise
+        True if ingestion was successful, False otherwise
     """
+    if logger is None:
+        logger = setup_script_logging()
+    
+    logger.info(f"Starting ingestion from {input_path}")
+    
+    # Check if input file exists
+    if not os.path.exists(input_path):
+        logger.error(f"Input file not found: {input_path}")
+        return False
+    
     try:
         # Load raw data
-        logger.info(f"Loading raw data from {input_path}")
-        if not os.path.exists(input_path):
-            logger.error(f"Input file not found: {input_path}")
-            return False
-        
         df = pd.read_csv(input_path)
-        
-        # Validate schema
-        if not validate_schema(df, logger):
-            return False
-        
-        # Ensure output directory exists
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        # Save processed data
-        logger.info(f"Saving validated data to {output_path}")
-        df.to_csv(output_path, index=False)
-        
-        # Log checksum of output
-        output_hash = calculate_sha256(output_path)
-        logger.info(f"Output file checksum (SHA-256): {output_hash}")
-        
-        logger.info("Ingestion completed successfully.")
-        return True
-        
-    except pd.errors.EmptyDataError:
-        logger.error("Input file is empty.")
-        return False
+        logger.info(f"Loaded {len(df)} records from {input_path}")
     except Exception as e:
-        logger.error(f"Error during ingestion: {e}", exc_info=True)
+        logger.error(f"Failed to load input file: {e}")
+        return False
+    
+    # Validate schema
+    if not validate_schema(df, logger):
+        logger.error("Schema validation failed. Aborting ingestion.")
+        return False
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        logger.info(f"Creating output directory: {output_dir}")
+        os.makedirs(output_dir, exist_ok=True)
+    
+    try:
+        # Write to output CSV
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully wrote {len(df)} records to {output_path}")
+        
+        # Compute and log SHA-256 checksum
+        checksum = calculate_sha256(output_path)
+        logger.info(f"Output file SHA-256: {checksum}")
+        
+        return True
+    except Exception as e:
+        logger.error(f"Failed to write output file: {e}")
         return False
 
 def main() -> int:
     """Main entry point for the ingestion script."""
     logger = setup_script_logging()
+    
+    # Get configuration
     config = get_config()
+    ensure_directories(config)
     
-    # Define paths based on project structure
-    input_path = os.path.join('data', 'raw', 'reference_substructures_raw.csv')
-    output_path = os.path.join('data', 'assets', 'reference_substructures.csv')
+    # Define paths based on task requirements
+    input_path = os.path.join(config['data_dir'], 'raw', 'reference_substructures_raw.csv')
+    output_path = os.path.join(config['data_dir'], 'assets', 'reference_substructures.csv')
     
-    # Ensure directories exist
-    ensure_directories()
+    logger.info(f"Input: {input_path}")
+    logger.info(f"Output: {output_path}")
     
-    # Run ingestion
     success = ingest_reference_substructures(input_path, output_path, logger)
     
-    return 0 if success else 1
+    if success:
+        logger.info("Ingestion completed successfully.")
+        return 0
+    else:
+        logger.error("Ingestion failed.")
+        return 1
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

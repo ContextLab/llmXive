@@ -1,50 +1,54 @@
-# Graph Metrics Contract: Connectivity and Topology
-# Defines the input and output schemas for the graph metrics phase (T023-T026).
-# Enforces 200-ROI Schaefer Atlas usage.
-
 name: graph_contract
-version: 1.0.0
-description: Validates input preprocessed fMRI data and defines the schema for graph metric outputs.
+version: "1.0.0"
+description: Contract for functional connectivity matrix generation and graph metric computation.
 
 input:
   type: object
-  required:
-    - preprocessed_nifti_dir
-    - atlas_path
   properties:
-    preprocessed_nifti_dir:
+    preprocessed_nifti_path:
       type: string
-      description: "Directory containing preprocessed NIfTI files (output of T017)."
+      description: Path to the preprocessed NIfTI file.
     atlas_path:
       type: string
-      description: "Path to the Schaefer 200-ROI atlas label file."
-    n_rois:
+      description: Path to the Schaefer atlas label map (200-ROI).
+    roi_count:
       type: integer
-      description: "Number of ROIs (Fixed at 200 per FR-003)."
+      description: Number of ROIs (fixed at 200 per FR-003).
       const: 200
+  required:
+    - preprocessed_nifti_path
+    - atlas_path
+    - roi_count
 
 output:
   type: object
-  description: "Schema for data/processed/graph_metrics.csv."
   properties:
-    graph_metrics_csv:
+    correlation_matrix_path:
+      type: string
+      description: Path to the symmetric correlation matrix (NIfTI or numpy file).
+    graph_metrics:
       type: object
-      description: "Aggregated metrics per subject."
-      columns:
-        - subject_id
-        - metric_name
-        - value
-      item_types:
-        subject_id: string
-        metric_name: string
-          enum:
-            - global_efficiency
-            - clustering_coefficient
-            - modularity
-        value: number
-        format: float
+      properties:
+        global_efficiency:
+          type: number
+        clustering_coefficient:
+          type: number
+        modularity:
+          type: number
+      required:
+        - global_efficiency
+        - clustering_coefficient
+        - modularity
+    validation_log_path:
+      type: string
+      description: Path to the validation log for numerical anomalies.
+  required:
+    - correlation_matrix_path
+    - graph_metrics
+    - validation_log_path
 
 validation_rules:
-  - "Correlation matrix must be symmetric."
-  - "Modularity calculation must use Louvain algorithm with resolution sweep fallback."
-  - "All metric values must be within valid theoretical ranges (e.g., efficiency 0-1)."
+  - Correlation matrix must be symmetric.
+  - Modularity calculation must use Louvain algorithm with resolution sweep fallback.
+  - Global efficiency and clustering coefficient must be within valid ranges [0, 1].
+  - Atlas must contain exactly 200 ROI labels.

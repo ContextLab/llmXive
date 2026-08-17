@@ -25727,6 +25727,21 @@
   updated_at: '2026-08-07T09:52:39Z'
 - artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   attempts: 1
+  canonical: duplicate count equals zero
+  claim_id: c_93f3cdde
+  context: "Verification: Report shows null % \u2264 5 % and duplicate count = 0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: duplicate count = 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T09:53:33Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 2
   canonical: file size greater than 128KB
   claim_id: c_9789b9e2
   context: 'Verification: File size > 128KB (2408.02911, https://arxiv.org/abs/2408.02911)
@@ -25743,12 +25758,47 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-07T09:53:31Z'
+  updated_at: '2026-08-17T06:24:07Z'
 - artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
   attempts: 1
-  canonical: duplicate count equals zero
-  claim_id: c_93f3cdde
+  canonical: duplicate count equals 0
+  claim_id: c_2bbaaa63
   context: "Verification: Report shows null % \u2264 5 % and duplicate count = 0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verification: Report shows null % \u2264 5 % and duplicate count = 0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:24:43Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: file size 2408.02911 kilobytes
+  claim_id: c_16a115d7
+  context: T011 **Download & Parse Primary Data** verification states the generated
+    raw JSON file must have a size greater than 128KB (2408.02911) and contain the
+    expected header fields.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: File size > 128KB (2408.02911, https://arxiv.org/abs/2408.02911) and contains
+    expected header fields.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:25:40Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: duplicate count zero
+  claim_id: c_dc387aa1
+  context: T012a **Data Quality Report** verification requires that the report shows
+    a duplicate count of zero.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -25758,4 +25808,370 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-08-07T09:53:33Z'
+  updated_at: '2026-08-17T06:26:13Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: orthogonalized predictor zero correlation with crossing number
+  claim_id: c_741bbaa7
+  context: T026b **Orthogonalization Logic** unit test confirms that the orthogonalized
+    predictor exhibits zero correlation with the crossing number.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Orthogonalized_predictor_zero_correlation_with_crossing_numb
+  kind: entity_fact
+  raw_text: orthogonalized predictor has zero correlation with crossing number
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:26:34Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: file size greater than 128KB
+  claim_id: c_8eb8e6f8
+  context: 'T011 Download & Parse Primary Data: verification requires the generated
+    file to have size greater than 128KB (2408.02911, https://arxiv.org/abs/2408.02911)
+    and contain expected header fields.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/File_size_greater_than_128KB
+  kind: magnitude
+  raw_text: File size > 128KB (2408.02911, https://arxiv.org/abs/2408.02911) and contains
+    expected header fields.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:27:43Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: orthogonalized predictor correlation with crossing number is zero
+  claim_id: c_d9780c9a
+  context: 'T026b Orthogonalization Logic: unit test confirms orthogonalized predictor
+    has zero correlation with crossing number.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Orthogonalized_predictor_correlation_with_crossing_number_is
+  kind: entity_fact
+  raw_text: orthogonalized predictor has zero correlation with crossing number.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:27:49Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: mypy strict type checking reports zero errors
+  claim_id: c_80e703b5
+  context: 'T104 Add PEP 484 Type Hints: verification ensures mypy --strict code/analysis/
+    passes with zero errors.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mypy_strict_type_checking_reports_zero_errors
+  kind: entity_fact
+  raw_text: mypy --strict code/analysis/ passes with zero errors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:28:21Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: null percentage less than or equal to 5 percent
+  claim_id: c_a40d7781
+  context: The data quality report is expected to show that the percentage of null
+    values does not exceed 5%.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A possible result of the experiment that we consider here is 5 heads.
+        Let outcomes be considered unlikely with respect to an assumed distribution
+        if their probability is lower than a significance threshold of 0.05.
+      source_id: Null hypothesis
+      url: https://en.wikipedia.org/wiki/Null_hypothesis
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: "Report shows null % \u2264 5 %."
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T06:29:20Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 0
+  canonical: null percentage less than or equal to 0.05 percent
+  claim_id: c_3c2a2af1
+  context: After regenerating the data quality report, the null percentage is required
+    to be at most 0.05% (referencing the Wikipedia article on null hypothesis).
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A possible result of the experiment that we consider here is 5 heads.
+        Let outcomes be considered unlikely with respect to an assumed distribution
+        if their probability is lower than a significance threshold of 0.05.
+      source_id: Null hypothesis
+      url: https://en.wikipedia.org/wiki/Null_hypothesis
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: "Report shows null % \u2264 0.05 %."
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T06:29:25Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: file size greater than 128KB
+  claim_id: c_cb3cb473
+  context: The download and parse task verifies that the generated raw JSON file is
+    larger than 128KB (2408.02911) and includes the expected header fields.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/File_size_greater_than_128KB
+  kind: magnitude
+  raw_text: File size > 128KB (2408.02911, https://arxiv.org/abs/2408.02911) and contains
+    expected header fields.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:29:33Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: core invariant precision match rate at least 99 percent
+  claim_id: c_e2ec70f4
+  context: The core tabulated invariant precision validation requires a match rate
+    of at least 99% when comparing crossing number and braid index against KnotInfo
+    references.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Core_invariant_precision_match_rate_at_least_99_percent
+  kind: magnitude
+  raw_text: "Match rate \u2265 99%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:30:12Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: hyperbolic volume consistency match rate at least 90 percent
+  claim_id: c_1dce3ae3
+  context: Both the hyperbolic volume consistency check and the final hyperbolic volume
+    validation require a match rate of at least 90% against KnotInfo data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hyperbolic_volume_consistency_match_rate_at_least_90_percent
+  kind: magnitude
+  raw_text: "Match rate \u2265 90%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:30:18Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: duplicate count equals zero
+  claim_id: c_4570650b
+  context: The data quality report asserts that the dataset contains no duplicate
+    records.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: duplicate count = 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:30:24Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: duplicate count equals zero
+  claim_id: c_e64fbaeb
+  context: In the verification step for the Data Quality Report, it is asserted that
+    the report shows a null percentage of at most 5% and that the duplicate count
+    equals zero.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Report shows null % \u2264 5 % and duplicate count = 0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:31:43Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: match rate at least 99 percent
+  claim_id: c_989821f2
+  context: "T016 **Core Tabulated Invariant Precision** \u2013 Validate crossing number\
+    \ and braid index against KnotInfo references, tolerance \u2264 1e\u20116. Verification:\
+    \ Match rate \u2265 99%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Match_rate_at_least_99_percent
+  kind: magnitude
+  raw_text: "Match rate \u2265 99%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:33:10Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: match rate at least 90 percent
+  claim_id: c_2e98176b
+  context: "T017 **Hyperbolic Volume Consistency** \u2013 Validate hyperbolic volume\
+    \ against KnotInfo where available, generate `docs/reproducibility/hyperbolic_volume_validation.md`.\
+    \ Verification: Match rate \u2265 90%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Match_rate_at_least_90_percent
+  kind: magnitude
+  raw_text: "Match rate \u2265 90%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:33:17Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: file size greater than 128 kilobytes
+  claim_id: c_1be282f1
+  context: 'T011 **Download & Parse Primary Data**: Extend `code/download/knot_info_loader.py`
+    to fetch full census data via `database-knotinfo` and parse into a DataFrame,
+    writing `data/raw/knot_atlas_raw.json`. Verification: File size > 128KB (2408.02911,
+    https://arxiv.org/abs/2408.02911) and contains expected header fields.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/File_size_greater_than_128_kilobytes
+  kind: magnitude
+  raw_text: File size > 128KB (2408.02911, https://arxiv.org/abs/2408.02911) and contains
+    expected header fields.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:33:24Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: null percentage less than or equal to 5 percent
+  claim_id: c_a80346ac
+  context: "T012a **Data Quality Report** (`code/data/quality_report.py`) \u2013 Compute\
+    \ null percentages, duplicate counts, format pass rates. Verification: Report\
+    \ shows null % \u2264 5 % and duplicate count = 0."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_percentage_less_than_or_equal_to_5_percent
+  kind: magnitude
+  raw_text: "null % \u2264 5 %"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:33:52Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: duplicate count equals zero
+  claim_id: c_b673ecd2
+  context: "T012a **Data Quality Report** (`code/data/quality_report.py`) \u2013 Compute\
+    \ null percentages, duplicate counts, format pass rates. Verification: Report\
+    \ shows null % \u2264 5 % and duplicate count = 0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: duplicate count = 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:33:57Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: families deviating at least 2 standard deviations
+  claim_id: c_674a357a
+  context: "T028 **Residual Analysis Execution** \u2013 Run `code/analysis/residual_analysis.py`\
+    \ on filtered dataset, generate `docs/reproducibility/residual_analysis.md`. Verification:\
+    \ File contains a section \"Families deviating \u2265 2 SD\"."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Families_deviating_at_least_2_standard_deviations
+  kind: magnitude
+  raw_text: "Families deviating \u2265 2 SD"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:34:29Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: null percentage less than or equal to 0.05 percent
+  claim_id: c_9520cd2f
+  context: "T076 **Regenerate Data Quality Report** \u2013 Re\u2011run `code/data/quality_report.py`\
+    \ after validator fix. Verification: Report shows null % \u2264 0.05 (Wikipedia:\
+    \ Null hypothesis, https://en.wikipedia.org/wiki/Null_hypothesis) % and missing\
+    \ flag counts near zero."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_percentage_less_than_or_equal_to_0.05_percent
+  kind: magnitude
+  raw_text: "null % \u2264 0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:34:36Z'
+- artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  attempts: 1
+  canonical: orthogonalized predictor correlation equals zero with crossing number
+  claim_id: c_275acf8f
+  context: "T026b **Orthogonalization Logic** \u2013 Implement `code/analysis/orthogonalization.py`\
+    \ to orthogonalize braid index w.r.t. crossing number. Verification: Unit test\
+    \ confirms orthogonalized predictor has zero correlation with crossing number."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Orthogonalized_predictor_correlation_equals_zero_with_crossi
+  kind: entity_fact
+  raw_text: orthogonalized predictor has zero correlation with crossing number
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T06:34:42Z'

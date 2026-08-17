@@ -1,1 +1,2 @@
-# Placeholder to ensure artifacts directory exists in git
+# This file ensures the artifacts directory is tracked by git.
+# It serves as a placeholder for future artifact outputs.

@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 4a800c61f6df306bb33ddd2973b565a5b3c020ca46231cefae612c1f35ad9c1c
-  r: The required `data/.verify_structure.log` file does not exist, so the verification
-    step fails. Moreover, the provided `tests/unit/test_directory_structure.py` does
-    not contain the explicit `assert os.path.isdir('data/raw')` (and similar) statements
-    mandated by the task; it only checks directories via helper functions. Both the
-    log file and the exact test assertions are missing.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,11 +6,11 @@ T004:
     \ the exact specified text, the task\u2019s deliverable is missing."
 T005:
   c: false
-  h: 3758f8c874e0cce46d2a0228d9365fc50a7787e02d6c66f091161e529212c12c
-  r: Only `contracts/download_contract.yaml` exists and contains the required input/output
-    schema; the other three contract files (`preprocess_contract.yaml`, `graph_contract.yaml`,
-    `stats_contract.yaml`) are missing, so the full set of required artifacts is not
-    present.
+  h: 5ab51a1e1d6fa108258147bafb53268bc4a756fe3c3d870dca6ebed135002adc
+  r: "Only `contracts/download_contract.yaml` is present and contains the required\
+    \ `input` and `output` sections. The other three contract files (`preprocess_contract.yaml`,\
+    \ `graph_contract.yaml`, `stats_contract.yaml`) are missing entirely, so the task\u2019\
+    s requirement of defining all four contracts is not met."
 T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

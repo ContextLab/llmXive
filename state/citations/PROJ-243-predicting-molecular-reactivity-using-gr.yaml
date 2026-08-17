@@ -64,7 +64,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1021/acs.jpca.8b01234
   verified_at: '2026-08-08T16:58:50.701550Z'
-- artifact_hash: d04db0bc9c16bed97be5979f9f2faa6db1c00ddf647cd4e7d4f3eaa2229d18e8
+- artifact_hash: f220ddda1b75b02fedfc1c7100fc7113c3a14b9395168912bbe0be0f14f17981
   artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -75,4 +75,4 @@
   value: 10.1038/s41597-020-00628-6
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00628-6
-  verified_at: '2026-08-10T14:20:32.646895Z'
+  verified_at: '2026-08-17T07:06:55.106151Z'

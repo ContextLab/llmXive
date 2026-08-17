@@ -1,35 +1,53 @@
-# Statistics Contract: Correlation and Reporting
-# Defines the input and output schemas for the statistical analysis phase (T031-T033).
-# Enforces Bonferroni correction (FR-005) and Fluid Intelligence correlation.
-
 name: stats_contract
-version: 1.0.0
-description: Validates input graph metrics and behavioral scores and defines the schema for statistical results.
+version: "1.0.0"
+description: Contract for statistical correlation analysis and Bonferroni correction.
 
 input:
   type: object
-  required:
-    - graph_metrics_csv
-    - behavioral_scores_json
   properties:
-    graph_metrics_csv:
+    graph_metrics_path:
       type: string
-      description: "Path to data/processed/graph_metrics.csv."
-    behavioral_scores_json:
+      description: Path to the aggregated graph metrics CSV.
+    behavioral_scores_path:
       type: string
-      description: "Path to data/processed/valid_subjects.json (from T015)."
+      description: Path to the behavioral scores (Fluid Intelligence) JSON/CSV.
     correction_method:
       type: string
-      description: "Multiple comparison correction method."
-      const: "bonferroni"
+      description: Multiple comparison correction method.
+      enum:
+        - bonferroni
+      const: bonferroni
+  required:
+    - graph_metrics_path
+    - behavioral_scores_path
+    - correction_method
 
 output:
   type: object
-  description: "Schema for data/processed/correlation_results.csv and reports/summary.pdf."
   properties:
-    correlation_results_csv:
+    correlation_results_path:
+      type: string
+      description: Path to the correlation results CSV.
+    schema:
       type: object
-      columns:
+      properties:
+        metric_name:
+          type: string
+        score_type:
+          type: string
+        correlation:
+          type: number
+        p_value:
+          type: number
+        p_adj_bonferroni:
+          type: number
+        cohens_d:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+      required:
         - metric_name
         - score_type
         - correlation
@@ -38,19 +56,20 @@ output:
         - cohens_d
         - ci_lower
         - ci_upper
-      item_types:
-        metric_name: string
-        score_type: string
-          const: "fluid_intelligence"
-        correlation: number
-        p_value: number
-        p_adj_bonferroni: number
-        cohens_d: number
-        ci_lower: number
-        ci_upper: number
+    scatter_plot_path:
+      type: string
+      description: Path to the generated scatter plot PNG.
+    summary_report_path:
+      type: string
+      description: Path to the generated summary PDF.
+  required:
+    - correlation_results_path
+    - schema
+    - scatter_plot_path
+    - summary_report_path
 
 validation_rules:
-  - "Bonferroni correction MUST be applied to p-values."
-  - "If valid_pairs < 1, the process MUST halt with 'No valid Fluid Intelligence scores found'."
-  - "Effect sizes (Cohen's d) and 95% Confidence Intervals must be calculated."
-  - "Scatter plots must be generated for each metric vs. Fluid Intelligence."
+  - Must apply Bonferroni correction (FR-005 amended).
+  - Must calculate Cohen's d and 95% confidence intervals.
+  - Must halt if no valid Fluid Intelligence scores are found (TRACER: FR-005 Pivot to Bonferroni).
+  - Must reference specs/amendment-001-fluid-intelligence-n10.md for FR-005 compliance.

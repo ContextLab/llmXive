@@ -1,0 +1,14 @@
+T012:
+  c: false
+  h: fbb48bf19017e4f46d697b105e430d2ae199ca1f794870016a67fb79202bb051
+  r: "The required output file `data/results/population_structure_control_metrics.csv`\
+    \ does not exist, and the provided snippet of `code/association.py` shows only\
+    \ data\u2011loading helpers with no implementation of the R\xB2 reduction calculation\
+    \ or CSV writing. Consequently the task\u2019s core requirement is unmet."
+T015:
+  c: false
+  h: 25df4ed9b066513eb887853c6d03ed9baed7c1c712cac61913ea655ea46793e7
+  r: "The required artifact `tests/test_preprocessing.py` does not exist in the repository,\
+    \ so no unit test code is present to verify the TE\u2011Gene pairing logic or\
+    \ monomorphic filtering. The task cannot be considered done until this test file\
+    \ is added with appropriate test cases."

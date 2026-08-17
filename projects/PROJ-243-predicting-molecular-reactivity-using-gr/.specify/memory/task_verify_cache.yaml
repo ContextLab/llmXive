@@ -42,31 +42,6 @@ T009:
     code shown under `artifacts/logs/` nor a `artifacts/metrics.json`, and no description
     of how structured logs are written. The required artifacts are missing, so the
     task is not satisfied.'
-T010a:
-  c: false
-  h: bd2715434d1f3160786af73a194e7b7518211e7f5c59907088d890ea3ef880aa
-  r: "The required output file `data/raw/reference_substructures_raw.csv` is absent,\
-    \ and there is no evidence that the download script was run to fetch the NIST\
-    \ reference set. Without this CSV the task\u2019s core requirement is unmet."
-T010b:
-  c: false
-  h: 609f89e7f02909c53b12c351f1ca0826aa7f5b652203aa384ff225c420c06d73
-  r: "The required files `data/raw/reference_substructures_raw.csv` and `data/raw/checksums.json`\
-    \ are both missing, so no checksum verification could be performed. The task\u2019\
-    s core requirement is therefore unmet."
-T010d:
-  c: false
-  h: 7357d1fa423f3f4000cb46bc82d4ac920690e37d4e0ce5711ea6b06bac434a38
-  r: "The required output file `data/raw/kinetic_dataset_raw.csv` does not exist,\
-    \ so the kinetic dataset was never fetched or saved. The provided `download.py`\
-    \ script is present, but no evidence shows it was run or that a CSV with \u2265\
-    20 molecules was created. The task\u2019s core requirement is therefore unmet."
-T010e:
-  c: false
-  h: 8a8044818724e73d5b2259b13b8a789f2ccd96e7ee9e15f54184ec8ea8a72d22
-  r: "The required files `data/raw/kinetic_dataset_raw.csv` and `data/raw/checksums.json`\
-    \ are missing, so no checksum verification could be performed. The task\u2019\
-    s core artifact does not exist, making the claim unfulfilled."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
