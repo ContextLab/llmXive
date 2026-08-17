@@ -1,147 +1,99 @@
-# Data Model: Reprojection and Resampling Methods
-
-**Project**: Statistical Analysis of OpenStreetMap Data for Urban Heat Island Effects
-**Spec Reference**: SC-007
-**Status**: Implemented in `code/ingest.py`
+# Data Model Specification: Urban Heat Island Analysis using OpenStreetMap
 
 ## Overview
+This document defines the data structures, schemas, and processing rules for the
+`PROJ-125-statistical-analysis-of-openstreetmap-da` project. It serves as the
+contract between the ingestion (US1), analysis (US2), and modeling (US3) stages.
 
-This document defines the data model and algorithms used for aligning heterogeneous geospatial data sources (vector OSM data and satellite thermal rasters) into a unified, analysis-ready raster stack. The primary goal is to ensure all covariates and target variables share identical spatial extent, resolution, coordinate reference system (CRS), and pixel alignment.
+## 1. Core Entities
 
-## Target Specifications
+### 1.1 CityBoundary
+Represents the administrative boundary of the study area.
+- **Type**: GeoJSON / Shapefile
+- **Fields**:
+ - `city_name` (string): Canonical name (e.g., "New York City")
+ - `country` (string): ISO 3166-1 alpha-3 code
+ - `geometry` (Polygon/MultiPolygon): The boundary geometry
+ - `source` (string): Origin (e.g., "OpenStreetMap Overpass", "GADM")
+ - `epsg_code` (int): Source CRS code (usually 4326 or 3857)
 
-- **Target CRS**: Local UTM zone for the city (EPSG:XXXX) or EPSG:3857 if UTM is undefined. Configurable via `config.py`.
-- **Target Resolution**: 30 meters (coarse resolution for computational efficiency and memory safety).
-- **Target Extent**: Intersection of all input layers within the city boundary.
-- **Alignment**: Strict pixel alignment (origin and dimensions must match exactly across all layers).
+### 1.2 RasterCovariate
+Represents a single geospatial covariate layer derived from OSM or external sources.
+- **Type**: GeoTIFF
+- **Fields**:
+ - `variable_name` (string): e.g., "building_density", "tree_coverage", "road_length"
+ - `unit` (string): e.g., "m²/m²", "count", "m/m²"
+ - `resolution_m` (float): Cell size in meters (target: 30m)
+ - `nodata_value` (float): Value representing missing data (e.g., -9999)
+ - `source` (string): e.g., "OSM Buildings", "WorldPop"
 
-## Input Data Sources
+### 1.3 TemperatureRaster
+Represents the target variable: Land Surface Temperature (LST).
+- **Type**: GeoTIFF
+- **Fields**:
+ - `variable_name` (string): "LST"
+ - `unit` (string): "Kelvin" or "Celsius" (specify in metadata)
+ - `resolution_m` (float): Cell size in meters (target: 30m)
+ - `acquisition_date` (datetime): Timestamp of satellite pass
+ - `cloud_cover_pct` (float): Cloud coverage percentage
+ - `source` (string): e.g., "MODIS LST", "Landsat 8 TIRS"
 
-1. **OSM Vector Data** (Buildings, Land-use, Trees, Roads)
- - Source: Overpass API
- - Format: GeoJSON / Geometry objects
- - Initial CRS: EPSG:4326 (WGS84)
-2. **Satellite Thermal Data** (MODIS/Landsat)
- - Source: NASA Earthdata / USGS EarthExplorer
- - Format: GeoTIFF
- - Initial CRS: Varies (often EPSG:4326 or native projection)
+## 2. Reprojection and Resampling Specifications (FR-003)
 
-## Reprojection Methodology
+To ensure spatial alignment for regression analysis, all layers must be transformed
+to a common Coordinate Reference System (CRS) and resampled to a standard resolution.
 
-### Coordinate Reference System Transformation
+### 2.1 Target CRS
+- **Primary**: Local UTM Zone (EPSG:XXXX) appropriate for the city center.
+- **Fallback**: Web Mercator (EPSG:3857) if UTM zone boundaries are ambiguous.
+- **Transformation Method**: `rasterio.warp.reproject` with `resampling='bilinear'` for continuous
+ variables (Temperature, Density) and `resampling='nearest'` for categorical variables
+ (Land Use Classes).
 
-All data is transformed to the target CRS defined in `config.get_city_crs(city_name)`.
+### 2.2 Target Resolution
+- **Standard**: 30 meters.
+- **Rationale**: Matches the native resolution of Landsat thermal bands and provides
+ sufficient granularity for urban block-level analysis without excessive memory overhead.
 
-**Algorithm**:
-1. Determine target UTM zone based on city centroid longitude.
-2. If target is EPSG:3857, use standard Web Mercator projection.
-3. Apply `pyproj.Transformer` or `geopandas.to_crs()` for vector data.
-4. Apply `rasterio.warp.reproject()` for raster data.
+### 2.3 Resampling Rules
+| Source Type | Target Variable | Resampling Method | Rationale |
+|-------------|-----------------|-------------------|-----------|
+| Vector (Polygons) | Building Density | `bilinear` (after rasterization) | Smooths area aggregation |
+| Vector (Lines) | Road Length | `bilinear` (after rasterization) | Preserves line density |
+| Vector (Points) | Tree Count | `bilinear` (after rasterization) | Smooths point density |
+| Continuous Raster | Temperature | `bilinear` | Preserves continuous gradient |
+| Categorical Raster | Land Cover | `nearest` | Prevents mixing of class labels |
 
-**Code Reference**: `code/ingest.py::create_aligned_raster_stack()`
+### 2.4 Implementation Constraints
+- **Validation**: After reprojection, the `validate_raster_alignment` function must verify:
+ 1. All rasters share the same `affine` transform (width, height, origin, rotation).
+ 2. All rasters share the same `crs`.
+ 3. No layer has been distorted beyond a 1% area change threshold.
+- **Error Handling**: If the reprojection results in an area change > 1% or mismatched dimensions,
+ the pipeline must **FAIL LOUDLY** (exit code 1) and log the specific misalignment details.
+ Do not attempt to auto-correct or proceed with misaligned data.
 
-```python
-# Pseudocode representation of the actual implementation
-from rasterio.warp import reproject, Resampling
-import rasterio
+## 3. Data Integrity and Quality Controls
 
-def reproject_raster(src_path, dst_path, target_crs, target_res):
- with rasterio.open(src_path) as src:
- transform, width, height = calculate_default_transform(
- src.crs, target_crs, src.width, src.height, *src.bounds,
- resolution=target_res
-)
- kwargs = src.meta.copy()
- kwargs.update({
- 'crs': target_crs,
- 'transform': transform,
- 'width': width,
- 'height': height
- })
+### 3.1 Missing Data
+- **Threshold**: Configurable via `config.MISSING_DATA_THRESHOLD`.
+- **Action**: If a raster has > `threshold` % null pixels in the city boundary, log a WARNING
+ but proceed. If the overlap between temperature and covariates is < 10%, fail.
 
- with rasterio.open(dst_path, 'w', **kwargs) as dst:
- for i in range(1, src.count + 1):
- reproject(
- source=rasterio.band(src, i),
- destination=rasterio.band(dst, i),
- src_transform=src.transform,
- src_crs=src.crs,
- dst_transform=transform,
- dst_crs=target_crs,
- resampling=Resampling.bilinear if src.meta['dtype'] in ['float32', 'float64'] else Resampling.nearest
-)
-```
+### 3.2 Memory Safety
+- **Check**: Before loading, estimate memory usage using `utils.memory.estimate_raster_memory_mb`.
+- **Constraint**: If estimated usage > `config.MAX_MEMORY_MB` (default 5GB), raise a fatal error.
+ Do not subsample or degrade resolution automatically.
 
-## Resampling Methods
+## 4. File Naming Conventions
+- **Raw**: `data/raw/{city}/{source}_{variable}_{date}.tif`
+- **Processed**: `data/processed/{city}/{variable}_{resolution}m_{crs}.tif`
+- **Metadata**: `data/metadata.json` (generated on successful pipeline completion)
 
-The choice of resampling algorithm depends on the data type to preserve physical meaning and avoid artifacts.
+## 5. Schema Validation
+All entities must be instantiated via the classes in `code/models/`:
+- `CityBoundary` (from `code/models/city.py`)
+- `RasterCovariate` (from `code/models/raster.py`)
+- `TemperatureRaster` (from `code/models/raster.py`)
 
-### 1. Continuous Variables (Temperature, Elevation)
-- **Method**: Bilinear Interpolation
-- **Rationale**: Preserves smooth gradients and minimizes high-frequency noise while maintaining statistical properties of the surface.
-- **Implementation**: `rasterio.warp.Resampling.bilinear`
-
-### 2. Categorical Variables (Land-use, Building Density Classes)
-- **Method**: Nearest Neighbor
-- **Rationale**: Prevents creation of non-existent intermediate categories (e.g., "0.4 residential" is invalid). Ensures class integrity.
-- **Implementation**: `rasterio.warp.Resampling.nearest`
-
-### 3. Upsampling Validation (SC-007)
-- **Constraint**: When upsampling from a coarser source (e.g., MODIS 1km) to the target 30m, the error must be monitored.
-- **Validation**: The system calculates the variance of the resampled block against the original mean.
-- **Threshold**: If upsampling error > 0.1 (normalized), the process exits with code 1.
-- **Logic**:
- ```python
- if upsampling_error > 0.1:
- logger.error("Upsampling error exceeds threshold (0.1). Exiting.")
- sys.exit(1)
- ```
-
-## Missing Data Handling
-
-The pipeline handles missing data (NoData values) according to the following policy:
-
-1. **Threshold Check**: Calculate the percentage of NoData pixels in the overlap region.
-2. **Policy**:
- - **≤ 10% Missing**: Proceed silently. NoData is preserved as `-9999` or `NaN`.
- - **> 10% Missing**: Log a `WARNING` but proceed. The data is still usable for analysis, though with reduced coverage.
- - **> 50% Missing**: (Future enhancement) Could trigger an automatic exclusion of the layer.
-3. **Output**: The final aligned stack preserves the NoData flag.
-
-## Output Data Model
-
-The final output is a stack of GeoTIFFs located in `data/processed/`.
-
-**Schema**:
-- **File Naming**: `{city}_{variable}_{date}.tif`
-- **Dimensions**: Identical `(width, height)` for all layers.
-- **Origin**: Identical `(x_min, y_max)` for all layers.
-- **CRS**: Identical EPSG code.
-- **Transform**: Identical affine transformation matrix.
-- **Data Types**:
- - Temperature: `float32`
- - Covariates (Count/Class): `uint8` or `uint16`
-
-## Validation Logic
-
-The function `validate_raster_alignment()` in `code/ingest.py` performs the following checks before finalizing the stack:
-
-1. **Dimension Match**: `raster.width == reference.width` and `raster.height == reference.height`.
-2. **Transform Match**: `raster.transform == reference.transform` (within float tolerance).
-3. **CRS Match**: `raster.crs == reference.crs`.
-4. **Non-Null Overlap**: Verify that the intersection of valid data (non-NoData) is not empty.
-
-## Metadata Generation
-
-A `metadata.json` file is generated alongside the raster stack (Task T015) containing:
-- Fetch timestamps
-- Source URLs/IDs
-- Checksums (SHA256) of input and output files
-- Resampling parameters used
-- CRS definition
-
-## References
-
-- `code/ingest.py`: Implementation of `create_aligned_raster_stack` and `validate_raster_alignment`.
-- `config.py`: Definition of `MAX_BLOCKS` and city-specific CRS settings.
-- `rasterio` Documentation: https://rasterio.readthedocs.io/en/latest/topics/reproject.html
+These classes enforce type checking and required field validation upon initialization.

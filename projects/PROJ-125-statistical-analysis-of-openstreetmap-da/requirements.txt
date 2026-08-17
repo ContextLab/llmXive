@@ -1,17 +1,14 @@
-# Base dependencies
-osmnx
-geopandas
-rasterio
-xarray
-scikit-learn
-pysal
-statsmodels
-numpy
-pandas
-joblib
-pytest
-python-dotenv
-
-# Memory profiling dependencies
-memory-profiler
-psutil
+osmnx>=1.9.0
+geopandas>=0.14.0
+rasterio>=1.3.0
+xarray>=2023.0.0
+scikit-learn>=1.3.0
+pysal>=23.9.0
+statsmodels>=0.14.0
+numpy>=1.24.0
+pandas>=2.0.0
+joblib>=1.3.0
+pytest>=7.4.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+shapely>=2.0.0

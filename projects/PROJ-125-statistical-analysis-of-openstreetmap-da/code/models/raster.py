@@ -1,138 +1,218 @@
 """
-Raster data models for covariates and temperature data.
+Raster data models for covariates and temperature targets.
 """
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 import json
 from pathlib import Path
 import numpy as np
-from .base import BaseModel
-from config import get_path
+import logging
 
+from .base import BaseModel
+
+logger = logging.getLogger(__name__)
 
 class RasterCovariate(BaseModel):
     """
-    Represents a raster covariate (e.g., NDVI, building density, road density).
+    Represents a raster covariate layer (e.g., building density, NDVI).
+    
+    Attributes:
+        name: Unique identifier for the covariate.
+        path: Path to the GeoTIFF file.
+        crs_epsg: EPSG code of the CRS.
+        resolution_m: Resolution in meters.
+        data_type: Data type (e.g., 'continuous', 'categorical').
+        nodata_value: Value representing missing data.
+        description: Human-readable description.
+        created_at: ISO timestamp of creation.
     """
+    REQUIRED_FIELDS = ["name", "path", "crs_epsg", "resolution_m", "data_type"]
 
     def __init__(
         self,
         name: str,
-        path: Path,
-        description: str = "",
-        crs: str = "EPSG:3857",
-        resolution: float = 30.0,
-        metadata: Optional[Dict[str, Any]] = None,
+        path: str,
+        crs_epsg: int,
+        resolution_m: float,
+        data_type: str,
+        nodata_value: Optional[float] = None,
+        description: Optional[str] = None,
+        created_at: Optional[str] = None,
     ):
+        data = {
+            "name": name,
+            "path": path,
+            "crs_epsg": crs_epsg,
+            "resolution_m": resolution_m,
+            "data_type": data_type,
+            "nodata_value": nodata_value,
+            "description": description,
+            "created_at": created_at,
+        }
+        self.validate_schema(data, self.REQUIRED_FIELDS)
+
         self.name = name
         self.path = Path(path)
+        self.crs_epsg = crs_epsg
+        self.resolution_m = resolution_m
+        self.data_type = data_type
+        self.nodata_value = nodata_value
         self.description = description
-        self.crs = crs
-        self.resolution = resolution
-        self.metadata = metadata or {}
+        self.created_at = created_at
 
-        # Validate path exists
-        if not self.path.exists():
-            raise FileNotFoundError(f"Covariate file not found: {self.path}")
+        # Validate file existence if path is provided
+        if self.path.exists():
+            logger.debug(f"Raster file exists: {self.path}")
+        else:
+            logger.warning(f"Raster file not found: {self.path}")
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "name": self.name,
-            "path": str(self.path),
-            "description": self.description,
-            "crs": self.crs,
-            "resolution": self.resolution,
-            "metadata": self.metadata,
-        }
+        d = super().to_dict()
+        d["path"] = str(self.path)
+        return d
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "RasterCovariate":
-        return cls(
-            name=data["name"],
-            path=Path(data["path"]),
-            description=data.get("description", ""),
-            crs=data.get("crs", "EPSG:3857"),
-            resolution=data.get("resolution", 30.0),
-            metadata=data.get("metadata", {}),
-        )
-
-    def validate(self) -> bool:
+    def from_raster_file(cls, path: Path, name: Optional[str] = None) -> "RasterCovariate":
         """
-        Validate the RasterCovariate instance.
-        Checks: path exists, name is valid, resolution is positive.
+        Create a RasterCovariate by reading metadata from a GeoTIFF.
+        
+        Args:
+            path: Path to the GeoTIFF.
+            name: Optional name override. Defaults to filename stem.
+        
+        Returns:
+            RasterCovariate instance.
+        
+        Raises:
+            FileNotFoundError: If the file does not exist.
+            ImportError: If rasterio is not installed.
         """
-        if not self.name:
-            raise ValueError("Raster name cannot be empty")
+        path = Path(path)
+        if not path.exists():
+            raise FileNotFoundError(f"Raster file not found: {path}")
+        
+        try:
+            import rasterio
+        except ImportError:
+            raise ImportError("rasterio is required to read raster metadata.")
 
-        if not self.path.exists():
-            raise FileNotFoundError(f"File not found: {self.path}")
+        with rasterio.open(path) as src:
+            crs_epsg = src.crs.to_epsg() if src.crs else 4326
+            # Estimate resolution from transform
+            res_x, res_y = abs(src.transform.a), abs(src.transform.e)
+            resolution_m = (res_x + res_y) / 2.0
+            
+            nodata = src.nodata
+            count = src.count
+            dtype = src.dtypes[0]
 
-        if self.resolution <= 0:
-            raise ValueError("Resolution must be positive")
+            # Infer data type
+            if count > 1:
+                data_type = "multiband"
+            elif dtype in ['float32', 'float64']:
+                data_type = "continuous"
+            else:
+                data_type = "categorical"
 
-        return True
-
+            return cls(
+                name=name or path.stem,
+                path=str(path),
+                crs_epsg=crs_epsg,
+                resolution_m=resolution_m,
+                data_type=data_type,
+                nodata_value=nodata,
+                description=f"Auto-detected from {path.name}",
+            )
 
 class TemperatureRaster(BaseModel):
     """
-    Represents a temperature raster (LST) derived from satellite imagery.
+    Represents a temperature raster layer (LST).
+    
+    Attributes:
+        name: Unique identifier.
+        path: Path to the GeoTIFF.
+        crs_epsg: EPSG code.
+        resolution_m: Resolution in meters.
+        acquisition_time: ISO timestamp of satellite acquisition.
+        sensor: Sensor name (e.g., MODIS, Landsat).
+        band_index: Band index for temperature (default 0).
+        nodata_value: Missing data value.
+        units: Temperature units (default 'Kelvin').
     """
+    REQUIRED_FIELDS = ["name", "path", "crs_epsg", "resolution_m", "acquisition_time"]
 
     def __init__(
         self,
-        path: Path,
-        crs: str = "EPSG:3857",
-        resolution: float = 30.0,
-        source_dataset: str = "",
-        acquisition_date: Optional[str] = None,
-        cloud_cover: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        name: str,
+        path: str,
+        crs_epsg: int,
+        resolution_m: float,
+        acquisition_time: str,
+        sensor: Optional[str] = "MODIS",
+        band_index: int = 0,
+        nodata_value: Optional[float] = None,
+        units: str = "Kelvin",
     ):
-        self.path = Path(path)
-        self.crs = crs
-        self.resolution = resolution
-        self.source_dataset = source_dataset
-        self.acquisition_date = acquisition_date
-        self.cloud_cover = cloud_cover
-        self.metadata = metadata or {}
+        data = {
+            "name": name,
+            "path": path,
+            "crs_epsg": crs_epsg,
+            "resolution_m": resolution_m,
+            "acquisition_time": acquisition_time,
+            "sensor": sensor,
+            "band_index": band_index,
+            "nodata_value": nodata_value,
+            "units": units,
+        }
+        self.validate_schema(data, self.REQUIRED_FIELDS)
 
-        if not self.path.exists():
-            raise FileNotFoundError(f"Temperature raster file not found: {self.path}")
+        self.name = name
+        self.path = Path(path)
+        self.crs_epsg = crs_epsg
+        self.resolution_m = resolution_m
+        self.acquisition_time = acquisition_time
+        self.sensor = sensor
+        self.band_index = band_index
+        self.nodata_value = nodata_value
+        self.units = units
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "path": str(self.path),
-            "crs": self.crs,
-            "resolution": self.resolution,
-            "source_dataset": self.source_dataset,
-            "acquisition_date": self.acquisition_date,
-            "cloud_cover": self.cloud_cover,
-            "metadata": self.metadata,
-        }
+        d = super().to_dict()
+        d["path"] = str(self.path)
+        return d
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "TemperatureRaster":
-        return cls(
-            path=Path(data["path"]),
-            crs=data.get("crs", "EPSG:3857"),
-            resolution=data.get("resolution", 30.0),
-            source_dataset=data.get("source_dataset", ""),
-            acquisition_date=data.get("acquisition_date"),
-            cloud_cover=data.get("cloud_cover"),
-            metadata=data.get("metadata", {}),
-        )
-
-    def validate(self) -> bool:
+    def from_raster_file(cls, path: Path, acquisition_time: str, name: Optional[str] = None) -> "TemperatureRaster":
         """
-        Validate the TemperatureRaster instance.
-        Checks: path exists, resolution is positive, cloud cover (if present) is valid.
+        Create a TemperatureRaster from a GeoTIFF file.
+        
+        Args:
+            path: Path to the GeoTIFF.
+            acquisition_time: ISO timestamp of acquisition.
+            name: Optional name override.
+        
+        Returns:
+            TemperatureRaster instance.
         """
-        if not self.path.exists():
-            raise FileNotFoundError(f"File not found: {self.path}")
+        path = Path(path)
+        if not path.exists():
+            raise FileNotFoundError(f"Temperature raster not found: {path}")
+        
+        try:
+            import rasterio
+        except ImportError:
+            raise ImportError("rasterio is required to read raster metadata.")
 
-        if self.resolution <= 0:
-            raise ValueError("Resolution must be positive")
+        with rasterio.open(path) as src:
+            crs_epsg = src.crs.to_epsg() if src.crs else 4326
+            res_x, res_y = abs(src.transform.a), abs(src.transform.e)
+            resolution_m = (res_x + res_y) / 2.0
+            nodata = src.nodata
 
-        if self.cloud_cover is not None and not (0 <= self.cloud_cover <= 100):
-            raise ValueError("Cloud cover must be between 0 and 100")
-
-        return True
+            return cls(
+                name=name or path.stem,
+                path=str(path),
+                crs_epsg=crs_epsg,
+                resolution_m=resolution_m,
+                acquisition_time=acquisition_time,
+                nodata_value=nodata,
+            )

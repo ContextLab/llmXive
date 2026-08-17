@@ -18,7 +18,7 @@ This project implements a reproducible statistical pipeline to analyze the relat
 **Project Type**: Data Science Pipeline / CLI Tool.  
 **Performance Goals**: Process a single city (e.g., NYC) within 4 hours on free-tier CI. Memory usage < 6 GB during peak raster processing.  
 **Constraints**: No GPU acceleration. No large-LLM inference. Data must be subsampled using **Spatial Block Sampling** if it exceeds RAM limits. All random seeds must be pinned.  
-**Scale/Scope**: Analysis of representative cities (e.g., New York, Chicago, Phoenix) at 30m resolution.
+**Scale/Scope**: Analysis of representative cities (e.g., New York, Chicago, Phoenix) at high spatial resolution.
 
 ### Memory Safety Constraint & Fallback
 To guarantee execution on 7 GB RAM:
@@ -116,7 +116,7 @@ projects/PROJ-125-statistical-analysis-of-openstreetmap-da/
 ### Phase 1: Data Ingestion & Alignment
 - Download OSM vectors and Landsat thermal rasters.
 - Reproject to common CRS (EPSG:3857 or local UTM).
-- Resample to 30m resolution.
+- Resample to a consistent spatial resolution.
 - Generate aligned GeoTIFF stack.
 
 ### Phase 2: Exploratory Spatial Analysis (EDA)

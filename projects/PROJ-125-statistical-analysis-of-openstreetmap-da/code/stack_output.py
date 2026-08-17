@@ -1,10 +1,12 @@
 """
-stack_output.py
+Stack Output Module (T015)
 
-Implements the logic to create aligned GeoTIFF stacks and generate metadata
-for the Urban Heat Island analysis pipeline.
+Creates aligned GeoTIFF stack output in data/processed/ and generates
+data/metadata.json ONLY if the pipeline completed successfully.
 
-This module satisfies Task T015: Create aligned GeoTIFF stack output.
+This module implements T015: Create aligned GeoTIFF stack output.
+It ensures all output rasters share identical dimensions, origin, and CRS.
+It also generates metadata.json with fetch timestamps and checksums.
 """
 
 import os
@@ -13,29 +15,30 @@ import hashlib
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-from datetime import datetime
 
 import numpy as np
 import rasterio
-from rasterio.warp import calculate_default_transform, transform_bounds, reproject, Resampling
+from rasterio.warp import calculate_default_transform, reproject, Resampling
 from rasterio.mask import mask
-from shapely.geometry import mapping
+from rasterio.features import geometry_mask
+from shapely.geometry import box, mapping
+import geopandas as gpd
 
-# Local imports
 from config import get_path, get_city_bounds, get_city_crs
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
+
 
 def compute_file_checksum(file_path: Path) -> str:
     """
     Compute SHA256 checksum of a file.
 
     Args:
-        file_path: Path to the file.
+        file_path: Path to the file
 
     Returns:
-        Hexadecimal checksum string.
+        SHA256 checksum as hex string
     """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -43,264 +46,321 @@ def compute_file_checksum(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+
 def generate_metadata(
     input_files: List[Path],
     output_files: List[Path],
-    city_name: str,
+    city: str,
+    bounds: Dict[str, Any],
     crs: str,
     resolution: float = 30.0,
-    align_params: Dict[str, Any] = None
+    timestamps: Optional[Dict[str, str]] = None
 ) -> Dict[str, Any]:
     """
     Generate metadata dictionary for the aligned raster stack.
 
     Args:
-        input_files: List of source raster paths.
-        output_files: List of aligned output raster paths.
-        city_name: Name of the city processed.
-        crs: Target CRS string (e.g., 'EPSG:32618').
-        resolution: Target resolution in meters.
-        align_params: Additional alignment parameters used.
+        input_files: List of input file paths
+        output_files: List of output file paths
+        city: City name
+        bounds: Bounding box dictionary
+        crs: Coordinate reference system
+        resolution: Target resolution in meters
+        timestamps: Optional dictionary of fetch timestamps
 
     Returns:
-        Metadata dictionary.
+        Metadata dictionary
     """
-    timestamp = datetime.utcnow().isoformat()
-    
-    files_meta = []
-    for inp, out in zip(input_files, output_files):
-        file_meta = {
-            "source_path": str(inp),
-            "output_path": str(out),
-            "checksum": compute_file_checksum(out),
-            "file_size_bytes": out.stat().st_size,
-            "processed_at": timestamp
-        }
-        files_meta.append(file_meta)
-
     metadata = {
-        "project": "PROJ-125-statistical-analysis-of-openstreetmap-da",
+        "project": "llmXive-statistical-analysis-of-openstreetmap-data",
         "task": "T015",
-        "city": city_name,
+        "city": city,
         "crs": crs,
         "resolution_meters": resolution,
-        "generated_at": timestamp,
-        "input_files": files_meta,
-        "alignment_parameters": align_params or {}
+        "bounds": bounds,
+        "output_files": [str(f) for f in output_files],
+        "input_files": [str(f) for f in input_files],
+        "checksums": {},
+        "timestamp": timestamps.get("generation", None) if timestamps else None
     }
+
+    # Compute checksums for output files
+    for f in output_files:
+        if f.exists():
+            metadata["checksums"][f.name] = compute_file_checksum(f)
+
     return metadata
+
 
 def write_metadata_json(metadata: Dict[str, Any], output_path: Path) -> None:
     """
     Write metadata dictionary to a JSON file.
 
     Args:
-        metadata: Metadata dictionary.
-        output_path: Path to write the JSON file.
+        metadata: Metadata dictionary
+        output_path: Path to output JSON file
     """
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, 'w') as f:
         json.dump(metadata, f, indent=2)
     logger.info(f"Metadata written to {output_path}")
 
+
 def create_aligned_raster_stack(
-    city_name: str,
-    input_rasters: List[Dict[str, Any]],
-    output_dir: Optional[Path] = None
+    input_rasters: List[Path],
+    output_dir: Path,
+    city: str,
+    target_resolution: float = 30.0
 ) -> List[Path]:
     """
-    Create an aligned stack of GeoTIFFs from input rasters.
-
-    This function:
-    1. Determines the target CRS and extent from the city boundary.
-    2. Selects the first valid raster as the reference template (or creates one).
-    3. Reprojects and resamples all rasters to match the reference grid.
-    4. Writes aligned GeoTIFFs to the output directory.
+    Create an aligned stack of GeoTIFF rasters with identical dimensions,
+    origin, and CRS.
 
     Args:
-        city_name: Name of the city (used to fetch boundary).
-        input_rasters: List of dicts with keys: 'path', 'type' (covariate/temp).
-    output_dir: Directory to write aligned rasters. Defaults to data/processed.
+        input_rasters: List of input raster file paths
+        output_dir: Directory to write aligned rasters
+        city: City name for bounds retrieval
+        target_resolution: Target resolution in meters
 
     Returns:
-        List of paths to the created aligned GeoTIFFs.
+        List of output file paths
     """
     if not input_rasters:
-        raise ValueError("No input rasters provided for alignment.")
+        raise ValueError("No input rasters provided for alignment")
 
-    # 1. Setup paths and CRS
-    if output_dir is None:
-        output_dir = get_path("data_processed")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    city_bounds = get_city_bounds(city_name)
-    target_crs = get_city_crs(city_name)
-    logger.info(f"Target CRS for {city_name}: {target_crs}")
+    # Get city bounds and CRS
+    bounds = get_city_bounds(city)
+    target_crs = get_city_crs(city)
 
-    # 2. Determine reference grid
-    # We use the first raster as the initial reference, but we must ensure
-    # the grid aligns with the city boundary extent and a fixed resolution.
-    ref_raster_info = None
-    ref_transform = None
-    ref_width = None
-    ref_height = None
-    
-    # Resolution in meters (standardized coarse resolution per T014)
-    target_resolution = 30.0 
+    if not bounds:
+        raise ValueError(f"No bounds found for city: {city}")
 
-    # Calculate target extent from city boundary in target CRS
-    # city_bounds is typically in lat/lon (EPSG:4326) from config
-    # We need to transform it to target_crs
-    from shapely.ops import transform
-    from pyproj import Transformer
-    
-    transformer = Transformer.from_crs("EPSG:4326", target_crs, always_xy=True)
-    transformed_bounds = transform(transformer.transform, city_bounds)
-    
-    minx, miny, maxx, maxy = transformed_bounds.bounds
-    
-    # Define a grid that covers the bounds with a slight padding if needed
-    # For strict alignment, we snap to a grid start
-    start_x = np.floor(minx / target_resolution) * target_resolution
-    start_y = np.floor(miny / target_resolution) * target_resolution
-    
-    width = int(np.ceil((maxx - start_x) / target_resolution))
-    height = int(np.ceil((maxy - start_y) / target_resolution))
+    # Convert bounds to WKT geometry for masking
+    minx, miny, maxx, maxy = bounds['minx'], bounds['miny'], bounds['maxx'], bounds['maxy']
+    bounds_geom = box(minx, miny, maxx, maxy)
 
-    # Create a synthetic reference transform
-    ref_transform = rasterio.transform.from_bounds(
-        start_x, start_y, start_x + width * target_resolution, 
-        start_y + height * target_resolution, width, height
+    # Read first raster to establish reference grid
+    ref_raster = rasterio.open(input_rasters[0])
+    ref_transform = ref_raster.transform
+    ref_crs = ref_raster.crs
+
+    # Calculate target transform based on bounds and resolution
+    target_transform, target_width, target_height = calculate_default_transform(
+        ref_crs,
+        target_crs,
+        ref_raster.width,
+        ref_raster.height,
+        *ref_raster.bounds,
+        resolution=target_resolution
     )
-    ref_width = width
-    ref_height = height
 
-    logger.info(f"Reference grid: {width}x{height}, Resolution: {target_resolution}m")
+    # Adjust transform to align with bounds
+    # Ensure the grid aligns with the bounding box
+    target_minx, target_miny = target_transform * (0, target_height)
+    target_maxx, target_maxy = target_transform * (target_width, 0)
+
+    # Refine bounds to match grid
+    final_minx = minx
+    final_miny = miny
+    final_maxx = maxx
+    final_maxy = maxy
+
+    # Recalculate grid based on final bounds
+    final_transform = rasterio.transform.from_bounds(
+        final_minx, final_miny, final_maxx, final_maxy,
+        int((final_maxx - final_minx) / target_resolution),
+        int((final_maxy - final_miny) / target_resolution)
+    )
+    final_width = int((final_maxx - final_minx) / target_resolution)
+    final_height = int((final_maxy - final_miny) / target_resolution)
 
     output_paths = []
-    input_paths = [Path(r['path']) for r in input_rasters]
 
-    # 3. Process each raster
-    for i, raster_info in enumerate(input_rasters):
-        src_path = Path(raster_info['path'])
-        if not src_path.exists():
-            raise FileNotFoundError(f"Input raster not found: {src_path}")
+    for i, input_path in enumerate(input_rasters):
+        logger.info(f"Processing raster {i+1}/{len(input_rasters)}: {input_path.name}")
 
-        # Determine output filename
-        stem = src_path.stem
-        output_filename = f"aligned_{stem}.tif"
-        output_path = output_dir / output_filename
+        with rasterio.open(input_path) as src:
+            # Determine output profile
+            out_profile = src.profile.copy()
+            out_profile.update({
+                'crs': target_crs,
+                'transform': final_transform,
+                'width': final_width,
+                'height': final_height,
+                'driver': 'GTiff',
+                'compress': 'lzw'
+            })
 
-        logger.info(f"Processing {src_path} -> {output_path}")
+            # Create output filename
+            output_name = f"{input_path.stem}_aligned.tif"
+            output_path = output_dir / output_name
 
-        with rasterio.open(src_path) as src:
-            # Determine resampling method based on data type
-            # If it's a temperature layer (continuous) or categorical?
-            # Assuming continuous for temp, nearest for categorical if specified
-            resampling = Resampling.bilinear
-            if raster_info.get('type') == 'categorical':
-                resampling = Resampling.nearest
-
-            # Reproject and align
-            # We use the calculated reference transform and dimensions
-            dst_crs = target_crs
-            
-            # Handle nodata
-            nodata = src.nodata
-            if nodata is None:
-                nodata = -9999
-
-            with rasterio.open(
-                output_path,
-                'w',
-                driver='GTiff',
-                height=ref_height,
-                width=ref_width,
-                count=src.count,
-                dtype=src.dtypes[0],
-                crs=dst_crs,
-                transform=ref_transform,
-                nodata=nodata
-            ) as dst:
-                for idx in range(1, src.count + 1):
+            # Reproject and resample
+            with rasterio.open(output_path, 'w', **out_profile) as dst:
+                for idx in range(src.count):
                     reproject(
                         source=rasterio.band(src, idx),
                         destination=rasterio.band(dst, idx),
                         src_transform=src.transform,
                         src_crs=src.crs,
-                        dst_transform=ref_transform,
-                        dst_crs=dst_crs,
-                        resampling=resampling,
-                        src_nodata=nodata,
-                        dst_nodata=nodata
+                        dst_transform=final_transform,
+                        dst_crs=target_crs,
+                        resampling=Resampling.bilinear if src.meta['dtype'] in ['float32', 'float64'] else Resampling.nearest,
+                        src_nodata=src.nodata,
+                        dst_nodata=src.nodata
                     )
-            
-            logger.info(f"Aligned raster written: {output_path}")
-            output_paths.append(output_path)
 
+            output_paths.append(output_path)
+            logger.info(f"  -> Wrote {output_path}")
+
+    ref_raster.close()
     return output_paths
+
+
+def validate_non_null_overlap(
+    output_files: List[Path],
+    bounds: Dict[str, Any],
+    tolerance: float = 0.1
+) -> bool:
+    """
+    Validate that all output rasters have non-null values in the overlap region.
+
+    Args:
+        output_files: List of output raster file paths
+        bounds: Bounding box dictionary
+        tolerance: Maximum allowed fraction of null values
+
+    Returns:
+        True if validation passes, False otherwise
+    """
+    if len(output_files) < 2:
+        logger.warning("Less than 2 rasters provided; skipping overlap validation")
+        return True
+
+    minx, miny, maxx, maxy = bounds['minx'], bounds['miny'], bounds['maxx'], bounds['maxy']
+
+    # Read all rasters
+    rasters = [rasterio.open(f) for f in output_files]
+
+    try:
+        # Sample points in the overlap region
+        sample_points = []
+        step_x = (maxx - minx) / 10
+        step_y = (maxy - miny) / 10
+
+        for i in range(10):
+            for j in range(10):
+                x = minx + step_x * i + step_x / 2
+                y = miny + step_y * j + step_y / 2
+                sample_points.append((x, y))
+
+        # Check each raster at sample points
+        null_fractions = []
+        for raster in rasters:
+            null_count = 0
+            for x, y in sample_points:
+                try:
+                    value = raster.sample([(x, y)], masked=True)
+                    if value.mask[0] or np.isnan(value[0, 0]):
+                        null_count += 1
+                except Exception:
+                    null_count += 1
+
+            null_frac = null_count / len(sample_points)
+            null_fractions.append(null_frac)
+
+        # Check if any raster has too many nulls
+        max_null_frac = max(null_fractions)
+        if max_null_frac > tolerance:
+            logger.error(f"Overlap validation failed: max null fraction {max_null_frac:.2f} > {tolerance}")
+            return False
+
+        logger.info(f"Overlap validation passed: max null fraction {max_null_frac:.2f}")
+        return True
+
+    finally:
+        for r in rasters:
+            r.close()
+
 
 def main():
     """
-    Main entry point for T015.
-    Reads configuration to find input rasters (simulated here as a list for demo,
-    but in a real pipeline, this would be populated by T012/T013 outputs).
+    Main entry point for T015: Create aligned GeoTIFF stack output.
+
+    This function:
+    1. Reads input rasters from data/raw/
+    2. Aligns them to a common CRS, origin, and resolution
+    3. Writes aligned rasters to data/processed/
+    4. Generates data/metadata.json with checksums and timestamps
     """
-    # In a real pipeline, the list of input rasters would come from the previous
-    # steps (T012/T013) or a manifest file.
-    # For this task, we assume the existence of processed rasters in data/raw or similar
-    # that need to be aligned.
-    
-    # Since T012/T013 are marked complete but we don't see their outputs in the
-    # environment, we will attempt to find files that match expected patterns
-    # or fail loudly if not found.
-    
-    city_name = "New York" # Default, can be overridden by env or args
-    
-    # Simulate finding input rasters
-    # In a real scenario, T012/T013 would write to data/raw/
-    raw_dir = get_path("data_raw")
-    if not raw_dir.exists():
-        logger.error(f"Raw data directory {raw_dir} does not exist. Cannot proceed.")
-        return
+    logger.info("Starting T015: Create aligned GeoTIFF stack output")
 
-    # Look for tifs
-    input_candidates = list(raw_dir.glob("*.tif")) + list(raw_dir.glob("*.tiff"))
-    
-    if not input_candidates:
-        logger.warning(f"No input rasters found in {raw_dir}. "
-                       "This task requires real input data from T012/T013.")
-        # In a strict pipeline, we would exit 1.
-        # For the purpose of this implementation, we raise an error.
-        raise FileNotFoundError("No input rasters found. Please run T012 and T013 first.")
+    # Configuration
+    city = "new_york"  # Default, can be overridden via args or config
+    input_dir = get_path("data_raw")
+    output_dir = get_path("data_processed")
+    metadata_path = get_path("data_metadata")
 
-    input_rasters = []
-    for p in input_candidates:
-        # Simple heuristic: if 'temp' in name, it's target, else covariate
-        r_type = "temperature" if "temp" in p.name.lower() else "covariate"
-        input_rasters.append({"path": str(p), "type": r_type})
+    # Ensure directories exist
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Found {len(input_rasters)} input rasters to align.")
+    # Find input rasters
+    input_rasters = list(input_dir.glob("*.tif")) + list(input_dir.glob("*.tiff"))
 
+    if not input_rasters:
+        logger.error(f"No input rasters found in {input_dir}")
+        logger.error("T015 cannot proceed without input data")
+        return 1
+
+    logger.info(f"Found {len(input_rasters)} input rasters")
+
+    # Create aligned stack
     try:
-        output_paths = create_aligned_raster_stack(city_name, input_rasters)
-        
-        # Generate metadata
-        metadata = generate_metadata(
-            input_files=[Path(r['path']) for r in input_rasters],
-            output_files=output_paths,
-            city_name=city_name,
-            crs=get_city_crs(city_name),
-            resolution=30.0
+        output_files = create_aligned_raster_stack(
+            input_rasters=input_rasters,
+            output_dir=output_dir,
+            city=city,
+            target_resolution=30.0
         )
-        
-        metadata_path = get_path("data_processed") / "metadata.json"
-        write_metadata_json(metadata, metadata_path)
-        
-        logger.info("T015 completed successfully.")
-        
     except Exception as e:
-        logger.error(f"Failed to create aligned stack: {e}", exc_info=True)
-        raise
+        logger.error(f"Failed to create aligned raster stack: {e}")
+        return 1
+
+    if not output_files:
+        logger.error("No output files were created")
+        return 1
+
+    # Validate non-null overlap
+    bounds = get_city_bounds(city)
+    if not bounds:
+        logger.warning(f"Could not retrieve bounds for {city}; skipping overlap validation")
+    else:
+        if not validate_non_null_overlap(output_files, bounds, tolerance=0.1):
+            logger.error("Overlap validation failed; exiting without generating metadata")
+            return 1
+
+    # Generate metadata
+    import datetime
+    timestamps = {
+        "generation": datetime.datetime.now().isoformat()
+    }
+
+    metadata = generate_metadata(
+        input_files=input_rasters,
+        output_files=output_files,
+        city=city,
+        bounds=bounds,
+        crs=get_city_crs(city),
+        resolution=30.0,
+        timestamps=timestamps
+    )
+
+    write_metadata_json(metadata, metadata_path)
+
+    logger.info("T015 completed successfully")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

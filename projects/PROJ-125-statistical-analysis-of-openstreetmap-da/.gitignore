@@ -36,47 +36,44 @@ pip-delete-this-directory.txt
 htmlcov/
 .coverage
 .coverage.*
-.cache
-nosetests.xml
 coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+.tox/
+.nox/
 
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual environments
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+.env/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Data
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/results/*
-!data/results/.gitkeep
-
-# Logs
-*.log
-
 # OS
 .DS_Store
 Thumbs.db
+
+# Project specific
+data/raw/
+data/processed/
+data/results/
+figures/
+logs/
+.env
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables (sensitive)
+*.pem
+*.key
+*.crt
