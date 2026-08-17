@@ -9,7 +9,7 @@ This feature implements a comparative study to determine if 2D Graph Convolution
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `rdkit`, `torch` (CPU build), `scikit-learn`, `pandas`, `pyarrow`, `datasets` (HuggingFace), `numpy`  
 **Storage**: Local filesystem (`data/`), Parquet format for intermediate artifacts  
 **Testing**: `pytest` (unit), `pytest-cov` (coverage), contract tests against YAML schemas  
