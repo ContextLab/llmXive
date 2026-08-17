@@ -1,140 +1,247 @@
-"""Unit tests for the preprocess module."""
-import pytest
+"""
+Unit tests for the preprocess module (T010).
+
+Tests:
+- CodeSanitizer removes dangerous functions (eval, exec, open, etc.)
+- CodeSanitizer mocks dangerous imports (os, sys, subprocess, etc.)
+- sanitize_code returns correct structure
+- preprocess_function handles various input cases
+- run_preprocessing processes files correctly
+"""
+
 import ast
+import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+import pytest
 
-from data.preprocess import sanitize_code, preprocess_function, CodeSanitizer
+# Import the module under test
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+from data.preprocess import CodeSanitizer, sanitize_code, preprocess_function, run_preprocessing
 
 
 class TestCodeSanitizer:
     """Tests for the CodeSanitizer AST transformer."""
-
-    def test_removes_print_call(self):
-        """Test that print() calls are removed."""
-        code = "print('hello')"
-        sanitized = sanitize_code(code)
-        assert 'mock_safe_call' in sanitized
-        assert 'print' not in sanitized.split('mock_safe_call')[0]
-
+    
+    def test_removes_eval_call(self):
+        """Test that eval() calls are removed."""
+        code = "result = eval('1 + 1')"
+        result = sanitize_code(code)
+        assert result['success'] is True
+        assert 'eval' not in result['sanitized_code']
+        assert any('Removed dangerous call: eval' in change for change in result['changes'])
+    
+    def test_removes_exec_call(self):
+        """Test that exec() calls are removed."""
+        code = "exec('print(1)')"
+        result = sanitize_code(code)
+        assert result['success'] is True
+        assert 'exec' not in result['sanitized_code']
+    
     def test_removes_open_call(self):
         """Test that open() calls are removed."""
-        code = "open('file.txt')"
-        sanitized = sanitize_code(code)
-        assert 'mock_safe_call' in sanitized
-
-    def test_removes_os_import(self):
-        """Test that os import is removed."""
-        code = "import os\nos.system('ls')"
-        sanitized = sanitize_code(code)
-        # os import should be removed or mocked
-        assert 'import os' not in sanitized or 'mock_stdlib_placeholder' in sanitized
-
-    def test_mocks_math_import(self):
-        """Test that math import is mocked."""
-        code = "import math\nmath.sqrt(4)"
-        sanitized = sanitize_code(code)
-        # Math should be mocked
-        assert 'mock_stdlib_placeholder' in sanitized
-
-    def test_preserves_function_definition(self):
-        """Test that function definitions are preserved."""
-        code = "def add(a, b):\n    return a + b"
-        sanitized = sanitize_code(code)
-        assert 'def add' in sanitized
-        assert 'return a + b' in sanitized
-
-    def test_handles_complex_code(self):
-        """Test sanitization of complex code."""
+        code = "f = open('file.txt', 'r')"
+        result = sanitize_code(code)
+        assert result['success'] is True
+        assert 'open' not in result['sanitized_code']
+    
+    def test_removes_os_system_call(self):
+        """Test that os.system() calls are removed."""
+        code = "os.system('ls -la')"
+        result = sanitize_code(code)
+        assert result['success'] is True
+        assert 'os.system' not in result['sanitized_code']
+    
+    def test_mocks_os_import(self):
+        """Test that 'import os' is mocked."""
+        code = "import os\nos.getcwd()"
+        result = sanitize_code(code)
+        assert result['success'] is True
+        assert 'import os' not in result['sanitized_code']
+        assert any('Mocked import: os' in change for change in result['changes'])
+    
+    def test_mocks_sys_import(self):
+        """Test that 'import sys' is mocked."""
+        code = "import sys\nsys.exit(0)"
+        result = sanitize_code(code)
+        assert result['success'] is True
+        assert 'import sys' not in result['sanitized_code']
+        assert any('Mocked import: sys' in change for change in result['changes'])
+    
+    def test_mocks_from_import(self):
+        """Test that 'from os import path' is mocked."""
+        code = "from os import path\npath.exists('file')"
+        result = sanitize_code(code)
+        assert result['success'] is True
+        assert 'from os import' not in result['sanitized_code']
+        assert any('Mocked from-import: os' in change for change in result['changes'])
+    
+    def test_removes_print_statement(self):
+        """Test that print statements are removed."""
+        code = "print('Hello, World!')"
+        result = sanitize_code(code)
+        assert result['success'] is True
+        assert 'print' not in result['sanitized_code']
+        assert any('Removed print statement' in change for change in result['changes'])
+    
+    def test_preserves_safe_code(self):
+        """Test that safe code is preserved."""
         code = """
-        import os
-        import math
-
-        def complex_func(x):
-            print(x)
-            result = math.sqrt(x)
-            with open('file.txt') as f:
-                pass
-            return result
+        def add(a, b):
+            return a + b
+        
+        result = add(1, 2)
         """
-        sanitized = sanitize_code(code)
-        assert 'def complex_func' in sanitized
-        assert 'mock_safe_call' in sanitized
-        assert 'mock_stdlib_placeholder' in sanitized
-
-
-class TestPreprocessFunction:
-    """Tests for the preprocess_function function."""
-
-    def test_successful_preprocessing(self):
-        """Test successful preprocessing of valid code."""
-        code = "def test():\n    return 42"
-        result = preprocess_function(code)
+        result = sanitize_code(code)
         assert result['success'] is True
-        assert result['code'] is not None
-        assert 'def test' in result['code']
-
-    def test_invalid_syntax(self):
-        """Test preprocessing of invalid syntax."""
-        code = "def test(\n    return 42"  # Missing closing paren
-        result = preprocess_function(code)
+        assert 'def add' in result['sanitized_code']
+        assert 'return a + b' in result['sanitized_code']
+    
+    def test_handles_syntax_error(self):
+        """Test that syntax errors are handled gracefully."""
+        code = "def broken("  # Invalid syntax
+        result = sanitize_code(code)
         assert result['success'] is False
-        assert result['error'] is not None
-
-    def test_with_io_calls(self):
-        """Test preprocessing of code with I/O calls."""
-        code = "def test():\n    print('hello')\n    return 42"
-        result = preprocess_function(code)
-        assert result['success'] is True
-        assert 'mock_safe_call' in result['code']
-
-    def test_no_mock_stdlib(self):
-        """Test preprocessing without mocking stdlib."""
-        code = "import math\nmath.sqrt(4)"
-        result = preprocess_function(code, mock_stdlib=False)
-        assert result['success'] is True
-        # Should not be mocked when mock_stdlib=False
-        assert 'mock_stdlib_placeholder' not in result['code']
-
+        assert 'SyntaxError' in str(result['changes'])
 
 class TestSanitizeCode:
     """Tests for the sanitize_code function."""
-
-    def test_empty_code(self):
-        """Test sanitization of empty code."""
-        with pytest.raises(ValueError):
-            sanitize_code("")
-
-    def test_whitespace_only(self):
-        """Test sanitization of whitespace-only code."""
-        with pytest.raises(ValueError):
-            sanitize_code("   \n\n  ")
-
-    def test_single_line(self):
-        """Test sanitization of single line code."""
+    
+    def test_returns_dict_structure(self):
+        """Test that sanitize_code returns the expected dictionary structure."""
         code = "x = 1"
-        sanitized = sanitize_code(code)
-        assert 'x = 1' in sanitized
+        result = sanitize_code(code)
+        assert isinstance(result, dict)
+        assert 'sanitized_code' in result
+        assert 'changes' in result
+        assert 'success' in result
+        assert isinstance(result['changes'], list)
+    
+    def test_empty_code(self):
+        """Test handling of empty code."""
+        result = sanitize_code("")
+        assert result['success'] is True
+        assert result['sanitized_code'] == ""
+    
+    def test_complex_dangerous_calls(self):
+        """Test removal of multiple dangerous calls."""
+        code = """
+        import os
+        import subprocess
+        x = eval("1+1")
+        f = open("test.txt")
+        subprocess.run(["ls"])
+        """
+        result = sanitize_code(code)
+        assert result['success'] is True
+        # Verify dangerous elements are removed
+        assert 'eval' not in result['sanitized_code']
+        assert 'open' not in result['sanitized_code']
+        assert 'subprocess.run' not in result['sanitized_code']
+        assert 'import os' not in result['sanitized_code']
+        assert 'import subprocess' not in result['sanitized_code']
 
-    def test_multiline(self):
-        """Test sanitization of multiline code."""
-        code = "x = 1\ny = 2\nz = x + y"
-        sanitized = sanitize_code(code)
-        assert 'x = 1' in sanitized
-        assert 'y = 2' in sanitized
-        assert 'z = x + y' in sanitized
+class TestPreprocessFunction:
+    """Tests for the preprocess_function function."""
+    
+    def test_basic_preprocessing(self):
+        """Test basic function preprocessing."""
+        func_dict = {
+            'code': 'import os\nx = eval("1")',
+            'id': 'test_001',
+            'name': 'test_func'
+        }
+        result = preprocess_function(func_dict)
+        
+        assert 'sanitized_code' in result
+        assert 'preprocessed' in result
+        assert 'preprocessing_log' in result
+        assert result['preprocessed'] is True
+        assert result['id'] == 'test_001'
+    
+    def test_preserves_original_keys(self):
+        """Test that original keys are preserved."""
+        func_dict = {
+            'code': 'x = 1',
+            'id': 'test_002',
+            'name': 'my_func',
+            'metadata': {'source': 'test'}
+        }
+        result = preprocess_function(func_dict)
+        
+        assert result['id'] == 'test_002'
+        assert result['name'] == 'my_func'
+        assert result['metadata'] == {'source': 'test'}
 
-    def test_with_comments(self):
-        """Test that comments are preserved."""
-        code = "# This is a comment\nx = 1"
-        sanitized = sanitize_code(code)
-        assert '# This is a comment' in sanitized
+class TestRunPreprocessing:
+    """Tests for the run_preprocessing function."""
+    
+    def test_process_file(self):
+        """Test processing a JSONL file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.jsonl"
+            output_dir = Path(tmpdir) / "output"
+            
+            # Create input file
+            test_functions = [
+                {'code': 'import os\nx = 1', 'id': '1'},
+                {'code': 'import sys\ny = 2', 'id': '2'},
+                {'code': 'def safe(): pass', 'id': '3'}
+            ]
+            
+            with open(input_path, 'w') as f:
+                for func in test_functions:
+                    f.write(json.dumps(func) + '\n')
+            
+            # Run preprocessing
+            result = run_preprocessing(str(input_path), str(output_dir))
+            
+            # Verify results
+            assert result['functions_processed'] == 3
+            assert result['success_count'] == 3
+            assert result['error_count'] == 0
+            assert result['output_file'] == str(output_dir / "preprocessed_functions.jsonl")
+            
+            # Verify output file exists and contains valid JSON
+            output_file = Path(result['output_file'])
+            assert output_file.exists()
+            
+            with open(output_file, 'r') as f:
+                lines = f.readlines()
+                assert len(lines) == 3
+                
+                for line in lines:
+                    parsed = json.loads(line)
+                    assert 'sanitized_code' in parsed
+                    assert 'preprocessed' in parsed
 
-    def test_with_docstring(self):
-        """Test that docstrings are preserved."""
-        code = '"""This is a docstring"""\ndef test(): pass'
-        sanitized = sanitize_code(code)
-        assert '"""This is a docstring"""' in sanitized
+    def test_missing_input_file(self):
+        """Test handling of missing input file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "nonexistent.jsonl"
+            output_dir = Path(tmpdir) / "output"
+            
+            with pytest.raises(FileNotFoundError):
+                run_preprocessing(str(input_path), str(output_dir))
+    
+    def test_invalid_json_lines(self):
+        """Test handling of invalid JSON lines."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = Path(tmpdir) / "input.jsonl"
+            output_dir = Path(tmpdir) / "output"
+            
+            # Create input file with invalid JSON
+            with open(input_path, 'w') as f:
+                f.write('{"code": "x = 1"}\n')
+                f.write('invalid json\n')
+                f.write('{"code": "y = 2"}\n')
+            
+            result = run_preprocessing(str(input_path), str(output_dir))
+            
+            # Should process 2 valid lines, 1 error
+            assert result['functions_processed'] == 3
+            assert result['error_count'] == 1
+            assert result['success_count'] == 2

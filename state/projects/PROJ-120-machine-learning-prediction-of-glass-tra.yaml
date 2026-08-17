@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T03:15:48.614143Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-120-machine-learning-prediction-of-glass-tra
-last_run_id: 092c8fff-cae7-4b32-883e-02451abaebe4
+last_run_id: 547b51e3-1e82-4a02-aacf-71db71306a74
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-120-machine-learning-prediction-of-glass-tra/specs/001-machine-learning-prediction-of-glass-tra
 title: Machine Learning Prediction of Glass Transition Temperature from Composition
-updated_at: '2026-08-16T12:14:05.901384Z'
+updated_at: '2026-08-17T03:28:48.631185Z'

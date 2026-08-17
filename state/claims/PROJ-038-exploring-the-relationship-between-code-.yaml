@@ -195,3 +195,111 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-12T06:45:04Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Spearman rank correlation is standard in software engineering literature
+    for correlating metrics with bug proneness
+  claim_id: c_f717fb1c
+  context: It is robust to outliers and does not assume normality. Given the skewed
+    nature of code metrics, Spearman is the standard choice in software engineering
+    literature (e.g., *Memon et al., 2019*) for correlating metrics with bug proneness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman is the standard choice in software engineering literature (e.g.,
+    Memon et al., 2019) for correlating metrics with bug proneness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:38:56Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: ROC-AUC difference calculated for 50 folds from 10 repeats and 5 folds
+  claim_id: c_3f49c8da
+  context: "1. Calculate the difference in ROC-AUC ($\\Delta$) for each of the 50\
+    \ folds (10 repeats \xD7 5 folds)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study calculates the difference in ROC-AUC for each of the 50 folds\
+    \ (10 repeats \xD7 5 folds)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:39:38Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Permutation test uses 10000 permutations to build null distribution
+  claim_id: c_116990f9
+  context: 3. Randomly flip the signs of the observed differences many times (e.g.,
+    10,000 permutations) to build a null distribution of mean differences.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The procedure involves randomly flipping the signs of the observed differences
+    many times (e.g., 10,000 permutations) to build a null distribution of mean differences.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:40:33Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Memon et al 2019 supports use of Spearman for non-normal metrics
+  claim_id: c_8b6f66a4
+  context: '1. *Memon, Q. A., et al. (2019). ''Software Defect Prediction Using Machine
+    Learning: A Systematic Literature Review.''* (Supports use of Spearman for non-normal
+    metrics).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memon, Q. A., et al. (2019) support the use of Spearman for non-normal
+    metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:41:02Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Nadeau and Bengio 2003 supports use of permutation tests for paired model
+    comparisons
+  claim_id: c_f691fba2
+  context: 2. *Nadeau, C., & Bengio, Y. (2003). 'Inference for the Generalization
+    Error.'* (Supports use of permutation tests for paired model comparisons).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nadeau, C., & Bengio, Y. (2003) support the use of permutation tests for
+    paired model comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:41:32Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Kendall and Gibbons 1990 is foundational text for Spearman and Point-Biserial
+  claim_id: c_31cd909c
+  context: 3. *Kendall, M. G., & Gibbons, J. D. (1990). 'Rank Correlation Methods.'*
+    (Foundational text for Spearman/Point-Biserial).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kendall_and_Gibbons_1990_is_foundational_text_for_Spearman_a
+  kind: entity_fact
+  raw_text: Kendall, M. G., & Gibbons, J. D. (1990) is a foundational text for Spearman
+    and Point-Biserial.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:41:56Z'

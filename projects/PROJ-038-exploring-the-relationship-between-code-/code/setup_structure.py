@@ -1,19 +1,23 @@
-"""
-Script to create the project directory structure for the llmXive research pipeline.
-This script ensures all required directories exist before other tasks begin.
-"""
 import os
 from pathlib import Path
 
 def main():
-    """Create the standard project directory structure."""
-    # Define the base project root (assuming this script is at the root or code/)
-    # The task requires paths relative to project root: code/, specs/, etc.
-    # Since this file is in code/, we go up one level to find the project root.
-    project_root = Path(__file__).resolve().parent.parent
-
-    # Define the directories to create relative to project_root
-    dirs_to_create = [
+    """
+    Creates the project directory structure for the llmXive research pipeline.
+    
+    Creates the following directories relative to the project root:
+    - code/
+    - code/src/
+    - code/tests/
+    - code/data/raw/
+    - code/data/processed/
+    - code/data/results/
+    - specs/001-code-complexity-bug-prediction/
+    """
+    base_dir = Path(__file__).parent.parent
+    project_root = base_dir / "code"
+    
+    directories = [
         "code",
         "code/src",
         "code/tests",
@@ -22,19 +26,18 @@ def main():
         "code/data/results",
         "specs/001-code-complexity-bug-prediction",
     ]
-
+    
     created_count = 0
-    for dir_path in dirs_to_create:
-        full_path = project_root / dir_path
+    for dir_path in directories:
+        full_path = base_dir / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {full_path}")
             created_count += 1
         else:
             print(f"Directory already exists: {full_path}")
-
-    print(f"\nSetup complete. {created_count} new directories created.")
-    print(f"Project root: {project_root}")
+    
+    print(f"Setup complete. Created {created_count} new directories.")
 
 if __name__ == "__main__":
     main()

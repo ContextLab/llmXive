@@ -1,100 +1,213 @@
-import pytest
 import os
 import csv
 import tempfile
+import pytest
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+
 from src.data.preprocessing import filter_by_snr_threshold, load_csv, save_csv
+
 
 class TestSNRFilter:
     @pytest.fixture
-    def sample_data(self):
-        return [
-            {'record_id': '1', 'species_id': 'A', 'location_id': 'L1', 'snr_db': '15.0', 'noise_level_db': '40.0'},
-            {'record_id': '2', 'species_id': 'A', 'location_id': 'L1', 'snr_db': '5.0', 'noise_level_db': '50.0'},
-            {'record_id': '3', 'species_id': 'B', 'location_id': 'L2', 'snr_db': '20.0', 'noise_level_db': '30.0'},
-            {'record_id': '4', 'species_id': 'B', 'location_id': 'L2', 'snr_db': '8.0', 'noise_level_db': '55.0'},
-            {'record_id': '5', 'species_id': 'C', 'location_id': 'L3', 'snr_db': '10.0', 'noise_level_db': '45.0'},
-        ]
+    def temp_csv_file(self):
+        """Create a temporary CSV file for testing."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.DictWriter(f, fieldnames=['recording_id', 'species_id', 'snr_db', 'latitude', 'longitude'])
+            writer.writeheader()
+            writer.writerow({
+                'recording_id': 'rec_001',
+                'species_id': 'species_A',
+                'snr_db': '15.0',
+                'latitude': '40.7128',
+                'longitude': '-74.0060'
+            })
+            writer.writerow({
+                'recording_id': 'rec_002',
+                'species_id': 'species_B',
+                'snr_db': '8.0',
+                'latitude': '34.0522',
+                'longitude': '-118.2437'
+            })
+            writer.writerow({
+                'recording_id': 'rec_003',
+                'species_id': 'species_A',
+                'snr_db': '12.0',
+                'latitude': '40.7128',
+                'longitude': '-74.0060'
+            })
+            writer.writerow({
+                'recording_id': 'rec_004',
+                'species_id': 'species_C',
+                'snr_db': '5.0',
+                'latitude': '51.5074',
+                'longitude': '-0.1278'
+            })
+            writer.writerow({
+                'recording_id': 'rec_005',
+                'species_id': 'species_B',
+                'snr_db': '10.0',
+                'latitude': '34.0522',
+                'longitude': '-118.2437'
+            })
+            temp_path = Path(f.name)
+        yield temp_path
+        temp_path.unlink()
 
-    def test_filter_by_snr_threshold_keeps_high_snr(self, sample_data):
+    @pytest.fixture
+    def temp_output_dir(self):
+        """Create a temporary directory for output files."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_path = Path(tmpdir) / 'output.csv'
-            dropped_path = Path(tmpdir) / 'dropped.csv'
-            
-            save_csv(input_path, sample_data)
-            
-            kept, dropped = filter_by_snr_threshold(input_path, output_path, dropped_path, threshold_db=10.0)
-            
-            assert len(kept) == 3
-            assert len(dropped) == 2
-            
-            # Check kept records have SNR >= 10
-            for record in kept:
-                assert float(record['snr_db']) >= 10.0
-            
-            # Check dropped records have SNR < 10
-            for record in dropped:
-                assert float(record['data']['snr_db']) < 10.0
+            yield Path(tmpdir)
 
-    def test_filter_by_snr_threshold_empty_input(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_path = Path(tmpdir) / 'output.csv'
-            dropped_path = Path(tmpdir) / 'dropped.csv'
-            
-            save_csv(input_path, [])
-            
-            kept, dropped = filter_by_snr_threshold(input_path, output_path, dropped_path, threshold_db=10.0)
-            
-            assert len(kept) == 0
-            assert len(dropped) == 0
+    def test_filter_by_snr_threshold_keeps_above_threshold(self, temp_csv_file, temp_output_dir):
+        """Test that records with SNR >= threshold are kept."""
+        output_file = temp_output_dir / 'filtered.csv'
+        exclusion_file = temp_output_dir / 'excluded.csv'
+        threshold = 10.0
 
-    def test_filter_by_snr_threshold_missing_snr_column(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_path = Path(tmpdir) / 'output.csv'
-            dropped_path = Path(tmpdir) / 'dropped.csv'
-            
-            data = [{'record_id': '1', 'species_id': 'A'}]
-            save_csv(input_path, data)
-            
-            with pytest.raises(ValueError, match="Input file must contain"):
-                filter_by_snr_threshold(input_path, output_path, dropped_path, threshold_db=10.0)
+        kept, excluded = filter_by_snr_threshold(
+            input_path=temp_csv_file,
+            output_path=output_file,
+            exclusion_log_path=exclusion_file,
+            threshold_db=threshold
+        )
 
-    def test_filter_by_snr_threshold_invalid_snr_value(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_path = Path(tmpdir) / 'output.csv'
-            dropped_path = Path(tmpdir) / 'dropped.csv'
-            
-            data = [
-                {'record_id': '1', 'snr_db': 'invalid'},
-                {'record_id': '2', 'snr_db': '15.0'},
-            ]
-            save_csv(input_path, data)
-            
-            kept, dropped = filter_by_snr_threshold(input_path, output_path, dropped_path, threshold_db=10.0)
-            
-            assert len(kept) == 1
-            assert len(dropped) == 1
-            assert dropped[0]['reason'] == 'invalid_snr'
+        # Should keep rec_001 (15.0), rec_003 (12.0), rec_005 (10.0)
+        assert len(kept) == 3
+        kept_ids = [r['recording_id'] for r in kept]
+        assert 'rec_001' in kept_ids
+        assert 'rec_003' in kept_ids
+        assert 'rec_005' in kept_ids
 
-    def test_filter_by_snr_threshold_output_files_created(self, sample_data):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_path = Path(tmpdir) / 'output.csv'
-            dropped_path = Path(tmpdir) / 'dropped.csv'
-            
-            save_csv(input_path, sample_data)
-            
-            filter_by_snr_threshold(input_path, output_path, dropped_path, threshold_db=10.0)
-            
-            assert output_path.exists()
-            assert dropped_path.exists()
-            
-            output_data = load_csv(output_path)
-            dropped_data = load_csv(dropped_path)
-            
-            assert len(output_data) == 3
-            assert len(dropped_data) == 2
+        # Should exclude rec_002 (8.0), rec_004 (5.0)
+        assert len(excluded) == 2
+        excluded_ids = [r['recording_id'] for r in excluded]
+        assert 'rec_002' in excluded_ids
+        assert 'rec_004' in excluded_ids
+
+    def test_filter_by_snr_threshold_excludes_below_threshold(self, temp_csv_file, temp_output_dir):
+        """Test that records with SNR < threshold are excluded."""
+        output_file = temp_output_dir / 'filtered.csv'
+        exclusion_file = temp_output_dir / 'excluded.csv'
+        threshold = 10.0
+
+        kept, excluded = filter_by_snr_threshold(
+            input_path=temp_csv_file,
+            output_path=output_file,
+            exclusion_log_path=exclusion_file,
+            threshold_db=threshold
+        )
+
+        excluded_reasons = {r['recording_id']: r['reason'] for r in excluded}
+        assert excluded_reasons['rec_002'] == 'snr_below_threshold'
+        assert excluded_reasons['rec_004'] == 'snr_below_threshold'
+
+    def test_filter_by_snr_threshold_boundary_case(self, temp_csv_file, temp_output_dir):
+        """Test that records with SNR exactly equal to threshold are kept."""
+        output_file = temp_output_dir / 'filtered.csv'
+        exclusion_file = temp_output_dir / 'excluded.csv'
+        threshold = 10.0
+
+        kept, excluded = filter_by_snr_threshold(
+            input_path=temp_csv_file,
+            output_path=output_file,
+            exclusion_log_path=exclusion_file,
+            threshold_db=threshold
+        )
+
+        # rec_005 has SNR exactly 10.0, should be kept
+        kept_ids = [r['recording_id'] for r in kept]
+        assert 'rec_005' in kept_ids
+
+    def test_filter_by_snr_threshold_creates_output_files(self, temp_csv_file, temp_output_dir):
+        """Test that output files are created."""
+        output_file = temp_output_dir / 'filtered.csv'
+        exclusion_file = temp_output_dir / 'excluded.csv'
+
+        filter_by_snr_threshold(
+            input_path=temp_csv_file,
+            output_path=output_file,
+            exclusion_log_path=exclusion_file,
+            threshold_db=10.0
+        )
+
+        assert output_file.exists()
+        assert exclusion_file.exists()
+
+    def test_filter_by_snr_threshold_invalid_snr(self, temp_output_dir):
+        """Test handling of invalid SNR values."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.DictWriter(f, fieldnames=['recording_id', 'snr_db'])
+            writer.writeheader()
+            writer.writerow({'recording_id': 'rec_valid', 'snr_db': '15.0'})
+            writer.writerow({'recording_id': 'rec_invalid', 'snr_db': 'NaN'})
+            writer.writerow({'recording_id': 'rec_missing', 'snr_db': ''})
+            input_file = Path(f.name)
+
+        output_file = temp_output_dir / 'filtered.csv'
+        exclusion_file = temp_output_dir / 'excluded.csv'
+
+        kept, excluded = filter_by_snr_threshold(
+            input_path=input_file,
+            output_path=output_file,
+            exclusion_log_path=exclusion_file,
+            threshold_db=10.0
+        )
+
+        # Only valid record should be kept
+        assert len(kept) == 1
+        assert kept[0]['recording_id'] == 'rec_valid'
+
+        # Invalid records should be excluded
+        assert len(excluded) == 2
+        excluded_ids = [r['recording_id'] for r in excluded]
+        assert 'rec_invalid' in excluded_ids
+        assert 'rec_missing' in excluded_ids
+
+    def test_filter_by_snr_threshold_empty_input(self, temp_output_dir):
+        """Test handling of empty input file."""
+        input_file = temp_output_dir / 'empty_input.csv'
+        output_file = temp_output_dir / 'filtered.csv'
+        exclusion_file = temp_output_dir / 'excluded.csv'
+
+        # Create empty CSV with headers
+        input_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(input_file, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['recording_id', 'snr_db'])
+            writer.writeheader()
+
+        kept, excluded = filter_by_snr_threshold(
+            input_path=input_file,
+            output_path=output_file,
+            exclusion_log_path=exclusion_file,
+            threshold_db=10.0
+        )
+
+        assert len(kept) == 0
+        assert len(excluded) == 0
+        assert output_file.exists()
+        assert exclusion_file.exists()
+
+    def test_filter_by_snr_threshold_different_thresholds(self, temp_csv_file, temp_output_dir):
+        """Test filtering with different thresholds."""
+        output_file = temp_output_dir / 'filtered.csv'
+        exclusion_file = temp_output_dir / 'excluded.csv'
+
+        # Test with threshold 5.0
+        kept_low, _ = filter_by_snr_threshold(
+            input_path=temp_csv_file,
+            output_path=output_file,
+            exclusion_log_path=exclusion_file,
+            threshold_db=5.0
+        )
+        assert len(kept_low) == 5  # All records have SNR >= 5.0
+
+        # Test with threshold 15.0
+        kept_high, _ = filter_by_snr_threshold(
+            input_path=temp_csv_file,
+            output_path=output_file,
+            exclusion_log_path=exclusion_file,
+            threshold_db=15.0
+        )
+        assert len(kept_high) == 1  # Only rec_001 has SNR >= 15.0

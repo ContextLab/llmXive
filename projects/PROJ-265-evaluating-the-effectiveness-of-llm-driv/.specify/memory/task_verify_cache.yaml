@@ -1,0 +1,46 @@
+T014b:
+  c: false
+  h: c371bda8eacf6beaeaacc15850437cc234d3e04bf722d2d333f7f81bfb5457ce
+  r: "The repository lacks the required `data/processed/validated_functions.jsonl`\
+    \ file, and the `code/data/sample.py` implementation is truncated (ends mid\u2011\
+    line) and does not contain logic to write a 200\u2011function sample. Consequently\
+    \ the task\u2019s output and verification step are not satisfied."
+T014c:
+  c: false
+  h: c3174e01c9ca9360e62a4e3d91adf28f8cb338fd526e84ee9a9af381a17f8f69
+  r: "The required input file `data/processed/validated_functions.jsonl` does not\
+    \ exist, and the expected output `data/processed/pilot_sample.jsonl` is also missing.\
+    \ Moreover, the provided `code/data/sample.py` is truncated and does not contain\
+    \ a complete implementation that writes the pilot sample. Consequently the task\u2019\
+    s requirement of generating a stratified sample of 50 functions is not satisfied."
+T017:
+  c: false
+  h: c002d477cd27bd93ab1a5c0769d5242e0cb0858a095ed5599442ca1e66550e8e
+  r: "The repository contains `code/main_data.py`, but the script is truncated and\
+    \ there is no `data/processed/functions.jsonl` file present. Since the required\
+    \ output file is missing, the pipeline orchestrator has not demonstrably produced\
+    \ the expected artifact. The implementer must ensure the full pipeline runs end\u2011\
+    to\u2011end and creates the `functions.jsonl` file in the `data/processed` directory."
+T019:
+  c: false
+  h: 2a1aa69970e32bbe209c680682809a8386f7ac6be34bac6585522060b4775b95
+  r: "The required artifact `tests/unit/test_model_loader.py` is missing entirely,\
+    \ so no unit test exists to verify 4-bit model loading on CPU within 7\u202FGB\
+    \ RAM. Without this file, the task\u2019s requirement is not satisfied."
+T025:
+  c: true
+  h: 00ee5c5f9f53b4370761c0589a154597bcf3837f407d0edeec634b77aada942e
+  r: "The repository contains a non\u2011empty `code/main_simplify.py` that reads\
+    \ `data/processed/validated_functions.jsonl`, runs a simplification pipeline,\
+    \ and is set up to write results to `data/processed/simplified_functions.jsonl`.\
+    \ The required script file is present and implements the requested processing\
+    \ logic."
+T026b:
+  c: false
+  h: 4307b5b6f42d451a1fa43c17506dfb2c60fbef5ef33569b1ded6ff5a775bb53d
+  r: "The repository contains `code/main_filter_drift.py`, but the required input\
+    \ file `data/processed/simplified_functions.jsonl` and the output file `data/processed/valid_pairs.jsonl`\
+    \ are absent, so the script cannot be run nor produce the mandated output. Consequently\
+    \ the verification condition (\u226510 pairs per stratum) cannot be satisfied.\
+    \ The missing files must be provided and the script must actually generate `valid_pairs.jsonl`\
+    \ with the correct exclusion logging."

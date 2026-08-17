@@ -1,13 +1,20 @@
+"""
+Unit tests for code/data/validate.py.
+
+These tests verify that the validation pipeline correctly excludes functions
+that raise SyntaxError and properly validates external import counts.
+"""
+
 import ast
-import pytest
-import sys
+import json
 import os
+import sys
+import tempfile
 from pathlib import Path
+from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
-# Ensure the code directory is in the path for imports
-code_dir = Path(__file__).parent.parent.parent / "code"
-sys.path.insert(0, str(code_dir))
-
+# Import the functions to test from the actual module
 from data.validate import (
     check_syntax,
     mock_stdlib_imports,
@@ -16,241 +23,293 @@ from data.validate import (
 )
 
 
-class TestCheckSyntax:
+class TestCheckSyntax(TestCase):
     """Tests for the check_syntax function."""
 
     def test_valid_python_code(self):
-        """Valid Python code should return True."""
-        code = """
+        """Valid Python code should return True and no error."""
+        valid_code = """
         def add(a, b):
             return a + b
         """
-        assert check_syntax(code) is True
+        is_valid, error_msg = check_syntax(valid_code)
+        self.assertTrue(is_valid)
+        self.assertIsNone(error_msg)
 
-    def test_invalid_python_syntax(self):
-        """Code with SyntaxError should return False."""
-        # Missing colon after function definition
-        code = """
+    def test_syntax_error_missing_colon(self):
+        """Code with a syntax error (missing colon) should return False."""
+        invalid_code = """
         def add(a, b)
             return a + b
         """
-        assert check_syntax(code) is False
+        is_valid, error_msg = check_syntax(invalid_code)
+        self.assertFalse(is_valid)
+        self.assertIsNotNone(error_msg)
+        self.assertIn("SyntaxError", error_msg)
 
-    def test_invalid_python_syntax_mismatched_brackets(self):
-        """Code with mismatched brackets should return False."""
-        code = """
-        def process_list(items):
-            result = []
-            for item in items:
-                if item > 0:
-                    result.append(item
-            return result
+    def test_syntax_error_invalid_indentation(self):
+        """Code with invalid indentation should return False."""
+        invalid_code = """
+        def add(a, b):
+        return a + b
         """
-        assert check_syntax(code) is False
+        is_valid, error_msg = check_syntax(invalid_code)
+        self.assertFalse(is_valid)
+        self.assertIsNotNone(error_msg)
+        self.assertIn("IndentationError", error_msg)
 
     def test_empty_code(self):
-        """Empty code string should return True (valid syntax, no content)."""
-        assert check_syntax("") is True
+        """Empty code should be considered valid (no syntax error)."""
+        is_valid, error_msg = check_syntax("")
+        self.assertTrue(is_valid)
+        self.assertIsNone(error_msg)
 
     def test_comment_only_code(self):
-        """Comment-only code should return True."""
-        code = "# This is a comment"
-        assert check_syntax(code) is True
+        """Comment-only code should be valid."""
+        code = "# This is a comment\n# Another comment"
+        is_valid, error_msg = check_syntax(code)
+        self.assertTrue(is_valid)
+        self.assertIsNone(error_msg)
 
-    def test_syntax_error_with_indentation(self):
-        """Incorrect indentation should return False."""
-        code = """
-        def test():
-            print("hello")
-          print("world")
-        """
-        assert check_syntax(code) is False
+    def test_unclosed_parenthesis(self):
+        """Unclosed parenthesis should raise a syntax error."""
+        invalid_code = "def foo(x:\n    pass"
+        is_valid, error_msg = check_syntax(invalid_code)
+        self.assertFalse(is_valid)
+        self.assertIsNotNone(error_msg)
 
 
-class TestMockStdlibImports:
+class TestMockStdlibImports(TestCase):
     """Tests for the mock_stdlib_imports function."""
 
-    def test_no_imports(self):
-        """Code with no imports should return True."""
-        code = """
-        def add(a, b):
-            return a + b
-        """
-        assert mock_stdlib_imports(code) is True
-
-    def test_valid_stdlib_import(self):
-        """Valid stdlib import should return True."""
+    def test_mock_stdlib_imports_basic(self):
+        """Should replace standard library imports with mock imports."""
         code = """
         import os
         import sys
-        from pathlib import Path
-
-        def get_path():
-            return Path.home()
+        import json
+        from collections import defaultdict
         """
-        assert mock_stdlib_imports(code) is True
+        mocked = mock_stdlib_imports(code)
+        # Should replace 'import os' with 'import mock_os as os'
+        self.assertIn("import mock_os as os", mocked)
+        self.assertIn("import mock_sys as sys", mocked)
+        self.assertIn("import mock_json as json", mocked)
 
-    def test_builtin_function(self):
-        """Code using builtins should return True."""
+    def test_mock_stdlib_from_import(self):
+        """Should handle 'from X import Y' statements."""
         code = """
-        def process(items):
-            return list(map(str, items))
+        from os.path import join
+        from sys import argv
         """
-        assert mock_stdlib_imports(code) is True
+        mocked = mock_stdlib_imports(code)
+        # from X import Y should become from mock_X import Y
+        self.assertIn("from mock_os.path import join", mocked)
+        self.assertIn("from mock_sys import argv", mocked)
 
-    def test_missing_module_import(self):
-        """Import of non-existent module should return False."""
+    def test_no_stdlib_imports(self):
+        """Code without stdlib imports should remain unchanged."""
         code = """
-        import non_existent_module_xyz
-
-        def test():
-            return non_existent_module_xyz.value
+        import my_custom_module
+        from my_package import something
         """
-        assert mock_stdlib_imports(code) is False
+        mocked = mock_stdlib_imports(code)
+        self.assertEqual(mocked, code)
 
-    def test_invalid_module_path(self):
-        """Invalid module path should return False."""
+    def test_mixed_imports(self):
+        """Should handle a mix of stdlib and custom imports."""
         code = """
-        from os.path import non_existent_function_xyz
-
-        def test():
-            return non_existent_function_xyz()
+        import os
+        import my_custom_lib
+        from sys import path
+        from my_package import utils
         """
-        assert mock_stdlib_imports(code) is False
+        mocked = mock_stdlib_imports(code)
+        self.assertIn("import mock_os as os", mocked)
+        self.assertIn("import my_custom_lib", mocked)
+        self.assertIn("from mock_sys import path", mocked)
+        self.assertIn("from my_package import utils", mocked)
 
 
-class TestCountExternalImports:
+class TestCountExternalImports(TestCase):
     """Tests for the count_external_imports function."""
 
     def test_no_imports(self):
         """Code with no imports should return 0."""
         code = """
-        def add(a, b):
-            return a + b
+        def foo():
+            pass
         """
-        assert count_external_imports(code) == 0
+        count = count_external_imports(code)
+        self.assertEqual(count, 0)
 
-    def test_stdlib_only(self):
+    def test_only_stdlib_imports(self):
         """Code with only stdlib imports should return 0."""
         code = """
         import os
         import sys
-        from pathlib import Path
-        from collections import defaultdict
+        from json import loads
         """
-        assert count_external_imports(code) == 0
+        count = count_external_imports(code)
+        self.assertEqual(count, 0)
 
-    def test_single_external_import(self):
-        """Code with one external import should return 1."""
+    def test_external_imports(self):
+        """Code with external imports should count them."""
         code = """
         import pandas as pd
+        import numpy
+        from sklearn.model_selection import train_test_split
         """
-        assert count_external_imports(code) == 1
+        count = count_external_imports(code)
+        # Should count 3 external imports
+        self.assertEqual(count, 3)
 
-    def test_multiple_external_imports(self):
-        """Code with multiple external imports should return count."""
-        code = """
-        import numpy as np
-        import pandas as pd
-        from sklearn.model import Model
-        """
-        assert count_external_imports(code) == 3
-
-    def test_mixed_imports(self):
-        """Code with mixed stdlib and external imports should count only external."""
+    def test_mixed_imports_count(self):
+        """Should count only external imports, not stdlib."""
         code = """
         import os
+        import pandas as pd
         import sys
-        import numpy as np
-        from pathlib import Path
         import requests
         """
-        assert count_external_imports(code) == 2
+        count = count_external_imports(code)
+        # Should count 2 external imports (pandas, requests)
+        self.assertEqual(count, 2)
 
-    def test_external_import_from_statement(self):
-        """External imports in 'from' statements should be counted."""
+    def test_from_external_import(self):
+        """Should count 'from X import Y' for external modules."""
         code = """
-        from transformers import pipeline
-        from sklearn.utils import check_array
+        from tensorflow.keras import layers
+        from torch import nn
         """
-        assert count_external_imports(code) == 2
+        count = count_external_imports(code)
+        self.assertEqual(count, 2)
 
 
-class TestValidateFunction:
+class TestValidateFunction(TestCase):
     """Tests for the validate_function function."""
 
-    def test_valid_function(self):
-        """A valid function should pass all checks."""
+    def test_valid_function_with_no_imports(self):
+        """A valid function with no imports should pass validation."""
         code = """
         def add(a, b):
             return a + b
         """
-        result = validate_function(code)
-        assert result["is_valid"] is True
-        assert result["reason"] == "valid"
+        result = validate_function(code, source_id="test_1")
+        self.assertTrue(result["is_valid"])
+        self.assertEqual(result["source_id"], "test_1")
+        self.assertIsNone(result["error"])
+        self.assertEqual(result["external_import_count"], 0)
 
-    def test_syntax_error_excluded(self):
-        """Functions with syntax errors should be excluded."""
+    def test_function_with_syntax_error(self):
+        """A function with a syntax error should be marked invalid."""
         code = """
         def add(a, b)
             return a + b
         """
-        result = validate_function(code)
-        assert result["is_valid"] is False
-        assert result["reason"] == "syntax_error"
+        result = validate_function(code, source_id="test_2")
+        self.assertFalse(result["is_valid"])
+        self.assertIsNotNone(result["error"])
+        self.assertIn("SyntaxError", result["error"])
 
-    def test_import_error_excluded(self):
-        """Functions with import errors should be excluded."""
+    def test_function_with_too_many_external_imports(self):
+        """A function with >3 external imports should be marked invalid."""
         code = """
-        import non_existent_module_xyz
-
-        def test():
-            return non_existent_module_xyz.value
-        """
-        result = validate_function(code)
-        assert result["is_valid"] is False
-        assert result["reason"] == "import_error"
-
-    def test_external_import_limit(self):
-        """Functions with too many external imports should be excluded."""
-        # More than 3 external imports
-        code = """
-        import numpy as np
-        import pandas as pd
+        import pandas
+        import numpy
         import sklearn
         import requests
-        import torch
-        """
-        result = validate_function(code)
-        assert result["is_valid"] is False
-        assert result["reason"] == "too_many_external_imports"
-
-    def test_empty_function_body(self):
-        """Function with pass should be valid."""
-        code = """
-        def empty_function():
+        def complex_func():
             pass
         """
-        result = validate_function(code)
-        assert result["is_valid"] is True
-        assert result["reason"] == "valid"
+        result = validate_function(code, source_id="test_3")
+        self.assertFalse(result["is_valid"])
+        self.assertIsNotNone(result["error"])
+        self.assertIn("external imports", result["error"])
 
-    def test_complex_valid_function(self):
-        """A complex but valid function should pass."""
+    def test_function_with_acceptable_imports(self):
+        """A function with <=3 external imports should pass (if syntax valid)."""
+        code = """
+        import pandas
+        import numpy
+        def simple_func():
+            pass
+        """
+        result = validate_function(code, source_id="test_4")
+        self.assertTrue(result["is_valid"])
+        self.assertEqual(result["external_import_count"], 2)
+
+    def test_function_with_syntax_error_and_imports(self):
+        """Syntax errors should be caught regardless of import count."""
+        code = """
+        import pandas
+        def broken(
+            pass
+        """
+        result = validate_function(code, source_id="test_5")
+        self.assertFalse(result["is_valid"])
+        self.assertIn("SyntaxError", result["error"])
+
+    def test_empty_function(self):
+        """An empty function body (pass) should be valid."""
+        code = """
+        def empty():
+            pass
+        """
+        result = validate_function(code, source_id="test_6")
+        self.assertTrue(result["is_valid"])
+
+    def test_function_with_stdlib_imports_only(self):
+        """Functions with only stdlib imports should pass import count check."""
         code = """
         import os
         import sys
-        from pathlib import Path
-        from collections import defaultdict
-
-        def process_data(items):
-            result = defaultdict(list)
-            for item in items:
-                if isinstance(item, dict):
-                    for k, v in item.items():
-                        result[k].append(v)
-            return dict(result)
+        from json import loads
+        def stdlib_func():
+            pass
         """
-        result = validate_function(code)
-        assert result["is_valid"] is True
-        assert result["reason"] == "valid"
+        result = validate_function(code, source_id="test_7")
+        self.assertTrue(result["is_valid"])
+        self.assertEqual(result["external_import_count"], 0)
+
+    def test_function_with_mixed_imports_under_limit(self):
+        """Mixed stdlib and external imports under limit should pass."""
+        code = """
+        import os
+        import pandas
+        import sys
+        import numpy
+        def mixed_func():
+            pass
+        """
+        result = validate_function(code, source_id="test_8")
+        # 2 external imports (pandas, numpy), 2 stdlib (os, sys)
+        self.assertTrue(result["is_valid"])
+        self.assertEqual(result["external_import_count"], 2)
+
+    def test_function_with_exactly_3_external_imports(self):
+        """A function with exactly 3 external imports should pass."""
+        code = """
+        import pandas
+        import numpy
+        import sklearn
+        def three_imports():
+            pass
+        """
+        result = validate_function(code, source_id="test_9")
+        self.assertTrue(result["is_valid"])
+        self.assertEqual(result["external_import_count"], 3)
+
+    def test_function_with_4_external_imports(self):
+        """A function with 4 external imports should fail."""
+        code = """
+        import pandas
+        import numpy
+        import sklearn
+        import requests
+        def four_imports():
+            pass
+        """
+        result = validate_function(code, source_id="test_10")
+        self.assertFalse(result["is_valid"])
+        self.assertIn("external imports", result["error"])

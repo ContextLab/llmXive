@@ -1,182 +1,23 @@
-# Dataset Schema Definition for Avian Vocal Complexity Project
-# Defines the structure for input (noise_mapped) and output (vocal_metrics, final_dataset) files
-# Used for validation in T010, T011, T020
-
-version: "1.0"
-description: "Schemas for intermediate and processed datasets in the avian vocal complexity pipeline"
-
-schemas:
-  # Input: Noise Mapped Data (Output of T015)
-  # Source: Xeno-canto metadata + OSM land-use mapping
-  noise_mapped:
-    file_path: "data/interim/noise_mapped.csv"
-    description: "Bird recordings with assigned ambient noise levels based on OSM land-use"
-    columns:
-      - name: recording_id
-        type: string
-        description: "Unique identifier for the recording (e.g., XC12345)"
-        required: true
-      - name: species_id
-        type: string
-        description: "Species scientific name or ID"
-        required: true
-      - name: latitude
-        type: float
-        description: "Latitude coordinate of recording location"
-        required: true
-      - name: longitude
-        type: float
-        description: "Longitude coordinate of recording location"
-        required: true
-      - name: land_use
-        type: string
-        description: "OSM land-use classification (e.g., urban, rural, wild, residential)"
-        required: true
-      - name: noise_level_db
-        type: float
-        description: "Estimated ambient noise level in dB(A)"
-        required: true
-      - name: audio_path
-        type: string
-        description: "Relative path to the downloaded audio file"
-        required: true
-      - name: duration_seconds
-        type: float
-        description: "Duration of the audio recording in seconds"
-        required: false
-      - name: timestamp
-        type: string
-        description: "ISO format timestamp of the recording"
-        required: false
-
-    constraints:
-      - "noise_level_db must be between 0 and 120"
-      - "latitude must be between -90 and 90"
-      - "longitude must be between -180 and 180"
-      - "land_use must be one of: urban, suburban, rural, wild, industrial, water"
-
-  # Input: Vocal Metrics Data (Output of T019)
-  # Source: Audio file analysis using librosa
-  vocal_metrics:
-    file_path: "data/interim/vocal_metrics.csv"
-    description: "Extracted vocal complexity metrics from audio files"
-    columns:
-      - name: recording_id
-        type: string
-        description: "Unique identifier for the recording"
-        required: true
-      - name: species_id
-        type: string
-        description: "Species scientific name or ID"
-        required: true
-      - name: syllable_count
-        type: integer
-        description: "Number of detected syllables in the recording"
-        required: true
-      - name: duration_seconds
-        type: float
-        description: "Duration of the recording"
-        required: true
-      - name: bandwidth_hz
-        type: float
-        description: "Frequency bandwidth of the vocalization (Hz)"
-        required: true
-      - name: spectral_entropy
-        type: float
-        description: "Spectral entropy measure of complexity"
-        required: true
-      - name: snr_db
-        type: float
-        description: "Signal-to-Noise Ratio in dB"
-        required: true
-
-    constraints:
-      - "syllable_count must be >= 0"
-      - "duration_seconds must be > 0"
-      - "bandwidth_hz must be > 0"
-      - "spectral_entropy must be >= 0"
-      - "snr_db must be > 0"
-
-  # Output: Final Dataset (Output of T020)
-  # Source: Combined noise_mapped + vocal_metrics after filtering
-  final_dataset:
-    file_path: "data/processed/final_dataset.csv"
-    description: "Cleaned dataset ready for modeling, combining noise proxies and vocal metrics"
-    columns:
-      - name: recording_id
-        type: string
-        required: true
-      - name: species_id
-        type: string
-        required: true
-      - name: location_id
-        type: string
-        description: "Unique location identifier for random effects"
-        required: true
-      - name: latitude
-        type: float
-        required: true
-      - name: longitude
-        type: float
-        required: true
-      - name: noise_level_db
-        type: float
-        required: true
-      - name: land_use
-        type: string
-        required: true
-      - name: syllable_count
-        type: integer
-        required: true
-      - name: duration_seconds
-        type: float
-        required: true
-      - name: bandwidth_hz
-        type: float
-        required: true
-      - name: spectral_entropy
-        type: float
-        required: true
-      - name: snr_db
-        type: float
-        required: true
-      - name: complexity_score
-        type: float
-        description: "Normalized composite complexity metric"
-        required: false
-
-    constraints:
-      - "Must contain at least 50 unique species (SC-004)"
-      - "All noise_level_db values must be valid (no NaN)"
-      - "All complexity metrics must be valid (no NaN)"
-
-validation_rules:
-  # Rules for T010 and T011 contract tests
-  noise_mapped_validation:
-    - "Check file exists at data/interim/noise_mapped.csv"
-    - "Validate all required columns present"
-    - "Validate data types match schema"
-    - "Check for NaN values in required columns"
-    - "Validate noise_level_db range (0-120)"
-
-  vocal_metrics_validation:
-    - "Check file exists at data/interim/vocal_metrics.csv"
-    - "Validate all required columns present"
-    - "Validate data types match schema"
-    - "Check for NaN values in required columns"
-    - "Validate snr_db > 0"
-
-  final_dataset_validation:
-    - "Check file exists at data/processed/final_dataset.csv"
-    - "Validate all required columns present"
-    - "Validate data types match schema"
-    - "Check for NaN values in required columns"
-    - "Verify species count >= 50"
-    - "Verify unique location_id count >= 10"
-
-metadata:
-  created_by: "T006 Implementation"
-  last_updated: "2024-01-15"
-  version_history:
-    - version: "1.0"
-      changes: "Initial schema definition for US1 data pipeline"
+type: object
+required:
+- recording_id
+- species_id
+- latitude
+- longitude
+- noise_level_db
+- syllable_count
+- duration_seconds
+- frequency_bandwidth_hz
+- spectral_entropy
+- snr_db
+properties:
+  recording_id: { type: string }
+  species_id: { type: string }
+  latitude: { type: number }
+  longitude: { type: number }
+  noise_level_db: { type: number }
+  syllable_count: { type: integer }
+  duration_seconds: { type: number }
+  frequency_bandwidth_hz: { type: number }
+  spectral_entropy: { type: number }
+  snr_db: { type: number }

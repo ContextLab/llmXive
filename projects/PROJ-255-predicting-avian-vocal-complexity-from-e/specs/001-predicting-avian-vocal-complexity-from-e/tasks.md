@@ -40,7 +40,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. **T006 and T007 are blocking prerequisites for T020 and T022.**
 
-- [ ] T004 Create `src/utils/config.py` for paths, seeds, and constants. **Deliverable**: File must contain: `SEED = 42`, `RANDOM_SEED = 42`, `PATHS = {'RAW': 'data/raw', 'INTERIM': 'data/interim', 'PROCESSED': 'data/processed', 'FIGURES': 'data/figures'}`, `THRESHOLDS = {'SNR_DEFAULT': 10, 'INTERPOLATION_MAX_KM': 50, 'MISSING_THRESHOLD_PERCENT': 10}`.
+- [X] T004 Create `src/utils/config.py` for paths, seeds, and constants. **Deliverable**: File must contain: `SEED = 42`, `RANDOM_SEED = 42`, `PATHS = {'RAW': 'data/raw', 'INTERIM': 'data/interim', 'PROCESSED': 'data/processed', 'FIGURES': 'data/figures'}`, `THRESHOLDS = {'SNR_DEFAULT': 10, 'INTERPOLATION_MAX_KM': 50, 'MISSING_THRESHOLD_PERCENT': 10}`.
 - [ ] T005 Create `src/utils/logging.py` for error handling and filtered logs. **Deliverable**: Configure logger with INFO level, JSON format, and handlers for stdout and `data/logs/app.log`. Implement `log_error` and `log_warning` functions.
 - [ ] T006 Create `contracts/dataset.schema.yaml` defining input/output schemas. **Deliverable**: YAML file with exact content:
  ```yaml
@@ -88,7 +88,7 @@
  ci_lower: { type: number }
  ci_upper: { type: number }
  ```
-- [ ] T009 [D] Implement unit tests for config and logging utilities in `tests/unit/test_config_logging.py`. **Note**: Development can be parallel with T004/T005, but execution is serial and depends on T004/T005 completion. **Deliverable**: `tests/unit/test_config_logging.py` with passing tests.
+- [X] T009 [D] Implement unit tests for config and logging utilities in `tests/unit/test_config_logging.py`. **Note**: Development can be parallel with T004/T005, but execution is serial and depends on T004/T005 completion. **Deliverable**: `tests/unit/test_config_logging.py` with passing tests.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -112,10 +112,10 @@
 ### Implementation for User Story 1
 
 - [ ] T015d [US1] **Interpolation Fallback**: Implement `src/data/acquisition.py` function to perform nearest-neighbor search (using `geopy`) for missing Global Soundscapes coordinates within 50km. Interpolate noise levels from nearest valid neighbors. Output: `data/interim/interpolated_records.csv` with source coordinates and interpolated values. **Note**: This logic must be implemented first to support T015.
-- [ ] T015 [US1] **Primary Source**: Implement `src/data/acquisition.py` to fetch noise levels from the **Global Soundscapes dataset** using `datasets.load_dataset('noise-map/global-soundscapes')`. **Fallback**: If the package fails, fetch from ` (verified mirror). **Constraint**: If BOTH fail, raise an error and FAIL LOUDLY. If a specific coordinate is missing, **read `data/interim/interpolated_records.csv` (from T015d)** and merge into the primary dataset. **Deliverable**: `data/interim/noise_mapped.csv` containing all successfully mapped records (primary + interpolated). **Prerequisites**: T015d (artifact dependency).
+- [ ] T015 [US1] **Primary Source**: Implement `src/data/acquisition.py` to fetch noise levels from the **Global Soundscapes dataset** using `datasets.load_dataset('noise-map/global-soundscapes')`. **Fallback**: If the package fails, fetch from ` (verified mirror). **Constraint**: If BOTH fail, raise an error and FAIL LOUDLY. If a specific coordinate is missing, **read `data/interim/interpolated_records.csv` (from T015d)** and merge into the primary dataset. **Deliverable**: `data/interim/noise_mapped.csv` containing all successfully mapped records (primary + interpolated). **Prerequisites**: T015d (artifact dependency). <!-- FAILED: unspecified -->
 - [ ] T015c [US1] **Validation**: Implement logic to validate the **combined** `noise_mapped.csv` against the Global Soundscapes dataset. **Constraint**: For records with primary source values, check deviation ≤2 dB(A). For records with interpolated values, **skip deviation check** and log status as 'INTERPOLATED'. **Deliverable**: Generate `data/interim/validation_log.csv` for ALL records, logging status as `PASS` (if deviation ≤2 dB(A)), `WARN` (if deviation >2 dB(A)), or `INTERPOLATED` (if no primary value). **Prerequisites**: Must run after T015 and T015d are complete.
 - [ ] T015e [US1] **Interpolation Validation**: Verify that all missing noise values within 50km are successfully interpolated and logged. If >10% of records fail interpolation, log a warning but **DO NOT HALT** the pipeline. Satisfies SC-006.
-- [ ] T017a [US1] **Filtering Engine**: Implement the core parameterized filtering logic in `src/data/preprocessing.py` that accepts an SNR threshold argument and returns filtered records and exclusion logs. Output: `data/interim/filtered_snr.csv`. **Prerequisites**: T015 (artifact dependency). **Note**: This task depends on the merged dataset from T015.
+- [X] T017a [US1] **Filtering Engine**: Implement the core parameterized filtering logic in `src/data/preprocessing.py` that accepts an SNR threshold argument and returns filtered records and exclusion logs. Output: `data/interim/filtered_snr.csv`. **Prerequisites**: T015 (artifact dependency). **Note**: This task depends on the merged dataset from T015.
 - [X] T017b [US1] **Default Execution**: Execute the filtering engine from T017a with the default dB threshold to generate the primary `data/interim/filtered_snr.csv`.
 - [ ] T018 [US1] Implement `src/data/preprocessing.py` to filter species with <5 valid recordings per location and log exclusions.
 - [ ] T018b [US1] **Audit Trail**: Generate `data/interim/species_filtered.csv` containing all species excluded by T018. **Input**: `data/interim/filtered_snr.csv`. **Schema**: Columns `species_id` (string), `reason_for_exclusion` (string, e.g., "count < 5"), `count` (integer: count of valid recordings for this species at this location).

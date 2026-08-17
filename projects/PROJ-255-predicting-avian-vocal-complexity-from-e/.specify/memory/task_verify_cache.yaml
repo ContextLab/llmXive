@@ -1,10 +1,42 @@
 T003:
   c: false
-  h: 79b5316c2a0a4734a963ed62221c87683be2d591835145b32346be4ae582a3fc
-  r: The repository contains a `pyproject.toml` with Ruff and Black configuration,
-    but the required `.ruff.toml` file is missing, and there is no evidence that `ruff
-    check src/` and `black --check src/` were run successfully. The deliverable is
-    therefore not fully satisfied.
+  h: 1769759ca954066f7272c1daae9729c90cc3ca40710013d2f5c33b49f5af282d
+  r: The repository contains a `pyproject.toml` with Black and a minimal Ruff section,
+    but the required `.ruff.toml` file is missing entirely, and there is no evidence
+    that `ruff check src/` and `black --check src/` have been run successfully. The
+    deliverable is therefore not fully satisfied.
+T005:
+  c: false
+  h: 852cc90784a0b31ef02ce2a126bf8617173209bc58b204a0e3cc298c1364a744
+  r: "The provided `src/utils/logging.py` stops mid\u2011definition of `log_error`\
+    \ (and likely never defines `log_warning`), so the required functions are missing.\
+    \ Additionally, the file is truncated, indicating the implementation is incomplete.\
+    \ The logger setup is present, but without the full error\u2011handling functions\
+    \ the deliverable is not satisfied."
+T015:
+  c: false
+  h: e91c3bf7fea7da632e2842eb5a7b4ab531927dadf31bb6cc2c57a819e6a04cae
+  r: "The provided `src/data/acquisition.py` contains code for Xeno\u2011canto metadata,\
+    \ OSM land\u2011use mapping, and does not implement fetching the Global Soundscapes\
+    \ dataset, the fallback mirror, error handling, or merging with `interpolated_records.csv`.\
+    \ Moreover, the required output file `data/interim/noise_mapped.csv` (and the\
+    \ prerequisite `data/interim/interpolated_records.csv`) are absent. The task\u2019\
+    s core functionality and deliverables are therefore not satisfied."
+T015d:
+  c: false
+  h: cbd02327c86ac28a691692a02746f156ef508b78cac7ac96453c1a55913fea9e
+  r: "The repository lacks the required `data/interim/interpolated_records.csv` file,\
+    \ and the shown `src/data/acquisition.py` does not contain any implementation\
+    \ of a nearest\u2011neighbor interpolation routine (no function using `geopy`\
+    \ to search within 50\u202Fkm or to write the interpolated CSV). Consequently\
+    \ the task\u2019s core requirement is not satisfied."
+T015e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., log file, report, or code output) showing that missing noise\
+    \ values within 50\u202Fkm were interpolated, that failures were counted, and\
+    \ that a warning was logged when >10\u202F% failed is present. Without such evidence\
+    \ the requirement cannot be confirmed."
 T017a:
   c: false
   h: 4ba9b64cb5ad3b1316966afed5dc79044c6d5bbb5c9826dd2494c34c4bf42fa8
