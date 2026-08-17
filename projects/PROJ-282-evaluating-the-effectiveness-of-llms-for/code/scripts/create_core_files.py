@@ -1,7 +1,3 @@
-"""
-Script to create core project files: __init__.py, .gitignore, and requirements.txt.
-Generates a verification log at data/logs/core_files.json.
-"""
 import os
 import sys
 import json
@@ -9,64 +5,30 @@ import hashlib
 from pathlib import Path
 from typing import Dict, Any, List
 
-# Import shared utilities from the project structure
-# Note: Using relative import style compatible with the project's src layout
-# If executed as a script, we adjust sys.path
-def ensure_init_files(root_dir: Path) -> List[Dict[str, Any]]:
-    """
-    Creates __init__.py in all subdirectories under root_dir (specifically src/).
-    Returns a list of created file info dicts.
-    """
-    created = []
-    src_dir = root_dir / "src"
-    if not src_dir.exists():
-        # Fallback if src doesn't exist yet, create it first
-        src_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Walk the src directory to find all directories
-    for dirpath, dirnames, filenames in os.walk(src_dir):
-        # Create __init__.py if it doesn't exist
-        init_path = Path(dirpath) / "__init__.py"
-        if not init_path.exists():
-            # Write a standard docstring
-            init_path.write_text('"""Auto-generated package initialization."""\n')
-            created.append({
-                "path": str(init_path.relative_to(root_dir)),
-                "action": "created"
-            })
-        else:
-            # Check if we should update it (optional, but good practice)
-            # For this task, we just note existence
-            created.append({
-                "path": str(init_path.relative_to(root_dir)),
-                "action": "exists"
-            })
-    
-    return created
+# Constants for project structure based on plan.md
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+SRC_DIRS = [
+    "src/utils",
+    "src/models",
+    "src/data",
+    "src/analysis",
+    "src/scripts",
+]
+DATA_DIRS = [
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "data/logs",
+    "data/human_review",
+]
+TEST_DIRS = [
+    "tests/unit",
+    "tests/integration",
+]
+CONTRACTS_DIR = "contracts"
+STATE_DIR = "state/projects"
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
-
-def create_gitignore(root_dir: Path) -> Dict[str, Any]:
-    """
-    Creates a .gitignore file if it doesn't exist.
-    Returns file info dict.
-    """
-    gitignore_path = root_dir / ".gitignore"
-    if gitignore_path.exists():
-        return {
-            "path": str(gitignore_path.relative_to(root_dir)),
-            "action": "exists",
-            "checksum": compute_sha256(gitignore_path)
-        }
-    
-    content = """
-# Python
+GITIGNORE_CONTENT = """# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -92,19 +54,28 @@ wheels/
 venv/
 ENV/
 env/
+.venv
 
 # IDE
-.vscode/
 .idea/
+.vscode/
 *.swp
 *.swo
+*~
 
-# Data
-data/raw/
-data/processed/
-data/results/
-data/logs/
-state/
+# Data (Raw and Intermediate - keep processed/results only in git if small)
+data/raw/**
+!data/raw/.gitkeep
+data/processed/*.parquet
+data/processed/*.csv
+data/results/*.json
+data/results/*.csv
+data/results/*.png
+data/logs/*.json
+
+# State
+state/**/*.yaml
+!state/projects/.gitkeep
 
 # Logs
 *.log
@@ -112,104 +83,157 @@ state/
 # OS
 .DS_Store
 Thumbs.db
+"""
+
+REQUIREMENTS_CONTENT = """# Core ML & Data Processing
+transformers>=4.35.0
+scikit-learn>=1.3.0
+pandas>=2.0.0
+torch>=2.0.0
+numpy>=1.24.0
+sentence-transformers>=2.2.0
+bitsandbytes>=0.41.0
+
+# Data Ingestion & Processing
+datasets>=2.14.0
+pyarrow>=12.0.0
+requests>=2.31.0
+
+# Static Analysis & Code Parsing
+tree-sitter>=0.20.0
+radon>=6.0.0
+
+# Statistical Analysis
+statsmodels>=0.14.0
+scipy>=1.11.0
+
+# Configuration & Logging
+pyyaml>=6.0.0
 
 # Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
+pytest>=7.4.0
+
+# Utilities
+tqdm>=4.66.0
 """
-    gitignore_path.write_text(content.strip())
+
+def get_project_root() -> Path:
+    return PROJECT_ROOT
+
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
+
+def ensure_init_files() -> List[Dict[str, Any]]:
+    """Create __init__.py in all specified subdirectories."""
+    created_files = []
+    root = get_project_root()
+    
+    all_dirs = SRC_DIRS + DATA_DIRS + TEST_DIRS + [CONTRACTS_DIR, STATE_DIR]
+    
+    for dir_path in all_dirs:
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        
+        init_file = full_path / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+            created_files.append({
+                "path": str(init_file.relative_to(root)),
+                "type": "init",
+                "checksum": compute_sha256(init_file)
+            })
+        else:
+            # Still record existing init files for completeness
+            created_files.append({
+                "path": str(init_file.relative_to(root)),
+                "type": "init",
+                "checksum": compute_sha256(init_file),
+                "status": "existed"
+            })
+    
+    return created_files
+
+def create_gitignore() -> Dict[str, Any]:
+    """Create .gitignore file at project root."""
+    root = get_project_root()
+    gitignore_path = root / ".gitignore"
+    
+    with open(gitignore_path, "w") as f:
+        f.write(GITIGNORE_CONTENT)
+    
     return {
-        "path": str(gitignore_path.relative_to(root_dir)),
-        "action": "created",
+        "path": str(gitignore_path.relative_to(root)),
+        "type": "gitignore",
         "checksum": compute_sha256(gitignore_path)
     }
 
-def create_requirements(root_dir: Path) -> Dict[str, Any]:
-    """
-    Creates requirements.txt if it doesn't exist.
-    Returns file info dict.
-    """
-    req_path = root_dir / "requirements.txt"
-    if req_path.exists():
-        return {
-            "path": str(req_path.relative_to(root_dir)),
-            "action": "exists",
-            "checksum": compute_sha256(req_path)
-        }
+def create_requirements() -> Dict[str, Any]:
+    """Create requirements.txt file at project root."""
+    root = get_project_root()
+    req_path = root / "requirements.txt"
     
-    # Based on T002 prerequisites
-    content = """transformers
-scikit-learn
-pandas
-tree-sitter
-networkx
-requests
-pyyaml
-bitsandbytes
-sentence-transformers
-pytest
-radon
-statsmodels
-pydantic
-"""
-    req_path.write_text(content)
+    with open(req_path, "w") as f:
+        f.write(REQUIREMENTS_CONTENT)
+    
     return {
-        "path": str(req_path.relative_to(root_dir)),
-        "action": "created",
+        "path": str(req_path.relative_to(root)),
+        "type": "requirements",
         "checksum": compute_sha256(req_path)
     }
 
 def main():
-    """Main entry point for creating core files."""
-    # Determine project root (assuming script is in code/scripts/)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent.parent
+    """Main entry point to create core files and generate verification log."""
+    print("Starting core file creation...")
     
-    print(f"Project root detected at: {project_root}")
+    root = get_project_root()
+    print(f"Project root: {root}")
     
-    # 1. Ensure __init__.py files
-    init_results = ensure_init_files(project_root)
+    # Ensure directory structure exists
+    all_dirs = SRC_DIRS + DATA_DIRS + TEST_DIRS + [CONTRACTS_DIR, STATE_DIR]
+    for dir_path in all_dirs:
+        (root / dir_path).mkdir(parents=True, exist_ok=True)
     
-    # 2. Create .gitignore
-    gitignore_result = create_gitignore(project_root)
+    # Create __init__.py files
+    init_files = ensure_init_files()
+    print(f"Created/verified {len(init_files)} __init__.py files")
     
-    # 3. Create requirements.txt
-    requirements_result = create_requirements(project_root)
+    # Create .gitignore
+    gitignore_info = create_gitignore()
+    print(f"Created {gitignore_info['path']}")
     
-    # Compile results
-    all_files = []
+    # Create requirements.txt
+    requirements_info = create_requirements()
+    print(f"Created {requirements_info['path']}")
     
-    # Add init files
-    for item in init_results:
-        full_path = project_root / item["path"]
-        all_files.append({
-            "path": item["path"],
-            "action": item["action"],
-            "checksum": compute_sha256(full_path)
-        })
+    # Compile all created files info
+    all_files = init_files + [gitignore_info, requirements_info]
     
-    all_files.append(gitignore_result)
-    all_files.append(requirements_result)
-    
-    # Create output directory
-    logs_dir = project_root / "data" / "logs"
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Write verification log
-    output_path = logs_dir / "core_files.json"
-    output_data = {
-        "timestamp": str(__import__('datetime').datetime.now()),
-        "total_files": len(all_files),
-        "files": all_files
+    # Generate verification log
+    log_entry = {
+        "task_id": "T001b",
+        "timestamp": str(Path(root).stat().st_mtime), # Using mtime as proxy for run time in this context
+        "created_files": all_files,
+        "summary": {
+            "total_files": len(all_files),
+            "init_files": len(init_files),
+            "config_files": 2
+        }
     }
     
-    with open(output_path, "w") as f:
-        json.dump(output_data, f, indent=2)
+    # Write verification log
+    log_path = root / "data" / "logs" / "core_files.json"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    print(f"Core files verification log written to: {output_path}")
-    print(f"Total files processed: {len(all_files)}")
+    with open(log_path, "w") as f:
+        json.dump(log_entry, f, indent=2)
+    
+    print(f"Verification log written to {log_path}")
+    print("Core file creation complete.")
     
     return 0
 

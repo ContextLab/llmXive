@@ -1,17 +1,10 @@
-T001b:
+T003:
   c: false
-  h: 3354d3e992db5f084c9e7ca8f186e41d1bb0163408a9535f189dd4b092f54154
-  r: The required artifact `data/logs/core_files.json` is missing, so the verification
-    step is not satisfied. Without this file listing the created core files and their
-    checksums, the task cannot be considered complete.
-T004a:
-  c: false
-  h: c473fce05cbc213b5dd0edd9ccf3b69c9a846790637ee7a612e8c6360cd818f3
-  r: "The required artifact `data/logs/model_selection.json` does not exist, so the\
-    \ model selection was neither performed nor logged as specified. The task\u2019\
-    s core requirement\u2014deterministically selecting a model and recording it in\
-    \ the JSON log\u2014is unmet. The implementer must create the log file with the\
-    \ selected model entry."
+  h: 672ce5e27825177952da26e7f6db5d8181cec77f22bf804ecee5040a0257dcbe
+  r: The `pyproject.toml` correctly contains the `ruff` and `black` configuration,
+    but the required artifact `data/logs/linting_config.json` does not exist, so the
+    verification step is missing. The task remains incomplete until this log file
+    is generated and saved.
 T007b:
   c: false
   h: ef729a03e7e24ae0b154897db1de2a63e30534c75e9c31687b22c760a75e0a30
@@ -42,17 +35,16 @@ T009e:
     `contracts/analysis_metric.schema.yaml` is missing, so we cannot confirm that
     the generated code matches the schema or that the generation script was actually
     run. Additionally, there is no evidence that the task was executed after T009d.
-T010a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw/vuldeepecker_*` files is provided; the
-    response contains only task description and project specifications, with no actual
-    downloaded dataset or file listings to verify that the VulDeePecker Python dataset
-    was saved to `data/raw/`. The implementer must supply the downloaded files (or
-    a directory listing) to satisfy the task definition.
 T012:
   c: false
   h: 2290225507890218f386783d3138ea862eeb4c7e07151e14fc43d987e0a8ba56
   r: The required output files `data/processed/parsed_snippets.parquet` and `data/logs/dropped_samples.json`
     are absent, and the referenced schema file is also missing, so the parsing, mapping,
     and logging steps have not been demonstrated.
+T015:
+  c: false
+  h: f527a02f705bdc0a19233cadd5e5d8510cc98fe618b17c6465c9a39ae6ce3326
+  r: The required artifact `data/logs/orchestration_log.json` is missing, so the orchestration
+    flow has not been documented or validated as specified. No evidence of the defined
+    execution order, downstream task calls, schema validation, or adaptive batch sizing
+    is provided. The implementer must create the JSON log file with the expected contents.

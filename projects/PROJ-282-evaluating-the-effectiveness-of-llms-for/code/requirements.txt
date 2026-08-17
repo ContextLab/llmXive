@@ -11,5 +11,7 @@ pytest
 radon
 statsmodels
 pydantic
-pyarrow
-fastparquet
+numpy
+torch
+accelerate
+datasets

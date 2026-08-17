@@ -1,71 +1,69 @@
-import pytest
-import json
 import os
-import tempfile
+import json
+import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from src.utils.model_selector import get_compatible_models, select_model, select_model_with_seed, main
-from src.utils.config import get_config, set_seed, get_data_logs_path
+from src.utils.model_selector import get_compatible_models, select_model
+from src.utils.config import get_candidate_models
 
-class TestModelSelector:
-    
-    def test_get_compatible_models_empty_list(self):
-        """Test behavior when no models are configured."""
-        with patch('src.utils.model_selector.get_candidate_models', return_value=[]):
-            compatible = get_compatible_models()
-            assert compatible == []
+@pytest.fixture
+def mock_candidate_models():
+    # Simulate the candidate list from T004
+    return [
+        "facebook/opt-125m",
+        "google/flan-t5-base",
+        "microsoft/phi-2",
+        "stabilityai/stable-code-3b"
+    ]
 
-    def test_select_model_raises_on_empty(self):
-        """Test that select_model raises error if no compatible models found."""
-        with patch('src.utils.model_selector.get_compatible_models', return_value=[]):
-            with pytest.raises(RuntimeError, match="No compatible models found"):
-                select_model()
+@pytest.fixture
+def mock_capability_log(tmp_path):
+    log_path = tmp_path / "model_capability_check.json"
+    data = {
+        "passed_models": [
+            "facebook/opt-125m",
+            "microsoft/phi-2"
+        ],
+        "failed_models": {
+            "google/flan-t5-base": "Tokenizer error for C language",
+            "stabilityai/stable-code-3b": "Memory error"
+        }
+    }
+    with open(log_path, 'w') as f:
+        json.dump(data, f)
+    return str(log_path)
 
-    def test_select_model_deterministic(self):
-        """Test that selection is always the first compatible model."""
-        mock_models = [
-            {"model_name": "model_A", "capability": True},
-            {"model_name": "model_B", "capability": True}
-        ]
-        with patch('src.utils.model_selector.get_compatible_models', return_value=mock_models):
-            selected = select_model()
-            assert selected["model_name"] == "model_A"
-
-    def test_main_creates_log_file(self):
-        """Test that main() creates the model_selection.json file."""
-        mock_model = {"model_name": "test-model", "type": "llm"}
+def test_get_compatible_models_filters_correctly(mock_candidate_models, mock_capability_log):
+    with patch('src.utils.model_selector.get_candidate_models', return_value=mock_candidate_models):
+        result = get_compatible_models(capability_check_log_path=mock_capability_log)
         
-        with patch('src.utils.model_selector.select_model', return_value=mock_model):
-            with patch('src.utils.model_selector.get_data_logs_path') as mock_path:
-                temp_dir = tempfile.mkdtemp()
-                mock_path.return_value = Path(temp_dir)
-                
-                main()
-                
-                log_file = Path(temp_dir) / "model_selection.json"
-                assert log_file.exists()
-                
-                with open(log_file, "r") as f:
-                    data = json.load(f)
-                
-                assert "selected_model" in data
-                assert data["selected_model"]["model_name"] == "test-model"
-                assert data["deterministic"] is True
-                assert data["task_id"] == "T004a"
+        # Should be sorted alphabetically and only include passed models
+        expected = ["facebook/opt-125m", "microsoft/phi-2"]
+        assert result == expected
 
-    def test_main_with_transformers_mock(self):
-        """Test model selection logic with mocked transformers."""
-        mock_model = {"model_name": "mock-model"}
-        
-        with patch('src.utils.model_selector.get_candidate_models', return_value=[mock_model]):
-            with patch('src.utils.model_selector.AutoTokenizer') as mock_tokenizer_class:
-                mock_tokenizer = MagicMock()
-                mock_tokenizer.return_value = mock_tokenizer
-                mock_tokenizer.return_value.return_value = MagicMock(input_ids=MagicMock(numel=MagicMock(return_value=1)))
-                mock_tokenizer_class.from_pretrained.return_value = mock_tokenizer
-                
-                # This should not raise and should return the model
-                compatible = get_compatible_models()
-                assert len(compatible) == 1
-                assert compatible[0]["model_name"] == "mock-model"
+def test_select_model_picks_first(mock_candidate_models, mock_capability_log):
+    with patch('src.utils.model_selector.get_candidate_models', return_value=mock_candidate_models):
+        selected = select_model(capability_check_log_path=mock_capability_log)
+        assert selected == "facebook/opt-125m"
+
+def test_select_model_no_compatible(mock_candidate_models, tmp_path):
+    # Create a log where no models passed
+    log_path = tmp_path / "model_capability_check.json"
+    data = {
+        "passed_models": [],
+        "failed_models": {m: "error" for m in mock_candidate_models}
+    }
+    with open(log_path, 'w') as f:
+        json.dump(data, f)
+
+    with patch('src.utils.model_selector.get_candidate_models', return_value=mock_candidate_models):
+        selected = select_model(capability_check_log_path=str(log_path))
+        assert selected is None
+
+def test_get_compatible_models_missing_log(mock_candidate_models):
+    # If log is missing, it should return all candidates (assuming they passed)
+    with patch('src.utils.model_selector.get_candidate_models', return_value=mock_candidate_models):
+        result = get_compatible_models(capability_check_log_path="/nonexistent/path.json")
+        # Should return all, sorted
+        assert result == sorted(mock_candidate_models)
