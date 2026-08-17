@@ -1,10 +1,12 @@
 """
-T013: Implement behavioral parsing for US1.
-Extracts median RT, excludes outliers (<100ms, >2000ms), and excludes participants
-if <70% trials remain.
+T013: Implement behavioral parsing.
+
+Extracts median Reaction Time (RT) from the PhysioNet EEG Motor Movement/Imagery dataset.
+Excludes outliers (<100ms, >2000ms) and participants with <70% valid trials remaining.
+
 Outputs:
-  - data/interim/behavioral_metrics.csv
-  - data/interim/behavioral_exclusion_log.csv
+    data/interim/behavioral_metrics.csv
+    data/interim/behavioral_exclusion_log.csv
 """
 import os
 import sys
@@ -13,246 +15,356 @@ import argparse
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from typing import List, Dict, Tuple, Optional, Any
 
-# Import config utilities
+# Add project root to path if running as script
+if 'code' not in sys.path:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from config import get_path, ensure_dirs
 
-# Import PhysioNet metadata helpers from the feasibility check module
-# We need to map participant IDs to the correct files.
-# The feasibility check T008a likely created a joined_metadata.csv or similar.
-# However, for T013, we need to load the raw behavioral data associated with the
-# PhysioNet Motor Movement/Imagery dataset.
-# The dataset structure on PhysioNet for this study (EEG Motor Movement/Imagery)
-# contains reaction time data in the annotations of the .edf files for specific tasks.
-# Specifically, "Simple Reaction Time" tasks are what we need.
-# Since T008a verified the presence of "Simple Reaction Time", we look for those files.
+# Constants for RT filtering
+MIN_RT_MS = 100
+MAX_RT_MS = 2000
+MIN_VALID_TRIAL_RATIO = 0.70
+
 
 def load_physionet_behavioral_data(raw_data_dir: str) -> pd.DataFrame:
     """
-    Load behavioral data (Reaction Times) from PhysioNet EEG Motor Movement/Imagery dataset.
-    This function scans the raw data directory for .edf files, reads their annotations,
-    and extracts reaction times for the "Simple Reaction Time" task.
+    Load behavioral data from PhysioNet EEG Motor Movement/Imagery dataset.
+    
+    The dataset structure typically contains .edf files. We need to extract
+    reaction time annotations from these files. Since the raw EEG files 
+    contain annotations for events, we parse those.
+    
+    For this specific dataset (PhysioNet EEG Motor Movement/Imagery),
+    reaction time data is often embedded in the annotations or requires
+    parsing the specific task conditions.
+    
+    Returns:
+        pd.DataFrame: DataFrame with columns including participant_id, 
+                      task_name, and raw RT events (if available).
     """
-    import mne
-    import re
-
-    rt_records = []
-
-    # Find all .edf files
-    edf_files = glob.glob(os.path.join(raw_data_dir, "**", "*.edf"), recursive=True)
+    # The PhysioNet EEG Motor Movement/Imagery dataset does not natively
+    # provide a separate CSV of RTs. The "Simple Reaction Time" task 
+    # (if present in the specific subset) has events marked in the EDF.
+    # However, standard PhysioNet Motor Imagery data (2008) primarily 
+    # contains Motor Imagery and Foot/Hand movement tasks, not necessarily 
+    # a dedicated "Simple RT" task with explicit RT values in a CSV.
+    
+    # We will attempt to find any CSV files that might contain RT data 
+    # (sometimes provided in competition versions or specific subsets)
+    # or extract from EDF annotations if they contain time-delta info.
+    
+    # Strategy 1: Look for existing RT CSVs in the raw directory
+    rt_csvs = glob.glob(os.path.join(raw_data_dir, "**/*rt*.csv"), recursive=True)
+    rt_csvs += glob.glob(os.path.join(raw_data_dir, "**/*reaction*.csv"), recursive=True)
+    
+    if rt_csvs:
+        dfs = []
+        for csv_file in rt_csvs:
+            try:
+                df = pd.read_csv(csv_file)
+                dfs.append(df)
+            except Exception as e:
+                print(f"Warning: Could not read {csv_file}: {e}")
+        
+        if dfs:
+            return pd.concat(dfs, ignore_index=True)
+    
+    # Strategy 2: If no CSVs, we must parse the EDF files for annotations.
+    # The task description implies "Simple Reaction Time" task exists.
+    # If the dataset is the standard 2008 Motor Imagery, it might not have 
+    # explicit RT values in a format we can easily parse without a specific 
+    # protocol definition.
+    
+    # Fallback: If the data is missing or not in expected format, 
+    # we must raise an error to fail loudly as per constraints.
+    # We will scan for .edf files and attempt to read annotations.
+    
+    edf_files = glob.glob(os.path.join(raw_data_dir, "**/*.edf"), recursive=True)
     if not edf_files:
-        raise FileNotFoundError(f"No .edf files found in {raw_data_dir}")
-
+        raise FileNotFoundError(
+            f"No behavioral data found (no RT CSVs or EDF files) in {raw_data_dir}. "
+            "The dataset must contain 'Simple Reaction Time' task data."
+        )
+    
+    # Attempt to extract RTs from EDF annotations
+    # This assumes the annotations contain events like 'stimulus' and 'response'
+    # or specific labels indicating RT tasks.
+    import mne
+    
+    all_events = []
+    
     for edf_path in edf_files:
         try:
-            raw = mne.io.read_raw_edf(edf_path, preload=False, verbose=False)
-            annotations = raw.annotations
+            raw = mne.io.read_raw_edf(edf_path, preload=False)
+            events, event_id = mne.events_from_annotations(raw)
             
-            # Check if this file contains the "Simple Reaction Time" task
-            # The task name is usually in the description of the annotation or the filename
-            # PhysioNet EEG Motor Movement/Imagery dataset:
-            # Subjects are 001 to 109.
-            # Tasks include: "open/closed eyes", "left/right fist clench", "feet movement", "simple reaction time".
-            # We are interested in "simple reaction time".
-            
-            # Extract subject ID from filename (e.g., 001.edf -> 001)
-            filename = os.path.basename(edf_path)
-            # Pattern: <subject_id>.edf or <subject_id>_task.edf
-            match = re.match(r"(\d+)", filename)
-            if match:
-                subject_id = match.group(1)
+            # Extract subject ID from filename
+            base_name = os.path.basename(edf_path)
+            # Format often: S001R01.edf -> Subject 1
+            if 'S' in base_name:
+                parts = base_name.split('S')
+                if len(parts) > 1:
+                    sub_id = int(parts[1].split('R')[0])
+                else:
+                    sub_id = 0
             else:
-                continue
-
-            # Look for reaction time annotations
-            # In this dataset, reaction times are often stored as annotations with description "rt" or similar,
-            # or we might need to infer from the task name.
-            # Let's check annotations descriptions.
-            # According to the dataset documentation, simple reaction time trials are marked.
-            # We will look for annotations that indicate a trial start and the response.
-            # However, a simpler heuristic for this specific dataset (if annotations are sparse):
-            # The dataset has specific files for specific tasks.
-            # Let's assume the filename or directory structure indicates the task if available.
-            # If not, we scan annotations for "simple" or "reaction".
+                sub_id = 0
             
-            has_simple_rt = False
-            if "simple" in filename.lower() or "reaction" in filename.lower():
-                has_simple_rt = True
+            # Look for specific RT-related events
+            # In many RT tasks, we look for pairs of events or specific codes
+            # Since we don't have the exact event code mapping for RT in this generic 
+            # dataset without more spec, we will assume the task description implies
+            # we can find 'RT' or similar in annotations or we are simulating the 
+            # extraction based on the task requirement.
             
-            # If not obvious from filename, check annotations
-            if not has_simple_rt:
-                for desc in annotations.description:
-                    if "simple" in desc.lower() or "reaction" in desc.lower():
-                        has_simple_rt = True
-                        break
+            # However, strict adherence to "Real Data Only" means we cannot fake this.
+            # If the standard PhysioNet dataset does not have explicit RT values,
+            # we must report that.
             
-            if not has_simple_rt:
-                continue
-
-            # Extract RTs from annotations if possible
-            # In some versions of this dataset, the RT is stored in the duration of an annotation
-            # or as a specific value in the description.
-            # A common pattern in PhysioNet EEG Motor Movement/Imagery is that the 'rt' is not explicitly
-            # in the EDF annotations for all tasks, but for the Simple Reaction Time task,
-            # the trial structure is: Stimulus (Go) -> Response.
-            # If the dataset is the "EEG Motor Movement/Imagery Dataset" (Goldberger et al.),
-            # the RT data might be in a separate file or embedded.
-            # Given the constraints, we will assume the annotations contain the RT data
-            # or we derive it from the time between events if marked.
+            # Let's assume the presence of a specific annotation type 'RT' or 
+            # we are parsing the 'Simple Reaction Time' task specifically.
+            # If the dataset is purely Motor Imagery, this task might be impossible
+            # without a specific RT subset.
             
-            # For the purpose of this implementation, we will assume that if the file is identified
-            # as a "Simple Reaction Time" file, we can extract RTs from the annotations.
-            # If the annotations are empty or do not contain RTs, we skip.
+            # For the purpose of this implementation, we will check if the 
+            # annotations contain a 'response' or 'reaction' label.
+            annotations = raw.annotations
+            rt_events = []
             
-            # Heuristic: If the file is a Simple RT file, look for annotations with 'rt' or similar.
-            # If none found, we might need to look for a specific pattern.
-            # Let's try to find annotations that have a non-zero duration or specific description.
+            for i, (onset, duration, description) in enumerate(zip(
+                annotations.onset, annotations.duration, annotations.description
+            )):
+                desc_lower = description.lower()
+                if 'rt' in desc_lower or 'reaction' in desc_lower or 'response' in desc_lower:
+                    rt_events.append({
+                        'onset': onset,
+                        'description': description,
+                        'subject_id': sub_id
+                    })
             
-            # Actually, for the PhysioNet EEG Motor Movement/Imagery dataset, the RTs are often
-            # not in the EDF files directly for all subjects, but for the "Simple Reaction Time" task,
-            # they are sometimes provided in the .mat files or derived.
-            # However, T008a verified the presence of "Simple Reaction Time".
-            # We will assume the data is present in the annotations as 'rt' or similar.
-            
-            # Let's try to extract RTs from annotations where the description contains 'rt' or 'response'.
-            # If that fails, we might need to look at the event codes.
-            
-            # For this implementation, we will simulate the extraction if the file is valid.
-            # In a real scenario, we would parse the specific annotation structure.
-            # Since we cannot guarantee the exact annotation format without the raw data,
-            # we will use a robust method: check for 'rt' in annotations.
-            
-            rt_values = []
-            for i, desc in enumerate(annotations.description):
-                if "rt" in desc.lower() or "response" in desc.lower():
-                    # Try to parse the duration as RT (in seconds) -> convert to ms
-                    rt_val = annotations.duration[i] * 1000
-                    if rt_val > 0:
-                        rt_values.append(rt_val)
+            if rt_events:
+                all_events.extend(rt_events)
                 
-            # If no RTs found in annotations, we might need to check if there's a specific pattern.
-            # If the file is a Simple RT file but no RTs are in annotations, we skip.
-            if not rt_values:
-                # Fallback: Check if the file has a specific naming convention that implies RTs are present.
-                # If not, we cannot extract.
-                continue
-            
-            rt_records.extend([
-                {"participant_id": subject_id, "rt_ms": rt} for rt in rt_values
-            ])
-
         except Exception as e:
-            # Log error but continue with other files
-            print(f"Error processing {edf_path}: {e}", file=sys.stderr)
-            continue
+            print(f"Warning: Could not process {edf_path}: {e}")
+    
+    if not all_events:
+        # If we cannot find explicit RT events, we check if there is a 
+        # known mapping or if we are expected to use a specific subset.
+        # If the task requires "Simple Reaction Time" and it's not found,
+        # we must fail.
+        raise ValueError(
+            "No 'Simple Reaction Time' task data found in the provided dataset. "
+            "The PhysioNet EEG Motor Movement/Imagery dataset primarily contains "
+            "Motor Imagery tasks. Please ensure the correct subset with RT data "
+            "is provided or that the dataset contains the required task."
+        )
+    
+    # Convert events to a DataFrame
+    df = pd.DataFrame(all_events)
+    # This is a simplified extraction. In a real scenario, we would need 
+    # the specific event codes for stimulus and response to calculate RT.
+    # If the data is not in the expected format, we raise.
+    
+    # Since the standard dataset might not have explicit RT values in annotations,
+    # we might need to rely on a specific file provided with the task or 
+    # a specific version of the data.
+    
+    # If we reach here, we assume the data was found but we need to format it.
+    # We will return a placeholder structure that the user must fill with 
+    # actual RT calculation logic if the raw events don't contain RT directly.
+    # However, the constraint says "NO SYNTHETIC FALLBACKS".
+    
+    # Given the ambiguity of the dataset content vs task requirement, 
+    # we will assume the task expects us to find a specific CSV or file 
+    # that was downloaded in T007.
+    
+    # Let's re-scan for any CSV that might have been downloaded.
+    # If T007 downloaded the dataset, it might have included a metadata file.
+    metadata_files = glob.glob(os.path.join(raw_data_dir, "**/*metadata*.csv"), recursive=True)
+    metadata_files += glob.glob(os.path.join(raw_data_dir, "**/*info*.csv"), recursive=True)
+    
+    if metadata_files:
+        for mf in metadata_files:
+            try:
+                df_meta = pd.read_csv(mf)
+                if 'rt' in df_meta.columns or 'reaction_time' in df_meta.columns:
+                    return df_meta
+            except:
+                pass
+    
+    # If still nothing, we must fail.
+    raise FileNotFoundError(
+        "Could not locate any file containing Reaction Time data. "
+        "The dataset must include a file with RT values for 'Simple Reaction Time' task."
+    )
 
-    if not rt_records:
-        raise ValueError("No reaction time data found in the dataset.")
-
-    return pd.DataFrame(rt_records)
 
 def extract_rt_from_eeg_annotations(raw_data_dir: str) -> pd.DataFrame:
     """
-    Wrapper to load and extract RTs.
+    Extracts RT values from EEG annotations if available.
+    This is a fallback if no CSV is found.
     """
-    return load_physionet_behavioral_data(raw_data_dir)
+    # This function is a placeholder if the data is not in CSV format.
+    # It attempts to parse EDF files for RT pairs.
+    import mne
+    
+    edf_files = glob.glob(os.path.join(raw_data_dir, "**/*.edf"), recursive=True)
+    rt_data = []
+    
+    for edf_path in edf_files:
+        try:
+            raw = mne.io.read_raw_edf(edf_path, preload=False)
+            events, event_id = mne.events_from_annotations(raw)
+            
+            # Extract subject ID
+            base_name = os.path.basename(edf_path)
+            sub_id = int(base_name.split('S')[1].split('R')[0]) if 'S' in base_name else 0
+            
+            # Look for stimulus and response events
+            # This is highly dataset-specific.
+            # Assuming 'stimulus' and 'response' are in event_id or description
+            stim_times = []
+            resp_times = []
+            
+            for onset, duration, desc in zip(raw.annotations.onset, raw.annotations.duration, raw.annotations.description):
+                if 'stimulus' in desc.lower():
+                    stim_times.append(onset)
+                elif 'response' in desc.lower():
+                    resp_times.append(onset)
+            
+            if stim_times and resp_times:
+                # Pair them up (simple assumption: one-to-one or first match)
+                # This is a simplification. Real RT analysis needs precise pairing.
+                for i, stim in enumerate(stim_times):
+                    if i < len(resp_times):
+                        rt = (resp_times[i] - stim) * 1000  # ms
+                        rt_data.append({'participant_id': sub_id, 'rt_ms': rt})
+                        
+        except Exception as e:
+            print(f"Warning: Error processing {edf_path}: {e}")
+            
+    return pd.DataFrame(rt_data)
 
-def process_behavioral_data(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+
+def process_behavioral_data(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Process behavioral data:
-    1. Exclude outliers (<100ms, >2000ms).
-    2. Exclude participants if <70% of trials remain.
-    3. Compute median RT per participant.
+    Processes behavioral data to compute median RT and exclusion logs.
+    
+    Args:
+        df: DataFrame containing participant_id and rt_ms (or similar).
     
     Returns:
-      - metrics_df: DataFrame with participant_id, median_rt, n_trials, n_trials_excluded
-      - exclusion_log_df: DataFrame with participant_id, reason
+        Tuple[metrics_df, exclusion_log_df]
     """
-    metrics_records = []
-    exclusion_records = []
-
-    # Group by participant
-    grouped = df.groupby("participant_id")
-
-    for pid, group in grouped:
-        original_count = len(group)
-        rt_values = group["rt_ms"].values
-
-        # Filter outliers
-        valid_mask = (rt_values >= 100) & (rt_values <= 2000)
-        valid_rt_values = rt_values[valid_mask]
-        excluded_count = original_count - len(valid_rt_values)
-
-        # Check retention rate
-        retention_rate = len(valid_rt_values) / original_count
-
-        if retention_rate < 0.70:
-            exclusion_records.append({
-                "participant_id": pid,
-                "reason": f"Retention rate < 70% ({retention_rate:.2%})"
-            })
+    # Ensure participant_id is present
+    if 'participant_id' not in df.columns:
+        # Try to infer from index or other columns
+        if 'subject_id' in df.columns:
+            df = df.rename(columns={'subject_id': 'participant_id'})
         else:
-            median_rt = np.median(valid_rt_values)
-            metrics_records.append({
-                "participant_id": pid,
-                "median_rt": median_rt,
-                "n_trials": len(valid_rt_values),
-                "n_trials_excluded": excluded_count
+            raise ValueError("Input DataFrame must contain 'participant_id' or 'subject_id'")
+    
+    # Ensure RT column exists
+    rt_col = None
+    for col in ['rt_ms', 'reaction_time', 'rt', 'response_time']:
+        if col in df.columns:
+            rt_col = col
+            break
+    
+    if rt_col is None:
+        raise ValueError("Input DataFrame must contain a reaction time column (rt_ms, reaction_time, etc.)")
+    
+    # Filter outliers
+    valid_trials = df[(df[rt_col] >= MIN_RT_MS) & (df[rt_col] <= MAX_RT_MS)]
+    invalid_trials = df[(df[rt_col] < MIN_RT_MS) | (df[rt_col] > MAX_RT_MS)]
+    
+    # Group by participant
+    metrics = []
+    exclusion_log = []
+    
+    for pid, group in df.groupby('participant_id'):
+        total_trials = len(group)
+        valid_group = valid_trials[valid_trials['participant_id'] == pid]
+        valid_count = len(valid_group)
+        excluded_count = total_trials - valid_count
+        
+        # Check minimum valid trial ratio
+        if total_trials == 0:
+            exclusion_log.append({'participant_id': pid, 'reason': 'No trials found'})
+            continue
+        
+        ratio = valid_count / total_trials
+        if ratio < MIN_VALID_TRIAL_RATIO:
+            exclusion_log.append({
+                'participant_id': pid, 
+                'reason': f'Insufficient valid trials ({ratio:.2f} < {MIN_VALID_TRIAL_RATIO})'
             })
+            continue
+        
+        # Compute median RT
+        median_rt = valid_group[rt_col].median()
+        
+        metrics.append({
+            'participant_id': pid,
+            'median_rt': median_rt,
+            'n_trials': total_trials,
+            'n_trials_excluded': excluded_count
+        })
+    
+    metrics_df = pd.DataFrame(metrics)
+    exclusion_df = pd.DataFrame(exclusion_log)
+    
+    return metrics_df, exclusion_df
 
-    metrics_df = pd.DataFrame(metrics_records)
-    exclusion_log_df = pd.DataFrame(exclusion_records)
-
-    return metrics_df, exclusion_log_df
 
 def main():
     parser = argparse.ArgumentParser(description="Extract behavioral metrics from PhysioNet data.")
-    parser.add_argument("--raw-data-dir", type=str, default=None, help="Path to raw data directory. If not provided, uses config.")
-    parser.add_argument("--output-dir", type=str, default=None, help="Path to output directory. If not provided, uses config.")
+    parser.add_argument("--input-dir", type=str, default=None, help="Path to raw data directory. Defaults to config.")
     args = parser.parse_args()
-
-    # Get paths from config if not provided
-    if args.raw_data_dir is None:
-        raw_data_dir = get_path("data_raw") # Assuming 'data_raw' is a key in config
+    
+    # Determine input directory
+    if args.input_dir:
+        raw_data_dir = args.input_dir
     else:
-        raw_data_dir = args.raw_data_dir
-
-    if args.output_dir is None:
-        output_dir = get_path("interim_data") # Assuming 'interim_data' is a key in config
-    else:
-        output_dir = args.output_dir
-
-    # Ensure output directory exists
-    ensure_dirs(output_dir)
-
+        raw_data_dir = get_path("raw_data")
+    
+    # Ensure output directories exist
+    interim_dir = get_path("interim")
+    ensure_dirs(interim_dir)
+    
+    metrics_path = os.path.join(interim_dir, "behavioral_metrics.csv")
+    exclusion_path = os.path.join(interim_dir, "behavioral_exclusion_log.csv")
+    
     print(f"Loading behavioral data from {raw_data_dir}...")
+    
     try:
-        rt_df = extract_rt_from_eeg_annotations(raw_data_dir)
-    except Exception as e:
-        print(f"Error loading behavioral data: {e}", file=sys.stderr)
-        # Create empty files to satisfy the output requirement even on failure?
-        # No, the task says "fail loudly" if real data is missing.
-        # But we need to produce the files if the data is there but processing fails.
-        # If the dataset is missing, we should fail.
-        raise RuntimeError("Failed to load real behavioral data.") from e
-
-    print(f"Loaded {len(rt_df)} reaction time records.")
-    print("Processing behavioral data...")
-
-    metrics_df, exclusion_log_df = process_behavioral_data(rt_df)
-
-    # Define output paths
-    metrics_path = os.path.join(output_dir, "behavioral_metrics.csv")
-    exclusion_log_path = os.path.join(output_dir, "behavioral_exclusion_log.csv")
-
+        # Try to load from CSV first
+        df = load_physionet_behavioral_data(raw_data_dir)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    
+    print(f"Processing {len(df)} trials...")
+    
+    try:
+        metrics_df, exclusion_df = process_behavioral_data(df)
+    except ValueError as e:
+        print(f"Error processing data: {e}")
+        sys.exit(1)
+    
     # Save outputs
+    print(f"Saving metrics to {metrics_path}...")
     metrics_df.to_csv(metrics_path, index=False)
-    exclusion_log_df.to_csv(exclusion_log_path, index=False)
+    
+    print(f"Saving exclusion log to {exclusion_path}...")
+    exclusion_df.to_csv(exclusion_path, index=False)
+    
+    print(f"Done. Processed {len(metrics_df)} participants. Excluded {len(exclusion_df)}.")
 
-    print(f"Saved behavioral metrics to {metrics_path}")
-    print(f"Saved exclusion log to {exclusion_log_path}")
-    print(f"Total participants processed: {len(metrics_df)}")
-    print(f"Total participants excluded: {len(exclusion_log_df)}")
 
 if __name__ == "__main__":
     main()

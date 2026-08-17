@@ -1,13 +1,13 @@
 """
-T035a: Validate schema of data/processed/features.csv
+T035a: Validate schema of data/processed/features_clr.csv.
 
-Validates:
+Checks:
 - File exists
-- Required columns present
 - No null values
-- RT range validity (100ms to 2000ms) as per FR-004
+- Correct columns (participant_id, median_rt, delta_clr, theta_clr, alpha_clr,
+  low_beta_clr, high_beta_clr, gamma_clr)
+- RT range valid: 100ms <= median_rt <= 2000ms (FR-004)
 """
-
 import os
 import sys
 import argparse
@@ -15,137 +15,134 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Import from config for paths
+# Import from config using the defined public API
 from config import get_path, ensure_dirs
 
+REQUIRED_COLUMNS = [
+    "participant_id",
+    "median_rt",
+    "delta_clr",
+    "theta_clr",
+    "alpha_clr",
+    "low_beta_clr",
+    "high_beta_clr",
+    "gamma_clr",
+]
 
-def validate_schema():
+RT_MIN = 100.0  # ms
+RT_MAX = 2000.0  # ms
+
+def validate_schema(input_path: str) -> bool:
     """
-    Validate the schema of data/processed/features.csv.
+    Validate the schema of the features_clr.csv file.
 
-    Checks:
-    1. File exists
-    2. Required columns: participant_id, median_rt, delta, theta, alpha, low_beta, high_beta, gamma
-       (relative power values as per T015)
-    3. No null values in any column
-    4. median_rt in valid range [100, 2000] ms (FR-004)
-    5. Power values are non-negative
+    Args:
+        input_path: Path to the features_clr.csv file.
 
     Returns:
-        bool: True if validation passes, False otherwise
+        True if validation passes, False otherwise.
+
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If validation fails.
     """
-    # Get path to features file
-    features_path = get_path("processed", "features.csv")
-    print(f"Validating schema for: {features_path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    # Check file exists
-    if not os.path.exists(features_path):
-        print(f"ERROR: File not found: {features_path}")
-        return False
+    df = pd.read_csv(input_path)
 
-    # Load data
-    try:
-        df = pd.read_csv(features_path)
-    except Exception as e:
-        print(f"ERROR: Failed to load CSV: {e}")
-        return False
-
-    print(f"Loaded {len(df)} rows, {len(df.columns)} columns")
-
-    # Define required columns (relative power bands + RT + ID)
-    # T015 produces relative power: delta, theta, alpha, low_beta, high_beta, gamma
-    required_columns = [
-        'participant_id',
-        'median_rt',
-        'delta', 'theta', 'alpha', 'low_beta', 'high_beta', 'gamma'
-    ]
-
-    # Check required columns
-    missing_cols = [col for col in required_columns if col not in df.columns]
+    # Check for required columns
+    missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
     if missing_cols:
-        print(f"ERROR: Missing required columns: {missing_cols}")
-        return False
-
-    print("✓ All required columns present")
+        raise ValueError(f"Missing required columns: {missing_cols}")
 
     # Check for null values
     null_counts = df.isnull().sum()
-    null_cols = null_counts[null_counts > 0]
-    if len(null_cols) > 0:
-        print(f"ERROR: Null values found in columns: {null_cols.to_dict()}")
-        return False
+    if null_counts.any():
+        null_details = null_counts[null_counts > 0].to_dict()
+        raise ValueError(f"Null values found in columns: {null_details}")
 
-    print("✓ No null values found")
+    # Validate RT range (FR-004)
+    rt_values = df["median_rt"]
+    invalid_rt = rt_values[(rt_values < RT_MIN) | (rt_values > RT_MAX)]
+    if len(invalid_rt) > 0:
+        raise ValueError(
+            f"Found {len(invalid_rt)} RT values outside valid range "
+            f"[{RT_MIN}ms, {RT_MAX}ms]. "
+            f"Values: {invalid_rt.tolist()}"
+        )
 
-    # Validate RT range (FR-004: 100ms to 2000ms)
-    rt_col = 'median_rt'
-    rt_min = df[rt_col].min()
-    rt_max = df[rt_col].max()
-    rt_invalid = df[(df[rt_col] < 100) | (df[rt_col] > 2000)]
-
-    if len(rt_invalid) > 0:
-        print(f"ERROR: {len(rt_invalid)} rows have invalid RT values (<100ms or >2000ms)")
-        print(f"RT range in data: {rt_min}ms to {rt_max}ms")
-        return False
-
-    print(f"✓ RT values in valid range: {rt_min}ms to {rt_max}ms")
-
-    # Validate power values are non-negative
-    power_cols = ['delta', 'theta', 'alpha', 'low_beta', 'high_beta', 'gamma']
-    for col in power_cols:
-        if (df[col] < 0).any():
-            print(f"ERROR: Negative values found in {col}")
-            return False
-
-    print("✓ All power values are non-negative")
-
-    # Validate participant_id is not empty
-    if df['participant_id'].astype(str).str.strip().eq('').any():
-        print("ERROR: Empty participant_id found")
-        return False
-
-    print("✓ All participant_ids are valid")
-
-    # Generate validation report
-    report_path = get_path("processed", "validation_report.json")
-    ensure_dirs(report_path)
-
-    report = {
-        "file": str(features_path),
-        "status": "PASS",
-        "row_count": len(df),
-        "column_count": len(df.columns),
-        "rt_range": {"min": float(rt_min), "max": float(rt_max)},
-        "columns_validated": required_columns,
-        "checks": {
-            "file_exists": True,
-            "columns_present": True,
-            "no_nulls": True,
-            "rt_range_valid": True,
-            "power_non_negative": True,
-            "participant_ids_valid": True
-        }
-    }
-
-    import json
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-    print(f"✓ Validation report written to: {report_path}")
-    print("✓ SCHEMA VALIDATION PASSED")
+    # Check participant_id is not empty
+    empty_ids = df[df["participant_id"].isnull() | (df["participant_id"] == "")]
+    if len(empty_ids) > 0:
+        raise ValueError("Found empty or null participant_id values")
 
     return True
 
-
 def main():
-    """Main entry point."""
-    parser = argparse.ArgumentParser(description="Validate features.csv schema")
-    parser.add_argument("--path", type=str, default=None, help="Override path to features file")
+    parser = argparse.ArgumentParser(
+        description="Validate schema of features_clr.csv (T035a)"
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        default=None,
+        help="Path to features_clr.csv. Defaults to config path.",
+    )
+    parser.add_argument(
+        "--output-log",
+        type=str,
+        default=None,
+        help="Path to write validation log. Defaults to config path.",
+    )
     args = parser.parse_args()
 
-    success = validate_schema()
-    sys.exit(0 if success else 1)
+    # Determine input path
+    if args.input:
+        input_path = args.input
+    else:
+        # Use config to get the standard path
+        input_path = get_path("processed", "features_clr.csv")
 
+    # Determine output log path
+    if args.output_log:
+        output_log_path = args.output_log
+    else:
+        output_log_path = get_path("processed", "validation_log.json")
+        # Ensure directory exists
+        ensure_dirs(Path(output_log_path).parent)
+
+    print(f"Validating schema of: {input_path}")
+
+    validation_result = {
+        "status": "success",
+        "file": input_path,
+        "errors": [],
+        "warnings": [],
+    }
+
+    try:
+        validate_schema(input_path)
+        print("✓ Validation PASSED: Schema is correct, no nulls, RT in range.")
+        validation_result["message"] = "Validation passed"
+    except FileNotFoundError as e:
+        print(f"✗ Validation FAILED: {e}")
+        validation_result["status"] = "failed"
+        validation_result["errors"].append(str(e))
+    except ValueError as e:
+        print(f"✗ Validation FAILED: {e}")
+        validation_result["status"] = "failed"
+        validation_result["errors"].append(str(e))
+
+    # Write log
+    import json
+    with open(output_log_path, "w") as f:
+        json.dump(validation_result, f, indent=2)
+    print(f"Validation log written to: {output_log_path}")
+
+    # Exit with code 1 if failed
+    if validation_result["status"] == "failed":
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

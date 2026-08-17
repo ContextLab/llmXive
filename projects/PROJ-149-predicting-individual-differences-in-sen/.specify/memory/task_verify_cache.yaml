@@ -6,13 +6,22 @@ T008a:
     writing steps are missing). Moreover, the required output artifacts\u2014`data/interim/joined_metadata.csv`\
     \ on success and `data/processed/feasibility_report.md` on failure\u2014are absent\
     \ from the repository. The task therefore remains unfinished."
-T010a:
+T012:
   c: false
-  h: 88ee64377cd26ac13c3ac7f5956329f7197a71066374f64d0fc5b97fb75ca221
-  r: "The required `data/interim/exclusion_log.csv` file is missing, and there is\
-    \ no evidence that the script produced the `data/interim/cleaned_eeg_final/` directory\
-    \ with `.fif` files. Without these output artifacts, the task\u2019s mandatory\
-    \ deliverables are not satisfied."
+  h: fcfd36d03335e47de2d64a592f7dc1e3d84d96d13976c920291f3bf2d7e4e994
+  r: "The provided `code/03_extract_features.py` is truncated (e.g., undefined `pid`\
+    \ variable) and raises a `FileNotFoundError` when `exclusion_log.csv` is absent,\
+    \ contrary to the requirement to handle a missing/empty exclusion log gracefully.\
+    \ Moreover, the required output file `data/interim/eeg_psd.csv` does not exist,\
+    \ and the exclusion log itself is missing. The script therefore does not fulfill\
+    \ the task\u2019s specifications."
+T017:
+  c: false
+  h: 3f05e69d9e8b59732dae511425aed391342ed20ae06d7b07ab8bd08361703ef5
+  r: "The repository contains `code/04_modeling.py`, but the required input `data/processed/features_clr.csv`\
+    \ is absent, and the script never produced the declared outputs `data/interim/split_indices.json`\
+    \ and `data/processed/model_results.json`. Without these files the modeling step\
+    \ cannot be executed, so the task\u2019s requirements are not met."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,6 +29,12 @@ T018:
     lambda tuning and reporting RMSE are present; the only content is the task description
     and specifications, which does not constitute the required artifact. The implementer
     must provide the actual implementation and its results.
+T019:
+  c: false
+  h: 08bdb69e445545bdca4e8601b5b770b3e4e6453dbf22fd9ebbc5aa7fd816af49
+  r: "The required output file `data/processed/model_results.json` is missing, so\
+    \ no Adjusted R\xB2 or optimal lambda values have been logged. The task\u2019\
+    s primary artifact does not exist, indicating the work is not done."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -35,13 +50,6 @@ T024:
     /\u03B2 interaction analysis and the F\u2011test comparison (FR\u2011012) were\
     \ provided. The claim lacks any tangible artifact showing the analysis runs after\
     \ T019, so the required functionality is not demonstrated."
-T026c:
-  c: false
-  h: 128674906d3a685547576ce95c9ce24c3379ed42e71cc0ff9fe9a4793880d0ca
-  r: "The required output files `data/interim/robustness/no_ica/features.csv` and\
-    \ `data/interim/robustness/window_2s/features.csv` are not present, indicating\
-    \ the script either was not executed or does not generate the expected CSVs. Consequently\
-    \ the task\u2019s core deliverable is missing."
 T026d:
   c: false
   h: e5f71519d9f5e3f31e05f70545b88e84fe58ab9a7ea95db02668d2190e12f7d8
@@ -73,9 +81,3 @@ T032:
     \ there is no evidence that the pipeline was run, resource usage was logged, or\
     \ the failure conditions were checked. Without this file the task\u2019s verification\
     \ requirements are not satisfied."
-T035a:
-  c: false
-  h: 8e4588f5b62a7003b8b4e4bd95708867ba6e8622943afa57fcaf8b02948ffa09
-  r: "The required artifact `data/processed/features.csv` does not exist, so no schema\
-    \ validation can be performed. The task\u2019s core requirement (checking columns,\
-    \ nulls, and RT range) cannot be satisfied without the file."
