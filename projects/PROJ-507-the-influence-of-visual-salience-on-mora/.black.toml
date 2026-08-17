@@ -1,4 +1,2 @@
-# Black configuration
-line-length = 100
-target-version = ['py39']
-include = '\.pyi?$'
+# This file is a convenience alias for pyproject.toml [tool.black] section.
+extend = "pyproject.toml"

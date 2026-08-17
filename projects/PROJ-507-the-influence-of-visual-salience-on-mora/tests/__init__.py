@@ -1,1 +1,1 @@
-# Tests package
+# Test suite initialization

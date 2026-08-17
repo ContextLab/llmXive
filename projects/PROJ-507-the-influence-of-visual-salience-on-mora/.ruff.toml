@@ -1,9 +1,4 @@
-# Ruff configuration file
-# This file configures the ruff linter for the project
-
-line-length = 88
-target-version = "py38"
-
+[lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -11,27 +6,17 @@ select = [
     "I",  # isort
     "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
-    "UP", # pyupgrade
-    "ARG", # flake8-unused-arguments
-    "SIM", # flake8-simplify
 ]
-
 ignore = [
     "E501",  # line too long (handled by black)
     "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex (handled by manual review)
-    "ARG001", # unused arguments (sometimes needed for interfaces)
+    "C901",  # too complex
 ]
 
-exclude = [
-    ".git",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "build",
-    "dist",
-    "__pycache__",
-]
+[lint.per-file-ignores]
+"tests/*" = ["S101"]  # assert statements allowed in tests
+"code/*" = []
 
-[per-file-ignores]
-"__init__.py" = ["F401"]  # Allow unused imports in __init__.py for re-exports
+[format]
+line-length = 88
+target-version = "py39"

@@ -87,7 +87,7 @@ The system must perform a Cumulative Link Mixed Models (CLMM) analysis on the co
 
 - **SC-001**: The pixel-level contrast/brightness change (RMS contrast) in target regions is measured against the original image to verify the manipulation was successful. Additionally, the 'moral narrative preservation' is measured against a pilot human rating (≥80% agreement) as a validation step for the stimulus generation pipeline (See US-001).
 - **SC-002**: The effect size (odds ratio) of visual salience on blame ratings is measured against the null hypothesis of no effect to determine statistical significance using a CLMM with random intercepts (See US-003).
-- **SC-003**: The family-wise error rate is measured against the nominal alpha level (0.05) to verify that Bonferroni correction was correctly applied to the 3 pairwise comparisons (See US-003).
+- **SC-003**: The family-wise error rate is measured against the nominal alpha level (conventionally set) to verify that Bonferroni correction was correctly applied to the 3 pairwise comparisons (See US-003).
 - **SC-004**: The proportion of valid participants (excluding straight-liners) is measured against the total recruited sample to ensure data quality (See US-002).
 - **SC-005**: The 95% confidence interval width for the estimated effect size is measured against a pre-registered precision threshold of [deferred] to assess the reliability of the estimate (See US-003).
 

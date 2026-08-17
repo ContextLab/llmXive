@@ -1,248 +1,150 @@
-"""
-Data Hygiene Module for Visual Salience Project.
-
-This module enforces strict data separation between real survey data and synthetic
-validation data to prevent conflation and ensure scientific integrity.
-"""
 import os
 import sys
 from pathlib import Path
 from typing import List, Tuple, Optional
+import logging
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).parent.parent
-
-# Directories
-DATA_SURVEY_DIR = PROJECT_ROOT / "data" / "survey"
-DATA_SYNTH_DIR = PROJECT_ROOT / "data" / "synth"
-
-# Allowed file extensions for data files
-ALLOWED_EXTENSIONS = {".csv", ".json", ".tsv"}
-
-# Naming conventions (prefixes for real data)
-REAL_DATA_PREFIXES = ("pilot_responses_real", "responses_real", "survey_data_real")
-SYNTH_DATA_PREFIXES = ("pilot_responses_synth", "responses_synth", "synth_data")
-
+logger = logging.getLogger(__name__)
 
 class DataHygieneError(Exception):
-    """Raised when data separation rules are violated."""
+    """Custom exception for data hygiene violations."""
     pass
 
-
-def _get_directory_files(directory: Path) -> List[Path]:
+def verify_data_separation(file_path: str) -> Tuple[bool, str]:
     """
-    Recursively get all data files in a directory.
-    
-    Args:
-        directory: Path to the directory to scan.
-        
-    Returns:
-        List of Path objects for all files with allowed extensions.
-    """
-    if not directory.exists():
-        return []
-    
-    files = []
-    for ext in ALLOWED_EXTENSIONS:
-        files.extend(directory.rglob(f"*{ext}"))
-        # Also check for files without extension but with known names
-        files.extend(directory.rglob("*"))
-    
-    # Filter to only allowed extensions
-    return [f for f in files if f.suffix in ALLOWED_EXTENSIONS]
-
-
-def _classify_file(file_path: Path) -> str:
-    """
-    Classify a file as 'real', 'synth', or 'unknown' based on naming conventions.
+    Verify that the file path belongs to an allowed data directory.
     
     Args:
         file_path: Path to the file.
         
     Returns:
-        Classification string: 'real', 'synth', or 'unknown'.
+        Tuple of (is_valid, message).
     """
-    filename = file_path.name.lower()
+    path = Path(file_path)
+    path_str = str(path).replace("\\", "/") # Normalize for cross-platform check
     
-    # Check for real data prefixes
-    for prefix in REAL_DATA_PREFIXES:
-        if filename.startswith(prefix):
-            return "real"
+    # Define allowed real data directories
+    allowed_real_prefixes = [
+        "data/raw/",
+        "data/processed/",
+        "data/survey/"
+    ]
     
-    # Check for synthetic data prefixes
-    for prefix in SYNTH_DATA_PREFIXES:
-        if filename.startswith(prefix):
-            return "synth"
+    # Define synthetic data directory
+    synthetic_prefix = "data/synth/"
     
-    # Check for generic naming patterns that might indicate synthetic data
-    if "synth" in filename or "simulation" in filename:
-        return "synth"
+    is_synthetic = path_str.startswith(synthetic_prefix)
+    is_real = any(path_str.startswith(prefix) for prefix in allowed_real_prefixes)
     
-    # Default to unknown for files that don't match patterns
-    return "unknown"
+    if is_synthetic:
+        return False, f"File path '{file_path}' is in the synthetic data directory."
+    elif is_real:
+        return True, f"File path '{file_path}' is in an allowed real data directory."
+    else:
+        # If it's not in any known directory, we might allow it or warn, 
+        # but for strict separation, we assume it's suspicious if not in 'data/'
+        # However, the task specifically targets 'data/synth/'
+        # We'll allow other paths but log a warning if they are not in 'data/'
+        if not path_str.startswith("data/"):
+            logger.warning(f"File path '{file_path}' is outside the standard 'data/' directory structure.")
+        return True, f"File path '{file_path}' is not in the synthetic directory."
 
-
-def verify_data_separation(strict_mode: bool = True) -> Tuple[bool, List[str]]:
+def enforce_data_separation(file_path: str, allow_synthetic: bool = False) -> None:
     """
-    Verify that data separation rules are enforced across directories.
-    
-    Rules:
-    1. data/survey/ should only contain real data files
-    2. data/synth/ should only contain synthetic data files
-    3. Files should follow naming conventions
+    Enforce strict separation of synthetic and real data paths.
     
     Args:
-        strict_mode: If True, unknown files are treated as violations.
-                    If False, only explicit violations are reported.
-                    
-    Returns:
-        Tuple of (success: bool, violations: List[str])
-    """
-    violations = []
-    
-    # Ensure directories exist
-    DATA_SURVEY_DIR.mkdir(parents=True, exist_ok=True)
-    DATA_SYNTH_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Check survey directory
-    survey_files = _get_directory_files(DATA_SURVEY_DIR)
-    for file_path in survey_files:
-        classification = _classify_file(file_path)
+        file_path: Path to the file to check.
+        allow_synthetic: If True, allow paths in 'data/synth/'.
         
-        if classification == "synth":
-            violations.append(
-                f"SYNTHETIC DATA IN REAL DIRECTORY: {file_path.relative_to(PROJECT_ROOT)} "
-                f"found in {DATA_SURVEY_DIR.relative_to(PROJECT_ROOT)}"
-            )
-        elif classification == "unknown" and strict_mode:
-            violations.append(
-                f"UNKNOWN FILE IN REAL DIRECTORY: {file_path.relative_to(PROJECT_ROOT)} "
-                f"found in {DATA_SURVEY_DIR.relative_to(PROJECT_ROOT)}. "
-                f"File should be renamed to follow naming conventions (e.g., 'responses_real.csv')."
-            )
-    
-    # Check synth directory
-    synth_files = _get_directory_files(DATA_SYNTH_DIR)
-    for file_path in synth_files:
-        classification = _classify_file(file_path)
-        
-        if classification == "real":
-            violations.append(
-                f"REAL DATA IN SYNTHETIC DIRECTORY: {file_path.relative_to(PROJECT_ROOT)} "
-                f"found in {DATA_SYNTH_DIR.relative_to(PROJECT_ROOT)}"
-            )
-        elif classification == "unknown" and strict_mode:
-            violations.append(
-                f"UNKNOWN FILE IN SYNTHETIC DIRECTORY: {file_path.relative_to(PROJECT_ROOT)} "
-                f"found in {DATA_SYNTH_DIR.relative_to(PROJECT_ROOT)}. "
-                f"File should be renamed to follow naming conventions (e.g., 'responses_synth.csv')."
-            )
-    
-    success = len(violations) == 0
-    return success, violations
-
-
-def enforce_data_separation() -> None:
-    """
-    Enforce data separation by raising an error if violations are found.
-    
     Raises:
-        DataHygieneError: If any data separation violations are detected.
+        DataHygieneError: If the path is synthetic and allow_synthetic is False.
     """
-    success, violations = verify_data_separation(strict_mode=True)
+    is_valid, message = verify_data_separation(file_path)
     
-    if not success:
-        error_msg = (
-            "DATA SEPARATION VIOLATIONS DETECTED:\n\n"
-            + "\n".join(f"  - {v}" for v in violations)
-            + "\n\nPlease fix the file locations/names to maintain data integrity."
-        )
-        raise DataHygieneError(error_msg)
+    if not is_valid:
+        # This means it's a synthetic path
+        if not allow_synthetic:
+            error_msg = (
+                f"DataHygieneError: Attempting to analyze synthetic data from '{file_path}'. "
+                "This is not allowed for empirical claims. "
+                "Use the '--allow-synthetic' flag explicitly if you intend to run analysis on synthetic data for testing purposes."
+            )
+            logger.error(error_msg)
+            raise DataHygieneError(error_msg)
+        else:
+            logger.warning(f"Allowing synthetic data analysis: {file_path}. This is for testing only.")
+    else:
+        logger.info(f"Data hygiene check passed: {message}")
 
-
-def get_data_inventory() -> dict:
+def get_data_inventory(base_dir: str = "data") -> Dict[str, List[str]]:
     """
-    Generate an inventory of all data files in survey and synth directories.
+    Scan the data directory and categorize files into real and synthetic.
     
+    Args:
+        base_dir: Base directory to scan.
+        
     Returns:
-        Dictionary with counts and lists of files by directory and classification.
+        Dictionary with keys 'real' and 'synthetic' containing lists of file paths.
     """
-    inventory = {
-        "survey": {"real": [], "synth": [], "unknown": [], "total": 0},
-        "synth": {"real": [], "synth": [], "unknown": [], "total": 0}
-    }
+    inventory = {"real": [], "synthetic": []}
+    base = Path(base_dir)
     
-    # Scan survey directory
-    survey_files = _get_directory_files(DATA_SURVEY_DIR)
-    for file_path in survey_files:
-        classification = _classify_file(file_path)
-        inventory["survey"][classification].append(str(file_path.relative_to(PROJECT_ROOT)))
-        inventory["survey"]["total"] += 1
-    
-    # Scan synth directory
-    synth_files = _get_directory_files(DATA_SYNTH_DIR)
-    for file_path in synth_files:
-        classification = _classify_file(file_path)
-        inventory["synth"][classification].append(str(file_path.relative_to(PROJECT_ROOT)))
-        inventory["synth"]["total"] += 1
-    
+    if not base.exists():
+        return inventory
+        
+    for file_path in base.rglob("*"):
+        if file_path.is_file():
+            path_str = str(file_path).replace("\\", "/")
+            if path_str.startswith("data/synth/"):
+                inventory["synthetic"].append(path_str)
+            else:
+                inventory["real"].append(path_str)
+                
     return inventory
-
 
 def main():
     """
-    Main entry point for data hygiene verification.
-    
-    This function verifies data separation and reports results.
+    Main entry point for data hygiene verification script.
     """
-    print("=" * 60)
-    print("DATA HYGIENE VERIFICATION")
-    print("=" * 60)
+    import argparse
     
-    # Verify separation
-    success, violations = verify_data_separation(strict_mode=True)
+    parser = argparse.ArgumentParser(description="Verify data separation in the project.")
+    parser.add_argument(
+        "--scan", 
+        action="store_true", 
+        help="Scan the entire 'data' directory and report inventory."
+    )
+    parser.add_argument(
+        "--check", 
+        type=str, 
+        help="Check a specific file path."
+    )
     
-    if success:
-        print("✓ Data separation verified successfully.")
-        print("  - data/survey/ contains only real data files")
-        print("  - data/synth/ contains only synthetic data files")
+    args = parser.parse_args()
+    
+    if args.scan:
+        inventory = get_data_inventory()
+        print("Data Inventory:")
+        print(f"  Real files ({len(inventory['real'])}):")
+        for f in inventory['real'][:10]: # Show first 10
+            print(f"    - {f}")
+        if len(inventory['real']) > 10:
+            print(f"    ... and {len(inventory['real']) - 10} more")
+            
+        print(f"  Synthetic files ({len(inventory['synthetic'])}):")
+        for f in inventory['synthetic']:
+            print(f"    - {f}")
+            
+    elif args.check:
+        try:
+            enforce_data_separation(args.check, allow_synthetic=False)
+            print(f"OK: {args.check} is valid.")
+        except DataHygieneError as e:
+            print(f"ERROR: {e}")
+            sys.exit(1)
     else:
-        print("✗ DATA SEPARATION VIOLATIONS DETECTED:")
-        for violation in violations:
-            print(f"  - {violation}")
-        print("\nPlease fix the issues above to ensure data integrity.")
-        sys.exit(1)
-    
-    # Print inventory
-    print("\nDATA INVENTORY:")
-    inventory = get_data_inventory()
-    
-    print(f"\nSurvey Directory ({DATA_SURVEY_DIR.relative_to(PROJECT_ROOT)}):")
-    print(f"  Total files: {inventory['survey']['total']}")
-    print(f"  Real data: {len(inventory['survey']['real'])}")
-    print(f"  Synthetic data: {len(inventory['survey']['synth'])}")
-    print(f"  Unknown: {len(inventory['survey']['unknown'])}")
-    
-    if inventory['survey']['real']:
-        print("  Files:")
-        for f in inventory['survey']['real']:
-            print(f"    - {f}")
-    
-    print(f"\nSynth Directory ({DATA_SYNTH_DIR.relative_to(PROJECT_ROOT)}):")
-    print(f"  Total files: {inventory['synth']['total']}")
-    print(f"  Real data: {len(inventory['synth']['real'])}")
-    print(f"  Synthetic data: {len(inventory['synth']['synth'])}")
-    print(f"  Unknown: {len(inventory['synth']['unknown'])}")
-    
-    if inventory['synth']['synth']:
-        print("  Files:")
-        for f in inventory['synth']['synth']:
-            print(f"    - {f}")
-    
-    print("\n" + "=" * 60)
-    print("Verification complete.")
-    print("=" * 60)
-
+        parser.print_help()
 
 if __name__ == "__main__":
     main()

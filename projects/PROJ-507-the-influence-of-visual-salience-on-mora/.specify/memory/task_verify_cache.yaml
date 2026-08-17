@@ -1,3 +1,23 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or files for `code/`, `data/raw/`, `data/processed/`, `data/survey/`,
+    or `tests/` were provided, so there is no evidence that the required project structure
+    exists or contains any content.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or corresponding CI scripts) were provided,
+    nor any evidence that ruff and black have been set up and run. The required artifacts
+    are missing, so the task is not satisfied.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact such as an `.env` file, configuration script, or code demonstrating
+    loading of dataset path and API key environment variables was provided. Consequently,
+    the requirement to set up environment variable management for dataset paths and
+    API keys is not satisfied.
 T014:
   c: false
   h: e194eafea619e054d23ac34fa93bbac4b7afcbefb1774465efa3298bec48d177
@@ -6,17 +26,6 @@ T014:
     \ of metadata filtering for \u201Csocial\u201D/\u201Cconflict\u201D tags or loading\
     \ of external validation data. The task\u2019s core functionality and expected\
     \ output are therefore missing."
-T015:
-  c: false
-  h: d65eac09ab36b618f395498485a1ecf77edb1736731b615965fa5ffec10b7cb5
-  r: "The repository contains `code/human_coding.py` and `code/human_coding_ui.py`,\
-    \ but the scripts are truncated and do not show the full processing logic, and\
-    \ the required output file `data/processed/valid_scenarios.csv` is absent. Without\
-    \ the generated CSV and a complete implementation that actually computes Cohen\u2019\
-    s \u03BA, applies the \u22650.6 threshold, and excludes failing scenarios, the\
-    \ task is not satisfied. The next implementer must provide a complete, runnable\
-    \ `human_coding.py` that writes the `valid_scenarios.csv` file with the correct\
-    \ filtering logic."
 T015a:
   c: false
   h: 5c0d36a022ee568f75ff60b38a9f12fd07e499217c12855e9c14ddcddd2dca78
@@ -30,14 +39,6 @@ T021:
   r: "The required file `tests/unit/test_data_schema.py` does not exist, so no unit\
     \ test for validating the data schema (participant_id, image_id, salience, rating)\
     \ is present. The task\u2019s core deliverable is missing."
-T023:
-  c: false
-  h: b2dedf26dd2a437b45f4e8b88e975df4e72a908fdc608ca283312ff6488edb3a
-  r: The required output file `data/survey/survey_sequences.json` does not exist,
-    and the provided `code/survey_deploy.py` excerpt does not show the implementation
-    of SessionState, Latin Square randomization, or the logic that writes the JSON
-    file. Without the generated sequence file and clear evidence of the required constraints,
-    the task is not fulfilled.
 T026b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,3 +46,23 @@ T026b:
     the `data/survey/` and `data/synth/` directories, enforce naming conventions,
     or raise a `DataHygieneError` for misplaced files. The required enforcement logic
     and verification are missing.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No new test files or code appear in `tests/unit/` that exercise the edge\u2011\
+    case where the sample size is smaller than the planned size. The required additional\
+    \ unit tests are missing, so the task is not satisfied."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a quickstart.md validation run is present\u2014no validation\
+    \ report, log file, or updated quickstart.md showing successful checks. The required\
+    \ artifact confirming that the quickstart documentation was validated is missing."
+T061:
+  c: false
+  h: 1074a817020f6cc499ee673ece1d85a6b8ebd415c12a9a023a29d7d134516b35
+  r: "The repository lacks the required `data/raw/sample_metadata.json` file, and\
+    \ the shown portion of `code/data_prep.py` does not contain any logic that computes\
+    \ a checksum of the sampled data and writes a JSON record with `count`, `checksum_sha256`,\
+    \ `seed`, and `timestamp` as specified. The task\u2019s logging requirement is\
+    \ therefore not fulfilled."

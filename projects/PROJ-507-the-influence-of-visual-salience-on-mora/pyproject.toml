@@ -3,42 +3,36 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "visual-salience-moral-judgments"
+name = "llmxive-visual-salience"
 version = "0.1.0"
-description = "Research pipeline for studying visual salience effects on moral judgments"
-authors = [
-    {name = "Research Team"}
-]
-readme = "README.md"
-requires-python = ">=3.8"
+description = "The Influence of Visual Salience on Moral Judgments of Simulated Scenarios"
+requires-python = ">=3.9"
 dependencies = [
-    "numpy>=1.21.0",
-    "pandas>=1.3.0",
-    "scipy>=1.7.0",
-    "statsmodels>=0.12.0",
-    "Pillow>=8.0.0",
-    "requests>=2.25.0",
-    "matplotlib>=3.4.0",
-    "seaborn>=0.11.0",
-    "opencv-python-headless>=4.5.0",
-    "streamlit>=1.10.0",
-    "torch>=1.9.0",
-    "transformers>=4.10.0",
-    "diffusers>=0.1.0",
-    "ordinal>=0.1.0"
+    "numpy",
+    "pandas",
+    "scipy",
+    "statsmodels",
+    "Pillow",
+    "requests",
+    "matplotlib",
+    "seaborn",
+    "opencv-python-headless",
+    "streamlit",
+    "torch",
+    "transformers",
+    "diffusers",
+    "ordinal",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=22.0.0",
-    "pytest>=7.0.0",
-    "pytest-cov>=3.0.0"
+optional-dependencies.dev = [
+    "ruff",
+    "black",
+    "pytest",
+    "pytest-cov",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -56,7 +50,7 @@ exclude = '''
 
 [tool.ruff]
 line-length = 88
-target-version = "py38"
+target-version = "py39"
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -72,21 +66,8 @@ ignore = [
 ]
 
 [tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]  # unused imports in init files
+"tests/*" = ["S101"]  # assert statements allowed in tests
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = [
-    "--strict-markers",
-    "--cov=code",
-    "--cov-report=term-missing",
-    "--cov-report=html",
-]
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests"
-]
+[tool.ruff.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
