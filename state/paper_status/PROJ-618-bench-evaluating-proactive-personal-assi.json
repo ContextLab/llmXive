@@ -25,12 +25,12 @@
         "page": 57
       }
     ],
-    "audited_at": "2026-08-17T20:52:39.138292+00:00"
+    "audited_at": "2026-08-17T21:21:43.055372+00:00"
   },
   "repair_rounds": 3,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-618-bench-evaluating-proactive-personal-assi",
-  "updated_at": "2026-08-17T20:52:39.138306+00:00"
+  "updated_at": "2026-08-17T21:21:43.055387+00:00"
 }
