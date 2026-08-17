@@ -20,47 +20,15 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-16T06:35:44.541285Z'
-- artifact_hash: b6a3a4a30f252cd79956802bc7dd7058c27a42a296f552c55e0f4be4842ea188
+- artifact_hash: 0537da4aa24d9a1e010592cba459a6bf8083426381bd695f646d93d7e51831a7
   artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: schema#
+  fetched_title: '[2506.09162] The RSNA Lumbar Degenerative Imaging Spine Classification
+    (LumbarDISC) Dataset'
   kind: url
-  value: http://json-schema.org/draft-07/schema#
+  value: https://arxiv.org/abs/2506.09162
   verification_status: pending
-  verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-08-15T10:39:39.994104Z'
-- artifact_hash: b6a3a4a30f252cd79956802bc7dd7058c27a42a296f552c55e0f4be4842ea188
-  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://next-gen.materialsproject.org/api/v2/materials`
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/api/v2/materials
-  verified_at: '2026-08-15T10:39:39.994104Z'
-- artifact_hash: b6a3a4a30f252cd79956802bc7dd7058c27a42a296f552c55e0f4be4842ea188
-  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: p-value - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/P-value
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-08-15T10:39:39.994104Z'
-- artifact_hash: b6a3a4a30f252cd79956802bc7dd7058c27a42a296f552c55e0f4be4842ea188
-  artifact_path: projects/PROJ-349-predicting-the-impact-of-ball-milling-on/specs/001-predicting-the-impact-of-ball-milling-on/tasks.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: National Institute of Standards and Technology
-  kind: url
-  value: https://www.nist.gov/...`
-  verification_status: pending
-  verified_against_url: https://www.nist.gov/
-  verified_at: '2026-08-15T10:39:39.994104Z'
+  verified_against_url: https://arxiv.org/abs/2506.09162
+  verified_at: '2026-08-17T13:09:10.925066Z'
