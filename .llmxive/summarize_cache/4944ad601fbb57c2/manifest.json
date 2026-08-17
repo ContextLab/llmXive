@@ -4,7 +4,7 @@
   "goal": "extract every FR/SC id verbatim and every spec constraint; the tasks must cover all of them",
   "model": "qwen.qwen3.5-122b",
   "token_budget": 4000,
-  "created_at": "2026-08-16T20:40:03.353035+00:00",
+  "created_at": "2026-08-17T05:58:28.994448+00:00",
   "entries": [
     {
       "element_id": "e000",

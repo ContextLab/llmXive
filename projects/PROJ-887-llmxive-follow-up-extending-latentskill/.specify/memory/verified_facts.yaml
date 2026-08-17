@@ -1,4 +1,4 @@
-2|all embedding l6 minilm model text v2:
+2|all generate l6 minilm model query sentence transformer used v2 vector:
   quote: embedding (i.e., all-MiniLM-L6-v2) in an
   source_id: '2607.07974'
   url: https://arxiv.org/abs/2607.07974

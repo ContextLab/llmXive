@@ -50,3 +50,17 @@ T038:
     \ logs, output files, or a report confirming that the quickstart instructions\
     \ were executed and reproduced the full pipeline. The required artifact (validation\
     \ results) is missing."
+T063:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No log file or any output showing a dry\u2011run of the full pipeline was provided;\
+    \ the claim lacks the required artifact (error/warning log) to demonstrate that\
+    \ the pipeline executed end\u2011to\u2011end without timing out. The implementer\
+    \ must supply the dry\u2011run log capturing any errors or warnings."
+T064:
+  c: false
+  h: 5cf993f5401b10c5d22f985501f7344d1ca3b8aac06d345c02814e6db96b8f5b
+  r: The required artifact `reports/final_report.md` does not exist, so there is no
+    content to verify the presence of metrics SC-001 to SC-005 or the required warnings.
+    The task cannot be considered completed until the report file is provided and
+    contains the specified information.
