@@ -1,4 +1,4 @@
-'|analysi power target':
+'|power':
   quote: "Indeed, although there are no formal standards for power, many researchers\
     \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
     \ This convention implies a four-to-one trade off between \u03B2-risk and \u03B1\
@@ -13,8 +13,3 @@
   source_id: Power (statistics)
   url: https://en.wikipedia.org/wiki/Power_(statistics)
   value: '0.80'
-'|consist item scale trust':
-  quote: arXiv:2203.12318v1 [cs.HC] 23 Mar 2022
-  source_id: '2203.12318'
-  url: https://arxiv.org/abs/2203.12318
-  value: '12'

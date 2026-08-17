@@ -5,4 +5,6 @@ scipy
 statsmodels
 pingouin
 pytest
+flake8
+black
 pyyaml

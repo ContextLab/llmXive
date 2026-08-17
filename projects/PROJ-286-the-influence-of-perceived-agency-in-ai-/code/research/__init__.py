@@ -1,1 +1,1 @@
-# Research module
+# Research utilities package

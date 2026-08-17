@@ -1,1 +1,1 @@
-"""Schema contracts for the perceived agency study."""
+# Schema contracts for the Perceived Agency in AI Interactions project

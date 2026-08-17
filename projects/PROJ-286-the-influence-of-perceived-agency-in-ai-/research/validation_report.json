@@ -1,14 +1,14 @@
 [
   {
-    "title": "Trust in Automation: Designing for Appropriate Reliance",
-    "doi": "10.1518/001872004772976066",
-    "overlap_score": 0.92,
-    "status": "valid"
+    "title": "Lee & See (2004)",
+    "doi": "10.1207/s15327051hci1501&2_5",
+    "overlap_score": 0.6667,
+    "status": "invalid"
   },
   {
-    "title": "The illusion of control",
-    "doi": "10.1037/0022-3514.32.2.311",
-    "overlap_score": 1.0,
-    "status": "valid"
+    "title": "Langer (1975)",
+    "doi": "10.1037/h0076589",
+    "overlap_score": 0.5,
+    "status": "invalid"
   }
 ]

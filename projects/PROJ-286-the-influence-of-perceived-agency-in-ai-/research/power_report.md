@@ -13,13 +13,13 @@ This report details the power analysis conducted to determine the required sampl
 | **Statistical Test** | One-Way ANOVA (F-test) | Analysis of Variance |
 
 ## Results
-- **Required Sample Size per Group**: 53 participants
-- **Total Required Sample Size**: 159 participants
+- **Required Sample Size per Group**: 159 participants
+- **Total Required Sample Size**: 477 participants
 - **Analysis Method**: One-Way ANOVA (F-test)
 - **Software**: statsmodels
 
 ## Conclusion
-To achieve a statistical power of **0.8** for detecting a medium effect size (0.25) at a significance level of 0.05 using a One-Way ANOVA with 3 groups, the study requires a minimum of **53 participants per condition**, totaling **159 participants**.
+To achieve a statistical power of **0.8** for detecting a medium effect size (0.25) at a significance level of 0.05 using a One-Way ANOVA with 3 groups, the study requires a minimum of **159 participants per condition**, totaling **477 participants**.
 
 This sample size ensures that the study is adequately powered to detect the hypothesized differences in trust scores between the experimental conditions.
 

@@ -44,7 +44,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1037/0022-3514.42.3.461
   verified_at: '2026-08-15T09:34:58.314673Z'
-- artifact_hash: 5c19d912e5dcd62a7ff487519f9cef75e8c6e70ad319573754f5972d54093712
+- artifact_hash: c881a9c5a1192a32ff457711fcd5ff01f6f072c950a38adf7832d8559258eccb
   artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -54,4 +54,4 @@
   value: https://api.crossref.org/works?query.title={title}`
   verification_status: pending
   verified_against_url: https://api.crossref.org/works?query.title={title
-  verified_at: '2026-08-17T13:12:06.835787Z'
+  verified_at: '2026-08-17T20:59:43.601752Z'

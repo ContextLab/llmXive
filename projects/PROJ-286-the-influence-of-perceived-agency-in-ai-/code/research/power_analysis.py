@@ -8,6 +8,7 @@ import argparse
 import json
 import os
 import sys
+from pathlib import Path
 from statsmodels.stats.power import FTestAnovaPower
 
 def calculate_sample_size(effect_size: float = 0.25, alpha: float = 0.05, power: float = 0.80, k_groups: int = 3) -> int:

@@ -1,70 +1,134 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Participant Session Schema"
-description: "Schema for raw participant data exported from the experiment interface."
-type: "object"
-properties:
-  participant_id:
-    type: "string"
-    description: "Unique identifier for each session (UUID v4)."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-  condition:
-    type: "string"
-    description: "Experimental condition assigned to the participant."
-    enum:
-      - "High Agency"
-      - "Low Agency"
-      - "Control"
-  adherence_rate:
-    type: "number"
-    description: "Percentage of AI recommendations followed (0-100)."
-    minimum: 0.0
-    maximum: 100.0
-    multipleOf: 0.01
-  trust_score:
-    type: "number"
-    description: "Mean score from Lee & See (2004) trust scale (1-5)."
-    minimum: 1.0
-    maximum: 5.0
-    multipleOf: 0.01
-  perceived_agency_score:
-    type: "number"
-    description: "Mean score from Langer-style manipulation check (1-5)."
-    minimum: 1.0
-    maximum: 5.0
-    multipleOf: 0.01
-  illusion_belief:
-    type: "boolean"
-    description: "Debriefing: Did you believe the sliders changed the recommendation?"
-  attention_check_pass:
-    type: "boolean"
-    description: "Whether the participant passed the attention check."
-  completion_time:
-    type: "number"
-    description: "Time taken to complete the task (seconds)."
-    minimum: 0.0
-    multipleOf: 0.01
-  timestamp:
-    type: "string"
-    description: "Session completion timestamp (UTC, ISO 8601)."
-    format: "date-time"
-  raw_trust_items:
-    type: "string"
-    description: "JSON-encoded list of raw Lee & See (2004) item scores (integers 1-5)."
-    pattern: "^\\[\\d+(,\\d+)*\\]$"
-  raw_agency_items:
-    type: "string"
-    description: "JSON-encoded list of raw manipulation check item scores (integers 1-5)."
-    pattern: "^\\[\\d+(,\\d+)*\\]$"
+# Participant Data Schema
+# Defines the structure for raw experimental data exports
+type: object
 required:
   - participant_id
   - condition
   - adherence_rate
   - trust_score
+  - attention_check
+  - trust_item_1
+  - trust_item_2
+  - trust_item_3
+  - trust_item_4
+  - trust_item_5
+  - trust_item_6
+  - trust_item_7
+  - trust_item_8
+  - trust_item_9
+  - trust_item_10
+  - trust_item_11
+  - trust_item_12
   - perceived_agency_score
-  - illusion_belief
-  - attention_check_pass
-  - completion_time
-  - timestamp
-  - raw_trust_items
-  - raw_agency_items
-additionalProperties: false
+properties:
+  participant_id:
+    type: string
+    description: Unique UUID for the participant
+    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  
+  condition:
+    type: string
+    description: Experimental condition assignment
+    enum:
+      - High
+      - Low
+      - Control
+  
+  adherence_rate:
+    type: number
+    description: Percentage of AI recommendations followed
+    minimum: 0
+    maximum: 100
+  
+  trust_score:
+    type: number
+    description: Aggregated trust score (mean of 12 items)
+    minimum: 1
+    maximum: 5
+  
+  attention_check:
+    type: boolean
+    description: True if participant passed attention checks
+  
+  trust_item_1:
+    type: integer
+    description: "Trust item 1: I trust this system"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_2:
+    type: integer
+    description: "Trust item 2: I feel confident in this system"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_3:
+    type: integer
+    description: "Trust item 3: I believe this system is reliable"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_4:
+    type: integer
+    description: "Trust item 4: I feel this system is competent"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_5:
+    type: integer
+    description: "Trust item 5: I feel this system is predictable"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_6:
+    type: integer
+    description: "Trust item 6: I feel this system is safe"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_7:
+    type: integer
+    description: "Trust item 7: I feel this system is honest"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_8:
+    type: integer
+    description: "Trust item 8: I feel this system is benevolent"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_9:
+    type: integer
+    description: "Trust item 9: I feel this system is capable"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_10:
+    type: integer
+    description: "Trust item 10: I feel this system is useful"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_11:
+    type: integer
+    description: "Trust item 11: I feel this system is accurate"
+    minimum: 1
+    maximum: 5
+  
+  trust_item_12:
+    type: integer
+    description: "Trust item 12: I feel this system is effective"
+    minimum: 1
+    maximum: 5
+  
+  perceived_agency_score:
+    type: integer
+    description: Manipulation check: Perceived agency (1-7 Likert)
+    minimum: 1
+    maximum: 7
+  
+  timestamp:
+    type: string
+    description: ISO 8601 timestamp of data export
+    format: date-time

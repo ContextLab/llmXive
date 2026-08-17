@@ -1,1 +1,1 @@
-"""Root tests package."""
+# Project tests package

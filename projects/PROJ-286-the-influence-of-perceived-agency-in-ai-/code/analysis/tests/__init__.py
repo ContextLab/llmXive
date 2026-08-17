@@ -1,1 +1,1 @@
-"""Tests for the analysis module."""
+# Analysis tests module
