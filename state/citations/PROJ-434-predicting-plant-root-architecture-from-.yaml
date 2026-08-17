@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 5125ade975fecd8bb2f5288648c36c283e1c2af50ed574dc8a187edf2ce138e9
+  artifact_path: projects/PROJ-434-predicting-plant-root-architecture-from-/specs/001-predicting-plant-root-architecture-from/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/soilgrids/soilgrids2017`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/soilgrids/soilgrids2017
+  verified_at: '2026-08-17T03:38:32.129911Z'

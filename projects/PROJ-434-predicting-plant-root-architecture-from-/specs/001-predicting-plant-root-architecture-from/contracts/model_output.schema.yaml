@@ -1,0 +1,109 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Metrics Schema"
+description: "Schema for the model performance metrics and feature importance."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used (e.g., 'RandomForest')."
+  cross_validation_type:
+    type: "string"
+    description: "Type of CV used (e.g., 'Stratified5Fold', 'LOSO')."
+  model_variant:
+    type: "string"
+    description: "Model variant (e.g., 'SoilOnly', 'SoilPlusSpecies')."
+  metrics:
+    type: "object"
+    properties:
+      root_depth:
+        type: "object"
+        properties:
+          r_squared:
+            type: "number"
+            description: "Mean R² for root depth."
+          rmse:
+            type: "number"
+            description: "Mean RMSE for root depth."
+          r_squared_std:
+            type: "number"
+            description: "Standard deviation of R² across folds."
+          permutation_p_value:
+            type: "number"
+            description: "p-value from permutation test."
+        required:
+          - r_squared
+          - rmse
+          - r_squared_std
+          - permutation_p_value
+      branching_density:
+        type: "object"
+        properties:
+          r_squared:
+            type: "number"
+            description: "Mean R² for branching density."
+          rmse:
+            type: "number"
+            description: "Mean RMSE for branching density."
+          r_squared_std:
+            type: "number"
+            description: "Standard deviation of R² across folds."
+          permutation_p_value:
+            type: "number"
+            description: "p-value from permutation test."
+        required:
+          - r_squared
+          - rmse
+          - r_squared_std
+          - permutation_p_value
+    required:
+      - root_depth
+      - branching_density
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature:
+          type: "string"
+        importance:
+          type: "number"
+        p_value:
+          type: "number"
+        is_significant:
+          type: "boolean"
+          description: "True if p_value < 0.05."
+      required:
+        - feature
+        - importance
+        - p_value
+        - is_significant
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      thresholds_tested:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of p-value thresholds tested (e.g., [0.01, 0.05, 0.10])."
+      stability_report:
+        type: "string"
+        description: "Text summary of stability across thresholds."
+    required:
+      - thresholds_tested
+      - stability_report
+  execution_time_seconds:
+    type: "number"
+    description: "Total execution time in seconds."
+  data_source_note:
+    type: "string"
+    description: "Note on data source (e.g., 'Synthetic proxy used for pipeline testing only')."
+required:
+  - model_type
+  - cross_validation_type
+  - model_variant
+  - metrics
+  - feature_importance
+  - sensitivity_analysis
+  - execution_time_seconds
+  - data_source_note
+additionalProperties: false

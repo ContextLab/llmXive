@@ -1,0 +1,16 @@
+status: none
+intent: Download SoilGrids global soil nutrients and Zenodo root traits as python
+  package dataset
+required_fields:
+- site_id
+- latitude
+- longitude
+- soil_n
+- soil_p
+- soil_k
+- soil_ph
+- root_depth
+- root_branching_density
+cache_key: 9e5ab3c680f122367125f30e737fe28c198f78d8f00f6ec43631a02b34a2a94f
+searched_at: '2026-08-17T03:26:39.177541+00:00'
+retry_count: 1
