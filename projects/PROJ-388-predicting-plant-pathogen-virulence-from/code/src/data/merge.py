@@ -1,17 +1,24 @@
+"""
+Merge genomic features with phenotypic scores and handle aggregation fallbacks.
+
+This module implements the data merging logic for User Story 1, including:
+- Loading and aligning genomic and phenotypic data
+- Detecting when species-level aggregation is needed
+- Performing aggregation and writing intermediate/final datasets
+"""
+
 import os
 import csv
 import logging
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
-from dataclasses import dataclass, field
 
 import pandas as pd
 import numpy as np
 
-from src.models.genomic_feature import GenomicFeature
-from src.models.isolate import Isolate
 from src.models.species_aggregate import SpeciesAggregate
+from src.utils.errors import DataFetchError
 
 # Configure logging
 logging.basicConfig(
@@ -20,186 +27,331 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@dataclass
+# Constants
+DATA_ROOT = Path(os.environ.get('DATA_ROOT', 'data'))
+PROCESSED_DIR = DATA_ROOT / 'processed'
+
+# Ensure output directory exists
+PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+
 class MergeResult:
-    merged_df: Optional[pd.DataFrame] = None
-    species_aggregates: Optional[pd.DataFrame] = None
-    aggregated_results: Optional[pd.DataFrame] = None
-    stats: Dict[str, Any] = field(default_factory=dict)
-    needs_aggregation: bool = False
+    """Result container for merge operations."""
+    def __init__(
+        self,
+        merged_df: Optional[pd.DataFrame] = None,
+        species_aggregates: Optional[pd.DataFrame] = None,
+        needs_aggregation: bool = False,
+        total_isolates: int = 0,
+        linked_isolates: int = 0,
+        missing_phenotypes: int = 0
+    ):
+        self.merged_df = merged_df
+        self.species_aggregates = species_aggregates
+        self.needs_aggregation = needs_aggregation
+        self.total_isolates = total_isolates
+        self.linked_isolates = linked_isolates
+        self.missing_phenotypes = missing_phenotypes
+
 
 def load_genomic_features(genomic_path: Path) -> pd.DataFrame:
-    """Load genomic features from a Parquet or CSV file."""
-    if not genomic_path.exists():
-        raise FileNotFoundError(f"Genomic features file not found: {genomic_path}")
+    """
+    Load genomic features from a parquet or CSV file.
     
-    if genomic_path.suffix == '.parquet':
-        return pd.read_parquet(genomic_path)
-    elif genomic_path.suffix == '.csv':
-        return pd.read_csv(genomic_path)
-    else:
-        raise ValueError(f"Unsupported file format: {genomic_path.suffix}")
+    Args:
+        genomic_path: Path to the genomic features file
+        
+    Returns:
+        DataFrame with genomic features
+        
+    Raises:
+        DataFetchError: If file cannot be loaded
+    """
+    try:
+        if genomic_path.suffix == '.parquet':
+            return pd.read_parquet(genomic_path)
+        elif genomic_path.suffix == '.csv':
+            return pd.read_csv(genomic_path)
+        else:
+            raise DataFetchError(str(genomic_path), 0, "Unsupported file format")
+    except Exception as e:
+        logger.error(f"Failed to load genomic features from {genomic_path}: {e}")
+        raise DataFetchError(str(genomic_path), 0, f"Failed to load genomic features: {e}")
+
 
 def load_phenotypic_scores(phenotypic_path: Path) -> pd.DataFrame:
-    """Load phenotypic scores from a Parquet or CSV file."""
-    if not phenotypic_path.exists():
-        raise FileNotFoundError(f"Phenotypic scores file not found: {phenotypic_path}")
-    
-    if phenotypic_path.suffix == '.parquet':
-        return pd.read_parquet(phenotypic_path)
-    elif phenotypic_path.suffix == '.csv':
-        return pd.read_csv(phenotypic_path)
-    else:
-        raise ValueError(f"Unsupported file format: {phenotypic_path.suffix}")
-
-def align_genomic_phenotypic(genomic_df: pd.DataFrame, phenotypic_df: pd.DataFrame) -> Tuple[pd.DataFrame, int, int]:
     """
-    Align genomic features with phenotypic scores by isolate/species ID.
+    Load phenotypic scores from a parquet or CSV file.
+    
+    Args:
+        phenotypic_path: Path to the phenotypic scores file
+        
+    Returns:
+        DataFrame with phenotypic scores
+        
+    Raises:
+        DataFetchError: If file cannot be loaded
+    """
+    try:
+        if phenotypic_path.suffix == '.parquet':
+            return pd.read_parquet(phenotypic_path)
+        elif phenotypic_path.suffix == '.csv':
+            return pd.read_csv(phenotypic_path)
+        else:
+            raise DataFetchError(str(phenotypic_path), 0, "Unsupported file format")
+    except Exception as e:
+        logger.error(f"Failed to load phenotypic scores from {phenotypic_path}: {e}")
+        raise DataFetchError(str(phenotypic_path), 0, f"Failed to load phenotypic scores: {e}")
+
+
+def align_genomic_phenotypic(
+    genomic_df: pd.DataFrame,
+    phenotypic_df: pd.DataFrame,
+    key_col: str = 'species_name'
+) -> Tuple[pd.DataFrame, int, int]:
+    """
+    Align genomic features with phenotypic scores by species/isolate ID.
     
     Args:
         genomic_df: DataFrame with genomic features
         phenotypic_df: DataFrame with phenotypic scores
+        key_col: Column name to join on
         
     Returns:
-        Tuple of (merged DataFrame, count of dropped rows, total rows before merge)
+        Tuple of (merged DataFrame, total rows, rows with missing phenotype)
     """
     total_rows = len(genomic_df)
     
-    # Identify common key column (assuming 'strain_id' or 'species_name')
-    key_col = None
-    if 'strain_id' in genomic_df.columns and 'strain_id' in phenotypic_df.columns:
-        key_col = 'strain_id'
-    elif 'species_name' in genomic_df.columns and 'species_name' in phenotypic_df.columns:
-        key_col = 'species_name'
-    else:
-        raise ValueError("No common key column found for merging")
-    
-    # Merge on the key column
-    merged_df = pd.merge(
-        genomic_df, 
-        phenotypic_df, 
-        on=key_col, 
-        how='inner'  # Inner join to keep only matched rows
+    # Perform inner join to keep only matched records
+    merged = pd.merge(
+        genomic_df,
+        phenotypic_df,
+        on=key_col,
+        how='inner',
+        suffixes=('_genomic', '_phenotypic')
     )
     
-    dropped_count = total_rows - len(merged_df)
+    # Count missing phenotypes (should be 0 after inner join, but check for NaN)
+    missing_count = merged['phenotype_score'].isna().sum()
     
-    if dropped_count > 0:
-        logger.warning(f"Dropped {dropped_count} rows due to missing phenotype data")
+    # Drop rows with missing phenotype scores
+    merged = merged.dropna(subset=['phenotype_score'])
     
-    return merged_df, dropped_count, total_rows
+    logger.info(f"Aligned {len(merged)} records out of {total_rows} total. "
+               f"Dropped {total_rows - len(merged)} due to missing phenotypes.")
+    
+    return merged, total_rows, missing_count
 
-def detect_aggregation_need(merged_df: pd.DataFrame, threshold: float = 0.5) -> bool:
+
+def detect_aggregation_need(merged_df: pd.DataFrame, key_col: str = 'species_name') -> Tuple[bool, int, int]:
     """
-    Detect if aggregation is needed based on linkage ratio.
+    Detect if species-level aggregation is needed based on isolate linkage.
+    
+    Criteria: If linked_isolate_count / total_isolate_count < 0.5, aggregation is needed.
     
     Args:
-        merged_df: Merged DataFrame
-        threshold: Minimum ratio of linked isolates to total isolates
+        merged_df: Merged DataFrame with genomic and phenotypic data
+        key_col: Column name for grouping (species or isolate)
         
     Returns:
-        True if aggregation is needed (ratio < threshold), False otherwise
+        Tuple of (needs_aggregation, total_isolates, linked_isolates)
     """
-    if merged_df.empty:
-        return True
-    
-    total_isolates = len(merged_df)
-    # Assuming we have a column 'strain_id' to count unique isolates
-    if 'strain_id' in merged_df.columns:
-        linked_isolate_count = merged_df['strain_id'].nunique()
+    # Count total unique isolates (assuming 'isolate_id' column exists)
+    if 'isolate_id' in merged_df.columns:
+        total_isolates = merged_df['isolate_id'].nunique()
     else:
-        # If no strain_id, assume each row is an isolate
-        linked_isolate_count = total_isolates
+        # Fallback to using species if isolate_id not present
+        total_isolates = merged_df[key_col].nunique()
+        logger.warning("No 'isolate_id' column found, using species as proxy for isolate count")
     
-    ratio = linked_isolate_count / total_isolates if total_isolates > 0 else 0
-    needs_agg = ratio < threshold
+    # Count species with multiple isolates (linked)
+    species_counts = merged_df[key_col].value_counts()
+    linked_species = species_counts[species_counts > 1]
+    linked_isolates = linked_species.sum() if len(linked_species) > 0 else 0
     
-    logger.info(f"Linkage ratio: {ratio:.2f}, needs aggregation: {needs_agg}")
-    return needs_agg
+    if total_isolates == 0:
+        logger.warning("No isolates found in merged data")
+        return False, 0, 0
+    
+    linkage_ratio = linked_isolates / total_isolates
+    needs_aggregation = linkage_ratio < 0.5
+    
+    logger.info(f"Linkage ratio: {linked_isolates}/{total_isolates} = {linkage_ratio:.2f}. "
+               f"Needs aggregation: {needs_aggregation}")
+    
+    return needs_aggregation, total_isolates, linked_isolates
 
-def aggregate_by_species(merged_df: pd.DataFrame) -> pd.DataFrame:
+
+def aggregate_by_species(merged_df: pd.DataFrame, key_col: str = 'species_name') -> pd.DataFrame:
     """
-    Aggregate data by species: average phenotype, count isolates.
+    Aggregate data by species: average phenotype, count isolates, compute variance.
     
     Args:
         merged_df: Merged DataFrame
+        key_col: Column name for grouping
         
     Returns:
         DataFrame with species-level aggregates
     """
-    if 'species_name' not in merged_df.columns:
-        raise ValueError("Column 'species_name' not found in DataFrame")
+    if key_col not in merged_df.columns:
+        raise ValueError(f"Key column '{key_col}' not found in DataFrame. "
+                       f"Available columns: {list(merged_df.columns)}")
     
-    # Group by species and aggregate
-    agg_df = merged_df.groupby('species_name').agg({
-        'phenotype_score': 'mean',
-        'strain_id': 'count'  # Count isolates
-    }).reset_index()
+    if 'phenotype_score' not in merged_df.columns:
+        raise ValueError("'phenotype_score' column not found in DataFrame")
     
-    agg_df.columns = ['species_name', 'avg_phenotype', 'isolate_count']
+    # Group by species and compute aggregates
+    aggregated = merged_df.groupby(key_col).agg(
+        avg_phenotype=('phenotype_score', 'mean'),
+        isolate_count=('isolate_id' if 'isolate_id' in merged_df.columns else key_col, 'count'),
+        variance=('phenotype_score', 'var')
+    ).reset_index()
     
-    # Calculate variance if possible
-    if 'phenotype_score' in merged_df.columns:
-        variance_df = merged_df.groupby('species_name')['phenotype_score'].var().reset_index()
-        variance_df.columns = ['species_name', 'variance']
-        agg_df = pd.merge(agg_df, variance_df, on='species_name', how='left')
+    # Rename species column to species_name for consistency
+    aggregated = aggregated.rename(columns={key_col: 'species_name'})
     
-    return agg_df
+    # Handle variance NaN (when isolate_count=1)
+    aggregated['variance'] = aggregated['variance'].fillna(0.0)
+    
+    logger.info(f"Aggregated {len(aggregated)} species from {len(merged_df)} records")
+    
+    return aggregated
 
-def write_merged_dataset(df: pd.DataFrame, output_path: Path) -> None:
-    """Write merged DataFrame to Parquet file."""
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Wrote merged dataset to {output_path}")
 
-def write_species_aggregates(df: pd.DataFrame, output_path: Path) -> None:
-    """Write species aggregates to Parquet file."""
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Wrote species aggregates to {output_path}")
-
-def write_aggregated_results(df: pd.DataFrame, output_path: Path, analysis_results: Optional[pd.DataFrame] = None) -> None:
+def write_species_aggregates(aggregated_df: pd.DataFrame, output_path: Path) -> None:
     """
-    Write aggregated results, optionally combining with analysis results.
+    Write species aggregates to parquet file.
     
     Args:
-        df: Species aggregates DataFrame
-        output_path: Output file path
-        analysis_results: Optional analysis results to include
+        aggregated_df: DataFrame with species aggregates
+        output_path: Path to output file
     """
-    if analysis_results is not None:
-        # Merge aggregates with analysis results if available
-        final_df = pd.merge(df, analysis_results, on='species_name', how='left')
-    else:
-        final_df = df
-    
-    final_df.to_csv(output_path, index=False)
-    logger.info(f"Wrote aggregated results to {output_path}")
+    try:
+        aggregated_df.to_parquet(output_path, index=False)
+        logger.info(f"Wrote species aggregates to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to write species aggregates: {e}")
+        raise DataFetchError(str(output_path), 0, f"Failed to write species aggregates: {e}")
 
-def write_summary_report(stats: Dict[str, Any], output_path: Path) -> None:
-    """Write a summary report as JSON."""
-    with open(output_path, 'w') as f:
-        json.dump(stats, f, indent=2)
-    logger.info(f"Wrote summary report to {output_path}")
+
+def write_aggregated_results(
+    aggregated_df: pd.DataFrame,
+    output_path: Path,
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Write aggregated results to parquet file with optional metadata.
+    
+    Args:
+        aggregated_df: DataFrame with aggregated results
+        output_path: Path to output file
+        metadata: Optional metadata dictionary
+    """
+    try:
+        # Write to parquet
+        aggregated_df.to_parquet(output_path, index=False)
+        logger.info(f"Wrote aggregated results to {output_path}")
+        
+        # Write metadata if provided
+        if metadata:
+            metadata_path = output_path.with_suffix('.json')
+            with open(metadata_path, 'w') as f:
+                json.dump(metadata, f, indent=2)
+            logger.info(f"Wrote metadata to {metadata_path}")
+            
+    except Exception as e:
+        logger.error(f"Failed to write aggregated results: {e}")
+        raise DataFetchError(str(output_path), 0, f"Failed to write aggregated results: {e}")
+
+
+def write_merged_dataset(
+    merged_df: pd.DataFrame,
+    output_path: Path,
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Write the final merged dataset to parquet.
+    
+    This function handles both the direct merge output (when no aggregation needed)
+    and the aggregated output (when aggregation is needed).
+    
+    Args:
+        merged_df: Final DataFrame to write (either original merge or aggregated)
+        output_path: Path to output file
+        metadata: Optional metadata dictionary
+    """
+    try:
+        merged_df.to_parquet(output_path, index=False)
+        logger.info(f"Wrote merged dataset to {output_path}")
+        
+        # Write metadata if provided
+        if metadata:
+            metadata_path = output_path.with_suffix('.json')
+            with open(metadata_path, 'w') as f:
+                json.dump(metadata, f, indent=2)
+            logger.info(f"Wrote metadata to {metadata_path}")
+            
+    except Exception as e:
+        logger.error(f"Failed to write merged dataset: {e}")
+        raise DataFetchError(str(output_path), 0, f"Failed to write merged dataset: {e}")
+
+
+def write_summary_report(
+    output_path: Path,
+    total_count: int,
+    missing_count: int,
+    aggregated: bool = False,
+    aggregated_count: int = 0
+) -> None:
+    """
+    Write a summary report of the merge operation.
+    
+    Args:
+        output_path: Path to output report file
+        total_count: Total number of input records
+        missing_count: Number of records with missing phenotypes
+        aggregated: Whether aggregation was performed
+        aggregated_count: Number of records after aggregation
+    """
+    report = {
+        'total_input_records': total_count,
+        'missing_phenotype_records': missing_count,
+        'records_after_dropping_missing': total_count - missing_count,
+        'aggregation_performed': aggregated,
+        'records_after_aggregation': aggregated_count if aggregated else total_count - missing_count
+    }
+    
+    try:
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Wrote summary report to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to write summary report: {e}")
+        raise DataFetchError(str(output_path), 0, f"Failed to write summary report: {e}")
+
 
 def run_merge_pipeline(
     genomic_path: Path,
     phenotypic_path: Path,
-    output_dir: Path,
-    analysis_results_path: Optional[Path] = None
+    output_path: Path,
+    aggregated_output_path: Optional[Path] = None,
+    summary_path: Optional[Path] = None
 ) -> MergeResult:
     """
-    Run the full merge pipeline: load, align, detect aggregation, aggregate if needed, and write outputs.
+    Run the full merge pipeline including detection and aggregation if needed.
+    
+    This is the main entry point for the merge pipeline.
     
     Args:
         genomic_path: Path to genomic features file
         phenotypic_path: Path to phenotypic scores file
-        output_dir: Directory for output files
-        analysis_results_path: Optional path to pre-computed analysis results (for T020c)
+        output_path: Path for final merged dataset
+        aggregated_output_path: Path for species aggregates (optional)
+        summary_path: Path for summary report (optional)
         
     Returns:
-        MergeResult containing all outputs and statistics
+        MergeResult object with all relevant data and metadata
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
     # Load data
     logger.info(f"Loading genomic features from {genomic_path}")
     genomic_df = load_genomic_features(genomic_path)
@@ -207,121 +359,110 @@ def run_merge_pipeline(
     logger.info(f"Loading phenotypic scores from {phenotypic_path}")
     phenotypic_df = load_phenotypic_scores(phenotypic_path)
     
-    # Align and merge
-    merged_df, dropped_count, total_rows = align_genomic_phenotypic(genomic_df, phenotypic_df)
-    
-    # Detect if aggregation is needed
-    needs_agg = detect_aggregation_need(merged_df)
-    
-    result = MergeResult(
-        merged_df=merged_df,
-        needs_aggregation=needs_agg,
-        stats={
-            'total_rows': total_rows,
-            'dropped_rows': dropped_count,
-            'final_rows': len(merged_df),
-            'needs_aggregation': needs_agg
-        }
+    # Align data
+    merged_df, total_rows, missing_count = align_genomic_phenotypic(
+        genomic_df, phenotypic_df
     )
     
-    if needs_agg:
-        logger.info("Performing species aggregation...")
-        species_agg_df = aggregate_by_species(merged_df)
-        species_agg_path = output_dir / "species_aggregates.parquet"
-        write_species_aggregates(species_agg_df, species_agg_path)
-        result.species_aggregates = species_agg_df
+    # Detect if aggregation is needed
+    needs_aggregation, total_isolates, linked_isolates = detect_aggregation_need(merged_df)
+    
+    if needs_aggregation:
+        logger.info("Aggregation needed. Performing species-level aggregation...")
         
-        # If analysis results are provided, include them
-        analysis_results_df = None
-        if analysis_results_path and analysis_results_path.exists():
-            if analysis_results_path.suffix == '.csv':
-                analysis_results_df = pd.read_csv(analysis_results_path)
-            elif analysis_results_path.suffix == '.parquet':
-                analysis_results_df = pd.read_parquet(analysis_results_path)
+        # Aggregate by species
+        aggregated_df = aggregate_by_species(merged_df)
         
-        agg_results_path = output_dir / "aggregated_results.csv"
-        write_aggregated_results(species_agg_df, agg_results_path, analysis_results_df)
-        result.aggregated_results = species_agg_df if analysis_results_df is None else pd.merge(species_agg_df, analysis_results_df, on='species_name', how='left')
+        # Write species aggregates if path provided
+        if aggregated_output_path:
+            write_species_aggregates(aggregated_df, aggregated_output_path)
         
-        # Use aggregated data for final output
-        final_df = result.aggregated_results if result.aggregated_results is not None else species_agg_df
-        result.stats['aggregated_species_count'] = len(species_agg_df)
+        # Write final merged dataset (aggregated)
+        write_merged_dataset(
+            aggregated_df,
+            output_path,
+            metadata={
+                'aggregation_performed': True,
+                'total_isolates': total_isolates,
+                'linked_isolates': linked_isolates,
+                'species_count': len(aggregated_df)
+            }
+        )
+        
+        # Write summary report
+        if summary_path:
+            write_summary_report(
+                summary_path,
+                total_count=total_rows,
+                missing_count=missing_count,
+                aggregated=True,
+                aggregated_count=len(aggregated_df)
+            )
+        
+        return MergeResult(
+            merged_df=aggregated_df,
+            needs_aggregation=True,
+            total_isolates=total_isolates,
+            linked_isolates=linked_isolates,
+            missing_phenotypes=missing_count
+        )
     else:
-        final_df = merged_df
-        result.stats['aggregated_species_count'] = 0
-    
-    # Write final merged dataset
-    final_output_path = output_dir / "merged_dataset.parquet"
-    write_merged_dataset(final_df, final_output_path)
-    result.merged_df = final_df
-    
-    # Write summary report
-    summary_path = output_dir / "merge_summary.json"
-    write_summary_report(result.stats, summary_path)
-    
-    return result
+        logger.info("Aggregation not needed. Using direct merge.")
+        
+        # Write final merged dataset (direct)
+        write_merged_dataset(
+            merged_df,
+            output_path,
+            metadata={
+                'aggregation_performed': False,
+                'total_isolates': total_isolates,
+                'linked_isolates': linked_isolates
+            }
+        )
+        
+        # Write summary report
+        if summary_path:
+            write_summary_report(
+                summary_path,
+                total_count=total_rows,
+                missing_count=missing_count,
+                aggregated=False,
+                aggregated_count=len(merged_df)
+            )
+        
+        return MergeResult(
+            merged_df=merged_df,
+            needs_aggregation=False,
+            total_isolates=total_isolates,
+            linked_isolates=linked_isolates,
+            missing_phenotypes=missing_count
+        )
+
 
 def main():
     """Main entry point for the merge pipeline."""
-    # Define paths based on project structure
-    base_dir = Path(__file__).resolve().parent.parent.parent
-    data_dir = base_dir / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
+    # Define paths
+    genomic_path = PROCESSED_DIR / 'genomic_features.parquet'
+    phenotypic_path = PROCESSED_DIR / 'phenotypic_scores.parquet'
+    output_path = PROCESSED_DIR / 'merged_dataset.parquet'
+    aggregated_output_path = PROCESSED_DIR / 'species_aggregates.parquet'
+    summary_path = PROCESSED_DIR / 'merge_summary.json'
     
-    # Ensure processed directory exists
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    # Run pipeline
+    result = run_merge_pipeline(
+        genomic_path=genomic_path,
+        phenotypic_path=phenotypic_path,
+        output_path=output_path,
+        aggregated_output_path=aggregated_output_path,
+        summary_path=summary_path
+    )
     
-    # Define input paths (adjust based on actual file names from previous tasks)
-    # Assuming T015/T016 produce these files
-    genomic_path = processed_dir / "genomic_features.parquet"
-    phenotypic_path = processed_dir / "phenotypic_scores.parquet"
+    logger.info(f"Merge pipeline completed. Needs aggregation: {result.needs_aggregation}")
+    logger.info(f"Total isolates: {result.total_isolates}, Linked: {result.linked_isolates}")
+    logger.info(f"Missing phenotypes: {result.missing_phenotypes}")
     
-    # If T020c ran, there might be analysis results
-    analysis_results_path = processed_dir / "aggregated_results.csv"
-    if not analysis_results_path.exists():
-        analysis_results_path = None
-    
-    # Check if input files exist
-    if not genomic_path.exists():
-        logger.error(f"Genomic features file not found: {genomic_path}")
-        # Try to find alternative paths if standard ones don't exist
-        # This handles cases where T019 might have output to a different name
-        possible_genomic = list(processed_dir.glob("*genomic*.parquet")) + list(processed_dir.glob("*genomic*.csv"))
-        if possible_genomic:
-            genomic_path = possible_genomic[0]
-            logger.info(f"Using alternative genomic path: {genomic_path}")
-        else:
-            raise FileNotFoundError("No genomic features file found in processed directory")
-    
-    if not phenotypic_path.exists():
-        logger.error(f"Phenotypic scores file not found: {phenotypic_path}")
-        # Try to find alternative paths
-        possible_phenotypic = list(processed_dir.glob("*phenotypic*.parquet")) + list(processed_dir.glob("*phenotypic*.csv"))
-        if possible_phenotypic:
-            phenotypic_path = possible_phenotypic[0]
-            logger.info(f"Using alternative phenotypic path: {phenotypic_path}")
-        else:
-            raise FileNotFoundError("No phenotypic scores file found in processed directory")
-    
-    # Run the pipeline
-    try:
-        result = run_merge_pipeline(
-            genomic_path=genomic_path,
-            phenotypic_path=phenotypic_path,
-            output_dir=processed_dir,
-            analysis_results_path=analysis_results_path
-        )
-        
-        logger.info("Merge pipeline completed successfully")
-        logger.info(f"Final dataset size: {len(result.merged_df)} rows")
-        logger.info(f"Needs aggregation: {result.needs_aggregation}")
-        if result.needs_aggregation:
-            logger.info(f"Aggregated into {result.stats.get('aggregated_species_count', 0)} species")
-        
-    except Exception as e:
-        logger.error(f"Merge pipeline failed: {e}")
-        raise
+    return result
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-388-predicting-plant-pathogen-virulence-from
-last_run_id: b50008bc-51ed-4a9b-8e24-40ddccbc9038
+last_run_id: a2a9147f-bccb-4dce-bbd7-754f6e2a4dd7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-388-predicting-plant-pathogen-virulence-from/specs/001-predicting-plant-pathogen-virulence-from
 title: Predicting Plant Pathogen Virulence from Publicly Available Genomic and Phenotypic
   Data
-updated_at: '2026-08-14T23:00:23.456251Z'
+updated_at: '2026-08-17T02:19:45.862496Z'

@@ -2,428 +2,483 @@
 Phylogenetic analysis module for plant pathogen virulence prediction.
 
 This module handles:
-1. Extraction of housekeeping genes (rpoB, gyrB, 16S) from genome assemblies
-2. Sequence concatenation and alignment
-3. Phylogenetic tree construction using Maximum Likelihood (IQ-TREE)
-4. Generation of phylogenetic covariance matrices for PGLS
+1. Extraction of core housekeeping genes (rpoB, gyrB, 16S for bacteria; RPB1, RPB2 for fungi)
+2. Concatenation of gene sequences
+3. Multiple sequence alignment
+4. Phylogenetic tree construction using Maximum Likelihood
+5. Computation of phylogenetic covariance matrix
 """
+
 import os
 import logging
 import subprocess
 import tempfile
 import shutil
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
+from typing import Dict, List, Tuple, Optional, NamedTuple
+
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
+from Bio import AlignIO
+from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstructor
+from Bio.Phylo.Applications import FasttreeCommandline
 import numpy as np
 
-from Bio import AlignIO, SeqIO
-from Bio.Phylo.TreeConstruction import DistanceCalculator, DistanceTreeConstructor
-from Bio.Phylo import BaseTree
+from src.utils.errors import AnalysisError, handle_analysis_error
 
 logger = logging.getLogger(__name__)
 
-@dataclass
-class PhylogenyResult:
-    """Result container for phylogenetic analysis."""
-    tree_path: str
-    covariance_matrix_path: str
-    tree: Optional[BaseTree.Tree] = None
-    covariance_matrix: Optional[np.ndarray] = None
-    sample_ids: List[str] = field(default_factory=list)
-    success: bool = False
-    error_message: Optional[str] = None
+# Housekeeping gene identifiers for bacteria
+BACTERIAL_HOUSEKEEPING_GENES = ['rpoB', 'gyrB', '16S']
+# Alternative housekeeping genes for fungi (e.g., Fusarium)
+FUNGAL_HOUSEKEEPING_GENES = ['RPB1', 'RPB2', 'TEF1']
 
-def find_housekeeping_genes(genome_dir: Path, genes: List[str] = None) -> Dict[str, List[Path]]:
+class PhylogenyResult(NamedTuple):
+    """Result of phylogenetic analysis pipeline."""
+    housekeeping_fasta: Path
+    alignment_fasta: Path
+    tree_newick: Path
+    covariance_matrix: np.ndarray
+    species_list: List[str]
+
+@handle_analysis_error
+def find_housekeeping_genes(genome_path: Path, output_dir: Path, is_fungal: bool = False) -> Dict[str, Path]:
     """
-    Find housekeeping gene sequences in genome files.
+    Extract core housekeeping genes from a genome assembly.
     
     Args:
-        genome_dir: Directory containing genome assembly files (.fna)
-        genes: List of housekeeping gene identifiers to search for (default: rpoB, gyrB, 16S)
+        genome_path: Path to the genome assembly file (.fna)
+        output_dir: Directory to write extracted gene sequences
+        is_fungal: Whether the organism is fungal (uses RPB1/RPB2 instead of rpoB/gyrB)
     
     Returns:
-        Dictionary mapping gene name to list of file paths containing that gene
+        Dictionary mapping gene name to extracted FASTA file path
+    
+    Raises:
+        AnalysisError: If no housekeeping genes are found
     """
-    if genes is None:
-        genes = ['rpoB', 'gyrB', '16S']
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    gene_files: Dict[str, List[Path]] = {gene: [] for gene in genes}
+    # Define gene identifiers based on organism type
+    if is_fungal:
+        target_genes = FUNGAL_HOUSEKEEPING_GENES
+    else:
+        target_genes = BACTERIAL_HOUSEKEEPING_GENES
     
-    for genome_file in genome_dir.glob("*.fna"):
-        try:
-            for record in SeqIO.parse(genome_file, "fasta"):
-                desc = record.description.lower()
-                for gene in genes:
-                    if gene.lower() in desc:
-                        gene_files[gene].append(genome_file)
-                        break
-        except Exception as e:
-            logger.warning(f"Failed to parse {genome_file}: {e}")
+    logger.info(f"Searching for housekeeping genes {target_genes} in {genome_path}")
     
-    return gene_files
+    # Read genome sequences
+    sequences = list(SeqIO.parse(str(genome_path), "fasta"))
+    
+    if not sequences:
+        raise AnalysisError(f"No sequences found in {genome_path}")
+    
+    extracted_genes = {}
+    
+    # Use prodigal for bacterial genomes to predict ORFs and search for housekeeping genes
+    # For simplicity in this implementation, we'll search by sequence similarity or HMM
+    # In a production system, we'd use HMMER with PFAM profiles for these genes
+    
+    for seq_record in sequences:
+        seq_str = str(seq_record.seq).upper()
+        
+        # Search for housekeeping genes by sequence patterns or exact matches
+        # In practice, this would use HMMER or BLAST against reference sequences
+        for gene in target_genes:
+            # Check if gene name appears in description (common in NCBI downloads)
+            if gene in seq_record.description.upper():
+                gene_output = output_dir / f"{seq_record.id}_{gene}.fasta"
+                SeqIO.write(seq_record, str(gene_output), "fasta")
+                extracted_genes[gene] = gene_output
+                logger.info(f"Found {gene} in {seq_record.id}")
+    
+    # If no genes found by description, attempt to use HMMER (if available)
+    if not extracted_genes:
+        logger.warning("No housekeeping genes found by description. Attempting HMMER search...")
+        extracted_genes = _hmm_search_genes(sequences, target_genes, output_dir)
+    
+    if not extracted_genes:
+        raise AnalysisError(
+            f"Could not extract any housekeeping genes from {genome_path}. "
+            f"Tried: {target_genes}. This may indicate a fungal genome where "
+            f"bacterial markers (rpoB, gyrB, 16S) are absent. Consider using fungal markers (RPB1, RPB2)."
+        )
+    
+    return extracted_genes
 
-def concatenate_genes(genome_dir: Path, output_fasta: Path, genes: List[str] = None) -> List[str]:
+def _hmm_search_genes(sequences: List[SeqRecord], target_genes: List[str], output_dir: Path) -> Dict[str, Path]:
     """
-    Concatenate housekeeping gene sequences from multiple genomes into a single alignment file.
+    Use HMMER to search for housekeeping genes (placeholder for production implementation).
     
-    Args:
-        genome_dir: Directory containing genome files
-        output_fasta: Path for output concatenated FASTA file
-        genes: List of genes to concatenate
+    In a full implementation, this would:
+    1. Download PFAM HMM profiles for housekeeping genes
+    2. Run hmmscan against the genome
+    3. Extract sequences matching the HMM profiles
     
-    Returns:
-        List of sample IDs found in the concatenated sequences
+    For now, this returns empty dict to indicate failure.
     """
-    if genes is None:
-        genes = ['rpoB', 'gyrB', '16S']
-    
-    sample_ids = []
-    temp_dir = tempfile.mkdtemp()
-    
+    # Check if hmmsearch is available
     try:
-        # Extract and concatenate sequences for each gene
-        for gene in genes:
-            gene_file = Path(temp_dir) / f"{gene}.fna"
-            with open(gene_file, 'w') as out_f:
-                for genome_file in genome_dir.glob("*.fna"):
-                    for record in SeqIO.parse(genome_file, "fasta"):
-                        if gene.lower() in record.description.lower():
-                            # Create a unique ID combining genome name and gene
-                            sample_id = Path(genome_file).stem
-                            if sample_id not in sample_ids:
-                                sample_ids.append(sample_id)
-                            
-                            # Write record with modified ID
-                            new_record = record
-                            new_record.id = f"{sample_id}_{gene}"
-                            new_record.description = f"{sample_id} {gene}"
-                            SeqIO.write(new_record, out_f, "fasta")
-        
-        # If we have multiple genes, we need to concatenate per sample
-        # For simplicity, we'll use a placeholder approach:
-        # In a real implementation, we would align each gene separately and concatenate
-        
-        # For now, just copy the first gene file as a placeholder
-        # TODO: Implement proper multi-gene concatenation with alignment
-        first_gene = genes[0]
-        first_gene_file = Path(temp_dir) / f"{first_gene}.fna"
-        
-        if first_gene_file.exists():
-            # Read and reformat for concatenation
-            records = list(SeqIO.parse(first_gene_file, "fasta"))
-            with open(output_fasta, 'w') as out_f:
-                for record in records:
-                    # Use only the sample ID part
-                    sample_id = record.id.split('_')[0]
-                    record.id = sample_id
-                    record.description = ""
-                    SeqIO.write(record, out_f, "fasta")
-        
-        return sample_ids
-        
-    finally:
-        shutil.rmtree(temp_dir, ignore_errors=True)
+        result = subprocess.run(['which', 'hmmsearch'], capture_output=True, text=True)
+        if result.returncode != 0:
+            logger.warning("hmmsearch not found in PATH. Skipping HMM search.")
+            return {}
+    except FileNotFoundError:
+        logger.warning("hmmsearch not found in PATH. Skipping HMM search.")
+        return {}
+    
+    # Production implementation would go here
+    # For now, return empty to indicate we couldn't find genes
+    return {}
 
-def align_sequences(input_fasta: Path, output_fasta: Path) -> bool:
+@handle_analysis_error
+def concatenate_genes(gene_files: Dict[str, Path], output_path: Path) -> Path:
     """
-    Align sequences using MUSCLE.
+    Concatenate multiple gene FASTA files into a single multi-FASTA file.
+    
+    Args:
+        gene_files: Dictionary mapping gene name to FASTA file path
+        output_path: Path to write concatenated sequences
+    
+    Returns:
+        Path to the concatenated FASTA file
+    """
+    all_sequences = []
+    
+    for gene_name, gene_file in sorted(gene_files.items()):
+        for record in SeqIO.parse(str(gene_file), "fasta"):
+            # Rename record to include gene name for clarity
+            record.id = f"{record.id}_{gene_name}"
+            record.description = ""
+            all_sequences.append(record)
+    
+    SeqIO.write(all_sequences, str(output_path), "fasta")
+    logger.info(f"Wrote {len(all_sequences)} sequences to {output_path}")
+    
+    return output_path
+
+@handle_analysis_error
+def align_sequences(input_fasta: Path, output_path: Path) -> Path:
+    """
+    Perform multiple sequence alignment using MUSCLE or MAFFT.
     
     Args:
         input_fasta: Path to input FASTA file
-        output_fasta: Path for output aligned FASTA file
+        output_path: Path to write aligned sequences
     
     Returns:
-        True if alignment successful, False otherwise
+        Path to the aligned FASTA file
     """
+    # Check for available aligners
+    aligner = None
+    for cmd in ['mafft', 'muscle']:
+        try:
+            result = subprocess.run(['which', cmd], capture_output=True, text=True)
+            if result.returncode == 0:
+                aligner = cmd
+                break
+        except FileNotFoundError:
+            continue
+    
+    if aligner is None:
+        logger.warning("No alignment tool (mafft, muscle) found. Using BioPython alignment (less accurate).")
+        # Fallback to BioPython alignment
+        return _bioalign_sequences(input_fasta, output_path)
+    
+    logger.info(f"Using {aligner} for alignment")
+    
+    if aligner == 'mafft':
+        cmd = f"mafft --auto {input_fasta} > {output_path}"
+    else:  # muscle
+        cmd = f"muscle -in {input_fasta} -out {output_path}"
+    
     try:
-        # Check if muscle is available
-        subprocess.run(["muscle", "-version"], capture_output=True, check=True)
-        
-        result = subprocess.run(
-            ["muscle", "-in", str(input_fasta), "-out", str(output_fasta)],
-            capture_output=True,
-            check=True
-        )
-        
-        if result.returncode == 0 and output_fasta.exists():
-            logger.info(f"Alignment successful: {output_fasta}")
-            return True
-        else:
-            logger.error(f"MUSCLE alignment failed: {result.stderr}")
-            return False
-            
-    except FileNotFoundError:
-        logger.error("MUSCLE not found. Please install MUSCLE and ensure it's in PATH.")
-        return False
+        subprocess.run(cmd, shell=True, check=True, capture_output=True)
+        logger.info(f"Alignment complete: {output_path}")
     except subprocess.CalledProcessError as e:
-        logger.error(f"MUSCLE alignment error: {e}")
-        return False
+        raise AnalysisError(f"Alignment failed: {e.stderr.decode()}")
+    
+    return output_path
 
-def build_tree(align_fasta: Path, tree_output: Path) -> Optional[BaseTree.Tree]:
+def _bioalign_sequences(input_fasta: Path, output_path: Path) -> Path:
     """
-    Build a phylogenetic tree using Maximum Likelihood (IQ-TREE).
+    Simple BioPython-based alignment fallback (for testing only).
+    
+    Note: This is a placeholder and produces lower quality alignments than MAFFT/MUSCLE.
+    """
+    from Bio.Align import MultipleSeqAlignment
+    from Bio.Align.Applications import ClustalwCommandline
+    
+    sequences = list(SeqIO.parse(str(input_fasta), "fasta"))
+    
+    if len(sequences) < 2:
+        # Not enough sequences to align
+        SeqIO.write(sequences, str(output_path), "fasta")
+        return output_path
+    
+    # Try ClustalW if available
+    try:
+        result = subprocess.run(['which', 'clustalw'], capture_output=True, text=True)
+        if result.returncode == 0:
+            clustalw_cline = ClustalwCommandline("clustalw", infile=str(input_fasta))
+            subprocess.run(str(clustalw_cline), shell=True, check=True)
+            
+            # Read aligned output
+            aligned_file = input_fasta.with_suffix(".aln")
+            if aligned_file.exists():
+                aligned_seqs = list(SeqIO.parse(str(aligned_file), "fasta"))
+                SeqIO.write(aligned_seqs, str(output_path), "fasta")
+                return output_path
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        pass
+    
+    # Final fallback: return unaligned sequences with warning
+    logger.warning("Using unaligned sequences as fallback. Alignment quality may be poor.")
+    SeqIO.write(sequences, str(output_path), "fasta")
+    return output_path
+
+@handle_analysis_error
+def build_tree(alignment_path: Path, output_newick: Path) -> Path:
+    """
+    Build phylogenetic tree using FastTree or IQ-TREE.
     
     Args:
-        align_fasta: Path to aligned FASTA file
-        tree_output: Path for output Newick tree file
+        alignment_path: Path to aligned FASTA file
+        output_newick: Path to write Newick tree file
     
     Returns:
-        Tree object if successful, None otherwise
+        Path to the Newick tree file
     """
-    try:
-        # Check if IQ-TREE is available
-        subprocess.run(["iqtree", "--version"], capture_output=True, check=True)
-        
-        # Run IQ-TREE with standard model selection
-        result = subprocess.run(
-            ["iqtree", "-s", str(align_fasta), "-nt", "AUTO", "-pre", str(tree_output.with_suffix(''))],
-            capture_output=True,
-            check=True
-        )
-        
-        # Find the generated tree file (IQ-TREE adds .treefile extension)
-        tree_file = Path(str(tree_output.with_suffix('')) + ".treefile")
-        
-        if tree_file.exists():
-            # Move to requested output path
-            shutil.move(str(tree_file), str(tree_output))
-            
-            # Parse the tree
-            tree = AlignIO.read(str(tree_output), "newick")
-            logger.info(f"Tree built successfully: {tree_output}")
-            return tree
-        else:
-            logger.error(f"IQ-TREE did not produce expected tree file: {tree_file}")
-            return None
-            
-    except FileNotFoundError:
-        logger.error("IQ-TREE not found. Please install IQ-TREE and ensure it's in PATH.")
-        # Fallback to distance-based tree construction
-        logger.info("Attempting fallback to distance-based tree construction...")
-        return _build_distance_tree(align_fasta, tree_output)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"IQ-TREE error: {e}")
-        # Fallback
-        logger.info("Attempting fallback to distance-based tree construction...")
-        return _build_distance_tree(align_fasta, tree_output)
+    # Check for available tree builders
+    tree_builder = None
+    for cmd in ['iqtree', 'fasttree']:
+        try:
+            result = subprocess.run(['which', cmd], capture_output=True, text=True)
+            if result.returncode == 0:
+                tree_builder = cmd
+                break
+        except FileNotFoundError:
+            continue
+    
+    if tree_builder is None:
+        logger.warning("No tree builder (iqtree, fasttree) found. Using BioPython distance method.")
+        return _biopython_tree(alignment_path, output_newick)
+    
+    logger.info(f"Using {tree_builder} for tree construction")
+    
+    if tree_builder == 'iqtree':
+        cmd = f"iqtree -s {alignment_path} -nt AUTO -pre {output_newick.stem}"
+        try:
+            subprocess.run(cmd, shell=True, check=True, capture_output=True)
+            # IQ-TREE outputs .treefile
+            tree_output = Path(f"{output_newick.stem}.treefile")
+            if tree_output.exists():
+                shutil.move(str(tree_output), str(output_newick))
+            else:
+                # Fallback to .nwk if treefile not found
+                nwk_file = Path(f"{output_newick.stem}.nwk")
+                if nwk_file.exists():
+                    shutil.move(str(nwk_file), str(output_newick))
+        except subprocess.CalledProcessError as e:
+            raise AnalysisError(f"IQ-TREE failed: {e.stderr.decode()}")
+    else:  # fasttree
+        cmd = f"FastTree {alignment_path} > {output_newick}"
+        try:
+            subprocess.run(cmd, shell=True, check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            raise AnalysisError(f"FastTree failed: {e.stderr.decode()}")
+    
+    logger.info(f"Tree construction complete: {output_newick}")
+    return output_newick
 
-def _build_distance_tree(align_fasta: Path, tree_output: Path) -> Optional[BaseTree.Tree]:
+def _biopython_tree(alignment_path: Path, output_newick: Path) -> Path:
     """
-    Fallback: Build tree using distance-based method (Neighbor-Joining).
+    Build tree using BioPython's distance method (fallback).
     
-    Args:
-        align_fasta: Path to aligned FASTA file
-        tree_output: Path for output Newick tree file
-    
-    Returns:
-        Tree object if successful, None otherwise
+    Note: This is less accurate than ML methods but works without external tools.
     """
+    from Bio.Phylo import write
+    
     try:
-        # Read alignment
-        alignment = AlignIO.read(str(align_fasta), "fasta")
-        
-        # Calculate distance matrix
-        calculator = DistanceCalculator('identity')
-        distance_matrix = calculator.get_distance(alignment)
-        
-        # Build tree using Neighbor-Joining
-        constructor = DistanceTreeConstructor(calculator, 'nj')
-        tree = constructor.build_tree(alignment)
-        
-        # Root the tree (midpoint rooting)
-        tree = tree.root_with_outgroup(alignment[0].id)
-        
-        # Write tree
-        with open(tree_output, 'w') as f:
-            f.write(tree.format("newick"))
-        
-        logger.info(f"Distance-based tree built successfully: {tree_output}")
-        return tree
-        
+        alignment = AlignIO.read(str(alignment_path), "fasta")
     except Exception as e:
-        logger.error(f"Distance tree construction failed: {e}")
-        return None
+        raise AnalysisError(f"Failed to read alignment: {e}")
+    
+    if len(alignment) < 2:
+        raise AnalysisError("Need at least 2 sequences to build a tree")
+    
+    # Calculate distance matrix
+    calculator = DistanceCalculator('identity')
+    dm = calculator.get_distance(alignment)
+    
+    # Build tree using Neighbor-Joining
+    constructor = DistanceTreeConstructor()
+    tree = constructor.nj(dm)
+    
+    # Root the tree (if possible) or keep unrooted
+    # For now, we'll leave it unrooted
+    
+    # Write tree
+    write(tree, str(output_newick))
+    logger.info(f"BioPython tree construction complete: {output_newick}")
+    
+    return output_newick
 
-def compute_covariance_matrix(tree: BaseTree.Tree, sample_ids: List[str]) -> np.ndarray:
+@handle_analysis_error
+def compute_covariance_matrix(tree_path: Path, output_npy: Path) -> np.ndarray:
     """
     Compute phylogenetic covariance matrix from tree.
     
+    The covariance between two taxa is proportional to the shared branch length
+    from the root to their most recent common ancestor.
+    
     Args:
-        tree: Phylogenetic tree object
-        sample_ids: List of sample IDs in the same order as the matrix rows/cols
+        tree_path: Path to Newick tree file
+        output_npy: Path to write numpy array
     
     Returns:
-        Phylogenetic covariance matrix (n_samples x n_samples)
+        Phylogenetic covariance matrix as numpy array
     """
-    n = len(sample_ids)
-    covariance_matrix = np.zeros((n, n))
+    from Bio import Phylo
+    import numpy as np
     
-    # Create a mapping from sample ID to index
-    id_to_idx = {sid: i for i, sid in enumerate(sample_ids)}
+    tree = Phylo.read(str(tree_path), "newick")
     
-    # For each pair of samples, compute the shared branch length
-    for i, id1 in enumerate(sample_ids):
-        for j, id2 in enumerate(sample_ids):
+    # Get tip names
+    tips = [term.name for term in tree.get_terminals()]
+    n = len(tips)
+    
+    if n < 2:
+        raise AnalysisError("Need at least 2 tips to compute covariance matrix")
+    
+    # Initialize covariance matrix
+    cov_matrix = np.zeros((n, n))
+    
+    # For each pair of tips, compute shared branch length
+    for i, tip1 in enumerate(tips):
+        for j, tip2 in enumerate(tips):
             if i == j:
                 # Total path length from root to tip
-                try:
-                    tip1 = tree.find_any(id1)
-                    path_length = sum(branch.length for branch in tree.get_path(tip1))
-                    covariance_matrix[i, j] = path_length
-                except ValueError:
-                    covariance_matrix[i, j] = 0.0
+                path = tree.get_path(tip1)
+                cov_matrix[i, j] = sum(clade.branch_length for clade in path if clade.branch_length)
             else:
-                # Shared path length from root to MRCA
-                try:
-                    tip1 = tree.find_any(id1)
-                    tip2 = tree.find_any(id2)
-                    mrca = tree.get_common_ancestor(tip1, tip2)
-                    
+                # Find most recent common ancestor
+                mrca = tree.get_common_ancestor(tip1, tip2)
+                if mrca:
                     # Path from root to MRCA
-                    path_to_mrca = tree.get_path(mrca)
-                    shared_length = sum(branch.length for branch in path_to_mrca)
-                    covariance_matrix[i, j] = shared_length
-                except ValueError:
-                    covariance_matrix[i, j] = 0.0
+                    path_to_mrca = tree.get_path(mrca.name) if hasattr(mrca, 'name') else []
+                    shared_length = sum(clade.branch_length for clade in path_to_mrca if clade.branch_length)
+                    cov_matrix[i, j] = shared_length
+                else:
+                    cov_matrix[i, j] = 0.0
     
-    return covariance_matrix
+    # Ensure matrix is symmetric
+    cov_matrix = (cov_matrix + cov_matrix.T) / 2.0
+    
+    # Save to file
+    np.save(str(output_npy), cov_matrix)
+    logger.info(f"Covariance matrix saved: {output_npy} (shape: {cov_matrix.shape})")
+    
+    return cov_matrix
 
+@handle_analysis_error
 def run_phylogeny_pipeline(
     genome_dir: Path,
     output_dir: Path,
-    genes: List[str] = None
+    is_fungal: bool = False
 ) -> PhylogenyResult:
     """
     Run the complete phylogenetic analysis pipeline.
     
     Args:
         genome_dir: Directory containing genome assembly files (.fna)
-        output_dir: Directory for output files
-        genes: List of housekeeping genes to use
+        output_dir: Directory to write all output files
+        is_fungal: Whether the organisms are fungal
     
     Returns:
-        PhylogenyResult containing paths to tree and covariance matrix
-    """
-    if genes is None:
-        genes = ['rpoB', 'gyrB', '16S']
+        PhylogenyResult with paths to all outputs
     
+    Raises:
+        AnalysisError: If any step fails
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    temp_dir = tempfile.mkdtemp()
-    try:
-        # Step 1: Find housekeeping genes
-        logger.info("Finding housekeeping genes...")
-        gene_files = find_housekeeping_genes(genome_dir, genes)
+    # Step 1: Extract housekeeping genes from each genome
+    logger.info("Extracting housekeeping genes...")
+    all_gene_files = {}
+    species_list = []
+    
+    genome_files = list(genome_dir.glob("*.fna"))
+    if not genome_files:
+        raise AnalysisError(f"No .fna files found in {genome_dir}")
+    
+    for genome_path in genome_files:
+        logger.info(f"Processing {genome_path}")
+        # Extract species name from filename
+        species_name = genome_path.stem.replace("_genome", "").replace("_assembly", "")
+        species_list.append(species_name)
         
-        # Check if we found any genes
-        total_found = sum(len(files) for files in gene_files.values())
-        if total_found == 0:
-            return PhylogenyResult(
-                tree_path="",
-                covariance_matrix_path="",
-                success=False,
-                error_message="No housekeeping genes found in genome files"
-            )
-        
-        logger.info(f"Found housekeeping genes: {gene_files}")
-        
-        # Step 2: Concatenate genes
-        logger.info("Concatenating gene sequences...")
-        concat_fasta = Path(temp_dir) / "concatenated.fna"
-        sample_ids = concatenate_genes(genome_dir, concat_fasta, genes)
-        
-        if not sample_ids:
-            return PhylogenyResult(
-                tree_path="",
-                covariance_matrix_path="",
-                success=False,
-                error_message="No samples found in concatenated sequences"
-            )
-        
-        logger.info(f"Samples found: {sample_ids}")
-        
-        # Step 3: Align sequences
-        logger.info("Aligning sequences...")
-        aligned_fasta = Path(temp_dir) / "aligned.fna"
-        if not align_sequences(concat_fasta, aligned_fasta):
-            return PhylogenyResult(
-                tree_path="",
-                covariance_matrix_path="",
-                success=False,
-                error_message="Sequence alignment failed"
-            )
-        
-        # Step 4: Build tree
-        logger.info("Building phylogenetic tree...")
-        tree_output = output_dir / "tree.newick"
-        tree = build_tree(aligned_fasta, tree_output)
-        
-        if tree is None:
-            return PhylogenyResult(
-                tree_path=str(tree_output),
-                covariance_matrix_path="",
-                success=False,
-                error_message="Tree construction failed"
-            )
-        
-        # Validate tree
-        if not hasattr(tree, 'root') or tree.root is None:
-            logger.warning("Tree is not rooted. Attempting to root...")
-            try:
-                tree = tree.root_with_outgroup(sample_ids[0])
-            except Exception as e:
-                logger.warning(f"Could not root tree: {e}")
-        
-        # Step 5: Compute covariance matrix
-        logger.info("Computing phylogenetic covariance matrix...")
-        covariance_matrix = compute_covariance_matrix(tree, sample_ids)
-        
-        cov_output = output_dir / "phylo_covariance_matrix.npy"
-        np.save(cov_output, covariance_matrix)
-        
-        logger.info(f"Pipeline completed successfully. Tree: {tree_output}, Covariance: {cov_output}")
-        
-        return PhylogenyResult(
-            tree_path=str(tree_output),
-            covariance_matrix_path=str(cov_output),
-            tree=tree,
-            covariance_matrix=covariance_matrix,
-            sample_ids=sample_ids,
-            success=True
-        )
-        
-    finally:
-        shutil.rmtree(temp_dir, ignore_errors=True)
+        gene_files = find_housekeeping_genes(genome_path, output_dir, is_fungal)
+        all_gene_files.update(gene_files)
+    
+    if not all_gene_files:
+        raise AnalysisError("No housekeeping genes extracted from any genome")
+    
+    # Step 2: Concatenate all genes into single FASTA
+    logger.info("Concatenating genes...")
+    housekeeping_fasta = output_dir / "housekeeping_genes.fasta"
+    concatenate_genes(all_gene_files, housekeeping_fasta)
+    
+    # Step 3: Align sequences
+    logger.info("Aligning sequences...")
+    alignment_fasta = output_dir / "aligned_genes.fasta"
+    align_sequences(housekeeping_fasta, alignment_fasta)
+    
+    # Step 4: Build tree
+    logger.info("Building phylogenetic tree...")
+    tree_newick = output_dir / "tree.newick"
+    build_tree(alignment_fasta, tree_newick)
+    
+    # Step 5: Compute covariance matrix
+    logger.info("Computing phylogenetic covariance matrix...")
+    covariance_npy = output_dir / "phylo_covariance_matrix.npy"
+    compute_covariance_matrix(tree_newick, covariance_npy)
+    
+    return PhylogenyResult(
+        housekeeping_fasta=housekeeping_fasta,
+        alignment_fasta=alignment_fasta,
+        tree_newick=tree_newick,
+        covariance_matrix=np.load(str(covariance_npy)),
+        species_list=species_list
+    )
 
 def main():
     """Main entry point for phylogeny pipeline."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Extract housekeeping genes and build phylogenetic tree")
+    parser.add_argument("--genome-dir", type=Path, required=True, help="Directory with .fna genome files")
+    parser.add_argument("--output-dir", type=Path, required=True, help="Directory for output files")
+    parser.add_argument("--fungal", action="store_true", help="Treat genomes as fungal (use RPB1/RPB2)")
+    parser.add_argument("--log-level", type=str, default="INFO", help="Logging level")
+    
+    args = parser.parse_args()
+    
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=getattr(logging, args.log_level.upper()),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
     
-    # Define paths
-    project_root = Path(__file__).parent.parent.parent
-    genome_dir = project_root / "data" / "raw"
-    output_dir = project_root / "data" / "processed"
-    
-    if not genome_dir.exists():
-        logger.error(f"Genome directory not found: {genome_dir}")
-        return 1
-    
-    # Run pipeline
-    result = run_phylogeny_pipeline(genome_dir, output_dir)
-    
-    if result.success:
-        logger.info(f"Pipeline completed successfully!")
-        logger.info(f"Tree saved to: {result.tree_path}")
-        logger.info(f"Covariance matrix saved to: {result.covariance_matrix_path}")
-        logger.info(f"Sample IDs: {result.sample_ids}")
-        return 0
-    else:
-        logger.error(f"Pipeline failed: {result.error_message}")
-        return 1
+    try:
+        result = run_phylogeny_pipeline(args.genome_dir, args.output_dir, args.fungal)
+        logger.info("Phylogeny pipeline completed successfully")
+        logger.info(f"Housekeeping genes: {result.housekeeping_fasta}")
+        logger.info(f"Tree: {result.tree_newick}")
+        logger.info(f"Covariance matrix: {result.covariance_matrix.shape}")
+    except AnalysisError as e:
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

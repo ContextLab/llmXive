@@ -16,12 +16,11 @@ T020b:
     \ function is incomplete and no aggregation\u2011or\u2011write logic is visible),\
     \ and the required output file `data/processed/species_aggregates.parquet` does\
     \ not exist. Both the implementation and the generated artifact are missing."
-T020c:
+T059:
   c: false
-  h: 962289963c5523c92ec302a34caf9fe1be64b1423aba112954bb51495ca9cd37
-  r: "The `src/data/merge.py` file is truncated (e.g., an incomplete `detect_aggregation_need`\
-    \ definition) and does not contain logic that checks `needs_aggregation`, calls\
-    \ the analysis module on `data/processed/species_aggregates.parquet`, or writes\
-    \ `aggregated_results.csv`. Moreover, the required data files `data/processed/species_aggregates.parquet`\
-    \ and `data/processed/aggregated_results.csv` are missing. The task\u2019s core\
-    \ functionality is therefore not implemented."
+  h: 47aa066202cdcd54d4cb6db6b5804a7c91b94dfd1c32d2f97106e49d77fb334b
+  r: "The required `src/utils/errors.py` file does not exist, and `src/analysis/correlation.py`\
+    \ is missing entirely. Moreover, the existing `src/data/download.py` does not\
+    \ define or use a `DataFetchError` nor implement the unified error\u2011handling\
+    \ pattern described in the task. The implementation therefore fails to meet the\
+    \ core requirements."

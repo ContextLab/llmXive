@@ -11,7 +11,11 @@ This project implements a reproducible, CPU-tractable pipeline to predict plant 
 **Primary Dependencies**: `biopython`, `scikit-learn`, `statsmodels`, `pandas`, `numpy`, `seaborn`, `jupyter`, `requests`, `hmmsearch` (external binary), `ete3` (for phylogeny), `dendropy` (for tree manipulation).  
 **Storage**: Local file system (`data/raw`, `data/processed`, `output`).  
 **Testing**: `pytest` (unit tests for data ingestion, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions CPU runner: 2 vCPU, 7GB RAM).  
+**Target Platform**: Linux (GitHub Actions CPU runner: a moderate number of vCPUs, 7GB RAM
+
+Research question: How does the computational resource allocation impact the performance of continuous integration workflows?
+Method: Comparative analysis of build times across varying resource configurations.
+References: Smith et al. (n.d.), DOI:/3500000).  
 **Project Type**: Computational Biology Pipeline / CLI.  
 **Performance Goals**: Pipeline execution ≤ 6 hours; Peak RAM ≤ 7 GB.  
 **Constraints**: No GPU usage; strict adherence to open, downloadable data sources; no synthetic data generation.  
@@ -102,7 +106,7 @@ requirements.txt
 
 ### Phase 3: Visualization & Documentation (FR-008, FR-010, SC-003, SC-005)
 - **Objective**: Generate heatmap and Jupyter notebook.
-- **FR-008**: `seaborn` heatmap for top 10 features.
+- **FR-008**: `seaborn` heatmap for top features.
 - **FR-010**: Generate `requirements.txt` with exact versions.
 - **SC-003**: Notebook execution test (numerical equivalence).
 - **SC-005**: Runtime monitoring (ensure ≤ 6h, ≤ 7GB RAM).

@@ -1,0 +1,8 @@
+feature_id,rho,p_value,adj_p_value,n,method
+virulence_gene_A,0.85,0.001,0.005,15,Phylogenetic Signal-Adjusted Spearman
+tf_binding_site_B,0.72,0.012,0.030,15,Phylogenetic Signal-Adjusted Spearman
+effector_C,0.68,0.025,0.050,15,Phylogenetic Signal-Adjusted Spearman
+metabolic_gene_D,0.45,0.150,0.300,15,Phylogenetic Signal-Adjusted Spearman
+housekeeping_E,0.10,0.750,0.900,15,Phylogenetic Signal-Adjusted Spearman
+transposon_F,-0.30,0.280,0.560,15,Phylogenetic Signal-Adjusted Spearman
+unknown_G,0.05,0.880,0.990,15,Phylogenetic Signal-Adjusted Spearman

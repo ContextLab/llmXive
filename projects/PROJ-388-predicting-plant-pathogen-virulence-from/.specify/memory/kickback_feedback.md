@@ -4,8 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T019` (rejected 1x): The `src/data/merge.py` file exists and includes an `align_genomic_phenotypic` function that merges and logs missing rows, but the module is truncated (e.g., an unfinished `detect_aggregation_need` definition) and the required output file `data/processed/merged_raw.parquet` is not present. The pipeline therefore does not produce the specified merged Parquet file.
-- `T021` (rejected 1x): The repository contains a `src/data/merge.py` file, but it is truncated and does not show any code that writes the merged DataFrame to `data/processed/merged_dataset.parquet` or generates the required summary report. Moreover, the expected output file `data/processed/merged_dataset.parquet` is absent from the project. These missing pieces mean the task’s core requirements are not satisfied.
+- `T026` (rejected 1x): The provided `phylogeny.py` never extracts genes from `data/raw/*.fna`; it merely expects a pre‑existing `data/processed/housekeeping_genes.fasta` and raises an error if it is absent. That output file is missing, so the core requirement (extract rpoB, gyrB, 16S and write them to the specified FASTA) is not fulfilled.
+- `T020c` (rejected 1x): The `src/data/merge.py` file is truncated (e.g., an unfinished `detect_aggregation_need` definition) and does not contain the logic to merge `species_aggregates.parquet` or write `data/processed/merged_dataset.parquet`. Moreover, the required output file `data/processed/merged_dataset.parquet` is absent. The task’s core requirement is therefore unmet.
+- `T027` (rejected 1x): The required output files `data/processed/tree.newick` and `data/processed/phylo_covariance_matrix.npy` are absent, and the provided `src/analysis/phylogeny.py` is incomplete (truncated) with no implementation of Maximum Likelihood tree construction or writing of the specified artifacts. The task’s core requirements are therefore not met.
+- `T028b` (rejected 1x): declared artifact(s) missing/empty/invalid: src/analysis/correlation.py, data/processed/merged_dataset.parquet, data/processed/tree.newick, data/processed/raw_correlations.csv
 
 ## Required change
 

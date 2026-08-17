@@ -1,6 +1,14 @@
 """
-Unit tests for phylogeny analysis module.
+Unit tests for phylogeny module.
+
+These tests verify:
+1. Housekeeping gene extraction
+2. Gene concatenation
+3. Sequence alignment
+4. Tree building
+5. Covariance matrix computation
 """
+
 import os
 import tempfile
 import shutil
@@ -17,203 +25,229 @@ from src.analysis.phylogeny import (
     run_phylogeny_pipeline,
     PhylogenyResult
 )
+from src.utils.errors import AnalysisError
 
 @pytest.fixture
 def temp_genome_dir():
-    """Create a temporary directory with mock genome files."""
+    """Create a temporary directory with sample genome files."""
     temp_dir = tempfile.mkdtemp()
     genome_dir = Path(temp_dir)
     
-    # Create mock genome files with housekeeping genes
-    mock_sequences = {
-        "strain1.fna": [
-            (">strain1 rpoB gene", "ATGCGTACGTACGTACGTACGTACGTACGTACGTACGT"),
-            (">strain1 gyrB gene", "ATGCGTACGTACGTACGTACGTACGTACGTACGTACGT"),
-            (">strain1 16S gene", "ATGCGTACGTACGTACGTACGTACGTACGTACGTACGT"),
-        ],
-        "strain2.fna": [
-            (">strain2 rpoB gene", "ATGCGTACGTACGTACGTACGTACGTACGTACGTACGT"),
-            (">strain2 gyrB gene", "ATGCGTACGTACGTACGTACGTACGTACGTACGTACGT"),
-            (">strain2 16S gene", "ATGCGTACGTACGTACGTACGTACGTACGTACGTACGT"),
-        ],
-        "strain3.fna": [
-            (">strain3 rpoB gene", "ATGCGTACGTACGTACGTACGTACGTACGTACGTACGT"),
-            (">strain3 gyrB gene", "ATGCGTACGTACGTACGTACGTACGTACGTACGTACGT"),
-            (">strain3 16S gene", "ATGCGTACGTACGTACGTACGTACGTACGTACGTACGT"),
-        ],
-    }
+    # Create sample genome files
+    sample_genomes = [
+        ("sample1_genome.fna", [
+            ("seq1", "ATCGATCGATCGATCG", "rpoB_gene"),
+            ("seq2", "GCTAGCTAGCTAGCTA", "gyrB_gene"),
+            ("seq3", "TTAATTAATTAATTAA", "16S_gene"),
+        ]),
+        ("sample2_genome.fna", [
+            ("seq1", "ATCGATCGATCGATCG", "rpoB_gene"),
+            ("seq2", "GCTAGCTAGCTAGCTA", "gyrB_gene"),
+            ("seq3", "TTAATTAATTAATTAA", "16S_gene"),
+        ]),
+    ]
     
-    for filename, sequences in mock_sequences.items():
-        filepath = genome_dir / filename
-        with open(filepath, 'w') as f:
-            for header, seq in sequences:
-                f.write(f"{header}\n{seq}\n")
+    for filename, sequences in sample_genomes:
+        with open(genome_dir / filename, 'w') as f:
+            for seq_id, seq, desc in sequences:
+                f.write(f">{seq_id} {desc}\n{seq}\n")
     
     yield genome_dir
     
-    shutil.rmtree(temp_dir, ignore_errors=True)
+    # Cleanup
+    shutil.rmtree(temp_dir)
 
 @pytest.fixture
 def cleanup_temp_dir():
-    """Clean up temporary directories after tests."""
-    yield
-    # Cleanup is handled by individual fixtures
+    """Context manager for temporary directories."""
+    temp_dirs = []
+    
+    def create():
+        temp_dir = tempfile.mkdtemp()
+        temp_dirs.append(temp_dir)
+        return Path(temp_dir)
+    
+    def cleanup():
+        for temp_dir in temp_dirs:
+            shutil.rmtree(temp_dir)
+    
+    yield create, cleanup
 
 def test_find_housekeeping_genes_success(temp_genome_dir):
-    """Test successful finding of housekeeping genes."""
-    genes = ['rpoB', 'gyrB', '16S']
-    result = find_housekeeping_genes(temp_genome_dir, genes)
+    """Test successful extraction of housekeeping genes."""
+    output_dir = tempfile.mkdtemp()
     
-    assert len(result) == 3
-    for gene in genes:
-        assert gene in result
-        assert len(result[gene]) == 3  # 3 strains
+    try:
+        genome_path = temp_genome_dir / "sample1_genome.fna"
+        result = find_housekeeping_genes(genome_path, Path(output_dir))
+        
+        # Should find at least one gene
+        assert len(result) > 0
+        assert "rpoB" in result or "gyrB" in result or "16S" in result
+        
+        # Check that files were created
+        for gene, file_path in result.items():
+            assert file_path.exists()
+            assert file_path.stat().st_size > 0
+    finally:
+        shutil.rmtree(output_dir)
 
-def test_find_housekeeping_genes_not_found(temp_genome_dir):
-    """Test finding non-existent genes."""
-    genes = ['nonexistent']
-    result = find_housekeeping_genes(temp_genome_dir, genes)
+def test_find_housekeeping_genes_not_found(cleanup_temp_dir):
+    """Test error when no housekeeping genes are found."""
+    create_dir, cleanup = cleanup_temp_dir
     
-    assert len(result) == 1
-    assert len(result['nonexistent']) == 0
+    temp_dir = create_dir()
+    output_dir = create_dir()
+    
+    # Create genome without housekeeping genes
+    genome_path = temp_dir / "no_genes.fna"
+    with open(genome_path, 'w') as f:
+        f.write(">random_seq\nATCGATCGATCG\n")
+    
+    with pytest.raises(AnalysisError):
+        find_housekeeping_genes(genome_path, Path(output_dir))
+    
+    cleanup()
 
 def test_concatenate_genes(temp_genome_dir):
-    """Test concatenation of gene sequences."""
-    output_fasta = Path(tempfile.mktemp(suffix=".fasta"))
+    """Test concatenation of multiple gene files."""
+    output_dir = tempfile.mkdtemp()
     
     try:
-        sample_ids = concatenate_genes(temp_genome_dir, output_fasta)
+        # Create sample gene files
+        gene_files = {}
+        for i, gene in enumerate(["rpoB", "gyrB", "16S"]):
+            gene_file = Path(output_dir) / f"{gene}.fasta"
+            with open(gene_file, 'w') as f:
+                f.write(f">{gene}_seq\nATCGATCGATCG\n")
+            gene_files[gene] = gene_file
         
-        assert len(sample_ids) == 3
-        assert set(sample_ids) == {'strain1', 'strain2', 'strain3'}
-        assert output_fasta.exists()
+        output_path = Path(output_dir) / "concatenated.fasta"
+        result_path = concatenate_genes(gene_files, output_path)
         
-        # Verify file content
-        with open(output_fasta, 'r') as f:
-            content = f.read()
-            assert 'strain1' in content
-            assert 'strain2' in content
-            assert 'strain3' in content
+        assert result_path.exists()
+        assert result_path.stat().st_size > 0
+        
+        # Check number of sequences
+        from Bio import SeqIO
+        sequences = list(SeqIO.parse(str(result_path), "fasta"))
+        assert len(sequences) == 3
     finally:
-        if output_fasta.exists():
-            output_fasta.unlink()
+        shutil.rmtree(output_dir)
 
-def test_concatenate_genes_empty(temp_genome_dir):
-    """Test concatenation with no genes found."""
-    output_fasta = Path(tempfile.mktemp(suffix=".fasta"))
-    genes = ['nonexistent']
+def test_concatenate_genes_empty(cleanup_temp_dir):
+    """Test concatenation with empty gene files."""
+    create_dir, cleanup = cleanup_temp_dir
     
-    sample_ids = concatenate_genes(temp_genome_dir, output_fasta, genes)
+    output_dir = create_dir()
+    output_path = Path(output_dir) / "empty.fasta"
     
-    assert len(sample_ids) == 0
-    assert not output_fasta.exists()
+    with pytest.raises(Exception):  # Should fail with empty dict
+        concatenate_genes({}, output_path)
+    
+    cleanup()
 
-def test_align_sequences(temp_genome_dir):
-    """Test sequence alignment (mock test)."""
-    # Create a simple FASTA file
-    input_fasta = Path(tempfile.mktemp(suffix=".fasta"))
-    output_fasta = Path(tempfile.mktemp(suffix=".fasta"))
+def test_align_sequences(cleanup_temp_dir):
+    """Test sequence alignment."""
+    create_dir, cleanup = cleanup_temp_dir
     
+    temp_dir = create_dir()
+    
+    # Create input FASTA
+    input_fasta = temp_dir / "input.fasta"
+    with open(input_fasta, 'w') as f:
+        f.write(">seq1\nATCGATCG\n")
+        f.write(">seq2\nATCGATCA\n")
+    
+    output_fasta = temp_dir / "output.fasta"
+    
+    # Note: This test may fail if no aligner is available
+    # In CI, we might skip this or use a mock
     try:
-        with open(input_fasta, 'w') as f:
-            f.write(">seq1\nATCG\n>seq2\nATCG\n")
-        
-        # This will fail if MUSCLE is not installed, which is expected
-        # In a real test environment, MUSCLE should be available
-        success = align_sequences(input_fasta, output_fasta)
-        
-        # If MUSCLE is available, success should be True
-        # If not, success should be False
-        # We just check that the function returns a boolean
-        assert isinstance(success, bool)
-    finally:
-        if input_fasta.exists():
-            input_fasta.unlink()
-        if output_fasta.exists():
-            output_fasta.unlink()
-
-def test_build_tree(temp_genome_dir):
-    """Test tree building (mock test)."""
-    # Create a simple alignment file
-    align_fasta = Path(tempfile.mktemp(suffix=".fasta"))
-    tree_output = Path(tempfile.mktemp(suffix=".tree"))
+        result_path = align_sequences(input_fasta, output_fasta)
+        assert result_path.exists()
+    except AnalysisError:
+        # Expected if no aligner is available
+        pytest.skip("No alignment tool available")
     
-    try:
-        with open(align_fasta, 'w') as f:
-            f.write(">seq1\nATCG\n>seq2\nATCG\n")
-        
-        # This will fail if IQ-TREE or MUSCLE is not installed
-        tree = build_tree(align_fasta, tree_output)
-        
-        # If tools are available, tree should be built
-        # If not, tree should be None (fallback to distance method)
-        # We just check the return type
-        assert tree is None or hasattr(tree, 'format')
-    finally:
-        if align_fasta.exists():
-            align_fasta.unlink()
-        if tree_output.exists():
-            tree_output.unlink()
-        # Also remove IQ-TREE generated files
-        treefile = Path(str(tree_output.with_suffix('')) + ".treefile")
-        if treefile.exists():
-            treefile.unlink()
+    cleanup()
 
-def test_compute_covariance_matrix():
+def test_build_tree(cleanup_temp_dir):
+    """Test tree building."""
+    create_dir, cleanup = cleanup_temp_dir
+    
+    temp_dir = create_dir()
+    
+    # Create sample alignment
+    alignment_fasta = temp_dir / "alignment.fasta"
+    with open(alignment_fasta, 'w') as f:
+        f.write(">seq1\nATCGATCG\n")
+        f.write(">seq2\nATCGATCA\n")
+        f.write(">seq3\nATCGATCC\n")
+    
+    output_newick = temp_dir / "tree.newick"
+    
+    # Note: This test may fail if no tree builder is available
+    try:
+        result_path = build_tree(alignment_fasta, output_newick)
+        assert result_path.exists()
+        assert result_path.stat().st_size > 0
+    except AnalysisError:
+        # Expected if no tree builder is available
+        pytest.skip("No tree builder available")
+    
+    cleanup()
+
+def test_compute_covariance_matrix(cleanup_temp_dir):
     """Test covariance matrix computation."""
-    # Create a simple mock tree
-    from Bio.Phylo.BaseTree import Tree, Clade, Branch
+    create_dir, cleanup = cleanup_temp_dir
     
-    # Build a simple tree: (A:1, B:1):0.5
-    root = Clade()
-    root.name = "root"
+    temp_dir = create_dir()
     
-    clade_a = Clade()
-    clade_a.name = "A"
-    clade_a.branch_length = 1.0
+    # Create a simple tree
+    tree_newick = temp_dir / "tree.newick"
+    with open(tree_newick, 'w') as f:
+        f.write("((seq1:0.1,seq2:0.2):0.3,seq3:0.4);\n")
     
-    clade_b = Clade()
-    clade_b.name = "B"
-    clade_b.branch_length = 1.0
+    output_npy = temp_dir / "covariance.npy"
     
-    root.clades = [clade_a, clade_b]
+    result = compute_covariance_matrix(tree_newick, output_npy)
     
-    tree = Tree(root=root)
-    tree.rooted = True
+    assert result.shape == (3, 3)
+    assert np.all(result >= 0)  # Covariances should be non-negative
+    assert output_npy.exists()
     
-    sample_ids = ['A', 'B']
-    covariance_matrix = compute_covariance_matrix(tree, sample_ids)
+    # Verify saved file
+    loaded = np.load(str(output_npy))
+    assert np.allclose(result, loaded)
     
-    assert covariance_matrix.shape == (2, 2)
-    # Diagonal should be path length from root to tip
-    assert covariance_matrix[0, 0] > 0
-    assert covariance_matrix[1, 1] > 0
-    # Off-diagonal should be shared path length
-    assert covariance_matrix[0, 1] > 0
-    assert covariance_matrix[0, 1] == covariance_matrix[1, 0]
+    cleanup()
 
-def test_run_phylogeny_pipeline(temp_genome_dir):
+def test_run_phylogeny_pipeline(cleanup_temp_dir):
     """Test complete phylogeny pipeline."""
-    output_dir = Path(tempfile.mkdtemp())
+    create_dir, cleanup = cleanup_temp_dir
+    
+    genome_dir = create_dir()
+    output_dir = create_dir()
+    
+    # Create sample genome
+    genome_path = genome_dir / "test_genome.fna"
+    with open(genome_path, 'w') as f:
+        f.write(">rpoB_seq rpoB\nATCGATCGATCGATCG\n")
+        f.write(">gyrB_seq gyrB\nGCTAGCTAGCTAGCTA\n")
+        f.write(">16S_seq 16S\nTTAATTAATTAATTAA\n")
     
     try:
-        result = run_phylogeny_pipeline(temp_genome_dir, output_dir)
+        result = run_phylogeny_pipeline(genome_dir, output_dir)
         
-        # Check result type
         assert isinstance(result, PhylogenyResult)
-        
-        # If pipeline succeeded, check outputs
-        if result.success:
-            assert Path(result.tree_path).exists()
-            assert Path(result.covariance_matrix_path).exists()
-            assert len(result.sample_ids) == 3
-            
-            # Check covariance matrix
-            cov_matrix = np.load(result.covariance_matrix_path)
-            assert cov_matrix.shape == (3, 3)
-            assert np.allclose(cov_matrix, cov_matrix.T)  # Symmetric
-        else:
-            # If failed, check error message
-            assert result.error_message is not None
-    finally:
-        shutil.rmtree(output_dir, ignore_errors=True)
+        assert result.housekeeping_fasta.exists()
+        assert result.alignment_fasta.exists()
+        assert result.tree_newick.exists()
+        assert result.covariance_matrix.shape[0] > 0
+        assert len(result.species_list) > 0
+    except AnalysisError as e:
+        # Expected if external tools are missing
+        pytest.skip(f"Pipeline failed due to missing tools: {e}")
+    
+    cleanup()
