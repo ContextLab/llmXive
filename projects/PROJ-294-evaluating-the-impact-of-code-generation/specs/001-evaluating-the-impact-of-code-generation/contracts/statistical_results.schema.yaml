@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Results"
+type: "object"
+properties:
+  wilcoxon_p_value:
+    type: "number"
+    description: "P-value from the Wilcoxon Signed-Rank test (valid pairs)"
+  wilcoxon_statistic:
+    type: "number"
+    description: "Statistic from the Wilcoxon Signed-Rank test"
+  ks_statistic:
+    type: "number"
+    description: "Statistic from the Kolmogorov-Smirnov test (full sample)"
+  ks_p_value:
+    type: "number"
+    description: "P-value from the Kolmogorov-Smirnov test"
+  levene_statistic:
+    type: "number"
+    description: "Statistic from Levene's Test (variance comparison)"
+  levene_p_value:
+    type: "number"
+    description: "P-value from Levene's Test"
+  mdes:
+    type: "number"
+    description: "Minimum Detectable Effect Size (descriptive)"
+  achieved_power:
+    type: "number"
+    description: "Achieved power for the observed effect size"
+  effect_size_ci_lower:
+    type: "number"
+    description: "Lower bound of 95% CI for effect size"
+  effect_size_ci_upper:
+    type: "number"
+    description: "Upper bound of 95% CI for effect size"
+  bias_analysis:
+    type: "object"
+    properties:
+      mcar_test_p_value:
+        type: "number"
+        description: "P-value from Little's MCAR test"
+      difficulty_comparison:
+        type: "object"
+        properties:
+          included_mean:
+            type: "number"
+          excluded_mean:
+            type: "number"
+          p_value:
+            type: "number"
+        required:
+          - included_mean
+          - excluded_mean
+          - p_value
+    required:
+      - mcar_test_p_value
+      - difficulty_comparison
+required:
+  - wilcoxon_p_value
+  - wilcoxon_statistic
+  - ks_statistic
+  - ks_p_value
+  - levene_statistic
+  - levene_p_value
+  - mdes
+  - achieved_power
+  - effect_size_ci_lower
+  - effect_size_ci_upper
+  - bias_analysis
+additionalProperties: false

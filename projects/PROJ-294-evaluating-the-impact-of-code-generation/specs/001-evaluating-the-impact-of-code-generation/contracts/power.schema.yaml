@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Power Analysis Results Schema"
+description: "Schema for data/analysis/power_results.yaml"
+type: "object"
+required:
+  - sample_size
+  - alpha
+  - min_detectable_effect
+  - method
+properties:
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of tasks analyzed"
+  alpha:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Significance level"
+  min_detectable_effect:
+    type: "number"
+    minimum: 0
+    description: "Minimum Detectable Effect Size (MDES) for Cohen's d = 0.32"
+  method:
+    type: "string"
+    description: "Statistical method used (e.g., Wilcoxon, Permutation)"
+  additionalProperties: false

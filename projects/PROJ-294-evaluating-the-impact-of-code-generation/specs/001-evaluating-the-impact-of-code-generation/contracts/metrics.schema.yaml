@@ -1,46 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Metrics Record"
-description: "Schema for the computed static and dynamic metrics for each code sample. Pass Rate is treated as binary (0 or 1) for McNemar's test."
+title: "Code Testability Metrics"
 type: "object"
 properties:
   task_id:
     type: "string"
-    description: "Unique identifier for the task (e.g., HumanEval/0)."
+    description: "Unique identifier for the task"
   model:
     type: "string"
-    description: "Name of the model (e.g., 'human', 'Salesforce/codegen-mono')."
+    description: "Model used to generate the code"
   cyclomatic_complexity:
+    type: "number"
+    minimum: 0
+    description: "Cyclomatic complexity metric"
+  static_branch_count:
     type: "integer"
     minimum: 0
-    description: "Cyclomatic complexity computed by radon."
-  halstead_volume:
+    description: "Static branch count from radon"
+  dynamic_branch_coverage:
     type: "number"
     minimum: 0
-    description: "Halstead volume."
-  branch_coverage_pct:
-    type: "number"
-    minimum: 0.0
-    maximum: 100.0
-    description: "Branch coverage percentage (0-100)."
+    maximum: 1
+    description: "Dynamic branch coverage from coverage.py"
   pass_rate:
     type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Binary pass rate (1.0 if all tests pass, 0.0 otherwise). Treated as binary for statistical tests."
-  generated_code:
-    type: "string"
-    description: "The generated code snippet."
-  checksum:
-    type: "string"
-    pattern: "^[a-f0-9]{64}$"
-    description: "SHA256 checksum of the generated code."
+    minimum: 0
+    maximum: 1
+    description: "Pass rate of the test suite"
+  is_valid:
+    type: "boolean"
+    description: "Whether the code passed the pass_rate filter"
+  parse_error:
+    type: "boolean"
+    description: "Whether radon failed to parse the code"
 required:
   - task_id
   - model
   - cyclomatic_complexity
-  - halstead_volume
-  - branch_coverage_pct
+  - static_branch_count
+  - dynamic_branch_coverage
   - pass_rate
-  - generated_code
-  - checksum
+  - is_valid
+  - parse_error
 additionalProperties: false
