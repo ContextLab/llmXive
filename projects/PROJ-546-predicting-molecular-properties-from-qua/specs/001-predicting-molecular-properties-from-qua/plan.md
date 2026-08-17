@@ -7,7 +7,7 @@
 
 This project implements a comparative pipeline to predict molecular barrier heights using semi-empirical (DFTB+) and high-level (Psi4) quantum chemical descriptors. The system fetches a verified Zenodo dataset of SMILES strings and experimental barriers, performs geometry optimization, computes HOMO/LUMO/Mayer descriptors, and trains Random Forest models. A critical component is the paired t-test comparing the error distributions of the two methods, alongside a sensitivity analysis for feature stability. The implementation strictly adheres to resource constraints (CPU-first, <7GB RAM, <6h) and handles convergence failures via retry logic and logging.
 
-**Key Methodological Change**: To isolate the effect of the computational method (DFTB+ vs Psi4) from the effect of sample size, **both models are trained on the same stratified subset of molecules**. The full dataset is used only for generating the Semi-Empirical baseline, but the comparative t-test is strictly performed on the 50-sample subset.
+**Key Methodological Change**: To isolate the effect of the computational method (DFTB+ vs Psi4) from the effect of sample size, **both models are trained on the same stratified subset of molecules**. The full dataset is used only for generating the Semi-Empirical baseline, but the comparative t-test is strictly performed on a representative sample subset.
 
 ## Technical Context
 
@@ -28,7 +28,7 @@ This project implements a comparative pipeline to predict molecular barrier heig
 - **FR-004 (DFT Subset)**: Stratified random subset by **barrier height bins**. If N < 50, use all. **Same train/test splits** used for both models.
 - **FR-005 (Paired T-Test)**: Compare errors on the **same 50 samples**. Report Null Hypothesis, Significance Level (α=0.05), and models compared.
 - **FR-006 (Feature Importance)**: Top descriptors identified from RF `feature_importances_` and saved to `reports/sensitivity.csv`.
-- **FR-007 (Sensitivity)**: Sweep cutoffs {0.01, 0.05, 0.1} and noise {σ=0.01, 0.05}. Record rank correlation of top 3 descriptors in `reports/sensitivity.csv`.
+- **FR-007 (Sensitivity)**: Sweep cutoffs {0.01, 0.05, 0.1} and noise {σ=0.01, 0.05}. Record rank correlation of top descriptors in `reports/sensitivity.csv`.
 - **FR-008 (Confounds)**: `code/confounds.py` uses `rdkit.Chem.Lipinski` and `rdkit.Chem.Descriptors` to derive MW, atom count, and functional groups from SMILES. Output `data/confounds.csv`.
 - **SC-001**: Success rate (count/ratio of optimized geometries) calculated and reported in `reports/evaluation.json`.
 - **SC-002**: MAE for both models reported in `reports/evaluation.json` with keys `semi_empirical_mae`, `dft_mae`.

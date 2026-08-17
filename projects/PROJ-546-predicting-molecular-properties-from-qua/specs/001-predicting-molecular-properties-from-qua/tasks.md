@@ -24,11 +24,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `projects/PROJ-546-predicting-molecular-properties-from-qua/` root and `code/` directory.
-- [ ] T001b [P] Create `data/raw/`, `data/optimized_geometries/`, `logs/`, `reports/`, `contracts/`, `docs/` directories.
-- [ ] T001c [P] Create `tests/` directory structure (`unit/`, `integration/`, `contract/`) and `docs/` directory.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, pandas, rdkit, requests)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001 [P] Initialize project structure: Create `projects/PROJ-546-predicting-molecular-properties-from-qua/` root, `code/`, `data/raw/`, `data/optimized_geometries/`, `logs/`, `reports/`, `contracts/`, `docs/`, and `tests/` (unit/, integration/, contract/) directories.
 
 ---
 
@@ -38,19 +34,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/download_data.py` to fetch experimental barrier dataset from Zenodo (spec.md Data Model) with checksum verification
-- [X] T006 [P] Implement `code/utils/error_utils.py` to handle convergence failures (skip/log) and OOM detection per spec.md Edge Cases
-- [X] T008 [P] Setup `code/requirements.txt` with pinned versions for reproducibility
-- [X] T010 [P] Implement `code/validators/data_validator.py` to verify downloaded CSV contains required columns (SMILES, experimental_barrier) and correct data types (spec.md Data Model)
-- [X] T011 [P] [US1] Contract test for `code/download_data.py` in `tests/test_download.py` (verifies Zenodo fetch and data validity). **Depends on T004 completion.**
-- [ ] T011b [US2/FR-008] **Blocking**: Implement `code/confound_analysis.py` to calculate Molecular Weight, Atom Count, and perform functional group enumeration for all molecules using RDKit. **Implementation Logic**: 
-  1. Read SMILES from `data/raw/barrier_dataset.csv`.
-  2. Convert each SMILES to an RDKit Mol object using `Chem.MolFromSmiles()`.
-  3. Calculate Molecular Weight using `Descriptors.MolWt(mol)`.
-  4. Calculate Atom Count using `Descriptors.NumAtoms(mol)`.
-  5. Enumerate functional groups using `rdkit.Chem.Lipinski` (e.g., `NumHDonors`, `NumHAcceptors`) and `rdkit.Chem.Fragments` (e.g., `fr_amide`, `fr_carboxyl`, `fr_aromatic`) to create a pipe-separated string of detected groups.
-  6. Write results to `data/confounds.csv` with columns: `molecule_id` (str), `mw` (float), `atom_count` (int), `functional_groups` (str).
-  **This task is the sole implementation of FR-008 and must complete before T020 (US2) starts.**
+- [X] T002a [P] Initialize Python 3.11 project: Create root `requirements.txt` (scikit-learn, pandas, rdkit, requests, datasets, pyyaml) AND `code/requirements.txt` with pinned versions for reproducibility.
+- [ ] T002b [P] Configure linting and formatting: Create `pyproject.toml` (Black, Ruff config) and `.ruff.toml` files. **Verification**: Files must exist and pass `ruff check` and `black --check` on an empty codebase. **Note**: No data artifacts are consumed by this task.
+- [X] T004 [P] [FR-001] Implement `code/fetch_data.py` to fetch experimental barrier dataset from Zenodo (spec.md Data Model) with checksum verification (SHA-256). **Verification**: Must log verification status to `logs/verification.log` and verify `data/raw/` contains the file before proceeding.
+- [X] T006 [P] Implement `code/utils/error_utils.py` to handle convergence failures (skip/log) and OOM detection per spec.md Edge Cases.
+- [X] T010 [P] Implement `code/validators/data_validator.py` to verify downloaded CSV contains required columns (SMILES, experimental_barrier) and correct data types (spec.md Data Model).
+- [X] T011 [P] [US1] Contract test for `code/fetch_data.py` in `tests/test_download.py` (verifies Zenodo fetch and data validity). **Depends on T004 completion.**
+- [ ] T011b1 [P] [FR-008] **Implementation**: Create `code/confounds.py` skeleton with function signatures for `calculate_mw`, `count_atoms`, `enumerate_groups`, and `write_confounds`.
+- [ ] T011b2 [P] [FR-008] Implement RDKit logic in `code/confounds.py`: Read SMILES from `data/raw/barrier_dataset.csv`, convert to Mol objects, calculate MW (`Descriptors.MolWt`), atom count (`Descriptors.NumAtoms`), and functional groups (`rdkit.Chem.Lipinski`, `rdkit.Chem.Fragments`). Output a pipe-separated string for groups.
+- [ ] T011b3 [P] [FR-008] Implement CSV writing in `code/confounds.py`: Write results to `data/confounds.csv` with columns `molecule_id` (str), `mw` (float), `atom_count` (int), `functional_groups` (str).
+- [ ] T011b4 [P] [FR-008] Implement verification for `code/confounds.py`: Verify `data/confounds.csv` exists, is non-empty, and has the exact schema defined above. **This task is the sole implementation of FR-008 and must complete before T020a starts.**
 - [X] T011c [P] [FR-001] Implement `code/physical_validator.py` to enforce structural constraints defined in spec.md Edge Cases: specifically check `HOMO_energy < LUMO_energy` for optimized geometries. If violated, log to `logs/structural_failures.log` with status `failed_after_retry` and skip. **Aligns with spec Edge Cases only; no hardcoded peptide constraints.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -65,14 +58,17 @@
 
 ### Tests for User Story 1
 
-- [ ] T012 [US1] Integration test for `code/generate_descriptors.py` on 50 molecules in `tests/test_descriptors.py`
+- [X] T012 [US1] Integration test for `code/generate_descriptors.py` on 50 molecules in `tests/test_descriptors.py`
 
 ### Implementation for User Story 1
 
 - [X] T013a [US1] Implement `code/dftb_calculator.py` to invoke DFTB+ for geometry optimization and descriptor extraction (HOMO, LUMO, Mayer bond orders) for a single molecule, including unit normalization (eV).
 - [X] T013b [US1] Implement `code/error_handlers.py` to catch `ConvergenceError` and OOM signals, skip the molecule, and log failure details to `logs/convergence_failures.log` and `logs/oom_failures.log` respectively.
-- [X] T013c [US1] Implement `code/descriptor_pipeline.py` to orchestrate the full dataset run: iterate over molecules, call T013a/T013b, validate output (skip and log to `logs/structural_failures.log` if `HOMO_energy >= LUMO_energy` per spec Edge Cases), export optimized geometries to `data/optimized_geometries/` (XYZ format), and write final `data/descriptors_semi.csv`. **Note: All validation logic is contained within this task.**
-- [X] T017 [US1] Implement logging and timing: capture DFTB+ invocation details to `logs/dftb_execution.log` in JSON format with schema: `{"molecule_id": str, "command": str, "exit_code": int, "duration": float, "peak_memory_mb": float}`.
+- [ ] T013c1 [US1] Implement `code/descriptor_pipeline.py` orchestration logic: Iterate over molecules, call T013a/T013b, and manage the flow.
+- [ ] T013c2 [US1] Implement `code/descriptor_pipeline.py` validation logic: Skip and log to `logs/structural_failures.log` if `HOMO_energy >= LUMO_energy` per spec Edge Cases.
+- [ ] T013c3 [US1] Implement `code/descriptor_pipeline.py` geometry export: Save optimized geometries to `data/optimized_geometries/` (XYZ format).
+- [ ] T013c4 [US1] Implement `code/descriptor_pipeline.py` CSV export: Write final `data/descriptors_semi.csv`. **Note**: All validation logic is contained within T013c2.
+- [ ] T017 [US1] Implement logging and timing: Capture DFTB+ invocation details to `logs/dftb_execution.log` in JSON format with schema: `{"molecule_id": str, "command": str, "exit_code": int, "duration": float, "peak_memory_mb": float}`.
 
 **Checkpoint**: At this point, User Story 1 is fully functional if T013c is complete (including geometry export to `data/optimized_geometries/`).
 
@@ -82,19 +78,20 @@
 
 **Goal**: Compute DFT descriptors for subset, train two RF models, compare MAE via paired t-test
 
-**Independent Test**: Run on subset; verify output reports MAE_semi, MAE_DFT, p-value, flags, and explicit comparison against experimental ground truth [UNRESOLVED-CLAIM: c_26ad4676 — status=not_enough_info].
+**Independent Test**: Run on subset; verify output reports MAE_semi, MAE_DFT, p-value, flags, and explicit comparison against experimental ground truth.
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Contract test for `code/train_models.py` in `tests/test_models.py` (verifies RF training)
-- [ ] T027 [P] [US2] Integration test for comparative evaluation in `tests/test_evaluation.py`
+- [X] T018 [P] [US2] Contract test for `code/train_models.py` in `tests/test_models.py` (verifies RF training)
+- [X] T027 [P] [US2] Integration test for comparative evaluation in `tests/test_evaluation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/dft_calculator.py` to invoke Psi4 for B3LYP/def2-SVP on a **stratified random subset of the valid samples**. **Logic**: Calculate total valid samples (N). If N >= 50, select 50. If N < 50, select all N (and log a warning that the subset size is small). Stratify by `experimental_barrier` bins. **Crucially**: Import optimized geometries from `data/optimized_geometries/` (output of T013) instead of re-optimizing, to ensure identical molecular geometries and convergence criteria as per Constitution Principle VI. Generate `data/descriptors_dft.csv`. **Depends on T013 (Geometry Export) AND T011b (Confound Analysis).**
-- [X] T021 [US2] Implement `code/train_models.py` to train two Random Forests (semi vs DFT) using 5-fold CV (spec.md US2)
-- [X] T022 [US2] Implement `code/evaluate_models.py` to compute per-fold MAE, run paired t-test (spec.md US2), and **report the Semi-Empirical MAE as a measured value** (do not verify against a fixed threshold). **Output**: `reports/evaluation.json` with keys: `mae_semi`, `mae_dft`, `t_test` (object with `statistic`, `p_value`, `null_hypothesis`, `significance_level`, `models_compared`).
-- [X] T023 [US2] Implement logic to compute MAE flags: 1) Flag if semi-MAE exceeds DFT-MAE by >20%. (spec.md US2). Write both flags and final metrics atomically to `reports/evaluation.json`. (Merged T023/T024).
+- [ ] T020a [US2] Implement `code/dft_calculator.py` subset selection logic: Read `data/raw/barrier_dataset.csv`, calculate total valid samples (N). If N >= 50, select 50; else select all. Stratify by `experimental_barrier` bins. **Dependency Check**: Verify `data/confounds.csv` exists (T011b4). **Note**: If T011b4 is incomplete, wait for its completion before proceeding. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T020b [US2] Implement `code/dft_calculator.py` DFT calculation logic: Invoke Psi4 for B3LYP/def2-SVP on the selected subset. **Crucially**: Import optimized geometries from `data/optimized_geometries/` (output of T013) instead of re-optimizing. **Split Locking**: Use `sklearn.model_selection.StratifiedKFold` with a fixed `random_state` to ensure the **exact same split indices** are used for both the Semi-Empirical and DFT models. Generate `data/descriptors_dft.csv`.
+- [X] T021 [US2] Implement `code/train_models.py` to train two Random Forests (semi vs DFT) using k-fold cross-validation (spec.md US2) with the **locked split indices** from T020b. **Verification**: Ensure the same `random_state` and split indices are used for both models to satisfy the paired t-test requirement.
+- [ ] T022 [US2] Implement `code/evaluate_models.py` to compute per-fold MAE, run paired t-test (spec.md US2), and **report the Semi-Empirical MAE as a measured value** (do not verify against a fixed threshold). **Output**: `reports/evaluation.json` with keys: `mae_semi`, `mae_dft`, `t_test` (object with `statistic`, `p_value`, `null_hypothesis`, `significance_level`, `models_compared`).
+- [ ] T023 [US2] Implement logic to compute MAE flags: 1) Flag if semi-MAE exceeds DFT-MAE by >20%. (spec.md US2). Write both flags and final metrics atomically to `reports/evaluation.json`. (Merged T023/T024). <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -104,31 +101,44 @@
 
 **Goal**: Identify top descriptors, sweep thresholds, report cumulative importance
 
-**Independent Test**: Run analysis; verify output lists top descriptors, cumulative sum, and MAE table for a set of threshold percentiles [UNRESOLVED-CLAIM: c_5b5a4f92 — status=not_enough_info].
+**Independent Test**: Run analysis; verify output lists top descriptors, cumulative sum, and MAE table for a set of threshold percentiles.
 
 ### Tests for User Story 3
 
-- [ ] T028 [P] [US3] Unit test for `code/sensitivity_analysis.py` in `tests/test_sensitivity.py` **Note**: Renumbered from T028 (Phase 4) to resolve ID collision.
+- [X] T028 [P] [US3] Unit test for `code/sensitivity_analysis.py` in `tests/test_sensitivity.py` **Note**: Renumbered from T028 (Phase 4) to resolve ID collision.
 
 ### Implementation for User Story 3
 
 - [X] T029 [US3] Implement `code/sensitivity_analysis.py` to extract feature importance from semi-empirical RF (spec.md US3)
-- [X] T030 [US3] Implement logic to identify top-ranked descriptors and calculate cumulative importance. (spec.md US3) using the output from T029. Sort by descending importance, select top subset, and append to `reports/sensitivity.csv` with columns `rank`, `descriptor`, `importance`.
+- [ ] T030 [US3] Implement logic to identify top-ranked descriptors and calculate cumulative importance. (spec.md US3) using the output from T029. Sort by descending importance, select top subset, and append to `reports/sensitivity.csv` with columns `rank`, `descriptor`, `importance`.
 - [X] T030b [US3] [FR-007] Implement `code/noise_injection.py` to inject Gaussian noise (σ=0.01, σ=0.05) into the descriptor features of the training set. **Output**: Generate perturbed datasets for each noise level.
-- [X] T031 [US3] Implement sensitivity sweep over **feature importance cutoffs** {0.01, 0.05, 0.1} and **noise injection levels** {σ=0.01, 0.05} (spec.md US3) using the outputs from T030b. **Output**: `reports/sensitivity.csv` with columns for each sweep parameter and resulting top 3 descriptors.
-- [X] T032a [US3] Implement logic to verify stability of top descriptors (spec.md US3) by computing **Spearman's rank correlation** of the top 3 descriptors across all sweep combinations. **Threshold**: `stable = True` if rho >= 0.9. Record result in `reports/sensitivity.csv`.
+- [X] T031a [US3] Implement `code/noise_injection.py` logic to inject Gaussian noise (σ=0.01, σ=0.05) into the descriptor features of the training set. **Output**: Generate perturbed datasets for each noise level.
+- [X] T031b [US3] Implement `code/sensitivity_sweep.py` logic to sweep **feature importance cutoffs** {0.01, 0.05, 0.1} on the base and perturbed datasets.
+- [ ] T031c [US3] Implement `code/sensitivity_sweep.py` aggregation logic: Combine results from T031a and T031b, compute rank correlation of top 3 descriptors across all sweep combinations. **Output**: `reports/sensitivity.csv` with columns for each sweep parameter and resulting top 3 descriptors. **Threshold**: `stable = True` if rho >= 0.9.
+- [ ] T032a [US3] Implement logic to verify stability of top descriptors (spec.md US3) by computing **Spearman's rank correlation** of the top 3 descriptors across all sweep combinations. **Threshold**: `stable = True` if rho >= 0.9. Record result in `reports/sensitivity.csv`.
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Pipeline Validation & Polish**Purpose**: Validation gates and final reporting
+## Phase 6: Pipeline Validation & Polish
 
-- [X] T033a [P] Execute the full pipeline end-to-end on a sample subset and capture runtime logs.
-- [X] T033b [P] Validate runtime logs from T033a: verify total runtime ≤ 6 hours and peak memory ≤ 7 GB per Constitution Principle VII (Resource-Bound Execution) and write validation result to `reports/runtime_validation.json`.
-- [X] T034 [P] Implement `code/generate_checksums.py` to compute SHA cryptographic hashes for all raw and processed artifacts and write to `data/checksums.txt` (Constitution Check #3).
-- [X] T035 [P] Implement `code/generate_summary_report.py` to aggregate all metrics (MAE, speedup, feature importance) into `reports/summary_report.md`.
-- [X] T046 [P] Update `docs/reproducibility.md` to include the "standard of evidence" (spec.md US2): define the exact experimental dataset (Zenodo ID, version), source, and error margins based on dataset metadata. **Depends on T034 checksums and T022.** **Output**: `docs/reproducibility.md` must contain a JSON block with keys: `zenodo_id`, `version`, `checksum`, `dataset_size`, `error_margin_type` (N/A for correlational), `source_url`.
+**Purpose**: Validation gates and final reporting, including response to research-stage reviews regarding physical reality and measurement standards.
+
+- [ ] T033a [P] Execute the full pipeline end-to-end on a sample subset and capture runtime logs.
+- [ ] T033b [P] Validate runtime logs from T033a: verify total runtime ≤ 6 hours and peak memory ≤ 7 GB per Constitution Principle VII (Resource-Bound Execution) and write validation result to `reports/runtime_validation.json`.
+- [ ] T034 [P] Implement `code/generate_checksums.py` to compute SHA cryptographic hashes for all raw and processed artifacts and write to `data/checksums.txt` (Constitution Check #3).
+- [ ] T035 [P] Implement `code/generate_summary_report.py` to aggregate all metrics (MAE, speedup, feature importance) into `reports/summary_report.md`.
+- [ ] T046 [P] Update `docs/reproducibility.md` to include the "standard of evidence" (spec.md US2): define the exact experimental dataset (Zenodo ID, version), source, and error margins based on dataset metadata. **Depends on T034 checksums and T022.** **Output**: `docs/reproducibility.md` must contain a JSON block with keys: `zenodo_id`, `version`, `checksum`, `dataset_size`, `error_margin_type` (N/A for correlational), `source_url`.
+
+- [ ] T053a [P] **Standard of Evidence Documentation**: Implement `code/docs/standard_of_evidence.md` to explicitly map the correlational study to available data. **Content**:
+ 1. Explicitly list the experimental datasets used for validation (Zenodo ID, specific columns).
+ 2. Define the "error margin" for the predicted properties based on the paired t-test results (T022).
+ 3. Include a "Measurement vs. Calculation" matrix: compare the precision of the experimental barrier heights (instrument precision) vs. the precision of the computational predictions. **Note**: If `instrument_precision` is not available in Zenodo metadata, explicitly set this field to `null` and document the limitation. Do not fabricate data.
+ 4. Address the "hydration shell" concern (Franklin): explicitly state that the current pipeline assumes gas-phase calculations and that solvent effects are a known limitation not addressed in this MVP, referencing the Zenodo dataset conditions.
+ 5. Document the "Resource Budget" trade-off: quantify the FLOPs saved by DFTB+ vs. Psi4 and the resulting error margin increase.
+
+- [ ] T053b [P] Update `reports/evaluation.json` schema to include a new field `validation_standard`: an object containing `ground_truth_source` (Zenodo ID), `measurement_precision` (from dataset metadata or `null` if unavailable), and `computational_approximation_level` (DFTB+ vs. DFT). This ensures the "standard of evidence" is machine-readable and traceable. **Note**: If `measurement_precision` is not found in metadata, set to `null` and document the absence.
 
 ---
 
@@ -146,7 +156,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on T013 (Geometry Export from US1) AND T011b (Confound Analysis)**. T020 explicitly requires both T013 and T011b to be complete before it can start.
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on T013 (Geometry Export from US1) AND T011b4 (Confound Analysis Verification)**. T020a explicitly requires both T013 and T011b4 to be complete before it can start.
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
 ### Within Each User Story
@@ -160,12 +170,12 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T011b which is blocking for US2.**
+- All Foundational tasks marked [P] can run in parallel (within Phase 2) **EXCEPT T011b4 which is blocking for US2.**
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **Note**: T011b (Confounds) can run in parallel with US1 (T013), but T020 (DFT) cannot start until BOTH T013 and T011b are complete.
+- **Note**: T011b1-T011b4 can run in parallel with US1 (T013), but T020a (DFT) cannot start until BOTH T013 and T011b4 are complete.
 
 ---
 
@@ -222,7 +232,7 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Removed Unapproved/Unexecutable Tasks**: T019 (merged to T013), T058, T069-T077, T080-T086, T042.
+- **Removed Unapproved/Unexecutable Tasks**: T019 (merged to T013), T050, T051, T052, T058, T069-T077, T080-T086, T042.
 - **Removed Unapproved documentation**: T045, T054, T057, T063-T068 (previous scope creep).
 - **Physical Reality & Observables**: Retained T044 (general chemical properties); removed T045, T075.
 - **Structural Constraints**: Removed T060-T068 (unapproved invariants). T046b (internal geometry validator) replaces the unapproved T046b (crystallographic validator). **T046b (crystallographic) has been REMOVED entirely as it requires non-existent data.**
@@ -233,16 +243,16 @@ With multiple developers:
 - **Physical Interpretability**: Retained T044 (general mapping); removed T065, T074.
 - **Map vs. Territory**: Removed T045, T075 (unapproved).
 - **Geometry Alignment**: T013 now handles export; T020 depends on T013.
-- **Atomicity**: Split T033 into T033a/T033b. Split T034/T035 into script generation tasks. Split T013 into T013a/T013b/T013c for better granularity. Split T001 into T001a/T001b/T001c for granularity.
-- **Validation Logic**: Updated T013c to skip on physical range violations rather than hard fail, aligning with spec Edge Cases.
+- **Atomicity**: Split T033 into T033a/T033b. Split T034/T035 into script generation tasks. Split T013 into T013a/T013b/T013c1-T013c4 for better granularity. **Merged T001a/b/c into T001.**
+- **Validation Logic**: Updated T013c2 to skip on physical range violations rather than hard fail, aligning with spec Edge Cases.
 - **Traceability Fix**: Updated T004 to reference spec.md Data Model instead of non-existent FR-001.
-- **Subset Sizing**: Updated T020 to specify "min(50, N) samples" to handle small datasets gracefully.
+- **Subset Sizing**: Updated T020a to specify "min(50, N) samples" to handle small datasets gracefully.
 - **Stability Check**: Split T032 into T032a (sweep) and T032b (stability check) to explicitly implement "change < 1 time" (0 changes) logic.
 - **Removed Phantom Dependencies**: T019 removed and merged into T013 to resolve ordering-56889ec3.
 - **Fixed Hallucinated Citations**: Removed "Wikipedia: Stree 2" from T033b.
 - **Removed Scope Creep**: Removed T080-T086 which introduced unrequested physical constraints, philosophical essays, and solvent models.
 - **Removed Redundant Validation**: Removed T042 and T085 which duplicated T022 logic or demanded non-existent data.
-- **Removed Scope Creep (Phase 2)**: Removed T011d (Ontology Map) and T011e (Standard of Evidence) as they were not required by spec.md FR-008/US2 and relied on external reviewer concerns not present in the context. T011b remains the definitive task for FR-008. **T011d and T011e have been REMOVED.**
+- **Removed Scope Creep (Phase 2)**: **REMOVED** T011d (Ontology Map) and T011e (Standard of Evidence) as they were not required by spec.md FR-008/US2 and relied on external reviewer concerns not present in the context. T011b remains the definitive task for FR-008. **T011d and T011e have been REMOVED.**
 - **Removed Scope Creep (Phase 3)**: Removed T013d (Structural Validator with specific bond lengths) and T013e (Physical Interpretation) as they enforced unapproved constraints and exceeded computational scope. T013c handles spec-defined validation.
 - **Removed Scope Creep (Phase 4)**: Removed T023b (Resource Budget) and T023c (Ground Truth Verification) as they contradicted the "purely correlational" scope and "no circular validation" rule.
 - **Removed Scope Creep (Phase 5)**: Removed T032b (Approximation Traceability) as it requested unrequired Hamiltonian documentation.
@@ -250,5 +260,14 @@ With multiple developers:
 - **Removed Phantom Tasks**: Removed all references to T069-T086 and other phantom tasks from the notes.
 - **Dependency Clarification**: Clarified that T011b (Phase 2) and T013 (Phase 3) are prerequisites for T020 (Phase 4). T011b is parallel-safe with T013 but must complete before T020 starts.
 - **Schema Definitions**: Added explicit schema definitions for `data/confounds.csv` (pipe-separated functional groups) and `docs/reproducibility.md` (JSON block keys) to ensure deterministic execution.
-- **Granularity**: Split T001 into T001a, T001b, T001c to ensure atomic directory creation.
+- **Granularity**: Split T001 into T001a, T001b, T001c to ensure atomic directory creation. **Merged T001a/b/c into T001.**
 - **Review Response Integration**: **REMOVED** T011d (Ontology Mapping) and T011e (Error Budget Analysis) as they were identified as scope creep and not required by the spec. **REMOVED** T023b (Ground Truth Standard) as it contradicted the correlational scope. **REMOVED** T046b (Crystallographic Validator) as it required non-existent data.
+- **NEW REVIEW TASKS**: **ADDED** T053a, T053b to address the "Standard of Evidence" with strict constraints on data availability (no fabrication).
+- **MERGED TASKS**: **Merged T002/T008 into T002** to eliminate duplication. **Merged T001a/b/c into T001** to reduce overhead.
+- **FIXED STATUS**: Corrected T004 and T011b to [ ] to reflect that they are incomplete/rejected and require re-implementation.
+- **Split T011b**: Split T011b into T011b1, T011b2, T011b3, T011b4 for atomicity.
+- **Split T013c**: Split T013c into T013c1, T013c2, T013c3, T013c4 for atomicity.
+- **Split T020**: Split T020 into T020a, T020b for atomicity.
+- **Split T031**: Split T031 into T031a, T031b, T031c for atomicity.
+- **Removed T050-T052**: Removed tasks demanding unprovable physical evidence (hydration shells, crystallographic data) as scope creep.
+- **Replaced T053**: Replaced T053 with T053a and T053b to strictly document available data and limitations without fabrication.

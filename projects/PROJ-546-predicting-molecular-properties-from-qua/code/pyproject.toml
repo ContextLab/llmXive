@@ -5,18 +5,19 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "molecular-properties-pipeline"
 version = "0.1.0"
-description = "Predicting molecular properties from quantum chemical calculations"
+description = "Predicting Molecular Properties from Quantum Chemical Calculations"
 requires-python = ">=3.11"
 dependencies = [
     "scikit-learn",
     "pandas",
     "rdkit",
     "requests",
-    "pytest",
+    "datasets",
+    "pyyaml"
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -34,13 +35,25 @@ exclude = '''
 '''
 
 [tool.ruff]
-# Inherit configuration from .ruff.toml for consistency, but allow project-specific overrides here if needed.
-# The primary lint rules are defined in .ruff.toml to keep the root clean.
 line-length = 88
 target-version = "py311"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true

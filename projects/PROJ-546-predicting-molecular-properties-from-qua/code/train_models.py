@@ -1,265 +1,361 @@
+"""
+Train two Random Forest models (Semi-Empirical vs DFT) using locked split indices.
+
+This module implements User Story 2 (US2) for comparative modeling. It trains
+Random Forest regressors on semi-empirical (DFTB+) and high-level DFT (Psi4)
+descriptors using the exact same k-fold splits to enable a paired t-test.
+
+The split indices are locked via a fixed random_state and stratification strategy
+defined in T020b (dft_calculator.py) to ensure the paired comparison is valid.
+"""
+
+import argparse
+import csv
+import json
+import logging
 import os
 import sys
-import csv
-import logging
-import argparse
+import pickle
 from pathlib import Path
-from typing import Tuple, List, Dict, Any
+from typing import Tuple, List, Dict, Any, Optional
+
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import KFold, cross_validate
-from sklearn.metrics import make_scorer, mean_absolute_error
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import mean_absolute_error
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
+import joblib
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Project root relative to this file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-REQUIRED_COLUMNS = [
-    'smiles', 'homo_semi', 'lumo_semi', 'mayer_order_semi',
-    'homo_dft', 'lumo_dft', 'mayer_order_dft',
-    'experimental_barrier'
-]
+# Paths
+DATA_DIR = PROJECT_ROOT / "data"
+REPORTS_DIR = PROJECT_ROOT / "reports"
+MODELS_DIR = PROJECT_ROOT / "models"
+LOGS_DIR = PROJECT_ROOT / "logs"
 
-SEMI_FEATURES = ['homo_semi', 'lumo_semi', 'mayer_order_semi']
-DFT_FEATURES = ['homo_dft', 'lumo_dft', 'mayer_order_dft']
-TARGET_COLUMN = 'experimental_barrier'
+DESCRIPTORS_SEMI_PATH = DATA_DIR / "descriptors_semi.csv"
+DESCRIPTORS_DFT_PATH = DATA_DIR / "descriptors_dft.csv"
+LOCKED_INDICES_PATH = DATA_DIR / "locked_splits.pkl"
 
-def load_data(filepath: str) -> List[Dict[str, Any]]:
+OUTPUT_METRICS_PATH = REPORTS_DIR / "training_metrics.json"
+OUTPUT_SEMI_MODEL_PATH = MODELS_DIR / "rf_semi.pkl"
+OUTPUT_DFT_MODEL_PATH = MODELS_DIR / "rf_dft.pkl"
+
+LOG_FILE = LOGS_DIR / "training.log"
+
+# Configuration
+RANDOM_STATE = 42  # Must match T020b
+N_FOLDS = 5
+N_ESTIMATORS = 100
+TARGET_COLUMN = "experimental_barrier"
+
+
+def setup_logger() -> logging.Logger:
+    """Configure logging for the training pipeline."""
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    logger = logging.getLogger("train_models")
+    logger.setLevel(logging.INFO)
+
+    # File handler
+    fh = logging.FileHandler(LOG_FILE)
+    fh.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    ch.setFormatter(formatter)
+
+    if not logger.handlers:
+        logger.addHandler(fh)
+        logger.addHandler(ch)
+
+    return logger
+
+
+def load_data_semi() -> Tuple[np.ndarray, np.ndarray, List[str]]:
     """
-    Load molecular descriptor data from a CSV file.
-    
-    Args:
-        filepath: Path to the CSV file containing descriptors.
-        
+    Load semi-empirical descriptors and target.
+
     Returns:
-        List of dictionaries, one per molecule.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If required columns are missing.
+        X: Feature matrix (numpy array)
+        y: Target vector (numpy array)
+        feature_names: List of column names (excluding target)
     """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Data file not found: {filepath}")
-    
-    data = []
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+    if not DESCRIPTORS_SEMI_PATH.exists():
+        raise FileNotFoundError(f"Semi-empirical descriptors not found at {DESCRIPTORS_SEMI_PATH}. "
+                                "Run T013c4 (descriptor_pipeline) first.")
+
+    features = []
+    targets = []
+    feature_names = []
+
+    with open(DESCRIPTORS_SEMI_PATH, 'r', newline='') as f:
         reader = csv.DictReader(f)
-        
-        # Verify required columns exist
         if reader.fieldnames is None:
-            raise ValueError("CSV file is empty or has no headers.")
-        
-        missing_cols = set(REQUIRED_COLUMNS) - set(reader.fieldnames)
-        if missing_cols:
-            raise ValueError(f"Missing required columns: {missing_cols}")
-        
-        for row_num, row in enumerate(reader, start=2):
-            try:
-                # Parse numeric fields
-                parsed_row = {
-                    'smiles': row['smiles'],
-                    'homo_semi': float(row['homo_semi']),
-                    'lumo_semi': float(row['lumo_semi']),
-                    'mayer_order_semi': float(row['mayer_order_semi']),
-                    'homo_dft': float(row['homo_dft']),
-                    'lumo_dft': float(row['lumo_dft']),
-                    'mayer_order_dft': float(row['mayer_order_dft']),
-                    'experimental_barrier': float(row['experimental_barrier'])
-                }
-                data.append(parsed_row)
-            except ValueError as e:
-                logger.warning(f"Skipping row {row_num} due to parsing error: {e}")
-    
-    if not data:
-        raise ValueError("No valid data rows found in the file.")
-        
-    logger.info(f"Loaded {len(data)} molecules from {filepath}")
-    return data
+            raise ValueError("Empty CSV or missing headers in descriptors_semi.csv")
 
-def prepare_features_target(
-    data: List[Dict[str, Any]], 
-    feature_type: str
-) -> Tuple[np.ndarray, np.ndarray]:
+        # Assume all columns except target are features
+        target_col = TARGET_COLUMN
+        if target_col not in reader.fieldnames:
+            raise ValueError(f"Target column '{target_col}' not found in {DESCRIPTORS_SEMI_PATH}")
+
+        feature_names = [col for col in reader.fieldnames if col != target_col]
+
+        for row in reader:
+            features.append([float(row[col]) for col in feature_names])
+            targets.append(float(row[target_col]))
+
+    logger.info(f"Loaded {len(features)} samples with {len(feature_names)} features from semi-empirical data.")
+    return np.array(features), np.array(targets), feature_names
+
+
+def load_data_dft() -> Tuple[np.ndarray, np.ndarray]:
     """
-    Prepare feature matrix and target vector from data.
-    
-    Args:
-        data: List of molecule dictionaries.
-        feature_type: Either 'semi' or 'dft' to select feature set.
-        
+    Load DFT descriptors and target.
+
     Returns:
-        Tuple of (X, y) as numpy arrays.
-        
-    Raises:
-        ValueError: If feature_type is invalid.
+        X: Feature matrix (numpy array)
+        y: Target vector (numpy array)
     """
-    if feature_type not in ('semi', 'dft'):
-        raise ValueError(f"Invalid feature_type: {feature_type}. Must be 'semi' or 'dft'.")
-    
-    features = SEMI_FEATURES if feature_type == 'semi' else DFT_FEATURES
-    
-    X = np.array([[mol[feat] for feat in features] for mol in data])
-    y = np.array([mol[TARGET_COLUMN] for mol in data])
-    
-    return X, y
+    if not DESCRIPTORS_DFT_PATH.exists():
+        raise FileNotFoundError(f"DFT descriptors not found at {DESCRIPTORS_DFT_PATH}. "
+                                "Run T020b (dft_calculator) first.")
+
+    features = []
+    targets = []
+
+    with open(DESCRIPTORS_DFT_PATH, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        if reader.fieldnames is None:
+            raise ValueError("Empty CSV or missing headers in descriptors_dft.csv")
+
+        target_col = TARGET_COLUMN
+        if target_col not in reader.fieldnames:
+            raise ValueError(f"Target column '{target_col}' not found in {DESCRIPTORS_DFT_PATH}")
+
+        # Ensure feature order matches semi-empirical (assuming same column order for now)
+        # In a robust pipeline, we might align by name, but T020b ensures consistency.
+        feature_names_dft = [col for col in reader.fieldnames if col != target_col]
+
+        for row in reader:
+            features.append([float(row[col]) for col in feature_names_dft])
+            targets.append(float(row[target_col]))
+
+    logger.info(f"Loaded {len(features)} samples with {len(feature_names_dft)} features from DFT data.")
+    return np.array(features), np.array(targets)
+
+
+def load_locked_splits() -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Load the locked split indices generated by T020b.
+
+    Returns:
+        train_indices: Array of training indices
+        test_indices: Array of test indices
+        stratify_labels: Array of stratification labels (binned target)
+    """
+    if not LOCKED_INDICES_PATH.exists():
+        raise FileNotFoundError(f"Locked splits not found at {LOCKED_INDICES_PATH}. "
+                                "Run T020b (dft_calculator) to generate splits first.")
+
+    with open(LOCKED_INDICES_PATH, 'rb') as f:
+        data = pickle.load(f)
+
+    train_indices = data['train_indices']
+    test_indices = data['test_indices']
+    stratify_labels = data['stratify_labels']
+
+    logger.info(f"Loaded locked splits: {len(train_indices)} train, {len(test_indices)} test.")
+    return train_indices, test_indices, stratify_labels
+
 
 def train_and_evaluate_fold(
-    X_train: np.ndarray, 
-    y_train: np.ndarray, 
-    X_test: np.ndarray, 
-    y_test: np.ndarray
+    X_semi: np.ndarray,
+    y_semi: np.ndarray,
+    X_dft: np.ndarray,
+    y_dft: np.ndarray,
+    train_idx: np.ndarray,
+    test_idx: np.ndarray,
+    n_estimators: int = N_ESTIMATORS
 ) -> Dict[str, float]:
     """
-    Train a Random Forest model on a single fold and evaluate it.
-    
-    Args:
-        X_train: Training features.
-        y_train: Training targets.
-        X_test: Test features.
-        y_test: Test targets.
-        
-    Returns:
-        Dictionary containing 'mae' (Mean Absolute Error).
-    """
-    # Create a pipeline with scaling and RF
-    model = Pipeline([
-        ('scaler', StandardScaler()),
-        ('rf', RandomForestRegressor(
-            n_estimators=100,
-            max_depth=None,
-            random_state=42,
-            n_jobs=-1
-        ))
-    ])
-    
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    
-    mae = mean_absolute_error(y_test, y_pred)
-    
-    logger.info(f"Fold MAE: {mae:.4f} kcal/mol")
-    
-    return {'mae': mae}
+    Train a single fold for both models and return MAE.
 
-def train_models(
-    data: List[Dict[str, Any]],
-    n_splits: int = 5,
-    random_state: int = 42
-) -> Dict[str, Any]:
-    """
-    Train and evaluate Random Forest models for both semi-empirical and DFT descriptors.
-    
-    This function performs 5-fold cross-validation for both feature sets and returns
-    the performance metrics.
-    
     Args:
-        data: List of molecule dictionaries.
-        n_splits: Number of CV folds (default 5).
-        random_state: Random seed for reproducibility.
-        
+        X_semi, y_semi: Semi-empirical data
+        X_dft, y_dft: DFT data
+        train_idx, test_idx: Indices for this fold
+        n_estimators: Number of trees
+
     Returns:
-        Dictionary containing results for both models:
-        {
-            'semi': {'mae_mean': float, 'mae_std': float, 'fold_maes': List[float]},
-            'dft': {'mae_mean': float, 'mae_std': float, 'fold_maes': List[float]}
-        }
+        Dictionary with 'mae_semi' and 'mae_dft'
     """
-    results = {}
-    
-    for feature_type in ['semi', 'dft']:
-        logger.info(f"Training {feature_type.upper()} model with {n_splits}-fold CV...")
-        
-        X, y = prepare_features_target(data, feature_type)
-        
-        # Setup KFold
-        kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
-        
-        fold_maes = []
-        for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X)):
-            X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_test = y[train_idx], y[test_idx]
-            
-            fold_result = train_and_evaluate_fold(X_train, y_train, X_test, y_test)
-            fold_maes.append(fold_result['mae'])
-        
-        mae_mean = float(np.mean(fold_maes))
-        mae_std = float(np.std(fold_maes))
-        
-        results[feature_type] = {
-            'mae_mean': mae_mean,
-            'mae_std': mae_std,
-            'fold_maes': fold_maes
-        }
-        
-        logger.info(f"{feature_type.upper()} Model - Mean MAE: {mae_mean:.4f} ± {mae_std:.4f} kcal/mol")
-    
-    return results
+    # Split data
+    X_semi_train, X_semi_test = X_semi[train_idx], X_semi[test_idx]
+    y_semi_train, y_semi_test = y_semi[train_idx], y_semi[test_idx]
+
+    X_dft_train, X_dft_test = X_dft[train_idx], X_dft[test_idx]
+    y_dft_train, y_dft_test = y_dft[train_idx], y_dft[test_idx]
+
+    # Scale features
+    scaler_semi = StandardScaler()
+    X_semi_train_scaled = scaler_semi.fit_transform(X_semi_train)
+    X_semi_test_scaled = scaler_semi.transform(X_semi_test)
+
+    scaler_dft = StandardScaler()
+    X_dft_train_scaled = scaler_dft.fit_transform(X_dft_train)
+    X_dft_test_scaled = scaler_dft.transform(X_dft_test)
+
+    # Train Semi-Empirical RF
+    rf_semi = RandomForestRegressor(n_estimators=n_estimators, random_state=RANDOM_STATE, n_jobs=-1)
+    rf_semi.fit(X_semi_train_scaled, y_semi_train)
+    y_semi_pred = rf_semi.predict(X_semi_test_scaled)
+    mae_semi = mean_absolute_error(y_semi_test, y_semi_pred)
+
+    # Train DFT RF
+    rf_dft = RandomForestRegressor(n_estimators=n_estimators, random_state=RANDOM_STATE, n_jobs=-1)
+    rf_dft.fit(X_dft_train_scaled, y_dft_train)
+    y_dft_pred = rf_dft.predict(X_dft_test_scaled)
+    mae_dft = mean_absolute_error(y_dft_test, y_dft_pred)
+
+    logger.info(f"Fold MAE - Semi: {mae_semi:.4f}, DFT: {mae_dft:.4f}")
+
+    return {
+        "mae_semi": mae_semi,
+        "mae_dft": mae_dft
+    }
+
+
+def train_models() -> Dict[str, Any]:
+    """
+    Main training loop: runs k-fold cross-validation with locked splits.
+
+    Returns:
+        Dictionary containing fold results and final aggregated metrics.
+    """
+    # Load data
+    logger.info("Loading semi-empirical descriptors...")
+    X_semi, y_semi, feature_names = load_data_semi()
+
+    logger.info("Loading DFT descriptors...")
+    X_dft, y_dft = load_data_dft()
+
+    # Ensure data alignment
+    if len(X_semi) != len(X_dft):
+        raise ValueError(f"Data mismatch: Semi has {len(X_semi)} samples, DFT has {len(X_dft)}. "
+                         "Ensure T020b and T013c4 processed the same subset.")
+
+    logger.info("Loading locked split indices...")
+    train_indices, test_indices, stratify_labels = load_locked_splits()
+
+    # Prepare for cross-validation using the locked single split structure
+    # Note: T020b generates a single train/test split for the subset selection.
+    # However, US2 requires k-fold CV. We must re-generate folds based on the
+    # locked subset indices to ensure the *same* molecules are used in both models.
+    # The "locked split" in T020b usually refers to the subset selection.
+    # For the CV itself, we use StratifiedKFold with the SAME random_state on the
+    # subset data to ensure alignment between Semi and DFT folds.
+
+    n_samples = len(y_semi)
+    # Create a fixed array of indices for the subset
+    subset_indices = np.arange(n_samples)
+
+    skf = StratifiedKFold(n_splits=N_FOLDS, shuffle=True, random_state=RANDOM_STATE)
+
+    fold_results = []
+
+    logger.info(f"Starting {N_FOLDS}-fold cross-validation with random_state={RANDOM_STATE}...")
+
+    for fold_idx, (train_idx, test_idx) in enumerate(skf.split(subset_indices, stratify_labels)):
+        logger.info(f"Processing fold {fold_idx + 1}/{N_FOLDS}...")
+
+        # Map subset indices back to the original arrays (which are already the subset)
+        # Since X_semi and X_dft are already the subset from T020b/T013c4,
+        # train_idx and test_idx from skf directly index into X_semi/X_dft.
+        fold_metrics = train_and_evaluate_fold(
+            X_semi, y_semi,
+            X_dft, y_dft,
+            train_idx, test_idx,
+            n_estimators=N_ESTIMATORS
+        )
+        fold_results.append(fold_metrics)
+
+    # Aggregate results
+    mae_semi_list = [r["mae_semi"] for r in fold_results]
+    mae_dft_list = [r["mae_dft"] for r in fold_results]
+
+    mean_mae_semi = np.mean(mae_semi_list)
+    std_mae_semi = np.std(mae_semi_list)
+    mean_mae_dft = np.mean(mae_dft_list)
+    std_mae_dft = np.std(mae_dft_list)
+
+    logger.info(f"Final Mean MAE (Semi): {mean_mae_semi:.4f} (+/- {std_mae_semi:.4f})")
+    logger.info(f"Final Mean MAE (DFT): {mean_mae_dft:.4f} (+/- {std_mae_dft:.4f})")
+
+    # Train final models on full subset for saving
+    logger.info("Training final models on full subset...")
+    scaler_semi_final = StandardScaler()
+    X_semi_scaled_final = scaler_semi_final.fit_transform(X_semi)
+    rf_semi_final = RandomForestRegressor(n_estimators=N_ESTIMATORS, random_state=RANDOM_STATE, n_jobs=-1)
+    rf_semi_final.fit(X_semi_scaled_final, y_semi)
+
+    scaler_dft_final = StandardScaler()
+    X_dft_scaled_final = scaler_dft_final.fit_transform(X_dft)
+    rf_dft_final = RandomForestRegressor(n_estimators=N_ESTIMATORS, random_state=RANDOM_STATE, n_jobs=-1)
+    rf_dft_final.fit(X_dft_scaled_final, y_dft)
+
+    # Save models and scalers
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+
+    joblib.dump({
+        "model": rf_semi_final,
+        "scaler": scaler_semi_final,
+        "feature_names": feature_names
+    }, OUTPUT_SEMI_MODEL_PATH)
+    logger.info(f"Saved Semi-Empirical model to {OUTPUT_SEMI_MODEL_PATH}")
+
+    joblib.dump({
+        "model": rf_dft_final,
+        "scaler": scaler_dft_final,
+        "feature_names": feature_names # Assuming same feature order
+    }, OUTPUT_DFT_MODEL_PATH)
+    logger.info(f"Saved DFT model to {OUTPUT_DFT_MODEL_PATH}")
+
+    return {
+        "fold_results": fold_results,
+        "mean_mae_semi": float(mean_mae_semi),
+        "std_mae_semi": float(std_mae_semi),
+        "mean_mae_dft": float(mean_mae_dft),
+        "std_mae_dft": float(std_mae_dft),
+        "n_folds": N_FOLDS,
+        "random_state": RANDOM_STATE
+    }
+
 
 def main():
-    """
-    Main entry point for training models.
-    
-    Usage:
-        python code/train_models.py --input data/descriptors_combined.csv --output data/model_results.json
-    """
-    parser = argparse.ArgumentParser(
-        description='Train Random Forest models on semi-empirical and DFT descriptors.'
-    )
-    parser.add_argument(
-        '--input', '-i',
-        type=str,
-        default='data/descriptors_combined.csv',
-        help='Path to input CSV file with descriptors (default: data/descriptors_combined.csv)'
-    )
-    parser.add_argument(
-        '--output', '-o',
-        type=str,
-        default='data/model_results.json',
-        help='Path to output JSON file for results (default: data/model_results.json)'
-    )
-    parser.add_argument(
-        '--splits', '-s',
-        type=int,
-        default=5,
-        help='Number of CV folds (default: 5)'
-    )
-    
-    args = parser.parse_args()
-    
-    try:
-        # Load data
-        data = load_data(args.input)
-        
-        # Train models
-        results = train_models(data, n_splits=args.splits)
-        
-        # Save results to JSON
-        import json
-        with open(args.output, 'w', encoding='utf-8') as f:
-            json.dump(results, f, indent=2)
-        
-        logger.info(f"Results saved to {args.output}")
-        
-        # Print summary
-        print("\n=== Model Training Summary ===")
-        print(f"Semi-empirical MAE: {results['semi']['mae_mean']:.4f} ± {results['semi']['mae_std']:.4f} kcal/mol")
-        print(f"DFT MAE:            {results['dft']['mae_mean']:.4f} ± {results['dft']['mae_std']:.4f} kcal/mol")
-        print("==============================\n")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Input file error: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.exception(f"Unexpected error during training: {e}")
-        sys.exit(1)
+    """Entry point for the training script."""
+    global logger
+    logger = setup_logger()
 
-if __name__ == '__main__':
+    try:
+        results = train_models()
+
+        # Save results to JSON
+        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        with open(OUTPUT_METRICS_PATH, 'w') as f:
+            json.dump(results, f, indent=2)
+        logger.info(f"Training metrics saved to {OUTPUT_METRICS_PATH}")
+
+        print(f"Training complete. Mean MAE Semi: {results['mean_mae_semi']:.4f}, DFT: {results['mean_mae_dft']:.4f}")
+
+    except Exception as e:
+        logger.error(f"Training failed: {e}", exc_info=True)
+        raise
+
+
+if __name__ == "__main__":
     main()

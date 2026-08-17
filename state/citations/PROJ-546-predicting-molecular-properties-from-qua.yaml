@@ -1,14 +1,3 @@
-- artifact_hash: afea04e2ec29a668c159cd6e54e4b875395d90b237f27e1f5e66428362035978
-  artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Dhurandhar - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Dhurandhar
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Dhurandhar
-  verified_at: '2026-08-13T00:17:32.304854Z'
 - artifact_hash: 59662c6e912c329986c334f76201f80bf4b8cf56862dd6463494cbe03360108d
   artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/research.md
   cite_id: c-001

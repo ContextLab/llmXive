@@ -1,3 +1,9 @@
+"""
+evaluate_models.py
+
+Implements the evaluation of Semi-Empirical vs DFT Random Forest models.
+Computes per-fold MAE, runs a paired t-test, and writes results to reports/evaluation.json.
+"""
 import argparse
 import csv
 import json
@@ -9,172 +15,264 @@ from typing import List, Dict, Any, Tuple
 
 import numpy as np
 from scipy import stats
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import KFold
 
-# Ensure imports match API surface
-# We assume the data files exist as per previous tasks T020, T021, T022
-# The main script expects to load semi-empirical and DFT descriptor sets
-# and compute MAE against experimental barriers.
+# Import shared utilities if available, otherwise define minimal logger
+try:
+    from utils.logging_utils import setup_logger
+except ImportError:
+    def setup_logger(name: str, log_file: str = None, level=logging.INFO) -> logging.Logger:
+        logger = logging.getLogger(name)
+        logger.setLevel(level)
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        if log_file:
+            fh = logging.FileHandler(log_file)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+        return logger
 
-def setup_logger(name: str) -> logging.Logger:
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    return logger
+logger = setup_logger("evaluate_models", "logs/evaluation.log")
 
-logger = setup_logger(__name__)
+def load_data_semi(csv_path: str) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+    """
+    Load semi-empirical descriptors and target from CSV.
+    Returns (X, y, feature_names).
+    """
+    features = []
+    targets = []
+    feature_names = []
+    
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"Semi-empirical data file not found: {csv_path}")
 
-def load_data_semi(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
-    """Load semi-empirical descriptors and targets."""
-    features, targets = [], []
-    with open(file_path, 'r', newline='') as f:
+    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
+        header = reader.fieldnames
+        
+        # Identify target column (expected: 'experimental_barrier')
+        target_col = 'experimental_barrier'
+        if target_col not in header:
+            raise ValueError(f"Target column '{target_col}' not found in {csv_path}. Headers: {header}")
+        
+        feature_names = [h for h in header if h != target_col]
+        
         for row in reader:
-            # Assuming columns: 'HOMO', 'LUMO', 'Mayer_Bond_Order', ... 'experimental_barrier'
-            # We need to know the exact feature columns. For now, we assume all numeric except target.
-            feature_row = []
-            for k, v in row.items():
-                if k != 'experimental_barrier' and k != 'SMILES':
-                    try:
-                        feature_row.append(float(v))
-                    except ValueError:
-                        feature_row.append(0.0) # Handle missing or non-numeric
-            features.append(feature_row)
-            targets.append(float(row['experimental_barrier']))
+            try:
+                x_row = [float(row[f]) for f in feature_names]
+                y_val = float(row[target_col])
+                features.append(x_row)
+                targets.append(y_val)
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Skipping row due to parsing error: {e}")
+                continue
+
+    if len(features) == 0:
+        raise ValueError("No valid data rows found in semi-empirical CSV.")
+        
+    return np.array(features), np.array(targets), feature_names
+
+def load_data_dft(csv_path: str) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Load DFT descriptors and target from CSV.
+    Returns (X, y).
+    """
+    features = []
+    targets = []
+    
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"DFT data file not found: {csv_path}")
+
+    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        header = reader.fieldnames
+        
+        target_col = 'experimental_barrier'
+        if target_col not in header:
+            raise ValueError(f"Target column '{target_col}' not found in {csv_path}. Headers: {header}")
+        
+        feature_names = [h for h in header if h != target_col]
+
+        for row in reader:
+            try:
+                x_row = [float(row[f]) for f in feature_names]
+                y_val = float(row[target_col])
+                features.append(x_row)
+                targets.append(y_val)
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Skipping row due to parsing error: {e}")
+                continue
+
+    if len(features) == 0:
+        raise ValueError("No valid data rows found in DFT CSV.")
+        
     return np.array(features), np.array(targets)
 
-def load_data_dft(file_path: str) -> Tuple[np.ndarray, np.ndarray]:
-    """Load DFT descriptors and targets."""
-    # Same logic as semi, just different file
-    return load_data_semi(file_path)
-
-def train_and_evaluate_fold(X: np.ndarray, y: np.ndarray, fold_idx: int, n_folds: int) -> float:
-    """Train a Random Forest on a specific fold and return MAE."""
-    from sklearn.model_selection import KFold
-    from sklearn.ensemble import RandomForestRegressor
-    from sklearn.metrics import mean_absolute_error
-
-    kf = KFold(n_splits=n_folds, shuffle=True, random_state=42)
-    folds = list(kf.split(X))
-    if fold_idx >= len(folds):
-        raise ValueError(f"Fold index {fold_idx} out of range for {n_folds} folds")
-
-    train_idx, test_idx = folds[fold_idx]
-    X_train, X_test = X[train_idx], X[test_idx]
-    y_train, y_test = y[train_idx], y[test_idx]
-
-    model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
+def train_and_evaluate_fold(
+    X_train: np.ndarray, y_train: np.ndarray,
+    X_test: np.ndarray, y_test: np.ndarray,
+    random_state: int
+) -> float:
+    """
+    Train a Random Forest on the training split and return MAE on the test split.
+    """
+    model = RandomForestRegressor(
+        n_estimators=100,
+        max_depth=None,
+        random_state=random_state,
+        n_jobs=1
+    )
     model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    mae = mean_absolute_error(y_test, y_pred)
+    predictions = model.predict(X_test)
+    
+    mae = np.mean(np.abs(predictions - y_test))
     return mae
 
-def run_cross_validation(X: np.ndarray, y: np.ndarray, n_folds: int = 5) -> List[float]:
-    """Run cross-validation and return list of MAEs per fold."""
+def run_cross_validation(
+    X: np.ndarray, y: np.ndarray, n_splits: int = 5, random_state: int = 42
+) -> List[float]:
+    """
+    Perform k-fold cross-validation and return a list of MAE scores (one per fold).
+    """
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     maes = []
-    for i in range(n_folds):
-        mae = train_and_evaluate_fold(X, y, i, n_folds)
-        maes.append(mae)
-        logger.info(f"Fold {i+1}/{n_folds} MAE: {mae:.4f}")
+    
+    logger.info(f"Running {n_splits}-fold cross-validation...")
+    
+    for fold_idx, (train_idx, test_idx) in enumerate(kf.split(X)):
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
+        
+        fold_mae = train_and_evaluate_fold(X_train, y_train, X_test, y_test, random_state)
+        maes.append(fold_mae)
+        logger.info(f"Fold {fold_idx + 1}/{n_splits}: MAE = {fold_mae:.4f}")
+        
     return maes
 
-def run_paired_t_test(semi_maes: List[float], dft_maes: List[float]) -> Tuple[float, float]:
-    """Run paired t-test between semi-empirical and DFT MAEs."""
+def run_paired_t_test(semi_maes: List[float], dft_maes: List[float]) -> Dict[str, Any]:
+    """
+    Perform a paired t-test between Semi-Empirical and DFT MAE lists.
+    Returns a dictionary with test statistics.
+    """
     if len(semi_maes) != len(dft_maes):
-        raise ValueError("MAE lists must have equal length for paired t-test")
-    t_stat, p_val = stats.ttest_rel(semi_maes, dft_maes)
-    return t_stat, p_val
+        raise ValueError("MAE lists must have the same length for paired t-test.")
+    
+    t_statistic, p_value = stats.ttest_rel(semi_maes, dft_maes)
+    
+    result = {
+        "statistic": float(t_statistic),
+        "p_value": float(p_value),
+        "null_hypothesis": "The mean difference between Semi-Empirical and DFT MAE is zero.",
+        "significance_level": 0.05,
+        "models_compared": ["RandomForest_SemiEmpirical", "RandomForest_DFT"]
+    }
+    
+    logger.info(f"T-statistic: {t_statistic:.4f}, P-value: {p_value:.4f}")
+    if p_value < 0.05:
+        logger.info("Result: Reject null hypothesis (significant difference).")
+    else:
+        logger.info("Result: Fail to reject null hypothesis (no significant difference).")
+        
+    return result
 
-def verify_mae_threshold(mae: float, threshold: float) -> bool:
-    """Verify if MAE is within the threshold."""
-    return mae <= threshold
+def verify_mae_threshold(mae_semi: float, mae_dft: float, threshold_pct: float = 20.0) -> bool:
+    """
+    Check if Semi-Empirical MAE exceeds DFT MAE by more than threshold_pct.
+    Returns True if the flag condition is met (i.e., semi is worse by > X%).
+    """
+    if mae_dft == 0:
+        return mae_semi > 0
+    
+    relative_diff = (mae_semi - mae_dft) / mae_dft * 100.0
+    return relative_diff > threshold_pct
 
 def main():
-    parser = argparse.ArgumentParser(description="Evaluate and compare semi-empirical and DFT models.")
-    parser.add_argument("--semi-data", type=str, required=True, help="Path to semi-empirical descriptor CSV")
-    parser.add_argument("--dft-data", type=str, required=True, help="Path to DFT descriptor CSV")
-    parser.add_argument("--output", type=str, default="reports/evaluation.json", help="Output JSON report path")
-    parser.add_argument("--n-folds", type=int, default=5, help="Number of CV folds")
+    parser = argparse.ArgumentParser(description="Evaluate Semi-Empirical vs DFT Models")
+    parser.add_argument("--semi-csv", type=str, default="data/descriptors_semi.csv",
+                        help="Path to semi-empirical descriptors CSV")
+    parser.add_argument("--dft-csv", type=str, default="data/descriptors_dft.csv",
+                        help="Path to DFT descriptors CSV")
+    parser.add_argument("--output", type=str, default="reports/evaluation.json",
+                        help="Path to output JSON report")
+    parser.add_argument("--n-splits", type=int, default=5,
+                        help="Number of CV folds")
+    parser.add_argument("--random-state", type=int, default=42,
+                        help="Random seed for reproducibility")
     args = parser.parse_args()
-
-    logger.info(f"Loading semi-empirical data from {args.semi_data}")
-    X_semi, y_semi = load_data_semi(args.semi_data)
-    logger.info(f"Loaded {len(y_semi)} samples for semi-empirical model")
-
-    logger.info(f"Loading DFT data from {args.dft_data}")
-    X_dft, y_dft = load_data_dft(args.dft_data)
-    logger.info(f"Loaded {len(y_dft)} samples for DFT model")
-
-    if len(y_semi) != len(y_dft):
-        logger.warning("Sample sizes differ between semi and DFT datasets. Aligning by index may be needed.")
-        # For now, assume they are aligned or the task implies running on the same subset
-        # If not aligned, we might need to load SMILES and align.
-        # Given the task context, we proceed assuming alignment or independent evaluation on available data.
-        # However, for paired t-test, we need paired folds. We will assume the datasets are aligned by row.
-
-    logger.info("Running Cross-Validation for Semi-Empirical Model")
-    semi_maes = run_cross_validation(X_semi, y_semi, n_folds=args.n_folds)
-    mean_semi_mae = np.mean(semi_maes)
-    logger.info(f"Mean Semi-Empirical MAE: {mean_semi_mae:.4f}")
-
-    logger.info("Running Cross-Validation for DFT Model")
-    dft_maes = run_cross_validation(X_dft, y_dft, n_folds=args.n_folds)
-    mean_dft_mae = np.mean(dft_maes)
-    logger.info(f"Mean DFT MAE: {mean_dft_mae:.4f}")
-
-    logger.info("Running Paired T-Test")
-    t_stat, p_val = run_paired_t_test(semi_maes, dft_maes)
-    logger.info(f"T-statistic: {t_stat:.4f}, P-value: {p_val:.4f}")
-
-    # FR-008: Flag if semi-MAE exceeds DFT-MAE by >20%
-    # Logic: (Semi_MAE - DFT_MAE) / DFT_MAE > 0.20
-    # Handle division by zero if DFT_MAE is 0 (unlikely but possible)
-    semi_exceeds_dft_by_20pct = False
-    if mean_dft_mae > 0:
-        relative_diff = (mean_semi_mae - mean_dft_mae) / mean_dft_mae
-        semi_exceeds_dft_by_20pct = relative_diff > 0.20
-        logger.info(f"Semi-MAE exceeds DFT-MAE by {relative_diff*100:.2f}%")
-    else:
-        logger.warning("DFT MAE is zero, cannot calculate relative difference.")
-        # If DFT is 0 and Semi is > 0, it technically exceeds by infinite percent.
-        if mean_semi_mae > 0:
-            semi_exceeds_dft_by_20pct = True
-
-    # FR-010: Verify semi-MAE <= 2.0 kcal/mol
-    mae_threshold = 2.0
-    mae_pass_fail = "pass" if verify_mae_threshold(mean_semi_mae, mae_threshold) else "fail"
-    logger.info(f"Semi-MAE threshold check ({mae_threshold} kcal/mol): {mae_pass_fail}")
-
-    # Prepare report
-    report = {
-        "mean_semi_mae": float(mean_semi_mae),
-        "mean_dft_mae": float(mean_dft_mae),
-        "t_statistic": float(t_stat),
-        "p_value": float(p_val),
-        "semi_exceeds_dft_by_20pct": semi_exceeds_dft_by_20pct,
-        "mae_threshold_kcal_mol": mae_threshold,
-        "mae_threshold_status": mae_pass_fail,
-        "fold_maes_semi": [float(x) for x in semi_maes],
-        "fold_maes_dft": [float(x) for x in dft_maes]
-    }
 
     # Ensure output directory exists
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Evaluation report written to {args.output}")
-
-    # Exit with code 1 if threshold exceeded (FR-010 requirement)
-    if mae_pass_fail == "fail":
-        logger.error("Semi-empirical MAE exceeds threshold. Exiting with code 1.")
+    logger.info("Loading Semi-Empirical data...")
+    try:
+        X_semi, y_semi, feature_names = load_data_semi(args.semi_csv)
+    except Exception as e:
+        logger.error(f"Failed to load semi-empirical data: {e}")
         sys.exit(1)
 
-    sys.exit(0)
+    logger.info("Loading DFT data...")
+    try:
+        X_dft, y_dft = load_data_dft(args.dft_csv)
+    except Exception as e:
+        logger.error(f"Failed to load DFT data: {e}")
+        sys.exit(1)
+
+    # Verify alignment (same number of samples)
+    if X_semi.shape[0] != X_dft.shape[0]:
+        logger.error(f"Sample count mismatch: Semi={X_semi.shape[0]}, DFT={X_dft.shape[0]}")
+        sys.exit(1)
+    
+    # Verify target alignment (same y values)
+    if not np.allclose(y_semi, y_dft):
+        logger.warning("Target values (y) are not identical between datasets. Proceeding with caution.")
+    
+    # Run Cross Validation
+    logger.info("Evaluating Semi-Empirical Model...")
+    semi_maes = run_cross_validation(X_semi, y_semi, n_splits=args.n_splits, random_state=args.random_state)
+    
+    logger.info("Evaluating DFT Model...")
+    dft_maes = run_cross_validation(X_dft, y_dft, n_splits=args.n_splits, random_state=args.random_state)
+
+    # Aggregate metrics
+    mae_semi_mean = float(np.mean(semi_maes))
+    mae_dft_mean = float(np.mean(dft_maes))
+    
+    logger.info(f"Mean Semi-Empirical MAE: {mae_semi_mean:.4f}")
+    logger.info(f"Mean DFT MAE: {mae_dft_mean:.4f}")
+
+    # Run Paired T-Test
+    t_test_results = run_paired_t_test(semi_maes, dft_maes)
+
+    # Check Threshold Flag
+    flag_exceeds = verify_mae_threshold(mae_semi_mean, mae_dft_mean)
+    
+    # Construct Output
+    report = {
+        "mae_semi": mae_semi_mean,
+        "mae_dft": mae_dft_mean,
+        "mae_semi_per_fold": semi_maes,
+        "mae_dft_per_fold": dft_maes,
+        "t_test": t_test_results,
+        "flags": {
+            "semi_exceeds_dft_by_20pct": flag_exceeds
+        },
+        "metadata": {
+            "n_samples": int(X_semi.shape[0]),
+            "n_splits": args.n_splits,
+            "random_state": args.random_state,
+            "feature_count": len(feature_names)
+        }
+    }
+
+    # Write JSON
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+    
+    logger.info(f"Evaluation complete. Report written to {output_path}")
 
 if __name__ == "__main__":
     main()

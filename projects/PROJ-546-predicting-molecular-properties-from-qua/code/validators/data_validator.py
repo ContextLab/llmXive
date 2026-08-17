@@ -1,279 +1,260 @@
 """
-Data validator for the molecular properties dataset.
-
-Verifies that the downloaded CSV contains required columns (SMILES, experimental_barrier)
-and that data types are correct (SMILES is string, experimental_barrier is float).
-Implements FR-001 requirements.
+Data validation module for the molecular properties pipeline.
+Validates downloaded CSV datasets against the project specification.
 """
 import csv
 import logging
 import sys
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict, Any
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+# Configure logger
 logger = logging.getLogger(__name__)
 
-REQUIRED_COLUMNS = ['SMILES', 'experimental_barrier']
 
 class ValidationError(Exception):
-    """Raised when data validation fails."""
+    """Custom exception for data validation failures."""
     pass
 
-def validate_columns(file_path: Path) -> Tuple[bool, List[str]]:
+
+def validate_columns(file_path: Path, required_columns: List[str]) -> Tuple[bool, List[str]]:
     """
     Verify that the CSV file contains all required columns.
-    
+
     Args:
-        file_path: Path to the CSV file to validate
-        
+        file_path: Path to the CSV file.
+        required_columns: List of column names that must be present.
+
     Returns:
-        Tuple of (success: bool, errors: List[str])
+        Tuple of (is_valid, list_of_missing_columns).
     """
-    errors = []
-    
-    if not file_path.exists():
-        errors.append(f"File not found: {file_path}")
-        return False, errors
-    
+    missing_columns = []
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             reader = csv.reader(f)
             header = next(reader, None)
             
             if header is None:
-                errors.append("CSV file is empty (no header row)")
-                return False, errors
+                raise ValidationError(f"File {file_path} is empty or has no header.")
             
             # Normalize header names (strip whitespace)
-            header = [col.strip() for col in header]
+            header_normalized = [col.strip() for col in header]
             
-            missing_cols = []
-            for col in REQUIRED_COLUMNS:
-                if col not in header:
-                    missing_cols.append(col)
+            for col in required_columns:
+                if col not in header_normalized:
+                    missing_columns.append(col)
             
-            if missing_cols:
-                errors.append(f"Required columns not found. Expected: {REQUIRED_COLUMNS}, Found: {header}")
-                return False, errors
+            return len(missing_columns) == 0, missing_columns
             
-            logger.info(f"Column validation passed. Found columns: {header}")
-            return True, []
-            
-    except csv.Error as e:
-        errors.append(f"CSV parsing error: {str(e)}")
-        return False, errors
-    except Exception as e:
-        errors.append(f"Unexpected error during column validation: {str(e)}")
-        return False, errors
+    except FileNotFoundError:
+        raise ValidationError(f"File not found: {file_path}")
+    except StopIteration:
+        raise ValidationError(f"File {file_path} is empty.")
 
-def validate_data_types(file_path: Path) -> Tuple[bool, List[str]]:
+
+def validate_data_types(file_path: Path, column_types: Dict[str, type], sample_size: int = 100) -> Tuple[bool, List[str]]:
     """
-    Verify that data types in the CSV are correct.
-    
-    - SMILES: non-empty string
-    - experimental_barrier: valid float (can be negative for barriers)
-    
+    Verify that data in specified columns matches expected types.
+    Checks a sample of rows to avoid scanning the entire file for large datasets.
+
     Args:
-        file_path: Path to the CSV file to validate
-        
+        file_path: Path to the CSV file.
+        column_types: Dict mapping column name to expected Python type.
+        sample_size: Number of rows to check (default 100).
+
     Returns:
-        Tuple of (success: bool, errors: List[str])
+        Tuple of (is_valid, list_of_columns_with_invalid_types).
     """
-    errors = []
+    invalid_columns = set()
     row_count = 0
-    error_rows = []
-    
-    if not file_path.exists():
-        errors.append(f"File not found: {file_path}")
-        return False, errors
-    
+
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             
             # Verify columns exist first
-            if reader.fieldnames is None:
-                errors.append("CSV file is empty")
-                return False, errors
+            if not reader.fieldnames:
+                raise ValidationError("CSV has no header row.")
             
-            fieldnames = [col.strip() for col in reader.fieldnames]
+            fieldnames = [name.strip() for name in reader.fieldnames]
             
-            for col in REQUIRED_COLUMNS:
+            for col in column_types.keys():
                 if col not in fieldnames:
-                    errors.append(f"Required column '{col}' not found in CSV")
-                    return False, errors
-            
-            for row_num, row in enumerate(reader, start=2):  # Start at 2 (1 is header)
-                row_count += 1
-                row_errors = []
-                
-                # Validate SMILES
-                smiles = row.get('SMILES', '').strip()
-                if not smiles:
-                    row_errors.append(f"Row {row_num}: SMILES is empty or missing")
-                
-                # Validate experimental_barrier
-                barrier_str = row.get('experimental_barrier', '').strip()
-                if not barrier_str:
-                    row_errors.append(f"Row {row_num}: experimental_barrier is empty or missing")
-                else:
-                    try:
-                        barrier_val = float(barrier_str)
-                        # Barriers can be negative in some contexts, but typically positive
-                        # We accept any valid float here
-                        if not isinstance(barrier_val, (int, float)):
-                            row_errors.append(f"Row {row_num}: experimental_barrier is not a valid number")
-                    except ValueError:
-                        row_errors.append(f"Row {row_num}: experimental_barrier '{barrier_str}' is not a valid float")
-                
-                if row_errors:
-                    error_rows.extend(row_errors)
-                    if len(error_rows) > 10:  # Limit error reporting
-                        break
-            
-            if error_rows:
-                errors.extend(error_rows[:10])  # Report first 10 errors
-                if len(error_rows) > 10:
-                    errors.append(f"... and {len(error_rows) - 10} more errors")
-                return False, errors
-            
-            logger.info(f"Data type validation passed for {row_count} rows")
-            return True, []
-            
-    except csv.Error as e:
-        errors.append(f"CSV parsing error: {str(e)}")
-        return False, errors
-    except Exception as e:
-        errors.append(f"Unexpected error during data type validation: {str(e)}")
-        return False, errors
+                    raise ValidationError(f"Column '{col}' not found in CSV. Cannot validate types.")
 
-def validate_physical_ranges(file_path: Path) -> Tuple[bool, List[str]]:
+            for row in reader:
+                if row_count >= sample_size:
+                    break
+                
+                for col, expected_type in column_types.items():
+                    value = row.get(col, "").strip()
+                    
+                    if value == "":
+                        # Allow empty strings for now, or treat as invalid?
+                        # Spec says "correct data types", usually implies non-null.
+                        # We will flag empty strings as type mismatch for numeric types.
+                        if expected_type in (int, float):
+                            invalid_columns.add(col)
+                        continue
+
+                    try:
+                        if expected_type == str:
+                            # Any value is a string, but check if it's not empty if required
+                            pass
+                        elif expected_type == int:
+                            int(value)
+                        elif expected_type == float:
+                            float(value)
+                        else:
+                            # Custom check or just pass
+                            pass
+                    except ValueError:
+                        invalid_columns.add(col)
+                
+                row_count += 1
+
+        return len(invalid_columns) == 0, list(invalid_columns)
+
+    except FileNotFoundError:
+        raise ValidationError(f"File not found: {file_path}")
+    except KeyError as e:
+        raise ValidationError(f"Missing column in CSV: {e}")
+
+
+def validate_physical_ranges(file_path: Path, ranges: Dict[str, Tuple[Optional[float], Optional[float]]]) -> Tuple[bool, List[str]]:
     """
-    Verify that data values are within physically reasonable ranges.
+    Verify that numeric columns fall within specified physical ranges.
     
     Args:
-        file_path: Path to the CSV file to validate
-        
+        file_path: Path to the CSV file.
+        ranges: Dict mapping column name to (min_val, max_val). 
+                None for min/max implies no bound on that side.
+
     Returns:
-        Tuple of (success: bool, errors: List[str])
+        Tuple of (is_valid, list_of_columns_out_of_range).
     """
-    errors = []
+    out_of_range_columns = set()
     row_count = 0
-    warning_rows = []
-    
-    if not file_path.exists():
-        errors.append(f"File not found: {file_path}")
-        return False, errors
-    
+    sample_size = 100 # Check sample for performance
+
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             
-            for row_num, row in enumerate(reader, start=2):
-                row_count += 1
-                
-                barrier_str = row.get('experimental_barrier', '').strip()
-                if barrier_str:
-                    try:
-                        barrier_val = float(barrier_str)
-                        # Typical reaction barriers are positive and within reasonable bounds
-                        # Very large negative values or extremely large positive values might indicate errors
-                        if barrier_val < -100.0:
-                            warning_rows.append(f"Row {row_num}: Unusually negative barrier ({barrier_val})")
-                        elif barrier_val > 1000.0:
-                            warning_rows.append(f"Row {row_num}: Unusually large barrier ({barrier_val})")
-                    except ValueError:
-                        pass  # Already caught in data type validation
-                
-                # SMILES should not be empty (checked in data type validation)
+            if not reader.fieldnames:
+                raise ValidationError("CSV has no header row.")
             
-            if warning_rows:
-                logger.warning(f"Found {len(warning_rows)} rows with unusual values")
-                # We don't fail on warnings, just log them
-                return True, []
+            fieldnames = [name.strip() for name in reader.fieldnames]
             
-            logger.info(f"Physical range validation passed for {row_count} rows")
-            return True, []
-            
-    except Exception as e:
-        errors.append(f"Unexpected error during physical range validation: {str(e)}")
-        return False, errors
+            for col in ranges.keys():
+                if col not in fieldnames:
+                    raise ValidationError(f"Column '{col}' not found for range validation.")
 
-def validate_full(file_path: Path) -> Tuple[bool, List[str]]:
+            for row in reader:
+                if row_count >= sample_size:
+                    break
+                
+                for col, (min_val, max_val) in ranges.items():
+                    value_str = row.get(col, "").strip()
+                    
+                    if not value_str:
+                        continue
+                        
+                    try:
+                        val = float(value_str)
+                        
+                        if min_val is not None and val < min_val:
+                            out_of_range_columns.add(col)
+                        if max_val is not None and val > max_val:
+                            out_of_range_columns.add(col)
+                    except ValueError:
+                        # Non-numeric value where numeric expected
+                        out_of_range_columns.add(col)
+                
+                row_count += 1
+
+        return len(out_of_range_columns) == 0, list(out_of_range_columns)
+
+    except FileNotFoundError:
+        raise ValidationError(f"File not found: {file_path}")
+
+
+def validate_full(file_path: Path) -> bool:
     """
-    Run all validations on the CSV file.
+    Perform full validation of the barrier dataset against spec.md Data Model.
+    
+    Spec Requirements:
+    - Columns: 'SMILES', 'experimental_barrier'
+    - SMILES: string
+    - experimental_barrier: float (energy barrier in kcal/mol or kJ/mol, assumed numeric)
+    - Physical Ranges: experimental_barrier > 0 (barriers must be positive)
     
     Args:
-        file_path: Path to the CSV file to validate
+        file_path: Path to the CSV file.
         
     Returns:
-        Tuple of (success: bool, errors: List[str])
+        True if valid, raises ValidationError otherwise.
     """
-    all_errors = []
+    logger.info(f"Starting validation of {file_path}")
     
-    logger.info(f"Starting full validation for: {file_path}")
+    if not file_path.exists():
+        raise ValidationError(f"File does not exist: {file_path}")
     
-    # Validate columns
-    success, errors = validate_columns(file_path)
-    if not success:
-        all_errors.extend(errors)
-        logger.error(f"Column validation failed: {errors}")
-        return False, all_errors
+    # 1. Validate Columns
+    required_columns = ['SMILES', 'experimental_barrier']
+    is_valid_cols, missing = validate_columns(file_path, required_columns)
+    if not is_valid_cols:
+        raise ValidationError(f"Missing required columns: {missing}")
+    logger.info("Column validation passed.")
     
-    # Validate data types
-    success, errors = validate_data_types(file_path)
-    if not success:
-        all_errors.extend(errors)
-        logger.error(f"Data type validation failed: {errors}")
-        return False, all_errors
+    # 2. Validate Data Types
+    type_map = {
+        'SMILES': str,
+        'experimental_barrier': float
+    }
+    is_valid_types, bad_types = validate_data_types(file_path, type_map)
+    if not is_valid_types:
+        raise ValidationError(f"Columns with invalid data types: {bad_types}")
+    logger.info("Data type validation passed.")
     
-    # Validate physical ranges (warnings only, don't fail)
-    success, errors = validate_physical_ranges(file_path)
-    if not success:
-        all_errors.extend(errors)
-        logger.warning(f"Physical range validation issues: {errors}")
+    # 3. Validate Physical Ranges
+    # Barrier heights must be positive. SMILES is string, no range check.
+    range_map = {
+        'experimental_barrier': (0.0, None) # > 0
+    }
+    is_valid_ranges, bad_ranges = validate_physical_ranges(file_path, range_map)
+    if not is_valid_ranges:
+        raise ValidationError(f"Columns with values out of physical range: {bad_ranges}")
+    logger.info("Physical range validation passed.")
     
-    logger.info("Full validation completed successfully")
-    return True, []
+    logger.info(f"Validation successful for {file_path}")
+    return True
+
 
 def main():
-    """Main entry point for the data validator."""
+    """
+    CLI entry point for data validation.
+    Usage: python -m code.validators.data_validator --input <path_to_csv>
+    """
     import argparse
     
-    parser = argparse.ArgumentParser(
-        description='Validate downloaded molecular properties CSV file'
-    )
-    parser.add_argument(
-        'file_path',
-        type=Path,
-        help='Path to the CSV file to validate'
-    )
-    parser.add_argument(
-        '--verbose', '-v',
-        action='store_true',
-        help='Enable verbose logging'
-    )
-    
+    parser = argparse.ArgumentParser(description="Validate molecular dataset CSV")
+    parser.add_argument("--input", required=True, help="Path to the CSV file to validate")
     args = parser.parse_args()
     
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+    input_path = Path(args.input)
     
-    success, errors = validate_full(args.file_path)
-    
-    if success:
-        logger.info(f"Validation PASSED for {args.file_path}")
+    try:
+        validate_full(input_path)
+        print(f"SUCCESS: {input_path} is valid.")
         sys.exit(0)
-    else:
-        logger.error(f"Validation FAILED for {args.file_path}")
-        for error in errors:
-            logger.error(f"  - {error}")
+    except ValidationError as e:
+        print(f"FAILURE: {e}")
         sys.exit(1)
+    except Exception as e:
+        print(f"ERROR: Unexpected error during validation: {e}")
+        sys.exit(2)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

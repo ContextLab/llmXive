@@ -1,18 +1,9 @@
-T001:
+T002b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No project directory `projects/PROJ-546-predicting-molecular-properties-from-qua/`
-    or any of its subfolders/files is present in the provided evidence, so the required
-    project structure has not been created. The implementer must add the full directory
-    hierarchy (e.g., `data/`, `logs/`, `reports/`, `idea/`, etc.) as specified in
-    the implementation plan.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` entries
-    for ruff/black, `.ruff.toml`, `.pre-commit-config.yaml`, or similar) are present,
-    nor any documentation or scripts showing that ruff and black have been set up
-    for the project. Consequently, the required artifact for task T003 is missing.
+  h: c8d0db1c4642e180a9451663ca7531f933f166f3126ce893aebc7c84a2eeabf0
+  r: "The repository contains a `pyproject.toml` with Black and Ruff settings, but\
+    \ the required `.ruff.toml` file is missing, so the task\u2019s specification\
+    \ of creating both configuration files is not satisfied."
 T011:
   c: false
   h: bf26df44db9bf9dca192e5c96fe3795a70db4377fd86cc4e9511bea513bea030
@@ -27,3 +18,40 @@ T012:
     \ in the repository, so there is no test that runs `code/generate_descriptors.py`\
     \ on 50 molecules or validates its output. Without this artifact, the task\u2019\
     s requirement is unmet."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `logs/dft_execution.log` file (or any equivalent logging output) is present,\
+    \ and there is no code or configuration shown that creates JSON entries with the\
+    \ required fields (`molecule_id`, `command`, `exit_code`, `duration`, `peak_memory_mb`).\
+    \ The task\u2019s logging and timing requirement is therefore not satisfied."
+T020a:
+  c: false
+  h: 9e1bf6ed234cd7b8258c1990841bdc7936faa8a3e5025601a91290f537d1db7e
+  r: "The repository lacks the required input files (`data/raw/barrier_dataset.csv`\
+    \ and `data/confounds.csv`), so the dependency check cannot pass. Moreover, the\
+    \ provided `code/dft_calculator.py` does not contain the described subset\u2011\
+    selection logic (reading the CSV, counting valid samples, stratified sampling),\
+    \ only unrelated DFT helper functions. The task\u2019s core requirement is therefore\
+    \ unmet."
+T020b:
+  c: false
+  h: fca10fb1a552a4d657fe21f5f796e7b6284a87b525304733ac62a872d0577faa
+  r: "The repository contains a partially\u2011implemented `code/dft_calculator.py`\
+    \ (the file is truncated and does not show the full DFT invocation, StratifiedKFold\
+    \ split, or CSV generation), and the required output `data/descriptors_dft.csv`\
+    \ is absent. The task\u2019s core deliverables are therefore not present."
+T022:
+  c: false
+  h: 3e81542e33bef2db6878d301a16ad498281375ae17fca73dd6d77d4a7ba61c30
+  r: "The required `reports/evaluation.json` file is absent, and the provided `code/evaluate_models.py`\
+    \ is truncated and contains a syntax error (`...open(csv_path, 'r', newline='',\
+    \ encoding='utf-8') a`), indicating the implementation does not fully compute\
+    \ MAE, run the paired t\u2011test, or write the specified JSON output."
+T031c:
+  c: false
+  h: 54368fdb30fc5945cf02139b6962f84e98964d4a1f34f7b9a025f21f22b31885
+  r: "The required output file `reports/sensitivity.csv` does not exist, and the provided\
+    \ `code/sensitivity_sweep.py` is incomplete (truncated and lacking the aggregation,\
+    \ rank\u2011correlation, and CSV\u2011writing logic). The task\u2019s core functionality\
+    \ and output are therefore not satisfied."

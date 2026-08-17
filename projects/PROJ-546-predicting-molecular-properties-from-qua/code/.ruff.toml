@@ -1,3 +1,10 @@
+# Standalone Ruff configuration file
+# This file mirrors the settings in pyproject.toml for editor compatibility
+# if the editor prefers reading a dedicated config file.
+
+line-length = 88
+target-version = "py311"
+
 [lint]
 select = [
     "E",   # pycodestyle errors
@@ -6,21 +13,16 @@ select = [
     "I",   # isort
     "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-    "ANN", # flake8-annotations (optional strictness)
 ]
 ignore = [
-    "ANN001", # Missing type annotation for function argument (too strict for initial pipeline)
-    "ANN201", # Missing return type annotation for public function
-    "E501",   # Line too long (handled by black)
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
 ]
-target-version = "py311"
-unfixable = [
-    "F401", # Unused imports
-]
-per-file-ignores = {}
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [lint.isort]
-known-first-party = ["confound_analysis", "create_directories", "download_data", "evaluate_models", "generate_checksums", "generate_descriptors", "lint_format_config", "missing_dof_analysis", "sensitivity_analysis", "setup_directories", "setup_tests_and_docs", "solvent_hydration_analysis", "track_compute_resources", "train_models", "validate_descriptors", "validate_subset_alignment", "utils", "validators", "outputs", "tests"]
+known-first-party = ["code", "tests"]
 force-sort-within-sections = true
-lines-after-imports = 2

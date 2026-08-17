@@ -1,18 +1,11 @@
-# Core dependencies
-scikit-learn>=1.3.0
-pandas>=2.0.0
-rdkit>=2023.9.0
-requests>=2.31.0
-
-# Testing
-pytest>=7.4.0
-
-# Development tools (Linting/Formatting)
-# These are pinned to ensure consistent behavior across environments
-black>=23.0.0
-ruff>=0.1.0
-
-# Optional: DFTB+ and Psi4 interfaces (if available in environment)
-# Note: DFTB+ and Psi4 are typically installed via system package managers or conda
-# dftb-plus
-# psi4
+# Code-specific dependencies for PROJ-546
+# Pinned versions for reproducibility (T002a)
+scikit-learn==1.3.2
+pandas==2.1.4
+rdkit==2023.9.4
+requests==2.31.0
+datasets==2.14.6
+pyyaml==6.0.1
+pytest==7.4.3
+black==23.11.0
+ruff==0.1.6

@@ -1434,3 +1434,135 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T00:52:05Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: integration test on 50 molecules
+  claim_id: c_4a1aa3e9
+  context: T012 [US1] Integration test for code/generate_descriptors.py on 50 molecules
+    in tests/test_descriptors.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on 50 molecules in tests/test_descriptors.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T19:55:29Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: select 50 samples if available, otherwise select all
+  claim_id: c_61619a2d
+  context: 'T020a [US2] Implement code/dft_calculator.py subset selection logic: Read
+    data/raw/barrier_dataset.csv, calculate total valid samples (N). If N >= 50, select
+    50; else select all.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N >= 50, select 50; else select all
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T19:56:26Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: inject Gaussian noise with sigma 0.01 and 0.05
+  claim_id: c_0a6adc00
+  context: T030b [US3] [FR-007] Implement code/noise_injection.py to inject Gaussian
+    noise (sigma=0.01, sigma=0.05) into the descriptor features of the training set.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: inject Gaussian noise (sigma=0.01, sigma=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T19:56:46Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: sweep feature importance cutoffs 0.01 0.05 0.1
+  claim_id: c_917427d2
+  context: T031b [US3] Implement code/sensitivity_sweep.py logic to sweep feature
+    importance cutoffs {0.01, 0.05, 0.1} on the base and perturbed datasets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep feature importance cutoffs {0.01, 0.05, 0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T19:57:36Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: stability threshold rho greater than or equal to 0.9
+  claim_id: c_46973833
+  context: 'T031c [US3] ... Threshold: stable = True if rho >= 0.9.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_threshold_rho_greater_than_or_equal_to_0.9
+  kind: magnitude
+  raw_text: stable = True if rho >= 0.9
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T19:57:59Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: total runtime must be less than or equal to 6 hours
+  claim_id: c_afd56f6f
+  context: 'T033b [P] Validate runtime logs from T033a: verify total runtime <= 6
+    hours and peak memory <= 7 GB...'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The film's storyline draws loose inspiration from multiple real-life
+        geopolitical events and conflicts in South Asia, including the 1999 IC-814
+        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
+        developments linked to Pakistan's Operation Lyari. Principal photography for
+        Dhurandhar took place from July 2024 to October 2025 across multiple locations
+        in India and abroad, including the states and union territories of Punjab,
+        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
+        The film features music composed by Shashwat Sachdev, cinematography by Vikash
+        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
+        Dhurandhar ranks as one of the longest Indian films ever produced.
+      source_id: Dhurandhar
+      url: https://en.wikipedia.org/wiki/Dhurandhar
+      value: 214 minutes
+    filled: true
+  kind: magnitude
+  raw_text: verify total runtime <= 6 hours
+  resolved_value: 214 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T19:58:09Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: peak memory must be less than or equal to 7 GB
+  claim_id: c_2800e427
+  context: 'T033b [P] Validate runtime logs from T033a: verify total runtime <= 6
+    hours and peak memory <= 7 GB per Constitution Principle VII...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_must_be_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: peak memory <= 7 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T19:58:28Z'
