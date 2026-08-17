@@ -1,39 +1,35 @@
-# Ruff configuration for PROJ-532
-# Enforces PEP 8 compliance and project-specific rules
+# Ruff configuration for PROJ-532-predicting-material-degradation-pathways
+# Enforces PEP 8 compliance, imports sorting, and project-specific rules
+
+line-length = 100
+target-version = "py311"
 
 [lint]
-# Select specific rule categories
+# Enable specific rule sets
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort (import sorting)
-    "C90", # mccabe (complexity)
-    "N",   # pep8-naming
-    "UP",  # pyupgrade (modernize syntax)
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "SIM", # flake8-simplify
-    "ARG", # flake8-unused-arguments
-    "PTH", # flake8-use-pathlib
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort (import sorting)
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "S",  # flake8-bandit (security)
 ]
 
-# Ignore specific rules that are too noisy or conflict with style
+# Ignore specific rules that conflict with project style or are too noisy
 ignore = [
-    "E501", # line-too-long (handled by black)
-    "SIM117", # avoid-redundant-async (sometimes too aggressive)
+    "E501", # Line too long (handled by line-length above, but sometimes needed)
+    "B008", # Do not perform function call in argument defaults (common in data pipelines)
+    "S101", # Use of assert (allowed in tests and simple checks)
 ]
-
-[lint.per-file-ignores]
-# Allow unused imports in __init__.py for public API exposure
-"code/__init__.py" = ["F401"]
 
 [lint.isort]
-known-first-party = ["utils", "ingestion", "preprocessing", "training", "evaluation", "explainability", "literature_review"]
-force-sort-within-sections = true
+known-first-party = ["utils", "ingestion", "preprocessing", "training", "evaluation", "explainability", "literature_review", "config_env"]
+force-to-top = ["utils"]
+order-by-type = true
+lines-after-imports = 2
 
-[format]
-# Ruff formatter settings (compatible with Black)
-quote-style = "double"
-indent-style = "space"
-line-ending = "auto"
+[lint.per-file-ignores]
+# Allow specific exceptions for test files if needed
+"tests/*" = ["S101", "B018"]

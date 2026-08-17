@@ -1,58 +1,64 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "material-degradation-pipeline"
 version = "0.1.0"
-description = "Automated science pipeline for predicting material degradation pathways"
+description = "Predicting Material Degradation Pathways from Compositional Data"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas",
-    "scikit-learn",
-    "shap",
-    "requests",
-    "pyyaml",
-    "numpy",
-    "scipy",
-]
-
-[project.optional-dependencies]
-dev = [
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "shap>=0.42.0",
+    "requests>=2.31.0",
+    "pyyaml>=6.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "pytest>=7.0.0",
     "ruff>=0.1.0",
     "black>=23.0.0",
-    "pytest>=7.0.0",
+    "pyarrow>=12.0.0",
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
-# Inherit settings from code/.ruff.toml if needed, or define here
-# This section mirrors the .ruff.toml for single-file configuration preference
-line-length = 88
+# Inherits from code/.ruff.toml if run from root, or defines defaults here
+line-length = 100
 target-version = "py311"
+src = ["code", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008", "S101"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["utils", "ingestion", "preprocessing", "training", "evaluation", "explainability", "literature_review", "config_env"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
 filterwarnings = [
     "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
+    "ignore::PendingDeprecationWarning"
 ]

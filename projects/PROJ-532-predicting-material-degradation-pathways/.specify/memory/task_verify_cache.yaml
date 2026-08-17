@@ -1,15 +1,45 @@
-T009:
-  c: false
-  h: 4de809e34356982d628b026d2dfc0a03aa6aa3000a03a1cb6f40dc49da824438
-  r: The provided `code/literature_review.py` is truncated (the `aggregate_importance_vectors`
-    function is incomplete and there is no code that writes the resulting vector to
-    `data/contracts/literature_vector.json`). Moreover, the required JSON file does
-    not exist on disk. Both the implementation and the output artifact are missing,
-    so the task is not satisfied.
-T030:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No timing logs, benchmark reports, or any other artifact demonstrating that\
-    \ the full training/evaluation cycle completes within 6\u202Fhours on a CPU runner\
-    \ were provided. Without concrete execution\u2011time evidence, the requirement\
-    \ cannot be verified."
+  r: No evidence of the `projects/PROJ-532-predicting-material-degradation-pathways/`
+    directory or its contents is provided; the implementer did not supply any files,
+    folder listings, or descriptions showing that the required project structure has
+    been created.
+T003:
+  c: false
+  h: b61c2e9f657a8c6b770b11384785c97418493660eb78d359e96177e269a6d484
+  r: "The repository contains a `pyproject.toml` with Black and Ruff configuration,\
+    \ but the required `.ruff.toml` file (dot\u2011prefixed) is missing, and the task\
+    \ explicitly demanded its creation in the `code/` directory. Without this file\
+    \ the linting setup is incomplete."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `results/` directory or its subfolders (`metrics/`, `plots/`,\
+    \ `artifacts/`) is provided; without confirming their existence and non\u2011\
+    emptiness, the task requirement is not satisfied."
+T018b:
+  c: false
+  h: 3951e4ef0159faf388e38272aea0ed7f59fe29d74ad4b45ab0c7627e4db0603e
+  r: "The repository lacks the required output files `data/processed/retention_audit.json`\
+    \ and `data/processed/data_insufficiency_report.json`. Moreover, the provided\
+    \ `code/ingestion.py` (truncated) shows no logic that writes these JSON files,\
+    \ checks the retention/record thresholds, or triggers a pipeline halt. The task\u2019\
+    s core requirements are therefore not satisfied."
+T019:
+  c: false
+  h: 3bcff88cfcc5711e4acf76850b992fb01e8d86401934ea770cccf9ec3149cf4a
+  r: 'The provided `code/preprocessing.py` is truncated, never reads `data/contracts/alloy_class_map.json`,
+    and raises a generic `ValueError` instead of halting with the required `error_code:
+    OOD_SPLIT_FAILED` and message. The claimed parquet files are only described as
+    simulated text placeholders, not real Parquet outputs. Consequently the OOD split
+    implementation and required artifacts are not genuinely present.'
+T019a:
+  c: false
+  h: 92458e6283fe98e26cf72de8a4e61c14bcadf0fcb85ad3e52f8f0a99b2c4ffd1
+  r: "The provided `alloy_class_map.json` is a fabricated sample (it contains a comment,\
+    \ which is invalid JSON, and maps record IDs to classes rather than the required\
+    \ class\u2011to\u2011indices map). Moreover, the required input file `data/processed/cleaned_alloys.csv`\
+    \ is missing, so the script could not have actually generated the map from real\
+    \ data. The task\u2019s core requirement\u2014producing a genuine class map from\
+    \ the CSV using the specified rules\u2014is not satisfied."

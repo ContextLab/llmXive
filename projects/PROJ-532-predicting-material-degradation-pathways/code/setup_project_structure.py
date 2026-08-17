@@ -5,55 +5,66 @@ def ensure_dir(path: Path) -> None:
     """Create directory if it does not exist."""
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
+        logging.info(f"Created directory: {path}")
 
 def create_placeholder_file(path: Path, content: str = "# Placeholder\n") -> None:
     """Create a placeholder file if it does not exist."""
     if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with open(path, 'w', encoding='utf-8') as f:
-            f.write(content)
+        path.write_text(content)
+        logging.info(f"Created placeholder file: {path}")
 
 def main() -> None:
     """
-    Create the full project structure for PROJ-532.
-    This script is idempotent and safe to run multiple times.
+    Main entry point to create the project structure for PROJ-532.
+    This creates the root directory and standard subdirectories.
     """
-    base = Path("projects/PROJ-532-predicting-material-degradation-pathways")
+    import logging
+    from utils import setup_logging
 
-    # Core directories
+    setup_logging()
+    logger = logging.getLogger(__name__)
+
+    project_root = Path("projects/PROJ-532-predicting-material-degradation-pathways")
+    
+    # Define the directory structure
     dirs = [
-        base / "code",
-        base / "data",
-        base / "data" / "raw",
-        base / "data" / "processed",
-        base / "data" / "contracts",
-        base / "results",
-        base / "results" / "metrics",
-        base / "results" / "plots",
-        base / "results" / "artifacts",
-        base / "tests",
-        base / "tests" / "unit",
-        base / "tests" / "integration",
-        base / "specs",
-        base / "docs",
+        project_root,
+        project_root / "code",
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "contracts",
+        project_root / "tests",
+        project_root / "tests" / "unit",
+        project_root / "tests" / "integration",
+        project_root / "results",
+        project_root / "results" / "metrics",
+        project_root / "results" / "plots",
+        project_root / "results" / "artifacts",
+        project_root / "specs",
     ]
 
-    for d in dirs:
-        ensure_dir(d)
+    for dir_path in dirs:
+        ensure_dir(dir_path)
 
-    # Create essential files
-    (base / "README.md").touch()
-    (base / "requirements.txt").touch()
-    (base / "code" / "__init__.py").touch()
-    (base / "tests" / "__init__.py").touch()
+    # Create README in project root
+    readme_path = project_root / "README.md"
+    if not readme_path.exists():
+        readme_content = """# PROJ-532: Predicting Material Degradation Pathways
 
-    # Create .gitkeep in empty directories to ensure they are tracked
-    for d in dirs:
-        gitkeep = d / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.write_text("# Keep directory\n", encoding='utf-8')
+This project implements an automated science pipeline for predicting material degradation pathways from compositional data.
 
-    print(f"Project structure created at: {base}")
+## Structure
+- `code/`: Source code
+- `data/`: Raw and processed data
+- `tests/`: Unit and integration tests
+- `results/`: Model artifacts and metrics
+- `specs/`: Feature specifications
+"""
+        readme_path.write_text(readme_content)
+        logger.info(f"Created README at {readme_path}")
+
+    logger.info(f"Project structure created at {project_root}")
 
 if __name__ == "__main__":
     main()
