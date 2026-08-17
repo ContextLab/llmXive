@@ -1,189 +1,232 @@
+"""
+Calibration module for BKT (Bayesian Knowledge Tracing) against human pilot data.
+
+This module implements the core calibration logic required by FR-010. It compares
+BKT predictions against human pilot data to optimize model parameters (P_G, P_L0, P_S, P_T).
+If calibration thresholds fail (RMSE > 0.15 or diff > 0.02), the script exits with code 1.
+
+Dependencies:
+    - T031b: Ensures human pilot data exists at data/pilot/raw_pilot_data.csv
+    - code/simulate/bkt_params.yaml: Initial parameters
+"""
 import os
 import sys
 import json
 import logging
 import random
 import hashlib
+import yaml
 import pandas as pd
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Tuple, Optional
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_PILOT_DIR = os.path.join(PROJECT_ROOT, 'data', 'pilot')
-CODE_SIMULATE_DIR = os.path.join(PROJECT_ROOT, 'code', 'simulate')
-REPORT_PATH = os.path.join(DATA_PILOT_DIR, 'calibration_report.json')
-PARAMS_PATH = os.path.join(CODE_SIMULATE_DIR, 'bkt_params.yaml')
-HUMAN_DATA_PATH = os.path.join(DATA_PILOT_DIR, 'raw_pilot_data.csv')
-SYNTHETIC_DATA_PATH = os.path.join(DATA_PILOT_DIR, 'synthetic_pilot_data.csv')
+# Constants
+CALIBRATION_DATA_PATH = "data/pilot/raw_pilot_data.csv"
+REPORT_OUTPUT_PATH = "data/pilot/calibration_report.json"
+PARAMS_OUTPUT_PATH = "code/simulate/bkt_params.yaml"
+RMSE_THRESHOLD = 0.15
+DIFF_THRESHOLD = 0.02
 
-def load_bkt_params(path: str = PARAMS_PATH) -> Dict[str, float]:
-    import yaml
-    if not os.path.exists(path):
-        logger.warning(f"Params file {path} not found. Using defaults.")
-        return {"P_G": 0.1, "P_L0": 0.5, "P_S": 0.2, "P_T": 0.1}
-    with open(path, 'r') as f:
+def load_bkt_params(params_path: str = PARAMS_OUTPUT_PATH) -> Dict[str, float]:
+    """Load current BKT parameters from YAML file."""
+    if not os.path.exists(params_path):
+        logger.error(f"BKT params file not found at {params_path}")
+        sys.exit(1)
+    with open(params_path, 'r') as f:
         return yaml.safe_load(f)
 
-def save_bkt_params(params: Dict[str, float], path: str = PARAMS_PATH) -> None:
-    import yaml
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, 'w') as f:
+def save_bkt_params(params: Dict[str, float], params_path: str = PARAMS_OUTPUT_PATH) -> None:
+    """Save updated BKT parameters to YAML file."""
+    with open(params_path, 'w') as f:
         yaml.dump(params, f, default_flow_style=False)
-    logger.info(f"Saved BKT params to {path}")
+    logger.info(f"Saved updated BKT params to {params_path}")
 
-def load_pilot_data() -> pd.DataFrame:
+def load_pilot_data(data_path: str = CALIBRATION_DATA_PATH) -> pd.DataFrame:
     """
-    Load pilot data. Prioritizes human data if available, otherwise synthetic.
-    Returns a tuple: (dataframe, has_human, is_synthetic)
+    Load human pilot data from CSV.
+    Exits with code 1 if file is missing or invalid (per T031b dependency).
     """
-    if os.path.exists(HUMAN_DATA_PATH):
-        logger.info("Loading human pilot data.")
-        return pd.read_csv(HUMAN_DATA_PATH), True, False
+    if not os.path.exists(data_path):
+        logger.error(f"ERROR: Human pilot data missing at {data_path}. Calibration cannot proceed.")
+        sys.exit(1)
     
-    if os.path.exists(SYNTHETIC_DATA_PATH):
-        logger.info("Loading synthetic pilot data.")
-        return pd.read_csv(SYNTHETIC_DATA_PATH), False, True
+    df = pd.read_csv(data_path)
+    required_cols = ['student_id', 'problem_id', 'correct', 'attempt_num']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        logger.error(f"ERROR: Pilot data missing required columns: {missing_cols}")
+        sys.exit(1)
     
-    raise FileNotFoundError("No pilot data found (human or synthetic).")
+    if len(df) < 50:
+        logger.error(f"ERROR: Human pilot data has insufficient records ({len(df)} < 50).")
+        sys.exit(1)
+    
+    logger.info(f"Loaded {len(df)} records from pilot data.")
+    return df
 
 def calculate_rmse(predictions: List[float], actuals: List[float]) -> float:
+    """Calculate Root Mean Squared Error between predictions and actuals."""
     if len(predictions) != len(actuals):
-        raise ValueError("Length mismatch")
-    mse = sum((p - a) ** 2 for p, a in zip(predictions, actuals)) / len(predictions)
-    return mse ** 0.5
+        raise ValueError("Predictions and actuals must have same length")
+    if len(predictions) == 0:
+        return 0.0
+    squared_errors = [(p - a) ** 2 for p, a in zip(predictions, actuals)]
+    return (sum(squared_errors) / len(squared_errors)) ** 0.5
 
-def simulate_bkt_performance(params: Dict[str, float], num_students: int, num_problems: int) -> List[float]:
+def simulate_bkt_performance(df: pd.DataFrame, params: Dict[str, float]) -> Tuple[List[float], List[float]]:
     """
-    Simulate BKT performance for a set of students and problems.
-    Returns a list of predicted accuracies per student.
-    """
-    p_g = params['P_G']
-    p_l0 = params['P_L0']
-    p_s = params['P_S']
-    p_t = params['P_T']
+    Simulate BKT predictions for the given pilot data using provided parameters.
+    Returns (predictions, actuals) lists for RMSE calculation.
     
-    accuracies = []
-    for _ in range(num_students):
-        # Initial state: not learned
-        learned = random.random() < p_l0
-        correct_count = 0
+    BKT Model:
+    P(L_n) = P(L_{n-1}) + (1 - P(L_{n-1})) * P(T) * I(correct)
+    P(correct) = P(L_n) * (1 - P(S)) + (1 - P(L_n)) * P(G)
+    """
+    P_G = params['P_G']
+    P_L0 = params['P_L0']
+    P_S = params['P_S']
+    P_T = params['P_T']
+    
+    predictions = []
+    actuals = []
+    
+    # Group by student and problem to simulate learning curve
+    grouped = df.groupby(['student_id', 'problem_id'])
+    
+    for (student_id, problem_id), group in grouped:
+        group = group.sort_values('attempt_num')
+        p_learner = P_L0
         
-        for _ in range(num_problems):
-            if learned:
-                if random.random() > p_s:
-                    correct_count += 1
-                else:
-                    # Slip
-                    pass
-                # Transition
-                if random.random() < p_t:
-                    learned = True # Already learned, stays learned
+        for _, row in group.iterrows():
+            correct = row['correct']
+            # Predict probability of correctness
+            p_correct = p_learner * (1 - P_S) + (1 - p_learner) * P_G
+            predictions.append(p_correct)
+            actuals.append(float(correct))
+            
+            # Update belief based on observation
+            if correct == 1:
+                p_learner = p_learner + (1 - p_learner) * P_T
             else:
-                if random.random() < p_g:
-                    correct_count += 1
-                if random.random() < p_l0:
-                    learned = True
-          
-        accuracies.append(correct_count / num_problems)
+                # No update on incorrect guess (simplified)
+                pass
     
-    return accuracies
+    return predictions, actuals
 
-def calculate_bkt_metrics(params: Dict[str, float], pilot_data: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Calculate BKT metrics against pilot data.
-    """
-    # Simulate predictions based on current params
-    num_students = len(pilot_data)
-    # Assume pilot data has 'correct_count' and 'num_problems' or similar
-    # If not, we aggregate by student_id if present, or assume row=student
-    if 'student_id' in pilot_data.columns:
-        # Aggregate by student
-        student_acc = pilot_data.groupby('student_id')['correct'].mean().tolist()
-    else:
-        # Assume each row is a student's summary
-        if 'accuracy' in pilot_data.columns:
-            student_acc = pilot_data['accuracy'].tolist()
-        elif 'correct' in pilot_data.columns and 'total' in pilot_data.columns:
-            student_acc = (pilot_data['correct'] / pilot_data['total']).tolist()
-        else:
-            # Fallback: assume binary correctness per row and aggregate
-            # This is a simplification for the calibration step
-            raise ValueError("Pilot data must contain accuracy or correct/total columns.")
+def calculate_bkt_metrics(predictions: List[float], actuals: List[float], current_params: Dict[str, float]) -> Dict[str, Any]:
+    """Calculate calibration metrics: RMSE and difference from baseline."""
+    rmse = calculate_rmse(predictions, actuals)
     
-    # Simulate BKT predictions for the same number of students
-    # We need to simulate the same number of problems if we want a direct comparison
-    # For simplicity, we compare the mean accuracy distribution
-    simulated_acc = simulate_bkt_performance(params, num_students, 10) # 10 problems per student
-    
-    rmse = calculate_rmse(simulated_acc, student_acc)
+    # Baseline RMSE (using fixed naive guess rate)
+    naive_guess = 0.5
+    naive_rmse = calculate_rmse([naive_guess] * len(actuals), actuals)
+    diff = abs(rmse - naive_rmse)
     
     return {
-        "rmse": rmse,
-        "mean_predicted": sum(simulated_acc) / len(simulated_acc),
-        "mean_actual": sum(student_acc) / len(student_acc)
+        'rmse': round(rmse, 4),
+        'diff': round(diff, 4),
+        'num_samples': len(predictions)
     }
 
-def run_calibration():
+def run_calibration(params: Dict[str, float], df: pd.DataFrame, max_iter: int = 100) -> Tuple[Dict[str, float], Dict[str, Any], bool]:
     """
-    Main entry point for T031.
-    1. Load pilot data (human or synthetic).
-    2. Load current BKT params.
-    3. Calculate RMSE.
-    4. If human data missing and synthetic used, log warning and set limitation_flag.
-    5. Save calibration report.
-    6. If calibration thresholds fail on valid data, exit 1.
+    Run calibration loop to optimize BKT parameters.
+    Uses a simple grid search / local optimization approach.
+    
+    Returns: (optimized_params, metrics, passed_thresholds)
     """
-    logger.info("Running Calibration (T031)...")
+    best_params = params.copy()
+    best_rmse = float('inf')
+    best_metrics = None
     
-    try:
-        pilot_data, has_human, is_synthetic = load_pilot_data()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    
-    if has_human:
-        logger.info("Using human pilot data.")
-    elif is_synthetic:
-        logger.warning("Human pilot data missing. Using synthetic data for calibration. (Limitation)")
-    else:
-        logger.error("No data available.")
-        sys.exit(1)
-    
-    params = load_bkt_params()
-    metrics = calculate_bkt_metrics(params, pilot_data)
-    
-    # Thresholds
-    RMSE_THRESHOLD = 0.15
-    passed = metrics['rmse'] <= RMSE_THRESHOLD
-    
-    report = {
-        "has_human_data": has_human,
-        "is_synthetic": is_synthetic,
-        "limitation_flag": is_synthetic,
-        "rmse": metrics['rmse'],
-        "passed": passed,
-        "params_used": params,
-        "timestamp": os.popen('date -u +"%Y-%m-%dT%H:%M:%SZ"').read().strip()
+    # Simple grid search around current params
+    # In a real system, this might use gradient descent or Bayesian optimization
+    step = 0.05
+    ranges = {
+        'P_G': [0.01, 0.05, 0.1, 0.15, 0.2],
+        'P_L0': [0.3, 0.4, 0.5, 0.6, 0.7],
+        'P_S': [0.05, 0.1, 0.15, 0.2, 0.25],
+        'P_T': [0.05, 0.1, 0.15, 0.2, 0.25]
     }
     
-    if not passed and has_human:
-        logger.error(f"Calibration failed on human data (RMSE={metrics['rmse']:.4f} > {RMSE_THRESHOLD}).")
-        sys.exit(1)
+    logger.info("Starting calibration grid search...")
     
-    if not passed and is_synthetic:
-        logger.warning(f"Calibration failed on synthetic data (RMSE={metrics['rmse']:.4f} > {RMSE_THRESHOLD}). Proceeding with warning.")
+    # Limit iterations to prevent timeout
+    iterations = 0
+    for p_g in ranges['P_G']:
+        for p_l0 in ranges['P_L0']:
+            for p_s in ranges['P_S']:
+                for p_t in ranges['P_T']:
+                    if iterations >= max_iter:
+                        break
+                    iterations += 1
+                    
+                    test_params = {
+                        'P_G': p_g,
+                        'P_L0': p_l0,
+                        'P_S': p_s,
+                        'P_T': p_t
+                    }
+                    
+                    preds, acts = simulate_bkt_performance(df, test_params)
+                    metrics = calculate_bkt_metrics(preds, acts, test_params)
+                    
+                    if metrics['rmse'] < best_rmse:
+                        best_rmse = metrics['rmse']
+                        best_params = test_params
+                        best_metrics = metrics
     
-    os.makedirs(DATA_PILOT_DIR, exist_ok=True)
-    with open(REPORT_PATH, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Calibration report saved to {REPORT_PATH}")
-    return 0
+    logger.info(f"Calibration complete. Best RMSE: {best_rmse:.4f}")
+    return best_params, best_metrics, best_metrics['rmse'] <= RMSE_THRESHOLD and best_metrics['diff'] <= DIFF_THRESHOLD
 
 def main():
-    return run_calibration()
+    """Main entry point for calibration task."""
+    logger.info("Starting BKT calibration against human pilot data...")
+    
+    # Step 1: Load current BKT parameters
+    current_params = load_bkt_params()
+    logger.info(f"Loaded initial params: {current_params}")
+    
+    # Step 2: Load human pilot data (will exit if missing/invalid per T031b)
+    pilot_df = load_pilot_data()
+    
+    # Step 3: Run calibration
+    optimized_params, metrics, passed = run_calibration(current_params, pilot_df)
+    
+    # Step 4: Generate report
+    report = {
+        'has_human_data': True,
+        'is_synthetic': False,
+        'limitation_flag': not passed,
+        'rmse': metrics['rmse'],
+        'diff': metrics['diff'],
+        'passed': passed,
+        'params_used': optimized_params,
+        'original_params': current_params,
+        'timestamp': pd.Timestamp.now().isoformat()
+    }
+    
+    # Step 5: Save report and updated params
+    os.makedirs(os.path.dirname(REPORT_OUTPUT_PATH), exist_ok=True)
+    with open(REPORT_OUTPUT_PATH, 'w') as f:
+        json.dump(report, f, indent=2)
+    logger.info(f"Saved calibration report to {REPORT_OUTPUT_PATH}")
+    
+    if passed:
+        save_bkt_params(optimized_params)
+        logger.info("Calibration PASSED. Updated parameters saved.")
+        sys.exit(0)
+    else:
+        logger.error(f"Calibration FAILED. RMSE={metrics['rmse']:.4f} (threshold: {RMSE_THRESHOLD}), "
+                    f"Diff={metrics['diff']:.4f} (threshold: {DIFF_THRESHOLD}).")
+        logger.error("Pipeline halted per FR-010: Calibration thresholds not met.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -22,39 +22,46 @@ def load_report(path: str = CALIBRATION_REPORT_PATH) -> Dict[str, Any]:
 
 def load_human_data(path: str = None) -> pd.DataFrame:
     """
-    Load the human pilot data if available.
-    Falls back to synthetic data if human data is missing but flagged in the report.
+    Load the human pilot data from the validated source.
+    MUST FAIL LOUDLY if the real data is missing or invalid.
+    No synthetic fallback allowed.
     """
     report = load_report()
     has_human = report.get('has_human_data', False)
-    is_synthetic = report.get('is_synthetic', False)
     
-    if has_human:
-        # Try to load human data
-        human_path = os.path.join(DATA_PILOT_DIR, 'raw_pilot_data.csv')
-        if os.path.exists(human_path):
-            return pd.read_csv(human_path)
-        else:
-            logger.warning("Human data flag is true but file not found. Falling back to synthetic.")
+    if not has_human:
+        raise FileNotFoundError("ERROR: Human pilot data missing or invalid (has_human_data=False in report). "
+                              "Calibration cannot proceed. Pipeline halted.")
+
+    human_path = os.path.join(DATA_PILOT_DIR, 'raw_pilot_data.csv')
+    if not os.path.exists(human_path):
+        raise FileNotFoundError(f"ERROR: Human data file not found at {human_path} despite report flag. "
+                              "Pipeline halted.")
     
-    # Load synthetic data
-    synth_path = os.path.join(DATA_PILOT_DIR, 'synthetic_pilot_data.csv')
-    if not os.path.exists(synth_path):
-        raise FileNotFoundError(f"No human data found and synthetic data missing at {synth_path}")
+    df = pd.read_csv(human_path)
     
-    logger.info("Loading synthetic pilot data for metrics calculation.")
-    return pd.read_csv(synth_path)
+    # Validate minimum record count (>=50 as per T031b)
+    if len(df) < 50:
+        raise ValueError(f"ERROR: Human pilot data has {len(df)} records, but minimum 50 required. "
+                       "Pipeline halted.")
+    
+    logger.info(f"Successfully loaded {len(df)} human pilot records from {human_path}")
+    return df
 
 def calculate_rmse_diff(predicted: pd.Series, actual: pd.Series) -> float:
     """
-    Calculate the Root Mean Squared Error difference between predicted and actual performance.
+    Calculate the Root Mean Squared Error (RMSE) between predicted and actual performance.
+    This serves as the primary metric for calibration difference.
     """
     if len(predicted) != len(actual):
         raise ValueError("Predicted and actual series must have the same length.")
     
+    if predicted.isna().any() or actual.isna().any():
+        raise ValueError("Data contains NaN values. Cannot calculate RMSE.")
+    
     mse = ((predicted - actual) ** 2).mean()
     rmse = mse ** 0.5
-    return rmse
+    return float(rmse)
 
 def run_metrics_check():
     """
@@ -66,7 +73,7 @@ def run_metrics_check():
     try:
         report = load_report()
         pilot_data = load_human_data()
-    except FileNotFoundError as e:
+    except (FileNotFoundError, ValueError) as e:
         logger.error(str(e))
         sys.exit(1)
     
@@ -80,12 +87,13 @@ def run_metrics_check():
     predicted = pilot_data['predicted_accuracy']
     actual = pilot_data['actual_accuracy']
     
-    rmse = calculate_rmse_diff(predicted, actual)
+    # Calculate RMSE (Absolute RMSE)
+    abs_rmse = calculate_rmse_diff(predicted, actual)
     
-    # Calculate RMSE difference (simulated vs actual)
-    # In this context, we compare the model's prediction error against a baseline
-    # For simplicity, we treat 'rmse' as the primary metric and check against thresholds
-    rmse_diff = rmse # Simplified for this task: RMSE is the difference metric
+    # RMSE Difference: In this calibration context, we compare the model's error
+    # against a baseline (e.g., 0.0 or a theoretical optimum). 
+    # Here we treat the calculated RMSE as the deviation from perfect prediction.
+    rmse_diff = abs_rmse 
     
     # Thresholds per task description
     RMSE_DIFF_THRESHOLD = 0.02
@@ -98,28 +106,26 @@ def run_metrics_check():
         passed = False
         reason = f"RMSE difference ({rmse_diff:.4f}) exceeds threshold ({RMSE_DIFF_THRESHOLD})."
     
-    if rmse > ABS_RMSE_THRESHOLD:
+    if abs_rmse > ABS_RMSE_THRESHOLD:
         passed = False
-        reason = f"Absolute RMSE ({rmse:.4f}) exceeds threshold ({ABS_RMSE_THRESHOLD})."
+        reason = f"Absolute RMSE ({abs_rmse:.4f}) exceeds threshold ({ABS_RMSE_THRESHOLD})."
     
-    # If human data was used and thresholds failed, exit with error
+    # CRITICAL: If human data was used and thresholds failed, exit with error
+    # This enforces FR-010: Simulation cannot proceed without valid calibration.
     if report.get('has_human_data', False) and not passed:
         logger.error(f"Calibration FAILED on human data: {reason}")
         logger.error("Exiting with code 1 to block simulation.")
         sys.exit(1)
     
-    # If synthetic data was used, we still log the failure but do not block (as per T031c logic)
-    if report.get('is_synthetic', False) and not passed:
-        logger.warning(f"Calibration metrics suboptimal on synthetic data: {reason}")
-    
+    # Metrics to save
     metrics = {
-        "rmse": float(rmse),
+        "rmse": float(abs_rmse),
         "rmse_diff": float(rmse_diff),
         "passed": passed,
         "threshold_rmse_diff": RMSE_DIFF_THRESHOLD,
         "threshold_abs_rmse": ABS_RMSE_THRESHOLD,
-        "data_source": "human" if report.get('has_human_data') else "synthetic",
-        "limitation_flag": report.get('is_synthetic', False)
+        "data_source": "human",
+        "record_count": len(pilot_data)
     }
     
     os.makedirs(DATA_PILOT_DIR, exist_ok=True)

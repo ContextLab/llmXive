@@ -1625,3 +1625,956 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T21:56:10Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: human pilot data validity requires at least 50 records
+  claim_id: c_02cfa3d1
+  context: T031b Implement `code/download/check_pilot_data.py` to check for the existence
+    and validity of the human pilot dataset at `data/pilot/raw_pilot_data.csv`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_data_validity_requires_at_least_50_records
+  kind: magnitude
+  raw_text: "Exit code 0 with a JSON status flag `has_human_data=true` if valid (\u2265\
+    50 records per `contracts/pilot_data.schema.yaml`)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:34:07Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: calibration failure threshold is RMSE greater than 0.15 or diff greater
+    than 0.02
+  claim_id: c_628a1d13
+  context: T031 [BLOCKER] [US5] Implement `code/simulate/calibration.py` to compare
+    BKT predictions against human pilot data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_failure_threshold_is_RMSE_greater_than_0.15_or_d
+  kind: magnitude
+  raw_text: If calibration thresholds fail (RMSE > 0.15 or diff > 0.02), exit with
+    code 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:34:45Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: calibration metric exit condition RMSE difference greater than 0.02 or
+    absolute RMSE greater than 0.15
+  claim_id: c_2d571819
+  context: T032 [BLOCKER] [US5] Implement `code/simulate/calculate_calibration_metrics.py`
+    to calculate RMSE difference and absolute RMSE against human pilot data.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_metric_exit_condition_RMSE_difference_greater_th
+  kind: magnitude
+  raw_text: Must exit with code 1 if RMSE difference > 0.02 or absolute RMSE > 0.15.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:35:17Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: ASSISTments dataset source is huggingface.co/datasets/assistments/-2010
+  claim_id: c_afd77ea1
+  context: T012 [US1] Implement `code/download/fetch_assistments.py` with timeout
+    handling (FR-001, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must fetch the ASSISTments dataset from `huggingface.co/datasets/assistments/-2010`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:35:54Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: dataset download timeout threshold is 300 seconds
+  claim_id: c_1a64512d
+  context: T012 [US1] Implement `code/download/fetch_assistments.py` with timeout
+    handling (FR-001, FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Must exit with code 1 and log \"ERROR: Failed to download [dataset name]\
+    \ within 300 seconds \u2013 aborting pipeline.\" if timeout occurs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:36:22Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: neural explanation model is TinyLlama/TinyLlama-Chat
+  claim_id: c_8b6ee980
+  context: T014 [US1] Implement `code/generate/neural_explanation.py` using `TinyLlama/TinyLlama-Chat`
+    in default precision (Addressing CPU constraints).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Neural_explanation_model_is_TinyLlama/TinyLlama-Chat
+  kind: entity_fact
+  raw_text: Implement `code/generate/neural_explanation.py` using `TinyLlama/TinyLlama-Chat`
+    in default precision.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:37:07Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: neural explanation generation parameters temperature 0.7 max_new_tokens
+    256 do_sample True
+  claim_id: c_de9418ed
+  context: T014 [US1] Implement `code/generate/neural_explanation.py` using `TinyLlama/TinyLlama-Chat`
+    in default precision.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Parameters: `temperature=0.7`, `max_new_tokens=256`, `do_sample=True`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:37:46Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: neural and symbolic output distinctness threshold is similarity greater
+    than 0.95
+  claim_id: c_de632a56
+  context: T016 [US1] Implement `code/generate/explanation_generator.py` orchestrator
+    logic to call generators and handle error states.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Neural_and_symbolic_output_distinctness_threshold_is_similar
+  kind: magnitude
+  raw_text: Must include a validation step that checks if neural and symbolic outputs
+    are identical (similarity > 0.95) and exits with code 1 if they are.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:38:34Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: test for explanation distinctness fails if cosine similarity is greater
+    than 0.95
+  claim_id: c_5befe55d
+  context: T017 [P] [US1] Implement `code/tests/contract/test_explanation_distinctness.py`
+    to run a dedicated test verifying that neural and symbolic outputs are distinct
+    for a sample of problems.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_for_explanation_distinctness_fails_if_cosine_similarity
+  kind: magnitude
+  raw_text: Compute cosine similarity between embeddings of neural and symbolic explanations;
+    fail if similarity > 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:39:08Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: response time distribution validation checks for more than 2 consecutive
+    empty 1s bins
+  claim_id: c_988a0a58
+  context: T023 [US2] Implement `code/simulate/validate_rt_distribution.py` to check
+    the "no consecutive empty bins > 5s" constraint for response times (SC-005) using
+    the dry-run logs.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Response_time_distribution_validation_checks_for_more_than_2
+  kind: magnitude
+  raw_text: Check for >2 consecutive empty bins for response times using histogram
+    binning (1s width).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:39:43Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: real student data requirement is at least 200 records
+  claim_id: c_1305c6c3
+  context: T034a-Check [US7] Implement `code/download/check_real_data.py` to verify
+    the existence and validity of the real student dataset at `data/real/raw_real_data.csv`
+    before processing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_student_data_requirement_is_at_least_200_records
+  kind: magnitude
+  raw_text: 'Must exit with code 1 and log "ERROR: Real student data file missing
+    or invalid (<200 records)" if data is not found.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:40:22Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: real student dataset validation requires at least 200 participants
+  claim_id: c_ba16eb2a
+  context: "T034a [US7] Implement `code/download/fetch_real_student_data.py` to ingest\
+    \ and validate the real student dataset (\u2265200 participants) from `data/real/raw_real_data.csv`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_student_dataset_validation_requires_at_least_200_partic
+  kind: magnitude
+  raw_text: "Ingest and validate the real student dataset (\u2265200 participants)\
+    \ from `data/real/raw_real_data.csv`."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:41:01Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: final analysis requires at least 200 real student records
+  claim_id: c_f378e612
+  context: "T035 [US3] [BLOCKER] Implement `code/analyze/validate_real_data_threshold.py`\
+    \ to enforce the \u2265200 real-student record requirement for the final analysis."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_analysis_requires_at_least_200_real_student_records
+  kind: magnitude
+  raw_text: "Enforce the \u2265200 real-student record requirement for the final analysis."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:42:03Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: maximum RAM usage is 7GB
+  claim_id: c_136f57fb
+  context: "T045 Performance optimization across all stories to ensure \u22647GB RAM\
+    \ usage. **Deliverable**: Resource usage logs in `data/derived/resource_logs.json`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maximum_RAM_usage_is_7GB
+  kind: entity_fact
+  raw_text: "Performance optimization across all stories to ensure \u22647GB RAM usage."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:42:55Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Human pilot dataset requires minimum 50 records
+  claim_id: c_5222c841
+  context: "T031b requires checking for the existence and validity of the human pilot\
+    \ dataset... Exit code 0 with a JSON status flag has_human_data=true if valid\
+    \ (\u226550 records per contracts/pilot_data.schema.yaml)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_dataset_requires_minimum_50_records
+  kind: magnitude
+  raw_text: The project requires a human pilot dataset with at least 50 records per
+    contracts/pilot_data.schema.yaml.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:46:45Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Calibration thresholds RMSE difference 0.02 and absolute RMSE 0.15
+  claim_id: c_4757d06e
+  context: If calibration thresholds fail (RMSE > 0.15 or diff > 0.02), exit with
+    code 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calibration logic requires an RMSE difference threshold of 0.02 and an
+    absolute RMSE threshold of 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:47:12Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: ASSISTments dataset source huggingface.co/datasets/assistments/-2010
+  claim_id: c_f2fb9620
+  context: Must fetch the ASSISTments dataset from huggingface.co/datasets/assistments/-2010.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ASSISTments dataset is sourced from huggingface.co/datasets/assistments/-2010.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:47:40Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Neural explanation generator uses TinyLlama/TinyLlama-Chat
+  claim_id: c_d82c2325
+  context: Implement code/generate/neural_explanation.py using TinyLlama/TinyLlama-Chat
+    in default precision
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Neural_explanation_generator_uses_TinyLlama/TinyLlama-Chat
+  kind: entity_fact
+  raw_text: The neural explanation generator uses the TinyLlama/TinyLlama-Chat model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:48:09Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Neural generator temperature 0.7 max_new_tokens 256
+  claim_id: c_85f11bfc
+  context: 'Parameters: temperature=0.7, max_new_tokens=256, do_sample=True, device_map=''auto'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The neural explanation generator uses a temperature of 0.7 and max_new_tokens
+    of 256.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:48:42Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Neural symbolic distinctness cosine similarity threshold 0.95
+  claim_id: c_6b040939
+  context: Must include a validation step that checks if neural and symbolic outputs
+    are identical (similarity > 0.95) and exits with code 1 if they are
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Neural and symbolic outputs must have a cosine similarity below 0.95 to
+    be considered distinct.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:49:11Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Simulation sample size 2000 students per condition
+  claim_id: c_005f8d39
+  context: process at least 2,000 students per condition (FR-009)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_sample_size_2000_students_per_condition
+  kind: magnitude
+  raw_text: The simulation processes at least 2,000 students per condition.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:50:00Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Real student dataset minimum 200 participants
+  claim_id: c_17d96d0e
+  context: "ingest and validate the real student dataset (\u2265200 participants)\
+    \ from data/real/raw_real_data.csv"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_student_dataset_minimum_200_participants
+  kind: magnitude
+  raw_text: The real student dataset must contain at least 200 participants.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:50:47Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Effect size analysis Cohen's d 95% CI
+  claim_id: c_0a78f924
+  context: Implement code/analyze/effect_sizes.py to compute Cohen's d with 95% CI
+    for pairwise comparisons
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effect size analysis computes Cohen's d with a 95% confidence interval.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:50:47Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Effect size CI width threshold 0.20
+  claim_id: c_5df2ae8a
+  context: "validate CI width \u22640.20 (FR-006, SC-003)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Effect_size_CI_width_threshold_0.20
+  kind: magnitude
+  raw_text: The confidence interval width for effect sizes must be less than or equal
+    to 0.20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:51:19Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Statistical significance p-value threshold 0.05
+  claim_id: c_a92578c9
+  context: Generate results markdown with significance testing (p < 0.05) and CI width
+    validation
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The p-value is the probability that a test statistic which is at least
+        as extreme as the one obtained would occur under the null hypothesis. At a
+        significance level of 0.05, a fair coin would be expected to (incorrectly)
+        reject the null hypothesis (that it is fair) in 1 out of 20 tests on average.
+        The p-value does not provide the probability that either the null hypothesis
+        or its opposite is correct (a common source of confusion).
+      source_id: Statistical hypothesis test
+      url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+      value: '0.05'
+    filled: true
+  kind: magnitude
+  raw_text: Statistical significance is determined using a p-value threshold of less
+    than 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T15:51:51Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: System RAM usage limit 7GB
+  claim_id: c_a05e1969
+  context: "Performance optimization across all stories to ensure \u22647GB RAM usage."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_RAM_usage_limit_7GB
+  kind: entity_fact
+  raw_text: The system is designed to ensure RAM usage does not exceed 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:52:13Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Response time validation max 2 consecutive empty 1s bins
+  claim_id: c_170a9ee6
+  context: Use histogram binning (1s width) and check for >2 consecutive empty bins.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Response_time_validation_max_2_consecutive_empty_1s_bins
+  kind: magnitude
+  raw_text: The response time distribution validation checks for no more than 2 consecutive
+    empty bins of 1-second width.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:52:48Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Human pilot data validation requires at least 50 records
+  claim_id: c_780f114e
+  context: Task T031b implements check_pilot_data.py to check for the existence and
+    validity of the human pilot dataset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_data_validation_requires_at_least_50_records
+  kind: magnitude
+  raw_text: "Exit code 0 with a JSON status flag has_human_data=true if valid (\u2265\
+    50 records per contracts/pilot_data.schema.yaml), OR exit code 1 with error message\
+    \ ERROR: Human pilot data missing (<50 records)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:54:52Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Calibration fails if RMSE exceeds 0.15 or difference exceeds 0.02
+  claim_id: c_f56c8d35
+  context: Task T031 implements calibration logic comparing BKT predictions against
+    human pilot data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If calibration thresholds fail (RMSE > 0.15 or diff > 0.02), exit with
+    code 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:54:52Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Calibration metrics validation requires RMSE difference below 0.02 and
+    absolute RMSE below 0.15
+  claim_id: c_d52576e1
+  context: Task T032 calculates RMSE difference and absolute RMSE against human pilot
+    data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must exit with code 1 if RMSE difference > 0.02 or absolute RMSE > 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:54:53Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Dataset fetch timeout threshold is 300 seconds
+  claim_id: c_9f4002b0
+  context: Task T012 implements fetch_assistments.py with timeout handling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Must exit with code 1 and log ERROR: Failed to download [dataset name]\
+    \ within 300 seconds \u2013 aborting pipeline if timeout occurs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:54:53Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Neural and symbolic explanation similarity threshold is 0.95
+  claim_id: c_14f1e3da
+  context: Task T016 orchestrates explanation generation and includes a distinctness
+    validation step.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a validation step that checks if neural and symbolic outputs
+    are identical (similarity > 0.95) and exits with code 1 if they are.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:54:53Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Test for explanation distinctness fails if cosine similarity exceeds
+    0.95
+  claim_id: c_7a874962
+  context: Task T017 implements a contract test verifying neural and symbolic outputs
+    are distinct.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute cosine similarity between embeddings of neural and symbolic explanations;
+    fail if similarity > 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:54:54Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Response time distribution validation checks for more than 2 consecutive
+    empty 1-second bins
+  claim_id: c_17cb2367
+  context: Task T023 validates the response time distribution using dry-run logs.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Response_time_distribution_validation_checks_for_more_than_2
+  kind: magnitude
+  raw_text: Use histogram binning (1s width) and check for >2 consecutive empty bins.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:55:26Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Real student data validation requires at least 200 records
+  claim_id: c_29cfddb1
+  context: Task T034a-Check verifies the existence and validity of the real student
+    dataset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_student_data_validation_requires_at_least_200_records
+  kind: magnitude
+  raw_text: 'Must exit with code 1 and log ERROR: Real student data file missing or
+    invalid (<200 records) if data is not found.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:55:33Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Ingested real student data must contain at least 200 records
+  claim_id: c_cf91fb0f
+  context: Task T034a ingests and validates the real student dataset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingested_real_student_data_must_contain_at_least_200_records
+  kind: magnitude
+  raw_text: "Deliverable: data/derived/real_student_data_validated.csv with checksum\
+    \ and validation log (\u2265200 records)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:56:03Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Analysis proceeds in simulated-only mode if real data has fewer than
+    200 records
+  claim_id: c_263ec586
+  context: Task T035 enforces the real-student record requirement for final analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_proceeds_in_simulated-only_mode_if_real_data_has_fe
+  kind: magnitude
+  raw_text: 'If <200 real records exist, log LIMITATION: Real data missing (<200).
+    Proceeding with simulated-only analysis.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:56:32Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Performance optimization target is 7GB RAM usage or less
+  claim_id: c_dd2083e2
+  context: Task T045 focuses on performance optimization across all stories.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_is_7GB_RAM_usage_or_less
+  kind: entity_fact
+  raw_text: "Ensure \u22647GB RAM usage."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:57:33Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Human pilot data validation requires at least 50 records
+  claim_id: c_2eaa97fc
+  context: "T031b Implement code/download/check_pilot_data.py to check for the existence\
+    \ and validity of the human pilot dataset at data/pilot/raw_pilot_data.csv. Deliverable:\
+    \ Exit code 0 with a JSON status flag has_human_data=true if valid (\u226550 records\
+    \ per contracts/pilot_data.schema.yaml), OR exit code 1 with error message ERROR:\
+    \ Human pilot data missing (<50 records)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Human_pilot_data_validation_requires_at_least_50_records
+  kind: magnitude
+  raw_text: "Exit code 0 with a JSON status flag has_human_data=true if valid (\u2265\
+    50 records per contracts/pilot_data.schema.yaml)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:05:27Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Calibration metrics fail if RMSE difference exceeds 0.02 or absolute
+    RMSE exceeds 0.15
+  claim_id: c_74951eb8
+  context: 'T032 Implement code/simulate/calculate_calibration_metrics.py to calculate
+    RMSE difference and absolute RMSE against human pilot data. Requirement: Must
+    exit with code 1 if RMSE difference > 0.02 or absolute RMSE > 0.15.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exit with code 1 if RMSE difference > 0.02 or absolute RMSE > 0.15
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:05:58Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: ASSISTments dataset fetched from huggingface.co/datasets/assistments/-2010
+  claim_id: c_cf96d3cd
+  context: 'T012 Implement code/download/fetch_assistments.py with timeout handling
+    (FR-001, FR-007). Requirement: Must fetch the ASSISTments dataset from huggingface.co/datasets/assistments/-2010.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fetch the ASSISTments dataset from huggingface.co/datasets/assistments/-2010
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:06:24Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Dataset fetch fails if download exceeds 300 seconds
+  claim_id: c_dfea2823
+  context: "T012 ... Error Handling: Must exit with code 1 and log ERROR: Failed to\
+    \ download [dataset name] within 300 seconds \u2013 aborting pipeline. if timeout\
+    \ occurs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'exit with code 1 and log ERROR: Failed to download [dataset name] within
+    300 seconds'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:06:49Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Simulation dry-run uses a sample size of 50
+  claim_id: c_e04df183
+  context: T021a Implement code/simulate/run_simulation_dryrun.py to run a small subset
+    (N=50) of the simulation to generate logs for validation (T023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run a small subset (N=50) of the simulation to generate logs for validation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:07:25Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Response time distribution validation checks for more than 2 consecutive
+    empty bins
+  claim_id: c_1a2e765a
+  context: 'T023 Implement code/simulate/validate_rt_distribution.py to check the
+    no consecutive empty bins > 5s constraint for response times (SC-005) using the
+    dry-run logs. Algorithm: Use histogram binning (1s width) and check for >2 consecutive
+    empty bins.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Response_time_distribution_validation_checks_for_more_than_2
+  kind: magnitude
+  raw_text: check for >2 consecutive empty bins
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:08:00Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Real student dataset validation requires at least 200 participants
+  claim_id: c_5d1ecaf4
+  context: "T034a Implement code/download/fetch_real_student_data.py to ingest and\
+    \ validate the real student dataset (\u2265200 participants) from data/real/raw_real_data.csv.\
+    \ Deliverable: ... with checksum and validation log (\u2265200 records)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_student_dataset_validation_requires_at_least_200_partic
+  kind: magnitude
+  raw_text: "verify the existence and validity of the real student dataset (\u2265\
+    200 participants)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:08:28Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Real student data check fails if fewer than 200 records exist
+  claim_id: c_ec5dd709
+  context: 'T034a-Check Implement code/download/check_real_data.py to verify the existence
+    and validity of the real student dataset at data/real/raw_real_data.csv before
+    processing. Requirement: Must exit with code 1 and log ERROR: Real student data
+    file missing or invalid (<200 records) if data is not found.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_student_data_check_fails_if_fewer_than_200_records_exis
+  kind: magnitude
+  raw_text: 'exit with code 1 and log ERROR: Real student data file missing or invalid
+    (<200 records)'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:09:09Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: System performance optimization ensures RAM usage does not exceed 7GB
+  claim_id: c_2cf58d95
+  context: "T045 Performance optimization across all stories to ensure \u22647GB RAM\
+    \ usage. Deliverable: Resource usage logs in data/derived/resource_logs.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_performance_optimization_ensures_RAM_usage_does_not_e
+  kind: entity_fact
+  raw_text: "ensure \u22647GB RAM usage"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:09:12Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Neural and symbolic outputs are considered identical if similarity exceeds
+    0.95
+  claim_id: c_bd2ae6de
+  context: 'T016 ... Requirement: Must include a validation step that checks if neural
+    and symbolic outputs are identical (similarity > 0.95) and exits with code 1 if
+    they are, ensuring distinctness per FR-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: neural and symbolic outputs are identical (similarity > 0.95)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:09:12Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Explanation distinctness test fails if cosine similarity exceeds 0.95
+  claim_id: c_43cb5475
+  context: 'T017 Implement code/tests/contract/test_explanation_distinctness.py to
+    run a dedicated test verifying that neural and symbolic outputs are distinct for
+    a sample of problems. Algorithm: Compute cosine similarity between embeddings
+    of neural and symbolic explanations; fail if similarity > 0.95.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fail if similarity > 0.95
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:09:12Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Project initialized using Python version 3.11
+  claim_id: c_6db8970a
+  context: T002 Initialize Python 3.11 project with requirements.txt (torch CPU-only,
+    transformers, scikit-learn, pandas, statsmodels, pyyaml)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:09:49Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Calibration fails and exits with code 1 if RMSE exceeds 0.15 or difference
+    exceeds 0.02
+  claim_id: c_0456c30f
+  context: 'T031 ... Logic: If calibration thresholds fail (RMSE > 0.15 or diff >
+    0.02), exit with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calibration thresholds fail (RMSE > 0.15 or diff > 0.02), exit with code
+    1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:09:49Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Response time distribution validation uses histogram binning with 1 second
+    width
+  claim_id: c_02c2e91c
+  context: 'T023 ... Algorithm: Use histogram binning (1s width) and check for >2
+    consecutive empty bins.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: histogram binning (1s width)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:10:14Z'

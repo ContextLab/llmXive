@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-559-neuro-symbolic-learning-networks-bridgin",
+  "ok": false,
+  "reason": "45 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analyze/merge_real_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026aFrame:     \"\"\"     Load simulated student data from CSV.      Args:\u2026\u201d; code/analyze/merge_real_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026:         DataFrame with simulated student records.      Raises:         Fi\u2026\u201d; code/analyze/merge_real_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ileNotFoundError: If the simulated data file does not exist.\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/download/fetch_datasets.py; 4 command(s) failed: python code/generate/explanation_generator.py --problem-id sample_001 --mode all (rc=2); python code/simulate/calibration.py --pilot-data data/pilot/human_calibration.csv (rc=1); python code/simulate/run_simulation.py --num-students 2000 --conditions neural,symbolic,neuro_symbolic (rc=1); 4 declared deliverable(s) absent: data/derived/combined_logs.csv; data/derived/real_student_data_validated.csv; data/derived/rt_distribution_validation.json",
+  "artifacts": [],
+  "failures": [
+    "python code/download/fetch_datasets.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/code/download/fetch_datasets.py': [Errno 2] No such file or directory",
+    "python code/generate/explanation_generator.py --problem-id sample_001 --mode all -> rc=2\n    usage: explanation_generator.py [-h] [--output-dir OUTPUT_DIR]\n                                [--problem-id PROBLEM_ID]\n                                [--problem-type PROBLEM_TYPE]\nexplanation_generator.py: error: unrecognized arguments: --mode all",
+    "python code/simulate/calibration.py --pilot-data data/pilot/human_calibration.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/code/simulate/calibration.py\", line 7, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/simulate/run_simulation.py --num-students 2000 --conditions neural,symbolic,neuro_symbolic -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/code/simulate/run_simulation.py\", line 8, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/analyze/mixed_effects.py --input data/derived/simulation_logs.csv --output data/derived/regression_results.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/code/analyze/mixed_effects.py\", line 17, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-17T15:27:37Z"
+}

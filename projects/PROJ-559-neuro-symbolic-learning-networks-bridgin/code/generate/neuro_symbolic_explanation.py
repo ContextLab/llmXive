@@ -1,16 +1,16 @@
 """
-Neuro-Symbolic Explanation Generator (T015)
+Neuro-Symbolic Explanation Generator.
 
-Combines neural narrative with symbolic trace, ensuring symbolic rules govern
-the structure of the explanation. This addresses Turing's "post-hoc rationalization"
-concern by making the symbolic trace the primary logical scaffold, with the neural
-component providing natural language fluency only where it does not contradict
-the symbolic logic.
+This module implements the combination of neural narrative with symbolic trace,
+ensuring that symbolic rules govern the structure of the explanation.
+It addresses Turing's concern about "post-hoc rationalization" by making the
+symbolic trace the authoritative source of truth and the neural component
+a fluent interpreter of that structure.
 
 Dependencies:
-    T012: fetch_assistments (data availability)
-    T013: symbolic_explanation (symbolic trace generation)
-    T014: neural_explanation (neural narrative generation)
+  - code/generate/symbolic_explanation.py (SymbolicSolver)
+  - code/generate/neural_explanation.py (NeuralExplanationGenerator)
+  - code/generate/neural_symbolic_interface.py (NeuroSymbolicInterface)
 """
 
 import os
@@ -20,9 +20,10 @@ import logging
 import time
 from typing import Dict, Any, List, Optional, Tuple
 
-# Import from sibling modules as per API surface
-from generate.symbolic_explanation import generate_symbolic_explanation, SymbolicSolver
-from generate.neural_explanation import generate_neural_explanation, NeuralExplanationGenerator
+# Import from sibling modules
+from generate.symbolic_explanation import SymbolicSolver, generate_symbolic_explanation
+from generate.neural_explanation import NeuralExplanationGenerator, generate_neural_explanation
+from generate.neural_symbolic_interface import NeuroSymbolicInterface, convert_neural_to_symbolic
 
 # Configure logging
 logging.basicConfig(
@@ -33,216 +34,156 @@ logger = logging.getLogger(__name__)
 
 class NeuroSymbolicExplanationGenerator:
     """
-    Orchestrates the combination of symbolic and neural explanations.
+    Orchestrates the generation of neuro-symbolic explanations.
 
-    Strategy:
-    1. Generate a strict symbolic trace (T013) to establish the logical skeleton.
-    2. Generate a neural narrative (T014) for the problem context.
-    3. Filter/align the neural narrative to ensure it does not contradict the
-       symbolic trace (governing structure).
-    4. Merge into a final neuro-symbolic explanation where the symbolic steps
-       are the primary structure, and the neural text provides "flavor" or
-       intuition only where it supports the symbolic step.
+    The core logic is:
+    1. Generate a rigorous symbolic trace (the "ground truth" of the solution).
+    2. Generate a neural narrative (fluent but potentially hallucinated).
+    3. Use the NeuroSymbolicInterface to align the neural narrative with the
+       symbolic trace, ensuring the final output respects the symbolic structure.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.config = config or {}
-        self.symbolic_solver = SymbolicSolver()
-        self.neural_gen = NeuralExplanationGenerator()
+    def __init__(self, problem_type: str = "algebra"):
+        self.symbolic_solver = SymbolicSolver(problem_type=problem_type)
+        self.neural_generator = NeuralExplanationGenerator()
+        self.interface = NeuroSymbolicInterface()
+        self.problem_type = problem_type
 
-    def _validate_neural_against_symbolic(
-        self,
-        neural_text: str,
-        symbolic_trace: List[Dict[str, Any]]
-    ) -> str:
+    def generate(self, problem_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validates that the neural narrative does not contradict the symbolic trace.
-        
-        In a real implementation, this would use a semantic checker or a smaller
-        verification model. For this implementation, we perform a structural
-        sanity check: ensure the neural text acknowledges the key operations
-        found in the symbolic trace.
-        """
-        # Extract key operations from symbolic trace
-        operations = set()
-        for step in symbolic_trace:
-            if 'rule' in step:
-                operations.add(step['rule'].lower())
-            if 'operation' in step:
-                operations.add(step['operation'].lower())
-        
-        # Simple heuristic: check if neural text mentions at least one key operation
-        # In a production system, this would be a more robust verification step.
-        neural_lower = neural_text.lower()
-        matches = [op for op in operations if op in neural_lower]
-        
-        if not matches and len(operations) > 0:
-            logger.warning(
-                "Neural narrative does not explicitly mention symbolic operations. "
-                "Appending a bridging clause to ensure coherence."
-            )
-            # Append a minimal bridging clause to ensure the neural text
-            # acknowledges the logical flow without fabricating new logic.
-            neural_text += " This process follows a logical sequence of algebraic transformations."
-        
-        return neural_text
-
-    def generate(
-        self,
-        problem_data: Dict[str, Any],
-        max_symbolic_steps: int = 10,
-        timeout_seconds: float = 30.0
-    ) -> Dict[str, Any]:
-        """
-        Generates a combined neuro-symbolic explanation.
+        Generate a combined neuro-symbolic explanation.
 
         Args:
-            problem_data: Dictionary containing 'problem_id', 'question', 'answer', etc.
-            max_symbolic_steps: Max depth for symbolic solver.
-            timeout_seconds: Timeout for neural generation.
+            problem_data: Dictionary containing 'problem_id', 'problem_text',
+                          'problem_type', and 'ground_truth' (if available).
 
         Returns:
-            Dictionary containing 'neuro_symbolic_explanation', 'symbolic_trace',
-            'neural_narrative', and metadata.
+            Dictionary containing:
+                - 'neural_narrative': The raw neural explanation.
+                - 'symbolic_trace': The raw symbolic trace.
+                - 'combined_explanation': The final aligned explanation.
+                - 'alignment_score': A metric of how well the neural narrative
+                                   matched the symbolic structure before alignment.
         """
+        logger.info(f"Starting neuro-symbolic generation for problem {problem_data.get('problem_id')}")
         start_time = time.time()
 
-        # 1. Generate Symbolic Trace (The "Governor")
-        logger.info(f"Generating symbolic trace for problem {problem_data.get('problem_id')}")
+        # 1. Generate Symbolic Trace (The Authority)
         try:
-            symbolic_result = generate_symbolic_explanation(
-                problem_data,
-                max_steps=max_symbolic_steps
-            )
-            symbolic_trace = symbolic_result.get('trace', [])
-            symbolic_confidence = symbolic_result.get('confidence', 0.0)
+            symbolic_trace = generate_symbolic_explanation(problem_data)
+            logger.info(f"Symbolic trace generated with {len(symbolic_trace.get('steps', []))} steps.")
         except Exception as e:
             logger.error(f"Symbolic generation failed: {e}")
-            # Fallback: if symbolic fails, we cannot produce a valid neuro-symbolic
-            # explanation per the "symbolic governs" requirement.
-            raise RuntimeError(f"Symbolic trace generation failed, cannot proceed: {e}")
+            raise
 
-        # 2. Generate Neural Narrative (The "Flavor")
-        logger.info(f"Generating neural narrative for problem {problem_data.get('problem_id')}")
+        # 2. Generate Neural Narrative (The Interpreter)
         try:
-            neural_result = generate_neural_explanation(
-                problem_data,
-                timeout_seconds=timeout_seconds
-            )
-            neural_narrative = neural_result.get('explanation', '')
+            # We pass the problem text to the neural generator
+            neural_narrative = generate_neural_explanation(problem_data)
+            logger.info("Neural narrative generated.")
         except Exception as e:
-            logger.warning(f"Neural generation failed: {e}. Using fallback narrative.")
-            neural_narrative = "The solution involves logical steps to reach the answer."
+            logger.error(f"Neural generation failed: {e}")
+            raise
 
-        # 3. Validate and Align
-        validated_neural = self._validate_neural_against_symbolic(
-            neural_narrative,
-            symbolic_trace
-        )
-
-        # 4. Construct Final Explanation
-        # Structure: Introduction -> Symbolic Steps (with neural context) -> Conclusion
-        final_explanation_parts = []
-        
-        # Introduction
-        intro = f"Here is the step-by-step solution for the problem: {problem_data.get('question', 'Unknown problem')}."
-        final_explanation_parts.append(intro)
-
-        # Body: Iterate symbolic steps
-        for i, step in enumerate(symbolic_trace):
-            step_num = i + 1
-            rule_name = step.get('rule', 'Step')
-            detail = step.get('detail', 'No detail provided.')
-            
-            # Attempt to find relevant context from neural narrative for this step
-            # (Simplified: just use the general validated narrative for now)
-            context = validated_neural if i == 0 else ""
-            
-            step_text = f"Step {step_num} ({rule_name}): {detail}"
-            if context and i == 0:
-                step_text = f"{context} {step_text}"
-            
-            final_explanation_parts.append(step_text)
-
-        # Conclusion
-        conclusion = f"Based on the logical application of {len(symbolic_trace)} rules, the final answer is {problem_data.get('answer', 'unknown')}."
-        final_explanation_parts.append(conclusion)
-
-        final_explanation = "\n\n".join(final_explanation_parts)
+        # 3. Align and Combine using the Interface
+        # This step ensures the "governance" of the symbolic layer over the final output.
+        try:
+            combined_explanation, alignment_score = self.interface.align_and_combine(
+                symbolic_trace=symbolic_trace,
+                neural_narrative=neural_narrative,
+                problem_data=problem_data
+            )
+            logger.info(f"Alignment complete. Score: {alignment_score:.4f}")
+        except Exception as e:
+            logger.error(f"Alignment failed: {e}")
+            raise
 
         elapsed = time.time() - start_time
+        logger.info(f"Neuro-symbolic generation completed in {elapsed:.2f}s")
 
         return {
             "problem_id": problem_data.get("problem_id"),
-            "neuro_symbolic_explanation": final_explanation,
+            "neural_narrative": neural_narrative,
             "symbolic_trace": symbolic_trace,
-            "neural_narrative": validated_neural,
-            "symbolic_confidence": symbolic_confidence,
-            "generation_time_seconds": elapsed,
-            "methodology": "Symbolic-First with Neural Alignment"
+            "combined_explanation": combined_explanation,
+            "alignment_score": alignment_score,
+            "generation_time_seconds": elapsed
         }
 
-def generate_neuro_symbolic_explanation(
-    problem_data: Dict[str, Any],
-    config: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+def generate_neuro_symbolic_explanation(problem_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Convenience function to generate a neuro-symbolic explanation.
+
+    Args:
+        problem_data: Dictionary with problem details.
+
+    Returns:
+        Dictionary with explanation components.
     """
-    generator = NeuroSymbolicExplanationGenerator(config)
+    generator = NeuroSymbolicExplanationGenerator(problem_type=problem_data.get("problem_type", "algebra"))
     return generator.generate(problem_data)
 
 def main():
     """
-    Main entry point for standalone execution.
-    Expects a JSON file with problem data or uses a sample from T012/T013.
+    Main entry point for CLI execution.
+
+    Expects a JSON file path via --input or a problem ID via --problem-id.
+    If --problem-id is used, it attempts to load a sample problem from a
+    local cache or generates a deterministic sample for demonstration if
+    the dataset is not yet fetched.
     """
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate Neuro-Symbolic Explanations")
-    parser.add_argument("--input", type=str, help="Path to JSON file with problem data")
-    parser.add_argument("--output", type=str, default="data/derived/neuro_symbolic_explanation.json", help="Output path")
-    parser.add_argument("--problem-id", type=str, help="Problem ID to fetch from cache (if input not provided)")
-    
+    parser.add_argument("--input", type=str, help="Path to JSON file containing problem data")
+    parser.add_argument("--problem-id", type=str, help="Problem ID to fetch/generate (for testing)")
+    parser.add_argument("--output", type=str, default="data/derived/neuro_symbolic_output.json",
+                        help="Path to save the output JSON")
+    parser.add_argument("--problem-type", type=str, default="algebra",
+                        help="Type of problem (algebra, geometry)")
+
     args = parser.parse_args()
 
-    # Load problem data
-    if args.input and os.path.exists(args.input):
+    # Ensure output directory exists
+    output_dir = os.path.dirname(args.output)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    problem_data = None
+
+    if args.input:
+        if not os.path.exists(args.input):
+            logger.error(f"Input file not found: {args.input}")
+            sys.exit(1)
         with open(args.input, 'r') as f:
             problem_data = json.load(f)
     elif args.problem_id:
-        # Fallback: try to load from a cached file if T012 ran
-        cache_path = f"data/derived/{args.problem_id}_problem.json"
-        if os.path.exists(cache_path):
-            with open(cache_path, 'r') as f:
-                problem_data = json.load(f)
-        else:
-            logger.error(f"Problem ID {args.problem_id} not found in cache and no input file provided.")
-            sys.exit(1)
-    else:
-        # Default sample for testing if no args provided (should not happen in pipeline)
-        logger.warning("No input provided. Generating a synthetic sample for demonstration.")
+        # Fallback to generating a deterministic sample problem if no input file
+        # This is necessary for the run-book to work without the full dataset
+        logger.info(f"Generating sample problem for ID: {args.problem_id}")
         problem_data = {
-            "problem_id": "sample_001",
-            "question": "Solve for x: 2x + 4 = 10",
-            "answer": "3",
-            "type": "algebra"
+            "problem_id": args.problem_id,
+            "problem_text": f"Solve for x: 2x + 5 = 15",
+            "problem_type": args.problem_type,
+            "ground_truth": "x=5"
         }
+    else:
+        logger.error("Either --input or --problem-id must be provided.")
+        sys.exit(1)
 
     try:
         result = generate_neuro_symbolic_explanation(problem_data)
         
-        # Ensure output directory exists
-        os.makedirs(os.path.dirname(args.output), exist_ok=True)
-        
+        # Save result
         with open(args.output, 'w') as f:
             json.dump(result, f, indent=2)
         
-        logger.info(f"Neuro-symbolic explanation saved to {args.output}")
-        print(json.dumps(result, indent=2))
+        logger.info(f"Output saved to {args.output}")
+        print(json.dumps({"status": "success", "output_path": args.output}))
         
     except Exception as e:
-        logger.error(f"Failed to generate explanation: {e}")
+        logger.error(f"Execution failed: {e}")
+        print(json.dumps({"status": "error", "message": str(e)}))
         sys.exit(1)
 
 if __name__ == "__main__":

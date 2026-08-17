@@ -1,3 +1,11 @@
+T012:
+  c: false
+  h: fe7137292df82a1d0dc5ef5db72b81ddb3fb4acb3ca8027d3c3deb01aa7b5ec4
+  r: "The `data/raw/assistments.csv` file is missing, and `code/download/fetch_assistments.py`\
+    \ does not download from the required Hugging Face URL, uses a 10\u2011second\
+    \ timeout instead of 300\u202Fseconds, and lacks the specified exit\u2011code\u2011\
+    1 error handling with the exact log message. The scope statement document is present,\
+    \ but the core deliverables are incomplete."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -7,12 +15,12 @@ T017:
     is not satisfied.
 T023:
   c: false
-  h: ef47c2762c9937fda30ecc5b897a9c5345b9f33eafc2543d290361a8be4f332d
-  r: "The required output file `data/derived/rt_distribution_validation.json` is absent,\
-    \ and the provided `validate_rt_distribution.py` script is truncated (the core\
-    \ logic and file\u2011writing code are not shown), so it does not demonstrably\
-    \ produce the pass/fail JSON or enforce the exit\u2011code requirement. The task\u2019\
-    s deliverable is therefore not satisfied."
+  h: 219d9dc066f01e5af2629288fb02ed1f583fe5a96d57ee9211e70283eab0c84a
+  r: "The script `code/simulate/validate_rt_distribution.py` is present, but the required\
+    \ output file `data/derived/rt_distribution_validation.json` does not exist, and\
+    \ the provided code excerpt does not show logic that writes the JSON or exits\
+    \ with code\u202F1 on failure. The deliverable and exit\u2011code requirement\
+    \ are therefore unmet."
 T031:
   c: false
   h: b702f62a5049517ffcd410e3554d380dbe0fece769946881a5ee5996d0c69b16
@@ -22,18 +30,3 @@ T031:
     `limitation_flag` and exiting on threshold failures are not present. The next
     implementer must ensure the script generates the calibration report (including
     the flag) and updates `bkt_params.yaml` as specified.
-T031b:
-  c: true
-  h: 966c3c9aa1c96630da54778a7a9d51654355337fd7427f5fd4a2053a191209ad
-  r: "The repository contains `code/download/check_pilot_data.py`, which implements\
-    \ the required check, prints the JSON flag `has_human_data` and always exits with\
-    \ code\u202F0 (no `sys.exit(1)` paths). It correctly handles a missing or insufficient\
-    \ CSV by returning `false`, satisfying the task\u2019s specification."
-T031c:
-  c: false
-  h: 5ab130b34405c9ec498e2f001caa4d5f8d32c21037797a8a9e9a1486dbc3ba62
-  r: "The required output file `data/pilot/synthetic_pilot_data.csv` is not present\
-    \ on disk. Without this CSV (including the `is_synthetic=true` header and the\
-    \ warning log), the task\u2019s deliverable and requirement are not satisfied.\
-    \ The implementer must generate the file (\u226550 participants) and ensure the\
-    \ script logs the required warning."
