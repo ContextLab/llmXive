@@ -1,3 +1,11 @@
+T031b:
+  c: false
+  h: 8f5f913169995dabb795f97a4dbcff293308d726f78724a7f0dfa16313b02ab1
+  r: "The `data/metrics/power_analysis.json` file is absent, so the code cannot consume\
+    \ the required `min_N_required` and method details. Moreover, the provided `stats.py`\
+    \ is truncated and does not show any logic that incorporates those values into\
+    \ a final report. Both the data file and the necessary report\u2011generation\
+    \ code are missing."
 T037a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -21,9 +29,19 @@ T040:
   r: "No evidence of a `quickstart.md` file, its validation script, or CI run logs\
     \ is provided; without these artifacts we cannot confirm that the end\u2011to\u2011\
     end flow was executed and passed on CI. The required validation output is missing."
+T041:
+  c: true
+  h: 8f418b01cfda1baa29fd4b278b8880ba2ad2d7756ab42ca6f0391ed5cd80a524
+  r: "The `code/data/download.py` file contains a `validate_source_id` function that\
+    \ reads `data/verified_sources.json`, verifies the presence and correctness of\
+    \ the `openneuro_id`, and raises `FatalError` for missing, malformed, or mismatched\
+    \ IDs, satisfying the strict gate requirement. The absence of `data/verified_sources.json`\
+    \ triggers the intended `FatalError`, matching the \u201Cmissing ID\u201D behavior\
+    \ specified."
 T048:
   c: false
-  h: 2c3219ee4bb2c4a35cef56cf5448b8797b9dfdad17c7adcaf7ba189085bec9eb
-  r: The required `data/metrics/power_analysis.json` file does not exist, so its `min_N_required`
-    key cannot be verified, and the `reports/results.md` file is also missing, so
-    no reference to the value can be checked. Both required artifacts are absent.
+  h: 225179dccf6d281cfe969a88d839ad11d766e5eb75be11a31195d379956b046e
+  r: The required `data/metrics/power_analysis.json` file is missing, so the presence
+    of the `min_N_required` key cannot be verified, and there is no source to confirm
+    that the value referenced in `reports/results.md` (20) matches the JSON. The task
+    therefore remains unfinished.

@@ -1,19 +1,19 @@
 status: none
-intent: OpenNeuro ds001971 resting state fMRI anxiety GAD-7 download python package
-  dataset
+intent: OpenNeuro resting state fMRI longitudinal anxiety GAD-7 clinical scores python
+  package dataset
 required_fields:
 - subject_id
 - session_label (pre/post)
-- functional_nifti_path
-- gadget7_score
-- motion_translation_mm
-- motion_rotation_deg
-- slice_timing_vector
-- TR
-- TE
-- voxel_dimensions
+- resting_state_fmri_path
+- bold_nifti_file
+- slice_timing_information
+- motion_parameters (translation, rotation)
+- framewise_displacement
+- normalized_image_path
 - age
 - sex
-cache_key: 31c81939e32e01100b3bf3c26c2043400b3d257ddded0daf299bf8777f46bac9
-searched_at: '2026-08-13T19:03:39.465302+00:00'
+- diagnosis
+- scan_date
+cache_key: 12eaeb12837c926086d16122dfd96956d88d7cff36bd45c6901719596210707a
+searched_at: '2026-08-17T18:14:21.209156+00:00'
 retry_count: 1

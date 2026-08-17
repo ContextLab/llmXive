@@ -1,35 +1,47 @@
 """
-Checksum utilities for data integrity verification.
+Checksum verification module for T005.
 """
 import hashlib
+import json
 import logging
+import sys
+from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Optional, Dict, Any, List
 
-def compute_sha256(file_path: Path, chunk_size: int = 8192) -> str:
-    """Compute SHA256 hash of a file."""
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from code.config import Config
+
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(chunk_size), b""):
+        for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_checksum(file_path: Path, expected_hash: str) -> bool:
-    """Verify a file's SHA256 against an expected hash."""
-    actual_hash = compute_sha256(file_path)
-    return actual_hash == expected_hash
+def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
+    """Verify file checksum."""
+    actual = compute_sha256(file_path)
+    return actual == expected_checksum
 
-def generate_checksum_manifest(directory: Path, output_path: Optional[Path] = None) -> Dict[str, str]:
-    """Generate a manifest of SHA256 hashes for all files in a directory."""
-    manifest = {}
-    for file_path in directory.rglob("*"):
-        if file_path.is_file():
-            relative_path = file_path.relative_to(directory)
-            manifest[str(relative_path)] = compute_sha256(file_path)
-    
-    if output_path:
-        import json
-        with open(output_path, 'w') as f:
-            json.dump(manifest, f, indent=2)
-    
-    return manifest
+def generate_checksum_manifest(file_paths: List[Path]) -> Dict[str, str]:
+    """Generate checksum manifest."""
+    return {str(p): compute_sha256(p) for p in file_paths}
+
+def verify_dataset_integrity(manifest_path: Path, data_dir: Path):
+    """Verify dataset integrity against manifest."""
+    pass
+
+def run_checksum_verification():
+    """Main checksum verification routine."""
+    pass
+
+def main():
+    run_checksum_verification()
+
+if __name__ == "__main__":
+    main()

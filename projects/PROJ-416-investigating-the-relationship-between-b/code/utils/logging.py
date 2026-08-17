@@ -1,3 +1,6 @@
+"""
+Logging utilities for the pipeline.
+"""
 import logging
 import sys
 import json
@@ -6,62 +9,45 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 
 class JsonFormatter(logging.Formatter):
-    """Custom formatter for JSON structured logging."""
-    
     def format(self, record):
-        log_entry = {
+        log_obj = {
             "timestamp": datetime.now().isoformat(),
             "level": record.levelname,
             "message": record.getMessage(),
             "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno,
+            "function": record.funcName
         }
-        if hasattr(record, 'extra_data'):
-            log_entry.update(record.extra_data)
-        return json.dumps(log_entry)
+        return json.dumps(log_obj)
 
-def setup_logging(config):
-    """Configure logging for the pipeline."""
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+def setup_logging(log_file: Optional[Path] = None, console: bool = True):
+    """
+    Setup logging configuration.
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
     
     # Clear existing handlers
-    logger.handlers = []
+    root_logger.handlers = []
     
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
+    if log_file:
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(JsonFormatter())
+        root_logger.addHandler(file_handler)
     
-    # File handler
-    log_file = config.LOGS_DIR / "pipeline.log"
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.INFO)
-    file_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    file_handler.setFormatter(file_formatter)
-    logger.addHandler(file_handler)
-    
-    return logger
+    if console:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        root_logger.addHandler(console_handler)
 
-def log_provenance(logger: logging.Logger, stage: str, details: Dict[str, Any]):
-    """Log provenance information for a pipeline stage."""
-    extra = {"stage": stage, **details}
-    record = logger.makeRecord(
-        logger.name, logging.INFO, "", 0,
-        f"Provenance: {stage}", (), None
-    )
-    record.extra_data = extra
-    logger.handle(record)
+def log_provenance(stage: str, details: Dict[str, Any]):
+    """
+    Log provenance information for a stage.
+    """
+    logging.info(f"Provenance: {stage} - {json.dumps(details)}")
 
-def log_exclusion(logger: logging.Logger, subject_id: str, reason: str):
-    """Log subject exclusion with reason."""
-    logger.info(f"Excluding subject {subject_id}: {reason}", extra={"subject_id": subject_id, "reason": reason})
+def log_exclusion(subject_id: str, reason: str):
+    """
+    Log subject exclusion.
+    """
+    logging.info(f"Exclusion: Subject {subject_id} - {reason}")

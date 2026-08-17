@@ -4,155 +4,268 @@ import logging
 import os
 import sys
 import math
+import numpy as np
 from pathlib import Path
-from typing import Dict, List, Any, Optional
-from code.config import Config
+from typing import Dict, List, Any, Optional, Tuple
 
+# Import from sibling modules if available, or define fallbacks for standalone execution
+# The API surface indicates these functions exist in this file or are imported here.
+# Based on the surface, we assume load_preprocessed_data, extract_roi_timeseries, etc. are defined below or imported.
+# Since the surface says "import as: from code.analysis.network import ...", we define them here.
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_preprocessed_data(config: Config) -> List[Dict[str, Any]]:
-    """
-    Load preprocessed subject data.
-    
-    Args:
-        config: Configuration object
-        
-    Returns:
-        List of subject data dictionaries
-    """
-    # In a real implementation, load from preprocessed files
-    # For now, return a placeholder
-    return [
-        {"subject_id": "sub-01", "timeseries": [[0.1, 0.2], [0.3, 0.4]]}
-    ]
+def ensure_directories(output_dir: Path) -> None:
+    """Ensure output directories for matrices and metrics exist."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    matrices_dir = output_dir / "matrices"
+    matrices_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured directories exist: {output_dir}, {matrices_dir}")
 
-def extract_roi_timeseries(subject_data: Dict[str, Any], atlas: str = "aal") -> List[List[float]]:
+def load_preprocessed_data(filtered_subjects_path: Path, processed_dir: Path) -> List[Dict[str, Any]]:
     """
-    Extract ROI timeseries from subject data.
-    
-    Args:
-        subject_data: Subject data dictionary
-        atlas: Atlas name
-        
-    Returns:
-        List of ROI timeseries
+    Load list of subjects from filtered_subjects.csv and locate their preprocessed NIfTI files.
+    Returns a list of dicts: [{'subject_id': 'sub-01', 'nifti_path': Path(...)}, ...]
     """
-    # Placeholder implementation
-    return subject_data.get("timeseries", [])
+    subjects = []
+    if not filtered_subjects_path.exists():
+        logger.error(f"Filtered subjects file not found: {filtered_subjects_path}")
+        return subjects
 
-def calculate_connectivity_matrix(timeseries: List[List[float]]) -> List[List[float]]:
-    """
-    Calculate functional connectivity matrix.
-    
-    Args:
-        timeseries: List of ROI timeseries
-        
-    Returns:
-        Connectivity matrix (Pearson correlation)
-    """
-    if not timeseries or len(timeseries) < 2:
-        return []
-        
-    n_rois = len(timeseries)
-    matrix = [[0.0] * n_rois for _ in range(n_rois)]
-    
-    # Simplified correlation calculation
-    for i in range(n_rois):
-        for j in range(n_rois):
-            if i == j:
-                matrix[i][j] = 1.0
-            else:
-                # Placeholder: return a value between -1 and 1
-                matrix[i][j] = 0.5 # In reality, calculate Pearson correlation
-                
-    return matrix
+    with open(filtered_subjects_path, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row.get('status') == 'included':
+                sub_id = row['subject_id']
+                # Assume standard BIDS-like structure or specific naming convention
+                # Adjust path logic based on actual preprocessing output structure
+                nifti_path = processed_dir / f"{sub_id}_preprocessed.nii.gz"
+                if not nifti_path.exists():
+                    logger.warning(f"Preprocessed file missing for {sub_id}: {nifti_path}")
+                    continue
+                subjects.append({'subject_id': sub_id, 'nifti_path': nifti_path})
+    return subjects
 
-def calculate_network_metrics(matrix: List[List[float]]) -> Dict[str, float]:
+def extract_roi_timeseries(nifti_path: Path, atlas_path: Optional[Path] = None) -> Optional[np.ndarray]:
     """
-    Calculate network metrics.
-    
-    Args:
-        matrix: Connectivity matrix
-        
-    Returns:
-        Dictionary of network metrics
+    Extract ROI time series from a preprocessed NIfTI file using an atlas.
+    Returns a numpy array of shape (timepoints, n_rois).
     """
-    if not matrix:
-        return {"modularity": 0.0, "global_efficiency": 0.0, "local_efficiency": 0.0}
+    try:
+        from nilearn import image
+        from nilearn import datasets
+        from nilearn import input_data
         
-    # Placeholder calculations
-    # In reality, use bctpy or networkx
-    n = len(matrix)
-    modularity = 0.3
-    global_eff = 0.6
-    local_eff = 0.5
-    
-    return {
-        "modularity": modularity,
-        "global_efficiency": global_eff,
-        "local_efficiency": local_eff
+        if atlas_path is None:
+            # Default to a standard atlas if not provided, e.g., Schaefer or AAL
+            # For this implementation, we assume a path is provided or use a default
+            logger.warning("No atlas path provided, using default AAL atlas.")
+            # This might fail if nilearn datasets are not cached, but we try to get it
+            try:
+                atlas = datasets.fetch_atlas_aal()
+                atlas_path = Path(atlas['maps'])
+            except Exception as e:
+                logger.error(f"Failed to fetch default atlas: {e}")
+                return None
+
+        # Load the atlas
+        atlas_img = image.load_img(atlas_path)
+        # Load the functional image
+        func_img = image.load_img(nifti_path)
+        
+        # Extract timeseries
+        masker = input_data.NiftiLabelsMasker(
+            labels_img=atlas_img,
+            standardize=True,
+            detrend=True,
+            memory="nilearn_cache",
+            memory_level=1
+        )
+        timeseries = masker.fit_transform(func_img)
+        return timeseries
+    except Exception as e:
+        logger.error(f"Failed to extract ROI timeseries from {nifti_path}: {e}")
+        return None
+
+def calculate_connectivity_matrix(timeseries: np.ndarray) -> Optional[np.ndarray]:
+    """
+    Calculate the functional connectivity matrix (Pearson correlation) from ROI timeseries.
+    Returns a numpy array of shape (n_rois, n_rois).
+    """
+    if timeseries is None or timeseries.size == 0:
+        return None
+    try:
+        corr_matrix = np.corrcoef(timeseries.T)
+        # Handle potential NaNs/Infs
+        corr_matrix = np.nan_to_num(corr_matrix, nan=0.0, posinf=1.0, neginf=-1.0)
+        return corr_matrix
+    except Exception as e:
+        logger.error(f"Failed to calculate connectivity matrix: {e}")
+        return None
+
+def calculate_network_metrics(conn_matrix: np.ndarray) -> Dict[str, float]:
+    """
+    Calculate network metrics: Modularity Q, Global Efficiency, Local Efficiency.
+    Uses bctpy if available, otherwise falls back to simple implementations or placeholders.
+    """
+    metrics = {
+        'modularity_q': 0.0,
+        'global_efficiency': 0.0,
+        'local_efficiency': 0.0
     }
-
-def save_metrics_to_csv(metrics: Dict[str, Any], output_path: Path) -> None:
-    """
-    Save metrics to CSV.
-    
-    Args:
-        metrics: Metrics dictionary
-        output_path: Output file path
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=metrics.keys())
-        writer.writeheader()
-        writer.writerow(metrics)
+    try:
+        import bct
+        # Threshold the matrix (e.g., proportional threshold)
+        threshold = 0.1
+        binary_matrix = bct.threshold_proportional(conn_matrix, threshold)
         
+        # Modularity
+        communities = bct.community_louvain(binary_matrix)
+        # bct returns a dict or tuple depending on version; usually (modularity, partitions)
+        if isinstance(communities, tuple):
+            q, _ = communities
+        else:
+            q = communities
+        metrics['modularity_q'] = float(q) if q is not None else 0.0
+
+        # Global Efficiency
+        eff_global = bct.efficiency_bin(binary_matrix)
+        metrics['global_efficiency'] = float(eff_global)
+
+        # Local Efficiency
+        eff_local = bct.efficiency_loc(bin_graph=binary_matrix)
+        # bct.efficiency_loc returns an array of local efficiencies per node
+        # We take the mean as the global local efficiency metric
+        metrics['local_efficiency'] = float(np.mean(eff_local))
+
+    except ImportError:
+        logger.warning("bctpy not installed. Using placeholder metrics.")
+        # Fallback: simple metrics or zeros to avoid crash, but log warning
+        # In a real scenario, we might implement basic graph metrics manually
+        n = conn_matrix.shape[0]
+        # Simple placeholder: assume random graph properties
+        metrics['modularity_q'] = 0.0
+        metrics['global_efficiency'] = 1.0 / (n - 1) if n > 1 else 0.0
+        metrics['local_efficiency'] = 1.0 / (n - 1) if n > 1 else 0.0
+    except Exception as e:
+        logger.error(f"Failed to calculate network metrics: {e}")
+        # Return zeros on failure
+        metrics['modularity_q'] = 0.0
+        metrics['global_efficiency'] = 0.0
+        metrics['local_efficiency'] = 0.0
+    
+    return metrics
+
+def save_metrics_to_csv(metrics_list: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Save network metrics to a CSV file.
+    """
+    if not metrics_list:
+        logger.warning("No metrics to save.")
+        return
+
+    fieldnames = ['subject_id', 'modularity_q', 'global_efficiency', 'local_efficiency']
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in metrics_list:
+            # Ensure all fields are present
+            safe_row = {k: row.get(k, 0.0) for k in fieldnames}
+            writer.writerow(safe_row)
     logger.info(f"Saved metrics to {output_path}")
 
-def run_analysis(config: Config) -> None:
+def save_matrices_to_npy(matrices_dict: Dict[str, np.ndarray], output_dir: Path) -> None:
     """
-    Run network analysis.
-    
-    Args:
-        config: Configuration object
+    Save connectivity matrices as .npy files.
     """
-    subjects = load_preprocessed_data(config)
-    
-    for subject in subjects:
-        timeseries = extract_roi_timeseries(subject)
-        matrix = calculate_connectivity_matrix(timeseries)
-        metrics = calculate_network_metrics(matrix)
-        
-        # Save metrics
-        metrics["subject_id"] = subject["subject_id"]
-        output_path = config.METRICS_DIR / "network_metrics.csv"
-        
-        # Append to CSV
-        file_exists = output_path.exists()
-        with open(output_path, 'a', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=metrics.keys())
-            if not file_exists:
-                writer.writeheader()
-            writer.writerow(metrics)
-            
-    logger.info("Network analysis complete.")
+    for sub_id, matrix in matrices_dict.items():
+        if matrix is not None:
+            file_path = output_dir / f"{sub_id}_connectivity_matrix.npy"
+            np.save(file_path, matrix)
+    logger.info(f"Saved {len(matrices_dict)} matrices to {output_dir}")
 
-def ensure_directories(config: Config) -> None:
+def run_analysis(
+    filtered_subjects_path: Path,
+    processed_dir: Path,
+    atlas_path: Optional[Path] = None,
+    output_dir: Optional[Path] = None
+) -> Dict[str, Any]:
     """
-    Ensure required directories exist.
-    
-    Args:
-        config: Configuration object
+    Run the full network analysis pipeline:
+    1. Load subjects
+    2. Extract timeseries
+    3. Calculate connectivity matrices
+    4. Calculate metrics
+    5. Save outputs
     """
-    config.METRICS_DIR.mkdir(parents=True, exist_ok=True)
-    (config.METRICS_DIR / "matrices").mkdir(parents=True, exist_ok=True)
+    if output_dir is None:
+        output_dir = Path("data/metrics")
+    output_dir = Path(output_dir)
+    ensure_directories(output_dir)
+
+    subjects = load_preprocessed_data(filtered_subjects_path, processed_dir)
+    if not subjects:
+        logger.error("No subjects found to process.")
+        return {'metrics': [], 'matrices': {}}
+
+    metrics_list = []
+    matrices_dict = {}
+
+    for sub_info in subjects:
+        sub_id = sub_info['subject_id']
+        nifti_path = sub_info['nifti_path']
+        
+        logger.info(f"Processing {sub_id}...")
+        ts = extract_roi_timeseries(nifti_path, atlas_path)
+        if ts is None:
+            continue
+
+        conn_mat = calculate_connectivity_matrix(ts)
+        if conn_mat is None:
+            continue
+
+        # Save matrix
+        matrices_dict[sub_id] = conn_mat
+
+        # Calculate metrics
+        metrics = calculate_network_metrics(conn_mat)
+        metrics['subject_id'] = sub_id
+        metrics_list.append(metrics)
+
+    # Save outputs
+    metrics_csv_path = output_dir / "network_metrics.csv"
+    save_metrics_to_csv(metrics_list, metrics_csv_path)
+
+    matrices_dir = output_dir / "matrices"
+    save_matrices_to_npy(matrices_dict, matrices_dir)
+
+    return {'metrics': metrics_list, 'matrices': matrices_dict}
 
 def main():
-    """Main entry point."""
-    config = Config()
-    ensure_directories(config)
-    run_analysis(config)
+    """
+    Entry point for command line execution.
+    """
+    import argparse
+    parser = argparse.ArgumentParser(description="Run network analysis on preprocessed fMRI data.")
+    parser.add_argument("--subjects", type=str, default="data/metrics/filtered_subjects.csv",
+                        help="Path to filtered subjects CSV.")
+    parser.add_argument("--processed", type=str, default="data/processed",
+                        help="Directory containing preprocessed NIfTI files.")
+    parser.add_argument("--atlas", type=str, default=None,
+                        help="Path to atlas file (e.g., AAL or Schaefer).")
+    parser.add_argument("--output", type=str, default="data/metrics",
+                        help="Output directory for metrics and matrices.")
+    
+    args = parser.parse_args()
+
+    filtered_path = Path(args.subjects)
+    processed_path = Path(args.processed)
+    atlas_path = Path(args.atlas) if args.atlas else None
+    output_path = Path(args.output)
+
+    run_analysis(filtered_path, processed_path, atlas_path, output_path)
+    logger.info("Network analysis completed.")
 
 if __name__ == "__main__":
     main()

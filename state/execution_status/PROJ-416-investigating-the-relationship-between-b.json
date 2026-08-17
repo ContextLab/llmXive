@@ -1,19 +1,19 @@
 {
   "project_id": "PROJ-416-investigating-the-relationship-between-b",
   "ok": false,
-  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/save_stats_results.py: self-declared fabricated metric \u2014 \u201c\u2026true\",         help=\"Generate dummy results for testing.\"     )\u2026\u201d; code/data/preprocess.py: self-declared fabricated metric \u2014 \u201c\u2026p.random.uniform(0.5, 2.0)  # Placeholder value for demonstration          is\u2026\u201d; code/data/save_metadata.py: self-declared fabricated metric \u2014 \u201c\u2026subject_info_path)          # Placeholder results     processed_results = [\u2026\u201d; 4 command(s) failed: python code/main.py --stage download (rc=1); python code/main.py --stage preprocess (rc=1); python code/main.py --stage compute (rc=1); 1 declared deliverable(s) absent: data/metrics/statistical_results.csv",
+  "reason": "4 command(s) failed: python code/data/validate.py --dataset \"openneuro\" --check-variables \"pre_treatment_score,post_treatment_score,anxiety_instrument\" (rc=1); python code/analysis/verify_power_analysis.py --effect-size 0.15 --alpha 0.05 --power 0.8 (rc=1); python code/main.py --mode full --max-subjects 20 --atlas \"Schaefer-100\" (rc=1); 3 declared deliverable(s) absent: data/metrics/network_metrics.csv; data/metrics/power_analysis.json; data/verified_sources.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --stage download -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 16, in <module>\n    from code.config import Config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/config.py\", line 8, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
-    "python code/main.py --stage preprocess -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 16, in <module>\n    from code.config import Config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/config.py\", line 8, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
-    "python code/main.py --stage compute -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 16, in <module>\n    from code.config import Config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/config.py\", line 8, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
-    "python code/main.py --stage analyze -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 16, in <module>\n    from code.config import Config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/config.py\", line 8, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'"
+    "python code/data/validate.py --dataset \"openneuro\" --check-variables \"pre_treatment_score,post_treatment_score,anxiety_instrument\" -> rc=1\n    Verified sources file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/data/verified_sources.json\nPipeline halted: Missing verified dataset source. Run T001a first.",
+    "python code/analysis/verify_power_analysis.py --effect-size 0.15 --alpha 0.05 --power 0.8 -> rc=1\n    2026-08-17 18:13:40,387 - __main__ - INFO - Starting T048 verification: Power Analysis and Report Reference\n2026-08-17 18:13:40,387 - __main__ - ERROR - Verification FAILED with unexpected error: 'Config' object has no attribute 'POWER_ANALYSIS_PATH'",
+    "python code/main.py --mode full --max-subjects 20 --atlas \"Schaefer-100\" -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 13, in <module>\n    from code.analysis.network import run_analysis as run_network_analysis\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/analysis/__init__.py\", line 19, in <module>\n    from .stats import calculate_vif, apply_fdr_correction, run_ancova_analysis\n  File \"/home/runner/work/llmXive/llmX",
+    "python code/main.py --mode analysis --correction \"fdr\" --sweep-motion \"2.0,3.0\" --sweep-pval \"0.01,0.05,0.1\" --sweep-outcome \"change,residual,raw\" -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/main.py\", line 13, in <module>\n    from code.analysis.network import run_analysis as run_network_analysis\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-416-investigating-the-relationship-between-b/code/analysis/__init__.py\", line 19, in <module>\n    from .stats import calculate_vif, apply_"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
+  "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-21T12:06:04Z"
+  "updated_at": "2026-08-17T18:13:44Z"
 }

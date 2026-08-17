@@ -1,159 +1,94 @@
 import logging
 import sys
 import os
+import json
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
+
 from code.config import Config
 
 logger = logging.getLogger(__name__)
+config = Config()
 
 class FatalError(Exception):
     """Exception raised for fatal errors that halt the pipeline."""
     pass
 
-def validate_metadata(metadata: Dict[str, Any], config: Config) -> Tuple[bool, List[str]]:
+def validate_metadata(dataset_type: str, required_variables: List[str]) -> Dict[str, Any]:
     """
     Validate dataset metadata for required variables.
     
     Args:
-        metadata: Dataset metadata
-        config: Configuration object
+        dataset_type: Type of dataset (e.g., 'openneuro')
+        required_variables: List of variable names that must be present
         
     Returns:
-        Tuple of (is_valid, list of errors)
+        Dict with validation results
         
     Raises:
-        FatalError: If critical validation fails (e.g., missing required variables)
+        FatalError: If required variables are missing
     """
-    errors = []
+    verified_path = Path(config.VERIFIED_SOURCES_PATH)
     
-    # Check for required variables
-    # config.REQUIRED_VARIABLES should contain 'pre_treatment_score', 'post_treatment_score', etc.
-    for var in config.REQUIRED_VARIABLES:
-        if var not in metadata.get("variables", []):
-            errors.append(f"Missing required variable: {var}")
-            
-    # Check for validated anxiety scale
-    if "instrument" in metadata:
-        valid_instruments = ["GAD-7", "HAM-A", "SAS", "BDI"]
-        if metadata["instrument"] not in valid_instruments:
-            errors.append(f"Invalid instrument: {metadata['instrument']}. Must be one of {valid_instruments}")
-    else:
-        errors.append("Missing instrument information")
+    if not verified_path.exists():
+        error_msg = "Verified sources file not found. Run T001a first."
+        logger.error(error_msg)
+        raise FatalError(error_msg)
+    
+    with open(verified_path, 'r') as f:
+        metadata = json.load(f)
+    
+    # Check for required variables in metadata
+    missing_vars = []
+    for var in required_variables:
+        # Check if variable exists in metadata or its sub-fields
+        found = False
+        if var in metadata:
+            found = True
+        elif isinstance(metadata.get('variables'), dict) and var in metadata['variables']:
+            found = True
+        elif isinstance(metadata.get('data_dictionary'), dict) and var in metadata['data_dictionary']:
+            found = True
         
-    # If there are errors regarding required variables, raise FatalError immediately
-    # This enforces the "Real Data Only" rule: do not proceed with missing data
-    if errors:
-        for error in errors:
-            logger.error(error)
-        logger.critical("Dataset validation failed. Halting pipeline.")
-        raise FatalError("Dataset validation failed due to missing required data.")
-        
-    return True, []
+        if not found:
+            missing_vars.append(var)
+    
+    if missing_vars:
+        error_msg = f"Missing required variable: {', '.join(missing_vars)}"
+        logger.error(error_msg)
+        raise FatalError(error_msg)
+    
+    logger.info(f"Validation passed for {dataset_type} dataset")
+    return {"status": "valid", "missing_variables": []}
 
-def validate_subject_metadata_path(subject_dir: Path) -> bool:
-    """
-    Validate that subject directory contains required files.
-    
-    Args:
-        subject_dir: Path to subject directory
-        
-    Returns:
-        True if valid, False otherwise
-    """
-    required_files = ["anat", "func"]
-    for f in required_files:
-        if not (subject_dir / f).exists():
-            logger.warning(f"Missing {f} in {subject_dir}")
-            return False
+def validate_subject_metadata_path(subject_id: str, expected_path: Path) -> bool:
+    """Validate that a subject's metadata file exists at the expected path."""
+    if not expected_path.exists():
+        logger.warning(f"Subject metadata not found: {expected_path}")
+        return False
     return True
 
-def run_validation(config: Config) -> bool:
-    """
-    Run validation on the dataset.
+def run_validation() -> None:
+    """Main validation entry point."""
+    import argparse
     
-    Args:
-        config: Configuration object
-        
-    Returns:
-        True if valid, False otherwise
-        
-    Raises:
-        FatalError: If dataset validation fails
-    """
-    # Load metadata from the verified source (T001a output)
-    verified_sources_path = config.VERIFIED_SOURCES_PATH
-    if not verified_sources_path.exists():
-        logger.error(f"Verified sources file not found: {verified_sources_path}")
-        raise FatalError("Missing verified dataset source. Run T001a first.")
-        
-    try:
-        with open(verified_sources_path, 'r') as f:
-            verified_data = json.load(f)
-        openneuro_id = verified_data.get("openneuro_id")
-        if not openneuro_id:
-            raise FatalError("OpenNeuro ID missing in verified_sources.json")
-        
-        # In a real implementation, fetch metadata from OpenNeuro API or local BIDS
-        # For this implementation, we assume metadata is loaded from the downloaded dataset
-        # and contains the required variables.
-        # We simulate loading from the actual dataset structure.
-        # The actual metadata loading logic would be in a separate module or here.
-        # For now, we assume the dataset structure is validated by download.py.
-        
-        # Check for required variables in the dataset's metadata.json or participants.tsv
-        # This is a simplified check; real implementation would parse the BIDS dataset.
-        metadata = {
-            "variables": config.REQUIRED_VARIABLES, # Assume config has these
-            "instrument": "GAD-7" # Assume from dataset metadata
-        }
-        
-        # Validate metadata
-        is_valid, errors = validate_metadata(metadata, config)
-        
-        if not is_valid:
-            # validate_metadata already raises FatalError if errors exist
-            # This line is technically unreachable if FatalError is raised
-            return False
-            
-    except json.JSONDecodeError:
-        logger.error("Invalid JSON in verified sources file.")
-        raise FatalError("Invalid verified sources file.")
-    except Exception as e:
-        logger.error(f"Error loading dataset metadata: {e}")
-        raise FatalError(f"Failed to load dataset metadata: {e}")
-
-    # Validate subject directories
-    raw_dir = config.RAW_DATA_DIR
-    if not raw_dir.exists():
-        logger.error(f"Raw data directory not found: {raw_dir}")
-        raise FatalError("Raw data directory not found.")
-        
-    subject_dirs = [d for d in raw_dir.iterdir() if d.is_dir() and d.name.startswith("sub-")]
+    parser = argparse.ArgumentParser(description="Validate dataset metadata")
+    parser.add_argument("--dataset", type=str, required=True, help="Dataset type")
+    parser.add_argument("--check-variables", type=str, required=True, 
+                      help="Comma-separated list of required variables")
     
-    if not subject_dirs:
-        logger.warning("No subject directories found in raw data.")
-        # This might be a fatal error depending on project policy
-        # raise FatalError("No subjects found in raw data directory.")
-        
-    for subject_dir in subject_dirs:
-        if not validate_subject_metadata_path(subject_dir):
-            logger.warning(f"Subject {subject_dir.name} is incomplete and will be excluded.")
-            # Incomplete subjects are excluded, not a fatal error for the whole pipeline
-            # unless ALL subjects are excluded.
-            
-    logger.info("Dataset validation successful.")
-    return True
-
-def main():
-    """Main entry point."""
-    config = Config()
+    args = parser.parse_args()
+    
+    variables = [v.strip() for v in args.check_variables.split(",")]
+    
     try:
-        run_validation(config)
-        logger.info("Validation completed successfully.")
+        result = validate_metadata(args.dataset, variables)
+        logger.info(f"Validation result: {result}")
     except FatalError as e:
-        logger.critical(f"Pipeline halted: {e}")
+        logger.error(f"Validation failed: {e}")
         sys.exit(1)
 
-if __name__ == "__main__":
-    main()
+def main() -> None:
+    """CLI entry point."""
+    logging.basicConfig(level=logging.INFO)
+    run_validation()

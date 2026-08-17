@@ -11,3 +11,4 @@ python-dotenv>=1.0.0
 statsmodels>=0.13.0
 bctpy>=0.5.0
 requests>=2.28.0
+pre_commit  # auto-added: imported by run-book but missing from venv
