@@ -7,7 +7,7 @@ from typing import Dict, Any, Tuple
 # ==============================================================================
 # This project STRICTLY requires real data from OpenNeuro datasets.
 # - Auditory: ds000246
-# - Visual: ds000117 (via Hugging Face)
+# - Visual: ds000117
 #
 # SYNTHETIC DATA GENERATION IS PROHIBITED.
 # If real data cannot be fetched or validated, the pipeline MUST fail loudly.
@@ -70,15 +70,38 @@ def get_config() -> Dict[str, Any]:
                 'description': 'Auditory oddball paradigm (OpenNeuro)'
             },
             'visual': {
-                'source': 'HuggingFace/OpenNeuro',
+                'source': 'OpenNeuro',
                 'dataset_id': 'ds000117',
-                'description': 'Visual oddball paradigm (OpenNeuro mirror)'
+                'description': 'Visual oddball paradigm (OpenNeuro)'
             }
         },
         'policies': {
             'real_data_only': True,
             'synthetic_data_permitted': False,
             'fail_on_fetch_error': True,
-            'description': 'All data must originate from OpenNeuro. Synthetic data is strictly prohibited.'
+            'description': 'All data must originate from OpenNeuro. Synthetic data is strictly prohibited.',
+            'policy_statement': (
+                "CONSTITUTIONAL CONSTRAINT: REAL DATA ONLY. "
+                "This pipeline is designed to execute exclusively on real neurophysiological data "
+                "downloaded from the OpenNeuro repository (specifically ds000246 for auditory and "
+                "ds000117 for visual oddball paradigms). "
+                "The generation, loading, or substitution of synthetic, mock, or simulated data is "
+                "strictly prohibited at all stages of the pipeline. "
+                "Any failure to fetch or validate real data must result in an immediate pipeline halt "
+                "with a clear error message, rather than a fallback to synthetic alternatives. "
+                "This constraint ensures the scientific validity and reproducibility of the research outputs."
+            )
+        },
+        'ica_rejection_criteria': {
+            'method': 'correlation',
+            'eog_ch_name': 'EOG',
+            'correlation_threshold': 0.8,
+            'description': 'Reject ICA components with correlation > 0.8 with EOG channel',
+            'additional_criteria': {
+                'eog_channels': ['EOG 001', 'EOG 002'],
+                'min_correlation_for_rejection': 0.8,
+                'reject_by_correlation': True,
+                'reject_by_eog': True
+            }
         }
     }

@@ -95,7 +95,7 @@ code/
 
 ### Phase 3: Source Localization (FR-005, FR-014)
 - **Action**: Apply MNE with ICBM152 head model, **Depth Weighting**, and **Orientation Normalization** to correct for cortical depth bias (Heschl's vs Calcarine).
-- **Sensitivity**: Sweep spatial smoothing (σ ∈ {,, 15} mm).
+- **Sensitivity**: Sweep spatial smoothing (σ ∈ {small, medium, large} mm).
 - **FR Mapping**: FR-005 (MNE/Source), FR-014 (Sensitivity analysis).
 - **Output**: Source strength maps and `localization_uncertainty_cv` (Coefficient of Variation across the sweep).
 - **SC Mapping**: SC-002 (Source overlap).

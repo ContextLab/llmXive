@@ -1,3 +1,6 @@
+"""
+llmXive Automated Science Pipeline - Project Core
+"""
 from .config import get_config, ensure_directories
 from .utils.logger import get_logger, configure_logging
 

@@ -1,0 +1,19 @@
+status: none
+intent: OpenNeuro auditory oddball dataset and visual oddball dataset download python
+  package dataset
+required_fields:
+- subject_id
+- session_id
+- run_id
+- modality
+- sampling_rate_hz
+- channel_names
+- raw_signal_array
+- event_onsets
+- event_types
+- oddball_trial_count
+- standard_trial_count
+- bad_trial_log
+cache_key: 1f2282b408b958b7cf5e65e128d02bee23721bae9a72ed37cec825cf9ed39736
+searched_at: '2026-08-17T09:40:52.156796+00:00'
+retry_count: 1
