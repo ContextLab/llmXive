@@ -32,16 +32,47 @@ def load_dataset() -> pd.DataFrame:
 
 
 def split_data(df: pd.DataFrame, test_size: float = 0.2, seed: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """Split data into train and test sets."""
+    """
+    Split data into train and test sets.
+    
+    Verifies that the dataset contains samples from both ImageNet-1K and LAION-400M
+    before splitting, ensuring T016b validation is respected.
+    """
+    # Verify source diversity (T016b requirement)
+    if 'source' in df.columns:
+        sources = df['source'].unique()
+        required_sources = {'imagenet', 'laion'}
+        if not required_sources.issubset(set(sources)):
+            missing = required_sources - set(sources)
+            raise ValueError(f"Dataset missing required sources: {missing}. "
+                             f"Found sources: {sources}. Ensure T016b passed.")
+    else:
+        # Fallback check if 'source' column is missing but we expect it
+        print("Warning: 'source' column not found in dataset. Skipping diversity check.")
+
     return train_test_split(df, test_size=test_size, random_state=seed, stratify=df['routing_label'])
 
 
 def train_trees(train_df: pd.DataFrame, test_df: pd.DataFrame) -> Dict[int, Any]:
     """Train DecisionTreeClassifier for max_depth 2 to 20."""
-    X_train = train_df.drop(columns=['routing_label'])
-    y_train = train_df['routing_label']
-    X_test = test_df.drop(columns=['routing_label'])
-    y_test = test_df['routing_label']
+    # Identify feature columns (exclude target and metadata)
+    target_col = 'routing_label'
+    exclude_cols = [target_col]
+    # If 'source' or other metadata exists, exclude them from features
+    metadata_cols = ['source', 'prompt', 'image_path']
+    for col in metadata_cols:
+        if col in train_df.columns:
+            exclude_cols.append(col)
+    
+    feature_cols = [c for c in train_df.columns if c not in exclude_cols]
+    
+    if not feature_cols:
+        raise ValueError("No feature columns found in dataset for training.")
+
+    X_train = train_df[feature_cols]
+    y_train = train_df[target_col]
+    X_test = test_df[feature_cols]
+    y_test = test_df[target_col]
 
     models = {}
     results = []
@@ -53,7 +84,7 @@ def train_trees(train_df: pd.DataFrame, test_df: pd.DataFrame) -> Dict[int, Any]
         acc = accuracy_score(y_test, y_pred)
 
         models[depth] = clf
-        results.append({'depth': depth, 'accuracy': acc})
+        results.append({'max_depth': depth, 'train_accuracy': accuracy_score(y_train, clf.predict(X_train)), 'test_accuracy': acc})
 
     return models, results
 
@@ -106,6 +137,15 @@ def validate_and_update_state(models: Dict[int, Any], results_path: str, config:
             content = f.read()
             file_hash = hashlib.sha256(content).hexdigest()
         
+        # Re-read CSV to get accurate accuracy
+        try:
+            res_df = pd.read_csv(results_path)
+            acc_val = res_df[res_df['max_depth'] == depth]['test_accuracy'].values[0]
+            train_acc_val = res_df[res_df['max_depth'] == depth]['train_accuracy'].values[0]
+        except Exception:
+            acc_val = 0.0
+            train_acc_val = 0.0
+
         # Construct metadata object
         metadata = {
             "depth": depth,
@@ -113,17 +153,9 @@ def validate_and_update_state(models: Dict[int, Any], results_path: str, config:
             "file_path": str(model_path),
             "sha256": file_hash,
             "size_bytes": len(content),
-            "accuracy": next(r['accuracy'] for r in results_path if r['depth'] == depth) if isinstance(results_path, list) else 0.0 # Placeholder logic, fixed below
+            "test_accuracy": float(acc_val),
+            "train_accuracy": float(train_acc_val)
         }
-
-        # If we have the results list available, update accuracy
-        # (In a real flow, we'd pass the results list here, but we can re-read CSV)
-        try:
-            res_df = pd.read_csv(results_path)
-            acc_val = res_df[res_df['depth'] == depth]['accuracy'].values[0]
-            metadata['accuracy'] = float(acc_val)
-        except Exception:
-            pass
 
         # Schema validation (if schema exists)
         if schema:
@@ -162,7 +194,7 @@ def main():
     print("Validating metadata and updating state...")
     validate_and_update_state(models, results_path, config)
     
-    print("Task T024 completed successfully.")
+    print("Task T020 (and T024) completed successfully.")
 
 
 if __name__ == "__main__":

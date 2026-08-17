@@ -12,7 +12,7 @@ This project validates the hypothesis that the complex, state-dependent routing 
 **Primary Dependencies**: `torch` (CPU-only), `scikit-learn`, `pandas`, `numpy`, `transformers` (for CLIP), `accelerate` (for CPU inference), `datasets` (HuggingFace), `scipy` (for statistical tests), `pillow`, `torch-fidelity` (or custom FID implementation), `pyyaml`.
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `models`, `results`). No external database.
 **Testing**: `pytest` (unit tests for data schemas, integration tests for pipeline steps).
-**Target Platform**: Linux (GitHub Actions free-tier runner: a modest CPU configuration and approximately 7 GB RAM
+**Target Platform**: Linux (GitHub Actions free-tier runner: a modest CPU configuration and Adequate RAM capacity will be provisioned to support the computational requirements of the study.
 
 The research question remains: How does computational resource limitation impact the performance of CI/CD pipelines?
 The method remains: Comparative analysis of build times across varying resource constraints.

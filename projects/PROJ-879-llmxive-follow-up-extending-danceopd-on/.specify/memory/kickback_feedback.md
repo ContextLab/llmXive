@@ -4,11 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T013b` (rejected 1x): No code, logs, or dataset modifications were presented that demonstrate detection of undefined routing paths, counting/logging of such occurrences, and exclusion of those samples from the final output. The required artifact (implementation and evidence of the exclusion behavior) is missing.
-- `T014` (rejected 1x): The `data/processed/teacher_routing_dataset.parquet` file does not exist, so the required output artifact is missing. Additionally, the provided `code/00_data_extraction.py` is truncated and does not show the final logic that writes the extracted columns to the parquet file. The task therefore remains unfinished.
-- `T018` (rejected 1x): declared artifact(s) missing/empty/invalid: tests/unit/test_tree_training.py
-- `T030` (rejected 1x): No artifact containing computed FID or CLIP scores for the full dataset is provided, nor any script, log, or report showing the comparison between tree‑generated images and teacher‑baseline images. Consequently the requirement to compute and present these metrics on the entire dataset is not satisfied.
-- `T016b` (rejected 1x): No `teacher_routing_dataset.parquet` file or any inspection results are provided, and there is no evidence (e.g., a script output, summary table, or data snippet) showing that the dataset contains samples from both ImageNet‑1K and LAION‑400M sources. The required artifact and its validation are missing.
+- `T035b` (rejected 1x): No coverage run output, pytest results, or code diff is provided to demonstrate that dead code and unused imports have been removed from the `code/` modules. Without such artifacts, we cannot verify that the requirement has been satisfied.
+- `T035c` (rejected 1x): The claim provides no actual artifact (e.g., updated `code/` files, a log showing `python -m code.import` executing without ImportError, or a test script). Without concrete code changes or execution evidence, we cannot confirm that circular dependencies were removed or that the verification command runs successfully. The required artifact is missing.
+- `T036a` (rejected 1x): The submission contains no code, script, or documentation showing a chunked‑loading implementation, nor any memory‑profiling data demonstrating a peak below 6 GB. Consequently the required performance‑optimization artifact and verification evidence are missing.
 
 ## Required change
 

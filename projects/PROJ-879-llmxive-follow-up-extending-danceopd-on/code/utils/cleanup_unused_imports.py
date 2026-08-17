@@ -1,257 +1,275 @@
 """
-Script to detect and remove unused imports from all Python modules in the code/ directory.
-This implements T035b: Remove dead code and unused imports.
-
-Usage:
-    python code/utils/cleanup_unused_imports.py --dry-run
-    python code/utils/cleanup_unused_imports.py --fix
+Utility module to scan Python files and remove unused imports.
+Implements a simple AST-based visitor to detect unused imports.
 """
+
 import ast
 import os
 import sys
 import argparse
 from pathlib import Path
 from typing import Set, Dict, List, Tuple, Optional
-import re
 
 
 class ImportUsageVisitor(ast.NodeVisitor):
-    """AST visitor that tracks used names in a module."""
+    """AST visitor to track imported names and their usage."""
 
     def __init__(self):
+        self.imports: Dict[str, str] = {}  # alias -> original_name
+        self.names: Dict[str, str] = {}    # name -> source (import or assign)
         self.used_names: Set[str] = set()
-        self.imported_names: Dict[str, Tuple[str, str]] = {}  # name -> (import_type, original_name)
+        self.import_nodes: List[ast.Import | ast.ImportFrom] = []
 
-    def visit_Name(self, node: ast.Name) -> None:
+    def visit_Import(self, node: ast.Import):
+        for alias in node.names:
+            name = alias.asname if alias.asname else alias.name
+            self.imports[name] = alias.name
+            self.names[name] = f"import {alias.name}"
+            self.import_nodes.append(node)
+        self.generic_visit(node)
+
+    def visit_ImportFrom(self, node: ast.ImportFrom):
+        module = node.module or ""
+        for alias in node.names:
+            name = alias.asname if alias.asname else alias.name
+            self.imports[name] = f"{module}.{alias.name}"
+            self.names[name] = f"import {module}.{alias.name}"
+            self.import_nodes.append(node)
+        self.generic_visit(node)
+
+    def visit_Name(self, node: ast.Name):
         if isinstance(node.ctx, ast.Load):
             self.used_names.add(node.id)
         self.generic_visit(node)
 
-    def visit_Attribute(self, node: ast.Attribute) -> None:
-        # Track attribute access like `module.submodule.func`
-        parts = []
-        current = node
-        while isinstance(current, ast.Attribute):
-            parts.append(current.attr)
-            current = current.value
-        if isinstance(current, ast.Name):
-            parts.append(current.id)
-            parts.reverse()
-            # The base name is the first part
-            self.used_names.add(parts[0])
+    def visit_FunctionDef(self, node: ast.FunctionDef):
+        # Record function definitions as used names
+        self.used_names.add(node.name)
         self.generic_visit(node)
 
-    def visit_Import(self, node: ast.Import) -> None:
-        for alias in node.names:
-            name = alias.asname if alias.asname else alias.name
-            # For `import a.b.c`, we track 'a' as the used name
-            base_name = name.split('.')[0]
-            self.imported_names[base_name] = ('import', alias.name)
-            # Also track the full name if it's used with aliases
-            if alias.asname:
-                self.imported_names[alias.asname] = ('import', alias.name)
+    def visit_ClassDef(self, node: ast.ClassDef):
+        # Record class definitions as used names
+        self.used_names.add(node.name)
         self.generic_visit(node)
 
-    def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
-        module = node.module or ''
-        for alias in node.names:
-            name = alias.asname if alias.asname else alias.name
-            self.imported_names[name] = ('from', module)
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+        self.used_names.add(node.name)
+        self.generic_visit(node)
+
+    def visit_Assign(self, node: ast.Assign):
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                self.names[target.id] = f"assign {target.id}"
+        self.generic_visit(node)
+
+    def visit_AnnAssign(self, node: ast.AnnAssign):
+        if isinstance(node.target, ast.Name):
+            self.names[node.target.id] = f"assign {node.target.id}"
+        self.generic_visit(node)
+
+    def visit_For(self, node: ast.For):
+        if isinstance(node.target, ast.Name):
+            self.names[node.target.id] = f"loop {node.target.id}"
+        self.generic_visit(node)
+
+    def visit_With(self, node: ast.With):
+        for item in node.items:
+            if item.optional_vars and isinstance(item.optional_vars, ast.Name):
+                self.names[item.optional_vars.id] = f"with {item.optional_vars.id}"
+        self.generic_visit(node)
+
+    def visit_ExceptHandler(self, node: ast.ExceptHandler):
+        if node.name:
+            self.names[node.name] = f"except {node.name}"
+        self.generic_visit(node)
+
+    def visit_comprehension(self, node: ast.comprehension):
+        if isinstance(node.target, ast.Name):
+            self.names[node.target.id] = f"comprehension {node.target.id}"
         self.generic_visit(node)
 
 
-def get_imports_and_usage(file_path: Path) -> Tuple[Dict[str, Tuple[str, str]], Set[str]]:
-    """Parse a Python file and return imports and used names."""
+def get_imports_and_usage(file_path: Path) -> Tuple[List[str], Set[str], Dict[str, str]]:
+    """
+    Parse a Python file and return:
+    - List of import lines (for removal)
+    - Set of used names
+    - Dict mapping alias to full import path
+    """
+    with open(file_path, "r", encoding="utf-8") as f:
+        source = f.read()
+
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            source = f.read()
         tree = ast.parse(source, filename=str(file_path))
     except SyntaxError as e:
         print(f"Syntax error in {file_path}: {e}")
-        return {}, set()
-    except Exception as e:
-        print(f"Error parsing {file_path}: {e}")
-        return {}, set()
+        return [], set(), {}
 
     visitor = ImportUsageVisitor()
     visitor.visit(tree)
-    return visitor.imported_names, visitor.used_names
 
+    # Get all top-level names defined in the file (functions, classes, variables)
+    # These are implicitly "used" by the file itself
+    defined_names = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
+            defined_names.add(node.name)
+        elif isinstance(node, ast.ClassDef):
+            defined_names.add(node.name)
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    defined_names.add(target.id)
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            defined_names.add(node.target.id)
 
-def remove_unused_imports(file_path: Path, dry_run: bool = False) -> Tuple[int, List[str]]:
-    """
-    Remove unused imports from a Python file.
-    Returns (number_of_removed_imports, list_of_removed_import_names).
-    """
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        source = ''.join(lines)
-        tree = ast.parse(source, filename=str(file_path))
-    except Exception as e:
-        print(f"Error processing {file_path}: {e}")
-        return 0, []
-
-    imports, used_names = get_imports_and_usage(file_path)
-    
-    if not imports:
-        return 0, []
+    # Merge defined names into used names (they are valid in the file context)
+    used_names = visitor.used_names | defined_names
 
     # Identify unused imports
     unused_imports = []
-    for name, (import_type, original) in imports.items():
-        if name not in used_names:
-            unused_imports.append((name, import_type, original))
+    for alias, full_import in visitor.imports.items():
+        if alias not in used_names:
+            unused_imports.append(alias)
 
-    if not unused_imports:
-        return 0, []
-
-    # Build regex patterns to remove unused import lines
-    removed_count = 0
-    removed_names = []
-    new_lines = []
-    
-    for line in lines:
-        line_stripped = line.strip()
-        is_import_line = (
-            line_stripped.startswith('import ') or 
-            line_stripped.startswith('from ') or
-            line_stripped.startswith('#') and ('import' in line_stripped.lower())
-        )
-        
-        if not is_import_line:
-            new_lines.append(line)
-            continue
-
-        # Check if this line contains any unused imports
-        should_remove_line = False
-        line_imports = []
-        
-        if line_stripped.startswith('import '):
-            # Handle: import a, b, c
-            imports_part = line_stripped[7:].split('#')[0].strip()
-            if imports_part:
-                for item in imports_part.split(','):
-                    item = item.strip()
-                    base = item.split('.')[0].split(' as ')[0].strip()
-                    line_imports.append(base)
-                    
-        elif line_stripped.startswith('from '):
-            # Handle: from module import a, b, c
-            match = re.match(r'from\s+(\S+)\s+import\s+(.+)', line_stripped)
-            if match:
-                module = match.group(1)
-                imports_part = match.group(2).split('#')[0].strip()
-                for item in imports_part.split(','):
-                    item = item.strip()
-                    name = item.split(' as ')[0].strip()
-                    line_imports.append(name)
-
-        # Check if any import in this line is unused
-        imports_to_keep = []
-        for imp in line_imports:
-            if imp in [u[0] for u in unused_imports]:
-                removed_names.append(imp)
-                removed_count += 1
-            else:
-                imports_to_keep.append(imp)
-
-        if len(imports_to_keep) == 0 and len(line_imports) > 0:
-            # Remove the entire line
-            should_remove_line = True
-        elif len(imports_to_keep) < len(line_imports):
-            # Modify the line to keep only used imports
-            if line_stripped.startswith('import '):
-                new_imports = ', '.join(imports_to_keep)
-                # Preserve comments and indentation
-                indent = line[:len(line) - len(line.lstrip())]
-                comment = ''
-                if '#' in line:
-                    comment = line.split('#', 1)[1]
-                new_line = f"{indent}import {new_imports}{comment}\n"
-                new_lines.append(new_line)
-                should_remove_line = False
-            elif line_stripped.startswith('from '):
-                match = re.match(r'(from\s+\S+\s+import\s+)(.+)', line_stripped)
-                if match:
-                    prefix = match.group(1)
-                    comment = ''
-                    if '#' in line:
-                        comment = line.split('#', 1)[1]
-                    indent = line[:len(line) - len(line.lstrip())]
-                    new_imports = ', '.join(imports_to_keep)
-                    new_line = f"{indent}{prefix}{new_imports}{comment}\n"
-                    new_lines.append(new_line)
-                    should_remove_line = False
-
-        if not should_remove_line:
-            new_lines.append(line)
-
-    if not dry_run and removed_count > 0:
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.writelines(new_lines)
-
-    return removed_count, removed_names
+    return unused_imports, visitor.used_names, visitor.imports
 
 
-def scan_code_directory(code_dir: Path, dry_run: bool = False) -> Dict[str, Tuple[int, List[str]]]:
-    """Scan all Python files in the code directory and remove unused imports."""
-    results = {}
-    
-    for py_file in code_dir.rglob('*.py'):
-        if py_file.name.startswith('_') and 'test' not in str(py_file):
-            # Skip private modules and test files
-            continue
-        
-        removed_count, removed_names = remove_unused_imports(py_file, dry_run)
-        if removed_count > 0:
-            results[str(py_file.relative_to(code_dir))] = (removed_count, removed_names)
-    
-    return results
+def remove_unused_imports(file_path: Path) -> bool:
+    """
+    Remove unused imports from a Python file.
+    Returns True if changes were made, False otherwise.
+    """
+    with open(file_path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    try:
+        tree = ast.parse("".join(lines), filename=str(file_path))
+    except SyntaxError:
+        return False
+
+    visitor = ImportUsageVisitor()
+    visitor.visit(tree)
+
+    # Collect all names that are used or defined
+    defined_names = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
+            defined_names.add(node.name)
+        elif isinstance(node, ast.ClassDef):
+            defined_names.add(node.name)
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    defined_names.add(target.id)
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            defined_names.add(node.target.id)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                name = alias.asname if alias.asname else alias.name
+                visitor.imports[name] = alias.name
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            for alias in node.names:
+                name = alias.asname if alias.asname else alias.name
+                visitor.imports[name] = f"{module}.{alias.name}"
+
+    used_names = visitor.used_names | defined_names
+
+    # Identify lines to remove
+    lines_to_remove = set()
+    for node in visitor.import_nodes:
+        start_line = node.lineno - 1  # 0-indexed
+        end_line = node.end_lineno  # exclusive, 1-indexed in AST, so 0-indexed is end_lineno
+        if end_line is None:
+            end_line = start_line + 1
+
+        # Check if any import in this node is unused
+        imports_in_node = []
+        if isinstance(node, ast.Import):
+            imports_in_node = [alias.asname if alias.asname else alias.name for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            imports_in_node = [
+                alias.asname if alias.asname else f"{module}.{alias.name}"
+                for alias in node.names
+            ]
+
+        has_unused = False
+        for imp in imports_in_node:
+            # For ImportFrom, the alias is the name used, but the full path is in visitor.imports
+            # We check if the alias (or the full path key) is unused
+            key = imp.split(".")[-1] if "." in imp else imp
+            if key not in used_names:
+                has_unused = True
+                break
+
+        if has_unused:
+            for i in range(start_line, end_line):
+                lines_to_remove.add(i)
+
+    if not lines_to_remove:
+        return False
+
+    # Remove lines in reverse order to preserve indices
+    new_lines = [line for i, line in enumerate(lines) if i not in lines_to_remove]
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.writelines(new_lines)
+
+    return True
+
+
+def scan_code_directory(directory: Path) -> List[Path]:
+    """Scan a directory for Python files."""
+    py_files = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".py"):
+                py_files.append(Path(root) / file)
+    return py_files
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Remove unused imports from Python files')
-    parser.add_argument('--dry-run', action='store_true', help='Show what would be removed without making changes')
-    parser.add_argument('--fix', action='store_true', help='Actually remove unused imports')
-    parser.add_argument('--code-dir', type=str, default='code', help='Path to the code directory')
-    
+    parser = argparse.ArgumentParser(
+        description="Remove unused imports from Python files in a directory."
+    )
+    parser.add_argument(
+        "directory",
+        type=Path,
+        help="Directory containing Python files to clean.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be removed without making changes.",
+    )
     args = parser.parse_args()
-    
-    code_dir = Path(args.code_dir)
-    if not code_dir.exists():
-        print(f"Error: Code directory '{code_dir}' does not exist")
+
+    if not args.directory.is_dir():
+        print(f"Error: {args.directory} is not a directory.")
         sys.exit(1)
 
-    if not args.fix and not args.dry_run:
-        print("Please specify --dry-run or --fix")
-        sys.exit(1)
+    py_files = scan_code_directory(args.directory)
+    print(f"Found {len(py_files)} Python files.")
 
-    mode = "DRY RUN" if args.dry_run else "FIX"
-    print(f"Starting {mode} for unused imports in {code_dir}/")
-    print("-" * 50)
+    cleaned_count = 0
+    for file_path in py_files:
+        if args.dry_run:
+            unused, _, _ = get_imports_and_usage(file_path)
+            if unused:
+                print(f"[DRY RUN] Would clean unused imports in {file_path}: {unused}")
+                cleaned_count += 1
+        else:
+            if remove_unused_imports(file_path):
+                print(f"Cleaned unused imports in {file_path}")
+                cleaned_count += 1
 
-    results = scan_code_directory(code_dir, dry_run=args.dry_run)
-
-    if not results:
-        print("No unused imports found.")
-        return
-
-    total_removed = 0
-    for file_path, (count, names) in results.items():
-        total_removed += count
-        action = "Would remove" if args.dry_run else "Removed"
-        print(f"{action} {count} unused import(s) from {file_path}:")
-        for name in names:
-            print(f"  - {name}")
-        print()
-
-    print("-" * 50)
-    print(f"Total unused imports {action.lower()}: {total_removed}")
-    
     if args.dry_run:
-        print("\nRun with --fix to actually remove these imports.")
+        print(f"Would clean {cleaned_count} files.")
+    else:
+        print(f"Cleaned {cleaned_count} files.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
