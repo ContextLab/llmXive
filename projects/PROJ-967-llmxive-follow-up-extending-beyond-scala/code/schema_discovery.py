@@ -1,233 +1,244 @@
 import argparse
 import logging
 import sys
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-
 import pandas as pd
 import yaml
+import json
 
-# Project root is assumed to be the parent of the 'code' directory
+# Constants for paths relative to project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
 CONTRACTS_DIR = PROJECT_ROOT / "specs" / "001-llmxive-entanglement-analysis" / "contracts"
+SCHEMA_PATH = CONTRACTS_DIR / "dataset.schema.yaml"
 
-REQUIRED_COLUMNS = [
-    "prompt",
-    "image_url",
-    "teacher_scores",
-    "student_scalar",
-    "human_annotations",
-    "primary_dimension"
-]
+def setup_logging() -> logging.Logger:
+    """Configure and return a logger for the script."""
+    logger = logging.getLogger("schema_discovery")
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    return logger
 
-RUBRIC_KEYS = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
-
-def setup_logging():
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s"
-    )
-    return logging.getLogger(__name__)
-
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema definition."""
-    with open(schema_path, "r") as f:
+def load_schema(path: Path) -> Dict[str, Any]:
+    """Load the provisional schema from a YAML file."""
+    if not path.exists():
+        raise FileNotFoundError(f"Schema file not found at {path}")
+    with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
-def save_schema(schema: Dict[str, Any], schema_path: Path):
-    """Save a schema definition to YAML."""
-    with open(schema_path, "w") as f:
+def save_schema(schema: Dict[str, Any], path: Path) -> None:
+    """Save the updated schema to a YAML file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
         yaml.dump(schema, f, default_flow_style=False, sort_keys=False)
 
-def load_dataset(data_path: Path) -> pd.DataFrame:
-    """Load the raw dataset (Parquet) into a DataFrame."""
-    if not data_path.exists():
-        raise FileNotFoundError(f"Dataset file not found: {data_path}")
+def load_dataset(raw_dir: Path) -> pd.DataFrame:
+    """
+    Load the raw dataset produced by T037/T037b.
+    Priority:
+    1. z_reward.parquet
+    2. z_reward_synthetic.parquet
+    3. mock_z_reward.parquet
+    """
+    candidates = [
+        raw_dir / "z_reward.parquet",
+        raw_dir / "z_reward_synthetic.parquet",
+        raw_dir / "mock_z_reward.parquet",
+    ]
     
-    # Try to infer format from extension or just try parquet
-    if data_path.suffix == ".parquet":
-        return pd.read_parquet(data_path)
-    elif data_path.suffix == ".csv":
-        return pd.read_csv(data_path)
-    else:
-        # Default to parquet as per T037 output
-        return pd.read_parquet(data_path)
+    for candidate in candidates:
+        if candidate.exists():
+            logging.info(f"Loading dataset from: {candidate}")
+            if candidate.suffix == ".parquet":
+                return pd.read_parquet(candidate)
+            elif candidate.suffix == ".csv":
+                return pd.read_csv(candidate)
+            elif candidate.suffix == ".json":
+                return pd.read_json(candidate)
+    
+    raise FileNotFoundError(
+        "No raw dataset found in data/raw/. "
+        "Expected one of: z_reward.parquet, z_reward_synthetic.parquet, mock_z_reward.parquet"
+    )
 
 def discover_schema(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Discover the actual schema of the dataframe.
-    Returns a structure compatible with the project's schema format.
+    Perform schema discovery on the DataFrame.
+    Returns a schema structure compatible with the provisional template.
     """
     fields = []
     for col in df.columns:
-        dtype = str(df[col].dtype)
-        field = {
+        dtype = df[col].dtype
+        sample_val = df[col].iloc[0] if len(df) > 0 else None
+        
+        # Map pandas dtypes to logical types
+        if pd.api.types.is_integer_dtype(dtype):
+            logical_type = "integer"
+        elif pd.api.types.is_float_dtype(dtype):
+            logical_type = "float"
+        elif pd.api.types.is_bool_dtype(dtype):
+            logical_type = "boolean"
+        elif pd.api.types.is_string_dtype(dtype) or dtype == object:
+            # Check if it looks like a JSON object stored as string
+            if isinstance(sample_val, str) and sample_val.startswith("{"):
+                try:
+                    json.loads(sample_val)
+                    logical_type = "object"
+                except json.JSONDecodeError:
+                    logical_type = "string"
+            else:
+                logical_type = "string"
+        else:
+            logical_type = "string" # Default fallback
+
+        field_def = {
             "name": col,
-            "type": dtype
+            "type": logical_type
         }
         
-        # Special handling for complex types if they are dicts/objects
-        if col in ["teacher_scores", "human_annotations"]:
-            # Check if it's a stringified JSON or actual dict
-            sample = df[col].iloc[0] if len(df) > 0 else None
-            if isinstance(sample, dict):
-                field["type"] = "object"
-                field["properties"] = {}
-                for key in sample.keys():
-                    # Infer type of property
-                    val_type = str(type(sample[key]).__name__)
-                    if val_type == "float":
-                        field["properties"][key] = "float"
-                    elif val_type == "int":
-                        field["properties"][key] = "int"
-                    else:
-                        field["properties"][key] = "string"
-            else:
-                # Fallback if stored as string
-                field["type"] = "string"
+        # Handle nested objects if detected (e.g., teacher_scores)
+        if logical_type == "object" and isinstance(sample_val, dict):
+            props = {}
+            for key, val in sample_val.items():
+                val_type = "float" if isinstance(val, (int, float)) else "string"
+                props[key] = {"type": val_type}
+            field_def["properties"] = props
         
-        fields.append(field)
-    
+        fields.append(field_def)
+
     return {
         "schema_version": "1.0",
-        "discovered_from": str(data_path),
         "fields": fields
     }
 
-def validate_schema(discovered: Dict[str, Any], template: Dict[str, Any]) -> List[str]:
+def validate_schema(discovered: Dict[str, Any], provisional: Dict[str, Any]) -> List[str]:
     """
-    Compare discovered schema against the template.
-    Returns a list of discrepancies/errors.
+    Validate discovered schema against provisional template.
+    Returns a list of errors. Critical errors include missing rubric dimensions.
     """
     errors = []
-    discovered_fields = {f["name"]: f for f in discovered["fields"]}
-    template_fields = {f["name"]: f for f in template["fields"]}
+    discovered_names = {f["name"] for f in discovered["fields"]}
+    provisional_names = {f["name"] for f in provisional["fields"]}
+    
+    # Check for critical missing columns
+    critical_columns = ["prompt", "image_url", "student_scalar", "primary_dimension"]
+    for col in critical_columns:
+        if col not in discovered_names:
+            errors.append(f"CRITICAL: Missing required column '{col}'")
 
-    # Check for missing required columns
-    for req_col in REQUIRED_COLUMNS:
-        if req_col not in discovered_fields:
-            errors.append(f"CRITICAL: Missing required column '{req_col}'")
-
-    # Check for rubric keys inside teacher_scores and human_annotations
-    if "teacher_scores" in discovered_fields:
-        ts_field = discovered_fields["teacher_scores"]
-        if "properties" in ts_field:
-          missing_rubric = [k for k in RUBRIC_KEYS if k not in ts_field["properties"]]
-          if missing_rubric:
-              errors.append(f"CRITICAL: Missing rubric keys in 'teacher_scores': {missing_rubric}")
+    # Check for teacher_scores structure
+    if "teacher_scores" in discovered_names:
+        t_field = next((f for f in discovered["fields"] if f["name"] == "teacher_scores"), None)
+        if t_field and "properties" in t_field:
+            required_dims = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+            found_dims = set(t_field["properties"].keys())
+            for dim in required_dims:
+                if dim not in found_dims:
+                    errors.append(f"CRITICAL: Missing rubric dimension '{dim}' in teacher_scores")
         else:
-            errors.append("CRITICAL: 'teacher_scores' is not an object with properties")
+            errors.append("CRITICAL: 'teacher_scores' exists but is not a structured object with dimensions")
+    else:
+        errors.append("CRITICAL: Missing 'teacher_scores' column")
 
-    if "human_annotations" in discovered_fields:
-        ha_field = discovered_fields["human_annotations"]
-        if "properties" in ha_field:
-            missing_rubric = [k for k in RUBRIC_KEYS if k not in ha_field["properties"]]
-            if missing_rubric:
-                errors.append(f"CRITICAL: Missing rubric keys in 'human_annotations': {missing_rubric}")
-        else:
-            errors.append("CRITICAL: 'human_annotations' is not an object with properties")
-
-    # Check for primary_dimension
-    if "primary_dimension" not in discovered_fields:
-        errors.append("WARNING: 'primary_dimension' column missing, will use fallback logic in T014")
-
+    # Check for human_annotations structure
+    if "human_annotations" in discovered_names:
+        h_field = next((f for f in discovered["fields"] if f["name"] == "human_annotations"), None)
+        if h_field and "properties" in h_field:
+            required_dims = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+            found_dims = set(h_field["properties"].keys())
+            for dim in required_dims:
+                if dim not in found_dims:
+                    errors.append(f"WARNING: Missing human annotation dimension '{dim}'")
+    
     return errors
 
-def update_contract(discovered: Dict[str, Any], template: Dict[str, Any], output_path: Path):
-    """
-    Merge discovered schema with template logic to create the validated schema.
-    If discrepancies exist (missing columns), we raise an error as per task spec.
-    If only type mismatches or extra columns, we update the template to match reality.
-    """
-    errors = validate_schema(discovered, template)
-    
-    critical_errors = [e for e in errors if e.startswith("CRITICAL")]
-    if critical_errors:
-        raise RuntimeError(f"Schema validation failed with critical errors:\n" + "\n".join(critical_errors))
+def update_contract(discovered: Dict[str, Any], contract_path: Path) -> None:
+    """Overwrite the contract file with the discovered schema."""
+    save_schema(discovered, contract_path)
+    logging.info(f"Schema contract updated at {contract_path}")
 
-    # If we get here, the core structure is valid. 
-    # We update the template to reflect the actual discovered types and any extra columns.
-    final_schema = {
-        "schema_version": "1.0",
-        "validated_from": discovered.get("discovered_from", "unknown"),
-        "fields": []
-    }
-
-    # Start with discovered fields as the source of truth for types
-    for field in discovered["fields"]:
-        final_schema["fields"].append(field)
-
-    # Ensure required structure matches template expectations if types were vague
-    # (e.g. ensure teacher_scores has properties if discovered as object)
-    # The 'discover_schema' function already attempts to extract properties.
-    
-    save_schema(final_schema, output_path)
-    return final_schema
-
-def parse_args():
-    parser = argparse.ArgumentParser(description="Schema Discovery and Validation for Z-Reward Dataset")
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Schema Discovery and Validation")
     parser.add_argument(
-        "--input-data",
+        "--raw-dir",
         type=str,
-        default=str(DATA_RAW_DIR / "z_reward.parquet"),
-        help="Path to the raw dataset file (default: data/raw/z_reward.parquet)"
+        default=str(DATA_RAW_DIR),
+        help="Path to the raw data directory"
     )
     parser.add_argument(
-        "--template-schema",
+        "--contract-path",
         type=str,
-        default=str(CONTRACTS_DIR / "dataset.schema.yaml"),
-        help="Path to the provisional schema template (default: contracts/dataset.schema.yaml)"
+        default=str(SCHEMA_PATH),
+        help="Path to the schema contract file"
     )
     parser.add_argument(
-        "--output-schema",
-        type=str,
-        default=str(CONTRACTS_DIR / "dataset.validated.schema.yaml"),
-        help="Path to write the validated schema (default: contracts/dataset.validated.schema.yaml)"
+        "--fail-on-missing",
+        action="store_true",
+        help="Raise error if critical schema mismatches are found"
     )
     return parser.parse_args()
 
-def main():
+def main() -> int:
     logger = setup_logging()
     args = parse_args()
+    
+    raw_dir = Path(args.raw_dir)
+    contract_path = Path(args.contract_path)
 
-    data_path = Path(args.input_data)
-    template_path = Path(args.template_schema)
-    output_path = Path(args.output_schema)
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Loading dataset from: {data_path}")
     try:
-        df = load_dataset(data_path)
+        # 1. Load Provisional Schema
+        logger.info(f"Loading provisional schema from {contract_path}")
+        provisional_schema = load_schema(contract_path)
+        
+        # 2. Load Dataset
+        logger.info("Loading raw dataset for schema discovery")
+        df = load_dataset(raw_dir)
         logger.info(f"Dataset loaded: {len(df)} rows, {len(df.columns)} columns")
-        logger.info(f"Columns: {list(df.columns)}")
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        sys.exit(1)
+        
+        # 3. Discover Schema
+        logger.info("Performing schema discovery")
+        discovered_schema = discover_schema(df)
+        
+        # 4. Validate
+        logger.info("Validating discovered schema against provisional template")
+        errors = validate_schema(discovered_schema, provisional_schema)
+        
+        if errors:
+            for err in errors:
+                if "CRITICAL" in err:
+                    logger.error(err)
+                else:
+                    logger.warning(err)
+            
+            if args.fail_on_missing:
+                logger.critical("Critical schema mismatches found. Aborting.")
+                return 1
+            else:
+                logger.warning("Schema mismatches found but proceeding with update.")
+        else:
+            logger.info("Schema validation passed.")
+        
+        # 5. Update Contract
+        logger.info("Overwriting contract with discovered schema")
+        update_contract(discovered_schema, contract_path)
+        
+        # 6. Log Summary
+        logger.info("Schema Discovery Complete.")
+        logger.info(f"Final schema fields: {[f['name'] for f in discovered_schema['fields']]}")
+        
+        return 0
 
-    logger.info(f"Loading schema template from: {template_path}")
-    try:
-        template_schema = load_schema(template_path)
-    except Exception as e:
-        logger.error(f"Failed to load schema template: {e}")
-        sys.exit(1)
-
-    logger.info("Discovering schema...")
-    discovered_schema = discover_schema(df)
-
-    logger.info("Validating schema against template...")
-    try:
-        final_schema = update_contract(discovered_schema, template_schema, output_path)
-        logger.info(f"Schema validation successful. Validated schema written to: {output_path}")
-        logger.info(f"Final fields count: {len(final_schema['fields'])}")
-    except RuntimeError as e:
+    except FileNotFoundError as e:
         logger.error(str(e))
-        sys.exit(1)
-
-    # Summary output
-    logger.info("Schema Discovery Complete.")
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

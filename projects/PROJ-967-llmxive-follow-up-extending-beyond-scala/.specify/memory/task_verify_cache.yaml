@@ -1,16 +1,18 @@
-T001a:
+T000a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or other evidence were provided showing that `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw`,
-    `.../data/processed`, and `.../results` actually exist; without such proof the
-    requirement is not satisfied.
-T003:
+  r: "No `research.md` file was provided at the required path, and no schema definition\
+    \ for the \u201CVerified datasets\u201D section (with fields `dataset_id`, `title_token_overlap`,\
+    \ `checksum`, `verification_date`) is present in the evidence. The implementer\
+    \ must create the file with the specified YAML/JSON schema."
+T014:
   c: false
-  h: 759528c1bea74d45c72d0a37b42f9a428908b75a5321a99d1e3bd188829cb52a
-  r: The repository lacks the required `.ruff.toml` file, and `requirements.txt` contains
-    version ranges (`>=`) instead of the exact `==` pins mandated by the task. Both
-    artifacts must be present and use exact version pinning for the task to be considered
-    complete.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, data files, or output artifacts (e.g., dataset ingestion script,\
+    \ entanglement feature\u2011engineering module, or Random Forest training/validation\
+    \ results) were provided for inspection, so the required deliverables cannot be\
+    \ confirmed as existing or correct. The implementer must supply the actual implementation\
+    \ files and evidence of their execution."
 T022a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -70,12 +72,6 @@ T032:
     \ showing the explicit Install \u2192 Download \u2192 Ingest \u2192 Train \u2192\
     \ Evaluate steps is provided. The implementer\u2019s claim lacks any artifact\
     \ to verify the documentation update."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No new files or code were found under `tests/unit/` that add edge\u2011case\
-    \ unit tests, and no test artifacts were presented. The required additional unit\
-    \ tests are missing, so the task is not satisfied."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -83,11 +79,19 @@ T036:
     quickstart.md was executed and its reproducibility checks passed was provided.
     Without such evidence, the claim that the quickstart validation was run cannot
     be verified.
-T038:
+T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ingestion script, feature\u2011engineering module, or predictive\u2011modeling\
-    \ code/data were provided; the repository contains no files that load the Z\u2011\
-    Reward dataset, compute entanglement statistics, or train a Random Forest as required\
-    \ by the three user stories. The implementer\u2019s claim lacks any concrete artifacts\
-    \ to verify the required functionality."
+  r: "No dataset files, download scripts, or ingestion code are present; the claim\
+    \ provides only a textual description without any tangible artifact confirming\
+    \ that the Z\u2011Reward evaluation dataset was actually obtained or that an adaptive\
+    \ fallback mechanism was implemented. The required concrete evidence (e.g., downloaded\
+    \ data files, a script that fetches them, logs showing successful download) is\
+    \ missing."
+T037b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No synthetic dataset files, generation scripts, or documentation were provided;\
+    \ the claim contains only a description of downstream tasks without any actual\
+    \ artifact fulfilling the \u201Cgenerate synthetic dataset for unit testing\u201D\
+    \ requirement. The required dataset (or code to create it) is missing."

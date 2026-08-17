@@ -3,107 +3,96 @@ import os
 import tempfile
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 import pytest
 
-# Import the module functions
-# Note: We assume the module is in code/ and we can import it directly or via sys.path manipulation
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 from generate_synthetic_zreward import generate_synthetic_dataset, save_config
 
+
 class TestGenerateSyntheticZReward:
-    def test_generates_correct_columns(self, tmp_path):
-        """Test that the generated dataset has all required columns."""
-        output_dir = str(tmp_path)
-        df = generate_synthetic_dataset(n_samples=100, seed=42, output_dir=output_dir)
+    def test_generate_synthetic_dataset_schema(self):
+        """Test that generated dataset matches the expected schema."""
+        n_samples = 10
+        df = generate_synthetic_dataset(n_samples=n_samples, seed=42)
 
+        # Check columns exist
         expected_columns = [
-            "prompt", "image_url", "teacher_scores",
-            "student_scalar", "human_annotations", "primary_dimension"
+            "prompt",
+            "image_url",
+            "teacher_scores",
+            "student_scalar",
+            "human_annotations",
+            "primary_dimension",
         ]
-        assert list(df.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(df.columns)}"
+        assert list(df.columns) == expected_columns
 
-    def test_teacher_scores_structure(self, tmp_path):
-        """Test that teacher_scores column contains dicts with correct keys."""
-        output_dir = str(tmp_path)
-        df = generate_synthetic_dataset(n_samples=10, seed=42, output_dir=output_dir)
+        # Check row count
+        assert len(df) == n_samples
 
-        required_keys = {"Alignment", "Realism", "Aesthetics", "Plausibility"}
-        for i, row in df.iterrows():
-            scores = row["teacher_scores"]
-            assert isinstance(scores, dict), "teacher_scores must be a dict"
-            assert set(scores.keys()) == required_keys, f"Missing keys in teacher_scores: {required_keys - set(scores.keys())}"
-            for v in scores.values():
-                assert isinstance(v, (int, float)), "Scores must be numeric"
+        # Check teacher_scores structure
+        for i in range(n_samples):
+            scores = df.loc[i, "teacher_scores"]
+            assert isinstance(scores, dict)
+            assert set(scores.keys()) == {"Alignment", "Realism", "Aesthetics", "Plausibility"}
+            for val in scores.values():
+                assert isinstance(val, float)
 
-    def test_human_annotations_structure(self, tmp_path):
-        """Test that human_annotations column contains dicts with correct keys."""
-        output_dir = str(tmp_path)
-        df = generate_synthetic_dataset(n_samples=10, seed=42, output_dir=output_dir)
+        # Check human_annotations structure
+        for i in range(n_samples):
+            annotations = df.loc[i, "human_annotations"]
+            assert isinstance(annotations, dict)
+            assert set(annotations.keys()) == {"Alignment", "Realism", "Aesthetics", "Plausibility"}
+            for val in annotations.values():
+                assert isinstance(val, float)
 
-        required_keys = {"Alignment", "Realism", "Aesthetics", "Plausibility"}
-        for i, row in df.iterrows():
-            annotations = row["human_annotations"]
-            assert isinstance(annotations, dict), "human_annotations must be a dict"
-            assert set(annotations.keys()) == required_keys, f"Missing keys in human_annotations: {required_keys - set(annotations.keys())}"
-            for v in annotations.values():
-                assert isinstance(v, (int, float)), "Annotations must be numeric"
+        # Check primary_dimension values
+        valid_dimensions = {"Alignment", "Realism", "Aesthetics", "Plausibility"}
+        for i in range(n_samples):
+            assert df.loc[i, "primary_dimension"] in valid_dimensions
 
-    def test_primary_dimension_values(self, tmp_path):
-        """Test that primary_dimension contains valid dimension names."""
-        output_dir = str(tmp_path)
-        df = generate_synthetic_dataset(n_samples=100, seed=42, output_dir=output_dir)
+    def test_noise_independence(self):
+        """Test that teacher scores and human annotations have independent noise."""
+        n_samples = 100
+        df = generate_synthetic_dataset(n_samples=n_samples, seed=42)
 
-        valid_dims = {"Alignment", "Realism", "Aesthetics", "Plausibility"}
-        assert df["primary_dimension"].isin(valid_dims).all(), "All primary_dimension values must be valid"
+        # Extract teacher and human scores for Alignment dimension
+        teacher_alignment = [row["teacher_scores"]["Alignment"] for _, row in df.iterrows()]
+        human_alignment = [row["human_annotations"]["Alignment"] for _, row in df.iterrows()]
 
-    def test_file_output(self, tmp_path):
-        """Test that the parquet file and config file are created."""
-        output_dir = str(tmp_path)
-        generate_synthetic_dataset(n_samples=10, seed=42, output_dir=output_dir)
+        # Calculate correlation - should be low due to independent seeds
+        import numpy as np
 
-        parquet_file = Path(output_dir) / "mock_z_reward.parquet"
-        config_file = Path(output_dir) / "config.json"
-
-        assert parquet_file.exists(), "Parquet file not created"
-        assert config_file.exists(), "Config file not created"
-
-    def test_config_is_mock_flag(self, tmp_path):
-        """Test that the config file sets IS_MOCK_DATA to True."""
-        output_dir = str(tmp_path)
-        generate_synthetic_dataset(n_samples=10, seed=42, output_dir=output_dir)
-
-        config_file = Path(output_dir) / "config.json"
-        with open(config_file, "r") as f:
-            config = json.load(f)
-
-        assert config.get("IS_MOCK_DATA") is True, "IS_MOCK_DATA should be True"
-
-    def test_reproducibility(self, tmp_path):
-        """Test that running with the same seed produces the same data."""
-        output_dir = str(tmp_path)
-        df1 = generate_synthetic_dataset(n_samples=100, seed=42, output_dir=output_dir)
-        
-        # Clear output to regenerate
-        (Path(output_dir) / "mock_z_reward.parquet").unlink()
-        
-        df2 = generate_synthetic_dataset(n_samples=100, seed=42, output_dir=output_dir)
-
-        pd.testing.assert_frame_equal(df1, df2, check_exact=False, rtol=1e-5)
-
-    def test_noise_independence(self, tmp_path):
-        """Test that teacher scores and human annotations are independent (different seeds)."""
-        output_dir = str(tmp_path)
-        df = generate_synthetic_dataset(n_samples=1000, seed=42, output_dir=output_dir)
-
-        # Extract arrays
-        teacher_alignment = np.array([row["teacher_scores"]["Alignment"] for _, row in df.iterrows()])
-        human_alignment = np.array([row["human_annotations"]["Alignment"] for _, row in df.iterrows()])
-
-        # Calculate correlation; it should be low (near 0) due to independent seeds
         correlation = np.corrcoef(teacher_alignment, human_alignment)[0, 1]
-        
-        # Allow some noise, but it should not be perfectly correlated (1.0) or anti-correlated (-1.0)
-        assert abs(correlation) < 0.9, f"Teacher and Human scores should be independent, but correlation is {correlation}"
+
+        # With independent noise, correlation should be close to 0
+        # Allow some tolerance due to randomness
+        assert abs(correlation) < 0.5, f"Correlation {correlation} suggests dependent noise"
+
+    def test_save_config_creates_json(self):
+        """Test that save_config creates a valid JSON file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_dir = Path(tmpdir)
+            save_config(output_dir, is_mock=True)
+
+            config_path = output_dir / "config.json"
+            assert config_path.exists()
+
+            with open(config_path, "r") as f:
+                config = json.load(f)
+
+            assert config["is_synthetic_run"] is True
+            assert config["is_mock_data"] is True
+            assert "source" in config
+            assert "note" in config
+
+    def test_deterministic_output(self):
+        """Test that same seed produces same output."""
+        df1 = generate_synthetic_dataset(n_samples=10, seed=123)
+        df2 = generate_synthetic_dataset(n_samples=10, seed=123)
+
+        # Compare teacher scores
+        for i in range(10):
+            assert df1.loc[i, "teacher_scores"] == df2.loc[i, "teacher_scores"]
+            assert df1.loc[i, "human_annotations"] == df2.loc[i, "human_annotations"]
+            assert df1.loc[i, "student_scalar"] == df2.loc[i, "student_scalar"]
+            assert df1.loc[i, "primary_dimension"] == df2.loc[i, "primary_dimension"]

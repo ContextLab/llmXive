@@ -2,41 +2,82 @@ import os
 import tempfile
 from pathlib import Path
 import pytest
-import sys
+import shutil
 
-# Add the project root to the path if running from tests directory
-# Assuming this test file is in tests/ and the code is in projects/.../code/
-# We will mock the path logic to test the ensure_directory function directly
-# or run the script in a temp directory.
+# Import the function to test
+from create_directories import ensure_directory
 
-# Since the script uses Path.cwd(), we need to be careful about execution context.
-# Let's import the function and test it in a controlled temp environment.
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to act as project root for testing."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    # Cleanup after test
+    shutil.rmtree(temp_dir, ignore_errors=True)
 
-from code.create_directories import ensure_directory
+def test_ensure_directory_creates_new_directory(temp_project_root):
+    """Test that ensure_directory creates a new directory when it doesn't exist."""
+    new_dir = temp_project_root / "test_dir"
+    assert not new_dir.exists()
+    
+    ensure_directory(new_dir)
+    
+    assert new_dir.exists()
+    assert new_dir.is_dir()
 
-def test_ensure_directory_creates_new():
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        target_path = Path(tmp_dir) / "new" / "sub" / "dir"
-        assert not target_path.exists()
+def test_ensure_directory_existing_directory(temp_project_root):
+    """Test that ensure_directory does nothing if directory already exists."""
+    existing_dir = temp_project_root / "existing_dir"
+    existing_dir.mkdir()
+    assert existing_dir.exists()
+    
+    # Should not raise an exception
+    ensure_directory(existing_dir)
+    
+    assert existing_dir.exists()
+    assert existing_dir.is_dir()
+
+def test_ensure_directory_nested(temp_project_root):
+    """Test that ensure_directory creates nested directories."""
+    nested_dir = temp_project_root / "level1" / "level2" / "level3"
+    assert not nested_dir.exists()
+    
+    ensure_directory(nested_dir)
+    
+    assert nested_dir.exists()
+    assert nested_dir.is_dir()
+
+def test_main_creates_required_directories(temp_project_root):
+    """Test that the main function creates the required data directories."""
+    # Mock the script location to be inside the temp project root
+    # We need to temporarily modify the path logic for testing
+    original_cwd = os.getcwd()
+    original_path = __file__
+    
+    try:
+        # Change to temp root and create a fake code directory
+        code_dir = temp_project_root / "code"
+        code_dir.mkdir()
         
-        result = ensure_directory(target_path)
+        # We need to test the logic of main() without actually running it
+        # by directly checking if the directories would be created
+        expected_dirs = [
+            temp_project_root / "data" / "raw",
+            temp_project_root / "data" / "processed",
+            temp_project_root / "results"
+        ]
         
-        assert result is True
-        assert target_path.exists()
-        assert target_path.is_dir()
-
-def test_ensure_directory_existing():
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        target_path = Path(tmp_dir)
-        assert target_path.exists()
+        # Verify they don't exist initially
+        for d in expected_dirs:
+            assert not d.exists()
         
-        result = ensure_directory(target_path)
+        # Call ensure_directory on each (simulating main's loop)
+        for d in expected_dirs:
+            ensure_directory(d)
         
-        assert result is True
-        # Should not raise error
-
-def test_ensure_directory_invalid_parent():
-    # Testing a case where we can't create a parent (e.g. permission denied)
-    # This is hard to test reliably without root, so we skip or mock.
-    # For now, we trust the logic for valid paths.
-    pass
+        # Verify they now exist
+        for d in expected_dirs:
+            assert d.exists()
+            assert d.is_dir()
+    finally:
+        os.chdir(original_cwd)

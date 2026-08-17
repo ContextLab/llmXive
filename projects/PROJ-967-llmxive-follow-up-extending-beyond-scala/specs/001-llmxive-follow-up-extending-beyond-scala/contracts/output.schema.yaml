@@ -1,33 +1,40 @@
 schema_version: "1.0"
-description: "Schema for the final processed features dataset (data/processed/features.json)"
-fields:
-  - name: sample_id
+description: "Schema for the processed features output file (data/processed/features.json)"
+type: object
+required:
+  - sample_id
+  - variance
+  - entropy
+  - skewness
+  - kurtosis
+  - fidelity_loss
+properties:
+  sample_id:
     type: string
     description: "Unique identifier for the sample"
-  - name: variance
-    type: float
-    description: "Per-sample variance of the 4-dimensional teacher score vector"
-  - name: entropy
-    type: float
-    description: "Per-sample Shannon entropy of the normalized teacher score vector"
-  - name: skewness
-    type: float
-    description: "Per-sample skewness of the teacher score distribution"
-  - name: kurtosis
-    type: float
-    description: "Per-sample kurtosis of the teacher score distribution"
-  - name: mahalanobis_distance
-    type: float
-    description: "Per-sample Mahalanobis distance from the global teacher score mean (computed only if model_type == 'rf')"
-  - name: fidelity_loss
-    type: float
-    description: "MAE between student_scalar and human annotation for the primary_dimension"
-  - name: primary_dimension
+  variance:
+    type: number
+    description: "Variance of the 4-dimensional teacher score vector"
+  entropy:
+    type: number
+    description: "Shannon entropy of the normalized teacher score distribution"
+  skewness:
+    type: number
+    description: "Skewness of the teacher score distribution"
+  kurtosis:
+    type: number
+    description: "Kurtosis of the teacher score distribution"
+  mahalanobis_distance:
+    type: number
+    nullable: true
+    description: "Mahalanobis distance from the global mean (only present if model_type == 'rf')"
+  fidelity_loss:
+    type: number
+    description: "MAE between student_scalar and human_annotation for the primary_dimension"
+  primary_dimension:
     type: string
-    description: "The quality dimension used for fidelity loss calculation"
-  - name: feature_status
-    type: object
-    properties:
-      mahalanobis_computed:
-        type: boolean
-        description: "True if Mahalanobis distance was computed, False if skipped (e.g., Ridge model selected)"
+    description: "The primary quality dimension derived for this sample"
+  dimension_source:
+    type: string
+    description: "Source of the primary_dimension derivation (e.g., 'metadata', 'column', 'fallback')"
+additionalProperties: false
