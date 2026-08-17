@@ -1,57 +1,67 @@
-"""
-Configuration management for the project.
-
-Provides functions to manage paths, random seeds, and constants.
-"""
 import os
 from pathlib import Path
 from typing import Final
 
-# Project root directory
-PROJECT_ROOT: Final[Path] = Path(__file__).parent.parent
+# Constants
+SEED: Final[int] = 42
+DATA_ROOT: Final[str] = "data"
+CODE_ROOT: Final[str] = "code"
+RESULTS_ROOT: Final[str] = "data/results"
 
-# Default random seed
-DEFAULT_SEED: Final[int] = 42
 
 def get_project_root() -> Path:
     """
-    Get the project root directory.
-
-    Returns:
-        Path to the project root directory.
+    Return the project root directory.
+    
+    Assumes the script is run from the project root or that the code
+    directory is inside the project root.
     """
-    return PROJECT_ROOT
+    # Try to find the project root by looking for a known file or directory
+    # Common markers: 'requirements.txt', 'pyproject.toml', 'README.md'
+    current_path = Path(__file__).resolve()
+    
+    # Check if we are in code/ directory
+    if current_path.name == "config.py" and current_path.parent.name == "code":
+        return current_path.parent.parent
+    
+    # Fallback: traverse up until we find a marker
+    for parent in current_path.parents:
+        if (parent / "requirements.txt").exists() or \
+           (parent / "pyproject.toml").exists() or \
+           (parent / "README.md").exists():
+            return parent
+    
+    # If no marker found, assume current working directory
+    return Path.cwd()
 
-def ensure_directories():
+
+def ensure_directories(dir_paths: list) -> None:
     """
-    Ensure all required directories exist.
-
-    Creates the following directories if they don't exist:
-    - data/raw/stimuli
-    - data/raw/responses
-    - data/processed
-    - data/results
-    - logs
-    - figures
+    Ensure that the given directories exist.
+    
+    Args:
+        dir_paths: List of directory paths (relative or absolute) to create.
     """
-    directories = [
-        "data/raw/stimuli",
-        "data/raw/responses",
-        "data/processed",
-        "data/results",
-        "logs",
-        "figures"
-    ]
-
-    for dir_path in directories:
-        full_path = PROJECT_ROOT / dir_path
+    project_root = get_project_root()
+    
+    for dir_path in dir_paths:
+        full_path = project_root / dir_path
         full_path.mkdir(parents=True, exist_ok=True)
 
-def get_data_path() -> Path:
-    """
-    Get the data directory path.
 
-    Returns:
-        Path to the data directory.
+def get_data_path(sub_path: str = "") -> Path:
     """
-    return PROJECT_ROOT / "data"
+    Get the full path to a data file or directory.
+    
+    Args:
+        sub_path: Optional sub-path relative to the data root.
+    
+    Returns:
+        The full Path object.
+    """
+    project_root = get_project_root()
+    data_root = project_root / DATA_ROOT
+    
+    if sub_path:
+        return data_root / sub_path
+    return data_root

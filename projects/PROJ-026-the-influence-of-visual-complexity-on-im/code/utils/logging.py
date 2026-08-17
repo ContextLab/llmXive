@@ -1,95 +1,83 @@
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import Optional
-import sys
-from ..config import get_project_root, ensure_directories
+from config import get_project_root, ensure_directories
 
-def get_log_path() -> Path:
-    """Return the path to the logs directory."""
-    root = get_project_root()
-    log_dir = root / "logs"
+def get_log_path(filename: str = "app.log") -> Path:
+    """Get the path to the log file."""
+    project_root = get_project_root()
+    log_dir = project_root / "logs"
     ensure_directories([log_dir])
-    return log_dir
+    return log_dir / filename
 
-def setup_logging(level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
-    """
-    Configure the root logger with console and optional file handlers.
-    
-    Args:
-        level: Logging level (e.g., logging.INFO).
-        log_file: Optional filename relative to the logs directory.
-    
-    Returns:
-        The root logger instance.
-    """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    
-    # Clear existing handlers to avoid duplicates in interactive environments
-    if root_logger.handlers:
-        root_logger.handlers.clear()
-    
+def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
+    """Configure the logging infrastructure."""
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+
+    # Clear existing handlers to avoid duplicates
+    logger.handlers.clear()
+
     # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(level)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    ch.setFormatter(formatter)
-    root_logger.addHandler(ch)
-    
-    # File handler if specified
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(log_level)
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+
+    # File handler
     if log_file:
-        log_path = get_log_path() / log_file
-        ensure_directories([log_path.parent])
-        fh = logging.FileHandler(log_path)
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        root_logger.addHandler(fh)
-    
-    return root_logger
+        log_path = get_log_path(log_file)
+        file_handler = logging.FileHandler(log_path)
+        file_handler.setLevel(log_level)
+        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
 
-def get_logger(name: str) -> logging.Logger:
-    """Get a logger with the specified name."""
-    return logging.getLogger(name)
+    return logger
 
-def log_counterbalance_strategy(strategy_description: str, output_file: str = "counterbalance_strategy.log") -> None:
+def get_logger(name: str = "llmXive") -> logging.Logger:
+    """Get a logger instance with the specified name."""
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        # Ensure handlers are set up if this is the first call
+        setup_logging()
+    return logger
+
+def log_counterbalance_strategy(seed: int, split_ratio: float, output_file: str = "counterbalance_strategy.log") -> None:
     """
-    Log the specific counterbalancing assignment strategy to a file.
-    
-    This function writes a detailed description of the counterbalancing strategy
-    used in the experiment (e.g., Latin Square, AB/BA order) to a log file.
+    Log the specific counterbalancing assignment strategy used.
     
     Args:
-        strategy_description: The text description of the strategy.
-        output_file: The filename for the log (relative to logs/).
+        seed: The random seed used for assignment generation.
+        split_ratio: The ratio of participants in each condition (e.g., 0.5 for 50/50).
+        output_file: The name of the log file to write the strategy to.
     """
-    log_path = get_log_path() / output_file
+    logger = get_logger("Counterbalance")
+    log_path = get_log_path(output_file)
+    
+    # Ensure the log directory exists
     ensure_directories([log_path.parent])
     
-    logger = logging.getLogger("counterbalance")
-    logger.setLevel(logging.INFO)
+    # Create a file handler specifically for this log
+    file_handler = logging.FileHandler(log_path)
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
     
-    # Remove existing handlers to ensure clean state if called multiple times
-    logger.handlers.clear()
+    # Add handler if not already present
+    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == str(log_path) for h in logger.handlers):
+        logger.addHandler(file_handler)
     
-    # Create file handler specifically for this log
-    fh = logging.FileHandler(log_path, mode='w')
-    fh.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(message)s')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+    logger.info(f"Counterbalancing Strategy Log")
+    logger.info(f"=" * 50)
+    logger.info(f"Random Seed: {seed}")
+    logger.info(f"Split Ratio: {split_ratio:.4f} (Low-High : High-Low)")
+    logger.info(f"Method: Seeded random shuffle (np.random.default_rng(seed))")
+    logger.info(f"Assignment File: data/processed/counterbalance_assignment.csv")
+    logger.info(f"=" * 50)
     
-    # Write the strategy
-    logger.info("Counterbalancing Assignment Strategy Log")
-    logger.info("=" * 50)
-    logger.info("")
-    logger.info(strategy_description)
-    logger.info("")
-    logger.info("=" * 50)
-    
-    # Close handler to flush
-    fh.close()
-    logger.info(f"Strategy log saved to: {log_path}")
+    # Remove the handler to avoid accumulation
+    logger.removeHandler(file_handler)

@@ -1,87 +1,106 @@
+"""
+Counterbalance assignment generation for User Story 2.
+
+Generates a deterministic mapping of participant IDs to session orders
+(Low-High vs High-Low) using a seeded random shuffle to ensure an equal split.
+"""
 import os
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import List, Tuple
 import logging
-from ..utils.logging import log_counterbalance_strategy
-from ..config import get_project_root, ensure_directories, get_data_path
 
-def generate_counterbalance_assignments(seed: int = 42, n_participants: int = 100) -> pd.DataFrame:
+from config import get_project_root, get_data_path
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
+
+# Constants for counterbalancing
+SEED = 42
+SESSION_ORDER_A = "Low-High"
+SESSION_ORDER_B = "High-Low"
+
+
+def generate_counterbalance_assignments(
+    num_participants: int = 100,
+    seed: int = SEED
+) -> pd.DataFrame:
     """
-    Generate counterbalance assignment map for participants.
-    
-    Creates a mapping of participant IDs to session orders (Low-High vs High-Low).
-    Uses a seeded random shuffle to ensure a 50/50 split for each starting condition.
-    
+    Generate a counterbalance assignment map for a specified number of participants.
+
     Args:
+        num_participants: Total number of participant IDs to generate.
         seed: Random seed for reproducibility.
-        n_participants: Number of participants to generate assignments for.
-    
+
     Returns:
         DataFrame with columns: participant_id, session_order
     """
+    logger.info(f"Generating counterbalance assignments for {num_participants} participants (seed={seed})")
+
+    # Set seed for reproducibility
     np.random.seed(seed)
-    
-    # Create participant IDs
-    participant_ids = [f"P{str(i).zfill(3)}" for i in range(1, n_participants + 1)]
-    
-    # Generate session orders: 50% "Low-High", 50% "High-Low"
-    # Ensure exactly half for even numbers, or as close as possible
-    n_low_high = n_participants // 2
-    n_high_low = n_participants - n_low_high
-    
-    orders = ["Low-High"] * n_low_high + ["High-Low"] * n_high_low
-    np.random.shuffle(orders)
-    
+
+    # Generate participant IDs (P001 to P{num_participants:03d})
+    participant_ids = [f"P{i+1:03d}" for i in range(num_participants)]
+
+    # Create the two session orders
+    orders = [SESSION_ORDER_A, SESSION_ORDER_B]
+
+    # Assign orders to participants ensuring an equal split
+    # We create a list with equal numbers of A and B, then shuffle it
+    if num_participants % 2 != 0:
+        logger.warning(f"Number of participants ({num_participants}) is odd. "
+                     f"Assignments will be off by one.")
+        n_a = (num_participants // 2) + 1
+        n_b = num_participants // 2
+    else:
+        n_a = num_participants // 2
+        n_b = num_participants // 2
+
+    assignment_list = [SESSION_ORDER_A] * n_a + [SESSION_ORDER_B] * n_b
+    np.random.shuffle(assignment_list)
+
+    # Create DataFrame
     df = pd.DataFrame({
         "participant_id": participant_ids,
-        "session_order": orders
+        "session_order": assignment_list
     })
-    
+
+    # Log split ratio
+    split_a = (df["session_order"] == SESSION_ORDER_A).sum()
+    split_b = (df["session_order"] == SESSION_ORDER_B).sum()
+    logger.info(f"Assignment split: {SESSION_ORDER_A}={split_a}, {SESSION_ORDER_B}={split_b}")
+
     return df
+
 
 def main():
     """
-    Main entry point to generate and save counterbalance assignments.
-    Also logs the strategy used.
+    Main entry point for generating counterbalance assignments.
+    Writes the output to data/processed/counterbalance_assignment.csv
     """
-    root = get_project_root()
-    data_path = get_data_path()
-    processed_path = data_path / "processed"
-    ensure_directories([processed_path])
-    
-    # Generate assignments
-    df = generate_counterbalance_assignments(seed=42, n_participants=100)
-    
+    project_root = get_project_root()
+    output_path = project_root / "data" / "processed" / "counterbalance_assignment.csv"
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Generate assignments (default 100 participants for CI/Testing)
+    # In a real scenario, this might be driven by a config or command-line arg
+    df = generate_counterbalance_assignments(num_participants=100)
+
     # Save to CSV
-    output_file = processed_path / "counterbalance_assignment.csv"
-    df.to_csv(output_file, index=False)
-    logging.info(f"Saved counterbalance assignments to {output_file}")
-    
-    # Log the strategy
-    strategy_text = (
-        "Counterbalancing Strategy: AB/BA Design (Low-High vs High-Low)\n"
-        "\n"
-        "Methodology:\n"
-        "- Participants are randomly assigned to one of two session orders.\n"
-        "- Group A (Low-High): Starts with Low Complexity stimuli, followed by High Complexity.\n"
-        "- Group B (High-Low): Starts with High Complexity stimuli, followed by Low Complexity.\n"
-        "\n"
-        "Implementation Details:\n"
-        "- Random seed set to 42 for reproducibility.\n"
-        "- Assignment is a 50/50 split (or as close as possible for odd N).\n"
-        "- Generated using numpy.random.shuffle on a pre-balanced list of orders.\n"
-        "- Output saved to: data/processed/counterbalance_assignment.csv\n"
-        "\n"
-        "Purpose:\n"
-        "This counterbalancing controls for order effects and practice effects,\n"
-        "ensuring that any observed differences in implicit bias (D-scores) are\n"
-        "attributable to the visual complexity manipulation rather than the\n"
-        "sequence of presentation."
-    )
-    
-    log_counterbalance_strategy(strategy_text, output_file="counterbalance_strategy.log")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Counterbalance assignments saved to {output_path}")
+
+    # Verify file exists and has content
+    if output_path.exists() and output_path.stat().st_size > 0:
+        logger.info("Verification: Output file exists and is non-empty.")
+    else:
+        logger.error("Verification failed: Output file missing or empty.")
+        raise RuntimeError("Failed to write counterbalance assignments.")
+
 
 if __name__ == "__main__":
     main()

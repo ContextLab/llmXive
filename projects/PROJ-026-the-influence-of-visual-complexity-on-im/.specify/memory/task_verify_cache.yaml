@@ -1,32 +1,24 @@
-T017:
-  c: false
-  h: 6777765da1af0bca417e1204166113baf84d6a4060b196bea9252d4950341264
-  r: "The repository contains a partially shown `code/stimuli/process.py`, but the\
-    \ script is truncated and does not include the batch\u2011processing logic or\
-    \ any code that writes `data/processed/complexity_scores.csv`. Moreover, the required\
-    \ CSV file is absent from the project. Consequently, the task\u2019s core deliverable\u2014\
-    producing the processed complexity scores file with the specified schema\u2014\
-    is not satisfied."
-T018:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or output file was provided that actually computes\
-    \ visual\u2011complexity scores and applies `pandas.qcut` to assign Low/Medium/High\
-    \ categories. Without the required artifact (e.g., a Python module or CSV showing\
-    \ the categorized images), the task\u2019s requirement is not satisfied."
-T024:
+  r: No directory tree or file listing was provided to confirm that the required folders
+    (`code/data`, `code/stimuli`, `code/analysis`, `code/viz`, `code/tests`, `data/raw/stimuli`,
+    `data/raw/responses`, `data/processed`, `data/results`) actually exist. The implementer
+    must supply evidence (e.g., `tree` output or a screenshot) showing the exact structure.
+T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or data file implementing the exclusion of participants with\
-    \ fewer than 10 valid trials and flagging their D\u2011score as `NaN` was provided.\
-    \ The required artifact is missing, so the task is not satisfied."
-T026:
+  r: The submission contains only the task description and feature specifications;
+    no filesystem evidence (e.g., a listing, screenshots, or code creating `data/raw/stimuli`,
+    `data/raw/responses`, `data/processed`, `data/results`) is provided. Consequently,
+    the required directory structure has not been demonstrated as existing.
+T027b:
   c: false
-  h: ce14deaab7090e4296c67db79d9ffc6f78171b0694694911009a0dd1a7ba2b61
-  r: "The required output file `data/processed/aggregated_d_scores.csv` does not exist,\
-    \ and the provided `code/data/process.py` is incomplete/truncated with no evidence\
-    \ that it writes the CSV with the specified columns. The task\u2019s core deliverable\
-    \ is therefore missing."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `logs/counterbalance_strategy.log` file was provided, nor any\
+    \ content showing the required seed and split\u2011ratio values. The implementer\
+    \ must create the log file and ensure it records the specific counterbalancing\
+    \ assignment strategy, including those details."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

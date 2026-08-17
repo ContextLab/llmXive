@@ -1,31 +1,41 @@
 import os
 from pathlib import Path
-from config import get_project_root
+from typing import List
+import logging
+from ..config import get_project_root
+from ..utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 def create_directories():
-    """
-    Creates the required directory structure for the project.
-    
-    Directories created:
-    - data/raw/stimuli
-    - data/raw/responses
-    - data/processed
-    - data/results
-    """
+    """Create all required project directories."""
     root = get_project_root()
     
-    # Define the relative paths to create
-    dirs_to_create = [
-        "data/raw/stimuli",
-        "data/raw/responses",
-        "data/processed",
-        "data/results"
+    directories = [
+        root / "code" / "data",
+        root / "code" / "stimuli",
+        root / "code" / "analysis",
+        root / "code" / "viz",
+        root / "code" / "utils",
+        root / "data" / "raw" / "stimuli",
+        root / "data" / "raw" / "responses",
+        root / "data" / "processed",
+        root / "data" / "results",
+        root / "logs",
+        root / "figures"
     ]
     
-    for dir_path in dirs_to_create:
-        full_path = root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        logger.debug(f"Created directory: {directory}")
+    
+    logger.info(f"Created {len(directories)} directories")
+
+def main():
+    """Main entry point for project setup."""
+    logger.info("Starting project setup")
+    create_directories()
+    logger.info("Project setup completed")
 
 if __name__ == "__main__":
-    create_directories()
+    main()

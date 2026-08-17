@@ -39,13 +39,51 @@
  ============================================================================
 -->
 
+## Phase 0: Research & Methodology
+
+**Purpose**: Document methodological shifts and ratify amendments before implementation
+
+- [X] T033a [US3] **SPEC AMENDMENT**: Update `research.md` to document the methodological shift from ANOVA to Permutation Test, citing the plan's justification for handling stimulus-set confounds. Verify the file exists and contains the justification and citation. **CRITICAL**: This task ratifies the amendment that supersedes FR-003 in the execution context.
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan. Exact tree: `code/`, `data/raw/stimuli`, `data/raw/responses`, `data/processed`, `data/results`, `tests/`.
-- [X] T002 Initialize Python 3.11 project with `code/requirements.txt`. Exact content: `numpy>=1.24.0`, `pandas>=2.0.0`, `scipy>=1.11.0`, `scikit-learn>=1.3.0`, `pillow>=10.0.0`, `opencv-python-headless>=4.8.0`, `matplotlib>=3.7.0`, `seaborn>=0.12.0`, `statsmodels>=0.14.0`, `pytest>=7.4.0`.
-- [X] T003 [P] Configure pytest, linting (ruff/flake8), and formatting (black) tools. Create `pyproject.toml` with `[tool.black] line-length=88`, `.ruff.toml`, and `.black` config files.
+- [ ] T001 Create project structure per implementation plan. **Execute**: `mkdir -p code/{data,stimuli,analysis,viz,tests} data/{raw/stimuli,raw/responses,processed,results}`. **Verify**: Directory tree exists exactly as defined in plan.md.
+- [X] T002 Initialize Python 3.11 project with `code/requirements.txt`. **Execute**: Create file with exact content:
+```
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+scikit-learn>=1.3.0
+pillow>=10.0.0
+opencv-python-headless>=4.8.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+statsmodels>=0.14.0
+pytest>=7.4.0
+```
+- [X] T003 [P] Configure pytest, linting (ruff/flake8), and formatting (black) tools. **Execute**: Create `pyproject.toml` with exact content:
+```toml
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+```
+- [X] T004 [P] Create `code/config.py` to manage paths, random seeds, and constants. **Execute**: Define variables: `SEED = 42`, `DATA_ROOT = "data"`, `CODE_ROOT = "code"`, `RESULTS_ROOT = "data/results"`.
+- [X] T005 [P] Implement `code/__init__.py` and package structure for `data`, `stimuli`, `analysis`, `viz`.
+- [ ] T006 Setup directory structure for `data/raw/stimuli`, `data/raw/responses`, `data/processed`, `data/results`.
+- [X] T007 Create base data models/entities in `code/data/models.py`. Fields: `ImageStimulus` (path, edge_density, entropy, fractal_dim), `ParticipantResponse` (participant_id, session_id, reaction_time, is_correct, timestamp), `AggregatedScore` (participant_id, session_id, d_score, n_trials_valid, status). Implement as Pydantic BaseModel classes.
+- [X] T008 [P] Configure logging infrastructure in `code/utils/logging.py`. **Execute**: Set log level to `INFO`, format to `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`, output to `logs/app.log`.
+
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
@@ -55,14 +93,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `code/config.py` to manage paths, random seeds, and constants
-- [X] T005 [P] Implement `code/__init__.py` and package structure for `data`, `stimuli`, `analysis`, `viz`
-- [X] T006 Setup directory structure for `data/raw/stimuli`, `data/raw/responses`, `data/processed`, `data/results`
-- [X] T007 Create base data models/entities in `code/data/models.py`. Fields: `ImageStimulus` (path, edge_density, entropy, fractal_dim), `ParticipantResponse` (participant_id, session_id, reaction_time, is_correct, timestamp), `AggregatedScore` (participant_id, session_id, d_score, n_trials_valid, status). Implement as Pydantic BaseModel classes.
-- [X] T008 Configure logging infrastructure in `code/utils/logging.py`
-- [ ] T033a [P] [US3] Document the methodological shift from ANOVA to Permutation Test in `research.md`, including justification and citation of the plan's decision. This task must be completed before T033 to ensure implementation aligns with the chosen statistical method.
-- [X] T027a [P] [US2] Generate `data/processed/counterbalance_assignment.csv` mapping participant IDs to session orders (Low-High vs High-Low) using a seeded random shuffle (seed=42) to ensure a 50/50 split for each starting condition. This task generates a synthetic assignment map for CI/testing and does not depend on raw logs.
-- [ ] T027b [US2] Log the specific counterbalancing assignment strategy used in `logs/counterbalance_strategy.log`.
+- [X] T016 [US1] Implement image validation and error handling in `code/stimuli/validate.py`. Validates *input images* for corruption before batch processing. Skips corrupted files, logs filenames. **Pre-requisite**: Must run before T013-T015 and T017.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,12 +116,11 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement edge density (Canny) in `code/stimuli/metrics.py`
-- [X] T014 [P] [US1] Implement entropy of grayscale histograms in `code/stimuli/metrics.py`
-- [X] T015 [P] [US1] Implement fractal dimension via box-counting in `code/stimuli/metrics.py` (handle edge cases: clamp value to a bounded range or raise ValueError if out of bounds).
-- [X] T016 [US1] Implement image validation and error handling in `code/stimuli/validate.py`. Validates *input images* for corruption before batch processing in T017. Skips corrupted files, logs filenames. Depends on T013-T015.
-- [ ] T017 [US1] Create `code/stimuli/process.py` to batch-process `data/raw/stimuli/` and output `data/processed/complexity_scores.csv`. Output schema: `filename, edge_density, entropy, fractal_dim, complexity_category`. <!-- FAILED: unspecified -->
-- [ ] T018 [US1] Add logic to categorize images into Low/Medium/High complexity based on computed scores (use pandas.qcut with a specified number of bins).
+- [X] T013 [P] [US1] Implement edge density (Canny) in `code/stimuli/metrics.py`. **Parameters**: Canny thresholds (low=50, high=150), kernel size=3.
+- [X] T014 [P] [US1] Implement entropy of grayscale histograms in `code/stimuli/metrics.py`.
+- [X] T015 [P] [US1] Implement fractal dimension via box-counting in `code/stimuli/metrics.py` (handle edge cases: clamp value to a valid physical range or raise ValueError if out of bounds). **Parameters**: Box sizes from 2 to 64 pixels.
+- [ ] T017 [US1] Create `code/stimuli/process.py` to batch-process `data/raw/stimuli/` and output `data/processed/complexity_scores.csv`. Output schema: `filename, edge_density, entropy, fractal_dim, complexity_category`. Verify `data/processed/complexity_scores.csv` exists with columns: filename, edge_density, entropy, fractal_dim, complexity_category. **Depends on**: T013-T015, T016.
+- [ ] T018 [US1] Add logic to categorize images into Low/Medium/High complexity based on computed scores. **Logic**: Use `pandas.qcut` with 3 bins, labels=['Low', 'Medium', 'High'].
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,11 +140,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [P] [US2] Implement trial filtering logic (latency bounds, error handling) in `code/data/process.py`
-- [X] T023 [P] [US2] Implement Greenwald D2 algorithm for D-score aggregation in `code/data/process.py`
-- [ ] T024 [US2] Implement logic to exclude participants with insufficient valid trials (<10) and flag as `NaN`
-- [X] T025 [US2] Create `code/data/load.py` to load raw response logs (support synthetic `--null-effect` mode for CI)
-- [ ] T026 [US2] Create `code/data/process.py` to aggregate raw logs into `data/processed/aggregated_d_scores.csv`. Input: raw logs. Output schema: `participant_id, session_id, d_score, n_trials_valid, status`. Dependency: Requires T022 and T023.
+- [X] T022 [P] [US2] Implement trial filtering logic (latency bounds, error handling) in `code/data/process.py`. **Thresholds**: Remove trials <300ms or >10000ms.
+- [X] T023 [P] [US2] Implement Greenwald D2 algorithm for D-score aggregation in `code/data/process.py`. **Logic**: Use standard D2 formula (Greenwald et al., 2003).
+- [ ] T026 [US2] Create `code/data/load.py` to load raw response logs (support synthetic `--null-effect` mode for CI) and `code/data/process.py` to aggregate raw logs into `data/processed/aggregated_d_scores.csv`. Input: raw logs. Output schema: `participant_id, session_id, d_score, n_trials_valid, status`. Logic: Exclude participants with insufficient valid trials (<10) and flag as `NaN`. **FAIL CONDITION**: If running in production mode (no `--null-effect` flag) and data is synthetic, raise `RuntimeError` to enforce real data integrity. Verify output schema matches spec and `status` column flags NaN for <10 trials. **Depends on**: T022, T023.
+- [ ] T027a [US2] [P] Generate `data/processed/counterbalance_assignment.csv` mapping participant IDs to session orders (Low-High vs High-Low) using a seeded random shuffle (seed=42) to ensure an equal split for each starting condition. This task generates a synthetic assignment map for CI/testing and does not depend on raw logs. **Note**: Synthetic data strictly for CI.
+- [ ] T027b [US2] Log the specific counterbalancing assignment strategy used in `logs/counterbalance_strategy.log`. Verify file exists and contains the seed and split ratio. **Depends on**: T027a.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,15 +165,16 @@
 
 ### Implementation for User Story 3
 
-- [X] T032 [P] [US3] Implement PCA dimensionality check in `code/analysis/pca.py` (verify metric construct validity)
-- [X] T033 [US3] Implement Permutation Test in `code/analysis/permutation.py`. Parameters: A sufficient number of permutations to ensure stable p-value estimation, seed 42, metric = mean difference of D-scores. Note: This task implements FR-003 (amended).
-- [ ] T034 [US3] Calculate effect sizes: Report 'Permutation Effect Size' (Cohen's d) and 'Permutation p-value'. Explicitly note that 'partial η²' is not applicable; this satisfies FR-004 intent with the correct metric for the chosen test.
-- [ ] T034a [US3] Implement post-hoc power calculation in `code/analysis/permutation.py`. Parameters: Cohen's d = 0.5, alpha = 0.05, sample size = N. Use `statsmodels.stats.power.TTestIndPower`. Output: `data/results/power_analysis.json` with `power_value`, `target (a high value), `status` (pass/fail). Depends on T033, T034.
-- [X] T035a [US3] Implement Sensitivity Analysis: Threshold sweep (±0.05, ±0.10, ±0.15 SD of the complexity metric distribution) AND LOIO in `code/analysis/permutation.py`. Logic: Exclude sweep points where n < 15 per condition.
-- [X] T035b [US3] Generate LOIO sensitivity plot in `code/viz/plot.py`.
-- [ ] T036 [US3] Save results to `data/results/permutation_results.json` and `data/results/sensitivity_results.json`. Dependency: Requires T033, T034, T035a, and T035b.
-- [X] T037 [US3] Implement publication-quality plotting (Seaborn boxplot, Standard confidence interval error bars, The text will be formatted using a standard, readable font size., viridis palette) in `code/viz/plot.py`.
-- [X] T038 [US3] Create `code/main.py` to orchestrate the full pipeline (Load -> Process -> Analyze -> Plot).
+- [ ] T032 [P] [US3] Implement PCA dimensionality check in `code/analysis/pca.py` (verify metric construct validity).
+- [ ] T033 [US3] Implement Permutation Test in `code/analysis/permutation.py`. **Parameters**: a sufficiently large number of permutations, seed 42, metric = mean difference of D-scores. **Note**: This task implements FR-003 as ratified by T033a (replacing ANOVA).
+- [ ] T034 [US3] Calculate effect sizes: Report 'Permutation Effect Size' (Cohen's d) and 'Permutation p-value'. **Supplementary**: Also calculate partial η² for compatibility with FR-004. Calculate Cohen's d and Permutation p-value in `code/analysis/permutation.py` and verify they are written to `data/results/permutation_results.json`. **Depends on**: T033.
+- [ ] T034a [US3] **SPEC AMENDMENT VERIFICATION**: Verify that `research.md` (T033a) and `spec.md` (FR-003) are correctly aligned in the execution context via the ratified amendment.
+- [ ] T034b [US3] Implement post-hoc power calculation in `code/analysis/permutation.py`. **Logic**: Read `observed_cohen_d` from `data/results/permutation_results.json` (output of T034). Parameters: alpha = 0.05, sample size = N. Use `statsmodels.stats.power.TTestIndPower`. Output: `data/results/power_analysis.json` with `power_value`, `target` (a conventional statistical power threshold), `status` (pass/fail). Verify file exists and JSON is valid with keys: power_value, target, status. **Depends on**: T033, T034.
+- [ ] T035a [US3] Implement Sensitivity Analysis: Threshold sweep (±0.05, ±0.10, ±0.15 SD of the complexity metric distribution). **Logic**: Exclude sweep points where n < 15 per condition by marking them as 'invalid' in the JSON output.
+- [ ] T035b [US3] Implement Leave-One-Image-Out (LOIO) sensitivity analysis in `code/analysis/permutation.py`. **Logic**: Exclude one image at a time, re-run permutation test, report p-value variation.
+- [ ] T036 [US3] Save results to `data/results/permutation_results.json` and `data/results/sensitivity_results.json`. Dependency: Requires T033, T034, T035a, and T035b. Save results and verify both files exist and contain the expected keys (p_value, effect_size, sensitivity_sweep, loio_results).
+- [ ] T037 [US3] Implement publication-quality plotting (Seaborn boxplot, Standard confidence interval error bars, pt font size 12, viridis palette) in `code/viz/plot.py`. **Parameters**: Figure size (8x6), DPI=300, font family='Arial', output path `data/results/d_score_comparison.png`.
+- [ ] T038 [US3] Create `code/main.py` to orchestrate the full pipeline (Load -> Process -> Analyze -> Plot).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,12 +184,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Documentation updates in `docs/` (README, usage examples)
-- [ ] T040 Code cleanup and refactoring (remove debug prints, ensure type hints)
-- [ ] T043a Add CI workflow file (.github/workflows/analysis.yml) to run pipeline and assert duration < 6h.
-- [~] T043b Vectorize image processing loops if execution time exceeds target.
-- [~] T044 [P] Additional unit tests for edge cases (corrupted images, missing data) in `tests/`
-- [~] T045 Run `quickstart.md` validation to ensure reproducibility
+- [ ] T039 [P] Documentation updates in `docs/` (README, usage examples). **Content**: Include installation, usage, and data format sections.
+- [ ] T040 Code cleanup and refactoring (remove debug prints, ensure type hints). **Criteria**: All functions have type hints, no `print` statements remain.
+- [ ] T041 [US1] Implement robust streaming/batch processing for large stimulus sets in `code/stimuli/process.py` to ensure memory usage <7GB when processing >1000 images.
+- [ ] T042 [US2] Implement strict "fail loud" data loading in `code/data/load.py` that raises an exception if real data is missing, preventing any fallback to synthetic data during production runs. **FAIL CONDITION**: If `--null-effect` flag is not set and data is synthetic, raise `RuntimeError`.
+- [ ] T043a [CI] Add CI workflow file `.github/workflows/analysis.yml` to run pipeline and assert duration < 6h.
 
 ---
 
@@ -255,5 +285,5 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All image processing and statistical tasks must run on CPU-only free-tier runners (limited cores, constrained RAM). No GPU, no 8-bit/4-bit quantization, no large models.
-- **Data Integrity**: Do not fabricate input data. Use real datasets or the `--null-effect` synthetic mode strictly for CI testing. Production analysis requires real, pre-manipulated stimuli.
+- **Data Integrity**: Do not fabricate input data. Use real datasets or the `--null-effect` synthetic mode strictly for CI testing. Production analysis requires real, pre-manipulated stimuli. **FAIL CONDITION**: If production mode is active and data is synthetic, the pipeline must raise `RuntimeError`.
 - **Methodological Note**: The Permutation Test (T033) is implemented to handle stimulus-set confounds, replacing the ANOVA requirement in FR-003 as documented in `research.md` (T033a).

@@ -1,213 +1,203 @@
+"""
+Tests for the permutation analysis module.
+Includes unit tests for the main permutation logic and sensitivity analysis.
+"""
 import pytest
 import numpy as np
 import pandas as pd
-from unittest.mock import patch, MagicMock
+from pathlib import Path
 import sys
 import os
 
-# Add project root to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+# Ensure code directory is in path for imports
+code_root = Path(__file__).resolve().parents[2] / "code"
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
-from analysis.permutation import run_permutation_test, calculate_power
+from analysis.permutation import (
+    run_permutation_test,
+    calculate_effect_size,
+    run_sensitivity_analysis
+)
 
-class TestLeaveOneImageOut:
-    """
-    Unit tests for the Leave-One-Image-Out (LOIO) sensitivity logic.
-    
-    This test suite verifies that the permutation test logic correctly handles
-    the exclusion of specific images (or groups of images associated with complexity levels)
-    to ensure results are not driven by a single outlier stimulus.
-    
-    Note: The core permutation logic is tested in T028. These tests focus on the
-    robustness/sensitivity aspect implied by LOIO, specifically:
-    1. That the test runs successfully when a specific subset of data is removed.
-    2. That the resulting p-value and effect size are consistent with the reduced dataset.
-    3. That the function handles edge cases where removing data leaves insufficient samples.
-    """
 
-    def setup_method(self):
-        """
-        Setup test fixtures before each test method.
-        Creates a mock dataset with known properties.
-        """
+class TestPermutationLogic:
+    """Unit tests for the core permutation test logic."""
+
+    def test_permutation_significant_difference(self):
+        """Test that a clearly separated dataset yields a low p-value."""
         np.random.seed(42)
-        
-        # Create a synthetic dataset mimicking D-scores from two conditions:
-        # Low Complexity (Group 0) and High Complexity (Group 1)
-        # We simulate 30 participants per group for a total of 60 trials
-        n_per_group = 30
-        
-        # Group 0: Low Complexity (Mean ~ 0.1, SD ~ 0.4)
-        group_0 = np.random.normal(loc=0.1, scale=0.4, size=n_per_group)
-        
-        # Group 1: High Complexity (Mean ~ 0.3, SD ~ 0.4)
-        group_1 = np.random.normal(loc=0.3, scale=0.4, size=n_per_group)
-        
-        # Combine into a DataFrame
-        self.df_full = pd.DataFrame({
-            'participant_id': [f'P{i:03d}' for i in range(n_per_group * 2)],
-            'complexity_group': [0] * n_per_group + [1] * n_per_group,
-            'd_score': np.concatenate([group_0, group_1])
-        })
+        # Create two groups with a large, clear difference
+        group_low = np.random.normal(loc=0.0, scale=0.1, size=100)
+        group_high = np.random.normal(loc=0.5, scale=0.1, size=100)
 
-    def test_loio_logic_removes_single_observation(self):
-        """
-        Verify that the permutation test can run when a single observation is removed
-        (simulating the removal of one image's contribution if it were the sole driver).
-        
-        This acts as a proxy for LOIO: if removing one data point doesn't crash the
-        permutation engine and produces a valid result, the logic holds.
-        """
-        # Simulate removing the last observation (High Complexity group)
-        df_reduced = self.df_full.iloc[:-1].copy()
-        
-        # Ensure we still have enough data for a permutation test (min 5 per group usually)
-        assert len(df_reduced[df_reduced['complexity_group'] == 0]) >= 5
-        assert len(df_reduced[df_reduced['complexity_group'] == 1]) >= 5
-        
-        # Run the permutation test on the reduced dataset
-        # We use a small number of permutations for speed in unit tests
-        result = run_permutation_test(
-            df_reduced, 
-            group_col='complexity_group', 
-            value_col='d_score', 
-            n_permutations=100, 
-            seed=42
-        )
-        
-        # Assertions
-        assert isinstance(result, dict)
-        assert 'p_value' in result
-        assert 'effect_size' in result
+        result = run_permutation_test(group_low, group_high, n_permutations=1000, seed=42)
+
+        # With such a large effect size and sample size, p-value should be very small
+        assert result['p_value'] < 0.01, "Expected significant p-value for clearly separated groups"
         assert 'observed_diff' in result
-        
-        # The result should be numeric
-        assert isinstance(result['p_value'], (int, float))
-        assert isinstance(result['effect_size'], (int, float))
-        
-        # With n=59, we should still get a result (though power is lower)
-        assert result['n_trials_valid'] == 59
+        assert 'permutation_distribution' in result
+        assert len(result['permutation_distribution']) == 1000
 
-    def test_loio_logic_removes_entire_condition_subset(self):
-        """
-        Simulate removing a specific 'image' that contributed to multiple trials
-        by removing a subset of one condition.
-        
-        In a real LOIO scenario, we might remove all trials associated with a specific
-        background image. Here we simulate removing 5 trials from the High group.
-        """
-        # Filter out 5 trials from Group 1 (High Complexity)
-        mask = self.df_full['complexity_group'] == 1
-        indices_to_remove = self.df_full[mask].index[:5]
-        df_reduced = self.df_full.drop(indices_to_remove).reset_index(drop=True)
-        
-        assert len(df_reduced) == 55
-        assert len(df_reduced[df_reduced['complexity_group'] == 1]) == 25
-        
-        result = run_permutation_test(
-            df_reduced, 
-            group_col='complexity_group', 
-            value_col='d_score', 
-            n_permutations=100, 
-            seed=42
-        )
-        
-        assert result['n_trials_valid'] == 55
+    def test_permutation_no_difference(self):
+        """Test that identical distributions yield a high p-value."""
+        np.random.seed(42)
+        # Create two groups from the same distribution
+        data = np.random.normal(loc=0.0, scale=0.1, size=200)
+        group_a = data[:100]
+        group_b = data[100:]
+
+        result = run_permutation_test(group_a, group_b, n_permutations=1000, seed=42)
+
+        # With no real difference, p-value should be high (not significant)
+        assert result['p_value'] > 0.05, "Expected non-significant p-value for identical groups"
+
+    def test_permutation_small_sample(self):
+        """Test permutation test behavior with small sample sizes."""
+        np.random.seed(42)
+        group_small_1 = np.array([1.0, 2.0, 3.0])
+        group_small_2 = np.array([4.0, 5.0, 6.0])
+
+        # With very small samples, the number of unique permutations is limited
+        # (6 choose 3 = 20), so n_permutations should be capped or handled gracefully
+        result = run_permutation_test(group_small_1, group_small_2, n_permutations=1000, seed=42)
+
         assert 'p_value' in result
-        assert result['p_value'] >= 0.0 and result['p_value'] <= 1.0
+        assert result['observed_diff'] == 3.0  # (4+5+6)/3 - (1+2+3)/3 = 5 - 2 = 3.0
 
-    def test_loio_edge_case_insufficient_samples(self):
-        """
-        Verify behavior when LOIO removal leaves insufficient samples for the test.
-        
-        If removing an image leaves fewer than the minimum required trials per group
-        (e.g., < 5), the function should handle this gracefully (raise ValueError or return NaN).
-        Based on the implementation plan, it should fail loudly or return a specific status.
-        """
-        # Create a dataset with exactly 5 samples per group
-        df_minimal = pd.DataFrame({
-            'participant_id': [f'P{i:03d}' for i in range(10)],
-            'complexity_group': [0] * 5 + [1] * 5,
-            'd_score': np.random.normal(0.2, 0.4, 10)
+
+class TestSensitivityAnalysis:
+    """Unit tests for the sensitivity analysis (threshold sweep) logic."""
+
+    def test_sensitivity_analysis_structure(self):
+        """Verify that sensitivity analysis returns the expected structure."""
+        np.random.seed(42)
+        # Create synthetic data mimicking D-scores
+        n_low = 50
+        n_high = 50
+        scores_low = np.random.normal(loc=0.1, scale=0.2, size=n_low)
+        scores_high = np.random.normal(loc=0.3, scale=0.2, size=n_high)
+
+        # Create a mock dataframe with complexity scores and D-scores
+        df = pd.DataFrame({
+            'complexity_score': np.concatenate([
+                np.random.normal(loc=1.0, scale=0.1, size=n_low),
+                np.random.normal(loc=2.0, scale=0.1, size=n_high)
+            ]),
+            'd_score': np.concatenate([scores_low, scores_high]),
+            'complexity_category': ['Low'] * n_low + ['High'] * n_high
         })
-        
-        # Remove one sample from Group 1 -> 4 samples left
-        df_too_small = df_minimal.drop(df_minimal[df_minimal['complexity_group'] == 1].index[0]).reset_index(drop=True)
-        
-        # The run_permutation_test function should handle this.
-        # We expect it to either raise a ValueError or return a result with a flag.
-        # Given the "Fail loudly" constraint, we expect a ValueError if the implementation
-        # enforces a strict minimum. If it returns NaN, we check for that.
-        
-        try:
-            result = run_permutation_test(
-                df_too_small, 
-                group_col='complexity_group', 
-                value_col='d_score', 
-                n_permutations=100, 
-                seed=42
-            )
-            # If it doesn't raise, it should return a result indicating failure/insufficient data
-            # Check if the implementation returns a specific status or NaN
-            # For this test, we assume the implementation raises ValueError for < min_samples
-            # If it doesn't, we assert the result structure is valid even if p-value is NaN
-            assert 'p_value' in result
-            # If the implementation allows it, p_value might be NaN or 1.0
-            # We just ensure the function didn't crash unexpectedly
-        except ValueError as e:
-            # This is an acceptable outcome: "Fail loudly"
-            assert "insufficient" in str(e).lower() or "sample" in str(e).lower()
 
-    def test_loio_deterministic_seed(self):
-        """
-        Verify that running LOIO (removing a specific subset) with a fixed seed
-        produces deterministic results.
-        """
-        # Remove a specific set of indices
-        indices_to_remove = [0, 1, 2]
-        df_reduced = self.df_full.drop(indices_to_remove).reset_index(drop=True)
-        
-        result_1 = run_permutation_test(
-            df_reduced, 
-            group_col='complexity_group', 
-            value_col='d_score', 
-            n_permutations=100, 
-            seed=42
-        )
-        
-        result_2 = run_permutation_test(
-            df_reduced, 
-            group_col='complexity_group', 
-            value_col='d_score', 
-            n_permutations=100, 
-            seed=42
-        )
-        
-        assert result_1['p_value'] == result_2['p_value']
-        assert result_1['effect_size'] == result_2['effect_size']
+        result = run_sensitivity_analysis(df, n_permutations=100, seed=42)
 
-    def test_loio_consistency_with_full_dataset(self):
-        """
-        Verify that the LOIO logic produces results consistent with the full dataset
-        when no data is removed (edge case of LOIO).
-        """
-        result_full = run_permutation_test(
-            self.df_full, 
-            group_col='complexity_group', 
-            value_col='d_score', 
-            n_permutations=100, 
-            seed=42
-        )
-        
-        # Remove nothing (empty list)
-        result_no_remove = run_permutation_test(
-            self.df_full, 
-            group_col='complexity_group', 
-            value_col='d_score', 
-            n_permutations=100, 
-            seed=42
-        )
-        
-        assert result_full['p_value'] == result_no_remove['p_value']
-        assert result_full['effect_size'] == result_no_remove['effect_size']
-        assert result_full['observed_diff'] == result_no_remove['observed_diff']
+        assert 'sweep_results' in result
+        assert isinstance(result['sweep_results'], list)
+        assert len(result['sweep_results']) > 0
+
+        # Check structure of individual sweep points
+        sweep_point = result['sweep_results'][0]
+        assert 'threshold_offset' in sweep_point
+        assert 'p_value' in sweep_point
+        assert 'n_low' in sweep_point
+        assert 'n_high' in sweep_point
+        assert 'status' in sweep_point
+
+    def test_sensitivity_analysis_threshold_range(self):
+        """Verify that sensitivity analysis sweeps across the correct threshold range."""
+        np.random.seed(42)
+        df = pd.DataFrame({
+            'complexity_score': np.random.normal(loc=1.5, scale=0.5, size=100),
+            'd_score': np.random.normal(loc=0.2, scale=0.1, size=100),
+            'complexity_category': ['Low'] * 50 + ['High'] * 50
+        })
+
+        # Run with specific offsets
+        offsets = [-0.05, 0.0, 0.05]
+        result = run_sensitivity_analysis(df, n_permutations=50, seed=42, offsets=offsets)
+
+        # Check that the results match the requested offsets
+        reported_offsets = [r['threshold_offset'] for r in result['sweep_results']]
+        # Sort both to compare since order might vary slightly in implementation
+        assert sorted(reported_offsets) == sorted(offsets), "Sensitivity analysis did not sweep the correct offsets"
+
+    def test_sensitivity_analysis_invalid_thresholds(self):
+        """Test that invalid thresholds (where n < 15) are marked correctly."""
+        np.random.seed(42)
+        # Create a dataset where extreme thresholds will result in very small groups
+        df = pd.DataFrame({
+            'complexity_score': np.random.normal(loc=1.5, scale=0.1, size=100),
+            'd_score': np.random.normal(loc=0.2, scale=0.1, size=100),
+            'complexity_category': ['Low'] * 50 + ['High'] * 50
+        })
+
+        # Use large offsets that will likely result in small groups
+        large_offsets = [-1.0, 1.0]  # These are likely to filter out most data
+
+        result = run_sensitivity_analysis(df, n_permutations=10, seed=42, offsets=large_offsets)
+
+        # At least some results should be marked as 'invalid' due to small sample size
+        invalid_count = sum(1 for r in result['sweep_results'] if r['status'] == 'invalid')
+        # We expect at least one to be invalid given the extreme offsets and small N
+        assert invalid_count > 0, "Expected some thresholds to be marked invalid due to small sample size"
+
+    def test_sensitivity_analysis_valid_thresholds(self):
+        """Test that valid thresholds (n >= 15) are processed correctly."""
+        np.random.seed(42)
+        # Create a dataset with enough samples for moderate thresholds
+        df = pd.DataFrame({
+            'complexity_score': np.random.normal(loc=1.5, scale=0.5, size=200),
+            'd_score': np.random.normal(loc=0.2, scale=0.1, size=200),
+            'complexity_category': ['Low'] * 100 + ['High'] * 100
+        })
+
+        # Use moderate offsets
+        moderate_offsets = [-0.1, 0.0, 0.1]
+
+        result = run_sensitivity_analysis(df, n_permutations=20, seed=42, offsets=moderate_offsets)
+
+        # All results should be 'valid' given the large sample size and moderate offsets
+        valid_count = sum(1 for r in result['sweep_results'] if r['status'] == 'valid')
+        assert valid_count == len(result['sweep_results']), "Expected all moderate thresholds to be valid"
+
+    def test_sensitivity_analysis_reproducibility(self):
+        """Verify that sensitivity analysis is reproducible with the same seed."""
+        np.random.seed(42)
+        df = pd.DataFrame({
+            'complexity_score': np.random.normal(loc=1.5, scale=0.5, size=100),
+            'd_score': np.random.normal(loc=0.2, scale=0.1, size=100),
+            'complexity_category': ['Low'] * 50 + ['High'] * 50
+        })
+
+        offsets = [-0.05, 0.0, 0.05]
+
+        result1 = run_sensitivity_analysis(df, n_permutations=100, seed=42, offsets=offsets)
+        result2 = run_sensitivity_analysis(df, n_permutations=100, seed=42, offsets=offsets)
+
+        # Results should be identical
+        assert result1['sweep_results'] == result2['sweep_results'], "Sensitivity analysis should be reproducible with same seed"
+
+class TestEffectSizeCalculation:
+    """Unit tests for effect size calculation."""
+
+    def test_cohen_d_calculation(self):
+        """Test Cohen's d calculation with known values."""
+        # Simple case: equal variance, known effect size
+        group1 = np.array([1, 2, 3, 4, 5])
+        group2 = np.array([6, 7, 8, 9, 10])
+
+        effect_size = calculate_effect_size(group1, group2)
+
+        # Manual calculation:
+        # mean1 = 3, mean2 = 8, diff = 5
+        # pooled_std = sqrt(((4*2.5 + 4*2.5) / 8)) = sqrt(2.5) ≈ 1.581
+        # d = 5 / 1.581 ≈ 3.162
+        expected_d = (8 - 3) / np.sqrt(2.5)
+
+        assert np.isclose(effect_size, expected_d, rtol=1e-3), f"Expected {expected_d}, got {effect_size}"
+
+    def test_effect_size_zero_difference(self):
+        """Test effect size when groups are identical."""
+        group = np.array([1, 2, 3, 4, 5])
+        effect_size = calculate_effect_size(group, group)
+
+        assert effect_size == 0.0, "Effect size should be 0 for identical groups"

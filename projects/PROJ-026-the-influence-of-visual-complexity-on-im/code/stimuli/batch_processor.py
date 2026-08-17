@@ -1,114 +1,102 @@
-"""
-Optimized batch processor for stimuli images.
-Implements vectorized loops to reduce execution time.
-"""
 import os
 import logging
 import numpy as np
 import cv2
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
-import pandas as pd
-
-from ..config import get_data_path, get_project_root
+from ..config import get_project_root
 from ..utils.logging import get_logger
-from .metrics import process_image_vectorized
 
 logger = get_logger(__name__)
 
-def load_images_batch(image_paths: List[Path], max_images: Optional[int] = None) -> List[np.ndarray]:
+def load_images_batch(directory: Path, max_images: Optional[int] = None) -> List[np.ndarray]:
     """
-    Load a batch of images.
-    If max_images is set, only load that many.
-    """
-    if max_images is not None:
-        image_paths = image_paths[:max_images]
-        
-    images = []
-    for p in image_paths:
-        img = cv2.imread(str(p))
-        if img is not None:
-            images.append(img)
-        else:
-            logger.warning(f"Failed to load image: {p}")
-    return images
-
-def process_stimuli_vectorized(input_dir: str, output_path: str, max_images: Optional[int] = None) -> pd.DataFrame:
-    """
-    Process all images in input_dir using vectorized operations.
-    This function is optimized for speed by minimizing Python loops
-    and leveraging numpy/cv2 internals.
+    Load a batch of images from a directory.
     
     Args:
-        input_dir: Directory containing input images.
-        output_path: Path to save the output CSV.
-        max_images: Optional limit on number of images to process.
+        directory: Path to the directory containing images
+        max_images: Maximum number of images to load (None for all)
         
     Returns:
-        DataFrame with complexity scores.
+        List of loaded images as numpy arrays
     """
-    input_path = Path(input_dir)
-    if not input_path.exists():
-        logger.error(f"Input directory {input_dir} does not exist.")
-        return pd.DataFrame()
-        
-    image_files = list(input_path.glob("*.png")) + list(input_path.glob("*.jpg")) + list(input_path.glob("*.jpeg"))
+    images = []
+    image_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif'}
     
-    if not image_files:
-        logger.warning(f"No image files found in {input_dir}")
-        return pd.DataFrame()
-        
-    if max_images is not None:
+    image_files = []
+    for ext in image_extensions:
+        image_files.extend(directory.glob(f'*{ext}'))
+        image_files.extend(directory.glob(f'*{ext.upper()}'))
+    
+    if max_images:
         image_files = image_files[:max_images]
-        
-    logger.info(f"Processing {len(image_files)} images with vectorized pipeline...")
     
+    for img_path in image_files:
+        img = cv2.imread(str(img_path))
+        if img is not None:
+            images.append(img)
+            logger.debug(f"Loaded image: {img_path.name}")
+        else:
+            logger.warning(f"Failed to load image: {img_path.name}")
+    
+    logger.info(f"Loaded {len(images)} images from {directory}")
+    return images
+
+def process_stimuli_vectorized(images: List[np.ndarray]) -> List[Dict]:
+    """
+    Process a batch of images and return complexity metrics.
+    
+    Args:
+        images: List of images as numpy arrays
+        
+    Returns:
+        List of dictionaries containing complexity metrics
+    """
     results = []
     
-    for img_file in image_files:
-        try:
-            # Use the vectorized wrapper
-            edge_density, entropy_val, fractal_dim = process_image_vectorized(cv2.imread(str(img_file)))
-            category = _categorize_complexity(edge_density, entropy_val, fractal_dim)
-            
-            results.append({
-                "filename": img_file.name,
-                "edge_density": edge_density,
-                "entropy": entropy_val,
-                "fractal_dim": fractal_dim,
-                "complexity_category": category
-            })
-        except Exception as e:
-            logger.error(f"Error processing {img_file}: {e}")
-            continue
-            
-    df = pd.DataFrame(results)
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Vectorized processing complete. Saved {len(df)} rows to {output_path}")
-    return df
-
-def _categorize_complexity(edge_density: float, entropy: float, fractal_dim: float) -> str:
-    """Helper to categorize complexity."""
-    score = 0.3 * edge_density + 0.4 * entropy + 0.3 * fractal_dim
-    if score < 0.5:
-        return "Low"
-    elif score < 1.0:
-        return "Medium"
-    else:
-        return "High"
+    for img in images:
+        # Convert to grayscale
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        
+        # Calculate edge density
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+        edges = cv2.Canny(blurred, 50, 150)
+        edge_density = np.count_nonzero(edges) / edges.size
+        
+        # Calculate entropy
+        hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
+        hist = hist.flatten()
+        prob = hist / np.sum(hist)
+        prob = prob[prob > 0]
+        image_entropy = np.sum(-prob * np.log2(prob))
+        
+        results.append({
+            'edge_density': edge_density,
+            'entropy': image_entropy
+        })
+    
+    return results
 
 def main():
-    """Entry point for vectorized batch processing."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Vectorized batch processing for stimuli")
-    parser.add_argument("--input", type=str, default="data/raw/stimuli", help="Input directory")
-    parser.add_argument("--output", type=str, default="data/processed/complexity_scores_vectorized.csv", help="Output file path")
-    parser.add_argument("--max-images", type=int, default=None, help="Max images to process")
-    args = parser.parse_args()
+    """Main entry point for batch processor."""
+    root = get_project_root()
+    stimuli_dir = root / "data" / "raw" / "stimuli"
     
-    process_stimuli_vectorized(args.input, args.output, args.max_images)
+    if not stimuli_dir.exists():
+        logger.error(f"Stimuli directory not found: {stimuli_dir}")
+        return
+    
+    images = load_images_batch(stimuli_dir)
+    if not images:
+        logger.warning("No images found to process")
+        return
+    
+    results = process_stimuli_vectorized(images)
+    logger.info(f"Processed {len(results)} images")
+    
+    # Output results
+    for i, result in enumerate(results):
+        logger.info(f"Image {i}: Edge Density = {result['edge_density']:.4f}, Entropy = {result['entropy']:.4f}")
 
 if __name__ == "__main__":
     main()

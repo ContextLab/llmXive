@@ -4,8 +4,9 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T033a` (rejected 1x): No `research.md` file or excerpt was provided, and there is no evidence that the methodological shift from ANOVA to a permutation test has been documented, justified, or cited as required. The implementer must supply a non‑empty `research.md` containing the explanation and citation.
-- `T027b` (rejected 1x): No evidence of a `logs/counterbalance_strategy.log` file was provided; the claim lacks any artifact showing the log’s existence, content, or the specific counterbalancing strategy recorded. The required log file must be present and contain the strategy details for the task to be considered complete.
+- `T017` (rejected 1x): The required output file `data/processed/complexity_scores.csv` does not exist, and the provided `code/stimuli/process.py` is truncated before any code that writes the CSV, so we cannot verify that it produces the required schema. The task’s core deliverable is therefore missing.
+- `T018` (rejected 1x): No code, notebook, script, or output file was provided that actually computes visual‑complexity scores and applies `pandas.qcut` to assign Low/Medium/High categories. Without the required artifact (e.g., a Python module or CSV showing the categorized images), the task’s requirement is not satisfied.
+- `T026` (rejected 1x): The `load.py` script lacks any command‑line handling for a `--null-effect` flag and does not raise a `RuntimeError` when synthetic data is loaded in production mode. The `process.py` file never aggregates per‑participant scores, writes the required `aggregated_d_scores.csv`, or produces the specified columns (`participant_id, session_id, d_score, n_trials_valid, status`). The expected output file is missing entirely.
 
 ## Required change
 

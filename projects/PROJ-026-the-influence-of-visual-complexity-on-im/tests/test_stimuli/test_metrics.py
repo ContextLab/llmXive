@@ -55,7 +55,9 @@ def test_entropy_noise(noise_image):
 def test_fractal_dim_solid_color(solid_color_image):
     """Fractal dimension should be low for solid color."""
     fd = calculate_fractal_dim(solid_color_image)
+    # Fractal dimension for a 2D image should be between 1.0 (line) and 2.0 (plane)
     assert fd >= 1.0 and fd <= 2.0, f"Fractal dimension out of bounds: {fd}"
+    # Solid color is very smooth, so FD should be close to 1.0
     assert fd < 1.5, f"Fractal dimension for solid color should be low, got {fd}"
 
 def test_fractal_dim_noise(noise_image):

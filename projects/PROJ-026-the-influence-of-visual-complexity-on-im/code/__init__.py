@@ -1,8 +1,4 @@
 """
-llmXive Research Pipeline - Automated Science Implementation
-
-This package provides the core functionality for the research pipeline,
-including stimulus processing, data analysis, and visualization.
+llmXive research-implementer agent system prompt
+Project: PROJ-026-the-influence-of-visual-complexity-on-im
 """
-__version__ = "0.1.0"
-__author__ = "llmXive Research Team"

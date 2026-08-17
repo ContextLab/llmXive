@@ -1,202 +1,162 @@
-"""
-Tests for data processing logic, specifically focusing on trial filtering,
-D-score calculation, and participant exclusion criteria.
-"""
 import pytest
-import numpy as np
 import pandas as pd
-from datetime import datetime
-from typing import List, Dict, Any
+import numpy as np
+import sys
+from pathlib import Path
 
-# Import the functions under test
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from code.data.process import filter_trials, calculate_d_score, aggregate_d_scores
-from code.data.models import ParticipantResponse, AggregatedScore
 
-
-class TestParticipantExclusion:
-    """
-    Integration test for participant exclusion logic when valid trials < 10.
+class TestFilterTrials:
+    """Unit tests for trial filtering logic (T022)"""
     
-    This test verifies that:
-    1. Participants with fewer than 10 valid trials are excluded from the final aggregation.
-    2. The exclusion is correctly flagged in the status field.
-    3. The d_score is set to NaN for excluded participants.
-    """
-
-    def _generate_trial_data(
-        self, 
-        participant_id: str, 
-        session_id: str, 
-        n_trials: int, 
-        include_errors: bool = False
-    ) -> List[Dict[str, Any]]:
-        """Helper to generate synthetic trial data."""
-        trials = []
-        for i in range(n_trials):
-            # Create valid reaction times (between 300ms and 10000ms)
-            rt = 500 + (i * 10) 
-            is_error = include_errors and (i % 5 == 0)
-            
-            trial = {
-                "participant_id": participant_id,
-                "session_id": session_id,
-                "trial_number": i,
-                "reaction_time": rt,
-                "is_error": is_error,
-                "block_type": "practice" if i < 10 else "test",
-                "timestamp": datetime.now().isoformat()
-            }
-            trials.append(trial)
-        return trials
-
-    def test_exclusion_threshold_boundary(self):
-        """
-        Test that a participant with exactly 9 valid trials is excluded,
-        while one with 10 valid trials is included.
-        """
-        # Create data for a participant with 9 valid trials
-        # We'll generate 9 trials, all within valid range
-        low_count_trials = self._generate_trial_data(
-            participant_id="P_LOW", 
-            session_id="S1", 
-            n_trials=9
-        )
-        
-        # Create data for a participant with 10 valid trials
-        valid_count_trials = self._generate_trial_data(
-            participant_id="P_VALID", 
-            session_id="S1", 
-            n_trials=10
-        )
-
-        # Combine into a single list of dicts for the aggregate function
-        all_trials = low_count_trials + valid_count_trials
-
-        # Aggregate the data
-        result_df = aggregate_d_scores(all_trials)
-
-        # Verify results
-        assert len(result_df) == 2, "Should have two participant-session records"
-
-        # Check the excluded participant
-        low_record = result_df[result_df['participant_id'] == 'P_LOW'].iloc[0]
-        assert pd.isna(low_record['d_score']), "Excluded participant should have NaN d_score"
-        assert low_record['status'] == 'excluded', "Status should be 'excluded' for <10 trials"
-        assert low_record['n_trials_valid'] == 9, "Valid trial count should be 9"
-
-        # Check the included participant
-        valid_record = result_df[result_df['participant_id'] == 'P_VALID'].iloc[0]
-        assert not pd.isna(valid_record['d_score']), "Valid participant should have a calculated d_score"
-        assert valid_record['status'] == 'valid', "Status should be 'valid' for >=10 trials"
-        assert valid_record['n_trials_valid'] == 10, "Valid trial count should be 10"
-
-    def test_exclusion_with_filtering(self):
-        """
-        Test exclusion when initial trials are reduced by filtering (e.g., errors or latency bounds).
-        
-        Scenario: Participant has 15 trials, but 6 are errors. 
-        Valid trials = 9. Should be excluded.
-        """
-        trials = self._generate_trial_data(
-            participant_id="P_FILTERED", 
-            session_id="S1", 
-            n_trials=15, 
-            include_errors=True
-        )
-        
-        # Manually inject some out-of-bounds latencies to ensure they are filtered
-        # Trials 0, 1, 2 will be < 300ms (invalid)
-        for i in range(3):
-            trials[i]['reaction_time'] = 100 
-
-        # Total raw: 15
-        # Errors (i%5==0): 0, 5, 10, 15 (but 15 is out of range, so 0, 5, 10) -> 3 errors
-        # Latency < 300: 0, 1, 2 -> 3 trials
-        # Note: Trial 0 is both error and low latency. 
-        # Expected valid: 15 - 3 (errors) - 3 (latency) + 1 (overlap) = 10? 
-        # Let's be precise:
-        # 0: Error + Low (Invalid)
-        # 1: Low (Invalid)
-        # 2: Low (Invalid)
-        # 3: Valid
-        # 4: Valid
-        # 5: Error (Invalid)
-        # 6: Valid
-        # 7: Valid
-        # 8: Valid
-        # 9: Valid
-        # 10: Error (Invalid)
-        # 11: Valid
-        # 12: Valid
-        # 13: Valid
-        # 14: Valid
-        # Total Valid: 3,4,6,7,8,9,11,12,13,14 -> 10 valid.
-        # Wait, I need < 10 valid to trigger exclusion. 
-        # Let's make 4 errors and 3 low latency (no overlap) -> 15 - 7 = 8 valid.
-        
-        # Reset trials for clarity
-        trials = []
-        for i in range(15):
-            rt = 500 + (i * 10)
-            is_error = False
-            if i < 4: 
-                is_error = True # 4 errors
-            elif i < 7:
-                rt = 100 # 3 low latency, no overlap with errors
-            
-            trials.append({
-                "participant_id": "P_EXCLUDE",
-                "session_id": "S1",
-                "trial_number": i,
-                "reaction_time": rt,
-                "is_error": is_error,
-                "block_type": "test",
-                "timestamp": datetime.now().isoformat()
-            })
-
-        result_df = aggregate_d_scores(trials)
-        
-        assert len(result_df) == 1
-        record = result_df.iloc[0]
-        
-        # 15 total - 4 errors - 3 low latency = 8 valid
-        assert record['n_trials_valid'] == 8, f"Expected 8 valid trials, got {record['n_trials_valid']}"
-        assert pd.isna(record['d_score']), "Participant with <10 valid trials should have NaN d_score"
-        assert record['status'] == 'excluded', "Status should be 'excluded'"
-
-    def test_edge_case_exact_ten(self):
-        """
-        Test that exactly 10 valid trials results in inclusion (status='valid').
-        """
-        trials = self._generate_trial_data(
-            participant_id="P_EXACT", 
-            session_id="S1", 
-            n_trials=10
-        )
-        
-        # Remove 1 trial by making it an error, leaving 9 valid -> Excluded
-        trials[0]['is_error'] = True
-        
-        result_df = aggregate_d_scores(trials)
-        record = result_df.iloc[0]
-        
-        assert record['n_trials_valid'] == 9
-        assert record['status'] == 'excluded'
-
-        # Now add one more valid trial to make it 10
-        trials.append({
-            "participant_id": "P_EXACT",
-            "session_id": "S1",
-            "trial_number": 10,
-            "reaction_time": 600,
-            "is_error": False,
-            "block_type": "test",
-            "timestamp": datetime.now().isoformat()
+    @pytest.fixture
+    def sample_data(self):
+        """Create sample trial data for testing"""
+        return pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P1', 'P1', 'P1', 'P2', 'P2'],
+            'session_id': ['S1', 'S1', 'S1', 'S1', 'S1', 'S2', 'S2'],
+            'reaction_time': [250, 400, 500, 15000, 600, 350, 800],
+            'is_correct': [True, True, False, True, True, True, True]
         })
+    
+    def test_filters_low_reaction_times(self, sample_data):
+        """Test that trials < 300ms are removed"""
+        filtered = filter_trials(sample_data, min_rt=300.0)
         
-        result_df = aggregate_d_scores(trials)
-        record = result_df.iloc[0]
+        # Should remove the 250ms trial
+        assert len(filtered) == 6  # 7 - 1
+        assert all(filtered['reaction_time'] >= 300.0)
+    
+    def test_filters_high_reaction_times(self, sample_data):
+        """Test that trials > 10000ms are removed"""
+        filtered = filter_trials(sample_data, max_rt=10000.0)
         
-        assert record['n_trials_valid'] == 10
-        assert record['status'] == 'valid'
-        assert not pd.isna(record['d_score'])
+        # Should remove the 15000ms trial
+        assert len(filtered) == 6  # 7 - 1
+        assert all(filtered['reaction_time'] <= 10000.0)
+    
+    def test_filters_errors(self, sample_data):
+        """Test that incorrect trials are removed"""
+        filtered = filter_trials(sample_data)
+        
+        # Should remove the incorrect trial (is_correct=False)
+        assert len(filtered) == 5  # 7 - 1 (low RT) - 1 (high RT) - 1 (error)
+        assert all(filtered['is_correct'] == True)
+    
+    def test_combined_filtering(self, sample_data):
+        """Test that all filtering rules work together"""
+        filtered = filter_trials(sample_data)
+        
+        expected_count = 5  # Only valid trials remain
+        assert len(filtered) == expected_count
+        
+        # Verify all remaining trials meet criteria
+        assert all(filtered['reaction_time'] >= 300.0)
+        assert all(filtered['reaction_time'] <= 10000.0)
+        assert all(filtered['is_correct'] == True)
+    
+    def test_empty_dataframe(self):
+        """Test filtering on empty dataframe"""
+        empty_df = pd.DataFrame(columns=['reaction_time', 'is_correct'])
+        filtered = filter_trials(empty_df)
+        assert len(filtered) == 0
+    
+    def test_all_trials_filtered(self):
+        """Test when all trials are invalid"""
+        invalid_data = pd.DataFrame({
+            'reaction_time': [100, 200, 15000],
+            'is_correct': [False, False, False]
+        })
+        filtered = filter_trials(invalid_data)
+        assert len(filtered) == 0
+    
+    def test_default_thresholds(self, sample_data):
+        """Test that default thresholds are 300ms and 10000ms"""
+        filtered = filter_trials(sample_data)
+        
+        # With defaults (300, 10000), should filter out:
+        # - 250ms (too low)
+        # - 15000ms (too high)
+        # - one error
+        assert len(filtered) == 5
+
+class TestCalculateDScore:
+    """Unit tests for D-score calculation"""
+    
+    def test_insufficient_trials(self):
+        """Test that insufficient trials return NaN"""
+        trials = pd.DataFrame({
+            'reaction_time': [500, 600, 700],
+            'is_correct': [True, True, True]
+        })
+        d_score = calculate_d_score(trials)
+        assert np.isnan(d_score)
+    
+    def test_valid_d_score_calculation(self):
+        """Test D-score calculation with sufficient trials"""
+        trials = pd.DataFrame({
+            'reaction_time': [500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400],
+            'is_correct': [True] * 10
+        })
+        d_score = calculate_d_score(trials)
+        
+        # Should return a valid float
+        assert not np.isnan(d_score)
+        assert d_score >= 0
+    
+    def test_zero_std_returns_zero(self):
+        """Test D-score when all reaction times are identical"""
+        trials = pd.DataFrame({
+            'reaction_time': [500] * 15,
+            'is_correct': [True] * 15
+        })
+        d_score = calculate_d_score(trials)
+        assert d_score == 0.0
+
+class TestAggregateDScores:
+    """Integration tests for D-score aggregation"""
+    
+    @pytest.fixture
+    def multi_participant_data(self):
+        """Create data with multiple participants and sessions"""
+        return pd.DataFrame({
+            'participant_id': ['P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1',
+                             'P2', 'P2', 'P2'],
+            'session_id': ['S1', 'S1', 'S1', 'S1', 'S1', 'S1', 'S1', 'S1', 'S1', 'S1',
+                         'S2', 'S2', 'S2'],
+            'reaction_time': [500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400,
+                            400, 500, 600],
+            'is_correct': [True] * 13
+        })
+    
+    def test_aggregates_correctly(self, multi_participant_data):
+        """Test that aggregation produces correct structure"""
+        result = aggregate_d_scores(multi_participant_data)
+        
+        assert len(result) == 2  # Two participant-session combinations
+        assert 'participant_id' in result.columns
+        assert 'session_id' in result.columns
+        assert 'd_score' in result.columns
+        assert 'n_trials_valid' in result.columns
+        assert 'status' in result.columns
+    
+    def test_flags_insufficient_trials(self, multi_participant_data):
+        """Test that participants with <10 trials are flagged"""
+        result = aggregate_d_scores(multi_participant_data)
+        
+        # P2 has only 3 trials, should be flagged
+        p2_row = result[result['participant_id'] == 'P2']
+        assert p2_row.iloc[0]['status'] == 'insufficient_trials'
+        assert np.isnan(p2_row.iloc[0]['d_score'])
+    
+    def test_valid_participants_have_scores(self, multi_participant_data):
+        """Test that participants with >=10 trials have valid D-scores"""
+        result = aggregate_d_scores(multi_participant_data)
+        
+        # P1 has 10 trials, should be valid
+        p1_row = result[result['participant_id'] == 'P1']
+        assert p1_row.iloc[0]['status'] == 'valid'
+        assert not np.isnan(p1_row.iloc[0]['d_score'])

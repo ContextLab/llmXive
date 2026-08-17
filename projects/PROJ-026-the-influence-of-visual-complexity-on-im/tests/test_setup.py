@@ -1,43 +1,66 @@
+"""
+Tests for the project setup script (T001).
+
+Verifies that the required directory structure exists after running
+code/setup_project.py.
+"""
 import os
+import tempfile
+import pytest
 from pathlib import Path
 import sys
 
-# Add parent directory to path to allow imports if run directly
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
+from setup_project import create_directories
 from config import get_project_root
 
-def test_directory_structure_exists():
+def test_directory_structure_creation():
     """
-    Verify that T001 created the required directory tree:
-    code/, data/raw/stimuli, data/raw/responses, data/processed, data/results, tests/
+    Test that create_directories creates the expected folder hierarchy.
     """
-    root = get_project_root()
+    # We run the creation logic
+    created_dirs = create_directories()
     
-    required_dirs = [
-        "code",
+    # Define expected directories relative to project root
+    expected_dirs = [
+        "code/data",
+        "code/stimuli",
+        "code/analysis",
+        "code/viz",
+        "code/tests",
         "data/raw/stimuli",
         "data/raw/responses",
         "data/processed",
         "data/results",
-        "tests"
+        "logs",
+        "docs",
+        "figures",
     ]
     
-    missing = []
-    for rel_path in required_dirs:
-        full_path = root / rel_path
-        if not full_path.exists() or not full_path.is_dir():
-            missing.append(rel_path)
+    project_root = get_project_root()
     
-    if missing:
-        raise AssertionError(f"Required directories missing: {missing}")
-    
-    # Also verify that the nested structure is correct
-    assert (root / "data" / "raw" / "stimuli").exists()
-    assert (root / "data" / "raw" / "responses").exists()
-    assert (root / "data" / "processed").exists()
-    assert (root / "data" / "results").exists()
+    # Assert all expected directories exist
+    for dir_name in expected_dirs:
+        full_path = project_root / dir_name
+        assert full_path.exists(), f"Directory {dir_name} does not exist after setup."
+        assert full_path.is_dir(), f"Path {dir_name} exists but is not a directory."
 
-if __name__ == "__main__":
-    test_directory_structure_exists()
-    print("Directory structure verification passed.")
+def test_nested_directories_created():
+    """
+    Test that nested directories (e.g., data/raw/stimuli) are created correctly.
+    """
+    project_root = get_project_root()
+    
+    # Check specific nested paths
+    nested_paths = [
+        "data/raw/stimuli",
+        "data/raw/responses",
+        "code/data",
+        "code/analysis",
+    ]
+    
+    for path_str in nested_paths:
+        path = project_root / path_str
+        assert path.exists() and path.is_dir(), f"Nested directory {path_str} missing."

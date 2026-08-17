@@ -1,16 +1,11 @@
-"""
-Data processing utilities for aggregating raw response logs into D-scores.
-
-Implements Greenwald D2 algorithm, trial filtering, and participant exclusion logic.
-"""
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from ..data.models import ParticipantResponse, AggregatedScore
 import logging
 from datetime import datetime
 from pathlib import Path
-from ..config import get_project_root, get_data_path
+from ..config import get_project_root
 
 logger = logging.getLogger(__name__)
 
@@ -18,227 +13,197 @@ def filter_trials(df: pd.DataFrame) -> pd.DataFrame:
     """
     Filter trials based on latency bounds and error handling.
     
-    Removes trials with latency < 300ms or > 10000ms, and handles error trials.
+    Thresholds:
+    - Remove trials with reaction_time < 300ms
+    - Remove trials with reaction_time > 10000ms
+    - Remove trials marked as incorrect (is_correct == False)
     
     Args:
-        df: DataFrame containing raw response logs with 'latency' and 'is_error' columns.
+        df: DataFrame with raw response logs
         
     Returns:
-        Filtered DataFrame.
+        Filtered DataFrame
     """
-    if df.empty:
-        return df
+    logger.info(f"Filtering trials: starting with {len(df)} rows")
     
-    # Filter by latency bounds
-    df = df[(df['latency'] >= 300) & (df['latency'] <= 10000)]
+    # Filter by reaction time bounds
+    df = df[(df['reaction_time'] >= 300) & (df['reaction_time'] <= 10000)]
     
-    # Remove error trials (is_error == 1 or True)
-    if 'is_error' in df.columns:
-        df = df[df['is_error'] == 0]
-        
-    return df.reset_index(drop=True)
+    # Filter by correctness (keep only correct trials)
+    df = df[df['is_correct'] == True]
+    
+    logger.info(f"Filtering trials: {len(df)} rows remaining")
+    return df
 
-def calculate_d_score(df: pd.DataFrame) -> Tuple[float, int]:
+def calculate_d_score(df: pd.DataFrame) -> float:
     """
-    Calculate Greenwald D2 score for a session.
+    Calculate Greenwald D2 algorithm for D-score aggregation.
     
-    The D2 score is the difference between mean reaction times in two blocks
-    divided by the pooled standard deviation.
+    The D2 score is calculated as:
+    D = (M_diff) / SD_pooled
+    
+    Where:
+    - M_diff is the mean difference between incompatible and compatible block RTs
+    - SD_pooled is the pooled standard deviation of the two blocks
     
     Args:
-        df: Filtered DataFrame for a single session with 'latency' and 'condition' columns.
+        df: DataFrame with filtered trials for a single session
         
     Returns:
-        Tuple of (d_score, n_valid_trials)
+        D-score value
     """
-    if df.empty:
-        return np.nan, 0
-        
-    # Group by condition (e.g., 'compatible' vs 'incompatible')
-    if 'condition' not in df.columns:
-        logger.warning("No 'condition' column found, cannot calculate D-score")
-        return np.nan, len(df)
-        
-    groups = df.groupby('condition')['latency']
+    if len(df) < 10:
+        logger.warning(f"Insufficient trials for D-score calculation: {len(df)}")
+        return np.nan
     
-    if len(groups) < 2:
-        logger.warning("Less than 2 conditions found, cannot calculate D-score")
-        return np.nan, len(df)
-        
-    means = groups.mean()
-    stds = groups.std()
-    counts = groups.count()
+    # Separate by block type (assuming session_id encodes block info or we have a block column)
+    # For this implementation, we assume the session_id distinguishes the two blocks
+    # In a real IAT, we'd have explicit block labels. Here we simulate based on session_id
+    
+    # If we have two distinct session_ids, treat them as the two conditions
+    unique_sessions = df['session_id'].unique()
+    if len(unique_sessions) != 2:
+        # If only one session, we can't calculate difference
+        logger.warning("Cannot calculate D-score: need two conditions")
+        return np.nan
+    
+    block1 = df[df['session_id'] == unique_sessions[0]]['reaction_time']
+    block2 = df[df['session_id'] == unique_sessions[1]]['reaction_time']
+    
+    if len(block1) < 10 or len(block2) < 10:
+        logger.warning(f"Insufficient trials in one or both blocks: {len(block1)}, {len(block2)}")
+        return np.nan
+    
+    # Calculate mean difference
+    mean_diff = block2.mean() - block1.mean()
     
     # Calculate pooled standard deviation
-    # D2 = (Mean_Incompatible - Mean_Compatible) / Pooled_SD
-    # Pooled_SD = sqrt((SD1^2 + SD2^2) / 2)
+    n1, n2 = len(block1), len(block2)
+    std1, std2 = block1.std(), block2.std()
     
-    if len(means) >= 2:
-        # Assuming first two conditions are the ones to compare
-        cond_names = list(means.index)
-        mean_diff = means.iloc[1] - means.iloc[0]
-        
-        # Handle cases where std might be NaN (single trial)
-        std1 = stds.iloc[0] if not np.isnan(stds.iloc[0]) else 0.0
-        std2 = stds.iloc[1] if not np.isnan(stds.iloc[1]) else 0.0
-        
-        pooled_std = np.sqrt((std1**2 + std2**2) / 2)
-        
-        if pooled_std == 0:
-            d_score = 0.0
-        else:
-            d_score = mean_diff / pooled_std
-            
-        return d_score, len(df)
-    else:
-        return np.nan, len(df)
+    # Handle zero std
+    if std1 == 0 and std2 == 0:
+        return np.nan
+    
+    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
+    
+    if pooled_std == 0:
+        return np.nan
+    
+    d_score = mean_diff / pooled_std
+    return d_score
 
-def aggregate_d_scores(raw_logs: List[pd.DataFrame], participant_ids: List[str], 
-                       session_ids: List[str]) -> pd.DataFrame:
+def aggregate_d_scores(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregate raw logs into D-scores per participant/session.
+    Aggregate raw logs into D-scores per participant and session.
     
     Args:
-        raw_logs: List of DataFrames, one per session.
-        participant_ids: List of participant IDs corresponding to each log.
-        session_ids: List of session IDs corresponding to each log.
+        df: DataFrame with raw response logs
         
     Returns:
-        DataFrame with columns: participant_id, session_id, d_score, n_trials_valid, status
+        DataFrame with aggregated D-scores
     """
-    results = []
+    logger.info(f"Aggregating D-scores for {len(df)} total rows")
     
-    for i, (pid, sid, log_df) in enumerate(zip(participant_ids, session_ids, raw_logs)):
+    # Group by participant_id and session_id
+    aggregated = []
+    
+    for (pid, sid), group in df.groupby(['participant_id', 'session_id']):
         # Filter trials
-        filtered_df = filter_trials(log_df)
-        n_valid = len(filtered_df)
+        filtered = filter_trials(group)
+        n_valid = len(filtered)
         
         # Calculate D-score
-        d_score, _ = calculate_d_score(filtered_df)
+        d_score = calculate_d_score(filtered)
         
         # Determine status
         if n_valid < 10:
-            status = 'excluded_insufficient_trials'
+            status = 'insufficient_trials'
             d_score = np.nan
-        elif np.isnan(d_score):
-            status = 'error_calculation'
+        elif pd.isna(d_score):
+            status = 'calculation_failed'
         else:
             status = 'valid'
-            
-        results.append({
+        
+        aggregated.append({
             'participant_id': pid,
             'session_id': sid,
             'd_score': d_score,
             'n_trials_valid': n_valid,
             'status': status
         })
-        
-    return pd.DataFrame(results)
+    
+    result_df = pd.DataFrame(aggregated)
+    logger.info(f"Aggregated {len(result_df)} participant-session combinations")
+    
+    # Log summary
+    valid_count = len(result_df[result_df['status'] == 'valid'])
+    logger.info(f"Valid D-scores: {valid_count}/{len(result_df)}")
+    
+    return result_df
 
-def load_raw_logs_to_dict(log_dir: Path) -> Dict[str, List[pd.DataFrame]]:
+def load_raw_logs_to_dict(data_dir: str) -> Dict[str, pd.DataFrame]:
     """
-    Load raw response logs from directory into a dictionary.
+    Load raw logs from a directory into a dictionary of DataFrames.
     
     Args:
-        log_dir: Path to directory containing raw log files.
+        data_dir: Path to data directory
         
     Returns:
-        Dictionary mapping participant_id to list of session DataFrames.
+        Dictionary mapping participant_id to their DataFrame
     """
-    if not log_dir.exists():
-        logger.error(f"Log directory not found: {log_dir}")
-        return {}
-        
-    participant_logs = {}
+    from .load import load_response_logs
     
-    # Assuming files are named like: participantID_sessionID.csv
-    for file_path in log_dir.glob("*.csv"):
-        try:
-            df = pd.read_csv(file_path)
-            # Extract participant and session ID from filename or columns
-            # Adjust based on actual file naming convention
-            stem = file_path.stem
-            parts = stem.split('_')
-            if len(parts) >= 2:
-                pid = parts[0]
-                sid = parts[1]
-                
-                if pid not in participant_logs:
-                    participant_logs[pid] = {}
-                
-                if sid not in participant_logs[pid]:
-                    participant_logs[pid][sid] = []
-                    
-                participant_logs[pid][sid].append(df)
-            else:
-                logger.warning(f"Could not parse filename: {file_path}")
-        except Exception as e:
-            logger.error(f"Error reading {file_path}: {e}")
-            
-    # Flatten to list of (pid, sid, df)
-    result_list = []
-    for pid, sessions in participant_logs.items():
-        for sid, dfs in sessions.items():
-            for df in dfs:
-                result_list.append((pid, sid, df))
-                
-    return result_list
+    df = load_response_logs(data_dir)
+    
+    # Group by participant
+    participant_logs = {}
+    for pid, group in df.groupby('participant_id'):
+        participant_logs[pid] = group
+    
+    return participant_logs
 
-def save_aggregated_scores(df: pd.DataFrame, output_path: Path):
+def save_aggregated_scores(df: pd.DataFrame, output_path: str) -> None:
     """
     Save aggregated D-scores to CSV.
     
     Args:
-        df: DataFrame with aggregated scores.
-        output_path: Path to save the CSV file.
+        df: DataFrame with aggregated scores
+        output_path: Path to save the CSV
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
     logger.info(f"Saved aggregated scores to {output_path}")
 
 def main():
-    """
-    Main entry point for aggregating D-scores from raw logs.
-    """
-    project_root = get_project_root()
-    log_dir = get_data_path('raw/responses')
-    output_path = get_data_path('processed/aggregated_d_scores.csv')
+    """Main entry point for data processing."""
+    import argparse
+    from ..config import get_project_root
     
-    logging.basicConfig(level=logging.INFO)
+    parser = argparse.ArgumentParser(description='Process response logs to D-scores')
+    parser.add_argument('--data-dir', type=str, default=None,
+                      help='Path to raw response data directory')
+    parser.add_argument('--output', type=str, default=None,
+                      help='Path to output CSV file')
     
-    logger.info(f"Loading raw logs from {log_dir}")
-    raw_data = load_raw_logs_to_dict(log_dir)
+    args = parser.parse_args()
+    root = get_project_root()
     
-    if not raw_data:
-        logger.warning("No raw logs found. Exiting.")
-        return
-        
-    logger.info(f"Found {len(raw_data)} participants")
+    data_dir = args.data_dir or str(root / "data" / "raw" / "responses")
+    output_path = args.output or str(root / "data" / "processed" / "aggregated_d_scores.csv")
     
-    # Flatten data
-    all_logs = []
-    all_pids = []
-    all_sids = []
-    
-    for pid, sessions in raw_data.items():
-        for sid, dfs in sessions.items():
-            for df in dfs:
-                all_logs.append(df)
-                all_pids.append(pid)
-                all_sids.append(sid)
-    
-    logger.info(f"Processing {len(all_logs)} sessions")
+    # Load data
+    logger.info(f"Loading data from {data_dir}")
+    df = load_response_logs(data_dir)
     
     # Aggregate
-    aggregated_df = aggregate_d_scores(all_logs, all_pids, all_sids)
+    aggregated = aggregate_d_scores(df)
     
     # Save
-    save_aggregated_scores(aggregated_df, output_path)
+    save_aggregated_scores(aggregated, output_path)
     
-    # Print summary
-    valid_count = len(aggregated_df[aggregated_df['status'] == 'valid'])
-    excluded_count = len(aggregated_df[aggregated_df['status'] == 'excluded_insufficient_trials'])
-    logger.info(f"Summary: {valid_count} valid, {excluded_count} excluded")
+    logger.info("Processing complete")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

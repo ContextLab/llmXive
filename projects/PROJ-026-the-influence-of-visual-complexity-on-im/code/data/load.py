@@ -4,114 +4,130 @@ import sys
 import pandas as pd
 from pathlib import Path
 from typing import List, Optional
+import logging
+import numpy as np
+from ..config import get_project_root, SEED
+from ..utils.logging import get_logger
 
-from ..config import get_project_root, get_data_path
+logger = get_logger(__name__)
 
-def load_response_logs(logs_path: Optional[Path] = None) -> pd.DataFrame:
+def load_response_logs(data_dir: str) -> pd.DataFrame:
     """
-    Load raw response logs from the specified path.
+    Load raw response logs from a directory.
     
     Args:
-        logs_path: Path to the raw logs directory or specific file.
+        data_dir: Path to the directory containing response logs
         
     Returns:
-        DataFrame containing the loaded response logs.
+        DataFrame with response data
+        
+    Raises:
+        RuntimeError: If data is synthetic in production mode
+        FileNotFoundError: If no data files are found
     """
-    if logs_path is None:
-        data_path = get_data_path()
-        logs_path = data_path / "raw" / "responses"
+    root = Path(data_dir)
+    if not root.exists():
+        raise FileNotFoundError(f"Data directory not found: {root}")
     
-    if logs_path.is_file():
-        files = [logs_path]
-    elif logs_path.is_dir():
-        files = list(logs_path.glob("*.csv"))
-        if not files:
-            raise FileNotFoundError(f"No CSV files found in {logs_path}")
-    else:
-        raise FileNotFoundError(f"Path not found: {logs_path}")
+    # Look for CSV files
+    csv_files = list(root.glob('*.csv'))
     
+    if not csv_files:
+        raise FileNotFoundError(f"No CSV files found in {root}")
+    
+    # Load and concatenate all CSV files
     dfs = []
-    for file in files:
+    for csv_file in csv_files:
         try:
-            df = pd.read_csv(file)
+            df = pd.read_csv(csv_file)
             dfs.append(df)
+            logger.info(f"Loaded {len(df)} rows from {csv_file.name}")
         except Exception as e:
-            print(f"Warning: Could not read {file}: {e}", file=sys.stderr)
+            logger.error(f"Failed to load {csv_file.name}: {e}")
+            continue
     
     if not dfs:
-        raise ValueError("No valid data files found to load.")
+        raise ValueError("No valid data files could be loaded")
     
-    return pd.concat(dfs, ignore_index=True)
+    combined_df = pd.concat(dfs, ignore_index=True)
+    logger.info(f"Total rows loaded: {len(combined_df)}")
+    
+    # Validate expected columns
+    required_cols = {'participant_id', 'session_id', 'reaction_time', 'is_correct'}
+    if not required_cols.issubset(combined_df.columns):
+        missing = required_cols - set(combined_df.columns)
+        raise ValueError(f"Missing required columns: {missing}")
+    
+    return combined_df
 
-def generate_synthetic_response_logs(
-    output_path: Path,
-    n_participants: int = 100,
-    n_trials: int = 40,
-    seed: int = 42
-) -> None:
+def generate_synthetic_response_logs(n_participants: int = 100, n_trials: int = 40, seed: int = SEED) -> pd.DataFrame:
     """
-    Generate synthetic response logs for CI/testing purposes.
+    Generate synthetic response logs for CI/testing.
     
     Args:
-        output_path: Path to save the synthetic logs.
-        n_participants: Number of synthetic participants.
-        n_trials: Number of trials per participant.
-        seed: Random seed for reproducibility.
+        n_participants: Number of participants
+        n_trials: Number of trials per participant
+        seed: Random seed
+        
+    Returns:
+        DataFrame with synthetic response data
     """
-    import numpy as np
     np.random.seed(seed)
     
-    records = []
-    for p_id in range(1, n_participants + 1):
-        for t_id in range(1, n_trials + 1):
-            # Simulate reaction times (normal distribution, truncated)
-            rt = np.random.normal(500, 100)
-            rt = np.clip(rt, 300, 2000)
-            
-            # Simulate correctness (90% correct)
-            is_correct = 1 if np.random.random() > 0.1 else 0
-            
-            # Simulate session (1 or 2)
-            session_id = 1 if t_id <= n_trials // 2 else 2
-            
-            records.append({
-                "participant_id": f"P{p_id:03d}",
-                "session_id": session_id,
-                "trial_id": t_id,
-                "reaction_time": rt,
-                "is_correct": is_correct,
-                "timestamp": "2023-01-01T12:00:00"
-            })
+    participant_ids = [f"P{i:03d}" for i in range(n_participants)]
+    sessions = ['session_1', 'session_2']
     
-    df = pd.DataFrame(records)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    print(f"Generated synthetic logs at {output_path}")
+    data = []
+    for pid in participant_ids:
+        for session in sessions:
+            for trial in range(n_trials):
+                # Generate synthetic reaction times (normal distribution)
+                rt = np.random.normal(600, 150)
+                rt = np.clip(rt, 200, 2000)  # Clamp to realistic range
+                
+                # Generate correctness (80% accuracy)
+                is_correct = np.random.random() < 0.8
+                
+                data.append({
+                    'participant_id': pid,
+                    'session_id': session,
+                    'trial_id': trial,
+                    'reaction_time': rt,
+                    'is_correct': is_correct,
+                    'timestamp': pd.Timestamp.now()
+                })
+    
+    df = pd.DataFrame(data)
+    logger.info(f"Generated {len(df)} synthetic response records")
+    return df
 
-def main() -> int:
-    """Main entry point for data loading script."""
-    parser = argparse.ArgumentParser(description="Load or generate response logs.")
-    parser.add_argument("--null-effect", action="store_true", help="Generate synthetic data for CI.")
-    parser.add_argument("--output", type=str, help="Output path for synthetic data.")
-    parser.add_argument("--input", type=str, help="Input path for real data.")
+def main():
+    """Main entry point for data loading."""
+    parser = argparse.ArgumentParser(description='Load response logs')
+    parser.add_argument('--null-effect', action='store_true', 
+                      help='Generate synthetic data for CI/testing')
+    parser.add_argument('--data-dir', type=str, default=None,
+                      help='Path to data directory')
     
     args = parser.parse_args()
+    root = get_project_root()
     
     if args.null_effect:
-        if not args.output:
-            args.output = str(get_data_path() / "raw" / "responses" / "synthetic_logs.csv")
-        generate_synthetic_response_logs(Path(args.output))
+        logger.info("Generating synthetic data in null-effect mode")
+        df = generate_synthetic_response_logs()
+        output_path = root / "data" / "raw" / "responses" / "synthetic_responses.csv"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Saved synthetic data to {output_path}")
     else:
-        if not args.input:
-            args.input = str(get_data_path() / "raw" / "responses")
-        try:
-            df = load_response_logs(Path(args.input))
-            print(f"Loaded {len(df)} rows from {args.input}")
-        except Exception as e:
-            print(f"Error loading data: {e}", file=sys.stderr)
-            return 1
-    
-    return 0
+        data_dir = args.data_dir or str(root / "data" / "raw" / "responses")
+        if not Path(data_dir).exists() or not list(Path(data_dir).glob('*.csv')):
+            raise RuntimeError(
+                "Production mode active but no real data found. "
+                "Please provide real response logs or use --null-effect for CI."
+            )
+        df = load_response_logs(data_dir)
+        logger.info(f"Loaded real data from {data_dir}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
