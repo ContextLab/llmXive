@@ -16559,3 +16559,38 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T21:41:22Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: QM9 dataset contains 134000 small organic molecules
+  claim_id: c_28b7408c
+  context: 'Data Source: The QM9 dataset (DOI: 10.1038/sdata.2014.22), containing
+    134k small organic molecules.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'The QM9 dataset (DOI: 10.1038/sdata.2014.22), containing 134k small organic
+    molecules.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T21:35:35Z'
+- artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  attempts: 1
+  canonical: QM9 dataset is sole ground truth source
+  claim_id: c_4e4379d0
+  context: Ground Truth and Reference Data section states the dataset source and DOI.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The QM9 dataset (DOI: 10.1038/sdata.2014.22) is the sole source of ground
+    truth for this study.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T21:36:13Z'

@@ -12,14 +12,14 @@ This feature implements a comparative study of 3D conformational geometry versus
 **Language/Version**: Python 3.x  
 **Primary Dependencies**: PyTorch.0, PyTorch Geometric
 
-The specific version number is not asserted; instead, the study will utilize a recent release of PyTorch Geometric., RDKit (2023 release), scikit-learn.2, pandas 2.x, numpy.2  
+The specific version number is not asserted; instead, the study will utilize a recent release of PyTorch Geometric., RDKit (recent release), scikit-learn, pandas.x, numpy.2  
 **Storage**: Parquet files under data/processed/, model checkpoints under data/checkpoints/  
 **Testing**: pytest.3 with contract tests against schema definitions  
 **Target Platform**: Linux server (CPU-only mode)  
 **Project Type**: computational research pipeline  
 **Performance Goals**: Complete all 5 random seed experiments within 6h on 2 CPU cores  
 **Constraints**: No GPU acceleration; memory footprint < 8GB; reproducibility via pinned random seeds  
-**Scale/Scope**: A substantial number of molecules, random seeds, 2 models, feature attribution methods.
+**Scale/Scope**: A substantial number of molecules, random seeds, models, and feature attribution methods..
 **Documentation Structure**: README.md, quickstart.md, research.md under specs/001-predicting-molecular-dipole-moments/
 
 ## Constitution Check

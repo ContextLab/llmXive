@@ -31,9 +31,21 @@
   verification_status: unreachable
   verified_against_url: https://oeis.org/A008299
   verified_at: '2026-06-24T21:21:17.157543Z'
-- artifact_hash: 425495959a0b2a13c4741a8fbf959261622ce1c8d7ec44163ac920b184b69742
+- artifact_hash: cdcc4b4699e3f741f8bd38b8e85cf1d9308f5c8f3aec39f080cc435646abfe2a
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Quantum chemistry structures and properties of 134 kilo molecules
+    | Scientific Data
+  kind: url
+  value: https://doi.org/10.1038/sdata.2014.22
+  verification_status: pending
+  verified_against_url: https://www.nature.com/articles/sdata201422
+  verified_at: '2026-08-17T21:35:59.341333Z'
+- artifact_hash: cdcc4b4699e3f741f8bd38b8e85cf1d9308f5c8f3aec39f080cc435646abfe2a
+  artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/research.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: Quantum chemistry structures and properties of 134 kilo molecules
@@ -41,8 +53,8 @@
   value: 10.1038/sdata.2014.22
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-08-15T21:37:57.988122Z'
-- artifact_hash: 77344a494dc76684480db7191e5c1598573cb30baffa2d65a80a375c428da07e
+  verified_at: '2026-08-17T21:35:59.341333Z'
+- artifact_hash: 73af7d33cc5e038ee8141ac7a1b99cd75f40aef9999b851332a40971364782dd
   artifact_path: projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +64,4 @@
   value: 10.1038/sdata.2014.22
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/sdata.2014.22
-  verified_at: '2026-08-15T21:41:25.162761Z'
+  verified_at: '2026-08-17T21:36:16.898519Z'

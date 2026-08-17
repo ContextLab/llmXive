@@ -1,29 +1,44 @@
 # Research Documentation: Predicting Molecular Dipole Moments with Graph Neural Networks
 
 ## Overview
-This project implements a Graph Neural Network (GNN) pipeline to predict molecular dipole moments using the QM9 dataset. The model architecture leverages a SchNet-style approach to process 3D molecular geometries, complemented by a Random Forest baseline using 2D descriptors.
+This project implements a Graph Neural Network (GNN) pipeline to predict molecular dipole moments using the QM9 dataset. The approach leverages 3D molecular geometries and 2D topological descriptors to train a SchNet-style architecture, comparing it against a Random Forest baseline.
+
+## Ground Truth and Reference Data
+The sole source of ground truth for this study is the QM9 dataset, specifically the dipole moments calculated via Density Functional Theory (DFT) at the BLYP/6-31G(2df,p) level of theory.
+
+**Important**: All model evaluation and training are strictly based on these quantum mechanical reference values. No experimental physical measurements are used as ground truth in this pipeline.
+
+## Scope Boundaries and Limitations
+
+### Out-of-Scope: Physical Measurement Validation
+This project explicitly **excludes** physical measurement validation against experimental data.
+
+- **Stark-effect spectroscopy**, dielectric spectroscopy, and other experimental techniques for measuring dipole moments are **not** performed or utilized in this study.
+- While experimental validation is a critical step in broader chemical research (as noted in reviewer feedback regarding physical reality benchmarks), it falls outside the defined scope of this specific computational pipeline (FR-011).
+- The project assumes the QM9 DFT values are the authoritative reference for the purpose of training and evaluating the GNN architecture.
+
+### Out-of-Scope: Hydration and Solvation Effects
+- The dataset consists of gas-phase molecules.
+- Hydration states, solvent effects, and conformational ensembles in solution are **not** modeled.
+- The input features are derived from single, static 3D conformers provided in the QM9 dataset.
+
+### Out-of-Scope: Conformational Sampling
+- The pipeline uses a single conformer per molecule as provided in the dataset.
+- No dynamic conformational sampling or ensemble averaging is performed.
 
 ## Methodology
-The core methodology involves extracting 3D coordinates and atom types from the QM9 dataset to construct molecular graphs. A SchNet-style GNN is trained to regress the dipole moment vector magnitude. A Random Forest baseline is trained on Morgan fingerprints and Coulomb matrices for comparison.
-
-## Results
-The model achieves competitive Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) scores on the held-out test set. Statistical significance testing (paired t-tests) confirms the performance delta between the GNN and baseline. Feature attribution analysis highlights the contribution of electronegative atom placement and local bond angles to the predicted dipole moments.
-
-## Limitations and Scope Boundaries
-This study is strictly computational and operates under specific scope boundaries defined by the project specification and data availability:
-
-1. **Reference Data Ground Truth**: The sole ground truth for training and evaluation is Quantum Mechanical (QM) Density Functional Theory (DFT) data calculated at the BLYP/6-31G(2df,p) level of theory.
-2. **Out-of-Scope: Physical Measurement Validation**: Experimental validation via physical measurement techniques (e.g., Stark-effect spectroscopy, dielectric spectroscopy, or microwave spectroscopy) is explicitly **out-of-scope**. While such measurements are the gold standard for experimental verification, this project does not perform or incorporate experimental dipole moment data. The validity of the model is assessed solely against the provided DFT reference values.
-3. **Out-of-Scope: Conformational Ensembles**: The dataset provides a single, static 3D geometry per molecule (typically the lowest energy conformer identified in the QM9 generation process). This project does not sample, generate, or average over conformational ensembles. The model predicts the dipole moment for the specific static geometry provided.
-4. **Out-of-Scope: Hydration State Sampling**: All calculations and predictions assume gas-phase conditions. The effects of solvent interactions, hydration shells, or explicit water molecules are **out-of-scope**. The dipole moments are derived from isolated molecules in a vacuum as per the QM9 dataset generation protocol.
-
-## Data Sources
-- **Primary Dataset**: QM9 (133,885 small organic molecules).
-- **DOI**: 10.1038/sdata.2014.22 (Verified via reference-validator).
-- **Reference Level**: BLYP/6-31G(2df,p).
+1. **Data Source**: QM9 dataset (DOI: 10.1038/sdata.2014.22).
+2. **Preprocessing**: Extraction of 3D coordinates, atom types, and 2D Morgan fingerprints.
+3. **Models**:
+ - **SchNet-style GNN**: Processes 3D atomic environments.
+ - **Random Forest Baseline**: Processes 2D descriptors.
+4. **Evaluation**: Mean Absolute Error (MAE) and Root Mean Squared Error (RMSE) against DFT dipole moments.
 
 ## Reproducibility
-All experiments use fixed random seeds (seed=42 for data splitting, varying seeds for model training to estimate variance). Code, configuration, and state tracking are maintained to ensure full reproducibility of the reported metrics.
+- Random seeds are fixed (seed=42) for data splitting and model initialization.
+- All dependencies are pinned in `requirements.txt`.
+- Execution is constrained by time (6h), memory (8GB), and CPU core limits to ensure feasibility.
 
-## Future Work
-Future iterations could address the scope boundaries identified above by incorporating experimental benchmark sets (e.g., from the NIST Computational Chemistry Comparison and Benchmark Database) to validate against physical reality, or by integrating conformer generation tools to account for thermal fluctuations in dipole moments.
+## References
+1. Ramakrishnan, R., Dral, P. O., Rupp, M., & von Lilienfeld, O. A. (2014). Quantum chemistry structures and properties of 134 kilo molecules. *Scientific Data*, 1, 140022. https://doi.org/10.1038/sdata.2014.22
+2. Schütt, K. T., Sauceda, H. E., Arbabzadah, P., Chmiela, S., Müller, K. R., & Tkatchenko, A. (2017). SchNet – A deep learning architecture for molecules and materials. *The Journal of Chemical Physics*, 148(24), 241722.
