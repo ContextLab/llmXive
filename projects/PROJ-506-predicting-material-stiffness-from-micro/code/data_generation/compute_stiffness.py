@@ -56,10 +56,9 @@ def compute_stiffness_tensor(img: np.ndarray) -> np.ndarray:
         img: 2D numpy array representing the microstructure (phase field).
 
     Returns:
-        4x4 stiffness tensor in Voigt notation (plane strain assumption).
-        Format: [[C11, C12, C16, 0], [C12, C22, C26, 0], [C16, C26, C66, 0], [0, 0, 0, C44]]
-        (Simplified to 3x3 for plane stress/strain isotropic/orthotropic approximation in 2D)
-        Specifically returns the 2D plane strain stiffness matrix (3x3).
+        3x3 stiffness tensor in Voigt notation for plane strain (C11, C12, C22, C66 components).
+        Format: [[C11, C12, C16], [C12, C22, C26], [C16, C26, C66]]
+        For isotropic/orthotropic 2D approximation, C16 and C26 are typically 0.
     """
     logger.info(f"Computing stiffness tensor for image shape: {img.shape}")
 

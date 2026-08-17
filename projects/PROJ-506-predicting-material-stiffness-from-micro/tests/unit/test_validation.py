@@ -1,258 +1,280 @@
-"""
-Unit tests for the tensor validation logic (T019).
-"""
 import pytest
 import numpy as np
 import json
 import yaml
-from pathlib import Path
 import tempfile
 import os
-
-# Import the module under test
+from pathlib import Path
 from code.data_generation.validate_tensors import (
+    load_schema,
     validate_schema_conformity,
     compute_vrh_bounds,
     validate_vrh_bounds,
     validate_dataset
 )
 
-
-class TestSchemaConformity:
-    """Tests for schema validation logic."""
-
-    def test_valid_record(self):
-        """Test that a valid record passes schema check."""
+class TestSchemaValidation:
+    """Tests for schema conformity validation."""
+    
+    def test_load_schema(self):
+        """Test loading a valid schema file."""
+        schema_content = """
+        required:
+          - image_path: string
+          - stiffness_tensor: float[]
+          - inclusion_density: float
+          - topology_type: string
+          - shape_factor: float
+          - connectivity: float
+          - seed: integer
+        """
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write(schema_content)
+            temp_path = f.name
+            
+        try:
+            schema = load_schema(temp_path)
+            assert 'required' in schema
+            assert len(schema['required']) == 7
+        finally:
+            os.unlink(temp_path)
+            
+    def test_validate_schema_conformity_valid(self):
+        """Test validation of a conforming metadata entry."""
         schema = {
-            "type": "object",
-            "properties": {
-                "image_path": {"type": "string"},
-                "stiffness_tensor": {"type": "array", "minItems": 6, "maxItems": 6},
-                "inclusion_density": {"type": "number"},
-                "seed": {"type": "integer"}
-            }
-        }
-        record = {
-            "image_path": "data/raw/micro_123.png",
-            "stiffness_tensor": [1.0, 1.0, 1.0, 0.5, 0.5, 0.5],
-            "inclusion_density": 0.25,
-            "seed": 123
+            'required': [
+                'image_path: string',
+                'stiffness_tensor: float[]',
+                'inclusion_density: float',
+                'seed: integer'
+            ]
         }
         
-        is_valid, errors = validate_schema_conformity(record, schema)
-        assert is_valid is True
+        metadata = {
+            'image_path': 'data/raw/micro_123.png',
+            'stiffness_tensor': [100.0, 100.0, 50.0, 50.0, 50.0, 50.0],
+            'inclusion_density': 0.3,
+            'seed': 123
+        }
+        
+        is_valid, errors = validate_schema_conformity(metadata, schema)
+        assert is_valid
         assert len(errors) == 0
-
-    def test_missing_field(self):
-        """Test detection of missing required field."""
+        
+    def test_validate_schema_conformity_missing_field(self):
+        """Test validation when a required field is missing."""
         schema = {
-            "type": "object",
-            "properties": {
-                "image_path": {"type": "string"},
-                "stiffness_tensor": {"type": "array"},
-                "inclusion_density": {"type": "number"},
-                "seed": {"type": "integer"}
-            }
-        }
-        record = {
-            "image_path": "data/raw/micro_123.png",
-            "stiffness_tensor": [1.0, 1.0, 1.0, 0.5, 0.5, 0.5],
-            # missing inclusion_density and seed
+            'required': [
+                'image_path: string',
+                'stiffness_tensor: float[]',
+                'seed: integer'
+            ]
         }
         
-        is_valid, errors = validate_schema_conformity(record, schema)
-        assert is_valid is False
-        assert len(errors) > 0
-        assert any("inclusion_density" in e for e in errors)
-        assert any("seed" in e for e in errors)
-
-    def test_wrong_type(self):
-        """Test detection of wrong data types."""
-        schema = {
-            "type": "object",
-            "properties": {
-                "image_path": {"type": "string"},
-                "stiffness_tensor": {"type": "array"},
-                "inclusion_density": {"type": "number"},
-                "seed": {"type": "integer"}
-            }
-        }
-        record = {
-            "image_path": 12345, # Should be string
-            "stiffness_tensor": [1.0, 1.0, 1.0, 0.5, 0.5, 0.5],
-            "inclusion_density": "0.25", # Should be number
-            "seed": 123
+        metadata = {
+            'image_path': 'data/raw/micro_123.png',
+            'stiffness_tensor': [100.0, 100.0, 50.0, 50.0, 50.0, 50.0]
         }
         
-        is_valid, errors = validate_schema_conformity(record, schema)
-        assert is_valid is False
-        assert len(errors) > 0
-
-    def test_stiffness_tensor_length(self):
-        """Test detection of incorrect stiffness tensor length."""
+        is_valid, errors = validate_schema_conformity(metadata, schema)
+        assert not is_valid
+        assert len(errors) == 1
+        assert 'seed' in errors[0]
+        
+    def test_validate_schema_conformity_wrong_type(self):
+        """Test validation when a field has wrong type."""
         schema = {
-            "type": "object",
-            "properties": {
-                "image_path": {"type": "string"},
-                "stiffness_tensor": {"type": "array", "minItems": 6, "maxItems": 6},
-                "inclusion_density": {"type": "number"},
-                "seed": {"type": "integer"}
-            }
-        }
-        record = {
-            "image_path": "data/raw/micro_123.png",
-            "stiffness_tensor": [1.0, 1.0, 1.0], # Only 3 elements
-            "inclusion_density": 0.25,
-            "seed": 123
+            'required': [
+                'stiffness_tensor: float[]',
+                'seed: integer'
+            ]
         }
         
-        is_valid, errors = validate_schema_conformity(record, schema)
-        assert is_valid is False
-        assert any("stiffness_tensor" in e for e in errors)
-
+        metadata = {
+            'stiffness_tensor': [100.0, 100.0, 50.0, 50.0, 50.0, 50.0],
+            'seed': 'not_an_integer'
+        }
+        
+        is_valid, errors = validate_schema_conformity(metadata, schema)
+        assert not is_valid
+        assert len(errors) == 1
+        assert 'integer' in errors[0]
 
 class TestVRHBounds:
-    """Tests for Voigt-Reuss-Hill bound calculations."""
-
-    def test_compute_vrh_valid(self):
-        """Test VRH calculation on a valid tensor."""
-        # A simple isotropic-like tensor
-        tensor = [10.0, 10.0, 10.0, 5.0, 5.0, 5.0]
-        voigt, reuss = compute_vrh_bounds(tensor)
+    """Tests for Voigt-Reuss-Hill bounds calculation."""
+    
+    def test_compute_vrh_bounds_void_inclusions(self):
+        """Test VRH bounds with void inclusions (stiffness = 0)."""
+        density = 0.3
+        matrix_stiffness = 100.0
+        inclusion_stiffness = 0.0
         
-        # Voigt is mean: (10+10+10+5+5+5)/6 = 45/6 = 7.5
-        assert np.isclose(voigt, 7.5)
+        lower, upper = compute_vrh_bounds(density, matrix_stiffness, inclusion_stiffness)
         
-        # Reuss is harmonic mean: 6 / (3/10 + 3/5) = 6 / (0.3 + 0.6) = 6/0.9 = 6.666...
-        expected_reuss = 6.0 / (3.0/10.0 + 3.0/5.0)
-        assert np.isclose(reuss, expected_reuss)
-
-    def test_compute_vrh_zero_component(self):
-        """Test VRH calculation with zero component (should handle gracefully)."""
-        tensor = [10.0, 0.0, 10.0, 5.0, 5.0, 5.0]
-        voigt, reuss = compute_vrh_bounds(tensor)
+        # Reuss bound should be 0 for void inclusions
+        assert lower == 0.0
+        # Voigt bound should be (1 - 0.3) * 100 = 70
+        assert np.isclose(upper, 70.0)
         
-        # Should return 0 for Reuss when division by zero occurs
-        assert voigt > 0
-        assert reuss == 0.0
-
-    def test_validate_vrh_pass(self):
-        """Test that a valid tensor passes VRH validation."""
-        tensor = [10.0, 10.0, 10.0, 5.0, 5.0, 5.0]
-        is_valid, msg = validate_vrh_bounds(tensor)
-        assert is_valid is True
-        assert "valid" in msg.lower()
-
-    def test_validate_vrh_fail_negative(self):
-        """Test that a tensor with negative components fails."""
-        tensor = [10.0, -5.0, 10.0, 5.0, 5.0, 5.0]
-        is_valid, msg = validate_vrh_bounds(tensor)
-        assert is_valid is False
-        assert "non-positive" in msg.lower()
-
-    def test_validate_vrh_fail_wrong_format(self):
-        """Test that a tensor with wrong format fails."""
-        tensor = [1.0, 2.0, 3.0] # Only 3 elements
-        is_valid, msg = validate_vrh_bounds(tensor)
-        assert is_valid is False
-        assert "format" in msg.lower()
-
+    def test_compute_vrh_bounds_solid_inclusions(self):
+        """Test VRH bounds with solid inclusions."""
+        density = 0.3
+        matrix_stiffness = 100.0
+        inclusion_stiffness = 200.0
+        
+        lower, upper = compute_vrh_bounds(density, matrix_stiffness, inclusion_stiffness)
+        
+        # Voigt bound: 0.7 * 100 + 0.3 * 200 = 130
+        assert np.isclose(upper, 130.0)
+        # Reuss bound: 1 / (0.7/100 + 0.3/200) = 1 / (0.007 + 0.0015) = 1 / 0.0085 ≈ 117.65
+        assert np.isclose(lower, 117.647, rtol=1e-3)
+        
+    def test_compute_vrh_bounds_invalid_density(self):
+        """Test that invalid density raises an error."""
+        with pytest.raises(ValueError):
+            compute_vrh_bounds(-0.1)
+        with pytest.raises(ValueError):
+            compute_vrh_bounds(1.5)
+            
+    def test_validate_vrh_bounds_valid(self):
+        """Test validation of a stiffness value within bounds."""
+        stiffness_tensor = [70.0, 70.0, 35.0, 35.0, 35.0, 35.0]
+        density = 0.3
+        
+        is_valid, error = validate_vrh_bounds(stiffness_tensor, density, 0)
+        assert is_valid
+        assert error == ""
+        
+    def test_validate_vrh_bounds_below_lower(self):
+        """Test validation of a stiffness value below lower bound."""
+        stiffness_tensor = [-10.0, 70.0, 35.0, 35.0, 35.0, 35.0]
+        density = 0.3
+        
+        is_valid, error = validate_vrh_bounds(stiffness_tensor, density, 0)
+        assert not is_valid
+        assert "below lower bound" in error
+        
+    def test_validate_vrh_bounds_above_upper(self):
+        """Test validation of a stiffness value above upper bound."""
+        stiffness_tensor = [100.0, 70.0, 35.0, 35.0, 35.0, 35.0]
+        density = 0.3
+        
+        is_valid, error = validate_vrh_bounds(stiffness_tensor, density, 0)
+        assert not is_valid
+        assert "above upper bound" in error
+        
+    def test_validate_vrh_bounds_out_of_range_index(self):
+        """Test validation with an out-of-range component index."""
+        stiffness_tensor = [70.0, 70.0, 35.0, 35.0, 35.0, 35.0]
+        density = 0.3
+        
+        is_valid, error = validate_vrh_bounds(stiffness_tensor, density, 10)
+        assert not is_valid
+        assert "out of range" in error
 
 class TestDatasetValidation:
-    """Tests for the full dataset validation workflow."""
-
+    """Tests for the full dataset validation pipeline."""
+    
     def test_validate_dataset_all_valid(self):
-        """Test validation of a dataset where all records are valid."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            metadata_path = Path(tmpdir) / "metadata.json"
-            schema_path = Path(tmpdir) / "schema.yaml"
+        """Test validation of a dataset with all valid entries."""
+        schema_content = """
+        required:
+          - image_path: string
+          - stiffness_tensor: float[]
+          - inclusion_density: float
+          - seed: integer
+        """
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write(schema_content)
+            schema_path = f.name
             
-            # Create valid records
-            records = [
-                {
-                    "image_path": f"data/raw/micro_{i}.png",
-                    "stiffness_tensor": [10.0, 10.0, 10.0, 5.0, 5.0, 5.0],
-                    "inclusion_density": 0.2 + (i * 0.01),
-                    "seed": i
-                }
-                for i in range(5)
-            ]
-            
-            with open(metadata_path, 'w') as f:
-                json.dump(records, f)
-            
-            schema = {
-                "type": "object",
-                "properties": {
-                    "image_path": {"type": "string"},
-                    "stiffness_tensor": {"type": "array"},
-                    "inclusion_density": {"type": "number"},
-                    "seed": {"type": "integer"}
-                }
+        metadata_list = [
+            {
+                'image_path': 'data/raw/micro_1.png',
+                'stiffness_tensor': [70.0, 70.0, 35.0, 35.0, 35.0, 35.0],
+                'inclusion_density': 0.3,
+                'seed': 1
+            },
+            {
+                'image_path': 'data/raw/micro_2.png',
+                'stiffness_tensor': [50.0, 50.0, 25.0, 25.0, 25.0, 25.0],
+                'inclusion_density': 0.5,
+                'seed': 2
             }
-            with open(schema_path, 'w') as f:
-                yaml.dump(schema, f)
+        ]
+        
+        with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
+            log_path = f.name
             
-            results = validate_dataset(metadata_path, schema_path)
+        try:
+            valid_count, invalid_count = validate_dataset(
+                metadata_list, schema_path, log_path
+            )
             
-            assert results['total_records'] == 5
-            assert results['valid_count'] == 5
-            assert results['invalid_count'] == 0
-            assert results['success_rate'] == 1.0
-
-    def test_validate_dataset_mixed(self):
-        """Test validation of a dataset with some invalid records."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            metadata_path = Path(tmpdir) / "metadata.json"
-            schema_path = Path(tmpdir) / "schema.yaml"
+            assert valid_count == 2
+            assert invalid_count == 0
             
-            # Create mixed records
-            records = [
-                {
-                    "image_path": "data/raw/micro_0.png",
-                    "stiffness_tensor": [10.0, 10.0, 10.0, 5.0, 5.0, 5.0],
-                    "inclusion_density": 0.2,
-                    "seed": 0
-                },
-                {
-                    "image_path": "data/raw/micro_1.png",
-                    "stiffness_tensor": [-5.0, 10.0, 10.0, 5.0, 5.0, 5.0], # Invalid: negative
-                    "inclusion_density": 0.3,
-                    "seed": 1
-                },
-                {
-                    "image_path": "data/raw/micro_2.png",
-                    "stiffness_tensor": [10.0, 10.0, 10.0, 5.0, 5.0, 5.0],
-                    "inclusion_density": 1.5, # Invalid: > 1.0
-                    "seed": 2
-                }
-            ]
+            # Check log file exists and has content
+            assert Path(log_path).exists()
+            with open(log_path, 'r') as f:
+                lines = f.readlines()
+                assert len(lines) == 3  # Header + 2 entries
+        finally:
+            os.unlink(schema_path)
+            os.unlink(log_path)
             
-            with open(metadata_path, 'w') as f:
-                json.dump(records, f)
+    def test_validate_dataset_with_invalid_entries(self):
+        """Test validation of a dataset with some invalid entries."""
+        schema_content = """
+        required:
+          - image_path: string
+          - stiffness_tensor: float[]
+          - inclusion_density: float
+          - seed: integer
+        """
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write(schema_content)
+            schema_path = f.name
             
-            schema = {
-                "type": "object",
-                "properties": {
-                    "image_path": {"type": "string"},
-                    "stiffness_tensor": {"type": "array"},
-                    "inclusion_density": {"type": "number"},
-                    "seed": {"type": "integer"}
-                }
+        metadata_list = [
+            {
+                'image_path': 'data/raw/micro_1.png',
+                'stiffness_tensor': [70.0, 70.0, 35.0, 35.0, 35.0, 35.0],
+                'inclusion_density': 0.3,
+                'seed': 1
+            },
+            {
+                'image_path': 'data/raw/micro_2.png',
+                'stiffness_tensor': [200.0, 70.0, 35.0, 35.0, 35.0, 35.0],  # Above upper bound
+                'inclusion_density': 0.3,
+                'seed': 2
+            },
+            {
+                'image_path': 'data/raw/micro_3.png',
+                'stiffness_tensor': [50.0, 50.0, 25.0, 25.0, 25.0, 25.0],
+                'inclusion_density': 0.5,
+                'seed': 3
             }
-            with open(schema_path, 'w') as f:
-                yaml.dump(schema, f)
+        ]
+        
+        with tempfile.NamedTemporaryFile(suffix='.csv', delete=False) as f:
+            log_path = f.name
             
-            results = validate_dataset(metadata_path, schema_path)
+        try:
+            valid_count, invalid_count = validate_dataset(
+                metadata_list, schema_path, log_path
+            )
             
-            assert results['total_records'] == 3
-            assert results['valid_count'] == 1
-            assert results['invalid_count'] == 2
-            assert results['success_rate'] == 1.0/3.0
-            assert 1 in results['invalid_indices']
-            assert 2 in results['invalid_indices']
-
-    def test_validate_dataset_missing_file(self):
-        """Test that validation raises error for missing metadata."""
-        with pytest.raises(FileNotFoundError):
-            validate_dataset(Path("/nonexistent/path.json"))
+            assert valid_count == 2
+            assert invalid_count == 1
+            
+            # Check log file contains the invalid entry
+            with open(log_path, 'r') as f:
+                content = f.read()
+                assert 'INVALID' in content
+                assert 'above upper bound' in content
+        finally:
+            os.unlink(schema_path)
+            os.unlink(log_path)

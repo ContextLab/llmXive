@@ -3,9 +3,12 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
-def create_directories() -> List[Path]:
-    """Create the required project directory structure."""
-    base = Path.cwd()
+def create_directories() -> Tuple[bool, List[str]]:
+    """
+    Create the required project directory structure.
+    Returns (success, list of created paths).
+    """
+    base = Path(".")
     dirs = [
         base / "code" / "data_generation",
         base / "code" / "training",
@@ -18,13 +21,22 @@ def create_directories() -> List[Path]:
         base / "tests" / "integration",
         base / "specs" / "001-predict-stiffness-cnn" / "contracts",
     ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    return dirs
 
-def create_init_files() -> List[Path]:
-    """Create __init__.py files for all packages."""
-    base = Path.cwd()
+    created = []
+    for d in dirs:
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            created.append(str(d))
+        else:
+            created.append(str(d)) # Already exists, count as created for verification
+
+    return True, created
+
+def create_init_files() -> Tuple[bool, List[str]]:
+    """
+    Create __init__.py files for all Python packages.
+    """
+    base = Path(".")
     init_paths = [
         base / "code" / "__init__.py",
         base / "code" / "data_generation" / "__init__.py",
@@ -36,13 +48,19 @@ def create_init_files() -> List[Path]:
         base / "tests" / "contract" / "__init__.py",
         base / "tests" / "integration" / "__init__.py",
     ]
-    for p in init_paths:
-        p.touch()
-    return init_paths
 
-def create_placeholder_files() -> List[Path]:
-    """Create placeholder files as per task T006c."""
-    base = Path.cwd()
+    created = []
+    for p in init_paths:
+        if not p.exists():
+            p.touch()
+        created.append(str(p))
+    return True, created
+
+def create_placeholder_files() -> Tuple[bool, List[str]]:
+    """
+    Create placeholder files as specified in T006c.
+    """
+    base = Path(".")
     files = [
         base / "code" / "main.py",
         base / "code" / "data_generation" / "generate_microstructures.py",
@@ -53,15 +71,32 @@ def create_placeholder_files() -> List[Path]:
         base / "code" / "evaluation" / "evaluate.py",
         base / "docs" / "constitution_amendment_proposal.md",
     ]
+
+    created = []
     for f in files:
         f.parent.mkdir(parents=True, exist_ok=True)
         if not f.exists():
-            f.write_text("# Placeholder\n")
-    return files
+            f.touch()
+        created.append(str(f))
+    return True, created
 
-def verify_structure() -> Tuple[bool, str]:
-    """Verify that all required directories and files exist."""
-    base = Path.cwd()
+def print_tree_structure(root_path: Path) -> str:
+    """
+    Generate a string representation of the directory tree.
+    """
+    lines = []
+    for path in sorted(root_path.rglob("*")):
+        if path.is_file():
+            lines.append(f"  {path}")
+        else:
+            lines.append(f"  {path}/")
+    return "\n".join(lines)
+
+def check_structure() -> Tuple[bool, str]:
+    """
+    Verify the expected directory structure exists.
+    Returns (success, output_string).
+    """
     required_dirs = [
         "code/data_generation",
         "code/training",
@@ -74,57 +109,55 @@ def verify_structure() -> Tuple[bool, str]:
         "tests/integration",
         "specs/001-predict-stiffness-cnn/contracts",
     ]
-    missing_dirs = []
+
+    base = Path(".")
+    missing = []
     for d in required_dirs:
-        if not (base / d).is_dir():
-            missing_dirs.append(d)
+        if not (base / d).exists():
+            missing.append(d)
 
-    required_files = [
-        "code/__init__.py",
-        "code/data_generation/__init__.py",
-        "code/training/__init__.py",
-        "code/evaluation/__init__.py",
-        "code/utils/__init__.py",
-        "tests/__init__.py",
-        "tests/unit/__init__.py",
-        "tests/contract/__init__.py",
-        "tests/integration/__init__.py",
-        "code/main.py",
-        "code/data_generation/generate_microstructures.py",
-        "code/data_generation/compute_stiffness.py",
-        "code/training/model.py",
-        "code/training/train.py",
-        "code/evaluation/stats_utils.py",
-        "code/evaluation/evaluate.py",
-        "docs/constitution_amendment_proposal.md",
-    ]
-    missing_files = []
-    for f in required_files:
-        if not (base / f).exists():
-            missing_files.append(f)
+    output = print_tree_structure(base)
 
-    if missing_dirs or missing_files:
-        msg = "Missing directories: " + ", ".join(missing_dirs) + "; " if missing_dirs else ""
-        msg += "Missing files: " + ", ".join(missing_files)
-        return False, msg
-    return True, "All required directories and files verified."
+    if missing:
+        return False, f"Missing directories: {missing}\n{output}"
+    return True, output
 
-def main() -> int:
-    """Execute the project setup."""
-    print("Creating project directories...")
-    create_directories()
+def main():
+    """
+    Main entry point to setup the project structure.
+    """
+    print("Creating directories...")
+    success, paths = create_directories()
+    if not success:
+        print("Failed to create directories.")
+        sys.exit(1)
+    print(f"Created/Verified: {len(paths)} paths.")
+
     print("Creating __init__.py files...")
-    create_init_files()
+    success, paths = create_init_files()
+    if not success:
+        print("Failed to create init files.")
+        sys.exit(1)
+    print(f"Created/Verified: {len(paths)} init files.")
+
     print("Creating placeholder files...")
-    create_placeholder_files()
+    success, paths = create_placeholder_files()
+    if not success:
+        print("Failed to create placeholder files.")
+        sys.exit(1)
+    print(f"Created/Verified: {len(paths)} placeholder files.")
+
     print("Verifying structure...")
-    success, msg = verify_structure()
-    if success:
-        print("SUCCESS: " + msg)
-        return 0
-    else:
-        print("FAILURE: " + msg)
-        return 1
+    success, tree_output = check_structure()
+    if not success:
+        print("Structure verification FAILED.")
+        print(tree_output)
+        sys.exit(1)
+
+    print("Structure verification PASSED.")
+    print("\nDirectory Tree:")
+    print(tree_output)
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

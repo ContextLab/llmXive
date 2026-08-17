@@ -1,0 +1,2 @@
+# This directory stores trained model checkpoints
+# Checkpoints are saved as .pth files by the training script

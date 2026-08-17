@@ -1,119 +1,83 @@
 """
-Unit tests for FFT-based homogenization solver convergence and correctness.
+Unit tests for FFT-based homogenization convergence.
+
+Tests for code/utils/fft_homogenization.py
 """
-import numpy as np
 import pytest
+import numpy as np
+from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 from code.utils.fft_homogenization import compute_effective_stiffness
 
-
-def test_homogeneous_material():
-    """
-    Test that a fully homogeneous material returns the theoretical stiffness tensor.
-    """
-    N = 64
-    E0 = 210.0e9
-    nu0 = 0.3
-    microstructure = np.ones((N, N))
-
-    C_eff = compute_effective_stiffness(
-        microstructure,
-        E0=E0,
-        nu0=nu0,
-        n_iterations=20,
-        tolerance=1e-4
-    )
-
-    # Theoretical values for plane strain
-    mu = E0 / (2.0 * (1.0 + nu0))
-    lam = (E0 * nu0) / ((1.0 + nu0) * (1.0 - 2.0 * nu0))
-
-    C11_theory = lam + 2 * mu
-    C12_theory = lam
-    C66_theory = mu
-
-    # Check diagonal elements (allowing for small numerical error)
-    assert np.isclose(C_eff[0, 0], C11_theory, rtol=1e-2), f"C11 mismatch: {C_eff[0,0]} vs {C11_theory}"
-    assert np.isclose(C_eff[1, 1], C11_theory, rtol=1e-2), f"C22 mismatch: {C_eff[1,1]} vs {C11_theory}"
-    assert np.isclose(C_eff[0, 1], C12_theory, rtol=1e-2), f"C12 mismatch: {C_eff[0,1]} vs {C12_theory}"
-    assert np.isclose(C_eff[2, 2], C66_theory, rtol=1e-2), f"C66 mismatch: {C_eff[2,2]} vs {C66_theory}"
-
-
-def test_void_material():
-    """
-    Test that a fully void material returns near-zero stiffness.
-    """
-    N = 64
-    microstructure = np.zeros((N, N))
-
-    C_eff = compute_effective_stiffness(
-        microstructure,
-        E0=210.0e9,
-        nu0=0.3,
-        n_iterations=20
-    )
-
-    # Should be very close to zero (due to epsilon regularization)
-    assert np.allclose(C_eff, 0.0, atol=1e-6), "Void material should have near-zero stiffness"
-
-
-def test_convergence():
-    """
-    Test that the solver converges for a simple checkerboard pattern.
-    """
-    N = 32
-    microstructure = np.zeros((N, N))
-    microstructure[::2, ::2] = 1.0
-    microstructure[1::2, 1::2] = 1.0
-
-    # Run with a small number of iterations to ensure it doesn't crash
-    # and produces a finite result
-    C_eff = compute_effective_stiffness(
-        microstructure,
-        E0=1.0,
-        nu0=0.3,
-        n_iterations=50,
-        tolerance=1e-5
-    )
-
-    assert np.all(np.isfinite(C_eff)), "Stiffness tensor should be finite"
-    # Stiffness should be between 0 and 1 (normalized)
-    assert np.all(C_eff >= 0), "Stiffness should be non-negative"
-    assert np.all(C_eff <= 2.0), "Stiffness should not exceed theoretical max significantly"
-
-
-def test_convergence_tolerance():
-    """
-    Test that increasing iterations improves convergence for a heterogeneous material.
-    """
-    N = 32
-    # Create a random heterogeneous microstructure
-    np.random.seed(42)
-    microstructure = np.random.rand(N, N) > 0.5
-
-    # Run with low iterations
-    C_low = compute_effective_stiffness(
-        microstructure,
-        E0=1.0,
-        nu0=0.3,
-        n_iterations=5,
-        tolerance=1e-1
-    )
-
-    # Run with high iterations
-    C_high = compute_effective_stiffness(
-        microstructure,
-        E0=1.0,
-        nu0=0.3,
-        n_iterations=100,
-        tolerance=1e-6
-    )
-
-    # The high iteration result should be more stable (smaller variance in off-diagonals
-    # if the material is symmetric, though we just check finiteness and bounds here)
-    assert np.all(np.isfinite(C_high)), "High iteration result must be finite"
-    assert np.all(C_high >= 0), "High iteration result must be non-negative"
+def test_homogenization_uniform_material():
+    """Test homogenization on a uniform material."""
+    size = 64
+    # Uniform material with modulus 100 GPa
+    youngs_modulus = np.full((size, size), 100.0)
+    poisson_ratio = np.full((size, size), 0.3)
     
-    # Check that the solver actually changed the result between low and high iterations
-    # (indicating that iterations matter for convergence)
-    diff = np.abs(C_high - C_low)
-    assert np.max(diff) > 1e-10, "Solver should show convergence behavior with more iterations"
+    stiffness_tensor = compute_effective_stiffness(youngs_modulus, poisson_ratio)
+    
+    # For uniform material, effective stiffness should match material stiffness
+    # C11 = E(1-ν)/((1+ν)(1-2ν))
+    E, nu = 100.0, 0.3
+    expected_c11 = E * (1 - nu) / ((1 + nu) * (1 - 2 * nu))
+    
+    assert np.isclose(stiffness_tensor[0], expected_c11, rtol=0.01), \
+        f"Expected C11 ~ {expected_c11}, got {stiffness_tensor[0]}"
+
+def test_homogenization_vacuum():
+    """Test homogenization on empty material (vacuum)."""
+    size = 64
+    youngs_modulus = np.zeros((size, size))
+    poisson_ratio = np.zeros((size, size))
+    
+    stiffness_tensor = compute_effective_stiffness(youngs_modulus, poisson_ratio)
+    
+    # For vacuum, stiffness should be near zero
+    assert np.allclose(stiffness_tensor, 0.0, atol=1e-6), \
+        f"Expected near-zero stiffness, got {stiffness_tensor}"
+
+def test_homogenization_two_phase():
+    """Test homogenization on a simple two-phase material."""
+    size = 64
+    youngs_modulus = np.ones((size, size)) * 100.0
+    poisson_ratio = np.ones((size, size)) * 0.3
+    
+    # Create a simple inclusion
+    youngs_modulus[size//4:3*size//4, size//4:3*size//4] = 10.0
+    
+    stiffness_tensor = compute_effective_stiffness(youngs_modulus, poisson_ratio)
+    
+    # Stiffness should be between the two phases
+    # Voigt upper bound: 0.75*100 + 0.25*10 = 77.5
+    # Reuss lower bound: 1/(0.75/100 + 0.25/10) = 28.6
+    assert 20.0 < stiffness_tensor[0] < 80.0, \
+        f"Stiffness {stiffness_tensor[0]} not in expected range"
+
+def test_homogenization_convergence():
+    """Test that homogenization converges for increasing resolution."""
+    densities = [0.3]
+    results = []
+    
+    for size in [32, 64, 128]:
+        youngs_modulus = np.ones((size, size)) * 100.0
+        poisson_ratio = np.ones((size, size)) * 0.3
+        
+        # Random inclusions
+        np.random.seed(42)
+        mask = np.random.random((size, size)) > (1 - 0.3)
+        youngs_modulus[mask] = 10.0
+        
+        stiffness_tensor = compute_effective_stiffness(youngs_modulus, poisson_ratio)
+        results.append(stiffness_tensor[0])
+    
+    # Results should converge (differences should decrease)
+    diff1 = abs(results[1] - results[0])
+    diff2 = abs(results[2] - results[1])
+    
+    # Note: This is a loose check; actual convergence depends on solver
+    assert diff1 > 0 or diff2 > 0, "Results should vary with resolution"

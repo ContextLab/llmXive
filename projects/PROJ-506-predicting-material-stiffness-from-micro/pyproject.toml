@@ -3,22 +3,47 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-material-stiffness"
+name = "llmxive-predict-stiffness"
 version = "0.1.0"
-description = "Predicting Material Stiffness from Microstructure Images"
+description = "Predicting material stiffness from microstructure images using CNNs"
 requires-python = ">=3.10"
+dependencies = [
+    "torch==2.0.0",
+    "scikit-image==0.21.0",
+    "scipy==1.11.0",
+    "numpy==1.24.0",
+    "pandas==2.0.0",
+    "pytest==7.3.0",
+    "scikit-learn==1.2.0",
+    "pyfftw==0.13.1",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.ruff]
+# Enable rules: E (pycodestyle), F (pyflakes), W (pycodestyle warnings), I (isort), N (pep8-naming)
+select = ["E", "F", "W", "I", "N"]
+ignore = []
+
+# Same as Black
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
 
 [tool.black]
 line-length = 88
 target-version = ['py310']
-include = '\\.pyi?$'
+include = '\.pyi?$'
 exclude = '''
 /(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
   | _build
   | buck-out
   | build
@@ -26,52 +51,9 @@ exclude = '''
 )/
 '''
 
-[tool.ruff]
-# Same as Black.
-line-length = 88
-target-version = "py310"
-
-[tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of pycodestyle (`E`) codes.
-select = ["E4", "E7", "E9", "F", "I", "UP"]
-ignore = []
-
-# Allow fix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few generated files or directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+addopts = "-v --tb=short"

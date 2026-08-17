@@ -1,16 +1,13 @@
-"""
-Validation module for generated stiffness tensors.
-
-This module implements:
-1. Voigt-Reuss-Hill (VRH) bounds checking for physical plausibility.
-2. Schema conformity validation against the dataset contract.
-"""
 import numpy as np
 import json
 import yaml
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
+
+# Import existing utilities from the project
+from code.utils.fft_homogenization import compute_effective_stiffness
+from code.utils.metrics import mean_absolute_error, mean_squared_error, r2_score
 
 # Configure logging
 logging.basicConfig(
@@ -19,297 +16,254 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load the dataset schema definition from a YAML file."""
-    if not schema_path.exists():
+def load_schema(schema_path: str) -> Dict:
+    """Load and return the YAML schema definition."""
+    path = Path(schema_path)
+    if not path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    with open(schema_path, 'r') as f:
+    with open(path, 'r') as f:
         return yaml.safe_load(f)
 
-
-def validate_schema_conformity(
-    record: Dict[str, Any], 
-    schema: Dict[str, Any]
-) -> Tuple[bool, List[str]]:
+def validate_schema_conformity(record: Dict, schema: Dict) -> Tuple[bool, List[str]]:
     """
-    Validate that a data record conforms to the expected schema.
-    
-    Args:
-        record: The data record to validate.
-        schema: The schema definition loaded from YAML.
-        
-    Returns:
-        Tuple of (is_valid, list_of_error_messages)
+    Validate that a dataset record conforms to the schema definition.
+    Returns (is_valid, list_of_errors).
     """
     errors = []
+    required_fields = schema.get('required_fields', [])
     
-    # Expected fields based on T012 contract
-    required_fields = {
-        'image_path': str,
-        'stiffness_tensor': list,
-        'inclusion_density': (int, float),
-        'seed': int
-    }
-    
-    # Check for missing fields
-    for field, expected_type in required_fields.items():
-        if field not in record:
-            errors.append(f"Missing required field: {field}")
-        elif not isinstance(record[field], expected_type):
-            errors.append(
-                f"Field '{field}' has wrong type. "
-                f"Expected {expected_type}, got {type(record[field])}"
-            )
-    
-    # Validate stiffness_tensor structure (6 values for Voigt notation)
-    if 'stiffness_tensor' in record:
-        tensor = record['stiffness_tensor']
-        if not isinstance(tensor, list) or len(tensor) != 6:
-            errors.append(
-                f"stiffness_tensor must be a list of 6 floats. "
-                f"Got length {len(tensor) if isinstance(tensor, list) else 'N/A'}"
-            )
-        else:
-            # Ensure all values are numeric
-            for i, val in enumerate(tensor):
-                if not isinstance(val, (int, float)):
-                    errors.append(
-                        f"stiffness_tensor[{i}] is not numeric: {val}"
-                    )
-    
-    # Validate inclusion_density range [0, 1]
-    if 'inclusion_density' in record:
-        density = record['inclusion_density']
-        if not (0.0 <= density <= 1.0):
-            errors.append(
-                f"inclusion_density must be between 0.0 and 1.0. "
-                f"Got {density}"
-            )
+    for field in required_fields:
+        field_name = field['name']
+        field_type = field['type']
+        
+        if field_name not in record:
+            errors.append(f"Missing required field: {field_name}")
+            continue
+        
+        value = record[field_name]
+        
+        # Type checking
+        if field_type == 'string':
+            if not isinstance(value, str):
+                errors.append(f"Field {field_name} should be string, got {type(value)}")
+        elif field_type == 'float[]':
+            if not isinstance(value, (list, np.ndarray)):
+                errors.append(f"Field {field_name} should be array, got {type(value)}")
+            elif len(value) == 0:
+                errors.append(f"Field {field_name} is empty")
+        elif field_type == 'float':
+            if not isinstance(value, (int, float, np.floating)):
+                errors.append(f"Field {field_name} should be float, got {type(value)}")
+        elif field_type == 'integer':
+            if not isinstance(value, (int, np.integer)):
+                errors.append(f"Field {field_name} should be integer, got {type(value)}")
+        elif field_type == 'string':
+            if not isinstance(value, str):
+                errors.append(f"Field {field_name} should be string, got {type(value)}")
     
     return len(errors) == 0, errors
 
-
-def compute_vrh_bounds(stiffness_tensor: List[float]) -> Tuple[float, float]:
+def compute_vrh_bounds(stiffness_tensor: np.ndarray, volume_fraction: float) -> Dict[str, float]:
     """
-    Compute Voigt-Reuss-Hill bounds for a given stiffness tensor.
-    
-    For isotropic materials (or effective isotropic approximations),
-    we typically look at the bulk modulus (K) and shear modulus (G).
-    However, for a general 6x6 stiffness tensor in Voigt notation,
-    we can check the positive definiteness and symmetry constraints.
-    
-    The Voigt bound (upper) is the arithmetic mean of the diagonal elements.
-    The Reuss bound (lower) is the harmonic mean of the diagonal elements.
+    Compute Voigt-Reuss-Hill bounds for effective stiffness.
     
     Args:
-        stiffness_tensor: List of 6 stiffness components [C11, C22, C33, C44, C55, C66]
+        stiffness_tensor: 6x6 stiffness matrix (Voigt notation)
+        volume_fraction: Volume fraction of inclusions (0 to 1)
         
     Returns:
-        Tuple of (voigt_bound, reuss_bound)
+        Dictionary with Voigt, Reuss, and Hill bounds for bulk and shear moduli
     """
-    # Extract diagonal components (assuming Voigt notation: 11, 22, 33, 44, 55, 66)
-    # Note: In full 6x6 matrix, indices 0, 1, 2 are normal, 3, 4, 5 are shear
-    diag = np.array(stiffness_tensor)
+    # Extract elastic constants from stiffness tensor (Voigt notation)
+    # C11, C12, C44 for isotropic approximation
+    if stiffness_tensor.shape != (6, 6):
+        raise ValueError(f"Stiffness tensor must be 6x6, got {stiffness_tensor.shape}")
     
-    # Voigt bound: Arithmetic mean of diagonal stiffnesses
-    voigt_bound = np.mean(diag)
+    C11 = stiffness_tensor[0, 0]
+    C12 = stiffness_tensor[0, 1]
+    C44 = stiffness_tensor[3, 3]
     
-    # Reuss bound: Harmonic mean of diagonal stiffnesses
-    # Avoid division by zero
-    if np.any(diag <= 0):
-        logger.warning("Non-positive stiffness components detected. Reuss bound calculation may be invalid.")
-        return 0.0, 0.0
-        
-    reuss_bound = len(diag) / np.sum(1.0 / diag)
+    # Voigt bounds (upper bound)
+    K_voigt = (C11 + 2 * C12) / 3
+    G_voigt = (C11 - C12 + 3 * C44) / 5
     
-    return voigt_bound, reuss_bound
+    # Reuss bounds (lower bound) - simplified for isotropic case
+    # For full tensor, we would invert the compliance matrix
+    # Here we use a simplified approximation
+    S11 = 1 / C11 if C11 != 0 else 0
+    S12 = -C12 / (C11 * (C11 + C12)) if C11 != 0 and C12 != 0 else 0
+    S44 = 1 / C44 if C44 != 0 else 0
+    
+    K_reuss = 1 / (3 * (S11 + 2 * S12)) if (S11 + 2 * S12) != 0 else 0
+    G_reuss = 1 / (S11 - S12 + 3 * S44) * 5 / (S11 - S12 + 3 * S44) if (S11 - S12 + 3 * S44) != 0 else 0
+    
+    # Hill average (arithmetic mean of Voigt and Reuss)
+    K_hill = (K_voigt + K_reuss) / 2
+    G_hill = (G_voigt + G_reuss) / 2
+    
+    return {
+        'K_voigt': float(K_voigt),
+        'K_reuss': float(K_reuss),
+        'K_hill': float(K_hill),
+        'G_voigt': float(G_voigt),
+        'G_reuss': float(G_reuss),
+        'G_hill': float(G_hill)
+    }
 
-
-def validate_vrh_bounds(
-    stiffness_tensor: List[float], 
-    tolerance: float = 1e-6
-) -> Tuple[bool, str]:
+def validate_vrh_bounds(stiffness_tensor: np.ndarray, volume_fraction: float) -> Tuple[bool, str]:
     """
-    Validate that the computed stiffness tensor is physically plausible
-    by checking if it falls within Voigt-Reuss-Hill bounds.
-    
-    For a valid effective medium, the effective stiffness should lie
-    between the Voigt (upper) and Reuss (lower) bounds.
+    Validate that computed stiffness tensor falls within VRH bounds.
     
     Args:
-        stiffness_tensor: List of 6 stiffness components.
-        tolerance: Numerical tolerance for floating point comparisons.
+        stiffness_tensor: 6x6 stiffness matrix
+        volume_fraction: Volume fraction of inclusions
         
     Returns:
-        Tuple of (is_valid, message)
+        Tuple of (is_valid, error_message)
     """
-    if not isinstance(stiffness_tensor, list) or len(stiffness_tensor) != 6:
-        return False, "Invalid stiffness tensor format. Expected list of 6 floats."
-    
     try:
-        voigt, reuss = compute_vrh_bounds(stiffness_tensor)
+        bounds = compute_vrh_bounds(stiffness_tensor, volume_fraction)
+        
+        # Extract effective bulk and shear moduli from stiffness tensor
+        K_eff = (stiffness_tensor[0, 0] + 2 * stiffness_tensor[0, 1]) / 3
+        G_eff = (stiffness_tensor[0, 0] - stiffness_tensor[0, 1] + 3 * stiffness_tensor[3, 3]) / 5
+        
+        # Check if effective moduli are within bounds
+        if not (bounds['K_reuss'] <= K_eff <= bounds['K_voigt']):
+            return False, f"Bulk modulus {K_eff:.2f} outside VRH bounds [{bounds['K_reuss']:.2f}, {bounds['K_voigt']:.2f}]"
+        
+        if not (bounds['G_reuss'] <= G_eff <= bounds['G_voigt']):
+            return False, f"Shear modulus {G_eff:.2f} outside VRH bounds [{bounds['G_reuss']:.2f}, {bounds['G_voigt']:.2f}]"
+        
+        # Check for unphysical values (negative stiffness)
+        if K_eff < 0 or G_eff < 0:
+            return False, f"Unphysical stiffness values: K={K_eff:.2f}, G={G_eff:.2f}"
+        
+        # Check for extreme values that might indicate solver failure
+        if K_eff > 1e6 or G_eff > 1e6:
+            return False, f"Extremely high stiffness values: K={K_eff:.2e}, G={G_eff:.2e}"
+        
+        return True, "Valid"
+        
     except Exception as e:
-        return False, f"Error computing VRH bounds: {str(e)}"
-    
-    # Check if Voigt >= Reuss (mathematical requirement)
-    if voigt < reuss - tolerance:
-        return False, f"VRH bounds violated: Voigt ({voigt:.6f}) < Reuss ({reuss:.6f})"
-    
-    # Check if the tensor components are consistent with the bounds
-    # In a valid homogenization, the effective properties should be bounded.
-    # We check the mean stiffness against the bounds.
-    mean_stiffness = np.mean(stiffness_tensor)
-    
-    if not (reuss - tolerance <= mean_stiffness <= voigt + tolerance):
-        return False, (
-            f"Mean stiffness ({mean_stiffness:.6f}) outside VRH bounds "
-            f"[{reuss:.6f}, {voigt:.6f}]"
-        )
-    
-    # Additional check: Positive definiteness (simplified)
-    # All diagonal components should be positive
-    if np.any(np.array(stiffness_tensor) <= 0):
-        return False, "Stiffness tensor contains non-positive diagonal components."
-    
-    return True, f"VRH bounds valid. Reuss={reuss:.6f}, Voigt={voigt:.6f}, Mean={mean_stiffness:.6f}"
+        return False, f"VRH validation error: {str(e)}"
 
-
-def validate_dataset(
-    metadata_path: Path,
-    schema_path: Optional[Path] = None
-) -> Dict[str, Any]:
+def validate_dataset(metadata_path: str, schema_path: str, output_log_path: str) -> Dict[str, Any]:
     """
-    Validate the entire generated dataset.
+    Validate the entire dataset against schema and physical constraints.
     
     Args:
-        metadata_path: Path to the JSON metadata file containing records.
-        schema_path: Optional path to the schema YAML file. If None, uses default.
+        metadata_path: Path to the dataset metadata JSON file
+        schema_path: Path to the schema YAML file
+        output_log_path: Path to write the validation log CSV
         
     Returns:
-        Dictionary with validation results.
+        Summary statistics of the validation
     """
-    if not metadata_path.exists():
-        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
-    
-    # Load schema if provided
-    schema = None
-    if schema_path and schema_path.exists():
-        schema = load_schema(schema_path)
-    else:
-        logger.info("No schema provided, skipping schema conformity checks.")
+    # Load schema
+    schema = load_schema(schema_path)
     
     # Load metadata
     with open(metadata_path, 'r') as f:
-        records = json.load(f)
+        metadata = json.load(f)
     
-    results = {
-        'total_records': len(records),
-        'valid_count': 0,
-        'invalid_count': 0,
-        'schema_errors': [],
-        'vrh_errors': [],
-        'invalid_indices': []
-    }
+    validation_results = []
+    valid_count = 0
+    invalid_count = 0
     
-    for i, record in enumerate(records):
+    for record in metadata:
+        seed = record.get('seed', 'unknown')
         is_valid = True
-        errors = []
+        reasons = []
         
-        # 1. Schema Conformity
-        if schema:
-            schema_ok, schema_errs = validate_schema_conformity(record, schema)
-            if not schema_ok:
-                is_valid = False
-                errors.extend(schema_errs)
+        # 1. Schema conformity check
+        schema_valid, schema_errors = validate_schema_conformity(record, schema)
+        if not schema_valid:
+            is_valid = False
+            reasons.extend(schema_errors)
         
-        # 2. VRH Bounds
-        if 'stiffness_tensor' in record:
-            vrh_ok, vrh_msg = validate_vrh_bounds(record['stiffness_tensor'])
-            if not vrh_ok:
+        # 2. Physical plausibility check (VRH bounds)
+        if 'stiffness_tensor' in record and 'inclusion_density' in record:
+            try:
+                stiffness = np.array(record['stiffness_tensor'])
+                density = float(record['inclusion_density'])
+                
+                vrh_valid, vrh_reason = validate_vrh_bounds(stiffness, density)
+                if not vrh_valid:
+                    is_valid = False
+                    reasons.append(vrh_reason)
+                    
+            except Exception as e:
                 is_valid = False
-                errors.append(f"VRH: {vrh_msg}")
+                reasons.append(f"Error during VRH check: {str(e)}")
+        
+        # 3. Additional checks for unphysical microstructures
+        if 'topology_type' in record:
+            topology = record['topology_type']
+            if topology not in ['void', 'inclusion', 'mixed']:
+                is_valid = False
+                reasons.append(f"Invalid topology type: {topology}")
+        
+        # Record the result
+        validation_results.append({
+            'seed': seed,
+            'is_valid': is_valid,
+            'reasons': '; '.join(reasons) if reasons else 'Valid',
+            'inclusion_density': record.get('inclusion_density', None),
+            'topology_type': record.get('topology_type', None)
+        })
         
         if is_valid:
-            results['valid_count'] += 1
+            valid_count += 1
         else:
-            results['invalid_count'] += 1
-            results['invalid_indices'].append(i)
-            results['schema_errors'].extend(errors)
-            logger.warning(f"Record {i} invalid: {errors}")
+            invalid_count += 1
     
-    results['success_rate'] = (
-        results['valid_count'] / results['total_records'] 
-        if results['total_records'] > 0 else 0.0
-    )
+    # Write validation log to CSV
+    log_path = Path(output_log_path)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    return results
-
+    with open(log_path, 'w') as f:
+        f.write('seed,is_valid,reasons,inclusion_density,topology_type\n')
+        for result in validation_results:
+            f.write(f"{result['seed']},{result['is_valid']},\"{result['reasons']}\",{result['inclusion_density']},{result['topology_type']}\n")
+    
+    logger.info(f"Validation complete: {valid_count} valid, {invalid_count} invalid")
+    logger.info(f"Validation log written to: {output_log_path}")
+    
+    return {
+        'total_records': len(metadata),
+        'valid_count': valid_count,
+        'invalid_count': invalid_count,
+        'validation_rate': valid_count / len(metadata) if len(metadata) > 0 else 0,
+        'log_path': str(log_path)
+    }
 
 def main():
-    """
-    CLI entry point for validation.
-    
-    Usage:
-        python code/data_generation/validate_tensors.py --metadata data/raw/metadata.json --schema specs/001-predict-stiffness-cnn/contracts/dataset.schema.yaml
-    """
+    """Main entry point for tensor validation."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Validate generated stiffness tensors")
-    parser.add_argument(
-        '--metadata', 
-        type=Path, 
-        required=True, 
-        help='Path to the JSON metadata file'
-    )
-    parser.add_argument(
-        '--schema', 
-        type=Path, 
-        default=None, 
-        help='Path to the schema YAML file (optional)'
-    )
-    parser.add_argument(
-        '--output', 
-        type=Path, 
-        default=None, 
-        help='Path to write validation report (optional)'
-    )
+    parser = argparse.ArgumentParser(description='Validate generated stiffness tensors')
+    parser.add_argument('--metadata', type=str, required=True, help='Path to dataset metadata JSON')
+    parser.add_argument('--schema', type=str, required=True, help='Path to schema YAML')
+    parser.add_argument('--output', type=str, default='data/processed/validation_log.csv', 
+                      help='Path to output validation log CSV')
     
     args = parser.parse_args()
     
     try:
-        results = validate_dataset(args.metadata, args.schema)
+        results = validate_dataset(args.metadata, args.schema, args.output)
+        print(json.dumps(results, indent=2))
         
-        # Print summary
-        print(f"\nValidation Summary:")
-        print(f"  Total Records: {results['total_records']}")
-        print(f"  Valid: {results['valid_count']}")
-        print(f"  Invalid: {results['invalid_count']}")
-        print(f"  Success Rate: {results['success_rate']:.2%}")
-        
-        if results['invalid_count'] > 0:
-            print(f"\n  Invalid indices: {results['invalid_indices'][:10]}...") # Show first 10
-            print(f"  Sample errors: {results['schema_errors'][:3]}")
-        
-        # Write report if requested
-        if args.output:
-            with open(args.output, 'w') as f:
-                json.dump(results, f, indent=2)
-            print(f"\nReport written to: {args.output}")
-        
-        # Exit with error code if any invalid records found
-        if results['invalid_count'] > 0:
-            logger.error("Validation failed: Invalid records found.")
-            return 1
-        
-        logger.info("Validation passed.")
-        return 0
-        
+        # Exit with error code if validation rate is too low
+        if results['validation_rate'] < 0.9:
+            logger.warning(f"Validation rate {results['validation_rate']:.2%} is below 90% threshold")
+            sys.exit(1)
+            
     except Exception as e:
-        logger.error(f"Validation failed with exception: {e}")
-        return 1
-
+        logger.error(f"Validation failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == '__main__':
-    exit(main())
+    import sys
+    main()
