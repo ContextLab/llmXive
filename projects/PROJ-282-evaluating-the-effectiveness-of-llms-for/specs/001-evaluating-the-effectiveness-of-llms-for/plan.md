@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a CPU-first pipeline to evaluate zero-shot Large Language Models (LLMs) against static analyzers for identifying security vulnerabilities in C, Python, and JavaScript code. The system ingests verified datasets (VulDeePecker, NIST Juliet, JSVulnDB), extracts structural (AST depth, cyclomatic complexity) and semantic (taint API frequency) features, and performs logistic regression to correlate these features with LLM prediction accuracy. The pipeline includes a static analyzer baseline (Bandit, cppcheck) and rigorous statistical validation (McNemar's test, multiple-comparison correction) within strict GitHub Actions compute limits (limited CPU, constrained RAM, 6 hours).
+This project implements a CPU-first pipeline to evaluate zero-shot Large Language Models (LLMs) against static analyzers for identifying security vulnerabilities in C, Python, and JavaScript code. The system ingests verified datasets (VulDeePecker, NIST Juliet, JSVulnDB), extracts structural (AST depth, cyclomatic complexity) and semantic (taint API frequency) features, and performs logistic regression to correlate these features with LLM prediction accuracy. The pipeline includes a static analyzer baseline (Bandit, cppcheck) and rigorous statistical validation (McNemar's test, multiple-comparison correction) within strict GitHub Actions compute limits (limited CPU, constrained RAM, bounded execution time).
 
 ## Technical Context
 
