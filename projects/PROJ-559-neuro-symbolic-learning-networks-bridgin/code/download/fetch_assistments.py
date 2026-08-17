@@ -1,176 +1,164 @@
 """
-Fetcher for ASSISTments dataset.
+Fetch the ASSISTments 2009-2010 dataset from Hugging Face.
 
-This module handles the retrieval of the ASSISTments educational dataset.
-It supports fetching from a local cache, downloading from a remote URL,
-or generating a synthetic fallback if external data is unavailable or restricted.
+This script downloads the raw CSV data, validates the fetch, and saves it
+to the project's data directory. It enforces a 300-second timeout and
+exits with code 1 if the download fails or times out.
 
 Dependencies:
+    - datasets (from Hugging Face)
     - pandas
-    - requests
-    - os
-    - json
 """
 
 import os
+import sys
 import time
 import hashlib
 import json
 import logging
+import argparse
 from typing import Optional, Dict, Any, List
 
-import pandas as pd
-
-# Configure logger for this module
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/raw/fetch_assistments.log')
+    ]
+)
 logger = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_DATA_DIR = "data/raw"
-ASSISTMENTS_CACHE_FILE = os.path.join(DEFAULT_DATA_DIR, "assistments_sample.csv")
-SYNTHETIC_CACHE_FILE = os.path.join(DEFAULT_DATA_DIR, "assistments_synthetic_fallback.csv")
+DATASET_ID = "assistments/2009-2010"
+OUTPUT_DIR = "data/raw"
+OUTPUT_FILE = "assistments.csv"
+TIMEOUT_SECONDS = 300
+REQUIRED_COLUMNS = ['problem_id', 'correct', 'time', 'skill'] # Basic sanity check columns
 
-# Simulated remote URL (in a real scenario, this would be the actual ASSISTments URL)
-# For this implementation, we use a known stable public dataset or generate synthetic if unreachable
-# Using a direct link to a sample CSV from a public repository that mimics ASSISTments structure
-REMOTE_URL = "https://raw.githubusercontent.com/Assistments/assistments-data/master/sample.csv"
-
-# Timeout for network requests (seconds) - FR-001, FR-007
-REQUEST_TIMEOUT = 10
-
-def _ensure_data_dir():
-    """Ensure the data directory exists."""
-    if not os.path.exists(DEFAULT_DATA_DIR):
-        os.makedirs(DEFAULT_DATA_DIR)
-        logger.info(f"Created data directory: {DEFAULT_DATA_DIR}")
-
-def _generate_synthetic_assistments(num_rows: int = 100) -> pd.DataFrame:
+def download_raw_csv(timeout: int = TIMEOUT_SECONDS) -> Optional[str]:
     """
-    Generate a synthetic ASSISTments-like dataset for fallback purposes.
-    
-    This is used when the real dataset is unavailable or the download fails.
-    It mimics the schema of the ASSISTments dataset (problem_id, skill, correct, rt).
-    
+    Fetch the ASSISTments dataset from Hugging Face with a timeout.
+
     Args:
-        num_rows: Number of synthetic rows to generate.
-        
-    Returns:
-        A pandas DataFrame with synthetic data.
-    """
-    import random
-    import numpy as np
+        timeout: Maximum time in seconds to wait for the download.
 
-    logger.warning(f"Generating synthetic ASSISTments dataset with {num_rows} rows.")
-    
-    skills = [
-        "Addition", "Subtraction", "Multiplication", "Division", 
-        "Fractions", "Decimals", "Algebra Basics", "Geometry"
-    ]
-    
-    # Set seed for reproducibility in synthetic generation
-    random.seed(42)
-    np.random.seed(42)
-    
-    data = {
-        "problem_id": [f"prob_{i:05d}" for i in range(num_rows)],
-        "skill": [random.choice(skills) for _ in range(num_rows)],
-        "correct": [random.choice([0, 1]) for _ in range(num_rows)],
-        "rt_seconds": [max(0.5, random.gauss(15.0, 5.0)) for _ in range(num_rows)],
-        "user_id": [f"user_{random.randint(1, 1000):04d}" for _ in range(num_rows)]
-    }
-    
-    return pd.DataFrame(data)
-
-def download_raw_csv(target_path: str) -> bool:
-    """
-    Attempt to download the raw CSV from the remote source.
-    
-    Implements FR-001 (timeout handling) and FR-007 (fallback logic).
-    
-    Args:
-        target_path: Local path where the CSV should be saved.
-        
     Returns:
-        True if download was successful, False otherwise.
+        Path to the downloaded CSV file if successful, None otherwise.
+
+    Raises:
+        TimeoutError: If the download exceeds the specified timeout.
+        ImportError: If the 'datasets' library is not installed.
+        Exception: For other download failures.
     """
-    _ensure_data_dir()
-    
+    start_time = time.time()
+    logger.info(f"Starting download of dataset: {DATASET_ID}")
+    logger.info(f"Timeout set to {timeout} seconds.")
+
     try:
-        import requests
-        logger.info(f"Attempting to download dataset from {REMOTE_URL}")
-        
-        start_time = time.time()
-        response = requests.get(REMOTE_URL, timeout=REQUEST_TIMEOUT)
-        elapsed = time.time() - start_time
-        
-        if response.status_code == 200:
-            with open(target_path, 'w', encoding='utf-8') as f:
-                f.write(response.text)
-            logger.info(f"Successfully downloaded dataset in {elapsed:.2f}s to {target_path}")
-            return True
-        else:
-            logger.warning(f"Download failed with status code {response.status_code}")
-            return False
-            
+        # Dynamically import to fail fast if not installed
+        from datasets import load_dataset
     except ImportError:
-        logger.warning("The 'requests' library is not installed. Cannot download.")
-        return False
-    except Exception as e:
-        logger.error(f"Error during download: {e}")
-        return False
+        logger.error("ERROR: 'datasets' library not found. Install with: pip install datasets")
+        raise
 
-def fetch_assistments_dataset(
-    use_cache: bool = True,
-    force_synthetic: bool = False,
-    min_rows: int = 50
-) -> Optional[pd.DataFrame]:
-    """
-    Fetch the ASSISTments dataset, with fallback mechanisms.
-    
-    Priority:
-    1. Local cache (if use_cache is True)
-    2. Remote download
-    3. Synthetic fallback (if configured or if download fails)
-    
-    Args:
-        use_cache: If True, check for existing local files before downloading.
-        force_synthetic: If True, skip download and generate synthetic data immediately.
-        min_rows: Minimum number of rows required for the dataset to be considered valid.
+    try:
+        # Load the dataset (streaming=False to ensure full download for CSV export)
+        # We use 'train' split as it typically contains the bulk of the data for this dataset version
+        logger.info("Loading dataset from Hugging Face...")
+        ds = load_dataset(DATASET_ID, split="train", trust_remote_code=True)
+
+        # Check for timeout during load
+        elapsed = time.time() - start_time
+        if elapsed > timeout:
+            raise TimeoutError(f"Download exceeded {timeout} seconds.")
+
+        logger.info(f"Dataset loaded successfully in {elapsed:.2f} seconds.")
+        logger.info(f"Dataset shape: {ds.shape}")
+        logger.info(f"Dataset features: {ds.features}")
+
+        # Ensure output directory exists
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        output_path = os.path.join(OUTPUT_DIR, OUTPUT_FILE)
+
+        # Convert to pandas and save as CSV
+        logger.info(f"Converting to CSV and saving to: {output_path}")
+        df = ds.to_pandas()
+
+        # Basic validation of columns
+        # Note: Column names might vary slightly by dataset version, so we check for existence
+        # or warn if missing. The task requires saving the raw data.
+        logger.info(f"Columns in dataframe: {list(df.columns)}")
+
+        df.to_csv(output_path, index=False)
+
+        # Calculate checksum for integrity
+        with open(output_path, 'rb') as f:
+            file_hash = hashlib.md5(f.read()).hexdigest()
         
-    Returns:
-        A pandas DataFrame containing the dataset, or None if all methods fail.
-    """
-    _ensure_data_dir()
-    
-    # 1. Check cache
-    if use_cache and os.path.exists(ASSISTMENTS_CACHE_FILE):
-        logger.info(f"Loading cached dataset from {ASSISTMENTS_CACHE_FILE}")
-        try:
-            df = pd.read_csv(ASSISTMENTS_CACHE_FILE)
-            if len(df) >= min_rows:
-                logger.info(f"Cache valid: {len(df)} rows loaded.")
-                return df
-            else:
-                logger.warning(f"Cache invalid: only {len(df)} rows, regenerating.")
-        except Exception as e:
-            logger.warning(f"Error reading cache: {e}")
-    
-    # 2. Try synthetic if forced
-    if force_synthetic:
-        df = _generate_synthetic_assistments(min_rows)
-        df.to_csv(SYNTHETIC_CACHE_FILE, index=False)
-        logger.info(f"Saved synthetic fallback to {SYNTHETIC_CACHE_FILE}")
-        return df
+        logger.info(f"File saved. MD5: {file_hash}")
+        logger.info(f"Total rows: {len(df)}")
 
-    # 3. Try remote download
-    if download_raw_csv(ASSISTMENTS_CACHE_FILE):
-        df = pd.read_csv(ASSISTMENTS_CACHE_FILE)
-        if len(df) >= min_rows:
-            return df
-        else:
-            logger.warning(f"Downloaded dataset has only {len(df)} rows, too small.")
-    
-    # 4. Final fallback: Synthetic
-    logger.warning("Real data unavailable. Falling back to synthetic dataset.")
-    df = _generate_synthetic_assistments(min_rows)
-    df.to_csv(SYNTHETIC_CACHE_FILE, index=False)
-    return df
+        # Save metadata
+        metadata = {
+            "dataset_id": DATASET_ID,
+            "output_file": output_path,
+            "rows": len(df),
+            "columns": list(df.columns),
+            "md5": file_hash,
+            "download_time_seconds": time.time() - start_time
+        }
+        metadata_path = os.path.join(OUTPUT_DIR, "assistments_metadata.json")
+        with open(metadata_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+        
+        return output_path
+
+    except TimeoutError:
+        logger.error(f"ERROR: Failed to download {DATASET_ID} within {timeout} seconds – aborting pipeline.")
+        raise
+    except Exception as e:
+        logger.error(f"ERROR: Failed to download {DATASET_ID}: {str(e)}")
+        raise
+
+def fetch_assistments_dataset(timeout: int = TIMEOUT_SECONDS) -> str:
+    """
+    Main entry point for fetching the ASSISTments dataset.
+
+    Args:
+        timeout: Maximum time in seconds for the download.
+
+    Returns:
+        Path to the saved CSV file.
+
+    Raises:
+        SystemExit: If the download fails or times out.
+    """
+    try:
+        path = download_raw_csv(timeout=timeout)
+        if path is None:
+            raise RuntimeError("Download returned None without raising an exception.")
+        logger.info(f"SUCCESS: Dataset saved to {path}")
+        return path
+    except (TimeoutError, ImportError, Exception) as e:
+        logger.error(f"Pipeline aborted due to error: {e}")
+        sys.exit(1)
+
+def main():
+    """CLI entry point."""
+    parser = argparse.ArgumentParser(description="Fetch ASSISTments 2009-2010 dataset.")
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=TIMEOUT_SECONDS,
+        help=f"Download timeout in seconds (default: {TIMEOUT_SECONDS})"
+    )
+    args = parser.parse_args()
+
+    logger.info("Starting fetch_assistments.py script.")
+    fetch_assistments_dataset(timeout=args.timeout)
+    logger.info("Script completed successfully.")
+
+if __name__ == "__main__":
+    main()

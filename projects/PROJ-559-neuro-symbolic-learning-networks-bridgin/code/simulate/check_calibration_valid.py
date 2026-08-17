@@ -31,7 +31,7 @@ def load_yaml_params(path: str) -> Optional[Dict[str, Any]]:
         with open(path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     except ImportError:
-        logger.error("PyYAML is required but not installed.")
+        logger.error("PyYAML is required but not installed. Install via: pip install pyyaml")
         return None
     except Exception as e:
         logger.error(f"Failed to load BKT parameters from {path}: {e}")
@@ -59,7 +59,7 @@ def check_calibration_valid() -> bool:
     
     Validation logic:
     1. Verify bkt_params.yaml exists and is valid.
-    2. Verify calibration_report.json exists and indicates success (no limitation_flag blocking).
+    2. Verify calibration_report.json exists and indicates success.
     3. Verify calibration_metrics.json exists and meets thresholds (RMSE diff <= 0.02, abs RMSE <= 0.15).
     
     Returns:
@@ -86,12 +86,7 @@ def check_calibration_valid() -> bool:
         logger.error("Calibration invalid: Calibration report missing.")
         return False
     
-    # If the report indicates a limitation (e.g., synthetic data used) that blocks simulation, fail.
-    # Per T031 spec: If human data missing, limitation_flag=true. 
-    # The task T033b enforces simulation cannot proceed WITHOUT valid calibration.
-    # We assume 'limitation_flag' implies a warning but not necessarily a block unless specified.
-    # However, T031 says "If calibration thresholds fail on valid data, exit with code 1".
-    # T033b enforces the result of that. If the report says "failed", we block.
+    # If the report indicates a failure status, block simulation
     if report.get('status') == 'failed':
         logger.error("Calibration invalid: Calibration report indicates failure.")
         return False

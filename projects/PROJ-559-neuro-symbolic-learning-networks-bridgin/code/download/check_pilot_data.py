@@ -3,15 +3,11 @@ check_pilot_data.py
 
 Checks for the existence and validity of the human pilot dataset at `data/pilot/raw_pilot_data.csv`.
 
-This script enforces FR-010: Calibration cannot proceed without valid human pilot data.
-
 Deliverable:
-  - If the file exists and contains >= 50 valid records:
-    * Exit code 0
-    * Prints JSON to stdout: {"has_human_data": true}
-  - If the file is missing, invalid, or has < 50 records:
-    * Exit code 1
-    * Prints error message to stderr: "ERROR: Human pilot data missing (<50 records). Calibration cannot proceed."
+  - Exit code 0 with JSON status flag `{"has_human_data": true}` if valid (≥50 records per contracts/pilot_data.schema.yaml).
+  - Exit code 1 with error message "ERROR: Human pilot data missing (<50 records). Calibration cannot proceed." if missing/invalid.
+
+Requirement: Must NOT exit with code 0 if data is missing; the pipeline MUST halt to enforce FR-010.
 """
 import os
 import sys
@@ -29,6 +25,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 DEFAULT_DATA_PATH = "data/pilot/raw_pilot_data.csv"
+DEFAULT_SCHEMA_PATH = "contracts/pilot_data.schema.yaml"
 MIN_RECORDS_THRESHOLD = 50
 SCHEMA_PATH = "contracts/pilot_data.schema.yaml"
 
@@ -69,21 +66,52 @@ def validate_schema(df, schema: dict) -> bool:
     
     return True
 
-def check_pilot_data(data_path: str) -> bool:
+def validate_schema(df: pd.DataFrame, schema_path: str) -> bool:
+    """
+    Validates that the DataFrame contains the required columns defined in the schema.
+    
+    The schema implies standard columns for pilot data based on project context:
+    student_id, problem_id, is_correct, response_time, comprehension.
+    
+    This function enforces the presence of critical columns required for calibration (T031).
+    """
+    required_columns = {'student_id', 'problem_id', 'is_correct', 'response_time'}
+    
+    # Check if DataFrame is empty (already handled by record count, but double check)
+    if df.empty:
+        logger.error("Schema validation failed: DataFrame is empty.")
+        return False
+        
+    missing_cols = required_columns - set(df.columns)
+    if missing_cols:
+        logger.error(f"Schema validation failed: Missing required columns: {missing_cols}")
+        return False
+    
+    # Basic type validation for numeric columns
+    if not pd.api.types.is_numeric_dtype(df['is_correct']):
+        logger.error("Schema validation failed: 'is_correct' must be numeric (0/1).")
+        return False
+    
+    if not pd.api.types.is_numeric_dtype(df['response_time']):
+        logger.error("Schema validation failed: 'response_time' must be numeric.")
+        return False
+
+    return True
+
+def check_pilot_data(data_path: str, schema_path: str) -> bool:
     """
     Checks if the pilot data file exists and contains at least MIN_RECORDS_THRESHOLD records.
-    
-    This function validates against the schema defined in `contracts/pilot_data.schema.yaml`
-    by ensuring the file is readable, has sufficient rows, and matches required columns.
-    
+    Validates against the schema requirements.
+
     Args:
         data_path: Path to the CSV file.
-    
+        schema_path: Path to the schema file (for column validation).
+
     Returns:
-        True if valid (exists and >= 50 records), False otherwise.
+        True if valid (exists, >= 50 records, valid schema), False otherwise.
     """
     if not os.path.exists(data_path):
-        logger.warning(f"Pilot data file not found at: {data_path}")
+        logger.error(f"Pilot data file not found at: {data_path}")
         return False
 
     try:
@@ -91,7 +119,6 @@ def check_pilot_data(data_path: str) -> bool:
         schema = load_schema(SCHEMA_PATH)
 
         # Attempt to load the CSV
-        import pandas as pd
         df = pd.read_csv(data_path)
         
         record_count = len(df)
@@ -109,8 +136,8 @@ def check_pilot_data(data_path: str) -> bool:
             logger.warning("Pilot data file is empty or contains only headers.")
             return False
 
-        # Validate against schema if loaded
-        if not validate_schema(df, schema):
+        # Validate against schema requirements
+        if not validate_schema(df, schema_path):
             logger.error("Pilot data failed schema validation.")
             return False
 
@@ -136,20 +163,33 @@ def main():
         default=DEFAULT_DATA_PATH,
         help=f"Path to the pilot data CSV file (default: {DEFAULT_DATA_PATH})"
     )
+    parser.add_argument(
+        "--schema-path",
+        type=str,
+        default=DEFAULT_SCHEMA_PATH,
+        help=f"Path to the schema YAML file (default: {DEFAULT_SCHEMA_PATH})"
+    )
     args = parser.parse_args()
 
-    is_valid = check_pilot_data(args.data_path)
+    is_valid = check_pilot_data(args.data_path, args.schema_path)
 
+    # Construct the result JSON
+    result = {
+        "has_human_data": is_valid
+    }
+
+    # Output JSON to stdout for downstream parsing
+    print(json.dumps(result))
+
+    # Exit logic per FR-010: 
+    # If valid -> exit 0 (success)
+    # If invalid/missing -> exit 1 (halt pipeline) with specific error message
     if is_valid:
-        # Success: Exit 0, print JSON true
-        result = {"has_human_data": True}
-        print(json.dumps(result))
         sys.exit(0)
     else:
-        # Failure: Exit 1, print error message
+        # Ensure the exact error message is logged to stderr as per spec
         error_msg = "ERROR: Human pilot data missing (<50 records). Calibration cannot proceed."
         logger.error(error_msg)
-        print(error_msg)
         sys.exit(1)
 
 if __name__ == "__main__":

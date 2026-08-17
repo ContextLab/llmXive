@@ -1,11 +1,10 @@
 T012:
   c: false
-  h: fe7137292df82a1d0dc5ef5db72b81ddb3fb4acb3ca8027d3c3deb01aa7b5ec4
-  r: "The `data/raw/assistments.csv` file is missing, and `code/download/fetch_assistments.py`\
-    \ does not download from the required Hugging Face URL, uses a 10\u2011second\
-    \ timeout instead of 300\u202Fseconds, and lacks the specified exit\u2011code\u2011\
-    1 error handling with the exact log message. The scope statement document is present,\
-    \ but the core deliverables are incomplete."
+  h: ce507bdaba1f291a9ccc5d2a0b17921f293b6b5b07661ae247f611499108fe01
+  r: "The required `data/raw/assistments.csv` file is missing, and the provided `fetch_assistments.py`\
+    \ does not clearly demonstrate the required timeout\u2011failure behavior (exiting\
+    \ with code\u202F1 and logging the exact error message). Both deliverables need\
+    \ to be present and the script must implement the specified error handling."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -15,12 +14,12 @@ T017:
     is not satisfied.
 T023:
   c: false
-  h: 219d9dc066f01e5af2629288fb02ed1f583fe5a96d57ee9211e70283eab0c84a
-  r: "The script `code/simulate/validate_rt_distribution.py` is present, but the required\
-    \ output file `data/derived/rt_distribution_validation.json` does not exist, and\
-    \ the provided code excerpt does not show logic that writes the JSON or exits\
-    \ with code\u202F1 on failure. The deliverable and exit\u2011code requirement\
-    \ are therefore unmet."
+  h: 22f5561bf01a2875e40f3e74352629e3d494777901b75a8cfd2f46c29874dd0a
+  r: The required output file `data/derived/rt_distribution_validation.json` is absent,
+    and the provided script is truncated before the logic that writes the JSON result,
+    so the deliverable does not exist or is incomplete. The next implementer must
+    ensure the script fully implements the validation and creates the JSON file with
+    the pass/fail flag.
 T031:
   c: false
   h: b702f62a5049517ffcd410e3554d380dbe0fece769946881a5ee5996d0c69b16

@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T031b` (rejected 1x): The provided `code/download/check_pilot_data.py` is truncated (ends with “impo”) and lacks the necessary imports, CSV loading, row‑count check, JSON output, and proper exit‑code handling; there is also no entry‑point (`if __name__ == "__main__":`). Consequently the script cannot fulfill the required behavior. The required data and schema files are also absent, but the primary issue is the incomplete implementation of the script itself.
+- `T031b` (rejected 1x): The provided `check_pilot_data.py` is truncated (the `check_pilot_data` function ends abruptly) and lacks a runnable entry‑point, so it cannot reliably produce the required exit codes or JSON output. Additionally, the required data file `data/pilot/raw_pilot_data.csv` and schema file `contracts/pilot_data.schema.yaml` are absent, preventing any real validation. The implementation must be completed and the necessary files supplied.
 
 ## Required change
 
