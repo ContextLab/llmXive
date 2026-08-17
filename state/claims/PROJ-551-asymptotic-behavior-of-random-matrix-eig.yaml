@@ -439,3 +439,173 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T06:53:34Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Wigner spectral distribution converges to semicircle law for matrices
+    with zero mean and variance 1/N
+  claim_id: c_08ec3020
+  context: For a sequence of $N \times N$ symmetric random matrices $W_N$ with independent,
+    identically distributed entries (up to symmetry) having zero mean and variance
+    $1/N$, the empirical spectral distribution converges almost surely to the Wigner
+    semicircle law as $N \to \infty$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For a sequence of N x N symmetric random matrices W_N with independent,
+    identically distributed entries (up to symmetry) having zero mean and variance
+    1/N, the empirical spectral distribution converges almost surely to the Wigner
+    semicircle law as N to infinity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:58:55Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Wigner semicircle law support is [-2, 2]
+  claim_id: c_b985a77d
+  context: The support of this limiting distribution is $[-2, 2]$.
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: '[-2, 2]'
+      source_id: '1301.6224'
+      url: https://arxiv.org/abs/1301.6224
+      value: '[-2, 2]'
+    filled: true
+  kind: numeric
+  raw_text: The support of the Wigner semicircle limiting distribution is [-2, 2].
+  resolved_value: '[-2, 2]'
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T09:00:03Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Outlier eigenvalues converge to theta + 1/theta when |theta| > 1
+  claim_id: c_d215c9a7
+  context: However, if $|\theta_i| > 1$, the associated eigenvalues "pop out" of the
+    bulk, converging almost surely to $\rho(\theta_i) = \theta_i + 1/\theta_i$, which
+    lies outside $[-2, 2]$.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '> 1'
+    relation: theta
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Outlier_eigenvalues_converge_to_theta_+_1/theta_when_theta_%3E
+    source_value: https://en.wikipedia.org/wiki/Outlier_eigenvalues_converge_to_theta_+_1/theta_when_theta_>
+    subject: Outlier eigenvalues converge to theta + 1/theta when
+  kind: relational
+  raw_text: If |theta_i| > 1, the associated eigenvalues of M_N converge almost surely
+    to rho(theta_i) = theta_i + 1/theta_i.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:00:29Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Wigner matrices generated for sizes 500, 1000, 2000
+  claim_id: c_7c8aa220
+  context: We generate Wigner matrices $W_N$ of size $N \in \{500, 1000, 2000\}$ using
+    Gaussian entries scaled by $1/\sqrt{N}$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulations used Wigner matrices of size N in {500, 1000, 2000}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:01:15Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Sparsity densities tested were 0.1, 0.2, 0.3
+  claim_id: c_48536726
+  context: We construct perturbation matrices $P_N$ with varying rank $k$ and sparsity
+    density $p \in \{0.1, 0.2, 0.3\}$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perturbation matrices were constructed with sparsity density p in {0.1,
+    0.2, 0.3}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:01:43Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: No outliers observed for theta <= 1.0
+  claim_id: c_d18266f6
+  context: For perturbation strengths $\theta \leq 1.0$, no eigenvalues are observed
+    outside the bulk $[-2, 2]$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For perturbation strengths theta <= 1.0, no eigenvalues were observed
+    outside the bulk [-2, 2].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:01:59Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Outlier emerges for theta > 1.0 converging to theta + 1/theta
+  claim_id: c_a1cf4f1e
+  context: For $\theta > 1.0$, a distinct outlier eigenvalue emerges, converging to
+    the theoretical prediction $\theta + 1/\theta$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For theta > 1.0, a distinct outlier eigenvalue emerges, converging to
+    the theoretical prediction theta + 1/theta.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:01:59Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Critical threshold robust to sparsity in range 0.1 to 0.3
+  claim_id: c_1c75a1a7
+  context: The critical threshold $\theta_c$ appears robust to variations in sparsity
+    density $p$ within the range $\{0.1, 0.2, 0.3\}$.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The critical threshold theta_c appears robust to variations in sparsity
+    density p within the range {0.1, 0.2, 0.3}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:02:24Z'
+- artifact_path: projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/research.md
+  attempts: 1
+  canonical: Critical threshold theta_c approx 1.0 robust across sparsity patterns
+  claim_id: c_01f6a2b6
+  context: The critical threshold $\theta_c \approx 1.0$ is robust across different
+    sparsity patterns, supporting the universality of the BBP result.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study found the critical threshold theta_c approximately equal to
+    1.0 is robust across different sparsity patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T09:02:45Z'

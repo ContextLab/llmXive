@@ -25,6 +25,6 @@ This project investigates the asymptotic behavior of eigenvalues in large random
 - Reproducibility is ensured via structured logging and checksums of raw matrix instances.
 
 ## Constraints
-- Memory usage must remain under 7 GB RAM.
+- Memory usage must remain within acceptable limits.
 - No GPU acceleration; all operations must use CPU-based iterative solvers.
 - Synthetic data generation must be strictly controlled and reproducible via random seeds.

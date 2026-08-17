@@ -1,3 +1,10 @@
+T003:
+  c: true
+  h: b9265c3eb98cfdcd8a4481387765cdba0d9c1808ed4f8b194284c3d5a3d16af9
+  r: "The repository contains a non\u2011empty `code/.ruff.toml` with typical linting\
+    \ rules and a non\u2011empty `code/pyproject.toml` that includes a `[tool.black]`\
+    \ section configuring Black. Both files are correctly placed in the `code/` directory,\
+    \ fulfilling the task\u2019s specifications."
 T018:
   c: false
   h: c8d536ad42cbaa1e8cf1e91b480ffadf5ab621bdc34de811c820e85ec2e9d265
@@ -5,19 +12,50 @@ T018:
     repository, so the integration test for the full parameter sweep cannot be verified.
     The task remains unfinished until the file is added with the appropriate test
     implementation.
-T021:
-  c: false
-  h: 17dfbef67847662bc54cec93cdcd9c262abf8741c98f1ffcdff3ef94a64a378f
-  r: "The required output file `data/processed/mc_results.csv` is missing, and the\
-    \ provided snippet of `monte_carlo_runner.py` does not show any code that writes\
-    \ results to that CSV. Without evidence of the runner actually generating and\
-    \ saving the results, the task\u2019s core requirement is not satisfied."
-T023:
+T019:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, figures, or statistical tables were provided showing a\
-    \ comparison of\u202F\u03B8_c\u202Fbetween diagonal and random\u2011sparse perturbations.\
-    \ Without any artifact containing the computed\u202F\u03B8_c\u202Fvalues or a\
-    \ statistical analysis (e.g., mean, variance, hypothesis test), the requirement\
-    \ cannot be verified. The implementer must supply the simulation results and the\
-    \ comparative statistical output."
+  r: "The required output file `state/checksums_raw.json` does not appear in the provided\
+    \ evidence, and no SHA\u2011256 checksums of the raw matrix instances are present.\
+    \ Consequently the task\u2019s core requirement\u2014generating and recording\
+    \ those checksums\u2014is not satisfied."
+T019a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No NumPy code or saved `.npy` files were presented; the required `data/raw/matrix_N{N}_seed{seed}.npy`
+    files do not exist in the provided evidence, so the task of generating and persisting
+    raw Wigner matrices is not demonstrated.
+T021a:
+  c: false
+  h: 95f9504c0c75bfc9d7efa3353356a5699104ca5e7e935a834c96279d62cb1d96
+  r: The repository contains a partially shown `code/analysis/monte_carlo_runner.py`,
+    but the file is truncated and does not demonstrate writing results to `data/processed/mc_results.csv`.
+    Moreover, the required CSV file is absent from the project. Without a complete
+    runner that outputs the specified schema, the task is not fulfilled.
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `quickstart.md` file was provided or referenced, and there is no\
+    \ evidence that the documentation now contains step\u2011by\u2011step instructions\
+    \ for reproducing the full parameter sweep and sensitivity analysis. The required\
+    \ artifact is missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `research.md` file or any textual evidence showing the required clarification\
+    \ about the \"observer\", the nature of the study, or the definition of \"sparse\
+    \ noise\" is provided. The implementer\u2019s claim lacks the actual artifact\
+    \ needed to satisfy the task."
+T040a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files were found in the repository at the required path `data/raw/sweep/matrix_N{N}_theta{theta}_seed{seed}.npy`,\
+    \ and no code or logs were provided that generate such raw matrix instances. Consequently\
+    \ the task\u2019s deliverable \u2013 the full set of raw matrix `.npy` files for\
+    \ the parameter sweep \u2013 is missing."
+T040b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/checksums_sweep.json` file or any other evidence of computed SHA\u2011\
+    256 checksums for the raw matrix instances from T040a is present. The required\
+    \ artifact is missing, so the task is not satisfied."

@@ -2,8 +2,19 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No evidence of a `projects/PROJ-551-asymptotic-behavior-of-random-matrix-eig/` directory or any files within it is provided; the claim lacks any tangible artifact showing the required project structure has been created.
-- **T003** — No configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or `black` settings) or any other evidence of ruff/black being set up in the `code/` directory were presented. Without visible artifacts, the claim cannot be verified as fulfilled.
-- **T015** — The implementer only supplied the feature specification and test scenarios but did not provide any code changes, data files, or scripts that actually write eigenvalues and perturbation parameters (with metadata) to `data/processed/`. No artifact exists on disk to verify that the recording logic was implemented. The required output files are missing.
-- **T019** — No `data/raw/` directory or any generated matrix files with checksums are present in the provided evidence; the claim lacks any tangible artifacts demonstrating raw matrix instances or their verification. The task therefore remains unfulfilled.
-- **T040** — No files or directories were presented under `data/raw/sweep/`, and no checksums or intermediate state records were supplied. Consequently, the required raw matrix instances and their verification data are missing, so the task is not satisfied.
+- **T019a** — No NumPy code or saved `.npy` files were presented; the required `data/raw/matrix_N{N}_seed{seed}.npy` files do not exist in the provided evidence, so the task of generating and persisting raw Wigner matrices is not demonstrated.
+- **T019** — The required output file `state/checksums_raw.json` does not appear in the provided evidence, and no SHA‑256 checksums of the raw matrix instances are present. Consequently the task’s core requirement—generating and recording those checksums—is not satisfied.
+- **T015** — declared artifact(s) missing/empty/invalid: data/processed/single_run_results.json
+- **T040a** — No files were found in the repository at the required path `data/raw/sweep/matrix_N{N}_theta{theta}_seed{seed}.npy`, and no code or logs were provided that generate such raw matrix instances. Consequently the task’s deliverable – the full set of raw matrix `.npy` files for the parameter sweep – is missing.
+- **T040b** — No `state/checksums_sweep.json` file or any other evidence of computed SHA‑256 checksums for the raw matrix instances from T040a is present. The required artifact is missing, so the task is not satisfied.
+- **T021a** — The repository contains a partially shown `code/analysis/monte_carlo_runner.py`, but the file is truncated and does not demonstrate writing results to `data/processed/mc_results.csv`. Moreover, the required CSV file is absent from the project. Without a complete runner that outputs the specified schema, the task is not fulfilled.
+- **T021b** — declared artifact(s) missing/empty/invalid: data/processed/mc_results.csv, data/processed/threshold_identification_raw.json
+- **T022c** — declared artifact(s) missing/empty/invalid: data/processed/threshold_fit_params.json
+- **T024** — declared artifact(s) missing/empty/invalid: data/processed/threshold_sweep_results.csv
+- **T025** — declared artifact(s) missing/empty/invalid: data/figures/outlier_probability_vs_theta.png
+- **T031** — declared artifact(s) missing/empty/invalid: data/logs/edge_case_rank0.log
+- **T028** — declared artifact(s) missing/empty/invalid: data/processed/sensitivity_density_sweep.csv
+- **T029a** — declared artifact(s) missing/empty/invalid: data/processed/sensitivity_variation.csv
+- **T030** — declared artifact(s) missing/empty/invalid: data/processed/sensitivity_report.md
+- **T032a** — No updated `quickstart.md` file was provided or referenced, and there is no evidence that the documentation now contains step‑by‑step instructions for reproducing the full parameter sweep and sensitivity analysis. The required artifact is missing.
+- **T033** — No updated `research.md` file or any textual evidence showing the required clarification about the "observer", the nature of the study, or the definition of "sparse noise" is provided. The implementer’s claim lacks the actual artifact needed to satisfy the task.

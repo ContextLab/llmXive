@@ -1,1 +1,1 @@
-# Utils package initialization
+# Utils package: Config, Logging, Checksums

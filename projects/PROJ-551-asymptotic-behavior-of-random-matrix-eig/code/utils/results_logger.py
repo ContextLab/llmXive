@@ -1,3 +1,11 @@
+"""
+Results logging utilities for simulation outputs.
+
+This module provides functions to record simulation results to JSON files,
+satisfying Constitution Principle III (Data Hygiene) by ensuring all
+experimental outputs are persisted with full metadata.
+"""
+
 import json
 import os
 import hashlib
@@ -9,78 +17,141 @@ from utils.config import get_project_paths
 
 
 def record_simulation_result(
+    run_id: str,
+    N: int,
+    theta: float,
+    seed: int,
     eigenvalues: List[float],
-    perturbation_config: Dict[str, Any],
-    simulation_metadata: Dict[str, Any],
-    output_dir: Optional[Path] = None,
-) -> Path:
+    outlier_flag: bool,
+    output_path: Optional[str] = None,
+) -> str:
     """
-    Record a single simulation run's results to a JSON file in data/processed/.
+    Record a single simulation run result to a JSON file.
+
+    The output file satisfies Constitution Principle III (Data Hygiene) by
+    persisting all run parameters and results with metadata.
 
     Args:
-        eigenvalues: List of computed eigenvalues (sorted descending).
-        perturbation_config: Dictionary describing the perturbation applied.
-        simulation_metadata: Dictionary with run metadata (seed, timestamp, N, etc.).
-        output_dir: Optional override for the output directory. Defaults to
-                    data/processed/ based on project config.
+        run_id: Unique identifier for this simulation run.
+        N: Matrix dimension.
+        theta: Perturbation norm parameter.
+        seed: Random seed used for reproducibility.
+        eigenvalues: List of computed top eigenvalues.
+        outlier_flag: Boolean indicating if an outlier was detected.
+        output_path: Optional custom output path. If None, uses default path.
 
     Returns:
         Path to the written JSON file.
+
+    Raises:
+        ValueError: If required fields are missing or invalid.
+        IOError: If file cannot be written.
     """
-    if output_dir is None:
-        project_paths = get_project_paths()
-        output_dir = project_paths.processed_dir
-        output_dir.mkdir(parents=True, exist_ok=True)
+    if not run_id or not isinstance(run_id, str):
+        raise ValueError("run_id must be a non-empty string")
+    if not isinstance(N, int) or N <= 0:
+        raise ValueError("N must be a positive integer")
+    if not isinstance(theta, (int, float)):
+        raise ValueError("theta must be a number")
+    if not isinstance(seed, int):
+        raise ValueError("seed must be an integer")
+    if not isinstance(eigenvalues, list):
+        raise ValueError("eigenvalues must be a list")
+    if not isinstance(outlier_flag, bool):
+        raise ValueError("outlier_flag must be a boolean")
 
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    project_paths = get_project_paths()
+    if output_path is None:
+        output_path = str(project_paths["data_processed"] / "single_run_results.json")
 
-    # Construct the result record
-    record = {
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    result_record = {
+        "run_id": run_id,
+        "N": N,
+        "theta": float(theta),
+        "seed": seed,
+        "eigenvalues": [float(ev) for ev in eigenvalues],
+        "outlier_flag": outlier_flag,
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "metadata": simulation_metadata,
-        "perturbation": perturbation_config,
-        "eigenvalues": eigenvalues,
+        "metadata": {
+            "schema_version": "1.0",
+            "constitution_principle": "III",
+            "principle_name": "Data Hygiene",
+        },
     }
 
-    # Generate a unique filename based on timestamp and seed
-    seed = simulation_metadata.get("seed", 0)
-    n = simulation_metadata.get("N", 0)
-    timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-    filename = f"run_n{n}_seed{seed}_{timestamp_str}.json"
-    output_path = output_dir / filename
+    # Check if file exists and load existing results
+    existing_results = []
+    if output_file.exists():
+        try:
+            with open(output_file, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+                if content:
+                    existing_results = json.loads(content)
+                    if not isinstance(existing_results, list):
+                        existing_results = [existing_results]
+        except (json.JSONDecodeError, IOError) as e:
+            # If file is corrupted or unreadable, start fresh
+            existing_results = []
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(record, f, indent=2)
+    # Append new result
+    existing_results.append(result_record)
 
-    return output_path
+    # Write back with proper formatting
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(existing_results, f, indent=2)
+
+    return str(output_file)
 
 
 def append_to_aggregated_results(
-    results_path: Path,
-    aggregated_file: Optional[Path] = None,
-) -> Path:
+    results: List[Dict[str, Any]],
+    output_path: Optional[str] = None,
+) -> str:
     """
-    Append a single result record to an aggregated JSONL (or JSON) results file.
+    Append multiple results to an aggregated JSON file.
 
     Args:
-        results_path: Path to the single result JSON file to append.
-        aggregated_file: Path to the aggregated results file. Defaults to
-                         data/processed/aggregated_results.jsonl.
+        results: List of result dictionaries to append.
+        output_path: Optional custom output path. If None, uses default path.
 
     Returns:
-        Path to the updated aggregated file.
+        Path to the written JSON file.
+
+    Raises:
+        ValueError: If results is not a list or contains invalid entries.
+        IOError: If file cannot be written.
     """
-    if aggregated_file is None:
-        project_paths = get_project_paths()
-        aggregated_file = project_paths.processed_dir / "aggregated_results.jsonl"
+    if not isinstance(results, list):
+        raise ValueError("results must be a list of dictionaries")
 
-    # Read the single result
-    with open(results_path, "r", encoding="utf-8") as f:
-        record = json.load(f)
+    project_paths = get_project_paths()
+    if output_path is None:
+        output_path = str(project_paths["data_processed"] / "aggregated_results.json")
 
-    # Append as a single line in JSONL format
-    with open(aggregated_file, "a", encoding="utf-8") as f:
-        f.write(json.dumps(record) + "\n")
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    return aggregated_file
+    # Load existing results if file exists
+    existing_results = []
+    if output_file.exists():
+        try:
+            with open(output_file, "r", encoding="utf-8") as f:
+                content = f.read().strip()
+                if content:
+                    existing_results = json.loads(content)
+                    if not isinstance(existing_results, list):
+                        existing_results = [existing_results]
+        except (json.JSONDecodeError, IOError):
+            existing_results = []
+
+    # Append new results
+    existing_results.extend(results)
+
+    # Write back
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(existing_results, f, indent=2)
+
+    return str(output_file)
