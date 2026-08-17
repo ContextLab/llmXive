@@ -1,13 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'science'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T018` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/solubility_features.csv
-- `T023` (rejected 1x): The required artifact `data/artifacts/trained_models.pkl` does not exist, and `code/04_evaluation.py` does not compute RMSE, MAE, or R² (it only computes absolute errors and a paired t‑test). Both the data dependency and the specified evaluation metrics are missing.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- FABRICATED-RESULT signal — projects/PROJ-142-predicting-solubility-in-mixed-solvents-/specs/001-predicting-solubility-in-mixed-solvents/tasks.md: self-declared fabricated metric — “…- **Action**: Populate with hardcoded values for the top solvents (e.g.,…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.

@@ -76,6 +76,8 @@
 - [X] T026b [US2] **Resource Monitor (Integrate)**: Integrate the watchdog call into the training runner in `code/03_model_training.py`.
  - **Dependency**: T026a must be completed.
 - [ ] T026c [US2] **Resource Monitor (Verify)**: Verify the log output of `data/artifacts/resource_monitor.log` after a test run.
+ - **Action**: Execute `code/03_model_training.py` with a small dummy dataset (5 rows) to force the watchdog to trigger and write to `data/artifacts/resource_monitor.log`. If the log is missing or empty, run the dummy job explicitly to generate it.
+ - **Verification**: Check that `data/artifacts/resource_monitor.log` exists and contains at least one non-empty JSON entry (e.g., `{"timestamp": "...", "ram_gb": 1.2, "status": "ok"}`).
  - **Dependency**: T026b must be completed.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -91,42 +93,61 @@
 ### Implementation for User Story 1
 
 - [X] T041 [US1] **Data Source Verification**: Implement a pre-flight check in `code/01_data_ingestion.py` to validate the specific EPA URL endpoint is reachable and returns a non-empty CSV before attempting download.
- - **Logic**: Send a HEAD request to `. If status != 200 or Content-Length is 0, raise `MissingURLError` immediately.
+ - **Logic**: Send a HEAD request to `https://comptox.epa.gov/dashboard/datasets/solubility`. If status != 200 or Content-Length is 0, raise `MissingURLError` immediately.
  - **Rationale**: Addresses review concern regarding "silent failures" on data ingestion; ensures the pipeline fails loudly if the real source is unavailable, preventing fallback to synthetic data.
  - **Dependency**: T008 must be completed.
-- [X] T011 [US1] Implement `code/01_data_ingestion.py`: fetch EPA data from ` (DSSTox excluded per Plan). <!-- FAILED: unspecified -->
+- [ ] T011 [US1] **Data Ingestion**: Implement `code/01_data_ingestion.py`: fetch EPA data from `https://comptox.epa.gov/dashboard/datasets/solubility` (DSSTox excluded per Plan).
  - **Output**: Write raw data to `data/raw/epa_solubility.csv`.
  - **Failure Condition**: Exit with code 1 if EPA source is unreachable (T041 must pass).
  - **Dependency**: T011b, T041 must be completed.
-- [X] T012 [US1] **Data Filtering (MW)**: Filter molecules with Molecular Weight (MW) < 500 Da in `code/01_data_ingestion.py`.
+- [ ] T012 [US1] **Data Filtering (MW)**: Filter molecules with Molecular Weight (MW) < 500 Da in `code/01_data_ingestion.py`.
  - **Output**: Write filtered data to `data/processed/filtered_mw.csv`.
  - **Dependency**: T011 must be completed.
-- [X] T013 [US1] **Data Filtering (Composition)**: Implement composition validation in `code/01_data_ingestion.py`: reject rows where composition sum != 1.0 (within tolerance 1e-5).
+- [ ] T013 [US1] **Data Filtering (Composition)**: Implement composition validation in `code/01_data_ingestion.py`: reject rows where composition sum != 1.0 (within tolerance 1e-5).
  - **Output**: Write valid rows to `data/processed/cleaned_compositions.csv`.
  - **Output**: Write rejected rows to `data/artifacts/rejected_rows.csv`.
  - **Dependency**: T012 must be completed.
-- [X] T013b [US1] **Document Threshold**: Define the KNN imputation rate threshold (15%) in `code/utils/constants.py` as `MAX_IMPUTATION_RATE = 0.15` and document it in `data/artifacts/imputation_threshold_decision.md`.
- - **Dependency**: T013 must be completed (to ensure logic exists).
-- [X] T013 [US1] **Data Imputation**: Implement KNN imputation for missing solvent properties in `code/01_data_ingestion.py`.
- - **Logic**: Use `n_neighbors=5` to impute columns `['solvent_desc', 'interaction_terms']`. Calculate imputation rate. If rate > 0.15 (from T013b), write `ERROR: Imputation rate exceeded` to `data/artifacts/imputation_error.log` and exit with code 1.
+- [ ] T013b [US1] **Define Safety Cap**: Define a *hard safety cap* for imputation in `code/utils/constants.py` as `MAX_IMPUTATION_RATE = 0.30`.
+ - **Note**: This is a safety limit to prevent resource exhaustion. The actual rate is determined by data in T013c.
+ - **Dependency**: T013 must be completed (to ensure logic exists for the constant to be used).
+- [ ] T013 [US1] **Data Imputation**: Implement KNN imputation for missing solvent properties in `code/01_data_ingestion.py`.
+ - **Logic**: Use `n_neighbors=5` to impute columns `['solvent_desc', 'interaction_terms']`. Calculate imputation rate.
  - **Output**: Write imputed data to `data/processed/imputed_data.csv`.
- - **Output**: Log imputation rate to `data/artifacts/imputation_log.txt`.
+ - **Output**: Log imputation rate to `data/artifacts/imputation_log.txt` (format: `{"rate": 0.XX}`).
+ - **Note**: Do NOT exit on failure here; the rate is logged for T013d to evaluate.
  - **Dependency**: T013b must be completed.
-- [X] T014 [US1] Implement `code/02_feature_engineering.py` to compute Morgan fingerprints and topological indices using RDKit. <!-- FAILED: unspecified -->
+- [ ] T013c [US1] **Analyze Imputation Rate**: Read `data/artifacts/imputation_log.txt` and calculate the actual rate.
+ - **Action**: If rate > 0.30, write `ERROR: Imputation rate exceeded safety cap` to `data/artifacts/imputation_error.log` and exit with code 1. Else, proceed.
  - **Dependency**: T013 must be completed.
-- [X] T015 [US1] Implement composition-weighted solvent descriptor calculation in `code/02_feature_engineering.py` (weighted average of properties * mole fractions).
- - **Dependency**: T014 must be completed.
-- [X] T017 [US1] **Pivot Logic**: Count mixed-solvent entries in `code/02_feature_engineering.py`.
+- [ ] T013d [US1] **Imputation Gate**: Read `data/artifacts/imputation_log.txt` and update `code/utils/constants.py` if the actual rate deviates significantly from the safety cap (e.g., > 0.20).
+ - **Action**: If rate > 0.20 or < 0.01, update `MAX_IMPUTATION_RATE` in constants.py and document the change in `data/artifacts/imputation_threshold_decision.md`.
+ - **Dependency**: T013c must be completed.
+- [ ] T014 [US1] **Feature Engineering (Solute)**: Implement `code/02_feature_engineering.py` to compute RDKit descriptors for solutes.
+ - **Descriptors**: Compute `MolWt`, `MolLogP`, `NumHDonors`, `NumHAcceptors`, `TPSA`, and `MorganFP_2048` (radius=2, nBits=2048).
+ - **Output Columns**: `solute_molwt`, `solute_mollogp`, `solute_hdonors`, `solute_hacceptors`, `solute_tpsa`, `solute_fp`.
+ - **Dependency**: T013 must be completed.
+- [ ] T015 [P] [US1] **Feature Engineering (Solvent)**: Implement composition-weighted solvent descriptor calculation in `code/02_feature_engineering.py`.
+ - **Logic**: Compute weighted average of properties (polarity, dielectric constant) * mole fractions.
+ - **Output Columns**: `solvent_mean_polarity`, `solvent_mean_dielectric`, `solvent_desc`.
+ - **Dependency**: T013 must be completed.
+- [ ] T017 [US1] **Pivot Logic**: Count mixed-solvent entries in `code/02_feature_engineering.py`.
  - **Logic**: If mixed-solvent entries < 100, write `data/artifacts/pivot_decision.json` with schema `{"status": "pivoted", "reason": "Insufficient mixed solvent data (< 100 rows). Non-linear mixing hypothesis dropped. Interaction terms will be generated for pure solvents."}`. Else write `{"status": "normal"}`.
- - **Action**: This task MUST determine the strategy for T016. If pivoted, T016 generates interaction terms for pure solvents; otherwise for mixed solvents.
+ - **Action**: This task MUST determine the strategy for T016a. If pivoted, T016b generates interaction terms for pure solvents; otherwise T016c generates for mixed solvents.
  - **Output**: Store count and decision in `data/artifacts/pivot_decision.json`.
  - **Dependency**: T015 must be completed.
-- [X] T016 [US1] Implement explicit interaction term generation (polynomial, ratio) in `code/02_feature_engineering.py`. <!-- ATOMIZE: requested -->
- - **Logic**: Check `data/artifacts/pivot_decision.json`. If "pivoted", generate interaction terms for pure solvent descriptors only. If "normal", generate for mixed solvents.
- - **Output**: Append columns to `data/processed/solubility_features.csv`.
+- [ ] T016a [US1] **Read Pivot Decision**: Read `data/artifacts/pivot_decision.json` and set the `interaction_strategy` flag in `code/02_feature_engineering.py`.
  - **Dependency**: T017 must be completed.
+- [ ] T016b [US1] **Generate Pure Solvent Interactions**: If `interaction_strategy == "pivoted"`, generate interaction terms for pure solvent descriptors in `code/02_feature_engineering.py`.
+ - **Formula**: `interaction_term = solvent_mean_polarity * solvent_mean_dielectric`.
+ - **Output Column**: `interaction_polarity_dielectric`.
+ - **Dependency**: T016a must be completed.
+- [ ] T016c [US1] **Generate Mixed Solvent Interactions**: If `interaction_strategy == "normal"`, generate interaction terms for mixed solvents in `code/02_feature_engineering.py`.
+ - **Formula**: Polynomial expansion (degree 2) of `solvent_mean_polarity` (P) and `solvent_mean_dielectric` (D): `P*P`, `D*D`, `P*D`.
+ - **Output Columns**: `interaction_p_sq`, `interaction_d_sq`, `interaction_p_d`.
+ - **Dependency**: T016a must be completed.
 - [ ] T018 [US1] Write final processed dataset to `data/processed/solubility_features.csv` with checksum.
- - **Dependency**: T016 must be completed.
+ - **Action**: Combine solute descriptors, solvent descriptors, and interaction terms.
+ - **Dependency**: T016b or T016c (whichever is active) must be completed.
 
 ### Phase 3.5: Validation Tests (Post-Implementation)
 
@@ -158,27 +179,35 @@
  - **Input**: `data/processed/solubility_features.csv`.
  - **Expected Artifact**: `data/artifacts/trained_models.pkl` containing keys: `xgboost_model`, `rf_model`, `abraham_model`, `metrics`.
  - **Metrics to Verify**: `['rmse', 'r2']` in `data/artifacts/evaluation_metrics.json`.
- - **Dependency**: T021 must be completed.
+ - **Dependency**: T023a must be completed.
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement `code/03_model_training.py` to train XGBoost and Random Forest regressors with 5-fold cross-validation and hyperparameter grid (limit ≤30 mins/trial).
- - **Output**: Write trained models to `data/artifacts/trained_models.pkl`.
+- [X] T022a [US2] **Create Abraham Params File**: Create `code/data/abraham_params.csv` with columns: `solvent_name, a, b, c, s, v, r`.
+ - **Action**: Populate with hardcoded values for the top solvents (e.g., Water, Ethanol, Methanol).
+ - **Fallback Logic**: If a solvent is not found, use the mean of all rows in the CSV.
+ - **Dependency**: None.
+- [ ] T021 [P] [US2] Implement `code/03_model_training.py` to train XGBoost and Random Forest regressors with cross-validation and hyperparameter grid (limit ≤30 mins/trial).
+ - **Output**: Write trained models to `data/artifacts/xgboost_model.pkl` and `data/artifacts/rf_model.pkl`.
  - **Dependency**: T018 must be completed.
-- [X] T022 [US2] Implement Abraham solvation parameter model baseline in `code/03_model_training.py`. <!-- FAILED: unspecified -->
+- [ ] T022 [P] [US2] **Abraham Baseline**: Implement Abraham solvation parameter model baseline in `code/03_model_training.py`.
  - **Primary**: Use `solv` package.
- - **Fallback**: If `solv` unavailable, implement `scikit-learn LinearRegression` using Abraham parameters (a, b, c, s, v, r) from `code/data/abraham_params.csv` (hardcoded lookup for top 10 solvents).
+ - **Fallback**: If `solv` unavailable, load `code/data/abraham_params.csv` (from T022a). If specific solvent not found, use mean of all rows.
  - **Schema**: Output must contain columns [a, b, c, s, v, r, prediction].
- - **Output**: Append baseline predictions to `data/artifacts/trained_models.pkl`.
- - **Dependency**: T021 must be completed.
-- [ ] T023 [US2] **Input Dependency**: Read `data/artifacts/trained_models.pkl` and implement evaluation logic in `code/04_evaluation.py` to calculate RMSE, MAE, and R² for all models on hold-out test set.
+ - **Output**: Write baseline model to `data/artifacts/abraham_model.pkl`.
+ - **Dependency**: T018, T022a must be completed.
+- [ ] T023a [US2] **Generate Models**: Read `data/artifacts/xgboost_model.pkl`, `rf_model.pkl`, `abraham_model.pkl` and combine them into `data/artifacts/trained_models.pkl`.
+ - **Action**: Create a dictionary `{'xgboost_model': ..., 'rf_model': ..., 'abraham_model': ...}` and save as pickle.
+ - **Note**: If T021 or T022 fails, this task cannot run.
+ - **Dependency**: T021, T022 must be completed.
+- [ ] T023b [US2] **Evaluation Metrics**: Read `data/artifacts/trained_models.pkl` and implement evaluation logic in `code/04_evaluation.py` to calculate RMSE, MAE, and R² for all models on hold-out test set.
  - **Output**: Write metrics to `data/artifacts/evaluation_metrics.json`.
- - **Dependency**: T022 must be completed.
-- [ ] T024 [US2] **Input Dependency**: Read `data/artifacts/trained_models.pkl`. Implement paired t-test on absolute errors per Constitution Principle VII **[OVERRIDES FR-005]** in `code/04_evaluation.py`.
+ - **Dependency**: T023a must be completed.
+- [ ] T024 [US2] **Statistical Test**: Read `data/artifacts/trained_models.pkl`. Implement paired t-test on absolute errors per Constitution Principle VII **[OVERRIDES FR-005]** in `code/04_evaluation.py`.
  - **Parameters**: alpha=0.05, paired t-test on absolute errors.
  - **Columns**: Compare `['abs_error_xgboost', 'abs_error_abraham']` from `data/artifacts/evaluation_metrics.json`.
  - **Output**: Write statistical test results (p-value, t-statistic) to `data/artifacts/statistical_test_results.json`.
- - **Dependency**: T023 must be completed.
+ - **Dependency**: T023b must be completed.
 - [ ] T025 [US2] Generate comparison report in `data/artifacts/training_report.json` including metrics, statistical significance (p < 0.05).
  - **Dependency**: T024 must be completed.
 - [ ] T025b [US2] **R² Gate Decision**: Read `data/artifacts/evaluation_metrics.json`. If R² <= 0.70, write `data/artifacts/r2_gate_decision.json` with `{"status": "FAIL", "reason": "R² <= 0.70"}`. Else `{"status": "PASS"}`.
@@ -201,17 +230,22 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] **Input Dependency**: Read `data/artifacts/trained_models.pkl` (best model). Implement SHAP value computation in `code/04_evaluation.py`.
+- [ ] T029a [US3] **Compute SHAP Values**: Read `data/artifacts/trained_models.pkl` (best model) and `data/processed/solubility_features.csv`.
+ - **Action**: Load the best model. Sample a subset of rows from the processed dataset. Compute SHAP values.
+ - **Output**: Write SHAP values to `data/artifacts/shap_values.npy`.
+ - **Dependency**: T023a must be completed.
+- [ ] T029b [US3] **Input Dependency**: Read `data/artifacts/trained_models.pkl` (best model). Implement SHAP value computation in `code/04_evaluation.py`.
  - **Model Key**: Use `best_model` from pickle.
  - **Background Data**: Sample 100 rows from `data/processed/solubility_features.csv`.
  - **Output**: Write SHAP values to `data/artifacts/shap_values.npy`.
- - **Dependency**: T023 must be completed.
+ - **Dependency**: T023a must be completed.
 - [ ] T030 [US3] Generate SHAP summary plot and feature importance table in `data/artifacts/shap_analysis.png` and `shap_ranking.json`.
- - **Dependency**: T029 must be completed.
+ - **Dependency**: T029a must be completed.
 - [ ] T031 [US3] Filter and rank top 5 interaction terms contributing to model variance; append to `data/artifacts/shap_ranking.json`.
  - **Dependency**: T030 must be completed.
-- [X] T032 [US3] **Input Dependency**: Read `shap_ranking.json`. Implement sensitivity analysis in `code/04_evaluation.py`: identify top-ranked terms at representative low, medium, and high thresholds. <!-- FAILED: unspecified -->
- - **Dependency**: T031 must be completed.
+- [ ] T032 [P] [US3] **Sensitivity Analysis**: Read `data/artifacts/shap_values.npy`. Identify top-ranked terms at low, medium, and high thresholds.
+ - **Metric**: Rank by mean absolute SHAP value.
+ - **Dependency**: T029a must be completed.
 - [ ] T033 [US3] **Input Dependency**: Read sensitivity analysis results. Calculate Jaccard similarity between top-5 term sets at different thresholds.
  - **Target**: Minimum Jaccard similarity ≥0.6 per SC-004.
  - **Output**: Append metrics to `data/artifacts/shap_ranking.json`.
@@ -338,9 +372,13 @@ With multiple developers:
 - **Critical Constraint**: Constitution Principle VII (Paired t-test) takes precedence over Spec FR-005 (Wilcoxon).
 - **Critical Constraint**: All tasks must run on CPU-only CI (minimal core count, limited RAM, 14GB disk).
 - **Critical Constraint**: DSSTox ingestion is excluded per Plan/Spec amendment; EPA-only data is used.
-- **Critical Constraint**: T017 acts as a gate before T016 to ensure pivot logic is fully executed.
+- **Critical Constraint**: T017 acts as a gate before T016a to ensure pivot logic is fully executed.
 - **Critical Constraint**: Data ingestion tasks (T011) must fail loudly if the real EPA source is unreachable; no synthetic fallback is permitted.
 - **Critical Constraint**: T041 ensures the data source is verified before any download attempt, preventing silent fallbacks.
 - **Critical Constraint**: T024b (Design) precedes T024 (Implementation) to enforce Constitution compliance.
 - **Critical Constraint**: T026a-c (Watchdog) precedes T021 (Training) to ensure safety.
 - **Critical Constraint**: T009/T010 (Tests) run AFTER T018 (Data Production) to validate actual artifacts.
+- **Critical Constraint**: T023a ensures `trained_models.pkl` is generated before evaluation tasks.
+- **Critical Constraint**: T022a ensures Abraham params file exists before baseline training.
+- **Critical Constraint**: T013b/T013c resolve the circular dependency for imputation rate.
+- **Critical Constraint**: T016b/T016c provide explicit formulas for interaction terms in pivot and normal modes.

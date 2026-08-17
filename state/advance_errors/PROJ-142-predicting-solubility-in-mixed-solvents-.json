@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-142-predicting-solubility-in-mixed-solvents-",
+  "stage": "clarified",
+  "class": "permanent",
+  "fingerprint": "unreachable_reference",
+  "consecutive_count": 1,
+  "first_seen": "2026-08-17T20:32:16.067744+00:00",
+  "last_seen": "2026-08-17T20:32:16.067744+00:00",
+  "retry_after": null,
+  "last_error": "research.md reference is unreachable: 'https://comptox.epa.gov/dashboard/datasets/solubility_mixed' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "evidence": "research.md reference is unreachable: 'https://comptox.epa.gov/dashboard/datasets/solubility_mixed' (HTTP 404). FR-006 admits NO transient-retry leniency \u2014 re-run when the source recovers or fix the reference.",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
+}
