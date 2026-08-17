@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EnergyTimeSeries"
+description: "Schema for energy time-series and extracted decay rates."
+type: "object"
+properties:
+  simulation_id:
+    type: "string"
+    description: "Unique identifier linking to graph_id."
+  time:
+    type: "array"
+    items:
+      type: "number"
+    description: "Time points (0 to 200)."
+  energy:
+    type: "array"
+    items:
+      type: "number"
+    description: "Total system energy at each time point."
+  driving_active:
+    type: "boolean"
+    description: "True for t ≤ 100, False for t > 100."
+  convergence_status:
+    type: "string"
+    enum:
+      - "converged"
+      - "failed"
+      - "resonant"
+    description: "Status of the numerical integration."
+  decay_rate:
+    type: "number"
+    description: "Fitted λ from exponential decay model."
+  r_squared:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Goodness-of-fit for the exponential fit."
+  frequency:
+    type: "number"
+    description: "Fitted oscillation frequency ω."
+  phase:
+    type: "number"
+    description: "Fitted phase φ."
+  amplitude:
+    type: "number"
+    description: "Fitted amplitude A."
+  offset:
+    type: "number"
+    description: "Fitted offset C."
+required:
+  - "simulation_id"
+  - "time"
+  - "energy"
+  - "driving_active"
+  - "convergence_status"
+  - "decay_rate"
+  - "r_squared"

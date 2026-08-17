@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionResult"
+description: "Schema for PLS analysis results, including coefficients, VIP scores, and null model diagnostics."
+type: "object"
+properties:
+  vip_scores:
+    type: "object"
+    description: "Variable Importance in Projection (VIP) scores for each metric."
+    additionalProperties:
+      type: "number"
+  pls_coefficients:
+    type: "object"
+    description: "PLS regression coefficients for each metric."
+    additionalProperties:
+      type: "number"
+  p_values:
+    type: "object"
+    description: "Raw p-values for each metric."
+    additionalProperties:
+      type: "number"
+  p_values_corrected:
+    type: "object"
+    description: "Bonferroni-corrected p-values for each metric."
+    additionalProperties:
+      type: "number"
+  significant_predictors:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of metrics with corrected p < 0.05."
+  vif_scores:
+    type: "object"
+    description: "VIF for each original metric (diagnostic)."
+    additionalProperties:
+      type: "number"
+  null_model_p_value:
+    type: "number"
+    description: "p-value from permutation test (observed vs null distribution)."
+  observed_r_squared:
+    type: "number"
+    description: "R² of the observed model."
+  null_r_squared_mean:
+    type: "number"
+    description: "Mean R² of the null distribution."
+  null_r_squared_95th:
+    type: "number"
+    description: "95th percentile of the null distribution R²."
+required:
+  - "vip_scores"
+  - "pls_coefficients"
+  - "p_values"
+  - "p_values_corrected"
+  - "significant_predictors"
+  - "vif_scores"
+  - "null_model_p_value"
+  - "observed_r_squared"
+  - "null_r_squared_mean"
+  - "null_r_squared_95th"

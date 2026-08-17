@@ -1,0 +1,13 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — No directory listing or other evidence was provided showing that the required folders (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/analysis/`, `tests/`, `contracts/`, `state/`) actually exist; without such artifacts the claim cannot be confirmed.
+- **T002** — No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.flake8` config, or related CI scripts) are present in the provided evidence, so the required artifact for configuring ruff/flake8 and black does not exist. The implementer must add the appropriate configuration files and ensure they are functional.
+- **T003** — No pre‑commit configuration files (e.g., `.pre-commit-config.yaml`, hook scripts, or documentation of hook installation) are present in the provided artifacts, so the requirement to configure linting/formatting hooks is not satisfied. The claim lacks any concrete evidence of the requested setup.
+- **T006a** — declared artifact(s) missing/empty/invalid: data/raw/networks.csv, schema.yaml
+- **T006b** — The required file `contracts/energy_schema.schema.yaml` is missing from the repository, so no schema defining the CSV structure is provided. Consequently the task of creating the schema file has not been fulfilled.
+- **T006c** — The required `contracts/regression_schema.schema.yaml` file does not exist in the repository, so the schema defining the structure of `data/analysis/regression_results.json` was never created. The JSON results file is present, but without the accompanying schema the task is not fulfilled.
+- **T008** — No `data/` directory with the required `raw/`, `processed/`, and `analysis/` subfolders was provided, nor any checksumming utility scripts or files. The implementer’s claim lacks any tangible artifact to verify that the directory structure and utilities were actually created.
+- **T011a** — The repository contains `tests/test_generation.py`, but it only defines three unit tests for graph generation and metric computation; there is no `test_full_generation_pipeline` that checks for the existence or contents of `data/raw/networks.csv`. Moreover, the file `data/raw/networks.csv` is missing entirely. Hence the required integration test and the CSV artifact are not present.
+- **T015** — declared artifact(s) missing/empty/invalid: data/raw/networks.csv

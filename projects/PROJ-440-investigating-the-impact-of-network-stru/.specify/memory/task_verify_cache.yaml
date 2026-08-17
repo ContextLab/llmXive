@@ -1,0 +1,50 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other evidence was provided showing that the required
+    folders (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/analysis/`, `tests/`,
+    `contracts/`, `state/`) actually exist; without such artifacts the claim cannot
+    be confirmed.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.flake8` config, or related CI scripts) are present in the provided
+    evidence, so the required artifact for configuring ruff/flake8 and black does
+    not exist. The implementer must add the appropriate configuration files and ensure
+    they are functional.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pre\u2011commit configuration files (e.g.,\u202F`.pre-commit-config.yaml`,\
+    \ hook scripts, or documentation of hook installation) are present in the provided\
+    \ artifacts, so the requirement to configure linting/formatting hooks is not satisfied.\
+    \ The claim lacks any concrete evidence of the requested setup."
+T006b:
+  c: false
+  h: 5e323071088681569a3d979287ae81e5cdca868e58293c80db49130258e2be5c
+  r: The required file `contracts/energy_schema.schema.yaml` is missing from the repository,
+    so no schema defining the CSV structure is provided. Consequently the task of
+    creating the schema file has not been fulfilled.
+T006c:
+  c: false
+  h: 7d57ac22ca71f79537b1848d003bcff4ff7e6ae6668cee4b1937566447d70fcb
+  r: The required `contracts/regression_schema.schema.yaml` file does not exist in
+    the repository, so the schema defining the structure of `data/analysis/regression_results.json`
+    was never created. The JSON results file is present, but without the accompanying
+    schema the task is not fulfilled.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data/` directory with the required `raw/`, `processed/`, and `analysis/`\
+    \ subfolders was provided, nor any checksumming utility scripts or files. The\
+    \ implementer\u2019s claim lacks any tangible artifact to verify that the directory\
+    \ structure and utilities were actually created."
+T011a:
+  c: false
+  h: 23bfe476c0120ac7cda67f7ff82ed34aa1fe7b9c5fb14045c399864d45b934cd
+  r: The repository contains `tests/test_generation.py`, but it only defines three
+    unit tests for graph generation and metric computation; there is no `test_full_generation_pipeline`
+    that checks for the existence or contents of `data/raw/networks.csv`. Moreover,
+    the file `data/raw/networks.csv` is missing entirely. Hence the required integration
+    test and the CSV artifact are not present.

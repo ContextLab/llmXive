@@ -1,0 +1,16 @@
+status: none
+intent: Synthetic oscillator network topologies metrics dataset download python package
+  dataset
+required_fields:
+- graph_id
+- topology_type
+- num_nodes
+- num_edges
+- average_degree
+- clustering_coefficient
+- average_path_length
+- degree_distribution
+- adjacency_matrix
+cache_key: 6fa58b80c396857c284e2a769282844b5d0c04a5ffaeae2e16aec9f23db51232
+searched_at: '2026-08-17T06:19:55.348264+00:00'
+retry_count: 1
