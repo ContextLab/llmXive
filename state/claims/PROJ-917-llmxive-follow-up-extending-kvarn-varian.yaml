@@ -2559,3 +2559,918 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T00:41:33Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate exactly 10,000 synthetic attention matrices
+  claim_id: c_271e7a37
+  context: 'T017c [US1] Implement and execute the **Unified Data Generation and Labeling**
+    script in `code/data_generation/synthetic_attention.py`. **Requirement**: Must
+    generate **exactly 10,000** synthetic attention matrices with controlled sparsity
+    and outlier magnitudes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement and execute the Unified Data Generation and Labeling script...
+    Must generate exactly 10,000 synthetic attention matrices with controlled sparsity
+    and outlier magnitudes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:35:11Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate exactly 30 independent simulation runs
+  claim_id: c_b993cab5
+  context: T030b [US3] Execute `batch_runner.py` to generate **exactly 30** independent
+    simulation runs, with the default set via `code/config.py`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute batch_runner.py to generate exactly 30 independent simulation
+    runs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:35:27Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: t-test sample size n equals 30
+  claim_id: c_9a262119
+  context: 'T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the **final accumulated KL-divergence**... **Requirement**: The
+    sample size ''n'' is exactly 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size 'n' is exactly 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:36:11Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: epsilon sweep values list
+  claim_id: c_793b74ca
+  context: 'T005b [P] [US1] Define initial epsilon sweep values in `code/config.py`.
+    **Action**: Define constant `EPSILON_SWEEP_VALUES = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4]`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define constant EPSILON_SWEEP_VALUES = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:36:51Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: config NUM_MATRICES value 10000
+  claim_id: c_5c16ccfe
+  context: T009 [P] [US1] Setup environment configuration management in `code/config.py`
+    with a `Config` dataclass containing `CPU_ONLY=True`, `EPSILON_FLOOR=1e-6`, `RANDOM_SEED`,
+    `NUM_MATRICES=10000`, `SIMULATION_STEPS=1000`, `NUM_RUNS=30`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Config dataclass contains NUM_MATRICES=10000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:37:46Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: config NUM_RUNS value 30
+  claim_id: c_75f6a50c
+  context: T009 [P] [US1] Setup environment configuration management in `code/config.py`
+    with a `Config` dataclass containing `CPU_ONLY=True`, `EPSILON_FLOOR=1e-6`, `RANDOM_SEED`,
+    `NUM_MATRICES=10000`, `SIMULATION_STEPS=1000`, `NUM_RUNS=30`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Config dataclass contains NUM_RUNS=30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:38:04Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: config SIMULATION_STEPS value 1000
+  claim_id: c_b8268494
+  context: T009 [P] [US1] Setup environment configuration management in `code/config.py`
+    with a `Config` dataclass containing `CPU_ONLY=True`, `EPSILON_FLOOR=1e-6`, `RANDOM_SEED`,
+    `NUM_MATRICES=10000`, `SIMULATION_STEPS=1000`, `NUM_RUNS=30`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Config dataclass contains SIMULATION_STEPS=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:38:45Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate 10000 synthetic attention matrices with controlled sparsity
+    and outlier magnitudes
+  claim_id: c_57a5104f
+  context: 'Phase 3: User Story 1 - Generate Ground-Truth Scaling Factors for Synthetic
+    Attention Matrices. Task T017c details the requirement to generate a specific
+    count of matrices.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement and execute the Unified Data Generation and Labeling script
+    in code/data_generation/synthetic_attention.py. Requirement: Must generate exactly
+    10,000 synthetic attention matrices with controlled sparsity and outlier magnitudes.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:41:28Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: produce 30 simulation run files from run_001 to run_030
+  claim_id: c_7c4f5fd1
+  context: Notes section detailing crucial constraints for T030b.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T030b must produce exactly 30 files (run_001.json to run_030.json) via
+    batch_runner.py using seed offsets, where n=30 is mandatory.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:41:44Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate 30 independent simulation runs
+  claim_id: c_9b79dd5c
+  context: 'T030b [US3] Execute batch_runner.py to generate exactly 30 independent
+    simulation runs... Requirement: A corpus of 30 files must exist to support the
+    study.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute batch_runner.py to generate exactly 30 independent simulation
+    runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:43:07Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: paired t-test on final accumulated KL-divergence with sample size 30
+  claim_id: c_884df52f
+  context: T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the final accumulated KL-divergence... The sample size 'n' is exactly
+    30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a paired t-test on the final accumulated KL-divergence with a
+    sample size of n=30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:43:35Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: simulation horizon is 1000 steps
+  claim_id: c_7002c2d3
+  context: 'T028 [US3]... Requirement: Must store the full per-step error trajectory
+    (sequence of errors) for each step of the simulation (1,000 steps per Constitution
+    Principle VI)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation horizon is 1,000 steps per Constitution Principle VI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:44:39Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_b09824a7
+  context: T003 [P] [US1] Initialize Python 3.11 project with pinned requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project is initialized with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:46:17Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: configuration NUM_MATRICES is 10000
+  claim_id: c_c3a5d7b6
+  context: T009 [P] [US1] Setup environment configuration management... with a Config
+    dataclass containing... NUM_MATRICES=10000...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset generation requires NUM_MATRICES=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:46:38Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: configuration SIMULATION_STEPS is 1000
+  claim_id: c_465079b0
+  context: T009 [P] [US1] Setup environment configuration management... with a Config
+    dataclass containing... SIMULATION_STEPS=1000...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation configuration requires SIMULATION_STEPS=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:46:57Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: configuration NUM_RUNS is 30
+  claim_id: c_cd1d7a77
+  context: T009 [P] [US1] Setup environment configuration management... with a Config
+    dataclass containing... NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation configuration requires NUM_RUNS=30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:47:12Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: pilot epsilon sweep values are 1e-8 to 1e-4
+  claim_id: c_58472a27
+  context: T005b [P] [US1] Define initial epsilon sweep values... Define constant
+    EPSILON_SWEEP_VALUES = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4].
+  evidence:
+    asserted: 1e-08
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pilot sensitivity analysis uses epsilon values of 1e-8, 1e-7, 1e-6,
+    1e-5, and 1e-4.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T07:47:13Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate 10000 synthetic attention matrices
+  claim_id: c_d56d8791
+  context: 'Task T017c requires implementing and executing the Unified Data Generation
+    and Labeling script. Requirement: Must generate exactly 10,000 synthetic attention
+    matrices with controlled sparsity and outlier magnitudes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must generate exactly 10,000 synthetic attention matrices with controlled
+    sparsity and outlier magnitudes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:48:26Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate 30 independent simulation runs
+  claim_id: c_52d3768c
+  context: Task T030b requires executing batch_runner.py to generate exactly 30 independent
+    simulation runs, with the default set via code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute batch_runner.py to generate exactly 30 independent simulation
+    runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:48:27Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: paired t-test sample size 30
+  claim_id: c_4bd24518
+  context: Task T031 requires implementing and running a statistical significance
+    test (paired t-test, n=30 runs) on the final accumulated KL-divergence. The sample
+    size 'n' is exactly 30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size 'n' is exactly 30 for the paired t-test on final accumulated
+    KL-divergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:49:23Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: simulation horizon 1000 steps
+  claim_id: c_5042f846
+  context: Task T028 requires storing the full per-step error trajectory for each
+    step of the simulation (1,000 steps per Constitution Principle VI) to satisfy
+    Constitution Principle VI.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation horizon is fixed at 1,000 steps per Constitution Principle
+    VI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:50:23Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: MLP model inputs mean variance
+  claim_id: c_defe6448
+  context: 'Task T022 requires defining a multi-layer perceptron (MLP) model architecture
+    with statistical moment features (mean, variance) in code/model_training/mlp_model.py.
+    Note: Implements Spec FR-002 (2 moments).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MLP_model_inputs_mean_variance
+  kind: entity_fact
+  raw_text: The MLP model architecture uses statistical moment features (mean, variance)
+    as inputs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:50:54Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: closed-form baseline s equals 1 over variance
+  claim_id: c_018681cb
+  context: Task T024 requires implementing a closed-form baseline predictor (s = 1/variance)
+    in code/model_training/baselines.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The closed-form baseline predictor uses the formula s = 1/variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:52:49Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: theoretical lower bound formula delta squared over 12
+  claim_id: c_cb8de7f9
+  context: "Task T032 requires implementing theoretical lower bound calculation using\
+    \ the analytical noise model formula \u0394^2/12 (where \u0394 is the quantization\
+    \ interval derived from the simulation's quantization scheme) in code/analysis/stats.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The theoretical lower bound calculation uses the analytical noise model\
+    \ formula \u0394^2/12."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:53:08Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: project initialized Python 3.11
+  claim_id: c_f275ec79
+  context: Task T003 requires initializing a Python 3.11 project with pinned requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project is initialized with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:53:08Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default NUM_MATRICES 10000
+  claim_id: c_f94f20ad
+  context: Task T009 requires setting up environment configuration management with
+    a Config dataclass containing NUM_MATRICES=10000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default configuration sets NUM_MATRICES to 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:53:29Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default NUM_RUNS 30
+  claim_id: c_0c29ea02
+  context: Task T009 requires setting up environment configuration management with
+    a Config dataclass containing NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default configuration sets NUM_RUNS to 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:53:49Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default SIMULATION_STEPS 1000
+  claim_id: c_54362656
+  context: Task T009 requires setting up environment configuration management with
+    a Config dataclass containing SIMULATION_STEPS=1000.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default configuration sets SIMULATION_STEPS to 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:54:09Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default EPSILON_SWEEP_VALUES list
+  claim_id: c_4264c920
+  context: Task T005b requires defining constant EPSILON_SWEEP_VALUES = [1e-8, 1e-7,
+    1e-6, 1e-5, 1e-4] in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default configuration sets EPSILON_SWEEP_VALUES to [1e-8, 1e-7, 1e-6,
+    1e-5, 1e-4].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:54:29Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate 10000 synthetic attention matrices
+  claim_id: c_3038051c
+  context: T017c [US1] Implement and execute the Unified Data Generation and Labeling
+    script... Must generate exactly 10,000 synthetic attention matrices...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must generate exactly 10,000 synthetic attention matrices with controlled
+    sparsity and outlier magnitudes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:55:04Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: generate 30 independent simulation runs
+  claim_id: c_20b2aeda
+  context: T030b [US3] Execute batch_runner.py to generate exactly 30 independent
+    simulation runs, with the default set via code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute batch_runner.py to generate exactly 30 independent simulation
+    runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:55:05Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: paired t-test sample size n equals 30
+  claim_id: c_c3606c8d
+  context: T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the final accumulated KL-divergence... The sample size 'n' is exactly
+    30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size 'n' is exactly 30 for the paired t-test on final accumulated
+    KL-divergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:55:05Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 2
+  canonical: theoretical lower bound formula delta squared over 12
+  claim_id: c_6f3056a3
+  context: T032 [US3] Implement theoretical lower bound calculation using the analytical
+    noise model formula $\Delta^2/12$ (where $\Delta$ is the quantization interval
+    derived from the simulation's quantization scheme)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical lower bound calculation uses the analytical noise model formula
+    $\Delta^2/12$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:55:06Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: epsilon sweep values 1e-8 1e-7 1e-6 1e-5 1e-4
+  claim_id: c_498a99bc
+  context: 'T005b [P] [US1] Define initial epsilon sweep values in code/config.py.
+    Action: Define constant EPSILON_SWEEP_VALUES = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define constant EPSILON_SWEEP_VALUES = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:55:06Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default config NUM_MATRICES 10000 SIMULATION_STEPS 1000 NUM_RUNS 30
+  claim_id: c_48fa3fda
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing CPU_ONLY=True, EPSILON_FLOOR=1e-6, RANDOM_SEED,
+    NUM_MATRICES=10000, SIMULATION_STEPS=1000, NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default configuration includes NUM_MATRICES=10000, SIMULATION_STEPS=1000,
+    and NUM_RUNS=30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:55:24Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: simulation runs 1000 steps
+  claim_id: c_724f6dc0
+  context: T028 [US3] ...Must store the full per-step error trajectory (sequence of
+    errors) for each step of the simulation (1,000 steps per Constitution Principle
+    VI)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation runs must include 1,000 steps per Constitution Principle VI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:55:44Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: python 3.11 project requirements numpy scipy torch-cpu scikit-learn pandas
+    pyarrow pytest matplotlib
+  claim_id: c_2aea0f14
+  context: T003 [P] Initialize Python 3.11 project with pinned requirements.txt (numpy,
+    scipy, torch-cpu, scikit-learn, pandas, pyarrow, pytest, matplotlib).
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Python 3.11 project initialization with pinned requirements including
+    numpy, scipy, torch-cpu, scikit-learn, pandas, pyarrow, pytest, matplotlib.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T07:55:45Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: epsilon floor default 1e-6
+  claim_id: c_c4eb86dd
+  context: T009 [P] [US1] Setup environment configuration management in code/config.py
+    with a Config dataclass containing ... EPSILON_FLOOR=1e-6 ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: EPSILON_FLOOR default value is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:56:07Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 2
+  canonical: generate 10000 synthetic attention matrices
+  claim_id: c_98713c6f
+  context: 'T017c [US1] Implement and execute the Unified Data Generation and Labeling
+    script... Requirement: Must generate exactly 10,000 synthetic attention matrices...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly 10,000 synthetic attention matrices with controlled sparsity
+    and outlier magnitudes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:57:41Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: execute 30 independent simulation runs
+  claim_id: c_e63654b0
+  context: 'T030b [US3] Execute batch_runner.py to generate exactly 30 independent
+    simulation runs... Requirement: Must produce exactly 30 files...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T030b must generate exactly 30 independent simulation runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:58:05Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: simulation horizon deferred steps
+  claim_id: c_cabb3308
+  context: 'Crucial: The simulation horizon is fixed per Constitution Principle VI
+    ([deferred] steps). (see T016b, T027d, T028, T030b, T031).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_horizon_deferred_steps
+  kind: entity_fact
+  raw_text: The simulation horizon is fixed at [deferred] steps per Constitution Principle
+    VI.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:58:07Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: project python version 3.11
+  claim_id: c_5be54193
+  context: T003 [P] [US1] Initialize Python 3.11 project with pinned requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:58:29Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: theoretical lower bound formula delta squared over 12
+  claim_id: c_f07d0fc3
+  context: "T032 [US3] Implement theoretical lower bound calculation using the analytical\
+    \ noise model formula \u0394\xB2/12..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The theoretical lower bound formula for noise is \u0394\xB2/12."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T07:59:47Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: epsilon sweep values list
+  claim_id: c_6d702697
+  context: 'T005b [P] [US1] Define initial epsilon sweep values... Action: Define
+    constant EPSILON_SWEEP_VALUES = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial epsilon sweep values are defined as [1e-8, 1e-7, 1e-6, 1e-5,
+    1e-4].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:00:36Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default number of matrices 10000
+  claim_id: c_a61e30b4
+  context: T009 [P] [US1] Setup environment configuration management... Config dataclass
+    containing... NUM_MATRICES=10000...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of matrices for simulation is 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:00:56Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default simulation steps 1000
+  claim_id: c_652194d0
+  context: T009 [P] [US1] Setup environment configuration management... Config dataclass
+    containing... SIMULATION_STEPS=1000...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of simulation steps is 1,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:01:15Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: default number of runs 30
+  claim_id: c_ef229f18
+  context: T009 [P] [US1] Setup environment configuration management... Config dataclass
+    containing... NUM_RUNS=30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of runs is 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:01:33Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: epsilon floor 1e-6
+  claim_id: c_8f918fee
+  context: T009 [P] [US1] Setup environment configuration management... Config dataclass
+    containing... EPSILON_FLOOR=1e-6...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epsilon floor default value is 1e-6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:01:33Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Generate 10,000 synthetic attention matrices with controlled sparsity
+    and outlier magnitudes
+  claim_id: c_d0a7ec4b
+  context: 'T017c [US1] Implement and execute the Unified Data Generation and Labeling
+    script... Requirement: Must generate exactly 10,000 synthetic attention matrices...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must generate exactly 10,000 synthetic attention matrices with controlled
+    sparsity and outlier magnitudes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:03:18Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Execute 30 independent simulation runs
+  claim_id: c_7a1cf7d2
+  context: 'T030b [US3] Execute batch_runner.py to generate exactly 30 independent
+    simulation runs... Requirement: Each run must be [deferred] steps...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must generate exactly 30 independent simulation runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:03:45Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Paired t-test sample size is 30 runs
+  claim_id: c_5ad37bb8
+  context: T031 [US3] Implement and run statistical significance test (paired t-test,
+    n=30 runs) on the final accumulated KL-divergence... The sample size 'n' is exactly
+    30.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size 'n' is exactly 30 for the paired t-test on final accumulated
+    KL-divergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:03:46Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Simulation horizon is deferred steps per Constitution Principle VI
+  claim_id: c_0b1dc66a
+  context: The simulation horizon is fixed per Constitution Principle VI ([deferred]
+    steps). (see T016b, T027d, T028, T030b, T031).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Simulation_horizon_is_deferred_steps_per_Constitution_Princi
+  kind: entity_fact
+  raw_text: The simulation horizon is fixed per Constitution Principle VI at [deferred]
+    steps.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:03:48Z'
+- artifact_path: projects/PROJ-917-llmxive-follow-up-extending-kvarn-varian/specs/001-llmxive-follow-up-extending-kvarn-varian/tasks.md
+  attempts: 1
+  canonical: Default simulation steps defined in code/config.py
+  claim_id: c_13b61a6b
+  context: 'Requirement: Must execute a configurable number of steps (default [deferred],
+    defined in code/config.py per Constitution Principle VI).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_simulation_steps_defined_in_code/config.py
+  kind: entity_fact
+  raw_text: The default number of simulation steps is defined in code/config.py.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T08:04:08Z'

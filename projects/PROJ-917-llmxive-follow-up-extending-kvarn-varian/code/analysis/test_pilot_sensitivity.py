@@ -5,116 +5,89 @@ import json
 import sys
 import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from analysis.stats import run_epsilon_sensitivity_analysis
+from analysis.run_pilot_sensitivity import run_pilot_analysis
 
 class TestPilotSensitivityAnalysis:
     """Tests for the pilot sensitivity analysis functionality."""
-    
-    def test_run_epsilon_sensitivity_analysis_basic(self):
-        """Test basic execution of pilot sensitivity analysis."""
-        epsilon_values = [1e-6, 1e-5, 1e-4]
-        results = run_epsilon_sensitivity_analysis(
-            epsilon_values=epsilon_values,
-            num_steps=10,
-            num_matrices=5,
-            seed=42
-        )
-        
-        assert "pilot_config" in results
-        assert "results" in results
-        assert "summary" in results
-        
-        assert len(results["results"]) == len(epsilon_values)
-        
-        for result in results["results"]:
-            assert "epsilon" in result
-            assert "accumulated_kl_divergence_error_rate" in result
-            assert "variation_rate" in result
-            assert "num_steps_run" in result
-            assert "total_accumulated_kl" in result
-    
-    def test_epsilon_values_match_input(self):
-        """Test that output epsilon values match input values."""
-        epsilon_values = [1e-6, 1e-5, 1e-4]
-        results = run_epsilon_sensitivity_analysis(
-            epsilon_values=epsilon_values,
-            num_steps=10,
-            num_matrices=5,
-            seed=42
-        )
-        
-        output_epsilons = [r["epsilon"] for r in results["results"]]
-        assert output_epsilons == epsilon_values
-    
-    def test_reproducibility_with_seed(self):
-        """Test that results are reproducible with the same seed."""
-        epsilon_values = [1e-5]
-        
-        results1 = run_epsilon_sensitivity_analysis(
-            epsilon_values=epsilon_values,
-            num_steps=10,
-            num_matrices=5,
-            seed=123
-        )
-        
-        results2 = run_epsilon_sensitivity_analysis(
-            epsilon_values=epsilon_values,
-            num_steps=10,
-            num_matrices=5,
-            seed=123
-        )
-        
-        # Results should be identical with same seed
-        assert results1["results"][0]["accumulated_kl_divergence_error_rate"] == \
-               results2["results"][0]["accumulated_kl_divergence_error_rate"]
-    
-    def test_summary_contains_best_epsilon(self):
-        """Test that summary contains best epsilon selection."""
-        epsilon_values = [1e-6, 1e-5, 1e-4]
-        results = run_epsilon_sensitivity_analysis(
-            epsilon_values=epsilon_values,
-            num_steps=10,
-            num_matrices=5,
-            seed=42
-        )
-        
-        assert "best_epsilon" in results["summary"]
-        assert "min_error_rate" in results["summary"]
-        
-        # Best epsilon should be one of the tested values
-        assert results["summary"]["best_epsilon"] in epsilon_values
-    
-    def test_error_rate_computation(self):
-        """Test that error rate is computed correctly."""
-        epsilon_values = [1e-5]
-        num_steps = 20
-        results = run_epsilon_sensitivity_analysis(
-            epsilon_values=epsilon_values,
-            num_steps=num_steps,
-            num_matrices=5,
-            seed=42
-        )
-        
-        result = results["results"][0]
-        # Error rate should be total accumulated KL divided by num_steps
-        expected_error_rate = result["total_accumulated_kl"] / num_steps
-        assert abs(result["accumulated_kl_divergence_error_rate"] - expected_error_rate) < 1e-10
-    
-    def test_variation_rate_is_positive(self):
-        """Test that variation rate is non-negative."""
-        epsilon_values = [1e-5]
-        results = run_epsilon_sensitivity_analysis(
-            epsilon_values=epsilon_values,
-            num_steps=10,
-            num_matrices=5,
-            seed=42
-        )
-        
-        for result in results["results"]:
-            assert result["variation_rate"] >= 0.0
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_pilot_runs_successfully(self, tmp_path):
+        """Test that the pilot analysis runs and produces a valid JSON file."""
+        output_path = str(tmp_path / "test_pilot.json")
+        result = run_pilot_analysis(output_path=output_path, num_samples=10)
+        
+        assert result is not None
+        assert "num_samples" in result
+        assert result["num_samples"] == 10
+        assert "epsilon_values" in result
+        assert "run_results" in result
+        assert "summary" in result
+        
+        # Verify file was written
+        assert Path(output_path).exists()
+        
+        # Verify JSON structure
+        with open(output_path, 'r') as f:
+            loaded = json.load(f)
+        
+        assert loaded["num_samples"] == 10
+        assert len(loaded["run_results"]) == 10
+
+    def test_pilot_output_contains_expected_metrics(self, tmp_path):
+        """Test that the pilot output contains the required metrics."""
+        output_path = str(tmp_path / "test_pilot_metrics.json")
+        result = run_pilot_analysis(output_path=output_path, num_samples=5)
+        
+        # Check summary structure
+        assert "summary" in result
+        for eps_str, stats in result["summary"].items():
+            assert "mean_delta_kl" in stats
+            assert "std_delta_kl" in stats
+            assert "stability_score" in stats
+            # Ensure numeric types
+            assert isinstance(stats["mean_delta_kl"], (float, int))
+            assert isinstance(stats["std_delta_kl"], (float, int))
+
+    def test_pilot_handles_nan_gracefully(self, tmp_path):
+        """Test that the pilot analysis handles NaN values without crashing."""
+        output_path = str(tmp_path / "test_pilot_nan.json")
+        result = run_pilot_analysis(output_path=output_path, num_samples=5)
+        
+        # The function should complete even if some runs fail
+        assert "config_review_flag" in result
+        assert isinstance(result["config_review_flag"], bool)
+
+    def test_monotonicity_check_logic(self, tmp_path):
+        """Test the logic that checks for monotonicity or expected bounds."""
+        output_path = str(tmp_path / "test_pilot_monotonic.json")
+        result = run_pilot_analysis(output_path=output_path, num_samples=20)
+        
+        # Verify the summary contains stability scores
+        for eps_str, stats in result["summary"].items():
+            # Stability score should be non-negative
+            assert stats["stability_score"] >= 0.0
+            
+            # If std is high, stability score should be low
+            if stats["std_delta_kl"] > 0:
+                expected_score = 1.0 / (stats["std_delta_kl"] + 1e-8)
+                assert abs(stats["stability_score"] - expected_score) < 1e-6
+
+    def test_run_results_structure(self, tmp_path):
+        """Test the structure of individual run results."""
+        output_path = str(tmp_path / "test_pilot_structure.json")
+        result = run_pilot_analysis(output_path=output_path, num_samples=3)
+        
+        for run in result["run_results"]:
+            assert "matrix_id" in run
+            assert "seed" in run
+            assert "epsilon_results" in run
+            
+            for eps_str, eps_data in run["epsilon_results"].items():
+                assert "scaling_factor" in eps_data
+                assert "delta_kl_proxy" in eps_data
+                # Values should be numeric or NaN
+                assert isinstance(eps_data["scaling_factor"], (float, int))
+                assert isinstance(eps_data["delta_kl_proxy"], (float, int))

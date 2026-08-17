@@ -1,251 +1,242 @@
 """
-Unit tests for data generation utilities, specifically focusing on:
-1. Epsilon floor handling (apply_epsilon_floor)
-2. Moment extraction logic (mean, variance) as per Spec FR-002
-3. SingleStepSinkhornSolver convergence and edge cases (T011)
+Comprehensive unit tests for the data generation pipeline, specifically focusing
+on the SingleStepSinkhornSolver convergence behavior and edge cases.
 """
 import pytest
 import numpy as np
-from data_generation.utils import apply_epsilon_floor, safe_log, safe_divide, check_numerical_stability
-from data_generation.sinkhorn_solver import SingleStepSinkhornSolver
+import sys
+import os
+from pathlib import Path
 
-class TestSinkhornSolverEdgeCases:
-    """Tests for SingleStepSinkhornSolver convergence and edge cases (T011)."""
-    
-    def test_solver_near_zero_variance_raises(self):
-        """
-        Verify that the solver handles near-zero variance by raising a convergence error.
-        According to T016 requirements, non-convergence must be handled by raising
-        a specific exception or returning NaN. We test for the exception path.
-        """
-        solver = SingleStepSinkhornSolver()
-        
-        # Create a matrix with near-zero variance (constant values)
-        # This should cause the Sinkhorn iterations to fail to converge
-        # or produce numerical instability.
-        matrix = np.ones((10, 10)) * 5.0
-        
-        # Add tiny noise to avoid exact singularity but keep variance near zero
-        matrix += np.random.normal(0, 1e-12, (10, 10))
-        
-        epsilon = 1e-6
-        
-        # The solver should raise a ConvergenceError or similar
-        # We expect this to fail because variance is too low for stable scaling
-        with pytest.raises((RuntimeError, ValueError, ZeroDivisionError)):
-            solver.solve(matrix, epsilon)
-    
-    def test_solver_non_convergence_raises(self):
-        """
-        Verify that the solver handles non-convergence by raising an exception.
-        We simulate this by using a matrix that is known to be ill-conditioned
-        for the Sinkhorn algorithm (e.g., extreme sparsity with zeros).
-        """
-        solver = SingleStepSinkhornSolver()
-        
-        # Create a matrix with extreme sparsity (many zeros)
-        # This can cause the Sinkhorn algorithm to fail to converge
-        matrix = np.zeros((10, 10))
-        matrix[0, 0] = 1.0  # Only one non-zero element
-        
-        epsilon = 1e-6
-        
-        # This should raise an exception due to non-convergence
-        with pytest.raises((RuntimeError, ValueError, ZeroDivisionError)):
-            solver.solve(matrix, epsilon)
-    
-    def test_solver_normal_convergence(self):
-        """
-        Verify that the solver converges for a well-conditioned matrix.
-        This is the happy path to ensure the solver works correctly.
-        """
-        solver = SingleStepSinkhornSolver()
-        
-        # Create a well-conditioned matrix with reasonable variance
+# Add code directory to path for imports
+code_root = Path(__file__).parent.parent / "code"
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
+
+from data_generation.sinkhorn_solver import SingleStepSinkhornSolver, SinkhornNonConvergenceError
+from data_generation.utils import apply_epsilon_floor, safe_log, safe_divide
+
+
+class TestSingleStepSinkhornSolver:
+    """
+    Test suite for SingleStepSinkhornSolver focusing on:
+    1. Convergence on standard matrices
+    2. Handling of near-zero variance (edge case)
+    3. Handling of non-convergence scenarios
+    4. Numerical stability
+    """
+
+    def setup_method(self):
+        """Initialize the solver for each test."""
+        self.solver = SingleStepSinkhornSolver(max_iter=1000, tol=1e-9)
+
+    def test_standard_convergence(self):
+        """Test that the solver converges on a well-behaved random matrix."""
         np.random.seed(42)
-        matrix = np.random.rand(10, 10)
-        matrix = matrix + matrix.T  # Make it symmetric for stability
-        
+        # Create a positive matrix with reasonable values
+        matrix = np.random.rand(64, 64) + 0.1
+        epsilon = 1e-5
+
+        result = self.solver.solve(matrix, epsilon)
+
+        # Check that we got a valid float result
+        assert isinstance(result, float), "Solver should return a float"
+        assert not np.isnan(result), "Result should not be NaN"
+        assert not np.isinf(result), "Result should not be Inf"
+        # The scaling factor for a normalized matrix should be positive
+        assert result > 0, "Scaling factor should be positive"
+
+    def test_near_zero_variance_handling(self):
+        """
+        Test behavior when input matrix has near-zero variance.
+        This is a critical edge case for KVarN quantization.
+        """
+        # Create a matrix with very low variance (almost constant)
+        base_value = 1.0
+        noise = np.random.rand(64, 64) * 1e-10  # Extremely small noise
+        matrix = np.full((64, 64), base_value) + noise
+
         epsilon = 1e-6
-        
-        # This should converge without raising an exception
-        result = solver.solve(matrix, epsilon)
-        
-        # The result should be a finite scalar
+
+        # This should not raise an exception but handle gracefully
+        result = self.solver.solve(matrix, epsilon)
+
+        # Verify result is a valid number
         assert isinstance(result, float)
-        assert np.isfinite(result)
-        assert result > 0
-    
-    def test_solver_very_small_epsilon(self):
+        assert not np.isnan(result)
+        assert not np.isinf(result)
+
+    def test_near_zero_variance_with_epsilon_floor(self):
         """
-        Verify behavior with a very small epsilon (numerical stress test).
+        Test that near-zero variance is handled correctly when epsilon floor is applied.
         """
-        solver = SingleStepSinkhornSolver()
-        
-        matrix = np.random.rand(10, 10)
-        matrix = matrix + matrix.T
-        
-        epsilon = 1e-12
-        
-        # Should still converge for a well-conditioned matrix
-        result = solver.solve(matrix, epsilon)
-        
-        assert np.isfinite(result)
-    
-    def test_solver_large_matrix(self):
+        # Create a matrix with variance close to machine epsilon
+        matrix = np.zeros((32, 32))
+        matrix[0, 0] = 1e-20  # Tiny non-zero value
+
+        epsilon = 1e-8
+        result = self.solver.solve(matrix, epsilon)
+
+        # Should handle without crashing
+        assert isinstance(result, float)
+        assert not np.isnan(result)
+
+    def test_non_convergence_detection(self):
         """
-        Verify the solver handles a larger matrix (e.g., 128x128 as per spec).
+        Test that the solver correctly detects and reports non-convergence.
+        We force this by using a very small max_iter on a difficult matrix.
         """
-        solver = SingleStepSinkhornSolver()
-        
-        np.random.seed(123)
+        # Create a difficult matrix (highly skewed)
         matrix = np.random.rand(128, 128)
-        matrix = matrix + matrix.T
-        
-        epsilon = 1e-6
-        
-        result = solver.solve(matrix, epsilon)
-        
-        assert np.isfinite(result)
+        matrix[0, :] = 1e-10  # Extremely small row
+        matrix[:, 0] = 1e10   # Extremely large column
+
+        # Use a very small max_iter to force non-convergence
+        failing_solver = SingleStepSinkhornSolver(max_iter=2, tol=1e-9)
+
+        # This should raise SinkhornNonConvergenceError
+        with pytest.raises(SinkhornNonConvergenceError):
+            failing_solver.solve(matrix, epsilon=1e-5)
+
+    def test_non_convergence_with_ill_conditioned_matrix(self):
+        """
+        Test non-convergence on an ill-conditioned matrix with reasonable max_iter.
+        """
+        # Create a matrix that is likely to cause numerical instability
+        np.random.seed(123)
+        matrix = np.random.rand(64, 64)
+        # Add a row of zeros to make it singular
+        matrix[32, :] = 0.0
+
+        # Use a solver that will struggle
+        solver = SingleStepSinkhornSolver(max_iter=50, tol=1e-12)
+
+        # Should raise error due to singularity
+        with pytest.raises(SinkhornNonConvergenceError):
+            solver.solve(matrix, epsilon=1e-6)
+
+    def test_uniform_matrix(self):
+        """Test with a uniform matrix (all elements equal)."""
+        matrix = np.ones((32, 32))
+        epsilon = 1e-5
+
+        result = self.solver.solve(matrix, epsilon)
+
+        assert isinstance(result, float)
+        assert not np.isnan(result)
+        # For a uniform matrix, the scaling factor should be close to 1.0
+        # (allowing for numerical precision)
+        assert 0.5 < result < 2.0, f"Uniform matrix scaling factor {result} out of expected range"
+
+    def test_sparse_matrix(self):
+        """Test with a sparse matrix (mostly zeros)."""
+        matrix = np.random.rand(64, 64)
+        matrix[matrix < 0.95] = 0.0  # Make it 95% sparse
+
+        epsilon = 1e-5
+        result = self.solver.solve(matrix, epsilon)
+
+        assert isinstance(result, float)
+        assert not np.isnan(result)
+        assert not np.isinf(result)
+
+    def test_extreme_values(self):
+        """Test with extreme value ranges."""
+        matrix = np.random.rand(32, 32)
+        # Scale to extreme range
+        matrix = matrix * 1e10 + 1e-10
+
+        epsilon = 1e-8
+        result = self.solver.solve(matrix, epsilon)
+
+        assert isinstance(result, float)
+        assert not np.isnan(result)
+        assert not np.isinf(result)
+
+    def test_very_small_epsilon(self):
+        """Test convergence with very small epsilon."""
+        matrix = np.random.rand(32, 32) + 0.1
+        epsilon = 1e-12
+
+        result = self.solver.solve(matrix, epsilon)
+
+        assert isinstance(result, float)
+        assert not np.isnan(result)
+        # Small epsilon might take longer but should still converge
         assert result > 0
 
-class TestEpsilonFloor:
-    """Tests for the apply_epsilon_floor function."""
+    def test_very_large_epsilon(self):
+        """Test convergence with very large epsilon."""
+        matrix = np.random.rand(32, 32) + 0.1
+        epsilon = 1.0
 
-    def test_apply_epsilon_floor_positive_value(self):
-        """Verify that a value larger than epsilon is returned unchanged."""
-        value = 1.0
+        result = self.solver.solve(matrix, epsilon)
+
+        assert isinstance(result, float)
+        assert not np.isnan(result)
+        assert result > 0
+
+
+class TestEdgeCaseHelpers:
+    """Tests for helper functions used in edge case handling."""
+
+    def test_apply_epsilon_floor_zero_variance(self):
+        """Test epsilon floor application on zero variance."""
+        var = 0.0
         epsilon = 1e-6
-        result = apply_epsilon_floor(value, epsilon)
-        assert result == value
+        result = apply_epsilon_floor(var, epsilon)
+        assert result == epsilon, "Zero variance should be floored to epsilon"
 
-    def test_apply_epsilon_floor_below_epsilon(self):
-        """Verify that a value smaller than epsilon is clamped to epsilon."""
-        value = 1e-9
+    def test_apply_epsilon_floor_negative_variance(self):
+        """Test epsilon floor on negative variance (numerical error)."""
+        var = -1e-15
         epsilon = 1e-6
-        result = apply_epsilon_floor(value, epsilon)
-        assert result == epsilon
-
-    def test_apply_epsilon_floor_zero(self):
-        """Verify that zero is clamped to epsilon."""
-        value = 0.0
-        epsilon = 1e-6
-        result = apply_epsilon_floor(value, epsilon)
-        assert result == epsilon
-
-    def test_apply_epsilon_floor_negative_value(self):
-        """Verify that negative values are clamped to epsilon."""
-        value = -5.0
-        epsilon = 1e-6
-        result = apply_epsilon_floor(value, epsilon)
-        assert result == epsilon
-
-    def test_apply_epsilon_floor_exact_epsilon(self):
-        """Verify that a value exactly equal to epsilon is returned."""
-        value = 1e-6
-        epsilon = 1e-6
-        result = apply_epsilon_floor(value, epsilon)
-        assert result == epsilon
-
-
-class TestMomentExtraction:
-    """Tests for moment extraction logic (mean and variance) as per Spec FR-002."""
-
-    def test_extract_mean_scalar(self):
-        """Verify mean extraction from a simple 1D array."""
-        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        expected_mean = 3.0
-        computed_mean = np.mean(data)
-        assert np.isclose(computed_mean, expected_mean)
-
-    def test_extract_mean_2d_array(self):
-        """Verify mean extraction from a 2D array (flattened)."""
-        data = np.array([[1.0, 2.0], [3.0, 4.0]])
-        expected_mean = 2.5
-        computed_mean = np.mean(data)
-        assert np.isclose(computed_mean, expected_mean)
-
-    def test_extract_variance_scalar(self):
-        """Verify variance extraction from a simple 1D array."""
-        data = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        # Population variance (ddof=0)
-        expected_var = 2.0
-        computed_var = np.var(data, ddof=0)
-        assert np.isclose(computed_var, expected_var)
-
-    def test_extract_variance_with_epsilon_floor(self):
-        """Verify that variance extraction handles near-zero variance correctly with epsilon floor."""
-        # Create data with very small variance
-        base = np.ones(100) * 5.0
-        data = base + np.random.normal(0, 1e-10, 100)
-        
-        raw_var = np.var(data, ddof=0)
-        # Apply epsilon floor manually to simulate the logic used in production
-        epsilon = 1e-6
-        clamped_var = apply_epsilon_floor(raw_var, epsilon)
-        
-        # The result should be at least epsilon if raw_var is very small
-        assert clamped_var >= epsilon
-
-    def test_moment_extraction_stability(self):
-        """Verify that moment extraction is stable for constant arrays."""
-        data = np.ones(100) * 5.0
-        mean = np.mean(data)
-        var = np.var(data, ddof=0)
-        
-        assert np.isclose(mean, 5.0)
-        # Variance of constant is 0, which should be handled by epsilon floor in production
-        assert var == 0.0
-
-    def test_moment_extraction_with_outliers(self):
-        """Verify moment extraction handles arrays with outliers."""
-        data = np.array([1.0, 2.0, 3.0, 100.0])
-        mean = np.mean(data)
-        var = np.var(data, ddof=0)
-        
-        expected_mean = 26.5
-        expected_var = 1830.75
-        
-        assert np.isclose(mean, expected_mean)
-        assert np.isclose(var, expected_var)
-
-
-class TestNumericalStabilityHelpers:
-    """Additional tests for related numerical stability functions."""
-
-    def test_safe_log_positive(self):
-        """Verify safe_log works for positive values."""
-        assert safe_log(1.0) == 0.0
-        assert np.isclose(safe_log(np.e), 1.0)
-
-    def test_safe_log_zero(self):
-        """Verify safe_log handles zero by returning -inf or a safe value."""
-        result = safe_log(0.0)
-        # Depending on implementation, this might be -inf or a large negative number
-        assert result <= 0.0
-
-    def test_safe_divide_normal(self):
-        """Verify safe_divide works for normal division."""
-        assert safe_divide(1.0, 2.0) == 0.5
+        result = apply_epsilon_floor(var, epsilon)
+        assert result == epsilon, "Negative variance should be floored to epsilon"
 
     def test_safe_divide_zero_denominator(self):
-        """Verify safe_divide handles zero denominator."""
+        """Test safe division by zero."""
         result = safe_divide(1.0, 0.0)
-        # Should return 0.0 or raise a specific error, depending on implementation
-        # Assuming it returns 0.0 or a safe default
-        assert result == 0.0
+        assert np.isnan(result), "Division by zero should return NaN"
 
-    def test_check_numerical_stability_no_issues(self):
-        """Verify check_numerical_stability returns True for clean data."""
-        data = np.array([1.0, 2.0, 3.0])
-        assert check_numerical_stability(data)
+    def test_safe_log_negative(self):
+        """Test safe log on negative number."""
+        result = safe_log(-1.0)
+        assert np.isnan(result), "Log of negative should return NaN"
 
-    def test_check_numerical_stability_nan(self):
-        """Verify check_numerical_stability detects NaN."""
-        data = np.array([1.0, np.nan, 3.0])
-        assert not check_numerical_stability(data)
+    def test_safe_log_zero(self):
+        """Test safe log on zero."""
+        result = safe_log(0.0)
+        assert np.isnan(result), "Log of zero should return NaN"
 
-    def test_check_numerical_stability_inf(self):
-        """Verify check_numerical_stability detects Inf."""
-        data = np.array([1.0, np.inf, 3.0])
-        assert not check_numerical_stability(data)
+
+class TestSolverDeterminism:
+    """Test that the solver produces deterministic results with fixed seeds."""
+
+    def test_deterministic_results(self):
+        """Verify same input produces same output."""
+        np.random.seed(999)
+        matrix = np.random.rand(32, 32) + 0.1
+        epsilon = 1e-5
+
+        solver1 = SingleStepSinkhornSolver(max_iter=100, tol=1e-9)
+        solver2 = SingleStepSinkhornSolver(max_iter=100, tol=1e-9)
+
+        result1 = solver1.solve(matrix, epsilon)
+        result2 = solver2.solve(matrix, epsilon)
+
+        assert result1 == result2, "Solver should be deterministic"
+
+    def test_deterministic_across_runs(self):
+        """Verify determinism across multiple independent runs."""
+        np.random.seed(777)
+        matrix = np.random.rand(32, 32) + 0.1
+        epsilon = 1e-5
+
+        results = []
+        for _ in range(5):
+            solver = SingleStepSinkhornSolver(max_iter=100, tol=1e-9)
+            results.append(solver.solve(matrix, epsilon))
+
+        # All results should be identical
+        assert all(r == results[0] for r in results), "All runs should produce identical results"

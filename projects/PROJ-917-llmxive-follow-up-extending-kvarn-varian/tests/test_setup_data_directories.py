@@ -1,100 +1,117 @@
+"""
+Unit tests for the setup_data_directories module.
+"""
 import os
-import json
-import tempfile
-import shutil
-from pathlib import Path
 import pytest
-
-# Import the module under test
-# Assuming the test runner adds code/ to sys.path or we import relative to project root
+import tempfile
+from pathlib import Path
+import json
 import sys
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
 
-from code.setup_data_directories import (
+# Add the code directory to the path to allow imports
+code_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(code_dir))
+
+from setup_data_directories import (
+    get_project_root,
     create_directories,
     compute_file_checksum,
-    record_checksum,
-    verify_integrity,
-    DIRECTORY_STRUCTURE
+    record_checksums,
+    save_checksums,
+    load_checksums,
+    verify_integrity
 )
 
+
 class TestDataDirectorySetup:
-    @pytest.fixture
-    def temp_data_root(self):
-        """Create a temporary directory to act as the data root."""
-        temp_dir = tempfile.mkdtemp()
-        yield Path(temp_dir)
-        shutil.rmtree(temp_dir)
+    """Test cases for data directory initialization."""
 
-    def test_create_directories_structure(self, temp_data_root):
-        """Test that the full directory tree is created correctly."""
-        paths = create_directories(temp_data_root)
+    def test_create_directories_structure(self, tmp_path):
+        """Test that the required subdirectories are created."""
+        # Create a temporary data root
+        data_root = tmp_path / 'data'
+        data_root.mkdir()
         
-        # Check top-level directories exist
-        for dir_name in DIRECTORY_STRUCTURE.keys():
-            assert (temp_data_root / dir_name).exists()
-            assert (temp_data_root / dir_name).is_dir()
+        # Mock the root_dir to be tmp_path
+        created_dirs = create_directories(tmp_path)
         
-        # Check sub-directories exist
-        for dir_name, sub_dirs in DIRECTORY_STRUCTURE.items():
-            for sub_dir in sub_dirs:
-                sub_path = temp_data_root / dir_name / sub_dir
-                assert sub_path.exists()
-                assert sub_path.is_dir()
+        expected_subdirs = ['raw', 'processed', 'models', 'simulation']
+        assert len(created_dirs) == len(expected_subdirs)
+        
+        for subdir in expected_subdirs:
+            dir_path = data_root / subdir
+            assert dir_path.exists(), f"Directory {dir_path} was not created"
+            assert dir_path.is_dir(), f"{dir_path} is not a directory"
 
-    def test_compute_file_checksum(self, temp_data_root):
-        """Test SHA-256 checksum computation."""
-        test_file = temp_data_root / "test_file.txt"
-        content = "Hello, World!"
-        test_file.write_text(content)
+    def test_compute_file_checksum_file(self, tmp_path):
+        """Test checksum computation for a file."""
+        file_path = tmp_path / 'test.txt'
+        file_path.write_text("Hello, World!")
         
-        checksum = compute_file_checksum(test_file)
+        checksum1 = compute_file_checksum(file_path)
+        checksum2 = compute_file_checksum(file_path)
         
-        # Verify length of SHA-256 hex string
-        assert len(checksum) == 64
-        # Verify it's a valid hex string
-        int(checksum, 16)
+        assert len(checksum1) == 64  # SHA-256 hex length
+        assert checksum1 == checksum2  # Deterministic
 
-    def test_record_and_verify_checksum(self, temp_data_root):
-        """Test the full cycle of recording and verifying checksums."""
-        test_file = temp_data_root / "immutable_data.json"
-        test_file.write_text(json.dumps({"key": "value"}))
+    def test_compute_file_checksum_directory(self, tmp_path):
+        """Test checksum computation for a directory."""
+        dir_path = tmp_path / 'test_dir'
+        dir_path.mkdir()
+        (dir_path / 'file1.txt').write_text("Content 1")
+        (dir_path / 'file2.txt').write_text("Content 2")
         
-        # Record checksum
-        record_checksum(test_file)
+        checksum1 = compute_file_checksum(dir_path)
+        checksum2 = compute_file_checksum(dir_path)
         
-        # Manifest should exist
-        manifest_path = test_file.with_suffix(test_file.suffix + ".checksum.json")
-        assert manifest_path.exists()
-        
-        # Verify integrity
-        assert verify_integrity(test_file) is True
+        assert len(checksum1) == 64
+        assert checksum1 == checksum2
 
-    def test_verify_integrity_fails_on_modification(self, temp_data_root):
-        """Test that verification fails if file content changes."""
-        test_file = temp_data_root / "mutable_data.txt"
-        test_file.write_text("Original Content")
+    def test_record_and_save_checksums(self, tmp_path):
+        """Test recording and saving checksums."""
+        # Create directories
+        created_dirs = create_directories(tmp_path)
         
-        record_checksum(test_file)
+        # Record checksums
+        checksums = record_checksums(tmp_path, created_dirs)
         
-        # Modify file
-        test_file.write_text("Modified Content")
+        assert isinstance(checksums, dict)
+        assert len(checksums) == 4  # raw, processed, models, simulation
+        
+        # Save to file
+        output_path = tmp_path / 'checksums.json'
+        save_checksums(checksums, output_path)
+        
+        assert output_path.exists()
+        with open(output_path) as f:
+            loaded = json.load(f)
+        
+        assert loaded == checksums
+
+    def test_verify_integrity(self, tmp_path):
+        """Test integrity verification."""
+        # Create directories and record checksums
+        created_dirs = create_directories(tmp_path)
+        checksums = record_checksums(tmp_path, created_dirs)
+        
+        # Verification should pass
+        assert verify_integrity(tmp_path, checksums) is True
+
+    def test_verify_integrity_failure_missing_dir(self, tmp_path):
+        """Test integrity verification fails on missing directory."""
+        # Create directories
+        created_dirs = create_directories(tmp_path)
+        checksums = record_checksums(tmp_path, created_dirs)
+        
+        # Remove one directory
+        (tmp_path / 'data' / 'raw').rmdir()
         
         # Verification should fail
-        assert verify_integrity(test_file) is False
+        assert verify_integrity(tmp_path, checksums) is False
 
-    def test_verify_integrity_missing_manifest(self, temp_data_root):
-        """Test behavior when checksum manifest is missing."""
-        test_file = temp_data_root / "no_manifest.txt"
-        test_file.write_text("Content")
-        
-        # Should return False without raising an exception
-        assert verify_integrity(test_file) is False
-
-    def test_record_checksum_missing_file_raises(self, temp_data_root):
-        """Test that recording checksum for non-existent file raises error."""
-        fake_file = temp_data_root / "does_not_exist.txt"
-        
-        with pytest.raises(FileNotFoundError):
-            record_checksum(fake_file)
+    def test_load_checksums_missing_file(self, tmp_path):
+        """Test loading checksums from a non-existent file returns empty dict."""
+        non_existent = tmp_path / 'non_existent.json'
+        result = load_checksums(non_existent)
+        assert result == {}
+        assert isinstance(result, dict)

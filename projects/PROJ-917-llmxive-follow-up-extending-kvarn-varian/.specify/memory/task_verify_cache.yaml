@@ -37,10 +37,10 @@ T009:
     \ would include, for example, a config file (e.g., YAML/JSON), command\u2011line\
     \ flag handling, or documentation showing how to enable CPU\u2011only mode across\
     \ the project."
-T025a:
+T017c:
   c: false
-  h: 76ad120c139ad3a598398870d39af9b989df924b12ad0a4bcadcbabccae9960b
-  r: "The `stats.py` file contains a pilot analysis function, but the required output\
-    \ file `data/analysis/epsilon_pilot_full.json` is missing and the code shown does\
-    \ not write such a file. The deliverable of a generated JSON with the per\u2011\
-    epsilon `accumulated_kl_divergence_error_rate` has not been produced."
+  h: 58b72a037d87475004054cec81844d2b113ea88781317c22baeda43e3f711011
+  r: "The required output file `data/raw/synthetic_attention_matrices.parquet` does\
+    \ not exist, and the provided `synthetic_attention.py` script is truncated (no\
+    \ generation loop, no parquet writing, no enforcement of exactly 10,000 matrices).\
+    \ Consequently the dataset and scaling\u2011factor labels were never produced."

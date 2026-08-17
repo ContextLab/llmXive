@@ -18,6 +18,19 @@ class AttentionMatrix:
     sparsity: float
     outlier_magnitude: float
 
+    def __post_init__(self):
+        """Validate matrix dimensions and numerical properties."""
+        if self.matrix.shape != (128, 128):
+            raise ValueError(f"AttentionMatrix must be 128x128, got {self.matrix.shape}")
+        if not np.isfinite(self.mean):
+            raise ValueError(f"Mean must be finite, got {self.mean}")
+        if not np.isfinite(self.variance):
+            raise ValueError(f"Variance must be finite, got {self.variance}")
+        if not (0.0 <= self.sparsity <= 1.0):
+            raise ValueError(f"Sparsity must be in [0, 1], got {self.sparsity}")
+        if not np.isfinite(self.outlier_magnitude):
+            raise ValueError(f"Outlier magnitude must be finite, got {self.outlier_magnitude}")
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
@@ -49,7 +62,15 @@ class ScalingFactor:
     value: float
     derivation_method: str
 
+    def __post_init__(self):
+        """Validate the scaling factor properties."""
+        if not np.isfinite(self.value):
+            raise ValueError(f"Scaling factor value must be finite, got {self.value}")
+        if not isinstance(self.derivation_method, str) or not self.derivation_method.strip():
+            raise ValueError("derivation_method must be a non-empty string")
+
     def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for serialization."""
         return {
             'value': self.value,
             'derivation_method': self.derivation_method
@@ -57,6 +78,7 @@ class ScalingFactor:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ScalingFactor':
+        """Reconstruct from dictionary."""
         return cls(
             value=data['value'],
             derivation_method=data['derivation_method']
@@ -85,52 +107,11 @@ class SimulationRun:
         if not self.kl_divergence_sequence:
             self.accumulated_kl = 0.0
         else:
-            # Recalculate to ensure consistency if not provided or mismatched
-            self.accumulated_kl = sum(self.kl_divergence_sequence)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            'run_id': self.run_id,
-            'seed': self.seed,
-            'steps': self.steps,
-            'kl_divergence_sequence': self.kl_divergence_sequence,
-            'timing_metrics': self.timing_metrics,
-            'accumulated_kl': self.accumulated_kl,
-            'start_time': self.start_time,
-            'end_time': self.end_time,
-            'method': self.method,
-            'config_snapshot': self.config_snapshot
-        }
-
-    def to_json(self, path: Union[str, Path]) -> None:
-        """Serialize the run to a JSON file."""
-        with open(path, 'w') as f:
-            json.dump(self.to_dict(), f, indent=2)
-
-    @classmethod
-    def from_json(cls, path: Union[str, Path]) -> 'SimulationRun':
-        """Load a run from a JSON file."""
-        with open(path, 'r') as f:
-            data = json.load(f)
-        return cls(
-            run_id=data['run_id'],
-            seed=data['seed'],
-            steps=data['steps'],
-            kl_divergence_sequence=data['kl_divergence_sequence'],
-            timing_metrics=data['timing_metrics'],
-            accumulated_kl=data['accumulated_kl'],
-            start_time=data['start_time'],
-            end_time=data['end_time'],
-            method=data['method'],
-            config_snapshot=data.get('config_snapshot')
-        )
-    def __post_init__(self):
-        """Ensure accumulated_kl is consistent with the sequence."""
-        if not self.kl_divergence_sequence:
-            self.accumulated_kl = 0.0
-        else:
-            # Recalculate to ensure consistency if not provided or mismatched
-            self.accumulated_kl = sum(self.kl_divergence_sequence)
+            # Recalculate to ensure consistency
+            calculated_sum = sum(self.kl_divergence_sequence)
+            # Allow small floating point tolerance
+            if abs(self.accumulated_kl - calculated_sum) > 1e-9:
+                self.accumulated_kl = calculated_sum
 
     def to_dict(self) -> Dict[str, Any]:
         return {
