@@ -3,11 +3,12 @@ intent: download OBELiX and Materials Project crystal structures python package 
 required_fields:
 - material_id
 - formula
-- space_group
 - lattice_parameters
-- atomic_coordinates
-- site_occupancies
-- structure_file
-cache_key: 199f26342d09e1e5f1bfaf994b25e6bdaf1cf3490dd9d47156ac4de59f72581f
-searched_at: '2026-08-05T06:03:23.257703+00:00'
+- lattice_vectors
+- space_group
+- atomic_species
+- atomic_positions
+- formation_energy_per_atom
+cache_key: 7da784185fd61aa81a0fbb27e009950c628f1a943f4b181cca96becb045bf984
+searched_at: '2026-08-17T03:13:20.037791+00:00'
 retry_count: 1

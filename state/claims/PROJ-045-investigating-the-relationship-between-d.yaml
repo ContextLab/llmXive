@@ -5399,3 +5399,410 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-14T00:48:26Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Generate citations.json from spec, plan, and research documents
+  claim_id: c_696ddb64
+  context: 'Phase 0: Spec Alignment & Verification - T000 GENERATE CITATIONS task
+    description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_citations.json_from_spec,_plan,_and_research_docume
+  kind: entity_fact
+  raw_text: Generate data/raw/citations.json by parsing external references from spec.md,
+    plan.md, and research.md.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T02:55:41Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: M.S. Whittingham 2004 Lithium Batteries and Cathode Materials citation
+  claim_id: c_5463d3a3
+  context: T000b POPULATE CITATIONS explicitly lists M.S. Whittingham 2004 as an external
+    reference to be scanned.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Whittingham, M. Stanley (October 2004). \"Lithium batteries and cathode\
+        \ materials\" (PDF). Chemical Reviews. 104 (10): 4271\u20134301. doi:10.1021/cr020731c.\
+        \ PMID 15669156. S2CID 888879."
+      source_id: M. Stanley Whittingham
+      url: https://en.wikipedia.org/wiki/M._Stanley_Whittingham
+      value: "104 (10): 4271\u20134301"
+    filled: true
+  kind: numeric
+  raw_text: M.S. Whittingham 2004 is cited regarding Lithium Batteries and Cathode
+    Materials.
+  resolved_value: "104 (10): 4271\u20134301"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T02:56:04Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Linus Pauling works cited for verification
+  claim_id: c_73af5b6c
+  context: T001 VERIFY task mentions verifying citations for external references such
+    as Linus Pauling works.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P217: NPG.85.73'
+      source_id: Q47509324
+      url: https://www.wikidata.org/wiki/Q47509324
+      value: NPG.85.73
+    filled: true
+  kind: entity_fact
+  raw_text: Linus Pauling works are referenced as external sources for citation verification.
+  resolved_value: NPG.85.73
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T02:56:31Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Previous <=8 atom constraint superseded by 2x2x2 supercell
+  claim_id: c_69d68103
+  context: "T002 ALIGN task notes the superseding of the previous \u22648 atom constraint."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The previous constraint of \u22648 atoms is superseded by the 2x2x2 minimum\
+    \ supercell expansion requirement."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T02:56:32Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Materials Project referenced as external data source
+  claim_id: c_de0d538a
+  context: T000b POPULATE CITATIONS lists Materials Project as an external reference.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Materials Project
+      source_id: Q105085929
+      url: https://www.wikidata.org/wiki/Q105085929
+      value: Materials Project
+    filled: true
+  kind: entity_fact
+  raw_text: Materials Project is an external data source referenced in the documents.
+  resolved_value: Materials Project
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T02:56:51Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: OBELiX referenced as external data source
+  claim_id: c_451207e5
+  context: T000b POPULATE CITATIONS lists OBELiX as an external reference.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OBELiX_referenced_as_external_data_source
+  kind: entity_fact
+  raw_text: OBELiX is an external data source referenced in the documents.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T02:57:41Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Project requires Python 3.11
+  claim_id: c_8c2945bd
+  context: T003 Initialize Python 3.11 project task.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 is the required version for the project.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T02:58:48Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: GitHub Actions timeout set to 360 minutes
+  claim_id: c_a1193902
+  context: T010 Setup GitHub Actions workflow template with a timeout mechanism set
+    to 360 minutes.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "flows define notimeout-minutesbound on their jobs. GitHub\u2019s default\
+        \ of 360"
+      source_id: '2507.18062'
+      url: https://arxiv.org/abs/2507.18062
+      value: '360'
+    filled: true
+  kind: numeric
+  raw_text: The GitHub Actions workflow is configured with a timeout-minutes value
+    of 360.
+  resolved_value: '360'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T02:59:30Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: BVS validation filters structures with >10% deviation from ideal oxidation
+    states
+  claim_id: c_022d1417
+  context: T019 IMPLEMENT BVS validation to filter structures where deviation is >10%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bond-Valence Sum (BVS) validation filters structures where calculated
+    BVS deviates >10% from ideal oxidation states.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T02:59:31Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Li-O distance validation filters structures outside expected coordination
+    range
+  claim_id: c_1c1943f2
+  context: T020 IMPLEMENT Li-O distance validation to filter structures.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Li-O_distance_validation_filters_structures_outside_expected
+  kind: entity_fact
+  raw_text: Li-O distance validation filters structures where distances fall outside
+    an expected coordination range.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:00:53Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: NEB convergence criteria force <=0.05 eV/Angstrom
+  claim_id: c_fa7332a8
+  context: T022 Integration test for NEB convergence criteria and T029 implementation
+    details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "NEB convergence criteria require a force threshold of \u22640.05 eV/\xC5\
+    ."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:00:54Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: DFT inputs use PBE pseudopotentials
+  claim_id: c_b190e9ab
+  context: T025 IMPLEMENT DFT input files with explicit parameters including pseudopotentials
+    (PBE).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFT_inputs_use_PBE_pseudopotentials
+  kind: entity_fact
+  raw_text: The DFT input files use the PBE pseudopotential.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:01:38Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: DFT inputs use 4 4 4 k-mesh
+  claim_id: c_176dfc8c
+  context: T025 Verification step requires grep for '4 4 4' in code/dft_runner.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The DFT input files use a k-mesh of 4 4 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:02:06Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: DFT inputs use ecutwfc 60
+  claim_id: c_067581c5
+  context: T025 Verification step requires grep for 'ecutwfc 60' in code/dft_runner.py.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: S. Tran, C. N. Lau, J. Wei, et al. , Phys. Rev. Lett. 117, 016602
+      source_id: '2006.12647'
+      url: https://arxiv.org/abs/2006.12647
+      value: '60'
+    filled: true
+  kind: numeric
+  raw_text: The DFT input files use a wavefunction cutoff of 60 Ry.
+  resolved_value: '60'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T03:02:31Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Defect density formula is defects per supercell volume
+  claim_id: c_a7182e4b
+  context: T033 IMPLEMENT defect density quantification method where defects/supercell_volume
+    = 1 / supercell_volume.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Defect_density_formula_is_defects_per_supercell_volume
+  kind: entity_fact
+  raw_text: Defect density is calculated as defects divided by supercell_volume.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:03:41Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: VIF > 5 indicates collinearity
+  claim_id: c_985e3b04
+  context: T039 IMPLEMENT VIF diagnostic with threshold VIF > 5.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_%3E_5_indicates_collinearity
+  kind: magnitude
+  raw_text: Variance Inflation Factor (VIF) threshold greater than 5 indicates collinearity.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:04:22Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: PCA uses 2 components
+  claim_id: c_9138b3c0
+  context: T043 IMPLEMENT PCA for coupled variables with 2 components.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PCA implementation uses 2 components.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:05:09Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Multiple-comparison correction uses Benjamini-Hochberg
+  claim_id: c_38aab0e4
+  context: T038 IMPLEMENT multiple-comparison correction (Benjamini-Hochberg).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Multiple-comparison_correction_uses_Benjamini-Hochberg
+  kind: entity_fact
+  raw_text: Multiple-comparison correction uses the Benjamini-Hochberg method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:05:53Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Quickstart.md file less than 500 lines
+  claim_id: c_e900c488
+  context: T047 Documentation task requires quickstart.md to be <500 lines.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quickstart.md_file_less_than_500_lines
+  kind: magnitude
+  raw_text: The quickstart.md file must be less than 500 lines.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:06:27Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Vectorized regression achieves <50% runtime reduction on n=1000
+  claim_id: c_83bb3855
+  context: T049 Performance optimization task specifies <50% runtime reduction on
+    n=1000 synthetic data.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vectorized regression loop must achieve <50% runtime reduction on n=1000
+    synthetic data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:07:10Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Total Activation Energy Ea = Ef + Em for reporting
+  claim_id: c_085c1483
+  context: T036 IMPLEMENT Total Activation Energy calculation as Ef + Em for reporting
+    and visualization only.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_Activation_Energy_Ea_=_Ef_+_Em_for_reporting
+  kind: entity_fact
+  raw_text: Total Activation Energy (Ea) is calculated as Ef + Em for reporting only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:08:02Z'
+- artifact_path: projects/PROJ-045-investigating-the-relationship-between-d/specs/001-investigating-the-relationship-between-d/tasks.md
+  attempts: 1
+  canonical: Regression model excludes Ea as primary predictor
+  claim_id: c_4dd8f62a
+  context: T037 IMPLEMENT linear regression with assertion that 'ea' is not in regression_features.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Regression_model_excludes_Ea_as_primary_predictor
+  kind: entity_fact
+  raw_text: The regression model must not use Ea as a primary predictor.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:08:48Z'

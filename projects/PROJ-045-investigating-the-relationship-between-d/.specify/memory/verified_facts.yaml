@@ -1,5 +1,18 @@
-'|collinearity indicate vif':
-  quote: '10'
-  source_id: Variance inflation factor
-  url: https://en.wikipedia.org/wiki/Variance_inflation_factor
-  value: '10'
+'|action configured github minute timeout workflow':
+  quote: "flows define notimeout-minutesbound on their jobs. GitHub\u2019s default\
+    \ of 360"
+  source_id: '2507.18062'
+  url: https://arxiv.org/abs/2507.18062
+  value: '360'
+'|battery cathode cited lithium material regarding whittingham':
+  quote: "Whittingham, M. Stanley (October 2004). \"Lithium batteries and cathode\
+    \ materials\" (PDF). Chemical Reviews. 104 (10): 4271\u20134301. doi:10.1021/cr020731c.\
+    \ PMID 15669156. S2CID 888879."
+  source_id: M. Stanley Whittingham
+  url: https://en.wikipedia.org/wiki/M._Stanley_Whittingham
+  value: "104 (10): 4271\u20134301"
+'|cutoff dft file input ry use wavefunction':
+  quote: S. Tran, C. N. Lau, J. Wei, et al. , Phys. Rev. Lett. 117, 016602
+  source_id: '2006.12647'
+  url: https://arxiv.org/abs/2006.12647
+  value: '60'
