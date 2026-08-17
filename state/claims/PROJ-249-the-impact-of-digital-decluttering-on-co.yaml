@@ -1,0 +1,296 @@
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: estimated power 82.50% for effect size d=0.5 with 50 participants
+  claim_id: c_1cd14a9d
+  context: 'This section details the Monte Carlo power simulation results, estimating
+    the study''s ability to detect an effect size of d=0.5 with Holm-Bonferroni correction.
+    Simulated Sample Size: 50, Number of Iterations: 1000, Estimated Power: 82.50%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Estimated Power: 82.50%'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:23:19Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: SART commission errors rejection rate 85.20% in power simulation
+  claim_id: c_06346b7a
+  context: 'The table below shows the proportion of iterations where the null hypothesis
+    was rejected after applying Holm-Bonferroni correction. SART_Commission_Errors
+    Rejection Rate: 85.20%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SART_Commission_Errors rejection rate 85.20%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:23:19Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: SART mean reaction time rejection rate 78.40% in power simulation
+  claim_id: c_30095eb8
+  context: 'The table below shows the proportion of iterations where the null hypothesis
+    was rejected after applying Holm-Bonferroni correction. SART_Mean_RT Rejection
+    Rate: 78.40%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SART_Mean_RT rejection rate 78.40%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:23:19Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: Ospan score rejection rate 83.10% in power simulation
+  claim_id: c_8af18761
+  context: 'The table below shows the proportion of iterations where the null hypothesis
+    was rejected after applying Holm-Bonferroni correction. Ospan_Score Rejection
+    Rate: 83.10%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ospan_Score rejection rate 83.10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:23:19Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: PSS10 total rejection rate 81.50% in power simulation
+  claim_id: c_e3480b14
+  context: 'The table below shows the proportion of iterations where the null hypothesis
+    was rejected after applying Holm-Bonferroni correction. PSS10_Total Rejection
+    Rate: 81.50%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PSS10_Total rejection rate 81.50%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:23:47Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: PANAS positive rejection rate 80.90% in power simulation
+  claim_id: c_99407409
+  context: 'The table below shows the proportion of iterations where the null hypothesis
+    was rejected after applying Holm-Bonferroni correction. PANAS_Positive Rejection
+    Rate: 80.90%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PANAS_Positive rejection rate 80.90%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:23:47Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: PANAS negative rejection rate 82.30% in power simulation
+  claim_id: c_db8cfe4b
+  context: 'The table below shows the proportion of iterations where the null hypothesis
+    was rejected after applying Holm-Bonferroni correction. PANAS_Negative Rejection
+    Rate: 82.30%'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PANAS_Negative rejection rate 82.30%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:23:47Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: SART commission errors mean change -3.450 corrected p-value 0.0012
+  claim_id: c_f32e40f7
+  context: 'This section presents the primary statistical findings from the study,
+    including mean changes, confidence intervals, and corrected p-values. SART_Commission_Errors
+    Mean Change: -3.450, Corrected P-value: 0.0012'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SART_Commission_Errors mean change -3.450 with corrected p-value 0.0012
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:24:23Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: SART mean reaction time mean change 0.120 corrected p-value 0.1850
+  claim_id: c_3df407a7
+  context: 'This section presents the primary statistical findings from the study,
+    including mean changes, confidence intervals, and corrected p-values. SART_Mean_RT
+    Mean Change: 0.120, Corrected P-value: 0.1850'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SART_Mean_RT mean change 0.120 with corrected p-value 0.1850
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:24:56Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: Ospan score mean change 2.850 corrected p-value 0.0003
+  claim_id: c_733da886
+  context: 'This section presents the primary statistical findings from the study,
+    including mean changes, confidence intervals, and corrected p-values. Ospan_Score
+    Mean Change: 2.850, Corrected P-value: 0.0003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ospan_Score mean change 2.850 with corrected p-value 0.0003
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:25:19Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: PSS10 total mean change -4.200 corrected p-value 0.0001
+  claim_id: c_752ec3f5
+  context: 'This section presents the primary statistical findings from the study,
+    including mean changes, confidence intervals, and corrected p-values. PSS10_Total
+    Mean Change: -4.200, Corrected P-value: 0.0001'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PSS10_Total mean change -4.200 with corrected p-value 0.0001
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:25:44Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: PANAS positive mean change 3.150 corrected p-value 0.0008
+  claim_id: c_5446e3ee
+  context: 'This section presents the primary statistical findings from the study,
+    including mean changes, confidence intervals, and corrected p-values. PANAS_Positive
+    Mean Change: 3.150, Corrected P-value: 0.0008'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PANAS_Positive mean change 3.150 with corrected p-value 0.0008
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:26:14Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: PANAS negative mean change -2.900 corrected p-value 0.0005
+  claim_id: c_60711907
+  context: 'This section presents the primary statistical findings from the study,
+    including mean changes, confidence intervals, and corrected p-values. PANAS_Negative
+    Mean Change: -2.900, Corrected P-value: 0.0005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PANAS_Negative mean change -2.900 with corrected p-value 0.0005
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:26:52Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: SART commission errors Cohen's d -0.620
+  claim_id: c_df3eefc3
+  context: 'SART_Commission_Errors Effect Size (Cohen''s d): -0.620'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SART commission errors effect size Cohen's d -0.620
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:28:58Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: Ospan scores Cohen's d 0.580
+  claim_id: c_3c55f483
+  context: 'Ospan_Score Effect Size (Cohen''s d): 0.580'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ospan scores effect size Cohen's d 0.580
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:30:57Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: PSS-10 scores Cohen's d -0.710
+  claim_id: c_8c655a4f
+  context: 'PSS10_Total Effect Size (Cohen''s d): -0.710'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PSS-10 scores effect size Cohen's d -0.710
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:33:17Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: PANAS positive affect Cohen's d 0.540
+  claim_id: c_a5749b39
+  context: 'PANAS_Positive Effect Size (Cohen''s d): 0.540'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PANAS positive affect effect size Cohen's d 0.540
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:35:20Z'
+- artifact_path: projects/PROJ-249-the-impact-of-digital-decluttering-on-co/results/final_report.md
+  attempts: 1
+  canonical: PANAS negative affect Cohen's d -0.520
+  claim_id: c_a38f4eb3
+  context: 'PANAS_Negative Effect Size (Cohen''s d): -0.520'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: PANAS negative affect effect size Cohen's d -0.520
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T15:37:34Z'

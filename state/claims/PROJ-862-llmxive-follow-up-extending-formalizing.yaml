@@ -1142,3 +1142,298 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-29T01:13:29Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Data loader halts if expected_answer column is missing
+  claim_id: c_1ca7699f
+  context: T011 [P] Implement code/data_loader.py to fetch the reasoning dataset from
+    the verified HuggingFace URL specified in code/config.py (DATASET_NAME='bigbench_lite',
+    DATASET_URL='https://huggingface.co/datasets/google/bigbench_lite').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_halts_if_expected_answer_column_is_missing
+  kind: entity_fact
+  raw_text: MUST explicitly check if the 'expected_answer' column exists; if missing,
+    raise ConfigurationError and halt immediately
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:29:22Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: sentence-transformers library version pinned for reproducibility
+  claim_id: c_b51c06f6
+  context: T026 [S] [US2] Implement code/validity_check.py function check_input_drift(baseline_input,
+    perturbed_input) using ONLY sentence-transformers/all-MiniLM-L6-v2.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sentence-transformers_library_version_pinned_for_reproducibi
+  kind: entity_fact
+  raw_text: MUST explicitly pin the sentence-transformers library version in requirements.txt
+    to ensure reproducibility
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:31:38Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Exclude pairs with cosine similarity less than 0.95
+  claim_id: c_268506b7
+  context: T026 [S] [US2] Implement code/validity_check.py function check_input_drift(baseline_input,
+    perturbed_input) using ONLY sentence-transformers/all-MiniLM-L6-v2.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_pairs_with_cosine_similarity_less_than_0.95
+  kind: magnitude
+  raw_text: Exclude pairs with cosine similarity < 0.95
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:33:46Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Output validity check uses BERTScore F1 greater than or equal to 0.85
+    and perplexity bound less than or equal to 2.0 times baseline
+  claim_id: c_e8e4ca86
+  context: "T027 [US2] Implement code/validity_check.py function check_output_validity(model_output,\
+    \ expected_answer) using BERTScore (F1 \u2265 0.85) and perplexity bound (\u2264\
+    \ 2.0x baseline)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_validity_check_uses_BERTScore_F1_greater_than_or_equa
+  kind: magnitude
+  raw_text: "Implement a function check_output_validity(model_output, expected_answer)\
+    \ using BERTScore (F1 \u2265 0.85) and perplexity bound (\u2264 2.0x baseline)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:34:41Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Detect validity collapse if more than 90 percent of pairs fail at a specific
+    sigma
+  claim_id: c_214cdad5
+  context: T028 [US2] Implement code/validity_check.py function check_validity_collapse(pass_rate,
+    threshold) to detect if >90% of pairs fail at a specific sigma
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detect_validity_collapse_if_more_than_90_percent_of_pairs_fa
+  kind: magnitude
+  raw_text: detect if >90% of pairs fail at a specific sigma
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:35:48Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Record global semantic validity pass-rate for every sigma level
+  claim_id: c_54fd9faf
+  context: 'T029 [S] [US2] Implement code/main.py perturbation sweep loop logic: Iterate
+    sigma across a range of small values with fine-grained steps.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Record_global_semantic_validity_pass-rate_for_every_sigma_le
+  kind: entity_fact
+  raw_text: MUST calculate the global semantic validity pass-rate for EVERY sigma
+    level and record it to data/processed/validity_log.csv with columns task_type,
+    sigma, pass_rate, collapse_point (boolean)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:36:54Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Switch to Wilcoxon signed-rank test if sample size is less than 30
+  claim_id: c_9444699e
+  context: 'T049 [Review] Statistical Power Verification: In code/analysis.py, add
+    a pre-test check (T035) that calculates the effective sample size n after filtering
+    for validity.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_Wilcoxon_signed-rank_test_if_sample_size_is_less_t
+  kind: magnitude
+  raw_text: If n < 30 (or the threshold for the chosen test), the system must automatically
+    switch to Wilcoxon signed-rank test
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:38:20Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Implement Holm-Bonferroni correction with alpha 0.05
+  claim_id: c_4541c2be
+  context: 'T050 [Review] Family-Wise Error Correction Implementation: In code/analysis.py
+    (T039), implement the Holm-Bonferroni correction as a distinct, testable function
+    apply_holm_bonferroni(p_values, alpha=0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the Holm-Bonferroni correction as a distinct, testable function
+    apply_holm_bonferroni(p_values, alpha=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:39:04Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Flag significant separability increase if corrected p-value is less than
+    0.05
+  claim_id: c_bfdbc3aa
+  context: T040 [US3] Implement logic to flag 'Significant Separability Increase'
+    if corrected p-value < 0.05 (FR-005).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_significant_separability_increase_if_corrected_p-value
+  kind: magnitude
+  raw_text: flag 'Significant Separability Increase' if corrected p-value < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:39:53Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Pin sentence-transformers to specific version hash or commit SHA for
+    reproducibility
+  claim_id: c_7a6aba6d
+  context: T004 [P] Create code/requirements.txt with pinned versions (transformers,
+    torch, sentence-transformers, scikit-learn, bertscore, pandas, numpy, pytest).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pin_sentence-transformers_to_specific_version_hash_or_commit
+  kind: entity_fact
+  raw_text: MUST pin sentence-transformers to a specific version hash or commit SHA
+    to ensure reproducibility of the all-MiniLM-L-v2 model weights
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:40:30Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Enforce peak RSS less than or equal to 7GB failure condition
+  claim_id: c_d80047fb
+  context: "T008b [P] Implement code/memory_monitor.py to instrument tracemalloc and\
+    \ enforce a hard 'peak RSS \u2264 7GB' failure condition for the entire process;\
+    \ raise MemoryLimitExceeded if the aggregate threshold is breached (SC-004)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Enforce_peak_RSS_less_than_or_equal_to_7GB_failure_condition
+  kind: magnitude
+  raw_text: "enforce a hard 'peak RSS \u2264 7GB' failure condition for the entire\
+    \ process"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:41:30Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Dataset name is bigbench_lite with URL https://huggingface.co/datasets/google/bigbench_lite
+  claim_id: c_ad998463
+  context: T011 [P] Implement code/data_loader.py to fetch the reasoning dataset from
+    the verified HuggingFace URL specified in code/config.py (DATASET_NAME='bigbench_lite',
+    DATASET_URL='https://huggingface.co/datasets/google/bigbench_lite').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_name_is_bigbench_lite_with_URL_https://huggingface.c
+  kind: entity_fact
+  raw_text: DATASET_NAME='bigbench_lite', DATASET_URL='https://huggingface.co/datasets/google/bigbench_lite'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:41:50Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Verify dataset integrity using SHA256 hash comparison
+  claim_id: c_28b495d1
+  context: 'T012 [P] Add a pre-flight checksum verification in code/data_loader.py:
+    Calculate the SHA256 hash of the downloaded dataset file and compare it against
+    the expected hash stored in data/checksums.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_dataset_integrity_using_SHA256_hash_comparison
+  kind: entity_fact
+  raw_text: calculate the SHA256 hash of the downloaded dataset file and compare it
+    against the expected hash stored in data/checksums.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:42:17Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Calculate statistical distribution of validity collapse point across
+    all task types
+  claim_id: c_1be10a87
+  context: 'T037 [US3] Implement code/analysis.py function aggregate_global_results(task_results):
+    Aggregate per-task trade-off curves and validity collapse points into a global
+    distribution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_statistical_distribution_of_validity_collapse_poin
+  kind: entity_fact
+  raw_text: Calculate the statistical distribution (mean, std, histogram) of the 'validity
+    collapse point' across all task types
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:43:01Z'
+- artifact_path: projects/PROJ-862-llmxive-follow-up-extending-formalizing/specs/001-llmxive-follow-up-extending-formalizing/tasks.md
+  attempts: 1
+  canonical: Apply Holm-Bonferroni correction to p-values across task_type and sigma
+    matrix
+  claim_id: c_0ca245a1
+  context: 'T039 [US3] Implement code/main.py analysis orchestration: Load filtered
+    vectors -> Run tests -> Apply Holm-Bonferroni correction to all resulting p-values
+    across the full matrix of (task_type, sigma) results as a distinct step'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Holm-Bonferroni_correction_to_p-values_across_task_typ
+  kind: entity_fact
+  raw_text: Apply Holm-Bonferroni correction to all resulting p-values across the
+    full matrix of (task_type, sigma) results as a distinct step
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T16:43:40Z'

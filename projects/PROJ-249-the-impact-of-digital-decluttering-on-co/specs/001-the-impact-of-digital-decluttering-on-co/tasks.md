@@ -135,7 +135,7 @@
 - [ ] T029 [US3] Generate sensitivity analysis report in `results/sensitivity_analysis_report.md`; MUST explicitly document self-report limitations or compare against objective data if available (FR-011)
 - [X] T041 [US3] Create visualization generator for boxplots and change score distributions in `code/viz/generate_plots.py`
 - [ ] T043 [US3] Create validation script to check results against success criteria (SC-001 to SC-005) in `code/validation/validate_success_criteria.py`; MUST explicitly compare `results/statistical_summary.json` values against thresholds (p < 0.05, d ≥ 0.2) AND verify the *direction* of the effect (e.g., reduction for SART, increase for Ospan) to match the hypothesis; generate a validation report; MUST run before T042.
-- [ ] T042 [US3] Implement final report generator in `code/report/generate_report.py`; MUST include: 1) Full text of sensitivity analysis report (from T029), 2) Power simulation results (from T020), 3) Statistical summary (from T040), 4) Validation status (from T043); Output to `results/final_report.md`; MUST be the final task in Phase 5. <!-- FAILED: unspecified -->
+- [X] T042 [US3] Implement final report generator in `code/report/generate_report.py`; MUST include: 1) Full text of sensitivity analysis report (from T029), 2) Power simulation results (from T020), 3) Statistical summary (from T040), 4) Validation status (from T043); Output to `results/final_report.md`; MUST be the final task in Phase 5. <!-- FAILED: unspecified -->
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -147,9 +147,9 @@
 
 - [ ] T044 [P] Documentation updates: `README.md`, `quickstart.md`, and API docs in `docs/`
 - [ ] T045 Code cleanup and refactoring for readability <!-- ATOMIZE: requested -->
-- [~] T046 Performance optimization for bootstrap loops (vectorization)
-- [~] T047 [P] Additional unit tests for edge cases (dropouts, missing data) in `tests/unit/`
-- [~] T048 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T046 Performance optimization for bootstrap loops (vectorization)
+- [ ] T047 [P] Additional unit tests for edge cases (dropouts, missing data) in `tests/unit/`
+- [ ] T048 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 

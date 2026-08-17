@@ -133,8 +133,8 @@ Examples of foundational tasks (adjust based on your plan):
 - [X] T027 [US2] Implement FDR correction (Benjamini-Hochberg) in `code/analysis/stats.py` to generate `q_value`.
 - [X] T028 [US2] Implement effect size calculation (Cohen's d) and 95% CI in `code/analysis/stats.py`.
 - [X] T029a [US2] Implement Network-Based Statistic (NBS) in `code/analysis/stats.py` (permutation-based). **Parameters**: 1000 permutations, edge threshold 0.05. Identify largest connected component.
-- [ ] T030 [US2] Output `data/processed/connectivity_results.csv` with `connection_id`, `t_stat`, `p_value`, `q_value`, `effect_size`, `ci_lower`, `ci_upper`.
-- [ ] T031 [US2] Output `data/processed/nbs_results.csv` with `component_id`, `size_edges`, `p_value_fwer`.
+- [X] T030 [US2] Output `data/processed/connectivity_results.csv` with `connection_id`, `t_stat`, `p_value`, `q_value`, `effect_size`, `ci_lower`, `ci_upper`.
+- [X] T031 [US2] Output `data/processed/nbs_results.csv` with `component_id`, `size_edges`, `p_value_fwer`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -154,8 +154,8 @@ Examples of foundational tasks (adjust based on your plan):
 
 ### Implementation for User Story 3
 
-- [ ] T035 [US3] Implement `code/analysis/correlation.py` to compute Pearson/Spearman correlation between `years_of_training` and connectivity strength (musicians only). **Input**: Per-subject connectivity matrices from T024/T025. **Note**: This task uses the raw matrices, NOT the group stats from T030.
-- [ ] T036 [US3] Implement calculation of 95% CI for correlation coefficients in `code/analysis/correlation.py`.
+- [X] T035 [US3] Implement `code/analysis/correlation.py` to compute Pearson/Spearman correlation between `years_of_training` and connectivity strength (musicians only). **Input**: Per-subject connectivity matrices from T024/T025. **Note**: This task uses the raw matrices, NOT the group stats from T030.
+- [X] T036 [US3] Implement calculation of 95% CI for correlation coefficients in `code/analysis/correlation.py`.
 - [ ] T037 [US3] Implement `code/analysis/sensitivity.py` to sweep thresholds across a range of low to moderate values. and count significant connections.
 - [ ] T038 [US3] Implement stability check: Flag "low stability" in `correlation_results.csv` if 95% CI includes zero at **ANY** swept threshold (0.01, 0.05, 0.10). Output `stability_flag` column with values "low"/"high".
 - [ ] T039 [US3] Output `data/processed/correlation_results.csv` with `connection_id`, `r_value`, `p_value`, `effect_size`, `ci_95`, `stability_flag`.

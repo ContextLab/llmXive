@@ -1,180 +1,212 @@
 """
-Unit tests for correlation (Pearson/Spearman) calculation in code/analysis/correlation.py.
-Implements T032: Unit test for correlation (Pearson/Spearman) calculation.
+Unit tests for correlation analysis module (User Story 3)
 """
+import os
 import pytest
 import numpy as np
 import pandas as pd
-from scipy import stats as scipy_stats
+from pathlib import Path
+from scipy import stats
 
-# Import the implementation module.
-# The task T035 will create this module, but we define the expected interface here
-# to ensure the test is valid once T035 is implemented.
-# If the module doesn't exist yet, we skip the import in a real run, but for this
-# unit test generation, we assume the implementation follows the pattern of stats.py.
-# We will mock the import if necessary or assume it exists for the test structure.
-try:
-    from analysis.correlation import (
-        calculate_pearson_correlation,
-        calculate_spearman_correlation,
-        calculate_correlation_ci,
-        process_correlation_results
-    )
-    CORRELATION_MODULE_AVAILABLE = True
-except ImportError:
-    CORRELATION_MODULE_AVAILABLE = False
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from analysis.correlation import (
+    compute_connectivity_strength,
+    compute_correlation_with_training,
+    calculate_correlation_ci,
+    load_musicians_connectivity_data
+)
 
 
-class TestCorrelationCalculations:
-    """Tests for correlation calculation functions."""
+class TestComputeConnectivityStrength:
+    """Tests for extract connectivity strength from matrices"""
 
-    @pytest.fixture
-    def sample_data(self):
-        """Generate sample data for correlation testing."""
-        np.random.seed(42)
-        n = 50
-        # Create a dataset with a known positive correlation
-        x = np.random.normal(0, 1, n)
-        y = 2 * x + np.random.normal(0, 0.5, n)  # Strong positive correlation
-        return pd.DataFrame({
-            'variable_x': x,
-            'variable_y': y,
-            'subject_id': [f'sub_{i}' for i in range(n)]
-        })
-
-    @pytest.fixture
-    def sample_data_no_correlation(self):
-        """Generate sample data with no correlation."""
-        np.random.seed(123)
-        n = 50
-        x = np.random.normal(0, 1, n)
-        y = np.random.normal(0, 1, n)  # Independent variables
-        return pd.DataFrame({
-            'variable_x': x,
-            'variable_y': y,
-            'subject_id': [f'sub_{i}' for i in range(n)]
-        })
-
-    @pytest.mark.skipif(not CORRELATION_MODULE_AVAILABLE, reason="Correlation module not yet implemented")
-    def test_pearson_correlation_positive(self, sample_data):
-        """Test Pearson correlation calculation with known positive correlation."""
-        r, p = calculate_pearson_correlation(sample_data['variable_x'], sample_data['variable_y'])
+    def test_upper_triangle_extraction(self):
+        """Test that only upper triangle (excluding diagonal) is extracted"""
+        matrix = np.array([
+            [1.0, 0.5, 0.3],
+            [0.5, 1.0, 0.2],
+            [0.3, 0.2, 1.0]
+        ])
         
-        # Assert correlation is positive and significant
-        assert r > 0.5, f"Expected positive correlation > 0.5, got {r}"
-        assert p < 0.05, f"Expected p-value < 0.05, got {p}"
+        strength = compute_connectivity_strength(matrix, mask_diagonal=True)
         
-        # Verify against scipy implementation
-        scipy_r, scipy_p = scipy_stats.pearsonr(sample_data['variable_x'], sample_data['variable_y'])
-        assert np.isclose(r, scipy_r, atol=1e-6), f"Pearson r mismatch: {r} vs {scipy_r}"
-        assert np.isclose(p, scipy_p, atol=1e-6), f"Pearson p-value mismatch: {p} vs {scipy_p}"
+        # Should have 3 values: (0,1), (0,2), (1,2)
+        assert len(strength) == 3
+        assert np.allclose(strength, [0.5, 0.3, 0.2])
 
-    @pytest.mark.skipif(not CORRELATION_MODULE_AVAILABLE, reason="Correlation module not yet implemented")
-    def test_pearson_correlation_none(self, sample_data_no_correlation):
-        """Test Pearson correlation calculation with no correlation."""
-        r, p = calculate_pearson_correlation(
-            sample_data_no_correlation['variable_x'], 
-            sample_data_no_correlation['variable_y']
+    def test_no_diagonal_mask(self):
+        """Test extraction without diagonal masking"""
+        matrix = np.array([
+            [1.0, 0.5],
+            [0.5, 1.0]
+        ])
+        
+        strength = compute_connectivity_strength(matrix, mask_diagonal=False)
+        
+        # Should have 2 values (off-diagonal only)
+        assert len(strength) == 2
+        assert np.allclose(strength, [0.5, 0.5])
+
+
+class TestComputeCorrelationWithTraining:
+    """Tests for correlation computation between training and connectivity"""
+
+    def test_pearson_correlation_positive(self):
+        """Test Pearson correlation with known positive relationship"""
+        # Create mock data: training years and connectivity values
+        musicians_df = pd.DataFrame({
+            'subject_id': ['S1', 'S2', 'S3', 'S4', 'S5'],
+            'years_of_training': [2.0, 3.0, 4.0, 5.0, 6.0]
+        })
+        
+        # Create connectivity matrices with increasing values
+        connectivity_dict = {
+            'S1': np.array([[1.0, 0.5], [0.5, 1.0]]),
+            'S2': np.array([[1.0, 0.6], [0.6, 1.0]]),
+            'S3': np.array([[1.0, 0.7], [0.7, 1.0]]),
+            'S4': np.array([[1.0, 0.8], [0.8, 1.0]]),
+            'S5': np.array([[1.0, 0.9], [0.9, 1.0]])
+        }
+        
+        result = compute_correlation_with_training(musicians_df, connectivity_dict, method='pearson')
+        
+        # Check that we got results
+        assert len(result) == 1  # Only one connection (ROI0-ROI1)
+        assert result['connection_id'].iloc[0] == 'ROI0-ROI1'
+        
+        # Correlation should be positive and significant
+        assert result['r_value'].iloc[0] > 0.9
+        assert result['p_value'].iloc[0] < 0.05
+
+    def test_spearman_correlation(self):
+        """Test Spearman correlation computation"""
+        musicians_df = pd.DataFrame({
+            'subject_id': ['S1', 'S2', 'S3', 'S4'],
+            'years_of_training': [1.0, 2.0, 3.0, 4.0]
+        })
+        
+        connectivity_dict = {
+            'S1': np.array([[1.0, 0.1], [0.1, 1.0]]),
+            'S2': np.array([[1.0, 0.2], [0.2, 1.0]]),
+            'S3': np.array([[1.0, 0.3], [0.3, 1.0]]),
+            'S4': np.array([[1.0, 0.4], [0.4, 1.0]])
+        }
+        
+        result = compute_correlation_with_training(musicians_df, connectivity_dict, method='spearman')
+        
+        assert len(result) == 1
+        assert result['r_value'].iloc[0] > 0.9
+        assert result['p_value'].iloc[0] < 0.05
+
+    def test_insufficient_samples(self):
+        """Test handling of insufficient samples"""
+        musicians_df = pd.DataFrame({
+            'subject_id': ['S1', 'S2'],
+            'years_of_training': [1.0, 2.0]
+        })
+        
+        connectivity_dict = {
+            'S1': np.array([[1.0, 0.5], [0.5, 1.0]]),
+            'S2': np.array([[1.0, 0.6], [0.6, 1.0]])
+        }
+        
+        # With only 2 samples, correlation should return NaN
+        result = compute_correlation_with_training(musicians_df, connectivity_dict, method='pearson')
+        
+        assert pd.isna(result['r_value'].iloc[0])
+
+
+class TestCalculateCorrelationCI:
+    """Tests for confidence interval calculation"""
+
+    def test_ci_calculation(self):
+        """Test that confidence intervals are calculated correctly"""
+        df = pd.DataFrame({
+            'connection_id': ['C1', 'C2'],
+            'r_value': [0.5, -0.3],
+            'p_value': [0.01, 0.05],
+            'n_samples': [50, 50]
+        })
+        
+        result = calculate_correlation_ci(df, confidence_level=0.95)
+        
+        # Check that CI columns were added
+        assert 'ci_lower' in result.columns
+        assert 'ci_upper' in result.columns
+        
+        # Check that CI bounds are reasonable
+        assert result['ci_lower'].iloc[0] < result['r_value'].iloc[0]
+        assert result['ci_upper'].iloc[0] > result['r_value'].iloc[0]
+        
+        # For r=0.5, CI should be roughly [0.23, 0.70] with n=50
+        assert 0.2 < result['ci_lower'].iloc[0] < 0.4
+        assert 0.6 < result['ci_upper'].iloc[0] < 0.8
+
+    def test_ci_with_small_sample(self):
+        """Test CI calculation with small sample size (wider interval)"""
+        df = pd.DataFrame({
+            'connection_id': ['C1'],
+            'r_value': [0.5],
+            'p_value': [0.01],
+            'n_samples': [10]
+        })
+        
+        result = calculate_correlation_ci(df, confidence_level=0.95)
+        
+        # CI should be wider for small n
+        ci_width = result['ci_upper'].iloc[0] - result['ci_lower'].iloc[0]
+        assert ci_width > 0.5  # Should be quite wide for n=10
+
+
+class TestLoadMusiciansData:
+    """Tests for loading musicians data"""
+
+    def test_filter_musicians(self, tmp_path):
+        """Test that only musicians are loaded"""
+        # Create temporary subjects file
+        subjects_file = tmp_path / "subjects_cleaned.csv"
+        subjects_df = pd.DataFrame({
+            'subject_id': ['S1', 'S2', 'S3', 'S4'],
+            'years_of_training': [0.5, 1.5, 2.5, 0.3],
+            'group': ['non_musician', 'musician', 'musician', 'non_musician']
+        })
+        subjects_df.to_csv(subjects_file, index=False)
+        
+        # Create empty connectivity directory
+        connectivity_dir = tmp_path / "connectivity_matrices"
+        connectivity_dir.mkdir()
+        
+        musicians_df, _ = load_musicians_connectivity_data(
+            str(subjects_file), str(connectivity_dir)
         )
         
-        # Assert correlation is close to zero
-        assert abs(r) < 0.3, f"Expected correlation near 0, got {r}"
-        assert p > 0.05, f"Expected p-value > 0.05 for no correlation, got {p}"
+        # Should have 2 musicians (years >= 1.0)
+        assert len(musicians_df) == 2
+        assert all(musicians_df['years_of_training'] >= 1.0)
 
-    @pytest.mark.skipif(not CORRELATION_MODULE_AVAILABLE, reason="Correlation module not yet implemented")
-    def test_spearman_correlation(self, sample_data):
-        """Test Spearman rank correlation calculation."""
-        rho, p = calculate_spearman_correlation(sample_data['variable_x'], sample_data['variable_y'])
+    def test_no_musicians_error(self, tmp_path):
+        """Test error when no musicians found"""
+        subjects_file = tmp_path / "subjects_cleaned.csv"
+        subjects_df = pd.DataFrame({
+            'subject_id': ['S1', 'S2'],
+            'years_of_training': [0.2, 0.5],
+            'group': ['non_musician', 'non_musician']
+        })
+        subjects_df.to_csv(subjects_file, index=False)
         
-        # Assert monotonic correlation exists
-        assert rho > 0.5, f"Expected positive Spearman rho > 0.5, got {rho}"
-        assert p < 0.05, f"Expected p-value < 0.05, got {p}"
+        connectivity_dir = tmp_path / "connectivity_matrices"
+        connectivity_dir.mkdir()
         
-        # Verify against scipy implementation
-        scipy_rho, scipy_p = scipy_stats.spearmanr(sample_data['variable_x'], sample_data['variable_y'])
-        assert np.isclose(rho, scipy_rho, atol=1e-6), f"Spearman rho mismatch: {rho} vs {scipy_rho}"
-        assert np.isclose(p, scipy_p, atol=1e-6), f"Spearman p-value mismatch: {p} vs {scipy_p}"
+        with pytest.raises(ValueError, match="No musicians found"):
+            load_musicians_connectivity_data(
+                str(subjects_file), str(connectivity_dir)
+            )
 
-    @pytest.mark.skipif(not CORRELATION_MODULE_AVAILABLE, reason="Correlation module not yet implemented")
-    def test_correlation_ci_calculation(self, sample_data):
-        """Test confidence interval calculation for correlation."""
-        r, p = calculate_pearson_correlation(sample_data['variable_x'], sample_data['variable_y'])
-        ci_lower, ci_upper = calculate_correlation_ci(r, len(sample_data))
-        
-        # CI should contain the true correlation (r)
-        assert ci_lower < r < ci_upper, f"CI [{ci_lower}, {ci_upper}] does not contain r={r}"
-        
-        # CI width should be reasonable for n=50
-        ci_width = ci_upper - ci_lower
-        assert 0.1 < ci_width < 0.8, f"CI width {ci_width} is outside expected range for n=50"
-
-    @pytest.mark.skipif(not CORRELATION_MODULE_AVAILABLE, reason="Correlation module not yet implemented")
-    def test_process_correlation_results(self, sample_data):
-        """Test the full pipeline of processing correlation results."""
-        # Simulate a connection matrix scenario
-        # In reality, this would iterate over connection pairs
-        connection_id = "ROI1-ROI2"
-        
-        results = process_correlation_results(
-            sample_data, 
-            'variable_x', 
-            'variable_y', 
-            connection_id
-        )
-        
-        assert isinstance(results, dict), "Results should be a dictionary"
-        assert 'connection_id' in results
-        assert 'r_value' in results
-        assert 'p_value' in results
-        assert 'ci_95_lower' in results
-        assert 'ci_95_upper' in results
-        
-        # Verify values match individual function calls
-        r, p = calculate_pearson_correlation(sample_data['variable_x'], sample_data['variable_y'])
-        assert np.isclose(results['r_value'], r, atol=1e-6)
-        assert np.isclose(results['p_value'], p, atol=1e-6)
-
-    @pytest.mark.skipif(not CORRELATION_MODULE_AVAILABLE, reason="Correlation module not yet implemented")
-    def test_correlation_with_nan_handling(self):
-        """Test that correlation functions handle NaN values correctly."""
-        x = np.array([1.0, 2.0, np.nan, 4.0, 5.0])
-        y = np.array([2.0, 4.0, 6.0, np.nan, 10.0])
-        
-        # Should raise error or handle NaNs gracefully
-        # The implementation should either drop NaNs or raise a clear error
-        try:
-            r, p = calculate_pearson_correlation(x, y)
-            # If it succeeds, it should be on the non-NaN pairs
-            assert not np.isnan(r), "Result should not be NaN"
-        except ValueError:
-            # Or it might raise a clear error about missing data
-            pass
-
-    @pytest.mark.skipif(not CORRELATION_MODULE_AVAILABLE, reason="Correlation module not yet implemented")
-    def test_correlation_edge_cases(self):
-        """Test correlation with edge cases (constant values, single value)."""
-        # Constant values (zero variance)
-        x_const = np.array([5.0, 5.0, 5.0, 5.0])
-        y_var = np.array([1.0, 2.0, 3.0, 4.0])
-        
-        # This should either return NaN or raise an error
-        try:
-            r, p = calculate_pearson_correlation(x_const, y_var)
-            # If it returns a value, it should be NaN for constant x
-            assert np.isnan(r) or np.isnan(p), "Correlation with constant variable should be undefined"
-        except (ValueError, ZeroDivisionError):
-            # Or it might raise an error
-            pass
-
-        # Single value
-        x_single = np.array([1.0])
-        y_single = np.array([2.0])
-        
-        try:
-            r, p = calculate_pearson_correlation(x_single, y_single)
-            assert np.isnan(r) or np.isnan(p), "Correlation with single value should be undefined"
-        except (ValueError, ZeroDivisionError):
-            pass
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    def test_missing_file_error(self, tmp_path):
+        """Test error when subjects file is missing"""
+        with pytest.raises(FileNotFoundError):
+            load_musicians_connectivity_data(
+                "nonexistent.csv", str(tmp_path)
+            )

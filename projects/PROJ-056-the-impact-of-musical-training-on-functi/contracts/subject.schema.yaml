@@ -1,6 +1,5 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Subject
-description: Schema for a single subject record in the musical training study.
+# Schema for subject data
+# Used by utils/schema_validator.py and data/models.py for validation
 type: object
 required:
   - subject_id
@@ -13,36 +12,35 @@ required:
 properties:
   subject_id:
     type: string
-    pattern: "^[A-Z0-9_-]+$"
-    description: Unique identifier for the subject.
+    pattern: "^SUBJ-[0-9]+$"
+    description: "Unique subject identifier"
   group:
     type: string
     enum:
       - musician
       - non_musician
-    description: Group assignment based on musical training.
+    description: "Group assignment based on training"
   years_of_training:
     type: number
     minimum: 0
-    description: Total years of formal musical training.
+    description: "Total years of musical training"
   age:
-    type: integer
-    minimum: 0
-    maximum: 120
-    description: Age of the subject in years.
+    type: number
+    minimum: 10
+    maximum: 25
+    description: "Age of the subject in years"
   sex:
     type: string
     enum:
       - M
       - F
-    description: Biological sex of the subject.
+    description: "Biological sex"
   motion_score:
     type: number
     minimum: 0
-    description: Framewise displacement or similar motion metric.
+    description: "Head motion score (e.g., FD)"
   ses_score:
     type: number
     minimum: 0
-    maximum: 100
-    description: Socioeconomic status score.
+    description: "Socioeconomic status score"
 additionalProperties: false

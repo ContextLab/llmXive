@@ -1,11 +1,11 @@
 T020:
   c: false
-  h: 941d90fc1d1557c38eb8ebde5a66b428b0f56e02e2518875430906e7735276b5
-  r: "The `results/power_analysis.json` file does not exist, and the provided `power_simulation.py`\
-    \ is truncated before any Monte\u2011Carlo loop, power calculation, Holm\u2011\
-    Bonferroni adjustment per iteration, or JSON output logic. The required output\
-    \ artifact is missing and the script does not demonstrably fulfill the full simulation\
-    \ requirements."
+  h: 56b30975f11f4ad943dd1fffbaef3ad57a8e8c3618f9d094c12f1783dd140dde
+  r: "The required output file `results/power_analysis.json` does not exist, so the\
+    \ simulation\u2019s results are not written as mandated. Additionally, the provided\
+    \ `power_simulation.py` is truncated and does not clearly show the 1,000\u2011\
+    iteration loop, Holm\u2011Bonferroni correction per iteration, or the JSON write\
+    \ step. These missing artifacts prevent the task from being considered complete."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -23,13 +23,11 @@ T042:
     \ task\u2019s core deliverables are therefore not present."
 T043:
   c: false
-  h: 1029057b0f66ae94f5d8a9d662e200cdefa737a427009a862f81c6b2b1650e78
-  r: "The `validate_success_criteria.py` file is present but its content is truncated\
-    \ and does not show the actual logic that loads `results/statistical_summary.json`,\
-    \ performs the explicit p\u2011value/effect\u2011size/direction checks, and writes\
-    \ a validation report. Moreover, the required `results/statistical_summary.json`\
-    \ file is absent, so the script cannot operate as specified. The task therefore\
-    \ remains unfinished."
+  h: 28384fa4ff58d10d9e69a5df5cbd1c4510b5354a43a0442ed9e0c1029db392f8
+  r: The validation script file exists, but the required `results/statistical_summary.json`
+    is missing, so the script cannot actually perform the explicit comparisons or
+    generate a report as specified. The missing results file must be provided (or
+    generated) for the task to be considered complete.
 T044:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -45,3 +43,25 @@ T045:
     \ verified because the required artifact (the cleaned/refactored code) is missing.\
     \ The implementer must supply the updated source files (or a clear before\u2011\
     after comparison) showing the readability improvements."
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no code, data, or performance results related to \u201C\
+    Performance optimization for bootstrap loops (vectorization)\u201D; the only material\
+    \ present describes a digital decluttering study and contains no artifact that\
+    \ implements or benchmarks a vectorized bootstrap loop. Consequently, the required\
+    \ output is missing."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test files or code were provided showing additional unit tests for edge cases\
+    \ such as participant dropouts or missing data in the `tests/unit/` directory,\
+    \ so the required artifact is missing. The implementer\u2019s claim cannot be\
+    \ verified without concrete test artifacts."
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run (e.g., log file, terminal output,\
+    \ or generated reproducibility report) is provided; the implementer did not supply\
+    \ any artifact demonstrating that the end\u2011to\u2011end reproducibility check\
+    \ was performed."

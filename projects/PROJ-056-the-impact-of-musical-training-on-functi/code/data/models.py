@@ -1,89 +1,59 @@
+"""
+Data models for the project.
+Implements T007: Create base data models (Subject, ConnectivityMatrix).
+"""
 from __future__ import annotations
-
 import re
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Union
-
 import numpy as np
 
-from utils.schema_validator import load_schema, validate_record
+logger = logging.getLogger(__name__)
 
 class ValidationError(Exception):
-    """Custom exception for data validation failures."""
+    """Raised when data validation fails."""
     pass
 
 @dataclass
 class Subject:
     """
-    Represents a subject in the study with demographic and training attributes.
-    
-    Attributes:
-        subject_id: Unique identifier for the subject.
-        group: Group assignment ('musician' or 'non_musician').
-        years_of_training: Years of musical training (0 for non-musicians).
-        age: Age in years.
-        sex: Biological sex ('M' or 'F').
-        motion_score: Average motion score from fMRI preprocessing.
-        ses_score: Socioeconomic status score.
+    Represents a single subject in the study.
+    Validates against contracts/subject.schema.yaml logic.
     """
     subject_id: str
-    group: str
+    group: str  # 'musician' or 'non_musician'
     years_of_training: float
     age: float
-    sex: str
+    sex: str  # 'M' or 'F'
     motion_score: float
     ses_score: float
 
     def __post_init__(self):
-        """Validate the subject instance against the schema."""
-        self._validate()
-
-    def _validate(self) -> None:
-        """
-        Validates the instance attributes against the contracts/subject.schema.yaml.
-        Raises ValidationError if validation fails.
-        """
-        # Construct a dictionary representation for validation
-        record = {
-            'subject_id': self.subject_id,
-            'group': self.group,
-            'years_of_training': self.years_of_training,
-            'age': self.age,
-            'sex': self.sex,
-            'motion_score': self.motion_score,
-            'ses_score': self.ses_score
-        }
-
-        try:
-            # Load the schema from the contracts directory
-            schema = load_schema('contracts/subject.schema.yaml')
-            # Validate the record
-            is_valid, errors = validate_record(schema, record)
-            
-            if not is_valid:
-                error_details = "; ".join(errors) if isinstance(errors, list) else str(errors)
-                raise ValidationError(f"Subject validation failed: {error_details}")
-            
-            # Additional runtime checks that might not be covered by schema or for specific business logic
-            if self.group not in ('musician', 'non_musician'):
-                raise ValidationError(f"Invalid group '{self.group}'. Must be 'musician' or 'non_musician'.")
-            
-            if self.sex not in ('M', 'F'):
-                raise ValidationError(f"Invalid sex '{self.sex}'. Must be 'M' or 'F'.")
-                
-            if self.years_of_training < 0:
-                raise ValidationError(f"Years of training cannot be negative.")
-                
-            if self.age <= 0:
-                raise ValidationError(f"Age must be positive.")
-
-        except FileNotFoundError:
-            # If schema is missing, we might skip validation or raise a specific warning
-            # For this implementation, we assume the schema exists as per T004
-            raise ValidationError("Validation schema 'contracts/subject.schema.yaml' not found.")
+        """Validate the subject data."""
+        if not self.subject_id:
+            raise ValidationError("subject_id cannot be empty")
+        
+        if self.group not in ['musician', 'non_musician']:
+            raise ValidationError(f"Invalid group: {self.group}. Must be 'musician' or 'non_musician'.")
+        
+        if self.years_of_training < 0:
+            raise ValidationError("years_of_training cannot be negative")
+        
+        if self.age < 0 or self.age > 120:
+            raise ValidationError(f"Invalid age: {self.age}")
+        
+        if self.sex not in ['M', 'F']:
+            raise ValidationError(f"Invalid sex: {self.sex}. Must be 'M' or 'F'.")
+        
+        if self.motion_score < 0:
+            raise ValidationError("motion_score cannot be negative")
+        
+        if self.ses_score < 0:
+            raise ValidationError("ses_score cannot be negative")
 
     def to_dict(self) -> Dict[str, Any]:
-        """Converts the Subject instance to a dictionary."""
+        """Convert subject to dictionary."""
         return {
             'subject_id': self.subject_id,
             'group': self.group,
@@ -93,113 +63,98 @@ class Subject:
             'motion_score': self.motion_score,
             'ses_score': self.ses_score
         }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> Subject:
+        """Create a Subject from a dictionary."""
+        return cls(
+            subject_id=data['subject_id'],
+            group=data['group'],
+            years_of_training=data['years_of_training'],
+            age=data['age'],
+            sex=data['sex'],
+            motion_score=data['motion_score'],
+            ses_score=data['ses_score']
+        )
 
 @dataclass
 class ConnectivityMatrix:
     """
     Represents a functional connectivity matrix for a subject.
-    
-    Attributes:
-        subject_id: Unique identifier linking to the Subject.
-        matrix: 2D numpy array representing the connectivity matrix (Pearson correlations).
-        roi_labels: List of ROI labels corresponding to the matrix dimensions.
-        atlas_name: Name of the atlas used (e.g., 'AAL', 'Schaefer').
-        transformed: Boolean indicating if Fisher Z-transform has been applied.
     """
     subject_id: str
-    matrix: np.ndarray
-    roi_labels: List[str]
-    atlas_name: str
-    transformed: bool = False
+    matrix: np.ndarray  # 2D array of correlation values
+    atlas: str = "Schaefer"  # Default atlas
+    n_rois: int = field(init=False)
 
     def __post_init__(self):
-        """Validate the connectivity matrix instance."""
-        self._validate()
-
-    def _validate(self) -> None:
-        """Validates the matrix structure and consistency."""
+        """Validate the connectivity matrix."""
         if not isinstance(self.matrix, np.ndarray):
-            raise ValidationError("Matrix must be a numpy array.")
+            raise ValidationError("matrix must be a numpy array")
         
         if self.matrix.ndim != 2:
-            raise ValidationError(f"Matrix must be 2D, got {self.matrix.ndim}D.")
+            raise ValidationError("matrix must be 2D")
         
         if self.matrix.shape[0] != self.matrix.shape[1]:
-            raise ValidationError(f"Matrix must be square, got shape {self.matrix.shape}.")
+            raise ValidationError("matrix must be square")
         
-        if len(self.roi_labels) != self.matrix.shape[0]:
-            raise ValidationError(f"ROI labels count ({len(self.roi_labels)}) must match matrix dimension ({self.matrix.shape[0]}).")
+        # Validate correlation values are between -1 and 1
+        if np.any(self.matrix < -1.0) or np.any(self.matrix > 1.0):
+            logger.warning(f"Matrix for {self.subject_id} contains values outside [-1, 1]. Clipping.")
+            self.matrix = np.clip(self.matrix, -1.0, 1.0)
         
-        if not isinstance(self.subject_id, str) or not self.subject_id:
-            raise ValidationError("subject_id must be a non-empty string.")
+        self.n_rois = self.matrix.shape[0]
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Converts the ConnectivityMatrix to a dictionary.
-        Note: The matrix is converted to a list of lists for JSON serialization if needed.
-        """
+        """Convert to dictionary (matrix as list of lists for JSON compatibility)."""
         return {
             'subject_id': self.subject_id,
-            'matrix': self.matrix.tolist(),
-            'roi_labels': self.roi_labels,
-            'atlas_name': self.atlas_name,
-            'transformed': self.transformed
+            'atlas': self.atlas,
+            'matrix': self.matrix.tolist()
         }
 
-def create_subject_from_dict(data: Dict[str, Any]) -> Subject:
-    """
-    Factory function to create a Subject from a dictionary.
-    Validates the input data against the Subject schema requirements.
-    """
-    required_keys = ['subject_id', 'group', 'years_of_training', 'age', 'sex', 'motion_score', 'ses_score']
-    missing_keys = [k for k in required_keys if k not in data]
-    
-    if missing_keys:
-        raise ValidationError(f"Missing required keys for Subject: {missing_keys}")
-    
-    # Ensure types are correct (basic coercion)
-    try:
-        return Subject(
-            subject_id=str(data['subject_id']),
-            group=str(data['group']),
-            years_of_training=float(data['years_of_training']),
-            age=float(data['age']),
-            sex=str(data['sex']),
-            motion_score=float(data['motion_score']),
-            ses_score=float(data['ses_score'])
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> ConnectivityMatrix:
+        """Create from dictionary."""
+        matrix = np.array(data['matrix'])
+        return cls(
+            subject_id=data['subject_id'],
+            matrix=matrix,
+            atlas=data.get('atlas', 'Schaefer')
         )
-    except (ValueError, TypeError) as e:
-        raise ValidationError(f"Type coercion failed for Subject: {e}")
+
+def create_subject_from_dict(data: Dict[str, Any]) -> Subject:
+    """Helper to create a Subject from a dict, handling validation."""
+    return Subject.from_dict(data)
 
 def create_subjects_from_dataframe(df: pd.DataFrame) -> List[Subject]:
     """
-    Factory function to create a list of Subject instances from a pandas DataFrame.
+    Create a list of Subject objects from a pandas DataFrame.
     
     Args:
-        df: DataFrame with columns matching Subject attributes.
-        
+        df: DataFrame with columns matching Subject fields.
+    
     Returns:
-        List of validated Subject objects.
-        
+        List of Subject instances.
+    
     Raises:
         ValidationError: If any row fails validation.
     """
     import pandas as pd
-    
-    required_columns = ['subject_id', 'group', 'years_of_training', 'age', 'sex', 'motion_score', 'ses_score']
-    missing_columns = [c for c in required_columns if c not in df.columns]
-    
-    if missing_columns:
-        raise ValidationError(f"DataFrame missing required columns: {missing_columns}")
-    
     subjects = []
     for idx, row in df.iterrows():
         try:
-            subject_data = row.to_dict()
-            # Handle potential NaN values if necessary, though validation might catch them
-            subject = create_subject_from_dict(subject_data)
-            subjects.append(subject)
+            sub = Subject(
+                subject_id=str(row['subject_id']),
+                group=row['group'],
+                years_of_training=float(row['years_of_training']),
+                age=float(row['age']),
+                sex=row['sex'],
+                motion_score=float(row['motion_score']),
+                ses_score=float(row['ses_score'])
+            )
+            subjects.append(sub)
         except ValidationError as e:
-            raise ValidationError(f"Validation failed for row {idx}: {e}")
-    
+            logger.error(f"Validation error at row {idx}: {e}")
+            raise
     return subjects

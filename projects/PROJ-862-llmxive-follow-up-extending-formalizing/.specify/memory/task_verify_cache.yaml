@@ -46,23 +46,14 @@ T022:
     showing that `code/main.py` logs progress and memory usage as specified or that
     the produced CSV conforms to the schema. These missing artifacts must be added
     and demonstrated for the task to be considered complete.
-T026:
-  c: false
-  h: c42c57e2919d75cc0890c33db8f2a4b54a287d2a40a9b67957d96c14d30395f9
-  r: "The repository lacks a `requirements.txt` file, so the required explicit pinning\
-    \ of the `sentence-transformers` version is not present. Without this file the\
-    \ task\u2019s reproducibility requirement is unmet, regardless of the partial\
-    \ implementation of `check_input_drift` and the existence of `validity_log.csv`.\
-    \ The next implementer must add a `requirements.txt` that pins the `sentence-transformers`\
-    \ library (e.g., `sentence-transformers==2.2.2`)."
 T027:
   c: false
-  h: 688e6b4d854e0307f1d0a2ca9a0218c1aec3ba5062492fe7d9d544a38b455aed
-  r: "The repository contains `code/validity_check.py`, but the provided excerpt never\
-    \ shows a `check_output_validity` implementation (it stops at `check_input_drift`).\
-    \ Moreover, the required output files `data/processed/filtered_pairs_output_validity.csv`\
-    \ and `data/processed/failed_output_validity_pairs.csv` are absent. Hence the\
-    \ task\u2019s functional and artifact requirements are not met."
+  h: d95d17a7a1e901d59a0a5d7e2acdd57b0dca599568dcc7e6f934e97c2f594dcc
+  r: "The provided `code/validity_check.py` does not contain an implementation of\
+    \ `check_output_validity(model_output, expected_answer)` (the file is truncated\
+    \ before such a function appears) and the required CSV files `data/processed/filtered_pairs_output_validity.csv`\
+    \ and `data/processed/failed_output_validity_pairs.csv` are absent. The task\u2019\
+    s core functionality and output artifacts are therefore missing."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -78,6 +69,28 @@ T035:
     of the task description and feature spec, with no actual artifact to inspect.
     Without the cleaned/refactored script, we cannot confirm that the required code
     cleanup was performed.
+T038:
+  c: false
+  h: 94d85b3a84e08407bca864c86f9a4220ff0388a95f7bdd0598c3f28b86043fb6
+  r: "The repository contains a `code/plot_sensitivity.py` file, but the required\
+    \ output document `docs/sensitivity_report.md` is absent, and the dependent data\
+    \ file `data/processed/sensitivity_report.json` does not exist. Without the JSON\
+    \ input and the generated markdown report, the task\u2019s deliverables are incomplete."
+T039:
+  c: false
+  h: a2dac48f8e193da1f20349721f759b210672b79da627296cc075f0152f6b5127
+  r: "The required output file `data/processed/statistical_results.json` is absent,\
+    \ so the pipeline cannot have saved the specified keys. Additionally, without\
+    \ this file we cannot confirm that the Holm\u2011Bonferroni correction and sensitivity\
+    \ report were actually performed. The next implementer must generate the JSON\
+    \ results with the required fields and ensure the main script writes it to the\
+    \ correct location."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a revised `main.py` was provided, nor any documentation or code
+    showing that the `run_sweep` function is now fully utilized. The required artifact
+    (the cleaned and refactored script with proper usage and docstrings) is missing.
 T047:
   c: false
   h: 072b3482e8810ed244013d171bf6f13a557f57954ff5ee13b47cd60cd8b94599
