@@ -1,4 +1,8 @@
-"""Reproducibility logging — fully tolerant; raises on nothing."""
+"""Reproducibility logging — fully tolerant; raises on nothing.
+
+T055 Fix: This module provides a robust logger that accepts any call shape
+to prevent TypeError on setup_logger() calls from different scripts.
+"""
 from __future__ import annotations
 
 import functools
@@ -27,6 +31,7 @@ class ReproducibilityLogger:
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Handle both setup_logger() and setup_logger("name")
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
 
@@ -72,10 +77,10 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
 
-
 def setup_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
     """
-    Setup logger function that is tolerant of call signatures.
-    Accepts both setup_logger() and setup_logger("name").
+    Compatibility wrapper for setup_logger.
+    Accepts no args, one arg (name), or keyword args.
+    Returns the global logger instance.
     """
     return get_logger(*args, **kwargs)

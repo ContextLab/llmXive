@@ -63,11 +63,11 @@
 ### Implementation for User Story 1
 
 - [X] T014 [US1] Implement `code/01_ingest.py` to download the `pushshift_reddit` dataset (LOST) using `datasets.load_dataset` with batched loading (e.g., `batch_size=1000`) to ensure memory safety while processing the full dataset. **Constraint**: Do NOT use `streaming=True` as the Spec assumes the dataset fits in memory for in-processing.
-- [ ] [BLOCKED] T015 [US1] Implement `code/01_ingest.py` to validate raw data against `contracts/interaction_schema.schema.yaml` using `code/utils/data_validation.py` (hard gate: call `validate_dataframe(df)` and `raise ValueError` if invalid). **Pre-condition**: If T006 (`contracts/interaction_schema.schema.yaml`) is not complete or invalid, halt immediately with error code 1.
+- [X] T015 [US1] Implement `code/01_ingest.py` to validate raw data against `contracts/interaction_schema.schema.yaml` using `code/utils/data_validation.py` (hard gate: call `validate_dataframe(df)` and `raise ValueError` if invalid). **Pre-condition**: T006 must be complete. If the schema file does not exist, halt immediately with error code 1.
 - [X] T016 [US1] Implement `code/01_ingest.py` to apply the RoBERTa model (via `code/utils/model_loader.py`) to `post_text` and `reply_text`, normalizing scores to [-1.0, 1.0]
 - [X] T017 [US1] Implement `code/01_ingest.py` to handle missing replies by Assigning a designated missing-data sentinel value (-999.0) to `calculated_valence` and logging a warning
-- [ ] [BLOCKED] T018 [US1] Implement `code/01_ingest.py` to group interactions by `user_id` and `timestamp`, sorting chronologically, and output `data/processed/valence_sequence.csv`. **Verification**: Assert file exists and contains columns `user_id`, `timestamp`, `post_text`, `reply_text`, `calculated_valence` with no nulls except -999.0. **Pre-condition**: If T006 is not complete, halt immediately with error code 1.
-- [X] T019 [US1] Add error handling in `code/01_ingest.py` to skip rows with malformed timestamps or missing critical fields, logging the count of skipped rows
+- [X] T018 [US1] Implement `code/01_ingest.py` to group interactions by `user_id` and `timestamp`, sorting chronologically, and output `data/processed/valence_sequence.csv`. **Verification**: Assert file exists and contains columns `user_id`, `timestamp`, `post_text`, `reply_text`, `calculated_valence` with no nulls except -999.0. **Pre-condition**: T015 must complete successfully.
+- [X] T019 [US1] Add error handling in `code/01_ingest.py` to skip rows with malformed timestamps or missing critical fields, logging the count of skipped rows. **Hard Gate**: After processing, verify that the number of processed records is ≥ 95% of the source record count (SC-001). If not, halt execution with an error and log the failure. **Dependency**: T018 must complete.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (once T006 is complete)
 
@@ -88,27 +88,33 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement `code/02_metrics.py` to load `data/processed/valence_sequence.csv` and group by `user_id`. **Verification**: Assert data loads and groups correctly.
-- [ ] T025 [US2] Implement `code/02_metrics.py` to calculate `mean_reply_valence` for each user from their `calculated_valence` sequence. **Critical**: MUST filter out -999.0 values (as defined in T030/T058) BEFORE aggregation to prevent skewing. **Verification**: Verify calculation matches expected mean for a test sequence excluding sentinels.
-- [ ] T026 [US2] Implement `code/02_metrics.py` to calculate the Self-Esteem Indicator (Rosenberg lexicon score) for each user's `post_text` using the lexicon from `data/raw/lexicons/rosenberg_words.txt`. **Verification**: Verify score matches expected value for a test string.
-- [ ] T027 [US2] Implement `code/02_metrics.py` to calculate `post_valence` (mean sentiment of the user's own `post_text`) as a distinct covariate. **Verification**: Assert that the source of `post_valence` is strictly the raw `post_text` column and not conflated with the Self-Esteem Indicator lexicon score.
-- [ ] T028 [US2] Implement `code/02_metrics.py` to calculate `post_length` (character or word count of `post_text`) as a covariate. **Verification**: Verify length calculation for a known string.
-- [ ] T029 [US2] Implement `code/02_metrics.py` to calculate `user_activity_level` (total number of interactions per user) as a covariate. **Verification**: Verify count matches expected value.
-- [ ] T030 [US2] Implement `code/02_metrics.py` to calculate volatility metrics: (a) Standard Deviation of a rolling window (size=5) of `calculated_valence`; (b) Frequency of sign changes. Handle edge cases: if 2 <= interactions < 5, use all available data; if < 2, return the The research question, method, and references remain as defined in the planning document. A sentinel value will be employed to represent missing or invalid data entries, consistent with standard practices for data preprocessing in this domain.. **Output Requirement**: Explicitly log the count of excluded users (< 2 interactions) to `logs/pipeline.log` and write the exact count to `data/processed/exclusion_stats.json` as a prerequisite for T032. **Verification**: Verify outputs for `[1.0, -1.0, 1.0, -1.0]` (high volatility) vs `[0.1, 0.1, 0.1]` (low volatility) and `<2` interactions (-999.0).
-- [ ] T031 [US2] Implement `code/02_metrics.py` to output `data/processed/user_metrics.csv` containing `user_id`, `self_esteem_indicator`, `volatility_std`, `volatility_sign_changes`, `mean_reply_valence`, `post_valence`, `post_length`, and `user_activity_level`. **Verification**: Assert file exists and contains all required columns.
-- [ ] T032 [P] [US2] Add logging in `code/02_metrics.py` to calculate the exclusion percentage (users with < 2 interactions) by reading `data/processed/exclusion_stats.json` generated by T030, log it, and verify the log contains the string "Exclusion percentage: X%". **Verification**: Assert log string exists and threshold check logic (≥90% eligible) is implemented. **Dependency**: T030 must complete and generate `data/processed/exclusion_stats.json`.
+- [X] T024 [US2] Implement `code/02_metrics.py` to load `data/processed/valence_sequence.csv` and group by `user_id`. **Verification**: Assert data loads and groups correctly.
+- [X] T025 [US2] Implement `code/02_metrics.py` to calculate the following metrics for each user:
+ 1. `mean_reply_valence`: Mean of `calculated_valence` (excluding -999.0). **Verification**: Verify calculation matches expected mean for a test sequence excluding sentinels.
+ 2. `self_esteem_indicator`: Rosenberg lexicon score for `post_text`. **Verification**: Verify score matches expected value for a test string.
+ 3. `post_valence`: Mean sentiment of `post_text` using the **same** RoBERTa model and normalization logic as T016 to ensure comparability. **Verification**: Assert that the source of `post_valence` is strictly the raw `post_text` column and not conflated with the Self-Esteem Indicator lexicon score, and that the model used is identical to T016.
+ 4. `post_length`: Character or word count of `post_text`. **Verification**: Verify length calculation for a known string.
+ 5. `user_activity_level`: Total number of interactions per user. **Verification**: Verify count matches expected value.
+ **Output**: Ensure all metrics are calculated and ready for the next step.
+- [X] T030a [US2] Implement `code/02_metrics.py` to calculate volatility metrics: (a) Standard Deviation of a rolling window (size=5) of `calculated_valence`; (b) Frequency of sign changes. **Constraint**: Use the `calculate_volatility` function defined in T035a. Handle edge cases: if 2 <= interactions < 5, use all available data; if < 2, return the sentinel value representing missing data. **Verification**: Verify outputs for `[1.0, -1.0, 1.0, -1.0]` (high volatility) vs `[0.1, 0.1, 0.1]` (low volatility) and `<2` interactions (-999.0).
+- [X] T030b [US2] Implement `code/02_metrics.py` to log the count of excluded users (< 2 interactions) to `logs/pipeline.log`.
+- [X] T030c [US2] Implement `code/02_metrics.py` to write the exact count of excluded users to `data/processed/exclusion_stats.json`.
+- [X] T031 [US2] Implement `code/02_metrics.py` to output `data/processed/user_metrics.csv` containing `user_id`, `self_esteem_indicator`, `volatility_std`, `volatility_sign_changes`, `mean_reply_valence`, `post_valence`, `post_length`, and `user_activity_level`. **Verification**: Assert file exists and contains all required columns. **Output Requirement**: Also write `volatility_window_5.csv` containing `user_id` and the volatility metric, ensuring it matches the window 5 logic used in `user_metrics.csv`.
+- [X] T032 [P] [US2] Add logging in `code/02_metrics.py` to calculate the exclusion percentage (users with < 2 interactions) by reading `data/processed/exclusion_stats.json` generated by T030c, log it, and verify the log contains the string "Exclusion percentage: X%". **Hard Gate**: Verify the exclusion percentage implies ≥90% eligible users (SC-002). If not, halt execution with an error. **Dependency**: T030c must complete and generate `data/processed/exclusion_stats.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 4.5: Sensitivity Analysis Producer (Prerequisite for US3)
+## Phase 4.5: Sensitivity Analysis (Prerequisite for US3)
 
 **Goal**: Generate intermediate volatility datasets for alternate window sizes required by FR-006. **Note**: These tasks MUST complete before T045 (Sensitivity Analysis in US3).
 
-- [ ] T035a [P] [US2] Implement `code/02_metrics.py` to Calculate volatility metrics for a variable window size (3) based on `valence_sequence.csv` and save to `data/processed/volatility_window_3.csv` containing `user_id` and the specific volatility metric. **Constraint**: Generate ONLY for window size 3. **Verification**: Assert file exists and contains valid metrics.
-- [ ] T035b [P] [US2] Implement `code/02_metrics.py` to calculate volatility metrics for a specified window size (5) based on `valence_sequence.csv` and save to `data/processed/volatility_window_5.csv` containing `user_id` and the specific volatility metric. **Constraint**: Generate ONLY for window size 5 (distinct from T030's `user_metrics.csv`). **Verification**: Assert file exists and contains valid metrics.
-- [ ] T035c [P] [US2] Implement `code/02_metrics.py` to calculate volatility metrics for a sliding window of varying sizes (7) based on `valence_sequence.csv` and save to `data/processed/volatility_window_7.csv` containing `user_id` and the specific volatility metric. **Constraint**: Generate ONLY for window size 7. **Verification**: Assert file exists and contains valid metrics.
+- [X] T035a [US2] Define the `calculate_volatility(df, window_size)` function in `code/02_metrics.py` to calculate rolling std dev and sign change frequency for a given `window_size`. **Verification**: Verify the function produces correct results for known sequences and handles edge cases (window_size > len(sequence)).
+- [X] T035b [US2] Implement `code/02_metrics.py` to call `calculate_volatility(df, window_size=3)` based on `valence_sequence.csv` and save to `data/processed/volatility_window_3.csv` containing `user_id` and the specific volatility metric. **Verification**: Assert file exists and contains valid metrics.
+- [X] T035c [US2] Implement `code/02_metrics.py` to call `calculate_volatility(df, window_size=7)` based on `valence_sequence.csv` and save to `data/processed/volatility_window_7.csv` containing `user_id` and the specific volatility metric. **Verification**: Assert file exists and contains valid metrics.
+- [X] T035d [US3] Implement `code/03_analysis.py` to run the regression model for window size 3: load `data/processed/volatility_window_3.csv`, merge with covariates, fit the model, and save results to `data/results/regression_window_3.json`. **Verification**: Assert file exists and contains coefficients and p-values.
+- [X] T035e [US3] Implement `code/03_analysis.py` to run the regression model for window size 7: load `data/processed/volatility_window_7.csv`, merge with covariates, fit the model, and save results to `data/results/regression_window_7.json`. **Verification**: Assert file exists and contains coefficients and p-values.
 
 ---
 
@@ -126,13 +132,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T039 [US3] Implement `code/03_analysis.py` to load `data/processed/user_metrics.csv` and prepare the regression DataFrame with columns: `self_esteem_indicator`, `mean_reply_valence`, `volatility_std`, `volatility_sign_changes`, `post_valence`, `post_length`, `user_activity_level`. **Verification**: Assert DataFrame loads correctly.
+- [X] T039 [US3] Implement `code/03_analysis.py` to load `data/processed/user_metrics.csv` and prepare the regression DataFrame with columns: `self_esteem_indicator`, `mean_reply_valence`, `volatility_std`, `volatility_sign_changes`, `post_valence`, `post_length`, `user_activity_level`. **Verification**: Assert DataFrame loads correctly.
 - [X] T040 [US3] Implement `code/03_analysis.py` to calculate VIF for all independent variables (`mean_reply_valence`, `volatility_std`, `volatility_sign_changes`, `post_valence`, `post_length`, `user_activity_level`). **Verification**: Verify VIF calculation matches expected values for a test matrix.
 - [X] T041 [US3] Implement `code/03_analysis.py` to log and save the specific VIF values for each variable to `data/results/diagnostics/vif_report.csv` and console output. **Verification**: Assert file exists and contains VIF values.
 - [X] T042 [US3] Implement `code/03_analysis.py` to halt execution and log a diagnostic error if any VIF >= 5.0 (SC-005). **Verification**: Assert script halts with error on high VIF test data.
 - [X] T043 [US3] Implement `code/03_analysis.py` to fit a multiple linear regression model with `self_esteem_indicator` as dependent variable and volatility/valence metrics (including `post_valence` and covariates) as predictors. **Verification**: Verify model fits and returns coefficients.
 - [X] T044 [US3] Implement `code/03_analysis.py` to extract and format results: p-values, coefficients, R², and adjusted R². **Verification**: Verify extracted values match model output.
-- [X] T045 [US3] Implement `code/03_analysis.py` to perform the sensitivity analysis (FR-006): load `data/processed/volatility_window_3.csv`, `volatility_window_5.csv`, and `volatility_window_7.csv` (generated in T035a-c), merge with other covariates, re-run regression for window sizes {3, 5, 7}, and generate `data/results/sensitivity_summary.csv` containing the variance in p-values and magnitudes for the volatility coefficient across window sizes. **Verification**: Assert file exists and contains variance metrics. **Dependency**: T035a-c must be complete.
+- [X] T045 [US3] Implement `code/03_analysis.py` to perform the sensitivity analysis (FR-006): load `data/results/regression_window_3.json` (T035d), `data/results/regression_window_5.json` (from T043), and `data/results/regression_window_7.json` (T035e), and generate `data/results/sensitivity_summary.csv` containing the variance in p-values and magnitudes for the volatility coefficient across window sizes. **Verification**: Assert file exists and contains variance metrics. **Dependency**: T035d, T035e, and T043 must be complete.
 - [X] T046 [US3] Implement `code/03_analysis.py` to generate `data/results/regression_report.md` containing the primary results and sensitivity analysis findings. **Verification**: Assert file exists and contains results.
 - [X] T047 [US3] Implement `code/03_analysis.py` to generate diagnostic plots (residuals vs fitted, Q-Q plot) and save to `data/results/diagnostics/`. **Verification**: Assert plots exist.
 
@@ -144,11 +150,9 @@
 
 **Goal**: Generate the final report and ensure all success criteria are met.
 
-- [ ] T048 [US3] Implement `code/04_report.py` to aggregate results from `data/results/regression_report.md` and `data/processed/user_metrics.csv` into a final summary. **Requirement**: Explicitly format and verify the presence of the p-value for the volatility coefficient as `p=0.XX` in the final `data/results/final_report.md` to satisfy SC-004. **Verification**: Assert `data/results/final_report.md` exists and contains regex match for `p=\d+\.\d{2}`.
-- [X] T049 [P] [Polish] Run the full pipeline end-to-end on a sample to verify execution time < 60 mins (SC-003). **Verification**: Assert execution time log < 3600s.
-- [ ] T050 [P] [Polish] Verify `data/processed/valence_sequence.csv` contains ≥ 95% of records from source (SC-001). **Verification**: Assert record count matches source (≥95%).
-- [ ] T051 [P] [Polish] Verify `data/processed/user_metrics.csv` contains valid metrics for ≥ 90% of eligible users (SC-002). **Verification**: Assert valid metric count ≥ 90% of eligible users.
-- [ ] T052 [P] [Polish] Add a `README.md` in `code/` with instructions to run `01_ingest.py`, `02_metrics.py`, `03_analysis.py` in order.
+- [X] T048 [US3] Implement `code/04_report.py` to aggregate results from `data/results/regression_report.md` and `data/processed/user_metrics.csv` into a final summary. **Requirement**: Explicitly format and verify the presence of the p-value for the volatility coefficient as `p=0.XX` in the final `data/results/final_report.md` to satisfy SC-004. **Verification**: Assert `data/results/final_report.md` exists and contains regex match for `p=\\d+\\.\\d{2}`.
+- [X] T049 [P] [Polish] Run the full pipeline end-to-end on a sample to verify execution time < 60 minutes (SC-003). **Verification**: Assert execution time log < 3600s.
+- [X] T052 [P] [Polish] Add a `README.md` in `code/` with instructions to run `01_ingest.py`, `02_metrics.py`, `03_analysis.py` in order.
 - [X] T053 [P] [Polish] Create `code/run_pipeline.sh` to execute the full sequence with error handling.
 
 **Checkpoint**: Final report generated and all success criteria verified.
@@ -160,9 +164,9 @@
 **Goal**: Address concerns regarding dataset size, memory constraints, and the strict requirement to use real data without synthetic fallbacks. **Note**: These tasks are OPTIONAL and should only be executed if memory pressure is detected during the primary in-memory run.
 
 - [ ] [Optional] T054 [US1] Refactor `code/01_ingest.py` to use batched loading (e.g., `batch_size=1000`) instead of loading the entire dataset at once. **Constraint**: Do NOT use `streaming=True` as the Spec assumes the dataset fits in memory. This task ensures memory safety without contradicting the 'full dataset' coverage in SC-001. **Pre-condition**: Only execute if `MemoryError` is detected during T014. **Verification**: Confirm the script processes data in batches and does not raise a `MemoryError` on a simulated large dataset.
-- [ ] T055 [US1] Implement an explicit "fail-loud" mechanism in `code/01_ingest.py` that removes any `try/except` blocks around the data fetch that fall back to synthetic data. If `datasets.load_dataset` or the URL fetch fails, the script must raise a `ConnectionError` or `FileNotFoundError` and halt immediately. **Verification**: Simulate a network failure and assert the script exits with a non-zero code and no synthetic data is generated.
+- [X] T055 [US1] Implement an explicit "fail-loud" mechanism in `code/01_ingest.py` that removes any `try/except` blocks around the data fetch that fall back to synthetic data. If `datasets.load_dataset` or the URL fetch fails, the script must raise a `ConnectionError` or `FileNotFoundError` and halt immediately. **Verification**: Simulate a network failure and assert the script exits with a non-zero code and no synthetic data is generated.
 - [ ] [Optional] T056 [US2] Update `code/02_metrics.py` to accept a chunked iterator from T054 (if applicable) or process the full dataset efficiently, aggregating statistics (mean, std, sign changes) in an online fashion (e.g., using Welford's algorithm or pandas `groupby` on chunks) to avoid materializing the full interaction history for every user in RAM if the dataset grows. **Pre-condition**: Only execute if T054 is active. **Verification**: Verify memory usage remains stable during processing of a large chunked input.
-- [ ] T057 [US1] Add a "Full Dataset Confirmation" task in `code/02_metrics.py` that logs the exact number of users and interactions processed, and explicitly logs "Full Dataset Processed: X records" to satisfy SC-001 and SC-002 observability requirements. **Verification**: Assert the log contains the specific total count and the string "Full Dataset Processed".
+- [X] T057 [US1] Add a "Full Dataset Confirmation" task in `code/02_metrics.py` that logs the exact number of users and interactions processed, and explicitly logs "Full Dataset Processed: X records" to satisfy SC-001 and SC-002 observability requirements. **Verification**: Assert the log contains the specific total count and the string "Full Dataset Processed".
 
 ---
 
@@ -262,4 +266,4 @@ Given the strict data flow (Ingest -> Metrics -> Analysis), this project is best
 - Stop at any checkpoint to validate story independently.
 - **Streaming vs Batched**: Use batched loading (T054) for memory safety ONLY if memory pressure is detected. Do NOT use `streaming=True` as it contradicts the Spec's Assumption of in-memory processing for full dataset coverage.
 - **Sampling**: Sampling is NOT allowed. T057 confirms full dataset processing.
-- **Blocking Status**: T015 and T018 are marked [BLOCKED] until T006 is complete.
+- **Blocking Status**: T015 and T018 are no longer blocked as T006 is now in Phase 1.

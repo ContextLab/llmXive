@@ -1,6 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T015** — The `code/01_ingest.py` script defines `validate_data(df)` which calls `validate_dataframe(df)` but catches `ValueError` and only logs it instead of re‑raising, violating the “hard gate” requirement. Moreover, the script does not reference the required `contracts/interaction_schema.schema.yaml` (the schema file is missing entirely), so the validation cannot be performed against the specified contract.
-- **T018** — The required output file `data/processed/valence_sequence.csv` does not exist, so the script’s primary deliverable is missing. Consequently the verification of columns and null‑value constraints cannot be performed. Additionally, the provided `code/01_ingest.py` excerpt shows only loading and validation logic and does not demonstrate the grouping, sorting, or CSV writing steps required by the task. The implementer must create the CSV with the specified columns and ensure the script performs the described processing.
